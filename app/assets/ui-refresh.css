@@ -123,9 +123,8 @@
     font-size: 13px;
     min-height: 40px;
     padding: 9px 13px;
-    transition:
-      background 0.12s,
-      border-color 0.12s;
+    /* Keep background and text colors in sync when switching themes in a background tab. */
+    transition: border-color 0.12s;
     justify-content: center;
   }
   .btn-primary {
