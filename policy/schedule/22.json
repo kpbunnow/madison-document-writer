@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mgo-row-329-22.21(2)",
+    "ordinance": "22.21(2)",
+    "versions": [
+      {
+        "id": "mgo-row-329-22.21(2)",
+        "sourceRow": 329,
+        "ordinance": "22.21(2)",
+        "description": "Weights and measures violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd or subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd or subsequent",
+        "sourceDepositText": "$200, 1st \n$500, 2nd or subsequent",
+        "ordinanceColumn": "22.21(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

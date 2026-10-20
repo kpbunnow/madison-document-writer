@@ -1,0 +1,2960 @@
+{
+  "format": "madison-citation-policy",
+  "version": 3,
+  "authoringVersion": 10,
+  "grammar": "^(?:SPS)?\\d+\\.\\d+(?:\\([a-z0-9]+\\))*(?:\\d+\\.(?:[a-z]\\.)?|[a-z]\\.)?$",
+  "prefix": "^(?:(?:M\\.?G\\.?O\\.?|Section|Sec\\.?|§)\\s*)+",
+  "manualChapters": [
+    "22"
+  ],
+  "excludedPhantoms": [
+    "9.4",
+    "1008.1",
+    "1006.1",
+    "320.10"
+  ],
+  "streetWords": {
+    "STREET": "ST",
+    "STR": "ST",
+    "AVENUE": "AVE",
+    "AV": "AVE",
+    "AVN": "AVE",
+    "ROAD": "RD",
+    "DRIVE": "DR",
+    "DRV": "DR",
+    "LANE": "LN",
+    "COURT": "CT",
+    "BOULEVARD": "BLVD",
+    "BLV": "BLVD",
+    "PLACE": "PL",
+    "PARKWAY": "PKWY",
+    "PKY": "PKWY",
+    "CIRCLE": "CIR",
+    "TERRACE": "TER",
+    "TRAIL": "TRL",
+    "HIGHWAY": "HWY",
+    "SQUARE": "SQ",
+    "CROSSING": "XING",
+    "RIDGE": "RDG",
+    "NORTH": "N",
+    "SOUTH": "S",
+    "EAST": "E",
+    "WEST": "W",
+    "NORTHEAST": "NE",
+    "NORTHWEST": "NW",
+    "SOUTHEAST": "SE",
+    "SOUTHWEST": "SW",
+    "APARTMENT": "UNIT",
+    "APT": "UNIT",
+    "SUITE": "UNIT",
+    "STE": "UNIT",
+    "RM": "UNIT",
+    "ROOM": "UNIT",
+    "FLOOR": "FL"
+  },
+  "legacyEntries": [
+    {
+      "o": "7.10(2)",
+      "d": "Permitting fugitive dust.",
+      "r": "$100, 1st $500, 2nd $1,000, 3rd and subsequent",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "7.55",
+      "d": "Unlawful use of wood boilers.",
+      "r": "$50",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(3)(a)1.",
+      "d": "Scrap and recycling dealer license required.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(3)(a)2.",
+      "d": "Motor vehicle salvage dealer license required.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(3)(a)3.",
+      "d": "Scrap and recycling collector license required.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(3)(a)4.",
+      "d": "Motor vehicle storage dealer license required.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(3)(a)5.",
+      "d": "Solid waste hauler license required.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(4)(i)",
+      "d": "Improper disposal of recyclables or yard waste by solid waste hauler.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(4)(j)",
+      "d": "Failure to report quantities of recycling, yard solid waste and yard waste to Street Superintendent.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(9)(a)",
+      "d": "Unlawful collection of scrap and recycling left for City.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.21(9)(b)",
+      "d": "Purchases of scrap or recycling from minor or intoxicated person.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "9.25(4)",
+      "d": "Renting without a registration certificate.",
+      "r": "$500, 1st $1,000, 2nd $2,500, 3rd/more",
+      "t": [
+        {
+          "a": 500,
+          "l": "1st"
+        },
+        {
+          "a": 1000,
+          "l": "2nd"
+        },
+        {
+          "a": 2500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "9.25(6)(c)",
+      "d": "Failure to post registration certificate.",
+      "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "9.25(6)(d)",
+      "d": "Failure of registrant to update information.",
+      "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "9.25(6)(e)",
+      "d": "Failure to comply with abatement plan.",
+      "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "9.25(6)(f)",
+      "d": "Failure to comply with inspection requirement.",
+      "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "9.4",
+      "d": "Exit door bolted.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 1000,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.05(11)(d)1.",
+      "d": "Failure to Comply with Tree Protection Requirements During Excavation.",
+      "r": "$500/offense, or $150/inch for tree removals",
+      "t": []
+    },
+    {
+      "o": "10.05(15)",
+      "d": "Failure to timely relocate or protect facilities in the public right-of-way.",
+      "r": "$250, 1st w/in 3 yrs. $1,000, 2nd w/in 3 yrs. $2,500, 3rd+ w/in 3 yrs.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 1000,
+          "l": "2nd"
+        },
+        {
+          "a": 2500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.05(19)",
+      "d": "Failure to abide by right-of-way occupancy requirements.",
+      "r": "$250, 1st w/in 3 yrs. $500, 2nd w/in 3 yrs. $1,000, 3rd+ w/in 3 yrs.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.053(16)",
+      "d": "Failure to comply with wireless telecommunications permit.",
+      "r": "$250, 1st $500, 2nd $1,000, 3rd + sub.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.055(1)",
+      "d": "Street, sidewalk alley or public ground occupied without a permit.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.055(4)",
+      "d": "Violation of street occupancy permit conditions.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.055(4)(s)1.",
+      "d": "Failure to Comply with Tree Protection Requirements During Occupancy.",
+      "r": "$500/offense, or $150/inch for tree removals",
+      "t": []
+    },
+    {
+      "o": "10.055(9)(c)5",
+      "d": "Failure to Comply with Conditions of a Public Utility Right-of-Way Occupancy Permit.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.056",
+      "d": "Violations of Street Use Permit Ordinance.",
+      "r": "$300",
+      "t": [
+        {
+          "a": 300,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.057(2)",
+      "d": "Accessing facility without a permit.",
+      "r": "$250, 1st $500, 2nd $1,000, 3rd + sub.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.057(9)",
+      "d": "Failure to comply with facility access permit.",
+      "r": "$250",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.06",
+      "d": "Failure to comply with sidewalk construction requirements.",
+      "r": "$50, 1st $100, 2nd $200, 3rd/more",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        },
+        {
+          "a": 200,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.08(10)(b)",
+      "d": "Failure to Comply with Tree Protection Requirements During Driveway Approach Construction.",
+      "r": "$500/offense, or $150/inch for tree removals",
+      "t": []
+    },
+    {
+      "o": "10.08(9)",
+      "d": "Failure to comply with driveway approach and parking facility construction requirements.",
+      "r": "$50, 1st $100, 2nd $200, 3rd/more",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        },
+        {
+          "a": 200,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.101(3)(a)",
+      "d": "Trimming, pruning, or removing a street tree without a permit.",
+      "r": "$300",
+      "t": [
+        {
+          "a": 300,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.101(3)(e)",
+      "d": "Trimming, pruning, or removing a street tree beyond permit conditions.",
+      "r": "$300",
+      "t": [
+        {
+          "a": 300,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.101(7)(b)",
+      "d": "Causing Removal of a Tree Without a Permit.",
+      "r": "$150/inch for tree removals",
+      "t": []
+    },
+    {
+      "o": "10.105(8)(a)",
+      "d": "Failure to Make Payment to the Street Tree Replacement Fund.",
+      "r": "$100/1st; $250, 2nd; $500, 3+",
+      "t": []
+    },
+    {
+      "o": "10.11",
+      "d": "Tearing of pavement.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.16(1)",
+      "d": "Deposit of inoperable vehicles prohibited.",
+      "r": "$200, 1st $400, 2nd & sub. in 12 mos.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 400,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "10.17",
+      "d": "Deposit of rubbish and throwing of glass on streets prohibited.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.18(5)(f)",
+      "d": "Depositing large items without approval at curb/terrace.",
+      "r": "$100, 1st $300, 2nd $500, 3rd $1,000, 4th+",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 300,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        },
+        {
+          "a": 1000,
+          "l": "4th+"
+        }
+      ]
+    },
+    {
+      "o": "10.18(5)(g)",
+      "d": "Improper disposal of electronic waste.",
+      "r": "$50, 1st $200, 2nd $500, 3rd+",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.18(7)",
+      "d": "Fail to comply with solid waste collection, disposal, or recycling requirements.",
+      "r": "$100, 1st in 1 yr. $200, 2nd in 1 yr. $300, 3rd & subsequent in 1 yr.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 300,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.185(6)(a)2.",
+      "d": "Fail to meet recycling or reuse requirements for multi-family dwellings or commercial buildings < 10,000 ft2 .",
+      "r": "$250, 1% to 10% $500, 11% to 20% $1,000, > 21%",
+      "t": []
+    },
+    {
+      "o": "10.185(6)(b)",
+      "d": "Fail to meet recycling or reuse requirements for residential buildings or remodeling projects.",
+      "r": "$250, < 1 ton $500, 1 ton to 2 tons $1,000, > 2 tons",
+      "t": []
+    },
+    {
+      "o": "10.185(6)(c)",
+      "d": "Fail to follow compliance procedures.",
+      "r": "$250, per violation",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.185(6)(d)",
+      "d": "Falsely state or represent compliance with recycling or reuse requirements.",
+      "r": "$500, 1st violation $1,000, 2+ violation",
+      "t": [
+        {
+          "a": 500,
+          "l": "1st"
+        },
+        {
+          "a": 1000,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "10.19(1)",
+      "d": "Unauthorized trash dumping on public property.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.19(2)",
+      "d": "Misuse of City receptacles.",
+      "r": "$100, 1st w/in 1 yr. $200, 2nd w/in 1 yr. $300, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 300,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.19(3)",
+      "d": "Unauthorized trash dumping on private property.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.20",
+      "d": "Hauling of rubbish over streets.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.23(1)",
+      "d": "Obstruction of streets and sidewalks.",
+      "r": "$50, 1st $100, 2nd",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "10.23(2)",
+      "d": "Depositing snow or ice on street or sidewalk.",
+      "r": "$50, 1st $100, 2nd",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "10.25(5)",
+      "d": "Prohibited plantings or landscaping features in the terrace.",
+      "r": "$50, 1st; $100, 2nd; $250, 3rd+",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        },
+        {
+          "a": 250,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.26",
+      "d": "Congregate, sell merchandise on streets or sidewalks prohibited.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.27",
+      "d": "Permitting animal to stand on sidewalks.",
+      "r": "$25",
+      "t": [
+        {
+          "a": 25,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "10.28",
+      "d": "Snow and ice to be removed from sidewalks.",
+      "r": "$50, 1st $100, 2nd",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "10.30(8)",
+      "d": "Roadway Cafe Permit Violation.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.31(5)",
+      "d": "Causing or maintaining an obstruction without a privilege in street.",
+      "r": "$50, 1st $100, 2nd $200, 3rd or more",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        },
+        {
+          "a": 200,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.32",
+      "d": "Regulation of news boxes in public right-of-way.",
+      "r": "$50, 1st $100, 2nd $200, 3rd or more",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        },
+        {
+          "a": 200,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "10.34",
+      "d": "Street numbers on buildings.",
+      "r": "$50, 1st $100, 2nd",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "18.06",
+      "d": "Unlicensed person performing plumbing work.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "18.08",
+      "d": "Performing plumbing work without permit.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "18.10(2)",
+      "d": "Covering plumbing work before inspection.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "18.16",
+      "d": "Failure to have sign on vehicle.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "19.08",
+      "d": "Unlicensed person performing electrical work.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "19.09(1)",
+      "d": "Performing electrical work without permit.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "19.10",
+      "d": "Concealing electrical work before inspection.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "19.13(6)(c)",
+      "d": "Failure to modify electrical service.",
+      "r": "$50, 1st $100, 2nd + sub.",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "19.14",
+      "d": "Failure to have sign on vehicle.",
+      "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "22.21(2)",
+      "d": "Weights and measures violations.",
+      "r": "$200, 1st $500, 2nd or subsequent",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "23.24(1)",
+      "d": "Injuring trees/shrubs.",
+      "r": "$300",
+      "t": [
+        {
+          "a": 300,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "23.24(3)",
+      "d": "Damaging a city tree.",
+      "r": "$250 + $30/inch, 0>3 diameter inches $150 per diameter inch over 3 inches",
+      "t": []
+    },
+    {
+      "o": "23.29",
+      "d": "Failure to remove noxious weeds.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "24.04",
+      "d": "Prohibition of noises disturbing the public peace.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "24.04(5)",
+      "d": "Leaving animal in parked vehicle for more than 15 minutes.",
+      "r": "$100",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "24.04(7)",
+      "d": "Unlawful to operate solid waste vehicles or compacting equipment between the hours of 10:00 p.m. and 6:00 a.m.",
+      "r": "$200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "24.04(9)(g)2.",
+      "d": "Submission of petition containing fraudulent information.",
+      "r": "$375",
+      "t": [
+        {
+          "a": 375,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "24.04(9)(g)3.",
+      "d": "Failure to follow notification procedure.",
+      "r": "$375",
+      "t": [
+        {
+          "a": 375,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "24.08",
+      "d": "Noise regulation.",
+      "r": "$100, 1st $200, 2nd $300, subsequent",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 300,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "27.04(2)(h)",
+      "d": "Failure to maintain minimum temperature of 67°F in all habitable rooms.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.04(2)(j)",
+      "d": "Use of cooking equipment in room other than a kitchen.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.04(2)(k)",
+      "d": "Failure to provide required contact information to Building Inspection Division.",
+      "r": "$500",
+      "t": [
+        {
+          "a": 500,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(b)",
+      "d": "Failure to remove noxious weeds.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(c)",
+      "d": "Improper maintenance of exterior property areas.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(cc)",
+      "d": "Improper storage of trash and recycling carts.",
+      "r": "$50, 1st $100, 2nd",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        },
+        {
+          "a": 100,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(dd)",
+      "d": "Large items on terrace.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(f)",
+      "d": "Yard, lawn, or plantings not properly maintained.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(s)",
+      "d": "Failure to remove noxious weeds.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(2)(x)",
+      "d": "Improper maintenance of private storm or building storm sewers.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "27.05(3)(a)",
+      "d": "Maintaining or permitting a public nuisance within the City.",
+      "r": "$200 $200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "27.085(2)",
+      "d": "Maintaining or permitting a public nuisance within the City.",
+      "r": "$200 $200",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "28.032(1)",
+      "d": "Use of land other than permitted.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "28.141(10)(a)",
+      "d": "Unlawful truck parking on residential lot.",
+      "r": "$100, 1st $200, 2nd w/in 1 yr. $250, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 250,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "28.141(10)(d)",
+      "d": "Inoperable vehicle parked on residential lot.",
+      "r": "$100, 1st $200, 2nd w/in 1 yr. $250, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 250,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "28.141(13)(g)",
+      "d": "Motor vehicle idling off-street.",
+      "r": "$100, 1st in 7 yrs. $400, 2nd in 7 yrs. $600, 3rd & sub. in 7 yrs.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 400,
+          "l": "2nd"
+        },
+        {
+          "a": 600,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "28.141(8)(c)",
+      "d": "Unlawful parking in yards.",
+      "r": "$100, 1st $200, 2nd",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "28.202(3)",
+      "d": "Failure to obtain zoning certificate.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.07(1)",
+      "d": "Commencing construction without permit.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.10(2)",
+      "d": "Failure to obtain inspection.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.11",
+      "d": "Failure to obtain occupancy permit.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.11(7)",
+      "d": "Failure to file Compliance Statement.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.12(5)",
+      "d": "Failure to comply with roofed passageway and barricade requirements.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.16",
+      "d": "Failure to employ a flag person.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.21",
+      "d": "Failure to obtain insulation inspection.",
+      "r": "$50",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "29.22",
+      "d": "Exit door bolted.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "29.23",
+      "d": "Items to be enforced over Wis. Administrative Code.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "29.32(4)",
+      "d": "Permit for use of tents for merchandising or display required.",
+      "r": "$50",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "29.40(3)(b)",
+      "d": "Fail to Comply with Benchmarking Requirements.",
+      "r": "$1,000/90 days",
+      "t": []
+    },
+    {
+      "o": "29.40(4)(b)",
+      "d": "Fail to Comply with Building Tune-Up Requirements (100,000 Square Feet or More).",
+      "r": "$3,000, 1st 180 days $10,000, 365 days",
+      "t": []
+    },
+    {
+      "o": "29.40(7)(c)",
+      "d": "Falsify Building Energy Savings Code Data.",
+      "r": "$3,000, 1st $5,000, 2nd +",
+      "t": [
+        {
+          "a": 3000,
+          "l": "1st"
+        },
+        {
+          "a": 5000,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "29.40(7)(d)",
+      "d": "Fail to Comply with Building Energy Savings Code.",
+      "r": "$20, 1st $50, 2nd $100, 3rd +",
+      "t": [
+        {
+          "a": 20,
+          "l": "1st"
+        },
+        {
+          "a": 50,
+          "l": "2nd"
+        },
+        {
+          "a": 100,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "30.01(5)",
+      "d": "HVAC work performed without permit.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "30.01(6)(b)",
+      "d": "Concealing HVAC work before inspection.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "30.01(7)",
+      "d": "Failure to have sign on vehicle.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "31.041(1)",
+      "d": "Sign erected/repaired/altered/relocated/maintained/or change of copy without permit.",
+      "r": "$100 $200, 2nd in 12 mos. $500, 3rd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "31.044(1)(e)",
+      "d": "Election campaign sign violations.",
+      "r": "$50",
+      "t": [
+        {
+          "a": 50,
+          "l": "1st"
+        }
+      ]
+    },
+    {
+      "o": "31.045(3)(c)",
+      "d": "Sign erected/displayed in public right-of-way.",
+      "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "31.045(3)(j)",
+      "d": "Prohibition of displaying signs over expressways/highways (40 miles per hour or more).",
+      "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "31.046(2)(a)",
+      "d": "Portable sign violations on private property.",
+      "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        },
+        {
+          "a": 500,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "31.046(2)(b)",
+      "d": "Portable sign violations on public property.",
+      "r": "$100 $200, 2nd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "31.046(2)(c)",
+      "d": "All other portable signs prohibited.",
+      "r": "$100 $200, 2nd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "31.075",
+      "d": "Unlawful flags and decorative and promotional banners.",
+      "r": "$100 $200, 2nd & subsequent in 12 mos.",
+      "t": [
+        {
+          "a": 100,
+          "l": "1st"
+        },
+        {
+          "a": 200,
+          "l": "2nd"
+        }
+      ]
+    },
+    {
+      "o": "37.06(2)",
+      "d": "Conducting land disturbing activity without an erosion control permit.",
+      "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "37.06(3)",
+      "d": "Conducting land disturbing activity without a stormwater management permit.",
+      "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "37.07",
+      "d": "Permitting or causing erosion.",
+      "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "37.09(3)",
+      "d": "Failure to implement stormwater management performance standards.",
+      "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "37.12(6)(a)1.",
+      "d": "Violation of a Stop Work Order.",
+      "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "41.14",
+      "d": "Failure to maintain.",
+      "r": "$250, 1st $500, 2nd $1,000, 3rd & subs.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "41.21",
+      "d": "Failure to obtain Certificate of Approval.",
+      "r": "$250, 1st $500, 2nd $1,000, 3rd & subs.",
+      "t": [
+        {
+          "a": 250,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "320.10",
+      "d": "Failure to obtain inspection.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "1006.1",
+      "d": "Exit door not properly illuminated.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 200,
+          "l": "1st"
+        },
+        {
+          "a": 500,
+          "l": "2nd"
+        },
+        {
+          "a": 1000,
+          "l": "3rd+"
+        }
+      ]
+    },
+    {
+      "o": "1008.1",
+      "d": "Exit door bolted.",
+      "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+      "t": [
+        {
+          "a": 500,
+          "l": "1st"
+        }
+      ]
+    }
+  ],
+  "itemMappings": {
+    "[\"ENF_PM_PROPMAINT\",\"OTHER\",756]": [
+      {
+        "chargedOrdinance": "28.141(8)(c)1.",
+        "scheduleOrdinance": "28.141(8)(c)",
+        "printedDescription": "Parking In Setback",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",756]"
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1010]": [
+      {
+        "chargedOrdinance": "10.18(7)",
+        "scheduleOrdinance": "10.18(7)",
+        "printedDescription": "Cart Late Removal",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1010]"
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1020]": [
+      {
+        "chargedOrdinance": "10.18(7)",
+        "scheduleOrdinance": "10.18(7)",
+        "printedDescription": "Cart Early Placement",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1020]"
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1110]": [
+      {
+        "chargedOrdinance": "27.05(2)(c)",
+        "scheduleOrdinance": "27.05(2)(c)",
+        "printedDescription": "JTD Construction Waste",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "calculated",
+        "source": "Supplied Chapter 27 export, 27.05(2)(c)",
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1110]",
+        "rationale": "Chapter 27.05(2)(c) requires the premises free from debris; construction waste is that conduct."
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1155]": [
+      {
+        "chargedOrdinance": "10.18(5)(f)",
+        "scheduleOrdinance": "10.18(5)(f)",
+        "printedDescription": "JTD Large Items Early",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1155]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",10]": [
+      {
+        "chargedOrdinance": "29.07(1)",
+        "scheduleOrdinance": "29.07(1)",
+        "printedDescription": "Building Permit - Work Done Without Permit",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",10]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",15]": [
+      {
+        "chargedOrdinance": "29.10(2)",
+        "scheduleOrdinance": "29.10(2)",
+        "printedDescription": "Building Permit Need Inspection",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",15]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",20]": [
+      {
+        "chargedOrdinance": "19.09(1)",
+        "scheduleOrdinance": "19.09(1)",
+        "printedDescription": "Electrical Permit - Work Done Without Permit",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",20]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",25]": [
+      {
+        "chargedOrdinance": "19.10",
+        "scheduleOrdinance": "19.10",
+        "printedDescription": "Electrical Permit Need Inspection",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "manual-only",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",25]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",30]": [
+      {
+        "chargedOrdinance": "30.01(4)",
+        "scheduleOrdinance": null,
+        "printedDescription": "HVAC Permit - Work Done Without Permit",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "manual-only",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",30]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",35]": [
+      {
+        "chargedOrdinance": "30.01(6)",
+        "scheduleOrdinance": null,
+        "printedDescription": "HVAC Permit Need Inspection",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "manual-only",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",35]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",40]": [
+      {
+        "chargedOrdinance": "18.08",
+        "scheduleOrdinance": "18.08",
+        "printedDescription": "Plumbing Permit - Work Done Without Permit",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",40]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",45]": [
+      {
+        "chargedOrdinance": "18.10(2)",
+        "scheduleOrdinance": "18.10(2)",
+        "printedDescription": "Plumbing Permit Need Inspection",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",45]"
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",50]": [
+      {
+        "chargedOrdinance": "28.202(3)(e)",
+        "scheduleOrdinance": "28.202(3)",
+        "printedDescription": "Unpermitted Change In Occupancy Use",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",50]"
+      }
+    ],
+    "[\"ENF_ZONE\",\"VEHICLE\",20]": [
+      {
+        "chargedOrdinance": "28.141(8)(c)1.",
+        "scheduleOrdinance": "28.141(8)(c)",
+        "printedDescription": "Parking In Required Setback",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_ZONE\",\"VEHICLE\",20]"
+      }
+    ],
+    "[\"ENF_ZONE\",\"LAWNPARKING\",10]": [
+      {
+        "libraryKey": "[\"ENF_ZONE\",\"LAWNPARKING\",10]",
+        "chargedOrdinance": "28.141(8)(a)",
+        "scheduleOrdinance": "28.141(8)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "28.141(8)(a) requires paved or approved parking surfaces; (c)1. governs setbacks.",
+        "printedDescription": "Parking On Unapproved Surface",
+        "printedReference": "28.141(8)(a)"
+      }
+    ],
+    "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]": [
+      {
+        "chargedOrdinance": "10.34(3)",
+        "scheduleOrdinance": "10.34",
+        "printedDescription": "Visible address and unit identification",
+        "reviewer": "Division-supplied R30 ordinance review",
+        "date": "2026-10-08",
+        "status": "verified",
+        "source": "R30 Library citation corrections / supplied current chapter export",
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]"
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"OTHER\",748]": [
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",748]",
+        "chargedOrdinance": "27.05(3)(a)",
+        "scheduleOrdinance": "27.05(3)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Animal feces are the nuisance defined in 27.05(3)(b)4.; charge the prohibition in (a).",
+        "printedDescription": "Animal Feces",
+        "printedReference": "27.05(3)(a) — public nuisance, 27.05(3)(b)4."
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"OTHER\",760]": [
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",760]",
+        "chargedOrdinance": "28.141(8)(c)2.",
+        "scheduleOrdinance": "28.141(8)(c)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "For single- and two-family dwellings use 28.141(8)(c)2.; map to the scheduled 28.141(8)(c) row labeled Unlawful parking in yards. Other properties retain 10.055.",
+        "printedDescription": "Parking In ROW",
+        "printedReference": "28.141(8)(c)2."
+      },
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",760]",
+        "chargedOrdinance": "10.055",
+        "scheduleOrdinance": "10.055",
+        "status": "manual-only",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "For single- and two-family dwellings use 28.141(8)(c)2.; map to the scheduled 28.141(8)(c) row labeled Unlawful parking in yards. Other properties retain 10.055.",
+        "printedDescription": "Parking In ROW",
+        "printedReference": "10.055"
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",810]": [
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"ROW\",810]",
+        "chargedOrdinance": "27.05(2)(f)",
+        "scheduleOrdinance": "27.05(2)(f)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Keep general landscaping; select nuisance only for branches below twelve feet over an arterial street or bus route per 27.05(3)(b)2.",
+        "printedDescription": "ROW Vegetation Obstructing Street",
+        "printedReference": "27.05(2)(f)"
+      },
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"ROW\",810]",
+        "chargedOrdinance": "27.05(3)(a)",
+        "scheduleOrdinance": "27.05(3)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Keep general landscaping; select nuisance only for branches below twelve feet over an arterial street or bus route per 27.05(3)(b)2.",
+        "printedDescription": "ROW Vegetation Obstructing Street",
+        "printedReference": "27.05(3)(a) — public nuisance, 27.05(3)(b)2."
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",820]": [
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"ROW\",820]",
+        "chargedOrdinance": "27.05(3)(a)",
+        "scheduleOrdinance": "27.05(3)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Sidewalk clearance below seven feet is the nuisance in 27.05(3)(b)1.; 27.05(3)(c)1. assigns terrace vegetation to City Forestry.",
+        "printedDescription": "ROW Vegetation Obstructing Sidewalk",
+        "printedReference": "27.05(3)(a) — public nuisance, 27.05(3)(b)1."
+      }
+    ],
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",880]": [
+      {
+        "libraryKey": "[\"ENF_PM_PROPMAINT\",\"ROW\",880]",
+        "chargedOrdinance": "27.05(3)(a)",
+        "scheduleOrdinance": "27.05(3)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Sidewalk clearance below seven feet is the nuisance in 27.05(3)(b)1.; 27.05(3)(c)1. assigns terrace vegetation to City Forestry.",
+        "printedDescription": "Sidewalk Obstruction",
+        "printedReference": "27.05(3)(a) — public nuisance, 27.05(3)(b)1."
+      }
+    ],
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",55]": [
+      {
+        "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",55]",
+        "chargedOrdinance": "29.07(1)",
+        "scheduleOrdinance": "29.07(1)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "29.05(1) regulates change in use/occupancy; work requiring a permit is 29.07(1).",
+        "printedDescription": "Remove Unpermitted Work",
+        "printedReference": "29.07(1)"
+      }
+    ],
+    "[\"ENF_HSE\",\"STRUCTURAL\",20]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",20]",
+        "chargedOrdinance": "27.05(2)(g)2.",
+        "scheduleOrdinance": "27.05(2)(g)2.",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Foundation And Exterior Wall Repair",
+        "printedReference": "27.05(2)(g)2."
+      },
+      {
+        "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",20]",
+        "chargedOrdinance": "29.07(1)",
+        "scheduleOrdinance": "29.07(1)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Foundation And Exterior Wall Repair",
+        "printedReference": "29.07(1)"
+      },
+      {
+        "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",20]",
+        "chargedOrdinance": "29.10",
+        "scheduleOrdinance": "29.10",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Foundation And Exterior Wall Repair",
+        "printedReference": "29.10"
+      }
+    ],
+    "[\"ENF_HSE\",\"PORCHES\",10]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PORCHES\",10]",
+        "chargedOrdinance": "27.05(2)(i)",
+        "scheduleOrdinance": "27.05(2)(i)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Porch System Repair",
+        "printedReference": "27.05(2)(i)"
+      },
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PORCHES\",10]",
+        "chargedOrdinance": "29.07(1)",
+        "scheduleOrdinance": "29.07(1)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Porch System Repair",
+        "printedReference": "29.07(1)"
+      },
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PORCHES\",10]",
+        "chargedOrdinance": "29.10",
+        "scheduleOrdinance": "29.10",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+        "printedDescription": "Porch System Repair",
+        "printedReference": "29.10"
+      }
+    ],
+    "[\"ENF_HSE\",\"PLUMBING\",10]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PLUMBING\",10]",
+        "chargedOrdinance": "27.05(2)(j)",
+        "scheduleOrdinance": "27.05(2)(j)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Plumbing fixtures and pipes must be free of defects and leaks under 27.05(2)(j).",
+        "printedDescription": "Leaking Supply Or Waste Piping",
+        "printedReference": "27.05(2)(j)"
+      }
+    ],
+    "[\"ENF_HSE\",\"PLUMBING\",20]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PLUMBING\",20]",
+        "chargedOrdinance": "27.05(2)(j)",
+        "scheduleOrdinance": "27.05(2)(j)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Plumbing fixtures and pipes must be free of defects and leaks under 27.05(2)(j).",
+        "printedDescription": "Fixture In Disrepair",
+        "printedReference": "27.05(2)(j)"
+      }
+    ],
+    "[\"ENF_HSE\",\"PLUMBING\",30]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"PLUMBING\",30]",
+        "chargedOrdinance": "27.04(2)(b)",
+        "scheduleOrdinance": "27.04(2)(b)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Water heating facilities are governed by 27.04(2)(b).",
+        "printedDescription": "Hot Water Supply",
+        "printedReference": "27.04(2)(b)"
+      }
+    ],
+    "[\"ENF_HSE\",\"HEATING\",10]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"HEATING\",10]",
+        "chargedOrdinance": "27.04(2)(h)",
+        "scheduleOrdinance": "27.04(2)(h)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Heating facilities and the 67°F standard are governed by 27.04(2)(h).",
+        "printedDescription": "Heating Facilities Not Maintained",
+        "printedReference": "27.04(2)(h)"
+      }
+    ],
+    "[\"ENF_HSE\",\"HEATING\",30]": [
+      {
+        "libraryKey": "[\"ENF_HSE\",\"HEATING\",30]",
+        "chargedOrdinance": "27.04(2)(h)",
+        "scheduleOrdinance": "27.04(2)(h)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Select heating facilities (h) or water-heating facilities (b) for the observed appliance.",
+        "printedDescription": "Unsafe Or Unvented Appliance",
+        "printedReference": "27.04(2)(h)"
+      },
+      {
+        "libraryKey": "[\"ENF_HSE\",\"HEATING\",30]",
+        "chargedOrdinance": "27.04(2)(b)",
+        "scheduleOrdinance": "27.04(2)(b)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Select heating facilities (h) or water-heating facilities (b) for the observed appliance.",
+        "printedDescription": "Unsafe Or Unvented Appliance",
+        "printedReference": "27.04(2)(b)"
+      }
+    ],
+    "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]": [
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]",
+        "chargedOrdinance": "27.04(2)(i)",
+        "scheduleOrdinance": "27.04(2)(i)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Use (i) for illumination at exits in buildings with three or more apartments; retain (g)5. for interior halls.",
+        "printedDescription": "Entrance lighting",
+        "printedReference": "27.04(2)(i)"
+      },
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]",
+        "chargedOrdinance": "27.04(2)(g)5.",
+        "scheduleOrdinance": "27.04(2)(g)5.",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Use (i) for illumination at exits in buildings with three or more apartments; retain (g)5. for interior halls.",
+        "printedDescription": "Entrance lighting",
+        "printedReference": "27.04(2)(g)5."
+      }
+    ],
+    "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",38]": [
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",38]",
+        "chargedOrdinance": "29.36(3)",
+        "scheduleOrdinance": "29.36(3)",
+        "status": "manual-only",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "29.36(3)(a)1. governs light trespass and (a)2. governs shielding; 10.085 was repealed. This Chapter 29 charge has no schedule/ladder.",
+        "printedDescription": "Exterior light glare",
+        "printedReference": "29.36(3)"
+      }
+    ],
+    "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",100]": [
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",100]",
+        "chargedOrdinance": "27.07(2)(d)",
+        "scheduleOrdinance": "27.07(2)(d)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Single-family occupant extermination duty remains 27.07(2)(d); owner responsibility for rodent harborage/infestation is the nuisance in 27.05(3)(b)4.",
+        "printedDescription": "Rodent or insect infestation",
+        "printedReference": "27.07(2)(d)"
+      },
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",100]",
+        "chargedOrdinance": "27.05(3)(a)",
+        "scheduleOrdinance": "27.05(3)(a)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "Single-family occupant extermination duty remains 27.07(2)(d); owner responsibility for rodent harborage/infestation is the nuisance in 27.05(3)(b)4.",
+        "printedDescription": "Rodent or insect infestation",
+        "printedReference": "27.05(3)(a) — public nuisance, 27.05(3)(b)4."
+      }
+    ],
+    "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",106]": [
+      {
+        "libraryKey": "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",106]",
+        "chargedOrdinance": "29.07(1)",
+        "scheduleOrdinance": "29.07(1)",
+        "status": "calculated",
+        "reviewer": "Division-directed R33 ordinance audit",
+        "date": "2026-10-12",
+        "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+        "rationale": "29.05(1) regulates change in use/occupancy; work requiring a permit is 29.07(1).",
+        "printedDescription": "Unauthorized work that cannot be approved",
+        "printedReference": "29.07(1)"
+      }
+    ]
+  },
+  "chargeMappings": {
+    "28.141(8)(c)1.": {
+      "chargedOrdinance": "28.141(8)(c)1.",
+      "scheduleOrdinance": "28.141(8)(c)",
+      "printedDescription": "Parking On Unapproved Surface",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_ZONE\",\"LAWNPARKING\",10]"
+    },
+    "28.202(3)(e)": {
+      "chargedOrdinance": "28.202(3)(e)",
+      "scheduleOrdinance": "28.202(3)",
+      "printedDescription": "Unpermitted Change In Occupancy Use",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",50]"
+    },
+    "10.34(3)": {
+      "chargedOrdinance": "10.34(3)",
+      "scheduleOrdinance": "10.34",
+      "printedDescription": "Visible address and unit identification",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]"
+    },
+    "29.10(2)(a)": {
+      "chargedOrdinance": "29.10(2)(a)",
+      "scheduleOrdinance": "29.10(2)",
+      "status": "calculated",
+      "source": "Supplied Chapter 29 export, 29.10(2)",
+      "rationale": "The named construction inspection is a required step covered by failure to obtain inspection.",
+      "authorization": {
+        "by": "Building Inspection Division directive",
+        "date": "2026-10-11"
+      }
+    },
+    "29.10(2)(b)": {
+      "chargedOrdinance": "29.10(2)(b)",
+      "scheduleOrdinance": "29.10(2)",
+      "status": "calculated",
+      "source": "Supplied Chapter 29 export, 29.10(2)",
+      "rationale": "The named construction inspection is a required step covered by failure to obtain inspection.",
+      "authorization": {
+        "by": "Building Inspection Division directive",
+        "date": "2026-10-11"
+      }
+    },
+    "29.10(2)(c)": {
+      "chargedOrdinance": "29.10(2)(c)",
+      "scheduleOrdinance": "29.10(2)",
+      "status": "calculated",
+      "source": "Supplied Chapter 29 export, 29.10(2)",
+      "rationale": "The named construction inspection is a required step covered by failure to obtain inspection.",
+      "authorization": {
+        "by": "Building Inspection Division directive",
+        "date": "2026-10-11"
+      }
+    },
+    "29.10(2)(d)": {
+      "chargedOrdinance": "29.10(2)(d)",
+      "scheduleOrdinance": "29.10(2)",
+      "status": "calculated",
+      "source": "Supplied Chapter 29 export, 29.10(2)",
+      "rationale": "The named construction inspection is a required step covered by failure to obtain inspection.",
+      "authorization": {
+        "by": "Building Inspection Division directive",
+        "date": "2026-10-11"
+      }
+    },
+    "29.10(2)(e)": {
+      "chargedOrdinance": "29.10(2)(e)",
+      "scheduleOrdinance": "29.10(2)",
+      "status": "calculated",
+      "source": "Supplied Chapter 29 export, 29.10(2)",
+      "rationale": "The named construction inspection is a required step covered by failure to obtain inspection.",
+      "authorization": {
+        "by": "Building Inspection Division directive",
+        "date": "2026-10-11"
+      }
+    },
+    "28.141(8)(c)2.": {
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",760]",
+      "chargedOrdinance": "28.141(8)(c)2.",
+      "scheduleOrdinance": "28.141(8)(c)",
+      "status": "calculated",
+      "reviewer": "Division-directed R33 ordinance audit",
+      "date": "2026-10-12",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "rationale": "For single- and two-family dwellings use 28.141(8)(c)2.; map to the scheduled 28.141(8)(c) row labeled Unlawful parking in yards. Other properties retain 10.055.",
+      "printedDescription": "Parking In ROW",
+      "printedReference": "28.141(8)(c)2."
+    }
+  },
+  "pricingDateBasis": "issue",
+  "baseline": "R30 verified supplied export; null from means retained baseline, not an invented effective date",
+  "pricingDateBasisNote": "Issue versus violation date remains open with the City Attorney. Division default: issue.",
+  "allowZeroBaseDeposits": false,
+  "libraryCorrections": {
+    "[\"ENF_PM_PROPMAINT\",\"OTHER\",748]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)(c)"
+      ],
+      "afterSections": [
+        "27.05(3)(a)"
+      ],
+      "reason": "Animal feces are the nuisance defined in 27.05(3)(b)4.; charge the prohibition in (a).",
+      "printedReferences": {
+        "27.05(3)(a)": "27.05(3)(a) — public nuisance, 27.05(3)(b)4."
+      }
+    },
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",820]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.05(2)(f)"
+      ],
+      "afterSections": [
+        "27.05(3)(a)"
+      ],
+      "reason": "Sidewalk clearance below seven feet is the nuisance in 27.05(3)(b)1.; 27.05(3)(c)1. assigns terrace vegetation to City Forestry.",
+      "printedReferences": {
+        "27.05(3)(a)": "27.05(3)(a) — public nuisance, 27.05(3)(b)1."
+      }
+    },
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",880]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.05(2)(f)"
+      ],
+      "afterSections": [
+        "27.05(3)(a)"
+      ],
+      "reason": "Sidewalk clearance below seven feet is the nuisance in 27.05(3)(b)1.; 27.05(3)(c)1. assigns terrace vegetation to City Forestry.",
+      "printedReferences": {
+        "27.05(3)(a)": "27.05(3)(a) — public nuisance, 27.05(3)(b)1."
+      }
+    },
+    "[\"ENF_PM_PROPMAINT\",\"ROW\",810]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.05(2)(f)"
+      ],
+      "afterSections": [
+        "27.05(2)(f)",
+        "27.05(3)(a)"
+      ],
+      "reason": "Keep general landscaping; select nuisance only for branches below twelve feet over an arterial street or bus route per 27.05(3)(b)2.",
+      "printedReferences": {
+        "27.05(3)(a)": "27.05(3)(a) — public nuisance, 27.05(3)(b)2."
+      }
+    },
+    "[\"ENF_HSE\",\"PLUMBING\",10]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)"
+      ],
+      "afterSections": [
+        "27.05(2)(j)"
+      ],
+      "reason": "Plumbing fixtures and pipes must be free of defects and leaks under 27.05(2)(j).",
+      "printedReferences": {}
+    },
+    "[\"ENF_HSE\",\"PLUMBING\",20]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)"
+      ],
+      "afterSections": [
+        "27.05(2)(j)"
+      ],
+      "reason": "Plumbing fixtures and pipes must be free of defects and leaks under 27.05(2)(j).",
+      "printedReferences": {}
+    },
+    "[\"ENF_HSE\",\"PLUMBING\",30]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)"
+      ],
+      "afterSections": [
+        "27.04(2)(b)"
+      ],
+      "reason": "Water heating facilities are governed by 27.04(2)(b).",
+      "printedReferences": {}
+    },
+    "[\"ENF_HSE\",\"HEATING\",10]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)"
+      ],
+      "afterSections": [
+        "27.04(2)(h)"
+      ],
+      "reason": "Heating facilities and the 67°F standard are governed by 27.04(2)(h).",
+      "printedReferences": {}
+    },
+    "[\"ENF_HSE\",\"HEATING\",30]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)"
+      ],
+      "afterSections": [
+        "27.04(2)(h)",
+        "27.04(2)(b)"
+      ],
+      "reason": "Select heating facilities (h) or water-heating facilities (b) for the observed appliance.",
+      "printedReferences": {}
+    },
+    "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",55]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "29.05(1)"
+      ],
+      "afterSections": [
+        "29.07(1)"
+      ],
+      "reason": "29.05(1) regulates change in use/occupancy; work requiring a permit is 29.07(1).",
+      "printedReferences": {}
+    },
+    "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",106]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "29.05(1)"
+      ],
+      "afterSections": [
+        "29.07(1)"
+      ],
+      "reason": "29.05(1) regulates change in use/occupancy; work requiring a permit is 29.07(1).",
+      "printedReferences": {}
+    },
+    "[\"ENF_ZONE\",\"LAWNPARKING\",10]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "28.141(8)(c)1."
+      ],
+      "afterSections": [
+        "28.141(8)(a)"
+      ],
+      "reason": "28.141(8)(a) requires paved or approved parking surfaces; (c)1. governs setbacks.",
+      "printedReferences": {}
+    },
+    "[\"ENF_PM_PROPMAINT\",\"OTHER\",760]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "10.055"
+      ],
+      "afterSections": [
+        "28.141(8)(c)2.",
+        "10.055"
+      ],
+      "reason": "For single- and two-family dwellings use 28.141(8)(c)2.; map to the scheduled 28.141(8)(c) row labeled Unlawful parking in yards. Other properties retain 10.055.",
+      "printedReferences": {}
+    },
+    "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",38]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)(g)5."
+      ],
+      "afterSections": [
+        "29.36(3)"
+      ],
+      "reason": "29.36(3)(a)1. governs light trespass and (a)2. governs shielding; 10.085 was repealed. This Chapter 29 charge has no schedule/ladder.",
+      "printedReferences": {}
+    },
+    "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.04(2)(g)5."
+      ],
+      "afterSections": [
+        "27.04(2)(i)",
+        "27.04(2)(g)5."
+      ],
+      "reason": "Use (i) for illumination at exits in buildings with three or more apartments; retain (g)5. for interior halls.",
+      "printedReferences": {}
+    },
+    "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",100]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.07(2)(d)"
+      ],
+      "afterSections": [
+        "27.07(2)(d)",
+        "27.05(3)(a)"
+      ],
+      "reason": "Single-family occupant extermination duty remains 27.07(2)(d); owner responsibility for rodent harborage/infestation is the nuisance in 27.05(3)(b)4.",
+      "printedReferences": {
+        "27.05(3)(a)": "27.05(3)(a) — public nuisance, 27.05(3)(b)4."
+      }
+    },
+    "[\"ENF_HSE\",\"STRUCTURAL\",20]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.05(2)(g)2.",
+        "29.07(1)",
+        "29.08",
+        "29.10"
+      ],
+      "afterSections": [
+        "27.05(2)(g)2.",
+        "29.07(1)",
+        "29.10"
+      ],
+      "reason": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+      "printedReferences": {}
+    },
+    "[\"ENF_HSE\",\"PORCHES\",10]": {
+      "date": "2026-10-12",
+      "by": "Division-directed R33 ordinance audit",
+      "source": "MGO Rev. 28, Update 3; supplied chapter exports 2026-09-14",
+      "beforeSections": [
+        "27.05(2)(i)",
+        "29.07(1)",
+        "29.08",
+        "29.10"
+      ],
+      "afterSections": [
+        "27.05(2)(i)",
+        "29.07(1)",
+        "29.10"
+      ],
+      "reason": "Remove building-permit issuance section 29.08; the permit obligation in 29.07(1) is already listed.",
+      "printedReferences": {}
+    }
+  },
+  "mc2000CaseNumberLabel": "Building Inspection Case Number",
+  "snowSeasonStartMonthDay": "07-01",
+  "snowCountPriorDifferentOwner": true,
+  "snowCloseOnFiling": true,
+  "snowAccelaCaseTypes": [],
+  "settingLabels": {
+    "snowSeasonStartMonthDay": "Snow season begins (month-day); division confirmation pending",
+    "snowCountPriorDifferentOwner": "Count previous owner citations at the property",
+    "snowCloseOnFiling": "Close snow case when its citation PDF is filed",
+    "snowAccelaCaseTypes": "Accela case-type values that identify snow removal",
+    "mc2000CaseNumberLabel": "Case-number label on MC-2000"
+  },
+  "snowDefaultDescription": "SNOW & ICE REMOVAL FROM SIDEWALK VIOLATION"
+}

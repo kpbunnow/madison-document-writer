@@ -1,0 +1,23 @@
+{
+  "name": "madison-building-inspection-document-writer",
+  "version": "2026.10.19.54",
+  "private": true,
+  "description": "Offline document writer and read-only reports for Madison Building Inspection",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "test": "python3 tools/run_tests.py",
+    "verify": "python3 tools/verify_release.py",
+    "format:check": "python3 tools/check_format.py"
+  },
+  "devDependencies": {
+    "axe-core": "4.11.0",
+    "esbuild": "0.25.12",
+    "eslint": "9.39.1",
+    "fast-check": "4.3.0",
+    "globals": "16.5.0",
+    "jsdom": "26.1.0",
+    "playwright": "1.58.2",
+    "typescript": "5.9.3",
+    "prettier": "3.6.2"
+  }
+}

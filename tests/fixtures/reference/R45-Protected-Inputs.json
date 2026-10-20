@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "baseline": "2026-10-15 R44",
+  "comparison": "Byte-identical protected inputs; helper/launcher separately differ only in release version",
+  "sha256": {
+    "case_lookup.sql": "d51eb6f9bdbb0eb1dc11cf594909e3b816551d0f1a9cab9e5768da616391c776",
+    "case_lookup.py": "22ed70b6af8e5d7264dbb926cf396f69da3c9cc45665e1ff7300852f420980db",
+    "case_lookup.ps1": "3153c3d1e5f32efb1a3a932ff8924680be864b323c6d56c47f4fac5af4db45e4",
+    "writer.css": "5b486b18cc4d0dde2715bd4c88a3ec8c181f10fa4b9ac15c4b855023fdfc9b5f",
+    "reports.css": "002733ec496811fd0954e48249ed8b03e78a2882d025f8417ec49914e6e0e590",
+    "citation_policy.json": "8fab0bfcf2ccb5e74f1b0a4e2d4bebaadcdcd4f6ed0f659951f11384180d1406",
+    "calendar_policy.json": "4a64746c1d276270bddb0992815031c6f0f73a3d11b8f55cb669ff2c7d7df8e3",
+    "library.js": "8416679c288e76e0c56981092725f7d3dac3cec91cbd689d832162ab19d71c5b",
+    "deposits.js": "8fa2ed893fc28891fb1c085f5ca2e877a8c7011ea07badeb477826410d87b498",
+    "inspectors.js": "ec6e7881ac2c72dad13dcd695d33f6373aced5da2db4a4d4b72cc8d86c89dedb",
+    "case_store.py": "f7a80947b1e13999fd08b294e644c30f14e0e7bf36aeafd88a15764961a8e6f0",
+    "case_integrity.py": "dbe7bd29e12a7f3c713c51e43305a01f885024bc48eb2be8c8a48ae6f840e13a",
+    "artifact_store.py": "fbef7b8b1eb1aa25fa850ea0d6ccc1c0c2a4b888d7cc3bdd4e00128fdbc6fef2",
+    "operations_helper.py": "907afaa1766dc75a3532b853fce75a0f19cb68cde3d4f3cdafac98697ed059b4",
+    "workflow_helper.py": "bdf8316073bdd624e0b55b5fea9752177302ea927863415dd5b0622ae248d1fe",
+    "install_release.py": "07ac2333956a53882f89964cdc4d99da8e0d3f3ba61404c74a1319a55606bf02",
+    "reference/Document-Generator-Import.rdl": "cefbf3b262705fed20b0a91736296465dcb42797b2e418074b31c0bfe5f80d3e"
+  }
+}

@@ -1,0 +1,1001 @@
+[
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",110]",
+    "title": "Clean Sidewalk And Street",
+    "before": [
+      "SPS 321.125"
+    ],
+    "after": [
+      "SPS321.125"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",115]",
+    "title": "Minimum Access Points",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",120]",
+    "title": "Rough Grade Lot",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",125]",
+    "title": "Provide Gravel Driveway",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",130]",
+    "title": "Finish Grade Lot",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",135]",
+    "title": "Storm Inlet Protection",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",140]",
+    "title": "Stabilize Lot Area",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"EROSION\",155]",
+    "title": "Grade Terrace",
+    "before": [
+      "SPS 321.125(3)"
+    ],
+    "after": [
+      "SPS321.125(3)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",756]",
+    "title": "Parking In Setback",
+    "before": [
+      "28.141(8)(c)(1)"
+    ],
+    "after": [
+      "28.141(8)(c)1."
+    ],
+    "mapping": {
+      "chargedOrdinance": "28.141(8)(c)1.",
+      "scheduleOrdinance": "28.141(8)(c)",
+      "printedDescription": "Parking In Setback",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"OTHER\",756]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1010]",
+    "title": "Cart Late Removal",
+    "before": [
+      "10.18(6)"
+    ],
+    "after": [
+      "10.18(7)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "10.18(7)",
+      "scheduleOrdinance": "10.18(7)",
+      "printedDescription": "Cart Late Removal",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1010]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1020]",
+    "title": "Cart Early Placement",
+    "before": [
+      "10.18(1)"
+    ],
+    "after": [
+      "10.18(7)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "10.18(7)",
+      "scheduleOrdinance": "10.18(7)",
+      "printedDescription": "Cart Early Placement",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_CARTS\",1020]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1110]",
+    "title": "JTD Construction Waste",
+    "before": [
+      "27.05(2)(s)"
+    ],
+    "after": [
+      "27.05(2)(s)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "27.05(2)(s)",
+      "scheduleOrdinance": null,
+      "printedDescription": "JTD Construction Waste",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "manual-only",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1110]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1155]",
+    "title": "JTD Large Items Early",
+    "before": [
+      "10.18(1)"
+    ],
+    "after": [
+      "10.18(5)(f)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "10.18(5)(f)",
+      "scheduleOrdinance": "10.18(5)(f)",
+      "printedDescription": "JTD Large Items Early",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TRASH_DEBRIS\",1155]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_PM_PROPMAINT\",\"TREE\",1240]",
+    "title": "Tree Touching Neighbor",
+    "before": [
+      "27.05(2)f"
+    ],
+    "after": [
+      "27.05(2)(f)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",10]",
+    "title": "Building Permit - Work Done Without Permit",
+    "before": [
+      "29.05(1)"
+    ],
+    "after": [
+      "29.07(1)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "29.07(1)",
+      "scheduleOrdinance": "29.07(1)",
+      "printedDescription": "Building Permit - Work Done Without Permit",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",10]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",15]",
+    "title": "Building Permit Need Inspection",
+    "before": [
+      "29.08(1)"
+    ],
+    "after": [
+      "29.10(2)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "29.10(2)",
+      "scheduleOrdinance": "29.10(2)",
+      "printedDescription": "Building Permit Need Inspection",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",15]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",20]",
+    "title": "Electrical Permit - Work Done Without Permit",
+    "before": [
+      "19.10(1)"
+    ],
+    "after": [
+      "19.09(1)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "19.09(1)",
+      "scheduleOrdinance": "19.09(1)",
+      "printedDescription": "Electrical Permit - Work Done Without Permit",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",20]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",25]",
+    "title": "Electrical Permit Need Inspection",
+    "before": [
+      "19.12(1)"
+    ],
+    "after": [
+      "19.10"
+    ],
+    "mapping": {
+      "chargedOrdinance": "19.10",
+      "scheduleOrdinance": "19.10",
+      "printedDescription": "Electrical Permit Need Inspection",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "manual-only",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",25]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",30]",
+    "title": "HVAC Permit - Work Done Without Permit",
+    "before": [
+      "30.01(9)(a)"
+    ],
+    "after": [
+      "30.01(4)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "30.01(4)",
+      "scheduleOrdinance": null,
+      "printedDescription": "HVAC Permit - Work Done Without Permit",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "manual-only",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",30]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",35]",
+    "title": "HVAC Permit Need Inspection",
+    "before": [
+      "30.01(11)(a)"
+    ],
+    "after": [
+      "30.01(6)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "30.01(6)",
+      "scheduleOrdinance": null,
+      "printedDescription": "HVAC Permit Need Inspection",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "manual-only",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",35]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",40]",
+    "title": "Plumbing Permit - Work Done Without Permit",
+    "before": [
+      "18.09(1)"
+    ],
+    "after": [
+      "18.08"
+    ],
+    "mapping": {
+      "chargedOrdinance": "18.08",
+      "scheduleOrdinance": "18.08",
+      "printedDescription": "Plumbing Permit - Work Done Without Permit",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",40]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",45]",
+    "title": "Plumbing Permit Need Inspection",
+    "before": [
+      "18.11(1)"
+    ],
+    "after": [
+      "18.10(2)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "18.10(2)",
+      "scheduleOrdinance": "18.10(2)",
+      "printedDescription": "Plumbing Permit Need Inspection",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",45]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",50]",
+    "title": "Unpermitted Change In Occupancy Use",
+    "before": [
+      "28.202(3)(e)"
+    ],
+    "after": [
+      "28.202(3)(e)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "28.202(3)(e)",
+      "scheduleOrdinance": "28.202(3)",
+      "printedDescription": "Unpermitted Change In Occupancy Use",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_CONST_NOPERMIT\",\"NOPERMIT\",50]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",10]",
+    "title": "Structural Evaluation By Design Professional",
+    "before": [
+      "27.05(2)(g)1",
+      "27.05(2)(g)2",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "27.05(2)(g)2.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",20]",
+    "title": "Foundation And Exterior Wall Repair",
+    "before": [
+      "27.05(2)(g)2",
+      "29.07(1)",
+      "29.08",
+      "29.10"
+    ],
+    "after": [
+      "27.05(2)(g)2.",
+      "29.07(1)",
+      "29.08",
+      "29.10"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",30]",
+    "title": "Basement Foundation And Partition Walls",
+    "before": [
+      "27.05(2)(g)1",
+      "27.05(2)(g)2",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "27.05(2)(g)2.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",40]",
+    "title": "Inadequate Joist Repair",
+    "before": [
+      "27.05(2)(g)1",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"STRUCTURAL\",50]",
+    "title": "Ceiling Concealing Structural Damage",
+    "before": [
+      "27.05(2)(g)1",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",10]",
+    "title": "Damaged Drywall Walls And Ceilings",
+    "before": [
+      "27.05(2)(g)1",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",20]",
+    "title": "Water Damaged Ceiling",
+    "before": [
+      "27.05(2)(g)1",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",30]",
+    "title": "Standing Water In Basement",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",50]",
+    "title": "Deteriorated Interior Surface",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",60]",
+    "title": "Peeling Interior Paint",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_INTERIOR\",70]",
+    "title": "Damaged Floor Covering",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_EXTERIOR\",10]",
+    "title": "Roof Covering",
+    "before": [
+      "27.05(2)(g)2",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)2.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"GM_EXTERIOR\",30]",
+    "title": "Chimney",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"SIDING\",10]",
+    "title": "Damaged Or Improperly Attached Siding",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"SIDING\",20]",
+    "title": "Cracked Brick Veneer",
+    "before": [
+      "27.05(2)(g)2",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)2.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"SECURITY\",10]",
+    "title": "Door Closer And Guarded Latch Lock",
+    "before": [
+      "27.05(2)(h)11"
+    ],
+    "after": [
+      "27.05(2)(h)11."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"MOLD\",10]",
+    "title": "Visible Mould Growth",
+    "before": [
+      "27.05(2)(g)1",
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_HSE\",\"PESTS\",20]",
+    "title": "Seal Rodent Entry Points",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ZONE\",\"VEHICLE\",20]",
+    "title": "Parking In Required Setback",
+    "before": [
+      "28.141(8)(c)(1)"
+    ],
+    "after": [
+      "28.141(8)(c)1."
+    ],
+    "mapping": {
+      "chargedOrdinance": "28.141(8)(c)1.",
+      "scheduleOrdinance": "28.141(8)(c)",
+      "printedDescription": "Parking In Required Setback",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_ZONE\",\"VEHICLE\",20]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_ZONE\",\"LAWNPARKING\",10]",
+    "title": "Parking On Unapproved Surface",
+    "before": [
+      "28.141(8)(c)(1)"
+    ],
+    "after": [
+      "28.141(8)(c)1."
+    ],
+    "mapping": {
+      "chargedOrdinance": "28.141(8)(c)1.",
+      "scheduleOrdinance": "28.141(8)(c)",
+      "printedDescription": "Parking On Unapproved Surface",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_ZONE\",\"LAWNPARKING\",10]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",1]",
+    "title": "Walls and ceilings",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",2]",
+    "title": "Peeling interior paint",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",3]",
+    "title": "Water damaged finishes",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",4]",
+    "title": "Damaged floor covering",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",5]",
+    "title": "Damaged or stained carpeting",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",6]",
+    "title": "Interior trim",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",7]",
+    "title": "Access panels",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",8]",
+    "title": "Cabinets and drawers",
+    "before": [
+      "27.05(2)(g)4"
+    ],
+    "after": [
+      "27.05(2)(g)4."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",9]",
+    "title": "Countertops",
+    "before": [
+      "27.05(2)(g)4"
+    ],
+    "after": [
+      "27.05(2)(g)4."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",10]",
+    "title": "Caulking and sealed joints",
+    "before": [
+      "27.05(2)(g)3"
+    ],
+    "after": [
+      "27.05(2)(g)3."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",11]",
+    "title": "Bathtub and shower surfaces",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",17]",
+    "title": "Entry deadbolt",
+    "before": [
+      "27.05(2)(h)3"
+    ],
+    "after": [
+      "27.05(2)(h)3."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",18]",
+    "title": "Common exterior entry self closing lock",
+    "before": [
+      "27.05(2)(h)10"
+    ],
+    "after": [
+      "27.05(2)(h)10."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",19]",
+    "title": "Shared basement or laundry door lock",
+    "before": [
+      "27.05(2)(h)12"
+    ],
+    "after": [
+      "27.05(2)(h)12."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",20]",
+    "title": "Door viewer",
+    "before": [
+      "27.05(2)(h)1"
+    ],
+    "after": [
+      "27.05(2)(h)1."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",22]",
+    "title": "Sliding door secondary lock",
+    "before": [
+      "27.05(2)(h)3"
+    ],
+    "after": [
+      "27.05(2)(h)3."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",28]",
+    "title": "Ventilation locks",
+    "before": [
+      "27.05(2)(h)5"
+    ],
+    "after": [
+      "27.05(2)(h)5."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]",
+    "title": "Entrance lighting",
+    "before": [
+      "27.04(2)(g)5"
+    ],
+    "after": [
+      "27.04(2)(g)5."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",38]",
+    "title": "Exterior light glare",
+    "before": [
+      "27.04(2)(g)5"
+    ],
+    "after": [
+      "27.04(2)(g)5."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",52]",
+    "title": "Standing water and affected surfaces",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",73]",
+    "title": "Structural evaluation and repair plan",
+    "before": [
+      "27.05(2)(g)2",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)2.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",74]",
+    "title": "Foundation and masonry walls",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",75]",
+    "title": "Structural floor and framing repairs",
+    "before": [
+      "27.05(2)(g)1",
+      "29.07(1)"
+    ],
+    "after": [
+      "27.05(2)(g)1.",
+      "29.07(1)"
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",81]",
+    "title": "Roof and flashing",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",82]",
+    "title": "Siding soffits fascia and exterior trim",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",86]",
+    "title": "Water intrusion through the exterior",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",87]",
+    "title": "Openings and animal entry points",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",88]",
+    "title": "Chimney masonry and flashing",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",89]",
+    "title": "Attic ventilation openings",
+    "before": [
+      "27.05(2)(g)2"
+    ],
+    "after": [
+      "27.05(2)(g)2."
+    ],
+    "mapping": null
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]",
+    "title": "Visible address and unit identification",
+    "before": [
+      "10.34(3)"
+    ],
+    "after": [
+      "10.34(3)"
+    ],
+    "mapping": {
+      "chargedOrdinance": "10.34(3)",
+      "scheduleOrdinance": "10.34",
+      "printedDescription": "Visible address and unit identification",
+      "reviewer": "Division-supplied R30 ordinance review",
+      "date": "2026-10-08",
+      "status": "verified",
+      "source": "R30 Library citation corrections / supplied current chapter export",
+      "libraryKey": "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]"
+    }
+  },
+  {
+    "libraryKey": "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",99]",
+    "title": "Mold like growth and moisture",
+    "before": [
+      "27.05(2)(g)1"
+    ],
+    "after": [
+      "27.05(2)(g)1."
+    ],
+    "mapping": null
+  }
+]

@@ -1,0 +1,2439 @@
+[
+  {
+    "id": "mgo-row-88-9.03(3)(a)",
+    "ordinance": "9.03(3)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-88-9.03(3)(a)",
+        "sourceRow": 88,
+        "ordinance": "9.03(3)(a)",
+        "description": "Dance hall license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.03(3)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-89-9.03(8)",
+    "ordinance": "9.03(8)",
+    "versions": [
+      {
+        "id": "mgo-row-89-9.03(8)",
+        "sourceRow": 89,
+        "ordinance": "9.03(8)",
+        "description": "Power of Police to stop dance.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.03(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-90-9.03(12)",
+    "ordinance": "9.03(12)",
+    "versions": [
+      {
+        "id": "mgo-row-90-9.03(12)",
+        "sourceRow": 90,
+        "ordinance": "9.03(12)",
+        "description": "Person under 18 not to attend dances.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.03(12)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-91-9.03(13)",
+    "ordinance": "9.03(13)",
+    "versions": [
+      {
+        "id": "mgo-row-91-9.03(13)",
+        "sourceRow": 91,
+        "ordinance": "9.03(13)",
+        "description": "Time limits on public dances.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.03(13)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-92-9.035",
+    "ordinance": "9.035",
+    "versions": [
+      {
+        "id": "mgo-row-92-9.035",
+        "sourceRow": 92,
+        "ordinance": "9.035",
+        "description": "Private teen dance club license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.035",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-93-9.04",
+    "ordinance": "9.04",
+    "versions": [
+      {
+        "id": "mgo-row-93-9.04",
+        "sourceRow": 93,
+        "ordinance": "9.04",
+        "description": "Licensing of theaters or public rooms used for exhibition purposes.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.04",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-94-9.05(11)(a)",
+    "ordinance": "9.05(11)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-94-9.05(11)(a)",
+        "sourceRow": 94,
+        "ordinance": "9.05(11)(a)",
+        "description": "More than one person in enclosure.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.05(11)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-95-9.05(11)(b)",
+    "ordinance": "9.05(11)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-95-9.05(11)(b)",
+        "sourceRow": 95,
+        "ordinance": "9.05(11)(b)",
+        "description": "Unlawful discharge of fluid or litter associated with sexual activity in enclosure.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150",
+        "sourceDepositText": "$150",
+        "ordinanceColumn": "9.05(11)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-96-9.05(11)(c)",
+    "ordinance": "9.05(11)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-96-9.05(11)(c)",
+        "sourceRow": 96,
+        "ordinance": "9.05(11)(c)",
+        "description": "Remove, destroy or deface signs or posters.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.05(11)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-97-9.05(11)(d)",
+    "ordinance": "9.05(11)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-97-9.05(11)(d)",
+        "sourceRow": 97,
+        "ordinance": "9.05(11)(d)",
+        "description": "Damage or deface enclosure.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.05(11)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-98-9.06(2)",
+    "ordinance": "9.06(2)",
+    "versions": [
+      {
+        "id": "mgo-row-98-9.06(2)",
+        "sourceRow": 98,
+        "ordinance": "9.06(2)",
+        "description": "Failure to carry concealed carry weapon license.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.06(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-99-9.08(2)(a)",
+    "ordinance": "9.08(2)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-99-9.08(2)(a)",
+        "sourceRow": 99,
+        "ordinance": "9.08(2)(a)",
+        "description": "Licensing of amusement device distributors.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.08(2)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-100-9.08(2)(b)",
+    "ordinance": "9.08(2)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-100-9.08(2)(b)",
+        "sourceRow": 100,
+        "ordinance": "9.08(2)(b)",
+        "description": "Registration of amusement devices.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.08(2)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-101-9.08(4)",
+    "ordinance": "9.08(4)",
+    "versions": [
+      {
+        "id": "mgo-row-101-9.08(4)",
+        "sourceRow": 101,
+        "ordinance": "9.08(4)",
+        "description": "Transfer of registration symbol or registered amusement devices.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.08(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-102-9.08(3)",
+    "ordinance": "9.08(3)",
+    "versions": [
+      {
+        "id": "mgo-row-102-9.08(3)",
+        "sourceRow": 102,
+        "ordinance": "9.08(3)",
+        "description": "Amusement devices - seizure of gambling devices.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.08(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-103-9.09",
+    "ordinance": "9.09",
+    "versions": [
+      {
+        "id": "mgo-row-103-9.09",
+        "sourceRow": 103,
+        "ordinance": "9.09",
+        "description": "Cigarette/tobacco/vape license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "9.09",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-104-9.13",
+    "ordinance": "9.13",
+    "versions": [
+      {
+        "id": "mgo-row-104-9.13",
+        "sourceRow": 104,
+        "ordinance": "9.13",
+        "description": "Street vending ordinance violations (any violation not listed below).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.13",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-105-9.13",
+    "ordinance": "9.13",
+    "versions": [
+      {
+        "id": "mgo-row-105-9.13",
+        "sourceRow": 105,
+        "ordinance": "9.13",
+        "description": "Street Vending Licenses.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200 \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200 \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$200 \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "9.13",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-106-9.13(4)",
+    "ordinance": "9.13(4)",
+    "versions": [
+      {
+        "id": "mgo-row-106-9.13(4)",
+        "sourceRow": 106,
+        "ordinance": "9.13(4)",
+        "description": "General restrictions on street vending.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "9.13(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-107-9.135",
+    "ordinance": "9.135",
+    "versions": [
+      {
+        "id": "mgo-row-107-9.135",
+        "sourceRow": 107,
+        "ordinance": "9.135",
+        "description": "Sidewalk Cafe and Roadway Cafe Expansion Licenses.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "9.135",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-108-9.136(1)",
+    "ordinance": "9.136(1)",
+    "versions": [
+      {
+        "id": "mgo-row-108-9.136(1)",
+        "sourceRow": 108,
+        "ordinance": "9.136(1)",
+        "description": "Violations of Sec. 9.136 or the \"Regulations governing vending on State Street Mall/Capitol Concourse.\"",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "9.136(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-109-9.13(7)",
+    "ordinance": "9.13(7)",
+    "versions": [
+      {
+        "id": "mgo-row-109-9.13(7)",
+        "sourceRow": 109,
+        "ordinance": "9.13(7)",
+        "description": "Violations of Section 9.13(7) or the \"Regulations governing vending in high density vending areas.\"",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$200, 1st in 1 yr. \n$250, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "9.13(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-110-9.14",
+    "ordinance": "9.14",
+    "versions": [
+      {
+        "id": "mgo-row-110-9.14",
+        "sourceRow": 110,
+        "ordinance": "9.14",
+        "description": "Solicitor's and canvasser's permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st; \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st; \n$200, 2nd",
+        "sourceDepositText": "$100, 1st; \n$200, 2nd",
+        "ordinanceColumn": "9.14",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-111-9.15",
+    "ordinance": "9.15",
+    "versions": [
+      {
+        "id": "mgo-row-111-9.15",
+        "sourceRow": 111,
+        "ordinance": "9.15",
+        "description": "Licensing of hawkers, peddlers and truckers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.15",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-112-9.16",
+    "ordinance": "9.16",
+    "versions": [
+      {
+        "id": "mgo-row-112-9.16",
+        "sourceRow": 112,
+        "ordinance": "9.16",
+        "description": "Closing out sales license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.16",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-113-9.21(3)(a)1.",
+    "ordinance": "9.21(3)(a)1.",
+    "versions": [
+      {
+        "id": "mgo-row-113-9.21(3)(a)1.",
+        "sourceRow": 113,
+        "ordinance": "9.21(3)(a)1.",
+        "description": "Scrap and recycling dealer license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(3)(a)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-114-9.21(3)(a)2.",
+    "ordinance": "9.21(3)(a)2.",
+    "versions": [
+      {
+        "id": "mgo-row-114-9.21(3)(a)2.",
+        "sourceRow": 114,
+        "ordinance": "9.21(3)(a)2.",
+        "description": "Motor vehicle salvage dealer license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(3)(a)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-115-9.21(3)(a)3.",
+    "ordinance": "9.21(3)(a)3.",
+    "versions": [
+      {
+        "id": "mgo-row-115-9.21(3)(a)3.",
+        "sourceRow": 115,
+        "ordinance": "9.21(3)(a)3.",
+        "description": "Scrap and recycling collector license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.21(3)(a)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-116-9.21(3)(a)4.",
+    "ordinance": "9.21(3)(a)4.",
+    "versions": [
+      {
+        "id": "mgo-row-116-9.21(3)(a)4.",
+        "sourceRow": 116,
+        "ordinance": "9.21(3)(a)4.",
+        "description": "Motor vehicle storage dealer license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.21(3)(a)4.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-117-9.21(3)(a)5.",
+    "ordinance": "9.21(3)(a)5.",
+    "versions": [
+      {
+        "id": "mgo-row-117-9.21(3)(a)5.",
+        "sourceRow": 117,
+        "ordinance": "9.21(3)(a)5.",
+        "description": "Solid waste hauler license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(3)(a)5.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-118-9.21(4)(i)",
+    "ordinance": "9.21(4)(i)",
+    "versions": [
+      {
+        "id": "mgo-row-118-9.21(4)(i)",
+        "sourceRow": 118,
+        "ordinance": "9.21(4)(i)",
+        "description": "Improper disposal of recyclables or yard waste by solid waste hauler.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(4)(i)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-119-9.21(4)(j)",
+    "ordinance": "9.21(4)(j)",
+    "versions": [
+      {
+        "id": "mgo-row-119-9.21(4)(j)",
+        "sourceRow": 119,
+        "ordinance": "9.21(4)(j)",
+        "description": "Failure to report quantities of recycling, yard solid waste and yard waste to Street Superintendent.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(4)(j)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-120-9.21(9)(a)",
+    "ordinance": "9.21(9)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-120-9.21(9)(a)",
+        "sourceRow": 120,
+        "ordinance": "9.21(9)(a)",
+        "description": "Unlawful collection of scrap and recycling left for City.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(9)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-121-9.21(9)(b)",
+    "ordinance": "9.21(9)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-121-9.21(9)(b)",
+        "sourceRow": 121,
+        "ordinance": "9.21(9)(b)",
+        "description": "Purchases of scrap or recycling from minor or intoxicated person.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.21(9)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-122-9.22(2)",
+    "ordinance": "9.22(2)",
+    "versions": [
+      {
+        "id": "mgo-row-122-9.22(2)",
+        "sourceRow": 122,
+        "ordinance": "9.22(2)",
+        "description": "Purchases of scrap metal from a person under 18 years of age.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-123-9.22(3)(a)1.",
+    "ordinance": "9.22(3)(a)1.",
+    "versions": [
+      {
+        "id": "mgo-row-123-9.22(3)(a)1.",
+        "sourceRow": 123,
+        "ordinance": "9.22(3)(a)1.",
+        "description": "Failure to obtain seller's identification information.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(3)(a)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-124-9.22(3)(a)2.",
+    "ordinance": "9.22(3)(a)2.",
+    "versions": [
+      {
+        "id": "mgo-row-124-9.22(3)(a)2.",
+        "sourceRow": 124,
+        "ordinance": "9.22(3)(a)2.",
+        "description": "Failure to obtain vehicle plate information, time and date of purchase or description of items received.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(3)(a)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-125-9.22(3)(a)3.",
+    "ordinance": "9.22(3)(a)3.",
+    "versions": [
+      {
+        "id": "mgo-row-125-9.22(3)(a)3.",
+        "sourceRow": 125,
+        "ordinance": "9.22(3)(a)3.",
+        "description": "Failure to obtain seller's signed declaration of ownership.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(3)(a)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-126-9.22(3)(a)4.a.",
+    "ordinance": "9.22(3)(a)4.a.",
+    "versions": [
+      {
+        "id": "mgo-row-126-9.22(3)(a)4.a.",
+        "sourceRow": 126,
+        "ordinance": "9.22(3)(a)4.a.",
+        "description": "Failure to obtain documentation of lawful possession of proprietary article.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(3)(a)4.a.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-127-9.22(3)(a)4.b.",
+    "ordinance": "9.22(3)(a)4.b.",
+    "versions": [
+      {
+        "id": "mgo-row-127-9.22(3)(a)4.b.",
+        "sourceRow": 127,
+        "ordinance": "9.22(3)(a)4.b.",
+        "description": "Failure to document diligent inquiry and report to Madison Police Department.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(3)(a)4.b.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-128-9.22(4)(a)",
+    "ordinance": "9.22(4)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-128-9.22(4)(a)",
+        "sourceRow": 128,
+        "ordinance": "9.22(4)(a)",
+        "description": "Failure to make records available to law enforcement officers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(4)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-129-9.22(4)(b)",
+    "ordinance": "9.22(4)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-129-9.22(4)(b)",
+        "sourceRow": 129,
+        "ordinance": "9.22(4)(b)",
+        "description": "Failure to maintain records for two years.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.22(4)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-130-9.23(4)(d)1.",
+    "ordinance": "9.23(4)(d)1.",
+    "versions": [
+      {
+        "id": "mgo-row-130-9.23(4)(d)1.",
+        "sourceRow": 130,
+        "ordinance": "9.23(4)(d)1.",
+        "description": "Mobile home park license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.23(4)(d)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-131-9.23(5)(6)(7)",
+    "ordinance": "9.23(5)(6)(7)",
+    "versions": [
+      {
+        "id": "mgo-row-131-9.23(5)(6)(7)",
+        "sourceRow": 131,
+        "ordinance": "9.23(5)(6)(7)",
+        "description": "Mobile home park rental agreement requirements and limitations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 7500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$75"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$75",
+        "sourceDepositText": "$75",
+        "ordinanceColumn": "9.23(5)(6)(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-132-9.24(2)",
+    "ordinance": "9.24(2)",
+    "versions": [
+      {
+        "id": "mgo-row-132-9.24(2)",
+        "sourceRow": 132,
+        "ordinance": "9.24(2)",
+        "description": "Secondhand dealer license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.24(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-133-9.24(2)(c)",
+    "ordinance": "9.24(2)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-133-9.24(2)(c)",
+        "sourceRow": 133,
+        "ordinance": "9.24(2)(c)",
+        "description": "Failure of license holder from other municipality to comply with requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 200000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd/more",
+        "sourceDepositText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd/more",
+        "ordinanceColumn": "9.24(2)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-134-9.24(7)",
+    "ordinance": "9.24(7)",
+    "versions": [
+      {
+        "id": "mgo-row-134-9.24(7)",
+        "sourceRow": 134,
+        "ordinance": "9.24(7)",
+        "description": "Failure to comply with license requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.24(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-135-9.24(8)",
+    "ordinance": "9.24(8)",
+    "versions": [
+      {
+        "id": "mgo-row-135-9.24(8)",
+        "sourceRow": 135,
+        "ordinance": "9.24(8)",
+        "description": "Failure to comply with secondhand textbook dealer requirement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.24(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-136-9.24(9)",
+    "ordinance": "9.24(9)",
+    "versions": [
+      {
+        "id": "mgo-row-136-9.24(9)",
+        "sourceRow": 136,
+        "ordinance": "9.24(9)",
+        "description": "Failure to comply with secondhand dealer mall or flea market requirement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$150, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.24(9)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-137-9.25(4)",
+    "ordinance": "9.25(4)",
+    "versions": [
+      {
+        "id": "mgo-row-137-9.25(4)",
+        "sourceRow": 137,
+        "ordinance": "9.25(4)",
+        "description": "Renting without a registration certificate.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 250000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500, 1st \n$1,000, 2nd \n$2,500, 3rd/more"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$500, 1st \n$1,000, 2nd \n$2,500, 3rd/more",
+        "sourceDepositText": "$500, 1st \n$1,000, 2nd \n$2,500, 3rd/more",
+        "ordinanceColumn": "9.25(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-138-9.25(6)(c)",
+    "ordinance": "9.25(6)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-138-9.25(6)(c)",
+        "sourceRow": 138,
+        "ordinance": "9.25(6)(c)",
+        "description": "Failure to post registration certificate.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.25(6)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-139-9.25(6)(d)",
+    "ordinance": "9.25(6)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-139-9.25(6)(d)",
+        "sourceRow": 139,
+        "ordinance": "9.25(6)(d)",
+        "description": "Failure of registrant to update information.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.25(6)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-140-9.25(6)(e)",
+    "ordinance": "9.25(6)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-140-9.25(6)(e)",
+        "sourceRow": 140,
+        "ordinance": "9.25(6)(e)",
+        "description": "Failure to comply with abatement plan.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.25(6)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-141-9.25(6)(f)",
+    "ordinance": "9.25(6)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-141-9.25(6)(f)",
+        "sourceRow": 141,
+        "ordinance": "9.25(6)(f)",
+        "description": "Failure to comply with inspection requirement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "sourceDepositText": "$100, 1st \n$500, 2nd \n$1,000, 3rd/more",
+        "ordinanceColumn": "9.25(6)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-142-9.28(1)",
+    "ordinance": "9.28(1)",
+    "versions": [
+      {
+        "id": "mgo-row-142-9.28(1)",
+        "sourceRow": 142,
+        "ordinance": "9.28(1)",
+        "description": "Christmas tree sales license required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.28(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-143-9.31",
+    "ordinance": "9.31",
+    "versions": [
+      {
+        "id": "mgo-row-143-9.31",
+        "sourceRow": 143,
+        "ordinance": "9.31",
+        "description": "Cat license and tags required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd & sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd & sub.",
+        "ordinanceColumn": "9.31",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-144-9.33",
+    "ordinance": "9.33",
+    "versions": [
+      {
+        "id": "mgo-row-144-9.33",
+        "sourceRow": 144,
+        "ordinance": "9.33",
+        "description": "Regulation of massage establishments, massage technicians and employees.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "9.33",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-145-9.50",
+    "ordinance": "9.50",
+    "versions": [
+      {
+        "id": "mgo-row-145-9.50",
+        "sourceRow": 145,
+        "ordinance": "9.50",
+        "description": "Dog license and tags required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd & sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd & sub.",
+        "ordinanceColumn": "9.50",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-146-9.54",
+    "ordinance": "9.54",
+    "versions": [
+      {
+        "id": "mgo-row-146-9.54",
+        "sourceRow": 146,
+        "ordinance": "9.54",
+        "description": "T or E Permit violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "9.54",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-147-9.54(1)",
+    "ordinance": "9.54(1)",
+    "versions": [
+      {
+        "id": "mgo-row-147-9.54(1)",
+        "sourceRow": 147,
+        "ordinance": "9.54(1)",
+        "description": "Placing articles/equipment on sidewalk, terrace or roadway.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "9.54(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-148-9.54(12)",
+    "ordinance": "9.54(12)",
+    "versions": [
+      {
+        "id": "mgo-row-148-9.54(12)",
+        "sourceRow": 148,
+        "ordinance": "9.54(12)",
+        "description": "M Permit violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "9.54(12)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

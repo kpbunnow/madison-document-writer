@@ -1,0 +1,323 @@
+import { toast as dep_toast } from "./court_and_deposits.js";
+import { saveDrafts as dep_saveDrafts, scheduleDraftSave as dep_scheduleDraftSave } from "./case_files.js";
+import { saveAndContinue as dep_saveAndContinue } from "./draft_recovery.js";
+import { citationDepositFault as dep_citationDepositFault } from "./case_timeline.js";
+import { render as dep_render } from "./inspection_import.js";
+import {
+  citationPricingDate as dep_citationPricingDate,
+  doc as dep_doc,
+  esc as dep_esc,
+  isLocked as dep_isLocked,
+  itemLibraryKey as dep_itemLibraryKey,
+} from "./app_core.js";
+import {
+  CITATION_POLICY as dep_CITATION_POLICY,
+  assessmentCents as dep_assessmentCents,
+  canonicalOrdinance as dep_canonicalOrdinance,
+  cents as dep_cents,
+  courtCents as dep_courtCents,
+  resolveCitationAmount as dep_resolveCitationAmount,
+} from "./citation_policy.js";
+import { WriterState } from "./state.js";
+/* Required completion is stored as a request, never as a blank citation. */
+export function initDepositStep() {
+  let active = null;
+  function close() {
+    active = null;
+  }
+  function complete(d, id, values) {
+    const request = d.depositRequests?.[id];
+    if (!request) return false;
+    const i = d.items.find((x) => x.id === id),
+      c = { ...request, ...values },
+      ord = dep_canonicalOrdinance(c.ord);
+    if (!ord) return false;
+    c.ord = ord;
+    const priced = dep_resolveCitationAmount({
+      ordinance: ord,
+      libraryItem: dep_itemLibraryKey(i),
+      tier: c.tier || 1,
+      date: dep_citationPricingDate(c, d),
+      entryId: c.scheduleEntryId,
+      measurements: c.measurements || {},
+    });
+    if (c.depositMode === "schedule") {
+      if (priced.kind !== "priced") {
+        if (priced.kind === "needs-basis" && c.measurements) {
+          Object.assign(request, { measurements: c.measurements, reason: priced.reason, measurementFields: [], depositMode: "base" });
+        }
+        return false;
+      }
+      Object.assign(c, priced);
+      delete c.kind;
+    } else {
+      if (!["base", "total"].includes(c.depositMode) || String(c.depositSource || "").trim().length < 10) return false;
+      c.cc = dep_courtCents(dep_citationPricingDate(c, d)) / 100;
+      if (c.depositMode === "base") {
+        if (dep_cents(c.base) === null || (dep_cents(c.base) === 0 && !dep_CITATION_POLICY.allowZeroBaseDeposits)) return false;
+        const v = dep_assessmentCents(dep_cents(c.base), dep_cents(c.cc), dep_citationPricingDate(c, d));
+        c.amount = (v.total / 100).toFixed(2);
+        c.assessments = v;
+      } else {
+        if (!(dep_cents(c.amount) > 0)) return false;
+        delete c.assessments;
+      }
+      c.resolvedVia = "approved-" + c.depositMode;
+      c.pricedOn = dep_citationPricingDate(c, d);
+      c.policyVersionHash = dep_CITATION_POLICY.versionHash;
+    }
+    delete c.reason;
+    delete c.reconfirmDeposit;
+    c.preparedSections = (i.sections || []).map(dep_canonicalOrdinance);
+    c.differentChargeSource = c.preparedSections.includes(ord) ? c.differentChargeSource : c.depositSource;
+    d.authoringVersion = 11;
+    d.cits = d.cits || {};
+    d.cits[id] = c;
+    delete d.depositRequests[id];
+    WriterState.DIRTY = true;
+    return true;
+  }
+  function form(d, i, c) {
+    const esc = dep_esc,
+      measured = !!c.measurementFields?.length,
+      mode = ["base", "total"].includes(c.depositMode) ? c.depositMode : "base";
+    const input = (key, label, type = "text", extra = "", value = c[key] ?? "") =>
+      '<label class="f"><span>' +
+      esc(label) +
+      '</span><input name="' +
+      key +
+      '" type="' +
+      type +
+      '" aria-label="' +
+      esc(label + " for item " + i.no) +
+      '" value="' +
+      esc(value) +
+      '" ' +
+      extra +
+      "></label>";
+    const measurements = (c.measurementFields || [])
+      .map((f) =>
+        f.boolean
+          ? '<label class="f"><span>' +
+            esc(f.label) +
+            '</span><select name="measure-' +
+            f.key +
+            '" aria-label="' +
+            esc(f.label + " for item " + i.no) +
+            '" required><option value="">Choose</option><option value="true" ' +
+            (c.measurements?.[f.key] === true ? "selected" : "") +
+            '>Yes</option><option value="false" ' +
+            (c.measurements?.[f.key] === false ? "selected" : "") +
+            ">No</option></select></label>"
+          : input(
+              "measure-" + f.key,
+              f.label,
+              "number",
+              'min="' +
+                (f.min ?? 0) +
+                '" ' +
+                (f.max == null ? "" : 'max="' + f.max + '"') +
+                ' step="' +
+                (f.whole ? "1" : "any") +
+                '" ' +
+                (f.key === "diameter" && c.measurements?.removed === false ? "disabled" : "required"),
+              c.measurements?.[f.key] ?? "",
+            ),
+      )
+      .join("");
+    // Keep the same required completion contract; no citation is created until complete succeeds.
+    return (
+      '<form data-deposit-form="' +
+      esc(i.id) +
+      '" data-deposit-doc="' +
+      esc(d.id) +
+      '"><h3>' +
+      (measured ? "Complete measurements" : "Complete approved deposit") +
+      "</h3><p>" +
+      esc(c.reason || "Choose an approved deposit basis.") +
+      '</p><div class="grid g2">' +
+      input("ord", "Charged ordinance", "text", "required") +
+      (measured
+        ? measurements
+        : '<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ' +
+          esc(i.no) +
+          '"><option value="schedule">Verified schedule</option><option value="base" ' +
+          (mode === "base" ? "selected" : "") +
+          '>Approved base + assessments</option><option value="total" ' +
+          (mode === "total" ? "selected" : "") +
+          '>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ' +
+          (mode === "base" ? "" : "hidden") +
+          ">" +
+          input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")) +
+          '</div><div data-deposit-mode="total" ' +
+          (mode === "total" ? "" : "hidden") +
+          ">" +
+          input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")) +
+          ('</div><label class="f" data-deposit-source><span>Approved source / reaso' +
+            'n</span><textarea name="depositSource" aria-label="Approved source / rea' +
+            "son for item ") +
+          esc(i.no) +
+          '" rows="2" minlength="10" required>' +
+          esc(c.depositSource || "") +
+          "</textarea></label>") +
+      '</div><p class="hint">' +
+      (measured
+        ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
+        : "A base adds the approved assessments. A total already includes them. Rec" +
+          "ord the approval source; the program does not authorize an amount.") +
+      ('</p><p role="alert" data-deposit-error></p><button class="btn btn-primar' +
+        'y" type="submit">Complete charge</button> <button class="btn" type="butt' +
+        'on" data-deposit-later>Save unfinished draft</button></form>')
+    );
+  }
+  function findForm(id) {
+    return [...document.querySelectorAll("[data-deposit-form]")].find((el) => el.dataset.depositForm === id);
+  }
+  function open(d, id) {
+    if (!d?.depositRequests?.[id] || dep_isLocked(d) || d.pendingAmendment) return;
+    active = { d, id };
+    const el = findForm(id);
+    if (!el) return;
+    el.scrollIntoView?.({ block: "center" });
+    el.querySelector("input:not([disabled]),select:not([disabled])")?.focus({ preventScroll: true });
+  }
+  function openNext(d) {
+    const id = Object.keys(d?.depositRequests || {})[0];
+    if (id) open(d, id);
+  }
+  function context(el) {
+    const node = el.closest?.("[data-deposit-form]");
+    if (!node) return null;
+    const d = dep_doc(node.dataset.depositDoc) || WriterState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
+      id = node.dataset.depositForm;
+    return d?.draft && !dep_isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
+  }
+  function values(node, c) {
+    const result = Object.fromEntries(new FormData(node));
+    if (c.measurementFields?.length) {
+      result.depositMode = "schedule";
+      result.measurements = Object.fromEntries(
+        c.measurementFields.map((f) => [
+          f.key,
+          f.boolean
+            ? result["measure-" + f.key] === "true"
+              ? true
+              : result["measure-" + f.key] === "false"
+                ? false
+                : null
+            : result["measure-" + f.key] == null || result["measure-" + f.key] === ""
+              ? null
+              : Number(result["measure-" + f.key]),
+        ]),
+      );
+      for (const f of c.measurementFields) delete result["measure-" + f.key];
+    }
+    return result;
+  }
+  function update(e) {
+    const ctx = context(e.target);
+    if (!ctx) return;
+    const { node, c } = ctx;
+    const method = node.querySelector("[name=depositMode]");
+    if (method) {
+      for (const group of node.querySelectorAll("[data-deposit-mode]")) {
+        group.hidden = group.dataset.depositMode !== method.value;
+        for (const input of group.querySelectorAll("input")) {
+          input.disabled = group.hidden;
+          input.required = !group.hidden;
+        }
+      }
+      const source = node.querySelector("[data-deposit-source]");
+      source.hidden = method.value === "schedule";
+      source.querySelector("textarea").required = !source.hidden;
+      source.querySelector("textarea").disabled = source.hidden;
+    }
+    const choice = node.querySelector("[name=measure-removed]"),
+      diameter = node.querySelector("[name=measure-diameter]");
+    if (choice && diameter) {
+      diameter.required = choice.value !== "false";
+      diameter.disabled = choice.value === "false";
+    }
+    Object.assign(c, values(node, c));
+    WriterState.DIRTY = true;
+    dep_scheduleDraftSave();
+  }
+  document.addEventListener("input", update);
+  document.addEventListener("change", update);
+  document.addEventListener("submit", (e) => {
+    if (!e.target.matches?.("[data-deposit-form]")) return;
+    e.preventDefault();
+    const ctx = context(e.target);
+    if (!ctx) return;
+    const { node, d, id, c } = ctx;
+    Object.assign(c, values(node, c));
+    const wasMeasured = !!c.measurementFields?.length;
+    if (!complete(d, id, values(node, c))) {
+      if (wasMeasured && !c.measurementFields?.length) {
+        dep_saveDrafts();
+        dep_render();
+        open(d, id);
+        return;
+      }
+      node.querySelector("[data-deposit-error]").textContent =
+        "Complete the ordinance, required measurements or positive approved amoun" +
+        "t, and an approval source of at least 10 characters. A zero forfeiture n" +
+        "eeds City Attorney approval.";
+      return;
+    }
+    active = null;
+    dep_saveDrafts();
+    dep_render();
+    const card = [...document.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === id);
+    if (card) {
+      card.setAttribute("tabindex", "-1");
+      card.focus({ preventScroll: true });
+      card.scrollIntoView?.({ block: "center" });
+    }
+  });
+  document.addEventListener("click", (e) => {
+    const later = e.target.closest?.("[data-deposit-later]");
+    if (later) {
+      const ctx = context(later);
+      if (ctx) dep_saveAndContinue();
+      return;
+    }
+    const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
+    if (!t) return;
+    const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
+      d = dep_doc(docId) || WriterState.DOCS.find((x) => x.initialCitationId === docId);
+    if (!d || dep_isLocked(d) || d.pendingAmendment) return;
+    if (t.dataset.confirmDeposit) {
+      const c = d.cits?.[id];
+      if (!c || String(c.depositSource || "").trim().length < 10 || !(dep_cents(c.amount) > 0)) {
+        dep_toast("Enter the approved source and amount before confirming.");
+        return;
+      }
+      delete c.reconfirmDeposit;
+      if (
+        dep_citationDepositFault(
+          c,
+          d,
+          d.items.find((i) => i.id === id),
+        )
+      ) {
+        c.reconfirmDeposit = true;
+        dep_toast("Correct the deposit basis before confirming.");
+        return;
+      }
+      dep_saveDrafts();
+      dep_render();
+    } else if (id) open(d, id);
+    else openNext(d);
+  });
+  return {
+    form,
+    open,
+    openNext,
+    complete,
+    close,
+    get active() {
+      return active;
+    },
+  };
+}

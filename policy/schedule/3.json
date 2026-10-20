@@ -1,0 +1,91 @@
+[
+  {
+    "id": "mgo-row-1-3.16(8)(d)",
+    "ordinance": "3.16(8)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-1-3.16(8)(d)",
+        "sourceRow": 1,
+        "ordinance": "3.16(8)(d)",
+        "description": "Contempt of court.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "3.16(8)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-2-3.20",
+    "ordinance": "3.20",
+    "versions": [
+      {
+        "id": "mgo-row-2-3.20",
+        "sourceRow": 2,
+        "ordinance": "3.20",
+        "description": "Failure to comply with lawful order.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 200000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 400000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd \n$4,000, 4th"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd \n$4,000, 4th",
+        "sourceDepositText": "$500, 1st \n$1,000, 2nd \n$2,000, 3rd \n$4,000, 4th",
+        "ordinanceColumn": "3.20",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

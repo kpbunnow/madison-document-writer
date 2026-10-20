@@ -1,0 +1,1057 @@
+{
+  "format": "r30-independent-deposit-golden",
+  "issued": "2026-08-01",
+  "rows": [
+    {
+      "ordinance": "10.25(5)",
+      "tier": 1,
+      "base": 5000,
+      "penalty": 1300,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 13400
+    },
+    {
+      "ordinance": "27.05(2)(c)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "27.05(2)(CC)",
+      "tier": 1,
+      "base": 5000,
+      "penalty": 1300,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 13400
+    },
+    {
+      "ordinance": "28.202(3)(e)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.202(3)(e)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "9.25(4)",
+      "tier": 3,
+      "base": 250000,
+      "penalty": 65000,
+      "jail": 2500,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 323600
+    },
+    {
+      "ordinance": "29.40(7)(c)",
+      "tier": 2,
+      "base": 500000,
+      "penalty": 130000,
+      "jail": 5000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 641100
+    },
+    {
+      "ordinance": "10.18(5)(f)",
+      "tier": 4,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "9.25(4)",
+      "entryId": "mgo-row-137-9.25(4)",
+      "tier": 1,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "9.25(4)",
+      "entryId": "mgo-row-137-9.25(4)",
+      "tier": 2,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "9.25(4)",
+      "entryId": "mgo-row-137-9.25(4)",
+      "tier": 3,
+      "base": 250000,
+      "penalty": 65000,
+      "jail": 2500,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 323600
+    },
+    {
+      "ordinance": "10.05(15)",
+      "entryId": "mgo-row-150-10.05(15)",
+      "tier": 1,
+      "base": 25000,
+      "penalty": 6500,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 38600
+    },
+    {
+      "ordinance": "10.05(15)",
+      "entryId": "mgo-row-150-10.05(15)",
+      "tier": 2,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "10.05(15)",
+      "entryId": "mgo-row-150-10.05(15)",
+      "tier": 3,
+      "base": 250000,
+      "penalty": 65000,
+      "jail": 2500,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 323600
+    },
+    {
+      "ordinance": "10.18(5)(f)",
+      "entryId": "mgo-row-170-10.18(5)(f)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "10.18(5)(f)",
+      "entryId": "mgo-row-170-10.18(5)(f)",
+      "tier": 2,
+      "base": 30000,
+      "penalty": 7800,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 44900
+    },
+    {
+      "ordinance": "10.18(5)(f)",
+      "entryId": "mgo-row-170-10.18(5)(f)",
+      "tier": 3,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "10.18(5)(f)",
+      "entryId": "mgo-row-170-10.18(5)(f)",
+      "tier": 4,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "10.18(7)",
+      "entryId": "mgo-row-172-10.18(7)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "10.18(7)",
+      "entryId": "mgo-row-172-10.18(7)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "10.18(7)",
+      "entryId": "mgo-row-172-10.18(7)",
+      "tier": 3,
+      "base": 30000,
+      "penalty": 7800,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 44900
+    },
+    {
+      "ordinance": "10.25(5)",
+      "entryId": "mgo-row-183-10.25(5)",
+      "tier": 1,
+      "base": 5000,
+      "penalty": 1300,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 13400
+    },
+    {
+      "ordinance": "10.25(5)",
+      "entryId": "mgo-row-183-10.25(5)",
+      "tier": 2,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "10.25(5)",
+      "entryId": "mgo-row-183-10.25(5)",
+      "tier": 3,
+      "base": 25000,
+      "penalty": 6500,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 38600
+    },
+    {
+      "ordinance": "10.34",
+      "entryId": "mgo-row-190-10.34",
+      "tier": 1,
+      "base": 5000,
+      "penalty": 1300,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 13400
+    },
+    {
+      "ordinance": "10.34",
+      "entryId": "mgo-row-190-10.34",
+      "tier": 2,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "18.08",
+      "entryId": "mgo-row-321-18.08",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "18.08",
+      "entryId": "mgo-row-321-18.08",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "18.08",
+      "entryId": "mgo-row-321-18.08",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "18.10(2)",
+      "entryId": "mgo-row-322-18.10(2)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "18.10(2)",
+      "entryId": "mgo-row-322-18.10(2)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "18.10(2)",
+      "entryId": "mgo-row-322-18.10(2)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "19.09(1)",
+      "entryId": "mgo-row-325-19.09(1)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "19.09(1)",
+      "entryId": "mgo-row-325-19.09(1)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "19.09(1)",
+      "entryId": "mgo-row-325-19.09(1)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "23.24(1)",
+      "entryId": "mgo-row-363-23.24(1)",
+      "tier": 1,
+      "base": 30000,
+      "penalty": 7800,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 44900
+    },
+    {
+      "ordinance": "23.24(2)",
+      "entryId": "mgo-row-363-23.24(2)",
+      "tier": 1,
+      "base": 30000,
+      "penalty": 7800,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 44900
+    },
+    {
+      "ordinance": "27.05(2)(cc)",
+      "entryId": "mgo-row-472-27.05(2)(cc)",
+      "tier": 1,
+      "base": 5000,
+      "penalty": 1300,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 13400
+    },
+    {
+      "ordinance": "27.05(2)(cc)",
+      "entryId": "mgo-row-472-27.05(2)(cc)",
+      "tier": 2,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "27.05(3)(a)",
+      "entryId": "mgo-row-474-27.05(3)(a)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "27.085(2)",
+      "entryId": "mgo-row-474-27.085(2)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "27.05(2)(c)",
+      "entryId": "mgo-row-475-27.05(2)(c)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "27.05(2)(c)",
+      "entryId": "mgo-row-475-27.05(2)(c)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "27.05(2)(f)",
+      "entryId": "mgo-row-476-27.05(2)(f)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "27.05(2)(f)",
+      "entryId": "mgo-row-476-27.05(2)(f)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.141(8)(c)",
+      "entryId": "mgo-row-478-28.141(8)(c)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "28.141(8)(c)",
+      "entryId": "mgo-row-478-28.141(8)(c)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.141(13)(g)",
+      "entryId": "mgo-row-479-28.141(13)(g)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "28.141(13)(g)",
+      "entryId": "mgo-row-479-28.141(13)(g)",
+      "tier": 2,
+      "base": 40000,
+      "penalty": 10400,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 57500
+    },
+    {
+      "ordinance": "28.141(13)(g)",
+      "entryId": "mgo-row-479-28.141(13)(g)",
+      "tier": 3,
+      "base": 60000,
+      "penalty": 15600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 82700
+    },
+    {
+      "ordinance": "28.141(10)(a)",
+      "entryId": "mgo-row-481-28.141(10)(a)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "28.141(10)(a)",
+      "entryId": "mgo-row-481-28.141(10)(a)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.141(10)(a)",
+      "entryId": "mgo-row-481-28.141(10)(a)",
+      "tier": 3,
+      "base": 25000,
+      "penalty": 6500,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 38600
+    },
+    {
+      "ordinance": "28.141(10)(b)",
+      "entryId": "mgo-row-481-28.141(10)(b)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "28.141(10)(b)",
+      "entryId": "mgo-row-481-28.141(10)(b)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.141(10)(b)",
+      "entryId": "mgo-row-481-28.141(10)(b)",
+      "tier": 3,
+      "base": 25000,
+      "penalty": 6500,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 38600
+    },
+    {
+      "ordinance": "28.141(10)(c)",
+      "entryId": "mgo-row-481-28.141(10)(c)",
+      "tier": 1,
+      "base": 10000,
+      "penalty": 2600,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 19700
+    },
+    {
+      "ordinance": "28.141(10)(c)",
+      "entryId": "mgo-row-481-28.141(10)(c)",
+      "tier": 2,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.141(10)(c)",
+      "entryId": "mgo-row-481-28.141(10)(c)",
+      "tier": 3,
+      "base": 25000,
+      "penalty": 6500,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 38600
+    },
+    {
+      "ordinance": "28.202(3)",
+      "entryId": "mgo-row-484-28.202(3)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "28.202(3)",
+      "entryId": "mgo-row-484-28.202(3)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "28.202(3)",
+      "entryId": "mgo-row-484-28.202(3)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "29.07(1)",
+      "entryId": "mgo-row-485-29.07(1)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "29.07(1)",
+      "entryId": "mgo-row-485-29.07(1)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "29.07(1)",
+      "entryId": "mgo-row-485-29.07(1)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "29.10(2)",
+      "entryId": "mgo-row-486-29.10(2)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "29.10(2)",
+      "entryId": "mgo-row-486-29.10(2)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "29.10(2)",
+      "entryId": "mgo-row-486-29.10(2)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-491-29.22",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-491-29.22",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-491-29.22",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-492-29.22",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-492-29.22",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "29.22",
+      "entryId": "mgo-row-492-29.22",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "29.40(7)(c)",
+      "entryId": "mgo-row-499-29.40(7)(c)",
+      "tier": 1,
+      "base": 300000,
+      "penalty": 78000,
+      "jail": 3000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 387100
+    },
+    {
+      "ordinance": "29.40(7)(c)",
+      "entryId": "mgo-row-499-29.40(7)(c)",
+      "tier": 2,
+      "base": 500000,
+      "penalty": 130000,
+      "jail": 5000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 641100
+    },
+    {
+      "ordinance": "37.06(2)",
+      "entryId": "mgo-row-536-37.06(2)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "37.06(2)",
+      "entryId": "mgo-row-536-37.06(2)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "37.06(2)",
+      "entryId": "mgo-row-536-37.06(2)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "37.06(3)",
+      "entryId": "mgo-row-537-37.06(3)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "37.06(3)",
+      "entryId": "mgo-row-537-37.06(3)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "37.06(3)",
+      "entryId": "mgo-row-537-37.06(3)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "37.07",
+      "entryId": "mgo-row-538-37.07",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "37.07",
+      "entryId": "mgo-row-538-37.07",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "37.07",
+      "entryId": "mgo-row-538-37.07",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "37.09(3)",
+      "entryId": "mgo-row-539-37.09(3)",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "37.09(3)",
+      "entryId": "mgo-row-539-37.09(3)",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "37.09(3)",
+      "entryId": "mgo-row-539-37.09(3)",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": "37.12(6)(a)1.",
+      "entryId": "mgo-row-540-37.12(6)(a)1.",
+      "tier": 1,
+      "base": 20000,
+      "penalty": 5200,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 32300
+    },
+    {
+      "ordinance": "37.12(6)(a)1.",
+      "entryId": "mgo-row-540-37.12(6)(a)1.",
+      "tier": 2,
+      "base": 50000,
+      "penalty": 13000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 70100
+    },
+    {
+      "ordinance": "37.12(6)(a)1.",
+      "entryId": "mgo-row-540-37.12(6)(a)1.",
+      "tier": 3,
+      "base": 100000,
+      "penalty": 26000,
+      "jail": 1000,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 133100
+    },
+    {
+      "ordinance": null,
+      "tier": 1,
+      "base": 150000,
+      "penalty": 39000,
+      "jail": 1500,
+      "crimeLab": 1300,
+      "court": 4800,
+      "total": 196600
+    }
+  ],
+  "blocked": [
+    "27.05(2)(s)",
+    "29.21",
+    "30.01(5)",
+    "19.10(1)",
+    "9.4",
+    "1008.1",
+    "1006.1",
+    "320.10"
+  ],
+  "valid": [
+    "27.05(2)(h)10",
+    "37.12(6)(a)1.",
+    "Sec. 27.05(2)(c)",
+    "§ 27.05(2)(c)",
+    "M.G.O. 27.05(2)(c)"
+  ],
+  "invalid": [
+    "27.05(2)(c), 27.04(2)(h)",
+    "27.05(2)(c) and 27.04(2)(h)"
+  ],
+  "generatedFailures": [
+    {
+      "name": "P8 mutated validation agreement",
+      "seed": 31011026,
+      "path": "1:0:0:0",
+      "counterexample": [
+        [
+          {
+            "base": 1,
+            "court": 1500
+          },
+          "ord"
+        ]
+      ]
+    },
+    {
+      "name": "P6 method and ordinance edit sequences",
+      "seed": 31011026,
+      "path": "1:5:2",
+      "counterexample": [
+        [
+          "schedule",
+          "base"
+        ]
+      ]
+    }
+  ]
+}

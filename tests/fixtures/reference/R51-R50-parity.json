@@ -1,0 +1,25 @@
+{
+  "baselineArchive": "Madison-Building-Inspection-2026-10-17-R50-Orders-Fix.zip",
+  "baselineArchiveSha256": "a7ab31146cf5a63922182dba6f3e8ba70c8f26794fa8427f3a52d55b7216d0d4",
+  "allowedDifferences": [
+    "release identity",
+    "helper identity",
+    "stable manual links",
+    "esbuild file-boundary comments"
+  ],
+  "files": {
+    "madison-document-writer.html": {
+      "baselineRuntimeSha256": "fd9708e0d3d29276bf57edca28192e8841d0ba42dc52668cdbbbdc204977b320",
+      "normalizedCodeSha256": "19d4596aab74d42670f37d4ddf8fdb09cd7d52b92249a2b4b3454151a63b56ff",
+      "normalizedShellSha256": "9f939b57ac89506eb25af398913d4460122d66688cd6a2602b91d2cebf8a2256"
+    },
+    "madison-reports.html": {
+      "baselineRuntimeSha256": "68f2ec23a82df8944f02faa3e8fc4468718e7249f4704ccdce7f4e17015e61d7",
+      "normalizedCodeSha256": "77891d27131bdc4eb56be62e5431f0227905a619168b5c0084bcb10ff1c3b053",
+      "normalizedShellSha256": "8d5e847b5ed6b4089e8c6abe226164f1ca728f2312310fce4879a96e371c70b3"
+    }
+  },
+  "acknowledgedChanges": [
+    "R53: status-driven documents (statusRule, import plan rules, status card, issuance checks, refresh), group due dates on reinspection worksheets with Undo, top-of-page warnings cleared after 15 seconds into Message history"
+  ]
+}

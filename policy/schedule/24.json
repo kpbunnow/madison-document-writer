@@ -1,0 +1,597 @@
+[
+  {
+    "id": "mgo-row-409-24.01",
+    "ordinance": "24.01",
+    "versions": [
+      {
+        "id": "mgo-row-409-24.01",
+        "sourceRow": 409,
+        "ordinance": "24.01",
+        "description": "Unlawful use of 911.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300, 1st \n$500, 2nd \n$750, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300, 1st \n$500, 2nd \n$750, 3rd & sub.",
+        "sourceDepositText": "$300, 1st \n$500, 2nd \n$750, 3rd & sub.",
+        "ordinanceColumn": "24.01",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-410-24.02(2)",
+    "ordinance": "24.02(2)",
+    "versions": [
+      {
+        "id": "mgo-row-410-24.02(2)",
+        "sourceRow": 410,
+        "ordinance": "24.02(2)",
+        "description": "Disorderly conduct.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "24.02(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-411-24.02(3)",
+    "ordinance": "24.02(3)",
+    "versions": [
+      {
+        "id": "mgo-row-411-24.02(3)",
+        "sourceRow": 411,
+        "ordinance": "24.02(3)",
+        "description": "Annoying/harassing telecommunication.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "24.02(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-412-24.02(4)",
+    "ordinance": "24.02(4)",
+    "versions": [
+      {
+        "id": "mgo-row-412-24.02(4)",
+        "sourceRow": 412,
+        "ordinance": "24.02(4)",
+        "description": "Disorderly conduct while under the influence of alcohol.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "24.02(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-413-24.02(5)",
+    "ordinance": "24.02(5)",
+    "versions": [
+      {
+        "id": "mgo-row-413-24.02(5)",
+        "sourceRow": 413,
+        "ordinance": "24.02(5)",
+        "description": "Disorderly conduct directed at an election official or city transit operator.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "24.02(5), (6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-414-24.04",
+    "ordinance": "24.04",
+    "versions": [
+      {
+        "id": "mgo-row-414-24.04",
+        "sourceRow": 414,
+        "ordinance": "24.04",
+        "description": "Prohibition of noises disturbing the public peace.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "24.04",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-415-24.04(5)",
+    "ordinance": "24.04(5)",
+    "versions": [
+      {
+        "id": "mgo-row-415-24.04(5)",
+        "sourceRow": 415,
+        "ordinance": "24.04(5)",
+        "description": "Leaving animal in parked vehicle for more than 15 minutes.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "24.04(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-416-24.04(7)",
+    "ordinance": "24.04(7)",
+    "versions": [
+      {
+        "id": "mgo-row-416-24.04(7)",
+        "sourceRow": 416,
+        "ordinance": "24.04(7)",
+        "description": "Unlawful to operate solid waste vehicles or compacting equipment between the hours of 10:00 p.m. and 6:00 a.m.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "24.04(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-417-24.04(9)(g)2.",
+    "ordinance": "24.04(9)(g)2.",
+    "versions": [
+      {
+        "id": "mgo-row-417-24.04(9)(g)2.",
+        "sourceRow": 417,
+        "ordinance": "24.04(9)(g)2.",
+        "description": "Submission of petition containing fraudulent information.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 37500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$375"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$375",
+        "sourceDepositText": "$375",
+        "ordinanceColumn": "24.04(9)(g)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-418-24.04(9)(g)3.",
+    "ordinance": "24.04(9)(g)3.",
+    "versions": [
+      {
+        "id": "mgo-row-418-24.04(9)(g)3.",
+        "sourceRow": 418,
+        "ordinance": "24.04(9)(g)3.",
+        "description": "Failure to follow notification procedure.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 37500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$375"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$375",
+        "sourceDepositText": "$375",
+        "ordinanceColumn": "24.04(9)(g)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-419-24.05",
+    "ordinance": "24.05",
+    "versions": [
+      {
+        "id": "mgo-row-419-24.05",
+        "sourceRow": 419,
+        "ordinance": "24.05",
+        "description": "Battery.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 75000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 150000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$750, 1st \n$1,000, 2nd \n$1,500, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$750, 1st \n$1,000, 2nd \n$1,500, 3rd & sub.",
+        "sourceDepositText": "$750, 1st \n$1,000, 2nd \n$1,500, 3rd & sub.",
+        "ordinanceColumn": "24.05",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-420-24.07",
+    "ordinance": "24.07",
+    "versions": [
+      {
+        "id": "mgo-row-420-24.07",
+        "sourceRow": 420,
+        "ordinance": "24.07",
+        "description": "Obstructing stairways and entrances to buildings prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "24.07",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-421-24.08",
+    "ordinance": "24.08",
+    "versions": [
+      {
+        "id": "mgo-row-421-24.08",
+        "sourceRow": 421,
+        "ordinance": "24.08",
+        "description": "Noise regulation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd \n$300, subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd \n$300, subsequent",
+        "sourceDepositText": "$100, 1st \n$200, 2nd \n$300, subsequent",
+        "ordinanceColumn": "24.08",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-422-24.09",
+    "ordinance": "24.09",
+    "versions": [
+      {
+        "id": "mgo-row-422-24.09",
+        "sourceRow": 422,
+        "ordinance": "24.09",
+        "description": "Light motor vehicle noise control.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40, 1st \n$100, 2nd & subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40, 1st \n$100, 2nd & subsequent",
+        "sourceDepositText": "$40, 1st \n$100, 2nd & subsequent",
+        "ordinanceColumn": "24.09",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-423-24.09(6)",
+    "ordinance": "24.09(6)",
+    "versions": [
+      {
+        "id": "mgo-row-423-24.09(6)",
+        "sourceRow": 423,
+        "ordinance": "24.09(6)",
+        "description": "Radio or other electric sound amplification device plainly audible from vehicle from a distance of 50 or more feet.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 8000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$80, 1st \n$200, 2nd and sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$80, 1st \n$200, 2nd and sub.",
+        "sourceDepositText": "$80, 1st \n$200, 2nd and sub.",
+        "ordinanceColumn": "24.09(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+# R53 current architecture
+
+Writer and Reports are browser applications served by a helper bound to 127.0.0.1. IndexedDB retains private drafts and pending operations; integrity-protected JSON and immutable PDF receipts live in configured operational folders. Reports is read-only against case history. No central service is introduced.
+
+Browser startup entries import their core wiring. Descriptively named modules export their real functions directly. state.js owns shared mutable Writer and Reports stores. Cohesive domain services keep private state; pure presentation functions receive explicit, scoped contexts. There is no bridge registry or universal runtime getter table. The proof service retains a small explicit dependency interface for isolated integrity tests.
+
+The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.
+
+PDF receipts bind case/document/frozen-version identity, print-source hash and exact original bytes. Shared coordination precedes producing a new original. Retried filing retrieves the retained bytes; filenames alone do not establish identity. Outbox transfers verify exact bytes and refuse conflicts.
+
+Every non-static helper request requires a random per-start token, with constant-time comparison and existing Host, Origin, fetch-site and JSON guards. A private user-profile bootstrap hands the token to the browser through a fragment that is removed immediately. Public pages disclose no secret. A browser-profile bootstrap credential scoped to the loopback origin and port permits authorized reload after helper restart. Public readiness reveals version and readiness only.
+
+Application CSP authenticates the inline bootstrap and bundle by SHA-256, restricts connections to self and the Reports City GIS origin, and forbids objects, framing by other pages and base overrides. Rendering validates embedded-only resources, inserts a restrictive first-head policy and blocks network resolution in a fresh per-render profile.
+
+The installed layout stays flat under LOCALAPPDATA/MadisonDocWriter. R52 integrity model (no signing key): the installed launcher checks the share against runtime-manifest.json, staging every listed file and rechecking its size and SHA-256; it rejects additions, omissions, symlinks, changes and downgrades (helperBuild and helper version). Run from the share, launch.py first removes its own folder from the import path and hands off to the installed launcher. Deliberate tampering is guarded by NTFS permissions on the deployment folder (release owner write, inspectors read), which IT verifies before rollout.
+
+The maintained layout is the only source tree. Tools resolve source assets directly and generate derived modules and identity under build/. The deploy manifest resolves maintained paths to stable installed filenames. The trusted installed launcher authenticates the candidate share using installed verification code and the installed key; the shared bootstrap performs only a standard-library handoff when a verified installation exists.

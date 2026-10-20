@@ -1,0 +1,628 @@
+{
+  "status": "Unsigned pre-sign comparison; final manifest and signature require release-owner signing",
+  "checks": [
+    {
+      "oldName": "06-REPORTING.md",
+      "newName": "06-REPORTING.md",
+      "oldSha256": "5c1df7d7779e579def70a779a4059359b9be21710906b93fd05c65ca15a9f1ce",
+      "newUnsignedSha256": "5c1df7d7779e579def70a779a4059359b9be21710906b93fd05c65ca15a9f1ce",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "CASE-LOOKUP-GUIDE.md",
+      "newName": "CASE-LOOKUP-GUIDE.md",
+      "oldSha256": "f6646b2768dc6cf4fd073ac4964350dfb1f7a00665b21b7bac2c9cb2013193f3",
+      "newUnsignedSha256": "f6646b2768dc6cf4fd073ac4964350dfb1f7a00665b21b7bac2c9cb2013193f3",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "CASE-WORKFLOW-GUIDE.md",
+      "newName": "CASE-WORKFLOW-GUIDE.md",
+      "oldSha256": "7c2e49076c7318426a597345b1502bad15fbf0b0eedbadd5253d97391ee458b1",
+      "newUnsignedSha256": "7c2e49076c7318426a597345b1502bad15fbf0b0eedbadd5253d97391ee458b1",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "INSPECTOR-CORRECTION-GUIDE.md",
+      "newName": "INSPECTOR-CORRECTION-GUIDE.md",
+      "oldSha256": "5b6f19f877f906cefc3802cfb113f1a5a2fa1ef10c70e6b09634fc00ce501c8e",
+      "newUnsignedSha256": "5b6f19f877f906cefc3802cfb113f1a5a2fa1ef10c70e6b09634fc00ce501c8e",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "LEAFLET-LICENSE.txt",
+      "newName": "LEAFLET-LICENSE.txt",
+      "oldSha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb",
+      "newUnsignedSha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "NEW-DOCUMENTS-GUIDE.md",
+      "newName": "NEW-DOCUMENTS-GUIDE.md",
+      "oldSha256": "d8223385221b0d69d866ff83c92b32d6c2fa7bb50f51ce26bbdfb3619fad2e26",
+      "newUnsignedSha256": "d8223385221b0d69d866ff83c92b32d6c2fa7bb50f51ce26bbdfb3619fad2e26",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "NOTICE-AND-CITATION-GUIDE.md",
+      "newName": "NOTICE-AND-CITATION-GUIDE.md",
+      "oldSha256": "5eadac1410de0a25349b30a4d386a147c5394f3f1c3994b48ae1587558e1fdfa",
+      "newUnsignedSha256": "5eadac1410de0a25349b30a4d386a147c5394f3f1c3994b48ae1587558e1fdfa",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "NOTO-SANS-SC-LICENSE.txt",
+      "newName": "NOTO-SANS-SC-LICENSE.txt",
+      "oldSha256": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+      "newUnsignedSha256": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "ORDER-LANGUAGE-GUIDE.md",
+      "newName": "ORDER-LANGUAGE-GUIDE.md",
+      "oldSha256": "02b448a892a021a6d725fa92aea737f7a83f48fe84786ec7da48377746f9469b",
+      "newUnsignedSha256": "02b448a892a021a6d725fa92aea737f7a83f48fe84786ec7da48377746f9469b",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "PROGRAM-MANUAL.html",
+      "newName": "PROGRAM-MANUAL.html",
+      "oldSha256": "aed2df5844707221b08e5af57db3535b8819503b1b86d622d745850e4ff95d41",
+      "newUnsignedSha256": "66ed93b87d68201f45e749f07b43da343d9dbcc48f4009be27156cdec5ae3e0b",
+      "unchanged": false,
+      "reason": "WP4 manual identity and stable download links"
+    },
+    {
+      "oldName": "PROGRAM-MANUAL.md",
+      "newName": "PROGRAM-MANUAL.md",
+      "oldSha256": "dd8eba530455af0e27ca3bf3519321c2d2bbe84bee501b4d380a8d4c81718b0c",
+      "newUnsignedSha256": "5e61ba171286b35d5fcbebd3aafa54e1e4b22ff0c75c1582aa8b512b8a8f374b",
+      "unchanged": false,
+      "reason": "WP4 manual identity and independent package verification"
+    },
+    {
+      "oldName": "R49-ACCEPTANCE-RECORD.md",
+      "newName": null,
+      "oldSha256": "50754c9f1f45dc84db5c38381cbb16f8ac6f05fcb75c2617b0450dbb1436cf35",
+      "newUnsignedSha256": null,
+      "unchanged": false,
+      "reason": "WP4 removed from inspector deployment"
+    },
+    {
+      "oldName": "R50_Program_Instruction_Manual.docx",
+      "newName": "Program_Instruction_Manual.docx",
+      "oldSha256": "7e65036eae12df83964ac5f8f571d8cd5691319ec32586d706a734c97b8b935a",
+      "newUnsignedSha256": "6d6af42a9dd3e36595fcd7a0621a34045e9db0e0718be19b5daacadb1c3256a7",
+      "unchanged": false,
+      "reason": "WP4 manual identity and independent package verification"
+    },
+    {
+      "oldName": "R50_Program_Instruction_Manual.pdf",
+      "newName": "Program_Instruction_Manual.pdf",
+      "oldSha256": "495aabd119d5e0e611675c6a3b8cd0664e9f4c5fc86d9ce14adf1114cce59b6e",
+      "newUnsignedSha256": "9ada8d80355c209c0b15930f44100e2dbd8efa5fcaeba2aea910f649bfb79d78",
+      "unchanged": false,
+      "reason": "WP4 manual identity and independent package verification"
+    },
+    {
+      "oldName": "REINSPECTION-GUIDE.md",
+      "newName": "REINSPECTION-GUIDE.md",
+      "oldSha256": "c2068d2a07c787769fac8df4973be57f1cb5cf6e7bb845f878282f4b2b68bb37",
+      "newUnsignedSha256": "c2068d2a07c787769fac8df4973be57f1cb5cf6e7bb845f878282f4b2b68bb37",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "SNOW-CITATION-GUIDE.md",
+      "newName": "SNOW-CITATION-GUIDE.md",
+      "oldSha256": "340d71dd7a8f91e4616818f645e5642a225c8d73eb42facf27f0df926aff5ed9",
+      "newUnsignedSha256": "340d71dd7a8f91e4616818f645e5642a225c8d73eb42facf27f0df926aff5ed9",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "Start Document Writer - READ ME.md",
+      "newName": "Start Document Writer - READ ME.md",
+      "oldSha256": "ae304f68e4c05724aeb80ab062b521394ceb58f568b77b2907d5555061ab0b8d",
+      "newUnsignedSha256": "6fca2f8c41ec9935f321fda5610105e2f5142591aa4dd509feedf878ca29ce32",
+      "unchanged": false,
+      "reason": "WP1 independent installation guide and WP4 SQL allowlist/City checks"
+    },
+    {
+      "oldName": "Start Document Writer.bat",
+      "newName": "Start Document Writer.bat",
+      "oldSha256": "a0d24e2f6d4daba75f1f16193c0d2bbf689de4d4e21edfee0d47f6235bcddd1a",
+      "newUnsignedSha256": "2381770f429f3ee517d1066cea789508f41bbb838392cb6517b9dfdd719bdb50",
+      "unchanged": false,
+      "reason": "WP1 installed target with explicit candidate share"
+    },
+    {
+      "oldName": "address_parser.py",
+      "newName": "address_parser.py",
+      "oldSha256": "69012bae8c04d9a80eae184da12cbf96997e47d9282fcf031b03156997bc1c87",
+      "newUnsignedSha256": "15819f11d8463c506812f2d9fe0186f7af95c1339301e13f63043a78a3b1bbd5",
+      "unchanged": false,
+      "reason": "WP2 immutable data path resolution"
+    },
+    {
+      "oldName": "admin_rules.py",
+      "newName": "admin_rules.py",
+      "oldSha256": "ffa81f6037d596bd5febff4baa52b139da8ce9c22e644000b2f3cb385f10cd32",
+      "newUnsignedSha256": "ffa81f6037d596bd5febff4baa52b139da8ce9c22e644000b2f3cb385f10cd32",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "administrative_basis.py",
+      "newName": "administrative_basis.py",
+      "oldSha256": "c42c96317da707e80a70dfef0e39777dd1d61f00e28ae496ec46b5c6311f54cb",
+      "newUnsignedSha256": "c42c96317da707e80a70dfef0e39777dd1d61f00e28ae496ec46b5c6311f54cb",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "artifact_store.py",
+      "newName": "artifact_store.py",
+      "oldSha256": "6454bcb33757fdfd22383de73fff80ed62608787ba8ae8f09a779c804cdab5b5",
+      "newUnsignedSha256": "6454bcb33757fdfd22383de73fff80ed62608787ba8ae8f09a779c804cdab5b5",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "calendar_policy.json",
+      "newName": "calendar_policy.json",
+      "oldSha256": "4a64746c1d276270bddb0992815031c6f0f73a3d11b8f55cb669ff2c7d7df8e3",
+      "newUnsignedSha256": "4a64746c1d276270bddb0992815031c6f0f73a3d11b8f55cb669ff2c7d7df8e3",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case-lookup-settings.example.json",
+      "newName": "case-lookup-settings.example.json",
+      "oldSha256": "ed9ee8cdc641fb83c3384c70b81f9f25268de3122f33e101dd4f5c1ee21f1a5b",
+      "newUnsignedSha256": "ed9ee8cdc641fb83c3384c70b81f9f25268de3122f33e101dd4f5c1ee21f1a5b",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case_integrity.py",
+      "newName": "case_integrity.py",
+      "oldSha256": "47fec91d8fb2d57fda35e19fe7448f08087a40907f763b01a2dd048cfc4d258c",
+      "newUnsignedSha256": "47fec91d8fb2d57fda35e19fe7448f08087a40907f763b01a2dd048cfc4d258c",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case_lookup.ps1",
+      "newName": "case_lookup.ps1",
+      "oldSha256": "3153c3d1e5f32efb1a3a932ff8924680be864b323c6d56c47f4fac5af4db45e4",
+      "newUnsignedSha256": "3153c3d1e5f32efb1a3a932ff8924680be864b323c6d56c47f4fac5af4db45e4",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case_lookup.py",
+      "newName": "case_lookup.py",
+      "oldSha256": "aa7a0c2b917b41536e24c3bd3b1bd800f02343bc13d53ba6e57f9a2ed01def02",
+      "newUnsignedSha256": "aa7a0c2b917b41536e24c3bd3b1bd800f02343bc13d53ba6e57f9a2ed01def02",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case_lookup.sql",
+      "newName": "case_lookup.sql",
+      "oldSha256": "d51eb6f9bdbb0eb1dc11cf594909e3b816551d0f1a9cab9e5768da616391c776",
+      "newUnsignedSha256": "d51eb6f9bdbb0eb1dc11cf594909e3b816551d0f1a9cab9e5768da616391c776",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "case_store.py",
+      "newName": "case_store.py",
+      "oldSha256": "857999a9c49fb3a4546a8cf0fc19bac01af0a5257030f0c0727038fc7a070f52",
+      "newUnsignedSha256": "6d74fe188ac9ce3f49165e8d6b87496b45b9bbc2e8a948576bd81b1cc2d8843c",
+      "unchanged": false,
+      "reason": "WP2 immutable data path resolution"
+    },
+    {
+      "oldName": "catalog_manifest.json",
+      "newName": "catalog_manifest.json",
+      "oldSha256": "6eab3885cc44c827a60bc452914f0b6a435be2dbc2f39f14d9059b97306ec525",
+      "newUnsignedSha256": "6eab3885cc44c827a60bc452914f0b6a435be2dbc2f39f14d9059b97306ec525",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "citation_policy.json",
+      "newName": "citation_policy.json",
+      "oldSha256": "8fab0bfcf2ccb5e74f1b0a4e2d4bebaadcdcd4f6ed0f659951f11384180d1406",
+      "newUnsignedSha256": "8fab0bfcf2ccb5e74f1b0a4e2d4bebaadcdcd4f6ed0f659951f11384180d1406",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "citation_pricing.py",
+      "newName": "citation_pricing.py",
+      "oldSha256": "75126a7aa5d1ad7c72e240712d67fdf92d01b0a0cec3009a28f3b1608a10c43d",
+      "newUnsignedSha256": "01599f24c06c49796308f93a93c4180f5dcfe7f3be0ca0a2efd08fe60497fc65",
+      "unchanged": false,
+      "reason": "WP2 immutable data path resolution"
+    },
+    {
+      "oldName": "city-timezone.tzif",
+      "newName": "city-timezone.tzif",
+      "oldSha256": "feba326ebe88eac20017a718748c46c68469a1e7f5e7716dcb8f1d43a6e6f686",
+      "newUnsignedSha256": "feba326ebe88eac20017a718748c46c68469a1e7f5e7716dcb8f1d43a6e6f686",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "helper_logging.py",
+      "newName": "helper_logging.py",
+      "oldSha256": "2598f8f765c9a43d3cd12e186576f209500a238119d36aeefd804e9b5a2d4419",
+      "newUnsignedSha256": "50a7d15cf1b805f21133499364d26f93105a675edefd5a2369a0e39e3480250f",
+      "unchanged": false,
+      "reason": "WP2 development logs under build; installed logging unchanged"
+    },
+    {
+      "oldName": "helper_session.py",
+      "newName": "helper_session.py",
+      "oldSha256": "8787672a099d71c8d551b9dd077f83688a05bce056d121f26c18cdab73bb9e4d",
+      "newUnsignedSha256": "8787672a099d71c8d551b9dd077f83688a05bce056d121f26c18cdab73bb9e4d",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "install_release.py",
+      "newName": "install_release.py",
+      "oldSha256": "e6a4548e4b7620064af31f10b583ef3570116f2d3c9539ea7df09ebb44ed576e",
+      "newUnsignedSha256": "e6a4548e4b7620064af31f10b583ef3570116f2d3c9539ea7df09ebb44ed576e",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "install_runtime.py",
+      "newName": "install_runtime.py",
+      "oldSha256": "ee31ae3e4721936b8786e83fcb3e2bb129c8a38fa81ca350b28d2fda5651dc4c",
+      "newUnsignedSha256": "ee31ae3e4721936b8786e83fcb3e2bb129c8a38fa81ca350b28d2fda5651dc4c",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "integrity-settings.example.json",
+      "newName": "integrity-settings.example.json",
+      "oldSha256": "63c1b9c4f8d41069b2248af1d06bd890e1b31fe529d919fadd0cd96207804889",
+      "newUnsignedSha256": "63c1b9c4f8d41069b2248af1d06bd890e1b31fe529d919fadd0cd96207804889",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "integrity_admin.py",
+      "newName": "integrity_admin.py",
+      "oldSha256": "16d3e34389a9701df1d8171fc59de686fdb3e7fec3e5ee8572a3e66d70cb736a",
+      "newUnsignedSha256": "16d3e34389a9701df1d8171fc59de686fdb3e7fec3e5ee8572a3e66d70cb736a",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "launch.py",
+      "newName": "launch.py",
+      "oldSha256": "80735bfa1075967961528ca531e28d03bf70558775246bb571dd4c16d488d99f",
+      "newUnsignedSha256": "3925b013faac492f06110f02224befae69da954421b561822e6061f5331b4791",
+      "unchanged": false,
+      "reason": "WP1 trusted handoff and generated identity import"
+    },
+    {
+      "oldName": "madison-document-writer.html",
+      "newName": "madison-document-writer.html",
+      "oldSha256": "fd9708e0d3d29276bf57edca28192e8841d0ba42dc52668cdbbbdc204977b320",
+      "newUnsignedSha256": "ad52b7d7a544ec8f4a1b8026d010a67c1813bf4aeccfe72016f23809f10995bd",
+      "unchanged": false,
+      "reason": "Identity, stable manual links and generated comments only; normalized bytes proven"
+    },
+    {
+      "oldName": "madison-reports.html",
+      "newName": "madison-reports.html",
+      "oldSha256": "68f2ec23a82df8944f02faa3e8fc4468718e7249f4704ccdce7f4e17015e61d7",
+      "newUnsignedSha256": "b8dd164606fed9f02e5d6ea4d1f6e237b971079d93f999dcc927dcfcca63ed5e",
+      "unchanged": false,
+      "reason": "Identity and generated comments only; normalized bytes proven"
+    },
+    {
+      "oldName": "operations_helper.py",
+      "newName": "operations_helper.py",
+      "oldSha256": "bd580676888cb2ccbbbd58a89e273a8db265c3371a775ead7777b5ecf99acfcf",
+      "newUnsignedSha256": "c2a0cd978683ccd54f0a0406ae9796f7fb796268540dda015999814c88b09b65",
+      "unchanged": false,
+      "reason": "WP2 immutable catalog resolution"
+    },
+    {
+      "oldName": "postal_states.json",
+      "newName": "postal_states.json",
+      "oldSha256": "f1817d502dfc3920f276b1b9df8037863bc8caaef2e1d468b4d732180e68a9d1",
+      "newUnsignedSha256": "f1817d502dfc3920f276b1b9df8037863bc8caaef2e1d468b4d732180e68a9d1",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "postal_suffixes.json",
+      "newName": "postal_suffixes.json",
+      "oldSha256": "49ed7c10877d54f171d2baa7b142dcbaa36f7ea9b45e5a7b314389410b90874e",
+      "newUnsignedSha256": "49ed7c10877d54f171d2baa7b142dcbaa36f7ea9b45e5a7b314389410b90874e",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "release_trust.py",
+      "newName": "release_trust.py",
+      "oldSha256": "fc3cc9270f4a41121531655be8ffcdfa57454e4744bb9be7c0d9e953ca6c77cb",
+      "newUnsignedSha256": "fc3cc9270f4a41121531655be8ffcdfa57454e4744bb9be7c0d9e953ca6c77cb",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "render_security.py",
+      "newName": "render_security.py",
+      "oldSha256": "f00633586a9bf8000eb621acac670cd5c9640c64004dc83cb71e213bc5ec4fd8",
+      "newUnsignedSha256": "f00633586a9bf8000eb621acac670cd5c9640c64004dc83cb71e213bc5ec4fd8",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "reporting_reads.py",
+      "newName": "reporting_reads.py",
+      "oldSha256": "c35f7437891859ee12f35c9dcaa9b90f80932f49a51ab51dd51903db1f8c29f5",
+      "newUnsignedSha256": "c35f7437891859ee12f35c9dcaa9b90f80932f49a51ab51dd51903db1f8c29f5",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "requirements-runtime.txt",
+      "newName": "requirements-runtime.txt",
+      "oldSha256": "1f9230bc2249141d83cb06c07ad7e424875dabdd3e81b7277cd2e94fd9ea0c5f",
+      "newUnsignedSha256": "1f9230bc2249141d83cb06c07ad7e424875dabdd3e81b7277cd2e94fd9ea0c5f",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "runtime-manifest.json",
+      "newName": "runtime-manifest.json",
+      "oldSha256": "4fefd65a2f0900fd0dabe6f633e45adf75b2de54c2a9c972cbfa1d37812053ae",
+      "newUnsignedSha256": "19798fe40bbb2c5cd14421e201c02058cd85ba54d618dc1878a481dc069711a9",
+      "unchanged": false,
+      "reason": "WP2 direct maintained paths, WP4 identity, stable manual names and inventory"
+    },
+    {
+      "oldName": "runtime-manifest.sig",
+      "newName": null,
+      "oldSha256": "70706bbd3e52ce1444dccdcf4a1db1118dd904412e9ab8f1b648c417d82af4c5",
+      "newUnsignedSha256": null,
+      "unchanged": false,
+      "reason": "New release requires owner signature"
+    },
+    {
+      "oldName": "runtime_identity.py",
+      "newName": "runtime_identity.py",
+      "oldSha256": "3b381bd28746e8e6a6838d886f91e5521fd640cef9348d833c0a99c58358e8eb",
+      "newUnsignedSha256": "262cffdadd0990257e6ed232d65c4eb883e1a362fcd3283ca10be5a2ec2757f8",
+      "unchanged": false,
+      "reason": "WP2 generated authoritative identity"
+    },
+    {
+      "oldName": "scan_legacy_cases.py",
+      "newName": "scan_legacy_cases.py",
+      "oldSha256": "f23cf9b6cdd04fc580ebae8e992d85e6db5464409a125b43d3ece0bd2349d118",
+      "newUnsignedSha256": "f23cf9b6cdd04fc580ebae8e992d85e6db5464409a125b43d3ece0bd2349d118",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "server.py",
+      "newName": "server.py",
+      "oldSha256": "3760df171a9a8f227af597ef5230df433d1dea31fbb372b5ef4efce2527a703e",
+      "newUnsignedSha256": "4eb09e2cf71e4c87f8608ff218387382804b38e208509df35942e47f138e7d40",
+      "unchanged": false,
+      "reason": "WP2 generated identity/resource imports; WP4 stable manual routes"
+    },
+    {
+      "oldName": "session-bootstrap.js",
+      "newName": "session-bootstrap.js",
+      "oldSha256": "529fc77fdbe27cf165e5ff1ecc02999b2396d81482402f5a8df02a3dede7a23f",
+      "newUnsignedSha256": "529fc77fdbe27cf165e5ff1ecc02999b2396d81482402f5a8df02a3dede7a23f",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "snow_letter.json",
+      "newName": "snow_letter.json",
+      "oldSha256": "ee66fba15fa2ea067406d84f0b1afbeffdb5a2694fac6fc197374ede8fe4f6e7",
+      "newUnsignedSha256": "ee66fba15fa2ea067406d84f0b1afbeffdb5a2694fac6fc197374ede8fe4f6e7",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "snow_rules.py",
+      "newName": "snow_rules.py",
+      "oldSha256": "69d42fed453a67deeb71561e180edf529d96eee6e68200817d3bd4a4a709c164",
+      "newUnsignedSha256": "c2a0b2820f937ada1f0e2da5442f5bd0c0bc73d11e8c05225bd8af85f80e41c1",
+      "unchanged": false,
+      "reason": "WP2 immutable data path resolution"
+    },
+    {
+      "oldName": "trusted-connections.json",
+      "newName": "trusted-connections.json",
+      "oldSha256": "56ea32b2b5e8731a52cf9b1f4cb0662689f0cead31d2ab5cbd93a7eb0516da0e",
+      "newUnsignedSha256": "56ea32b2b5e8731a52cf9b1f4cb0662689f0cead31d2ab5cbd93a7eb0516da0e",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "trusted_connections.py",
+      "newName": "trusted_connections.py",
+      "oldSha256": "7259786a66c811ea20c7d1a996a71b2fdcf780e0ff09169c4e1fff423fa94bee",
+      "newUnsignedSha256": "7259786a66c811ea20c7d1a996a71b2fdcf780e0ff09169c4e1fff423fa94bee",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/pure25519/LICENSE",
+      "newName": "vendor/python/pure25519/LICENSE",
+      "oldSha256": "33a57b60e166837fad680546a420e54d3f08b2599c90ef6b4f9129ac997ad2bb",
+      "newUnsignedSha256": "33a57b60e166837fad680546a420e54d3f08b2599c90ef6b4f9129ac997ad2bb",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/pure25519/__init__.py",
+      "newName": "vendor/python/pure25519/__init__.py",
+      "oldSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "newUnsignedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/pure25519/basic.py",
+      "newName": "vendor/python/pure25519/basic.py",
+      "oldSha256": "c78c7a577ad8c09e9859761b32bc288fe82e8d2dab7074c5157c8119cb419418",
+      "newUnsignedSha256": "c78c7a577ad8c09e9859761b32bc288fe82e8d2dab7074c5157c8119cb419418",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/pure25519/eddsa.py",
+      "newName": "vendor/python/pure25519/eddsa.py",
+      "oldSha256": "d5001179b5740f2e14e9c9ff4a03fdf63cedcdb87ef3da15fb244679084ad5b4",
+      "newUnsignedSha256": "d5001179b5740f2e14e9c9ff4a03fdf63cedcdb87ef3da15fb244679084ad5b4",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/rfc8785-0.1.4.dist-info/LICENSE",
+      "newName": "vendor/python/rfc8785-0.1.4.dist-info/LICENSE",
+      "oldSha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "newUnsignedSha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/rfc8785/__init__.py",
+      "newName": "vendor/python/rfc8785/__init__.py",
+      "oldSha256": "fa44927afd547caf7547247078bcf28863d1e69caf116d258c532b3f20ffd154",
+      "newUnsignedSha256": "fa44927afd547caf7547247078bcf28863d1e69caf116d258c532b3f20ffd154",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/rfc8785/_impl.py",
+      "newName": "vendor/python/rfc8785/_impl.py",
+      "oldSha256": "c25bc3a046528482d53bee3487b837f31dd9c05f33e8f13288c7aab320932cec",
+      "newUnsignedSha256": "c25bc3a046528482d53bee3487b837f31dd9c05f33e8f13288c7aab320932cec",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/python/rfc8785/py.typed",
+      "newName": "vendor/python/rfc8785/py.typed",
+      "oldSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "newUnsignedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/probableparsing-0.0.1-py2.py3-none-any.whl",
+      "newName": "vendor/wheels/probableparsing-0.0.1-py2.py3-none-any.whl",
+      "oldSha256": "509df25fdda4fd7c0b2a100f58cc971bd23daf26f3b3320aebf2616d2e10c69e",
+      "newUnsignedSha256": "509df25fdda4fd7c0b2a100f58cc971bd23daf26f3b3320aebf2616d2e10c69e",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/python_crfsuite-0.9.12-cp310-cp310-win_amd64.whl",
+      "newName": "vendor/wheels/python_crfsuite-0.9.12-cp310-cp310-win_amd64.whl",
+      "oldSha256": "2a49237c319ed7c0979d91659fcd3ec7629be36981e1263f2c21a23a2c8dffd1",
+      "newUnsignedSha256": "2a49237c319ed7c0979d91659fcd3ec7629be36981e1263f2c21a23a2c8dffd1",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/python_crfsuite-0.9.12-cp311-cp311-win_amd64.whl",
+      "newName": "vendor/wheels/python_crfsuite-0.9.12-cp311-cp311-win_amd64.whl",
+      "oldSha256": "3b646fe2ea2c172c1823272107039ac4d00aeea81acaf0253f5c16beb64926b0",
+      "newUnsignedSha256": "3b646fe2ea2c172c1823272107039ac4d00aeea81acaf0253f5c16beb64926b0",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/python_crfsuite-0.9.12-cp312-cp312-win_amd64.whl",
+      "newName": "vendor/wheels/python_crfsuite-0.9.12-cp312-cp312-win_amd64.whl",
+      "oldSha256": "fa6258bf10d8185262dee8fe2ca8d3de3c7aecb990846329043fc895344cc939",
+      "newUnsignedSha256": "fa6258bf10d8185262dee8fe2ca8d3de3c7aecb990846329043fc895344cc939",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/python_crfsuite-0.9.12-cp313-cp313-win_amd64.whl",
+      "newName": "vendor/wheels/python_crfsuite-0.9.12-cp313-cp313-win_amd64.whl",
+      "oldSha256": "21334c298318d4de057eacaad2ed179b7f63640e9cbd0c8141d656f58e7bd3f1",
+      "newUnsignedSha256": "21334c298318d4de057eacaad2ed179b7f63640e9cbd0c8141d656f58e7bd3f1",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/python_crfsuite-0.9.12-cp314-cp314-win_amd64.whl",
+      "newName": "vendor/wheels/python_crfsuite-0.9.12-cp314-cp314-win_amd64.whl",
+      "oldSha256": "94ab3f1666ec4244d8190b7e624505bc6e845d54b4faa0dacd9ea8fd1ac7eef8",
+      "newUnsignedSha256": "94ab3f1666ec4244d8190b7e624505bc6e845d54b4faa0dacd9ea8fd1ac7eef8",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/rfc8785-0.1.4-py3-none-any.whl",
+      "newName": "vendor/wheels/rfc8785-0.1.4-py3-none-any.whl",
+      "oldSha256": "520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48",
+      "newUnsignedSha256": "520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "vendor/wheels/usaddress-0.5.16-py3-none-any.whl",
+      "newName": "vendor/wheels/usaddress-0.5.16-py3-none-any.whl",
+      "oldSha256": "ce2bd73e3a41176fa29f093e9ad153327a87862430f1b0b121f0cb230c182a6a",
+      "newUnsignedSha256": "ce2bd73e3a41176fa29f093e9ad153327a87862430f1b0b121f0cb230c182a6a",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": "verified_update.py",
+      "newName": "verified_update.py",
+      "oldSha256": "206a62d84ec5c8b8ce40b373f2be5e4f8947e8f5176f9db9c51c7cfd1b2f75dd",
+      "newUnsignedSha256": "913404bd411e6e2a54b806c288e7f9af1ba30435b241dfc25396d477ba1fe453",
+      "unchanged": false,
+      "reason": "WP4 independent build counter and safe legacy pin migration"
+    },
+    {
+      "oldName": "workflow_helper.py",
+      "newName": "workflow_helper.py",
+      "oldSha256": "22b5f0fb62ed9999fd9df5e9df195376d4c89304286cefed7179df856cd423f6",
+      "newUnsignedSha256": "22b5f0fb62ed9999fd9df5e9df195376d4c89304286cefed7179df856cd423f6",
+      "unchanged": true,
+      "reason": "Exact byte parity"
+    },
+    {
+      "oldName": null,
+      "newName": "runtime_paths.py",
+      "newUnsignedSha256": "eebcd8fe80571a78c45d867e14a75ef5fda9d5c9c94eff72cd43f55d7951e4cc",
+      "unchanged": false,
+      "reason": "WP2 direct immutable source resolution; installed filenames unchanged"
+    }
+  ]
+}

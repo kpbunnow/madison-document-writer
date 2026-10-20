@@ -1,0 +1,198 @@
+[
+  {
+    "id": "mgo-row-501-30.01(5)",
+    "ordinance": "30.01(5)",
+    "versions": [
+      {
+        "id": "mgo-row-501-30.01(5)",
+        "sourceRow": 501,
+        "ordinance": "30.01(5)",
+        "description": "HVAC work performed without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "stale",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": true,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "30.01(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-502-30.01(5)",
+    "ordinance": "30.01(5)",
+    "versions": [
+      {
+        "id": "mgo-row-502-30.01(5)",
+        "sourceRow": 502,
+        "ordinance": "30.01(5)",
+        "description": "HVAC work performed without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "stale",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": true,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "30.01(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-503-30.01(6)(b)",
+    "ordinance": "30.01(6)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-503-30.01(6)(b)",
+        "sourceRow": 503,
+        "ordinance": "30.01(6)(b)",
+        "description": "Concealing HVAC work before inspection.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "30.01(6)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-504-30.01(7)",
+    "ordinance": "30.01(7)",
+    "versions": [
+      {
+        "id": "mgo-row-504-30.01(7)",
+        "sourceRow": 504,
+        "ordinance": "30.01(7)",
+        "description": "Failure to have sign on vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "30.01(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

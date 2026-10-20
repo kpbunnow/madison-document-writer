@@ -1,0 +1,49 @@
+[
+  {
+    "id": "mgo-row-535-36.06",
+    "ordinance": "36.06",
+    "versions": [
+      {
+        "id": "mgo-row-535-36.06",
+        "sourceRow": 535,
+        "ordinance": "36.06",
+        "description": "Theft of cable service and satellite cable programming.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300, 1st \n$500, 2nd \n$750, 3rd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300, 1st \n$500, 2nd \n$750, 3rd",
+        "sourceDepositText": "$300, 1st \n$500, 2nd \n$750, 3rd",
+        "ordinanceColumn": "36.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

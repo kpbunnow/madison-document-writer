@@ -1,0 +1,459 @@
+[
+  {
+    "id": "mgo-row-478-28.141(8)(c)",
+    "ordinance": "28.141(8)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-478-28.141(8)(c)",
+        "sourceRow": 478,
+        "ordinance": "28.141(8)(c)",
+        "description": "Unlawful parking in yards.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "28.141(8)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-479-28.141(13)(g)",
+    "ordinance": "28.141(13)(g)",
+    "versions": [
+      {
+        "id": "mgo-row-479-28.141(13)(g)",
+        "sourceRow": 479,
+        "ordinance": "28.141(13)(g)",
+        "description": "Motor vehicle idling off-street.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 40000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 60000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 7
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st in 7 yrs. \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st in 7 yrs. \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs.",
+        "sourceDepositText": "$100, 1st in 7 yrs. \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs.",
+        "ordinanceColumn": "28.141(13)(g)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-480-28.032(1)",
+    "ordinance": "28.032(1)",
+    "versions": [
+      {
+        "id": "mgo-row-480-28.032(1)",
+        "sourceRow": 480,
+        "ordinance": "28.032(1)",
+        "description": "Use of land other than permitted.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "28.032(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-481-28.141(10)(a)",
+    "ordinance": "28.141(10)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-481-28.141(10)(a)",
+        "sourceRow": 481,
+        "ordinance": "28.141(10)(a)",
+        "description": "Unlawful truck parking on residential lot.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.141(10)(a)\u2014(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-481-28.141(10)(b)",
+    "ordinance": "28.141(10)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-481-28.141(10)(b)",
+        "sourceRow": 481,
+        "ordinance": "28.141(10)(b)",
+        "description": "Unlawful truck parking on residential lot.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.141(10)(a)\u2014(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-481-28.141(10)(c)",
+    "ordinance": "28.141(10)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-481-28.141(10)(c)",
+        "sourceRow": 481,
+        "ordinance": "28.141(10)(c)",
+        "description": "Unlawful truck parking on residential lot.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.141(10)(a)\u2014(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-482-28.141(10)(d)",
+    "ordinance": "28.141(10)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-482-28.141(10)(d)",
+        "sourceRow": 482,
+        "ordinance": "28.141(10)(d)",
+        "description": "Inoperable vehicle parked on residential lot.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.141(10)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-483-28.141(10)(d)",
+    "ordinance": "28.141(10)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-483-28.141(10)(d)",
+        "sourceRow": 483,
+        "ordinance": "28.141(10)(d)",
+        "description": "Vehicle parked on residential lot without current license plates.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd w/in 1 yr. \n$250, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.141(10)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-484-28.202(3)",
+    "ordinance": "28.202(3)",
+    "versions": [
+      {
+        "id": "mgo-row-484-28.202(3)",
+        "sourceRow": 484,
+        "ordinance": "28.202(3)",
+        "description": "Failure to obtain zoning certificate.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "28.202(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

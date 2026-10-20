@@ -1,0 +1,245 @@
+[
+  {
+    "id": "mgo-row-324-19.08",
+    "ordinance": "19.08",
+    "versions": [
+      {
+        "id": "mgo-row-324-19.08",
+        "sourceRow": 324,
+        "ordinance": "19.08",
+        "description": "Unlicensed person performing electrical work.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "19.08",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-325-19.09(1)",
+    "ordinance": "19.09(1)",
+    "versions": [
+      {
+        "id": "mgo-row-325-19.09(1)",
+        "sourceRow": 325,
+        "ordinance": "19.09(1)",
+        "description": "Performing electrical work without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "19.09(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-326-19.10",
+    "ordinance": "19.10",
+    "versions": [
+      {
+        "id": "mgo-row-326-19.10",
+        "sourceRow": 326,
+        "ordinance": "19.10",
+        "description": "Concealing electrical work before inspection.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "19.10",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-327-19.13(6)(c)",
+    "ordinance": "19.13(6)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-327-19.13(6)(c)",
+        "sourceRow": 327,
+        "ordinance": "19.13(6)(c)",
+        "description": "Failure to modify electrical service.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd + sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd + sub.",
+        "ordinanceColumn": "19.13(6)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-328-19.14",
+    "ordinance": "19.14",
+    "versions": [
+      {
+        "id": "mgo-row-328-19.14",
+        "sourceRow": 328,
+        "ordinance": "19.14",
+        "description": "Failure to have sign on vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "19.14",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

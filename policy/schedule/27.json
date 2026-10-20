@@ -1,0 +1,516 @@
+[
+  {
+    "id": "mgo-row-467-27.04(2)(h)",
+    "ordinance": "27.04(2)(h)",
+    "versions": [
+      {
+        "id": "mgo-row-467-27.04(2)(h)",
+        "sourceRow": 467,
+        "ordinance": "27.04(2)(h)",
+        "description": "Failure to maintain minimum temperature of 67\u00b0F in all habitable rooms.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.04(2)(h)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-468-27.04(2)(j)",
+    "ordinance": "27.04(2)(j)",
+    "versions": [
+      {
+        "id": "mgo-row-468-27.04(2)(j)",
+        "sourceRow": 468,
+        "ordinance": "27.04(2)(j)",
+        "description": "Use of cooking equipment in room other than a kitchen.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.04(2)(j)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-469-27.04(2)(k)",
+    "ordinance": "27.04(2)(k)",
+    "versions": [
+      {
+        "id": "mgo-row-469-27.04(2)(k)",
+        "sourceRow": 469,
+        "ordinance": "27.04(2)(k)",
+        "description": "Failure to provide required contact information to Building Inspection Division.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "27.04(2)(k)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-470-27.05(2)(b)",
+    "ordinance": "27.05(2)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-470-27.05(2)(b)",
+        "sourceRow": 470,
+        "ordinance": "27.05(2)(b)",
+        "description": "Failure to remove noxious weeds.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-471-27.05(2)(x)",
+    "ordinance": "27.05(2)(x)",
+    "versions": [
+      {
+        "id": "mgo-row-471-27.05(2)(x)",
+        "sourceRow": 471,
+        "ordinance": "27.05(2)(x)",
+        "description": "Improper maintenance of private storm or building storm sewers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(x)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-472-27.05(2)(cc)",
+    "ordinance": "27.05(2)(cc)",
+    "versions": [
+      {
+        "id": "mgo-row-472-27.05(2)(cc)",
+        "sourceRow": 472,
+        "ordinance": "27.05(2)(cc)",
+        "description": "Improper storage of trash and recycling carts.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "27.05(2)(cc)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-473-27.05(2)(dd)",
+    "ordinance": "27.05(2)(dd)",
+    "versions": [
+      {
+        "id": "mgo-row-473-27.05(2)(dd)",
+        "sourceRow": 473,
+        "ordinance": "27.05(2)(dd)",
+        "description": "Large items on terrace.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(dd)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-474-27.05(3)(a)",
+    "ordinance": "27.05(3)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-474-27.05(3)(a)",
+        "sourceRow": 474,
+        "ordinance": "27.05(3)(a)",
+        "description": "Maintaining or permitting a public nuisance within the City.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200 \n$200"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200 \n$200",
+        "ordinanceColumn": "27.05(3)(a) \n27.085(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-474-27.085(2)",
+    "ordinance": "27.085(2)",
+    "versions": [
+      {
+        "id": "mgo-row-474-27.085(2)",
+        "sourceRow": 474,
+        "ordinance": "27.085(2)",
+        "description": "Maintaining or permitting a public nuisance within the City.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200 \n$200"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200 \n$200",
+        "ordinanceColumn": "27.05(3)(a) \n27.085(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-475-27.05(2)(c)",
+    "ordinance": "27.05(2)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-475-27.05(2)(c)",
+        "sourceRow": 475,
+        "ordinance": "27.05(2)(c)",
+        "description": "Improper maintenance of exterior property areas.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-476-27.05(2)(f)",
+    "ordinance": "27.05(2)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-476-27.05(2)(f)",
+        "sourceRow": 476,
+        "ordinance": "27.05(2)(f)",
+        "description": "Yard, lawn, or plantings not properly maintained.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-477-27.05(2)(s)",
+    "ordinance": "27.05(2)(s)",
+    "versions": [
+      {
+        "id": "mgo-row-477-27.05(2)(s)",
+        "sourceRow": 477,
+        "ordinance": "27.05(2)(s)",
+        "description": "Failure to remove noxious weeds.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "stale",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": true,
+        "rawText": "$100, 1st \n$200, 2nd",
+        "sourceDepositText": "$100, 1st \n$200, 2nd",
+        "ordinanceColumn": "27.05(2)(s)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

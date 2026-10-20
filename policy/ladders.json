@@ -1,0 +1,99 @@
+[
+  {
+    "id": "ladder-12-month",
+    "versions": [
+      {
+        "id": "ladder-12-month",
+        "ch": [
+          "6",
+          "7",
+          "27",
+          "28",
+          "31",
+          "34"
+        ],
+        "sec": [
+          "33.24"
+        ],
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "status": "verified",
+        "countBasis": "citation",
+        "rawText": "$100 first, $200 second, $250 third and subsequent within 12 months",
+        "source": {
+          "subsection": "MGO 1.08(3)(b)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08"
+        },
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "ladder-site",
+    "versions": [
+      {
+        "id": "ladder-site",
+        "ch": [
+          "37"
+        ],
+        "sec": [],
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "status": "verified",
+        "countBasis": "citation",
+        "rawText": "$100 first at the site, $250 second, $500 third and subsequent",
+        "source": {
+          "subsection": "MGO 1.08(3)(b)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08"
+        },
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

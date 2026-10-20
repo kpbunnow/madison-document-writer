@@ -1,0 +1,13 @@
+# R50 current domain rules
+
+Legal wording, ordinance interpretation, court schedules, numbering, authority, seasonal policy and language approval belong to the division. The mandatory-appearance hold remains enforced in Writer and helper until approved distinct defendant instructions are supplied. Historical frozen reprints remain unchanged.
+
+Preserve issued snapshots, event/item/root/visit identities, action chronology, correction lineage, withdrawals versus compliance, deadline limits, initial notice/citation atomic publication and legacy readers. Device saving is not issuance; a filed marker is not PDF proof; an Outlook draft is not delivery. A pending publication confirms its retained request before another action.
+
+Inspection imports use the unchanged fixed read-only SQL query or division SSRS Excel. Result statuses Completed, Official Notice, Citation and Compliance use the same defined eligibility rule in both paths. Scheduled, Pending, Assist, unknown statuses, unsupported types, missing actual dates and future dates cannot authorize an import. Blank times remain blank. A result status is not evidence that Document Writer issued a document; shared record identities independently prevent reuse. Existing unfinished work opens through Continue existing case. Several eligible results require an explicit choice. Snow Removal record category retains the MGO 10.28 route.
+
+New notices begin with no automatic item deadline. At most three distinct outstanding-item dates are permitted by the existing rules. Physical visits and their item findings are distinct from document actions. No-access findings are not compliance. Withdrawn items retain their reason and identity. Private language edits survive removal/reselection; reviewed-version adoption is explicit; issued wording stays frozen.
+
+Pricing preserves determined locks, counted history, approved basis provenance, required measurements and unchanged-correction prices. Manual authority is separate from the mandatory wording hold. Snow uses its existing site/season rules and no ordinary repair deadline. Do not change policy to bypass a readiness check.
+
+Reports accepts only verified case bytes matching summary sourceRevision; legacy, stale, duplicate, unreadable or unproven projections remain visible as excluded coverage. Current table, CSV, workbook and report print use the same row ordering. Cached review metadata is labeled and cannot bypass publication validation.

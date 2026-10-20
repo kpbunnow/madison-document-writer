@@ -1,0 +1,686 @@
+[
+  {
+    "id": "mgo-row-518-34.04(4)",
+    "ordinance": "34.04(4)",
+    "versions": [
+      {
+        "id": "mgo-row-518-34.04(4)",
+        "sourceRow": 518,
+        "ordinance": "34.04(4)",
+        "description": "Intentional false alarm.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.04(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-519-34.04(5)",
+    "ordinance": "34.04(5)",
+    "versions": [
+      {
+        "id": "mgo-row-519-34.04(5)",
+        "sourceRow": 519,
+        "ordinance": "34.04(5)",
+        "description": "Malfunction of alarm system, unintentional false alarm (if 2 violations in 1 month or 3 violations in 12 months).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub.",
+        "ordinanceColumn": "34.04(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-520-34.04(5)",
+    "ordinance": "34.04(5)",
+    "versions": [
+      {
+        "id": "mgo-row-520-34.04(5)",
+        "sourceRow": 520,
+        "ordinance": "34.04(5)",
+        "description": "Inspection, testing, maintenance resulting in false alarm.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd \n$300, 3rd & sub.",
+        "ordinanceColumn": "34.04(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-521-34.06",
+    "ordinance": "34.06",
+    "versions": [
+      {
+        "id": "mgo-row-521-34.06",
+        "sourceRow": 521,
+        "ordinance": "34.06",
+        "description": "Causing fire by negligence.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$1,000"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$1,000",
+        "sourceDepositText": "$1,000",
+        "ordinanceColumn": "34.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-522-34.104(1)",
+    "ordinance": "34.104(1)",
+    "versions": [
+      {
+        "id": "mgo-row-522-34.104(1)",
+        "sourceRow": 522,
+        "ordinance": "34.104(1)",
+        "description": "Obstructing firefighter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.104(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-523-34.104(2)",
+    "ordinance": "34.104(2)",
+    "versions": [
+      {
+        "id": "mgo-row-523-34.104(2)",
+        "sourceRow": 523,
+        "ordinance": "34.104(2)",
+        "description": "False request for fire personnel.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.104(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-524-34.104(3)",
+    "ordinance": "34.104(3)",
+    "versions": [
+      {
+        "id": "mgo-row-524-34.104(3)",
+        "sourceRow": 524,
+        "ordinance": "34.104(3)",
+        "description": "Interference with fire alarm system.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.104(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-525-34.104(4)",
+    "ordinance": "34.104(4)",
+    "versions": [
+      {
+        "id": "mgo-row-525-34.104(4)",
+        "sourceRow": 525,
+        "ordinance": "34.104(4)",
+        "description": "Interference with firefighter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "34.104(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-526-34.104(5)",
+    "ordinance": "34.104(5)",
+    "versions": [
+      {
+        "id": "mgo-row-526-34.104(5)",
+        "sourceRow": 526,
+        "ordinance": "34.104(5)",
+        "description": "Resistance to firefighter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.104(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-527-34.104(6)",
+    "ordinance": "34.104(6)",
+    "versions": [
+      {
+        "id": "mgo-row-527-34.104(6)",
+        "sourceRow": 527,
+        "ordinance": "34.104(6)",
+        "description": "Vehicle not to be operated over street with fire house, fire apparatus.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "34.104(6), (8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-528-34.104(7)",
+    "ordinance": "34.104(7)",
+    "versions": [
+      {
+        "id": "mgo-row-528-34.104(7)",
+        "sourceRow": 528,
+        "ordinance": "34.104(7)",
+        "description": "Interference with fire apparatus.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.104(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-529-34.105(14)(b)",
+    "ordinance": "34.105(14)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-529-34.105(14)(b)",
+        "sourceRow": 529,
+        "ordinance": "34.105(14)(b)",
+        "description": "Unlawful use of pyrotechnic special-effect materials.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd & sub.",
+        "ordinanceColumn": "34.105(14)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-530-34.5608(3)(a)",
+    "ordinance": "34.5608(3)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-530-34.5608(3)(a)",
+        "sourceRow": 530,
+        "ordinance": "34.5608(3)(a)",
+        "description": "Public display of fireworks without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd & sub.",
+        "ordinanceColumn": "34.5608(3)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-531-34.5608(3)(b)",
+    "ordinance": "34.5608(3)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-531-34.5608(3)(b)",
+        "sourceRow": 531,
+        "ordinance": "34.5608(3)(b)",
+        "description": "Possess or use fireworks without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd & sub.",
+        "ordinanceColumn": "34.5608(3)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-532-34.5608(5)(a)",
+    "ordinance": "34.5608(5)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-532-34.5608(5)(a)",
+        "sourceRow": 532,
+        "ordinance": "34.5608(5)(a)",
+        "description": "Failure to comply with fireworks event permit requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "ordinanceColumn": "34.5608(5)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-533-34.5608(6)(a)",
+    "ordinance": "34.5608(6)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-533-34.5608(6)(a)",
+        "sourceRow": 533,
+        "ordinance": "34.5608(6)(a)",
+        "description": "Failure to comply with fireworks shooters permit requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "ordinanceColumn": "34.5608(6)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-534-34.5608(8)",
+    "ordinance": "34.5608(8)",
+    "versions": [
+      {
+        "id": "mgo-row-534-34.5608(8)",
+        "sourceRow": 534,
+        "ordinance": "34.5608(8)",
+        "description": "Use or display of fireworks or pyrotechnic special-effect material after prohibition by Fire Chief.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "34.5608(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

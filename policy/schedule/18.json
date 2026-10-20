@@ -1,0 +1,208 @@
+[
+  {
+    "id": "mgo-row-320-18.06",
+    "ordinance": "18.06",
+    "versions": [
+      {
+        "id": "mgo-row-320-18.06",
+        "sourceRow": 320,
+        "ordinance": "18.06",
+        "description": "Unlicensed person performing plumbing work.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "18.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-321-18.08",
+    "ordinance": "18.08",
+    "versions": [
+      {
+        "id": "mgo-row-321-18.08",
+        "sourceRow": 321,
+        "ordinance": "18.08",
+        "description": "Performing plumbing work without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "18.08",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-322-18.10(2)",
+    "ordinance": "18.10(2)",
+    "versions": [
+      {
+        "id": "mgo-row-322-18.10(2)",
+        "sourceRow": 322,
+        "ordinance": "18.10(2)",
+        "description": "Covering plumbing work before inspection.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "18.10(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-323-18.16",
+    "ordinance": "18.16",
+    "versions": [
+      {
+        "id": "mgo-row-323-18.16",
+        "sourceRow": 323,
+        "ordinance": "18.16",
+        "description": "Failure to have sign on vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 1 yr. \n$1,000, 3rd in 1 yr.",
+        "ordinanceColumn": "18.16",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

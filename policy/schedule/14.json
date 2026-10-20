@@ -1,0 +1,483 @@
+[
+  {
+    "id": "mgo-row-307-14.04",
+    "ordinance": "14.04",
+    "versions": [
+      {
+        "id": "mgo-row-307-14.04",
+        "sourceRow": 307,
+        "ordinance": "14.04",
+        "description": "Relating to piers along banks of Yahara River.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.04",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-308-14.05",
+    "ordinance": "14.05",
+    "versions": [
+      {
+        "id": "mgo-row-308-14.05",
+        "sourceRow": 308,
+        "ordinance": "14.05",
+        "description": "Piers from park property on shoreline.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.05",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-309-14.30(5)",
+    "ordinance": "14.30(5)",
+    "versions": [
+      {
+        "id": "mgo-row-309-14.30(5)",
+        "sourceRow": 309,
+        "ordinance": "14.30(5)",
+        "description": "Anchorage or stationary structures and winter markers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-310-14.30(6)",
+    "ordinance": "14.30(6)",
+    "versions": [
+      {
+        "id": "mgo-row-310-14.30(6)",
+        "sourceRow": 310,
+        "ordinance": "14.30(6)",
+        "description": "Speed limitations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "14.30(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-311-14.30(7)",
+    "ordinance": "14.30(7)",
+    "versions": [
+      {
+        "id": "mgo-row-311-14.30(7)",
+        "sourceRow": 311,
+        "ordinance": "14.30(7)",
+        "description": "Operate boat within restricted area.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-312-14.30(8)",
+    "ordinance": "14.30(8)",
+    "versions": [
+      {
+        "id": "mgo-row-312-14.30(8)",
+        "sourceRow": 312,
+        "ordinance": "14.30(8)",
+        "description": "Motor boat races prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-313-14.30(9)(a)",
+    "ordinance": "14.30(9)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-313-14.30(9)(a)",
+        "sourceRow": 313,
+        "ordinance": "14.30(9)(a)",
+        "description": "No swimming from boat to public swimming area.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(9)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-314-14.30(9)(b)",
+    "ordinance": "14.30(9)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-314-14.30(9)(b)",
+        "sourceRow": 314,
+        "ordinance": "14.30(9)(b)",
+        "description": "Operating motor within Tenney Locks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(9)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-315-14.30(9)(c)",
+    "ordinance": "14.30(9)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-315-14.30(9)(c)",
+        "sourceRow": 315,
+        "ordinance": "14.30(9)(c)",
+        "description": "No smoking, etc. within Tenney Locks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(9)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-316-14.30(9)(d)",
+    "ordinance": "14.30(9)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-316-14.30(9)(d)",
+        "sourceRow": 316,
+        "ordinance": "14.30(9)(d)",
+        "description": "Motor driven boat on Lake Wingra.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.30(9)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-317-14.31",
+    "ordinance": "14.31",
+    "versions": [
+      {
+        "id": "mgo-row-317-14.31",
+        "sourceRow": 317,
+        "ordinance": "14.31",
+        "description": "Houseboats.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.31",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-318-14.33(2)",
+    "ordinance": "14.33(2)",
+    "versions": [
+      {
+        "id": "mgo-row-318-14.33(2)",
+        "sourceRow": 318,
+        "ordinance": "14.33(2)",
+        "description": "Diver without self-inflatable life preserver.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "14.33(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-319-14.33(3)",
+    "ordinance": "14.33(3)",
+    "versions": [
+      {
+        "id": "mgo-row-319-14.33(3)",
+        "sourceRow": 319,
+        "ordinance": "14.33(3)",
+        "description": "Loaded spear gun violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "14.33(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

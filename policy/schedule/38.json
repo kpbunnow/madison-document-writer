@@ -1,0 +1,682 @@
+[
+  {
+    "id": "mgo-row-541-38.01",
+    "ordinance": "38.01",
+    "versions": [
+      {
+        "id": "mgo-row-541-38.01",
+        "sourceRow": 541,
+        "ordinance": "38.01",
+        "description": "Selling alcohol beverages and soft drinks prohibited except in strict accordance with this chapter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "38.01",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-542-38.04(2)(c)",
+    "ordinance": "38.04(2)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-542-38.04(2)(c)",
+        "sourceRow": 542,
+        "ordinance": "38.04(2)(c)",
+        "description": "Adult knowingly permits underage consumption.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months",
+        "sourceDepositText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months",
+        "ordinanceColumn": "38.04(2)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-543-38.04(2)(d)",
+    "ordinance": "38.04(2)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-543-38.04(2)(d)",
+        "sourceRow": 543,
+        "ordinance": "38.04(2)(d)",
+        "description": "Adult intentionally encourages underage consumption.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months",
+        "sourceDepositText": "$250, 1st \n$300, 2nd \n$500, 3rd \n$750, 4th & subsequent in 12 months",
+        "ordinanceColumn": "38.04(2)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-544-38.04(3)(b)2.",
+    "ordinance": "38.04(3)(b)2.",
+    "versions": [
+      {
+        "id": "mgo-row-544-38.04(3)(b)2.",
+        "sourceRow": 544,
+        "ordinance": "38.04(3)(b)2.",
+        "description": "Permit underage person on premises where activity requires alcohol beverage license.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$300, 2nd/subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$300, 2nd/subsequent",
+        "sourceDepositText": "$200, 1st \n$300, 2nd/subsequent",
+        "ordinanceColumn": "38.04(3)(b)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-545-38.04(6)",
+    "ordinance": "38.04(6)",
+    "versions": [
+      {
+        "id": "mgo-row-545-38.04(6)",
+        "sourceRow": 545,
+        "ordinance": "38.04(6)",
+        "description": "Person of legal age providing false I.D. to underage person.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "38.04(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-546-38.045(2)",
+    "ordinance": "38.045(2)",
+    "versions": [
+      {
+        "id": "mgo-row-546-38.045(2)",
+        "sourceRow": 546,
+        "ordinance": "38.045(2)",
+        "description": "Underage alcohol consumption at lodging establishments.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$300, 2nd & sub. w/in 12 months"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$300, 2nd & sub. w/in 12 months",
+        "sourceDepositText": "$250, 1st \n$300, 2nd & sub. w/in 12 months",
+        "ordinanceColumn": "38.045(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-547-38.06(6)(e)",
+    "ordinance": "38.06(6)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-547-38.06(6)(e)",
+        "sourceRow": 547,
+        "ordinance": "38.06(6)(e)",
+        "description": "Carrying out alcohol beverage after 9:00 p.m. \u2014 Class A License.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "38.06(6)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-548-38.06(7)(g)",
+    "ordinance": "38.06(7)(g)",
+    "versions": [
+      {
+        "id": "mgo-row-548-38.06(7)(g)",
+        "sourceRow": 548,
+        "ordinance": "38.06(7)(g)",
+        "description": "Carrying out alcohol beverage after 9:00 p.m. \u2014 Class B License.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "38.06(7)(g)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-549-38.06(7)(h)",
+    "ordinance": "38.06(7)(h)",
+    "versions": [
+      {
+        "id": "mgo-row-549-38.06(7)(h)",
+        "sourceRow": 549,
+        "ordinance": "38.06(7)(h)",
+        "description": "No after hours consumption or possession of alcohol (Owner or others found in tavern after closing).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "38.06(7)(h)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-550-38.06(10)",
+    "ordinance": "38.06(10)",
+    "versions": [
+      {
+        "id": "mgo-row-550-38.06(10)",
+        "sourceRow": 550,
+        "ordinance": "38.06(10)",
+        "description": "Unruly patron re-enters onto licensed premises.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "38.06(10)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-551-38.07(2)",
+    "ordinance": "38.07(2)",
+    "versions": [
+      {
+        "id": "mgo-row-551-38.07(2)",
+        "sourceRow": 551,
+        "ordinance": "38.07(2)",
+        "description": "No person to possess or consume alcohol beverages on school premises or while participating in school-sponsored activity without permission of school administrator.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "38.07(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-552-38.07(5)",
+    "ordinance": "38.07(5)",
+    "versions": [
+      {
+        "id": "mgo-row-552-38.07(5)",
+        "sourceRow": 552,
+        "ordinance": "38.07(5)",
+        "description": "Drink or possess alcohol beverage in city park after 10:00 p.m.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "38.07(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-553-38.07(6)",
+    "ordinance": "38.07(6)",
+    "versions": [
+      {
+        "id": "mgo-row-553-38.07(6)",
+        "sourceRow": 553,
+        "ordinance": "38.07(6)",
+        "description": "Unlawful to permit person to leave licensed premises with open container which contains alcohol beverage.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "38.07(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-554-38.07(8)",
+    "ordinance": "38.07(8)",
+    "versions": [
+      {
+        "id": "mgo-row-554-38.07(8)",
+        "sourceRow": 554,
+        "ordinance": "38.07(8)",
+        "description": "Unlawful to possess or consume from open container of alcohol beverage on public street or alley.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "38.07(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-555-38.07(22)(a)",
+    "ordinance": "38.07(22)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-555-38.07(22)(a)",
+        "sourceRow": 555,
+        "ordinance": "38.07(22)(a)",
+        "description": "Exceeding lawful occupancy capacity.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "38.07(22)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-556-38.07(22)(b)",
+    "ordinance": "38.07(22)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-556-38.07(22)(b)",
+        "sourceRow": 556,
+        "ordinance": "38.07(22)(b)",
+        "description": "Exceeding lawful occupancy capacity by more than 30%.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$750"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$750",
+        "sourceDepositText": "$750",
+        "ordinanceColumn": "38.07(22)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-557-38.10(1)(h)",
+    "ordinance": "38.10(1)(h)",
+    "versions": [
+      {
+        "id": "mgo-row-557-38.10(1)(h)",
+        "sourceRow": 557,
+        "ordinance": "38.10(1)(h)",
+        "description": "Failure to post sign after suspension, revocation or nonrenewal.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150",
+        "sourceDepositText": "$150",
+        "ordinanceColumn": "38.10(1)(h)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]
