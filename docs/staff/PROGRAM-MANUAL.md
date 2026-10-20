@@ -2,11 +2,11 @@
 
 Madison Building Inspection Document Writer
 
-Release 2026-10-18 R51 · Helper 2026.10.18.52 · 18 October 2026
+Release 2026-10-20 R54 · Helper 2026.10.20.55 · 20 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R51 is a packaged release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R54 is a development build for review and City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -14,7 +14,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-18 R51 and helper 2026.10.18.52. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-20 R54 and helper 2026.10.20.55. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
 **Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use Show checks or Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
@@ -220,6 +220,8 @@ The five scoped order and administrative families begin without legal approval. 
 **Best Interest Extension.** Identify the prior notice, selected eligible items, owner's plan and benefit, supervisor review, and factual exclusion of safety or urgent items. Internal supervisory prosecution review is not a City Attorney referral.
 
 **Vacancy Extension.** Verify vacancy, request, selected items, maintenance/security conditions, review appointment, approved deadline/expiration model and transfer/disclosure wording. Contact-by is calculated seven calendar days before the actual review appointment; short notice needs the approved procedure reference. Conditional; no replacement repair dates retains historical repair dates. Renewal requires a new reviewed action. Apartment scope preserves common-area duties.
+
+**R54 extension layout.** Newly authored Best Interest and Vacancy Extensions use the regular Extension's header, recipient block, items table, continuation headers, footer and copy handling. Their approved language remains unchanged. All items are listed, including corrected items ruled through with the confirmed date. Extended items show the new due date; unselected items keep the existing date. A conditional Vacancy Extension displays “Conditional — see conditions above” for affected items and does not replace their stored repair dates. Both special types retain their supervisory signer after the table. The regular Extension is unchanged. Previously issued documents and corrections of authoring-11 or earlier documents retain their historical layout.
 
 A referred case needs an explicit reviewed exception and City Attorney coordination for an otherwise eligible emergency or occupancy action. Draft wording, supplied templates and synthetic test approvals are not proof of current law. Use the division's actual review; current-code and procedure approval remain documented acceptance items.
 

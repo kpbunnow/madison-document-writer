@@ -236,7 +236,8 @@ const tests = async () => {
   assert.equal(blockers(d).length, 0, JSON.stringify(blockers(d)));
   assert.ok(docBody(d).includes("building common areas"));
   assert.equal(d.items[0].due, n.items[0].due);
-  assert.ok(docBody(d).includes("no replacement repair date"));
+  assert.ok(noticeHTML(d).includes("Conditional — see conditions above"));
+  assert.ok(docBody({ ...clone(d), authoringVersion: 11 }).includes("no replacement repair date"), "retain historical conditional wording");
   d.special.unit = "";
   assert.ok(blockers(d).some((x) => /unit identifier/.test(x.t)));
   const saved = clone(draftBundle());

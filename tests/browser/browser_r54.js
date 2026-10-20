@@ -41,6 +41,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
         const job = await page.evaluate(
           ({ original, type, count }) => {
             const d = { ...clone(original), type, authoringVersion: 12 };
+            d.emailedTo = [{ addr: "r54-qa@example.invalid", kind: "Owner" }];
             d.items = Array.from({ length: count }, (_, n) => ({ ...clone(original.items[n % 2]), id: "r54-" + n, no: String(n + 1) }));
             WriterState.DOCS = [d];
             WriterState.state.docId = d.id;
@@ -88,6 +89,22 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       }
       for (const packet of packets) assert.deepEqual(packet, packets[0], "exact same footer content and page numbering");
     }
+    const conditional = await page.evaluate((original) => {
+      const d = { ...clone(original), type: "vacancyExtension", authoringVersion: 12 };
+      d.special.deadlineMode = "conditional";
+      d.items[0].due = d.special.originalDues[1];
+      WriterState.DOCS = [d];
+      WriterState.state.docId = d.id;
+      render();
+      return printJob(d);
+    }, original);
+    assert.ok(conditional.html.includes("Conditional — see conditions above"));
+    const conditionalLayout = await page.evaluate((html) => inspectPrintPacket(html, false), conditional.html);
+    assert.ok(
+      conditionalLayout.geometry.every((p) => !p.clipped && !p.overflow && p.continuation),
+      "conditional vacancy packet is complete and unclipped",
+    );
+    await axeScreen(page, "r54-vacancy-conditional");
     const result = { passed: true, checks: results };
     fs.writeFileSync(path.join(OUT, "r54-results.json"), JSON.stringify(result, null, 2));
     return result;
