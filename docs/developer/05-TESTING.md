@@ -16,6 +16,10 @@ The gate includes ESLint, TypeScript contracts, pyflakes, Vulture at 60 percent 
 
 Print checks compare 69 authored document variants, the frozen stylesheet and all four court copies exactly against the retained verified R49 runtime. Pagination checks require page bounds, no overflow or clipped content, complete continuation headers and preserved authored content. Authoring-9 snow covers are tested with controlled font metrics producing one and two cover pages; their rendering is unchanged. Native City printing including an R33-era snow citation remains an open acceptance item.
 
+The R51 shell parity test follows the explicitly listed substitution model described in `R51-REVIEW.md`. For an intentional screen CSS correction, document the exact difference and require that exact replacement once in each affected shell before reversing it for comparison with the unchanged historical hash. Do not regenerate the reference hash or strip arbitrary CSS. The current reviewed exception removes only the shared button background transition so text and background switch themes together; the border transition remains. Missing or altered correction bytes and unrelated shell changes still fail. The approved print stylesheet and historical PDF fixtures remain frozen and are checked separately by the production browser audit.
+
+Browser audits bring the page being inspected to the foreground. On system Chromium 154, a ten-click/fill diagnostic took about 15.2 seconds after another tab opened, versus 0.36 seconds after `bringToFront()`. Foreground the Writer again after Reports and restoration-profile work; keep measured browser suites serial and retain their existing deadlines.
+
 Fingerprints bind evidence to maintained source and production output before and after verification. Archive material, dependencies, generated evidence and caches are excluded from maintained source. Packaging refuses a changed tree, missing suites, changed browser hashes or an invalid signature. Use the release owner's existing private key outside source; do not substitute a new key to bypass an installed trust pin.
 
 After a passing gate:
