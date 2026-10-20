@@ -105,6 +105,31 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       "conditional vacancy packet is complete and unclipped",
     );
     await axeScreen(page, "r54-vacancy-conditional");
+    const long = await page.evaluate((original) => {
+      const d = { ...clone(original), type: "bestInterestExtension", authoringVersion: 12 };
+      d.special.reason = "The approved plan provides clear staging and contractor accountability. ".repeat(50);
+      d.items = Array.from({ length: 20 }, (_, n) => ({ ...clone(original.items[n % 2]), id: "r54-long-" + n, no: String(n + 1) }));
+      WriterState.DOCS = [d];
+      WriterState.state.docId = d.id;
+      render();
+      const language = document.createElement("div");
+      language.innerHTML = newDocuments.specialBody(d);
+      return { ...printJob(d), paragraphs: [...language.querySelectorAll("p")].map((p) => p.textContent) };
+    }, original);
+    const longLayout = await page.evaluate((html) => inspectPrintPacket(html, false), long.html);
+    assert.ok(longLayout.geometry.length > 2, "long approved language and items continue across pages");
+    assert.ok(
+      longLayout.geometry.every((p) => !p.clipped && !p.overflow && p.continuation),
+      "long language is paginated without clipping",
+    );
+    await printPage.setContent(long.html, { waitUntil: "load" });
+    assert.deepEqual(
+      await printPage.locator(".n-body p").allTextContents(),
+      long.paragraphs,
+      "every language paragraph remains unchanged and in order",
+    );
+    await printPage.pdf({ path: path.join(OUT, "r54-long-language.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
+    await axeScreen(page, "r54-best-interest-long-language");
     const result = { passed: true, checks: results };
     fs.writeFileSync(path.join(OUT, "r54-results.json"), JSON.stringify(result, null, 2));
     return result;
