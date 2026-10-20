@@ -144,6 +144,29 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     assert.equal(await page.evaluate(() => doc(WriterState.state.docId).special.reviewed), false);
     assert.equal(await page.locator('[data-special-due="1"]').inputValue(), "2026-11-27", "deadline controls agree after a table edit");
     assert.equal(await page.locator('[data-special="reviewed"]').isChecked(), false, "renewed approval is visibly required");
+    for (const type of ["bestInterestExtension", "vacancyExtension"]) {
+      await page.evaluate((type) => {
+        const d = doc(WriterState.state.docId);
+        d.type = type;
+        d.special.reviewed = true;
+        d.selectionCache = { [type]: clone(d.special) };
+        d.fromReinspId = "r54-edit-visit";
+        WriterState.REINSP = [{ id: d.fromReinspId, actionDetails: { [type]: clone(d.special) } }];
+        render();
+      }, type);
+      await page.locator('[data-field="text"][data-id="r54-open"]').fill("Synthetic revised printed correction.");
+      const edited = await page.evaluate(() => {
+        const d = doc(WriterState.state.docId);
+        return {
+          text: d.items[0].text,
+          reviewed: d.special.reviewed,
+          cached: d.selectionCache[d.type].reviewed,
+          visit: WriterState.REINSP[0].actionDetails[d.type].reviewed,
+        };
+      });
+      assert.deepEqual(edited, { text: "Synthetic revised printed correction.", reviewed: false, cached: false, visit: false });
+      assert.equal(await page.locator('[data-special="reviewed"]').isChecked(), false);
+    }
     const result = { passed: true, checks: results };
     fs.writeFileSync(path.join(OUT, "r54-results.json"), JSON.stringify(result, null, 2));
     return result;

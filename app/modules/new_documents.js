@@ -1202,6 +1202,7 @@ export function initNewDocuments() {
       mailed: "",
       cc: "",
       cits: {},
+      authoringVersion: 12,
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: dep_recordHead(cid),
@@ -1397,18 +1398,23 @@ export function initNewDocuments() {
     }
     return false;
   }
-  function setSpecialDue(d, item, value) {
+  function invalidateItemReview(d) {
     const s = d.special || (d.special = {});
     s.reviewed = false;
-    const box = document.querySelector('[data-special="reviewed"]');
-    if (box) box.checked = false;
+    document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
+    Object.values(d.selectionCache || {}).forEach((details) => (details.reviewed = false));
+    if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = dep_clone(s);
+    cacheDetails(d);
+  }
+  function setSpecialDue(d, item, value) {
+    const s = d.special || (d.special = {});
     if (item) {
       item.due = value;
       s.extendedDues = s.extendedDues || {};
       s.extendedDues[item.no] = value;
       document.querySelectorAll('[data-special-due="' + dep_checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
     }
-    cacheDetails(d);
+    invalidateItemReview(d);
     dep_scheduleDraftSave();
     dep_refreshSheet();
   }
@@ -1478,6 +1484,7 @@ export function initNewDocuments() {
     specialBody,
     specialChecks,
     setSpecialDue,
+    invalidateItemReview,
     details,
     chooser,
     createSpecial,

@@ -109,6 +109,7 @@ const test = async () => {
   created.special.affected = ["1"];
   created.special.extendedDues = { 1: "2026-11-20" };
   created.special.reviewed = true;
+  created.selectionCache = { [created.type]: clone(created.special) };
   const dueInput = document.createElement("input");
   dueInput.type = "date";
   dueInput.dataset.field = "due";
@@ -123,9 +124,62 @@ const test = async () => {
   dueInput.dispatchEvent(new window.Event("input", { bubbles: true }));
   assert.equal(created.special.extendedDues[1], "2026-11-27", "shared-table edits retain the reviewed extension deadline source");
   assert.equal(created.special.reviewed, false, "shared-table deadline edits require renewed supervisory review");
+  assert.equal(created.selectionCache[created.type].extendedDues[1], "2026-11-27", "type cache retains the edited deadline");
   assert.equal(detailDue.value, "2026-11-27", "the existing special deadline control stays synchronized");
   dueInput.remove();
   detailDue.remove();
+  for (const type of ["bestInterestExtension", "vacancyExtension"]) {
+    created.type = type;
+    for (const field of ["text", "sections", "group", "note"]) {
+      created.special.reviewed = true;
+      created.selectionCache = { bestInterestExtension: clone(created.special), vacancyExtension: clone(created.special) };
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.dataset.special = "reviewed";
+      checkbox.checked = true;
+      const input = document.createElement("textarea");
+      input.dataset.field = field;
+      input.dataset.id = created.items[0].id;
+      input.value = "Synthetic revised " + field;
+      document.body.append(checkbox, input);
+      input.dispatchEvent(new window.Event("input", { bubbles: true }));
+      assert.equal(created.special.reviewed, false, type + ": " + field + " requires renewed review");
+      assert.ok(
+        blockers(created).some((x) => /Division review/.test(x.t)),
+        "publication requires renewed division approval",
+      );
+      assert.equal(checkbox.checked, false, "approval checkbox synchronized");
+      assert.ok(
+        Object.values(created.selectionCache).every((details) => details.reviewed === false),
+        "all type-switch approvals invalidated",
+      );
+      assert.equal(WriterState.REINSP[0].actionDetails[type].reviewed, false, "visit cache invalidated");
+      assert.deepEqual(created.items[0][field], field === "sections" ? [input.value] : input.value);
+      checkbox.remove();
+      input.remove();
+    }
+  }
+  for (const initialType of ["bestInterestExtension", "vacancyExtension", "notice"]) {
+    WriterState.DOCS = [clone(original)];
+    WriterState.REINSP = [];
+    newDocuments.caseAction(original.caseId, initialType);
+    const administrative = doc(WriterState.state.docId);
+    assert.equal(administrative.administrativeAction, true);
+    assert.equal(administrative.authoringVersion, 12, "administrative creation selects current authoring");
+    for (const type of ["bestInterestExtension", "vacancyExtension"]) {
+      const select = document.createElement("select");
+      select.dataset.special = "administrativeType";
+      select.innerHTML = '<option value="' + type + '">' + type + "</option>";
+      document.body.append(select);
+      select.dispatchEvent(new window.Event("change", { bubbles: true }));
+      const root = document.createElement("div");
+      root.innerHTML = noticeHTML(administrative);
+      assert.equal(administrative.type, type);
+      assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 12);
+      select.remove();
+    }
+  }
   for (const authoringVersion of [11, 12]) {
     const issued = { ...clone(original), id: "r54-correction-source", type: "bestInterestExtension", authoringVersion, eventId: "r54-source-event" };
     issued.frozen = freezeSources(issued);

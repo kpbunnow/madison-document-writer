@@ -3578,6 +3578,7 @@ document.addEventListener("input", (e) => {
   if (!f) return;
   const it = d.items.find((i) => i.id === el.dataset.id);
   if (!it) return;
+  if (alignedExtension(d)) newDocuments.invalidateItemReview(d);
 
   if (f === "due") {
     if (alignedExtension(d)) {
