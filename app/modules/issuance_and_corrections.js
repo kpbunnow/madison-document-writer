@@ -465,7 +465,7 @@ function makeCorrectionAttempt(d) {
   const snap = dep_clone(d);
   ["draft", "correction", "pendingAmendment"].forEach((k) => delete snap[k]);
   snap.status = "Final";
-  snap.authoringVersion = 11;
+  snap.authoringVersion = Math.max(11, old.authoringVersion || 0);
   delete snap.dueWork;
   delete snap.selectionCache;
   snap.frozen = dep_freezeSources(d);

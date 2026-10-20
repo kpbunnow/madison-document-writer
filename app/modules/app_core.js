@@ -176,7 +176,7 @@ import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
 import { SUMMARY_VERSION, validCaseNumber, caseNumberKey, recordDay, csvText, downloadText } from "../assets/shared.js";
-import { NEW_TYPES, specialType, initNewDocuments } from "./new_documents.js";
+import { NEW_TYPES, alignedExtension, specialType, initNewDocuments } from "./new_documents.js";
 import { initInitialCitations } from "./initial_citations.js";
 import { initAddressParser } from "./address_parser.js";
 import { initRecordIntegrity } from "./record_integrity.js";
@@ -3578,8 +3578,13 @@ document.addEventListener("input", (e) => {
   if (!f) return;
   const it = d.items.find((i) => i.id === el.dataset.id);
   if (!it) return;
+  if (alignedExtension(d)) newDocuments.invalidateItemReview(d);
 
   if (f === "due") {
+    if (alignedExtension(d)) {
+      newDocuments.setSpecialDue(d, it, val);
+      return;
+    }
     const m = MINDUE();
     it.due = val;
     updateDueIndicators(d);

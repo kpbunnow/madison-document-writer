@@ -39,6 +39,12 @@ class Layout(unittest.TestCase):
     def test_built_browser_bytes_match_corrected_r50_apart_from_listed_changes(self):
         baseline = json.loads((ROOT / "tests/fixtures/reference/R51-R50-parity.json").read_text())
         version = json.loads((ROOT / "version.json").read_text())
+        reviewed = baseline
+        if version["authoringVersion"] == 12:
+            reviewed = json.loads((ROOT / "tests/fixtures/reference/R54-runtime-parity.json").read_text())
+            self.assertEqual(reviewed["release"], version["release"])
+            self.assertEqual(reviewed["helperVersion"], version["helperVersion"])
+            self.assertEqual(reviewed["historicalReference"], "R51-R50-parity.json")
         production = Path(os.environ.get("DW_PRODUCTION_DIR", ROOT / "build/dist"))
         for name, expected in baseline["files"].items():
             text = (production / name).read_text()
@@ -48,8 +54,15 @@ class Layout(unittest.TestCase):
             shell = text.replace(bundle, "PAYLOAD").replace(version["release"], "@RELEASE@")
             self.assertEqual(shell.count(THEME_BUTTON_TRANSITION), 1, name + ": exact screen contrast correction")
             shell = shell.replace(THEME_BUTTON_TRANSITION, BASELINE_BUTTON_TRANSITION)
-            self.assertEqual(hashlib.sha256(code.encode()).hexdigest(), expected["normalizedCodeSha256"], name)
+            self.assertEqual(hashlib.sha256(code.encode()).hexdigest(), reviewed["files"][name]["normalizedCodeSha256"], name)
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
+
+    def test_current_release_package_documents_exist(self):
+        release = json.loads((ROOT / "version.json").read_text())["release"].split()[-1]
+        for suffix in ["REVIEW", "PRODUCTION-READINESS", "ACCEPTANCE-RECORD"]:
+            document = ROOT / "docs/developer" / (release + "-" + suffix + ".md")
+            self.assertTrue(document.is_file(), str(document))
+            self.assertTrue(document.read_text().strip(), str(document))
 
     def test_stalled_browser_workflow_fails_with_deadline(self):
         code = "const assert=require('assert/strict');const {runSuite}=require('./tools/browser_suite.cjs');(async()=>{await assert.rejects(runSuite('stalled-flow',()=>new Promise(()=>{}),25),/stalled-flow exceeded 25 ms/);console.log('deadline detected')})().catch(e=>{console.error(e);process.exit(1)});"

@@ -1,4 +1,6 @@
-# R53 current architecture
+# R54 current architecture
+
+Authoring-12 Best Interest and Vacancy Extensions reuse the regular Extension's layout and item table, with their unchanged language and retained supervisory signer after the table. Conditional vacancy labels do not alter stored repair dates. Authoring-11 and earlier special documents and their corrections retain the historical narrative renderer; the regular Extension output remains unchanged at every authoring version. Publication and correction snapshots retain the selected rendering version.
 
 Writer and Reports are browser applications served by a helper bound to 127.0.0.1. IndexedDB retains private drafts and pending operations; integrity-protected JSON and immutable PDF receipts live in configured operational folders. Reports is read-only against case history. No central service is introduced.
 

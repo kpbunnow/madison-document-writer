@@ -37,6 +37,7 @@ import {
 } from "./app_core.js";
 import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
+export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
 export const NEW_TYPES = [
   {
@@ -292,6 +293,7 @@ export function initNewDocuments() {
           "writing.",
       );
     }
+    if (alignedExtension(d)) return narrativeParagraphs(paras);
     if (items.length) {
       paras.push("Affected item references: " + refs + ".");
       if (["bestInterestExtension", "vacancyExtension"].includes(type))
@@ -312,6 +314,9 @@ export function initNewDocuments() {
     }
     paras.push("For questions" + (type === "noOccupancy" ? ", or to arrange reinspection" : "") + ", contact " + contact(d) + ".");
     paras.push(val(s, "signerName") + "\n" + val(s, "signerTitle"));
+    return narrativeParagraphs(paras);
+  }
+  function narrativeParagraphs(paras) {
     // Bound narrative rows so long findings paginate without an oversized row.
     return paras
       .flatMap((t) => {
@@ -943,6 +948,7 @@ export function initNewDocuments() {
       id: dep_uid("d"),
       caseId: r.caseId,
       type,
+      authoringVersion: 12,
       draft: true,
       status: "Draft",
       created: day(),
@@ -970,6 +976,12 @@ export function initNewDocuments() {
               : i.due,
           done: res.oc === "corrected",
           doneOn: res.oc === "corrected" ? res.on || r.date : "",
+          ...(["bestInterestExtension", "vacancyExtension"].includes(type)
+            ? {
+                note: res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "",
+                noteOn: res.oc !== "corrected" && String(res.note || "").trim() ? res.on || r.date : "",
+              }
+            : {}),
           cite: false,
         };
       }),
@@ -1190,6 +1202,7 @@ export function initNewDocuments() {
       mailed: "",
       cc: "",
       cits: {},
+      authoringVersion: 12,
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: dep_recordHead(cid),
@@ -1376,21 +1389,34 @@ export function initNewDocuments() {
       return true;
     }
     if (el.dataset.specialDue) {
-      s.reviewed = false;
-      const box = document.querySelector('[data-special="reviewed"]');
-      if (box) box.checked = false;
-      const i = d.items.find((x) => String(x.no) === el.dataset.specialDue);
-      if (i) {
-        i.due = el.value;
-        s.extendedDues = s.extendedDues || {};
-        s.extendedDues[i.no] = el.value;
-      }
-      cacheDetails(d);
-      dep_scheduleDraftSave();
-      dep_refreshSheet();
+      setSpecialDue(
+        d,
+        d.items.find((x) => String(x.no) === el.dataset.specialDue),
+        el.value,
+      );
       return true;
     }
     return false;
+  }
+  function invalidateItemReview(d) {
+    const s = d.special || (d.special = {});
+    s.reviewed = false;
+    document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
+    Object.values(d.selectionCache || {}).forEach((details) => (details.reviewed = false));
+    if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = dep_clone(s);
+    cacheDetails(d);
+  }
+  function setSpecialDue(d, item, value) {
+    const s = d.special || (d.special = {});
+    if (item) {
+      item.due = value;
+      s.extendedDues = s.extendedDues || {};
+      s.extendedDues[item.no] = value;
+      document.querySelectorAll('[data-special-due="' + dep_checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
+    }
+    invalidateItemReview(d);
+    dep_scheduleDraftSave();
+    dep_refreshSheet();
   }
   function clickEvent(ev) {
     const el = ev.target.closest(
@@ -1457,6 +1483,8 @@ export function initNewDocuments() {
     eligibility,
     specialBody,
     specialChecks,
+    setSpecialDue,
+    invalidateItemReview,
     details,
     chooser,
     createSpecial,

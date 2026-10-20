@@ -1,4 +1,6 @@
-# R53 current pitfalls
+# R54 current pitfalls
+
+- Keep authoring-11 and earlier special extensions and their corrections on the historical renderer. Do not downgrade authoring-12 drafts during pricing refresh, publication or correction. Conditional vacancy labels are presentation, not replacement repair dates.
 
 - Never skip integrity/history/publication checks, regenerate genesis, overwrite protected anchors or publish a migration registry ahead of a recoverable case write.
 - Never infer orphaned-lock ownership from age. Recovery requires the inspected token, verified stopped ownership, named administrator and reason.

@@ -1619,6 +1619,7 @@ async function axeThemes(page, screen) {
   const r50ImportResults = await runSuite("browser_r50_import.js", () => require("./browser_r50_import.js")(browser, page, OUT, axeScreen));
   const r49Results = await runSuite("browser_r49.js", () => require("./browser_r49.js")(browser, page, OUT, axeScreen, axeThemes));
   const r44Results = await runSuite("browser_r44.js", () => require("./browser_r44.js")(browser, page, OUT, axeScreen, axeThemes));
+  const r54Results = await runSuite("browser_r54.js", () => require("./browser_r54.js")(browser, page, OUT, axeScreen));
   assert.deepEqual(errors, []);
   assert.deepEqual(cspViolations, [], "Both applications operate without CSP violations");
   assert.equal(
@@ -1659,6 +1660,7 @@ async function axeThemes(page, screen) {
         r46Results,
         r45Results,
         r44Results,
+        r54Results,
         r43Results,
         r42Results,
         r41Results,

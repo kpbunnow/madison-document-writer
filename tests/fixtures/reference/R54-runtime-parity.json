@@ -1,0 +1,23 @@
+{
+  "release": "2026-10-20 R54",
+  "helperVersion": "2026.10.20.55",
+  "baselineCommit": "761e0540abc8a6d2214bca25646b759aa4807f64",
+  "historicalReference": "R51-R50-parity.json",
+  "acknowledgedChanges": [
+    "Authoring-12 shared Best Interest/Vacancy extension layout; original language and retained supervisory signer exception",
+    "Conditional vacancy display and current-visit note propagation",
+    "Preserve authoring version through rendering, publication and corrections; new drafts authoring 12",
+    "Regular Extension and authoring-11/earlier special extensions remain byte-identical to R53; see R53-extension-rendering.json",
+    "Authoring-12 special-extension paragraphs paginate before the shared table; regular and historical pagination remains unchanged",
+    "Shared authoring-12 table date edits use the existing special-deadline service, synchronize controls/cache and clear supervisory approval",
+    "PR review corrections: all shared-table item edits clear supervisory approval and synchronize checkbox/visit/type caches; new administrative actions initialize authoring 12 without upgrading saved documents"
+  ],
+  "files": {
+    "madison-document-writer.html": {
+      "normalizedCodeSha256": "5276acd0cca82c46681eb7d9af7ababd719f4ec250a05fb0a717a0f217f28f76"
+    },
+    "madison-reports.html": {
+      "normalizedCodeSha256": "77891d27131bdc4eb56be62e5431f0227905a619168b5c0084bcb10ff1c3b053"
+    }
+  }
+}

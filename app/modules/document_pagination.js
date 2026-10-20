@@ -42,7 +42,7 @@ import {
 } from "./app_core.js";
 import { app_languagediscoveryContext } from "./app_view_contexts.js";
 import { canonicalOrdinance as dep_canonicalOrdinance } from "./citation_policy.js";
-import { supplemental as dep_supplemental } from "./new_documents.js";
+import { alignedExtension as dep_alignedExtension, supplemental as dep_supplemental } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 /* app functions; direct dependencies use explicit shared state. */
@@ -337,6 +337,9 @@ function paginate(deskOverride, documentOverride) {
   const kids = Array.prototype.slice.call(src.children);
   const ti = kids.indexOf(table);
   const pre = kids.slice(0, ti);
+  const aligned = dep_alignedExtension(d);
+  const language = aligned ? src.querySelector(".n-body") : null;
+  const languageAt = language ? pre.indexOf(language) : -1;
   const rest = kids.slice(ti + 1).filter((n) => n !== foot);
   const isUI = (n) => n.classList && (n.classList.contains("no-print") || n.classList.contains("addrow"));
   const post = rest.filter((n) => !isUI(n)); // printed closing blocks
@@ -353,7 +356,7 @@ function paginate(deskOverride, documentOverride) {
     p.className = "sheet" + (pages.length ? " cont" : "") + (src.classList.contains("voided") ? " voided" : "");
     p.style.minHeight = "0";
     if (pages.length) p.appendChild(contHead(d));
-    else pre.forEach((n) => p.appendChild(n));
+    else (language ? pre.slice(0, languageAt) : pre).forEach((n) => p.appendChild(n));
     if (withTable) {
       const t = document.createElement("table");
       t.className = table.className;
@@ -377,20 +380,49 @@ function paginate(deskOverride, documentOverride) {
   const over = (p) => p.scrollHeight > pageLimit(d);
   const put = (p, node) => p.insertBefore(node, p._foot);
 
-  let p = newPage(true);
+  let p = newPage(!language);
+  if (language) {
+    let body = language.cloneNode(false);
+    put(p, body);
+    for (const paragraph of [...language.children]) {
+      body.appendChild(paragraph);
+      if (over(p)) {
+        paragraph.remove();
+        if (!body.children.length) body.remove();
+        p = newPage(false);
+        body = language.cloneNode(false);
+        body.appendChild(paragraph);
+        put(p, body);
+      }
+    }
+    for (const node of pre.slice(languageAt + 1)) {
+      put(p, node);
+      if (over(p)) {
+        node.remove();
+        p = newPage(false);
+        put(p, node);
+      }
+    }
+    const t = table.cloneNode(false);
+    t.appendChild(thead.cloneNode(true));
+    p._tb = document.createElement("tbody");
+    t.appendChild(p._tb);
+    put(p, t);
+  }
   rows.forEach((r) => {
     p._tb.appendChild(r);
     // one row that will not fit anywhere still has to live somewhere
-    if (over(p) && p._tb.children.length > 1) {
+    if (over(p) && (p._tb.children.length > 1 || aligned)) {
       p._tb.removeChild(r);
       // a group heading travels with the first row under it rather than being
       // stranded at the foot of the page
       let carry = null,
         last = p._tb.lastChild;
-      if (last && last.className === "grp" && p._tb.children.length > 1) {
+      if (last && last.className === "grp" && (p._tb.children.length > 1 || aligned)) {
         carry = last;
         p._tb.removeChild(last);
       }
+      if (aligned && !p._tb.children.length) p._tb.parentNode.remove();
       p = newPage(true);
       if (carry) p._tb.appendChild(carry);
       p._tb.appendChild(r);
