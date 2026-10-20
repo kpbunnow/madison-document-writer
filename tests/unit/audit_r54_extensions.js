@@ -106,6 +106,26 @@ const test = async () => {
   assert.equal(created.authoringVersion, 12, "new special extensions use authoring 12");
   assert.equal(created.items[0].note, "R54 visit note", "shared table uses the current inspection note");
   assert.equal(makePublication(created).payload.snapshot.authoringVersion, 12, "publication retains the selected rendering version");
+  created.special.affected = ["1"];
+  created.special.extendedDues = { 1: "2026-11-20" };
+  created.special.reviewed = true;
+  const dueInput = document.createElement("input");
+  dueInput.type = "date";
+  dueInput.dataset.field = "due";
+  dueInput.dataset.id = created.items[0].id;
+  dueInput.value = "2026-11-27";
+  document.body.appendChild(dueInput);
+  const detailDue = document.createElement("input");
+  detailDue.type = "date";
+  detailDue.dataset.specialDue = "1";
+  detailDue.value = "2026-11-20";
+  document.body.appendChild(detailDue);
+  dueInput.dispatchEvent(new window.Event("input", { bubbles: true }));
+  assert.equal(created.special.extendedDues[1], "2026-11-27", "shared-table edits retain the reviewed extension deadline source");
+  assert.equal(created.special.reviewed, false, "shared-table deadline edits require renewed supervisory review");
+  assert.equal(detailDue.value, "2026-11-27", "the existing special deadline control stays synchronized");
+  dueInput.remove();
+  detailDue.remove();
   for (const authoringVersion of [11, 12]) {
     const issued = { ...clone(original), id: "r54-correction-source", type: "bestInterestExtension", authoringVersion, eventId: "r54-source-event" };
     issued.frozen = freezeSources(issued);

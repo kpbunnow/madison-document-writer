@@ -1388,21 +1388,29 @@ export function initNewDocuments() {
       return true;
     }
     if (el.dataset.specialDue) {
-      s.reviewed = false;
-      const box = document.querySelector('[data-special="reviewed"]');
-      if (box) box.checked = false;
-      const i = d.items.find((x) => String(x.no) === el.dataset.specialDue);
-      if (i) {
-        i.due = el.value;
-        s.extendedDues = s.extendedDues || {};
-        s.extendedDues[i.no] = el.value;
-      }
-      cacheDetails(d);
-      dep_scheduleDraftSave();
-      dep_refreshSheet();
+      setSpecialDue(
+        d,
+        d.items.find((x) => String(x.no) === el.dataset.specialDue),
+        el.value,
+      );
       return true;
     }
     return false;
+  }
+  function setSpecialDue(d, item, value) {
+    const s = d.special || (d.special = {});
+    s.reviewed = false;
+    const box = document.querySelector('[data-special="reviewed"]');
+    if (box) box.checked = false;
+    if (item) {
+      item.due = value;
+      s.extendedDues = s.extendedDues || {};
+      s.extendedDues[item.no] = value;
+      document.querySelectorAll('[data-special-due="' + dep_checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
+    }
+    cacheDetails(d);
+    dep_scheduleDraftSave();
+    dep_refreshSheet();
   }
   function clickEvent(ev) {
     const el = ev.target.closest(
@@ -1469,6 +1477,7 @@ export function initNewDocuments() {
     eligibility,
     specialBody,
     specialChecks,
+    setSpecialDue,
     details,
     chooser,
     createSpecial,

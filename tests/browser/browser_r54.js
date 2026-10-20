@@ -130,6 +130,20 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     );
     await printPage.pdf({ path: path.join(OUT, "r54-long-language.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
     await axeScreen(page, "r54-best-interest-long-language");
+    await page.evaluate((original) => {
+      const d = { ...clone(original), type: "bestInterestExtension", authoringVersion: 12, draft: true };
+      d.special.extendedDues = { 1: d.items[0].due };
+      d.special.reviewed = true;
+      WriterState.DOCS = [d];
+      WriterState.state.docId = d.id;
+      render();
+    }, original);
+    await page.bringToFront();
+    await page.locator('[data-field="due"][data-id="r54-open"]').fill("2026-11-27");
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).special.extendedDues[1]), "2026-11-27");
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).special.reviewed), false);
+    assert.equal(await page.locator('[data-special-due="1"]').inputValue(), "2026-11-27", "deadline controls agree after a table edit");
+    assert.equal(await page.locator('[data-special="reviewed"]').isChecked(), false, "renewed approval is visibly required");
     const result = { passed: true, checks: results };
     fs.writeFileSync(path.join(OUT, "r54-results.json"), JSON.stringify(result, null, 2));
     return result;

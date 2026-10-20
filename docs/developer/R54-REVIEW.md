@@ -21,6 +21,8 @@ The division confirmed all five proposed defaults in the development chat:
 
 The shared pager splits long language into its existing bounded paragraphs only for these authoring-12 special extensions, before continuing through the item table. Continuation headers, row groups and footers use the existing shared furniture. Regular Extensions and historical documents keep their original pagination path. The long-language regression verifies every paragraph remains intact and ordered, in addition to clipping and overflow checks.
 
+Editing a date in the new shared table uses the existing special-deadline update service. The item date, extension deadline map, visit detail cache and original deadline control stay synchronized, and supervisory approval is cleared exactly as when editing the original special-deadline control. Existing selection, date and approval checks are retained.
+
 The first regression was run against R53 and failed for both special types' missing items tables, two-line titles and missing corrected-item rows. Additional failing checks identified title clipping, render-time authoring downgrades and missing current-visit notes. The implementation addresses each without changing `specialChecks` or approved language.
 
 `R53-extension-rendering.json` was captured twice from the unchanged R53 runtime before implementation, with identical results. It checks regular Extension bytes at authoring versions 1–12 and historical special-extension bytes through version 11, including corrected documents. Date-input min/max limits alone are normalized as day-relative metadata, matching the existing historical print tests. Existing historical references and the approved print stylesheet are unchanged.
