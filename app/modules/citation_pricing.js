@@ -113,7 +113,7 @@ export function initCitationPricing() {
     const current = JSON.stringify(WriterState.DOCS.filter((x) => !x.draft).map((x) => [x.id, x.void, x.superseded, x.eventId]));
     if (localHistorySignature && current !== localHistorySignature) loadedAt = 0;
     localHistorySignature = current;
-    d.authoringVersion = 11;
+    d.authoringVersion = Math.max(11, d.authoringVersion || 0);
     for (const [id, request] of Object.entries(d.depositRequests || {})) {
       const item = d.items.find((i) => i.id === id && i.cite && !i.withdrawn);
       if (!item) continue;

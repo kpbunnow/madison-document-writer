@@ -471,7 +471,7 @@ function makePublication(d) {
   const snap = dep_clone(d);
   ["draft", "pendingAmendment", "publicationEvents", "expectedHead", "publicationError", "emailSelection"].forEach((k) => delete snap[k]);
   snap.status = "Final";
-  snap.authoringVersion = 11;
+  snap.authoringVersion = Math.max(11, snap.authoringVersion || 0);
   delete snap.dueWork;
   delete snap.selectionCache;
   snap.frozen = dep_freezeSources(d);

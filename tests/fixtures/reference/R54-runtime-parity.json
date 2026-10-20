@@ -1,0 +1,20 @@
+{
+  "release": "2026-10-20 R54",
+  "helperVersion": "2026.10.20.55",
+  "baselineCommit": "761e0540abc8a6d2214bca25646b759aa4807f64",
+  "historicalReference": "R51-R50-parity.json",
+  "acknowledgedChanges": [
+    "Authoring-12 shared Best Interest/Vacancy extension layout; original language and retained supervisory signer exception",
+    "Conditional vacancy display and current-visit note propagation",
+    "Preserve authoring version through rendering, publication and corrections; new drafts authoring 12",
+    "Regular Extension and authoring-11/earlier special extensions remain byte-identical to R53; see R53-extension-rendering.json"
+  ],
+  "files": {
+    "madison-document-writer.html": {
+      "normalizedCodeSha256": "fa3baa7f8276392939195ff658d1d1c5dc2c6f366b0bf15e06ab3883e825c31a"
+    },
+    "madison-reports.html": {
+      "normalizedCodeSha256": "77891d27131bdc4eb56be62e5431f0227905a619168b5c0084bcb10ff1c3b053"
+    }
+  }
+}

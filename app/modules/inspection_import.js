@@ -161,7 +161,7 @@ import {
 } from "./citation_policy.js";
 import { LOGO as dep_LOGO } from "./data/build_identity.js";
 import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
-import { specialType as dep_specialType } from "./new_documents.js";
+import { alignedExtension as dep_alignedExtension, specialType as dep_specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 import { languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
@@ -1268,6 +1268,7 @@ function screenReinspect() {
 }
 
 function noticeHTML(d) {
+  const aligned = dep_alignedExtension(d);
   const k = dep_docCase(d),
     i = dep_docInsp(d),
     blocks = dep_docBlocks(d),
@@ -1436,17 +1437,22 @@ function noticeHTML(d) {
                   ? `<span class="mono">${dep_esc(dep_fmtDate(it.doneOn || it.due))}</span>`
                   : it.done
                     ? `<span class="done-note"><strong>Corrected</strong>${dep_esc(dep_fmtDate(it.doneOn))}</span>`
-                    : '<input type="date" class="d-in due-in" data-field="due" data-id="' +
-                      `${dep_esc(it.id)}` +
-                      '" value="' +
-                      `${dep_esc(it.due || "")}` +
-                      '" min="' +
-                      `${d.correction ? "" : dep_MINDUE()}` +
-                      '" aria-label="Due date for item ' +
-                      `${dep_esc(num)}` +
-                      '" ' +
-                      `${dis}` +
-                      ">",
+                    : aligned &&
+                        d.type === "vacancyExtension" &&
+                        d.special?.deadlineMode === "conditional" &&
+                        d.special.affected?.includes(String(it.no))
+                      ? '<span class="conditional-due">Conditional — see conditions above</span>'
+                      : '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+                        `${dep_esc(it.id)}` +
+                        '" value="' +
+                        `${dep_esc(it.due || "")}` +
+                        '" min="' +
+                        `${d.correction ? "" : dep_MINDUE()}` +
+                        '" aria-label="Due date for item ' +
+                        `${dep_esc(num)}` +
+                        '" ' +
+                        `${dis}` +
+                        ">",
           ) +
           "\n        " +
           "".concat(
@@ -1491,13 +1497,15 @@ function noticeHTML(d) {
     `${dep_LOGO}` +
     '" alt="City of Madison Building Inspection">\n      <div class="n-headmai' +
     'n"><div class="n-title' +
-    `${(dep_DOC_TYPES.find((x) => x.id === d.type) || {}).stacked ? " stacked" : ""}` +
-    '">' +
+    `${!aligned && (dep_DOC_TYPES.find((x) => x.id === d.type) || {}).stacked ? " stacked" : ""}` +
+    '"' +
+    (aligned ? ' style="font-size:11pt!important"' : "") +
+    ">" +
     "".concat(
       (function () {
         const ty = dep_DOC_TYPES.find((x) => x.id === d.type) || {};
         if (!ty.pfx) return "Building Inspection Official Notice";
-        return ty.stacked
+        return ty.stacked && !aligned
           ? `<span class="pfx">${dep_esc(ty.pfx)}</span><br>${dep_esc(ty.heading || "Building Inspection Official Notice")}`
           : `<span class="pfx">${dep_esc(ty.pfx)} - </span>Building Inspection Official Notice`;
       })(),
@@ -1592,6 +1600,13 @@ function noticeHTML(d) {
     "</th></tr></thead>\n      <tbody>" +
     "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — add the first violation below.</td></tr>') +
     "</tbody></table>\n    " +
+    (aligned
+      ? '<div class="extension-signer"><p>' +
+        dep_esc((d.correction ? null : dep_frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
+        "\n" +
+        dep_esc((d.correction ? null : dep_frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
+        "</p></div>"
+      : "") +
     "".concat(
       !struct ? "" : '<div class="addwrap no-print"><button class="btn btn-primary addrow" id=' + '"btn-add">Add violation item</button></div>',
     ) +
@@ -1659,7 +1674,7 @@ function noticeHTML(d) {
       .replace('<div class="n-body">', '<div class="n-body snow-cover">')
       .replace(/<table class="notice">[\s\S]*?<\/table>/, "")
       .replace(/<div class="addwrap no-print">[\s\S]*?<\/div>/, "");
-  if (!dep_specialType(d.type)) return result;
+  if (!dep_specialType(d.type) || aligned) return result;
   const narrative = dep_docBody(d).match(/<p>[\s\S]*?<\/p>/g) || [];
   return result
     .replace('<div class="n-head">', '<div class="n-head r26-header">')
@@ -3036,7 +3051,7 @@ function newDoc(caseId, type) {
     status: "Draft",
     draft: true,
     mailed: dep_recordDay(today),
-    authoringVersion: 11,
+    authoringVersion: 12,
     items: [],
     cc: "",
     cits: {},

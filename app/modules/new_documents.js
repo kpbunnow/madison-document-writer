@@ -37,6 +37,7 @@ import {
 } from "./app_core.js";
 import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
+export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
 export const NEW_TYPES = [
   {
@@ -292,6 +293,7 @@ export function initNewDocuments() {
           "writing.",
       );
     }
+    if (alignedExtension(d)) return narrativeParagraphs(paras);
     if (items.length) {
       paras.push("Affected item references: " + refs + ".");
       if (["bestInterestExtension", "vacancyExtension"].includes(type))
@@ -312,6 +314,9 @@ export function initNewDocuments() {
     }
     paras.push("For questions" + (type === "noOccupancy" ? ", or to arrange reinspection" : "") + ", contact " + contact(d) + ".");
     paras.push(val(s, "signerName") + "\n" + val(s, "signerTitle"));
+    return narrativeParagraphs(paras);
+  }
+  function narrativeParagraphs(paras) {
     // Bound narrative rows so long findings paginate without an oversized row.
     return paras
       .flatMap((t) => {
@@ -943,6 +948,7 @@ export function initNewDocuments() {
       id: dep_uid("d"),
       caseId: r.caseId,
       type,
+      authoringVersion: 12,
       draft: true,
       status: "Draft",
       created: day(),
@@ -970,6 +976,12 @@ export function initNewDocuments() {
               : i.due,
           done: res.oc === "corrected",
           doneOn: res.oc === "corrected" ? res.on || r.date : "",
+          ...(["bestInterestExtension", "vacancyExtension"].includes(type)
+            ? {
+                note: res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "",
+                noteOn: res.oc !== "corrected" && String(res.note || "").trim() ? res.on || r.date : "",
+              }
+            : {}),
           cite: false,
         };
       }),
