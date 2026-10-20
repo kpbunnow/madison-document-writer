@@ -12,6 +12,14 @@ import re
 
 ROOT = Path(__file__).resolve().parents[2]
 
+# Reviewed screen-only contrast correction; retain the historical shell hash.
+# Require the exact new declaration before reversing it for byte comparison.
+THEME_BUTTON_TRANSITION = """    /* Keep background and text colors in sync when switching themes in a background tab. */
+    transition: border-color 0.12s;"""
+BASELINE_BUTTON_TRANSITION = """    transition:
+      background 0.12s,
+      border-color 0.12s;"""
+
 
 class Layout(unittest.TestCase):
     def test_no_flat_source_projection_or_mapping(self):
@@ -38,6 +46,8 @@ class Layout(unittest.TestCase):
             code = base64.b64decode(bundle).decode().replace(version["release"], "@RELEASE@").replace(version["helperVersion"], "@HELPER@")
             code = re.sub(r"^// (?:modules/[^\n]+|shared.js|app/[^\n]+|build/generated/[^\n]+)\n", "", code, flags=re.M)
             shell = text.replace(bundle, "PAYLOAD").replace(version["release"], "@RELEASE@")
+            self.assertEqual(shell.count(THEME_BUTTON_TRANSITION), 1, name + ": exact screen contrast correction")
+            shell = shell.replace(THEME_BUTTON_TRANSITION, BASELINE_BUTTON_TRANSITION)
             self.assertEqual(hashlib.sha256(code.encode()).hexdigest(), expected["normalizedCodeSha256"], name)
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 

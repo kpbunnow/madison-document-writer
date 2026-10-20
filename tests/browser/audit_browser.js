@@ -19,6 +19,8 @@ const coreStarted = performance.now();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const axeResults = [];
 async function axeScreen(page, screen) {
+  // Audit the active tab: background tabs can stall animation frames and actionability checks.
+  await page.bringToFront();
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(250);
   await page.evaluate(fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8"));
@@ -715,6 +717,7 @@ async function axeThemes(page, screen) {
   const download = await Promise.all([reports.waitForEvent("download"), reports.locator('[data-act="export"]').click()]);
   await download[0].saveAs(path.join(OUT, "reports.xlsx"));
   // Complete a real case through interruptions, review, retry, and closure.
+  await page.bringToFront();
   await page.evaluate(() => {
     WriterState.state.screen = "cases";
     WriterState.state.modal = null;
@@ -816,6 +819,7 @@ async function axeThemes(page, screen) {
   await restorePage.reload();
   await restorePage.waitForFunction(() => WriterState.DOCS.some((d) => d.draft && d.pendingAmendment));
   await restoreContext.close();
+  await page.bringToFront();
   await page.locator('.writer-navigation [data-nav="cases"]').click();
   await page.getByRole("button", { name: "Confirm document save", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.modal === "shared-change" || WriterState.state.screen === "write");
