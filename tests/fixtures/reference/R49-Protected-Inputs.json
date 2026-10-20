@@ -1,0 +1,253 @@
+{
+  "passed": true,
+  "baseline": "verified 2026-10-16 R48",
+  "unchangedFiles": [
+    {
+      "file": "case_store.py",
+      "unchanged": true,
+      "sha256": "f7a80947b1e13999fd08b294e644c30f14e0e7bf36aeafd88a15764961a8e6f0"
+    },
+    {
+      "file": "artifact_store.py",
+      "unchanged": true,
+      "sha256": "fbef7b8b1eb1aa25fa850ea0d6ccc1c0c2a4b888d7cc3bdd4e00128fdbc6fef2"
+    },
+    {
+      "file": "citation_pricing.py",
+      "unchanged": true,
+      "sha256": "9261149f3a6b676367b1fa2b0707a78e1f385b7b3045f322f6b25a8cd59a1079"
+    },
+    {
+      "file": "operations_helper.py",
+      "unchanged": true,
+      "sha256": "907afaa1766dc75a3532b853fce75a0f19cb68cde3d4f3cdafac98697ed059b4"
+    },
+    {
+      "file": "workflow_helper.py",
+      "unchanged": true,
+      "sha256": "bdf8316073bdd624e0b55b5fea9752177302ea927863415dd5b0622ae248d1fe"
+    },
+    {
+      "file": "case_lookup.py",
+      "unchanged": true,
+      "sha256": "22ed70b6af8e5d7264dbb926cf396f69da3c9cc45665e1ff7300852f420980db"
+    },
+    {
+      "file": "case_lookup.ps1",
+      "unchanged": true,
+      "sha256": "3153c3d1e5f32efb1a3a932ff8924680be864b323c6d56c47f4fac5af4db45e4"
+    },
+    {
+      "file": "case_lookup.sql",
+      "unchanged": true,
+      "sha256": "d51eb6f9bdbb0eb1dc11cf594909e3b816551d0f1a9cab9e5768da616391c776"
+    },
+    {
+      "file": "citation_policy.json",
+      "unchanged": true,
+      "sha256": "8fab0bfcf2ccb5e74f1b0a4e2d4bebaadcdcd4f6ed0f659951f11384180d1406"
+    },
+    {
+      "file": "calendar_policy.json",
+      "unchanged": true,
+      "sha256": "4a64746c1d276270bddb0992815031c6f0f73a3d11b8f55cb669ff2c7d7df8e3"
+    },
+    {
+      "file": "catalog_manifest.json",
+      "unchanged": true,
+      "sha256": "6eab3885cc44c827a60bc452914f0b6a435be2dbc2f39f14d9059b97306ec525"
+    },
+    {
+      "file": "snow_letter.json",
+      "unchanged": true,
+      "sha256": "ee66fba15fa2ea067406d84f0b1afbeffdb5a2694fac6fc197374ede8fe4f6e7"
+    },
+    {
+      "file": "writer.css",
+      "unchanged": true,
+      "sha256": "6c8eb4600ab382de388f91a7a66a19fac323760c5abb904cb3990cdf1ce73f37"
+    },
+    {
+      "file": "reports.css",
+      "unchanged": true,
+      "sha256": "5f2d5f7be304a56621ae0bfcf9adccbb68cf818dac1414ca666ef2e8a0bfe94e"
+    },
+    {
+      "file": "app_template.html",
+      "unchanged": true,
+      "sha256": "5ea5ab3a2c71f59956b63a48f17cec4a7f8760b307fd44001c6554ebefb5fd85"
+    },
+    {
+      "file": "reports_template.html",
+      "unchanged": true,
+      "sha256": "0a7b10d66952b863758d25dc243efa3f40c4c921c0d1a7d2e626278b250e2207"
+    },
+    {
+      "file": "source/policy/metadata.json",
+      "unchanged": true,
+      "sha256": "0201cd79f55e5301aa622a4dfab6ba1adb37b3fc624b6a1222e75a375f3b9d62"
+    },
+    {
+      "file": "source/policy/version-ledger.json",
+      "unchanged": true,
+      "sha256": "0533f020ce0a381def9a0c5add9483f1231943fea335a44b05d38532a6f6d69d"
+    },
+    {
+      "file": "source/policy/surcharges.json",
+      "unchanged": true,
+      "sha256": "2efb8c519dd7345b0e6be2dd0d139aadb3915ad97b440ba069d2fe6d84b9237c"
+    },
+    {
+      "file": "source/policy/ladders.json",
+      "unchanged": true,
+      "sha256": "07e99ba610b8e3d9cc6a459c2778c5ae5ff7037e43b8d38b79ecfa43a1885f5d"
+    },
+    {
+      "file": "source/policy/tests/deposits.yaml",
+      "unchanged": true,
+      "sha256": "cfa99fbc39bef3b71d19f5a44853f4785b95f3f9b33a7c0397256b9198a746f0"
+    },
+    {
+      "file": "source/policy/schedule/24.json",
+      "unchanged": true,
+      "sha256": "f0a0ec2fdd57122ad95c75a2d4e549df60f2e1e093ded39d00b181bc046bbd34"
+    },
+    {
+      "file": "source/policy/schedule/18.json",
+      "unchanged": true,
+      "sha256": "fe1db9cb24f2aff1bfb445c074829fc5b318773f5ebe14671bb2c18f707a3ce2"
+    },
+    {
+      "file": "source/policy/schedule/36.json",
+      "unchanged": true,
+      "sha256": "3592132b6e9dad348105d6d68125b919fc5759f04b59107e62dfbc8722334cff"
+    },
+    {
+      "file": "source/policy/schedule/23.json",
+      "unchanged": true,
+      "sha256": "e50ab084115748177bcf3de8fff7d8e7f635205d89b6c6f6264c90c7fbbcdfe3"
+    },
+    {
+      "file": "source/policy/schedule/29.json",
+      "unchanged": true,
+      "sha256": "b33fcab5b75a8fcd18c90bc471a619116780947b2e606248e037d69d20822500"
+    },
+    {
+      "file": "source/policy/schedule/26.json",
+      "unchanged": true,
+      "sha256": "3050c7ded9ae7efe2d146bc36de5c162ce5e3acd50de7f0951b4aeecf94b2e51"
+    },
+    {
+      "file": "source/policy/schedule/31.json",
+      "unchanged": true,
+      "sha256": "105e276c972f232698ed99137fba8f499265e8d4274c9cdf5e02356971986805"
+    },
+    {
+      "file": "source/policy/schedule/7.json",
+      "unchanged": true,
+      "sha256": "424ccf3fa971f5c2ad2bc07e5e76d5515f3b31aae6b858379e75c57b31e424e3"
+    },
+    {
+      "file": "source/policy/schedule/28.json",
+      "unchanged": true,
+      "sha256": "e398c3795f45088cafe4d1ca6a9df8ab398404c2127ee3a1a09520deff3ad4a1"
+    },
+    {
+      "file": "source/policy/schedule/22.json",
+      "unchanged": true,
+      "sha256": "e35fc2721e253e4322fa145bc0df357cf62fe287418595b81b98976e0a8b4ee7"
+    },
+    {
+      "file": "source/policy/schedule/41.json",
+      "unchanged": true,
+      "sha256": "cc668f91e96aaa7b63378f39003e8cc47a173b932cac627d32316b218c064aa5"
+    },
+    {
+      "file": "source/policy/schedule/34.json",
+      "unchanged": true,
+      "sha256": "fb256d8a76bedce5f684f7220f069a9075e5bf1fe41768776493e0be52deeb03"
+    },
+    {
+      "file": "source/policy/schedule/32.json",
+      "unchanged": true,
+      "sha256": "730b9f0558ab6afcbc7f3b376200e0bfc16f5ca0e9a1db0d24fa5f9b3aa8f912"
+    },
+    {
+      "file": "source/policy/schedule/27.json",
+      "unchanged": true,
+      "sha256": "43c2c579f5e2714a94b1c511bffc87772a79f7074f7f32dce61eedba38a97d15"
+    },
+    {
+      "file": "source/policy/schedule/37.json",
+      "unchanged": true,
+      "sha256": "47108cce5404dac4a7af53326cd420453c13efa9ef367fd6532fb3b32a2ba550"
+    },
+    {
+      "file": "source/policy/schedule/13.json",
+      "unchanged": true,
+      "sha256": "06b980da0645d4908a1d54df7850dc5e6d453c1f1a7bb9c123b17015a6e927d0"
+    },
+    {
+      "file": "source/policy/schedule/10.json",
+      "unchanged": true,
+      "sha256": "48f7d6994915f07d2f9e3933328960c6d81bfe910c10d570ce6ab77a2c67d649"
+    },
+    {
+      "file": "source/policy/schedule/11.json",
+      "unchanged": true,
+      "sha256": "bc9792105394862ac8405b3d1f30d0fb1f80b47a63c6ac21c012abf7894c8ef0"
+    },
+    {
+      "file": "source/policy/schedule/30.json",
+      "unchanged": true,
+      "sha256": "1d5b443d45f443ae72b4dc9e4de8ed311b9a31fa6cf0835cd5d0805e77621b32"
+    },
+    {
+      "file": "source/policy/schedule/38.json",
+      "unchanged": true,
+      "sha256": "f40115ec8f3e54a86a32469a4ab43e4aa0a87a9f824796fdcb3f4f7ce2d58dd3"
+    },
+    {
+      "file": "source/policy/schedule/25.json",
+      "unchanged": true,
+      "sha256": "083e90a0dcb269268b4b2f9796bb1ebb8826218044a7c554fc36edd00c7dd987"
+    },
+    {
+      "file": "source/policy/schedule/9.json",
+      "unchanged": true,
+      "sha256": "670ee203028799c5b5620ae1de6af9846feff6f033207c0f2cbc48c75f4a0678"
+    },
+    {
+      "file": "source/policy/schedule/12.json",
+      "unchanged": true,
+      "sha256": "ea67d423586c9839f53f5d3d877a7ca133aebf84bc2e0fa34e2fb9cccc1ba435"
+    },
+    {
+      "file": "source/policy/schedule/19.json",
+      "unchanged": true,
+      "sha256": "b57a1090666261ca959abe317f35e4981f3438f96db555150125f0faeea8135b"
+    },
+    {
+      "file": "source/policy/schedule/5.json",
+      "unchanged": true,
+      "sha256": "048495da19cdb061fe8103006ef1680154810ffaac71b34eb20a16360f33951b"
+    },
+    {
+      "file": "source/policy/schedule/8.json",
+      "unchanged": true,
+      "sha256": "dc880d5ce3334fb37b7e3d1bab85bfe826ab43de3ef944a92b73997906546eb4"
+    },
+    {
+      "file": "source/policy/schedule/14.json",
+      "unchanged": true,
+      "sha256": "cdb56621e345789f1ee0b958ee477a1696c33d59b2bc4d4e20f135f764f67091"
+    },
+    {
+      "file": "source/policy/schedule/3.json",
+      "unchanged": true,
+      "sha256": "c561d4c75edcc50d4e81339670a9c7dadc67e87cb444afc1ac4e5e5ae81b59e8"
+    }
+  ],
+  "verifyRecordFunctionUnchanged": true,
+  "limits": "This checks byte equality of protected owners/inputs and the verify_record function, not City acceptance."
+}

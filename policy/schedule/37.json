@@ -1,0 +1,262 @@
+[
+  {
+    "id": "mgo-row-536-37.06(2)",
+    "ordinance": "37.06(2)",
+    "versions": [
+      {
+        "id": "mgo-row-536-37.06(2)",
+        "sourceRow": 536,
+        "ordinance": "37.06(2)",
+        "description": "Conducting land disturbing activity without an erosion control permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "sourceDepositText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "ordinanceColumn": "37.06(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-537-37.06(3)",
+    "ordinance": "37.06(3)",
+    "versions": [
+      {
+        "id": "mgo-row-537-37.06(3)",
+        "sourceRow": 537,
+        "ordinance": "37.06(3)",
+        "description": "Conducting land disturbing activity without a stormwater management permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "sourceDepositText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "ordinanceColumn": "37.06(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-538-37.07",
+    "ordinance": "37.07",
+    "versions": [
+      {
+        "id": "mgo-row-538-37.07",
+        "sourceRow": 538,
+        "ordinance": "37.07",
+        "description": "Permitting or causing erosion.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "sourceDepositText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "ordinanceColumn": "37.07",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-539-37.09(3)",
+    "ordinance": "37.09(3)",
+    "versions": [
+      {
+        "id": "mgo-row-539-37.09(3)",
+        "sourceRow": 539,
+        "ordinance": "37.09(3)",
+        "description": "Failure to implement stormwater management performance standards.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "sourceDepositText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "ordinanceColumn": "37.09(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-540-37.12(6)(a)1.",
+    "ordinance": "37.12(6)(a)1.",
+    "versions": [
+      {
+        "id": "mgo-row-540-37.12(6)(a)1.",
+        "sourceRow": 540,
+        "ordinance": "37.12(6)(a)1.",
+        "description": "Violation of a Stop Work Order.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "site",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "sourceDepositText": "$200, 1st at site \n$500, 2nd at site \n$1,000, 3rd + at site",
+        "ordinanceColumn": "37.12(6)(a)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+{
+  "anchorFolder": "\\\\CITY-FILESERVER\\Integrity-Anchors\\Madison-Document-Writer",
+  "instructions": "Example only: replace with the UNC path of an IT-controlled network folder outside Case JSON Files that every inspector PC can reach. Grant the helper create-files access without modify or delete. Copy as integrity-settings.json. There is no automatic destination."
+}

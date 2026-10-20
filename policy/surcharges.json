@@ -1,0 +1,62 @@
+{
+  "penalty": [
+    {
+      "from": null,
+      "to": null,
+      "source": {
+        "codification": "MGO Rev.28 Update3 exported 2026-09-14",
+        "ordinance": "MGO 1.08(3)(c)"
+      },
+      "percent": 26,
+      "statute": "Wis. Stat.757.05"
+    }
+  ],
+  "jail": [
+    {
+      "from": null,
+      "to": null,
+      "source": {
+        "codification": "MGO Rev.28 Update3 exported 2026-09-14",
+        "ordinance": "MGO 1.08(3)(c)"
+      },
+      "rule": "max",
+      "floorCents": 1000,
+      "percent": 1,
+      "statute": "Wis. Stat.302.46(1)"
+    }
+  ],
+  "crimeLab": [
+    {
+      "from": null,
+      "to": null,
+      "source": {
+        "codification": "MGO Rev.28 Update3 exported 2026-09-14",
+        "ordinance": "MGO 1.08(3)(c)"
+      },
+      "cents": 1300,
+      "statute": "Wis. Stat.165.755"
+    }
+  ],
+  "court": [
+    {
+      "from": null,
+      "to": "2026-07-29",
+      "source": {
+        "codification": "MGO Rev.28 Update3 exported 2026-09-14",
+        "ordinance": "MGO 1.08(3)(c)"
+      },
+      "cents": 3800,
+      "statute": "Wis. Stat.814.65"
+    },
+    {
+      "from": "2026-07-30",
+      "to": null,
+      "source": {
+        "codification": "MGO Rev.28 Update3 exported 2026-09-14",
+        "ordinance": "ORD-26-00039"
+      },
+      "cents": 4800,
+      "statute": "Wis. Stat.814.65"
+    }
+  ]
+}

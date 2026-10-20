@@ -1,0 +1,86 @@
+[
+  {
+    "raw": "123 E Main St Apt 4, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "123 East Main Street #4, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "123 E. MAIN ST., UNIT 4, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "7425 Mineral Point Rd, Madison WI 53717",
+    "type": "street"
+  },
+  {
+    "raw": "513 Monona Dr, Monona WI 53716",
+    "type": "street"
+  },
+  {
+    "raw": "6125 Old Middleton Rd, Madison WI 53705",
+    "type": "street"
+  },
+  {
+    "raw": "123 1/2 W Main St, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "123 N MAIN STREET, Madison, Wisconsin 53703-1234",
+    "type": "street"
+  },
+  {
+    "raw": "456 W Lake Avenue, Suite 12, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "123 Main St UNIT 4, Madison WI 53703",
+    "type": "street"
+  },
+  {
+    "raw": "PO BOX 555, Monroe WI 53566",
+    "type": "po-box"
+  },
+  {
+    "raw": "P.O. Box 555, Monroe WI 53566",
+    "type": "po-box"
+  },
+  {
+    "raw": "C/O Synthetic Management, PO BOX 555, Monroe WI 53566",
+    "type": "po-box"
+  },
+  {
+    "raw": "ATTN Synthetic Manager, 500 W Madison St STE 300, Chicago IL 60661",
+    "type": "street"
+  },
+  {
+    "raw": "100 Broadway AVE, New York NY 10001",
+    "type": "street"
+  },
+  {
+    "raw": "123 Main St and 456 Other Rd, Madison WI 53703",
+    "type": "ambiguous"
+  },
+  {
+    "raw": "Main St & State St, Madison WI 53703",
+    "type": "ambiguous"
+  },
+  {
+    "raw": "123 Main St, Madison ZZ 53703",
+    "type": "ambiguous"
+  },
+  {
+    "raw": "Main St, Madison WI 53703",
+    "type": "ambiguous"
+  },
+  {
+    "raw": "123 Main St, Madison WI",
+    "type": "ambiguous"
+  },
+  {
+    "raw": "123 Main St, Madison WI 53703 456 Other Rd Madison WI 53704",
+    "type": "ambiguous"
+  }
+]

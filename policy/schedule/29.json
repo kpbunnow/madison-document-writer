@@ -1,0 +1,752 @@
+[
+  {
+    "id": "mgo-row-485-29.07(1)",
+    "ordinance": "29.07(1)",
+    "versions": [
+      {
+        "id": "mgo-row-485-29.07(1)",
+        "sourceRow": 485,
+        "ordinance": "29.07(1)",
+        "description": "Commencing construction without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.07(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-486-29.10(2)",
+    "ordinance": "29.10(2)",
+    "versions": [
+      {
+        "id": "mgo-row-486-29.10(2)",
+        "sourceRow": 486,
+        "ordinance": "29.10(2)",
+        "description": "Failure to obtain inspection.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.10(2) and Wis. Admin. Code Sec. SPS 320.10",
+        "statute": "and Wis. Admin. Code Sec. SPS 320.10",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-487-29.11",
+    "ordinance": "29.11",
+    "versions": [
+      {
+        "id": "mgo-row-487-29.11",
+        "sourceRow": 487,
+        "ordinance": "29.11",
+        "description": "Failure to obtain occupancy permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.11",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-488-29.11(7)",
+    "ordinance": "29.11(7)",
+    "versions": [
+      {
+        "id": "mgo-row-488-29.11(7)",
+        "sourceRow": 488,
+        "ordinance": "29.11(7)",
+        "description": "Failure to file Compliance Statement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.11(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-489-29.12(5)",
+    "ordinance": "29.12(5)",
+    "versions": [
+      {
+        "id": "mgo-row-489-29.12(5)",
+        "sourceRow": 489,
+        "ordinance": "29.12(5)",
+        "description": "Failure to comply with roofed passageway and barricade requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.12(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-490-29.16",
+    "ordinance": "29.16",
+    "versions": [
+      {
+        "id": "mgo-row-490-29.16",
+        "sourceRow": 490,
+        "ordinance": "29.16",
+        "description": "Failure to employ a flag person.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.16",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-491-29.22",
+    "ordinance": "29.22",
+    "versions": [
+      {
+        "id": "mgo-row-491-29.22",
+        "sourceRow": 491,
+        "ordinance": "29.22",
+        "description": "Exit door bolted.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.22 (see Wis. Admin. Code SPS 361 which adopts IBC 1008.1.9.4)",
+        "statute": "(see Wis. Admin. Code SPS 361 which adopts IBC 1008.1.9.4)",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-492-29.22",
+    "ordinance": "29.22",
+    "versions": [
+      {
+        "id": "mgo-row-492-29.22",
+        "sourceRow": 492,
+        "ordinance": "29.22",
+        "description": "Exit door not properly illuminated.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.22 (see Wis. Admin. Code SPS 361 which adopts IBC 1006.1)",
+        "statute": "(see Wis. Admin. Code SPS 361 which adopts IBC 1006.1)",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-493-29.23",
+    "ordinance": "29.23",
+    "versions": [
+      {
+        "id": "mgo-row-493-29.23",
+        "sourceRow": 493,
+        "ordinance": "29.23",
+        "description": "Items to be enforced over Wis. Administrative Code.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "29.23",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-494-29.21",
+    "ordinance": "29.21",
+    "versions": [
+      {
+        "id": "mgo-row-494-29.21",
+        "sourceRow": 494,
+        "ordinance": "29.21",
+        "description": "Failure to obtain insulation inspection.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "stale",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": true,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "29.21",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-495-29.32(4)",
+    "ordinance": "29.32(4)",
+    "versions": [
+      {
+        "id": "mgo-row-495-29.32(4)",
+        "sourceRow": 495,
+        "ordinance": "29.32(4)",
+        "description": "Permit for use of tents for merchandising or display required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "29.32(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-496-29.40(3)(b)",
+    "ordinance": "29.40(3)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-496-29.40(3)(b)",
+        "sourceRow": 496,
+        "ordinance": "29.40(3)(b)",
+        "description": "Fail to Comply with Benchmarking Requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$1,000/90 days"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$1,000/90 days",
+        "sourceDepositText": "$1,000/90 days",
+        "ordinanceColumn": "29.40(3)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-497-29.40(4)(b)",
+    "ordinance": "29.40(4)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-497-29.40(4)(b)",
+        "sourceRow": 497,
+        "ordinance": "29.40(4)(b)",
+        "description": "Fail to Comply with Building Tune-Up Requirements (100,000 Square Feet or More).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 300000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 1000000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$3,000, 1st 180 days \n$10,000, 365 days"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$3,000, 1st 180 days \n$10,000, 365 days",
+        "sourceDepositText": "$3,000, 1st 180 days \n$10,000, 365 days",
+        "ordinanceColumn": "29.40(4)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-498-29.40(4)(b)",
+    "ordinance": "29.40(4)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-498-29.40(4)(b)",
+        "sourceRow": 498,
+        "ordinance": "29.40(4)(b)",
+        "description": "Fail to Comply with Building Tune-Up Requirements (Less than 100,000 Square Feet).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 200000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 800000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$2,000, 1st 180 days \n$8,000, 365 days"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$2,000, 1st 180 days \n$8,000, 365 days",
+        "sourceDepositText": "$2,000, 1st 180 days \n$8,000, 365 days",
+        "ordinanceColumn": "29.40(4)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-499-29.40(7)(c)",
+    "ordinance": "29.40(7)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-499-29.40(7)(c)",
+        "sourceRow": 499,
+        "ordinance": "29.40(7)(c)",
+        "description": "Falsify Building Energy Savings Code Data.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 300000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 500000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$3,000, 1st \n$5,000, 2nd +"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$3,000, 1st \n$5,000, 2nd +",
+        "sourceDepositText": "$3,000, 1st \n$5,000, 2nd +",
+        "ordinanceColumn": "29.40(7)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-500-29.40(7)(d)",
+    "ordinance": "29.40(7)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-500-29.40(7)(d)",
+        "sourceRow": 500,
+        "ordinance": "29.40(7)(d)",
+        "description": "Fail to Comply with Building Energy Savings Code.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20, 1st \n$50, 2nd \n$100, 3rd +"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20, 1st \n$50, 2nd \n$100, 3rd +",
+        "sourceDepositText": "$20, 1st \n$50, 2nd \n$100, 3rd +",
+        "ordinanceColumn": "29.40(7)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

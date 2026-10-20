@@ -1,0 +1,1973 @@
+[
+  {
+    "o": "7.10(2)",
+    "d": "Permitting fugitive dust.",
+    "r": "$100, 1st $500, 2nd $1,000, 3rd and subsequent",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "7.55",
+    "d": "Unlawful use of wood boilers.",
+    "r": "$50",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(3)(a)1.",
+    "d": "Scrap and recycling dealer license required.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(3)(a)2.",
+    "d": "Motor vehicle salvage dealer license required.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(3)(a)3.",
+    "d": "Scrap and recycling collector license required.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(3)(a)4.",
+    "d": "Motor vehicle storage dealer license required.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(3)(a)5.",
+    "d": "Solid waste hauler license required.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(4)(i)",
+    "d": "Improper disposal of recyclables or yard waste by solid waste hauler.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(4)(j)",
+    "d": "Failure to report quantities of recycling, yard solid waste and yard waste to Street Superintendent.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(9)(a)",
+    "d": "Unlawful collection of scrap and recycling left for City.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.21(9)(b)",
+    "d": "Purchases of scrap or recycling from minor or intoxicated person.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "9.25(4)",
+    "d": "Renting without a registration certificate.",
+    "r": "$500, 1st $1,000, 2nd $2,500, 3rd/more",
+    "t": [
+      {
+        "a": 500,
+        "l": "1st"
+      },
+      {
+        "a": 1000,
+        "l": "2nd"
+      },
+      {
+        "a": 2500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "9.25(6)(c)",
+    "d": "Failure to post registration certificate.",
+    "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "9.25(6)(d)",
+    "d": "Failure of registrant to update information.",
+    "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "9.25(6)(e)",
+    "d": "Failure to comply with abatement plan.",
+    "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "9.25(6)(f)",
+    "d": "Failure to comply with inspection requirement.",
+    "r": "$100, 1st $500, 2nd $1,000, 3rd/more",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "9.4",
+    "d": "Exit door bolted.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 1000,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.05(11)(d)1.",
+    "d": "Failure to Comply with Tree Protection Requirements During Excavation.",
+    "r": "$500/offense, or $150/inch for tree removals",
+    "t": []
+  },
+  {
+    "o": "10.05(15)",
+    "d": "Failure to timely relocate or protect facilities in the public right-of-way.",
+    "r": "$250, 1st w/in 3 yrs. $1,000, 2nd w/in 3 yrs. $2,500, 3rd+ w/in 3 yrs.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 1000,
+        "l": "2nd"
+      },
+      {
+        "a": 2500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.05(19)",
+    "d": "Failure to abide by right-of-way occupancy requirements.",
+    "r": "$250, 1st w/in 3 yrs. $500, 2nd w/in 3 yrs. $1,000, 3rd+ w/in 3 yrs.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.053(16)",
+    "d": "Failure to comply with wireless telecommunications permit.",
+    "r": "$250, 1st $500, 2nd $1,000, 3rd + sub.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.055(1)",
+    "d": "Street, sidewalk alley or public ground occupied without a permit.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.055(4)",
+    "d": "Violation of street occupancy permit conditions.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.055(4)(s)1.",
+    "d": "Failure to Comply with Tree Protection Requirements During Occupancy.",
+    "r": "$500/offense, or $150/inch for tree removals",
+    "t": []
+  },
+  {
+    "o": "10.055(9)(c)5",
+    "d": "Failure to Comply with Conditions of a Public Utility Right-of-Way Occupancy Permit.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.056",
+    "d": "Violations of Street Use Permit Ordinance.",
+    "r": "$300",
+    "t": [
+      {
+        "a": 300,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.057(2)",
+    "d": "Accessing facility without a permit.",
+    "r": "$250, 1st $500, 2nd $1,000, 3rd + sub.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.057(9)",
+    "d": "Failure to comply with facility access permit.",
+    "r": "$250",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.06",
+    "d": "Failure to comply with sidewalk construction requirements.",
+    "r": "$50, 1st $100, 2nd $200, 3rd/more",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      },
+      {
+        "a": 200,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.08(10)(b)",
+    "d": "Failure to Comply with Tree Protection Requirements During Driveway Approach Construction.",
+    "r": "$500/offense, or $150/inch for tree removals",
+    "t": []
+  },
+  {
+    "o": "10.08(9)",
+    "d": "Failure to comply with driveway approach and parking facility construction requirements.",
+    "r": "$50, 1st $100, 2nd $200, 3rd/more",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      },
+      {
+        "a": 200,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.101(3)(a)",
+    "d": "Trimming, pruning, or removing a street tree without a permit.",
+    "r": "$300",
+    "t": [
+      {
+        "a": 300,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.101(3)(e)",
+    "d": "Trimming, pruning, or removing a street tree beyond permit conditions.",
+    "r": "$300",
+    "t": [
+      {
+        "a": 300,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.101(7)(b)",
+    "d": "Causing Removal of a Tree Without a Permit.",
+    "r": "$150/inch for tree removals",
+    "t": []
+  },
+  {
+    "o": "10.105(8)(a)",
+    "d": "Failure to Make Payment to the Street Tree Replacement Fund.",
+    "r": "$100/1st; $250, 2nd; $500, 3+",
+    "t": []
+  },
+  {
+    "o": "10.11",
+    "d": "Tearing of pavement.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.16(1)",
+    "d": "Deposit of inoperable vehicles prohibited.",
+    "r": "$200, 1st $400, 2nd & sub. in 12 mos.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 400,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "10.17",
+    "d": "Deposit of rubbish and throwing of glass on streets prohibited.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.18(5)(f)",
+    "d": "Depositing large items without approval at curb/terrace.",
+    "r": "$100, 1st $300, 2nd $500, 3rd $1,000, 4th+",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 300,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      },
+      {
+        "a": 1000,
+        "l": "4th+"
+      }
+    ]
+  },
+  {
+    "o": "10.18(5)(g)",
+    "d": "Improper disposal of electronic waste.",
+    "r": "$50, 1st $200, 2nd $500, 3rd+",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.18(7)",
+    "d": "Fail to comply with solid waste collection, disposal, or recycling requirements.",
+    "r": "$100, 1st in 1 yr. $200, 2nd in 1 yr. $300, 3rd & subsequent in 1 yr.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 300,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.185(6)(a)2.",
+    "d": "Fail to meet recycling or reuse requirements for multi-family dwellings or commercial buildings < 10,000 ft2 .",
+    "r": "$250, 1% to 10% $500, 11% to 20% $1,000, > 21%",
+    "t": []
+  },
+  {
+    "o": "10.185(6)(b)",
+    "d": "Fail to meet recycling or reuse requirements for residential buildings or remodeling projects.",
+    "r": "$250, < 1 ton $500, 1 ton to 2 tons $1,000, > 2 tons",
+    "t": []
+  },
+  {
+    "o": "10.185(6)(c)",
+    "d": "Fail to follow compliance procedures.",
+    "r": "$250, per violation",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.185(6)(d)",
+    "d": "Falsely state or represent compliance with recycling or reuse requirements.",
+    "r": "$500, 1st violation $1,000, 2+ violation",
+    "t": [
+      {
+        "a": 500,
+        "l": "1st"
+      },
+      {
+        "a": 1000,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "10.19(1)",
+    "d": "Unauthorized trash dumping on public property.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.19(2)",
+    "d": "Misuse of City receptacles.",
+    "r": "$100, 1st w/in 1 yr. $200, 2nd w/in 1 yr. $300, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 300,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.19(3)",
+    "d": "Unauthorized trash dumping on private property.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.20",
+    "d": "Hauling of rubbish over streets.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.23(1)",
+    "d": "Obstruction of streets and sidewalks.",
+    "r": "$50, 1st $100, 2nd",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "10.23(2)",
+    "d": "Depositing snow or ice on street or sidewalk.",
+    "r": "$50, 1st $100, 2nd",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "10.25(5)",
+    "d": "Prohibited plantings or landscaping features in the terrace.",
+    "r": "$50, 1st; $100, 2nd; $250, 3rd+",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      },
+      {
+        "a": 250,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.26",
+    "d": "Congregate, sell merchandise on streets or sidewalks prohibited.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.27",
+    "d": "Permitting animal to stand on sidewalks.",
+    "r": "$25",
+    "t": [
+      {
+        "a": 25,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "10.28",
+    "d": "Snow and ice to be removed from sidewalks.",
+    "r": "$50, 1st $100, 2nd",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "10.30(8)",
+    "d": "Roadway Cafe Permit Violation.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.31(5)",
+    "d": "Causing or maintaining an obstruction without a privilege in street.",
+    "r": "$50, 1st $100, 2nd $200, 3rd or more",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      },
+      {
+        "a": 200,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.32",
+    "d": "Regulation of news boxes in public right-of-way.",
+    "r": "$50, 1st $100, 2nd $200, 3rd or more",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      },
+      {
+        "a": 200,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "10.34",
+    "d": "Street numbers on buildings.",
+    "r": "$50, 1st $100, 2nd",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "18.06",
+    "d": "Unlicensed person performing plumbing work.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "18.08",
+    "d": "Performing plumbing work without permit.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "18.10(2)",
+    "d": "Covering plumbing work before inspection.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "18.16",
+    "d": "Failure to have sign on vehicle.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "19.08",
+    "d": "Unlicensed person performing electrical work.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "19.09(1)",
+    "d": "Performing electrical work without permit.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "19.10",
+    "d": "Concealing electrical work before inspection.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "19.13(6)(c)",
+    "d": "Failure to modify electrical service.",
+    "r": "$50, 1st $100, 2nd + sub.",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "19.14",
+    "d": "Failure to have sign on vehicle.",
+    "r": "$200, 1st $500, 2nd in 1 yr. $1,000, 3rd in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "22.21(2)",
+    "d": "Weights and measures violations.",
+    "r": "$200, 1st $500, 2nd or subsequent",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "23.24(1)",
+    "d": "Injuring trees/shrubs.",
+    "r": "$300",
+    "t": [
+      {
+        "a": 300,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "23.24(3)",
+    "d": "Damaging a city tree.",
+    "r": "$250 + $30/inch, 0>3 diameter inches $150 per diameter inch over 3 inches",
+    "t": []
+  },
+  {
+    "o": "23.29",
+    "d": "Failure to remove noxious weeds.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "24.04",
+    "d": "Prohibition of noises disturbing the public peace.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "24.04(5)",
+    "d": "Leaving animal in parked vehicle for more than 15 minutes.",
+    "r": "$100",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "24.04(7)",
+    "d": "Unlawful to operate solid waste vehicles or compacting equipment between the hours of 10:00 p.m. and 6:00 a.m.",
+    "r": "$200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "24.04(9)(g)2.",
+    "d": "Submission of petition containing fraudulent information.",
+    "r": "$375",
+    "t": [
+      {
+        "a": 375,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "24.04(9)(g)3.",
+    "d": "Failure to follow notification procedure.",
+    "r": "$375",
+    "t": [
+      {
+        "a": 375,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "24.08",
+    "d": "Noise regulation.",
+    "r": "$100, 1st $200, 2nd $300, subsequent",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 300,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "27.04(2)(h)",
+    "d": "Failure to maintain minimum temperature of 67\u00b0F in all habitable rooms.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.04(2)(j)",
+    "d": "Use of cooking equipment in room other than a kitchen.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.04(2)(k)",
+    "d": "Failure to provide required contact information to Building Inspection Division.",
+    "r": "$500",
+    "t": [
+      {
+        "a": 500,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(b)",
+    "d": "Failure to remove noxious weeds.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(c)",
+    "d": "Improper maintenance of exterior property areas.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(cc)",
+    "d": "Improper storage of trash and recycling carts.",
+    "r": "$50, 1st $100, 2nd",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      },
+      {
+        "a": 100,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(dd)",
+    "d": "Large items on terrace.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(f)",
+    "d": "Yard, lawn, or plantings not properly maintained.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(s)",
+    "d": "Failure to remove noxious weeds.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(2)(x)",
+    "d": "Improper maintenance of private storm or building storm sewers.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "27.05(3)(a)",
+    "d": "Maintaining or permitting a public nuisance within the City.",
+    "r": "$200 $200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "27.085(2)",
+    "d": "Maintaining or permitting a public nuisance within the City.",
+    "r": "$200 $200",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "28.032(1)",
+    "d": "Use of land other than permitted.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "28.141(10)(a)",
+    "d": "Unlawful truck parking on residential lot.",
+    "r": "$100, 1st $200, 2nd w/in 1 yr. $250, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 250,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "28.141(10)(d)",
+    "d": "Inoperable vehicle parked on residential lot.",
+    "r": "$100, 1st $200, 2nd w/in 1 yr. $250, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 250,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "28.141(13)(g)",
+    "d": "Motor vehicle idling off-street.",
+    "r": "$100, 1st in 7 yrs. $400, 2nd in 7 yrs. $600, 3rd & sub. in 7 yrs.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 400,
+        "l": "2nd"
+      },
+      {
+        "a": 600,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "28.141(8)(c)",
+    "d": "Unlawful parking in yards.",
+    "r": "$100, 1st $200, 2nd",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "28.202(3)",
+    "d": "Failure to obtain zoning certificate.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.07(1)",
+    "d": "Commencing construction without permit.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.10(2)",
+    "d": "Failure to obtain inspection.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.11",
+    "d": "Failure to obtain occupancy permit.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.11(7)",
+    "d": "Failure to file Compliance Statement.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.12(5)",
+    "d": "Failure to comply with roofed passageway and barricade requirements.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.16",
+    "d": "Failure to employ a flag person.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.21",
+    "d": "Failure to obtain insulation inspection.",
+    "r": "$50",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "29.22",
+    "d": "Exit door bolted.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "29.23",
+    "d": "Items to be enforced over Wis. Administrative Code.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "29.32(4)",
+    "d": "Permit for use of tents for merchandising or display required.",
+    "r": "$50",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "29.40(3)(b)",
+    "d": "Fail to Comply with Benchmarking Requirements.",
+    "r": "$1,000/90 days",
+    "t": []
+  },
+  {
+    "o": "29.40(4)(b)",
+    "d": "Fail to Comply with Building Tune-Up Requirements (100,000 Square Feet or More).",
+    "r": "$3,000, 1st 180 days $10,000, 365 days",
+    "t": []
+  },
+  {
+    "o": "29.40(7)(c)",
+    "d": "Falsify Building Energy Savings Code Data.",
+    "r": "$3,000, 1st $5,000, 2nd +",
+    "t": [
+      {
+        "a": 3000,
+        "l": "1st"
+      },
+      {
+        "a": 5000,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "29.40(7)(d)",
+    "d": "Fail to Comply with Building Energy Savings Code.",
+    "r": "$20, 1st $50, 2nd $100, 3rd +",
+    "t": [
+      {
+        "a": 20,
+        "l": "1st"
+      },
+      {
+        "a": 50,
+        "l": "2nd"
+      },
+      {
+        "a": 100,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "30.01(5)",
+    "d": "HVAC work performed without permit.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "30.01(6)(b)",
+    "d": "Concealing HVAC work before inspection.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "30.01(7)",
+    "d": "Failure to have sign on vehicle.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "31.041(1)",
+    "d": "Sign erected/repaired/altered/relocated/maintained/or change of copy without permit.",
+    "r": "$100 $200, 2nd in 12 mos. $500, 3rd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "31.044(1)(e)",
+    "d": "Election campaign sign violations.",
+    "r": "$50",
+    "t": [
+      {
+        "a": 50,
+        "l": "1st"
+      }
+    ]
+  },
+  {
+    "o": "31.045(3)(c)",
+    "d": "Sign erected/displayed in public right-of-way.",
+    "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "31.045(3)(j)",
+    "d": "Prohibition of displaying signs over expressways/highways (40 miles per hour or more).",
+    "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "31.046(2)(a)",
+    "d": "Portable sign violations on private property.",
+    "r": "$100 $200 $500, 3rd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      },
+      {
+        "a": 500,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "31.046(2)(b)",
+    "d": "Portable sign violations on public property.",
+    "r": "$100 $200, 2nd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "31.046(2)(c)",
+    "d": "All other portable signs prohibited.",
+    "r": "$100 $200, 2nd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "31.075",
+    "d": "Unlawful flags and decorative and promotional banners.",
+    "r": "$100 $200, 2nd & subsequent in 12 mos.",
+    "t": [
+      {
+        "a": 100,
+        "l": "1st"
+      },
+      {
+        "a": 200,
+        "l": "2nd"
+      }
+    ]
+  },
+  {
+    "o": "37.06(2)",
+    "d": "Conducting land disturbing activity without an erosion control permit.",
+    "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "37.06(3)",
+    "d": "Conducting land disturbing activity without a stormwater management permit.",
+    "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "37.07",
+    "d": "Permitting or causing erosion.",
+    "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "37.09(3)",
+    "d": "Failure to implement stormwater management performance standards.",
+    "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "37.12(6)(a)1.",
+    "d": "Violation of a Stop Work Order.",
+    "r": "$200, 1st at site $500, 2nd at site $1,000, 3rd + at site",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "41.14",
+    "d": "Failure to maintain.",
+    "r": "$250, 1st $500, 2nd $1,000, 3rd & subs.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "41.21",
+    "d": "Failure to obtain Certificate of Approval.",
+    "r": "$250, 1st $500, 2nd $1,000, 3rd & subs.",
+    "t": [
+      {
+        "a": 250,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "320.10",
+    "d": "Failure to obtain inspection.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "1006.1",
+    "d": "Exit door not properly illuminated.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 200,
+        "l": "1st"
+      },
+      {
+        "a": 500,
+        "l": "2nd"
+      },
+      {
+        "a": 1000,
+        "l": "3rd+"
+      }
+    ]
+  },
+  {
+    "o": "1008.1",
+    "d": "Exit door bolted.",
+    "r": "$200, 1st $500, 2nd w/in 1 yr. $1,000, 3rd w/in 1 yr.",
+    "t": [
+      {
+        "a": 500,
+        "l": "1st"
+      }
+    ]
+  }
+]

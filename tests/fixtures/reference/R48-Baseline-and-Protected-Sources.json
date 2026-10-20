@@ -1,0 +1,161 @@
+{
+  "baselineArchive": {
+    "name": "Madison-Building-Inspection-2026-10-16-R47.zip",
+    "bytes": 41733732,
+    "sha256": "ddb2b87613f96538bbcad03f512a3193c0a7b6eab0bac4d84def29799b634145"
+  },
+  "verifiedBaselineFiles": 797,
+  "protectedSources": [
+    {
+      "file": "source/policy/metadata.json",
+      "unchanged": true,
+      "sha256": "0201cd79f55e5301aa622a4dfab6ba1adb37b3fc624b6a1222e75a375f3b9d62"
+    },
+    {
+      "file": "calendar_policy.json",
+      "unchanged": true,
+      "sha256": "4a64746c1d276270bddb0992815031c6f0f73a3d11b8f55cb669ff2c7d7df8e3"
+    },
+    {
+      "file": "citation_policy.json",
+      "unchanged": true,
+      "sha256": "8fab0bfcf2ccb5e74f1b0a4e2d4bebaadcdcd4f6ed0f659951f11384180d1406"
+    },
+    {
+      "file": "catalog_manifest.json",
+      "unchanged": true,
+      "sha256": "6eab3885cc44c827a60bc452914f0b6a435be2dbc2f39f14d9059b97306ec525"
+    },
+    {
+      "file": "library.js",
+      "unchanged": true,
+      "sha256": "8416679c288e76e0c56981092725f7d3dac3cec91cbd689d832162ab19d71c5b"
+    },
+    {
+      "file": "deposits.js",
+      "unchanged": true,
+      "sha256": "8fa2ed893fc28891fb1c085f5ca2e877a8c7011ea07badeb477826410d87b498"
+    },
+    {
+      "file": "inspectors.js",
+      "unchanged": true,
+      "sha256": "ec6e7881ac2c72dad13dcd695d33f6373aced5da2db4a4d4b72cc8d86c89dedb"
+    },
+    {
+      "file": "snow_letter.json",
+      "unchanged": true,
+      "sha256": "ee66fba15fa2ea067406d84f0b1afbeffdb5a2694fac6fc197374ede8fe4f6e7"
+    },
+    {
+      "file": "case_lookup.py",
+      "unchanged": true,
+      "sha256": "22ed70b6af8e5d7264dbb926cf396f69da3c9cc45665e1ff7300852f420980db"
+    },
+    {
+      "file": "case_lookup.ps1",
+      "unchanged": true,
+      "sha256": "3153c3d1e5f32efb1a3a932ff8924680be864b323c6d56c47f4fac5af4db45e4"
+    },
+    {
+      "file": "case_lookup.sql",
+      "unchanged": true,
+      "sha256": "d51eb6f9bdbb0eb1dc11cf594909e3b816551d0f1a9cab9e5768da616391c776"
+    },
+    {
+      "file": "case_store.py",
+      "unchanged": true,
+      "sha256": "f7a80947b1e13999fd08b294e644c30f14e0e7bf36aeafd88a15764961a8e6f0"
+    },
+    {
+      "file": "case_integrity.py",
+      "unchanged": true,
+      "sha256": "dbe7bd29e12a7f3c713c51e43305a01f885024bc48eb2be8c8a48ae6f840e13a"
+    },
+    {
+      "file": "artifact_store.py",
+      "unchanged": true,
+      "sha256": "fbef7b8b1eb1aa25fa850ea0d6ccc1c0c2a4b888d7cc3bdd4e00128fdbc6fef2"
+    },
+    {
+      "file": "operations_helper.py",
+      "unchanged": true,
+      "sha256": "907afaa1766dc75a3532b853fce75a0f19cb68cde3d4f3cdafac98697ed059b4"
+    },
+    {
+      "file": "workflow_helper.py",
+      "unchanged": true,
+      "sha256": "bdf8316073bdd624e0b55b5fea9752177302ea927863415dd5b0622ae248d1fe"
+    },
+    {
+      "file": "citation_pricing.py",
+      "unchanged": true,
+      "sha256": "9261149f3a6b676367b1fa2b0707a78e1f385b7b3045f322f6b25a8cd59a1079"
+    },
+    {
+      "file": "shared.js",
+      "unchanged": true,
+      "sha256": "cd2ec8475abf4526bac65921acd442a69a0714dec28b2f38916c8c61459aca30"
+    },
+    {
+      "file": "writer.css",
+      "unchanged": true,
+      "sha256": "6c8eb4600ab382de388f91a7a66a19fac323760c5abb904cb3990cdf1ce73f37"
+    },
+    {
+      "file": "modules/app_entry.js",
+      "unchanged": true,
+      "sha256": "79f623ed3e97a361c42b25edaae40b160f55d75e1d9e38141a8311a6f2ffa830"
+    },
+    {
+      "file": "modules/app_01.js",
+      "unchanged": true,
+      "sha256": "17f2eff785887d7f80b3f75ee60f0befd0efd223346b2135840370e704d8f7ff"
+    },
+    {
+      "file": "modules/app_02.js",
+      "unchanged": true,
+      "sha256": "6dc75123aea71db5a4c38e43e79feda17255bd06d470c7cede3a16a2d7d25712"
+    },
+    {
+      "file": "modules/app_03.js",
+      "unchanged": true,
+      "sha256": "1a13204d441d9bbd67567e144f5a65e23f412e298c7567b34c5bdbd268e816d7"
+    },
+    {
+      "file": "modules/app_04.js",
+      "unchanged": true,
+      "sha256": "d611daf50d32c9600bca4efe4277962836d6eea1d1e07183473e1ad2895321a7"
+    },
+    {
+      "file": "modules/app_05.js",
+      "unchanged": true,
+      "sha256": "a6b9cc63fc2d47058365977b6aed1c1499821460451bf486a27d35b0b76f46ba"
+    },
+    {
+      "file": "modules/app_06.js",
+      "unchanged": true,
+      "sha256": "ed08814c87ecd26b60ba79376a2fefee1f6b7c6dffaaffb2a2d6bf25f6b57f8a"
+    },
+    {
+      "file": "modules/app_07.js",
+      "unchanged": true,
+      "sha256": "41fe8c18e003e993207e03adfe1e326eba0f507696594890466e273e0ceb96dc"
+    },
+    {
+      "file": "modules/app_08.js",
+      "unchanged": true,
+      "sha256": "002aaef588d7ce81840e8a5b1312efb87675901148e15ab73992c9de087d8960"
+    },
+    {
+      "file": "modules/app_09.js",
+      "unchanged": true,
+      "sha256": "c32b53e7aea5d33967cfda394ba2f2a4fa7edfa43bb51315bfcd795eddaa8049"
+    },
+    {
+      "file": "modules/app_10.js",
+      "unchanged": true,
+      "sha256": "99476fdf085d2d3b2fb76efcc71f59c4e6a48904a321455f65864bbcbf044088"
+    }
+  ],
+  "helperLauncher": "Release identity only; all storage, lock, SQL, history, integrity and PDF owners unchanged."
+}

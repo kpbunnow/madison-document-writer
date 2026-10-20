@@ -1,0 +1,1772 @@
+[
+  {
+    "id": "mgo-row-149-10.05(11)(d)1.",
+    "ordinance": "10.05(11)(d)1.",
+    "versions": [
+      {
+        "id": "mgo-row-149-10.05(11)(d)1.",
+        "sourceRow": 149,
+        "ordinance": "10.05(11)(d)1.",
+        "description": "Failure to Comply with Tree Protection Requirements During Excavation.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500/offense, or \n$150/inch for tree removals"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500/offense, or \n$150/inch for tree removals",
+        "sourceDepositText": "$500/offense, or \n$150/inch for tree removals",
+        "ordinanceColumn": "10.05(11)(d)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-150-10.05(15)",
+    "ordinance": "10.05(15)",
+    "versions": [
+      {
+        "id": "mgo-row-150-10.05(15)",
+        "sourceRow": 150,
+        "ordinance": "10.05(15)",
+        "description": "Failure to timely relocate or protect facilities in the public right-of-way.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 250000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 3
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st w/in 3 yrs. \n$1,000, 2nd w/in 3 yrs. \n$2,500, 3rd+ w/in 3 yrs."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$250, 1st w/in 3 yrs. \n$1,000, 2nd w/in 3 yrs. \n$2,500, 3rd+ w/in 3 yrs.",
+        "sourceDepositText": "$250, 1st w/in 3 yrs. \n$1,000, 2nd w/in 3 yrs. \n$2,500, 3rd+ w/in 3 yrs.",
+        "ordinanceColumn": "10.05(15)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-151-10.05(19)",
+    "ordinance": "10.05(19)",
+    "versions": [
+      {
+        "id": "mgo-row-151-10.05(19)",
+        "sourceRow": 151,
+        "ordinance": "10.05(19)",
+        "description": "Failure to abide by right-of-way occupancy requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 3
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st w/in 3 yrs. \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st w/in 3 yrs. \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs.",
+        "sourceDepositText": "$250, 1st w/in 3 yrs. \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs.",
+        "ordinanceColumn": "10.05(19)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-152-10.053(16)",
+    "ordinance": "10.053(16)",
+    "versions": [
+      {
+        "id": "mgo-row-152-10.053(16)",
+        "sourceRow": 152,
+        "ordinance": "10.053(16)",
+        "description": "Failure to comply with wireless telecommunications permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub.",
+        "ordinanceColumn": "10.053(16)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-153-10.055(1)",
+    "ordinance": "10.055(1)",
+    "versions": [
+      {
+        "id": "mgo-row-153-10.055(1)",
+        "sourceRow": 153,
+        "ordinance": "10.055(1)",
+        "description": "Street, sidewalk alley or public ground occupied without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "10.055(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-154-10.055(4)",
+    "ordinance": "10.055(4)",
+    "versions": [
+      {
+        "id": "mgo-row-154-10.055(4)",
+        "sourceRow": 154,
+        "ordinance": "10.055(4)",
+        "description": "Violation of street occupancy permit conditions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "10.055(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-155-10.055(4)(s)1.",
+    "ordinance": "10.055(4)(s)1.",
+    "versions": [
+      {
+        "id": "mgo-row-155-10.055(4)(s)1.",
+        "sourceRow": 155,
+        "ordinance": "10.055(4)(s)1.",
+        "description": "Failure to Comply with Tree Protection Requirements During Occupancy.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500/offense, or \n$150/inch for tree removals"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500/offense, or \n$150/inch for tree removals",
+        "sourceDepositText": "$500/offense, or \n$150/inch for tree removals",
+        "ordinanceColumn": "10.055(4)(s)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-156-10.055(9)(c)5.",
+    "ordinance": "10.055(9)(c)5.",
+    "versions": [
+      {
+        "id": "mgo-row-156-10.055(9)(c)5.",
+        "sourceRow": 156,
+        "ordinance": "10.055(9)(c)5.",
+        "description": "Failure to Comply with Conditions of a Public Utility Right-of-Way Occupancy Permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "10.055(9)(c)5",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-157-10.056",
+    "ordinance": "10.056",
+    "versions": [
+      {
+        "id": "mgo-row-157-10.056",
+        "sourceRow": 157,
+        "ordinance": "10.056",
+        "description": "Violations of Street Use Permit Ordinance.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "10.056",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-158-10.057(2)",
+    "ordinance": "10.057(2)",
+    "versions": [
+      {
+        "id": "mgo-row-158-10.057(2)",
+        "sourceRow": 158,
+        "ordinance": "10.057(2)",
+        "description": "Accessing facility without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd + sub.",
+        "ordinanceColumn": "10.057(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-159-10.057(9)",
+    "ordinance": "10.057(9)",
+    "versions": [
+      {
+        "id": "mgo-row-159-10.057(9)",
+        "sourceRow": 159,
+        "ordinance": "10.057(9)",
+        "description": "Failure to comply with facility access permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250",
+        "sourceDepositText": "$250",
+        "ordinanceColumn": "10.057(9)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-160-10.06",
+    "ordinance": "10.06",
+    "versions": [
+      {
+        "id": "mgo-row-160-10.06",
+        "sourceRow": 160,
+        "ordinance": "10.06",
+        "description": "Failure to comply with sidewalk construction requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd \n$200, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd \n$200, 3rd/more",
+        "sourceDepositText": "$50, 1st \n$100, 2nd \n$200, 3rd/more",
+        "ordinanceColumn": "10.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-161-10.08(9)",
+    "ordinance": "10.08(9)",
+    "versions": [
+      {
+        "id": "mgo-row-161-10.08(9)",
+        "sourceRow": 161,
+        "ordinance": "10.08(9)",
+        "description": "Failure to comply with driveway approach and parking facility construction requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd \n$200, 3rd/more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd \n$200, 3rd/more",
+        "sourceDepositText": "$50, 1st \n$100, 2nd \n$200, 3rd/more",
+        "ordinanceColumn": "10.08(9)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-162-10.08(10)(b)",
+    "ordinance": "10.08(10)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-162-10.08(10)(b)",
+        "sourceRow": 162,
+        "ordinance": "10.08(10)(b)",
+        "description": "Failure to Comply with Tree Protection Requirements During Driveway Approach Construction.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500/offense, or \n$150/inch for tree removals"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500/offense, or \n$150/inch for tree removals",
+        "sourceDepositText": "$500/offense, or \n$150/inch for tree removals",
+        "ordinanceColumn": "10.08(10)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-163-10.101(3)(a)",
+    "ordinance": "10.101(3)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-163-10.101(3)(a)",
+        "sourceRow": 163,
+        "ordinance": "10.101(3)(a)",
+        "description": "Trimming, pruning, or removing a street tree without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "10.101(3)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-164-10.101(3)(e)",
+    "ordinance": "10.101(3)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-164-10.101(3)(e)",
+        "sourceRow": 164,
+        "ordinance": "10.101(3)(e)",
+        "description": "Trimming, pruning, or removing a street tree beyond permit conditions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "10.101(3)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-165-10.101(7)(b)",
+    "ordinance": "10.101(7)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-165-10.101(7)(b)",
+        "sourceRow": 165,
+        "ordinance": "10.101(7)(b)",
+        "description": "Causing Removal of a Tree Without a Permit.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150/inch for tree removals"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150/inch for tree removals",
+        "sourceDepositText": "$150/inch for tree removals",
+        "ordinanceColumn": "10.101(7)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-166-10.105(8)(a)",
+    "ordinance": "10.105(8)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-166-10.105(8)(a)",
+        "sourceRow": 166,
+        "ordinance": "10.105(8)(a)",
+        "description": "Failure to Make Payment to the Street Tree Replacement Fund.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100/1st; \n$250, 2nd; \n$500, 3+"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100/1st; \n$250, 2nd; \n$500, 3+",
+        "sourceDepositText": "$100/1st; \n$250, 2nd; \n$500, 3+",
+        "ordinanceColumn": "10.105(8)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-167-10.11",
+    "ordinance": "10.11",
+    "versions": [
+      {
+        "id": "mgo-row-167-10.11",
+        "sourceRow": 167,
+        "ordinance": "10.11",
+        "description": "Tearing of pavement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "10.11",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-168-10.16(1)",
+    "ordinance": "10.16(1)",
+    "versions": [
+      {
+        "id": "mgo-row-168-10.16(1)",
+        "sourceRow": 168,
+        "ordinance": "10.16(1)",
+        "description": "Deposit of inoperable vehicles prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 40000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$400, 2nd & sub. in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$400, 2nd & sub. in 12 mos.",
+        "sourceDepositText": "$200, 1st \n$400, 2nd & sub. in 12 mos.",
+        "ordinanceColumn": "10.16(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-169-10.17",
+    "ordinance": "10.17",
+    "versions": [
+      {
+        "id": "mgo-row-169-10.17",
+        "sourceRow": 169,
+        "ordinance": "10.17",
+        "description": "Deposit of rubbish and throwing of glass on streets prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "10.17",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-170-10.18(5)(f)",
+    "ordinance": "10.18(5)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-170-10.18(5)(f)",
+        "sourceRow": 170,
+        "ordinance": "10.18(5)(f)",
+        "description": "Depositing large items without approval at curb/terrace.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$300, 2nd \n$500, 3rd \n$1,000, 4th+"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st \n$300, 2nd \n$500, 3rd \n$1,000, 4th+",
+        "sourceDepositText": "$100, 1st \n$300, 2nd \n$500, 3rd \n$1,000, 4th+",
+        "ordinanceColumn": "10.18(5)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-171-10.18(5)(g)",
+    "ordinance": "10.18(5)(g)",
+    "versions": [
+      {
+        "id": "mgo-row-171-10.18(5)(g)",
+        "sourceRow": 171,
+        "ordinance": "10.18(5)(g)",
+        "description": "Improper disposal of electronic waste.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$200, 2nd \n$500, 3rd+"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$200, 2nd \n$500, 3rd+",
+        "sourceDepositText": "$50, 1st \n$200, 2nd \n$500, 3rd+",
+        "ordinanceColumn": "10.18(5)(g)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-172-10.18(7)",
+    "ordinance": "10.18(7)",
+    "versions": [
+      {
+        "id": "mgo-row-172-10.18(7)",
+        "sourceRow": 172,
+        "ordinance": "10.18(7)",
+        "description": "Fail to comply with solid waste collection, disposal, or recycling requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st in 1 yr. \n$200, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr."
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$100, 1st in 1 yr. \n$200, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "sourceDepositText": "$100, 1st in 1 yr. \n$200, 2nd in 1 yr. \n$300, 3rd & subsequent in 1 yr.",
+        "ordinanceColumn": "10.18(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-173-10.185(6)(a)2.",
+    "ordinance": "10.185(6)(a)2.",
+    "versions": [
+      {
+        "id": "mgo-row-173-10.185(6)(a)2.",
+        "sourceRow": 173,
+        "ordinance": "10.185(6)(a)2.",
+        "description": "Fail to meet recycling or reuse requirements for multi-family dwellings or commercial buildings < 10,000 ft2 .",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1% to 10% \n$500, 11% to 20% \n$1,000, > 21%"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1% to 10% \n$500, 11% to 20% \n$1,000, > 21%",
+        "sourceDepositText": "$250, 1% to 10% \n$500, 11% to 20% \n$1,000, > 21%",
+        "ordinanceColumn": "10.185(6)(a)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-174-10.185(6)(b)",
+    "ordinance": "10.185(6)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-174-10.185(6)(b)",
+        "sourceRow": 174,
+        "ordinance": "10.185(6)(b)",
+        "description": "Fail to meet recycling or reuse requirements for residential buildings or remodeling projects.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, < 1 ton \n$500, 1 ton to 2 tons \n$1,000, > 2 tons"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, < 1 ton \n$500, 1 ton to 2 tons \n$1,000, > 2 tons",
+        "sourceDepositText": "$250, < 1 ton \n$500, 1 ton to 2 tons \n$1,000, > 2 tons",
+        "ordinanceColumn": "10.185(6)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-175-10.185(6)(c)",
+    "ordinance": "10.185(6)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-175-10.185(6)(c)",
+        "sourceRow": 175,
+        "ordinance": "10.185(6)(c)",
+        "description": "Fail to follow compliance procedures.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, per violation"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, per violation",
+        "sourceDepositText": "$250, per violation",
+        "ordinanceColumn": "10.185(6)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-176-10.185(6)(d)",
+    "ordinance": "10.185(6)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-176-10.185(6)(d)",
+        "sourceRow": 176,
+        "ordinance": "10.185(6)(d)",
+        "description": "Falsely state or represent compliance with recycling or reuse requirements.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500, 1st violation \n$1,000, 2+ violation"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500, 1st violation \n$1,000, 2+ violation",
+        "sourceDepositText": "$500, 1st violation \n$1,000, 2+ violation",
+        "ordinanceColumn": "10.185(6)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-177-10.19(1)",
+    "ordinance": "10.19(1)",
+    "versions": [
+      {
+        "id": "mgo-row-177-10.19(1)",
+        "sourceRow": 177,
+        "ordinance": "10.19(1)",
+        "description": "Unauthorized trash dumping on public property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "10.19(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-178-10.19(2)",
+    "ordinance": "10.19(2)",
+    "versions": [
+      {
+        "id": "mgo-row-178-10.19(2)",
+        "sourceRow": 178,
+        "ordinance": "10.19(2)",
+        "description": "Misuse of City receptacles.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st w/in 1 yr. \n$200, 2nd w/in 1 yr. \n$300, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st w/in 1 yr. \n$200, 2nd w/in 1 yr. \n$300, 3rd w/in 1 yr.",
+        "sourceDepositText": "$100, 1st w/in 1 yr. \n$200, 2nd w/in 1 yr. \n$300, 3rd w/in 1 yr.",
+        "ordinanceColumn": "10.19(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-179-10.19(3)",
+    "ordinance": "10.19(3)",
+    "versions": [
+      {
+        "id": "mgo-row-179-10.19(3)",
+        "sourceRow": 179,
+        "ordinance": "10.19(3)",
+        "description": "Unauthorized trash dumping on private property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "10.19(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-180-10.20",
+    "ordinance": "10.20",
+    "versions": [
+      {
+        "id": "mgo-row-180-10.20",
+        "sourceRow": 180,
+        "ordinance": "10.20",
+        "description": "Hauling of rubbish over streets.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "10.20",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-181-10.23(1)",
+    "ordinance": "10.23(1)",
+    "versions": [
+      {
+        "id": "mgo-row-181-10.23(1)",
+        "sourceRow": 181,
+        "ordinance": "10.23(1)",
+        "description": "Obstruction of streets and sidewalks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "10.23(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-182-10.23(2)",
+    "ordinance": "10.23(2)",
+    "versions": [
+      {
+        "id": "mgo-row-182-10.23(2)",
+        "sourceRow": 182,
+        "ordinance": "10.23(2)",
+        "description": "Depositing snow or ice on street or sidewalk.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "10.23(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-183-10.25(5)",
+    "ordinance": "10.25(5)",
+    "versions": [
+      {
+        "id": "mgo-row-183-10.25(5)",
+        "sourceRow": 183,
+        "ordinance": "10.25(5)",
+        "description": "Prohibited plantings or landscaping features in the terrace.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st; \n$100, 2nd; \n$250, 3rd+"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$50, 1st; \n$100, 2nd; \n$250, 3rd+",
+        "sourceDepositText": "$50, 1st; \n$100, 2nd; \n$250, 3rd+",
+        "ordinanceColumn": "10.25(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-184-10.26",
+    "ordinance": "10.26",
+    "versions": [
+      {
+        "id": "mgo-row-184-10.26",
+        "sourceRow": 184,
+        "ordinance": "10.26",
+        "description": "Congregate, sell merchandise on streets or sidewalks prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "10.26",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-185-10.27",
+    "ordinance": "10.27",
+    "versions": [
+      {
+        "id": "mgo-row-185-10.27",
+        "sourceRow": 185,
+        "ordinance": "10.27",
+        "description": "Permitting animal to stand on sidewalks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "10.27",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-186-10.28",
+    "ordinance": "10.28",
+    "versions": [
+      {
+        "id": "mgo-row-186-10.28",
+        "sourceRow": 186,
+        "ordinance": "10.28",
+        "description": "Snow and ice to be removed from sidewalks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "10.28",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-187-10.30(8)",
+    "ordinance": "10.30(8)",
+    "versions": [
+      {
+        "id": "mgo-row-187-10.30(8)",
+        "sourceRow": 187,
+        "ordinance": "10.30(8)",
+        "description": "Roadway Cafe Permit Violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 1 yr. \n$1,000, 3rd w/in 1 yr.",
+        "ordinanceColumn": "10.30(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-188-10.31(5)",
+    "ordinance": "10.31(5)",
+    "versions": [
+      {
+        "id": "mgo-row-188-10.31(5)",
+        "sourceRow": 188,
+        "ordinance": "10.31(5)",
+        "description": "Causing or maintaining an obstruction without a privilege in street.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd \n$200, 3rd or more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd \n$200, 3rd or more",
+        "sourceDepositText": "$50, 1st \n$100, 2nd \n$200, 3rd or more",
+        "ordinanceColumn": "10.31(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-189-10.32",
+    "ordinance": "10.32",
+    "versions": [
+      {
+        "id": "mgo-row-189-10.32",
+        "sourceRow": 189,
+        "ordinance": "10.32",
+        "description": "Regulation of news boxes in public right-of-way.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd \n$200, 3rd or more"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd \n$200, 3rd or more",
+        "sourceDepositText": "$50, 1st \n$100, 2nd \n$200, 3rd or more",
+        "ordinanceColumn": "10.32",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-190-10.34",
+    "ordinance": "10.34",
+    "versions": [
+      {
+        "id": "mgo-row-190-10.34",
+        "sourceRow": 190,
+        "ordinance": "10.34",
+        "description": "Street numbers on buildings.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "verified",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": {
+          "reviewer": "Division-supplied R30 ordinance review",
+          "date": "2026-10-08",
+          "reference": "R30 Enhancement Prompt, Legal basis and confirmed acceptance values",
+          "authentication": "Supplied review provenance; not an authenticated approval role"
+        },
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "10.34",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

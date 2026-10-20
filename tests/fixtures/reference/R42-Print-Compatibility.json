@@ -1,0 +1,247 @@
+{
+  "passed": true,
+  "comparison": "R41 and R42 Chromium fixed-frame print bodies; screen-only CSS is outside this exact-content comparison.",
+  "baselineRelease": "2026-10-15 R41",
+  "results": [
+    {
+      "type": "notice",
+      "authoringVersion": 6,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 6,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 6,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 6,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 6,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    },
+    {
+      "type": "notice",
+      "authoringVersion": 7,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 7,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 7,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 7,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 7,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    },
+    {
+      "type": "notice",
+      "authoringVersion": 8,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 8,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 8,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 8,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 8,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    },
+    {
+      "type": "notice",
+      "authoringVersion": 9,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 9,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 9,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 9,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 9,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    },
+    {
+      "type": "notice",
+      "authoringVersion": 10,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 10,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 10,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 10,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 10,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    },
+    {
+      "type": "notice",
+      "authoringVersion": 11,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 2,
+      "bodySha256": "66fab011ae6a07f502d6f94e34a58f828112ab88380c0dec655062ecb06bc940"
+    },
+    {
+      "type": "extension",
+      "authoringVersion": 11,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "7391b12780c960de0dc8a3774ebae2a98a15d5eb72c68aa2c3fd306eabcad398"
+    },
+    {
+      "type": "citation",
+      "authoringVersion": 11,
+      "identicalPrintBody": true,
+      "courtCopies": 4,
+      "sheets": 1,
+      "bodySha256": "eb67a37a79d92b6d0580b32eac6683159f1f2e218e334b70cc3f0c1755476ab8"
+    },
+    {
+      "type": "referral",
+      "authoringVersion": 11,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "5a761ba3f7e8098141f4e3a9fbf16eeaebe1a8a6870c4e6a40046adfb5c6cee8"
+    },
+    {
+      "type": "compliance",
+      "authoringVersion": 11,
+      "identicalPrintBody": true,
+      "courtCopies": 0,
+      "sheets": 1,
+      "bodySha256": "2fbe6a04de791525ef9af6bbb1f9ed279e3cdbd20c50a9f1d59bd55d1f0e6de8"
+    }
+  ]
+}

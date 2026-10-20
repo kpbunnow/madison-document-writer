@@ -1,0 +1,1 @@
+Synthetic R45 import fixtures. No operational records. Blank Inspection Time in ordinary/snow is intentional. The multiple workbook includes two completed choices plus Scheduled, Assist and Pending exclusions.

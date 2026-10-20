@@ -1,0 +1,145 @@
+R30 Enhancement Prompt — Citation Deposit Accuracy & R29 Regressions
+Oct 8, 2026 · @Kyle
+How to use this prompt
+R29 builds cleanly and passes all 54 of its own regression suites, but its citation deposit logic produces wrong or blocked amounts for real library items, and its tests never exercise those paths. Paste everything from "Role and context" onward into the implementing agent (Claude Code or a Claude project) with the R29 source/ folder attached.
+Scope of the review behind this prompt:
+Recovered the uploaded archive (its central directory was truncated; 353 of 358 entries recovered, all source files verified against SHA256SUMS.txt; only five verification/browser/ screenshots and fixtures were lost).
+Ran npm ci, build.py and run_tests.py: build is reproducible, deploy/ matches source/dist/ byte-for-byte, all suites pass.
+Drove lookupForf, feeLines, scheduledEntry, citationDepositFault and the helper's scheduled_citation_base directly against all 79 ordinances cited in the order-language library and all 131 schedule entries.
+Checked the assessment formula against Wisconsin statutes, and the schedule, ladders and every cited provision against the division-supplied MGO exports (Chapters 1, 10, 18, 19, 24, 27, 28, 29, 30 and 32; Rev. 28, Update 3, exported 2026-09-14).
+Role and context
+You are maintaining the Madison Building Inspection Document Writer, release 2026-10-08 R29 (helper 2026.10.08.29, case schema 4, summary 5). Produce release R30, whose single purpose is that every MC-2000 cash deposit the program suggests or accepts is correct for the ordinance actually charged and the offense tier, and that the server-side helper independently enforces the same rule.
+Read first, in order: 00-START-HERE.md, PROJECT-INSTRUCTIONS.md, 03-DOMAIN-RULES.md, 04-PITFALLS.md, R28-CITATION-REVIEW.md, R29-NAVIGATION-AND-CONTINUITY-REVIEW.md, 05-TESTING.md.
+Files you will change: modules/app_01.js (applyDeposit, feeLines, lookupForf), modules/app_entry.js (CITFEES, CHFALLBACK), modules/app_08.js (scheduledEntry, citationDepositFault, editCitation, authoringChecks, citationReview), modules/app_04.js (priorCitations), modules/app_05.js (citationTier, citationFromNotice), modules/app_10.js (reinspection citation creation), modules/initial_citations.js, deposits.js, library.js, case_store.py (scheduled_citation_base, citation validation), build.py (policy generation).
+Non-negotiable constraints:
+Never invent ordinance amounts, tiers, windows or wording. Where the division has not confirmed a value, block automatic pricing and require an approved base/total with a recorded source, as R4 already does.
+Issued snapshots are immutable. Do not recompute or rewrite any issued citation. New rules apply to drafts and new issuances only; corrections keep the original amount unless the inspector changes the charge.
+Keep one source of truth. The browser and case_store.py must compute identical results from the same generated citation_policy.json; no duplicated constants.
+Use integer-cent arithmetic everywhere; keep R28's half-up penalty rounding.
+Preserve all R26–R29 behavior, case schema 4, summary 5, workspace backup 2 and the atomic notice + companion citation save. Bump authoringVersion to 6 for snapshots priced under the new rules.
+Every finding below gets a failing regression test first, then the fix.
+Legal basis
+All amounts were checked against MGO 1.08(3) and Chapters 10, 18, 19, 24, 27, 28, 29, 30 and 32 as codified in Rev. 28, Update 3 (exported 2026-09-14), supplied by the division. The base amounts in deposits.js match the ordinance; the surcharge rule does not, because 1.08(3)(c) incorporates whatever jail assessment Wis. Stat. 302.46(1) requires: the greater of 1% or $10 (302.46(1)(a)).
+TABLE
+Component | What the ordinance says | R29 behavior | Status
+Base, enumerated | 1.08(3)(a) schedule, 556 rows | 131 entries; amounts match where the row exists | Four phantom entries, missing and stale rows (F13–F16)
+Base, chapter ladder | 1.08(3)(b): Chapters 6, 7, 22, 27, 28, 31, 34 and Sec. 33.24, provisions not enumerated in (a): $100 first, $200 second, $250 third and all subsequent "within any twelve (12) month period" | Same | Confirmed
+Base, Chapter 37 ladder | 1.08(3)(b): provisions not enumerated in (a): $100 / $250 / $500, counted "at the site" | Same | Confirmed
+Penalty assessment | 757.05, via 1.08(3)(c) | 26%, half-up | Correct
+Jail assessment | "any jail assessment that would be applicable under" 302.46(1) | Flat $10 | Defect (F1)
+Crime lab and drug | 165.755, via 1.08(3)(c) | $13 | Correct
+Consumer information (100.261), domestic abuse (973.055(1)) | Included where applicable | Not modeled | Not triggered by Chapters 10, 18, 19, 24, 27–30 charges; confirm before writing Chapter 22 citations
+Court costs | $48 under 814.65, set by ORD-26-00039 (7-30-26), which also adopts future state increases automatically | $48, no effective date | Correct from 7-30-26; add the effective date
+How each open policy question resolves from the ordinance text:
+TABLE
+Question | Answer | Basis
+1.08(3)(b) chapter list and ladder | Confirmed exactly as the program has it | 1.08(3)(b)
+Chapter 37 ladder vs. enumerated Chapter 37 rows | No conflict. The ladder applies only to provisions "not enumerated in Subdivision (a)": 37.06(2), 37.06(3), 37.07, 37.09(3) and 37.12(6)(a)1. stay at $200 / $500 / $1,000; 37.08 uses the ladder, counted per site | 1.08(3)(b)
+Does an enumerated section govern its subdivisions? | No blanket rule exists in 1.01, 1.03 or 1.08. It holds only where the scheduled offense describes the subdivision's conduct: yes for 28.202(3)(e), 28.141(8)(c)1. and 10.34(3); no for 19.10(1), which is a mis-citation (F17). Unenumerated Chapter 27/28 subdivisions such as 27.05(2)(h)10. correctly take the ladder | Text of 28.202(3), 28.141(8)(c), 10.34, 19.09–19.10
+Entries listing only 1st and 2nd (e.g., 27.05(2)(c)) | A third offense stays at the 2nd-offense amount; the ladder never reaches an enumerated provision | 1.08(3)(b) "not enumerated"
+Lookback window | Stated per row ("w/in 1 yr.", "in 12 mos.", "w/in 3 yrs.", "in 7 yrs.", "at site"); ladder is 12 months. Rows with no window text (9.25(4), 41.14, 41.21, 10.18(5)(f)) state none | Each row's deposit text
+9.4, 29.22, 1008.1 "contradictions" | Transcription artifact. The schedule has two 29.22 rows, exit door bolted (IBC 1008.1.9.4) and exit door not illuminated (IBC 1006.1), both $200 / $500 / $1,000 within 1 year. 9.4, 1008.1, 1006.1 and 320.10 are not Madison ordinances | 1.08(3)(a) rows for 29.22 and 29.10(2)
+Court-cost effective date | 7-30-26 (ORD-26-00039). Whether the automatic-increase clause existed earlier, making $48 effective 3-22-26, is not shown in the history note | 1.08(3)(c)
+Second violation means a prior citation has been issued within case being considered.
+Findings
+Twelve defects, all reproduced against the R29 source. None is caught by the 54 suites, and the helper repeats F1–F4 in case_store.py, so its server-side check approves the same wrong amounts. Totals assume $48 court costs.
+TABLE
+ID | Severity | Defect | Reproduction | R29 result | Expected
+F1 | High | Jail surcharge fixed at $10 (CITFEES.jail, feeLines; Decimal(23) in case_store.py) | 9.25(4) 3rd+, base $2,500 | $3,221.00 | $3,236.00
+F1 | High | Same | 29.40(7)(c) 2nd, base $5,000 | $6,371.00 | $6,411.00
+F2 | High | No parent lookup: a subdivision of an enumerated section falls to the chapter ladder or to nothing | Library item "Unpermitted Change In Occupancy Use", 28.202(3)(e) | $197 / $323 / $386 (ladder) | $323 / $701 / $1,331 via 28.202(3) (confirmed from text)
+F2 | High | Same | "Electrical Permit - Work Done Without Permit", 19.10(1) | No deposit; manual entry | Not 19.10: mis-cited; charge 19.09(1), $323 (F17)
+F2 | Medium | Same | "Parking In Setback", 28.141(8)(c)(1), 3rd offense | $386 | $323 via 28.141(8)(c)
+F2 | Medium | Same | "Visible address and unit identification", 10.34(3) | No deposit | $134 / $197 via 10.34
+F3 | High | Issuance regex rejects Wisconsin numbered paragraphs (27.05(2)(h)10, 37.12(6)(a)1.) in authoringChecks and case_store.py | 12 library sections (all 27.05(2)(g)1–4 and (h) paragraphs, 27.04(2)(g)5) and 12 schedule entries, including 37.12(6)(a)1. Stop Work Order | Citation cannot be issued as written | Accepted and priced
+F4 | Medium | Ordinance canonicalization is case-sensitive and ignores common prefixes | 27.05(2)(CC) | $197 (ladder) | $134
+F4 | Low | Same | Sec. 27.05(2)(c), § 27.05(2)(c), M.G.O. 27.05(2)(c) | No match | Normalize to 27.05(2)(c)
+F5 | High | Escalation ignores each ordinance's lookback window | priorCitations always uses 12 months back from today | 10.05(15) "w/in 3 yrs" and 28.141(13)(g) "in 7 yrs" under-escalate | Window per entry, anchored to the violation date
+F6 | High | Escalation counts by item number on this case, not by ordinance and respondent | Same ordinance on two items, or a prior case at the same owner | Both priced "1st" | Counted per policy confirmed in Legal basis
+F7 | Medium | Tier is frozen at draft creation, hidden in schedule mode, and trusted by the helper | Void an earlier citation after drafting the next | Stale "2nd" persists and is accepted | Recomputed at review and checked by the helper
+F8 | Medium | Schedule data defects | 10.18(5)(f) labels "3rd+" $500 and "4th+" $1,000; tier "4th+" is never produced | 4th offense priced at $500 | $1,000
+F8 | Low | Same | 10.105(8)(a) text "$100/1st; $250, 2nd; $500, 3+" has empty tiers | Manual only | Parsed tiers, pending confirmation
+F9 | High | R28's multi-section fix covers only initial citations; reinspection citations (app_10.js) silently charge sections[0] and price it | Any library item with two sections cited after a reinspection | First section charged with no confirmation | Blank ordinance until the inspector picks one
+F10 | Medium | Initial citation charge goes stale: prepare() skips items that already have cits, and editing the item's ordinance never updates the charge | Select Cite, then change the item's ordinance | Notice shows the new section; citation charges and prices the old one | Flag the mismatch and re-resolve
+F11 | Low | Library typo 27.05(2)f | "Tree Touching Neighbor" | Ladder price, fails regex | 27.05(2)(f)
+F12 | Process | No test covers numbered paragraphs, parent lookup, bases over $1,000, multi-section reinspection citations or lookback windows | run_tests.py | 54/54 pass | Golden-value suite (Testing)
+Ordinance-text findings
+Comparing deposits.js with the 556-row 1.08(3)(a) schedule and the current chapter text adds six findings. F13–F15 and F18 are program fixes; F16 needs the City to amend 1.08 or the division to stop auto-pricing those rows.
+TABLE
+ID | Severity | Finding | Evidence | Fix
+F13 | High | Four phantom ordinances: 9.4, 1008.1, 1006.1 and 320.10 were split out of the ordinance column "29.22 (see ... IBC 1008.1.9.4)", "29.22 (see ... IBC 1006.1)" and "29.10(2) and ... SPS 320.10" | Rows for 29.22 and 29.10(2) in 1.08(3)(a) | Delete them. Keep two verified 29.22 offenses (exit door bolted; exit door not illuminated), both $200 / $500 / $1,000 within 1 year, and record the state-code reference as statute
+F14 | Medium | Range rows truncated to their first member: "28.141(10)(a)—(c)" became 28.141(10)(a); "23.24(1) and (2)" became 23.24(1); "27.05(3)(a) 27.085(2)" became two rows | Same table | Expand to (a), (b), (c); (1), (2); keep both nuisance rows. 28.141(10)(b) and (c) currently price by the ladder, which happens to match
+F15 | Medium | Building Inspection may cite these (1.08(4)) but they are absent: 8.15(1), 9.13, 9.13(4), 9.13(7), 9.135, 9.136(1), 9.54, 9.54(1), 9.54(12), 12.128(14), 12.145(1)(d), 23.61 | 1.08(3)(a) and the Building Inspection Director row of 1.08(4) | Add them, or mark out of scope for this program
+F16 | High | Stale schedule rows: the 1.08 number no longer holds the described offense | 27.05(2)(s) is now "Removal of Debris" but the row says noxious weeds (now 27.05(2)(b)); 29.21 is now the appeals board, while insulation inspection is 29.10(2)(c); 30.01(5) is now the fee schedule, while the HVAC permit is 30.01(4); 1.08(4) cites 19.16(4)(c), which does not exist (the row correctly uses 19.13(6)(c)) | Mark these rows stale: no automatic amount or description. Refer to the City Attorney for a revisor's ordinance
+F17 | High | Parent lookup alone would misprice: 19.10 is scheduled as "Concealing electrical work before inspection", but 19.10(1) prohibits energizing without a service-inspection certificate | Text of 19.09–19.10 | Use reviewed per-item mappings, never automatic ancestor matching (work item 4)
+F18 | Medium | The printed violation description comes from the schedule row, not the ordinance actually charged, so a stale row prints the wrong offense | applyDeposit copies f.desc; 27.05(2)(s) prints "FAILURE TO REMOVE NOXIOUS WEEDS" on a debris citation | Take the description from the reviewed library mapping; block issuance when the row is stale
+Library citation corrections
+Every permit and inspection item in the library cites pre-2021 numbering; Chapters 18, 19 and 29 were repealed and recreated on 3-26-21 (ORD-21-00025, ORD-21-00026, ORD-21-00024), and 30.01 was amended 3-8-21 (ORD-21-00016). Of the 79 cited ordinances, these need a reviewed mapping. Amounts are base deposits for 1st / 2nd / 3rd offenses.
+TABLE
+Library item | Cited | Current text at that number | Charge instead | Base deposit
+Plumbing Permit - Work Done Without Permit | 18.09(1) | 18.09 is the fee schedule; no (1) | 18.08 | $200 / $500 / $1,000 in 1 yr.
+Plumbing Permit Need Inspection | 18.11(1) | 18.11 is definitions | 18.10(2) | $200 / $500 / $1,000 in 1 yr.
+Electrical Permit - Work Done Without Permit | 19.10(1) | Energizing without service-inspection certificate | 19.09(1) | $200 / $500 / $1,000 in 1 yr.
+Electrical Permit Need Inspection | 19.12(1) | Sale of electrical appliances | 19.10, if the division accepts the row's "concealing" description | $200 / $500 / $1,000 in 1 yr.
+Building Permit - Work Done Without Permit | 29.05(1) | Change of use to stricter requirements | 29.07(1) | $200 / $500 / $1,000 w/in 1 yr.
+Building Permit Need Inspection | 29.08(1) | Plan submission | 29.10(2) | $200 / $500 / $1,000 w/in 1 yr.
+HVAC Permit - Work Done Without Permit | 30.01(9)(a) | 30.01(9) is the penalty; no (a) | 30.01(4); the schedule row still says 30.01(5) (F16) | Manual until 1.08 is corrected
+HVAC Permit Need Inspection | 30.01(11)(a) | Does not exist | 30.01(6); only (6)(b), concealing, is scheduled | $200 / $500 / $1,000 w/in 1 yr. if (6)(b) fits; else manual
+Unpermitted Change In Occupancy Use | 28.202(3)(e) | "No change in use ... until a zoning certificate has been issued" | Scheduled under 28.202(3) | $200 / $500 / $1,000 w/in 1 yr.
+Parking In Setback (and two related items) | 28.141(8)(c)(1) | Correct provision, wrong format | 28.141(8)(c)1., scheduled under 28.141(8)(c) | $100 / $200
+Visible address and unit identification | 10.34(3) | Owner's duty to post numbers | Scheduled under 10.34 | $50 / $100
+Tree Touching Neighbor | 27.05(2)f | Typo | 27.05(2)(f) | $100 / $200
+JTD Construction Waste | 27.05(2)(s) | "Removal of Debris"; schedule row describes weeds (F16) | 27.05(2)(c) ("free from debris"), or (s) once 1.08 is corrected | $100 / $200
+Cart Late Removal | 10.18(6) | Restrictions on landfill operations | 10.18(7) | $100 / $200 / $300 in 1 yr.
+Cart Early Placement; JTD Large Items Early | 10.18(1) | General collection authority | 10.18(7); large items 10.18(5)(f) | $100 / $200 / $300; $100 / $300 / $500 / $1,000
+Chapter 10 is not in the 1.08(3)(b) ladder, so 10.05, 10.055, 10.29 and the other unenumerated Chapter 10 items have no deposit unless mapped to an enumerated row; they correctly require a manual basis. The 12 Chapter 27 paragraph citations (27.05(2)(g)1.–4., (h)1.–12., 27.04(2)(g)5.) are valid provisions that correctly take the ladder once the format check accepts them (F3).
+Required enhancements
+Implement in this order; each item lists the findings it closes and its acceptance test.
+Verified, structured deposit schedule (F8, F11, policy questions). Replace the free-text r plus t pairs in deposits.js with a schema per entry: ordinance, description, tiers (ordinal 1..n with amount in cents, last tier open-ended), window ({months}, {years}, "site" or "none"), countBasis (citation / conviction), status (verified / unverified / manual-only), source (MGO subsection + codification date) and stale (boolean: the number no longer holds the described offense). Keep the original text as rawText for audit. Add an effective date to CITFEES and to each entry. build.py fails if any verified entry's tiers disagree with its rawText. Only verified entries auto-price.
+Accept: 10.18(5)(f) prices a 4th offense at $1,000; 10.105(8)(a) has three tiers marked unverified; no entry carries labels outside the ordinal model.
+Statutory surcharges computed per rule (F1). Replace CITFEES.jail with jailCents = max(1000, round_half_up(base_cents / 100)). Generate the surcharge rules into citation_policy.json and have case_store.py read them, removing Decimal(23). Show the actual jail figure in the breakdown and on all four MC-2000 copies.
+Accept: base $1,000 totals $1,331.00 (jail $10); $1,500 totals $1,966.00 (jail $15); $2,500 totals $3,236.00; $5,000 totals $6,411.00, identical in JS and Python.
+One ordinance grammar and canonical form (F3, F4, F11). Write one shared grammar for Madison and SPS citations: chapter.section, then any number of (x) groups, then optional Wisconsin paragraph and subparagraph tokens (1., 10, a.). Canonicalize by trimming, removing MGO, M.G.O., Sec., § prefixes, collapsing whitespace, lowercasing letters inside parentheses, and normalizing a trailing paragraph to N.. Generate the same grammar into the policy file for the helper. Correct 27.05(2)f in library.js.
+Accept: all 79 library sections and all schedule ordinances pass; 27.05(2)(CC) resolves to the $50 entry; 27.05(2)(c), 27.04(2)(h) is still rejected as a list.
+Deterministic resolution with an explained path (F2, F17). lookupForf must try, in order: exact match; a reviewed mapping stored on the library item (charged ordinance, schedule row, printed description, reviewer and date), never an automatic ancestor match; the single-child rule R4 already uses; then the 1.08(3)(b) ladder, only for provisions of the listed chapters that no row enumerates. Return resolvedVia (exact / mapped:<o> / child:<o> / ladder / none) and render it in the citation review hint ("Priced under 28.202(3), Failure to obtain zoning certificate"). Never reach the ladder for a subdivision of an enumerated section; return none and require a manual basis.
+Accept: 28.202(3)(e) 1st prices at $323.00 through its reviewed mapping to 28.202(3); 19.10(1) never prices under 19.10; an unmapped subdivision of an enumerated section blocks with a manual-deposit prompt, never the ladder.
+Escalation by ordinance, respondent and window (F5, F6, F7). Replace priorCitations(caseId, no) with priorOffenses({ordinanceEntry, respondent, parcel, violationDate}). Count issued, non-void, non-superseded citations whose canonical charge resolves to the same schedule entry, for the same respondent (owner name and mailing address as the reports already match) or the same site when window is "site", within the entry's window measured back from the new violation date. Include all cases in the case folder, not only the current one. Show the counted citations by number and date in the review panel. Recompute the tier whenever the charge, violation date or history changes, and show the tier in schedule mode as read-only with an "approved override" path that requires a source.
+Accept: two items citing 27.05(2)(c) on one case price 1st then 2nd; a citation 13 months old does not escalate a 12-month entry but does escalate a 3-year entry; voiding the prior citation drops the next draft back to 1st.
+Helper enforces tier, amount and grammar (F7). case_store.py recomputes the expected tier from the case history it holds and rejects a schedule-mode citation whose tier or base differs, with a message naming the expected tier. Cross-case history the helper cannot see is accepted only with a recorded override source.
+Accept: a tampered snapshot with tier 1st where history shows a prior citation is refused.
+Explicit charge on every citation path (F9, F10). Apply R28's rule to app_10.js and citationFromNotice: a multi-section item starts with an empty ordinance and blocks issuance until the inspector chooses one. In initial_citations.js, store the item sections used at prepare() time; when the item's sections change, clear an auto-filled charge or flag it, and block issuance while the charged ordinance is not one of the item's current sections (unless the inspector confirms a different charge).
+Accept: a reinspection citation on a two-section item cannot issue until an ordinance is chosen; editing a notice item from 27.05(2)(c) to 27.05(2)(cc) after Cite produces a blocking check.
+Court-cost effective date. Validate schedule-mode court costs against the rate in effect on the citation's issue date ($48 on or after Madison's adoption date, $38 before). Corrections of earlier issuances keep their original rate.
+Accept: a correction of a citation issued before the adoption date validates at $38 without switching to manual mode.
+Schedule corrections from the ordinance text (F13–F16, F18). Regenerate deposits.js from the 1.08(3)(a) export with a script kept in source/reference/, so future codifications can be diffed. Delete 9.4, 1008.1, 1006.1 and 320.10; expand range rows; add the F15 rows or mark them out of scope; mark 27.05(2)(s), 29.21 and 30.01(5) stale. Print the violation description from the library mapping, not the schedule row.
+Accept: a diff of the export against deposits.js is empty apart from documented exclusions; a 27.05(2)(s) citation cannot issue with the weeds description.
+Library citation corrections (F17). Apply the Library citation corrections table to library.js as reviewed mappings, preserving each item's libraryKey so issued history and reports still group correctly. Items whose replacement depends on the division's choice (19.10 "need inspection", 30.01(6), 27.05(2)(s)) ship as manual-only until reviewed.
+Accept: every library section resolves to an existing provision in the supplied chapter text, checked by a build-time script.
+Court Calendar.  Adjust court dates to schedule on Wednesdays not Tuesdays.
+Testing requirements
+Add audit_r30.js and audit_r30_helper.py to the release gate, both driven by one shared fixture deposit_golden.json so the browser and helper are proven to agree.
+Golden values: every row below, plus one row per verified schedule entry and tier, asserting base, each surcharge line and total in both runtimes.
+Library sweep: iterate every section in library.js; assert each passes the grammar and resolves to a non-ladder entry whenever an exact, ancestor or child entry exists. Fail the build on any new unresolved section without an explicit manual-only marker.
+Escalation: A prior citation has been issued for the item within the case being considered.
+Paths: initial notice companion, reinspection citation, citationFromNotice recovery and correction, each with single- and multi-section items and an ordinance edited after Cite.
+Tamper: helper rejects wrong tier, wrong base, wrong jail figure, malformed ordinance and stale charge.
+Keep the Chromium audit and add one end-to-end issuance of 28.202(3)(e) and of a $2,500 base, checking the printed MC-2000 amount on all four copies.
+TABLE
+Charge | Tier | Base | Penalty | Jail | Crime lab | Court | Total
+10.25(5) | 1st | $50.00 | $13.00 | $10.00 | $13.00 | $48.00 | $134.00
+27.05(2)(c) | 1st | $100.00 | $26.00 | $10.00 | $13.00 | $48.00 | $197.00
+27.05(2)(cc) written 27.05(2)(CC) | 1st | $50.00 | $13.00 | $10.00 | $13.00 | $48.00 | $134.00
+28.202(3)(e) via 28.202(3) * | 1st | $200.00 | $52.00 | $10.00 | $13.00 | $48.00 | $323.00
+28.202(3)(e) via 28.202(3) * | 3rd+ | $1,000.00 | $260.00 | $10.00 | $13.00 | $48.00 | $1,331.00
+9.25(4) | 3rd+ | $2,500.00 | $650.00 | $25.00 | $13.00 | $48.00 | $3,236.00
+29.40(7)(c) | 2nd | $5,000.00 | $1,300.00 | $50.00 | $13.00 | $48.00 | $6,411.00
+10.18(5)(f) * | 4th | $1,000.00 | $260.00 | $10.00 | $13.00 | $48.00 | $1,331.00
+* Confirmed against 1.08(3)(a), Rev. 28, Update 3 (28.202(3)(e) through its reviewed mapping). Add rows asserting a blocked automatic amount for the stale rows 27.05(2)(s), 29.21 and 30.01(5), for 19.10(1), and asserting that 9.4 and 1008.1 no longer resolve at all.
+Deliverables and boundaries
+R30 ships when run_tests.py and the Chromium audit pass with the new suites, and every finding F1–F12 maps to a passing test.
+☐ R30-CITATION-DEPOSIT-REVIEW.md: each finding, its fix, its test, and the before/after amount for every affected library item.
+☐ DEPOSIT-SCHEDULE-VERIFICATION.md: one row per schedule entry and per 1.08(3)(b) ladder, with MGO subsection, codification date, verified-by and date. Ship it with every entry not yet signed off marked unverified.
+☐ Updates to 03-DOMAIN-RULES.md (surcharge rule, resolution order, escalation basis), 04-PITFALLS.md (shared grammar, no duplicated constants), 02-CODE-MAP.md and NOTICE-AND-CITATION-GUIDE.md (what inspectors now see).
+☐ Version bump to 2026.10.xx.30, rebuilt deploy/, regenerated SHA256SUMS.txt, and an archive whose central directory verifies with unzip -t before upload (the R29 upload arrived truncated).
+☐ City Attorney referral memo: the F16 stale rows (27.05(2)(s), 29.21, 30.01(5)), the nonexistent 19.16(4)(c) in 1.08(4), and the two open questions — prior citation vs. prior conviction, and how rows with no stated window count history. Until answered, R30 counts prior non-void citations for the same schedule row and shows the inspector which ones it counted.
+Out of scope: and holiday rules, citation numbering, the R29 navigation work, Accela import, reporting definitions, and any change to issued snapshots. Do not adopt any amount, window or count basis from this prompt as policy; the division's verification governs.

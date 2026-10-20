@@ -1,0 +1,2551 @@
+[
+  {
+    "id": "mgo-row-24-8.10(1)",
+    "ordinance": "8.10(1)",
+    "versions": [
+      {
+        "id": "mgo-row-24-8.10(1)",
+        "sourceRow": 24,
+        "ordinance": "8.10(1)",
+        "description": "Use or occupancy of City land without a temporary land use permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 40000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$400, 2nd w/in 12 mos. \n$500, 3rd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$400, 2nd w/in 12 mos. \n$500, 3rd + sub.",
+        "sourceDepositText": "$200, 1st \n$400, 2nd w/in 12 mos. \n$500, 3rd + sub.",
+        "ordinanceColumn": "8.10(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-25-8.10(9)",
+    "ordinance": "8.10(9)",
+    "versions": [
+      {
+        "id": "mgo-row-25-8.10(9)",
+        "sourceRow": 25,
+        "ordinance": "8.10(9)",
+        "description": "Failure to abide by temporary land use permit conditions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 3
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 3 yrs. \n$1,000, 3rd+ w/in 3 yrs.",
+        "ordinanceColumn": "8.10(9)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-26-8.11(14)",
+    "ordinance": "8.11(14)",
+    "versions": [
+      {
+        "id": "mgo-row-26-8.11(14)",
+        "sourceRow": 26,
+        "ordinance": "8.11(14)",
+        "description": "Driving in cemetery.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.11(14)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-27-8.11(16)",
+    "ordinance": "8.11(16)",
+    "versions": [
+      {
+        "id": "mgo-row-27-8.11(16)",
+        "sourceRow": 27,
+        "ordinance": "8.11(16)",
+        "description": "Throwing of rubbish in cemetery.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.11(16)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-28-8.11(18)",
+    "ordinance": "8.11(18)",
+    "versions": [
+      {
+        "id": "mgo-row-28-8.11(18)",
+        "sourceRow": 28,
+        "ordinance": "8.11(18)",
+        "description": "Skiing and sledding in cemetery prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.11(18)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-29-8.125(1)",
+    "ordinance": "8.125(1)",
+    "versions": [
+      {
+        "id": "mgo-row-29-8.125(1)",
+        "sourceRow": 29,
+        "ordinance": "8.125(1)",
+        "description": "Catering at a library facility without or contrary to a valid library facility catering permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "8.125(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-30-8.14(2)(a)",
+    "ordinance": "8.14(2)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-30-8.14(2)(a)",
+        "sourceRow": 30,
+        "ordinance": "8.14(2)(a)",
+        "description": "Weight of vehicles in municipal parking lots.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "8.14(2)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-31-8.14(2)(b)",
+    "ordinance": "8.14(2)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-31-8.14(2)(b)",
+        "sourceRow": 31,
+        "ordinance": "8.14(2)(b)",
+        "description": "Backing into stalls/Out of indicated space (municipal lot).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "8.14(2)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-32-8.14(2)(c)1.a.",
+    "ordinance": "8.14(2)(c)1.a.",
+    "versions": [
+      {
+        "id": "mgo-row-32-8.14(2)(c)1.a.",
+        "sourceRow": 32,
+        "ordinance": "8.14(2)(c)1.a.",
+        "description": "Expired meter - municipal parking facility.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "8.14(2)(c)1.a.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-33-8.14(2)(c)1.b.",
+    "ordinance": "8.14(2)(c)1.b.",
+    "versions": [
+      {
+        "id": "mgo-row-33-8.14(2)(c)1.b.",
+        "sourceRow": 33,
+        "ordinance": "8.14(2)(c)1.b.",
+        "description": "Overtime parking at meter in municipal parking facility.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "8.14(2)(c)1.b.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-34-8.14(2)(c)2.",
+    "ordinance": "8.14(2)(c)2.",
+    "versions": [
+      {
+        "id": "mgo-row-34-8.14(2)(c)2.",
+        "sourceRow": 34,
+        "ordinance": "8.14(2)(c)2.",
+        "description": "Failure to pay before exiting a municipal parking facility staffed by an attendant.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105",
+        "sourceDepositText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105",
+        "ordinanceColumn": "8.14(2)(c)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-35-8.14(2)(c)3.",
+    "ordinance": "8.14(2)(c)3.",
+    "versions": [
+      {
+        "id": "mgo-row-35-8.14(2)(c)3.",
+        "sourceRow": 35,
+        "ordinance": "8.14(2)(c)3.",
+        "description": "Failure to pay before exiting unattended municipal parking facility.",
+        "tiers": [],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105",
+        "sourceDepositText": "$0-20, $25 \n$20.05-50.00, $55 \n$50.05 or more, $105",
+        "ordinanceColumn": "8.14(2)(c)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-36-8.14(2)(d)",
+    "ordinance": "8.14(2)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-36-8.14(2)(d)",
+        "sourceRow": 36,
+        "ordinance": "8.14(2)(d)",
+        "description": "Trespassing on municipal parking facility.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "8.14(2)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-37-8.14(2)(c)4.",
+    "ordinance": "8.14(2)(c)4.",
+    "versions": [
+      {
+        "id": "mgo-row-37-8.14(2)(c)4.",
+        "sourceRow": 37,
+        "ordinance": "8.14(2)(c)4.",
+        "description": "Causing damage at municipal parking facility while exiting without paying.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd + sub.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd + sub.",
+        "ordinanceColumn": "8.14(2)(c)4.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-38-8.14(2)(d)4.a.",
+    "ordinance": "8.14(2)(d)4.a.",
+    "versions": [
+      {
+        "id": "mgo-row-38-8.14(2)(d)4.a.",
+        "sourceRow": 38,
+        "ordinance": "8.14(2)(d)4.a.",
+        "description": "Trespassing in parking facility - Unsatisfied parking tickets.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "8.14(2)(d)4.a.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-39-8.14(2)(d)5.",
+    "ordinance": "8.14(2)(d)5.",
+    "versions": [
+      {
+        "id": "mgo-row-39-8.14(2)(d)5.",
+        "sourceRow": 39,
+        "ordinance": "8.14(2)(d)5.",
+        "description": "Trespassing in parking facility - Unpaid Parking Fee Notices (\"PFN\").",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "8.14(2)(d)5.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-40-8.14(2)(e)",
+    "ordinance": "8.14(2)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-40-8.14(2)(e)",
+        "sourceRow": 40,
+        "ordinance": "8.14(2)(e)",
+        "description": "Parking trailers in municipal parking facilities.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "8.14(2)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-41-8.14(2)(f)",
+    "ordinance": "8.14(2)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-41-8.14(2)(f)",
+        "sourceRow": 41,
+        "ordinance": "8.14(2)(f)",
+        "description": "Distributing leaflets in municipal parking lots.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10",
+        "sourceDepositText": "$10",
+        "ordinanceColumn": "8.14(2)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-42-8.14(2)(g)",
+    "ordinance": "8.14(2)(g)",
+    "versions": [
+      {
+        "id": "mgo-row-42-8.14(2)(g)",
+        "sourceRow": 42,
+        "ordinance": "8.14(2)(g)",
+        "description": "Possession and consumption of intoxicants prohibited in automobile parking lots.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "8.14(2)(g)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-43-8.14(2)(i)",
+    "ordinance": "8.14(2)(i)",
+    "versions": [
+      {
+        "id": "mgo-row-43-8.14(2)(i)",
+        "sourceRow": 43,
+        "ordinance": "8.14(2)(i)",
+        "description": "Tampering/altering prepayment receipt.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "8.14(2)(i)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-44-8.14(2)(j)",
+    "ordinance": "8.14(2)(j)",
+    "versions": [
+      {
+        "id": "mgo-row-44-8.14(2)(j)",
+        "sourceRow": 44,
+        "ordinance": "8.14(2)(j)",
+        "description": "Transfer of parking utility receipts prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.14(2)(j)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-45-8.14(3)(b)",
+    "ordinance": "8.14(3)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-45-8.14(3)(b)",
+        "sourceRow": 45,
+        "ordinance": "8.14(3)(b)",
+        "description": "Expired receipt.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10",
+        "sourceDepositText": "$10",
+        "ordinanceColumn": "8.14(3)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-46-8.15(1)",
+    "ordinance": "8.15(1)",
+    "versions": [
+      {
+        "id": "mgo-row-46-8.15(1)",
+        "sourceRow": 46,
+        "ordinance": "8.15(1)",
+        "description": "Private use of greenways and park lands.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub.",
+        "ordinanceColumn": "8.15(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-47-8.16",
+    "ordinance": "8.16",
+    "versions": [
+      {
+        "id": "mgo-row-47-8.16",
+        "sourceRow": 47,
+        "ordinance": "8.16",
+        "description": "Unauthorized motorized vehicles prohibited on public lands.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$55, 1st \n$105, 2nd/subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$55, 1st \n$105, 2nd/subsequent",
+        "sourceDepositText": "$55, 1st \n$105, 2nd/subsequent",
+        "ordinanceColumn": "8.16",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-48-8.17",
+    "ordinance": "8.17",
+    "versions": [
+      {
+        "id": "mgo-row-48-8.17",
+        "sourceRow": 48,
+        "ordinance": "8.17",
+        "description": "Vending in public parks regulated.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "8.17",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-49-8.175(1)",
+    "ordinance": "8.175(1)",
+    "versions": [
+      {
+        "id": "mgo-row-49-8.175(1)",
+        "sourceRow": 49,
+        "ordinance": "8.175(1)",
+        "description": "Catering at a parks facility without or contrary to a valid parks facility catering permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "8.175(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-50-8.18(1)",
+    "ordinance": "8.18(1)",
+    "versions": [
+      {
+        "id": "mgo-row-50-8.18(1)",
+        "sourceRow": 50,
+        "ordinance": "8.18(1)",
+        "description": "Three-hour parking in parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "8.18(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-51-8.18(1)",
+    "ordinance": "8.18(1)",
+    "versions": [
+      {
+        "id": "mgo-row-51-8.18(1)",
+        "sourceRow": 51,
+        "ordinance": "8.18(1)",
+        "description": "Three-hour parking in football game day parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$60, 1st \n$100, 2nd +"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$60, 1st \n$100, 2nd +",
+        "sourceDepositText": "$60, 1st \n$100, 2nd +",
+        "ordinanceColumn": "8.18(1) & (7)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-52-8.18(2)",
+    "ordinance": "8.18(2)",
+    "versions": [
+      {
+        "id": "mgo-row-52-8.18(2)",
+        "sourceRow": 52,
+        "ordinance": "8.18(2)",
+        "description": "Parking after hours in parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "8.18(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-53-8.18(3)",
+    "ordinance": "8.18(3)",
+    "versions": [
+      {
+        "id": "mgo-row-53-8.18(3)",
+        "sourceRow": 53,
+        "ordinance": "8.18(3)",
+        "description": "Violating parks parking restrictions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "8.18(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-54-8.18(4)(b)",
+    "ordinance": "8.18(4)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-54-8.18(4)(b)",
+        "sourceRow": 54,
+        "ordinance": "8.18(4)(b)",
+        "description": "Disabled parking violation in parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150",
+        "sourceDepositText": "$150",
+        "ordinanceColumn": "8.18(4)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-55-8.18(5)(a)",
+    "ordinance": "8.18(5)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-55-8.18(5)(a)",
+        "sourceRow": 55,
+        "ordinance": "8.18(5)(a)",
+        "description": "Expired meter in Law Park.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "8.18(5)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-56-8.18(5)(b)",
+    "ordinance": "8.18(5)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-56-8.18(5)(b)",
+        "sourceRow": 56,
+        "ordinance": "8.18(5)(b)",
+        "description": "Overtime parking in Law Park.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "8.18(5)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-57-8.18(5)(c)",
+    "ordinance": "8.18(5)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-57-8.18(5)(c)",
+        "sourceRow": 57,
+        "ordinance": "8.18(5)(c)",
+        "description": "No parking, Permit only, Law Park.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "8.18(5)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-58-8.185",
+    "ordinance": "8.185",
+    "versions": [
+      {
+        "id": "mgo-row-58-8.185",
+        "sourceRow": 58,
+        "ordinance": "8.185",
+        "description": "Watercraft and/or other boating equipment storage on City property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.185",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-59-8.188",
+    "ordinance": "8.188",
+    "versions": [
+      {
+        "id": "mgo-row-59-8.188",
+        "sourceRow": 59,
+        "ordinance": "8.188",
+        "description": "Anchor or moor watercraft within 25 yards of certain boat launch sites or piers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd in 12 mos. \n$200, 3rd + sub.",
+        "ordinanceColumn": "8.188",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-60-8.19(1)(b)1.",
+    "ordinance": "8.19(1)(b)1.",
+    "versions": [
+      {
+        "id": "mgo-row-60-8.19(1)(b)1.",
+        "sourceRow": 60,
+        "ordinance": "8.19(1)(b)1.",
+        "description": "Dogs prohibited in City buildings.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "sourceDepositText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "ordinanceColumn": "8.19(1)(b)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-61-8.19(1)(b)2.",
+    "ordinance": "8.19(1)(b)2.",
+    "versions": [
+      {
+        "id": "mgo-row-61-8.19(1)(b)2.",
+        "sourceRow": 61,
+        "ordinance": "8.19(1)(b)2.",
+        "description": "Dogs prohibited on designated City property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "sourceDepositText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "ordinanceColumn": "8.19(1)(b)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-62-8.19(1)(b)3.",
+    "ordinance": "8.19(1)(b)3.",
+    "versions": [
+      {
+        "id": "mgo-row-62-8.19(1)(b)3.",
+        "sourceRow": 62,
+        "ordinance": "8.19(1)(b)3.",
+        "description": "Dogs prohibited on school grounds.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "sourceDepositText": "$25, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th, sub.",
+        "ordinanceColumn": "8.19(1)(b)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-63-8.19(2)",
+    "ordinance": "8.19(2)",
+    "versions": [
+      {
+        "id": "mgo-row-63-8.19(2)",
+        "sourceRow": 63,
+        "ordinance": "8.19(2)",
+        "description": "Horses prohibited in certain areas.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd, sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd, sub.",
+        "ordinanceColumn": "8.19(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-64-8.19(3)",
+    "ordinance": "8.19(3)",
+    "versions": [
+      {
+        "id": "mgo-row-64-8.19(3)",
+        "sourceRow": 64,
+        "ordinance": "8.19(3)",
+        "description": "Animals prohibited on zoo property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd & sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd & sub.",
+        "ordinanceColumn": "8.19(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-65-8.195(7)",
+    "ordinance": "8.195(7)",
+    "versions": [
+      {
+        "id": "mgo-row-65-8.195(7)",
+        "sourceRow": 65,
+        "ordinance": "8.195(7)",
+        "description": "Dog recreation area violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th & sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd \n$200, 3rd \n$300, 4th & sub.",
+        "ordinanceColumn": "8.195(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-66-8.21",
+    "ordinance": "8.21",
+    "versions": [
+      {
+        "id": "mgo-row-66-8.21",
+        "sourceRow": 66,
+        "ordinance": "8.21",
+        "description": "Public parks to be closed during certain hours.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd, sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd, sub.",
+        "ordinanceColumn": "8.21",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-67-8.215(1)",
+    "ordinance": "8.215(1)",
+    "versions": [
+      {
+        "id": "mgo-row-67-8.215(1)",
+        "sourceRow": 67,
+        "ordinance": "8.215(1)",
+        "description": "Lake access permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st; \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st; \n$100, 2nd",
+        "sourceDepositText": "$50, 1st; \n$100, 2nd",
+        "ordinanceColumn": "8.215(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-68-8.215(2)",
+    "ordinance": "8.215(2)",
+    "versions": [
+      {
+        "id": "mgo-row-68-8.215(2)",
+        "sourceRow": 68,
+        "ordinance": "8.215(2)",
+        "description": "Lake access parking lot permit display.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$55, 1st \n$100, 2nd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$55, 1st \n$100, 2nd, sub.",
+        "sourceDepositText": "$55, 1st \n$100, 2nd, sub.",
+        "ordinanceColumn": "8.215(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-69-8.215(3)",
+    "ordinance": "8.215(3)",
+    "versions": [
+      {
+        "id": "mgo-row-69-8.215(3)",
+        "sourceRow": 69,
+        "ordinance": "8.215(3)",
+        "description": "Hours of launch at Olin Park.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "8.215(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-70-8.22",
+    "ordinance": "8.22",
+    "versions": [
+      {
+        "id": "mgo-row-70-8.22",
+        "sourceRow": 70,
+        "ordinance": "8.22",
+        "description": "Fishing in certain parts of Tenney Park prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd, sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd, sub.",
+        "ordinanceColumn": "8.22",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-71-8.23",
+    "ordinance": "8.23",
+    "versions": [
+      {
+        "id": "mgo-row-71-8.23",
+        "sourceRow": 71,
+        "ordinance": "8.23",
+        "description": "Use of public golf courses restricted to golfing purposes.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.23",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-72-8.24(1)",
+    "ordinance": "8.24(1)",
+    "versions": [
+      {
+        "id": "mgo-row-72-8.24(1)",
+        "sourceRow": 72,
+        "ordinance": "8.24(1)",
+        "description": "Fermented malt beverage and liquor control on certain public property and container control.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "8.24(1), (2) & (3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-73-8.25",
+    "ordinance": "8.25",
+    "versions": [
+      {
+        "id": "mgo-row-73-8.25",
+        "sourceRow": 73,
+        "ordinance": "8.25",
+        "description": "Trapping on public lands without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "8.25",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-74-8.26(4)",
+    "ordinance": "8.26(4)",
+    "versions": [
+      {
+        "id": "mgo-row-74-8.26(4)",
+        "sourceRow": 74,
+        "ordinance": "8.26(4)",
+        "description": "Temporary structure prohibited without permit (each structure subject to separate citation).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.26(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-75-8.265",
+    "ordinance": "8.265",
+    "versions": [
+      {
+        "id": "mgo-row-75-8.265",
+        "sourceRow": 75,
+        "ordinance": "8.265",
+        "description": "Lodging in parks prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "8.265",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-76-8.27",
+    "ordinance": "8.27",
+    "versions": [
+      {
+        "id": "mgo-row-76-8.27",
+        "sourceRow": 76,
+        "ordinance": "8.27",
+        "description": "Miscellaneous regulations relating to snowmobiles.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd",
+        "sourceDepositText": "$50, 1st \n$100, 2nd",
+        "ordinanceColumn": "8.27",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-77-8.29(1)",
+    "ordinance": "8.29(1)",
+    "versions": [
+      {
+        "id": "mgo-row-77-8.29(1)",
+        "sourceRow": 77,
+        "ordinance": "8.29(1)",
+        "description": "Public address systems in park.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.29(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-78-8.30",
+    "ordinance": "8.30",
+    "versions": [
+      {
+        "id": "mgo-row-78-8.30",
+        "sourceRow": 78,
+        "ordinance": "8.30",
+        "description": "Radio-controlled model airplanes prohibited in parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.30",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-79-8.31(4)",
+    "ordinance": "8.31(4)",
+    "versions": [
+      {
+        "id": "mgo-row-79-8.31(4)",
+        "sourceRow": 79,
+        "ordinance": "8.31(4)",
+        "description": "Bicycles in parks prohibitions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.31(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-80-8.32",
+    "ordinance": "8.32",
+    "versions": [
+      {
+        "id": "mgo-row-80-8.32",
+        "sourceRow": 80,
+        "ordinance": "8.32",
+        "description": "Disc golf without a permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$100, 2nd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$100, 2nd, sub.",
+        "sourceDepositText": "$50, 1st \n$100, 2nd, sub.",
+        "ordinanceColumn": "8.32",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-81-8.34",
+    "ordinance": "8.34",
+    "versions": [
+      {
+        "id": "mgo-row-81-8.34",
+        "sourceRow": 81,
+        "ordinance": "8.34",
+        "description": "Gambling in parks prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 17500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$175, 2nd \n$250, 3rd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$175, 2nd \n$250, 3rd",
+        "sourceDepositText": "$100, 1st \n$175, 2nd \n$250, 3rd",
+        "ordinanceColumn": "8.34",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-82-8.36",
+    "ordinance": "8.36",
+    "versions": [
+      {
+        "id": "mgo-row-82-8.36",
+        "sourceRow": 82,
+        "ordinance": "8.36",
+        "description": "Play golf on City lands restricted to golf courses.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "8.36",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-83-8.37(1)",
+    "ordinance": "8.37(1)",
+    "versions": [
+      {
+        "id": "mgo-row-83-8.37(1)",
+        "sourceRow": 83,
+        "ordinance": "8.37(1)",
+        "description": "Tournament without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 35000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$350"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$350",
+        "sourceDepositText": "$350",
+        "ordinanceColumn": "8.37(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-84-8.38",
+    "ordinance": "8.38",
+    "versions": [
+      {
+        "id": "mgo-row-84-8.38",
+        "sourceRow": 84,
+        "ordinance": "8.38",
+        "description": "Vehicular traffic on Monona Terrace prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.38",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-85-8.39",
+    "ordinance": "8.39",
+    "versions": [
+      {
+        "id": "mgo-row-85-8.39",
+        "sourceRow": 85,
+        "ordinance": "8.39",
+        "description": "Olin Terrace violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.39",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-86-8.40",
+    "ordinance": "8.40",
+    "versions": [
+      {
+        "id": "mgo-row-86-8.40",
+        "sourceRow": 86,
+        "ordinance": "8.40",
+        "description": "Preservation of Conservation Parks.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "8.40",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-87-8.42",
+    "ordinance": "8.42",
+    "versions": [
+      {
+        "id": "mgo-row-87-8.42",
+        "sourceRow": 87,
+        "ordinance": "8.42",
+        "description": "Feeding birds on public property prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10, 1st \n$50, 2nd \n$100, 3rd, sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10, 1st \n$50, 2nd \n$100, 3rd, sub.",
+        "sourceDepositText": "$10, 1st \n$50, 2nd \n$100, 3rd, sub.",
+        "ordinanceColumn": "8.42",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

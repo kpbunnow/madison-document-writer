@@ -1,0 +1,455 @@
+[
+  {
+    "id": "mgo-row-296-13.04",
+    "ordinance": "13.04",
+    "versions": [
+      {
+        "id": "mgo-row-296-13.04",
+        "sourceRow": 296,
+        "ordinance": "13.04",
+        "description": "Outdoor water usage restrictions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "13.04",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-297-13.06",
+    "ordinance": "13.06",
+    "versions": [
+      {
+        "id": "mgo-row-297-13.06",
+        "sourceRow": 297,
+        "ordinance": "13.06",
+        "description": "Interference with access to premises.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "13.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-298-13.07(2)(f)",
+    "ordinance": "13.07(2)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-298-13.07(2)(f)",
+        "sourceRow": 298,
+        "ordinance": "13.07(2)(f)",
+        "description": "Failure to comply with notice to connect.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "13.07(2)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-299-13.11",
+    "ordinance": "13.11",
+    "versions": [
+      {
+        "id": "mgo-row-299-13.11",
+        "sourceRow": 299,
+        "ordinance": "13.11",
+        "description": "Opening of fire hydrant.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 200000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500, 1st \n$1,000, 2nd in 5 yrs. \n$2,000, 3rd/sub. in 5 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500, 1st \n$1,000, 2nd in 5 yrs. \n$2,000, 3rd/sub. in 5 yrs.",
+        "sourceDepositText": "$500, 1st \n$1,000, 2nd in 5 yrs. \n$2,000, 3rd/sub. in 5 yrs.",
+        "ordinanceColumn": "13.11",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-300-13.15",
+    "ordinance": "13.15",
+    "versions": [
+      {
+        "id": "mgo-row-300-13.15",
+        "sourceRow": 300,
+        "ordinance": "13.15",
+        "description": "Cross-connection control regulation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "13.15",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-301-13.18",
+    "ordinance": "13.18",
+    "versions": [
+      {
+        "id": "mgo-row-301-13.18",
+        "sourceRow": 301,
+        "ordinance": "13.18",
+        "description": "Lead and GRR water service line replacement.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$250, 2nd \n$500, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$250, 2nd \n$500, 3rd & sub.",
+        "sourceDepositText": "$100, 1st \n$250, 2nd \n$500, 3rd & sub.",
+        "ordinanceColumn": "13.18",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-302-13.20",
+    "ordinance": "13.20",
+    "versions": [
+      {
+        "id": "mgo-row-302-13.20",
+        "sourceRow": 302,
+        "ordinance": "13.20",
+        "description": "Tampering with water meters.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs.",
+        "sourceDepositText": "$200, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs.",
+        "ordinanceColumn": "13.20",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-303-13.205",
+    "ordinance": "13.205",
+    "versions": [
+      {
+        "id": "mgo-row-303-13.205",
+        "sourceRow": 303,
+        "ordinance": "13.205",
+        "description": "Tampering with water utility mains and property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs.",
+        "sourceDepositText": "$300, 1st \n$500, 2nd in 5 yrs. \n$1,000, 3rd /sub. in 5 yrs.",
+        "ordinanceColumn": "13.205",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-304-13.21(4)",
+    "ordinance": "13.21(4)",
+    "versions": [
+      {
+        "id": "mgo-row-304-13.21(4)",
+        "sourceRow": 304,
+        "ordinance": "13.21(4)",
+        "description": "Failure to abandon well.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "13.21(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-305-13.21(5)(a)",
+    "ordinance": "13.21(5)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-305-13.21(5)(a)",
+        "sourceRow": 305,
+        "ordinance": "13.21(5)(a)",
+        "description": "Operating a well without a valid well operation permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "13.21(5)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-306-13.21(5)(c)2.d.",
+    "ordinance": "13.21(5)(c)2.d.",
+    "versions": [
+      {
+        "id": "mgo-row-306-13.21(5)(c)2.d.",
+        "sourceRow": 306,
+        "ordinance": "13.21(5)(c)2.d.",
+        "description": "Failure to submit annual test results.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "13.21(5)(c)2.d.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

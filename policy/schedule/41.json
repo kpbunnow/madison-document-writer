@@ -1,0 +1,96 @@
+[
+  {
+    "id": "mgo-row-558-41.14",
+    "ordinance": "41.14",
+    "versions": [
+      {
+        "id": "mgo-row-558-41.14",
+        "sourceRow": 558,
+        "ordinance": "41.14",
+        "description": "Failure to maintain.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs.",
+        "ordinanceColumn": "41.14",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-559-41.21",
+    "ordinance": "41.21",
+    "versions": [
+      {
+        "id": "mgo-row-559-41.21",
+        "sourceRow": 559,
+        "ordinance": "41.21",
+        "description": "Failure to obtain Certificate of Approval.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & subs.",
+        "ordinanceColumn": "41.21",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

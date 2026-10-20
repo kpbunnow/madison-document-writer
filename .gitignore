@@ -1,0 +1,38 @@
+node_modules/
+build/
+dist/
+archive/
+__pycache__/
+*.pyc
+.hypothesis/
+.ruff_cache/
+
+# Reproducible local environments and caches (keep helper/vendor and fixtures).
+.venv/
+venv/
+.cache/
+.pytest_cache/
+.mypy_cache/
+playwright-report/
+test-results/
+
+# Local credentials and private signing material. Keep non-secret examples.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+
+# Operational data must stay outside maintained source; synthetic fixtures stay.
+/Case JSON Files/
+/Reporting Index/
+/Reporting GIS/
+/Documents To Be Mailed And Recorded/
+/outbox/
+/share.txt
+/helper/share.txt
+/helper/case-lookup-settings.json
+/helper/integrity-settings.json

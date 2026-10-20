@@ -1,0 +1,202 @@
+[
+  {
+    "id": "mgo-row-513-32.05(1)(b)",
+    "ordinance": "32.05(1)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-513-32.05(1)(b)",
+        "sourceRow": 513,
+        "ordinance": "32.05(1)(b)",
+        "description": "Removing doors or windows without consent of tenant.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 60000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$600, 1st \n$1,000, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$600, 1st \n$1,000, 2nd",
+        "sourceDepositText": "$600, 1st \n$1,000, 2nd",
+        "ordinanceColumn": "32.05(1)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-514-32.05(1)(c)",
+    "ordinance": "32.05(1)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-514-32.05(1)(c)",
+        "sourceRow": 514,
+        "ordinance": "32.05(1)(c)",
+        "description": "Confiscating tenants' personal property in lieu of rent.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 60000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$600, 1st \n$1,000, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$600, 1st \n$1,000, 2nd",
+        "sourceDepositText": "$600, 1st \n$1,000, 2nd",
+        "ordinanceColumn": "32.05(1)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-515-32.05(1)(d)",
+    "ordinance": "32.05(1)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-515-32.05(1)(d)",
+        "sourceRow": 515,
+        "ordinance": "32.05(1)(d)",
+        "description": "Entering tenant's leased premises without at least 24 hours notice.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 60000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$600, 1st \n$1,000, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$600, 1st \n$1,000, 2nd",
+        "sourceDepositText": "$600, 1st \n$1,000, 2nd",
+        "ordinanceColumn": "32.05(1)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-516-32.07(3)",
+    "ordinance": "32.07(3)",
+    "versions": [
+      {
+        "id": "mgo-row-516-32.07(3)",
+        "sourceRow": 516,
+        "ordinance": "32.07(3)",
+        "description": "Failure to provide rent credit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 60000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$600"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$600",
+        "sourceDepositText": "$600",
+        "ordinanceColumn": "32.07(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-517-32.07(7)",
+    "ordinance": "32.07(7)",
+    "versions": [
+      {
+        "id": "mgo-row-517-32.07(7)",
+        "sourceRow": 517,
+        "ordinance": "32.07(7)",
+        "description": "Failure to return security deposit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 60000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$600"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$600",
+        "sourceDepositText": "$600",
+        "ordinanceColumn": "32.07(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

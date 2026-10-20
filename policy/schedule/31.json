@@ -1,0 +1,319 @@
+[
+  {
+    "id": "mgo-row-505-31.041(1)",
+    "ordinance": "31.041(1)",
+    "versions": [
+      {
+        "id": "mgo-row-505-31.041(1)",
+        "sourceRow": 505,
+        "ordinance": "31.041(1)",
+        "description": "Sign erected/repaired/altered/relocated/maintained/or change of copy without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200, 2nd in 12 mos. \n$500, 3rd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200, 2nd in 12 mos. \n$500, 3rd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200, 2nd in 12 mos. \n$500, 3rd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.041(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-506-31.044(1)(e)",
+    "ordinance": "31.044(1)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-506-31.044(1)(e)",
+        "sourceRow": 506,
+        "ordinance": "31.044(1)(e)",
+        "description": "Election campaign sign violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "31.044(1)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-507-31.045(3)(c)",
+    "ordinance": "31.045(3)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-507-31.045(3)(c)",
+        "sourceRow": 507,
+        "ordinance": "31.045(3)(c)",
+        "description": "Sign erected/displayed in public right-of-way.",
+        "tiers": [],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.045(3)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-508-31.045(3)(j)",
+    "ordinance": "31.045(3)(j)",
+    "versions": [
+      {
+        "id": "mgo-row-508-31.045(3)(j)",
+        "sourceRow": 508,
+        "ordinance": "31.045(3)(j)",
+        "description": "Prohibition of displaying signs over expressways/highways (40 miles per hour or more).",
+        "tiers": [],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.045(3)(j)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-509-31.046(2)(a)",
+    "ordinance": "31.046(2)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-509-31.046(2)(a)",
+        "sourceRow": 509,
+        "ordinance": "31.046(2)(a)",
+        "description": "Portable sign violations on private property.",
+        "tiers": [],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200 \n$500, 3rd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.046(2)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-510-31.046(2)(b)",
+    "ordinance": "31.046(2)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-510-31.046(2)(b)",
+        "sourceRow": 510,
+        "ordinance": "31.046(2)(b)",
+        "description": "Portable sign violations on public property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200, 2nd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.046(2)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-511-31.046(2)(c)",
+    "ordinance": "31.046(2)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-511-31.046(2)(c)",
+        "sourceRow": 511,
+        "ordinance": "31.046(2)(c)",
+        "description": "All other portable signs prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200, 2nd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.046(2)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-512-31.075",
+    "ordinance": "31.075",
+    "versions": [
+      {
+        "id": "mgo-row-512-31.075",
+        "sourceRow": 512,
+        "ordinance": "31.075",
+        "description": "Unlawful flags and decorative and promotional banners.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100 \n$200, 2nd & subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "sourceDepositText": "$100 \n$200, 2nd & subsequent in 12 mos.",
+        "ordinanceColumn": "31.075",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

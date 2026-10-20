@@ -1,0 +1,12 @@
+node_modules
+build
+dist
+archive
+helper/vendor
+app/assets/leaflet.js
+app/assets/leaflet.css
+app/assets/library.js
+app/assets/deposits.js
+app/assets/inspectors.js
+app/assets/language-font.css
+app/assets/approved-print-style.css

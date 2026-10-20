@@ -1,0 +1,748 @@
+[
+  {
+    "id": "mgo-row-6-7.05",
+    "ordinance": "7.05",
+    "versions": [
+      {
+        "id": "mgo-row-6-7.05",
+        "sourceRow": 6,
+        "ordinance": "7.05",
+        "description": "Health nuisance.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "sourceDepositText": "$250, 1st \n$500, 2nd \n$1,000, 3rd & sub.",
+        "ordinanceColumn": "7.05",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-7-7.08(2)",
+    "ordinance": "7.08(2)",
+    "versions": [
+      {
+        "id": "mgo-row-7-7.08(2)",
+        "sourceRow": 7,
+        "ordinance": "7.08(2)",
+        "description": "Restaurant permit required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.08(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-8-7.08(7)(a)",
+    "ordinance": "7.08(7)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-8-7.08(7)(a)",
+        "sourceRow": 8,
+        "ordinance": "7.08(7)(a)",
+        "description": "Temporary restaurant permit required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.08(7)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-9-7.08(7)(j)",
+    "ordinance": "7.08(7)(j)",
+    "versions": [
+      {
+        "id": "mgo-row-9-7.08(7)(j)",
+        "sourceRow": 9,
+        "ordinance": "7.08(7)(j)",
+        "description": "Failure to register temporary food establishment.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st \n$200, 2nd or sub. w/in 5 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st \n$200, 2nd or sub. w/in 5 yrs.",
+        "sourceDepositText": "$50, 1st \n$200, 2nd or sub. w/in 5 yrs.",
+        "ordinanceColumn": "7.08(7)(j)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-10-7.10(2)",
+    "ordinance": "7.10(2)",
+    "versions": [
+      {
+        "id": "mgo-row-10-7.10(2)",
+        "sourceRow": 10,
+        "ordinance": "7.10(2)",
+        "description": "Permitting fugitive dust.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$500, 2nd \n$1,000, 3rd and subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$500, 2nd \n$1,000, 3rd and subsequent",
+        "sourceDepositText": "$100, 1st \n$500, 2nd \n$1,000, 3rd and subsequent",
+        "ordinanceColumn": "7.10(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-11-7.15",
+    "ordinance": "7.15",
+    "versions": [
+      {
+        "id": "mgo-row-11-7.15",
+        "sourceRow": 11,
+        "ordinance": "7.15",
+        "description": "Violation of Tattoo and Body-Piercing Regulation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "7.15",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-12-7.30",
+    "ordinance": "7.30",
+    "versions": [
+      {
+        "id": "mgo-row-12-7.30",
+        "sourceRow": 12,
+        "ordinance": "7.30",
+        "description": "Animal slaughtering without permit or in unacceptable area or manner.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.30",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-13-7.32",
+    "ordinance": "7.32",
+    "versions": [
+      {
+        "id": "mgo-row-13-7.32",
+        "sourceRow": 13,
+        "ordinance": "7.32",
+        "description": "Deposit of rubbish and refuse on streets, public grounds and lakes or on exterior property area.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "7.32",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-14-7.321",
+    "ordinance": "7.321",
+    "versions": [
+      {
+        "id": "mgo-row-14-7.321",
+        "sourceRow": 14,
+        "ordinance": "7.321",
+        "description": "Depositing human waste products limited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.321",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-15-7.322(1)",
+    "ordinance": "7.322(1)",
+    "versions": [
+      {
+        "id": "mgo-row-15-7.322(1)",
+        "sourceRow": 15,
+        "ordinance": "7.322(1)",
+        "description": "Animal defecation on public or private property prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd/subsqnt."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd/subsqnt.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd/subsqnt.",
+        "ordinanceColumn": "7.322(1) & (3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-16-7.322(2)",
+    "ordinance": "7.322(2)",
+    "versions": [
+      {
+        "id": "mgo-row-16-7.322(2)",
+        "sourceRow": 16,
+        "ordinance": "7.322(2)",
+        "description": "Failure to carry means of animal defecation removal.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$200, 2nd/subsqnt."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$200, 2nd/subsqnt.",
+        "sourceDepositText": "$100, 1st \n$200, 2nd/subsqnt.",
+        "ordinanceColumn": "7.322(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-17-7.42(1)",
+    "ordinance": "7.42(1)",
+    "versions": [
+      {
+        "id": "mgo-row-17-7.42(1)",
+        "sourceRow": 17,
+        "ordinance": "7.42(1)",
+        "description": "Unlawful for person or corporation to dump garbage, rubbish, etc., without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.42(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-18-7.42(1)",
+    "ordinance": "7.42(1)",
+    "versions": [
+      {
+        "id": "mgo-row-18-7.42(1)",
+        "sourceRow": 18,
+        "ordinance": "7.42(1)",
+        "description": "Owner of real estate to permit or allow dumping of garbage, rubbish, etc. on property without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "7.42(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-19-7.46",
+    "ordinance": "7.46",
+    "versions": [
+      {
+        "id": "mgo-row-19-7.46",
+        "sourceRow": 19,
+        "ordinance": "7.46",
+        "description": "Water Pollution.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years",
+        "ordinanceColumn": "7.46",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-20-7.47",
+    "ordinance": "7.47",
+    "versions": [
+      {
+        "id": "mgo-row-20-7.47",
+        "sourceRow": 20,
+        "ordinance": "7.47",
+        "description": "Discharge of Non-Stormwater.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 5
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years",
+        "sourceDepositText": "$200, 1st \n$500, 2nd w/in 5 years \n$1,000, 3rd & subsequent w/in 5 years",
+        "ordinanceColumn": "7.47",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-21-7.48",
+    "ordinance": "7.48",
+    "versions": [
+      {
+        "id": "mgo-row-21-7.48",
+        "sourceRow": 21,
+        "ordinance": "7.48",
+        "description": "Regulation of fertilizer.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50, 1st within 12 mos. \n$150, 2nd within 12 mos. \n$300, 3rd & subsequent w/in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50, 1st within 12 mos. \n$150, 2nd within 12 mos. \n$300, 3rd & subsequent w/in 12 mos.",
+        "sourceDepositText": "$50, 1st within 12 mos. \n$150, 2nd within 12 mos. \n$300, 3rd & subsequent w/in 12 mos.",
+        "ordinanceColumn": "7.48",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-22-7.49",
+    "ordinance": "7.49",
+    "versions": [
+      {
+        "id": "mgo-row-22-7.49",
+        "sourceRow": 22,
+        "ordinance": "7.49",
+        "description": "Standards for exterior painting and remodeling.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 7500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 15000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$75, 1st \n$150, 2nd, subsequent within 1 year"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$75, 1st \n$150, 2nd, subsequent within 1 year",
+        "sourceDepositText": "$75, 1st \n$150, 2nd, subsequent within 1 year",
+        "ordinanceColumn": "7.49",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-23-7.55",
+    "ordinance": "7.55",
+    "versions": [
+      {
+        "id": "mgo-row-23-7.55",
+        "sourceRow": 23,
+        "ordinance": "7.55",
+        "description": "Unlawful use of wood boilers.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "7.55",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

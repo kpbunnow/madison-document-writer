@@ -1,0 +1,900 @@
+[
+  {
+    "id": "mgo-row-191-11.03",
+    "ordinance": "11.03",
+    "versions": [
+      {
+        "id": "mgo-row-191-11.03",
+        "sourceRow": 191,
+        "ordinance": "11.03",
+        "description": "Unlawful use of bus shelter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.03",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-192-11.045",
+    "ordinance": "11.045",
+    "versions": [
+      {
+        "id": "mgo-row-192-11.045",
+        "sourceRow": 192,
+        "ordinance": "11.045",
+        "description": "Violation of Metro Bus Rules.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "11.045",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-193-11.06",
+    "ordinance": "11.06",
+    "versions": [
+      {
+        "id": "mgo-row-193-11.06",
+        "sourceRow": 193,
+        "ordinance": "11.06",
+        "description": "Licensing and regulating conveyances of persons for hire.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-194-11.06(2)(a)",
+    "ordinance": "11.06(2)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-194-11.06(2)(a)",
+        "sourceRow": 194,
+        "ordinance": "11.06(2)(a)",
+        "description": "Transporting passengers for hire or driving a vehicle transporting passengers for hire unless duly licensed.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "11.06(2)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-195-11.06(2)(d)",
+    "ordinance": "11.06(2)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-195-11.06(2)(d)",
+        "sourceRow": 195,
+        "ordinance": "11.06(2)(d)",
+        "description": "No vehicle operator's permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(2)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-196-11.06(7)(a)",
+    "ordinance": "11.06(7)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-196-11.06(7)(a)",
+        "sourceRow": 196,
+        "ordinance": "11.06(7)(a)",
+        "description": "Adequate 24-hour service.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(7)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-197-11.06(7)(d)",
+    "ordinance": "11.06(7)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-197-11.06(7)(d)",
+        "sourceRow": 197,
+        "ordinance": "11.06(7)(d)",
+        "description": "Taxi driver rest period.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(7)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-198-11.06(7)(e)",
+    "ordinance": "11.06(7)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-198-11.06(7)(e)",
+        "sourceRow": 198,
+        "ordinance": "11.06(7)(e)",
+        "description": "Daily logs.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(7)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-199-11.06(7)(f)",
+    "ordinance": "11.06(7)(f)",
+    "versions": [
+      {
+        "id": "mgo-row-199-11.06(7)(f)",
+        "sourceRow": 199,
+        "ordinance": "11.06(7)(f)",
+        "description": "Refusal to carry passengers prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(7)(f)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-200-11.06(7)(k)8.",
+    "ordinance": "11.06(7)(k)8.",
+    "versions": [
+      {
+        "id": "mgo-row-200-11.06(7)(k)8.",
+        "sourceRow": 200,
+        "ordinance": "11.06(7)(k)8.",
+        "description": "Radio or other electric sound amplification device plainly audible from pedal-cab or low-speed vehicle from a distance of 50 or more feet.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 8000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$80, 1st \n$200, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$80, 1st \n$200, 2nd & sub.",
+        "sourceDepositText": "$80, 1st \n$200, 2nd & sub.",
+        "ordinanceColumn": "11.06(7)(k)8.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-201-11.06(7)(l)17.",
+    "ordinance": "11.06(7)(l)17.",
+    "versions": [
+      {
+        "id": "mgo-row-201-11.06(7)(l)17.",
+        "sourceRow": 201,
+        "ordinance": "11.06(7)(l)17.",
+        "description": "Radio or other electric sound amplification device plainly audible from commercial quadricycle from a distance of 50 or more feet.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 8000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$80, 1st \n$200, 2nd & sub."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$80, 1st \n$200, 2nd & sub.",
+        "sourceDepositText": "$80, 1st \n$200, 2nd & sub.",
+        "ordinanceColumn": "11.06(7)(l)17.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-202-11.06(9)(a)",
+    "ordinance": "11.06(9)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-202-11.06(9)(a)",
+        "sourceRow": 202,
+        "ordinance": "11.06(9)(a)",
+        "description": "Unlawful rate of fare.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-203-11.06(9)(c)2.",
+    "ordinance": "11.06(9)(c)2.",
+    "versions": [
+      {
+        "id": "mgo-row-203-11.06(9)(c)2.",
+        "sourceRow": 203,
+        "ordinance": "11.06(9)(c)2.",
+        "description": "Mileage violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-204-11.06(9)(c)4.",
+    "ordinance": "11.06(9)(c)4.",
+    "versions": [
+      {
+        "id": "mgo-row-204-11.06(9)(c)4.",
+        "sourceRow": 204,
+        "ordinance": "11.06(9)(c)4.",
+        "description": "Waiting charge violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)4.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-205-11.06(9)(c)5.",
+    "ordinance": "11.06(9)(c)5.",
+    "versions": [
+      {
+        "id": "mgo-row-205-11.06(9)(c)5.",
+        "sourceRow": 205,
+        "ordinance": "11.06(9)(c)5.",
+        "description": "Shortest route required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)5.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-206-11.06(9)(c)6.",
+    "ordinance": "11.06(9)(c)6.",
+    "versions": [
+      {
+        "id": "mgo-row-206-11.06(9)(c)6.",
+        "sourceRow": 206,
+        "ordinance": "11.06(9)(c)6.",
+        "description": "Charge on meter violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)6.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-207-11.06(9)(c)7.",
+    "ordinance": "11.06(9)(c)7.",
+    "versions": [
+      {
+        "id": "mgo-row-207-11.06(9)(c)7.",
+        "sourceRow": 207,
+        "ordinance": "11.06(9)(c)7.",
+        "description": "Individual service violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)7.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-208-11.06(9)(c)8.",
+    "ordinance": "11.06(9)(c)8.",
+    "versions": [
+      {
+        "id": "mgo-row-208-11.06(9)(c)8.",
+        "sourceRow": 208,
+        "ordinance": "11.06(9)(c)8.",
+        "description": "Shared ride violation.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(9)(c)8.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-209-11.06(10)(a)1.",
+    "ordinance": "11.06(10)(a)1.",
+    "versions": [
+      {
+        "id": "mgo-row-209-11.06(10)(a)1.",
+        "sourceRow": 209,
+        "ordinance": "11.06(10)(a)1.",
+        "description": "Operator name and photograph required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(10)(a)1.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-210-11.06(10)(a)2.",
+    "ordinance": "11.06(10)(a)2.",
+    "versions": [
+      {
+        "id": "mgo-row-210-11.06(10)(a)2.",
+        "sourceRow": 210,
+        "ordinance": "11.06(10)(a)2.",
+        "description": "Vehicle permit tags and cards required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(10)(a)2.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-211-11.06(10)(e)",
+    "ordinance": "11.06(10)(e)",
+    "versions": [
+      {
+        "id": "mgo-row-211-11.06(10)(e)",
+        "sourceRow": 211,
+        "ordinance": "11.06(10)(e)",
+        "description": "Illegal passenger load.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.06(10)(e)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-212-11.07",
+    "ordinance": "11.07",
+    "versions": [
+      {
+        "id": "mgo-row-212-11.07",
+        "sourceRow": 212,
+        "ordinance": "11.07",
+        "description": "Cab and bus stands.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.07",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-213-11.09(1)",
+    "ordinance": "11.09(1)",
+    "versions": [
+      {
+        "id": "mgo-row-213-11.09(1)",
+        "sourceRow": 213,
+        "ordinance": "11.09(1)",
+        "description": "Payment of taxicab fare required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "11.09(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-214-11.09(2)",
+    "ordinance": "11.09(2)",
+    "versions": [
+      {
+        "id": "mgo-row-214-11.09(2)",
+        "sourceRow": 214,
+        "ordinance": "11.09(2)",
+        "description": "Payment of city transit/motor bus fare required.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$5"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$5",
+        "sourceDepositText": "$5",
+        "ordinanceColumn": "11.09(2), (3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

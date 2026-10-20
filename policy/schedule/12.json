@@ -1,0 +1,3140 @@
+[
+  {
+    "id": "mgo-row-215-12.031",
+    "ordinance": "12.031",
+    "versions": [
+      {
+        "id": "mgo-row-215-12.031",
+        "sourceRow": 215,
+        "ordinance": "12.031",
+        "description": "Time limited special registration/special ID card parking spaces.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "12.031",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-216-12.045(2)",
+    "ordinance": "12.045(2)",
+    "versions": [
+      {
+        "id": "mgo-row-216-12.045(2)",
+        "sourceRow": 216,
+        "ordinance": "12.045(2)",
+        "description": "Street maintenance.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.045(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-217-12.045(1)",
+    "ordinance": "12.045(1)",
+    "versions": [
+      {
+        "id": "mgo-row-217-12.045(1)",
+        "sourceRow": 217,
+        "ordinance": "12.045(1)",
+        "description": "Emergency snow regulations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "12.045(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-218-12.325",
+    "ordinance": "12.325",
+    "versions": [
+      {
+        "id": "mgo-row-218-12.325",
+        "sourceRow": 218,
+        "ordinance": "12.325",
+        "description": "Entering or staying upon highway.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 4,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 1
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$100, 2nd w/in 1 yr. \n$200, 3rd/more w/in 1 yr. \n$300, 4th/more w/in 1 yr."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$100, 2nd w/in 1 yr. \n$200, 3rd/more w/in 1 yr. \n$300, 4th/more w/in 1 yr.",
+        "sourceDepositText": "$25, 1st \n$100, 2nd w/in 1 yr. \n$200, 3rd/more w/in 1 yr. \n$300, 4th/more w/in 1 yr.",
+        "ordinanceColumn": "12.325",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-219-12.751",
+    "ordinance": "12.751",
+    "versions": [
+      {
+        "id": "mgo-row-219-12.751",
+        "sourceRow": 219,
+        "ordinance": "12.751",
+        "description": "Licensing off-road motor vehicles.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "12.751",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-220-12.751(3)",
+    "ordinance": "12.751(3)",
+    "versions": [
+      {
+        "id": "mgo-row-220-12.751(3)",
+        "sourceRow": 220,
+        "ordinance": "12.751(3)",
+        "description": "Improper display of license plates on off-road vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "12.751(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-221-12.752(1)",
+    "ordinance": "12.752(1)",
+    "versions": [
+      {
+        "id": "mgo-row-221-12.752(1)",
+        "sourceRow": 221,
+        "ordinance": "12.752(1)",
+        "description": "Off-road vehicle driven too fast for condition.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.752(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-222-12.752(2)",
+    "ordinance": "12.752(2)",
+    "versions": [
+      {
+        "id": "mgo-row-222-12.752(2)",
+        "sourceRow": 222,
+        "ordinance": "12.752(2)",
+        "description": "Reckless driving of off-road vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250",
+        "sourceDepositText": "$250",
+        "ordinanceColumn": "12.752(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-223-12.752(3)",
+    "ordinance": "12.752(3)",
+    "versions": [
+      {
+        "id": "mgo-row-223-12.752(3)",
+        "sourceRow": 223,
+        "ordinance": "12.752(3)",
+        "description": "Operating off-road vehicle while under the influence of alcohol or other drug.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250",
+        "sourceDepositText": "$250",
+        "ordinanceColumn": "12.752(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-224-12.752(4)",
+    "ordinance": "12.752(4)",
+    "versions": [
+      {
+        "id": "mgo-row-224-12.752(4)",
+        "sourceRow": 224,
+        "ordinance": "12.752(4)",
+        "description": "Causing loud exhaust when operating off-road vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.752(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-225-12.752(5)",
+    "ordinance": "12.752(5)",
+    "versions": [
+      {
+        "id": "mgo-row-225-12.752(5)",
+        "sourceRow": 225,
+        "ordinance": "12.752(5)",
+        "description": "Operating off-road vehicle w/out or with an improper muffler.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.752(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-226-12.752(6)",
+    "ordinance": "12.752(6)",
+    "versions": [
+      {
+        "id": "mgo-row-226-12.752(6)",
+        "sourceRow": 226,
+        "ordinance": "12.752(6)",
+        "description": "Operating on private property w/out owner's consent.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "12.752(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-227-12.752(7)",
+    "ordinance": "12.752(7)",
+    "versions": [
+      {
+        "id": "mgo-row-227-12.752(7)",
+        "sourceRow": 227,
+        "ordinance": "12.752(7)",
+        "description": "Operating off-road vehicle w/in 150' of dwelling between 10:30 p.m. and 7:00 a.m.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.752(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-228-12.752(8)",
+    "ordinance": "12.752(8)",
+    "versions": [
+      {
+        "id": "mgo-row-228-12.752(8)",
+        "sourceRow": 228,
+        "ordinance": "12.752(8)",
+        "description": "Operating off-road vehicle on private property w/out owner's written permission.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "12.752(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-229-12.753",
+    "ordinance": "12.753",
+    "versions": [
+      {
+        "id": "mgo-row-229-12.753",
+        "sourceRow": 229,
+        "ordinance": "12.753",
+        "description": "Personal delivery device.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "12.753",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-230-12.76(1)",
+    "ordinance": "12.76(1)",
+    "versions": [
+      {
+        "id": "mgo-row-230-12.76(1)",
+        "sourceRow": 230,
+        "ordinance": "12.76(1)",
+        "description": "No bicycle riding on sidewalk where building abuts sidewalk.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10",
+        "sourceDepositText": "$10",
+        "ordinanceColumn": "12.76(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-231-12.76(4)",
+    "ordinance": "12.76(4)",
+    "versions": [
+      {
+        "id": "mgo-row-231-12.76(4)",
+        "sourceRow": 231,
+        "ordinance": "12.76(4)",
+        "description": "Bicycle parking violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$15"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$15",
+        "sourceDepositText": "$15",
+        "ordinanceColumn": "12.76(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-232-12.76(6)",
+    "ordinance": "12.76(6)",
+    "versions": [
+      {
+        "id": "mgo-row-232-12.76(6)",
+        "sourceRow": 232,
+        "ordinance": "12.76(6)",
+        "description": "Bicycle traffic-control signal violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10",
+        "sourceDepositText": "$10",
+        "ordinanceColumn": "12.76(6), (7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-233-12.792(2)",
+    "ordinance": "12.792(2)",
+    "versions": [
+      {
+        "id": "mgo-row-233-12.792(2)",
+        "sourceRow": 233,
+        "ordinance": "12.792(2)",
+        "description": "Operating a low-speed vehicle on illegal roadway.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.792(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-234-12.793(2)",
+    "ordinance": "12.793(2)",
+    "versions": [
+      {
+        "id": "mgo-row-234-12.793(2)",
+        "sourceRow": 234,
+        "ordinance": "12.793(2)",
+        "description": "Moped parking on Sidewalk and Terrace area.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$60"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$60",
+        "sourceDepositText": "$60",
+        "ordinanceColumn": "12.793(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-235-12.796(6)",
+    "ordinance": "12.796(6)",
+    "versions": [
+      {
+        "id": "mgo-row-235-12.796(6)",
+        "sourceRow": 235,
+        "ordinance": "12.796(6)",
+        "description": "Operating or parking dockless motorized scooters without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$60 \n$500, 2nd and subs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$60 \n$500, 2nd and subs.",
+        "sourceDepositText": "$60 \n$500, 2nd and subs.",
+        "ordinanceColumn": "12.796(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-236-12.81",
+    "ordinance": "12.81",
+    "versions": [
+      {
+        "id": "mgo-row-236-12.81",
+        "sourceRow": 236,
+        "ordinance": "12.81",
+        "description": "Use of compression brakes.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.81",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-237-12.87(2)(c)",
+    "ordinance": "12.87(2)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-237-12.87(2)(c)",
+        "sourceRow": 237,
+        "ordinance": "12.87(2)(c)",
+        "description": "Procession or parade without permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.87(2)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-238-12.87(2)(r)",
+    "ordinance": "12.87(2)(r)",
+    "versions": [
+      {
+        "id": "mgo-row-238-12.87(2)(r)",
+        "sourceRow": 238,
+        "ordinance": "12.87(2)(r)",
+        "description": "Failure to comply with conditions of parade permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.87(2)(r)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-239-12.87(3)",
+    "ordinance": "12.87(3)",
+    "versions": [
+      {
+        "id": "mgo-row-239-12.87(3)",
+        "sourceRow": 239,
+        "ordinance": "12.87(3)",
+        "description": "Transporting carnival equipment without permit; or loading or unloading of carnival equipment in City.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "12.87(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-240-12.89(2)",
+    "ordinance": "12.89(2)",
+    "versions": [
+      {
+        "id": "mgo-row-240-12.89(2)",
+        "sourceRow": 240,
+        "ordinance": "12.89(2)",
+        "description": "Heavy traffic route violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.89(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-241-12.90",
+    "ordinance": "12.90",
+    "versions": [
+      {
+        "id": "mgo-row-241-12.90",
+        "sourceRow": 241,
+        "ordinance": "12.90",
+        "description": "Commercial vehicles prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.90",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-242-12.91",
+    "ordinance": "12.91",
+    "versions": [
+      {
+        "id": "mgo-row-242-12.91",
+        "sourceRow": 242,
+        "ordinance": "12.91",
+        "description": "Traffic on Edgewood Drive restricted.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.91",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-243-12.127",
+    "ordinance": "12.127",
+    "versions": [
+      {
+        "id": "mgo-row-243-12.127",
+        "sourceRow": 243,
+        "ordinance": "12.127",
+        "description": "Overtime parking\u201420 minute zone (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.127",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-244-12.128(1)",
+    "ordinance": "12.128(1)",
+    "versions": [
+      {
+        "id": "mgo-row-244-12.128(1)",
+        "sourceRow": 244,
+        "ordinance": "12.128(1)",
+        "description": "Leaving keys in car.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-245-12.128(2)",
+    "ordinance": "12.128(2)",
+    "versions": [
+      {
+        "id": "mgo-row-245-12.128(2)",
+        "sourceRow": 245,
+        "ordinance": "12.128(2)",
+        "description": "Parked vehicle displaying advertising (if primary purpose other than \"for sale\").",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.128(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-246-12.128(3)",
+    "ordinance": "12.128(3)",
+    "versions": [
+      {
+        "id": "mgo-row-246-12.128(3)",
+        "sourceRow": 246,
+        "ordinance": "12.128(3)",
+        "description": "Street storage (48-hour limit).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.128(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-247-12.128(4)",
+    "ordinance": "12.128(4)",
+    "versions": [
+      {
+        "id": "mgo-row-247-12.128(4)",
+        "sourceRow": 247,
+        "ordinance": "12.128(4)",
+        "description": "Vehicle abandonment.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 8000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$80"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$80",
+        "sourceDepositText": "$80",
+        "ordinanceColumn": "12.128(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-248-12.128(5)",
+    "ordinance": "12.128(5)",
+    "versions": [
+      {
+        "id": "mgo-row-248-12.128(5)",
+        "sourceRow": 248,
+        "ordinance": "12.128(5)",
+        "description": "Repairing vehicles on street (other than emergency repairs).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-249-12.128(6)",
+    "ordinance": "12.128(6)",
+    "versions": [
+      {
+        "id": "mgo-row-249-12.128(6)",
+        "sourceRow": 249,
+        "ordinance": "12.128(6)",
+        "description": "No parking (specified times - City-County basement garage).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-250-12.128(7)",
+    "ordinance": "12.128(7)",
+    "versions": [
+      {
+        "id": "mgo-row-250-12.128(7)",
+        "sourceRow": 250,
+        "ordinance": "12.128(7)",
+        "description": "No parking of vehicle leaking gas, oil, other fluids.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40",
+        "sourceDepositText": "$40",
+        "ordinanceColumn": "12.128(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-251-12.128(8)",
+    "ordinance": "12.128(8)",
+    "versions": [
+      {
+        "id": "mgo-row-251-12.128(8)",
+        "sourceRow": 251,
+        "ordinance": "12.128(8)",
+        "description": "Parking on private driveway (without permission of owner/lessee).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(8)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-252-12.128(9)",
+    "ordinance": "12.128(9)",
+    "versions": [
+      {
+        "id": "mgo-row-252-12.128(9)",
+        "sourceRow": 252,
+        "ordinance": "12.128(9)",
+        "description": "Tampering with parking enforcers' marks on tires.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "12.128(9)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-253-12.128(10)",
+    "ordinance": "12.128(10)",
+    "versions": [
+      {
+        "id": "mgo-row-253-12.128(10)",
+        "sourceRow": 253,
+        "ordinance": "12.128(10)",
+        "description": "Violation of truck loading zone.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40",
+        "sourceDepositText": "$40",
+        "ordinanceColumn": "12.128(10)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-254-12.128(11)",
+    "ordinance": "12.128(11)",
+    "versions": [
+      {
+        "id": "mgo-row-254-12.128(11)",
+        "sourceRow": 254,
+        "ordinance": "12.128(11)",
+        "description": "Off driveway parking prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.128(11)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-255-12.128(12)",
+    "ordinance": "12.128(12)",
+    "versions": [
+      {
+        "id": "mgo-row-255-12.128(12)",
+        "sourceRow": 255,
+        "ordinance": "12.128(12)",
+        "description": "Parking unregistered vehicle.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$55"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$55",
+        "sourceDepositText": "$55",
+        "ordinanceColumn": "12.128(12)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-256-12.128(13)",
+    "ordinance": "12.128(13)",
+    "versions": [
+      {
+        "id": "mgo-row-256-12.128(13)",
+        "sourceRow": 256,
+        "ordinance": "12.128(13)",
+        "description": "Unauthorized parking on school property.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(13)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-257-12.128(14)",
+    "ordinance": "12.128(14)",
+    "versions": [
+      {
+        "id": "mgo-row-257-12.128(14)",
+        "sourceRow": 257,
+        "ordinance": "12.128(14)",
+        "description": "No parking on terrace.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$60"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$60",
+        "sourceDepositText": "$60",
+        "ordinanceColumn": "12.128(14)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-258-12.128(15)",
+    "ordinance": "12.128(15)",
+    "versions": [
+      {
+        "id": "mgo-row-258-12.128(15)",
+        "sourceRow": 258,
+        "ordinance": "12.128(15)",
+        "description": "No parking in certain specified places.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.128(15)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-259-12.128(16)",
+    "ordinance": "12.128(16)",
+    "versions": [
+      {
+        "id": "mgo-row-259-12.128(16)",
+        "sourceRow": 259,
+        "ordinance": "12.128(16)",
+        "description": "No parking within 4 feet of mailbox.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.128(16)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-260-12.128(17)",
+    "ordinance": "12.128(17)",
+    "versions": [
+      {
+        "id": "mgo-row-260-12.128(17)",
+        "sourceRow": 260,
+        "ordinance": "12.128(17)",
+        "description": "Successive violations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.128(17)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-261-12.128(18)",
+    "ordinance": "12.128(18)",
+    "versions": [
+      {
+        "id": "mgo-row-261-12.128(18)",
+        "sourceRow": 261,
+        "ordinance": "12.128(18)",
+        "description": "Parking violations at Dutch Mill Park-and-Ride.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "12.128(18)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-262-12.129",
+    "ordinance": "12.129",
+    "versions": [
+      {
+        "id": "mgo-row-262-12.129",
+        "sourceRow": 262,
+        "ordinance": "12.129",
+        "description": "No heavy traffic parking in residential districts (10,000 lbs. or more).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "12.129",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-263-12.1291(1)",
+    "ordinance": "12.1291(1)",
+    "versions": [
+      {
+        "id": "mgo-row-263-12.1291(1)",
+        "sourceRow": 263,
+        "ordinance": "12.1291(1)",
+        "description": "Motor vehicle idling on highway.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 40000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 60000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "years": 7
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st in 7 yrs \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st in 7 yrs \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs.",
+        "sourceDepositText": "$100, 1st in 7 yrs \n$400, 2nd in 7 yrs. \n$600, 3rd & sub. in 7 yrs.",
+        "ordinanceColumn": "12.1291(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-264-12.130(1)",
+    "ordinance": "12.130(1)",
+    "versions": [
+      {
+        "id": "mgo-row-264-12.130(1)",
+        "sourceRow": 264,
+        "ordinance": "12.130(1)",
+        "description": "Bus parked outside bus stop.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25-1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25-1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "sourceDepositText": "$25-1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "ordinanceColumn": "12.130(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-265-12.130(2)",
+    "ordinance": "12.130(2)",
+    "versions": [
+      {
+        "id": "mgo-row-265-12.130(2)",
+        "sourceRow": 265,
+        "ordinance": "12.130(2)",
+        "description": "Bus loading passengers outside bus stop.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "sourceDepositText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "ordinanceColumn": "12.130(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-266-12.130(3)",
+    "ordinance": "12.130(3)",
+    "versions": [
+      {
+        "id": "mgo-row-266-12.130(3)",
+        "sourceRow": 266,
+        "ordinance": "12.130(3)",
+        "description": "Bus loading passengers further than 18 inches from curb.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "sourceDepositText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "ordinanceColumn": "12.130(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-267-12.130(4)",
+    "ordinance": "12.130(4)",
+    "versions": [
+      {
+        "id": "mgo-row-267-12.130(4)",
+        "sourceRow": 267,
+        "ordinance": "12.130(4)",
+        "description": "15-minute bus parking.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "sourceDepositText": "$45, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "ordinanceColumn": "12.130(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-268-12.130(5)",
+    "ordinance": "12.130(5)",
+    "versions": [
+      {
+        "id": "mgo-row-268-12.130(5)",
+        "sourceRow": 268,
+        "ordinance": "12.130(5)",
+        "description": "Taxi parking or stopping outside cab stand, where prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 5000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": {
+          "months": 12
+        },
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos."
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "sourceDepositText": "$25, 1st \n$50, 2nd in 12 mos. \n$100, 3rd or subsequent in 12 mos.",
+        "ordinanceColumn": "12.130(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-269-12.131",
+    "ordinance": "12.131",
+    "versions": [
+      {
+        "id": "mgo-row-269-12.131",
+        "sourceRow": 269,
+        "ordinance": "12.131",
+        "description": "Bus zone or cab stand.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.131",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-270-12.133",
+    "ordinance": "12.133",
+    "versions": [
+      {
+        "id": "mgo-row-270-12.133",
+        "sourceRow": 270,
+        "ordinance": "12.133",
+        "description": "No parking (use specified periods indicated).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.133",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-271-12.1331(3)",
+    "ordinance": "12.1331(3)",
+    "versions": [
+      {
+        "id": "mgo-row-271-12.1331(3)",
+        "sourceRow": 271,
+        "ordinance": "12.1331(3)",
+        "description": "Vehicle towing forfeiture.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$65"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$65",
+        "sourceDepositText": "$65",
+        "ordinanceColumn": "12.1331(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-272-12.1331(4)",
+    "ordinance": "12.1331(4)",
+    "versions": [
+      {
+        "id": "mgo-row-272-12.1331(4)",
+        "sourceRow": 272,
+        "ordinance": "12.1331(4)",
+        "description": "No stopping, standing, parking in towaway or commuter zone.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.1331(4)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-273-12.1334(99)",
+    "ordinance": "12.1334(99)",
+    "versions": [
+      {
+        "id": "mgo-row-273-12.1334(99)",
+        "sourceRow": 273,
+        "ordinance": "12.1334(99)",
+        "description": "Alternate side parking 8 a.m. - 4 p.m.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.1334(99)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-274-12.1335(6)(a)",
+    "ordinance": "12.1335(6)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-274-12.1335(6)(a)",
+        "sourceRow": 274,
+        "ordinance": "12.1335(6)(a)",
+        "description": "Alternate side parking (Nov 15 - Mar 15).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "12.1335(6)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-275-12.1335(6)(b)",
+    "ordinance": "12.1335(6)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-275-12.1335(6)(b)",
+        "sourceRow": 275,
+        "ordinance": "12.1335(6)(b)",
+        "description": "Alternate side parking (snow emergency).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 6000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$60"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$60",
+        "sourceDepositText": "$60",
+        "ordinanceColumn": "12.1335(6)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-276-12.1336",
+    "ordinance": "12.1336",
+    "versions": [
+      {
+        "id": "mgo-row-276-12.1336",
+        "sourceRow": 276,
+        "ordinance": "12.1336",
+        "description": "Overtime parking\u201430 minute zone (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.1336",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-277-12.1338",
+    "ordinance": "12.1338",
+    "versions": [
+      {
+        "id": "mgo-row-277-12.1338",
+        "sourceRow": 277,
+        "ordinance": "12.1338",
+        "description": "Overtime parking\u201415 minute zone, 8 a.m. - 6 p.m. (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.1338",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-278-12.1339",
+    "ordinance": "12.1339",
+    "versions": [
+      {
+        "id": "mgo-row-278-12.1339",
+        "sourceRow": 278,
+        "ordinance": "12.1339",
+        "description": "Street sweeping parking restrictions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.1339",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-279-12.134",
+    "ordinance": "12.134",
+    "versions": [
+      {
+        "id": "mgo-row-279-12.134",
+        "sourceRow": 279,
+        "ordinance": "12.134",
+        "description": "Overtime parking\u20141 hour zone (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40",
+        "sourceDepositText": "$40",
+        "ordinanceColumn": "12.134",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-280-12.136",
+    "ordinance": "12.136",
+    "versions": [
+      {
+        "id": "mgo-row-280-12.136",
+        "sourceRow": 280,
+        "ordinance": "12.136",
+        "description": "Overtime parking\u20141 hour zone, misc. time periods (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.136",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-281-12.137",
+    "ordinance": "12.137",
+    "versions": [
+      {
+        "id": "mgo-row-281-12.137",
+        "sourceRow": 281,
+        "ordinance": "12.137",
+        "description": "Overtime parking\u20142 hour zone, 8 a.m. - 6 p.m. (non-metered).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40",
+        "sourceDepositText": "$40",
+        "ordinanceColumn": "12.137",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-282-12.138(9)(c)",
+    "ordinance": "12.138(9)(c)",
+    "versions": [
+      {
+        "id": "mgo-row-282-12.138(9)(c)",
+        "sourceRow": 282,
+        "ordinance": "12.138(9)(c)",
+        "description": "Failure to remove residential parking permit.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.138(9)(c)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-283-12.138(10)(a)",
+    "ordinance": "12.138(10)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-283-12.138(10)(a)",
+        "sourceRow": 283,
+        "ordinance": "12.138(10)(a)",
+        "description": "Residential Parking Permit violation (on vehicle not listed on permit/failure to surrender revoked permit/copy, reproduce or resell permit).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$105"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$105",
+        "sourceDepositText": "$105",
+        "ordinanceColumn": "12.138(10)(a)-(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-284-12.139",
+    "ordinance": "12.139",
+    "versions": [
+      {
+        "id": "mgo-row-284-12.139",
+        "sourceRow": 284,
+        "ordinance": "12.139",
+        "description": "Overtime parking - 2 hour zone, misc. periods on streets.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.139",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-285-12.140",
+    "ordinance": "12.140",
+    "versions": [
+      {
+        "id": "mgo-row-285-12.140",
+        "sourceRow": 285,
+        "ordinance": "12.140",
+        "description": "Overtime parking - 2 a.m. - 5 a.m.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.140",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-286-12.142",
+    "ordinance": "12.142",
+    "versions": [
+      {
+        "id": "mgo-row-286-12.142",
+        "sourceRow": 286,
+        "ordinance": "12.142",
+        "description": "Misuse of parking hoods, restricted parking or temporary parking.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$200, 2nd",
+        "sourceDepositText": "$150, 1st \n$200, 2nd",
+        "ordinanceColumn": "12.142 and \n12.1425",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-286-12.1425",
+    "ordinance": "12.1425",
+    "versions": [
+      {
+        "id": "mgo-row-286-12.1425",
+        "sourceRow": 286,
+        "ordinance": "12.1425",
+        "description": "Misuse of parking hoods, restricted parking or temporary parking.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 15000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$150, 1st \n$200, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$150, 1st \n$200, 2nd",
+        "sourceDepositText": "$150, 1st \n$200, 2nd",
+        "ordinanceColumn": "12.142 and \n12.1425",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-287-12.145(1)(a)",
+    "ordinance": "12.145(1)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-287-12.145(1)(a)",
+        "sourceRow": 287,
+        "ordinance": "12.145(1)(a)",
+        "description": "Expired or unpaid meters.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.145(1)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-288-12.145(1)(b)",
+    "ordinance": "12.145(1)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-288-12.145(1)(b)",
+        "sourceRow": 288,
+        "ordinance": "12.145(1)(b)",
+        "description": "Overtime limit - streets (meter zone).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$35"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$35",
+        "sourceDepositText": "$35",
+        "ordinanceColumn": "12.145(1)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-289-12.145(1)(d)",
+    "ordinance": "12.145(1)(d)",
+    "versions": [
+      {
+        "id": "mgo-row-289-12.145(1)(d)",
+        "sourceRow": 289,
+        "ordinance": "12.145(1)(d)",
+        "description": "No street vending from a parking meter.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 3000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$30"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$30",
+        "sourceDepositText": "$30",
+        "ordinanceColumn": "12.145(1)(d)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-290-12.146",
+    "ordinance": "12.146",
+    "versions": [
+      {
+        "id": "mgo-row-290-12.146",
+        "sourceRow": 290,
+        "ordinance": "12.146",
+        "description": "Deposit excess coins to prevent meter from expiring.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 1000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$10"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$10",
+        "sourceDepositText": "$10",
+        "ordinanceColumn": "12.146",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-291-12.147(1)",
+    "ordinance": "12.147(1)",
+    "versions": [
+      {
+        "id": "mgo-row-291-12.147(1)",
+        "sourceRow": 291,
+        "ordinance": "12.147(1)",
+        "description": "Misuse or tampering with parking equipment.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "12.147(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-292-12.147(2)",
+    "ordinance": "12.147(2)",
+    "versions": [
+      {
+        "id": "mgo-row-292-12.147(2)",
+        "sourceRow": 292,
+        "ordinance": "12.147(2)",
+        "description": "Deposit unlawful material in parking equipment.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "12.147(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-293-12.167(2)",
+    "ordinance": "12.167(2)",
+    "versions": [
+      {
+        "id": "mgo-row-293-12.167(2)",
+        "sourceRow": 293,
+        "ordinance": "12.167(2)",
+        "description": "No parking bicycles on State Street Pedestrian Mall (except in designated bicycle racks).",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$45"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$45",
+        "sourceDepositText": "$45",
+        "ordinanceColumn": "12.167(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-294-12.167(3)",
+    "ordinance": "12.167(3)",
+    "versions": [
+      {
+        "id": "mgo-row-294-12.167(3)",
+        "sourceRow": 294,
+        "ordinance": "12.167(3)",
+        "description": "No parking motor vehicle on State Street Pedestrian Mall.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$25"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$25",
+        "sourceDepositText": "$25",
+        "ordinanceColumn": "12.167(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-295-12.915(9)(a)",
+    "ordinance": "12.915(9)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-295-12.915(9)(a)",
+        "sourceRow": 295,
+        "ordinance": "12.915(9)(a)",
+        "description": "State St. food delivery vehicles regulations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 4000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$40"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$40",
+        "sourceDepositText": "$40",
+        "ordinanceColumn": "12.915(9)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]

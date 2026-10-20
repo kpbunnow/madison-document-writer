@@ -1,0 +1,1379 @@
+[
+  {
+    "id": "mgo-row-424-25.01",
+    "ordinance": "25.01",
+    "versions": [
+      {
+        "id": "mgo-row-424-25.01",
+        "sourceRow": 424,
+        "ordinance": "25.01",
+        "description": "Sale of firearms.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.01",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-425-25.01(7)",
+    "ordinance": "25.01(7)",
+    "versions": [
+      {
+        "id": "mgo-row-425-25.01(7)",
+        "sourceRow": 425,
+        "ordinance": "25.01(7)",
+        "description": "Possession of a firearm (not unloaded or encased) in a public place where prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.01(7)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-426-25.025",
+    "ordinance": "25.025",
+    "versions": [
+      {
+        "id": "mgo-row-426-25.025",
+        "sourceRow": 426,
+        "ordinance": "25.025",
+        "description": "Possession of assault weapon prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$1,000"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$1,000",
+        "sourceDepositText": "$1,000",
+        "ordinanceColumn": "25.025",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-427-25.03",
+    "ordinance": "25.03",
+    "versions": [
+      {
+        "id": "mgo-row-427-25.03",
+        "sourceRow": 427,
+        "ordinance": "25.03",
+        "description": "Storage of gun powder propellants and explosives.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250",
+        "sourceDepositText": "$250",
+        "ordinanceColumn": "25.03",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-428-25.035",
+    "ordinance": "25.035",
+    "versions": [
+      {
+        "id": "mgo-row-428-25.035",
+        "sourceRow": 428,
+        "ordinance": "25.035",
+        "description": "Barbed bullets prohibited.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 25000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$250"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$250",
+        "sourceDepositText": "$250",
+        "ordinanceColumn": "25.035",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-429-25.05",
+    "ordinance": "25.05",
+    "versions": [
+      {
+        "id": "mgo-row-429-25.05",
+        "sourceRow": 429,
+        "ordinance": "25.05",
+        "description": "Sparklers prohibited in public places.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 500,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$5"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$5",
+        "sourceDepositText": "$5",
+        "ordinanceColumn": "25.05",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-430-25.06",
+    "ordinance": "25.06",
+    "versions": [
+      {
+        "id": "mgo-row-430-25.06",
+        "sourceRow": 430,
+        "ordinance": "25.06",
+        "description": "Discharge of firearms.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.06",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-431-25.07",
+    "ordinance": "25.07",
+    "versions": [
+      {
+        "id": "mgo-row-431-25.07",
+        "sourceRow": 431,
+        "ordinance": "25.07",
+        "description": "Carrying glass bottles in public spectator facilities.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.07",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-432-25.08",
+    "ordinance": "25.08",
+    "versions": [
+      {
+        "id": "mgo-row-432-25.08",
+        "sourceRow": 432,
+        "ordinance": "25.08",
+        "description": "Possessing firearms or bow and arrow in parks and recreation or conservancy districts without consent.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.08",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-433-25.10(3)",
+    "ordinance": "25.10(3)",
+    "versions": [
+      {
+        "id": "mgo-row-433-25.10(3)",
+        "sourceRow": 433,
+        "ordinance": "25.10(3)",
+        "description": "Allowing a nuisance party.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "25.10(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-434-25.10(5)",
+    "ordinance": "25.10(5)",
+    "versions": [
+      {
+        "id": "mgo-row-434-25.10(5)",
+        "sourceRow": 434,
+        "ordinance": "25.10(5)",
+        "description": "Failure to cease nuisance party activity.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.10(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-435-25.10(6)",
+    "ordinance": "25.10(6)",
+    "versions": [
+      {
+        "id": "mgo-row-435-25.10(6)",
+        "sourceRow": 435,
+        "ordinance": "25.10(6)",
+        "description": "Premise owner's failure to prevent nuisance party activity after receiving 2nd notice of nuisance party.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$500",
+        "sourceDepositText": "$500",
+        "ordinanceColumn": "25.10(6)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-436-25.10(6)(a)3.",
+    "ordinance": "25.10(6)(a)3.",
+    "versions": [
+      {
+        "id": "mgo-row-436-25.10(6)(a)3.",
+        "sourceRow": 436,
+        "ordinance": "25.10(6)(a)3.",
+        "description": "Failure to contact & meet with Madison Police Department and City Attorney.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 100000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$1,000"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$1,000",
+        "sourceDepositText": "$1,000",
+        "ordinanceColumn": "25.10(6)(a)3.",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-437-25.12",
+    "ordinance": "25.12",
+    "versions": [
+      {
+        "id": "mgo-row-437-25.12",
+        "sourceRow": 437,
+        "ordinance": "25.12",
+        "description": "Sale of poison.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.12",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-438-25.13",
+    "ordinance": "25.13",
+    "versions": [
+      {
+        "id": "mgo-row-438-25.13",
+        "sourceRow": 438,
+        "ordinance": "25.13",
+        "description": "Distribution of injurious powders or medicines forbidden.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.13",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-439-25.15",
+    "ordinance": "25.15",
+    "versions": [
+      {
+        "id": "mgo-row-439-25.15",
+        "sourceRow": 439,
+        "ordinance": "25.15",
+        "description": "Cisterns & trap doors to be covered.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.15",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-440-25.16",
+    "ordinance": "25.16",
+    "versions": [
+      {
+        "id": "mgo-row-440-25.16",
+        "sourceRow": 440,
+        "ordinance": "25.16",
+        "description": "Excavations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.16",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-441-25.17(10)",
+    "ordinance": "25.17(10)",
+    "versions": [
+      {
+        "id": "mgo-row-441-25.17(10)",
+        "sourceRow": 441,
+        "ordinance": "25.17(10)",
+        "description": "Unlawful flying and/or landing of aircraft.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$750"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$750",
+        "sourceDepositText": "$750",
+        "ordinanceColumn": "25.17(10)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-442-25.18(1)",
+    "ordinance": "25.18(1)",
+    "versions": [
+      {
+        "id": "mgo-row-442-25.18(1)",
+        "sourceRow": 442,
+        "ordinance": "25.18(1)",
+        "description": "Possession of weaponized drone.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 200000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$2,000"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$2,000",
+        "sourceDepositText": "$2,000",
+        "ordinanceColumn": "25.18(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-443-25.18(2)",
+    "ordinance": "25.18(2)",
+    "versions": [
+      {
+        "id": "mgo-row-443-25.18(2)",
+        "sourceRow": 443,
+        "ordinance": "25.18(2)",
+        "description": "Unlawful use of drone.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$750"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$750",
+        "sourceDepositText": "$750",
+        "ordinanceColumn": "25.18(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-444-25.19",
+    "ordinance": "25.19",
+    "versions": [
+      {
+        "id": "mgo-row-444-25.19",
+        "sourceRow": 444,
+        "ordinance": "25.19",
+        "description": "Climbing upon railway cars.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.19",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-445-25.20",
+    "ordinance": "25.20",
+    "versions": [
+      {
+        "id": "mgo-row-445-25.20",
+        "sourceRow": 445,
+        "ordinance": "25.20",
+        "description": "Catching onto moving trains.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.20",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-446-25.21",
+    "ordinance": "25.21",
+    "versions": [
+      {
+        "id": "mgo-row-446-25.21",
+        "sourceRow": 446,
+        "ordinance": "25.21",
+        "description": "Throwing stones.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200",
+        "sourceDepositText": "$200",
+        "ordinanceColumn": "25.21",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-447-25.22",
+    "ordinance": "25.22",
+    "versions": [
+      {
+        "id": "mgo-row-447-25.22",
+        "sourceRow": 447,
+        "ordinance": "25.22",
+        "description": "Failing to impound or comply with Health Department restrictions.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$300, 2nd \n$500, 3rd/subsequent"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$300, 2nd \n$500, 3rd/subsequent",
+        "sourceDepositText": "$200, 1st \n$300, 2nd \n$500, 3rd/subsequent",
+        "ordinanceColumn": "25.22",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-448-25.225",
+    "ordinance": "25.225",
+    "versions": [
+      {
+        "id": "mgo-row-448-25.225",
+        "sourceRow": 448,
+        "ordinance": "25.225",
+        "description": "Failing to obtain dangerous animal license.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 20000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$200, 1st \n$300, 2nd"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$200, 1st \n$300, 2nd",
+        "sourceDepositText": "$200, 1st \n$300, 2nd",
+        "ordinanceColumn": "25.225",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-449-25.23(1)",
+    "ordinance": "25.23(1)",
+    "versions": [
+      {
+        "id": "mgo-row-449-25.23(1)",
+        "sourceRow": 449,
+        "ordinance": "25.23(1)",
+        "description": "Swimming regulations.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 5000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$50"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$50",
+        "sourceDepositText": "$50",
+        "ordinanceColumn": "25.23(1)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-450-25.24",
+    "ordinance": "25.24",
+    "versions": [
+      {
+        "id": "mgo-row-450-25.24",
+        "sourceRow": 450,
+        "ordinance": "25.24",
+        "description": "Abandoned icebox/refrigerator.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.24",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-451-25.25",
+    "ordinance": "25.25",
+    "versions": [
+      {
+        "id": "mgo-row-451-25.25",
+        "sourceRow": 451,
+        "ordinance": "25.25",
+        "description": "Unapproved discharge of bows and arrows.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.25",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-452-25.26(2)",
+    "ordinance": "25.26(2)",
+    "versions": [
+      {
+        "id": "mgo-row-452-25.26(2)",
+        "sourceRow": 452,
+        "ordinance": "25.26(2)",
+        "description": "Unlawful Possession of a Paintball Marker/\"Gun.\"",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$300, 2nd \n$500, 3rd+"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "sourceDepositText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "ordinanceColumn": "25.26(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-453-25.26(3)",
+    "ordinance": "25.26(3)",
+    "versions": [
+      {
+        "id": "mgo-row-453-25.26(3)",
+        "sourceRow": 453,
+        "ordinance": "25.26(3)",
+        "description": "Unlawful Firing or Discharge of a Paintball Marker/\"Gun.\"",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$300, 2nd \n$500, 3rd+"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "sourceDepositText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "ordinanceColumn": "25.26(3)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-454-25.26(5)",
+    "ordinance": "25.26(5)",
+    "versions": [
+      {
+        "id": "mgo-row-454-25.26(5)",
+        "sourceRow": 454,
+        "ordinance": "25.26(5)",
+        "description": "Unlawful Provision of a Paintball Marker/\"Gun\" to a Minor.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 2,
+            "amountCents": 30000,
+            "openEnded": false
+          },
+          {
+            "ordinal": 3,
+            "amountCents": 50000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100, 1st \n$300, 2nd \n$500, 3rd+"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "sourceDepositText": "$100, 1st \n$300, 2nd \n$500, 3rd+",
+        "ordinanceColumn": "25.26(5)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-455-25.27",
+    "ordinance": "25.27",
+    "versions": [
+      {
+        "id": "mgo-row-455-25.27",
+        "sourceRow": 455,
+        "ordinance": "25.27",
+        "description": "Prohibition of slingshots.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 10000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$100"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$100",
+        "sourceDepositText": "$100",
+        "ordinanceColumn": "25.27",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-456-25.29",
+    "ordinance": "25.29",
+    "versions": [
+      {
+        "id": "mgo-row-456-25.29",
+        "sourceRow": 456,
+        "ordinance": "25.29",
+        "description": "Skateboards prohibited in business districts.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 2000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$20"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$20",
+        "sourceDepositText": "$20",
+        "ordinanceColumn": "25.29",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-457-25.30(2)",
+    "ordinance": "25.30(2)",
+    "versions": [
+      {
+        "id": "mgo-row-457-25.30(2)",
+        "sourceRow": 457,
+        "ordinance": "25.30(2)",
+        "description": "Unlawful Use of Facsimile Firearm.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 30000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$300"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$300",
+        "sourceDepositText": "$300",
+        "ordinanceColumn": "25.30(2)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-458-25.31(5)(a)",
+    "ordinance": "25.31(5)(a)",
+    "versions": [
+      {
+        "id": "mgo-row-458-25.31(5)(a)",
+        "sourceRow": 458,
+        "ordinance": "25.31(5)(a)",
+        "description": "Unlawful to possess, sell or distribute synthetic chemical cannabinoid.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 75000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$750"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$750",
+        "sourceDepositText": "$750",
+        "ordinanceColumn": "25.31(5)(a)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  },
+  {
+    "id": "mgo-row-459-25.31(5)(b)",
+    "ordinance": "25.31(5)(b)",
+    "versions": [
+      {
+        "id": "mgo-row-459-25.31(5)(b)",
+        "sourceRow": 459,
+        "ordinance": "25.31(5)(b)",
+        "description": "Unlawful sale or display of synthetic chemical cannabinoid by commercial establishment.",
+        "tiers": [
+          {
+            "ordinal": 1,
+            "amountCents": 250000,
+            "openEnded": true
+          }
+        ],
+        "window": "none",
+        "countBasis": "citation",
+        "status": "manual-only",
+        "source": {
+          "subsection": "MGO 1.08(3)(a)",
+          "codification": "Rev. 28, Update 3",
+          "exported": "2026-09-14",
+          "rowText": "$2500"
+        },
+        "review": null,
+        "stale": false,
+        "rawText": "$2500",
+        "sourceDepositText": "$2500",
+        "ordinanceColumn": "25.31(5)(b)",
+        "statute": "",
+        "effectiveDate": "2026-09-14",
+        "from": null,
+        "to": null
+      }
+    ]
+  }
+]
