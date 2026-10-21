@@ -338,6 +338,7 @@
     "tests/unit/audit_logging.py",
     "tests/unit/audit_lookup.js",
     "tests/unit/audit_lookup.py",
+    "tests/unit/audit_manual_publication.py",
     "tests/unit/audit_order_improvements.js",
     "tests/unit/audit_pdf_publication.py",
     "tests/unit/audit_perm.js",

@@ -198,5 +198,6 @@ workflow. Each receives the arguments named in its row.
 
 | Suite | Covers |
 | --- | --- |
-| `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors and current security/acceptance wording |
+| `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors, current security/acceptance wording; every edition (PDF inspection required) carries the current source digest |
+| `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |

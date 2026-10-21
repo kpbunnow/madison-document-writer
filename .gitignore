@@ -45,3 +45,6 @@ credentials.json
 /helper/Documents To Be Mailed And Recorded/
 /helper/_integrity/
 /helper/logs/
+
+# Interrupted manual builds (tools/build_manual.py)
+docs/staff/.manual-*
