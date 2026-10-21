@@ -2875,6 +2875,9 @@ function render() {
           ? "[data-initial-action]"
           : ""
       : "";
+  // A background repaint of the same snow citation must keep focus in the snow fact being entered.
+  const snowFocus =
+    sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + dep_checkAttr(active.dataset.snow) + '"]' : "";
   const worksheet = document.querySelector("[data-worksheet-context]"),
     inspectionChecks = document.querySelector(".ri-checks");
   const keepInspectionChecks =
@@ -2980,6 +2983,8 @@ function render() {
       if (initialFocus && !WriterState.state.modal && !WriterState.state.picker) current.querySelector(initialFocus)?.focus({ preventScroll: true });
     }
   }
+  if (snowFocus && !WriterState.state.modal && !WriterState.state.picker)
+    document.querySelector(".document-workspace " + snowFocus)?.focus({ preventScroll: true });
   const q = document.getElementById("pk-q");
   if (q) {
     q.focus();

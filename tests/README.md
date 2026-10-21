@@ -62,6 +62,7 @@ Add a new suite under the feature it covers.
 | --- | --- |
 | `audit_r33_snow.js`, `audit_r33_snow.py` | Snow timing, required facts, seasonal pricing, letter content |
 | `audit_r34.js`, `audit_r34.py` | Cover format 10, January pricing, one case per season, install guide checks |
+| `audit_snow_repaint.js` | Snow fields keep focus and typed input through background repaints |
 
 ## Issuance, corrections, reinspection and case lifecycle
 
