@@ -166,13 +166,15 @@ def sync_selected(server, data):
         moved, conflicts = 0, []
         for path, raw in verified:
             target = dest / path.name
-            if target.is_symlink() or target.exists() and target.read_bytes() != raw:
+            try:
+                # Same per-name lock and no-replace publication as direct filing.
+                server.file_pdf_bytes(target, raw)
+            except ValueError:
                 conflicts.append(path.name)
                 continue
-            if not target.exists():
-                atomic_write(target, raw)
-            # Preserve a file changed while it was being filed.
-            if path.read_bytes() == raw:
+            # Remove the local copy only once the shared copy reads back identical,
+            # and preserve a local file changed while it was being filed.
+            if target.read_bytes() == raw and path.read_bytes() == raw:
                 path.unlink()
                 moved += 1
             else:

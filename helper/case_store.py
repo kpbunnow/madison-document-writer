@@ -430,6 +430,26 @@ def atomic_write(target, body):
         Path(temporary).unlink(missing_ok=True)
 
 
+def publish_new(target, body):
+    """Publish a complete file at a new name, never replacing one that appeared meanwhile.
+
+    Raises FileExistsError when the name exists, including a file written by a
+    writer that does not use the program's locks."""
+    target = Path(target)
+    fd, temporary = tempfile.mkstemp(prefix="._dw-", suffix=".tmp", dir=target.parent)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(body)
+            stream.flush()
+            os.fsync(stream.fileno())
+        if os.name == "nt":
+            os.rename(temporary, target)  # Windows rename refuses an existing name
+        else:
+            os.link(temporary, target)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
 def validate_case(record, legacy=False):
     if (
         not isinstance(record, dict)
