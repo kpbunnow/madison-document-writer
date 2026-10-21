@@ -1,29 +1,16 @@
-import { toast as dep_toast } from "./court_and_deposits.js";
-import { helperJSON as dep_helperJSON, stableJSON as dep_stableJSON } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts } from "./case_files.js";
-import { render as dep_render } from "./inspection_import.js";
-import {
-  A11Y as dep_A11Y,
-  citationPricing as dep_citationPricing,
-  docCase as dep_docCase,
-  esc as dep_esc,
-  isLocked as dep_isLocked,
-  itemLibraryKey as dep_itemLibraryKey,
-  snow as dep_snow,
-} from "./app_core.js";
-import {
-  canonicalOrdinance as dep_canonicalOrdinance,
-  cents as dep_cents,
-  resolveCitationAmount as dep_resolveCitationAmount,
-  tierOrdinal as dep_tierOrdinal,
-} from "./citation_policy.js";
+import { toast } from "./court_and_deposits.js";
+import { helperJSON, stableJSON } from "./workspace_shell.js";
+import { saveDrafts } from "./case_files.js";
+import { render } from "./inspection_import.js";
+import { A11Y, citationPricing, docCase, esc as dep_esc, isLocked, itemLibraryKey, snow } from "./app_core.js";
+import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
 export function initAdministration() {
   const esc = (value) => dep_esc(value);
   function overrideFault(c, d) {
     const b = c.overrideBasis,
-      k = dep_docCase(d);
+      k = docCase(d);
     if (!b) return "";
     if (
       b.version !== 1 ||
@@ -38,19 +25,19 @@ export function initAdministration() {
     if (
       b.caseNumber !== k.number ||
       b.citationNumber !== c.num ||
-      b.ordinance !== dep_canonicalOrdinance(c.ord) ||
+      b.ordinance !== canonicalOrdinance(c.ord) ||
       b.pricingDate !== (c.pricedOn || c.issued) ||
       b.mode !== c.depositMode ||
-      b.totalCents !== dep_cents(c.amount) ||
+      b.totalCents !== cents(c.amount) ||
       b.policyVersionHash !== c.policyVersionHash ||
-      (b.mode === "base" && (b.baseCents !== dep_cents(c.base) || b.courtCents !== dep_cents(c.cc)))
+      (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)))
     )
       return "Administrator override no longer matches this citation; authorize it again.";
     if (
-      b.approvedTier !== dep_tierOrdinal(c.tier) ||
-      b.approvedTier !== (c.computedTier || dep_tierOrdinal(c.tier)) ||
+      b.approvedTier !== tierOrdinal(c.tier) ||
+      b.approvedTier !== (c.computedTier || tierOrdinal(c.tier)) ||
       (b.scheduleEntryId || "") !== (c.scheduleEntryId || "") ||
-      dep_stableJSON(b.measurements || {}) !== dep_stableJSON(c.measurements || {})
+      stableJSON(b.measurements || {}) !== stableJSON(c.measurements || {})
     )
       return "Administrator override pricing facts or citation history changed; authorize it again.";
     return "";
@@ -65,18 +52,18 @@ export function initAdministration() {
     "istrative decision and its source.</label>";
   async function openOverride() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
-      dep_toast("Connect the local helper and case folder first.");
+      toast("Connect the local helper and case folder first.");
       return;
     }
     const targets = [];
-    for (const d of WriterState.DOCS.filter((x) => x.draft && !x.pendingAmendment && !dep_isLocked(x))) {
-      dep_citationPricing.refresh(d);
+    for (const d of WriterState.DOCS.filter((x) => x.draft && !x.pendingAmendment && !isLocked(x))) {
+      citationPricing.refresh(d);
       for (const i of d.items || []) {
         const c = d.cits?.[i.id];
         if (!c || c.mandatoryAppearance) continue;
-        const priced = dep_resolveCitationAmount({
+        const priced = resolveCitationAmount({
           ordinance: c.ord,
-          libraryItem: dep_itemLibraryKey(i),
+          libraryItem: itemLibraryKey(i),
           entryId: c.scheduleEntryId,
           tier: c.tier || 1,
           date: c.pricedOn || c.issued,
@@ -86,18 +73,16 @@ export function initAdministration() {
       }
     }
     if (!targets.length) {
-      dep_toast("Open a draft with a determined money deposit before authorizing an exception.");
+      toast("Open a draft with a determined money deposit before authorizing an exception.");
       return;
     }
-    dep_A11Y.utility(
+    A11Y.utility(
       "Administrator deposit override",
       '<form id="admin-deposit-form"><p>Authorize a single exceptional deposit ' +
         "from a court or division instruction. The citation retains the administr" +
         'ator, reason, source and authorization receipt.</p><label class="f"><spa' +
         'n>Draft citation</span><select name="target">' +
-        targets
-          .map((x, n) => '<option value="' + n + '">' + esc(dep_docCase(x.d).number + " · " + x.c.ord + " · " + x.c.num) + "</option>")
-          .join("") +
+        targets.map((x, n) => '<option value="' + n + '">' + esc(docCase(x.d).number + " · " + x.c.ord + " · " + x.c.num) + "</option>").join("") +
         ('</select></label><label class="f"><span>Approved method</span><select na' +
           'me="mode"><option value="total">Approved total, including assessments</o' +
           'ption><option value="base">Approved base plus scheduled assessments</opt' +
@@ -112,8 +97,8 @@ export function initAdministration() {
         v = Object.fromEntries(new FormData(form)),
         x = targets[Number(v.target)];
       try {
-        const result = await dep_helperJSON("/administration/deposit-override", {
-          caseNumber: dep_docCase(x.d).number,
+        const result = await helperJSON("/administration/deposit-override", {
+          caseNumber: docCase(x.d).number,
           citationNumber: x.c.num,
           ordinance: x.c.ord,
           pricingDate: x.c.pricedOn || x.c.issued,
@@ -134,10 +119,10 @@ export function initAdministration() {
         x.c.pricedOn = x.c.overrideBasis.pricingDate;
         x.c.policyVersionHash = x.c.overrideBasis.policyVersionHash;
         WriterState.DIRTY = true;
-        await dep_saveDrafts();
+        await saveDrafts();
         document.getElementById("utility-dialog")?.close();
-        dep_toast("Administrator override recorded. Review the citation before issuance.");
-        dep_render();
+        toast("Administrator override recorded. Review the citation before issuance.");
+        render();
       } catch (error) {
         form.querySelector("[role=alert]").textContent = error.message;
       }
@@ -145,12 +130,12 @@ export function initAdministration() {
   }
   async function openLetter() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
-      dep_toast("Connect the local helper and case folder first.");
+      toast("Connect the local helper and case folder first.");
       return;
     }
     try {
-      const { letter } = await dep_helperJSON("/administration/snow-letter");
-      dep_A11Y.utility(
+      const { letter } = await helperJSON("/administration/snow-letter");
+      A11Y.utility(
         "Administrator snow-letter review",
         '<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, con' +
           "tacts and web address. New citations use this review; issued copies keep" +
@@ -207,23 +192,23 @@ export function initAdministration() {
               .replace(/Streets East: [\d-]+/, "Streets East: " + updated.eastPhone),
             b,
           ]);
-          const result = await dep_helperJSON("/administration/snow-letter", {
+          const result = await helperJSON("/administration/snow-letter", {
             administrator: v.administrator,
             reason: v.reason,
             sourceReference: v.sourceReference,
             confirmed: v.confirmed === "on",
             letter: updated,
           });
-          dep_snow.setLetter(result.letter);
+          snow.setLetter(result.letter);
           document.getElementById("utility-dialog")?.close();
-          dep_toast("Seasonal content updated for new snow citations.");
-          dep_render();
+          toast("Seasonal content updated for new snow citations.");
+          render();
         } catch (error) {
           form.querySelector("[role=alert]").textContent = error.message;
         }
       };
     } catch (error) {
-      dep_toast(error.message);
+      toast(error.message);
     }
   }
   document.addEventListener("click", (e) => {

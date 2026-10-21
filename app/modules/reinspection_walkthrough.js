@@ -1,99 +1,70 @@
-import { recordDay as dep_recordDay } from "../assets/shared.js";
+import { recordDay } from "../assets/shared.js";
+import { fmtDate, fmtTime, inspAt, parseDate, parseTime, toast, validISO } from "./court_and_deposits.js";
+import { caseFileName, caseNumberAllowed, loadCaseFile, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
+import { listCaseFolder, saveDrafts, scheduleDraftSave, startReinspection } from "./case_files.js";
+import { importResumePanel, workingNotesPanel } from "./issuance_and_corrections.js";
+import { recoveryStatusHTML, unissuedVisitFor } from "./draft_recovery.js";
+import { caseSearchText } from "./language_catalog.js";
 import {
-  fmtDate as dep_fmtDate,
-  fmtTime as dep_fmtTime,
-  inspAt as dep_inspAt,
-  parseDate as dep_parseDate,
-  parseTime as dep_parseTime,
-  toast as dep_toast,
-  validISO as dep_validISO,
-} from "./court_and_deposits.js";
-import {
-  caseFileName as dep_caseFileName,
-  caseNumberAllowed as dep_caseNumberAllowed,
-  loadCaseFile as dep_loadCaseFile,
-  shell as dep_shell,
-  sourceDocFor as dep_sourceDocFor,
-  stableJSON as dep_stableJSON,
-} from "./workspace_shell.js";
-import {
-  listCaseFolder as dep_listCaseFolder,
-  saveDrafts as dep_saveDrafts,
-  scheduleDraftSave as dep_scheduleDraftSave,
-  startReinspection as dep_startReinspection,
-} from "./case_files.js";
-import { importResumePanel as dep_importResumePanel, workingNotesPanel as dep_workingNotesPanel } from "./issuance_and_corrections.js";
-import { recoveryStatusHTML as dep_recoveryStatusHTML, unissuedVisitFor as dep_unissuedVisitFor } from "./draft_recovery.js";
-import { caseSearchText as dep_caseSearchText } from "./language_catalog.js";
-import {
-  independentArtifact as dep_independentArtifact,
-  inspectionIdentity as dep_inspectionIdentity,
-  inspectionUsed as dep_inspectionUsed,
-  sameInspection as dep_sameInspection,
-  pdfTransferState as dep_pdfTransferState,
-  remindersPanel as dep_remindersPanel,
-  workspaceTasks as dep_workspaceTasks,
+  independentArtifact,
+  inspectionIdentity,
+  inspectionUsed,
+  sameInspection,
+  pdfTransferState,
+  remindersPanel,
+  workspaceTasks,
 } from "./case_timeline.js";
+import { accelaPlan, cancelCaseLookup, checkLookupShared, dueCheck, lookupCard, newDoc, render, renderKeep } from "./inspection_import.js";
 import {
-  accelaPlan as dep_accelaPlan,
-  cancelCaseLookup as dep_cancelCaseLookup,
-  checkLookupShared as dep_checkLookupShared,
-  dueCheck as dep_dueCheck,
-  lookupCard as dep_lookupCard,
-  newDoc as dep_newDoc,
-  render as dep_render,
-  renderKeep as dep_renderKeep,
-} from "./inspection_import.js";
-import {
-  ACC_CASEFIELDS as dep_ACC_CASEFIELDS,
-  ACC_COLS as dep_ACC_COLS,
-  ACC_EXPANDED_MAX as dep_ACC_EXPANDED_MAX,
-  ACC_LABEL as dep_ACC_LABEL,
-  ACC_MAX as dep_ACC_MAX,
-  ACC_REQUIRED as dep_ACC_REQUIRED,
-  ACC_STATUS as dep_ACC_STATUS,
-  DOC_TYPES as dep_DOC_TYPES,
-  OUTCOMES as dep_OUTCOMES,
-  STATUS_OF as dep_STATUS_OF,
-  accAll as dep_accAll,
-  accColIx as dep_accColIx,
-  accInspector as dep_accInspector,
-  accKids as dep_accKids,
-  accNorm as dep_accNorm,
-  accStatusEligible as dep_accStatusEligible,
-  inspectionKind as dep_inspectionKind,
-  statusRule as dep_statusRule,
-  accStr as dep_accStr,
-  accText as dep_accText,
-  accTime as dep_accTime,
-  accXml as dep_accXml,
-  addDays as dep_addDays,
-  citationPricing as dep_citationPricing,
-  clone as dep_clone,
-  daysBetween as dep_daysBetween,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docsFor as dep_docsFor,
-  doneItems as dep_doneItems,
-  draftDocFor as dep_draftDocFor,
-  draftReinspFor as dep_draftReinspFor,
-  effectiveFiled as dep_effectiveFiled,
-  esc as dep_esc,
-  insp as dep_insp,
-  isHistoryDoc as dep_isHistoryDoc,
-  iso as dep_iso,
-  kase as dep_kase,
-  nowISO as dep_nowISO,
-  ocOf as dep_ocOf,
-  originalNotice as dep_originalNotice,
-  reinsp as dep_reinsp,
-  snow as dep_snow,
-  uid as dep_uid,
-  unchecked as dep_unchecked,
+  ACC_CASEFIELDS,
+  ACC_COLS,
+  ACC_EXPANDED_MAX,
+  ACC_LABEL,
+  ACC_MAX,
+  ACC_REQUIRED,
+  ACC_STATUS,
+  DOC_TYPES,
+  OUTCOMES,
+  STATUS_OF,
+  accAll,
+  accColIx,
+  accInspector,
+  accKids,
+  accNorm,
+  accStatusEligible,
+  inspectionKind,
+  statusRule,
+  accStr,
+  accText,
+  accTime,
+  accXml,
+  addDays,
+  citationPricing,
+  clone,
+  daysBetween,
+  doc,
+  docCase,
+  docsFor,
+  doneItems,
+  draftDocFor,
+  draftReinspFor,
+  effectiveFiled,
+  esc,
+  insp,
+  isHistoryDoc,
+  iso,
+  kase,
+  nowISO,
+  ocOf,
+  originalNotice,
+  reinsp,
+  snow,
+  uid,
+  unchecked,
 } from "./app_core.js";
 import { app_languagediscoveryContext, app_workspacequeueContext } from "./app_view_contexts.js";
-import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
-import { activeRestrictions as dep_activeRestrictions } from "./new_documents.js";
+import { INSPECTORS } from "./data/inspectors.js";
+import { activeRestrictions } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { languageScreen } from "./language_discovery.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
@@ -129,12 +100,12 @@ function restoreWalkFor(r) {
 }
 
 function ensureWalkContext() {
-  const r = WriterState.state.screen === "reinspect" && dep_reinsp(WriterState.state.reinspId);
+  const r = WriterState.state.screen === "reinspect" && reinsp(WriterState.state.reinspId);
   if (!r || !r.draft || r.docId || WriterState.state.riWalkContext !== walkIdentity(r)) {
     clearWalk();
     return false;
   }
-  const src = dep_doc(r.sourceDocId);
+  const src = doc(r.sourceDocId);
   if (!src || src.caseId !== r.caseId) {
     clearWalk();
     return false;
@@ -155,8 +126,8 @@ function ensureWalkContext() {
 }
 
 function nextWalkItem(r) {
-  const src = r && dep_doc(r.sourceDocId);
-  return (src && src.items.find((it) => !it.withdrawn && !(r.results[it.id] || {}).carried && !dep_ocOf(r, it.id))) || null;
+  const src = r && doc(r.sourceDocId);
+  return (src && src.items.find((it) => !it.withdrawn && !(r.results[it.id] || {}).carried && !ocOf(r, it.id))) || null;
 }
 
 function focusWalkItem() {
@@ -184,11 +155,11 @@ function walkItemReady(r, id) {
   if (!editableWalkItem(r, id)) return false;
   const result = r.results[id] || {},
     intent = r.followupIntent || "undecided";
-  const source = dep_doc(r.sourceDocId),
+  const source = doc(r.sourceDocId),
     on = result.manualDate ? result.on : result.on || r.date;
-  if (!result.oc || !dep_validISO(on) || on < dep_docCase(source).date || on > r.date) return false;
+  if (!result.oc || !validISO(on) || on < docCase(source).date || on > r.date) return false;
   if (result.oc === "corrected") return true;
-  return !["extension", "citation"].includes(intent) || dep_dueCheck(result.due, r.date).ok;
+  return !["extension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
 }
 
 function advanceWalk(r) {
@@ -199,15 +170,15 @@ function advanceWalk(r) {
     !walkItemReady(r, WriterState.state.riWalkItem) &&
     !WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)
   ) {
-    dep_toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
+    toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
     focusWalkDetails();
     return false;
   }
   const next = nextWalkItem(r);
   WriterState.state.riWalkItem = next?.id || null;
   WriterState.state.riWalkStage = "outcome";
-  dep_scheduleDraftSave();
-  dep_render();
+  scheduleDraftSave();
+  render();
   focusWalkItem();
   return true;
 }
@@ -215,41 +186,41 @@ function advanceWalk(r) {
 function skipWalkDetails(r) {
   if (!WriterState.state.riWalk || !ensureWalkContext() || WriterState.state.riWalkStage !== "details") return false;
   if (!WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)) WriterState.state.riWalkSkipped.push(WriterState.state.riWalkItem);
-  dep_scheduleDraftSave();
+  scheduleDraftSave();
   return advanceWalk(r);
 }
 
 function returnWalkDetails(r) {
   if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
-  const src = dep_doc(r.sourceDocId),
+  const src = doc(r.sourceDocId),
     item = src.items.find((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)));
   if (!item) return false;
   WriterState.state.riWalkItem = item.id;
-  WriterState.state.riWalkStage = dep_ocOf(r, item.id) ? "details" : "outcome";
+  WriterState.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
   WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((id) => id !== item.id);
-  dep_scheduleDraftSave();
-  dep_render();
+  scheduleDraftSave();
+  render();
   WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
   return true;
 }
 
 function previousWalk(r) {
   if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
-  const src = dep_doc(r.sourceDocId),
+  const src = doc(r.sourceDocId),
     eligible = src.items.filter((i) => editableWalkItem(r, i.id));
   const ix = eligible.findIndex((i) => i.id === WriterState.state.riWalkItem),
     prior = eligible[ix < 0 ? eligible.length - 1 : ix - 1];
   if (!prior) return false;
   WriterState.state.riWalkItem = prior.id;
-  WriterState.state.riWalkStage = dep_ocOf(r, prior.id) ? "details" : "outcome";
-  dep_scheduleDraftSave();
-  dep_render();
+  WriterState.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
+  scheduleDraftSave();
+  render();
   WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
   return true;
 }
 
 function editableWalkItem(r, id) {
-  const src = r && dep_doc(r.sourceDocId),
+  const src = r && doc(r.sourceDocId),
     it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
   return !!(
     WriterState.state.screen === "reinspect" &&
@@ -264,12 +235,12 @@ function editableWalkItem(r, id) {
 }
 
 function recordReinspectionOutcome(id, outcome) {
-  const r = dep_reinsp(WriterState.state.reinspId);
-  if (!editableWalkItem(r, id) || !dep_OUTCOMES.some((o) => o.id === outcome)) return false;
+  const r = reinsp(WriterState.state.reinspId);
+  if (!editableWalkItem(r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
   if (WriterState.state.riWalk && (!ensureWalkContext() || !WriterState.state.riWalk)) return false;
   const cur = r.results[id] || {};
   if (cur.oc === outcome) return false;
-  const before = Object.prototype.hasOwnProperty.call(r.results, id) ? dep_clone(cur) : null;
+  const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
   const result = {
     oc: outcome,
     on: cur.on || r.date,
@@ -278,7 +249,7 @@ function recordReinspectionOutcome(id, outcome) {
     note: cur.note || "",
     cite: outcome === "corrected" ? false : !!cur.cite,
   };
-  if (WriterState.state.riWalk) WriterState.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: dep_clone(result) };
+  if (WriterState.state.riWalk) WriterState.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
   else WriterState.state.riWalkUndo = null;
   r.results[id] = result;
   WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((x) => x !== id);
@@ -293,66 +264,66 @@ function recordReinspectionOutcome(id, outcome) {
     }
   }
   WriterState.DIRTY = true;
-  dep_scheduleDraftSave();
+  scheduleDraftSave();
   if (WriterState.state.riWalk) {
-    dep_render();
+    render();
     WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-  } else dep_renderKeep();
+  } else renderKeep();
   return true;
 }
 
 function undoWalkOutcome() {
-  const r = dep_reinsp(WriterState.state.reinspId),
+  const r = reinsp(WriterState.state.reinspId),
     undo = WriterState.state.riWalkUndo;
   if (!WriterState.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId))
     return false;
   const current = r.results[undo.itemId];
   if (!current || current.oc !== undo.after.oc) {
-    dep_toast("The outcome changed since Undo was recorded. Review the item before changing it.");
+    toast("The outcome changed since Undo was recorded. Review the item before changing it.");
     return false;
   }
-  if (dep_stableJSON(current) === dep_stableJSON(undo.after)) {
-    if (undo.before) r.results[undo.itemId] = dep_clone(undo.before);
+  if (stableJSON(current) === stableJSON(undo.after)) {
+    if (undo.before) r.results[undo.itemId] = clone(undo.before);
     else delete r.results[undo.itemId];
   } else {
-    r.results[undo.itemId] = { ...dep_clone(current), oc: undo.before?.oc || "" };
-    dep_toast("Outcome undone; later note, date and due details were kept on this item.");
+    r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
+    toast("Outcome undone; later note, date and due details were kept on this item.");
   }
   WriterState.state.riWalkUndo = null;
   WriterState.state.riWalkItem = undo.itemId;
   WriterState.state.riWalkStage = "outcome";
   WriterState.DIRTY = true;
-  dep_scheduleDraftSave();
-  dep_render();
+  scheduleDraftSave();
+  render();
   focusWalkItem();
   return true;
 }
 
 function narrativeFor(r, it) {
-  const k = dep_kase(r.caseId),
-    src = dep_doc(r.sourceDocId),
-    oc = dep_ocOf(r, it.id),
+  const k = kase(r.caseId),
+    src = doc(r.sourceDocId),
+    oc = ocOf(r, it.id),
     res = r.results[it.id] || {};
-  const first = dep_originalNotice(r.caseId),
+  const first = originalNotice(r.caseId),
     firstDate = (first && k.date) || k.date || (first || {}).created;
   const what = String(it.title || "the violation").replace(/\.$/, "");
-  const label = (dep_DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
+  const label = (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
   const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
   return (
     "Initial inspection on " +
-    dep_fmtDate(firstDate) +
+    fmtDate(firstDate) +
     " documented the following violation: " +
     what +
     ". " +
     art +
     label.toLowerCase() +
     " was issued with a compliance date of " +
-    dep_fmtDate(it.due) +
+    fmtDate(it.due) +
     ". " +
     "Re-inspection on " +
-    dep_fmtDate(res.on || r.date) +
+    fmtDate(res.on || r.date) +
     " found " +
-    ((dep_OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
+    ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
     "." +
     (res.note ? " " + String(res.note).trim().replace(/\s+/g, " ") : "")
   );
@@ -381,38 +352,38 @@ function uiIcon(name) {
 }
 
 function caseState(k) {
-  const current = dep_sourceDocFor(k.id),
-    draft = dep_draftDocFor(k.id),
-    visit = dep_draftReinspFor(k.id) || dep_unissuedVisitFor(k.id),
-    last = dep_docsFor(k.id).find((d) => !d.draft && !d.superseded);
-  const live = dep_docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
+  const current = sourceDocFor(k.id),
+    draft = draftDocFor(k.id),
+    visit = draftReinspFor(k.id) || unissuedVisitFor(k.id),
+    last = docsFor(k.id).find((d) => !d.draft && !d.superseded);
+  const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
   const withdrawn = !!current && current.items.length > 0 && current.items.every((i) => i.withdrawn);
-  const restrictions = dep_activeRestrictions(live),
+  const restrictions = activeRestrictions(live),
     vacancy = live.find((d) => d.type === "vacancyExtension"),
     reviewDue = vacancy?.special?.reviewDate || "";
-  const closed = dep_snow.isCase(k)
+  const closed = snow.isCase(k)
     ? !!current && !!current.filedAt && current.frozen?.snowCloseOnFiling !== false
     : !restrictions.length && (withdrawn || (!!current && current.type === "compliance") || (!current && !!last && !!last.void));
   const dates =
-    current && !dep_isHistoryDoc(current)
+    current && !isHistoryDoc(current)
       ? (current.items || [])
-          .filter((i) => !i.done && !i.withdrawn && dep_validISO(i.due))
+          .filter((i) => !i.done && !i.withdrawn && validISO(i.due))
           .map((i) => i.due)
           .sort()
       : [];
   const due = dates[0] || "",
-    days = due ? dep_daysBetween(dep_recordDay(today), due) : null;
-  const late = !closed && !!due && due < dep_recordDay(today),
+    days = due ? daysBetween(recordDay(today), due) : null;
+  const late = !closed && !!due && due < recordDay(today),
     soon = !closed && !!due && !late && days >= 0 && days <= 7;
   const pendingRecord = Object.values(WriterState.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
-  const pendingDoc = dep_docsFor(k.id).find((d) => d.pendingAmendment) || null;
-  const pendingSync = WriterState.PENDING.some((p) => p.cid === k.id || (!!dep_caseFileName(k) && p.name === dep_caseFileName(k)));
-  const filingDoc = live.find((d) => dep_independentArtifact(d) && !dep_effectiveFiled(d)) || null;
-  const artifactIssue = live.find((d) => ["artifact conflict", "missing or unavailable"].includes(dep_pdfTransferState(d))) || null;
-  const numberIssue = !dep_caseNumberAllowed(k);
+  const pendingDoc = docsFor(k.id).find((d) => d.pendingAmendment) || null;
+  const pendingSync = WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
+  const filingDoc = live.find((d) => independentArtifact(d) && !effectiveFiled(d)) || null;
+  const artifactIssue = live.find((d) => ["artifact conflict", "missing or unavailable"].includes(pdfTransferState(d))) || null;
+  const numberIssue = !caseNumberAllowed(k);
   const attention = !!(
     restrictions.length ||
-    (reviewDue && reviewDue <= dep_addDays(dep_recordDay(today), 7)) ||
+    (reviewDue && reviewDue <= addDays(recordDay(today), 7)) ||
     numberIssue ||
     draft ||
     visit ||
@@ -442,7 +413,7 @@ function caseState(k) {
     artifactIssue,
     attention,
     label:
-      dep_snow.isCase(k) && current
+      snow.isCase(k) && current
         ? "Cited – snow"
         : restrictions.length
           ? "Occupancy restricted"
@@ -461,18 +432,18 @@ function caseState(k) {
                   : closed
                     ? "Closed"
                     : current
-                      ? dep_STATUS_OF[current.type] || "Issued"
+                      ? STATUS_OF[current.type] || "Issued"
                       : last?.special?.mode === "release"
                         ? "Restriction released"
                         : last
-                          ? dep_STATUS_OF[last.type] || "Issued"
+                          ? STATUS_OF[last.type] || "Issued"
                           : "Ready to start",
   };
 }
 
 function screenCases() {
   const rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
-    tasks = dep_workspaceTasks(rows);
+    tasks = workspaceTasks(rows);
   // Retire legacy metric selection into the single visible View control.
   if (WriterState.state.metric) {
     WriterState.state.caseFilter =
@@ -500,19 +471,19 @@ function screenCases() {
   const filtered = queue.filter(
     (row) =>
       queueMatches(row, WriterState.state.caseFilter) &&
-      (!query || dep_caseSearchText(row.k).includes(query)) &&
+      (!query || caseSearchText(row.k).includes(query)) &&
       (!WriterState.state.caseInspector || row.k.inspectorId === WriterState.state.caseInspector),
   );
   const table = filtered
     .map((row) => {
       const { k, st, proof } = row,
-        documents = dep_docsFor(k.id);
+        documents = docsFor(k.id);
       const secondary = row.facts.filter((t) => !["open", "drafts"].includes(t.key));
       const detailActions = secondary
         .map(
           (t) =>
             '<div class="queue-detail-task"><span>' +
-            `${dep_esc(t.label)}` +
+            `${esc(t.label)}` +
             '</span><button class="btn btn-sm" ' +
             `${t.action}` +
             ">Review</button></div>",
@@ -520,33 +491,31 @@ function screenCases() {
         .join("");
       return (
         '<tr data-queue-case="' +
-        `${dep_esc(k.id)}` +
+        `${esc(k.id)}` +
         '"><td><div class="addr">' +
-        `${dep_esc(k.address)}` +
+        `${esc(k.address)}` +
         '</div><div class="mono">' +
-        `${dep_esc(k.number)}` +
+        `${esc(k.number)}` +
         '</div>\n      <details class="queue-details"><summary>Case details &amp; ' +
         "history" +
         `${secondary.length ? " · " + secondary.length + " task" + (secondary.length === 1 ? "" : "s") : ""}` +
         '</summary><div class="doclinks"><p>' +
-        `${dep_esc(k.owner)}` +
+        `${esc(k.owner)}` +
         "</p>" +
         `${detailActions}` +
         "\n      " +
         "".concat(
-          !dep_caseNumberAllowed(k)
-            ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>'
-            : "",
+          !caseNumberAllowed(k) ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "",
         ) +
         "\n      <p>Record verification: " +
-        `${dep_esc(proof.label)}` +
+        `${esc(proof.label)}` +
         "</p>" +
         "".concat(
           proof.valid === false
             ? "<p>" +
-                `${dep_esc(proof.eventId || "")}` +
+                `${esc(proof.eventId || "")}` +
                 " · " +
-                `${dep_esc(proof.lastGoodCommitTime || "Last good commit unavailable")}` +
+                `${esc(proof.lastGoodCommitTime || "Last good commit unavailable")}` +
                 '</p><button class="btn btn-sm" data-sync-safety>Review record problem</b' +
                 "utton>"
             : "",
@@ -557,15 +526,15 @@ function screenCases() {
             .map(
               (d) =>
                 '<button data-open="' +
-                `${dep_esc(d.id)}` +
+                `${esc(d.id)}` +
                 '" class="' +
                 `${d.void ? "voidlink" : d.draft ? "" : "fin"}` +
                 '">' +
                 `${d.void ? "VOID · " : d.superseded ? "REPLACED · " : d.revision ? "REV " + d.revision.number + " · " : ""}` +
                 "" +
-                `${dep_esc((dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type)}` +
+                `${esc((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type)}` +
                 " <span>" +
-                `${dep_fmtDate(d.mailed || d.created)}` +
+                `${fmtDate(d.mailed || d.created)}` +
                 "" +
                 `${d.draft ? " · Draft" : ""}` +
                 "</span></button>",
@@ -573,36 +542,32 @@ function screenCases() {
             .join(""),
         ) +
         '\n      <button data-exportcase="' +
-        `${dep_esc(k.id)}` +
+        `${esc(k.id)}` +
         '">Download case record</button><button data-timeline="' +
-        `${dep_esc(k.id)}` +
+        `${esc(k.id)}` +
         '">Case timeline</button>\n      ' +
         "".concat(
           st.visit?.draft
-            ? `<button data-discardri="${dep_esc(st.visit.id)}">Discard reinspection draft</button>`
+            ? `<button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`
             : st.draft
-              ? `<button data-discard="${dep_esc(st.draft.id)}">Discard document draft</button>`
+              ? `<button data-discard="${esc(st.draft.id)}">Discard document draft</button>`
               : "",
         ) +
         '\n      <button data-rmcase="' +
-        `${dep_esc(k.id)}` +
+        `${esc(k.id)}` +
         '">Put away case</button></div></details></td>\n      <td><span class="pil' +
         "l " +
         `${row.resolution ? "late" : st.closed ? "closed" : row.continuing ? "draft" : "open"}` +
         '">' +
-        `${dep_esc(row.resolution && !row.continuing ? "Needs resolution" : st.label)}` +
+        `${esc(row.resolution && !row.continuing ? "Needs resolution" : st.label)}` +
         '</span><p class="queue-reason">' +
-        `${dep_esc(row.reason)}` +
+        `${esc(row.reason)}` +
         "</p>" +
         "".concat(row.continuing && row.resolution ? '<span class="queue-secondary">Also needs resolution · see case details</span>' : "") +
         "" +
         "".concat(
           st.visit
-            ? '<span class="muted">' +
-                `${dep_doneItems(st.visit).length}` +
-                " corrected, " +
-                `${dep_unchecked(st.visit).length}` +
-                " still to result</span>"
+            ? '<span class="muted">' + `${doneItems(st.visit).length}` + " corrected, " + `${unchecked(st.visit).length}` + " still to result</span>"
             : "",
         ) +
         "</td>\n      <td>" +
@@ -611,7 +576,7 @@ function screenCases() {
             ? '<span class="' +
                 `${st.late ? "pill late" : st.soon ? "case-date-soon" : "mono"}` +
                 '">' +
-                `${dep_fmtDate(st.due)}` +
+                `${fmtDate(st.due)}` +
                 "</span>" +
                 "".concat(
                   st.late
@@ -626,21 +591,21 @@ function screenCases() {
             : '<span class="muted">—</span>',
         ) +
         "</td>\n      <td>" +
-        `${dep_esc(dep_insp(k.inspectorId).name)}` +
+        `${esc(insp(k.inspectorId).name)}` +
         '</td><td><div class="case-next"><button class="btn btn-sm btn-primary qu' +
         'eue-primary" ' +
         `${row.action}` +
         ">" +
-        `${dep_esc(row.label)}` +
+        `${esc(row.label)}` +
         "</button></div></td></tr>"
       );
     })
     .join("");
   const importCount = tasks.find((t) => t.key === "imports").count;
   // Pending operations without a loaded case must remain reachable.
-  const orphan = WriterState.PENDING.filter((p) => !WriterState.CASES.some((k) => k.id === p.cid || dep_caseFileName(k) === p.name));
+  const orphan = WriterState.PENDING.filter((p) => !WriterState.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));
   const activeLabel = views.find(([key]) => key === WriterState.state.caseFilter)[1];
-  return dep_shell(
+  return shell(
     "Your workspace",
     "Building Inspection",
     '<button class="btn" data-global-search>' +
@@ -650,9 +615,9 @@ function screenCases() {
       `${uiIcon("import")}` +
       " Import inspection</button>",
     "" +
-      `${dep_importResumePanel()}` +
+      `${importResumePanel()}` +
       "" +
-      "".concat(WriterState.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${dep_esc(WriterState.PREFLIGHT_NOTICE)}</div>` : "") +
+      "".concat(WriterState.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(WriterState.PREFLIGHT_NOTICE)}</div>` : "") +
       '\n     <div class="workspace-lead"><div><h2>' +
       `${WriterState.CASES.length ? activeLabel : "Start with a case"}` +
       "</h2><p>" +
@@ -713,7 +678,7 @@ function screenCases() {
               "e>Open saved case</button></div>"
           : '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
               'ce</span><input type="search" id="case-search" value="' +
-              `${dep_esc(WriterState.state.caseQ)}` +
+              `${esc(WriterState.state.caseQ)}` +
               '" placeholder="Search this workspace…"></label>\n      <label class="case' +
               '-view"><span>View</span><select id="case-filter" aria-label="View cases"' +
               ">" +
@@ -728,16 +693,15 @@ function screenCases() {
               '</select></label>\n      <select id="case-inspector" aria-label="Filter b' +
               'y inspector"><option value="">All inspectors</option>' +
               "".concat(
-                dep_INSPECTORS
-                  .filter((i) => WriterState.CASES.some((k) => k.inspectorId === i.id))
+                INSPECTORS.filter((i) => WriterState.CASES.some((k) => k.inspectorId === i.id))
                   .map(
                     (i) =>
                       '<option value="' +
-                      `${dep_esc(i.id)}` +
+                      `${esc(i.id)}` +
                       '" ' +
                       `${WriterState.state.caseInspector === i.id ? "selected" : ""}` +
                       ">" +
-                      `${dep_esc(i.name)}` +
+                      `${esc(i.name)}` +
                       "</option>",
                   )
                   .join(""),
@@ -757,7 +721,7 @@ function screenCases() {
               "".concat(query || WriterState.state.caseInspector ? ' <button class="lnk" data-queue-reset>Clear search and inspector</button>' : "") +
               '</p>\n      <div class="case-table-wrap"><table class="list case-table"><' +
               'caption class="sr-only">' +
-              `${dep_esc(activeLabel)}` +
+              `${esc(activeLabel)}` +
               " · workspace cases and recommended actions</caption><thead><tr><th scope" +
               '="col">Property / case</th><th scope="col">Status / next step</th><th sc' +
               'ope="col">Next due</th><th scope="col">Inspector</th><th scope="col">Nex' +
@@ -780,18 +744,18 @@ function screenCases() {
       '</div>\n     <div class="queue-support"><button class="btn btn-sm" data-s' +
       'ync-safety>Saved work &amp; connection</button><div id="recovery-status"' +
       ' class="hint" aria-live="polite">' +
-      `${dep_recoveryStatusHTML()}` +
+      `${recoveryStatusHTML()}` +
       "</div>" +
       `${WriterState.CASES.length ? '<button class="lnk" id="btn-clear">Put away cases</button>' : ""}` +
       "</div>\n     " +
-      `${dep_remindersPanel()}` +
+      `${remindersPanel()}` +
       "" +
-      `${dep_workingNotesPanel()}` +
+      `${workingNotesPanel()}` +
       "",
   );
 }
 
-async function accInflate(bytes, limit = dep_ACC_EXPANDED_MAX) {
+async function accInflate(bytes, limit = ACC_EXPANDED_MAX) {
   const ds = new DecompressionStream("deflate-raw");
   const w = ds.writable.getWriter();
   w.write(bytes).catch(() => {});
@@ -851,7 +815,7 @@ async function accUnzip(buf, want) {
     const name = dec.decode(u8.subarray(p + 46, p + 46 + nlen));
     p += 46 + nlen + xlen + clen;
     if (!want(name)) continue;
-    if (usize > dep_ACC_EXPANDED_MAX - total) fail("The expanded workbook is too large. Export a report for one case.");
+    if (usize > ACC_EXPANDED_MAX - total) fail("The expanded workbook is too large. Export a report for one case.");
     if (lho + 30 > u8.length || dv.getUint32(lho, true) !== 0x04034b50) fail("the file is incomplete or damaged");
     const start = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
     if (start + csize > u8.length) fail("the file is incomplete or damaged");
@@ -860,13 +824,13 @@ async function accUnzip(buf, want) {
     if (method === 0) bytes = raw;
     else if (method === 8) {
       try {
-        bytes = await accInflate(raw, dep_ACC_EXPANDED_MAX - total);
+        bytes = await accInflate(raw, ACC_EXPANDED_MAX - total);
       } catch (err) {
         fail(/expanded workbook/.test(err.message) ? err.message : "the file is incomplete or damaged");
       }
     } else fail("the file uses a compression this program cannot read");
     total += bytes.length;
-    if (total > dep_ACC_EXPANDED_MAX) fail("The expanded workbook is too large. Export a report for one case.");
+    if (total > ACC_EXPANDED_MAX) fail("The expanded workbook is too large. Export a report for one case.");
     out[name] = dec.decode(bytes);
   }
   return out;
@@ -876,10 +840,10 @@ async function readXlsx(buf) {
   const files = await accUnzip(buf, (n) => /^xl\/(workbook\.xml|_rels\/workbook\.xml\.rels|sharedStrings\.xml|worksheets\/[^/]+\.xml)$/i.test(n));
   const key = (n) => Object.keys(files).find((k) => k.toLowerCase() === n.toLowerCase());
   if (!key("xl/workbook.xml")) throw new Error("it is not an Excel workbook");
-  const wb = dep_accXml(files[key("xl/workbook.xml")]);
-  if (dep_accAll(wb, "workbookPr").some((p) => /^(1|true)$/i.test(p.getAttribute("date1904") || "")))
+  const wb = accXml(files[key("xl/workbook.xml")]);
+  if (accAll(wb, "workbookPr").some((p) => /^(1|true)$/i.test(p.getAttribute("date1904") || "")))
     throw new Error("This workbook uses the 1904 date system. Export the SSRS report again using the standard 1900 date system.");
-  const sheet = dep_accAll(wb, "sheet")[0];
+  const sheet = accAll(wb, "sheet")[0];
   if (!sheet) throw new Error("the workbook has no sheets");
   let rid = "";
   Array.prototype.forEach.call(sheet.attributes, (a) => {
@@ -887,7 +851,7 @@ async function readXlsx(buf) {
   });
   let target = "";
   if (key("xl/_rels/workbook.xml.rels")) {
-    const rel = dep_accAll(dep_accXml(files[key("xl/_rels/workbook.xml.rels")]), "Relationship").find((r) => r.getAttribute("Id") === rid);
+    const rel = accAll(accXml(files[key("xl/_rels/workbook.xml.rels")]), "Relationship").find((r) => r.getAttribute("Id") === rid);
     if (rel) target = rel.getAttribute("Target") || "";
   }
   let path = target.charAt(0) === "/" ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
@@ -897,24 +861,24 @@ async function readXlsx(buf) {
         .filter((n) => /^xl\/worksheets\//i.test(n))
         .sort()[0] || "";
   if (!path || !key(path)) throw new Error("the workbook has no readable sheet");
-  const sst = key("xl/sharedStrings.xml") ? dep_accAll(dep_accXml(files[key("xl/sharedStrings.xml")]), "si").map(dep_accText) : [];
-  const ws = dep_accXml(files[key(path)]);
+  const sst = key("xl/sharedStrings.xml") ? accAll(accXml(files[key("xl/sharedStrings.xml")]), "si").map(accText) : [];
+  const ws = accXml(files[key(path)]);
   const rows = [];
-  dep_accAll(ws, "row").forEach((rw) => {
+  accAll(ws, "row").forEach((rw) => {
     const row = [];
     let next = 0;
-    dep_accKids(rw, "c").forEach((c) => {
+    accKids(rw, "c").forEach((c) => {
       const r = c.getAttribute("r"),
-        ix = r ? dep_accColIx(r) : next;
+        ix = r ? accColIx(r) : next;
       next = ix + 1;
       const t = c.getAttribute("t") || "",
-        v = dep_accKids(c, "v")[0],
+        v = accKids(c, "v")[0],
         vt = v ? v.textContent : "";
       let val;
       if (t === "s") val = sst[+vt] !== undefined ? sst[+vt] : "";
       else if (t === "inlineStr") {
-        const is = dep_accKids(c, "is")[0];
-        val = is ? dep_accText(is) : "";
+        const is = accKids(c, "is")[0];
+        val = is ? accText(is) : "";
       } else if (t === "str" || t === "e") val = vt;
       else if (t === "b") val = vt === "1" ? "TRUE" : "FALSE";
       else val = vt === "" ? "" : Number(vt);
@@ -933,7 +897,7 @@ function accSerial(v) {
     days++;
     mins -= 1440;
   }
-  return { date: dep_iso(new Date(Date.UTC(1899, 11, 30 + days, 12))), mins: mins };
+  return { date: iso(new Date(Date.UTC(1899, 11, 30 + days, 12))), mins: mins };
 }
 
 function accWhen(dv, tv) {
@@ -941,13 +905,13 @@ function accWhen(dv, tv) {
   // R36: the Inspection Time column is authoritative. Any time carried in the date column is ignored, with no comparison warning.
   const s = accSerial(dv);
   if (s) date = s.date;
-  else if (dep_accStr(dv)) date = dep_parseDate(dep_accStr(dv).split(/[\sT]+/)[0]);
-  const textTime = dep_accStr(tv) || typeof tv === "number" ? dep_accTime(tv) : null;
+  else if (accStr(dv)) date = parseDate(accStr(dv).split(/[\sT]+/)[0]);
+  const textTime = accStr(tv) || typeof tv === "number" ? accTime(tv) : null;
   return { date: date, time: textTime || "", warn: "" };
 }
 
 function accParcel(v) {
-  const raw = dep_accStr(v);
+  const raw = accStr(v);
   if (/^\d{12}$/.test(raw)) return { v: raw.slice(0, 4) + "-" + raw.slice(4, 7) + "-" + raw.slice(7, 11) + "-" + raw.slice(11), warn: "" };
   if (/^\d{4}-\d{3}-\d{4}-\d$/.test(raw)) return { v: raw, warn: "" };
   return { v: raw, warn: raw ? "Parcel number " + raw + " is not 12 digits — imported as delivered" : "" };
@@ -955,48 +919,45 @@ function accParcel(v) {
 
 function accelaTable(grid) {
   const res = { cases: [], errors: [], notes: [], excluded: { scheduled: 0, assist: 0 } };
-  const known = Object.keys(dep_ACC_COLS).map((k) => dep_ACC_COLS[k]);
-  const hr = grid.findIndex(
-    (r) => r && r.some((v) => dep_accNorm(v) === "case number") && r.filter((v) => known.indexOf(dep_accNorm(v)) >= 0).length >= 4,
-  );
+  const known = Object.keys(ACC_COLS).map((k) => ACC_COLS[k]);
+  const hr = grid.findIndex((r) => r && r.some((v) => accNorm(v) === "case number") && r.filter((v) => known.indexOf(accNorm(v)) >= 0).length >= 4);
   if (hr < 0) {
     res.errors.push("No Accela report table was found — the file has no Case Number header row");
     return res;
   }
   const col = {};
   grid[hr].forEach((v, ix) => {
-    let h = dep_accNorm(v);
+    let h = accNorm(v);
     if (h === "case type name" || h === "casetype" || h === "casetypename") h = "case type";
     if (!h) return;
-    const k = Object.keys(dep_ACC_COLS).find((k) => dep_ACC_COLS[k] === h);
+    const k = Object.keys(ACC_COLS).find((k) => ACC_COLS[k] === h);
     if (k) {
       if (col[k] === undefined) col[k] = ix;
-    } else res.notes.push('Column "' + dep_accStr(v) + '" is not part of the Accela report and was ignored');
+    } else res.notes.push('Column "' + accStr(v) + '" is not part of the Accela report and was ignored');
   });
-  const miss = dep_ACC_REQUIRED.filter((k) => col[k] === undefined);
+  const miss = ACC_REQUIRED.filter((k) => col[k] === undefined);
   if (miss.length) {
     res.errors.push(
-      "The report is missing the column" + (miss.length === 1 ? "" : "s") + " " + miss.map(dep_ACC_LABEL).join(", ") + " — nothing was imported",
+      "The report is missing the column" + (miss.length === 1 ? "" : "s") + " " + miss.map(ACC_LABEL).join(", ") + " — nothing was imported",
     );
     return res;
   }
-  Object.keys(dep_ACC_COLS)
+  Object.keys(ACC_COLS)
     .filter(
-      (k) =>
-        dep_ACC_REQUIRED.indexOf(k) < 0 && k !== "detail" && k !== "zoning" && k !== "caseType" && k !== "recordCategory" && col[k] === undefined,
+      (k) => ACC_REQUIRED.indexOf(k) < 0 && k !== "detail" && k !== "zoning" && k !== "caseType" && k !== "recordCategory" && col[k] === undefined,
     )
-    .forEach((k) => res.notes.push("The report has no " + dep_ACC_LABEL(k) + " column"));
+    .forEach((k) => res.notes.push("The report has no " + ACC_LABEL(k) + " column"));
   const get = (r, k) => (col[k] === undefined ? "" : r[col[k]]);
   const by = {};
   grid.slice(hr + 1).forEach((r) => {
     if (!r) return;
-    const num = dep_accStr(get(r, "number"));
+    const num = accStr(get(r, "number"));
     if (!num) return;
-    if (/^scheduled$/i.test(dep_accStr(get(r, "status")))) {
+    if (/^scheduled$/i.test(accStr(get(r, "status")))) {
       res.excluded.scheduled++;
       return;
     }
-    if (/^assist$/i.test(dep_accStr(get(r, "type")))) {
+    if (/^assist$/i.test(accStr(get(r, "type")))) {
       res.excluded.assist++;
       return;
     } // Excluded from selection and retained import history.
@@ -1004,26 +965,26 @@ function accelaTable(grid) {
     if (!c) {
       c = by[num] = { number: num, raw: {}, conflicts: [], rows: [] };
       res.cases.push(c);
-      dep_ACC_CASEFIELDS.forEach((f) => {
-        c.raw[f] = dep_accStr(get(r, f));
+      ACC_CASEFIELDS.forEach((f) => {
+        c.raw[f] = accStr(get(r, f));
       });
     } else
-      dep_ACC_CASEFIELDS.forEach((f) => {
-        const v = dep_accStr(get(r, f));
+      ACC_CASEFIELDS.forEach((f) => {
+        const v = accStr(get(r, f));
         if (v !== c.raw[f] && !c.conflicts.some((x) => x.f === f)) c.conflicts.push({ f: f, a: c.raw[f], b: v });
       });
     const w = accWhen(get(r, "date"), get(r, "time"));
-    const type = dep_accStr(get(r, "type")),
-      status = dep_accStr(get(r, "status"));
-    const kind = dep_inspectionKind(type),
+    const type = accStr(get(r, "type")),
+      status = accStr(get(r, "status"));
+    const kind = inspectionKind(type),
       tk = kind || "other",
-      rule = dep_statusRule(type, status);
-    const st = dep_ACC_STATUS[dep_accNorm(status)];
-    const name = dep_accStr(get(r, "inspector")),
-      ins = dep_accInspector(name);
+      rule = statusRule(type, status);
+    const st = ACC_STATUS[accNorm(status)];
+    const name = accStr(get(r, "inspector")),
+      ins = accInspector(name);
     const row = {
-      caseType: dep_accStr(get(r, "caseType")),
-      recordCategory: dep_accStr(get(r, "recordCategory")),
+      caseType: accStr(get(r, "caseType")),
+      recordCategory: accStr(get(r, "recordCategory")),
       i: c.rows.length,
       type: type,
       typeKey: tk,
@@ -1063,7 +1024,7 @@ function accelaTable(grid) {
     );
   res.cases.forEach((c) => {
     c.rows.sort((a, b) => !a.date - !b.date || (a.date + a.time < b.date + b.time ? -1 : a.date + a.time > b.date + b.time ? 1 : 0));
-    const done = c.rows.filter((r) => r.selectable && dep_accStatusEligible(r.status, r.type));
+    const done = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
     c.sel = done.length === 1 ? done[0].i : null;
   });
   return res;
@@ -1114,7 +1075,7 @@ function baseLookupPlan(acc) {
       .filter(Boolean),
   };
   c.conflicts.forEach((x) =>
-    p.blockers.push("The report gives two different values for " + dep_ACC_LABEL(x.f) + ' on this case: "' + x.a + '" and "' + x.b + '"'),
+    p.blockers.push("The report gives two different values for " + ACC_LABEL(x.f) + ' on this case: "' + x.a + '" and "' + x.b + '"'),
   );
   if (!p.f.address) p.blockers.push("The report has no site address for this case");
   if (!/^CB\d{4}-\d{3}-\d{5}$/.test(c.number)) p.warnings.push("Case number " + c.number + " does not follow the usual CB2026-000-00000 pattern");
@@ -1122,23 +1083,22 @@ function baseLookupPlan(acc) {
   const inits = c.rows.filter((x) => x.typeKey === "initial" && x.date);
   p.initial = inits[0] || null;
   if (inits.length > 1)
-    p.warnings.push("The report lists " + inits.length + " initial inspections — the earliest, " + dep_fmtDate(inits[0].date) + ", is used");
-  const k = WriterState.CASES.find((x) => dep_accStr(x.number).toUpperCase() === dep_accStr(c.number).toUpperCase()) || null;
+    p.warnings.push("The report lists " + inits.length + " initial inspections — the earliest, " + fmtDate(inits[0].date) + ", is used");
+  const k = WriterState.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
   p.existing = k;
   const row = c.rows.find((x) => x.i === acc.sel) || null;
   p.row = row;
-  const snowCase = dep_snow.isCase(k) || dep_snow.matchesImport(row);
+  const snowCase = snow.isCase(k) || snow.matchesImport(row);
   if (!row)
     p.blockers.push(
-      c.rows.some((x) => x.selectable && dep_accStatusEligible(x.status, x.type))
+      c.rows.some((x) => x.selectable && accStatusEligible(x.status, x.type))
         ? "Choose the inspection result you are documenting."
         : "No eligible inspection result is available: " +
             [
               ...new Set(
                 c.rows.map(
                   (x) =>
-                    x.why ||
-                    (dep_accStatusEligible(x.status, x.type) ? "Missing required inspection fields" : "status " + (x.status || "not supplied")),
+                    x.why || (accStatusEligible(x.status, x.type) ? "Missing required inspection fields" : "status " + (x.status || "not supplied")),
                 ),
               ),
             ].join("; ") +
@@ -1147,7 +1107,7 @@ function baseLookupPlan(acc) {
   else {
     if (!row.selectable) p.blockers.push("That inspection cannot be written from — " + row.why);
     else if (row.rule?.error) p.blockers.push(row.rule.error + ". Set the specific result in Accela and retrieve it again.");
-    if (row.date && row.date > dep_recordDay(today)) p.blockers.push("The selected inspection date is in the future.");
+    if (row.date && row.date > recordDay(today)) p.blockers.push("The selected inspection date is in the future.");
     if (!row.inspectorId)
       p.blockers.push(
         row.inspectorName
@@ -1160,7 +1120,7 @@ function baseLookupPlan(acc) {
   if (snowCase && row) {
     p.date = k?.date || row.date;
     p.time = k?.time || row.time;
-  } else if (k && dep_originalNotice(k.id)) {
+  } else if (k && originalNotice(k.id)) {
     p.date = k.date;
     p.time = k.time || "";
     if (p.initial && (p.initial.date !== k.date || p.initial.time !== (k.time || "")))
@@ -1172,25 +1132,25 @@ function baseLookupPlan(acc) {
   } else if (p.initial) {
     p.date = p.initial.date;
     p.time = p.initial.time;
-  } else if (k && dep_validISO(k.date)) {
+  } else if (k && validISO(k.date)) {
     p.date = k.date;
     p.time = k.time || "";
-    p.warnings.push("The report has no Initial Inspection row — the case keeps its initial inspection of " + dep_fmtDate(k.date));
+    p.warnings.push("The report has no Initial Inspection row — the case keeps its initial inspection of " + fmtDate(k.date));
   } else {
     p.needDate = true;
-    p.date = dep_validISO(acc.manualDate) ? acc.manualDate : "";
-    p.time = dep_parseTime(acc.manualTime || "") || "";
+    p.date = validISO(acc.manualDate) ? acc.manualDate : "";
+    p.time = parseTime(acc.manualTime || "") || "";
     if (!p.date) p.blockers.push("The report has no Initial Inspection row — enter the initial inspection date below");
   }
-  const src = k ? dep_sourceDocFor(k.id) : null;
+  const src = k ? sourceDocFor(k.id) : null;
   p.next = k && src ? "reinspect" : "notice";
   // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
   // updates the stored Accela status instead of being refused as already used.
-  const pending = k && row ? (row.typeKey === "initial" ? dep_draftDocFor(k.id) : dep_draftReinspFor(k.id)) : null;
-  p.refresh = row && pending?.importInspection && dep_sameInspection(pending.importInspection, dep_inspectionIdentity(row)) ? pending : null;
+  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
+  p.refresh = row && pending?.importInspection && sameInspection(pending.importInspection, inspectionIdentity(row)) ? pending : null;
   if (k && !p.refresh) {
-    p.used = row && dep_inspectionUsed(k, row);
-    const unfinished = dep_draftDocFor(k.id) || dep_draftReinspFor(k.id) || dep_unissuedVisitFor(k.id);
+    p.used = row && inspectionUsed(k, row);
+    const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id);
     if (p.used)
       p.blockers.push(
         "This inspection has already been used to generate a document. Choose Con" + "tinue existing case to continue or correct that document.",
@@ -1200,14 +1160,14 @@ function baseLookupPlan(acc) {
     else if (caseState(k).closed) p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
     else if (row) {
       if (row.typeKey === "initial") p.blockers.push(INITIAL_EXISTS);
-      const at = dep_inspAt(src);
+      const at = inspAt(src);
       if (row.date < at.date || (row.date === at.date && row.time && at.time && row.time < at.time))
         p.blockers.push("Select a reinspection on or after the latest issued document’s inspection.");
     }
   } else if (row && row.typeKey !== "initial") p.blockers.push(NO_CASE);
   // R53 referral rules: Reinspection/CA Referral is the case's first referral; CA Reinspection requires one.
   if (k && !p.refresh && row?.rule && !row.rule.error) {
-    const referred = dep_docsFor(k.id).some((d) => !d.draft && !d.void && !d.superseded && (d.type === "referral" || d.type === "referralUpdate"));
+    const referred = docsFor(k.id).some((d) => !d.draft && !d.void && !d.superseded && (d.type === "referral" || d.type === "referralUpdate"));
     if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
     if (row.rule.needsReferral && !referred)
       p.blockers.push("This case has not been referred to the City Attorney. Use a Reinspection with status CA Referral for the first referral.");
@@ -1216,7 +1176,7 @@ function baseLookupPlan(acc) {
   p.rule = row?.rule || null;
   if (snowCase) {
     p.next = "snow";
-    if (k && src && !dep_snow.is(src)) p.blockers.push("Snow removal cases cite only MGO 10.28. Create a separate case for other violations.");
+    if (k && src && !snow.is(src)) p.blockers.push("Snow removal cases cite only MGO 10.28. Create a separate case for other violations.");
     else
       p.blockers = p.blockers.filter(
         (t) =>
@@ -1258,18 +1218,18 @@ function baseLookupPlan(acc) {
     if (p.date && (k.date !== p.date || (k.time || "") !== p.time))
       p.diff.push({
         l: "Initial inspection",
-        was: dep_fmtDate(k.date) + " " + dep_fmtTime(k.time || ""),
-        now: dep_fmtDate(p.date) + " " + dep_fmtTime(p.time),
+        was: fmtDate(k.date) + " " + fmtTime(k.time || ""),
+        now: fmtDate(p.date) + " " + fmtTime(p.time),
       });
     if (row && row.inspectorId && row.inspectorId !== k.inspectorId)
-      p.diff.push({ l: "Case inspector", was: dep_insp(k.inspectorId).name || "", now: dep_insp(row.inspectorId).name || "" });
+      p.diff.push({ l: "Case inspector", was: insp(k.inspectorId).name || "", now: insp(row.inspectorId).name || "" });
     // where Accela and the record disagree
-    const live = dep_docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
+    const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
     [
       ["citation", "Citation", "citation"],
       ["official notice", "Official Notice", "notice"],
     ].forEach(([s, label, ty]) => {
-      const a = c.rows.filter((x) => dep_accNorm(x.status) === s).length,
+      const a = c.rows.filter((x) => accNorm(x.status) === s).length,
         m = live.filter((d) => d.type === ty).length;
       if (a > m) p.warnings.push("Accela shows " + a + " " + label + (a === 1 ? "" : "s") + " on this case; the case file has " + m);
     });
@@ -1279,14 +1239,14 @@ function baseLookupPlan(acc) {
 
 async function readAccelaFile(file) {
   if (!file || WriterState.state.screen !== "import") return;
-  dep_cancelCaseLookup();
+  cancelCaseLookup();
   const serial = WriterState.LOOKUP_SERIAL;
   const active = () => serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import";
   WriterState.LOOKUP_ERROR = "";
   WriterState.LOOKUP_BUSY = true;
-  dep_render();
+  render();
   try {
-    if (file.size > dep_ACC_MAX) throw new Error("That file is " + Math.round(file.size / 1048576) + " MB — an Accela report is a few KB.");
+    if (file.size > ACC_MAX) throw new Error("That file is " + Math.round(file.size / 1048576) + " MB — an Accela report is a few KB.");
     const grid = await readXlsx(await file.arrayBuffer());
     if (!active()) return;
     const t = accelaTable(grid);
@@ -1303,8 +1263,8 @@ async function readAccelaFile(file) {
     WriterState.state.acc = acc;
     await accelaFromShare(active);
     if (!active()) return;
-    dep_scheduleDraftSave();
-    dep_toast(t.errors.length ? "The report could not be imported" : "Report read — review the inspection");
+    scheduleDraftSave();
+    toast(t.errors.length ? "The report could not be imported" : "Report read — review the inspection");
   } catch (err) {
     if (active()) {
       WriterState.state.acc = {
@@ -1312,12 +1272,12 @@ async function readAccelaFile(file) {
         errors: ["That file could not be read — " + (err.message || "it is not an Excel .xlsx file") + ". Nothing was imported."],
         cases: [],
       };
-      dep_scheduleDraftSave();
+      scheduleDraftSave();
     }
   } finally {
     if (serial === WriterState.LOOKUP_SERIAL) {
       WriterState.LOOKUP_BUSY = false;
-      if (WriterState.state.screen === "import") dep_render();
+      if (WriterState.state.screen === "import") render();
     }
   }
 }
@@ -1335,7 +1295,7 @@ async function accelaFromShare(isCurrent = () => true) {
     (acc.caseIx || 0) === caseIx;
   if (WriterState.CASEDIR?.helper) {
     try {
-      await dep_checkLookupShared(acc, active);
+      await checkLookupShared(acc, active);
     } catch (e) {
       if (active()) acc.shareError = e.message;
     }
@@ -1349,7 +1309,7 @@ async function accelaFromShare(isCurrent = () => true) {
   acc.shareError = "";
   const c = acc.cases[caseIx],
     tail = (" - " + c.number + ".json").toLowerCase();
-  const hits = (await dep_listCaseFolder()).filter((f) => f.name.toLowerCase().endsWith(tail));
+  const hits = (await listCaseFolder()).filter((f) => f.name.toLowerCase().endsWith(tail));
   if (!active()) return;
   if (hits.length > 1) {
     acc.shareError = "More than one shared file has this case number. Resolve the duplicate records before importing.";
@@ -1363,7 +1323,7 @@ async function accelaFromShare(isCurrent = () => true) {
     if (!active()) return;
     const keep = { screen: WriterState.state.screen, dirty: WriterState.DIRTY, docId: WriterState.state.docId };
     try {
-      if (!dep_loadCaseFile(text)) acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
+      if (!loadCaseFile(text)) acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
     } finally {
       WriterState.state.screen = keep.screen;
       WriterState.DIRTY = keep.dirty;
@@ -1372,7 +1332,7 @@ async function accelaFromShare(isCurrent = () => true) {
   } catch (err) {
     if (active()) {
       acc.shareError = "The existing case file could not be read. Reconnect the share and retry.";
-      dep_toast(acc.shareError);
+      toast(acc.shareError);
     }
   }
 }
@@ -1387,7 +1347,7 @@ function applyImportRule(target, rule) {
   }
   if (rule.doc !== "notice") {
     target.selectionCache = target.selectionCache || {};
-    target.special = dep_clone(target.selectionCache[rule.doc] || {});
+    target.special = clone(target.selectionCache[rule.doc] || {});
     target.type = rule.doc;
     target.initialAction = true;
   } else if (target.initialAction) {
@@ -1398,11 +1358,11 @@ function applyImportRule(target, rule) {
 
 function baseLookupAccept() {
   const acc = WriterState.state.acc,
-    p = dep_accelaPlan(acc);
+    p = accelaPlan(acc);
   // the guard is here, not only on the button
   if (p.blockers.length) {
-    dep_toast(p.blockers[0]);
-    dep_render();
+    toast(p.blockers[0]);
+    render();
     return null;
   }
   const c = p.c,
@@ -1422,28 +1382,28 @@ function baseLookupAccept() {
     time: p.time,
     inspectorId: row.inspectorId,
     accela: {
-      pulled: dep_nowISO(),
+      pulled: nowISO(),
       file: acc.fileName || "",
-      ...(acc.source ? { source: dep_clone(acc.source) } : {}),
+      ...(acc.source ? { source: clone(acc.source) } : {}),
       inspections: c.rows.map((x) => ({ type: x.type, date: x.date, time: x.time, status: x.status, inspector: x.inspectorName })),
     },
   };
   // the address on file is kept: the case-file name is built from it
   if (k) Object.assign(k, fields);
   else {
-    k = { id: dep_uid("k"), number: c.number, address: f.address, ...fields };
+    k = { id: uid("k"), number: c.number, address: f.address, ...fields };
     WriterState.CASES.push(k);
   }
-  dep_snow.imported(k, row);
-  const importRule = row.rule && !row.rule.error ? dep_clone(row.rule) : null;
+  snow.imported(k, row);
+  const importRule = row.rule && !row.rule.error ? clone(row.rule) : null;
   if (p.refresh && importRule) {
     WriterState.state.acc = null;
     WriterState.WORK.acc = null;
     applyImportRule(p.refresh, importRule);
     WriterState.DIRTY = true;
-    dep_saveDrafts();
-    dep_render();
-    dep_toast("Accela status refreshed: " + importRule.status + " \u2192 " + importRule.label);
+    saveDrafts();
+    render();
+    toast("Accela status refreshed: " + importRule.status + " \u2192 " + importRule.label);
     return k;
   }
   WriterState.state.acc = null;
@@ -1451,69 +1411,69 @@ function baseLookupAccept() {
   WriterState.DIRTY = true;
   if (p.next === "snow") {
     k.caseType = "snow-10.28";
-    dep_newDoc(k.id, "citation");
-    const d = dep_doc(WriterState.state.docId);
+    newDoc(k.id, "citation");
+    const d = doc(WriterState.state.docId);
     d.inspDate = row.date;
     d.inspTime = row.time;
-    d.importInspection = dep_inspectionIdentity(row);
-    dep_snow.prepare(d);
-    dep_citationPricing.refresh(d);
-    dep_saveDrafts();
-    dep_render();
+    d.importInspection = inspectionIdentity(row);
+    snow.prepare(d);
+    citationPricing.refresh(d);
+    saveDrafts();
+    render();
     return k;
   }
   if (p.next === "reinspect") {
-    const open = dep_draftReinspFor(k.id);
+    const open = draftReinspFor(k.id);
     if (open) {
-      dep_startReinspection(k.id, row);
-      dep_saveDrafts();
-      dep_render();
-      dep_toast("Case updated — the open worksheet of " + dep_fmtDate(row.date) + " is on screen");
+      startReinspection(k.id, row);
+      saveDrafts();
+      render();
+      toast("Case updated — the open worksheet of " + fmtDate(row.date) + " is on screen");
       return k;
     }
-    dep_startReinspection(k.id, row);
-    const worksheet = dep_draftReinspFor(k.id);
+    startReinspection(k.id, row);
+    const worksheet = draftReinspFor(k.id);
     if (worksheet && importRule) applyImportRule(worksheet, importRule);
-    dep_saveDrafts();
-    dep_render();
-    dep_toast("Reinspection of " + dep_fmtDate(row.date) + " opened from the Accela report");
+    saveDrafts();
+    render();
+    toast("Reinspection of " + fmtDate(row.date) + " opened from the Accela report");
     return k;
   }
   if (p.next === "notice") {
-    const dd = dep_draftDocFor(k.id);
+    const dd = draftDocFor(k.id);
     if (dd) {
       WriterState.state.docId = dd.id;
       WriterState.state.screen = "write";
-      dep_saveDrafts();
-      dep_render();
-      dep_toast("Case updated — its draft is on screen");
+      saveDrafts();
+      render();
+      toast("Case updated — its draft is on screen");
       return k;
     }
-    dep_newDoc(k.id, "notice");
-    const created = dep_doc(WriterState.state.docId);
+    newDoc(k.id, "notice");
+    const created = doc(WriterState.state.docId);
     if (created) {
-      created.importInspection = dep_inspectionIdentity(row);
+      created.importInspection = inspectionIdentity(row);
       if (importRule) applyImportRule(created, importRule);
-      dep_saveDrafts();
+      saveDrafts();
     }
     return k;
   }
   WriterState.state.screen = "cases";
-  dep_saveDrafts();
-  dep_render();
-  dep_toast("Case " + k.number + " updated from the Accela report");
+  saveDrafts();
+  render();
+  toast("Case " + k.number + " updated from the Accela report");
   return k;
 }
 
 function accelaPanel() {
   const acc = WriterState.state.acc,
-    p = dep_accelaPlan(acc);
+    p = accelaPlan(acc);
   const cancel = '<button class="btn" id="acc-cancel">Clear import</button>';
   if (acc.errors?.length)
     return (
       '<section class="card acc"><div class="card-h"><h2>Import review</h2></di' +
       'v><div class="card-b">' +
-      `${acc.errors.map((e) => `<p class="banner alert">${dep_esc(e)}</p>`).join("")}` +
+      `${acc.errors.map((e) => `<p class="banner alert">${esc(e)}</p>`).join("")}` +
       "" +
       `${cancel}` +
       "</div></section>"
@@ -1521,7 +1481,7 @@ function accelaPanel() {
   const c = p.c,
     k = p.existing;
   if (!c) return "";
-  const choices = c.rows.filter((x) => x.selectable && dep_accStatusEligible(x.status, x.type));
+  const choices = c.rows.filter((x) => x.selectable && accStatusEligible(x.status, x.type));
   const pick =
     acc.cases.length > 1
       ? '<div class="f"><span>Choose a case from this report</span><div class="ch' +
@@ -1537,7 +1497,7 @@ function accelaPanel() {
                 '" ' +
                 `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
                 ">" +
-                `${dep_esc(x.number)}` +
+                `${esc(x.number)}` +
                 "</button>",
             )
             .join(""),
@@ -1546,15 +1506,15 @@ function accelaPanel() {
       : "";
   const summary = (x) =>
     "<strong>" +
-    `${dep_esc(x.type)}` +
+    `${esc(x.type)}` +
     " · " +
-    `${dep_fmtDate(x.date)}` +
+    `${fmtDate(x.date)}` +
     "</strong><span>Result: " +
-    `${dep_esc(x.status)}` +
+    `${esc(x.status)}` +
     "</span><span>" +
-    `${x.time ? dep_esc(dep_fmtTime(x.time)) : "Time not supplied"}` +
+    `${x.time ? esc(fmtTime(x.time)) : "Time not supplied"}` +
     " · " +
-    `${dep_esc(x.inspectorName || "Inspector not supplied")}` +
+    `${esc(x.inspectorName || "Inspector not supplied")}` +
     "</span>";
   const inspections =
     choices.length > 1
@@ -1585,14 +1545,14 @@ function accelaPanel() {
       : choices.length === 1
         ? `<div class="import-selected">${summary(choices[0])}</div>`
         : "";
-  const unfinished = k && (dep_draftDocFor(k.id) || dep_draftReinspFor(k.id) || dep_unissuedVisitFor(k.id));
+  const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id));
   const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
   const label = k ? "Import later inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
   return (
     '<section class="card acc import-review"><div class="card-h"><div><h2>' +
-    `${dep_esc(c.number)}` +
+    `${esc(c.number)}` +
     "</h2><p>" +
-    `${dep_esc(k?.address || p.f.address)}` +
+    `${esc(k?.address || p.f.address)}` +
     '</p></div><span class="pill">' +
     `${k ? "Existing case" : "New case"}` +
     '</span></div><div class="card-b">\n    ' +
@@ -1605,7 +1565,7 @@ function accelaPanel() {
             ' This does not import these inspection details.</p><button class="btn ' +
             `${unfinished ? "btn-primary" : ""}` +
             '" data-import-workspace="' +
-            `${dep_esc(k.id)}` +
+            `${esc(k.id)}` +
             '">Continue existing case</button></div><h3>Import later inspection</h3><' +
             'p class="hint">Use an unused completed inspection to start ' +
             `${p.next === "snow" ? "a snow citation" : "a reinspection worksheet"}` +
@@ -1619,26 +1579,26 @@ function accelaPanel() {
       p.needDate
         ? '<div class="grid g2"><label class="f"><span>Initial inspection date</spa' +
             'n><input type="date" id="acc-date" value="' +
-            `${dep_esc(acc.manualDate || "")}` +
+            `${esc(acc.manualDate || "")}` +
             '"></label><label class="f"><span>Initial inspection time</span><input ty' +
             'pe="time" id="acc-time" value="' +
-            `${dep_esc(acc.manualTime || "")}` +
+            `${esc(acc.manualTime || "")}` +
             '"></label></div>'
         : "",
     ) +
     "\n    " +
-    `${p.warnings.map((w) => `<p class="banner warn">${dep_esc(w)}</p>`).join("")}` +
+    `${p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join("")}` +
     "\n    " +
     "".concat(
       visibleBlockers.length
         ? '<div class="banner alert"><div><strong>' +
-            `${dep_esc(visibleBlockers[0])}` +
+            `${esc(visibleBlockers[0])}` +
             "</strong>" +
             "".concat(
               visibleBlockers.length > 1
                 ? `<ul>${visibleBlockers
                     .slice(1)
-                    .map((b) => `<li>${dep_esc(b)}</li>`)
+                    .map((b) => `<li>${esc(b)}</li>`)
                     .join("")}</ul>`
                 : "",
             ) +
@@ -1658,11 +1618,11 @@ function accelaPanel() {
                 .map(
                   (x) =>
                     "<dt>" +
-                    `${dep_esc(x.l)}` +
+                    `${esc(x.l)}` +
                     "</dt><dd><span>On file: " +
-                    `${dep_esc(x.was || "Not supplied")}` +
+                    `${esc(x.was || "Not supplied")}` +
                     "</span><strong>After import: " +
-                    `${dep_esc(x.now || "Not supplied")}` +
+                    `${esc(x.now || "Not supplied")}` +
                     "</strong></dd>",
                 )
                 .join(""),
@@ -1672,17 +1632,17 @@ function accelaPanel() {
     ) +
     '\n    <details class="import-source"><summary>Source and import details</' +
     "summary><p>" +
-    `${dep_esc(acc.fileName || "SSRS Excel report")}` +
+    `${esc(acc.fileName || "SSRS Excel report")}` +
     "</p>" +
     "".concat(
       acc.source?.kind === "sql"
         ? "<p>Retrieved " +
-            `${dep_esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
+            `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
             ". This is a saved snapshot; use Find case again to refresh it.</p>"
         : "",
     ) +
     "" +
-    `${(p.notes || []).map((n) => `<p>${dep_esc(n)}</p>`).join("")}` +
+    `${(p.notes || []).map((n) => `<p>${esc(n)}</p>`).join("")}` +
     "<p>Completed, Official Notice, Citation and Compliance results are avail" +
     "able. Scheduled, Pending, Assist and unknown statuses cannot be imported" +
     ". Blank inspection times stay blank until explicitly corrected.</p></det" +
@@ -1718,12 +1678,12 @@ function screenImport() {
     'option value="snow-10.28" ' +
     (WriterState.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "") +
     ">Snow removal (MGO 10.28)</option></select></label>";
-  return dep_shell(
+  return shell(
     "Import Inspection Result",
     "Bring in case details",
     '<button class="btn" id="btn-savework">Save &amp; continue later</button>',
     '<div style="max-width:980px">\n      ' +
-      `${dep_lookupCard()}` +
+      `${lookupCard()}` +
       "\n      " +
       `${WriterState.state.acc ? accelaPanel() : ""}` +
       '\n      <details class="card import-alternative"><summary>Import an SSRS ' +
@@ -1746,14 +1706,14 @@ function screenLibrary() {
 
 function priorCitations(caseId, no) {
   let n = 0;
-  const now = new Date(dep_recordDay(today) + "T12:00:00"),
-    cutoff = dep_iso(
+  const now = new Date(recordDay(today) + "T12:00:00"),
+    cutoff = iso(
       new Date(now.getFullYear() - 1, now.getMonth(), Math.min(now.getDate(), new Date(now.getFullYear() - 1, now.getMonth() + 1, 0).getDate()), 12),
     );
-  dep_docsFor(caseId).forEach((x) => {
+  docsFor(caseId).forEach((x) => {
     if (x.draft || x.void || x.superseded || x.type !== "citation") return;
-    const date = (x.revision && (x.revision.actionDate || x.revision.originalIssued)) || x.mailed || dep_recordDay(x.issuedAt);
-    if (!dep_validISO(date) || date < cutoff || date > dep_recordDay(today)) return;
+    const date = (x.revision && (x.revision.actionDate || x.revision.originalIssued)) || x.mailed || recordDay(x.issuedAt);
+    if (!validISO(date) || date < cutoff || date > recordDay(today)) return;
     if (x.items.some((i) => String(i.no) === String(no) && i.cite && !i.withdrawn)) n++;
   });
   return n;

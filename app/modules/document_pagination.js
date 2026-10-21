@@ -1,48 +1,37 @@
-import { recordDay as dep_recordDay } from "../assets/shared.js";
+import { recordDay } from "../assets/shared.js";
+import { applyDeposit, citationNumber, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
+import { saveDrafts, scheduleDraftSave } from "./case_files.js";
+import { narrativeFor } from "./reinspection_walkthrough.js";
+import { itemHistory } from "./issuance_and_corrections.js";
+import { worksheetFaults } from "./draft_recovery.js";
+import { editorSync, highlightOpenChecks, overlayHTML, render } from "./inspection_import.js";
+import { documentHTML } from "./document_render.js";
 import {
-  applyDeposit as dep_applyDeposit,
-  citationNumber as dep_citationNumber,
-  nextCourtDate as dep_nextCourtDate,
-  toast as dep_toast,
-  validISO as dep_validISO,
-} from "./court_and_deposits.js";
-import { saveDrafts as dep_saveDrafts, scheduleDraftSave as dep_scheduleDraftSave } from "./case_files.js";
-import { narrativeFor as dep_narrativeFor } from "./reinspection_walkthrough.js";
-import { itemHistory as dep_itemHistory } from "./issuance_and_corrections.js";
-import { worksheetFaults as dep_worksheetFaults } from "./draft_recovery.js";
-import {
-  editorSync as dep_editorSync,
-  highlightOpenChecks as dep_highlightOpenChecks,
-  overlayHTML as dep_overlayHTML,
-  render as dep_render,
-} from "./inspection_import.js";
-import { documentHTML as dep_documentHTML } from "./document_render.js";
-import {
-  A11Y as dep_A11Y,
-  DOC_TYPES as dep_DOC_TYPES,
-  PAGE_PX as dep_PAGE_PX,
-  REFERRED_ONLY as dep_REFERRED_ONLY,
-  clone as dep_clone,
-  courtTime as dep_courtTime,
-  depositStep as dep_depositStep,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docsFor as dep_docsFor,
-  esc as dep_esc,
-  insp as dep_insp,
-  isEffective as dep_isEffective,
-  isHistoryDoc as dep_isHistoryDoc,
-  kase as dep_kase,
-  newDocuments as dep_newDocuments,
-  openItems as dep_openItems,
-  recordHead as dep_recordHead,
-  snow as dep_snow,
-  uid as dep_uid,
-  unchecked as dep_unchecked,
+  A11Y,
+  DOC_TYPES,
+  PAGE_PX,
+  REFERRED_ONLY,
+  clone,
+  courtTime,
+  depositStep,
+  doc,
+  docCase,
+  docsFor,
+  esc,
+  insp,
+  isEffective,
+  isHistoryDoc,
+  kase,
+  newDocuments,
+  openItems,
+  recordHead,
+  snow,
+  uid,
+  unchecked,
 } from "./app_core.js";
 import { app_languagediscoveryContext } from "./app_view_contexts.js";
-import { canonicalOrdinance as dep_canonicalOrdinance } from "./citation_policy.js";
-import { alignedExtension as dep_alignedExtension, supplemental as dep_supplemental } from "./new_documents.js";
+import { canonicalOrdinance } from "./citation_policy.js";
+import { alignedExtension, supplemental } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 /* app functions; direct dependencies use explicit shared state. */
@@ -52,73 +41,73 @@ import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discover
    earlier documents paginate exactly as before. */
 const PRINT_SAFETY_PX = 16;
 function pageLimit(d) {
-  return dep_PAGE_PX - (d && d.authoringVersion >= 10 ? PRINT_SAFETY_PX : 0);
+  return PAGE_PX - (d && d.authoringVersion >= 10 ? PRINT_SAFETY_PX : 0);
 }
 
 function docFromReinspection(r, type) {
   // only an existing document closes the worksheet; a discarded one leaves
   // it open to write the follow-up again
-  if (r.docId && !dep_doc(r.docId)) r.docId = null;
-  if (r.docId && (dep_doc(r.docId)?.draft || !dep_supplemental(dep_doc(r.docId)))) {
+  if (r.docId && !doc(r.docId)) r.docId = null;
+  if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
     WriterState.state.docId = r.docId;
     WriterState.state.screen = "write";
-    dep_render();
+    render();
     return;
   }
-  const src = dep_doc(r.sourceDocId),
-    carry = dep_openItems(r);
-  if (!src || !dep_isEffective(src) || (!r.draft && !r.recordedAt)) {
-    dep_toast("Open a current reinspection worksheet first");
+  const src = doc(r.sourceDocId),
+    carry = openItems(r);
+  if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
+    toast("Open a current reinspection worksheet first");
     return;
   }
   if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
-    dep_toast("Choose an available follow-up type.");
+    toast("Choose an available follow-up type.");
     return;
   }
-  const unavailable = dep_newDocuments.eligibility?.(r, type);
+  const unavailable = newDocuments.eligibility?.(r, type);
   if (unavailable) {
-    dep_toast(unavailable);
+    toast(unavailable);
     return;
   }
-  const faults = dep_worksheetFaults(r, type);
+  const faults = worksheetFaults(r, type);
   if (faults.length) {
-    dep_toast(faults[0]);
+    toast(faults[0]);
     return;
   }
-  if (dep_unchecked(r).length) {
-    dep_toast("Choose an outcome for every item first");
+  if (unchecked(r).length) {
+    toast("Choose an outcome for every item first");
     return;
   }
-  if (!dep_validISO(r.date) || r.date > dep_recordDay(today)) {
-    dep_toast("Enter a valid inspection date");
+  if (!validISO(r.date) || r.date > recordDay(today)) {
+    toast("Enter a valid inspection date");
     return;
   }
   if (type !== "compliance" && !carry.length) {
-    dep_toast("Nothing outstanding to carry forward");
+    toast("Nothing outstanding to carry forward");
     return;
   }
   if (type === "compliance" && carry.length) {
-    dep_toast("Items are still outstanding — a compliance letter closes every item");
+    toast("Items are still outstanding — a compliance letter closes every item");
     return;
   }
   const pos = new Map(src.items.map((it, i) => [it.id, i]));
-  const hasHistory = !!(dep_DOC_TYPES.find((t) => t.id === type) || {}).history;
+  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history;
   const nd = {
-    id: dep_uid("d"),
+    id: uid("d"),
     caseId: r.caseId,
     type: type,
-    created: dep_recordDay(today),
+    created: recordDay(today),
     status: "Draft",
     draft: true,
-    mailed: dep_recordDay(today),
+    mailed: recordDay(today),
     cc: "",
     cits: {},
     fromReinspId: r.id,
     fromDocId: src.id,
-    expectedHead: r.draft ? r.expectedHead || dep_recordHead(r.caseId) : dep_recordHead(r.caseId),
+    expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
     replaces: r.replaces || "",
-    ...(r.importInspection ? { importInspection: dep_clone(r.importInspection) } : {}),
-    inspectorId: r.inspectorId || dep_kase(r.caseId).inspectorId,
+    ...(r.importInspection ? { importInspection: clone(r.importInspection) } : {}),
+    inspectorId: r.inspectorId || kase(r.caseId).inspectorId,
     inspDate: r.date || "",
     inspTime: r.time || "",
     items: src.items.map((it) => {
@@ -126,14 +115,14 @@ function docFromReinspection(r, type) {
         cleared = res.oc === "corrected";
       return {
         ...it,
-        id: dep_uid("x"),
+        id: uid("x"),
         no: it.no || String((pos.get(it.id) || 0) + 1),
         due: hasHistory || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
         done: cleared,
         doneOn: cleared ? res.on || r.date : "",
         note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
         noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
-        hist: hasHistory ? dep_itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
+        hist: hasHistory ? itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
         cite: type === "citation" && !cleared && !!res.cite,
         srcItemId: it.id,
       };
@@ -143,58 +132,58 @@ function docFromReinspection(r, type) {
   // register the document before its citations are numbered, so each number is
   // checked against the ones already issued on this document too
   WriterState.DOCS.unshift(nd);
-  if (dep_REFERRED_ONLY.indexOf(type) < 0 && dep_docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && dep_isHistoryDoc(x))) {
+  if (REFERRED_ONLY.indexOf(type) < 0 && docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x))) {
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
-    dep_toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
+    toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
     return;
   }
   if (type === "citation") {
     if (!nd.items.some((i) => i.cite)) {
       WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
-      dep_toast("Select the items to cite on the inspection worksheet.");
+      toast("Select the items to cite on the inspection worksheet.");
       return;
     }
     nd.items
       .filter((i) => i.cite)
       .forEach((i) => {
-        const sections = (i.sections || []).map(dep_canonicalOrdinance),
+        const sections = (i.sections || []).map(canonicalOrdinance),
           ord = sections.length === 1 ? sections[0] : "";
         nd.cits[i.id] = {
-          deptId: dep_insp(nd.inspectorId).badge || "",
-          num: dep_citationNumber(),
-          courtTime: dep_courtTime(),
-          comment: dep_narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
+          deptId: insp(nd.inspectorId).badge || "",
+          num: citationNumber(),
+          courtTime: courtTime(),
+          comment: narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
           ord,
           preparedSections: sections,
           autoFilledCharge: !!ord,
           desc: String(i.title || "").toUpperCase(),
-          issued: dep_recordDay(today),
-          courtDate: dep_nextCourtDate(dep_recordDay(today)),
+          issued: recordDay(today),
+          courtDate: nextCourtDate(recordDay(today)),
           depositMode: "schedule",
         };
-        dep_applyDeposit(nd, i.id, ord);
+        applyDeposit(nd, i.id, ord);
       });
   }
   r.docId = nd.id;
   WriterState.state.docId = nd.id;
   WriterState.state.screen = "write";
   WriterState.DIRTY = true;
-  dep_saveDrafts();
-  dep_render();
-  if (type === "citation") dep_depositStep.openNext(nd);
+  saveDrafts();
+  render();
+  if (type === "citation") depositStep.openNext(nd);
   const n = nd.items.filter((i) => i.cite).length,
     cl = nd.items.filter((i) => i.done).length;
-  dep_toast(
+  toast(
     type === "compliance"
       ? "Compliance letter drafted — review and issue it to close the case"
       : type === "referral" || type === "referralUpdate"
-        ? (dep_DOC_TYPES.find((t) => t.id === type) || {}).label +
+        ? (DOC_TYPES.find((t) => t.id === type) || {}).label +
           " started \u2014 " +
           carry.length +
           " item" +
           (carry.length === 1 ? "" : "s") +
           " still outstanding"
-        : ((dep_DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
+        : ((DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
           " started \u2014 " +
           carry.length +
           " outstanding" +
@@ -204,29 +193,29 @@ function docFromReinspection(r, type) {
 }
 
 function refreshSheet() {
-  const d = dep_doc(WriterState.state.docId),
+  const d = doc(WriterState.state.docId),
     desk = document.querySelector(".desk");
   if (d && desk) {
-    desk.innerHTML = dep_documentHTML(d);
+    desk.innerHTML = documentHTML(d);
     paginate();
     syncChip();
-    dep_scheduleDraftSave();
+    scheduleDraftSave();
   }
 }
 
 function contHead(d) {
-  const k = dep_docCase(d),
-    ty = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || "";
+  const k = docCase(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || "";
   const h = document.createElement("div");
   h.className = "n-cont";
   h.innerHTML =
     "<strong>" +
-    dep_esc(k.address || "") +
+    esc(k.address || "") +
     "</strong><span>" +
-    dep_esc(ty) +
+    esc(ty) +
     " &middot; continued</span>" +
     '<span class="r">' +
-    dep_esc(k.number || "") +
+    esc(k.number || "") +
     "</span>";
   return h;
 }
@@ -320,14 +309,14 @@ function paginate(deskOverride, documentOverride) {
   if (!desk) return;
   const src = desk.querySelector(".sheet");
   if (!src) return;
-  const d = documentOverride || dep_doc(WriterState.state.docId);
+  const d = documentOverride || doc(WriterState.state.docId);
   if (!d) return;
   // the fluid phone layout has no page geometry to divide
   if (desk.clientWidth && desk.clientWidth < 8.5 * 96) {
     src.classList.add("flow");
     return;
   }
-  if (dep_snow.is(d) && d.authoringVersion >= 9) {
+  if (snow.is(d) && d.authoringVersion >= 9) {
     paginateSnow(desk, src, d);
     return;
   }
@@ -337,7 +326,7 @@ function paginate(deskOverride, documentOverride) {
   const kids = Array.prototype.slice.call(src.children);
   const ti = kids.indexOf(table);
   const pre = kids.slice(0, ti);
-  const aligned = dep_alignedExtension(d);
+  const aligned = alignedExtension(d);
   const language = aligned ? src.querySelector(".n-body") : null;
   const languageAt = language ? pre.indexOf(language) : -1;
   const rest = kids.slice(ti + 1).filter((n) => n !== foot);
@@ -452,16 +441,16 @@ function paginate(deskOverride, documentOverride) {
 }
 
 function syncChip() {
-  dep_editorSync();
-  dep_highlightOpenChecks();
+  editorSync();
+  highlightOpenChecks();
 }
 
 function refreshOverlay() {
   const languageFocus = rememberLanguageFocus(app_languagediscoveryContext());
-  dep_A11Y.rememberFocus();
-  document.getElementById("overlay").innerHTML = dep_overlayHTML();
+  A11Y.rememberFocus();
+  document.getElementById("overlay").innerHTML = overlayHTML();
   enhanceDialog();
-  dep_A11Y.enhance();
+  A11Y.enhance();
   const q = document.getElementById("pk-q");
   if (q) {
     q.focus();

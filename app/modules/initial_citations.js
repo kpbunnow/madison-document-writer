@@ -1,39 +1,21 @@
-import {
-  applyDeposit as dep_applyDeposit,
-  checks as dep_checks,
-  citationNumber as dep_citationNumber,
-  fmtDate as dep_fmtDate,
-  freezeSources as dep_freezeSources,
-  inspAt as dep_inspAt,
-  nextCourtDate as dep_nextCourtDate,
-} from "./court_and_deposits.js";
-import { evid as dep_evid } from "./workspace_shell.js";
-import { citationTier as dep_citationTier } from "./issuance_and_corrections.js";
-import { citationReview as dep_citationReview } from "./case_timeline.js";
-import { editorSync as dep_editorSync } from "./inspection_import.js";
-import { citationFaces as dep_citationFaces } from "./document_render.js";
-import {
-  checkTarget as dep_checkTarget,
-  citSelector as dep_citSelector,
-  citationPricing as dep_citationPricing,
-  clone as dep_clone,
-  courtTime as dep_courtTime,
-  docInsp as dep_docInsp,
-  docsFor as dep_docsFor,
-  libraryReview as dep_libraryReview,
-  uid as dep_uid,
-} from "./app_core.js";
-import { canonicalOrdinance as dep_canonicalOrdinance } from "./citation_policy.js";
+import { applyDeposit, checks as dep_checks, citationNumber, fmtDate, freezeSources, inspAt, nextCourtDate } from "./court_and_deposits.js";
+import { evid } from "./workspace_shell.js";
+import { citationTier } from "./issuance_and_corrections.js";
+import { citationReview } from "./case_timeline.js";
+import { editorSync } from "./inspection_import.js";
+import { citationFaces } from "./document_render.js";
+import { checkTarget, citSelector, citationPricing, clone, courtTime, docInsp, docsFor, libraryReview, uid } from "./app_core.js";
+import { canonicalOrdinance } from "./citation_policy.js";
 /* Initial-visit notices and citations share one review and one atomic save. */
 export function initInitialCitations() {
   const enabled = (d) => !!d && d.type === "notice" && d.draft && !d.correction && d.items.some((i) => i.cite && !i.withdrawn);
   function prepare(d) {
     if (!enabled(d) || d.pendingAmendment) return;
-    dep_libraryReview.refresh(d);
+    libraryReview.refresh(d);
     d.cits = d.cits || {};
-    d.initialCitationId = d.initialCitationId || dep_uid("d");
+    d.initialCitationId = d.initialCitationId || uid("d");
     for (const i of d.items.filter((i) => i.cite && !i.done && !i.withdrawn)) {
-      const sections = (i.sections || []).map(dep_canonicalOrdinance).filter(Boolean),
+      const sections = (i.sections || []).map(canonicalOrdinance).filter(Boolean),
         existing = d.cits[i.id];
       if (d.depositRequests?.[i.id]) continue;
       if (existing) {
@@ -48,30 +30,30 @@ export function initInitialCitations() {
         }
         continue;
       }
-      const at = dep_inspAt(d),
+      const at = inspAt(d),
         ord = sections.length === 1 ? sections[0] : "";
       d.cits[i.id] = {
-        num: dep_citationNumber(),
+        num: citationNumber(),
         ord,
         autoFilledCharge: !!ord,
         preparedSections: sections,
         desc: String(i.title || "").toUpperCase(),
-        deptId: dep_docInsp(d).badge || "",
+        deptId: docInsp(d).badge || "",
         issued: d.mailed,
         issuedAutomatic: true,
-        courtDate: dep_nextCourtDate(d.mailed),
-        courtTime: dep_courtTime(),
-        tier: dep_citationTier(d.caseId, i.no),
+        courtDate: nextCourtDate(d.mailed),
+        courtTime: courtTime(),
+        tier: citationTier(d.caseId, i.no),
         depositMode: "schedule",
-        comment: "Initial inspection on " + dep_fmtDate(at.date) + " documented " + String(i.title || "the violation") + ".",
+        comment: "Initial inspection on " + fmtDate(at.date) + " documented " + String(i.title || "the violation") + ".",
       };
-      dep_applyDeposit(d, i.id, ord);
+      applyDeposit(d, i.id, ord);
     }
-    dep_citationPricing.refresh(d);
+    citationPricing.refresh(d);
   }
   function preview(d) {
     prepare(d);
-    const at = dep_inspAt(d);
+    const at = inspAt(d);
     return {
       ...d,
       authoringVersion: d.authoringVersion || 9,
@@ -96,12 +78,12 @@ export function initInitialCitations() {
       .filter(Boolean);
     if (
       new Set(numbers).size !== numbers.length ||
-      dep_docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
+      docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
     )
       out.push({
         ok: false,
         t: "Each selected initial citation needs a distinct, unused citation number.",
-        targets: p.items.filter((i) => i.cite).map((i) => dep_checkTarget(dep_citSelector(i.id, "num"), "Item " + i.no + " · citation number")),
+        targets: p.items.filter((i) => i.cite).map((i) => checkTarget(citSelector(i.id, "num"), "Item " + i.no + " · citation number")),
       });
     return out;
   }
@@ -115,8 +97,8 @@ export function initInitialCitations() {
     p.initialPreview = false;
     p.authoringVersion = 11;
     p.status = "Final";
-    p.items = p.items.map((i) => ({ ...i, id: dep_uid("x"), srcItemId: i.id }));
-    p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, dep_clone(d.cits[i.srcItemId])]));
+    p.items = p.items.map((i) => ({ ...i, id: uid("x"), srcItemId: i.id }));
+    p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, clone(d.cits[i.srcItemId])]));
     for (const key of [
       "draft",
       "pendingAmendment",
@@ -132,14 +114,14 @@ export function initInitialCitations() {
       delete p[key];
     const identity = { id: noticeEvent.id, noticeId: d.id, citationId: p.id };
     p.issuanceGroup = identity; // set before freezing so the replacing citation freezes the notice's order furniture
-    p.frozen = dep_freezeSources(p);
+    p.frozen = freezeSources(p);
     noticeEvent.payload.snapshot.issuanceGroup = identity;
     noticeEvent.payload.snapshot.authoringVersion = 11;
     noticeEvent.payload.snapshot.cits = {};
     delete noticeEvent.payload.snapshot.initialCitationId;
     p.issuanceGroup = identity;
     const event = {
-      id: dep_evid(),
+      id: evid(),
       at: new Date(Date.parse(noticeEvent.at) + 1).toISOString(),
       by: noticeEvent.by,
       type: "citation.issued",
@@ -159,7 +141,7 @@ export function initInitialCitations() {
     const panel = document.getElementById("citation-review");
     if (!panel) return;
     const container = document.createElement("div");
-    container.innerHTML = dep_citationReview(d);
+    container.innerHTML = citationReview(d);
     function patch(old, next, active) {
       if (old.nodeType !== next.nodeType || old.nodeName !== next.nodeName || old.dataset?.reviewCit !== next.dataset?.reviewCit) {
         old.replaceWith(next);
@@ -200,8 +182,8 @@ export function initInitialCitations() {
     }
     const copies = document.querySelector(".initial-citation-previews");
     if (copies && enabled(d)) {
-      copies.innerHTML = dep_citationFaces(preview(d), true);
-      dep_editorSync();
+      copies.innerHTML = citationFaces(preview(d), true);
+      editorSync();
     }
   }
   return { enabled, prepare, preview, checks, mailed, group, refresh };

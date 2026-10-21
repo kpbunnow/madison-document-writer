@@ -1,46 +1,37 @@
-import { SUMMARY_DIR as dep_SUMMARY_DIR, normParcel as dep_normParcel, recordDay as dep_recordDay } from "../assets/shared.js";
-import { BUILD as dep_BUILD, LOGO as dep_LOGO } from "./data/build_identity.js";
+import { SUMMARY_DIR, normParcel, recordDay } from "../assets/shared.js";
+import { BUILD, LOGO } from "./data/build_identity.js";
+import { areaKey, areaSort, caseOk, daysBetween, groupBy, humanCorrectionValue, normStreet, render } from "./reports_services.js";
 import {
-  areaKey as dep_areaKey,
-  areaSort as dep_areaSort,
-  caseOk as dep_caseOk,
-  daysBetween as dep_daysBetween,
-  groupBy as dep_groupBy,
-  humanCorrectionValue as dep_humanCorrectionValue,
-  normStreet as dep_normStreet,
-  render as dep_render,
-} from "./reports_services.js";
-import {
-  A11Y as dep_A11Y,
-  CRC_T as dep_CRC_T,
-  D as dep_D,
-  DEFINITIONS as dep_DEFINITIONS,
-  REPORTS as dep_REPORTS,
-  STATUSES as dep_STATUSES,
-  STATUS_COL as dep_STATUS_COL,
-  STYLES as dep_STYLES,
-  TILE as dep_TILE,
-  actions as dep_actions,
-  activeFilters as dep_activeFilters,
-  areaIdOf as dep_areaIdOf,
-  areaLabel as dep_areaLabel,
-  depositSchedule as dep_depositSchedule,
-  esc as dep_esc,
-  excelDate as dep_excelDate,
-  fmtDate as dep_fmtDate,
-  fmtDays as dep_fmtDays,
-  fmtMoney as dep_fmtMoney,
-  fmtNum as dep_fmtNum,
-  inPeriod as dep_inPeriod,
-  iso as dep_iso,
-  numOr as dep_numOr,
-  ownerKeyLabel as dep_ownerKeyLabel,
-  plural as dep_plural,
-  reportById as dep_reportById,
-  uniq as dep_uniq,
-  validISO as dep_validISO,
-  violOk as dep_violOk,
-  xesc as dep_xesc,
+  A11Y,
+  CRC_T,
+  D,
+  DEFINITIONS,
+  REPORTS,
+  STATUSES,
+  STATUS_COL,
+  STYLES,
+  TILE,
+  actions,
+  activeFilters,
+  areaIdOf,
+  areaLabel,
+  depositSchedule,
+  esc,
+  excelDate,
+  fmtDate,
+  fmtDays,
+  fmtMoney,
+  fmtNum,
+  inPeriod,
+  iso,
+  numOr,
+  ownerKeyLabel,
+  plural,
+  reportById,
+  uniq,
+  validISO,
+  violOk,
+  xesc,
 } from "./reports_core.js";
 import { reports_reportpresentationContext } from "./reports_view_contexts.js";
 import { ReportsState } from "./state.js";
@@ -62,14 +53,14 @@ function shell() {
         '" ' +
         `${ReportsState.S.screen === k ? 'aria-current="page"' : ""}` +
         "><span>" +
-        `${dep_esc(l)}` +
+        `${esc(l)}` +
         "</span></button>",
     )
     .join("");
   return (
     '<div class="app">\n    <aside class="rail">\n      <div class="rail-brand"' +
     '><img class="rail-logo" src="' +
-    `${dep_LOGO}` +
+    `${LOGO}` +
     '" alt="City of Madison Building Inspection"><div class="rail-sub">Report' +
     's</div></div>\n      <nav><a class="rail-item" href="madison-document-wri' +
     'ter.html">← Document Writer</a>' +
@@ -78,14 +69,14 @@ function shell() {
     `${more}` +
     '</nav>\n      <div class="rail-foot">Read-only. Nothing here changes a ca' +
     'se.<span class="build">Build ' +
-    `${dep_esc(dep_BUILD)}` +
+    `${esc(BUILD)}` +
     '</span></div>\n    </aside>\n    <div class="main">' +
     "".concat(
       ReportsState.S.phase === "loading"
-        ? `<div class="loading">${dep_esc(ReportsState.S.msg)}</div>`
+        ? `<div class="loading">${esc(ReportsState.S.msg)}</div>`
         : ReportsState.S.phase === "error"
           ? '<div class="content"><div class="banner alert">' +
-            `${dep_esc(ReportsState.S.error)}` +
+            `${esc(ReportsState.S.error)}` +
             '</div><div><button class="btn btn-primary" data-act="reload">Try again</' +
             "button></div></div>"
           : screenFrame(),
@@ -97,12 +88,9 @@ function shell() {
 function screenFrame() {
   if (ReportsState.S.screen === "deposit")
     return (
-      topbar("Deposit schedule", "Read the reviewed law in force on a selected date.") +
-      '<div class="content">' +
-      dep_depositSchedule.html() +
-      "</div>"
+      topbar("Deposit schedule", "Read the reviewed law in force on a selected date.") + '<div class="content">' + depositSchedule.html() + "</div>"
     );
-  const r = dep_reportById(ReportsState.S.screen);
+  const r = reportById(ReportsState.S.screen);
   if (r) return reportScreen(r);
   if (ReportsState.S.screen === "property")
     return (
@@ -136,9 +124,9 @@ function reportActions() {
 function topbar(title, lede, acts) {
   return (
     '<header class="topbar"><div><h1>' +
-    `${dep_esc(title)}` +
+    `${esc(title)}` +
     '</h1><div class="lede">' +
-    `${dep_esc(lede)}` +
+    `${esc(lede)}` +
     '</div></div><div class="topbar-actions">' +
     `${acts || ""}` +
     "</div></header>"
@@ -148,19 +136,19 @@ function topbar(title, lede, acts) {
 function filtersBar(dateMode) {
   const F = ReportsState.S.F,
     M = ReportsState.S.M;
-  const allAreas = dep_uniq(M.counted.map((c) => dep_areaKey(c, F))).sort(dep_areaSort);
+  const allAreas = uniq(M.counted.map((c) => areaKey(c, F))).sort(areaSort);
   const dates =
     dateMode === "asOf"
-      ? `<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${dep_esc(F.asOf)}"></label>`
-      : `<label class="f"><span>From</span><input type="date" id="f-from" value="${dep_esc(F.from)}"></label>
-      <label class="f"><span>To</span><input type="date" id="f-to" value="${dep_esc(F.to)}"></label>`;
+      ? `<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${esc(F.asOf)}"></label>`
+      : `<label class="f"><span>From</span><input type="date" id="f-from" value="${esc(F.from)}"></label>
+      <label class="f"><span>To</span><input type="date" id="f-to" value="${esc(F.to)}"></label>`;
   const sel = (id, label, val, opts) =>
     '<label class="f"><span>' +
-    `${dep_esc(label)}` +
+    `${esc(label)}` +
     '</span><select id="' +
     `${id}` +
     '">' +
-    "".concat(opts.map((o) => `<option value="${dep_esc(o[0])}" ${o[0] === val ? "selected" : ""}>${dep_esc(o[1])}</option>`).join("")) +
+    "".concat(opts.map((o) => `<option value="${esc(o[0])}" ${o[0] === val ? "selected" : ""}>${esc(o[1])}</option>`).join("")) +
     "</select></label>";
   return (
     '<div class="filters">\n    ' +
@@ -179,18 +167,18 @@ function filtersBar(dateMode) {
     '\n    <div class="f"><span>Areas</span><details class="areas" ' +
     `${ReportsState.S.areasOpen ? "open" : ""}` +
     ' id="f-areas"><summary>' +
-    `${F.areas.length ? dep_esc(F.areas.map((a) => dep_areaLabel(a)).join(", ")) : "All areas"}` +
+    `${F.areas.length ? esc(F.areas.map((a) => areaLabel(a)).join(", ")) : "All areas"}` +
     '</summary>\n      <div class="pop">' +
     "".concat(
       allAreas
         .map(
           (a) =>
             '<label><input type="checkbox" data-area="' +
-            `${dep_esc(a)}` +
+            `${esc(a)}` +
             '" ' +
             `${F.areas.indexOf(a) >= 0 ? "checked" : ""}` +
             ">" +
-            `${dep_esc(dep_areaLabel(a))}` +
+            `${esc(areaLabel(a))}` +
             "</label>",
         )
         .join("") || '<div class="small">No areas yet</div>',
@@ -223,7 +211,7 @@ function filtersBar(dateMode) {
         [
           ["", "Any status"],
           ["open", "Open (not closed)"],
-        ].concat(dep_STATUSES.map((s) => [s, s])),
+        ].concat(STATUSES.map((s) => [s, s])),
       ),
     ) +
     "\n    </div></details>\n    " +
@@ -240,7 +228,7 @@ function reportScreen(r) {
   if (r.date === "period" && ReportsState.S.F.from > ReportsState.S.F.to) {
     ReportsState.S.rep = null;
     return (
-      topbar(r.label, r.lede, dep_actions()) +
+      topbar(r.label, r.lede, actions()) +
       filtersBar(r.date) +
       '<div class="content"><div class="banner alert">The start date must be on or before the end date.</div></div>'
     );
@@ -249,36 +237,34 @@ function reportScreen(r) {
   const res = r.run(ReportsState.S.M, ReportsState.S.F);
   ReportsState.S.rep = { r: r, res: res };
   const dateTxt =
-    r.date === "asOf"
-      ? "As of " + dep_fmtDate(ReportsState.S.F.asOf)
-      : dep_fmtDate(ReportsState.S.F.from) + " to " + dep_fmtDate(ReportsState.S.F.to);
+    r.date === "asOf" ? "As of " + fmtDate(ReportsState.S.F.asOf) : fmtDate(ReportsState.S.F.from) + " to " + fmtDate(ReportsState.S.F.to);
   const body = ReportsState.S.view === "map" ? mapPanel(r, res) : tablePanel(res, dateTxt);
   const primary = res.total && res.total.find((x) => x && typeof x === "object" && x.fmt === "int");
   return (
-    topbar(r.n + ". " + r.label, r.lede, dep_actions()) +
+    topbar(r.n + ". " + r.label, r.lede, actions()) +
     filtersBar(r.date) +
     ('<div class="content">' +
-      "".concat(ReportsState.S.reportNotice ? `<div class="banner info" role="status">${dep_esc(ReportsState.S.reportNotice)}</div>` : "") +
+      "".concat(ReportsState.S.reportNotice ? `<div class="banner info" role="status">${esc(ReportsState.S.reportNotice)}</div>` : "") +
       "" +
       `${freshness()}` +
       "" +
       "".concat(
         primary
           ? '<div class="report-kpi"><strong>' +
-              `${dep_fmtNum(primary.n)}` +
+              `${fmtNum(primary.n)}` +
               "</strong><span>" +
-              `${dep_esc(res.cols[1] || "matching records")}` +
+              `${esc(res.cols[1] || "matching records")}` +
               " · " +
-              `${dep_esc(dateTxt)}` +
+              `${esc(dateTxt)}` +
               "</span></div>"
           : "",
       ) +
       '\n      <div class="panel"><div class="panel-h"><div><h2>' +
-      `${dep_esc(r.label)}` +
+      `${esc(r.label)}` +
       '</h2><div class="sub">' +
-      `${dep_esc(dateTxt)}` +
+      `${esc(dateTxt)}` +
       "" +
-      `${dep_esc(filterSummary())}` +
+      `${esc(filterSummary())}` +
       '</div></div>\n        <div class="seg" role="group" aria-label="View"><bu' +
       'tton data-view="table" aria-pressed="' +
       `${ReportsState.S.view === "table"}` +
@@ -295,43 +281,41 @@ function reportScreen(r) {
 function filterSummary() {
   const F = ReportsState.S.F,
     p = [];
-  if (F.areas.length) p.push(F.areas.map((a) => dep_areaLabel(a)).join(", "));
+  if (F.areas.length) p.push(F.areas.map((a) => areaLabel(a)).join(", "));
   if (F.inspector) p.push(F.inspector);
   if (F.vtype) p.push((ReportsState.S.M.types.find((t) => t.key === F.vtype) || {}).label || F.vtype);
   if (F.ord) p.push(F.ord);
   if (F.status) p.push(F.status === "open" ? "open cases" : F.status);
-  if (F.owner) p.push(dep_ownerKeyLabel(F.owner));
+  if (F.owner) p.push(ownerKeyLabel(F.owner));
   if (F.areaType === "district" && F.boundary === "atOpen") p.push("districts as they were when each case opened");
   return p.length ? ". Filtered to " + p.join("; ") : "";
 }
 
 function cellHTML(x, ri, ci, max, isTotal) {
   if (x == null) return "<td></td>";
-  if (typeof x === "string") return `<td>${dep_esc(x)}</td>`;
+  if (typeof x === "string") return `<td>${esc(x)}</td>`;
   if (x.kase)
     return (
       '<td><button class="linkish" data-case="' +
-      `${dep_esc(x.kase)}` +
+      `${esc(x.kase)}` +
       '">' +
-      `${dep_esc(x.kase)}` +
+      `${esc(x.kase)}` +
       '</button> <button class="linkish" data-writer="' +
-      `${dep_esc(x.kase)}` +
+      `${esc(x.kase)}` +
       '">Open in Writer</button></td>'
     );
   if (x.owner !== undefined)
     return (
       "<td>" +
-      "".concat(x.owner ? `<button class="linkish" data-owner="${dep_esc(x.owner)}">${dep_esc(x.text || "—")}</button>` : dep_esc(x.text || "—")) +
+      "".concat(x.owner ? `<button class="linkish" data-owner="${esc(x.owner)}">${esc(x.text || "—")}</button>` : esc(x.text || "—")) +
       "</td>"
     );
-  const txt = x.fmt === "days" ? dep_fmtDays(x.n) : x.fmt === "money" ? dep_fmtMoney(x.n) : dep_fmtNum(x.n);
+  const txt = x.fmt === "days" ? fmtDays(x.n) : x.fmt === "money" ? fmtMoney(x.n) : fmtNum(x.n);
   // the bar behind a count scales against the largest count in its column
   const bar =
     !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
   const inner =
-    x.ids && x.ids.length && x.n
-      ? `<button data-drill="${ri}:${ci}" aria-label="${dep_esc(txt)}, show the cases">${dep_esc(txt)}</button>`
-      : dep_esc(txt);
+    x.ids && x.ids.length && x.n ? `<button data-drill="${ri}:${ci}" aria-label="${esc(txt)}, show the cases">${esc(txt)}</button>` : esc(txt);
   return `<td class="n${x.n ? "" : " zero"}${bar}">${inner}</td>`;
 }
 
@@ -339,9 +323,9 @@ function tablePanel(res, dateTxt) {
   if (!res.rows.length)
     return (
       '<div class="empty">Nothing matches ' +
-      `${dep_esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1))}` +
+      `${esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1))}` +
       "" +
-      `${dep_activeFilters() ? " with these filters" : ""}` +
+      `${activeFilters() ? " with these filters" : ""}` +
       ".</div>"
     );
   const cellsOf = (row) => row.cells || row;
@@ -363,13 +347,13 @@ function tablePanel(res, dateTxt) {
     sort = validSort(ReportsState.S.tableSort, ReportsState.S.screen);
   const rows = orderedRows(res, sort, (message) => {
     ReportsState.S.reportNotice = message;
-    dep_A11Y.notify(message);
+    A11Y.notify(message);
   });
   return (
     '<div class="tw"><table class="rep"><caption class="sr-only">' +
-    `${dep_esc(ReportsState.S.rep?.r?.label || "Report")}` +
+    `${esc(ReportsState.S.rep?.r?.label || "Report")}` +
     " · " +
-    `${dep_esc(dateTxt)}` +
+    `${esc(dateTxt)}` +
     "</caption><thead><tr>" +
     "".concat(
       res.cols
@@ -382,7 +366,7 @@ function tablePanel(res, dateTxt) {
             '"><button class="sort-button" data-report-sort="' +
             `${ci}` +
             '">' +
-            `${dep_esc(h)}` +
+            `${esc(h)}` +
             "" +
             `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
             "</button></th>",
@@ -414,7 +398,7 @@ function tablePanel(res, dateTxt) {
     "\n    " +
     "".concat(res.total ? `<tr class="total">${res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join("")}</tr>` : "") +
     "\n  </tbody></table></div>" +
-    `${res.note ? `<div class="panel-b small">${dep_esc(res.note)}</div>` : ""}` +
+    `${res.note ? `<div class="panel-b small">${esc(res.note)}</div>` : ""}` +
     ""
   );
 }
@@ -424,9 +408,9 @@ function drillPanel() {
     list = d.ids.map((n) => ReportsState.S.M.byNo[n]).filter(Boolean);
   return (
     '<div class="panel" id="drill"><div class="panel-h"><div><h2>' +
-    `${dep_esc(d.title)}` +
+    `${esc(d.title)}` +
     '</h2><div class="sub">' +
-    `${dep_plural(list.length, "case")}` +
+    `${plural(list.length, "case")}` +
     '</div></div>\n    <button class="btn" data-act="closeDrill">Close</button' +
     "></div>" +
     `${caseTable(list)}` +
@@ -444,27 +428,27 @@ function caseTable(list) {
         .map(
           (c) =>
             '<tr><td><button class="linkish" data-case="' +
-            `${dep_esc(c.number)}` +
+            `${esc(c.number)}` +
             '">' +
-            `${dep_esc(c.number)}` +
+            `${esc(c.number)}` +
             '</button> <button class="linkish" data-writer="' +
-            `${dep_esc(c.number)}` +
+            `${esc(c.number)}` +
             '">Open in Writer</button></td><td>' +
-            `${dep_esc(c.address)}` +
+            `${esc(c.address)}` +
             "</td>\n      <td>" +
-            `${dep_esc(dep_areaLabel(dep_areaKey(c)))}` +
+            `${esc(areaLabel(areaKey(c)))}` +
             '</td><td><span class="st st-' +
-            `${dep_esc(c.status)}` +
+            `${esc(c.status)}` +
             '">' +
-            `${dep_esc(c.status)}` +
+            `${esc(c.status)}` +
             '</span></td><td class="n">' +
-            `${dep_esc(dep_fmtDate(c.opened))}` +
+            `${esc(fmtDate(c.opened))}` +
             "</td>\n      <td>" +
-            `${dep_esc(c.inspector)}` +
+            `${esc(c.inspector)}` +
             "</td><td>" +
-            "".concat(c.ownerKey ? `<button class="linkish" data-owner="${dep_esc(c.ownerKey)}">${dep_esc(c.owner)}</button>` : dep_esc(c.owner)) +
+            "".concat(c.ownerKey ? `<button class="linkish" data-owner="${esc(c.ownerKey)}">${esc(c.owner)}</button>` : esc(c.owner)) +
             "</td><td>" +
-            `${dep_esc(c.integrity?.label || "Shared integrity not checked")}` +
+            `${esc(c.integrity?.label || "Shared integrity not checked")}` +
             "</td></tr>",
         )
         .join(""),
@@ -482,11 +466,11 @@ function mapPanel(r, res) {
       : ReportsState.S.areas && ReportsState.S.areas.districts && ReportsState.S.M.distField;
   return (
     '<div class="legend">' +
-    "".concat(dep_STATUSES.map((s) => `<span><i style="background:${dep_STATUS_COL[s]}"></i>${s}</span>`).join("")) +
+    "".concat(STATUSES.map((s) => `<span><i style="background:${STATUS_COL[s]}"></i>${s}</span>`).join("")) +
     "\n      <span>" +
-    `${dep_plural(pts.length, "case")}` +
+    `${plural(pts.length, "case")}` +
     " on the map" +
-    `${off ? ", " + dep_fmtNum(off) + " not located" : ""}` +
+    `${off ? ", " + fmtNum(off) + " not located" : ""}` +
     ".</span>\n      <span>" +
     "".concat(
       res.area && shade
@@ -502,7 +486,7 @@ function mapPanel(r, res) {
     `${ReportsState.S.basemap === "plain"}` +
     '">No labels</button></span></div>\n    <div id="map" role="region" aria-l' +
     'abel="Map of ' +
-    `${dep_esc(r.label)}` +
+    `${esc(r.label)}` +
     '"></div><details class="map-table-alternative"><summary>Table alternativ' +
     "e: all matching records, including unlocated cases</summary>" +
     `${tablePanel(res, r.label)}` +
@@ -526,7 +510,7 @@ function drawMap() {
     const res = ReportsState.S.rep.res,
       F = ReportsState.S.F;
     ReportsState.MAP = LF.map(el, { preferCanvas: true }).setView([43.0747, -89.3842], 12);
-    LF.tileLayer(dep_TILE[ReportsState.S.basemap], { maxZoom: 19, minZoom: 3, attribution: "City of Madison" }).addTo(ReportsState.MAP);
+    LF.tileLayer(TILE[ReportsState.S.basemap], { maxZoom: 19, minZoom: 3, attribution: "City of Madison" }).addTo(ReportsState.MAP);
     const fc = F.areaType === "district" ? ReportsState.S.areas && ReportsState.S.areas.districts : ReportsState.S.areas && ReportsState.S.areas.zips;
     const field = F.areaType === "district" ? ReportsState.S.M.distField : ReportsState.S.M.zipField;
     if (fc && field && res.area) {
@@ -538,7 +522,7 @@ function drawMap() {
       );
       LF.geoJSON(fc, {
         style: (f) => {
-          const id = dep_areaIdOf(f, field),
+          const id = areaIdOf(f, field),
             n = res.area[id] || 0,
             picked = F.areas.indexOf(id) >= 0;
           return {
@@ -549,8 +533,8 @@ function drawMap() {
           };
         },
         onEachFeature: (f, l) => {
-          const id = dep_areaIdOf(f, field);
-          l.bindTooltip(dep_esc(dep_areaLabel(id) + ": " + dep_fmtNum(res.area[id] || 0)), { sticky: true });
+          const id = areaIdOf(f, field);
+          l.bindTooltip(esc(areaLabel(id) + ": " + fmtNum(res.area[id] || 0)), { sticky: true });
           l.on("click", () => {
             toggleArea(id);
           });
@@ -559,8 +543,8 @@ function drawMap() {
     }
     const pts = res.points.filter((c) => c.located);
     pts.forEach((c) => {
-      LF.circleMarker([c.lat, c.lon], { radius: 6, color: "#fff", weight: 1.5, fillColor: dep_STATUS_COL[c.status] || "#4E6376", fillOpacity: 0.95 })
-        .bindTooltip(dep_esc(c.number + ", " + c.address + " (" + c.status + ")"))
+      LF.circleMarker([c.lat, c.lon], { radius: 6, color: "#fff", weight: 1.5, fillColor: STATUS_COL[c.status] || "#4E6376", fillOpacity: 0.95 })
+        .bindTooltip(esc(c.number + ", " + c.address + " (" + c.status + ")"))
         .on("click", () => {
           openCase(c.number);
         })
@@ -568,7 +552,7 @@ function drawMap() {
     });
     if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
   } catch (e) {
-    el.innerHTML = '<div class="empty">The map could not be drawn (' + dep_esc(e.message || e) + ").</div>";
+    el.innerHTML = '<div class="empty">The map could not be drawn (' + esc(e.message || e) + ").</div>";
   }
 }
 
@@ -577,7 +561,7 @@ function propertyHits(q) {
     .trim()
     .toUpperCase();
   if (!t) return [];
-  const pk = dep_normParcel(t);
+  const pk = normParcel(t);
   return ReportsState.S.M.cases.filter(
     (c) => (pk && c.parcelKey === pk) || c.number.toUpperCase() === t || (t.length >= 3 && c.address.toUpperCase().indexOf(t) >= 0),
   );
@@ -590,7 +574,7 @@ function openCase(no) {
   ReportsState.S.screen = "property";
   ReportsState.S.prop = { q: q, hits: propertyHits(q) };
   ReportsState.S.drill = null;
-  dep_render();
+  render();
   window.scrollTo(0, 0);
 }
 
@@ -600,12 +584,12 @@ function propertyView() {
   return (
     '<div class="panel"><div class="panel-b"><div class="search">\n      <inpu' +
     't id="pv-q" type="search" value="' +
-    `${dep_esc(p.q)}` +
+    `${esc(p.q)}` +
     '" placeholder="Parcel number, address or case number" aria-label="Parcel' +
     ' number, address or case number">\n      <button class="btn btn-primary" ' +
     'data-act="propGo">Find</button></div></div></div>\n    ' +
     "".concat(
-      hits == null ? "" : !hits.length ? `<div class="empty">No case matches &ldquo;${dep_esc(p.q)}&rdquo;.</div>` : hits.map(caseCard).join(""),
+      hits == null ? "" : !hits.length ? `<div class="empty">No case matches &ldquo;${esc(p.q)}&rdquo;.</div>` : hits.map(caseCard).join(""),
     ) +
     ""
   );
@@ -620,63 +604,61 @@ function caseCard(c) {
         '<span class="' +
         `${d.void ? "void" : ""}` +
         '">' +
-        `${dep_esc(d.label)}` +
+        `${esc(d.label)}` +
         "" +
-        `${d.revision ? " · revision " + dep_esc(d.revision.number) : ""}` +
+        `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
         "</span>" +
         `${d.superseded ? " (replaced)" : ""}` +
         "" +
-        `${d.revision ? " — " + dep_esc(d.revision.reason) : ""}` +
+        `${d.revision ? " — " + esc(d.revision.reason) : ""}` +
         "" +
-        `${d.void ? " (void" + (d.voidReason ? ": " + dep_esc(d.voidReason) : "") + ")" : ""}` +
+        `${d.void ? " (void" + (d.voidReason ? ": " + esc(d.voidReason) : "") + ")" : ""}` +
         "" +
-        `${d.by ? ' <span class="small">' + dep_esc(d.by) + "</span>" : ""}` +
+        `${d.by ? ' <span class="small">' + esc(d.by) + "</span>" : ""}` +
         "",
     }))
-    .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: dep_recordDay(n.at), t: "Record note: " + dep_esc(n.text) }))))
-    .concat(c.visits.map((v) => ({ d: v.date, t: "Reinspection" + (v.inspector ? ' <span class="small">' + dep_esc(v.inspector) + "</span>" : "") })))
+    .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + esc(n.text) }))))
+    .concat(c.visits.map((v) => ({ d: v.date, t: "Reinspection" + (v.inspector ? ' <span class="small">' + esc(v.inspector) + "</span>" : "") })))
     .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
   return (
     '<div class="card-case"><div class="cc-h"><div><h3>' +
-    `${dep_esc(c.address)}` +
+    `${esc(c.address)}` +
     '</h3><div class="small">Case ' +
-    `${dep_esc(c.number)}` +
+    `${esc(c.number)}` +
     ' <button class="linkish" data-writer="' +
-    `${dep_esc(c.number)}` +
+    `${esc(c.number)}` +
     '">Open in Writer</button>' +
-    `${c.description ? ", " + dep_esc(c.description) : ""}` +
+    `${c.description ? ", " + esc(c.description) : ""}` +
     '</div></div>\n      <div><span class="st st-' +
-    `${dep_esc(c.status)}` +
+    `${esc(c.status)}` +
     '">' +
-    `${dep_esc(c.status)}` +
+    `${esc(c.status)}` +
     '</span></div></div>\n    <div class="cc-meta">\n      <div><span>Parcel</s' +
     "pan>" +
-    `${dep_esc(c.parcel || "—")}` +
+    `${esc(c.parcel || "—")}` +
     "" +
     `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
     "</div>\n      <div><span>Alder district</span>" +
-    `${dep_esc(c.alderNow || "—")}` +
+    `${esc(c.alderNow || "—")}` +
     "" +
-    "".concat(c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + dep_esc(c.alderAtOpen) + " when opened)</span>" : "") +
+    "".concat(c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + esc(c.alderAtOpen) + " when opened)</span>" : "") +
     "</div>\n      <div><span>ZIP</span>" +
-    `${dep_esc(c.zip || "—")}` +
+    `${esc(c.zip || "—")}` +
     "</div>\n      <div><span>Building district</span>" +
-    `${dep_esc(c.building || "—")}` +
+    `${esc(c.building || "—")}` +
     "</div>\n      <div><span>Inspector</span>" +
-    `${dep_esc(c.inspector || "—")}` +
+    `${esc(c.inspector || "—")}` +
     "</div>\n      <div><span>Opened</span>" +
-    `${dep_esc(dep_fmtDate(c.opened))}` +
+    `${esc(fmtDate(c.opened))}` +
     "</div>\n      <div><span>Closed</span>" +
-    `${dep_esc(dep_fmtDate(c.closedOn))}` +
+    `${esc(fmtDate(c.closedOn))}` +
     "</div>\n      <div><span>Owner</span>" +
-    "".concat(
-      c.ownerKey ? `<button class="linkish" data-owner="${dep_esc(c.ownerKey)}">${dep_esc(c.owner || "—")}</button>` : dep_esc(c.owner || "—"),
-    ) +
+    "".concat(c.ownerKey ? `<button class="linkish" data-owner="${esc(c.ownerKey)}">${esc(c.owner || "—")}</button>` : esc(c.owner || "—")) +
     "</div>\n      <div><span>Mailing address</span>" +
-    `${dep_esc(c.ownerAddr.join(", ") || "—")}` +
+    `${esc(c.ownerAddr.join(", ") || "—")}` +
     '</div>\n    </div>\n    <ul class="timeline">' +
     "".concat(
-      ev.map((e) => `<li><span class="d">${dep_esc(dep_fmtDate(e.d))}</span><span>${e.t}</span></li>`).join("") ||
+      ev.map((e) => `<li><span class="d">${esc(fmtDate(e.d))}</span><span>${e.t}</span></li>`).join("") ||
         '<li><span class="d"></span><span class="small">No documents issued</span></li>',
     ) +
     '</ul>\n    <div class="tw"><table class="rep"><thead><tr><th class="n">It' +
@@ -688,38 +670,38 @@ function caseCard(c) {
           const cits = c.citations.filter((x) => x.no === v.no);
           return (
             '<tr><td class="n">' +
-            `${dep_esc(v.no)}` +
+            `${esc(v.no)}` +
             "</td><td>" +
-            `${dep_esc(v.title)}` +
+            `${esc(v.title)}` +
             '<div class="muted">' +
-            `${dep_esc(v.sections.join(", "))}` +
+            `${esc(v.sections.join(", "))}` +
             "</div></td><td>" +
-            `${dep_esc(v.typeLabel)}` +
+            `${esc(v.typeLabel)}` +
             "</td>\n        <td>" +
             "".concat(
               v.withdrawn
                 ? "Withdrawn — entered in error"
                 : v.done
-                  ? "Corrected " + dep_esc(dep_fmtDate(v.doneOn))
+                  ? "Corrected " + esc(fmtDate(v.doneOn))
                   : v.lastOutcome
-                    ? dep_esc(outc[v.lastOutcome] || v.lastOutcome)
+                    ? esc(outc[v.lastOutcome] || v.lastOutcome)
                     : "Open",
             ) +
             '</td><td class="n">' +
-            `${dep_fmtNum(v.visits)}` +
+            `${fmtNum(v.visits)}` +
             "</td>\n        <td>" +
             "".concat(
               cits
                 .map(
                   (x) =>
                     "" +
-                    `${dep_esc(x.num)}` +
+                    `${esc(x.num)}` +
                     ' <span class="muted">' +
-                    `${dep_esc(dep_fmtDate(x.issued))}` +
+                    `${esc(fmtDate(x.issued))}` +
                     ", " +
-                    `${dep_esc(x.ordinance)}` +
+                    `${esc(x.ordinance)}` +
                     ", " +
-                    `${dep_esc(dep_fmtMoney(x.amount))}` +
+                    `${esc(fmtMoney(x.amount))}` +
                     "</span>",
                 )
                 .join("<br>") || "—",
@@ -735,7 +717,7 @@ function caseCard(c) {
 
 function ownerView() {
   const o = ReportsState.S.own,
-    g = dep_groupBy(
+    g = groupBy(
       ReportsState.S.M.cases.filter((c) => c.ownerKey),
       (c) => c.ownerKey,
     );
@@ -743,13 +725,13 @@ function ownerView() {
     .trim()
     .toUpperCase();
   const matches = q
-    ? Array.from(g.keys()).filter((k) => k.indexOf(dep_normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0))
+    ? Array.from(g.keys()).filter((k) => k.indexOf(normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0))
     : [];
   const sel = o.key && g.get(o.key);
   return (
     '<div class="panel"><div class="panel-b"><div class="search">\n      <inpu' +
     't id="ow-q" type="search" value="' +
-    `${dep_esc(o.q)}` +
+    `${esc(o.q)}` +
     '" placeholder="Owner name or mailing address" aria-label="Owner name or ' +
     'mailing address">\n      <button class="btn btn-primary" data-act="ownGo"' +
     ">Find</button></div>\n    " +
@@ -764,32 +746,32 @@ function ownerView() {
                 .map(
                   (k) =>
                     '<tr><td><button class="linkish" data-owner="' +
-                    `${dep_esc(k)}` +
+                    `${esc(k)}` +
                     '">' +
-                    `${dep_esc(dep_ownerKeyLabel(k))}` +
+                    `${esc(ownerKeyLabel(k))}` +
                     "</button></td><td>" +
-                    `${dep_esc(dep_uniq(g.get(k).map((c) => c.owner)).join("; "))}` +
+                    `${esc(uniq(g.get(k).map((c) => c.owner)).join("; "))}` +
                     '</td><td class="n">' +
-                    `${dep_fmtNum(g.get(k).length)}` +
+                    `${fmtNum(g.get(k).length)}` +
                     "</td></tr>",
                 )
                 .join(""),
             ) +
             "\n      </tbody></table></div>"
-          : `<div class="empty">No owner matches &ldquo;${dep_esc(o.q)}&rdquo;.</div>`
+          : `<div class="empty">No owner matches &ldquo;${esc(o.q)}&rdquo;.</div>`
         : "",
     ) +
     "\n    </div></div>\n    " +
     "".concat(
       sel
         ? '<div class="panel"><div class="panel-h"><div><h2>' +
-            `${dep_esc(dep_ownerKeyLabel(o.key))}` +
+            `${esc(ownerKeyLabel(o.key))}` +
             '</h2>\n        <div class="sub">' +
-            `${dep_plural(sel.length, "case")}` +
+            `${plural(sel.length, "case")}` +
             " at " +
-            `${dep_plural(dep_uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties")}` +
+            `${plural(uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties")}` +
             ". Owner names seen: " +
-            `${dep_esc(dep_uniq(sel.map((c) => c.owner)).join("; "))}` +
+            `${esc(uniq(sel.map((c) => c.owner)).join("; "))}` +
             '</div></div>\n        <button class="btn" data-act="useOwner">Filter the ' +
             "reports to this owner</button></div>\n      " +
             `${caseTable(sel)}` +
@@ -807,7 +789,7 @@ function dataView() {
   const unlocated = M.counted.filter((c) => !c.located);
   const li = (l) =>
     l.length
-      ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${dep_esc(s)}</li>`).join("")}` + "</ul>"
+      ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${esc(s)}</li>`).join("")}` + "</ul>"
       : "";
   const why = (c) =>
     !c.parcel
@@ -826,26 +808,26 @@ function dataView() {
     "ted case before rebuilding; rebuilding does not repair history. Refresh " +
     'Reports afterward.</p><details id="report-proof"><summary>Record proof a' +
     'nd excluded files</summary>\n    <ul class="defs">\n      <li><b>' +
-    `${dep_plural(x.summaries.length, "case summary", "case summaries")}` +
+    `${plural(x.summaries.length, "case summary", "case summaries")}` +
     "</b> from " +
-    `${dep_esc(x.caseDir)}` +
+    `${esc(x.caseDir)}` +
     "\\" +
-    `${dep_esc(dep_SUMMARY_DIR)}` +
+    `${esc(SUMMARY_DIR)}` +
     ", read " +
-    `${dep_esc(dep_fmtDate(String(x.readAt).slice(0, 10)))}` +
+    `${esc(fmtDate(String(x.readAt).slice(0, 10)))}` +
     " " +
-    `${dep_esc(String(x.readAt).slice(11, 16))}` +
+    `${esc(String(x.readAt).slice(11, 16))}` +
     ".\n        " +
-    `${dep_fmtNum(M.cases.length - M.counted.length)}` +
+    `${fmtNum(M.cases.length - M.counted.length)}` +
     " of them have no issued notice yet and are not counted.</li>\n      <li><" +
     "b>" +
-    `${dep_plural(x.missing.length, "case file")}` +
+    `${plural(x.missing.length, "case file")}` +
     " with no summary.</b> " +
     `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
     "" +
     `${li(x.missing)}` +
     "</li>\n      <li><b>" +
-    `${dep_plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
+    `${plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
     ".</b> Different from the exact case revision, missing its revision, or w" +
     "ritten in an earlier summary format. Excluded from current totals; rebui" +
     "ld the reporting index in Writer." +
@@ -853,23 +835,23 @@ function dataView() {
     "</li>\n      " +
     "".concat(
       x.unreadable.length
-        ? "<li><b>" + `${dep_plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` + ".</b>" + `${li(x.unreadable)}` + "</li>"
+        ? "<li><b>" + `${plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` + ".</b>" + `${li(x.unreadable)}` + "</li>"
         : "",
     ) +
     "\n      <li><b>" +
-    `${dep_plural(unlocated.length, "case")}` +
+    `${plural(unlocated.length, "case")}` +
     " not located on the map.</b>" +
     `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
     "</li>\n      " +
-    "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${dep_esc(ReportsState.S.parcelNote)}</li>` : "") +
+    "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${esc(ReportsState.S.parcelNote)}</li>` : "") +
     "\n      <li><b>District outlines:</b> " +
     "".concat(
       a.districts
         ? M.distField
           ? "loaded" +
-            (a.districtsDate ? " (file dated " + dep_esc(dep_fmtDate(a.districtsDate)) + ")" : "") +
+            (a.districtsDate ? " (file dated " + esc(fmtDate(a.districtsDate)) + ")" : "") +
             "; the district number is read from the " +
-            dep_esc(M.distField) +
+            esc(M.distField) +
             " field"
           : "loaded, but no field reads as a district number, so districts are not shaded"
         : "not available",
@@ -883,18 +865,18 @@ function dataView() {
         : "not provided (optional)",
     ) +
     ".\n        " +
-    `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${dep_esc(n)}</div>`).join("")}` +
+    `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${esc(n)}</div>`).join("")}` +
     '</li>\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
     'anel-b"><details id="report-definitions"><summary>Data definitions</summ' +
     'ary><ul class="defs">\n    ' +
-    `${dep_DEFINITIONS.map((d) => `<li><b>${dep_esc(d[0])}.</b> ${dep_esc(d[1])}</li>`).join("")}` +
+    `${DEFINITIONS.map((d) => `<li><b>${esc(d[0])}.</b> ${esc(d[1])}</li>`).join("")}` +
     "\n  </ul></details></div></div>"
   );
 }
 
 function crc32(u) {
   let c = 0xffffffff;
-  for (let i = 0; i < u.length; i++) c = dep_CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
+  for (let i = 0; i < u.length; i++) c = CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
 
@@ -983,13 +965,13 @@ function sheetXml(rows, opt) {
               if (v == null || v === "") return "";
               if (typeof v === "number") return isFinite(v) ? `<c r="${r}"><v>${v}</v></c>` : "";
               if (typeof v === "object") {
-                if (v.d) return dep_validISO(v.d) ? `<c r="${r}" s="1"><v>${dep_excelDate(v.d)}</v></c>` : "";
+                if (v.d) return validISO(v.d) ? `<c r="${r}" s="1"><v>${excelDate(v.d)}</v></c>` : "";
                 if (v.m != null) return isFinite(v.m) ? `<c r="${r}" s="3"><v>${v.m}</v></c>` : "";
                 if (v.f != null) return isFinite(v.f) ? `<c r="${r}" s="4"><v>${Math.round(v.f * 10) / 10}</v></c>` : "";
                 return "";
               }
               const bold = (opt.header && ri === 0) || (opt.boldRows && opt.boldRows.indexOf(ri) >= 0);
-              return `<c r="${r}" t="inlineStr"${bold ? ' s="2"' : ""}><is><t xml:space="preserve">${dep_xesc(v)}</t></is></c>`;
+              return `<c r="${r}" t="inlineStr"${bold ? ' s="2"' : ""}><is><t xml:space="preserve">${xesc(v)}</t></is></c>`;
             })
             .join(""),
         ) +
@@ -1068,7 +1050,7 @@ function workbook(sheets) {
         ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
           'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
           'ionships"><sheets>') +
-        named.map((s, i) => `<sheet name="${dep_xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
+        named.map((s, i) => `<sheet name="${xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
         "</sheets></workbook>",
     },
     {
@@ -1092,7 +1074,7 @@ function workbook(sheets) {
           '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
           'ips/styles" Target="styles.xml"/></Relationships>'),
     },
-    { name: "xl/styles.xml", data: dep_STYLES },
+    { name: "xl/styles.xml", data: STYLES },
   ].concat(named.map((s, i) => ({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: sheetXml(s.rows, s.opt) })));
   return { bytes: zipStore(files), names: named.map((s) => s.name) };
 }
@@ -1100,8 +1082,8 @@ function workbook(sheets) {
 function exportSheets() {
   const M = ReportsState.S.M,
     F = ReportsState.S.F;
-  const cases = M.counted.filter((c) => dep_caseOk(c, F) && dep_inPeriod(c.opened, F));
-  const A = (c) => dep_areaLabel(dep_areaKey(c));
+  const cases = M.counted.filter((c) => caseOk(c, F) && inPeriod(c.opened, F));
+  const A = (c) => areaLabel(areaKey(c));
   const casesRows = [
     [
       "Case number",
@@ -1136,13 +1118,13 @@ function exportSheets() {
       c.alderAtOpen ? +c.alderAtOpen : null,
       c.building ? +c.building : null,
       c.inspector,
-      dep_D(c.opened),
-      dep_D(c.noticeIssued),
+      D(c.opened),
+      D(c.noticeIssued),
       c.status,
-      dep_D(c.closedOn),
+      D(c.closedOn),
       c.owner,
       c.ownerAddr.join(", "),
-      dep_ownerKeyLabel(c.ownerKey),
+      ownerKeyLabel(c.ownerKey),
       c.violations.filter((v) => !v.withdrawn).length,
       c.violations.filter((v) => !v.done && !v.withdrawn).length,
       c.citations.length,
@@ -1175,34 +1157,34 @@ function exportSheets() {
   ];
   cases.forEach((c) =>
     c.violations
-      .filter((v) => dep_violOk(v, F))
+      .filter((v) => violOk(v, F))
       .forEach((v) =>
         vRows.push([
           c.number,
           c.address,
           A(c),
-          dep_numOr(v.no),
+          numOr(v.no),
           v.title,
           v.typeLabel,
           v.typeHow,
           v.sections.join(", "),
-          dep_D(c.opened),
-          dep_D(v.due),
+          D(c.opened),
+          D(v.due),
           v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
-          dep_D(v.doneOn),
-          c.caseType !== "snow-10.28" && v.done ? dep_daysBetween(c.opened, v.doneOn) : null,
+          D(v.doneOn),
+          c.caseType !== "snow-10.28" && v.done ? daysBetween(c.opened, v.doneOn) : null,
           v.lastOutcome,
           v.visits,
           v.cited,
           c.inspector,
-          dep_ownerKeyLabel(c.ownerKey),
+          ownerKeyLabel(c.ownerKey),
         ]),
       ),
   );
   const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
   cases.forEach((c) =>
     c.visits.forEach((vi) =>
-      (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), dep_D(vi.date), vi.inspector, dep_numOr(r.no), r.oc])),
+      (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), D(vi.date), vi.inspector, numOr(r.no), r.oc])),
     ),
   );
   const citRows = [
@@ -1227,20 +1209,20 @@ function exportSheets() {
     ],
   ];
   M.counted
-    .filter((c) => dep_caseOk(c, F, { noViol: true, noInspector: true }))
+    .filter((c) => caseOk(c, F, { noViol: true, noInspector: true }))
     .forEach((c) =>
       c.citations.forEach((x) => {
-        if (!dep_inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
+        if (!inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
         citRows.push([
           x.num,
           c.number,
           c.address,
           A(c),
-          dep_numOr(x.no),
+          numOr(x.no),
           x.ordinance,
           x.desc,
-          dep_D(x.issued),
-          dep_D(x.courtDate),
+          D(x.issued),
+          D(x.courtDate),
           x.amount == null ? null : { m: x.amount },
           x.tier,
           x.by,
@@ -1254,21 +1236,21 @@ function exportSheets() {
     );
   const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
   M.counted
-    .filter((c) => dep_caseOk(c, F, { noInspector: true }))
+    .filter((c) => caseOk(c, F, { noInspector: true }))
     .forEach((c) =>
       c.referrals.forEach((r) => {
-        if (!dep_inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
-        refRows.push([c.number, c.address, A(c), dep_D(r.issued), r.by, r.owner, (r.ownerAddr || []).join(", "), dep_ownerKeyLabel(r.ownerKey)]);
+        if (!inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
+        refRows.push([c.number, c.address, A(c), D(r.issued), r.by, r.owner, (r.ownerAddr || []).join(", "), ownerKeyLabel(r.ownerKey)]);
       }),
     );
   const about = [
     ["Building Inspection reports"],
     [],
-    ["Exported", dep_iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
-    ["Build", dep_BUILD],
+    ["Exported", iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
+    ["Build", BUILD],
     ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
-    ["Period", dep_fmtDate(F.from) + " to " + dep_fmtDate(F.to) + " (case opening date; issue date for citations and referrals)"],
-    ["As of (open-case reports)", dep_fmtDate(F.asOf)],
+    ["Period", fmtDate(F.from) + " to " + fmtDate(F.to) + " (case opening date; issue date for citations and referrals)"],
+    ["As of (open-case reports)", fmtDate(F.asOf)],
     [
       "Area",
       F.areaType === "zip" ? "ZIP code" : "Alder district, " + (F.boundary === "atOpen" ? "as it read when each case opened" : "current boundaries"),
@@ -1280,15 +1262,15 @@ function exportSheets() {
     ["Cases not located", M.counted.filter((c) => !c.located).length],
     [],
     ["Definitions"],
-  ].concat(dep_DEFINITIONS.map((d) => [d[0], d[1]]));
+  ].concat(DEFINITIONS.map((d) => [d[0], d[1]]));
   const correctionRows = [
     ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
   ];
   M.cases
-    .filter((c) => dep_caseOk(c, F))
+    .filter((c) => caseOk(c, F))
     .forEach((c) =>
       (c.summary.corrections || [])
-        .filter((r) => dep_inPeriod(dep_recordDay(r.at), F))
+        .filter((r) => inPeriod(recordDay(r.at), F))
         .forEach((r) =>
           (r.changes || []).forEach((x) =>
             correctionRows.push([
@@ -1299,8 +1281,8 @@ function exportSheets() {
               r.replaces,
               r.reason,
               x.label,
-              dep_humanCorrectionValue(x.before),
-              dep_humanCorrectionValue(x.after),
+              humanCorrectionValue(x.before),
+              humanCorrectionValue(x.after),
             ]),
           ),
         ),
@@ -1330,7 +1312,7 @@ function exportSheets() {
                 : x.fmt === "days"
                   ? { f: x.n }
                   : x.n;
-  dep_REPORTS.forEach((r) => {
+  REPORTS.forEach((r) => {
     const res = r.run(M, F);
     sheets.push({
       name: r.n + " " + r.label,
@@ -1338,7 +1320,7 @@ function exportSheets() {
       rows: [res.cols].concat(
         orderedRows(res, validSort(ReportsState.S.tableSort, r.id), (message) => {
           ReportsState.S.reportNotice = message;
-          dep_A11Y.notify(message);
+          A11Y.notify(message);
         }).map(({ row }) => (row.cells || row).map(conv)),
         res.total ? [res.total.map(conv)] : [],
       ),
@@ -1357,7 +1339,7 @@ function exportWorkbook() {
   const url = URL.createObjectURL(blob),
     a = document.createElement("a");
   a.href = url;
-  a.download = "Building Inspection reports " + dep_iso(new Date()) + ".xlsx";
+  a.download = "Building Inspection reports " + iso(new Date()) + ".xlsx";
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -1371,7 +1353,7 @@ function toggleArea(a) {
   else ReportsState.S.F.areas.push(a);
   ReportsState.S.savedId = "";
   ReportsState.S.drill = null;
-  dep_render();
+  render();
 }
 
 export {

@@ -1,135 +1,99 @@
-import { mailingMaxDay as dep_mailingMaxDay, recordDay as dep_recordDay, validCaseNumber as dep_validCaseNumber } from "../assets/shared.js";
+import { mailingMaxDay, recordDay, validCaseNumber } from "../assets/shared.js";
+import { checks, fmtDate, inspAt, parseTime, printJob, toast, validISO } from "./court_and_deposits.js";
+import { caseDetails, helperJSON, loadCaseFile, reindexReport, shell, sourceDocFor, stableJSON, storageReport } from "./workspace_shell.js";
+import { caseUnsaved, recipientPreview, saveDrafts, scheduleDraftSave, updateSaveStatus, validateAndStandardizeAddresses } from "./case_files.js";
 import {
-  checks as dep_checks,
-  fmtDate as dep_fmtDate,
-  inspAt as dep_inspAt,
-  parseTime as dep_parseTime,
-  printJob as dep_printJob,
-  toast as dep_toast,
-  validISO as dep_validISO,
-} from "./court_and_deposits.js";
-import {
-  caseDetails as dep_caseDetails,
-  helperJSON as dep_helperJSON,
-  loadCaseFile as dep_loadCaseFile,
-  reindexReport as dep_reindexReport,
-  shell as dep_shell,
-  sourceDocFor as dep_sourceDocFor,
-  stableJSON as dep_stableJSON,
-  storageReport as dep_storageReport,
-} from "./workspace_shell.js";
-import {
-  caseUnsaved as dep_caseUnsaved,
-  recipientPreview as dep_recipientPreview,
-  saveDrafts as dep_saveDrafts,
-  scheduleDraftSave as dep_scheduleDraftSave,
-  updateSaveStatus as dep_updateSaveStatus,
-  validateAndStandardizeAddresses as dep_validateAndStandardizeAddresses,
-} from "./case_files.js";
-import {
-  accelaFromShare as dep_accelaFromShare,
-  accelaTable as dep_accelaTable,
-  baseLookupAccept as dep_baseLookupAccept,
-  baseLookupPlan as dep_baseLookupPlan,
-  clearWalk as dep_clearWalk,
-  editableWalkItem as dep_editableWalkItem,
-  ensureWalkContext as dep_ensureWalkContext,
-  nextWalkItem as dep_nextWalkItem,
-  screenCases as dep_screenCases,
-  screenImport as dep_screenImport,
-  screenLibrary as dep_screenLibrary,
-  walkIdentity as dep_walkIdentity,
-  walkItemReady as dep_walkItemReady,
+  accelaFromShare,
+  accelaTable,
+  baseLookupAccept,
+  baseLookupPlan,
+  clearWalk,
+  editableWalkItem,
+  ensureWalkContext,
+  nextWalkItem,
+  screenCases,
+  screenImport,
+  screenLibrary,
+  walkIdentity,
+  walkItemReady,
 } from "./reinspection_walkthrough.js";
 import {
-  captureWork as dep_captureWork,
-  citationRecoveryPanel as dep_citationRecoveryPanel,
-  correctionDiffHTML as dep_correctionDiffHTML,
-  correctionEligibility as dep_correctionEligibility,
-  correctionPanel as dep_correctionPanel,
-  filingPanel as dep_filingPanel,
-  recordActionModal as dep_recordActionModal,
-  recordHistoryHTML as dep_recordHistoryHTML,
+  captureWork,
+  citationRecoveryPanel,
+  correctionDiffHTML,
+  correctionEligibility,
+  correctionPanel,
+  filingPanel,
+  recordActionModal,
+  recordHistoryHTML,
 } from "./issuance_and_corrections.js";
+import { publicationPanel, recoveryModal, restoreWorkControls, returnToWorksheet, unissuedVisitFor, worksheetFaults } from "./draft_recovery.js";
+import { preflightCase, sharedChangeModal } from "./language_catalog.js";
+import { citationReview, dueContext, dueDateSpacingConflicts, duePanel } from "./case_timeline.js";
+import { enhanceDialog, paginate, refreshSheet } from "./document_pagination.js";
 import {
-  publicationPanel as dep_publicationPanel,
-  recoveryModal as dep_recoveryModal,
-  restoreWorkControls as dep_restoreWorkControls,
-  returnToWorksheet as dep_returnToWorksheet,
-  unissuedVisitFor as dep_unissuedVisitFor,
-  worksheetFaults as dep_worksheetFaults,
-} from "./draft_recovery.js";
-import { preflightCase as dep_preflightCase, sharedChangeModal as dep_sharedChangeModal } from "./language_catalog.js";
-import {
-  citationReview as dep_citationReview,
-  dueContext as dep_dueContext,
-  dueDateSpacingConflicts as dep_dueDateSpacingConflicts,
-  duePanel as dep_duePanel,
-} from "./case_timeline.js";
-import { enhanceDialog as dep_enhanceDialog, paginate as dep_paginate, refreshSheet as dep_refreshSheet } from "./document_pagination.js";
-import {
-  A11Y as dep_A11Y,
-  ACC_COLS as dep_ACC_COLS,
-  ACC_LABEL as dep_ACC_LABEL,
-  CASEDIR_EXPECT as dep_CASEDIR_EXPECT,
-  COMMITTED as dep_COMMITTED,
-  DOC_TYPES as dep_DOC_TYPES,
-  EMAIL_KINDS as dep_EMAIL_KINDS,
-  LOOKUP_READY as dep_LOOKUP_READY,
-  MINDUE as dep_MINDUE,
-  OUTCOMES as dep_OUTCOMES,
-  SQL_COLUMNS as dep_SQL_COLUMNS,
-  accStatusEligible as dep_accStatusEligible,
-  accStr as dep_accStr,
-  blockers as dep_blockers,
-  ccList as dep_ccList,
-  checkAttr as dep_checkAttr,
-  checkTarget as dep_checkTarget,
-  citSelector as dep_citSelector,
-  clone as dep_clone,
-  daysBetween as dep_daysBetween,
-  deliveredByCitation as dep_deliveredByCitation,
-  distinctDues as dep_distinctDues,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docsFor as dep_docsFor,
-  doneItems as dep_doneItems,
-  draftDocFor as dep_draftDocFor,
-  draftReinspFor as dep_draftReinspFor,
-  dueItems as dep_dueItems,
-  emailList as dep_emailList,
-  esc as dep_esc,
-  eventsFor as dep_eventsFor,
-  frozenOf as dep_frozenOf,
-  globalCourtCopies as dep_globalCourtCopies,
-  initialCitations as dep_initialCitations,
-  insp as dep_insp,
-  isEffective as dep_isEffective,
-  isHistoryDoc as dep_isHistoryDoc,
-  isLLC as dep_isLLC,
-  isLocked as dep_isLocked,
-  iso as dep_iso,
-  itemLibraryKey as dep_itemLibraryKey,
-  itemSelector as dep_itemSelector,
-  kase as dep_kase,
-  markBlanks as dep_markBlanks,
-  navigation as dep_navigation,
-  newDocuments as dep_newDocuments,
-  ocOf as dep_ocOf,
-  openItems as dep_openItems,
-  recordHead as dep_recordHead,
-  recordIntegrity as dep_recordIntegrity,
-  reinsp as dep_reinsp,
-  reinspFor as dep_reinspFor,
-  snow as dep_snow,
-  structEditable as dep_structEditable,
-  summaryName as dep_summaryName,
-  uid as dep_uid,
-  unchecked as dep_unchecked,
+  A11Y,
+  ACC_COLS,
+  ACC_LABEL,
+  CASEDIR_EXPECT,
+  COMMITTED,
+  DOC_TYPES,
+  EMAIL_KINDS,
+  LOOKUP_READY,
+  MINDUE,
+  OUTCOMES,
+  SQL_COLUMNS,
+  accStatusEligible,
+  accStr,
+  blockers,
+  ccList,
+  checkAttr,
+  checkTarget,
+  citSelector,
+  clone,
+  daysBetween,
+  deliveredByCitation,
+  distinctDues,
+  doc,
+  docCase,
+  docsFor,
+  doneItems,
+  draftDocFor,
+  draftReinspFor,
+  dueItems,
+  emailList,
+  esc,
+  eventsFor,
+  frozenOf,
+  globalCourtCopies,
+  initialCitations,
+  insp,
+  isEffective,
+  isHistoryDoc,
+  isLLC,
+  isLocked,
+  iso,
+  itemLibraryKey,
+  itemSelector,
+  kase,
+  markBlanks,
+  navigation,
+  newDocuments,
+  ocOf,
+  openItems,
+  recordHead,
+  recordIntegrity,
+  reinsp,
+  reinspFor,
+  snow,
+  structEditable,
+  summaryName,
+  uid,
+  unchecked,
 } from "./app_core.js";
 import { app_languagediscoveryContext, app_savedworkContext } from "./app_view_contexts.js";
-import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
-import { specialType as dep_specialType } from "./new_documents.js";
+import { INSPECTORS } from "./data/inspectors.js";
+import { specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { documentHTML, citationFaces } from "./document_render.js";
 import { authFetch } from "./helper_transport.js";
@@ -138,14 +102,14 @@ import { documentSaveHTML } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 function openImportWorkspace(cid) {
-  const k = dep_kase(cid);
+  const k = kase(cid);
   if (!k) return;
   cancelCaseLookup();
-  dep_captureWork();
-  dep_preflightCase(cid, "continue existing case", () => {
-    const draft = dep_draftDocFor(cid),
-      visit = dep_draftReinspFor(cid) || dep_unissuedVisitFor(cid),
-      current = dep_sourceDocFor(cid);
+  captureWork();
+  preflightCase(cid, "continue existing case", () => {
+    const draft = draftDocFor(cid),
+      visit = draftReinspFor(cid) || unissuedVisitFor(cid),
+      current = sourceDocFor(cid);
     WriterState.state.modal = null;
     WriterState.state.picker = false;
     if (draft) {
@@ -163,7 +127,7 @@ function openImportWorkspace(cid) {
       WriterState.state.caseFilter = "all";
       WriterState.state.caseInspector = "";
     }
-    dep_saveDrafts();
+    saveDrafts();
     render();
   });
 }
@@ -178,7 +142,7 @@ function lookupCard() {
     '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
     'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
     'holder="CB2026-000-00000" value="' +
-    `${dep_esc(WriterState.WORK.entry["lookup-number"] || "")}` +
+    `${esc(WriterState.WORK.entry["lookup-number"] || "")}` +
     '" ' +
     `${WriterState.LOOKUP_BUSY ? "readonly" : ""}` +
     '></label>\n    <button class="btn btn-primary" type="submit" ' +
@@ -197,7 +161,7 @@ function lookupCard() {
     "e initial inspection opens a draft notice when all checks pass. Multiple" +
     " or later results open for review. Your search and review can be saved f" +
     'or later.</p>\n  <div role="status" aria-live="polite">' +
-    "".concat(WriterState.LOOKUP_ERROR ? `<div class="banner alert"><div>${dep_esc(WriterState.LOOKUP_ERROR)}</div></div>` : "") +
+    "".concat(WriterState.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(WriterState.LOOKUP_ERROR)}</div></div>` : "") +
     "</div>\n  </div></div>"
   );
 }
@@ -213,16 +177,16 @@ function sqlReport(result, number) {
   if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || result.source?.kind !== "sql")
     throw new Error("Unexpected case response. Nothing was imported.");
   if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
-  const keys = Object.keys(dep_ACC_COLS);
-  const grid = [keys.map((k) => dep_ACC_LABEL(k))];
+  const keys = Object.keys(ACC_COLS);
+  const grid = [keys.map((k) => ACC_LABEL(k))];
   const warnings = [];
   result.rows.forEach((row) => {
-    if (!row || dep_accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
-    if (/^yes$/i.test(dep_accStr(row.IndividualLandmark)) && !dep_accStr(row.Landmark))
+    if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
+    if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
       throw new Error(
         "The database marks this property as an individual landmark but supplies " + "no landmark name. Correct the source record before importing.",
       );
-    if (/^yes$/i.test(dep_accStr(row.HistoricDistrict)) && !dep_accStr(row.HistoricDistrictName))
+    if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
       throw new Error("The database marks this property as historic but supplies no district na" + "me. Correct the source record before importing.");
     grid.push(
       keys.map((k) =>
@@ -232,21 +196,21 @@ function sqlReport(result, number) {
             ? ""
             : k === "date" && /T00:00:00$/.test(row.InspectionDate || "")
               ? row.InspectionDate.slice(0, 10)
-              : (row[dep_SQL_COLUMNS[k]] ?? ""),
+              : (row[SQL_COLUMNS[k]] ?? ""),
       ),
     );
   });
-  const table = dep_accelaTable(grid);
+  const table = accelaTable(grid);
   if (table.errors.length) throw new Error(table.errors.join(" "));
   if (table.cases.length !== 1) throw new Error("More than one case was returned. Nothing was imported.");
   const c = table.cases[0],
-    eligible = c.rows.filter((r) => r.selectable && dep_accStatusEligible(r.status, r.type));
+    eligible = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
   // No arbitrary choice when several completed inspections are available.
   const sel = eligible.length === 1 ? eligible[0].i : null;
   if (eligible.length > 1) warnings.push("Several completed inspections are available. Select the inspection you are documenting.");
   return {
     fileName: "Case lookup · " + number,
-    source: dep_clone(result.source),
+    source: clone(result.source),
     errors: [],
     notes: table.notes.concat(warnings),
     cases: table.cases,
@@ -258,33 +222,33 @@ function sqlReport(result, number) {
 }
 
 async function checkLookupShared(acc, isCurrent = () => true) {
-  const number = dep_accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
-  const listing = await dep_helperJSON("/cases/list");
+  const number = accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
+  const listing = await helperJSON("/cases/list");
   if (!isCurrent()) return false;
   if (!Array.isArray(listing.files)) throw new Error("The shared case list could not be checked. Retry when the shared folder is available.");
   const tail = (" - " + number + ".json").toLowerCase();
   const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
   if (hits.length > 1)
     throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
-  const locals = WriterState.CASES.filter((k) => dep_accStr(k.number).toUpperCase() === number);
+  const locals = WriterState.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
   if (locals.length > 1 || locals.some((k) => k.number !== number))
     throw new Error("The local workspace has duplicate or differently capitalized case number" + "s. Resolve the existing record before importing.");
   if (hits.length) {
-    const result = await dep_helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
+    const result = await helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
     if (!isCurrent()) return false;
-    if (dep_accStr(result.file?.case?.number).toUpperCase() !== number)
+    if (accStr(result.file?.case?.number).toUpperCase() !== number)
       throw new Error("The shared filename and case number disagree. The existing record has been kept.");
     const keep = { screen: WriterState.state.screen, docId: WriterState.state.docId, dirty: WriterState.DIRTY };
     let loaded;
     try {
-      loaded = dep_loadCaseFile(JSON.stringify(result.file));
+      loaded = loadCaseFile(JSON.stringify(result.file));
     } finally {
       WriterState.state.screen = keep.screen;
       WriterState.state.docId = keep.docId;
       WriterState.DIRTY = keep.dirty;
     }
     if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
-    dep_COMMITTED.set(dep_summaryName(result.file.case), result);
+    COMMITTED.set(summaryName(result.file.case), result);
   }
   acc.shareError = "";
   return true;
@@ -292,19 +256,19 @@ async function checkLookupShared(acc, isCurrent = () => true) {
 
 function lookupPlanSignature(acc) {
   const p = accelaPlan(acc);
-  return dep_stableJSON({
+  return stableJSON({
     caseNumber: p.c?.number,
-    documents: p.existing ? dep_docsFor(p.existing.id) : [],
-    visits: p.existing ? dep_reinspFor(p.existing.id) : [],
+    documents: p.existing ? docsFor(p.existing.id) : [],
+    visits: p.existing ? reinspFor(p.existing.id) : [],
     sel: acc.sel,
     date: p.date,
     time: p.time,
     next: p.next,
-    existing: p.existing ? dep_caseDetails(p.existing) : null,
+    existing: p.existing ? caseDetails(p.existing) : null,
     diff: p.diff,
     blockers: p.blockers,
     warnings: p.warnings,
-    head: p.existing ? dep_eventsFor(p.existing.id) : [],
+    head: p.existing ? eventsFor(p.existing.id) : [],
   });
 }
 
@@ -314,21 +278,21 @@ function lookupCanOpen(acc) {
   // R37: a Record Category of "Snow Removal" advances a new case directly to the 10.28 snow citation draft.
   return (
     !p.existing &&
-    (p.next === "notice" || (p.next === "snow" && dep_snow.matchesImport(p.row))) &&
+    (p.next === "notice" || (p.next === "snow" && snow.matchesImport(p.row))) &&
     !p.blockers.length &&
     !p.warnings.length &&
-    c.rows.filter((r) => r.selectable && dep_accStatusEligible(r.status, r.type)).length === 1 &&
+    c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type)).length === 1 &&
     p.row?.typeKey === "initial" &&
-    dep_accStatusEligible(p.row.status, p.row.type)
+    accStatusEligible(p.row.status, p.row.type)
   );
 }
 
 async function findDatabaseCase() {
   if (WriterState.LOOKUP_BUSY) return;
-  dep_captureWork();
-  const number = dep_accStr(WriterState.WORK.entry["lookup-number"]).toUpperCase();
+  captureWork();
+  const number = accStr(WriterState.WORK.entry["lookup-number"]).toUpperCase();
   WriterState.WORK.entry["lookup-number"] = number;
-  if (!dep_validCaseNumber(number)) {
+  if (!validCaseNumber(number)) {
     WriterState.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
     render();
     return;
@@ -342,7 +306,7 @@ async function findDatabaseCase() {
   render();
   const timer = setTimeout(() => controller.abort(), 45000);
   try {
-    if (!(await dep_saveDrafts()))
+    if (!(await saveDrafts()))
       throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
     if (!active()) return;
     const response = await authFetch("/case-lookup", {
@@ -362,17 +326,17 @@ async function findDatabaseCase() {
     }
     if (!active()) return;
     WriterState.state.acc = acc;
-    WriterState.WORK.acc = dep_clone(acc);
-    if (!(await dep_saveDrafts()))
+    WriterState.WORK.acc = clone(acc);
+    if (!(await saveDrafts()))
       throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
     if (active() && !acc.shareError && lookupCanOpen(acc)) {
-      dep_LOOKUP_READY.add(acc);
+      LOOKUP_READY.add(acc);
       try {
         acceptAccela();
       } finally {
-        dep_LOOKUP_READY.delete(acc);
+        LOOKUP_READY.delete(acc);
       }
-    } else if (active()) dep_toast("Case retrieved — review the inspection and details");
+    } else if (active()) toast("Case retrieved — review the inspection and details");
   } catch (error) {
     if (active())
       WriterState.LOOKUP_ERROR =
@@ -384,7 +348,7 @@ async function findDatabaseCase() {
     if (serial === WriterState.LOOKUP_SERIAL) {
       WriterState.LOOKUP_BUSY = false;
       WriterState.LOOKUP_CONTROLLER = null;
-      await dep_saveDrafts();
+      await saveDrafts();
       render();
     }
   }
@@ -404,61 +368,61 @@ async function confirmDatabaseCase() {
     if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
       if (!(await checkLookupShared(acc, active)) || !active()) return;
     } else {
-      await dep_accelaFromShare(active);
+      await accelaFromShare(active);
       if (!active()) return;
     }
     if (before !== lookupPlanSignature(acc)) {
-      dep_toast("The shared record changed. Review the refreshed details and confirm again.");
+      toast("The shared record changed. Review the refreshed details and confirm again.");
       return;
     }
-    dep_LOOKUP_READY.add(acc);
+    LOOKUP_READY.add(acc);
     try {
       acceptAccela();
     } finally {
-      dep_LOOKUP_READY.delete(acc);
+      LOOKUP_READY.delete(acc);
     }
   } catch (e) {
     if (active()) acc.shareError = e.message;
   } finally {
     if (serial === WriterState.LOOKUP_SERIAL) {
       WriterState.LOOKUP_BUSY = false;
-      await dep_saveDrafts();
+      await saveDrafts();
       render();
     }
   }
 }
 
 function accelaPlan(acc) {
-  const p = dep_baseLookupPlan(acc);
+  const p = baseLookupPlan(acc);
   if (acc) {
     if (acc.shareError) p.blockers.push(acc.shareError);
-    if (p.existing && dep_docsFor(p.existing.id).some((d) => d.pendingIssue || d.pendingAmendment))
+    if (p.existing && docsFor(p.existing.id).some((d) => d.pendingIssue || d.pendingAmendment))
       p.blockers.push("Confirm the pending document save on this case before importing new details.");
   }
   return p;
 }
 
 function acceptAccela() {
-  if ((WriterState.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !dep_LOOKUP_READY.has(WriterState.state.acc)) {
-    dep_toast("Check the shared record before confirming this lookup.");
+  if ((WriterState.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !LOOKUP_READY.has(WriterState.state.acc)) {
+    toast("Check the shared record before confirming this lookup.");
     return null;
   }
   const direct = WriterState.state.acc?.source?.kind === "sql";
-  const result = dep_baseLookupAccept();
+  const result = baseLookupAccept();
   if (result && direct) {
     delete WriterState.WORK.entry["lookup-number"];
-    dep_scheduleDraftSave();
+    scheduleDraftSave();
   }
   return result;
 }
 
 function caseCheckFields(d) {
-  if (dep_isLocked(d) || d.correction || d.type !== "notice") return "";
+  if (isLocked(d) || d.correction || d.type !== "notice") return "";
   return (
     '<details class="card case-check-fields no-print"><summary>Property recor' +
     'd details</summary><div class="card-b"><label class="f"><span>Parcel num' +
     'ber</span><input data-case="parcel" value="' +
-    `${dep_esc(dep_docCase(d).parcel || "")}` +
+    `${esc(docCase(d).parcel || "")}` +
     '" aria-label="Parcel number"></label></div></details>'
   );
 }
@@ -467,14 +431,14 @@ function attachCheckTargets(d, c) {
   if (c.ok || c.targets?.length) return c;
   const t = c.t.toLowerCase(),
     targets = [],
-    add = (s, l, a) => targets.push(dep_checkTarget(s, l, a));
+    add = (s, l, a) => targets.push(checkTarget(s, l, a));
   const visit = () => add("#btn-editvisit", "Review inspection", "visit");
   if (/parcel/.test(t)) add('[data-case="parcel"]', "Parcel number");
   else if (/registered agent/.test(t)) ["name", "addr", "city"].forEach((f) => add('[data-agent="' + f + '"]', "Registered agent " + f, "contacts"));
   else if (/mailing block/.test(t)) add('[data-case="ownerBlock"]', "Mailing block");
   else if (/case number/.test(t)) {
-    if (!dep_validCaseNumber(dep_docCase(d).number)) add('[data-case="number"]', "Case number");
-    if (!dep_docCase(d).address) add('[data-case="address"]', "Property address");
+    if (!validCaseNumber(docCase(d).number)) add('[data-case="number"]', "Case number");
+    if (!docCase(d).address) add('[data-case="address"]', "Property address");
   } else if (/signing/.test(t)) add('[data-doc="inspectorId"]', "Signing inspector");
   else if (/explain the error/.test(t)) add("#correction-reason", "Correction reason");
   else if (/amendment instructions/.test(t)) add("#correction-external", "Amendment reference");
@@ -482,8 +446,8 @@ function attachCheckTargets(d, c) {
   else if (/mailing date|mailed date/.test(t)) add('[data-doc="mailed"]', "Mailed date");
   else if (/inspection|outcome|result date|compliance date|marked corrected/.test(t) && d.fromReinspId && !d.correction) visit();
   else if (/inspection date/.test(t)) add(d.inspDate !== undefined ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date");
-  else if (/three distinct due dates/.test(t)) dep_dueItems(d).forEach((i) => add(dep_itemSelector(i.id, "due"), "Item " + i.no + " due date"));
-  else if (/duplicate items|only once/.test(t)) d.items.forEach((i) => add('[data-del="' + dep_checkAttr(i.id) + '"]', "Item " + i.no));
+  else if (/three distinct due dates/.test(t)) dueItems(d).forEach((i) => add(itemSelector(i.id, "due"), "Item " + i.no + " due date"));
+  else if (/duplicate items|only once/.test(t)) d.items.forEach((i) => add('[data-del="' + checkAttr(i.id) + '"]', "Item " + i.no));
   else if (/citation|deposit|court|officer/.test(t)) {
     d.items
       .filter((i) => i.cite && !i.withdrawn)
@@ -505,16 +469,16 @@ function attachCheckTargets(d, c) {
                       ...(cc.depositMode && cc.depositMode !== "schedule" ? ["depositSource"] : []),
                     ]
                   : ["num", "courtDate", "amount", "ord", "desc"].filter((f) => !String(cc[f] || "").trim());
-        fields.forEach((f) => add(dep_citSelector(i.id, f), "Item " + i.no + " · " + f));
+        fields.forEach((f) => add(citSelector(i.id, f), "Item " + i.no + " · " + f));
       });
   } else if (/withdrawn item needs/.test(t))
     d.items
       .filter((i) => i.withdrawn && String(i.withdrawalReason || "").trim().length < 10)
-      .forEach((i) => add('[data-withdraw="' + dep_checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
+      .forEach((i) => add('[data-withdraw="' + checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
   else if (/compliance dates/.test(t))
     d.items
-      .filter((i) => i.done && !i.withdrawn && (!dep_validISO(i.doneOn) || i.doneOn > dep_recordDay(today) || i.doneOn < dep_docCase(d).date))
-      .forEach((i) => add(dep_itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
+      .filter((i) => i.done && !i.withdrawn && (!validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < docCase(d).date))
+      .forEach((i) => add(itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
   // Record conflicts have no editable field. Direct the inspector to the existing case.
   if (!targets.length) add('[data-nav="cases"]', "Open case in Workspace", "workspace");
   return { ...c, targets };
@@ -531,7 +495,7 @@ function checkRowHTML(c, ix, worksheet = false) {
     "-" +
     `${ix}` +
     '">' +
-    `${dep_esc(c.t)}` +
+    `${esc(c.t)}` +
     "</span>" +
     "".concat(
       !c.ok
@@ -547,7 +511,7 @@ function checkRowHTML(c, ix, worksheet = false) {
                     '" ' +
                     `${worksheet === true ? 'data-check-worksheet="1"' : ""}` +
                     ">" +
-                    `${dep_esc(target.label)}` +
+                    `${esc(target.label)}` +
                     "</button>",
                 )
                 .join(""),
@@ -560,57 +524,57 @@ function checkRowHTML(c, ix, worksheet = false) {
 }
 
 function worksheetChecks(r) {
-  const src = dep_doc(r.sourceDocId);
+  const src = doc(r.sourceDocId);
   if (!src) return [];
   const out = [],
-    add = (t, selector, label) => out.push({ ok: false, t, targets: [dep_checkTarget(selector, label)] });
+    add = (t, selector, label) => out.push({ ok: false, t, targets: [checkTarget(selector, label)] });
   const dueRelevant = !r.followupIntent || r.followupIntent === "undecided" || ["extension", "citation"].includes(r.followupIntent);
-  const initial = dep_docCase(src).date || "",
-    earliest = dep_inspAt(src).date || initial;
-  if (!dep_validISO(r.date) || r.date > dep_recordDay(today) || r.date < earliest)
+  const initial = docCase(src).date || "",
+    earliest = inspAt(src).date || initial;
+  if (!validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
     add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
-  if (!dep_parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
-  if (!dep_insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
+  if (!parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
+  if (!insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
   src.items.forEach((i) => {
     const res = r.results[i.id] || {},
       on = res.manualDate ? res.on : res.on || r.date;
     if (i.done || i.withdrawn) return;
-    if (!dep_OUTCOMES.some((o) => o.id === res.oc))
-      add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + dep_checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
+    if (!OUTCOMES.some((o) => o.id === res.oc))
+      add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
     else {
-      if (!dep_validISO(on) || on < initial || on > r.date)
+      if (!validISO(on) || on < initial || on > r.date)
         add(
           "Item " + i.no + ": result date must be between the initial inspection and this visit.",
-          '[data-ridate="' + dep_checkAttr(i.id) + '"]',
+          '[data-ridate="' + checkAttr(i.id) + '"]',
           "Item " + i.no + " result date",
         );
-      if (dueRelevant && res.oc !== "corrected" && !dueCheck(res.due, dep_recordDay(today)).ok)
+      if (dueRelevant && res.oc !== "corrected" && !dueCheck(res.due, recordDay(today)).ok)
         out.push({
           ok: false,
           soft: true,
           t: "Item " + i.no + ": set a future due date for an extension or citation. Referrals need no due date.",
-          targets: [dep_checkTarget('[data-ridue="' + dep_checkAttr(i.id) + '"]', "Item " + i.no + " new due date")],
+          targets: [checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")],
         });
     }
   });
-  if (dueRelevant && dep_distinctDues(dep_dueContext(r, true)).length > 3)
+  if (dueRelevant && distinctDues(dueContext(r, true)).length > 3)
     out.push({
       ok: false,
       t: "Use no more than three distinct due dates for an extension or citation.",
-      targets: dep_dueContext(r, true).map((i) => dep_checkTarget('[data-ridue="' + dep_checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
+      targets: dueContext(r, true).map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
     });
-  const spacing = dep_dueDateSpacingConflicts(dep_dueContext(r, true));
+  const spacing = dueDateSpacingConflicts(dueContext(r, true));
   if (dueRelevant && spacing.length) {
     const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
     out.push({
       ok: false,
       t: "Keep distinct due dates at least seven days apart.",
-      targets: items.map((i) => dep_checkTarget('[data-ridue="' + dep_checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
+      targets: items.map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
     });
   }
-  for (const t of dep_worksheetFaults(r))
+  for (const t of worksheetFaults(r))
     if (!out.some((c) => c.t === t) && !/outcome|Result dates/.test(t))
-      out.push({ ok: false, t, targets: [dep_checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
+      out.push({ ok: false, t, targets: [checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
   return out;
 }
 
@@ -634,11 +598,11 @@ function highlightOpenChecks() {
     }
     el.removeAttribute("aria-invalid");
   });
-  const d = dep_doc(WriterState.state.docId),
-    r = dep_reinsp(WriterState.state.reinspId);
+  const d = doc(WriterState.state.docId),
+    r = reinsp(WriterState.state.reinspId);
   const list =
-    WriterState.state.screen === "write" && d && !dep_isLocked(d)
-      ? dep_checks(d)
+    WriterState.state.screen === "write" && d && !isLocked(d)
+      ? checks(d)
       : WriterState.state.screen === "reinspect" && r && r.draft && !r.docId
         ? worksheetChecks(r)
         : [];
@@ -666,27 +630,27 @@ function highlightOpenChecks() {
 }
 
 function focusCheckTarget(target, message) {
-  const d = dep_doc(WriterState.state.docId);
-  dep_captureWork();
+  const d = doc(WriterState.state.docId);
+  captureWork();
   WriterState.state.modal = null;
   WriterState.state.picker = false;
   if (target.action === "workspace") {
-    openImportWorkspace(d?.caseId || dep_reinsp(WriterState.state.reinspId)?.caseId);
+    openImportWorkspace(d?.caseId || reinsp(WriterState.state.reinspId)?.caseId);
     return;
   }
   if (target.action === "catalog") {
     WriterState.state.screen = "library";
     WriterState.state.languageMode = "admin";
     WriterState.state.catalogAdminStatus = "review";
-    const it = dep_doc(WriterState.state.docId)?.items.find((i) => i.id === target.itemId);
-    if (it) WriterState.state.catalogAdminKey = dep_itemLibraryKey(it);
+    const it = doc(WriterState.state.docId)?.items.find((i) => i.id === target.itemId);
+    if (it) WriterState.state.catalogAdminKey = itemLibraryKey(it);
     render();
     return;
   }
   if (target.action?.startsWith("recipient:")) {
-    const k = d && dep_docCase(d);
+    const k = d && docCase(d);
     if (!k) return;
-    WriterState.state.ccProblem = dep_validateAndStandardizeAddresses(k, d.type === "citation" && dep_isLLC(k), false);
+    WriterState.state.ccProblem = validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
     WriterState.state.modal = "cc";
     render();
     const parts = target.action.split(":");
@@ -697,33 +661,33 @@ function focusCheckTarget(target, message) {
     return;
   }
   if (target.action === "visit") {
-    if (!d || !dep_returnToWorksheet(d)) {
-      dep_toast("Open the existing case in Workspace to review its recorded inspection.");
+    if (!d || !returnToWorksheet(d)) {
+      toast("Open the existing case in Workspace to review its recorded inspection.");
       return;
     }
-    const r = dep_reinsp(WriterState.state.reinspId);
+    const r = reinsp(WriterState.state.reinspId);
     WriterState.state.riFilter = "";
-    dep_clearWalk();
+    clearWalk();
     WriterState.WORK.walk = null;
     render();
     const check = worksheetChecks(r).find((c) => !c.soft) || worksheetChecks(r)[0];
-    target = check?.targets[0] || dep_checkTarget("#ri-date", "Reinspection date");
+    target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
   } else {
     if (WriterState.state.screen === "reinspect") {
       WriterState.state.riFilter = "";
-      dep_clearWalk();
+      clearWalk();
       WriterState.WORK.walk = null;
     }
     if (target.action === "contacts") WriterState.state.modal = "cc";
     render();
   }
   if (target.action === "guidance") {
-    dep_toast(message);
+    toast(message);
     return;
   }
   const el = document.querySelector(target.selector);
   if (!el) {
-    dep_toast(message + " Open the existing case to review the retained record.");
+    toast(message + " Open the existing case to review the retained record.");
     return;
   }
   for (let parent = el.parentElement; parent; parent = parent.parentElement) if (parent.tagName === "DETAILS") parent.open = true;
@@ -736,8 +700,8 @@ function focusCheckTarget(target, message) {
 
 function dueCheck(due, from) {
   if (!due) return { ok: false, msg: "Needs a new due date" };
-  if (!dep_validISO(due) || !dep_validISO(from || dep_recordDay(today))) return { ok: false, msg: "Enter a real calendar date" };
-  const n = dep_daysBetween(from || dep_recordDay(today), due);
+  if (!validISO(due) || !validISO(from || recordDay(today))) return { ok: false, msg: "Enter a real calendar date" };
+  const n = daysBetween(from || recordDay(today), due);
   if (n < 1) return { ok: false, msg: "Must be a future date" };
   if (n < 7) return { ok: true, warn: true, msg: n + " day" + (n === 1 ? "" : "s") + " — unusually short" };
   if (n > 180) return { ok: true, warn: true, msg: n + " days — unusually long" };
@@ -745,23 +709,23 @@ function dueCheck(due, from) {
 }
 
 function screenReinspect() {
-  const r = dep_reinsp(WriterState.state.reinspId);
+  const r = reinsp(WriterState.state.reinspId);
   if (!r) {
     WriterState.state.screen = "cases";
-    return dep_screenCases();
+    return screenCases();
   }
-  const k = dep_kase(r.caseId),
-    src = dep_doc(r.sourceDocId);
+  const k = kase(r.caseId),
+    src = doc(r.sourceDocId);
   if (!src) {
     WriterState.state.screen = "cases";
-    return dep_screenCases();
+    return screenCases();
   }
-  const srcLabel = (dep_DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
+  const srcLabel = (DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
   const closed = !!r.docId,
     readOnly = closed || !r.draft;
 
   const shown = (it) => {
-    const oc = dep_ocOf(r, it.id);
+    const oc = ocOf(r, it.id);
     if (WriterState.state.riFilter === "corrected") return oc === "corrected";
     if (WriterState.state.riFilter === "open") return oc && oc !== "corrected" && oc !== "withdrawn";
     if (WriterState.state.riFilter === "todo") return !oc;
@@ -774,7 +738,7 @@ function screenReinspect() {
       const res = r.results[it.id] || {},
         oc = res.oc || "";
       const walkCurrent = !readOnly && WriterState.state.riWalk && WriterState.state.riWalkItem === it.id;
-      const late = it.due && dep_daysBetween(it.due, r.date) > 0;
+      const late = it.due && daysBetween(it.due, r.date) > 0;
       const open = oc && oc !== "corrected" && oc !== "withdrawn";
       const carried = !!res.carried,
         lock = readOnly || carried;
@@ -784,45 +748,43 @@ function screenReinspect() {
         '<div class="ri-item ' +
         `${walkCurrent ? "ri-walk-current" : ""}` +
         '" data-ri-item="' +
-        `${dep_esc(it.id)}` +
+        `${esc(it.id)}` +
         '" data-oc="' +
-        `${dep_esc(oc)}` +
+        `${esc(oc)}` +
         '" ' +
         `${walkHidden ? "hidden" : ""}` +
         " " +
         `${walkCurrent ? 'data-ri-walk-current="true" aria-current="step" tabindex="-1"' : ""}` +
         '>\n      <div class="ri-top">\n        <span class="ri-no">' +
-        `${dep_esc(it.no || String(ix + 1))}` +
+        `${esc(it.no || String(ix + 1))}` +
         '.</span>\n        <span class="ri-ttl">' +
-        `${dep_esc(it.title || "Violation item")}` +
+        `${esc(it.title || "Violation item")}` +
         "</span>\n        " +
-        `${(it.sections || []).map((x) => `<span class="cite-sec">${dep_esc(x)}</span>`).join("")}` +
+        `${(it.sections || []).map((x) => `<span class="cite-sec">${esc(x)}</span>`).join("")}` +
         '\n        <span class="ri-due ' +
         `${late ? "over" : ""}` +
         '">Was due ' +
-        `${dep_fmtDate(it.due)}` +
+        `${fmtDate(it.due)}` +
         '</span>\n      </div>\n      <div class="ri-body">' +
-        `${dep_markBlanks(it.text || "")}` +
+        `${markBlanks(it.text || "")}` +
         '</div>\n      <div class="seg" role="group" aria-label="Result for item ' +
-        `${dep_esc(it.no || String(ix + 1))}` +
+        `${esc(it.no || String(ix + 1))}` +
         '">\n        ' +
         "".concat(
-          dep_OUTCOMES
-            .map(
-              (o) =>
-                '<button data-setoc="' +
-                `${dep_esc(o.id)}` +
-                '" data-item="' +
-                `${dep_esc(it.id)}` +
-                '" ' +
-                `${lock ? "disabled" : ""}` +
-                ' aria-pressed="' +
-                `${oc === o.id ? "true" : "false"}` +
-                '">' +
-                `${dep_esc(o.label)}` +
-                "</button>",
-            )
-            .join(""),
+          OUTCOMES.map(
+            (o) =>
+              '<button data-setoc="' +
+              `${esc(o.id)}` +
+              '" data-item="' +
+              `${esc(it.id)}` +
+              '" ' +
+              `${lock ? "disabled" : ""}` +
+              ' aria-pressed="' +
+              `${oc === o.id ? "true" : "false"}` +
+              '">' +
+              `${esc(o.label)}` +
+              "</button>",
+          ).join(""),
         ) +
         "\n      </div>\n      " +
         "".concat(
@@ -831,7 +793,7 @@ function screenReinspect() {
                 "".concat(
                   oc === "withdrawn"
                     ? "Withdrawn as entered in error; excluded from compliance counts."
-                    : "Cleared on " + dep_esc(dep_fmtDate(res.on)) + " and carried forward.",
+                    : "Cleared on " + esc(fmtDate(res.on)) + " and carried forward.",
                 ) +
                 "</p>"
             : "",
@@ -841,11 +803,11 @@ function screenReinspect() {
           oc
             ? '<div class="ri-fields">\n        <label class="f"><span>Result date</span' +
                 '>\n          <input type="date" data-ridate="' +
-                `${dep_esc(it.id)}` +
+                `${esc(it.id)}` +
                 '" value="' +
-                `${dep_esc(res.on || r.date)}` +
+                `${esc(res.on || r.date)}` +
                 '" max="' +
-                `${dep_recordDay(today)}` +
+                `${recordDay(today)}` +
                 '" ' +
                 `${lock ? "disabled" : ""}` +
                 '><span class="hint">When this result was observed; no later than this vi' +
@@ -854,29 +816,29 @@ function screenReinspect() {
                   open && (!r.followupIntent || r.followupIntent === "undecided" || ["extension", "citation"].includes(r.followupIntent))
                     ? '<label class="f"><span>Next due date</span>\n          <input type="date"' +
                         ' data-ridue="' +
-                        `${dep_esc(it.id)}` +
+                        `${esc(it.id)}` +
                         '" value="' +
-                        `${dep_esc(res.due || "")}` +
+                        `${esc(res.due || "")}` +
                         '" min="' +
-                        `${dep_MINDUE()}` +
+                        `${MINDUE()}` +
                         '" ' +
                         `${lock ? "disabled" : ""}` +
                         '>\n          <span class="hint ' +
                         `${dc.ok ? (dc.warn ? "warnt" : "") : "badt"}` +
                         '">' +
-                        `${dep_esc(dc.msg)}` +
+                        `${esc(dc.msg)}` +
                         "</span></label>"
                     : "<div></div>",
                 ) +
                 '\n      </div>\n      <label class="f ri-note"><span>' +
                 `${oc === "noaccess" ? "Access attempt and observations" : "Notes " + (open ? "" : "(optional)")}` +
                 '</span>\n        <textarea rows="2" data-rinote="' +
-                `${dep_esc(it.id)}` +
+                `${esc(it.id)}` +
                 '" placeholder="What you observed, who you spoke to, anything worth havin' +
                 'g on the file" ' +
                 `${lock ? "disabled" : ""}` +
                 ">" +
-                `${dep_esc(res.note || "")}` +
+                `${esc(res.note || "")}` +
                 "</textarea>" +
                 "".concat(
                   oc === "noaccess"
@@ -888,7 +850,7 @@ function screenReinspect() {
                 "".concat(
                   open
                     ? '<label class="ri-cite"><input type="checkbox" data-ricite="' +
-                        `${dep_esc(it.id)}` +
+                        `${esc(it.id)}` +
                         '" ' +
                         `${res.cite ? "checked" : ""}` +
                         " " +
@@ -904,24 +866,24 @@ function screenReinspect() {
     })
     .join("");
 
-  const done = dep_doneItems(r).length,
-    open = dep_openItems(r).length,
-    left = dep_unchecked(r).length;
+  const done = doneItems(r).length,
+    open = openItems(r).length,
+    left = unchecked(r).length;
   const activeCount = src.items.filter((it) => !it.withdrawn).length;
   const recorded = activeCount - left,
     withdrawn = src.items.length - activeCount;
-  const next = WriterState.state.riWalk ? dep_nextWalkItem(r) : null;
+  const next = WriterState.state.riWalk ? nextWalkItem(r) : null;
   const rowsShown = src.items.filter((it) => {
-    const oc = dep_ocOf(r, it.id);
+    const oc = ocOf(r, it.id);
     if (WriterState.state.riFilter === "corrected") return oc === "corrected";
     if (WriterState.state.riFilter === "open") return oc && oc !== "corrected" && oc !== "withdrawn";
     if (WriterState.state.riFilter === "todo") return !oc;
     return true;
   }).length;
-  const cited = dep_openItems(r).filter((i) => (r.results[i.id] || {}).cite);
-  const badDue = dep_openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
-  const prior = dep_reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
-  const referred = dep_docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && dep_isHistoryDoc(x));
+  const cited = openItems(r).filter((i) => (r.results[i.id] || {}).cite);
+  const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
+  const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
+  const referred = docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x));
   const walkPanel = !readOnly
     ? '<div class="ri-walk-panel ' +
       `${WriterState.state.riWalk ? "active" : ""}` +
@@ -933,13 +895,13 @@ function screenReinspect() {
         WriterState.state.riWalk
           ? WriterState.state.riWalkStage === "details"
             ? "Complete item " +
-              `${dep_esc(src.items.find((i) => i.id === WriterState.state.riWalkItem)?.no || "")}` +
+              `${esc(src.items.find((i) => i.id === WriterState.state.riWalkItem)?.no || "")}` +
               " details, then choose Next item. " +
               `${left}` +
               " without outcomes."
             : next
               ? "Next: item " +
-                `${dep_esc(next.no || String(src.items.indexOf(next) + 1))}` +
+                `${esc(next.no || String(src.items.indexOf(next) + 1))}` +
                 " of " +
                 `${src.items.length}` +
                 " · " +
@@ -974,7 +936,7 @@ function screenReinspect() {
       "\n    " +
       "".concat(
         WriterState.state.riWalk &&
-          src.items.some((it) => dep_editableWalkItem(r, it.id) && (!dep_walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
+          src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
           ? '<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>'
           : "",
       ) +
@@ -997,13 +959,13 @@ function screenReinspect() {
 
   let verdict;
   if (closed) {
-    const nd = dep_doc(r.docId),
-      ndl = (dep_DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
+    const nd = doc(r.docId),
+      ndl = (DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
     verdict =
       '<div class="banner ok"><div><strong>' +
-      "".concat(dep_doc(r.docId) && dep_doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished.") +
+      "".concat(doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished.") +
       "</strong> " +
-      `${dep_esc(ndl)}` +
+      `${esc(ndl)}` +
       " written from " +
       `${open}` +
       " outstanding item" +
@@ -1017,12 +979,12 @@ function screenReinspect() {
       " item" +
       `${left === 1 ? "" : "s"}` +
       " still to result.</strong> Every item on the " +
-      `${dep_esc(srcLabel.toLowerCase())}` +
+      `${esc(srcLabel.toLowerCase())}` +
       " needs an outcome before you create a draft.</div></div>";
   } else if (!open) {
     verdict =
       '<div class="banner ok"><div><strong>Everything on this ' +
-      `${dep_esc(srcLabel.toLowerCase())}` +
+      `${esc(srcLabel.toLowerCase())}` +
       " was corrected.</strong> Write the compliance letter to tell the owner t" +
       "he case is closed. It records the visit and carries the date each item w" +
       "as met.</div></div>";
@@ -1055,9 +1017,9 @@ function screenReinspect() {
               "xtensions and citations are no longer the division&rsquo;s to give."
           : r.importRule
             ? "The Accela status " +
-              dep_esc(r.importRule.status) +
+              esc(r.importRule.status) +
               " sets the next document: " +
-              dep_esc(r.importRule.label) +
+              esc(r.importRule.label) +
               "." +
               (r.importRule.cite ? " Tick the items you are citing." : "") +
               (r.importRule.allCorrected ? " Every item must be marked Corrected." : "")
@@ -1067,32 +1029,32 @@ function screenReinspect() {
               "g.",
       ) +
       " Item numbers stay as they are on the " +
-      `${dep_esc(srcLabel.toLowerCase())}` +
+      `${esc(srcLabel.toLowerCase())}` +
       ".</div></div>";
   }
 
-  return dep_shell(
-    dep_esc(k.address),
-    `${dep_esc(k.number)} · Reinspection · working off the ${dep_esc(srcLabel.toLowerCase())}`,
+  return shell(
+    esc(k.address),
+    `${esc(k.number)} · Reinspection · working off the ${esc(srcLabel.toLowerCase())}`,
     '<button class="btn" id="btn-savework">Save &amp; continue later</button>',
     '<div class="reinspection-workspace" data-worksheet-context="' +
-      `${dep_esc(dep_walkIdentity(r))}` +
+      `${esc(walkIdentity(r))}` +
       '"><p class="ri-source">Inspecting against the ' +
-      `${dep_esc(srcLabel.toLowerCase())}` +
+      `${esc(srcLabel.toLowerCase())}` +
       " issued " +
-      `${dep_fmtDate(src.mailed || src.created)}` +
+      `${fmtDate(src.mailed || src.created)}` +
       ". Original item numbers and wording stay with the issued document.</p>\n " +
       '    <div class="card ri-visit" style="margin-bottom:16px"><div class="ca' +
       'rd-b">\n       <div class="grid g2">\n         <label class="f"><span>Actu' +
       'al inspection date and time</span><span class="ri-when"><input type="dat' +
       'e" id="ri-date" value="' +
-      `${dep_esc(r.date)}` +
+      `${esc(r.date)}` +
       '" max="' +
-      `${dep_recordDay(today)}` +
+      `${recordDay(today)}` +
       '" ' +
       `${readOnly ? "disabled" : ""}` +
       '><input type="time" id="ri-time" value="' +
-      `${dep_esc(r.time || "")}` +
+      `${esc(r.time || "")}` +
       '" aria-label="Reinspection time" ' +
       `${readOnly ? "disabled" : ""}` +
       '></span><span class="hint">The physical visit. Item result dates and fut' +
@@ -1100,9 +1062,7 @@ function screenReinspect() {
       'f"><span>Inspector</span><select id="ri-insp" ' +
       `${readOnly ? "disabled" : ""}` +
       ">" +
-      "".concat(
-        dep_INSPECTORS.map((x) => `<option value="${x.id}" ${r.inspectorId === x.id ? "selected" : ""}>${dep_esc(x.name)}</option>`).join(""),
-      ) +
+      "".concat(INSPECTORS.map((x) => `<option value="${x.id}" ${r.inspectorId === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")) +
       '</select></label>\n       </div>\n       <div class="ri-progress" role="st' +
       'atus"><strong>' +
       `${recorded}` +
@@ -1183,13 +1143,13 @@ function screenReinspect() {
                   .map(
                     (x) =>
                       "<li><strong>" +
-                      `${dep_fmtDate(x.date)}` +
+                      `${fmtDate(x.date)}` +
                       "</strong> — " +
-                      `${dep_doneItems(x).length}` +
+                      `${doneItems(x).length}` +
                       " corrected, " +
-                      `${dep_openItems(x).length}` +
+                      `${openItems(x).length}` +
                       " outstanding · " +
-                      `${dep_esc(dep_insp(x.inspectorId).name)}` +
+                      `${esc(insp(x.inspectorId).name)}` +
                       "</li>",
                   )
                   .join(""),
@@ -1223,21 +1183,21 @@ function screenReinspect() {
               worksheetChecks(r).filter((c) => !c.soft).length +
               " to resolve before a document</summary>" +
               worksheetCheckPanel(r) +
-              dep_duePanel(r, true) +
+              duePanel(r, true) +
               "</details>"
           : "",
       ) +
       "\n     " +
       `${verdict}` +
       "\n     " +
-      "".concat(!closed ? dep_newDocuments.chooser(r) : `<button class="btn" data-open="${dep_esc(r.docId)}">Open the document</button>`) +
+      "".concat(!closed ? newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
       '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save &amp' +
       "; continue later</button></div></div>",
   );
 }
 
 function editorReadiness(d) {
-  const list = d.draft ? dep_checks(d) : [],
+  const list = d.draft ? checks(d) : [],
     required = list.filter((c) => !c.ok && !c.soft),
     advice = list.filter((c) => !c.ok && c.soft);
   return { list, required, advice, held: !!d.draft && d.items.some((i) => i.cite && !i.withdrawn && d.cits?.[i.id]?.mandatoryAppearance) };
@@ -1280,34 +1240,33 @@ function editorChecksHTML(d, readiness = editorReadiness(d)) {
 }
 
 function editorPrimary(d, ready = editorReadiness(d)) {
-  const locked = dep_isLocked(d);
-  if (dep_recordIntegrity.status(dep_kase(d.caseId)).valid === false)
-    return { label: "Review record problem", attrs: `data-sync-safety="${dep_esc(d.caseId)}"` };
+  const locked = isLocked(d);
+  if (recordIntegrity.status(kase(d.caseId)).valid === false) return { label: "Review record problem", attrs: `data-sync-safety="${esc(d.caseId)}"` };
   const pending = Object.values(WriterState.RECORD_ATTEMPTS).find((x) => x.cid === d.caseId && x.pendingAmendment?.payload?.docId === d.id);
-  if (pending) return { label: "Confirm saved action", attrs: `data-resumerecord="${dep_esc(pending.recordKey)}"` };
+  if (pending) return { label: "Confirm saved action", attrs: `data-resumerecord="${esc(pending.recordKey)}"` };
   if (d.pendingAmendment)
     return { label: "Confirm save", attrs: 'data-editor-command="' + (d.correction ? "btn-retrycorrection" : "btn-retrypublish") + '"' };
-  if (WriterState.state.publicationBusy && dep_doc(WriterState.state.publicationBusy)?.caseId === d.caseId)
+  if (WriterState.state.publicationBusy && doc(WriterState.state.publicationBusy)?.caseId === d.caseId)
     return { label: "Finishing document save…", attrs: "disabled" };
-  if (d.draft && locked) return { label: "Review saved work", attrs: `data-sync-safety="${dep_esc(d.caseId)}"` };
+  if (d.draft && locked) return { label: "Review saved work", attrs: `data-sync-safety="${esc(d.caseId)}"` };
   if (!locked)
     return { label: ready.held ? "Review held draft" : ready.required.length ? "Continue review" : "Review &amp; issue", attrs: 'id="btn-final"' };
-  if (!d.void && !d.superseded && !d.filedAt && !dep_deliveredByCitation(d))
+  if (!d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d))
     return { label: "Finish PDF filing", attrs: 'data-editor-command="btn-retryfiling"' };
   return { label: "Print issued PDF", attrs: 'id="btn-print"' };
 }
 
 function editorEnhance() {
-  const d = dep_doc(WriterState.state.docId);
+  const d = doc(WriterState.state.docId);
   if (!d || WriterState.state.screen !== "write") return;
-  const count = ((dep_frozenOf(d) || {}).courtCopies || dep_globalCourtCopies()).length || 1;
+  const count = ((frozenOf(d) || {}).courtCopies || globalCourtCopies()).length || 1;
   for (const parent of document.querySelectorAll(".document-workspace .desk,.document-workspace .initial-citation-previews")) {
     parent.querySelectorAll(".cit").forEach((face, index) => face.toggleAttribute("data-editor-extra-copy", index % count !== 0));
   }
 }
 
 function editorSync() {
-  const d = dep_doc(WriterState.state.docId);
+  const d = doc(WriterState.state.docId);
   if (!d || !document.querySelector(".document-workspace")) return;
   const readiness = editorReadiness(d);
   const chip = document.getElementById("chk-chip");
@@ -1345,7 +1304,7 @@ function editorSection(id, title, body) {
 }
 
 function editorNavigate(id) {
-  dep_captureWork();
+  captureWork();
   const section = document.getElementById(id);
   if (!section) return;
   const target = section.querySelector("h2");
@@ -1354,15 +1313,15 @@ function editorNavigate(id) {
 }
 
 function editorPreview() {
-  const d = dep_doc(WriterState.state.docId);
+  const d = doc(WriterState.state.docId);
   if (!d) return;
   const invoker = document.activeElement;
-  dep_captureWork();
+  captureWork();
   try {
-    const job = dep_printJob(dep_initialCitations.enabled(d) ? dep_initialCitations.preview(d) : d);
+    const job = printJob(initialCitations.enabled(d) ? initialCitations.preview(d) : d);
     if (!job) return;
     invoker?.focus({ preventScroll: true });
-    dep_A11Y.utility(
+    A11Y.utility(
       "Print preview",
       "<p>" +
         "".concat(
@@ -1373,7 +1332,7 @@ function editorPreview() {
         ' All court copies are included when applicable.</p><iframe class="editor' +
         '-preview-frame" title="Read-only document layout preview" sandbox="allow' +
         '-same-origin" srcdoc="' +
-        `${dep_esc(job.html)}` +
+        `${esc(job.html)}` +
         '"></iframe>',
     );
     const dialog = document.getElementById("utility-dialog"),
@@ -1390,26 +1349,26 @@ function editorPreview() {
     dialog?.querySelector("[data-utility-close]")?.focus();
   } catch (error) {
     invoker?.focus({ preventScroll: true });
-    dep_toast(error.message || "This draft is not ready for a print preview. Complete its citation checks first.");
+    toast(error.message || "This draft is not ready for a print preview. Complete its citation checks first.");
   }
 }
 
 function screenWrite() {
-  const d = dep_doc(WriterState.state.docId);
+  const d = doc(WriterState.state.docId);
   if (!d) {
     WriterState.state.screen = "cases";
-    return dep_screenCases();
+    return screenCases();
   }
-  dep_snow.prepare(d);
-  const k = dep_docCase(d),
-    locked = dep_isLocked(d),
+  snow.prepare(d);
+  const k = docCase(d),
+    locked = isLocked(d),
     ready = editorReadiness(d),
     primary = editorPrimary(d, ready);
   const more =
     locked && !d.pendingAmendment
       ? "" +
         "".concat(
-          !d.draft && !dep_correctionEligibility(d)
+          !d.draft && !correctionEligibility(d)
             ? '<button class="btn" id="btn-correct">' +
                 `${d.void ? "Restore with correction" : "Correct document"}` +
                 "</button>" +
@@ -1418,7 +1377,7 @@ function screenWrite() {
             : "",
         ) +
         '<button class="btn" id="btn-savecase">Save case file</button>' +
-        `${dep_isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
+        `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
         ""
       : "";
   const actions =
@@ -1431,12 +1390,12 @@ function screenWrite() {
     "</button>" +
     "".concat(more ? '<details class="editor-more"><summary>Document actions</summary><div>' + more + "</div></details>" : "") +
     "";
-  const tyLabel = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
-  const fr = d.fromReinspId ? dep_reinsp(d.fromReinspId) : null;
+  const tyLabel = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  const fr = d.fromReinspId ? reinsp(d.fromReinspId) : null;
   const editable = !locked;
   const meta =
     '<div class="editor-context no-print"><div><strong>' +
-    `${dep_esc(tyLabel)}` +
+    `${esc(tyLabel)}` +
     "</strong><span>" +
     "".concat(
       d.pendingAmendment
@@ -1449,10 +1408,10 @@ function screenWrite() {
               ? locked
                 ? "Draft · read-only"
                 : "Draft · not issued"
-              : "Issued " + dep_fmtDate(d.mailed || d.created),
+              : "Issued " + fmtDate(d.mailed || d.created),
     ) +
     "" +
-    `${d.revision ? " · revision " + dep_esc(d.revision.number) : ""}` +
+    `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
     '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
     "ce</button></div>";
   const inspection =
@@ -1468,24 +1427,24 @@ function screenWrite() {
     ) +
     "</p></div>" +
     "".concat(
-      dep_newDocuments.initialPanel(d)
+      newDocuments.initialPanel(d)
         ? '<details class="editor-initial-options no-print"><summary>Other initial inspection actions</summary>' +
-            dep_newDocuments.initialPanel(d) +
+            newDocuments.initialPanel(d) +
             "</details>"
         : "",
     ) +
     "" +
-    `${dep_newDocuments.details(d)}` +
+    `${newDocuments.details(d)}` +
     "" +
     `${caseCheckFields(d)}` +
     "" +
-    `${dep_snow.factsForm(d)}` +
+    `${snow.factsForm(d)}` +
     "" +
-    `${dep_correctionPanel(d)}` +
+    `${correctionPanel(d)}` +
     "";
   const work =
     '<div class="editor-taskbar no-print">' +
-    `${dep_structEditable(d) ? '<button class="btn" id="btn-add-top">+ Select violations</button>' : ""}` +
+    `${structEditable(d) ? '<button class="btn" id="btn-add-top">+ Select violations</button>' : ""}` +
     '<p class="hint">' +
     "".concat(
       editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
@@ -1495,10 +1454,10 @@ function screenWrite() {
     " outstanding" +
     `${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}` +
     ".</p></div>" +
-    `${dep_citationReview(d)}` +
+    `${citationReview(d)}` +
     "" +
     "".concat(
-      dep_initialCitations.enabled(d) && d.authoringVersion >= 11
+      initialCitations.enabled(d) && d.authoringVersion >= 11
         ? '<div class="banner info no-print" id="initial-citation-replaces"><div><s' +
             "trong>This inspection will be issued as a citation.</strong> The owner r" +
             "eceives only the citation letter and its court copies. The letter carrie" +
@@ -1508,23 +1467,23 @@ function screenWrite() {
         : "",
     ) +
     '<div class="editor-preview-tools no-print"><span>Working document' +
-    "".concat(d.type === "citation" || dep_initialCitations.enabled(d) ? " · one representative court copy per charge" : "") +
+    "".concat(d.type === "citation" || initialCitations.enabled(d) ? " · one representative court copy per charge" : "") +
     '</span><button class="btn" data-editor-preview ' +
     "".concat(ready.held ? 'disabled title="Division-approved mandatory appearance instructions are required"' : "") +
     ">Print preview" +
-    `${d.type === "citation" || dep_initialCitations.enabled(d) ? " · all copies" : ""}` +
+    `${d.type === "citation" || initialCitations.enabled(d) ? " · all copies" : ""}` +
     '</button></div><div class="desk">' +
     `${documentHTML(d)}` +
     "</div>" +
     "".concat(
-      dep_initialCitations.enabled(d)
+      initialCitations.enabled(d)
         ? '<div class="initial-citation-previews no-print" aria-label="Initial citation previews">' +
-            citationFaces(dep_initialCitations.preview(d), true) +
+            citationFaces(initialCitations.preview(d), true) +
             "</div>"
         : "",
     ) +
     "" +
-    `${dep_specialType(d.type) ? "" : dep_duePanel(d, false)}` +
+    `${specialType(d.type) ? "" : duePanel(d, false)}` +
     "";
   const review =
     '<div class="docpanel no-print"><div class="chipstrip">' +
@@ -1538,32 +1497,32 @@ function screenWrite() {
         : "<p>Issued text and history are retained. Use Document actions for a corr" + "ection, or Print issued PDF for the archived original.</p>",
     ) +
     "</div></div>" +
-    `${dep_recordHistoryHTML(d)}` +
+    `${recordHistoryHTML(d)}` +
     "" +
-    `${dep_newDocuments.actionPanel(d)}` +
+    `${newDocuments.actionPanel(d)}` +
     "";
-  return dep_shell(
-    dep_esc(k.address),
-    `${dep_esc(k.number)} · ${dep_esc(tyLabel)}`,
+  return shell(
+    esc(k.address),
+    `${esc(k.number)} · ${esc(tyLabel)}`,
     actions,
     '<div class="document-workspace" data-editor-doc="' +
-      `${dep_esc(d.id)}` +
+      `${esc(d.id)}` +
       '">' +
       `${meta}` +
       "" +
       `${documentSaveHTML(app_savedworkContext(), d)}` +
       "" +
-      `${dep_publicationPanel(d)}` +
+      `${publicationPanel(d)}` +
       "" +
-      `${dep_filingPanel(d)}` +
+      `${filingPanel(d)}` +
       "" +
-      `${dep_citationRecoveryPanel(d)}` +
+      `${citationRecoveryPanel(d)}` +
       "" +
       "".concat(
         d.superseded
           ? '<div class="banner warn no-print"><div><strong>This is a replaced versio' +
               'n.</strong> <button class="lnk" data-open="' +
-              `${dep_esc(d.superseded.replacedBy)}` +
+              `${esc(d.superseded.replacedBy)}` +
               '">Open the corrected document</button></div></div>'
           : "",
       ) +
@@ -1595,14 +1554,14 @@ function pickerHTML() {
 }
 
 function modalHTML() {
-  if (WriterState.state.modal === "shared-change") return dep_sharedChangeModal();
-  if (WriterState.state.modal === "recovery") return dep_recoveryModal();
-  if (["void", "recordnote", "reconcile"].includes(WriterState.state.modal)) return dep_recordActionModal();
+  if (WriterState.state.modal === "shared-change") return sharedChangeModal();
+  if (WriterState.state.modal === "recovery") return recoveryModal();
+  if (["void", "recordnote", "reconcile"].includes(WriterState.state.modal)) return recordActionModal();
   if (WriterState.state.modal === "sendto") {
-    const d = dep_doc(WriterState.state.sendDoc) || dep_doc(WriterState.state.docId);
+    const d = doc(WriterState.state.sendDoc) || doc(WriterState.state.docId);
     if (!d) return "";
-    const k = dep_kase(d.caseId),
-      list = dep_emailList(k).filter((e) => String(e.addr || "").trim());
+    const k = kase(d.caseId),
+      list = emailList(k).filter((e) => String(e.addr || "").trim());
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
       '">\n      <div class="modal-h"><h2>Send this document to</h2></div><div c' +
@@ -1613,7 +1572,7 @@ function modalHTML() {
         list
           .map(
             (e, ix) => `<label class="sendrow"><input type="checkbox" data-sendto="${ix}" checked>
-        <span><strong>${dep_esc(e.kind || "Other")}</strong> ${dep_esc(e.addr)}</span></label>`,
+        <span><strong>${esc(e.kind || "Other")}</strong> ${esc(e.addr)}</span></label>`,
           )
           .join(""),
       ) +
@@ -1624,12 +1583,12 @@ function modalHTML() {
     );
   }
   if (WriterState.state.modal === "cc") {
-    const d = dep_doc(WriterState.state.docId);
+    const d = doc(WriterState.state.docId);
     if (!d) return "";
-    const k = dep_docCase(d),
-      cc = dep_ccList(k),
-      em = dep_emailList(k),
-      needAgent = d.type === "citation" && dep_isLLC(k),
+    const k = docCase(d),
+      cc = ccList(k),
+      em = emailList(k),
+      needAgent = d.type === "citation" && isLLC(k),
       problem = WriterState.state.ccProblem;
     const invalid = (scope, index, field) =>
       problem && problem.scope === scope && problem.index === index && problem.field === field
@@ -1643,14 +1602,14 @@ function modalHTML() {
         d.correction
           ? "These edits belong to this correction. Select the case-details option on" +
               " the correction panel to also use them for future documents."
-          : "Anything entered here appears on future documents for " + dep_esc(k.number) + ". Issued copies stay unchanged.",
+          : "Anything entered here appears on future documents for " + esc(k.number) + ". Issued copies stay unchanged.",
       ) +
       "</div></div>\n      " +
       "".concat(
         problem
           ? '<div class="banner alert" id="cc-address-error" role="alert"><div><stron' +
               "g>Check this address:</strong> " +
-              `${dep_esc(problem.message)}` +
+              `${esc(problem.message)}` +
               "</div></div>"
           : "",
       ) +
@@ -1669,7 +1628,7 @@ function modalHTML() {
                   '"' +
                   `${ix}` +
                   '|name" value="' +
-                  `${dep_esc(c.name || "")}` +
+                  `${esc(c.name || "")}` +
                   '" placeholder="Name" aria-label="Copy ' +
                   `${ix + 1}` +
                   ' name"' +
@@ -1677,7 +1636,7 @@ function modalHTML() {
                   '>\n          <input type="text" data-cc="' +
                   `${ix}` +
                   '|addr" value="' +
-                  `${dep_esc(c.addr || "")}` +
+                  `${esc(c.addr || "")}` +
                   '" placeholder="Street number and name (123 Main St, Apt 4)" aria-label="' +
                   "Copy " +
                   `${ix + 1}` +
@@ -1686,7 +1645,7 @@ function modalHTML() {
                   '>\n          <input type="text" data-cc="' +
                   `${ix}` +
                   '|city" value="' +
-                  `${dep_esc(c.city || "")}` +
+                  `${esc(c.city || "")}` +
                   '" placeholder="City, ST ZIP (Madison, WI 53703)" aria-label="Copy ' +
                   `${ix + 1}` +
                   ' city, state and ZIP"' +
@@ -1694,7 +1653,7 @@ function modalHTML() {
                   '>\n          <p class="rec-preview" data-recipient-preview="copy|' +
                   `${ix}` +
                   '">' +
-                  `${dep_esc(dep_recipientPreview(c))}` +
+                  `${esc(recipientPreview(c))}` +
                   '</p><button class="btn btn-sm" data-parse-address="copy|' +
                   `${ix}` +
                   '">Preview standardized copy address</button>\n        </div>\n        <but' +
@@ -1723,11 +1682,11 @@ function modalHTML() {
                   '|kind" aria-label="Recipient ' +
                   `${ix + 1}` +
                   ' type">' +
-                  `${dep_EMAIL_KINDS.map((x) => `<option ${e.kind === x ? "selected" : ""}>${dep_esc(x)}</option>`).join("")}` +
+                  `${EMAIL_KINDS.map((x) => `<option ${e.kind === x ? "selected" : ""}>${esc(x)}</option>`).join("")}` +
                   '</select>\n          <input type="email" data-em="' +
                   `${ix}` +
                   '|addr" value="' +
-                  `${dep_esc(e.addr || "")}` +
+                  `${esc(e.addr || "")}` +
                   '" placeholder="name@example.com" aria-label="Recipient ' +
                   `${ix + 1}` +
                   ' email">\n        </div>\n        <button class="btn btn-sm" data-rmem="' +
@@ -1745,26 +1704,26 @@ function modalHTML() {
       '</h3>\n      <p class="hint">' +
       `${
         needAgent
-          ? dep_esc(k.owner) + " reads as a company, so a citation cannot be served without an agent."
+          ? esc(k.owner) + " reads as a company, so a citation cannot be served without an agent."
           : "Only needed when the owner is a company. Printed on the citation."
       }` +
       '</p>\n      <div class="rec"><div class="rec-n">&nbsp;</div><div class="r' +
       'ec-f">\n        <input type="text" data-agent="name" value="' +
-      `${dep_esc((k.agent || {}).name || "")}` +
+      `${esc((k.agent || {}).name || "")}` +
       '" placeholder="Agent name" aria-label="Registered agent name"' +
       `${invalid("agent", 0, "name")}` +
       '>\n        <input type="text" data-agent="addr" value="' +
-      `${dep_esc((k.agent || {}).addr || "")}` +
+      `${esc((k.agent || {}).addr || "")}` +
       '" placeholder="Street number and name (123 Main St, Apt 4)" aria-label="' +
       'Registered agent street number and name"' +
       `${invalid("agent", 0, "addr")}` +
       '>\n        <input type="text" data-agent="city" value="' +
-      `${dep_esc((k.agent || {}).city || "")}` +
+      `${esc((k.agent || {}).city || "")}` +
       '" placeholder="City, ST ZIP (Madison, WI 53703)" aria-label="Registered ' +
       'agent city, state and ZIP"' +
       `${invalid("agent", 0, "city")}` +
       '>\n        <p class="rec-preview" data-recipient-preview="agent|0">' +
-      `${dep_esc(dep_recipientPreview(k.agent || {}))}` +
+      `${esc(recipientPreview(k.agent || {}))}` +
       '</p><button class="btn btn-sm" data-parse-address="agent|0">Preview stan' +
       'dardized agent address</button>\n      </div><div style="width:34px"></di' +
       'v></div>\n      </div><div class="modal-f"><button class="btn" id="btn-sa' +
@@ -1773,8 +1732,8 @@ function modalHTML() {
     );
   }
   if (WriterState.state.modal === "clear") {
-    const risky = WriterState.CASES.filter((k) => dep_caseUnsaved(k)),
-      safe = WriterState.CASES.filter((k) => !dep_caseUnsaved(k));
+    const risky = WriterState.CASES.filter((k) => caseUnsaved(k)),
+      safe = WriterState.CASES.filter((k) => !caseUnsaved(k));
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
       '">\n      <div class="modal-h"><h2>Clear cases off the list</h2></div><di' +
@@ -1794,7 +1753,7 @@ function modalHTML() {
               "".concat(
                 safe
                   .slice(0, 12)
-                  .map((k) => `<li>${dep_esc(k.number)} &middot; ${dep_esc(k.address)}</li>`)
+                  .map((k) => `<li>${esc(k.number)} &middot; ${esc(k.address)}</li>`)
                   .join(""),
               ) +
               "" +
@@ -1817,11 +1776,11 @@ function modalHTML() {
                   .map(
                     (k) =>
                       "<li>" +
-                      `${dep_esc(k.number)}` +
+                      `${esc(k.number)}` +
                       " &middot; " +
-                      `${dep_esc(k.address)}` +
+                      `${esc(k.address)}` +
                       ' <span class="muted">&mdash; ' +
-                      `${dep_esc(dep_caseUnsaved(k))}` +
+                      `${esc(caseUnsaved(k))}` +
                       "</span></li>",
                   )
                   .join(""),
@@ -1850,15 +1809,15 @@ function modalHTML() {
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
       '">\n      <div class="modal-h"><h2>Where documents are going</h2></div><d' +
       'iv class="modal-b">\n      ' +
-      `${dep_storageReport()}` +
+      `${storageReport()}` +
       "\n      " +
       "".concat(
-        WriterState.CASEDIR && WriterState.DIRNAME !== dep_CASEDIR_EXPECT
+        WriterState.CASEDIR && WriterState.DIRNAME !== CASEDIR_EXPECT
           ? '<div class="banner warn" style="margin-top:14px"><div><strong>Case files' +
               " are going to a folder called &ldquo;" +
-              `${dep_esc(WriterState.DIRNAME)}` +
+              `${esc(WriterState.DIRNAME)}` +
               "&rdquo;, not &ldquo;" +
-              `${dep_esc(dep_CASEDIR_EXPECT)}` +
+              `${esc(CASEDIR_EXPECT)}` +
               "&rdquo;.</strong>\n        If that is not where they belong, relink below" +
               ". Anything already written stays where it is &mdash; move those files ac" +
               "ross by hand.</div></div>"
@@ -1871,7 +1830,7 @@ function modalHTML() {
           : "The browser only supplies the folder name. Write a test file to verify the destination.",
       ) +
       "</p>\n      " +
-      `${dep_reindexReport()}` +
+      `${reindexReport()}` +
       '<p><button class="btn" data-sync-safety>Back to saved work &amp; connect' +
       'ion</button></p>\n      </div><div class="modal-f">\n        ' +
       "".concat(
@@ -1899,9 +1858,9 @@ function modalHTML() {
       '">\n      <div class="modal-h"><h2>Open a saved case</h2></div><div class' +
       '="modal-b"><label class="f"><span>Search saved cases</span><input type="' +
       'search" id="folder-search" value="' +
-      `${dep_esc(WriterState.state.folderQ || "")}` +
+      `${esc(WriterState.state.folderQ || "")}` +
       '" placeholder="Address or case number…"></label>' +
-      "".concat(WriterState.state.folderError ? `<div class="banner warn">${dep_esc(WriterState.state.folderError)}</div>` : "") +
+      "".concat(WriterState.state.folderError ? `<div class="banner warn">${esc(WriterState.state.folderError)}</div>` : "") +
       "\n      " +
       "".concat(
         fs.length
@@ -1911,13 +1870,13 @@ function modalHTML() {
                   .map(
                     (f) =>
                       '<button data-openfolder="' +
-                      `${dep_esc(f.name)}` +
+                      `${esc(f.name)}` +
                       '">' +
-                      `${dep_esc(f.name.replace(/\.json$/i, ""))}` +
+                      `${esc(f.name.replace(/\.json$/i, ""))}` +
                       "\n        <span>" +
                       `${(f.size / 1024).toFixed(0)}` +
                       " KB &middot; " +
-                      `${f.mod ? dep_fmtDate(dep_iso(new Date(f.mod))) : ""}` +
+                      `${f.mod ? fmtDate(iso(new Date(f.mod))) : ""}` +
                       "</span></button>",
                   )
                   .join(""),
@@ -1930,22 +1889,22 @@ function modalHTML() {
     );
   }
   if (WriterState.state.modal !== "final") return "";
-  const d = dep_doc(WriterState.state.docId),
-    ch = dep_checks(d),
-    bad = dep_blockers(d);
+  const d = doc(WriterState.state.docId),
+    ch = checks(d),
+    bad = blockers(d);
   const notes = ch.filter((c) => !c.ok && c.soft);
-  const ty = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || "document";
+  const ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || "document";
   return (
     '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
     '">\n    <div class="modal-h"><h2>' +
-    `${d.correction ? "Review correction" : "Finalize this " + dep_esc(ty.toLowerCase())}` +
+    `${d.correction ? "Review correction" : "Finalize this " + esc(ty.toLowerCase())}` +
     '</h2></div><div class="modal-b">\n      ' +
     "".concat(
       d.correction
         ? "<p><strong>Reason:</strong> " +
-            `${dep_esc(d.correction.reason)}` +
+            `${esc(d.correction.reason)}` +
             "</p>" +
-            `${dep_correctionDiffHTML(d)}` +
+            `${correctionDiffHTML(d)}` +
             '<p class="hint">Changed case details will also update future documents a' +
             "nd current reports. No new visit or enforcement action is counted. The p" +
             'revious version remains in history.</p><label class="correction-option">' +
@@ -1975,21 +1934,21 @@ function modalHTML() {
     "".concat(
       ch
         .filter((c) => c.ok)
-        .map((c) => `<div class="check pass"><span class="m">✓</span><span>${dep_esc(c.t)}</span></div>`)
+        .map((c) => `<div class="check pass"><span class="m">✓</span><span>${esc(c.t)}</span></div>`)
         .join(""),
     ) +
     '</details>\n      <label class="f" style="margin-top:16px"><span>Mailed d' +
     'ate</span><input type="date" id="fin-mailed" value="' +
-    `${dep_esc(d.mailed || dep_recordDay(today))}` +
+    `${esc(d.mailed || recordDay(today))}` +
     '" max="' +
-    `${dep_mailingMaxDay(dep_initialCitations.enabled(d) ? "citation" : d.type)}` +
+    `${mailingMaxDay(initialCitations.enabled(d) ? "citation" : d.type)}` +
     '" ' +
     `${d.correction ? "disabled" : ""}` +
     "></label>\n      " +
     "".concat(
       (function () {
         if (!WriterState.HELPER || !WriterState.HELPER.chrome) return "";
-        const list = dep_emailList(d.correction ? dep_docCase(d) : dep_kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+        const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e.addr || "").trim());
         if (!list.length)
           return (
             '<p class="hint" style="margin-top:14px">No email recipients on this case' +
@@ -2012,9 +1971,9 @@ function modalHTML() {
                       : "",
                   ) +
                   ">\n            <span><strong>" +
-                  `${dep_esc(e.kind || "Other")}` +
+                  `${esc(e.kind || "Other")}` +
                   "</strong> " +
-                  `${dep_esc(e.addr)}` +
+                  `${esc(e.addr)}` +
                   "</span></label>",
               )
               .join(""),
@@ -2031,7 +1990,7 @@ function modalHTML() {
     '\n      <p class="hint">Finalizing locks the item text, wording and numbe' +
     "ring. Two things come out of it: the printable copy for the owner, and t" +
     'he case file you reopen on your next visit, saved as <span class="mono">' +
-    `${dep_esc((dep_kase(d.caseId).address || "PROPERTY") + " - " + (dep_kase(d.caseId).number || "CASE"))}` +
+    `${esc((kase(d.caseId).address || "PROPERTY") + " - " + (kase(d.caseId).number || "CASE"))}` +
     '.json</span>.</p></div>\n    <div class="modal-f"><button class="btn" dat' +
     'a-close="modal">' +
     `${bad.length ? "Back to the document" : "Cancel"}` +
@@ -2039,7 +1998,7 @@ function modalHTML() {
     '</button>\n      <button class="btn btn-primary" id="fin-go" ' +
     `${bad.length ? 'disabled title="Clear the outstanding checks first"' : ""}` +
     ">" +
-    "".concat(d.correction ? "Save &amp; issue correction" : dep_initialCitations.enabled(d) ? "Issue citation" : "Issue document") +
+    "".concat(d.correction ? "Save &amp; issue correction" : initialCitations.enabled(d) ? "Issue citation" : "Issue document") +
     "</button></div></div></div>"
   );
 }
@@ -2074,7 +2033,7 @@ function render() {
   const keepActions = WriterState.state.screen === "write" && previous?.dataset.editorDoc === WriterState.state.docId && actions?.open;
   const actionFocus = keepActions && actions.contains(active) ? (active.tagName === "SUMMARY" ? "summary" : active.id) : "";
   const sameDocument = WriterState.state.screen === "write" && previous?.dataset.editorDoc === WriterState.state.docId;
-  const editingDoc = sameDocument ? dep_doc(WriterState.state.docId) : null;
+  const editingDoc = sameDocument ? doc(WriterState.state.docId) : null;
   const editingItem = active?.dataset?.field === "text" && editingDoc?.items.find((item) => item.id === active.dataset.id);
   // Reuse a live text field across passive refreshes so input still reaches its handler.
   // New model text, locks, dialogs and navigation always use the newly rendered field.
@@ -2084,7 +2043,7 @@ function render() {
     !WriterState.state.picker &&
     active.isContentEditable &&
     previous.contains(active) &&
-    !dep_isLocked(editingDoc) &&
+    !isLocked(editingDoc) &&
     String(active.innerText ?? active.textContent ?? "") === String(editingItem.text ?? "");
   const selection = keepEditing && window.getSelection();
   const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
@@ -2110,13 +2069,12 @@ function render() {
           : ""
       : "";
   // A background repaint of the same snow citation must keep focus in the snow fact being entered.
-  const snowFocus =
-    sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + dep_checkAttr(active.dataset.snow) + '"]' : "";
+  const snowFocus = sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + checkAttr(active.dataset.snow) + '"]' : "";
   const worksheet = document.querySelector("[data-worksheet-context]"),
     inspectionChecks = document.querySelector(".ri-checks");
   const keepInspectionChecks =
     WriterState.state.screen === "reinspect" &&
-    worksheet?.dataset.worksheetContext === dep_walkIdentity(dep_reinsp(WriterState.state.reinspId)) &&
+    worksheet?.dataset.worksheetContext === walkIdentity(reinsp(WriterState.state.reinspId)) &&
     inspectionChecks?.open;
   const inspectionCheckFocus =
     keepInspectionChecks && inspectionChecks.contains(active)
@@ -2126,26 +2084,26 @@ function render() {
           ? '.check-link[data-check-index="' + active.dataset.checkIndex + '"][data-check-target="' + active.dataset.checkTarget + '"]'
           : ""
       : "";
-  dep_A11Y.rememberFocus();
-  dep_ensureWalkContext();
+  A11Y.rememberFocus();
+  ensureWalkContext();
   document.getElementById("app").innerHTML =
     WriterState.state.screen === "cases"
-      ? dep_screenCases()
+      ? screenCases()
       : WriterState.state.screen === "import"
-        ? dep_screenImport()
+        ? screenImport()
         : WriterState.state.screen === "library"
-          ? dep_screenLibrary()
+          ? screenLibrary()
           : WriterState.state.screen === "tools"
-            ? dep_navigation.screen()
+            ? navigation.screen()
             : WriterState.state.screen === "write"
               ? screenWrite()
               : WriterState.state.screen === "caseactions"
-                ? dep_newDocuments.caseActionScreen()
+                ? newDocuments.caseActionScreen()
                 : WriterState.state.screen === "actions"
-                  ? dep_newDocuments.actionScreen()
+                  ? newDocuments.actionScreen()
                   : WriterState.state.screen === "reinspect"
                     ? screenReinspect()
-                    : dep_screenCases();
+                    : screenCases();
   if (keepEditing) {
     const replacement = [...appRoot.querySelectorAll('[data-field="text"]')].find((field) => field.dataset.id === active.dataset.id);
     if (replacement) {
@@ -2157,14 +2115,14 @@ function render() {
   if (appRoot?.dataset) appRoot.dataset.renderScreen = WriterState.state.screen;
   document.getElementById("overlay").innerHTML = overlayHTML();
   if (WriterState.state.screen === "write") {
-    dep_paginate();
+    paginate();
     editorEnhance();
   }
-  dep_restoreWorkControls();
-  dep_updateSaveStatus();
-  dep_enhanceDialog();
+  restoreWorkControls();
+  updateSaveStatus();
+  enhanceDialog();
   highlightOpenChecks();
-  dep_A11Y.enhance();
+  A11Y.enhance();
   if (keepInspectionChecks) {
     const current = document.querySelector(".ri-checks");
     if (current) {
@@ -2206,7 +2164,7 @@ function render() {
     if (current?.tagName === "DETAILS") current.open = true;
   }
   for (const [charge, key] of openPricing) {
-    const current = document.querySelector('[data-charge="' + dep_checkAttr(charge) + '"] [data-review-details="' + dep_checkAttr(key) + '"]');
+    const current = document.querySelector('[data-charge="' + checkAttr(charge) + '"] [data-review-details="' + checkAttr(key) + '"]');
     if (current) current.open = true;
   }
   // Background helper refreshes must keep the current document's action visible.
@@ -2243,7 +2201,7 @@ function render() {
 
 function renderKeep() {
   const y = window.scrollY;
-  if (WriterState.DIRTY) dep_scheduleDraftSave();
+  if (WriterState.DIRTY) scheduleDraftSave();
   render();
   window.scrollTo(0, y);
 }
@@ -2255,55 +2213,55 @@ function renumber(d) {
 }
 
 function moveItem(id, direction, grip = false) {
-  const d = dep_doc(WriterState.state.docId);
-  if (!d || !dep_structEditable(d)) return false;
+  const d = doc(WriterState.state.docId);
+  if (!d || !structEditable(d)) return false;
   const ix = d.items.findIndex((it) => it.id === id),
     to = ix + (direction === "up" ? -1 : 1);
   if (ix < 0 || to < 0 || to >= d.items.length) return false;
   [d.items[ix], d.items[to]] = [d.items[to], d.items[ix]];
   renumber(d);
   WriterState.DIRTY = true;
-  dep_refreshSheet();
+  refreshSheet();
   const target = document.querySelector(
-    grip ? '[data-grip="' + dep_checkAttr(id) + '"]' : '[data-move="' + dep_checkAttr(id) + '"][data-direction="' + direction + '"]',
+    grip ? '[data-grip="' + checkAttr(id) + '"]' : '[data-move="' + checkAttr(id) + '"][data-direction="' + direction + '"]',
   );
-  (target || document.querySelector('[data-grip="' + dep_checkAttr(id) + '"]'))?.focus();
-  dep_toast("Item " + (to + 1) + " moved " + direction);
+  (target || document.querySelector('[data-grip="' + checkAttr(id) + '"]'))?.focus();
+  toast("Item " + (to + 1) + " moved " + direction);
   return true;
 }
 
 function newDoc(caseId, type) {
-  if (dep_snow.isCase(dep_kase(caseId)) && type !== "notice" && type !== "citation") {
-    dep_toast("Snow cases offer only the snow citation.");
+  if (snow.isCase(kase(caseId)) && type !== "notice" && type !== "citation") {
+    toast("Snow cases offer only the snow citation.");
     return;
   }
-  if (dep_snow.isCase(dep_kase(caseId))) type = "citation";
-  if (dep_recordIntegrity.blocked(caseId)) {
-    dep_toast("This record was changed outside the program. Read-only.");
+  if (snow.isCase(kase(caseId))) type = "citation";
+  if (recordIntegrity.blocked(caseId)) {
+    toast("This record was changed outside the program. Read-only.");
     return;
   }
   const nd = {
-    id: dep_uid("d"),
+    id: uid("d"),
     caseId: caseId,
     type: type,
-    created: dep_recordDay(today),
+    created: recordDay(today),
     status: "Draft",
     draft: true,
-    mailed: dep_recordDay(today),
+    mailed: recordDay(today),
     authoringVersion: 12,
     items: [],
     cc: "",
     cits: {},
-    expectedHead: dep_recordHead(caseId),
+    expectedHead: recordHead(caseId),
   };
   WriterState.DOCS.unshift(nd);
-  if (dep_snow.isCase(dep_kase(caseId))) dep_snow.addDefault(nd);
+  if (snow.isCase(kase(caseId))) snow.addDefault(nd);
   WriterState.state.docId = nd.id;
   WriterState.state.screen = "write";
   WriterState.DIRTY = true;
-  dep_saveDrafts();
+  saveDrafts();
   render();
-  dep_toast(((dep_DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");
+  toast(((DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");
 }
 
 export {

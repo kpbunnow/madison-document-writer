@@ -1,10 +1,10 @@
-import { toast as dep_toast } from "./court_and_deposits.js";
-import { shell as dep_shell } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts } from "./case_files.js";
-import { uiIcon as dep_uiIcon } from "./reinspection_walkthrough.js";
-import { captureWork as dep_captureWork } from "./issuance_and_corrections.js";
-import { cancelCaseLookup as dep_cancelCaseLookup, render as dep_render } from "./inspection_import.js";
-import { HELPER_VERSION as dep_HELPER_VERSION } from "./data/build_identity.js";
+import { toast } from "./court_and_deposits.js";
+import { shell } from "./workspace_shell.js";
+import { saveDrafts } from "./case_files.js";
+import { uiIcon } from "./reinspection_walkthrough.js";
+import { captureWork } from "./issuance_and_corrections.js";
+import { cancelCaseLookup, render } from "./inspection_import.js";
+import { HELPER_VERSION } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
 /* Main destinations and infrequent tools share safe, saved navigation. */
 export function initNavigation() {
@@ -28,7 +28,7 @@ export function initNavigation() {
     );
   }
   function saveFailure() {
-    dep_toast("Your work could not be saved on this device. Keep this screen open and r" + "etry. Download a workspace backup to preserve it.", {
+    toast("Your work could not be saved on this device. Keep this screen open and r" + "etry. Download a workspace backup to preserve it.", {
       severity: "error",
       key: "device-save",
       inline: true,
@@ -52,13 +52,13 @@ export function initNavigation() {
   async function leave(action) {
     const sequence = ++navigationSequence;
     ++utilitySequence;
-    dep_cancelCaseLookup();
-    dep_captureWork();
+    cancelCaseLookup();
+    captureWork();
     let saved = false;
     while (current(sequence)) {
       const revision = WriterState.LOCAL_CHANGED;
       try {
-        saved = await dep_saveDrafts();
+        saved = await saveDrafts();
       } catch (error) {
         saved = false;
       }
@@ -80,7 +80,7 @@ export function initNavigation() {
       WriterState.state.picker = false;
       WriterState.state.screen = route;
       if (route === "library") WriterState.state.languageMode = "browse";
-      dep_render();
+      render();
       window.scrollTo(0, 0);
       const heading = document.querySelector(".main h1");
       if (heading) {
@@ -105,17 +105,17 @@ export function initNavigation() {
             WriterState.state.screen === route || (route === "cases" && caseScreens.has(WriterState.state.screen)) ? 'aria-current="page"' : "",
           ) +
           ">" +
-          `${dep_uiIcon(route)}` +
+          `${uiIcon(route)}` +
           "<span>" +
           `${label}` +
           "</span></button>",
       )
       .join("");
     const reports = WriterState.REPORT_RETURN
-      ? `<button class="rail-item" data-report-return>${dep_uiIcon("reports")}<span>Back to Reports</span></button>`
+      ? `<button class="rail-item" data-report-return>${uiIcon("reports")}<span>Back to Reports</span></button>`
       : '<a class="rail-item" href="madison-reports.html" target="_blank" rel="no' +
         'opener" aria-label="Reports (opens in a new tab)">' +
-        `${dep_uiIcon("reports")}` +
+        `${uiIcon("reports")}` +
         '<span>Reports</span><span class="nav-external" aria-hidden="true">↗</spa' +
         "n></a>";
     return (
@@ -126,7 +126,7 @@ export function initNavigation() {
       '<button class="rail-item" data-nav="tools" ' +
       `${WriterState.state.screen === "tools" ? 'aria-current="page"' : ""}` +
       ">" +
-      `${dep_uiIcon("tools")}` +
+      `${uiIcon("tools")}` +
       "<span>Tools &amp; settings</span></button>"
     );
   }
@@ -177,7 +177,7 @@ export function initNavigation() {
       ],
     ];
     const theme = document.documentElement.dataset.theme || "system";
-    return dep_shell(
+    return shell(
       "Tools & settings",
       "Building Inspection",
       `<button class="btn" data-nav="cases">Back to Workspace</button>`,
@@ -201,7 +201,7 @@ export function initNavigation() {
                         '<button class="tool-action" ' +
                         `${attributes}` +
                         ">" +
-                        `${dep_uiIcon(icon)}` +
+                        `${uiIcon(icon)}` +
                         "<span><strong>" +
                         `${label}` +
                         "</strong><span>" +
@@ -235,19 +235,19 @@ export function initNavigation() {
             .join(""),
         ) +
         '</select></label><button class="tool-action" data-a11y-history>' +
-        `${dep_uiIcon("files")}` +
+        `${uiIcon("files")}` +
         "<span><strong>Message history</strong><span>Review earlier save confirma" +
         'tions, warnings and errors.</span></span><span class="tool-arrow" aria-h' +
         'idden="true">→</span></button><button class="tool-action" data-a11y-help' +
         ">" +
-        `${dep_uiIcon("tools")}` +
+        `${uiIcon("tools")}` +
         "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
         ' ? outside a text field for quick help.</span></span><span class="tool-a' +
         'rrow" aria-hidden="true">→</span></button></div></section>',
     );
   }
   function helperVersion() {
-    return dep_HELPER_VERSION;
+    return HELPER_VERSION;
   }
   return { rail, screen, navigate, leave, current, utilityContext, utilityCurrent, invalidateUtilities, helperVersion };
 }
