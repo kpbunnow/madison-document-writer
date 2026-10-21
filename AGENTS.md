@@ -4,8 +4,8 @@ R53 is the authoritative baseline. Read `docs/developer/PROJECT-INSTRUCTIONS.md`
 `00-START-HERE.md`, `01-ARCHITECTURE.md`, `03-DOMAIN-RULES.md`, `04-PITFALLS.md`
 and `05-TESTING.md` before changing application code. Their security, identity,
 historical rendering, legal-hold and City acceptance requirements remain in force.
-The R54 file in `docs/development-prompts/` is future work, not an instruction to
-implement it during baseline import or setup.
+`docs/history/` holds inert provenance, including the implemented R54 development
+prompt; it is not an instruction for current work.
 
 Use the existing checkout: cloud tasks are isolated, so do not create a worktree
 unless requested. See `docs/developer/CLOUD-DEVELOPMENT.md` for setup and validation.

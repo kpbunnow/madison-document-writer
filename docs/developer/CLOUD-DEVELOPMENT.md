@@ -46,8 +46,10 @@ axe and print audits. It starts its own local services; no persistent service is
 required. Do not run concurrent Chromium jobs during performance measurements.
 Read current `build/test-results/results.json` and
 `build/verification/latest/` logs; distinguish failed, unrun and passed checks.
-Never relax deadlines or assertions. See `docs/import/R53-BASELINE.md` for the
-actual import verification result and unresolved requirements.
+Never relax deadlines or assertions. The current release's
+`Rnn-PRODUCTION-READINESS.md` and `Rnn-ACCEPTANCE-RECORD.md` list unresolved
+requirements. `docs/history/R53-BASELINE.md` records the original import and its
+first verification result.
 
 Before each checkpoint, inspect `git status`, review the diff and staged paths,
 and keep unrelated work intact. Preserve release identity until separately

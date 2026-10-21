@@ -36,3 +36,12 @@ credentials.json
 /helper/share.txt
 /helper/case-lookup-settings.json
 /helper/integrity-settings.json
+/.helper-session.json
+/helper/.helper-session.json
+/_integrity/
+/helper/Case JSON Files/
+/helper/Reporting Index/
+/helper/Reporting GIS/
+/helper/Documents To Be Mailed And Recorded/
+/helper/_integrity/
+/helper/logs/

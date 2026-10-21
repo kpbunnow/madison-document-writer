@@ -1,0 +1,77 @@
+{
+  "release": {
+    "release": "2026-10-19 R53",
+    "helperVersion": "2026.10.19.54",
+    "authoringVersion": 11,
+    "caseSchema": 5,
+    "summaryVersion": 6,
+    "backupVersion": 2,
+    "helperBuild": 54
+  },
+  "sourceFiles": 430,
+  "intentionalImportedFileChanges": [
+    ".gitignore"
+  ],
+  "runtimeMatchesR53Deploy": true,
+  "runtimeSha256": {
+    "madison-document-writer.html": "1900133dac9692ed420e33b6f5f085e4d27ac6e62cb4f52c3081249c350ab08d",
+    "madison-reports.html": "af6ce5d0876f792764a41792f7efab8c4cc83b3a92d3f8769e8cd3d3c9bb17a3"
+  },
+  "tools": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "python": "3.12.14",
+    "chromium": "154.0.8037.57",
+    "playwright": "1.58.2"
+  },
+  "verificationExitCode": 1,
+  "formattingAndStaticChecksPassed": true,
+  "regressionSuites": 128,
+  "regressionPassed": 128,
+  "failedRegressionSuites": [],
+  "axeScreensExecuted": 48,
+  "axeScreensPassed": 47,
+  "axeFailures": [
+    {
+      "screen": "reinspection-compact-dark",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                "#btn-savework"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.09 (foreground color: #edf6ff, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "button[data-riwalk=\"on\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.32 (foreground color: #10263d, background color: #195ea3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "#btn-risave"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.09 (foreground color: #edf6ff, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "passes": 27,
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    }
+  ],
+  "laterProductionBrowserChecks": "Not reached after assertion failure",
+  "pinnedBrowserDownload": "HTTP 403 Domain forbidden at cdn.playwright.dev",
+  "logs": {
+    "regression": "build/verification/latest/regression.log",
+    "browser": "build/verification/latest/browser.log",
+    "suiteResults": "build/test-results/results.json"
+  }
+}
