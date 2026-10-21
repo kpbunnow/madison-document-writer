@@ -58,11 +58,18 @@ class Layout(unittest.TestCase):
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 
     def test_current_release_package_documents_exist(self):
-        release = json.loads((ROOT / "version.json").read_text())["release"].split()[-1]
-        for suffix in ["REVIEW", "PRODUCTION-READINESS", "ACCEPTANCE-RECORD"]:
-            document = ROOT / "docs/developer" / (release + "-" + suffix + ".md")
-            self.assertTrue(document.is_file(), str(document))
-            self.assertTrue(document.read_text().strip(), str(document))
+        version = json.loads((ROOT / "version.json").read_text())
+        release = version["release"].split()[-1]
+        review = ROOT / "docs/developer" / (release + "-REVIEW.md")
+        self.assertTrue(review.is_file(), str(review))
+        self.assertTrue(review.read_text().strip(), str(review))
+        for suffix in ["PRODUCTION-READINESS", "ACCEPTANCE-RECORD"]:
+            self.assertTrue((ROOT / "docs/developer" / (suffix + ".md")).is_file(), suffix)
+            document = ROOT / "build/generated/release-docs" / (release + "-" + suffix + ".md")
+            text = document.read_text()
+            self.assertNotIn("{{", text, str(document))
+            self.assertTrue(text.startswith("# " + release + " "), str(document))
+            self.assertIn("Release " + version["release"] + " · Helper " + version["helperVersion"], text, str(document))
 
     def test_stalled_browser_workflow_fails_with_deadline(self):
         code = "const assert=require('assert/strict');const {runSuite}=require('./tools/browser_suite.cjs');(async()=>{await assert.rejects(runSuite('stalled-flow',()=>new Promise(()=>{}),25),/stalled-flow exceeded 25 ms/);console.log('deadline detected')})().catch(e=>{console.error(e);process.exit(1)});"

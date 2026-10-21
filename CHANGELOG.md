@@ -1,5 +1,9 @@
 # Release changelog
 
+## 2026-10-20 R54
+
+Helper 2026.10.20.55, helperBuild 55, authoring 12. Newly authored Best Interest and Vacancy Extensions use the regular Extension's layout, items table, continuation pages, footer and copy handling, with unchanged approved language and the supervisory signer after the table. Conditional vacancy items show "Conditional — see conditions above" without changing stored repair dates; editing the shared table clears supervisory review. The regular Extension, authoring-11 and earlier documents and their corrections keep their existing output. Case schema 5, summary 6 and backup 2 are unchanged. Adds acceptance item P7 (native side-by-side extension printing).
+
 ## 2026-10-19 R53
 
 Update recovery (signing-era detection, stale-file message, prepare_deployment.py, diagnostics, bounded link checks); documents follow the Accela inspection type and status, replacing Choose next action; group due dates on reinspection worksheets with Undo; top-of-page warnings clear after 15 seconds into Message history.

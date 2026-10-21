@@ -12,10 +12,22 @@ From a clean source copy:
     python3 tools/build.py
     python3 tools/verify_release.py
 
-For offline development, DW_BROWSER selects a compatible Chromium executable. Read 05-TESTING.md for browser setup, exact source-bound evidence, the complete regression and production-browser gate, and signing. Add helper/app files through ordinary imports, test discovery and the deployment manifest. Never edit generated files or approved/frozen fixtures to make a test pass.
+For offline development, DW_BROWSER selects a compatible Chromium executable. Read 05-TESTING.md for browser setup, exact source-bound evidence, the complete regression and production-browser gate, and packaging. Add helper/app files through ordinary imports, test discovery and the deployment manifest. Never edit generated files or approved/frozen fixtures to make a test pass.
+
+## Maintenance rules
+
+Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep exactly five Writer destinations; importing inspection results stays first. Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice, exceptional recovery in Tools, and manual links inside Tools.
+
+Use direct module imports and state.js; never recreate the universal runtime registry. Edit maintained source only; generated files live under build/. version.json is the release identity source; check generated consumers. Source or policy changes require fresh complete verification and packaging. Actual City approval is not supplied by an automated gate. No live rollout is performed by release packaging.
+
+## Release documents
+
+ACCEPTANCE-RECORD.md and PRODUCTION-READINESS.md are living records. Update them in place when a release adds or closes an acceptance item; do not copy them for each release. The build renders them with the current identity, and packaging places them at the release package top level as Rnn-ACCEPTANCE-RECORD.md and Rnn-PRODUCTION-READINESS.md, never on inspector PCs. Each release adds its own Rnn-REVIEW.md here; earlier reviews and release-named records are in docs/history/.
+
+## Installation and history
 
 First installation comes from a deploy ZIP whose SHA-256 IT has checked against the release owner’s separately published value. After installation, run the installed shortcut. Shared launch.py hands control to the installed launcher before importing any sibling module.
 
-Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. docs/staff/PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf/.docx are staff guidance. R51-ACCEPTANCE-RECORD.md belongs at the package top level, never on inspector PCs. Historical material in archive/development-history is inert reference, excluded from all build inputs and release packages. Its recovery provenance identifies the R49 source ZIP.
+docs/staff/PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf/.docx are staff guidance. docs/history/ and the optional, ignored archive/development-history are inert reference, excluded from all build inputs and release packages. docs/history/R51-HISTORY-RESTORE.json identifies the R49 source ZIP that archive/development-history is restored from.
 
 Legal holds and all open City acceptance items remain open. Automated checks do not supply legal, City hardware, native print, accessibility or staff approval.
