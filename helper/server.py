@@ -242,7 +242,11 @@ def read_index(read_workers=4):
             if number not in files or len(files[number]) != 1:
                 raise ValueError("missing or duplicate case file; excluded from reports")
             casefile = files[number][0]
-            if summary.get("sourceFile") and summary["sourceFile"].casefold() != casefile.name.casefold():
+            # Optional metadata: absent, null or empty is accepted as before; anything but text is damage.
+            source_file = summary.get("sourceFile")
+            if source_file is not None and not isinstance(source_file, str):
+                raise ValueError("summary source file is not a file name")
+            if source_file and source_file.casefold() != casefile.name.casefold():
                 raise ValueError("summary points to a different case file")
             if any(
                 not isinstance(summary.get(key, []), list) or any(not isinstance(item, dict) for item in summary.get(key, []))
@@ -252,6 +256,8 @@ def read_index(read_workers=4):
             if read_error:
                 raise read_error
             record_value = json.loads(raw)
+            if not isinstance(record_value, dict) or not isinstance(record_value.get("case", {}), dict):
+                raise ValueError("case file is not a case record")
             if case_number_key(record_value.get("case", {}).get("number")) != number:
                 raise ValueError("case file identity mismatch")
             if summary.get("sourceRevision") != hashlib.sha256(raw).hexdigest():

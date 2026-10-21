@@ -84,3 +84,14 @@ withdrawn notice's summary with noticeActive 0 was saved, read with no mismatch 
 anchored case, and counted one case in Cases by inspector instead of zero. Parity
 assertions now compare canonical JSON text and check every corpus boolean's type.
 No packaging, publication, deployment or City approval is performed or implied.
+
+## Post-PR #19 correction
+
+Branch: fix/reporting-metadata-validation. Baseline: e6a599f. read_index rejects a
+non-text sourceFile and a case file that is not an object with a case object as
+per-summary ValueErrors (unreadable coverage); no broader exception handling was added.
+verify_record was probed with malformed events/integrity/schema types and already
+reports them as invalid. Reproduction against the previous helper: integer, float,
+true, non-empty array and object sourceFile values and non-object case files returned
+HTTP 500 from /reporting/index; falsy non-text values were silently accepted.
+No packaging, publication, deployment or City approval is performed or implied.
