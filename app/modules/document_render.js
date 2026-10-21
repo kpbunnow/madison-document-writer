@@ -178,7 +178,7 @@ function noticeHTML(d) {
           ) +
           "</td>\n      " +
           "".concat(
-            struct && citeAllowed(d) && !it.done
+            struct && (citeAllowed(d) || d.items.some((i) => i.cite)) && !it.done && (citeAllowed(d) || it.cite)
               ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
                   'ice"><input type="checkbox" data-notecite="' +
                   `${esc(it.id)}` +
@@ -366,7 +366,7 @@ function noticeHTML(d) {
     '\n    <table class="notice"><thead><tr><th class="c-no">Item No.</th><th ' +
     'class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>C' +
     "orrections Required</th>" +
-    `${struct && citeAllowed(d) ? '<th class="c-cite no-print">Cite</th>' : ""}` +
+    `${struct && (citeAllowed(d) || d.items.some((i) => i.cite)) ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
     `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +

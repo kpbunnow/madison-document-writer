@@ -441,6 +441,7 @@
     "tests/unit/audit_r54_extension_print.js",
     "tests/unit/audit_r54_extensions.js",
     "tests/unit/audit_r55_documentation.py",
+    "tests/unit/audit_r56_citation_status.js",
     "tests/unit/audit_recipient_flow.js",
     "tests/unit/audit_release.js",
     "tests/unit/audit_release_inputs.py",

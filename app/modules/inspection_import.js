@@ -838,7 +838,7 @@ function screenReinspect() {
                 ) +
                 "</label>\n      " +
                 "".concat(
-                  open && r.importRule?.cite
+                  open && (r.importRule?.cite || res.cite)
                     ? '<label class="ri-cite"><input type="checkbox" data-ricite="' +
                         `${esc(it.id)}` +
                         '" ' +

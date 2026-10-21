@@ -1172,6 +1172,32 @@ export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : unde
 export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
 /* Items may be cited only when the imported Accela inspection status is Citation. */
 export const citeAllowed = (d) => !!d?.importRule?.cite;
+/* When an imported status does not permit citations (for example Citation corrected to Official Notice in Accela
+   and re-imported), clear the citation marks and their draft citation and deposit data on a draft notice or an
+   open worksheet. Issued and corrected documents are never changed. Returns whether anything was cleared. */
+export function clearProhibitedCitations(target) {
+  if (!target?.importRule || target.importRule.cite) return false;
+  let cleared = false;
+  if (target.results) {
+    if (!target.draft || target.docId) return false;
+    for (const res of Object.values(target.results)) {
+      if (res?.cite) {
+        res.cite = false;
+        cleared = true;
+      }
+    }
+    return cleared;
+  }
+  if (!target.draft || target.correction || target.pendingIssue || target.pendingAmendment || !Array.isArray(target.items)) return false;
+  for (const it of target.items) {
+    if (!it.cite) continue;
+    it.cite = false;
+    delete target.depositRequests?.[it.id];
+    delete target.cits?.[it.id];
+    cleared = true;
+  }
+  return cleared;
+}
 const isRecordEvent = (e) =>
   /\.issued$/.test(e.type) || e.type === "document.voided" || e.type === "reinspection.recorded" || e.type === "document.served";
 export const recordHead = (cid) =>
@@ -2920,9 +2946,10 @@ document.addEventListener("click", async (e) => {
     return;
   }
   if (t.dataset.notecite) {
-    if (!structEditable(d) || !citeAllowed(d)) return;
+    if (!structEditable(d)) return;
     const it = d.items.find((i) => i.id === t.dataset.notecite);
-    if (it) {
+    // A mark that is no longer permitted can still be removed; a new one needs a Citation import.
+    if (it && (it.cite || citeAllowed(d))) {
       it.cite = !it.cite;
       if (!it.cite) {
         delete d.depositRequests?.[it.id];
@@ -3510,7 +3537,7 @@ document.addEventListener("change", (e) => {
   }
   const rr = reinsp(WriterState.state.reinspId),
     ds = e.target.dataset || {};
-  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && rr.importRule?.cite))) {
+  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked)))) {
     const id = ds.ridate || ds.ridue || ds.ricite,
       res = rr.results[id];
     if (res) {

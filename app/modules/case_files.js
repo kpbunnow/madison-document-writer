@@ -27,6 +27,7 @@ import { refreshCatalog } from "./language_catalog.js";
 import { initWriterHandoff, inspectionIdentity, markWriterReady, refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./inspection_import.js";
 import {
+  clearProhibitedCitations,
   CASEDIR_EXPECT,
   COMMITTED,
   IDB_OK,
@@ -586,10 +587,13 @@ async function restoreDrafts() {
     eventsFor(cid).sort(byTime);
   });
   await recordIntegrity.restore(b.integrityRecords);
+  // Drafts saved before their status prohibited citations are restored without the stale marks.
   (b.docs || []).forEach((d) => {
+    clearProhibitedCitations(d);
     if (!WriterState.DOCS.some((x) => x.id === d.id)) WriterState.DOCS.unshift(d);
   });
   (b.reinsp || []).forEach((r) => {
+    clearProhibitedCitations(r);
     if (!WriterState.REINSP.some((x) => x.id === r.id)) WriterState.REINSP.push(r);
   });
   project();

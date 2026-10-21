@@ -24,6 +24,7 @@ Add a new suite under the feature it covers.
 | `audit_r50_import.js` | Result-status eligibility table (Completed, Official Notice, Citation, Compliance) |
 | `audit_r50_import_repaint.js` | Import disclosure, picker focus and navigation across repaints |
 | `audit_r53_status_rules.js` | Inspection type and status decide the document |
+| `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
 
 ## Document authoring and language
 

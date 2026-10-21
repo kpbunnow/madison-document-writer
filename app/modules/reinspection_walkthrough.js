@@ -16,6 +16,7 @@ import {
 } from "./case_timeline.js";
 import { accelaPlan, cancelCaseLookup, checkLookupShared, dueCheck, lookupCard, newDoc, render, renderKeep } from "./inspection_import.js";
 import {
+  clearProhibitedCitations,
   ACC_CASEFIELDS,
   ACC_COLS,
   ACC_EXPANDED_MAX,
@@ -1341,6 +1342,7 @@ async function accelaFromShare(isCurrent = () => true) {
    established initial-action document; reinspection worksheets show the status card instead of Choose next action. */
 function applyImportRule(target, rule) {
   target.importRule = rule;
+  clearProhibitedCitations(target);
   if (target.results) {
     target.followupIntent = rule.choose ? "" : rule.doc;
     return;
