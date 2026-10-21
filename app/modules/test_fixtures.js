@@ -1,21 +1,10 @@
-import { recordDay as dep_recordDay } from "../assets/shared.js";
-import { fmtDate as dep_fmtDate, freezeSources as dep_freezeSources, toast as dep_toast } from "./court_and_deposits.js";
-import { appendEvent as dep_appendEvent, project as dep_project } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts, validateAndStandardizeAddresses as dep_validateAndStandardizeAddresses } from "./case_files.js";
-import { recordReinspection as dep_recordReinspection, startCorrection as dep_startCorrection } from "./issuance_and_corrections.js";
-import { render as dep_render } from "./inspection_import.js";
-import {
-  ISSUE_EVENT as dep_ISSUE_EVENT,
-  MINDUE as dep_MINDUE,
-  addDays as dep_addDays,
-  clone as dep_clone,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docInsp as dep_docInsp,
-  isLLC as dep_isLLC,
-  recordHead as dep_recordHead,
-  reinsp as dep_reinsp,
-} from "./app_core.js";
+import { recordDay } from "../assets/shared.js";
+import { fmtDate, freezeSources, toast } from "./court_and_deposits.js";
+import { appendEvent, project } from "./workspace_shell.js";
+import { saveDrafts, validateAndStandardizeAddresses } from "./case_files.js";
+import { recordReinspection, startCorrection } from "./issuance_and_corrections.js";
+import { render } from "./inspection_import.js";
+import { ISSUE_EVENT, MINDUE, addDays, clone, doc, docCase, docInsp, isLLC, recordHead, reinsp } from "./app_core.js";
 import { WriterState } from "./state.js";
 const TEST_CASES = [
   {
@@ -60,37 +49,37 @@ const TEST_CASES = [
 ];
 export { TEST_CASES };
 export function initTestFixtures() {
-  const fmtDateEd = (v) => (v ? dep_fmtDate(v) : "");
+  const fmtDateEd = (v) => (v ? fmtDate(v) : "");
   function futureDue(from, days) {
-    const d = dep_addDays(from || dep_recordDay(today), days),
-      m = dep_MINDUE();
+    const d = addDays(from || recordDay(today), days),
+      m = MINDUE();
     return d < m ? m : d;
   }
   function issueDocument(d) {
     if (!d || !d.draft) return null;
-    const addressFault = dep_validateAndStandardizeAddresses(dep_docCase(d), d.type === "citation" && dep_isLLC(dep_docCase(d)));
+    const addressFault = validateAndStandardizeAddresses(docCase(d), d.type === "citation" && isLLC(docCase(d)));
     if (addressFault) {
-      dep_toast(addressFault.message);
+      toast(addressFault.message);
       return null;
     }
     if (d.correction) {
-      dep_toast("Use Review correction to save this revision to the shared record");
+      toast("Use Review correction to save this revision to the shared record");
       return null;
     }
-    const snap = dep_clone(d);
+    const snap = clone(d);
     delete snap.draft;
     snap.status = "Final";
     // the snapshot has to be everything that printed, not just the document
-    snap.frozen = dep_freezeSources(d);
-    const type = dep_ISSUE_EVENT[d.type];
+    snap.frozen = freezeSources(d);
+    const type = ISSUE_EVENT[d.type];
     if (!type) {
-      dep_toast("That document type cannot be issued yet");
+      toast("That document type cannot be issued yet");
       return null;
     }
     // a reinspection that has not been committed on its own goes on the record now
-    const r = d.fromReinspId ? dep_reinsp(d.fromReinspId) : null;
-    if (r && r.draft) dep_recordReinspection(r, true);
-    const ev = dep_appendEvent(
+    const r = d.fromReinspId ? reinsp(d.fromReinspId) : null;
+    if (r && r.draft) recordReinspection(r, true);
+    const ev = appendEvent(
       d.caseId,
       type,
       {
@@ -99,21 +88,21 @@ export function initTestFixtures() {
         replaces: d.replaces || "",
         fromReinspId: d.fromReinspId || "",
         fromDocId: d.fromDocId || "",
-        expectedHead: dep_recordHead(d.caseId),
+        expectedHead: recordHead(d.caseId),
       },
       null,
-      dep_docInsp(d).id,
+      docInsp(d).id,
     );
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id); // the draft is spent
-    dep_project();
-    dep_saveDrafts();
-    const live = dep_doc(d.id);
+    project();
+    saveDrafts();
+    const live = doc(d.id);
     if (live) {
       WriterState.state.docId = live.id;
     }
-    dep_render();
+    render();
     return ev;
   }
-  const reissueDocument = (docId) => dep_startCorrection(docId);
+  const reissueDocument = (docId) => startCorrection(docId);
   return { futureDue, issueDocument, fmtDateEd, reissueDocument };
 }

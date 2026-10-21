@@ -1,24 +1,19 @@
+import { SUMMARY_VERSION, csvText, downloadText, normParcel } from "../assets/shared.js";
+import { drawMap, shell } from "./reports_screens.js";
 import {
-  SUMMARY_VERSION as dep_SUMMARY_VERSION,
-  csvText as dep_csvText,
-  downloadText as dep_downloadText,
-  normParcel as dep_normParcel,
-} from "../assets/shared.js";
-import { drawMap as dep_drawMap, shell as dep_shell } from "./reports_screens.js";
-import {
-  A11Y as dep_A11Y,
-  REPORT_CHANNEL as dep_REPORT_CHANNEL,
-  REPORT_VIEWS_KEY as dep_REPORT_VIEWS_KEY,
-  STREET_WORDS as dep_STREET_WORDS,
-  TODAY as dep_TODAY,
-  areaIdOf as dep_areaIdOf,
-  esc as dep_esc,
-  iso as dep_iso,
-  plural as dep_plural,
-  reportById as dep_reportById,
-  uniq as dep_uniq,
-  validISO as dep_validISO,
-  violOk as dep_violOk,
+  A11Y,
+  REPORT_CHANNEL,
+  REPORT_VIEWS_KEY,
+  STREET_WORDS,
+  TODAY,
+  areaIdOf,
+  esc,
+  iso,
+  plural,
+  reportById,
+  uniq,
+  validISO,
+  violOk,
 } from "./reports_core.js";
 import { ReportsState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
@@ -36,14 +31,14 @@ function currentReportRows() {
   if (!res) return [];
   const rows = orderedRows(res, validSort(ReportsState.S.tableSort, ReportsState.S.screen), (message) => {
     ReportsState.S.reportNotice = message;
-    dep_A11Y.notify(message);
+    A11Y.notify(message);
   });
   return [res.cols, ...rows.map(({ row }) => (row.cells || row).map(reportCellValue)), ...(res.total ? [res.total.map(reportCellValue)] : [])];
 }
 
 function exportReportCSV() {
   if (!ReportsState.S.rep) return;
-  dep_downloadText("Madison-" + ReportsState.S.screen + ".csv", dep_csvText(currentReportRows()), "text/csv");
+  downloadText("Madison-" + ReportsState.S.screen + ".csv", csvText(currentReportRows()), "text/csv");
 }
 
 function humanCorrectionValue(value) {
@@ -68,7 +63,7 @@ async function reportHelper(url, body) {
 }
 
 async function shareReportView() {
-  if (!dep_reportById(ReportsState.S.screen)) throw new Error("Open a report before sharing a view");
+  if (!reportById(ReportsState.S.screen)) throw new Error("Open a report before sharing a view");
   const name = prompt("Name this shared report view:");
   if (!name?.trim()) return;
   const view = {
@@ -82,12 +77,12 @@ async function shareReportView() {
     dateMode: ReportsState.S.dateMode,
   };
   await reportHelper("/reporting/views", view);
-  dep_A11Y.notify("Saved shared report view " + view.name, { severity: "success" });
+  A11Y.notify("Saved shared report view " + view.name, { severity: "success" });
 }
 
 async function showSharedViews() {
   const views = (await reportHelper("/reporting/views")).views;
-  dep_A11Y.utility(
+  A11Y.utility(
     "Shared report views",
     "<p>These preferences are stored in Reporting Index/Views. Relative dates" +
       " are evaluated when loaded.</p><ul>" +
@@ -96,13 +91,13 @@ async function showSharedViews() {
           .map(
             (view) =>
               "<li>" +
-              `${dep_esc(view.name)}` +
+              `${esc(view.name)}` +
               " · " +
-              `${dep_esc(dep_reportById(view.report)?.label || view.report)}` +
+              `${esc(reportById(view.report)?.label || view.report)}` +
               " · " +
-              `${dep_esc(view.dateMode)}` +
+              `${esc(view.dateMode)}` +
               ' <button class="btn" data-load-shared-view="' +
-              `${dep_esc(view.id)}` +
+              `${esc(view.id)}` +
               '">Load view</button></li>',
           )
           .join("") || "<li>No shared views saved.</li>",
@@ -112,20 +107,20 @@ async function showSharedViews() {
   document.querySelectorAll("[data-load-shared-view]").forEach((button) =>
     button.addEventListener("click", () => {
       const view = views.find((x) => x.id === button.dataset.loadSharedView);
-      if (!view || !dep_reportById(view.report)) return;
+      if (!view || !reportById(view.report)) return;
       const previous = ReportsState.SAVED_VIEWS;
       try {
         const next = previous
           .filter((v) => v.id !== view.id)
           .concat([view])
           .slice(-40);
-        localStorage.setItem(dep_REPORT_VIEWS_KEY, JSON.stringify(next));
+        localStorage.setItem(REPORT_VIEWS_KEY, JSON.stringify(next));
         ReportsState.SAVED_VIEWS = next;
         applyReportView(view.id);
         document.getElementById("utility-dialog")?.close();
       } catch (error) {
         ReportsState.SAVED_VIEWS = previous;
-        dep_A11Y.notify("Could not store the shared view on this device", { severity: "error" });
+        A11Y.notify("Could not store the shared view on this device", { severity: "error" });
       }
     }),
   );
@@ -133,7 +128,7 @@ async function showSharedViews() {
 
 function printReport() {
   if (!ReportsState.S.rep) {
-    dep_A11Y.notify("Open a valid report before printing", { severity: "error" });
+    A11Y.notify("Open a valid report before printing", { severity: "error" });
     return;
   }
   const details = [...document.querySelectorAll(".map-table-alternative")];
@@ -142,7 +137,7 @@ function printReport() {
 }
 
 function daysBetween(a, b) {
-  if (!dep_validISO(a) || !dep_validISO(b)) return null;
+  if (!validISO(a) || !validISO(b)) return null;
   const p = a.split("-").map(Number),
     q = b.split("-").map(Number);
   return Math.round((Date.UTC(q[0], q[1] - 1, q[2]) - Date.UTC(p[0], p[1] - 1, p[2])) / 86400000);
@@ -166,7 +161,7 @@ function normStreet(s) {
     .trim();
   return t
     .split(" ")
-    .map((w) => dep_STREET_WORDS[w] || w)
+    .map((w) => STREET_WORDS[w] || w)
     .join(" ")
     .replace(/\bUNIT UNIT\b/g, "UNIT");
 }
@@ -210,7 +205,7 @@ function detectField(fc, kind) {
 }
 
 function relativeDates(mode) {
-  const day = dep_iso(new Date());
+  const day = iso(new Date());
   if (mode === "month") return { from: day.slice(0, 7) + "-01", to: day, asOf: day };
   if (mode === "year") return { from: day.slice(0, 4) + "-01-01", to: day, asOf: day };
   if (mode === "today") return { from: day, to: day, asOf: day };
@@ -219,7 +214,7 @@ function relativeDates(mode) {
       from:
         ReportsState.S.M?.counted
           ?.map((c) => c.opened)
-          .filter(dep_validISO)
+          .filter(validISO)
           .sort()[0] || day,
       to: day,
       asOf: day,
@@ -242,7 +237,7 @@ function saveReportView() {
   };
   const next = ReportsState.SAVED_VIEWS.concat([view]).slice(-40);
   try {
-    localStorage.setItem(dep_REPORT_VIEWS_KEY, JSON.stringify(next));
+    localStorage.setItem(REPORT_VIEWS_KEY, JSON.stringify(next));
     ReportsState.SAVED_VIEWS = next;
     ReportsState.S.savedId = view.id;
     ReportsState.S.reportNotice = "Saved view " + view.name + ".";
@@ -256,7 +251,7 @@ function saveReportView() {
 function applyReportView(id) {
   const x = ReportsState.SAVED_VIEWS.find((v) => v.id === id);
   if (!x) return;
-  if (!dep_reportById(x.report)) {
+  if (!reportById(x.report)) {
     ReportsState.S.reportNotice = "This saved report is no longer available.";
     render();
     return;
@@ -280,7 +275,7 @@ function deleteReportView() {
   if (!x || !confirm("Delete saved view " + x.name + "?")) return;
   const next = ReportsState.SAVED_VIEWS.filter((v) => v.id !== x.id);
   try {
-    localStorage.setItem(dep_REPORT_VIEWS_KEY, JSON.stringify(next));
+    localStorage.setItem(REPORT_VIEWS_KEY, JSON.stringify(next));
   } catch (e) {
     ReportsState.S.reportNotice = "Could not remove this saved view from this browser.";
     render();
@@ -295,7 +290,7 @@ function deleteReportView() {
 function reportsChannel() {
   if (!("BroadcastChannel" in window)) return null;
   if (!ReportsState.REPORT_LINK) {
-    ReportsState.REPORT_LINK = new BroadcastChannel(dep_REPORT_CHANNEL);
+    ReportsState.REPORT_LINK = new BroadcastChannel(REPORT_CHANNEL);
     ReportsState.REPORT_LINK.onmessage = (e) => {
       if (e.data?.kind === "accepted" && e.data.request === ReportsState.S.handoff?.request) {
         ReportsState.S.handoff.accepted = true;
@@ -397,10 +392,10 @@ async function loadAll(refreshParcels) {
     ReportsState.S.parcels = (pc && pc.parcels) || {};
     ReportsState.S.parcelMissing = (pc && pc.missing) || [];
     ReportsState.S.parcelNote = "";
-    const keys = dep_uniq(idx.summaries.map((s) => dep_normParcel((s["case"] || {}).parcel)).filter(Boolean));
+    const keys = uniq(idx.summaries.map((s) => normParcel((s["case"] || {}).parcel)).filter(Boolean));
     const need = refreshParcels ? keys : keys.filter((k) => !ReportsState.S.parcels[k]);
     if (need.length) {
-      ReportsState.S.msg = "Looking up " + dep_plural(need.length, "parcel") + " on the city parcel layer…";
+      ReportsState.S.msg = "Looking up " + plural(need.length, "parcel") + " on the city parcel layer…";
       render();
       try {
         for (let offset = 0; offset < need.length; offset += 500) {
@@ -412,7 +407,7 @@ async function loadAll(refreshParcels) {
             body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
           });
           Object.assign(ReportsState.S.parcels, lk.parcels || {});
-          ReportsState.S.parcelMissing = dep_uniq(ReportsState.S.parcelMissing.filter((k) => !(lk.parcels || {})[k]).concat(lk.missing || []));
+          ReportsState.S.parcelMissing = uniq(ReportsState.S.parcelMissing.filter((k) => !(lk.parcels || {})[k]).concat(lk.missing || []));
           if (!lk.ok) ReportsState.S.parcelNote = lk.error || "the parcel lookup did not complete";
         }
       } catch (e) {
@@ -452,18 +447,18 @@ function buildModel(summaries, parcels, areas) {
     versionStale = [];
   summaries.forEach((s) => {
     const k = s["case"] || {};
-    if ((s.summaryVersion ?? s.version ?? 0) < dep_SUMMARY_VERSION) {
+    if ((s.summaryVersion ?? s.version ?? 0) < SUMMARY_VERSION) {
       versionStale.push(k.number || "?");
       return;
     }
-    const pk = dep_normParcel(k.parcel),
+    const pk = normParcel(k.parcel),
       hist = (parcels[pk] && parcels[pk].history) || [];
     const now = hist[hist.length - 1] || null;
     // the district when the case opened: the parcel as last seen on or
     // before that date; later observations cannot establish earlier boundaries
     let at = null;
     hist.forEach((h) => {
-      if (dep_validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
+      if (validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
     });
     const c = {
       caseType: k.caseType || "",
@@ -494,7 +489,7 @@ function buildModel(summaries, parcels, areas) {
     };
     if (!c.zip && zipField && c.located) {
       const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
-      if (f) c.zip = dep_areaIdOf(f, zipField);
+      if (f) c.zip = areaIdOf(f, zipField);
     }
     c.violations = (s.violations || []).map((v) => Object.assign({}, v, { c: c, sections: v.sections || [] }));
     c.citations = (s.citations || []).map((x) => Object.assign({}, x, { c: c }));
@@ -515,15 +510,15 @@ function buildModel(summaries, parcels, areas) {
       types[v.type] = v.typeLabel;
     }),
   );
-  const ords = dep_uniq(
-    counted.flatMap((c) => c.violations.flatMap((v) => v.sections).concat(c.citations.map((x) => x.ordinance))).filter(Boolean),
-  ).sort(ordSort);
+  const ords = uniq(counted.flatMap((c) => c.violations.flatMap((v) => v.sections).concat(c.citations.map((x) => x.ordinance))).filter(Boolean)).sort(
+    ordSort,
+  );
   return {
     cases: cases,
     byNo: byNo,
     counted: counted,
     versionStale: versionStale,
-    inspectors: dep_uniq(
+    inspectors: uniq(
       counted
         .flatMap((c) =>
           [c.inspector].concat(
@@ -586,7 +581,7 @@ function caseOk(c, F, opt) {
   if (
     F.status &&
     (F.status === "open"
-      ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || dep_TODAY))
+      ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || TODAY))
       : status !== F.status)
   )
     return false;
@@ -595,7 +590,7 @@ function caseOk(c, F, opt) {
     !(opt && opt.noViol) &&
     !c.violations.some((v) => {
       const at = opt && opt.asOf ? violationAt(v, opt.asOf) : v;
-      return at && !at.withdrawn && dep_violOk(at, F);
+      return at && !at.withdrawn && violOk(at, F);
     })
   )
     return false;
@@ -650,7 +645,7 @@ function violationAt(v, date) {
 
 function violOpenAt(v, date) {
   const latest = violationAt(v, date);
-  return !!latest && !latest.withdrawn && (!latest.done || (dep_validISO(latest.doneOn) && latest.doneOn > date));
+  return !!latest && !latest.withdrawn && (!latest.done || (validISO(latest.doneOn) && latest.doneOn > date));
 }
 
 function groupBy(list, fn) {
@@ -668,10 +663,10 @@ function render() {
   if (!app) return;
   const ui = rememberUI(ReportsState.S);
   ReportsState.S.rep = null;
-  app.innerHTML = dep_shell();
-  dep_A11Y.enhance();
+  app.innerHTML = shell();
+  A11Y.enhance();
   restoreUI(ReportsState.S, ui);
-  if (ReportsState.S.phase === "ready" && ReportsState.S.view === "map" && dep_reportById(ReportsState.S.screen)) dep_drawMap();
+  if (ReportsState.S.phase === "ready" && ReportsState.S.view === "map" && reportById(ReportsState.S.screen)) drawMap();
 }
 
 export {

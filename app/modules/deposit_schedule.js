@@ -1,5 +1,5 @@
-import { render as dep_render } from "./reports_services.js";
-import { esc as dep_esc } from "./reports_core.js";
+import { render } from "./reports_services.js";
+import { esc } from "./reports_core.js";
 /* Read-only dated legislation explorer; descriptions never determine a charge. */
 import { recordDay } from "../assets/shared.js";
 import { policyAt, formatDeposit, pricingDateBasis } from "./citation_policy.js";
@@ -76,7 +76,7 @@ export function initDepositSchedule() {
     } catch (e) {
       return (
         '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
-        dep_esc(date) +
+        esc(date) +
         '"></label><p role="alert">Enter a valid date.</p>'
       );
     }
@@ -102,23 +102,23 @@ export function initDepositSchedule() {
     }, {});
     return (
       '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
-      dep_esc(date) +
+      esc(date) +
       ('"></label><label class="f"><span>Find ordinance or description</span><in' + 'put type="search" id="deposit-schedule-search" value="') +
-      dep_esc(query) +
+      esc(query) +
       '"></label><p>Base deposits below exclude assessments and court costs. ' +
-      dep_esc(
+      esc(
         Object.entries(counts)
           .map(([k, n]) => n + " " + k)
           .join(" · "),
       ) +
       ". Pricing date basis: " +
-      dep_esc(pricingDateBasis) +
+      esc(pricingDateBasis) +
       (" (pending City Attorney). Retained baseline start dates are unknown; no " +
         'legal date was invented.</p><details id="deposit-policy"><summary>Policy' +
         " and calculation details</summary><p>Policy ") +
-      dep_esc(p.versionHash) +
+      esc(p.versionHash) +
       " · court costs " +
-      dep_esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))) +
+      esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))) +
       ". This explorer does not authorize a charge or an override.</p></details>" +
       navigation +
       ('<div class="tw"><table class="rep"><caption>Deposit schedule, base amoun' +
@@ -131,13 +131,13 @@ export function initDepositSchedule() {
         .map(
           (e) =>
             '<tr><th scope="row">' +
-            dep_esc(e.ordinance) +
+            esc(e.ordinance) +
             "</th><td>" +
-            dep_esc(e.description) +
+            esc(e.description) +
             "</td><td>" +
-            dep_esc(describeDepositRule(e)) +
+            esc(describeDepositRule(e)) +
             '<p class="small">' +
-            dep_esc(
+            esc(
               e.window?.years
                 ? "Prior-offense window: " + e.window.years + " years."
                 : e.window?.months
@@ -149,15 +149,15 @@ export function initDepositSchedule() {
                       : "No rolling year window stated.",
             ) +
             " " +
-            dep_esc(e.measurements?.map((m) => m.label).join("; ") || "No measurements required.") +
+            esc(e.measurements?.map((m) => m.label).join("; ") || "No measurements required.") +
             "</p></td><td>" +
-            dep_esc((e.from || "Retained baseline") + " to " + (e.to || "open")) +
+            esc((e.from || "Retained baseline") + " to " + (e.to || "open")) +
             "<p>" +
-            dep_esc((e.classification || e.status) + " · " + e.source.codification + " · " + (e.source.ordinance || e.source.subsection)) +
+            esc((e.classification || e.status) + " · " + e.source.codification + " · " + (e.source.ordinance || e.source.subsection)) +
             "</p><details><summary>Source and technical details</summary><p>" +
-            dep_esc((e.notice || "") + " " + e.rawText) +
+            esc((e.notice || "") + " " + e.rawText) +
             "</p><pre>" +
-            dep_esc(
+            esc(
               JSON.stringify(
                 {
                   rule: e.rule,
@@ -182,21 +182,21 @@ export function initDepositSchedule() {
     if (e.target.id === "deposit-schedule-date") {
       date = e.target.value;
       page = 0;
-      dep_render();
+      render();
     }
   });
   document.addEventListener("input", (e) => {
     if (e.target.id === "deposit-schedule-search") {
       query = e.target.value;
       page = 0;
-      dep_render();
+      render();
     }
   });
   document.addEventListener("click", (e) => {
     const t = e.target.closest?.("[data-schedule-page]");
     if (!t || t.getAttribute("aria-disabled") === "true") return;
     page += t.dataset.schedulePage === "next" ? 1 : -1;
-    dep_render();
+    render();
     document.getElementById("deposit-matches")?.scrollIntoView({ block: "nearest" });
   });
   return { html };

@@ -1,12 +1,12 @@
-import { itemLibraryKey as dep_itemLibraryKey } from "./app_core.js";
-import { CITATION_POLICY as dep_CITATION_POLICY } from "./citation_policy.js";
+import { itemLibraryKey } from "./app_core.js";
+import { CITATION_POLICY } from "./citation_policy.js";
 /* Upgrade mutable working items only; issued snapshots and corrections stay frozen. */
 export function initReviewedLibrary() {
   function refresh(d) {
     if (!d?.draft || d.correction || d.pendingAmendment) return;
     for (const item of d.items || []) {
-      const key = dep_itemLibraryKey(item),
-        review = dep_CITATION_POLICY.libraryCorrections?.[key];
+      const key = itemLibraryKey(item),
+        review = CITATION_POLICY.libraryCorrections?.[key];
       if (!review) continue;
       item.printedReferences = { ...review.printedReferences };
       if (item.citationReviewApplied === review.date) continue;

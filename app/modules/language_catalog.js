@@ -1,48 +1,28 @@
-import { caseNumberKey as dep_caseNumberKey } from "../assets/shared.js";
-import { allItems as dep_allItems, toast as dep_toast } from "./court_and_deposits.js";
+import { caseNumberKey } from "../assets/shared.js";
+import { allItems, toast } from "./court_and_deposits.js";
+import { caseDetails, caseFileFault, caseFileName, helperJSON, idbSet, loadCaseFile, project, rememberSaved, stableJSON } from "./workspace_shell.js";
+import { caseUnsaved, draftBundle, saveCaseFile, saveDrafts } from "./case_files.js";
+import { clearWalk } from "./reinspection_walkthrough.js";
+import { captureWork } from "./issuance_and_corrections.js";
+import { catalogKey, recoveryCaseKey, recoverySnapshot, scheduleRecoveryBackup } from "./draft_recovery.js";
+import { render } from "./inspection_import.js";
+import { refreshSheet } from "./document_pagination.js";
 import {
-  caseDetails as dep_caseDetails,
-  caseFileFault as dep_caseFileFault,
-  caseFileName as dep_caseFileName,
-  helperJSON as dep_helperJSON,
-  idbSet as dep_idbSet,
-  loadCaseFile as dep_loadCaseFile,
-  project as dep_project,
-  rememberSaved as dep_rememberSaved,
-  stableJSON as dep_stableJSON,
-} from "./workspace_shell.js";
-import {
-  caseUnsaved as dep_caseUnsaved,
-  draftBundle as dep_draftBundle,
-  saveCaseFile as dep_saveCaseFile,
-  saveDrafts as dep_saveDrafts,
-} from "./case_files.js";
-import { clearWalk as dep_clearWalk } from "./reinspection_walkthrough.js";
-import { captureWork as dep_captureWork } from "./issuance_and_corrections.js";
-import {
-  catalogKey as dep_catalogKey,
-  recoveryCaseKey as dep_recoveryCaseKey,
-  recoverySnapshot as dep_recoverySnapshot,
-  scheduleRecoveryBackup as dep_scheduleRecoveryBackup,
-} from "./draft_recovery.js";
-import { render as dep_render } from "./inspection_import.js";
-import { refreshSheet as dep_refreshSheet } from "./document_pagination.js";
-import {
-  A11Y as dep_A11Y,
-  RECOVERY_WORKSPACE as dep_RECOVERY_WORKSPACE,
-  WORKFLOW_PREFS_KEY as dep_WORKFLOW_PREFS_KEY,
-  clone as dep_clone,
-  doc as dep_doc,
-  docsFor as dep_docsFor,
-  esc as dep_esc,
-  eventsFor as dep_eventsFor,
-  kase as dep_kase,
-  navigation as dep_navigation,
-  nowISO as dep_nowISO,
-  recordIntegrity as dep_recordIntegrity,
+  A11Y,
+  RECOVERY_WORKSPACE,
+  WORKFLOW_PREFS_KEY,
+  clone,
+  doc,
+  docsFor,
+  esc,
+  eventsFor,
+  kase,
+  navigation,
+  nowISO,
+  recordIntegrity,
 } from "./app_core.js";
 import { app_languagediscoveryContext, app_savedworkContext } from "./app_view_contexts.js";
-import { BUILD as dep_BUILD } from "./data/build_identity.js";
+import { BUILD } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
 import { languageBadge } from "./language_discovery.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
@@ -59,7 +39,7 @@ function catalogReplacement(key) {
 }
 
 function catalogStatus(i) {
-  const key = dep_catalogKey(i),
+  const key = catalogKey(i),
     review = catalogReview(key),
     replacement = catalogReplacement(key);
   if (review?.status === "retired") return { code: "retired", label: "Retired · historical only", review };
@@ -79,7 +59,7 @@ function effectiveCatalog(i) {
 }
 
 function catalogItem(key) {
-  return dep_allItems().find((i) => dep_catalogKey(i) === key);
+  return allItems().find((i) => catalogKey(i) === key);
 }
 
 function catalogDraftBlocked(it) {
@@ -99,7 +79,7 @@ function catalogDraftNotice(it) {
   return (
     '<div class="hint no-print" role="status">' +
     "".concat(
-      dep_esc(
+      esc(
         status.code === "ready"
           ? "Catalog wording changed since selection. Your draft text is preserved."
           : status.code === "superseded"
@@ -110,7 +90,7 @@ function catalogDraftNotice(it) {
     "\n    " +
     "".concat(
       status.code === "ready"
-        ? '<button class="btn btn-sm" data-adopt-catalog="' + `${dep_esc(it.id)}` + '">Review and use v' + `${status.review.version}` + "</button>"
+        ? '<button class="btn btn-sm" data-adopt-catalog="' + `${esc(it.id)}` + '">Review and use v' + `${status.review.version}` + "</button>"
         : "",
     ) +
     "</div>"
@@ -143,8 +123,8 @@ function adoptCatalogReview(d, it) {
   it.catalogVersion = status.review.version;
   it.catalogReviewId = status.review.id;
   WriterState.DIRTY = true;
-  dep_saveDrafts();
-  dep_refreshSheet();
+  saveDrafts();
+  refreshSheet();
   return true;
 }
 
@@ -178,14 +158,14 @@ async function refreshCatalog() {
     previous = WriterState.CATALOG_EVENTS;
   const current = () => sequence === catalogReadSequence && previous === WriterState.CATALOG_EVENTS;
   try {
-    const events = (await dep_helperJSON("/catalog/reviews")).events;
+    const events = (await helperJSON("/catalog/reviews")).events;
     if (!Array.isArray(events)) throw new Error("Invalid review history");
     if (!current()) return false;
     WriterState.CATALOG_EVENTS = events;
     WriterState.CATALOG_ERROR = "";
     WriterState.CATALOG_VERIFIED = true;
     WriterState.CATALOG_FROM_CACHE = false;
-    WriterState.CATALOG_AT = dep_nowISO();
+    WriterState.CATALOG_AT = nowISO();
     try {
       localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: WriterState.CATALOG_AT, events }));
     } catch (e) {
@@ -195,7 +175,7 @@ async function refreshCatalog() {
     if (!current()) return false;
     WriterState.CATALOG_ERROR = "Review refresh unavailable: " + e.message + ". Last verified: " + (WriterState.CATALOG_AT || "none") + ".";
   }
-  if (WriterState.state.screen === "library" || WriterState.state.picker) dep_render();
+  if (WriterState.state.screen === "library" || WriterState.state.picker) render();
   return WriterState.CATALOG_VERIFIED && !/Review refresh unavailable/.test(WriterState.CATALOG_ERROR);
 }
 
@@ -215,22 +195,22 @@ function catalogForm(key, i, r) {
 function catalogReplacementOptions(key, selected, query = "") {
   return (
     '<option value="">None</option>' +
-    dep_allItems()
-      .filter((x) => dep_catalogKey(x) !== key)
+    allItems()
+      .filter((x) => catalogKey(x) !== key)
       .map((x) => {
-        const k = dep_catalogKey(x),
+        const k = catalogKey(x),
           s = catalogStatus(x),
           e = effectiveCatalog(x);
         return { k, label: x.t + " · " + e.s.join(", ") + " · " + s.label };
       })
       .filter((x) => !query || x.k === selected || x.label.toLowerCase().includes(query.toLowerCase()))
-      .map((x) => `<option value="${dep_esc(x.k)}" ${selected === x.k ? "selected" : ""}>${dep_esc(x.label)}</option>`)
+      .map((x) => `<option value="${esc(x.k)}" ${selected === x.k ? "selected" : ""}>${esc(x.label)}</option>`)
       .join("")
   );
 }
 
 function catalogReviewPanel(i) {
-  const key = dep_catalogKey(i),
+  const key = catalogKey(i),
     s = catalogStatus(i),
     r = s.review;
   const f = catalogForm(key, i, r);
@@ -238,26 +218,26 @@ function catalogReviewPanel(i) {
     '<details class="lib-guidance" ' +
     `${WriterState.CATALOG_FORMS[key]?.open ? "open" : ""}` +
     "><summary>Division review administration · " +
-    `${dep_esc(s.label)}` +
+    `${esc(s.label)}` +
     "</summary>\n    <p>Source: " +
-    `${dep_esc(i.p || "export")}` +
+    `${esc(i.p || "export")}` +
     "" +
-    `${i.legacyKeys?.length ? " · overlaps " + dep_esc(i.legacyKeys.join(", ")) : ""}` +
+    `${i.legacyKeys?.length ? " · overlaps " + esc(i.legacyKeys.join(", ")) : ""}` +
     ".</p>\n    " +
     "".concat(
       r
         ? "<p>Reviewed " +
-            `${dep_esc(r.at)}` +
+            `${esc(r.at)}` +
             " by " +
-            `${dep_esc(r.reviewer)}` +
+            `${esc(r.reviewer)}` +
             " · v" +
             `${r.version}` +
             " · source " +
-            `${dep_esc(r.source)}` +
+            `${esc(r.source)}` +
             " · ordinance " +
-            `${dep_esc(r.ordinances.join(", "))}` +
+            `${esc(r.ordinances.join(", "))}` +
             ". " +
-            `${r.replaces ? "Preferred over " + dep_esc(r.replaces) : ""}` +
+            `${r.replaces ? "Preferred over " + esc(r.replaces) : ""}` +
             "</p>"
         : "",
     ) +
@@ -266,31 +246,29 @@ function catalogReviewPanel(i) {
       r
         ? "<details><summary>Compare bundled, reviewed and draft wording</summary><" +
             "p><strong>Bundled:</strong> " +
-            `${dep_esc(i.a)}` +
+            `${esc(i.a)}` +
             " · " +
-            `${dep_esc(i.s.join("; "))}` +
+            `${esc(i.s.join("; "))}` +
             "</p>\n      <p><strong>Current reviewed v" +
             `${r.version}` +
             ":</strong> " +
-            `${dep_esc(r.wording)}` +
+            `${esc(r.wording)}` +
             " · " +
-            `${dep_esc(r.ordinances.join("; "))}` +
+            `${esc(r.ordinances.join("; "))}` +
             "</p>\n      <p><strong>Unsubmitted form:</strong> " +
-            `${dep_esc(f.wording)}` +
+            `${esc(f.wording)}` +
             " · " +
-            `${dep_esc(f.ordinances)}` +
+            `${esc(f.ordinances)}` +
             "</p></details>"
         : "",
     ) +
     "\n    " +
-    "".concat(
-      WriterState.CATALOG_FORMS[key]?.error ? `<p class="save-error" role="alert">${dep_esc(WriterState.CATALOG_FORMS[key].error)}</p>` : "",
-    ) +
+    "".concat(WriterState.CATALOG_FORMS[key]?.error ? `<p class="save-error" role="alert">${esc(WriterState.CATALOG_FORMS[key].error)}</p>` : "") +
     "\n    " +
     "".concat(
       WriterState.CATALOG_FORMS[key] && f.baseVersion !== (r?.version || 0)
         ? '<button class="btn btn-sm" data-catalog-rebase="' +
-            `${dep_esc(key)}` +
+            `${esc(key)}` +
             '">Use current v' +
             `${r?.version || 0}` +
             " as review basis (keep entered values)</button>"
@@ -298,44 +276,44 @@ function catalogReviewPanel(i) {
     ) +
     '\n    <label>Reviewer <input data-catalog-field="reviewer" data-catalog-k' +
     'ey="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" value="' +
-    `${dep_esc(f.reviewer)}` +
+    `${esc(f.reviewer)}` +
     '"></label>\n    <label>Approved corrective action <textarea data-catalog-' +
     'field="wording" data-catalog-key="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '">' +
-    `${dep_esc(f.wording)}` +
+    `${esc(f.wording)}` +
     "</textarea></label>\n    <label>Ordinance reference(s), separated by semi" +
     'colons <input data-catalog-field="ordinances" data-catalog-key="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" value="' +
-    `${dep_esc(f.ordinances)}` +
+    `${esc(f.ordinances)}` +
     '"></label>\n    <label>Source / authority for review <input data-catalog-' +
     'field="source" data-catalog-key="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" value="' +
-    `${dep_esc(f.source)}` +
+    `${esc(f.source)}` +
     '"></label>\n    <label>Find an entry to replace <input type="search" data' +
     '-catalog-replacement-query="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" value="' +
-    `${dep_esc(f.replacementQuery || "")}` +
+    `${esc(f.replacementQuery || "")}` +
     '" placeholder="Search title, ordinance or status"></label>\n    <label>En' +
     'try replaced (optional) <select data-catalog-field="replaces" data-catal' +
     'og-key="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '">' +
     "".concat(
       WriterState.CATALOG_FORMS[key]?.open
         ? catalogReplacementOptions(key, f.replaces, f.replacementQuery)
-        : '<option value="' + dep_esc(f.replaces) + '">Open to browse entries</option>',
+        : '<option value="' + esc(f.replaces) + '">Open to browse entries</option>',
     ) +
     '</select></label>\n    <button class="btn btn-sm" data-catalog-save="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" data-catalog-status="approved">Record approved version</button>\n    <b' +
     'utton class="btn btn-sm" data-catalog-save="' +
-    `${dep_esc(key)}` +
+    `${esc(key)}` +
     '" data-catalog-status="retired">Retire entry</button>\n    <p class="hint' +
     '">Review is an immutable, versioned shared record. It changes future sel' +
     "ection only. Existing drafts need deliberate revision.</p>\n  </details>"
@@ -343,9 +321,9 @@ function catalogReviewPanel(i) {
 }
 
 async function readSharedCase(k) {
-  if (WriterState.CASEDIR?.helper) return (await dep_helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
+  if (WriterState.CASEDIR?.helper) return (await helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
   if (WriterState.CASEDIR && !WriterState.NEEDGRANT) {
-    const fh = await WriterState.CASEDIR.getFileHandle(dep_caseFileName(k));
+    const fh = await WriterState.CASEDIR.getFileHandle(caseFileName(k));
     return JSON.parse(await (await fh.getFile()).text());
   }
   throw new Error("Shared case storage is unavailable");
@@ -363,34 +341,34 @@ function localCaseWork(cid) {
 
 function compareSharedCase(local, events, shared, checkpoint, unfinished = localCaseWork(local.id)) {
   const fault =
-    dep_recordIntegrity.status(shared.case).valid === false ? "This record was changed outside the program. Read-only." : dep_caseFileFault(shared);
-  if (fault || dep_caseNumberKey(shared.case.number) !== dep_caseNumberKey(local.number) || shared.case.id !== local.id)
+    recordIntegrity.status(shared.case).valid === false ? "This record was changed outside the program. Read-only." : caseFileFault(shared);
+  if (fault || caseNumberKey(shared.case.number) !== caseNumberKey(local.number) || shared.case.id !== local.id)
     return { kind: "invalid", detail: fault || "The shared record has a different case identity", fields: [] };
   const known = new Map(events.map((e) => [e.id, e])),
     remote = new Map(shared.events.map((e) => [e.id, e]));
   const baseline = new Set(checkpoint?.events || []);
   const removed = [...known].filter(([id]) => !remote.has(id) && (!checkpoint || baseline.has(id)));
-  const altered = [...known].filter(([id, e]) => remote.has(id) && dep_stableJSON(e) !== dep_stableJSON(remote.get(id)));
+  const altered = [...known].filter(([id, e]) => remote.has(id) && stableJSON(e) !== stableJSON(remote.get(id)));
   const added = [...remote].filter(([id]) => !known.has(id));
   if (removed.length || altered.length)
     return { kind: "history-conflict", detail: `${removed.length} locally known event(s) missing; ${altered.length} event(s) changed`, fields: [] };
   const fields = [],
-    merged = dep_caseDetails(shared.case),
-    a = dep_caseDetails(local),
-    b = checkpoint?.case && dep_caseDetails(checkpoint.case);
+    merged = caseDetails(shared.case),
+    a = caseDetails(local),
+    b = checkpoint?.case && caseDetails(checkpoint.case);
   for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
     if (
       field === "id" ||
-      (field === "number" && dep_caseNumberKey(a[field]) === dep_caseNumberKey(merged[field])) ||
-      dep_stableJSON(a[field]) === dep_stableJSON(merged[field])
+      (field === "number" && caseNumberKey(a[field]) === caseNumberKey(merged[field])) ||
+      stableJSON(a[field]) === stableJSON(merged[field])
     )
       continue;
-    const lc = b ? dep_stableJSON(a[field]) !== dep_stableJSON(b[field]) : true;
-    const rc = b ? dep_stableJSON(merged[field]) !== dep_stableJSON(b[field]) : true;
+    const lc = b ? stableJSON(a[field]) !== stableJSON(b[field]) : true;
+    const rc = b ? stableJSON(merged[field]) !== stableJSON(b[field]) : true;
     fields.push({ field, local: a[field], shared: merged[field], localChanged: lc, sharedChanged: rc });
     if (lc && !rc) {
       if (a[field] === undefined) delete merged[field];
-      else merged[field] = dep_clone(a[field]);
+      else merged[field] = clone(a[field]);
     }
   }
   const conflict = fields.some((f) => f.localChanged && f.sharedChanged);
@@ -428,7 +406,7 @@ function compareSharedCase(local, events, shared, checkpoint, unfinished = local
 }
 
 async function preflightCase(cid, action, continuation) {
-  const k = dep_kase(cid);
+  const k = kase(cid);
   if (!k.id) return false;
   if (!WriterState.CASEDIR || WriterState.NEEDGRANT) {
     WriterState.PREFLIGHT_NOTICE = "Shared case unavailable; final publication will recheck it.";
@@ -442,7 +420,7 @@ async function preflightCase(cid, action, continuation) {
   let file, comparison;
   try {
     file = await readSharedCase(k);
-    comparison = compareSharedCase(k, dep_eventsFor(cid), file, WriterState.SAVE_CHECKPOINTS[cid]);
+    comparison = compareSharedCase(k, eventsFor(cid), file, WriterState.SAVE_CHECKPOINTS[cid]);
   } catch (e) {
     comparison = { kind: e.name === "NotFoundError" ? "missing" : "unavailable", detail: e.message, fields: [] };
   }
@@ -456,21 +434,21 @@ async function preflightCase(cid, action, continuation) {
     return false;
   if (
     ["invalid", "conflict", "history-conflict"].includes(comparison.kind) ||
-    (comparison.kind === "shared-history" && (localCaseWork(cid) || dep_caseUnsaved(k))) ||
+    (comparison.kind === "shared-history" && (localCaseWork(cid) || caseUnsaved(k))) ||
     (comparison.kind === "shared-only" && !WriterState.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
   ) {
     WriterState.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
     WriterState.state.modal = "shared-change";
-    dep_render();
+    render();
     return false;
   }
   if (["shared-only", "compatible"].includes(comparison.kind)) {
-    const prior = dep_clone(k),
-      checkpoint = dep_clone(WriterState.SAVE_CHECKPOINTS[cid] || null);
+    const prior = clone(k),
+      checkpoint = clone(WriterState.SAVE_CHECKPOINTS[cid] || null);
     Object.keys(k).forEach((key) => delete k[key]);
     Object.assign(k, comparison.merged);
-    dep_rememberSaved(k, file);
-    if (!(await dep_saveDrafts())) {
+    rememberSaved(k, file);
+    if (!(await saveDrafts())) {
       Object.keys(k).forEach((key) => delete k[key]);
       Object.assign(k, prior);
       WriterState.SAVE_CHECKPOINTS[cid] = checkpoint;
@@ -483,7 +461,7 @@ async function preflightCase(cid, action, continuation) {
         token,
       };
       WriterState.state.modal = "shared-change";
-      dep_render();
+      render();
       return false;
     }
     if (
@@ -494,7 +472,7 @@ async function preflightCase(cid, action, continuation) {
     )
       return false;
   } else if (comparison.kind === "shared-history") {
-    if (!dep_loadCaseFile(JSON.stringify(file))) {
+    if (!loadCaseFile(JSON.stringify(file))) {
       WriterState.PREFLIGHT_CONFLICT = {
         cid,
         action,
@@ -504,7 +482,7 @@ async function preflightCase(cid, action, continuation) {
         token,
       };
       WriterState.state.modal = "shared-change";
-      dep_render();
+      render();
       return false;
     }
   }
@@ -523,15 +501,15 @@ async function preflightCase(cid, action, continuation) {
 function sharedChangeModal() {
   const c = WriterState.PREFLIGHT_CONFLICT;
   if (!c) return "";
-  const k = dep_kase(c.cid),
+  const k = kase(c.cid),
     v = c.comparison;
   return (
     '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
     '" aria-label="Shared case reconciliation"><div class="modal-h"><h2>Revie' +
     'w shared case</h2></div>\n  <div class="modal-b"><p>Case ' +
-    `${dep_esc(k.number)}` +
+    `${esc(k.number)}` +
     ": " +
-    `${dep_esc(v.detail)}` +
+    `${esc(v.detail)}` +
     ". Your drafts and pending identities are retained.</p>\n  " +
     "".concat(
       v.fields?.length
@@ -542,7 +520,7 @@ function sharedChangeModal() {
         : "",
     ) +
     "\n  <p>Keeping local work resumes " +
-    `${dep_esc(c.action)}` +
+    `${esc(c.action)}` +
     ". Issuance still requires reconciliation with the current shared record." +
     '</p></div>\n  <div class="modal-f">' +
     "".concat(v.kind === "conflict" ? '<button class="btn btn-primary" data-conflict-apply>Apply field choices and save</button>' : "") +
@@ -565,43 +543,41 @@ function keepChangedLocal() {
 
 async function openChangedShared() {
   const c = WriterState.PREFLIGHT_CONFLICT,
-    k = c && dep_kase(c.cid);
+    k = c && kase(c.cid);
   if (!k?.id || !c.file) return;
   try {
-    const key = dep_recoveryCaseKey(k.id);
-    if (!dep_RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
+    const key = recoveryCaseKey(k.id);
+    if (!RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
     if (
       WriterState.PENDING.some((p) => p.cid === k.id) ||
       WriterState.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
       Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
     )
       throw new Error("Confirm pending save identities before replacing this case.");
-    if (dep_caseFileFault(c.file) || c.file.case.id !== k.id) throw new Error("Shared case is invalid or has a different identity.");
-    const backup = dep_recoverySnapshot(k.id, key);
+    if (caseFileFault(c.file) || c.file.case.id !== k.id) throw new Error("Shared case is invalid or has a different identity.");
+    const backup = recoverySnapshot(k.id, key);
     backup.preReplacement = true;
-    await dep_helperJSON("/draft-backups/write", { workspace: dep_RECOVERY_WORKSPACE, case: key, backup });
+    await helperJSON("/draft-backups/write", { workspace: RECOVERY_WORKSPACE, case: key, backup });
     if (!confirm("Recovery copy saved. Replace local work for " + k.number + " with the current shared record?")) return;
     const fresh = await readSharedCase(k);
-    if (dep_stableJSON(fresh.case) !== dep_stableJSON(c.file.case) || dep_stableJSON(fresh.events) !== dep_stableJSON(c.file.events))
+    if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
       throw new Error("Shared case changed again. Review it before replacing local work.");
     if (WriterState.PREFLIGHT_CONFLICT !== c) return;
     const staged = {
-      ...dep_draftBundle(),
-      cases: WriterState.CASES.filter((x) => x.id !== k.id).concat([dep_clone(fresh.case)]),
+      ...draftBundle(),
+      cases: WriterState.CASES.filter((x) => x.id !== k.id).concat([clone(fresh.case)]),
       docs: WriterState.DOCS.filter((d) => d.caseId !== k.id),
       reinsp: WriterState.REINSP.filter((r) => r.caseId !== k.id),
-      events: { ...WriterState.EVENTS, [k.id]: dep_clone(fresh.events) },
+      events: { ...WriterState.EVENTS, [k.id]: clone(fresh.events) },
       recordAttempts: Object.fromEntries(Object.entries(WriterState.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
-      checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: { case: dep_caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
+      checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
       work: {
-        ...dep_clone(WriterState.WORK),
+        ...clone(WriterState.WORK),
         walk: WriterState.WORK.walk?.context?.startsWith(k.id + "|") ? null : WriterState.WORK.walk,
-        recordForms: Object.fromEntries(
-          Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => dep_doc(id.split(":")[0])?.caseId !== k.id),
-        ),
+        recordForms: Object.fromEntries(Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
       },
     };
-    if (!(await dep_idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
+    if (!(await idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
     WriterState.CASES = staged.cases;
     WriterState.DOCS = staged.docs;
     WriterState.REINSP = staged.reinsp;
@@ -609,14 +585,14 @@ async function openChangedShared() {
     WriterState.RECORD_ATTEMPTS = staged.recordAttempts;
     WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
     WriterState.WORK = staged.work;
-    dep_clearWalk();
-    dep_project();
+    clearWalk();
+    project();
     WriterState.PREFLIGHT_CONFLICT = null;
     WriterState.state.modal = null;
     WriterState.state.screen = "cases";
-    dep_render();
+    render();
   } catch (e) {
-    dep_toast("Local work kept: " + e.message);
+    toast("Local work kept: " + e.message);
   }
 }
 
@@ -628,14 +604,14 @@ async function persistWorkspacePatch(prepare, commit) {
   });
   try {
     await WriterState.LOCAL_SAVE_CHAIN;
-    dep_captureWork();
-    const staged = prepare(dep_clone(dep_draftBundle()));
-    if (!(await dep_idbSet("drafts", staged))) throw new Error("Browser storage could not save the change. Local work was kept.");
+    captureWork();
+    const staged = prepare(clone(draftBundle()));
+    if (!(await idbSet("drafts", staged))) throw new Error("Browser storage could not save the change. Local work was kept.");
     commit(staged);
-    WriterState.LOCAL_SAVE = { ok: true, at: dep_nowISO(), saving: false };
+    WriterState.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
     ++WriterState.LOCAL_CHANGED;
     WriterState.DIRTY = false;
-    dep_scheduleRecoveryBackup();
+    scheduleRecoveryBackup();
     return true;
   } finally {
     unlock();
@@ -645,7 +621,7 @@ async function persistWorkspacePatch(prepare, commit) {
 
 function resolvedCaseFields(local, shared, comparison, choices) {
   if (comparison.kind !== "conflict" || !comparison.merged) throw new Error("Only case field conflicts can be merged here");
-  const merged = dep_clone(comparison.merged);
+  const merged = clone(comparison.merged);
   for (const f of comparison.fields) {
     if (!f.localChanged || !f.sharedChanged) continue;
     const choice = choices[f.field];
@@ -654,7 +630,7 @@ function resolvedCaseFields(local, shared, comparison, choices) {
     if (f.field === "id" || f.field === "number") throw new Error("Case identity cannot be merged");
     if (typeof value !== typeof f.local && typeof value !== typeof f.shared) throw new Error("The merged " + f.field + " has the wrong value type");
     if (value === undefined) delete merged[f.field];
-    else merged[f.field] = dep_clone(value);
+    else merged[f.field] = clone(value);
   }
   merged.id = local.id;
   merged.number = local.number;
@@ -676,26 +652,26 @@ function conflictControls(c) {
     .map(
       (f, n) =>
         '<tr><th scope="row">' +
-        `${dep_esc(f.field)}` +
+        `${esc(f.field)}` +
         "</th><td>" +
-        `${dep_esc(friendlyField(f.local))}` +
+        `${esc(friendlyField(f.local))}` +
         "</td><td>" +
-        `${dep_esc(friendlyField(f.shared))}` +
+        `${esc(friendlyField(f.shared))}` +
         "</td><td>" +
         "".concat(
           f.localChanged && f.sharedChanged && !["id", "number"].includes(f.field)
             ? "<label>Resolution for " +
-                `${dep_esc(f.field)}` +
+                `${esc(f.field)}` +
                 ' <select data-conflict-choice="' +
                 `${n}` +
                 '"><option value="">Choose…</option><option value="mine">Keep mine</optio' +
                 'n><option value="shared">Take shared</option><option value="merge">Merge' +
                 " field</option></select></label><label>Merged " +
-                `${dep_esc(f.field)}` +
+                `${esc(f.field)}` +
                 ' <textarea data-conflict-value="' +
                 `${n}` +
                 '">' +
-                `${dep_esc(typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2))}` +
+                `${esc(typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2))}` +
                 "</textarea></label>" +
                 "".concat(typeof f.local === "string" ? "" : "<small>Structured fields use JSON to preserve their value type.</small>") +
                 ""
@@ -728,21 +704,21 @@ async function applyConflict() {
       if (el.value === "merge" && typeof f.local !== "string") value = JSON.parse(value);
       choices[f.field] = { kind: el.value, value };
     });
-    const merged = resolvedCaseFields(dep_kase(c.cid), c.file.case, c.comparison, choices);
+    const merged = resolvedCaseFields(kase(c.cid), c.file.case, c.comparison, choices);
     WriterState.RESOLUTION_BUSY = true;
     document.querySelectorAll("#overlay button,#overlay input,#overlay select,#overlay textarea").forEach((el) => (el.disabled = true));
-    const fresh = await readSharedCase(dep_kase(c.cid));
-    if (dep_stableJSON(fresh.case) !== dep_stableJSON(c.file.case) || dep_stableJSON(fresh.events) !== dep_stableJSON(c.file.events))
+    const fresh = await readSharedCase(kase(c.cid));
+    if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
       throw new Error("Shared case changed again; review it again before merging");
-    const key = dep_recoveryCaseKey(c.cid);
-    if (!dep_RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
-    const backup = dep_recoverySnapshot(c.cid, key);
+    const key = recoveryCaseKey(c.cid);
+    if (!RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
+    const backup = recoverySnapshot(c.cid, key);
     backup.preReplacement = true;
-    await dep_helperJSON("/draft-backups/write", { workspace: dep_RECOVERY_WORKSPACE, case: key, backup });
+    await helperJSON("/draft-backups/write", { workspace: RECOVERY_WORKSPACE, case: key, backup });
     await persistWorkspacePatch(
       (staged) => {
         staged.cases = staged.cases.map((k) => (k.id === c.cid ? merged : k));
-        staged.checkpoints[c.cid] = { case: dep_caseDetails(fresh.case), events: fresh.events.map((e) => e.id) };
+        staged.checkpoints[c.cid] = { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) };
         return staged;
       },
       (staged) => {
@@ -754,12 +730,12 @@ async function applyConflict() {
     WriterState.state.modal = null;
     WriterState.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
     WriterState.RESOLUTION_BUSY = false;
-    await dep_saveCaseFile(c.cid);
-    dep_render();
+    await saveCaseFile(c.cid);
+    render();
   } catch (error) {
     WriterState.RESOLUTION_BUSY = false;
-    dep_toast(error.message, { severity: "error" });
-    dep_render();
+    toast(error.message, { severity: "error" });
+    render();
   }
 }
 
@@ -769,21 +745,21 @@ function safetyCaseStatus(k) {
 }
 
 async function showSafety(cid = "") {
-  const context = dep_navigation.utilityContext();
+  const context = navigation.utilityContext();
   let health;
   // The panel opens immediately; slow connection checks must not hide device recovery.
-  dep_captureWork();
+  captureWork();
   if (WriterState.state.modal) {
     WriterState.state.modal = null;
-    dep_render();
+    render();
   }
-  dep_A11Y.utility("Saved work & connection", savedWorkHTML(app_savedworkContext(), cid, { checking: true }));
+  A11Y.utility("Saved work & connection", savedWorkHTML(app_savedworkContext(), cid, { checking: true }));
   try {
-    health = await dep_helperJSON("/dw-status");
+    health = await helperJSON("/dw-status");
   } catch (error) {
     health = { error: error.message };
   }
-  if (!dep_navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
+  if (!navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
   WriterState.SAFETY_HEALTH = health;
   // Keep focus and disclosures during the late health response.
   const dialog = document.getElementById("utility-dialog"),
@@ -809,14 +785,14 @@ async function showSafety(cid = "") {
 }
 
 async function showHealth(probe = false) {
-  const context = dep_navigation.utilityContext();
+  const context = navigation.utilityContext();
   let health;
   try {
-    health = await dep_helperJSON(probe ? "/setup/probe" : "/dw-status", probe ? {} : undefined);
+    health = await helperJSON(probe ? "/setup/probe" : "/dw-status", probe ? {} : undefined);
   } catch (error) {
     health = { error: error.message };
   }
-  if (!dep_navigation.utilityCurrent(context)) return false;
+  if (!navigation.utilityCurrent(context)) return false;
   WriterState.SAFETY_HEALTH = health;
   const h = WriterState.SAFETY_HEALTH,
     check = (x) => (x === true ? "Available" : x === false ? "Unavailable" : "Not tested");
@@ -831,20 +807,20 @@ async function showHealth(probe = false) {
     ["SQL Windows support", check(h.lookupPlatform)],
     ["SQL connection", h.lookupConnection || "Not tested"],
     ["Catalog manifest", check(h.catalogManifest)],
-    ["Program/helper versions", h.versionMatch && h.version === dep_navigation.helperVersion() ? "Match" : "Mismatch or helper unavailable"],
+    ["Program/helper versions", h.versionMatch && h.version === navigation.helperVersion() ? "Match" : "Mismatch or helper unavailable"],
     ["Checked at", h.checkedAt || "Unavailable"],
   ];
-  dep_A11Y.utility(
+  A11Y.utility(
     "Connection & setup",
     "<table><caption>Connection and installation checks</caption><thead><tr><" +
       'th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>' +
-      "".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${dep_esc(value)}</td></tr>`).join("")) +
+      "".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")) +
       "</tbody></table><p>" +
-      "".concat(dep_esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")) +
+      "".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")) +
       '</p><button class="btn" data-health-probe>Test share write access</butto' +
       'n> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><l' +
       'abel>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">' +
-      "".concat(dep_esc(JSON.stringify({ program: dep_BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))) +
+      "".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))) +
       "</textarea></label>",
   );
 }
@@ -853,28 +829,28 @@ async function inspectLock() {
   const number = prompt("Case number whose lock should be inspected");
   if (!number) return;
   try {
-    WriterState.SAFETY_LOCK = { number, ...(await dep_helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
+    WriterState.SAFETY_LOCK = { number, ...(await helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
     showLock();
   } catch (error) {
-    dep_toast(error.message, { severity: "error" });
+    toast(error.message, { severity: "error" });
   }
 }
 
 function showLock() {
   const lock = WriterState.SAFETY_LOCK;
   if (!lock) return;
-  dep_A11Y.utility(
+  A11Y.utility(
     "Shared lock assistant",
     lock.present
       ? "<p><strong>" +
-          `${dep_esc(lock.scope || "Case saving")}` +
+          `${esc(lock.scope || "Case saving")}` +
           "</strong> is locked. Ask an administrator to check the owning helper.</p" +
           "><p>Computer: <strong>" +
-          `${dep_esc(lock.host)}` +
+          `${esc(lock.host)}` +
           "</strong>. Process: " +
           `${lock.pid}` +
           ". Created: " +
-          `${dep_esc(new Date(lock.at * 1000).toLocaleString())}` +
+          `${esc(new Date(lock.at * 1000).toLocaleString())}` +
           ". Age: " +
           `${Math.floor(lock.ageSeconds / 60)}` +
           " minutes.</p><p>Ask the administrator to verify that the owning helper h" +
@@ -896,14 +872,14 @@ function saveWorkflowPrefs() {
   WriterState.WORKFLOW_PREFS.query = WriterState.state.caseQ;
   WriterState.WORKFLOW_PREFS.inspector = WriterState.state.caseInspector;
   try {
-    localStorage.setItem(dep_WORKFLOW_PREFS_KEY, JSON.stringify(WriterState.WORKFLOW_PREFS));
+    localStorage.setItem(WORKFLOW_PREFS_KEY, JSON.stringify(WriterState.WORKFLOW_PREFS));
   } catch (error) {
-    dep_toast("Could not save workspace preferences", { severity: "error" });
+    toast("Could not save workspace preferences", { severity: "error" });
   }
 }
 
 function caseSearchText(k) {
-  const docs = dep_docsFor(k.id);
+  const docs = docsFor(k.id);
   return [
     k.number,
     k.address,
@@ -917,13 +893,13 @@ function caseSearchText(k) {
 }
 
 async function globalSearch() {
-  dep_navigation.utilityContext();
-  dep_A11Y.utility(
+  navigation.utilityContext();
+  A11Y.utility(
     "Search all shared cases",
     '<form id="global-search-form"><label>Case, address, owner or citation nu' +
       'mber <input type="search" name="query" required minlength="2" maxlength=' +
       '"200" value="' +
-      `${dep_esc(WriterState.state.caseQ)}` +
+      `${esc(WriterState.state.caseQ)}` +
       '"></label><button class="btn" type="submit">Search shared cases</button>' +
       '</form><div id="global-search-results" aria-live="polite"></div>',
   );

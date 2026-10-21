@@ -1,13 +1,8 @@
-import { catalogKey as dep_catalogKey, keepCatalogForms as dep_keepCatalogForms } from "./draft_recovery.js";
-import {
-  catalogForm as dep_catalogForm,
-  catalogItem as dep_catalogItem,
-  catalogReview as dep_catalogReview,
-  refreshCatalog as dep_refreshCatalog,
-} from "./language_catalog.js";
-import { render as dep_render } from "./inspection_import.js";
-import { refreshOverlay as dep_refreshOverlay } from "./document_pagination.js";
-import { navigation as dep_navigation } from "./app_core.js";
+import { catalogKey, keepCatalogForms } from "./draft_recovery.js";
+import { catalogForm, catalogItem, catalogReview, refreshCatalog } from "./language_catalog.js";
+import { render } from "./inspection_import.js";
+import { refreshOverlay } from "./document_pagination.js";
+import { navigation } from "./app_core.js";
 import { WriterState } from "./state.js";
 export async function languageClick(event) {
   const button = event.target.closest?.(
@@ -15,12 +10,12 @@ export async function languageClick(event) {
   );
   if (!button) return;
   if (button.dataset.languageMode) {
-    await dep_navigation.leave(() => {
+    await navigation.leave(() => {
       WriterState.state.screen = "library";
       WriterState.state.picker = false;
       WriterState.state.modal = null;
       WriterState.state.languageMode = button.dataset.languageMode === "admin" ? "admin" : "browse";
-      dep_render();
+      render();
       window.scrollTo(0, 0);
       const h = document.querySelector(".main h1");
       if (h) {
@@ -31,15 +26,15 @@ export async function languageClick(event) {
     return;
   }
   if (button.dataset.catalogOpen) {
-    const i = dep_catalogItem(button.dataset.catalogOpen);
+    const i = catalogItem(button.dataset.catalogOpen);
     if (!i || WriterState.state.screen !== "library" || WriterState.state.languageMode !== "admin") return;
-    WriterState.state.catalogAdminKey = dep_catalogKey(i);
+    WriterState.state.catalogAdminKey = catalogKey(i);
     WriterState.CATALOG_FORMS[WriterState.state.catalogAdminKey] = {
-      ...dep_catalogForm(WriterState.state.catalogAdminKey, i, dep_catalogReview(WriterState.state.catalogAdminKey)),
+      ...catalogForm(WriterState.state.catalogAdminKey, i, catalogReview(WriterState.state.catalogAdminKey)),
       open: true,
     };
-    dep_keepCatalogForms();
-    dep_render();
+    keepCatalogForms();
+    render();
     document.getElementById("catalog-entry-title")?.focus();
     return;
   }
@@ -47,7 +42,7 @@ export async function languageClick(event) {
     if (button.getAttribute("aria-disabled") === "true") return;
     button.setAttribute("aria-disabled", "true");
     button.textContent = "Refreshing review status…";
-    await dep_refreshCatalog();
+    await refreshCatalog();
     if (button.isConnected) {
       button.removeAttribute("aria-disabled");
       button.textContent = "Refresh review status";
@@ -56,7 +51,7 @@ export async function languageClick(event) {
   }
   const picker = !!button.closest(".picker-box");
   if (button.dataset.languageReplacement) {
-    const i = dep_catalogItem(button.dataset.languageReplacement);
+    const i = catalogItem(button.dataset.languageReplacement);
     if (!i) return;
     if (picker) {
       WriterState.state.q = i.t;
@@ -74,7 +69,7 @@ export async function languageClick(event) {
     WriterState.state.cl = -1;
     WriterState.state.q = "";
   }
-  if (picker) dep_refreshOverlay();
-  else dep_render();
+  if (picker) refreshOverlay();
+  else render();
   document.getElementById(picker ? "pk-q" : "lib-filter")?.focus();
 }

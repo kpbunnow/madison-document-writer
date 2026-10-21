@@ -1,41 +1,41 @@
-import { recordDay as dep_recordDay } from "../assets/shared.js";
-import { fmtDate as dep_fmtDate, inspAt as dep_inspAt, toast as dep_toast, validISO as dep_validISO } from "./court_and_deposits.js";
-import { evid as dep_evid, shell as dep_shell, sourceDocFor as dep_sourceDocFor, stableJSON as dep_stableJSON } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts, scheduleDraftSave as dep_scheduleDraftSave } from "./case_files.js";
-import { screenCases as dep_screenCases } from "./reinspection_walkthrough.js";
-import { commitRecordAttempt as dep_commitRecordAttempt } from "./issuance_and_corrections.js";
-import { worksheetFaults as dep_worksheetFaults } from "./draft_recovery.js";
-import { newDoc as dep_newDoc, render as dep_render, renderKeep as dep_renderKeep } from "./inspection_import.js";
-import { docFromReinspection as dep_docFromReinspection, refreshSheet as dep_refreshSheet } from "./document_pagination.js";
+import { recordDay } from "../assets/shared.js";
+import { fmtDate, inspAt, toast, validISO } from "./court_and_deposits.js";
+import { evid, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
+import { saveDrafts, scheduleDraftSave } from "./case_files.js";
+import { screenCases } from "./reinspection_walkthrough.js";
+import { commitRecordAttempt } from "./issuance_and_corrections.js";
+import { worksheetFaults } from "./draft_recovery.js";
+import { newDoc, render, renderKeep } from "./inspection_import.js";
+import { docFromReinspection, refreshSheet } from "./document_pagination.js";
 import {
-  DOC_TYPES as dep_DOC_TYPES,
-  addDays as dep_addDays,
-  checkAttr as dep_checkAttr,
-  checkTarget as dep_checkTarget,
-  clone as dep_clone,
-  daysBetween as dep_daysBetween,
-  doc as dep_doc,
-  docBody as dep_docBody,
-  docCase as dep_docCase,
-  docInsp as dep_docInsp,
-  docsFor as dep_docsFor,
-  draftDocFor as dep_draftDocFor,
-  esc as dep_esc,
-  insp as dep_insp,
-  isEffective as dep_isEffective,
-  isHistoryDoc as dep_isHistoryDoc,
-  isLocked as dep_isLocked,
-  kase as dep_kase,
-  openItems as dep_openItems,
-  originalNotice as dep_originalNotice,
-  recordHead as dep_recordHead,
-  recordNow as dep_recordNow,
-  reinsp as dep_reinsp,
-  reinspFor as dep_reinspFor,
-  snow as dep_snow,
-  uid as dep_uid,
+  DOC_TYPES,
+  addDays,
+  checkAttr,
+  checkTarget,
+  clone,
+  daysBetween,
+  doc,
+  docBody,
+  docCase,
+  docInsp,
+  docsFor,
+  draftDocFor,
+  esc,
+  insp,
+  isEffective,
+  isHistoryDoc,
+  isLocked,
+  kase,
+  openItems,
+  originalNotice,
+  recordHead,
+  recordNow,
+  reinsp,
+  reinspFor,
+  snow,
+  uid,
 } from "./app_core.js";
-import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
+import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
 export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
@@ -95,25 +95,25 @@ export function activeRestrictions(documents) {
 }
 
 export function initNewDocuments() {
-  const e = (v) => dep_esc(v),
+  const e = (v) => esc(v),
     text = (v) => String(v || "").trim(),
-    day = () => dep_recordDay(today);
+    day = () => recordDay(today);
   const p = (t) => "<p>" + e(t).replace(/◯|\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>') + "</p>",
-    date = (v) => dep_fmtDate(v) || "◯",
+    date = (v) => fmtDate(v) || "◯",
     val = (s, k) => text(s[k]) || "◯";
   const clause = (v) => text(v).replace(/[.\s]+$/, "");
   const scope = (d, s) =>
-    dep_docCase(d).address +
+    docCase(d).address +
     (s.scope === "unit"
       ? " — " + (/^(?:apartment|apt\.?|unit|suite|room)\b/i.test(text(s.unit)) ? "" : "Apartment / unit ") + val(s, "unit")
       : " — Entire building");
   const contact = (d) => {
-    const i = dep_insp(dep_docCase(d).inspectorId);
+    const i = insp(docCase(d).inspectorId);
     return i.name + " at " + i.phone + (i.email ? " or " + i.email : "");
   };
   const selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn);
-  function continuingItems(source, visits = dep_reinspFor(source.caseId)) {
-    const rows = dep_clone(source.items || []);
+  function continuingItems(source, visits = reinspFor(source.caseId)) {
+    const rows = clone(source.items || []);
     visits
       .filter((r) => !r.draft && r.sourceDocId === source.id)
       .sort((a, b) => a.date.localeCompare(b.date) || String(a.recordedAt || "").localeCompare(String(b.recordedAt || "")))
@@ -140,9 +140,9 @@ export function initNewDocuments() {
   }
   function refreshControls(el) {
     const attr = [...el.attributes].find((a) => a.name.startsWith("data-")),
-      selector = attr ? "[" + attr.name + '="' + dep_checkAttr(attr.value) + '"]' : null,
+      selector = attr ? "[" + attr.name + '="' + checkAttr(attr.value) + '"]' : null,
       wasOpen = !!document.querySelector("#r26-details details[open]");
-    dep_renderKeep();
+    renderKeep();
     if (wasOpen) {
       const details = document.querySelector("#r26-details details");
       if (details) details.open = true;
@@ -152,7 +152,7 @@ export function initNewDocuments() {
   function specialBody(d) {
     const s = d.special || {},
       type = d.type,
-      at = dep_inspAt(d),
+      at = inspAt(d),
       address = scope(d, s),
       items = selected(d, s);
     const refs = items.map((i) => i.no).join(", ") || "◯";
@@ -273,7 +273,7 @@ export function initNewDocuments() {
         "Contact " +
           contact(d) +
           " at least one week before that inspection (by " +
-          date(s.reviewDate ? dep_addDays(s.reviewDate, -7) : "") +
+          date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
           ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
             "or Building Inspection approval may result in a citation or referral to " +
             "the City Attorney. Failure to maintain the required areas may void this " +
@@ -332,7 +332,7 @@ export function initNewDocuments() {
     if (!specialType(d.type)) return [];
     const s = d.special || {},
       out = [],
-      add = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [dep_checkTarget('[data-special="' + key + '"]', t)] : [] });
+      add = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [checkTarget('[data-special="' + key + '"]', t)] : [] });
     const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
     ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
       need(
@@ -349,11 +349,11 @@ export function initNewDocuments() {
         }[k],
       ),
     );
-    add(dep_validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
+    add(validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
     add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
     add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
     if (s.scope === "unit") need("unit", "the apartment / unit identifier");
-    if (dep_docsFor(d.caseId).some((x) => dep_isEffective(x) && dep_isHistoryDoc(x))) {
+    if (docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x))) {
       add(
         specialType(d.type).effect === "supplemental" && s.emergencyApproved === true && text(s.referralCoordination),
         "A referred case needs an approved emergency / occupancy exception and City Attorney coordination reference.",
@@ -370,7 +370,7 @@ export function initNewDocuments() {
       need("work", "the corrective work");
       if (d.type === "summaryAbatement") need("summaryBasis", "the factual basis for immediate summary action");
       else {
-        add(dep_validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
+        add(validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
         need("servicePlan", "the approved service / publication plan");
         add(s.remedyReviewed === true, "Confirm the distinct Circuit Court remedy against current code.", "remedyReviewed");
       }
@@ -382,20 +382,20 @@ export function initNewDocuments() {
       }
     } else if (d.type === "noOccupancy") {
       add(
-        dep_validISO(s.effective) && s.effective >= dep_docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
+        validISO(s.effective) && s.effective >= docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
         "Enter a valid effective order / release date.",
         "effective",
       );
       add(["restrict", "release"].includes(s.mode), "Choose restriction or documented release.", "mode");
       if (s.mode === "release") {
-        const old = activeRestrictions(dep_docsFor(d.caseId)).find((x) => x.id === s.releases);
+        const old = activeRestrictions(docsFor(d.caseId)).find((x) => x.id === s.releases);
         add(
           old && old.special.scope === s.scope && (s.scope !== "unit" || text(old.special.unit) === text(s.unit)),
           "Select the active restriction for this exact scope.",
           "releases",
         );
         add(
-          dep_validISO(s.releaseInspection) &&
+          validISO(s.releaseInspection) &&
             s.releaseInspection <= day() &&
             s.releaseInspection <= s.effective &&
             (!old || s.releaseInspection >= old.special.effective),
@@ -404,15 +404,15 @@ export function initNewDocuments() {
         );
         need("releaseFacts", "the confirmed corrections and reinspection record");
         add(
-          s.placardRemoved && dep_validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
+          s.placardRemoved && validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
           "Record actual placard removal before permission to reoccupy.",
           "removalDate",
         );
         need("releaseFormRef", "the division-approved written release form / procedure");
-        const visit = dep_reinsp(s.releaseVisitId);
+        const visit = reinsp(s.releaseVisitId);
         if (s.releaseVisitId === "external") {
           need("releaseInspectionRef", "the verified external reinspection record reference");
-          add(!!dep_insp(s.releaseInspectorId).name, "Select the inspector who performed the release reinspection.", "releaseInspectorId");
+          add(!!insp(s.releaseInspectorId).name, "Select the inspector who performed the release reinspection.", "releaseInspectorId");
         } else
           add(
             visit && visit.caseId === d.caseId && !visit.draft && visit.date === s.releaseInspection,
@@ -424,7 +424,7 @@ export function initNewDocuments() {
         need("releaseConditions", "the conditions necessary for release");
         add(["posted", "pending"].includes(s.posting), "Record posting status.", "posting");
         if (s.posting === "posted")
-          add(dep_validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
+          add(validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
         else need("prePostingRef", "the approved pre-posting order wording / procedure");
       }
     } else {
@@ -452,16 +452,16 @@ export function initNewDocuments() {
         need("conditions", "the approved continuing conditions");
         need("expiryPolicyRef", "the approved expiration / review policy");
         need("transferClause", "the reviewed sale / transfer and applicable disclosure wording");
-        add(dep_validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
-        if (s.reviewDate && dep_addDays(s.reviewDate, -7) < d.mailed) need("shortNoticeRef", "the approved short-notice contact procedure");
+        add(validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
+        if (s.reviewDate && addDays(s.reviewDate, -7) < d.mailed) need("shortNoticeRef", "the approved short-notice contact procedure");
         add(["fixed", "review"].includes(s.expiryMode), "Choose the approved expiration / review model.", "expiryMode");
         if (s.expiryMode === "fixed")
-          add(dep_validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
+          add(validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
         add(["dated", "conditional"].includes(s.deadlineMode), "Choose the approved repair deadline model.", "deadlineMode");
       }
       if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
         add(
-          selected(d, s).every((i) => dep_validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "")),
+          selected(d, s).every((i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "")),
           "Enter later future deadlines for all affected items.",
           "affected",
         );
@@ -474,7 +474,7 @@ export function initNewDocuments() {
           ),
         ].sort();
         add(
-          dates.length <= 3 && dates.every((v, n) => !n || dep_daysBetween(dates[n - 1], v) >= 7),
+          dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
           "Use at most three outstanding dates, at least seven days apart.",
           "affected",
         );
@@ -491,11 +491,11 @@ export function initNewDocuments() {
         "affected",
       );
     }
-    add(!/◯|\(\s{0,8}\)|class="blank"/.test(dep_docBody(d)), "Fill every placeholder in the printed document before issuance.");
+    add(!/◯|\(\s{0,8}\)|class="blank"/.test(docBody(d)), "Fill every placeholder in the printed document before issuance.");
     return out;
   }
   function details(d) {
-    if (!specialType(d.type) || dep_isLocked(d) || d.correction) return "";
+    if (!specialType(d.type) || isLocked(d) || d.correction) return "";
     const s = d.special || (d.special = {}),
       f = (k, label, type = "text") =>
         '<label class="f"><span>' +
@@ -581,7 +581,7 @@ export function initNewDocuments() {
           sel(
             "releases",
             "Restriction being released",
-            activeRestrictions(dep_docsFor(d.caseId)).map((x) => [x.id, scope(x, x.special) + " · " + date(x.special.effective)]),
+            activeRestrictions(docsFor(d.caseId)).map((x) => [x.id, scope(x, x.special) + " · " + date(x.special.effective)]),
           ) +
           f("releaseInspection", "Verified reinspection date", "date") +
           f("releaseFacts", "Corrections and reinspection record", "textarea") +
@@ -589,9 +589,9 @@ export function initNewDocuments() {
           f("removalDate", "Actual placard removal date", "date") +
           f("releaseFormRef", "Approved written release form / procedure") +
           sel("releaseVisitId", "Verified physical reinspection", [
-            ...dep_reinspFor(d.caseId)
+            ...reinspFor(d.caseId)
               .filter((r) => !r.draft)
-              .map((r) => [r.id, date(r.date) + " · " + dep_insp(r.inspectorId).name]),
+              .map((r) => [r.id, date(r.date) + " · " + insp(r.inspectorId).name]),
             ["external", "Verified external inspection not recorded here"],
           ]) +
           (s.releaseVisitId === "external"
@@ -599,7 +599,7 @@ export function initNewDocuments() {
               sel(
                 "releaseInspectorId",
                 "Inspector who performed release reinspection",
-                dep_INSPECTORS.map((i) => [i.id, i.name]),
+                INSPECTORS.map((i) => [i.id, i.name]),
               ) +
               f("releaseInspectionTime", "Actual reinspection time (if known)", "time")
             : "");
@@ -691,7 +691,7 @@ export function initNewDocuments() {
           )
           .join("") +
         "</fieldset>";
-    if (dep_docsFor(d.caseId).some((x) => dep_isEffective(x) && dep_isHistoryDoc(x)))
+    if (docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x)))
       fields +=
         ck("emergencyApproved", "Approved emergency / occupancy exception on referred case") +
         f("referralCoordination", "City Attorney coordination / approved exception reference");
@@ -726,7 +726,7 @@ export function initNewDocuments() {
     ["compliance", "Confirm compliance"],
   ];
   function choices(r) {
-    const referred = dep_docsFor(r.caseId).some((x) => dep_isEffective(x) && dep_isHistoryDoc(x));
+    const referred = docsFor(r.caseId).some((x) => isEffective(x) && isHistoryDoc(x));
     return [
       ["extension", "Extension", "time", "Allow more time for outstanding violations."],
       ["bestInterestExtension", "Best Interest Extension", "time", "Record a reviewed supervisory extension."],
@@ -751,7 +751,7 @@ export function initNewDocuments() {
     const rule = r.importRule;
     if (!rule) return "";
     if (!allowedByStatus(r).includes(type)) return "The Accela status " + rule.status + " calls for " + rule.label + ".";
-    const open = dep_openItems(r);
+    const open = openItems(r);
     if (rule.allCorrected && open.length)
       return (
         "The Accela status is " +
@@ -769,12 +769,12 @@ export function initNewDocuments() {
   function eligibility(r, type) {
     const fault = statusFault(r, type);
     if (fault) return fault;
-    const src = dep_doc(r.sourceDocId),
-      open = dep_openItems(r),
-      referred = dep_docsFor(r.caseId).some((x) => dep_isEffective(x) && dep_isHistoryDoc(x));
+    const src = doc(r.sourceDocId),
+      open = openItems(r),
+      referred = docsFor(r.caseId).some((x) => isEffective(x) && isHistoryDoc(x));
     if (type === "notice") return "Official Notice is created from an initial imported inspection.";
-    if (!src || !dep_isEffective(src)) return "The inspection source is no longer effective.";
-    const issued = dep_docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
+    if (!src || !isEffective(src)) return "The inspection source is no longer effective.";
+    const issued = docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
     if (issued.some((d) => d.type === type)) return "This inspection already has that action. Open the existing document.";
     if (!supplemental({ type }) && issued.some((d) => !supplemental(d)))
       return "This inspection already has a primary follow-up. Add a compatible scoped order.";
@@ -794,8 +794,8 @@ export function initNewDocuments() {
       r.followupIntent = picked;
       r.actionGroup = (list.find((c) => c[0] === picked) || [])[2] || "";
     }
-    const faults = picked ? [...dep_worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
-    const label = (dep_DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
+    const faults = picked ? [...worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
+    const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
     return (
       '<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b">' +
       "<p>Accela status <strong>" +
@@ -840,7 +840,7 @@ export function initNewDocuments() {
     const picked = r.followupIntent || "",
       list = choices(r),
       group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
-      faults = picked ? [...dep_worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
+      faults = picked ? [...worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
     const available = list.filter((c) => !eligibility(r, c[0])),
       options = available.filter((c) => c[2] === group);
     return (
@@ -896,7 +896,7 @@ export function initNewDocuments() {
         : "") +
       '<p aria-live="polite">' +
       (picked
-        ? e((dep_DOC_TYPES.find((t) => t.id === picked) || {}).label) +
+        ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) +
           ": " +
           (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
         : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.") +
@@ -921,31 +921,31 @@ export function initNewDocuments() {
     );
   }
   function createSpecial(r, type) {
-    if (r.docId && dep_doc(r.docId)?.draft) {
+    if (r.docId && doc(r.docId)?.draft) {
       WriterState.state.docId = r.docId;
       WriterState.state.screen = "write";
-      dep_render();
+      render();
       return;
     }
     const why = eligibility(r, type),
-      faults = dep_worksheetFaults(r, type);
+      faults = worksheetFaults(r, type);
     if (why || faults.length) {
-      dep_toast(why || faults[0]);
+      toast(why || faults[0]);
       return;
     }
-    const existing = dep_draftDocFor(r.caseId);
+    const existing = draftDocFor(r.caseId);
     if (existing) {
       WriterState.state.docId = existing.id;
       WriterState.state.screen = "write";
-      dep_render();
-      dep_toast("Resume the unfinished document before starting another.");
+      render();
+      toast("Resume the unfinished document before starting another.");
       return;
     }
-    const src = dep_doc(r.sourceDocId),
-      s = dep_clone(r.actionDetails?.[type] || {});
+    const src = doc(r.sourceDocId),
+      s = clone(r.actionDetails?.[type] || {});
     s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
     const d = {
-      id: dep_uid("d"),
+      id: uid("d"),
       caseId: r.caseId,
       type,
       authoringVersion: 12,
@@ -957,7 +957,7 @@ export function initNewDocuments() {
       cits: {},
       fromDocId: src.id,
       fromReinspId: r.id,
-      expectedHead: dep_recordHead(r.caseId),
+      expectedHead: recordHead(r.caseId),
       inspectorId: r.inspectorId,
       inspDate: r.date,
       inspTime: r.time,
@@ -965,8 +965,8 @@ export function initNewDocuments() {
       items: src.items.map((i) => {
         const res = r.results[i.id] || {};
         return {
-          ...dep_clone(i),
-          id: dep_uid("x"),
+          ...clone(i),
+          id: uid("x"),
           srcItemId: i.id,
           due:
             (s.affected || []).includes(String(i.no)) &&
@@ -990,32 +990,31 @@ export function initNewDocuments() {
     if (r.draft) r.docId = d.id;
     WriterState.state.docId = d.id;
     WriterState.state.screen = "write";
-    dep_saveDrafts();
-    dep_render();
+    saveDrafts();
+    render();
   }
   function specialLifecycle(d) {
     if (!specialType(d.type) || !d.draft || d.correction) return [];
     const faults = [],
-      src = dep_doc(d.fromDocId),
-      r = dep_reinsp(d.fromReinspId);
-    if (dep_stableJSON(d.expectedHead) !== dep_stableJSON(dep_recordHead(d.caseId)))
+      src = doc(d.fromDocId),
+      r = reinsp(d.fromReinspId);
+    if (stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
       faults.push("The case changed after this draft began. Review the current case before issuing.");
     if (d.initialAction) {
-      if (dep_docsFor(d.caseId).some((x) => dep_isEffective(x) && !supplemental(x)))
-        faults.push("Use the current issued case facts for this action.");
+      if (docsFor(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
     } else {
-      if (!src || !dep_isEffective(src)) faults.push("The factual source is no longer effective.");
-      const current = dep_sourceDocFor(d.caseId);
+      if (!src || !isEffective(src)) faults.push("The factual source is no longer effective.");
+      const current = sourceDocFor(d.caseId);
       if (current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id))
         faults.push("The source changed. Review the current case before issuing.");
       if (d.administrativeAction && d.type !== "noOccupancy" && src?.type === "compliance")
         faults.push("A completed case cannot receive a new extension or ordinary enforcement action.");
       if (r) {
-        faults.push(...dep_worksheetFaults(r));
+        faults.push(...worksheetFaults(r));
         if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time)
           faults.push("The action must match its recorded inspection.");
       } else if (!d.administrativeAction) faults.push("Select the actual inspection for this action.");
-      if (src && dep_stableJSON(d.items.map((i) => [i.srcItemId, i.no])) !== dep_stableJSON(src.items.map((i) => [i.id, i.no])))
+      if (src && stableJSON(d.items.map((i) => [i.srcItemId, i.no])) !== stableJSON(src.items.map((i) => [i.id, i.no])))
         faults.push("Retain every source item identity, number and order.");
       if (r) {
         const why = eligibility(r, d.type);
@@ -1025,7 +1024,7 @@ export function initNewDocuments() {
     return faults.map((t) => ({ ok: false, t }));
   }
   function servicePanel(d) {
-    if (d.type !== "nonSummaryAbatement" || d.draft || !dep_isEffective(d)) return "";
+    if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
     const records = d.serviceRecords || [],
       latest = records[records.length - 1],
       key = "service:" + d.id,
@@ -1069,25 +1068,25 @@ export function initNewDocuments() {
     );
   }
   async function saveService(docId) {
-    const d = dep_doc(docId),
+    const d = doc(docId),
       key = "service:" + docId,
       form = WriterState.WORK.recordForms[key] || {},
       old = (d?.serviceRecords || []).at(-1);
     if (
       !d ||
       !["service", "publication"].includes(form.method) ||
-      !dep_validISO(form.date) ||
+      !validISO(form.date) ||
       form.date < d.mailed ||
       form.date > day() ||
       text(form.reference).length < 10
     ) {
-      dep_toast("Enter the actual past service / publication date, method and supporting evidence.");
+      toast("Enter the actual past service / publication date, method and supporting evidence.");
       return;
     }
     const attempt = {
-      id: dep_evid(),
-      at: dep_recordNow(d.caseId),
-      by: dep_kase(d.caseId).inspectorId,
+      id: evid(),
+      at: recordNow(d.caseId),
+      by: kase(d.caseId).inspectorId,
       type: "document.served",
       payload: {
         docId,
@@ -1097,20 +1096,20 @@ export function initNewDocuments() {
         courtRestriction: !!text(form.courtReference),
         courtReference: form.courtReference || "",
         replacesService: old?.id || "",
-        expectedHead: dep_recordHead(d.caseId),
+        expectedHead: recordHead(d.caseId),
         lifecycle: 1,
       },
     };
-    if (await dep_commitRecordAttempt(d.caseId, attempt)) {
+    if (await commitRecordAttempt(d.caseId, attempt)) {
       delete WriterState.WORK.recordForms[key];
-      dep_saveDrafts();
-      dep_render();
+      saveDrafts();
+      render();
     }
   }
   function releaseVisit(d) {
     const s = d.special || {};
     if (d.type !== "noOccupancy" || s.mode !== "release" || s.releaseVisitId !== "external") return null;
-    d.releaseVisitIdentity = d.releaseVisitIdentity || dep_uid("r");
+    d.releaseVisitIdentity = d.releaseVisitIdentity || uid("r");
     s.verifiedReleaseVisitId = d.releaseVisitIdentity;
     return {
       id: d.releaseVisitIdentity,
@@ -1120,7 +1119,7 @@ export function initNewDocuments() {
       date: s.releaseInspection,
       time: s.releaseInspectionTime || "",
       inspectorId: s.releaseInspectorId,
-      inspector: dep_clone(dep_insp(s.releaseInspectorId)),
+      inspector: clone(insp(s.releaseInspectorId)),
       inspectionReference: s.releaseInspectionRef,
       scope: s.scope,
       unit: s.scope === "unit" ? s.unit : "",
@@ -1129,9 +1128,9 @@ export function initNewDocuments() {
     };
   }
   function actionPanel(d) {
-    if (dep_snow.is(d)) return "";
+    if (snow.is(d)) return "";
     if (d.draft) return "";
-    const restrictions = activeRestrictions(dep_docsFor(d.caseId));
+    const restrictions = activeRestrictions(docsFor(d.caseId));
     return (
       servicePanel(d) +
       '<section class="card no-print"><div class="card-b">' +
@@ -1140,20 +1139,20 @@ export function initNewDocuments() {
           restrictions.map((x) => e(scope(x, x.special))).join("; ") +
           ". Compliance and extension letters do not release it.</p>"
         : "") +
-      (d.initialAction && !dep_originalNotice(d.caseId) && dep_isEffective(d)
+      (d.initialAction && !originalNotice(d.caseId) && isEffective(d)
         ? '<button class="btn" data-initial-notice="' + e(d.id) + '">Create Official Notice from this initial inspection</button>'
         : "") +
-      (d.fromReinspId && dep_isEffective(d)
+      (d.fromReinspId && isEffective(d)
         ? '<button class="btn" data-another-action="' + e(d.fromReinspId) + '">Add another document for this inspection</button>'
         : "") +
-      (dep_isEffective(d)
+      (isEffective(d)
         ? '<button class="btn" data-case-action="' + e(d.caseId) + '">Create a scoped order / administrative letter from current case facts</button>'
         : "") +
       "</div></section>"
     );
   }
   function initialPanel(d) {
-    if (d.type !== "notice" || !d.draft || dep_originalNotice(d.caseId)) return "";
+    if (d.type !== "notice" || !d.draft || originalNotice(d.caseId)) return "";
     return (
       '<section class="card no-print"><div class="card-b"><label class="f"><spa' +
       "n>Initial inspection action</span><select data-initial-action><option va" +
@@ -1167,33 +1166,33 @@ export function initNewDocuments() {
     );
   }
   function caseAction(cid, type) {
-    if (dep_snow.isCase(dep_kase(cid))) {
-      dep_toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
+    if (snow.isCase(kase(cid))) {
+      toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
       return null;
     }
     if (!type) {
       WriterState.WORK.currentAction = { cid, type: "", group: "" };
       WriterState.state.screen = "caseactions";
-      dep_saveDrafts();
-      dep_render();
+      saveDrafts();
+      render();
       return;
     }
-    const pending = dep_draftDocFor(cid);
+    const pending = draftDocFor(cid);
     if (pending) {
       WriterState.state.docId = pending.id;
       WriterState.state.screen = "write";
-      dep_render();
+      render();
       return;
     }
-    const src = dep_sourceDocFor(cid) || dep_docsFor(cid).find(dep_isEffective);
+    const src = sourceDocFor(cid) || docsFor(cid).find(isEffective);
     if (!src) return;
     WriterState.state.modal = null;
     WriterState.state.screen = "write";
-    const factual = dep_reinspFor(cid)
+    const factual = reinspFor(cid)
       .filter((r) => !r.draft && r.sourceDocId === src.id)
       .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
     const d = {
-      id: dep_uid("d"),
+      id: uid("d"),
       caseId: cid,
       type,
       draft: true,
@@ -1205,31 +1204,31 @@ export function initNewDocuments() {
       authoringVersion: 12,
       administrativeAction: true,
       fromDocId: src.id,
-      expectedHead: dep_recordHead(cid),
+      expectedHead: recordHead(cid),
       factualVisitId: factual?.id || "",
-      inspectorId: factual?.inspectorId || dep_docInsp(src).id,
-      inspDate: factual?.date || dep_inspAt(src).date,
-      inspTime: factual?.time || dep_inspAt(src).time,
+      inspectorId: factual?.inspectorId || docInsp(src).id,
+      inspDate: factual?.date || inspAt(src).date,
+      inspTime: factual?.time || inspAt(src).time,
       special: { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) },
-      items: continuingItems(src).map((i) => ({ ...dep_clone(i), id: dep_uid("x"), srcItemId: i.id, cite: false })),
+      items: continuingItems(src).map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id, cite: false })),
     };
     WriterState.DOCS.unshift(d);
     WriterState.state.docId = d.id;
-    dep_saveDrafts();
-    dep_render();
+    saveDrafts();
+    render();
   }
   function caseActionScreen() {
     const choice = WriterState.WORK.currentAction || {},
-      k = dep_kase(choice.cid),
-      referred = dep_docsFor(choice.cid).some((d) => dep_isEffective(d) && dep_isHistoryDoc(d)),
-      closed = dep_sourceDocFor(choice.cid)?.type === "compliance";
+      k = kase(choice.cid),
+      referred = docsFor(choice.cid).some((d) => isEffective(d) && isHistoryDoc(d)),
+      closed = sourceDocFor(choice.cid)?.type === "compliance";
     const why = (t) =>
       t.effect === "items" && (referred || closed)
         ? referred
           ? "Case is with the City Attorney; extensions remain unavailable."
           : "The case’s violations are complete."
         : "";
-    return dep_shell(
+    return shell(
       k.address || "Current case action",
       k.number || "",
       '<button class="btn" data-nav="cases">Workspace</button>',
@@ -1278,26 +1277,26 @@ export function initNewDocuments() {
     );
   }
   function cacheDetails(d) {
-    const r = dep_reinsp(d.fromReinspId);
+    const r = reinsp(d.fromReinspId);
     if (r) {
       r.actionDetails = r.actionDetails || {};
-      r.actionDetails[d.type] = dep_clone(d.special || {});
+      r.actionDetails[d.type] = clone(d.special || {});
     }
   }
   function editEvent(ev) {
     const el = ev.target,
-      d = dep_doc(WriterState.state.docId),
-      r = dep_reinsp(WriterState.state.reinspId);
+      d = doc(WriterState.state.docId),
+      r = reinsp(WriterState.state.reinspId);
     if (el.dataset.caseActionGroup) {
       WriterState.WORK.currentAction.group = el.dataset.caseActionGroup;
       WriterState.WORK.currentAction.type = "";
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.caseActionType) {
       WriterState.WORK.currentAction.type = el.dataset.caseActionType;
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1305,7 +1304,7 @@ export function initNewDocuments() {
       const key = "service:" + d.id;
       WriterState.WORK.recordForms[key] = WriterState.WORK.recordForms[key] || {};
       WriterState.WORK.recordForms[key][el.dataset.serviceField] = el.value;
-      dep_scheduleDraftSave();
+      scheduleDraftSave();
       return true;
     }
     if (el.dataset.actionGroup && r) {
@@ -1313,7 +1312,7 @@ export function initNewDocuments() {
       r.followupIntent = "";
       WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
       WriterState.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1321,33 +1320,33 @@ export function initNewDocuments() {
       r.followupIntent = el.dataset.actionType;
       WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
       WriterState.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.special === "administrativeType" && d && d.draft) {
       d.selectionCache = d.selectionCache || {};
-      d.selectionCache[d.type] = dep_clone(d.special || {});
+      d.selectionCache[d.type] = clone(d.special || {});
       d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
       d.type = el.value;
-      d.special = dep_clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
+      d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
       restoreDues(d);
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.hasAttribute("data-initial-action") && d && d.draft) {
       d.selectionCache = d.selectionCache || {};
-      d.selectionCache[d.type] = dep_clone(d.special || {});
-      d.special = dep_clone(d.selectionCache[el.value] || {});
+      d.selectionCache[d.type] = clone(d.special || {});
+      d.special = clone(d.selectionCache[el.value] || {});
       d.type = el.value;
       d.initialAction = d.type !== "notice";
       d.special = d.special || {};
-      dep_saveDrafts();
-      dep_render();
+      saveDrafts();
+      render();
       return true;
     }
-    if (!d || dep_isLocked(d) || !specialType(d.type)) return false;
+    if (!d || isLocked(d) || !specialType(d.type)) return false;
     const s = d.special || (d.special = {});
     if (el.dataset.special) {
       const k = el.dataset.special;
@@ -1360,19 +1359,19 @@ export function initNewDocuments() {
       if (k === "deadlineMode") restoreDues(d);
       if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
       if (d.fromReinspId) {
-        const visit = dep_reinsp(d.fromReinspId);
+        const visit = reinsp(d.fromReinspId);
         if (visit) {
           visit.actionDetails = visit.actionDetails || {};
-          visit.actionDetails[d.type] = dep_clone(s);
+          visit.actionDetails[d.type] = clone(s);
         }
       }
-      dep_scheduleDraftSave();
+      scheduleDraftSave();
       if (
         ev.type === "change" &&
         ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"].includes(k)
       ) {
         refreshControls(el);
-      } else dep_refreshSheet();
+      } else refreshSheet();
       return true;
     }
     if (el.dataset.specialItem) {
@@ -1384,7 +1383,7 @@ export function initNewDocuments() {
       s.affected = el.checked ? [...new Set([...s.affected, no])] : s.affected.filter((x) => x !== no);
       restoreDues(d);
       cacheDetails(d);
-      dep_saveDrafts();
+      saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1403,7 +1402,7 @@ export function initNewDocuments() {
     s.reviewed = false;
     document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
     Object.values(d.selectionCache || {}).forEach((details) => (details.reviewed = false));
-    if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = dep_clone(s);
+    if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = clone(s);
     cacheDetails(d);
   }
   function setSpecialDue(d, item, value) {
@@ -1412,11 +1411,11 @@ export function initNewDocuments() {
       item.due = value;
       s.extendedDues = s.extendedDues || {};
       s.extendedDues[item.no] = value;
-      document.querySelectorAll('[data-special-due="' + dep_checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
+      document.querySelectorAll('[data-special-due="' + checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
     }
     invalidateItemReview(d);
-    dep_scheduleDraftSave();
-    dep_refreshSheet();
+    scheduleDraftSave();
+    refreshSheet();
   }
   function clickEvent(ev) {
     const el = ev.target.closest(
@@ -1424,13 +1423,13 @@ export function initNewDocuments() {
     );
     if (!el) return false;
     if (el.dataset.initialNotice) {
-      const src = dep_doc(el.dataset.initialNotice);
-      if (src && !dep_originalNotice(src.caseId) && !dep_draftDocFor(src.caseId)) {
-        dep_newDoc(src.caseId, "notice");
-        const d = dep_doc(WriterState.state.docId);
-        d.items = src.items.map((i) => ({ ...dep_clone(i), id: dep_uid("x"), srcItemId: i.id }));
-        dep_saveDrafts();
-        dep_render();
+      const src = doc(el.dataset.initialNotice);
+      if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {
+        newDoc(src.caseId, "notice");
+        const d = doc(WriterState.state.docId);
+        d.items = src.items.map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id }));
+        saveDrafts();
+        render();
       }
       return true;
     }
@@ -1444,19 +1443,19 @@ export function initNewDocuments() {
       return true;
     }
     if (el.hasAttribute("data-create-action")) {
-      const r = dep_reinsp(WriterState.state.reinspId);
+      const r = reinsp(WriterState.state.reinspId);
       if (r && r.followupIntent) {
         if (specialType(r.followupIntent)) createSpecial(r, r.followupIntent);
-        else dep_docFromReinspection(r, r.followupIntent);
+        else docFromReinspection(r, r.followupIntent);
       }
       return true;
     }
     if (el.dataset.anotherAction) {
-      const r = dep_reinsp(el.dataset.anotherAction);
+      const r = reinsp(el.dataset.anotherAction);
       if (r) {
         WriterState.state.reinspId = r.id;
         WriterState.state.screen = "actions";
-        dep_render();
+        render();
       }
       return true;
     }
@@ -1467,15 +1466,15 @@ export function initNewDocuments() {
     return false;
   }
   function actionScreen() {
-    const r = dep_reinsp(WriterState.state.reinspId);
+    const r = reinsp(WriterState.state.reinspId);
     return r
-      ? dep_shell(
+      ? shell(
           "Add document for this inspection",
-          dep_kase(r.caseId).number + " · " + date(r.date),
+          kase(r.caseId).number + " · " + date(r.date),
           '<button class="btn" data-nav="cases">Workspace</button>',
           chooser(r),
         )
-      : dep_screenCases();
+      : screenCases();
   }
   return {
     releaseVisit,

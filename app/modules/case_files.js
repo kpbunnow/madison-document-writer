@@ -1,66 +1,57 @@
-import { SUMMARY_DIR as dep_SUMMARY_DIR, recordDay as dep_recordDay } from "../assets/shared.js";
-import { checkHelper as dep_checkHelper, toast as dep_toast } from "./court_and_deposits.js";
+import { SUMMARY_DIR, recordDay } from "../assets/shared.js";
+import { checkHelper, toast } from "./court_and_deposits.js";
 import {
-  caseDetails as dep_caseDetails,
-  caseFile as dep_caseFile,
-  caseFileFault as dep_caseFileFault,
-  caseFileName as dep_caseFileName,
-  caseNumberAllowed as dep_caseNumberAllowed,
-  grantCaseFolder as dep_grantCaseFolder,
-  helperJSON as dep_helperJSON,
-  idbGet as dep_idbGet,
-  idbSet as dep_idbSet,
-  loadCaseFile as dep_loadCaseFile,
-  mergeCaseEvents as dep_mergeCaseEvents,
-  migrate as dep_migrate,
-  project as dep_project,
-  rememberSaved as dep_rememberSaved,
-  restoreCaseFolder as dep_restoreCaseFolder,
-  sourceDocFor as dep_sourceDocFor,
-  stableJSON as dep_stableJSON,
-  summarize as dep_summarize,
+  caseDetails,
+  caseFile,
+  caseFileFault,
+  caseFileName,
+  caseNumberAllowed,
+  grantCaseFolder,
+  helperJSON,
+  idbGet,
+  idbSet,
+  loadCaseFile,
+  mergeCaseEvents,
+  migrate,
+  project,
+  rememberSaved,
+  restoreCaseFolder,
+  sourceDocFor,
+  stableJSON,
+  summarize,
 } from "./workspace_shell.js";
-import { clearWalk as dep_clearWalk, restoreWalkFor as dep_restoreWalkFor } from "./reinspection_walkthrough.js";
-import { captureWork as dep_captureWork } from "./issuance_and_corrections.js";
+import { clearWalk, restoreWalkFor } from "./reinspection_walkthrough.js";
+import { captureWork } from "./issuance_and_corrections.js";
+import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
+import { refreshCatalog } from "./language_catalog.js";
+import { initWriterHandoff, inspectionIdentity, markWriterReady, refreshArtifactLocations } from "./case_timeline.js";
+import { render } from "./inspection_import.js";
 import {
-  downloadWorkspace as dep_downloadWorkspace,
-  scheduleRecoveryBackup as dep_scheduleRecoveryBackup,
-  unissuedVisitFor as dep_unissuedVisitFor,
-} from "./draft_recovery.js";
-import { refreshCatalog as dep_refreshCatalog } from "./language_catalog.js";
-import {
-  initWriterHandoff as dep_initWriterHandoff,
-  inspectionIdentity as dep_inspectionIdentity,
-  markWriterReady as dep_markWriterReady,
-  refreshArtifactLocations as dep_refreshArtifactLocations,
-} from "./case_timeline.js";
-import { render as dep_render } from "./inspection_import.js";
-import {
-  CASEDIR_EXPECT as dep_CASEDIR_EXPECT,
-  COMMITTED as dep_COMMITTED,
-  IDB_OK as dep_IDB_OK,
-  STATE_NAMES as dep_STATE_NAMES,
-  US_STATES as dep_US_STATES,
-  addressParser as dep_addressParser,
-  byTime as dep_byTime,
-  ccList as dep_ccList,
-  clone as dep_clone,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docsFor as dep_docsFor,
-  draftDocFor as dep_draftDocFor,
-  draftReinspFor as dep_draftReinspFor,
-  emailList as dep_emailList,
-  eventsFor as dep_eventsFor,
-  kase as dep_kase,
-  newDocuments as dep_newDocuments,
-  nowISO as dep_nowISO,
-  recordHead as dep_recordHead,
-  recordIntegrity as dep_recordIntegrity,
-  reinsp as dep_reinsp,
-  snow as dep_snow,
-  summaryName as dep_summaryName,
-  uid as dep_uid,
+  CASEDIR_EXPECT,
+  COMMITTED,
+  IDB_OK,
+  STATE_NAMES,
+  US_STATES,
+  addressParser,
+  byTime,
+  ccList,
+  clone,
+  doc,
+  docCase,
+  docsFor,
+  draftDocFor,
+  draftReinspFor,
+  emailList,
+  eventsFor,
+  kase,
+  newDocuments,
+  nowISO,
+  recordHead,
+  recordIntegrity,
+  reinsp,
+  snow,
+  summaryName,
+  uid,
 } from "./app_core.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
 import { WriterState } from "./state.js";
@@ -70,7 +61,7 @@ import { caseStoreRequest } from "./contracts.js";
 
 function helperFolder() {
   return {
-    name: dep_CASEDIR_EXPECT,
+    name: CASEDIR_EXPECT,
     kind: "directory",
     helper: true,
     queryPermission: async () => "granted",
@@ -80,60 +71,60 @@ function helperFolder() {
         kind: "file",
         name,
         async getFile() {
-          const result = await dep_helperJSON("/cases/open?name=" + encodeURIComponent(name));
-          if (result.file.schema >= 5) await dep_recordIntegrity.verify(result.file, result.integrity);
-          dep_COMMITTED.set(dep_summaryName(result.file.case), result);
+          const result = await helperJSON("/cases/open?name=" + encodeURIComponent(name));
+          if (result.file.schema >= 5) await recordIntegrity.verify(result.file, result.integrity);
+          COMMITTED.set(summaryName(result.file.case), result);
           const body = JSON.stringify(result.file);
           return { size: body.length, lastModified: Date.now(), text: async () => body };
         },
       };
     },
     async *entries() {
-      const result = await dep_helperJSON("/cases/list");
+      const result = await helperJSON("/cases/list");
       for (const f of result.files) yield [f.name, { kind: "file", getFile: async () => ({ size: f.size, lastModified: f.mod }) }];
     },
   };
 }
 
 async function writeToFolder(name, body) {
-  if (dep_recordIntegrity.status(JSON.parse(body).case).valid === false)
+  if (recordIntegrity.status(JSON.parse(body).case).valid === false)
     return { ok: false, why: "This record was changed outside the program. Read-only." };
   if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
     try {
       const file = JSON.parse(body),
-        base = dep_COMMITTED.get(dep_summaryName(file.case));
+        base = COMMITTED.get(summaryName(file.case));
       const local = WriterState.CASES.find((k) => k.number === file.case.number),
         checkpoint = local && WriterState.SAVE_CHECKPOINTS[local.id];
-      const result = await dep_helperJSON(
+      const result = await helperJSON(
         "/cases/save",
         caseStoreRequest({ name: name, file: file, baseRevision: (base && base.revision) || "", baseCase: checkpoint ? checkpoint.case : null }),
       );
-      if (result.file.schema >= 5) await dep_recordIntegrity.verify(result.file, result.integrity);
-      dep_COMMITTED.set(dep_summaryName(result.file.case), result);
+      if (result.file.schema >= 5) await recordIntegrity.verify(result.file, result.integrity);
+      COMMITTED.set(summaryName(result.file.case), result);
       const current = WriterState.CASES.find((k) => k.number === result.file.case.number);
       if (current) {
-        const saved = dep_caseDetails(result.file.case),
-          submitted = dep_caseDetails(file.case);
+        const saved = caseDetails(result.file.case),
+          submitted = caseDetails(file.case);
         new Set(Object.keys(submitted).concat(Object.keys(saved))).forEach((key) => {
           if (key === "id") return;
-          if (dep_stableJSON(current[key]) === dep_stableJSON(submitted[key])) {
+          if (stableJSON(current[key]) === stableJSON(submitted[key])) {
             if (saved[key] === undefined) delete current[key];
-            else current[key] = dep_clone(saved[key]);
+            else current[key] = clone(saved[key]);
           }
         });
-        dep_mergeCaseEvents(current, dep_clone(result.file));
-        dep_project();
+        mergeCaseEvents(current, clone(result.file));
+        project();
       }
-      WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: dep_nowISO(), bytes: body.length };
+      WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
       return { ok: true, file: result.file, name: result.name };
     } catch (error) {
-      WriterState.LASTWRITE = { name: name, ok: false, why: error.message, at: dep_nowISO() };
+      WriterState.LASTWRITE = { name: name, ok: false, why: error.message, at: nowISO() };
       return { ok: false, why: error.message };
     }
   }
   if (JSON.parse(body).schema >= 5) {
     const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-    WriterState.LASTWRITE = { name, ok: false, why, at: dep_nowISO() };
+    WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
     return { ok: false, why };
   }
   if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
@@ -143,12 +134,12 @@ async function writeToFolder(name, body) {
     const ws = await fh.createWritable();
     await ws.write(body);
     await ws.close();
-    WriterState.LASTWRITE = { name: name, ok: true, why: "", at: dep_nowISO(), bytes: body.length };
+    WriterState.LASTWRITE = { name: name, ok: true, why: "", at: nowISO(), bytes: body.length };
     return { ok: true };
   } catch (err) {
     const n = (err && err.name) || "";
     const why = n === "NotAllowedError" || n === "SecurityError" ? "permission" : (err && err.message) || n || "the folder refused the write";
-    WriterState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: dep_nowISO() };
+    WriterState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
     if (why === "permission") {
       WriterState.NEEDGRANT = true;
       return { ok: false, why: "permission", needGrant: true };
@@ -159,10 +150,10 @@ async function writeToFolder(name, body) {
 
 async function writeIndexFile(name, body) {
   if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
-    const committed = dep_COMMITTED.get(name);
+    const committed = COMMITTED.get(name);
     if (!committed) return { ok: false, why: "The case has not been read or saved yet" };
     try {
-      await dep_helperJSON("/cases/summary", { name: committed.name, revision: committed.revision, summary: JSON.parse(body) });
+      await helperJSON("/cases/summary", { name: committed.name, revision: committed.revision, summary: JSON.parse(body) });
       return { ok: true };
     } catch (error) {
       return { ok: false, why: error.message };
@@ -170,13 +161,13 @@ async function writeIndexFile(name, body) {
   }
   if (JSON.parse(body).schema >= 5) {
     const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-    WriterState.LASTWRITE = { name, ok: false, why, at: dep_nowISO() };
+    WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
     return { ok: false, why };
   }
   if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
   if (WriterState.NEEDGRANT) return { ok: false, why: "permission" };
   try {
-    const dir = await WriterState.CASEDIR.getDirectoryHandle(dep_SUMMARY_DIR, { create: true });
+    const dir = await WriterState.CASEDIR.getDirectoryHandle(SUMMARY_DIR, { create: true });
     const fh = await dir.getFileHandle(name, { create: true });
     const ws = await fh.createWritable();
     await ws.write(body);
@@ -188,61 +179,61 @@ async function writeIndexFile(name, body) {
 }
 
 async function writeSummary(cid, saved) {
-  const k = dep_kase(cid);
-  if (!dep_caseNumberAllowed(k)) {
-    dep_toast("Case number needs correction before reporting");
+  const k = kase(cid);
+  if (!caseNumberAllowed(k)) {
+    toast("Case number needs correction before reporting");
     return false;
   }
-  const name = dep_summaryName(k);
+  const name = summaryName(k);
   let body;
   try {
-    body = JSON.stringify(dep_summarize(saved || dep_caseFile(cid)));
+    body = JSON.stringify(summarize(saved || caseFile(cid)));
   } catch (err) {
-    WriterState.LASTINDEX = { name: name, ok: false, why: "could not be assembled: " + ((err && err.message) || err), at: dep_nowISO() };
+    WriterState.LASTINDEX = { name: name, ok: false, why: "could not be assembled: " + ((err && err.message) || err), at: nowISO() };
     return false;
   }
   const r = await writeIndexFile(name, body);
-  WriterState.LASTINDEX = { name: name, ok: r.ok, why: r.why || "", at: dep_nowISO() };
+  WriterState.LASTINDEX = { name: name, ok: r.ok, why: r.why || "", at: nowISO() };
   return r.ok;
 }
 
 async function rebuildIndex() {
   if (!WriterState.CASEDIR) {
-    dep_toast("Link the case folder first");
+    toast("Link the case folder first");
     return null;
   }
-  if (WriterState.NEEDGRANT) await dep_grantCaseFolder(true);
+  if (WriterState.NEEDGRANT) await grantCaseFolder(true);
   if (WriterState.NEEDGRANT) {
-    dep_toast("The browser did not grant access to " + WriterState.DIRNAME + " — the index was not rebuilt");
+    toast("The browser did not grant access to " + WriterState.DIRNAME + " — the index was not rebuilt");
     return null;
   }
   const files = (await listCaseFolder()).filter((x) => x.name.charAt(0) !== "_");
-  const out = { written: 0, refused: [], failed: [], total: files.length, at: dep_nowISO() };
+  const out = { written: 0, refused: [], failed: [], total: files.length, at: nowISO() };
   WriterState.state.reindex = { running: true, done: 0, total: files.length };
-  dep_render();
+  render();
   for (let n = 0; n < files.length; n++) {
     const nm = files[n].name;
     let f;
     try {
       const fh = await WriterState.CASEDIR.getFileHandle(nm);
-      f = dep_migrate(JSON.parse(await (await fh.getFile()).text()));
+      f = migrate(JSON.parse(await (await fh.getFile()).text()));
     } catch (err) {
       out.refused.push(nm + " \u2014 " + ((err && err.message) || "not readable"));
       continue;
     }
-    const fault = dep_caseFileFault(f);
+    const fault = caseFileFault(f);
     if (fault) {
       out.refused.push(nm + " \u2014 " + fault);
       continue;
     }
     let body;
     try {
-      body = JSON.stringify(dep_summarize(f));
+      body = JSON.stringify(summarize(f));
     } catch (err) {
       out.refused.push(nm + " \u2014 could not be summarized: " + ((err && err.message) || err));
       continue;
     }
-    const r = await writeIndexFile(dep_summaryName(f["case"]), body);
+    const r = await writeIndexFile(summaryName(f["case"]), body);
     if (r.ok) out.written++;
     else out.failed.push(nm + " \u2014 " + r.why);
     WriterState.state.reindex.done = n + 1;
@@ -254,8 +245,8 @@ async function rebuildIndex() {
     why: out.failed.length ? out.failed.length + " could not be written" : "",
     at: out.at,
   };
-  dep_render();
-  dep_toast(
+  render();
+  toast(
     "Reporting index rebuilt \u2014 " +
       out.written +
       " of " +
@@ -287,7 +278,7 @@ async function listCaseFolder() {
       }
     }
   } catch (e) {
-    dep_toast("Could not read the case folder — " + (e.message || e));
+    toast("Could not read the case folder — " + (e.message || e));
     WriterState.state.folderError = e.message || String(e);
   }
   return out.sort((a, b) => b.mod - a.mod);
@@ -300,10 +291,10 @@ async function openFromFolder(name) {
     const f = await fh.getFile();
     const raw = await f.text(),
       record = JSON.parse(raw);
-    if (record.schema >= 5) await dep_recordIntegrity.verify(record);
-    dep_loadCaseFile(raw);
+    if (record.schema >= 5) await recordIntegrity.verify(record);
+    loadCaseFile(raw);
   } catch (e) {
-    dep_toast("Could not open " + name);
+    toast("Could not open " + name);
   }
 }
 
@@ -321,17 +312,17 @@ function downloadFile(name, body) {
 
 async function queuePending(name, body, cid) {
   WriterState.PENDING = WriterState.PENDING.filter((p) => p.name !== name);
-  WriterState.PENDING.push({ name: name, body: body, cid: cid || "", at: dep_nowISO() });
-  const kept = await dep_idbSet("pending", WriterState.PENDING);
-  if (!kept) dep_toast("This machine would not store the held file — keep the program open until the folder is back");
+  WriterState.PENDING.push({ name: name, body: body, cid: cid || "", at: nowISO() });
+  const kept = await idbSet("pending", WriterState.PENDING);
+  if (!kept) toast("This machine would not store the held file — keep the program open until the folder is back");
   return kept;
 }
 
 async function restorePending() {
-  const p = await dep_idbGet("pending");
+  const p = await idbGet("pending");
   if (Array.isArray(p) && p.length) {
     WriterState.PENDING = p;
-    dep_render();
+    render();
   }
 }
 
@@ -343,7 +334,7 @@ async function flushPending() {
   for (let n = 0; n < batch.length; n++) {
     const p = batch[n];
     if (!p.cid || !WriterState.CASES.some((k) => k.id === p.cid)) {
-      const loaded = dep_loadCaseFile(p.body, false);
+      const loaded = loadCaseFile(p.body, false);
       if (!loaded) {
         still.push(p);
         continue;
@@ -360,7 +351,7 @@ async function flushPending() {
         continue;
       }
       try {
-        body = JSON.stringify(dep_caseFile(p.cid), null, 2);
+        body = JSON.stringify(caseFile(p.cid), null, 2);
       } catch (err) {
         body = p.body;
       }
@@ -369,24 +360,24 @@ async function flushPending() {
     if (r.ok) {
       done++;
       if (p.cid && WriterState.CASES.some((k) => k.id === p.cid)) {
-        dep_rememberSaved(dep_kase(p.cid), r.file || JSON.parse(body));
+        rememberSaved(kase(p.cid), r.file || JSON.parse(body));
         await writeSummary(p.cid, r.file || JSON.parse(body));
       }
     } else still.push(p);
   }
   WriterState.PENDING = still.concat(WriterState.PENDING.filter((p) => batch.indexOf(p) < 0));
-  await dep_idbSet("pending", WriterState.PENDING);
+  await idbSet("pending", WriterState.PENDING);
   await saveDrafts();
   if (done) {
-    dep_toast(done + " held case file" + (done === 1 ? "" : "s") + " written to the share");
-    dep_render();
+    toast(done + " held case file" + (done === 1 ? "" : "s") + " written to the share");
+    render();
   }
   return done;
 }
 
 async function mergeSharedFile(cid, name) {
   if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return 0;
-  const k = dep_kase(cid);
+  const k = kase(cid);
   if (!k.id) return 0;
   let text = null;
   try {
@@ -398,76 +389,76 @@ async function mergeSharedFile(cid, name) {
   }
   let f;
   try {
-    f = dep_migrate(JSON.parse(text));
+    f = migrate(JSON.parse(text));
   } catch (err) {
     throw new Error("The existing case file is unreadable; it has not been overwritten");
   }
-  const fault = dep_caseFileFault(f);
+  const fault = caseFileFault(f);
   if (fault) throw new Error("The existing case file is invalid: " + fault);
   if (String((f["case"] || {}).number || "") !== String(k.number || "")) throw new Error("The existing file belongs to another case");
   if (f.schema >= 5) {
-    const status = await dep_recordIntegrity.verify(f);
+    const status = await recordIntegrity.verify(f);
     if (!status.valid) throw new Error("This record was changed outside the program. Open read-only.");
   }
-  const added = dep_mergeCaseEvents(k, f);
-  if (added) dep_project();
+  const added = mergeCaseEvents(k, f);
+  if (added) project();
   return added;
 }
 
 async function saveCaseFile(cid) {
-  if (!dep_caseNumberAllowed(dep_kase(cid))) {
-    dep_toast("Case number must use 3–80 letters, numbers or hyphens");
+  if (!caseNumberAllowed(kase(cid))) {
+    toast("Case number must use 3–80 letters, numbers or hyphens");
     return false;
   }
-  const k = dep_kase(cid),
-    name = dep_caseFileName(k);
+  const k = kase(cid),
+    name = caseFileName(k);
   let body;
   try {
-    body = JSON.stringify(dep_caseFile(cid), null, 2);
+    body = JSON.stringify(caseFile(cid), null, 2);
     if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
   } catch (err) {
-    dep_toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
+    toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
     return false;
   }
 
   if (!WriterState.CASEDIR) {
     if (JSON.parse(body).schema >= 5) {
-      dep_downloadWorkspace();
-      dep_toast("Workspace backup downloaded. Connect the current helper to save a verified case record.");
+      downloadWorkspace();
+      toast("Workspace backup downloaded. Connect the current helper to save a verified case record.");
       return false;
     }
-    WriterState.LASTWRITE = { name: name, ok: true, why: "downloads folder (no case folder linked)", at: dep_nowISO(), bytes: body.length };
-    dep_rememberSaved(k, JSON.parse(body));
+    WriterState.LASTWRITE = { name: name, ok: true, why: "downloads folder (no case folder linked)", at: nowISO(), bytes: body.length };
+    rememberSaved(k, JSON.parse(body));
     downloadFile(name, body);
     WriterState.DIRTY = false;
-    dep_toast("Saved to your downloads — " + name + " (the case folder is not linked)");
-    dep_render();
+    toast("Saved to your downloads — " + name + " (the case folder is not linked)");
+    render();
     return true;
   }
   // Chrome asks to confirm the folder once a session. Finalizing is a click, so
   // ask now rather than queueing the file behind a message nobody reads.
-  if (WriterState.NEEDGRANT) await dep_grantCaseFolder(true);
+  if (WriterState.NEEDGRANT) await grantCaseFolder(true);
 
   let merged = 0;
   try {
     merged = await mergeSharedFile(cid, name);
   } catch (err) {
     await queuePending(name, body, cid);
-    dep_toast(err.message);
-    dep_render();
+    toast(err.message);
+    render();
     return false;
   }
   try {
-    body = JSON.stringify(dep_caseFile(cid), null, 2);
+    body = JSON.stringify(caseFile(cid), null, 2);
     if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
   } catch (err) {
-    dep_toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
+    toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
     return false;
   }
 
   let r = await writeToFolder(name, body);
   if (!r.ok && r.needGrant) {
-    await dep_grantCaseFolder(true);
+    await grantCaseFolder(true);
     r = await writeToFolder(name, body);
   }
   if (r.ok) {
@@ -475,30 +466,30 @@ async function saveCaseFile(cid) {
     // written over the newer one when the queue next flushes
     if (WriterState.PENDING.some((p) => p.name === name)) {
       WriterState.PENDING = WriterState.PENDING.filter((p) => p.name !== name);
-      await dep_idbSet("pending", WriterState.PENDING);
+      await idbSet("pending", WriterState.PENDING);
     }
     WriterState.DIRTY = false;
-    dep_rememberSaved(k, r.file || JSON.parse(body));
+    rememberSaved(k, r.file || JSON.parse(body));
     await writeSummary(cid, r.file || JSON.parse(body));
     await saveDrafts();
-    dep_toast(
+    toast(
       "Saved to " +
         WriterState.DIRNAME +
         " \u2014 " +
         name +
         (merged ? " (merged " + merged + " event" + (merged === 1 ? "" : "s") + " another inspector had written)" : ""),
     );
-    dep_render();
+    render();
     return true;
   }
 
   await queuePending(name, body, cid);
-  dep_toast(
+  toast(
     r.needGrant
       ? "The browser is still waiting for permission on " + WriterState.DIRNAME + " — the file is held and will write once you reconnect"
       : "Could not write to " + WriterState.DIRNAME + " (" + r.why + ") — the file is held and will write when the folder is reachable",
   );
-  dep_render();
+  render();
   return false;
 }
 
@@ -506,40 +497,40 @@ function draftBundle() {
   const cases = WriterState.CASES.slice();
   const events = {};
   cases.forEach((k) => {
-    const evs = dep_eventsFor(k.id);
-    if (evs.length) events[k.id] = dep_clone(evs);
+    const evs = eventsFor(k.id);
+    if (evs.length) events[k.id] = clone(evs);
   });
   return {
     docs: WriterState.DOCS.filter((d) => d.draft),
     reinsp: WriterState.REINSP.filter((r) => r.draft),
     cases: cases,
     events: events,
-    work: dep_clone(WriterState.WORK),
-    recordAttempts: dep_clone(WriterState.RECORD_ATTEMPTS),
-    integrityRecords: dep_recordIntegrity.snapshot(),
-    checkpoints: dep_clone(WriterState.SAVE_CHECKPOINTS),
+    work: clone(WriterState.WORK),
+    recordAttempts: clone(WriterState.RECORD_ATTEMPTS),
+    integrityRecords: recordIntegrity.snapshot(),
+    checkpoints: clone(WriterState.SAVE_CHECKPOINTS),
     seq: WriterState.seq,
-    at: dep_nowISO(),
+    at: nowISO(),
   };
 }
 
 async function saveDrafts() {
   if (!WriterState.WRITER_ACCESS) return false;
   if (WriterState.WORK_PATCH) await WriterState.WORK_PATCH;
-  dep_captureWork();
+  captureWork();
   const generation = ++WriterState.LOCAL_CHANGED,
-    snapshot = dep_clone(draftBundle());
+    snapshot = clone(draftBundle());
   WriterState.LOCAL_SAVE.saving = true;
   updateSaveStatus();
-  const task = WriterState.LOCAL_SAVE_CHAIN.then(() => dep_idbSet("drafts", snapshot));
+  const task = WriterState.LOCAL_SAVE_CHAIN.then(() => idbSet("drafts", snapshot));
   WriterState.LOCAL_SAVE_CHAIN = task.catch(() => false);
   const kept = await task;
   if (generation === WriterState.LOCAL_CHANGED) {
-    WriterState.LOCAL_SAVE = { ok: kept, at: kept ? dep_nowISO() : WriterState.LOCAL_SAVE.at, saving: false };
+    WriterState.LOCAL_SAVE = { ok: kept, at: kept ? nowISO() : WriterState.LOCAL_SAVE.at, saving: false };
     if (kept && !WriterState.draftTimer) WriterState.DIRTY = false;
     updateSaveStatus();
   }
-  if (kept && generation === WriterState.LOCAL_CHANGED) dep_scheduleRecoveryBackup();
+  if (kept && generation === WriterState.LOCAL_CHANGED) scheduleRecoveryBackup();
   return kept;
 }
 
@@ -555,7 +546,7 @@ function updateSaveStatus() {
 function scheduleDraftSave() {
   WriterState.DIRTY = true;
   ++WriterState.LOCAL_CHANGED;
-  if (!dep_IDB_OK) {
+  if (!IDB_OK) {
     WriterState.LOCAL_SAVE.ok = false;
     updateSaveStatus();
     return;
@@ -568,7 +559,7 @@ function scheduleDraftSave() {
 }
 
 async function restoreDrafts() {
-  const b = await dep_idbGet("drafts");
+  const b = await idbGet("drafts");
   if (b && b.work) {
     WriterState.WORK = b.work;
     WriterState.WORK.entry = WriterState.WORK.entry || {};
@@ -586,37 +577,37 @@ async function restoreDrafts() {
   const evs = b.events || {};
   Object.keys(evs).forEach((cid) => {
     const have = {};
-    dep_eventsFor(cid).forEach((e) => {
+    eventsFor(cid).forEach((e) => {
       have[e.id] = 1;
     });
     (evs[cid] || []).forEach((e) => {
-      if (e && e.id && !have[e.id]) dep_eventsFor(cid).push(e);
+      if (e && e.id && !have[e.id]) eventsFor(cid).push(e);
     });
-    dep_eventsFor(cid).sort(dep_byTime);
+    eventsFor(cid).sort(byTime);
   });
-  await dep_recordIntegrity.restore(b.integrityRecords);
+  await recordIntegrity.restore(b.integrityRecords);
   (b.docs || []).forEach((d) => {
     if (!WriterState.DOCS.some((x) => x.id === d.id)) WriterState.DOCS.unshift(d);
   });
   (b.reinsp || []).forEach((r) => {
     if (!WriterState.REINSP.some((x) => x.id === r.id)) WriterState.REINSP.push(r);
   });
-  dep_project();
-  dep_render();
+  project();
+  render();
   const n = (b.docs || []).length + (b.reinsp || []).length;
-  if (n) dep_toast(n + " unfinished draft" + (n === 1 ? "" : "s") + " restored from this machine");
+  if (n) toast(n + " unfinished draft" + (n === 1 ? "" : "s") + " restored from this machine");
 }
 
 async function discardDraft(id) {
-  const d = dep_doc(id);
+  const d = doc(id);
   if (d && d.pendingAmendment) {
-    dep_toast("Retry the pending save before discarding this correction.");
+    toast("Retry the pending save before discarding this correction.");
     return false;
   }
   WriterState.DOCS = WriterState.DOCS.filter((d) => !(d.draft && d.id === id));
   WriterState.REINSP = WriterState.REINSP.filter((r) => !(r.draft && r.id === id));
   if (WriterState.state.reinspId === id) {
-    dep_clearWalk();
+    clearWalk();
     WriterState.WORK.walk = null;
   }
   // a worksheet still pointing at the discarded follow-up reads as finished
@@ -625,7 +616,7 @@ async function discardDraft(id) {
     if (r.draft && r.docId === id) r.docId = null;
   });
   await saveDrafts();
-  dep_render();
+  render();
 }
 
 async function bootStorage() {
@@ -655,17 +646,17 @@ async function bootStorage() {
     }
   }
   WriterState.WRITER_ACCESS = true;
-  dep_initWriterHandoff();
-  await dep_checkHelper();
-  if (WriterState.HELPER) await dep_refreshCatalog();
-  await dep_restoreCaseFolder();
+  initWriterHandoff();
+  await checkHelper();
+  if (WriterState.HELPER) await refreshCatalog();
+  await restoreCaseFolder();
   await restorePending();
   await restoreDrafts();
-  await dep_recordIntegrity.refresh();
-  await dep_refreshArtifactLocations();
+  await recordIntegrity.refresh();
+  await refreshArtifactLocations();
   await flushPending();
-  dep_markWriterReady();
-  if (WriterState.HELPER) dep_scheduleRecoveryBackup();
+  markWriterReady();
+  if (WriterState.HELPER) scheduleRecoveryBackup();
 }
 
 function pickCaseFile() {
@@ -676,12 +667,12 @@ function pickCaseFile() {
     const file = inp.files && inp.files[0];
     if (!file) return;
     const fr = new FileReader();
-    fr.onerror = () => dep_toast("That file could not be read from this machine");
+    fr.onerror = () => toast("That file could not be read from this machine");
     fr.onload = () => {
       try {
-        dep_loadCaseFile(String(fr.result));
+        loadCaseFile(String(fr.result));
       } catch (err) {
-        dep_toast("That case file was not loaded — " + ((err && err.message) || "it could not be read"));
+        toast("That case file was not loaded — " + ((err && err.message) || "it could not be read"));
       }
     };
     fr.readAsText(file);
@@ -761,9 +752,9 @@ function standardCityStateZip(value) {
   const area = zipMatch[1].replace(/,\s*$/, "").trim(),
     zip = zipMatch[2].replace(/^(\d{5})(\d{4})$/, "$1-$2");
   // Prefer the longest complete state name; no partial suffix matches.
-  const states = Object.entries(dep_STATE_NAMES)
+  const states = Object.entries(STATE_NAMES)
     .sort((a, b) => b[0].length - a[0].length)
-    .concat(Array.from(dep_US_STATES, (x) => [x.toLowerCase(), x]));
+    .concat(Array.from(US_STATES, (x) => [x.toLowerCase(), x]));
   let city = "",
     state = "";
   for (const [name, abbr] of states) {
@@ -801,13 +792,13 @@ function addressProblem(name, street, city) {
 }
 
 function validateAndStandardizeAddresses(k, requireAgent = false, normalize = true) {
-  const parsedFault = dep_addressParser.fault(k);
+  const parsedFault = addressParser.fault(k);
   if (parsedFault) return parsedFault;
   const normalized = [];
-  for (let ix = 0; ix < dep_ccList(k).length; ix++) {
-    const c = dep_ccList(k)[ix];
+  for (let ix = 0; ix < ccList(k).length; ix++) {
+    const c = ccList(k)[ix];
     if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) continue;
-    if (dep_addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
+    if (addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
     const problem = addressProblem(c.name, c.addr, c.city);
     if (problem) {
       const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
@@ -817,7 +808,7 @@ function validateAndStandardizeAddresses(k, requireAgent = false, normalize = tr
   }
   const a = k.agent || {},
     entered = [a.name, a.addr, a.city].some((v) => String(v || "").trim());
-  const acceptedAgent = dep_addressParser.accepted(a.addressParsed, [a.addr || "", a.city || ""]) && String(a.name || "").trim();
+  const acceptedAgent = addressParser.accepted(a.addressParsed, [a.addr || "", a.city || ""]) && String(a.name || "").trim();
   if ((requireAgent || entered) && !acceptedAgent) {
     const problem = addressProblem(a.name, a.addr, a.city);
     if (problem) {
@@ -842,49 +833,49 @@ function validateAndStandardizeAddresses(k, requireAgent = false, normalize = tr
 }
 
 function recipientPreview(c) {
-  if (dep_addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""])) return "Accepted mailing lines: " + [c.addr, c.city].join(" · ");
+  if (addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""])) return "Accepted mailing lines: " + [c.addr, c.city].join(" · ");
   const street = standardStreetAddress(c.addr),
     city = standardCityStateZip(c.city);
   return street && city ? "Printed as: " + street + " · " + city : "";
 }
 
 function addCC(cid) {
-  const current = dep_doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? dep_docCase(current) : dep_kase(cid);
-  k.ccList = dep_ccList(k).concat([{ name: "", addr: "", city: "" }]);
+  const current = doc(WriterState.state.docId),
+    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
+  k.ccList = ccList(k).concat([{ name: "", addr: "", city: "" }]);
   WriterState.DIRTY = true;
-  dep_render();
+  render();
 }
 
 function removeCC(cid, ix) {
-  const current = dep_doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? dep_docCase(current) : dep_kase(cid);
-  k.ccList = dep_ccList(k).filter((_, n) => n !== ix);
+  const current = doc(WriterState.state.docId),
+    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
+  k.ccList = ccList(k).filter((_, n) => n !== ix);
   WriterState.DIRTY = true;
-  dep_render();
+  render();
 }
 
 function addEmail(cid) {
-  const current = dep_doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? dep_docCase(current) : dep_kase(cid);
-  k.emails = dep_emailList(k).concat([{ addr: "", kind: "Property Owner" }]);
+  const current = doc(WriterState.state.docId),
+    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
+  k.emails = emailList(k).concat([{ addr: "", kind: "Property Owner" }]);
   WriterState.DIRTY = true;
-  dep_render();
+  render();
 }
 
 function removeEmail(cid, ix) {
-  const current = dep_doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? dep_docCase(current) : dep_kase(cid);
-  k.emails = dep_emailList(k).filter((_, n) => n !== ix);
+  const current = doc(WriterState.state.docId),
+    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
+  k.emails = emailList(k).filter((_, n) => n !== ix);
   WriterState.DIRTY = true;
-  dep_render();
+  render();
 }
 
 function caseUnsaved(k) {
   if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === k.id)) return "record change awaiting save confirmation";
-  if (WriterState.PENDING.some((p) => p.cid === k.id || (!!dep_caseFileName(k) && p.name === dep_caseFileName(k))))
+  if (WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k))))
     return "case file waiting to reach the share";
-  const evs = dep_eventsFor(k.id);
+  const evs = eventsFor(k.id);
   const drafts = WriterState.DOCS.some((d) => d.draft && d.caseId === k.id) || WriterState.REINSP.some((r) => r.draft && r.caseId === k.id);
   if (drafts) return "unfinished drafts";
   if (!evs.length && !WriterState.SAVE_CHECKPOINTS[k.id]) return "case details saved only on this device";
@@ -892,7 +883,7 @@ function caseUnsaved(k) {
   const checkpoint = WriterState.SAVE_CHECKPOINTS[k.id];
   if (checkpoint) {
     const known = new Set(checkpoint.events || []);
-    return evs.some((e) => !known.has(e.id)) || dep_stableJSON(dep_caseDetails(k)) !== dep_stableJSON(dep_caseDetails(checkpoint.case))
+    return evs.some((e) => !known.has(e.id)) || stableJSON(caseDetails(k)) !== stableJSON(caseDetails(checkpoint.case))
       ? "changes made since the last save"
       : "";
   }
@@ -905,19 +896,19 @@ function caseUnsaved(k) {
 }
 
 function removeCase(cid) {
-  if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === cid) || dep_docsFor(cid).some((x) => x.pendingAmendment)) {
-    dep_toast("Confirm pending record saves before putting this case away.");
+  if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === cid) || docsFor(cid).some((x) => x.pendingAmendment)) {
+    toast("Confirm pending record saves before putting this case away.");
     return false;
   }
   WriterState.CASES = WriterState.CASES.filter((c) => c.id !== cid);
   WriterState.DOCS = WriterState.DOCS.filter((d) => d.caseId !== cid);
   WriterState.REINSP = WriterState.REINSP.filter((r) => r.caseId !== cid);
-  if (dep_reinsp(WriterState.state.reinspId)?.caseId === cid) {
-    dep_clearWalk();
+  if (reinsp(WriterState.state.reinspId)?.caseId === cid) {
+    clearWalk();
     WriterState.WORK.walk = null;
   }
   delete WriterState.EVENTS[cid];
-  if (WriterState.state.docId && !dep_doc(WriterState.state.docId)) WriterState.state.docId = null;
+  if (WriterState.state.docId && !doc(WriterState.state.docId)) WriterState.state.docId = null;
   saveDrafts();
 }
 
@@ -931,78 +922,78 @@ function clearCases(which) {
   });
   WriterState.state.modal = null;
   WriterState.state.screen = "cases";
-  dep_render();
-  dep_toast(gone.length ? gone.length + " case" + (gone.length === 1 ? "" : "s") + " cleared from the list" : "Nothing to clear");
+  render();
+  toast(gone.length ? gone.length + " case" + (gone.length === 1 ? "" : "s") + " cleared from the list" : "Nothing to clear");
 }
 
 function startReinspection(cid, importedRow) {
-  if (dep_snow.isCase(dep_kase(cid))) {
-    dep_toast("Snow cases cite each inspection directly; import the next snow inspection instead of creating a reinspection.");
+  if (snow.isCase(kase(cid))) {
+    toast("Snow cases cite each inspection directly; import the next snow inspection instead of creating a reinspection.");
     return;
   }
-  if (dep_recordIntegrity.blocked(cid)) {
-    dep_toast("This record was changed outside the program. Read-only.");
+  if (recordIntegrity.blocked(cid)) {
+    toast("This record was changed outside the program. Read-only.");
     return;
   }
-  dep_clearWalk();
-  const correction = dep_draftDocFor(cid);
+  clearWalk();
+  const correction = draftDocFor(cid);
   if (correction && correction.correction) {
     WriterState.state.docId = correction.id;
     WriterState.state.screen = "write";
-    dep_render();
-    dep_toast("Finish or discard the correction before starting another inspection");
+    render();
+    toast("Finish or discard the correction before starting another inspection");
     return;
   }
-  const unfinished = dep_draftDocFor(cid);
+  const unfinished = draftDocFor(cid);
   if (unfinished) {
     WriterState.state.docId = unfinished.id;
     WriterState.state.screen = "write";
-    dep_render();
-    dep_toast("Continue the unfinished document first.");
+    render();
+    toast("Continue the unfinished document first.");
     return;
   }
-  const open = dep_draftReinspFor(cid) || dep_unissuedVisitFor(cid);
+  const open = draftReinspFor(cid) || unissuedVisitFor(cid);
   if (open) {
     if (importedRow) {
       const oldDate = open.date;
       open.date = importedRow.date;
       open.time = importedRow.time || "";
       open.inspectorId = importedRow.inspectorId || open.inspectorId;
-      open.importInspection = dep_inspectionIdentity(importedRow);
+      open.importInspection = inspectionIdentity(importedRow);
       Object.values(open.results || {}).forEach((res) => {
         if (!res.carried && !res.manualDate && (!res.on || res.on === oldDate)) res.on = open.date;
       });
     }
     WriterState.state.reinspId = open.id;
     WriterState.state.screen = "reinspect";
-    dep_restoreWalkFor(open);
-    dep_render();
+    restoreWalkFor(open);
+    render();
     return;
   }
-  const src = dep_sourceDocFor(cid);
+  const src = sourceDocFor(cid);
   if (!src || !src.items.length) {
-    dep_toast("Finish and issue the notice first — a reinspection works off the document the owner received");
+    toast("Finish and issue the notice first — a reinspection works off the document the owner received");
     return;
   }
   if (src.type === "compliance" || src.items.every((i) => i.withdrawn)) {
-    dep_toast("This case is completed. Use a new case for new observations or correct a" + " recording error from the document history.");
+    toast("This case is completed. Use a new case for new observations or correct a" + " recording error from the document history.");
     return;
   }
-  const k = dep_kase(cid);
+  const k = kase(cid);
   const r = {
-    expectedHead: dep_recordHead(cid),
-    id: dep_uid("r"),
+    expectedHead: recordHead(cid),
+    id: uid("r"),
     caseId: cid,
     sourceDocId: src.id,
-    date: (importedRow && importedRow.date) || dep_recordDay(today),
+    date: (importedRow && importedRow.date) || recordDay(today),
     time: (importedRow && importedRow.time) || "",
     draft: true,
     inspectorId: (importedRow && importedRow.inspectorId) || k.inspectorId,
     results: {},
     docId: null,
-    ...(importedRow ? { importInspection: dep_inspectionIdentity(importedRow) } : {}),
+    ...(importedRow ? { importInspection: inspectionIdentity(importedRow) } : {}),
   };
-  dep_newDocuments.continuingItems(src).forEach((it) => {
+  newDocuments.continuingItems(src).forEach((it) => {
     if (it.done || it.withdrawn)
       r.results[it.id] = { oc: it.withdrawn ? "withdrawn" : "corrected", on: it.doneOn || "", due: "", note: "", cite: false, carried: true };
   });
@@ -1012,7 +1003,7 @@ function startReinspection(cid, importedRow) {
   WriterState.state.screen = "reinspect";
   WriterState.DIRTY = true;
   saveDrafts();
-  dep_render();
+  render();
 }
 
 export {

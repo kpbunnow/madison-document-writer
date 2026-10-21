@@ -1,40 +1,30 @@
-import { recordDay as dep_recordDay } from "../assets/shared.js";
+import { recordDay } from "../assets/shared.js";
+import { citationNumber, fmtDate, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
+import { helperJSON, stableJSON } from "./workspace_shell.js";
+import { saveDrafts, scheduleDraftSave } from "./case_files.js";
+import { render, renderKeep } from "./inspection_import.js";
+import { refreshSheet } from "./document_pagination.js";
 import {
-  citationNumber as dep_citationNumber,
-  fmtDate as dep_fmtDate,
-  nextCourtDate as dep_nextCourtDate,
-  toast as dep_toast,
-  validISO as dep_validISO,
-} from "./court_and_deposits.js";
-import { helperJSON as dep_helperJSON, stableJSON as dep_stableJSON } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts, scheduleDraftSave as dep_scheduleDraftSave } from "./case_files.js";
-import { render as dep_render, renderKeep as dep_renderKeep } from "./inspection_import.js";
-import { refreshSheet as dep_refreshSheet } from "./document_pagination.js";
-import {
-  addDays as dep_addDays,
-  checkTarget as dep_checkTarget,
-  citationPricing as dep_citationPricing,
-  clone as dep_clone,
-  correctionSource as dep_correctionSource,
-  courtTime as dep_courtTime,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docInsp as dep_docInsp,
-  docsFor as dep_docsFor,
-  esc as dep_esc,
-  initialCitations as dep_initialCitations,
-  isLocked as dep_isLocked,
-  itemLibraryKey as dep_itemLibraryKey,
-  kase as dep_kase,
-  recordHead as dep_recordHead,
-  uid as dep_uid,
+  addDays,
+  checkTarget,
+  citationPricing,
+  clone,
+  correctionSource,
+  courtTime,
+  doc,
+  docCase,
+  docInsp,
+  docsFor,
+  esc,
+  initialCitations,
+  isLocked,
+  itemLibraryKey,
+  kase,
+  recordHead,
+  uid,
 } from "./app_core.js";
-import {
-  CITATION_POLICY as dep_CITATION_POLICY,
-  formatDeposit as dep_formatDeposit,
-  resolveCitationAmount as dep_resolveCitationAmount,
-} from "./citation_policy.js";
-import { LIBRARY as dep_LIBRARY } from "./data/library.js";
+import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
+import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
 export const SNOW_TYPE = "snow-10.28",
@@ -46,29 +36,28 @@ export function initSnow() {
   const mixed = "Snow removal cases cite only MGO 10.28. Create a separate case for other violations.";
   const WARNING = "There are no warnings given for this Ordinance violation.";
   const isCase = (k) => k?.caseType === SNOW_TYPE;
-  const is = (d) => !!d && (d.caseType === SNOW_TYPE || isCase(dep_docCase(d)));
+  const is = (d) => !!d && (d.caseType === SNOW_TYPE || isCase(docCase(d)));
   const season = (day) => {
-    const start = dep_CITATION_POLICY.snowSeasonStartMonthDay || "07-01",
+    const start = CITATION_POLICY.snowSeasonStartMonthDay || "07-01",
       year = Number(day.slice(0, 4)) - (day.slice(5) < start ? 1 : 0);
     return year + "–" + String(year + 1).slice(-2);
   };
   const libraryItem = () =>
-    dep_LIBRARY
-      .find((c) => c.code === "ENF_PM_PROPMAINT")
+    LIBRARY.find((c) => c.code === "ENF_PM_PROPMAINT")
       .groups.find((g) => g.code === "SNOW")
       .items.find((i) => i.o === 1);
   function canAdd(d, key) {
     const snow = key === SNOW_KEY,
-      other = d.items.some((i) => dep_itemLibraryKey(i) !== SNOW_KEY);
-    if ((snow && other) || (isCase(dep_kase(d.caseId)) && !snow) || (snow && dep_docsFor(d.caseId).some((x) => !x.draft && !is(x)))) {
-      dep_toast(mixed);
+      other = d.items.some((i) => itemLibraryKey(i) !== SNOW_KEY);
+    if ((snow && other) || (isCase(kase(d.caseId)) && !snow) || (snow && docsFor(d.caseId).some((x) => !x.draft && !is(x)))) {
+      toast(mixed);
       return false;
     }
     return true;
   }
   function added(d, item) {
-    if (dep_itemLibraryKey(item) !== SNOW_KEY) return;
-    dep_kase(d.caseId).caseType = SNOW_TYPE;
+    if (itemLibraryKey(item) !== SNOW_KEY) return;
+    kase(d.caseId).caseType = SNOW_TYPE;
     d.caseType = SNOW_TYPE;
     d.type = "citation";
     d.authoringVersion = 11;
@@ -77,12 +66,12 @@ export function initSnow() {
     delete d.fromReinspId;
     delete d.issuanceGroup;
     prepare(d);
-    dep_citationPricing.refresh(d);
+    citationPricing.refresh(d);
   }
   function removed(d) {
     if (d.items.length) return;
-    if (!dep_docsFor(d.caseId).some((x) => !x.draft && is(x))) {
-      delete dep_kase(d.caseId).caseType;
+    if (!docsFor(d.caseId).some((x) => !x.draft && is(x))) {
+      delete kase(d.caseId).caseType;
       delete d.caseType;
       delete d.snow;
       delete d.snowInspectionId;
@@ -94,7 +83,7 @@ export function initSnow() {
     const src = libraryItem();
     d.items = [
       {
-        id: dep_uid("x"),
+        id: uid("x"),
         no: "1",
         sections: ["10.28"],
         title: src.t,
@@ -112,38 +101,38 @@ export function initSnow() {
     if (!d?.draft || !is(d) || d.pendingAmendment) return;
     if (WriterState.HELPER?.ok && !letterLoaded && !loading)
       void loadLetter().then((ok) => {
-        if (ok && WriterState.state.docId === d.id) dep_renderKeep();
+        if (ok && WriterState.state.docId === d.id) renderKeep();
       });
     d.authoringVersion = 11;
     d.caseType = SNOW_TYPE;
     d.snow = d.snow || { snowfallDate: "", inches: "", condition: "", photographed: false, cornerNotCleared: false };
-    d.inspDate = d.inspDate || dep_docCase(d).date || "";
-    d.inspTime = d.inspTime || dep_docCase(d).time || "";
+    d.inspDate = d.inspDate || docCase(d).date || "";
+    d.inspTime = d.inspTime || docCase(d).time || "";
     d.snowInspectionId = d.inspDate + "T" + d.inspTime;
     if (d.items.length !== 1) return;
     const i = d.items[0];
-    if (dep_itemLibraryKey(i) !== SNOW_KEY) return;
+    if (itemLibraryKey(i) !== SNOW_KEY) return;
     i.due = null;
     i.dueExempt = SNOW_TYPE;
     i.cite = true;
     d.cits = d.cits || {};
     const c = d.cits[i.id] || {
-      num: dep_citationNumber(),
+      num: citationNumber(),
       ord: "10.28",
       preparedSections: ["10.28"],
-      desc: dep_CITATION_POLICY.snowDefaultDescription,
-      deptId: dep_docInsp(d).badge || "",
+      desc: CITATION_POLICY.snowDefaultDescription,
+      deptId: docInsp(d).badge || "",
       issued: d.mailed,
       issuedAutomatic: true,
-      courtDate: dep_nextCourtDate(d.mailed),
-      courtTime: dep_courtTime(),
+      courtDate: nextCourtDate(d.mailed),
+      courtTime: courtTime(),
       depositMode: "schedule",
     };
     d.cits[i.id] = c;
     c.violDate = d.inspDate;
     c.violTime = d.inspTime;
     if (
-      dep_validISO(d.snow.snowfallDate) &&
+      validISO(d.snow.snowfallDate) &&
       Number(d.snow.inches) > 0 &&
       ["snow covered", "ice covered", "snow and ice covered"].includes(d.snow.condition)
     )
@@ -167,7 +156,7 @@ export function initSnow() {
       n = Number(f.inches);
     return (
       "On " +
-      dep_fmtDate(f.snowfallDate) +
+      fmtDate(f.snowfallDate) +
       ", " +
       numberText(n) +
       (n === 1 ? " inch" : " inches") +
@@ -181,9 +170,9 @@ export function initSnow() {
     if (!is(d)) return [];
     const f = d.snow || {},
       out = [],
-      check = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [dep_checkTarget('[data-snow="' + key + '"]', t)] : [] });
-    check(d.type === "citation" && d.items.length === 1 && dep_itemLibraryKey(d.items[0]) === SNOW_KEY, mixed);
-    check(dep_validISO(f.snowfallDate), "Enter the snowfall / accumulation date.", "snowfallDate");
+      check = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [checkTarget('[data-snow="' + key + '"]', t)] : [] });
+    check(d.type === "citation" && d.items.length === 1 && itemLibraryKey(d.items[0]) === SNOW_KEY, mixed);
+    check(validISO(f.snowfallDate), "Enter the snowfall / accumulation date.", "snowfallDate");
     check(
       typeof f.inches === "number" && Number.isFinite(f.inches) && f.inches > 0,
       "Snowfall inches must be a decimal greater than zero.",
@@ -191,17 +180,17 @@ export function initSnow() {
     );
     check(["snow covered", "ice covered", "snow and ice covered"].includes(f.condition), "Choose the observed sidewalk condition.", "condition");
     check(f.photographed === true, "Confirm the violation was photographed before citation.", "photographed");
-    check(dep_validISO(d.inspDate) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(d.inspTime || ""), "Enter the snow inspection date and time.");
-    if (dep_validISO(f.snowfallDate) && dep_validISO(d.inspDate)) {
-      const due = dep_addDays(f.snowfallDate, 1);
+    check(validISO(d.inspDate) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(d.inspTime || ""), "Enter the snow inspection date and time.");
+    if (validISO(f.snowfallDate) && validISO(d.inspDate)) {
+      const due = addDays(f.snowfallDate, 1);
       check(
         d.inspDate > due || (d.inspDate === due && d.inspTime >= "12:00"),
-        "Under MGO 10.28(1) the owner has until noon on " + dep_fmtDate(due) + "; inspect at or after that time.",
+        "Under MGO 10.28(1) the owner has until noon on " + fmtDate(due) + "; inspect at or after that time.",
         "snowfallDate",
       );
     }
-    const used = d.frozen?.snowLetter || dep_correctionSource(d)?.frozen?.snowLetter || letter;
-    if (used.season !== season(d.inspDate || dep_recordDay(new Date())))
+    const used = d.frozen?.snowLetter || correctionSource(d)?.frozen?.snowLetter || letter;
+    if (used.season !== season(d.inspDate || recordDay(new Date())))
       out.push({ ok: false, soft: true, t: "Sand-site list was last confirmed for " + used.season + "." });
     return out;
   }
@@ -209,14 +198,14 @@ export function initSnow() {
     const faults = checks(d)
         .filter((x) => !x.ok && !x.soft)
         .map((x) => x.t),
-      ids = (dep_docsFor(d.caseId) || []).filter((x) => !x.draft && !x.void && !x.superseded && is(x));
+      ids = (docsFor(d.caseId) || []).filter((x) => !x.draft && !x.void && !x.superseded && is(x));
     if (!d.correction && ids.some((x) => (x.snowInspectionId || x.inspDate + "T" + x.inspTime) === d.snowInspectionId))
       faults.push("This snow inspection already has a citation. Use its correction history.");
     const c = Object.values(d.cits || {})[0];
     if (!d.correction && c?.countedOffenses?.some((x) => x.inspectionId === d.snowInspectionId))
       faults.push("This snow inspection at the property already has a citation.");
     if (d.fromDocId || d.fromReinspId || d.issuanceGroup) faults.push("Snow citations have no Official Notice or reinspection.");
-    if (Array.isArray(d.expectedHead) && dep_stableJSON(d.expectedHead) !== dep_stableJSON(dep_recordHead(d.caseId)))
+    if (Array.isArray(d.expectedHead) && stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
       faults.push("The case record changed after this draft began. Reopen it before issuing.");
     return [...new Set(faults)].map((t) => ({ ok: false, t }));
   }
@@ -226,7 +215,7 @@ export function initSnow() {
     const data = letter,
       c = Object.values(d.cits || {})[0] || {},
       at = c.pricedOn || c.issued || d.mailed;
-    const totals = [1, 2].map((tier) => dep_resolveCitationAmount({ ordinance: "10.28", tier, date: at })).map((x) => dep_formatDeposit(x.amount));
+    const totals = [1, 2].map((tier) => resolveCitationAmount({ ordinance: "10.28", tier, date: at })).map((x) => formatDeposit(x.amount));
     const paragraphs = [
       "Subject: Failure to Remove Snow and/or Ice from Public Sidewalk",
       "Madison City Ordinance 10.28(1) requires that sidewalks be cleared of al" +
@@ -252,52 +241,52 @@ export function initSnow() {
     ];
     if (coverFormat(d) < 10)
       return (
-        paragraphs.map((p) => "<p>" + dep_esc(p) + "</p>").join("") +
+        paragraphs.map((p) => "<p>" + esc(p) + "</p>").join("") +
         ('<table class="snow-sites"><thead><tr><th scope="col">West Side</th><th s' + 'cope="col">East Side</th></tr></thead><tbody>') +
-        data.sites.map(([a, b]) => "<tr><td>" + dep_esc(a) + "</td><td>" + dep_esc(b) + "</td></tr>").join("") +
+        data.sites.map(([a, b]) => "<tr><td>" + esc(a) + "</td><td>" + esc(b) + "</td></tr>").join("") +
         "</tbody></table><p>" +
-        dep_esc(data.closing) +
+        esc(data.closing) +
         "</p>"
       );
     // Authoring 10: bold subject and warning sentence, one added line above the subject, a blank line between blocks, bold Streets contact cells.
     const phones = [data.westPhone, data.eastPhone].map((x) => String(x || "").trim()).filter(Boolean),
-      cell = (v) => (phones.some((x) => String(v).includes(x)) ? "<td><strong>" + dep_esc(v) + "</strong></td>" : "<td>" + dep_esc(v) + "</td>");
-    const second = dep_esc(paragraphs[2]).replace(dep_esc(WARNING), "<strong>" + dep_esc(WARNING) + "</strong>");
+      cell = (v) => (phones.some((x) => String(v).includes(x)) ? "<td><strong>" + esc(v) + "</strong></td>" : "<td>" + esc(v) + "</td>");
+    const second = esc(paragraphs[2]).replace(esc(WARNING), "<strong>" + esc(WARNING) + "</strong>");
     return (
       '<p class="snow-subject"><strong>' +
-      dep_esc(paragraphs[0]) +
+      esc(paragraphs[0]) +
       '</strong></p><p class="snow-para">' +
-      dep_esc(paragraphs[1]) +
+      esc(paragraphs[1]) +
       '</p><p class="snow-para">' +
       second +
       '</p><p class="snow-para">' +
-      dep_esc(paragraphs[3]) +
+      esc(paragraphs[3]) +
       ('</p><table class="snow-sites snow-sites-v10"><thead><tr><th scope="col">' +
         'West Side</th><th scope="col">East Side</th></tr></thead><tbody>') +
       data.sites.map(([a, b]) => "<tr>" + cell(a) + cell(b) + "</tr>").join("") +
       '</tbody></table><p class="snow-para snow-closing">' +
-      dep_esc(data.closing) +
+      esc(data.closing) +
       "</p>"
     );
   }
   function coverFormat(d) {
-    const recorded = d?.frozen?.snowCoverFormat ?? dep_correctionSource(d)?.frozen?.snowCoverFormat;
+    const recorded = d?.frozen?.snowCoverFormat ?? correctionSource(d)?.frozen?.snowCoverFormat;
     if (recorded === 9 || recorded === 10) return recorded;
-    return d?.correction || dep_correctionSource(d) ? 9 : d?.authoringVersion >= 10 ? 10 : 9;
+    return d?.correction || correctionSource(d) ? 9 : d?.authoringVersion >= 10 ? 10 : 9;
   }
   const freeze = (d) => ({
-    snowLetter: dep_clone(d.frozen?.snowLetter || dep_correctionSource(d)?.frozen?.snowLetter || letter),
+    snowLetter: clone(d.frozen?.snowLetter || correctionSource(d)?.frozen?.snowLetter || letter),
     snowSeason: season(d.inspDate),
-    snowCloseOnFiling: dep_CITATION_POLICY.snowCloseOnFiling !== false,
+    snowCloseOnFiling: CITATION_POLICY.snowCloseOnFiling !== false,
     ...(d.authoringVersion >= 10 ? { snowCoverFormat: coverFormat(d) } : {}),
   });
   async function loadLetter(force = false) {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) return false;
     if (letterLoaded && !force) return true;
     if (!loading)
-      loading = dep_helperJSON("/administration/snow-letter")
+      loading = helperJSON("/administration/snow-letter")
         .then((x) => {
-          letter = dep_clone(x.letter);
+          letter = clone(x.letter);
           letterLoaded = true;
           return true;
         })
@@ -308,13 +297,13 @@ export function initSnow() {
     return loading;
   }
   const setLetter = (data) => {
-    letter = dep_clone(data);
+    letter = clone(data);
     letterLoaded = true;
   };
   function factsForm(d) {
     if (!is(d)) return "";
     const f = d.snow || {},
-      locked = !d.draft || dep_isLocked(d),
+      locked = !d.draft || isLocked(d),
       disabled = locked ? "disabled" : "";
     return (
       '<section class="card no-print" id="snow-facts"><div class="card-h"><h2>S' +
@@ -327,11 +316,11 @@ export function initSnow() {
         '> Snow citation</p><div class="grid g2"><label class="f"><span>Snowfall ' +
         '/ accumulation date</span><input type="date" data-snow="snowfallDate" va' +
         'lue="') +
-      dep_esc(f.snowfallDate || "") +
+      esc(f.snowfallDate || "") +
       '" ' +
       disabled +
       ('></label><label class="f"><span>Snowfall amount (inches)</span><input ty' + 'pe="number" data-snow="inches" min="0" step="any" value="') +
-      dep_esc(f.inches ?? "") +
+      esc(f.inches ?? "") +
       '" ' +
       disabled +
       '></label><label class="f"><span>Condition observed</span><select data-snow="condition" ' +
@@ -349,13 +338,13 @@ export function initSnow() {
       " " +
       disabled +
       '> Corner lot, curb ramp or crosswalk border not cleared</label><p class="hint">Snow season: ' +
-      dep_esc(season(d.inspDate || dep_recordDay(new Date()))) +
+      esc(season(d.inspDate || recordDay(new Date()))) +
       (". Prior citations at this property in the season count, including a prev" + "ious owner by default.</p></div></section>")
     );
   }
   // R36: an SSRS Record Category of "Snow Removal" makes the import a snow case immediately (10.28 citation draft).
   function matchesImport(row) {
-    const configured = dep_CITATION_POLICY.snowAccelaCaseTypes || [],
+    const configured = CITATION_POLICY.snowAccelaCaseTypes || [],
       type = String(row?.caseType || row?.CaseType || row?.CaseTypeName || "").trim(),
       category = String(row?.recordCategory || row?.RecordCategory || "").trim();
     return (
@@ -371,41 +360,41 @@ export function initSnow() {
     const el = e.target,
       key = el.dataset?.snow;
     if (!key) return;
-    const d = dep_doc(WriterState.state.docId);
-    if (!d?.draft || dep_isLocked(d) || d.pendingAmendment) return;
+    const d = doc(WriterState.state.docId);
+    if (!d?.draft || isLocked(d) || d.pendingAmendment) return;
     d.snow = d.snow || {};
     d.snow[key] = el.type === "checkbox" ? el.checked : key === "inches" ? (el.value === "" ? "" : Number(el.value)) : el.value;
     WriterState.DIRTY = true;
     prepare(d);
-    dep_citationPricing.refresh(d);
-    dep_scheduleDraftSave();
-    dep_refreshSheet();
-    dep_initialCitations.refresh(d);
+    citationPricing.refresh(d);
+    scheduleDraftSave();
+    refreshSheet();
+    initialCitations.refresh(d);
   }
   document.addEventListener("click", (e) => {
     if (e.target.closest?.("[data-refresh-snow-letter]")) {
       void loadLetter(true).then((ok) => {
-        if (ok) dep_renderKeep();
-        else dep_toast("Seasonal content could not be refreshed. Reconnect and try again.");
+        if (ok) renderKeep();
+        else toast("Seasonal content could not be refreshed. Reconnect and try again.");
       });
       return;
     }
     if (!e.target.closest?.("[data-remove-snow]")) return;
-    const d = dep_doc(WriterState.state.docId);
+    const d = doc(WriterState.state.docId);
     if (!d?.draft || d.correction || d.pendingAmendment) return;
     d.items = [];
     d.cits = {};
     removed(d);
     WriterState.DIRTY = true;
-    dep_saveDrafts();
-    dep_render();
+    saveDrafts();
+    render();
   });
   document.addEventListener("change", (e) => {
     if (e.target.id === "new-case-type") {
       WriterState.WORK.entry = WriterState.WORK.entry || {};
       WriterState.WORK.entry["new-case-type"] = e.target.value;
-      dep_saveDrafts();
-      dep_renderKeep();
+      saveDrafts();
+      renderKeep();
     }
   });
   document.addEventListener("input", edit);

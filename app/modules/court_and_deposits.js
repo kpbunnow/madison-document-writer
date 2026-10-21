@@ -1,79 +1,59 @@
-import { normParcel as dep_normParcel, recordDay as dep_recordDay } from "../assets/shared.js";
+import { normParcel, recordDay } from "../assets/shared.js";
+import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
+import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
+import { correctionChecks } from "./issuance_and_corrections.js";
+import { lifecycleChecks } from "./draft_recovery.js";
+import { catalogDraftBlocked } from "./language_catalog.js";
+import { authoringChecks, citationDepositFault, refreshArtifactLocations } from "./case_timeline.js";
+import { attachCheckTargets, render } from "./inspection_import.js";
+import { documentHTML } from "./document_render.js";
+import { paginate } from "./document_pagination.js";
 import {
-  appendEvent as dep_appendEvent,
-  caseNumberAllowed as dep_caseNumberAllowed,
-  printNotice as dep_printNotice,
-  printableHTML as dep_printableHTML,
-  project as dep_project,
-} from "./workspace_shell.js";
-import {
-  addressProblem as dep_addressProblem,
-  saveCaseFile as dep_saveCaseFile,
-  validateAndStandardizeAddresses as dep_validateAndStandardizeAddresses,
-} from "./case_files.js";
-import { correctionChecks as dep_correctionChecks } from "./issuance_and_corrections.js";
-import { lifecycleChecks as dep_lifecycleChecks } from "./draft_recovery.js";
-import { catalogDraftBlocked as dep_catalogDraftBlocked } from "./language_catalog.js";
-import {
-  authoringChecks as dep_authoringChecks,
-  citationDepositFault as dep_citationDepositFault,
-  refreshArtifactLocations as dep_refreshArtifactLocations,
-} from "./case_timeline.js";
-import { attachCheckTargets as dep_attachCheckTargets, render as dep_render } from "./inspection_import.js";
-import { documentHTML as dep_documentHTML } from "./document_render.js";
-import { paginate as dep_paginate } from "./document_pagination.js";
-import {
-  A11Y as dep_A11Y,
-  BLOCKS as dep_BLOCKS,
-  CITEPOCH as dep_CITEPOCH,
-  CITFEES as dep_CITFEES,
-  CIT_COPIES as dep_CIT_COPIES,
-  CIT_INSTRUCTIONS as dep_CIT_INSTRUCTIONS,
-  COURT as dep_COURT,
-  COURT_CONTACT as dep_COURT_CONTACT,
-  DOC_TYPES as dep_DOC_TYPES,
-  EXTERIOR_WORK as dep_EXTERIOR_WORK,
-  checkTarget as dep_checkTarget,
-  citSelector as dep_citSelector,
-  citationPricing as dep_citationPricing,
-  clone as dep_clone,
-  countBlanks as dep_countBlanks,
-  daysBetween as dep_daysBetween,
-  doc as dep_doc,
-  docBlocks as dep_docBlocks,
-  docBody as dep_docBody,
-  docCase as dep_docCase,
-  docInsp as dep_docInsp,
-  emailList as dep_emailList,
-  esc as dep_esc,
-  eventsFor as dep_eventsFor,
-  frozenOf as dep_frozenOf,
-  hasOwnInsp as dep_hasOwnInsp,
-  initialCitations as dep_initialCitations,
-  initialOrderCitation as dep_initialOrderCitation,
-  isHistoryDoc as dep_isHistoryDoc,
-  isLLC as dep_isLLC,
-  isLocked as dep_isLocked,
-  iso as dep_iso,
-  itemSelector as dep_itemSelector,
-  kase as dep_kase,
-  newDocuments as dep_newDocuments,
-  nowISO as dep_nowISO,
-  ownerLines as dep_ownerLines,
-  recordIntegrity as dep_recordIntegrity,
-  snow as dep_snow,
-  unchangedCorrectionValue as dep_unchangedCorrectionValue,
-  unchangedCourtDate as dep_unchangedCourtDate,
+  A11Y,
+  BLOCKS,
+  CITEPOCH,
+  CITFEES,
+  CIT_COPIES,
+  CIT_INSTRUCTIONS,
+  COURT,
+  COURT_CONTACT,
+  DOC_TYPES,
+  EXTERIOR_WORK,
+  checkTarget,
+  citSelector,
+  citationPricing,
+  clone,
+  countBlanks,
+  daysBetween,
+  doc,
+  docBlocks,
+  docBody,
+  docCase,
+  docInsp,
+  emailList,
+  esc,
+  eventsFor,
+  frozenOf,
+  hasOwnInsp,
+  initialCitations,
+  initialOrderCitation,
+  isHistoryDoc,
+  isLLC,
+  isLocked,
+  iso,
+  itemSelector,
+  kase,
+  newDocuments,
+  nowISO,
+  ownerLines,
+  recordIntegrity,
+  snow,
+  unchangedCorrectionValue,
+  unchangedCourtDate,
 } from "./app_core.js";
-import {
-  CITATION_POLICY as dep_CITATION_POLICY,
-  assessmentCents as dep_assessmentCents,
-  canonicalOrdinance as dep_canonicalOrdinance,
-  cents as dep_cents,
-  resolveOrdinance as dep_resolveOrdinance,
-} from "./citation_policy.js";
-import { LIBRARY as dep_LIBRARY } from "./data/library.js";
-import { specialType as dep_specialType } from "./new_documents.js";
+import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveOrdinance } from "./citation_policy.js";
+import { LIBRARY } from "./data/library.js";
+import { specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 /* app functions; direct dependencies use explicit shared state. */
@@ -108,22 +88,22 @@ function courtHolidays(y) {
   const tg = nthWeekday(y, 10, 4, 4); // Thanksgiving and the day after
   out.push(tg);
   out.push(new Date(Date.UTC(y, 10, tg.getUTCDate() + 1, 12)));
-  return out.map((d) => dep_iso(d));
+  return out.map((d) => iso(d));
 }
 
 function isCourtHoliday(d) {
-  const s = typeof d === "string" ? d : dep_iso(d);
+  const s = typeof d === "string" ? d : iso(d);
   return courtHolidays(+s.slice(0, 4)).indexOf(s) >= 0;
 }
 
 function nextCourtDate(from) {
-  const p = String(from || dep_recordDay(today)).split("-");
+  const p = String(from || recordDay(today)).split("-");
   const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
   d.setUTCDate(d.getUTCDate() + 42); // six weeks out
   d.setUTCDate(d.getUTCDate() + ((3 - d.getUTCDay() + 7) % 7)); // then on to a Wednesday
   let guard = 0;
   while (isCourtHoliday(d) && guard++ < 12) d.setUTCDate(d.getUTCDate() + 7);
-  return dep_iso(d);
+  return iso(d);
 }
 
 function citationNumber() {
@@ -134,7 +114,7 @@ function citationNumber() {
       if (v) used[v] = 1;
     }),
   );
-  const base = Math.floor((Date.now() - dep_CITEPOCH) / 1000);
+  const base = Math.floor((Date.now() - CITEPOCH) / 1000);
   for (let bump = 0; bump < 120; bump++) {
     const secs = String(base + bump)
       .padStart(9, "0")
@@ -155,17 +135,17 @@ function applyDeposit(d, iid, ord) {
   c.depositMode = "schedule";
   delete c.depositApproved;
   delete c.tierOverrideSource;
-  c.ord = dep_canonicalOrdinance(ord) || String(ord || "");
-  dep_citationPricing.refresh(d);
+  c.ord = canonicalOrdinance(ord) || String(ord || "");
+  citationPricing.refresh(d);
   const el = document.querySelector('[data-cit="' + iid + '|amount"]');
   if (el) el.textContent = c.amount;
   return c.amount;
 }
 
 function feeLines(base, cc, date) {
-  const b = dep_cents(base) ?? 0,
-    c = cc === "" || cc == null ? dep_CITFEES.courtCosts * 100 : (dep_cents(cc) ?? 0),
-    v = dep_assessmentCents(b, c, date);
+  const b = cents(base) ?? 0,
+    c = cc === "" || cc == null ? CITFEES.courtCosts * 100 : (cents(cc) ?? 0),
+    v = assessmentCents(b, c, date);
   return {
     cents: v,
     rows: [
@@ -181,7 +161,7 @@ function feeLines(base, cc, date) {
 
 function lookupForf(sections, libraryKey = "", entryId = "", date) {
   if ((sections || []).length !== 1) return null;
-  return dep_resolveOrdinance(sections[0], libraryKey, entryId, date);
+  return resolveOrdinance(sections[0], libraryKey, entryId, date);
 }
 
 function rnd12() {
@@ -257,17 +237,17 @@ function fmtTime(t) {
 
 function toast(m, options) {
   WriterState.undoFn = null;
-  dep_A11Y.notify(m, options);
+  A11Y.notify(m, options);
 }
 
 function toastHold(m) {
   WriterState.undoFn = null;
-  dep_A11Y.notify(m, { severity: "progress" });
+  A11Y.notify(m, { severity: "progress" });
 }
 
 function toastUndo(m, fn) {
   WriterState.undoFn = fn;
-  dep_A11Y.notify(m, {
+  A11Y.notify(m, {
     severity: "success",
     undo: () => {
       WriterState.undoFn = null;
@@ -278,8 +258,8 @@ function toastUndo(m, fn) {
 
 function fillBlank(el) {
   const field = el.closest('[data-field="text"]'),
-    d = dep_doc(WriterState.state.docId);
-  if (!field || !d || dep_isLocked(d)) return;
+    d = doc(WriterState.state.docId);
+  if (!field || !d || isLocked(d)) return;
   const value = prompt("Enter the missing corrective-action detail:");
   if (value === null || !value.trim()) return;
   el.replaceWith(document.createTextNode(value.trim()));
@@ -289,39 +269,39 @@ function fillBlank(el) {
 
 function allItems() {
   const out = [];
-  dep_LIBRARY.forEach((c, ci) => c.groups.forEach((g, gi) => g.items.forEach((i) => out.push({ ...i, ci, gi, cl: c.name, grp: g.name }))));
+  LIBRARY.forEach((c, ci) => c.groups.forEach((g, gi) => g.items.forEach((i) => out.push({ ...i, ci, gi, cl: c.name, grp: g.name }))));
   return out;
 }
 
 function activeBlocks(d) {
-  if (dep_snow.is(d) && d.authoringVersion >= 9) return ["LANGUAGE"];
+  if (snow.is(d) && d.authoringVersion >= 9) return ["LANGUAGE"];
   // the division's follow-up documents carry none of these
-  if (d.type !== "notice" && !dep_initialOrderCitation(d)) return [];
-  const k = dep_kase(d.caseId),
+  if (d.type !== "notice" && !initialOrderCitation(d)) return [];
+  const k = kase(d.caseId),
     set = new Set();
-  Object.keys(dep_BLOCKS).forEach((b) => {
-    if (dep_BLOCKS[b].always) set.add(b);
+  Object.keys(BLOCKS).forEach((b) => {
+    if (BLOCKS[b].always) set.add(b);
   });
   if (d.items.some((i) => /permit|repair|replace/i.test(i.text))) set.add("PERMIT_500");
   // Preserve Historic District wording; omit unsupplied optional Landmark wording.
-  const exterior = d.items.some((i) => dep_EXTERIOR_WORK.test(i.text));
+  const exterior = d.items.some((i) => EXTERIOR_WORK.test(i.text));
   if (k.historic && exterior) set.add("LANDMARKS");
-  if (String(k.landmark || "").trim() && exterior && String((dep_BLOCKS.LANDMARK || {}).text || "").trim()) set.add("LANDMARK");
+  if (String(k.landmark || "").trim() && exterior && String((BLOCKS.LANDMARK || {}).text || "").trim()) set.add("LANDMARK");
   return [...set];
 }
 
 function inspAt(d) {
-  if (dep_hasOwnInsp(d)) return { date: d.inspDate || "", time: d.inspTime || "", own: true };
-  const k = dep_docCase(d);
+  if (hasOwnInsp(d)) return { date: d.inspDate || "", time: d.inspTime || "", own: true };
+  const k = docCase(d);
   return { date: k.date || "", time: k.time || "", own: false };
 }
 
 function freezeSources(d) {
   return {
-    ...(dep_snow.is(d) ? dep_snow.freeze(d) : {}),
-    case: dep_clone(dep_docCase(d)),
-    inspector: dep_clone(dep_docInsp(d)),
-    body: dep_docBody(d),
+    ...(snow.is(d) ? snow.freeze(d) : {}),
+    case: clone(docCase(d)),
+    inspector: clone(docInsp(d)),
+    body: docBody(d),
     ...(d.special
       ? {
           documentPolicyVersion: 26,
@@ -329,15 +309,15 @@ function freezeSources(d) {
           divisionReview: { by: d.special.reviewer, at: d.special.reviewDateLegal, reference: d.special.reviewRef },
         }
       : {}),
-    blocks: dep_clone(dep_docBlocks(d)),
+    blocks: clone(docBlocks(d)),
     court: {
-      ...dep_clone((dep_frozenOf(d) || {}).court || dep_COURT),
-      ...(d.authoringVersion >= 9 ? { room: "RM#203,", caseNumberLabel: dep_CITATION_POLICY.mc2000CaseNumberLabel } : {}),
+      ...clone((frozenOf(d) || {}).court || COURT),
+      ...(d.authoringVersion >= 9 ? { room: "RM#203,", caseNumberLabel: CITATION_POLICY.mc2000CaseNumberLabel } : {}),
     },
-    courtCopies: dep_clone((dep_frozenOf(d) || {}).courtCopies || dep_CIT_COPIES),
-    courtInstructions: (dep_frozenOf(d) || {}).courtInstructions || dep_CIT_INSTRUCTIONS,
-    courtContact: dep_clone((dep_frozenOf(d) || {}).courtContact || dep_COURT_CONTACT),
-    at: dep_nowISO(),
+    courtCopies: clone((frozenOf(d) || {}).courtCopies || CIT_COPIES),
+    courtInstructions: (frozenOf(d) || {}).courtInstructions || CIT_INSTRUCTIONS,
+    courtContact: clone((frozenOf(d) || {}).courtContact || COURT_CONTACT),
+    at: nowISO(),
   };
 }
 
@@ -366,31 +346,28 @@ function importStatusChecks(d) {
 
 function checks(d) {
   if (!d || !Array.isArray(d.items)) return [{ ok: false, t: "Open a document first" }];
-  dep_initialCitations.prepare(d);
+  initialCitations.prepare(d);
   // a compliance letter reports on every item; elsewhere the cleared ones are
   // history and are not checked again
   const comp = d.type === "compliance";
   // neither a compliance letter nor a referral carries due dates: one reports
   // dates already met, the other stops setting them altogether
-  const special = !!dep_specialType(d.type);
-  const noDates = comp || special || dep_isHistoryDoc(d) || dep_snow.is(d);
+  const special = !!specialType(d.type);
+  const noDates = comp || special || isHistoryDoc(d) || snow.is(d);
   const live = comp ? d.items.filter((i) => !i.withdrawn) : d.items.filter((i) => !i.done && !i.withdrawn);
   const noComply = comp
-    ? d.items
-        .filter((i) => !i.withdrawn)
-        .filter((i) => !validISO(i.doneOn) || i.doneOn > dep_recordDay(today) || i.doneOn < (dep_docCase(d).date || "")).length
+    ? d.items.filter((i) => !i.withdrawn).filter((i) => !validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < (docCase(d).date || ""))
+        .length
     : 0;
   const notAllDone = comp ? d.items.filter((i) => !i.done && !i.withdrawn).length : 0;
-  const blanks = live.reduce((n, i) => n + dep_countBlanks(i.text), 0);
+  const blanks = live.reduce((n, i) => n + countBlanks(i.text), 0);
   const noDue = noDates ? 0 : live.filter((i) => !i.due).length;
   const past = noDates
     ? 0
-    : live.filter(
-        (i) => i.due && validISO(i.due) && !dep_unchangedCorrectionValue(d, i.id, "due") && dep_daysBetween(dep_recordDay(today), i.due) < 1,
-      ).length;
+    : live.filter((i) => i.due && validISO(i.due) && !unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(today), i.due) < 1).length;
   const badDue = noDates ? 0 : live.filter((i) => i.due && !validISO(i.due)).length;
   const noSec = live.filter((i) => !i.sections.length).length;
-  const own = dep_ownerLines(dep_docCase(d));
+  const own = ownerLines(docCase(d));
   const addrOk = own.length >= 3 && /\b[A-Z]{2}\.?\s+\d{5}(-\d{4})?$/.test(own[own.length - 1] || "");
   const cited = d.items.filter((i) => i.cite && !i.withdrawn);
   const citMissing =
@@ -409,12 +386,10 @@ function checks(d) {
       ? 0
       : cited.filter((i) => {
           const cd = ((d.cits || {})[i.id] || {}).courtDate;
-          return !cd || !validISO(cd) || (!dep_unchangedCourtDate(d, i.id) && dep_daysBetween(dep_recordDay(today), cd) < 1);
+          return !cd || !validISO(cd) || (!unchangedCourtDate(d, i.id) && daysBetween(recordDay(today), cd) < 1);
         }).length;
   const noAgent =
-    d.type === "citation" && dep_isLLC(dep_docCase(d))
-      ? dep_addressProblem(...["name", "addr", "city"].map((key) => (dep_docCase(d).agent || {})[key]))
-      : "";
+    d.type === "citation" && isLLC(docCase(d)) ? addressProblem(...["name", "addr", "city"].map((key) => (docCase(d).agent || {})[key])) : "";
   // every citation carries its own officer I.D. — one completed form does
   // not speak for the others on the same document
   const noBadge = d.type !== "citation" ? 0 : cited.filter((i) => !String(((d.cits || {})[i.id] || {}).deptId || "").trim()).length;
@@ -423,15 +398,15 @@ function checks(d) {
       ? 0
       : cited.filter((i) => {
           const cc = (d.cits || {})[i.id] || {};
-          return dep_citationDepositFault(cc, d, i) !== "";
+          return citationDepositFault(cc, d, i) !== "";
         }).length;
   const tight = noDates
     ? 0
-    : live.filter((i) => i.due && dep_daysBetween(dep_recordDay(today), i.due) > 0 && dep_daysBetween(dep_recordDay(today), i.due) < 7).length;
+    : live.filter((i) => i.due && daysBetween(recordDay(today), i.due) > 0 && daysBetween(recordDay(today), i.due) < 7).length;
   const far = noDates
     ? 0
-    : live.filter((i) => i.due && !dep_unchangedCorrectionValue(d, i.id, "due") && dep_daysBetween(dep_recordDay(today), i.due) > 180).length;
-  const draft = live.filter(dep_catalogDraftBlocked).length;
+    : live.filter((i) => i.due && !unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(today), i.due) > 180).length;
+  const draft = live.filter(catalogDraftBlocked).length;
   const base = [
     {
       ok: addrOk,
@@ -469,7 +444,7 @@ function checks(d) {
     },
     {
       ok: noDue === 0,
-      t: dep_snow.is(d)
+      t: snow.is(d)
         ? "Snow item is exempt from due dates"
         : noDue
           ? noDue + " item" + (noDue === 1 ? " has" : "s have") + " no due date"
@@ -503,13 +478,13 @@ function checks(d) {
     },
   ];
 
-  const itemTargets = (items, field) => items.map((i) => dep_checkTarget(dep_itemSelector(i.id, field), "Item " + i.no));
+  const itemTargets = (items, field) => items.map((i) => checkTarget(itemSelector(i.id, field), "Item " + i.no));
   [
-    [dep_checkTarget('[data-case="ownerBlock"]', "Mailing block")],
-    [dep_checkTarget('[data-case="ownerBlock"]', "Mailing block")],
-    [dep_checkTarget("#btn-add-top", "Select violations")],
+    [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
+    [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
+    [checkTarget("#btn-add-top", "Select violations")],
     itemTargets(
-      live.filter((i) => dep_countBlanks(i.text)),
+      live.filter((i) => countBlanks(i.text)),
       "text",
     ),
     itemTargets(
@@ -517,9 +492,7 @@ function checks(d) {
       "due",
     ),
     itemTargets(
-      live.filter(
-        (i) => i.due && validISO(i.due) && !dep_unchangedCorrectionValue(d, i.id, "due") && dep_daysBetween(dep_recordDay(today), i.due) < 1,
-      ),
+      live.filter((i) => i.due && validISO(i.due) && !unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(today), i.due) < 1),
       "due",
     ),
     itemTargets(
@@ -530,23 +503,23 @@ function checks(d) {
       live.filter((i) => !i.sections.length),
       "sections",
     ),
-    live.filter(dep_catalogDraftBlocked).map((i) => dep_checkTarget('[data-nav="library"]', "Review catalog for item " + i.no, "catalog")),
+    live.filter(catalogDraftBlocked).map((i) => checkTarget('[data-nav="library"]', "Review catalog for item " + i.no, "catalog")),
     itemTargets(
-      live.filter((i) => i.due && !dep_unchangedCorrectionValue(d, i.id, "due") && dep_daysBetween(dep_recordDay(today), i.due) > 180),
+      live.filter((i) => i.due && !unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(today), i.due) > 180),
       "due",
     ),
     itemTargets(
-      live.filter((i) => i.due && dep_daysBetween(dep_recordDay(today), i.due) > 0 && dep_daysBetween(dep_recordDay(today), i.due) < 7),
+      live.filter((i) => i.due && daysBetween(recordDay(today), i.due) > 0 && daysBetween(recordDay(today), i.due) < 7),
       "due",
     ),
   ].forEach((targets, ix) => (base[ix].targets = targets));
-  const recipientProblem = dep_validateAndStandardizeAddresses(dep_docCase(d), false, false);
+  const recipientProblem = validateAndStandardizeAddresses(docCase(d), false, false);
   base.push({
     ok: !recipientProblem,
     t: recipientProblem ? recipientProblem.message : "Copy and registered-agent addresses are complete",
     targets: recipientProblem
       ? [
-          dep_checkTarget(
+          checkTarget(
             "#btn-cc",
             "Copies & email",
             "recipient:" + recipientProblem.scope + ":" + recipientProblem.index + ":" + recipientProblem.field,
@@ -599,90 +572,89 @@ function checks(d) {
         ? noBadge + " citation" + (noBadge === 1 ? " has" : "s have") + " no badge number in the I.D. No. field — enter it on each form"
         : "Officer I.D. number present",
     },
-    { ok: !noAgent, t: noAgent ? dep_esc(dep_docCase(d).owner) + " is a company — " + noAgent : "Registered agent recorded" },
+    { ok: !noAgent, t: noAgent ? esc(docCase(d).owner) + " is a company — " + noAgent : "Registered agent recorded" },
   ];
 
-  const citTargets = (items, fields) =>
-    items.flatMap((i) => fields.map((f) => dep_checkTarget(dep_citSelector(i.id, f), "Item " + i.no + " · " + f)));
+  const citTargets = (items, fields) => items.flatMap((i) => fields.map((f) => checkTarget(citSelector(i.id, f), "Item " + i.no + " · " + f)));
   forCit[1].targets = cited.flatMap((i) =>
     ["num", "courtDate", "amount", "desc", "ord"]
       .filter((f) => !(f === "amount" && d.cits?.[i.id]?.mandatoryAppearance) && !String(((d.cits || {})[i.id] || {})[f] || "").trim())
-      .map((f) => dep_checkTarget(dep_citSelector(i.id, f === "amount" ? "depositMode" : f), "Item " + i.no + " · " + f)),
+      .map((f) => checkTarget(citSelector(i.id, f === "amount" ? "depositMode" : f), "Item " + i.no + " · " + f)),
   );
   forCit[2].targets = citTargets(
     cited.filter((i) => {
       const c = (d.cits || {})[i.id] || {};
-      return !validISO(c.courtDate) || (!dep_unchangedCourtDate(d, i.id) && dep_daysBetween(dep_recordDay(today), c.courtDate) < 1);
+      return !validISO(c.courtDate) || (!unchangedCourtDate(d, i.id) && daysBetween(recordDay(today), c.courtDate) < 1);
     }),
     ["courtDate"],
   );
   forCit[3].targets = citTargets(
-    cited.filter((i) => dep_citationDepositFault((d.cits || {})[i.id] || {})),
+    cited.filter((i) => citationDepositFault((d.cits || {})[i.id] || {})),
     ["depositMode", "ord"],
   );
   forCit[4].targets = citTargets(
     cited.filter((i) => !String(((d.cits || {})[i.id] || {}).deptId || "").trim()),
     ["deptId"],
   );
-  forCit[5].targets = noAgent ? [dep_checkTarget("#btn-cc", "Copies & email")] : [];
+  forCit[5].targets = noAgent ? [checkTarget("#btn-cc", "Copies & email")] : [];
   // the inspection this document was written from
   const at = inspAt(d),
     forInsp = [
       { ok: validISO(d.mailed), t: validISO(d.mailed) ? "Mailed date recorded" : "Enter a valid mailed date" },
       {
-        ok: dep_caseNumberAllowed(dep_docCase(d)) && !!String(dep_docCase(d).address || "").trim(),
+        ok: caseNumberAllowed(docCase(d)) && !!String(docCase(d).address || "").trim(),
         t: "Case number must use 3–80 letters, numbers or hyphens; property address is required",
       },
-      { ok: !!dep_docInsp(d).name, t: "Select the inspector signing this document" },
+      { ok: !!docInsp(d).name, t: "Select the inspector signing this document" },
     ];
   // a notice is what puts a case on the map: without a parcel it cannot be
   // located or reported by district (division, 09/18/2026)
   if (d.type === "notice") {
-    const pk = dep_normParcel(dep_docCase(d).parcel);
+    const pk = normParcel(docCase(d).parcel);
     forInsp.push({
       ok: !!pk,
       t: pk
         ? "Parcel number recorded"
-        : String(dep_docCase(d).parcel || "").trim()
+        : String(docCase(d).parcel || "").trim()
           ? "The parcel number is not 12 digits — check it against Accela"
           : "No parcel number on the case — a notice cannot be issued without one",
     });
   }
   forInsp.push({
-    ok: validISO(at.date) && at.date <= dep_recordDay(today),
+    ok: validISO(at.date) && at.date <= recordDay(today),
     t:
-      validISO(at.date) && at.date <= dep_recordDay(today)
+      validISO(at.date) && at.date <= recordDay(today)
         ? "Inspection date recorded"
         : "No inspection date — enter the date of the reinspection this document is written from",
-    targets: [dep_checkTarget(at.own ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date")],
+    targets: [checkTarget(at.own ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date")],
   });
   if (at.own)
     forInsp.push({
       ok: !!parseTime(at.time),
       t: parseTime(at.time) ? "Inspection time recorded" : "Enter the inspection time before generating this document",
-      targets: [dep_checkTarget('[data-doc="inspTime"]', "Inspection time")],
+      targets: [checkTarget('[data-doc="inspTime"]', "Inspection time")],
     });
   // with no due dates on the document, the due-date checks have nothing to say
   return (special ? base.filter((c, n) => [0, 1, 3, base.length - 1].includes(n)) : noDates ? base.filter((c) => !/due date/i.test(c.t)) : base)
     .concat(comp ? forComp : [])
     .concat(d.type === "citation" ? forCit : [])
     .concat(forInsp)
-    .concat(dep_snow.checks(d))
-    .concat(dep_initialCitations.checks(d))
+    .concat(snow.checks(d))
+    .concat(initialCitations.checks(d))
     .concat(importStatusChecks(d))
-    .concat(dep_newDocuments.specialChecks(d))
-    .concat(dep_authoringChecks(d))
-    .concat(d.correction ? dep_correctionChecks(d) : dep_lifecycleChecks(d))
-    .map((c) => dep_attachCheckTargets(d, c));
+    .concat(newDocuments.specialChecks(d))
+    .concat(authoringChecks(d))
+    .concat(d.correction ? correctionChecks(d) : lifecycleChecks(d))
+    .map((c) => attachCheckTargets(d, c));
 }
 
 function documentFileName(d) {
-  const k = dep_docCase(d),
-    ty = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  const k = docCase(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
   const tag = String(d.id || "")
     .replace(/[^A-Za-z0-9]/g, "")
     .slice(-8);
-  const name = [k.address || "PROPERTY", k.number || "CASE", ty, fmtDate(d.mailed || dep_recordDay(today)).replace(/\//g, "-")]
+  const name = [k.address || "PROPERTY", k.number || "CASE", ty, fmtDate(d.mailed || recordDay(today)).replace(/\//g, "-")]
     .concat(tag ? [tag] : [])
     .join(" - ")
     .replace(/[\\/:*?"<>|]/g, "-")
@@ -703,21 +675,21 @@ async function checkHelper() {
 }
 
 function emailSubject(d) {
-  const k = dep_docCase(d),
-    ty = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  const k = docCase(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
   return "City of Madison Building Inspection — " + ty + " — " + (k.address || "") + " — " + (k.number || "");
 }
 
 function emailBody(d) {
-  const k = dep_docCase(d),
-    i = dep_docInsp(d),
-    ty = (dep_DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  const k = docCase(d),
+    i = docInsp(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
   return [
     "Attached is a " + ty.toLowerCase() + " for " + (k.address || "the property above") + ".",
     "",
     "Case number: " + (k.number || ""),
     "Property: " + (k.address || ""),
-    "Date mailed: " + fmtDate(d.mailed || dep_recordDay(today)),
+    "Date mailed: " + fmtDate(d.mailed || recordDay(today)),
     "",
     "Please contact the inspector below with any questions.",
     "",
@@ -733,8 +705,8 @@ async function emailDocument(d, picked, reuse, job) {
     toast("Issue and confirm the document before preparing an email.");
     return false;
   }
-  const k = dep_kase(d.caseId),
-    list = dep_emailList(k).filter((e) => String(e.addr || "").trim());
+  const k = kase(d.caseId),
+    list = emailList(k).filter((e) => String(e.addr || "").trim());
   // An issued document has already been filed. The email attaches that same
   // file; the page travels with the request only as a fallback for when it
   // is not there, so a second render can never replace what was filed.
@@ -753,7 +725,7 @@ async function emailDocument(d, picked, reuse, job) {
     WriterState.state.sendDoc = d.id;
     WriterState.state.sendJob = jb;
     WriterState.state.sendReuse = useFiled;
-    dep_render();
+    render();
     return false;
   }
   const to = (picked || []).filter((e) => String(e.addr || "").trim());
@@ -799,7 +771,7 @@ async function emailDocument(d, picked, reuse, job) {
 
 function issuedArtifact(d) {
   if (!d || d.draft) return null;
-  const events = dep_eventsFor(d.caseId).filter((ev) => ev.type === "document.filed" && (ev.payload || {}).docId === d.id);
+  const events = eventsFor(d.caseId).filter((ev) => ev.type === "document.filed" && (ev.payload || {}).docId === d.id);
   const p = (events.at(-1) || {}).payload || {};
   return p.sha256 && p.filename ? { filename: p.filename, sha256: p.sha256, docId: d.id } : null;
 }
@@ -852,7 +824,7 @@ async function openIssuedCopy(d) {
         '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px sol' +
           'id #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
       );
-      dep_printNotice(job);
+      printNotice(job);
     }
   }
   return false;
@@ -864,8 +836,7 @@ function printJob(d) {
     throw new Error("Mandatory-appearance citations need division-approved defendant instructions. Your draft is retained.");
   if (
     d.type === "citation" &&
-    (Object.keys(d.depositRequests || {}).length ||
-      d.items.some((i) => i.cite && !i.withdrawn && dep_citationDepositFault(d.cits?.[i.id] || {}, d, i)))
+    (Object.keys(d.depositRequests || {}).length || d.items.some((i) => i.cite && !i.withdrawn && citationDepositFault(d.cits?.[i.id] || {}, d, i)))
   )
     throw new Error("Complete and confirm every citation deposit before printing or filing.");
   // A separate, fixed-width frame prevents a narrow viewport or old scroll
@@ -883,25 +854,25 @@ function printJob(d) {
         '<!doctype html><html lang="en"><head><meta charset="utf-8"><style>' +
           ((document.querySelector("style") || {}).textContent || "") +
           '</style></head><body><div class="desk">' +
-          dep_documentHTML(d) +
+          documentHTML(d) +
           "</div></body></html>",
       );
       fd.close();
       const stage = fd.querySelector(".desk");
-      if (dep_snow.is(d) && d.authoringVersion >= 9) {
+      if (snow.is(d) && d.authoringVersion >= 9) {
         // Measure the same locked print styles and value spans that will be filed.
-        const html = dep_printableHTML(d, stage);
+        const html = printableHTML(d, stage);
         fd.open();
         fd.write(html);
         fd.close();
-        dep_paginate(fd.querySelector(".desk"), d);
+        paginate(fd.querySelector(".desk"), d);
         return { docId: d.id, name: documentFileName(d) + ".pdf", html: "<!doctype html>" + fd.documentElement.outerHTML };
       }
-      dep_paginate(stage, d);
-      return { docId: d.id, name: documentFileName(d) + ".pdf", html: dep_printableHTML(d, stage) };
+      paginate(stage, d);
+      return { docId: d.id, name: documentFileName(d) + ".pdf", html: printableHTML(d, stage) };
     }
     if (WriterState.state.docId !== d.id) return null;
-    return { docId: d.id, name: documentFileName(d) + ".pdf", html: dep_printableHTML() };
+    return { docId: d.id, name: documentFileName(d) + ".pdf", html: printableHTML() };
   } finally {
     frame.remove();
   }
@@ -913,13 +884,13 @@ async function filePdf(d, job) {
   // named jb: the JSON reply inside the try block is already called j
   const jb = job && job.docId === d.id ? job : printJob(d);
   if (!jb || !jb.html) return false;
-  const snapshot = dep_eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === d.id)?.payload.snapshot;
+  const snapshot = eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === d.id)?.payload.snapshot;
   if (!snapshot) throw new Error("Save the issued document before filing its PDF.");
   const operation = {
     caseId: snapshot.caseId || d.caseId,
-    caseNumber: snapshot.frozen?.case?.number || dep_kase(d.caseId).number,
+    caseNumber: snapshot.frozen?.case?.number || kase(d.caseId).number,
     docId: d.id,
-    version: await dep_recordIntegrity.sourceHash(snapshot),
+    version: await recordIntegrity.sourceHash(snapshot),
   };
   toastHold("Filing " + jb.name + " — this takes a few seconds");
   try {
@@ -938,20 +909,20 @@ async function filePdf(d, job) {
         !d.draft &&
         !d.void &&
         !d.superseded &&
-        !dep_eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
+        !eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
       ) {
-        dep_appendEvent(d.caseId, "document.filed", {
+        appendEvent(d.caseId, "document.filed", {
           docId: d.id,
           reference: j.path || j.name,
           filename: j.name,
           sha256: j.sha256 || "",
           local: !!j.local,
         });
-        dep_project();
+        project();
       }
       if (!d.draft && !d.void && !d.superseded) {
-        await dep_saveCaseFile(d.caseId);
-        await dep_refreshArtifactLocations();
+        await saveCaseFile(d.caseId);
+        await refreshArtifactLocations();
       }
       return true;
     }

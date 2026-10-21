@@ -1,59 +1,47 @@
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
+import { SUMMARY_DIR, SUMMARY_VERSION, caseNumberKey, normParcel, recordDay, validCaseNumber } from "../assets/shared.js";
+import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
+import { flushPending, helperFolder, saveDrafts, writeToFolder } from "./case_files.js";
+import { correctionHistoryFault } from "./issuance_and_corrections.js";
+import { refreshArtifactLocations } from "./case_timeline.js";
+import { render } from "./inspection_import.js";
 import {
-  SUMMARY_DIR as dep_SUMMARY_DIR,
-  SUMMARY_VERSION as dep_SUMMARY_VERSION,
-  caseNumberKey as dep_caseNumberKey,
-  normParcel as dep_normParcel,
-  recordDay as dep_recordDay,
-  validCaseNumber as dep_validCaseNumber,
-} from "../assets/shared.js";
-import { fmtDate as dep_fmtDate, fmtTime as dep_fmtTime, toast as dep_toast } from "./court_and_deposits.js";
-import {
-  flushPending as dep_flushPending,
-  helperFolder as dep_helperFolder,
-  saveDrafts as dep_saveDrafts,
-  writeToFolder as dep_writeToFolder,
-} from "./case_files.js";
-import { correctionHistoryFault as dep_correctionHistoryFault } from "./issuance_and_corrections.js";
-import { refreshArtifactLocations as dep_refreshArtifactLocations } from "./case_timeline.js";
-import { render as dep_render } from "./inspection_import.js";
-import {
-  CASEDIR_EXPECT as dep_CASEDIR_EXPECT,
-  DOC_TYPES as dep_DOC_TYPES,
-  EVENT_TYPES as dep_EVENT_TYPES,
-  FS_OK as dep_FS_OK,
-  IDB_OK as dep_IDB_OK,
-  ID_FIELDS as dep_ID_FIELDS,
-  ID_OK as dep_ID_OK,
-  MIGRATIONS as dep_MIGRATIONS,
-  SCHEMA as dep_SCHEMA,
-  STATUS_OF as dep_STATUS_OF,
-  addDays as dep_addDays,
-  byTime as dep_byTime,
-  clone as dep_clone,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  docsFor as dep_docsFor,
-  esc as dep_esc,
-  eventsFor as dep_eventsFor,
-  insp as dep_insp,
-  isEffective as dep_isEffective,
-  kase as dep_kase,
-  libType as dep_libType,
-  moneyNum as dep_moneyNum,
-  navigation as dep_navigation,
-  newDocuments as dep_newDocuments,
-  nowISO as dep_nowISO,
-  recordIntegrity as dep_recordIntegrity,
-  snow as dep_snow,
-  storageMode as dep_storageMode,
+  CASEDIR_EXPECT,
+  DOC_TYPES,
+  EVENT_TYPES,
+  FS_OK,
+  IDB_OK,
+  ID_FIELDS,
+  ID_OK,
+  MIGRATIONS,
+  SCHEMA,
+  STATUS_OF,
+  addDays,
+  byTime,
+  clone,
+  doc,
+  docCase,
+  docsFor,
+  esc,
+  eventsFor,
+  insp,
+  isEffective,
+  kase,
+  libType,
+  moneyNum,
+  navigation,
+  newDocuments,
+  nowISO,
+  recordIntegrity,
+  snow,
+  storageMode,
 } from "./app_core.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
-import { respondentKey as dep_respondentKey } from "./citation_policy.js";
-import { BUILD as dep_BUILD, LOGO as dep_LOGO } from "./data/build_identity.js";
-import { INSPECTORS as dep_INSPECTORS } from "./data/inspectors.js";
-import { LIBRARY as dep_LIBRARY } from "./data/library.js";
-import { activeRestrictions as dep_activeRestrictions, supplemental as dep_supplemental } from "./new_documents.js";
+import { respondentKey } from "./citation_policy.js";
+import { BUILD, LOGO } from "./data/build_identity.js";
+import { INSPECTORS } from "./data/inspectors.js";
+import { LIBRARY } from "./data/library.js";
+import { activeRestrictions, supplemental } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 import { connectionBanner } from "./saved_work.js";
@@ -61,12 +49,12 @@ import { makeEvent } from "./contracts.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 function printableHTML(documentOverride, sheetOverride) {
-  const d = documentOverride || dep_doc(WriterState.state.docId);
+  const d = documentOverride || doc(WriterState.state.docId);
   if (!d) return "";
-  const k = dep_docCase(d);
+  const k = docCase(d);
   const sheet = sheetOverride || document.querySelector(".desk");
   if (!sheet) {
-    dep_toast("Nothing to print");
+    toast("Nothing to print");
     return;
   }
   const clone = sheet.cloneNode(true);
@@ -80,10 +68,10 @@ function printableHTML(documentOverride, sheetOverride) {
         ? (n.options[n.selectedIndex] || {}).text || ""
         : n.type === "date"
           ? n.value
-            ? dep_fmtDate(n.value)
+            ? fmtDate(n.value)
             : ""
           : n.type === "time"
-            ? dep_fmtTime(n.value)
+            ? fmtTime(n.value)
             : n.value || n.textContent || "";
     if (n.classList.contains("hdr-time")) {
       s.style.display = "block";
@@ -95,7 +83,7 @@ function printableHTML(documentOverride, sheetOverride) {
   const css = APPROVED_PRINT_STYLE;
   const html =
     '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' +
-    dep_esc(k.number || "Official Notice") +
+    esc(k.number || "Official Notice") +
     "</title>" +
     "" +
     "<style>" +
@@ -159,12 +147,12 @@ function printableHTML(documentOverride, sheetOverride) {
 }
 
 function printNotice(job) {
-  const d = (job && dep_doc(job.docId)) || dep_doc(WriterState.state.docId);
+  const d = (job && doc(job.docId)) || doc(WriterState.state.docId);
   if (!d) return;
-  const k = dep_kase(d.caseId);
+  const k = kase(d.caseId);
   const html = (job && job.html) || printableHTML();
   if (!html) {
-    dep_toast("Nothing to print");
+    toast("Nothing to print");
     return;
   }
   const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
@@ -175,7 +163,7 @@ function printNotice(job) {
     w = null;
   }
   if (w) {
-    dep_toast("Opened in a new tab — use your browser Print");
+    toast("Opened in a new tab — use your browser Print");
     let fired = false;
     const go = () => {
       if (fired) return;
@@ -200,14 +188,14 @@ function printNotice(job) {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    dep_toast("Pop-up blocked — notice downloaded. Open the file and print.");
+    toast("Pop-up blocked — notice downloaded. Open the file and print.");
   }
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 function storageReport() {
   const rows = [
-    ["This build", dep_BUILD],
+    ["This build", BUILD],
     [
       "Served from",
       (function () {
@@ -216,18 +204,18 @@ function storageReport() {
         return L.protocol === "file:" ? "a file path — the folder features are unavailable here" : L.origin || L.href || "unknown";
       })(),
     ],
-    ["Folder access (File System Access API)", dep_FS_OK ? "available" : "NOT AVAILABLE in this browser or origin"],
-    ["Local storage for drafts (IndexedDB)", dep_IDB_OK ? "available" : "NOT AVAILABLE"],
+    ["Folder access (File System Access API)", FS_OK ? "available" : "NOT AVAILABLE in this browser or origin"],
+    ["Local storage for drafts (IndexedDB)", IDB_OK ? "available" : "NOT AVAILABLE"],
     [
       "Case folder",
       WriterState.HELPER && WriterState.HELPER.caseStore
         ? WriterState.HELPER.caseDir
         : WriterState.CASEDIR
-          ? (WriterState.DIRNAME || "linked") + (WriterState.DIRNAME === dep_CASEDIR_EXPECT ? "" : '   <-- expected "' + dep_CASEDIR_EXPECT + '"')
+          ? (WriterState.DIRNAME || "linked") + (WriterState.DIRNAME === CASEDIR_EXPECT ? "" : '   <-- expected "' + CASEDIR_EXPECT + '"')
           : "not linked — files go to your downloads",
     ],
     ["Folder permission", !WriterState.CASEDIR ? "—" : WriterState.NEEDGRANT ? "waiting for you to reconnect" : "granted"],
-    ["Mode", dep_storageMode()],
+    ["Mode", storageMode()],
     [
       "Files waiting to write",
       String(WriterState.PENDING.length) + (WriterState.PENDING.length ? " (" + WriterState.PENDING.map((p) => p.name).join(", ") + ")" : ""),
@@ -250,23 +238,23 @@ function storageReport() {
           (WriterState.LASTWRITE.why ? " (" + WriterState.LASTWRITE.why + ")" : "") +
           (WriterState.LASTWRITE.bytes ? " · " + WriterState.LASTWRITE.bytes + " bytes" : "") +
           " · " +
-          dep_fmtDate(String(WriterState.LASTWRITE.at).slice(0, 10))
+          fmtDate(String(WriterState.LASTWRITE.at).slice(0, 10))
         : "nothing written yet this session",
     ],
     [
       "Reporting index",
       WriterState.LASTINDEX
         ? (WriterState.LASTINDEX.ok ? "OK — " : "FAILED — ") +
-          dep_SUMMARY_DIR +
+          SUMMARY_DIR +
           "\\" +
           WriterState.LASTINDEX.name +
           (WriterState.LASTINDEX.why ? " (" + WriterState.LASTINDEX.why + ")" : "") +
           " · " +
-          dep_fmtDate(String(WriterState.LASTINDEX.at).slice(0, 10))
+          fmtDate(String(WriterState.LASTINDEX.at).slice(0, 10))
         : "no summary written yet this session",
     ],
   ];
-  return `<table class="diag"><tbody>${rows.map((r) => `<tr><td>${dep_esc(r[0])}</td><td>${dep_esc(r[1])}</td></tr>`).join("")}</tbody></table>`;
+  return `<table class="diag"><tbody>${rows.map((r) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table>`;
 }
 
 function reindexReport() {
@@ -276,9 +264,9 @@ function reindexReport() {
     return (
       '<div class="banner info" style="margin-top:14px"><div>Rebuilding the rep' +
       "orting index &mdash; " +
-      `${dep_esc(r.done)}` +
+      `${esc(r.done)}` +
       " of " +
-      `${dep_esc(r.total)}` +
+      `${esc(r.total)}` +
       " case files read.</div></div>"
     );
   const bad = r.refused.concat(r.failed);
@@ -286,37 +274,37 @@ function reindexReport() {
     '<div class="banner ' +
     `${bad.length ? "warn" : "ok"}` +
     '" style="margin-top:14px"><div><strong>Reporting index rebuilt: ' +
-    `${dep_esc(r.written)}` +
+    `${esc(r.written)}` +
     " of " +
-    `${dep_esc(r.total)}` +
+    `${esc(r.total)}` +
     " case file" +
     `${r.total === 1 ? "" : "s"}` +
     " summarized.</strong>\n    " +
-    `${bad.length ? `<ul class="reidx">${bad.map((x) => `<li>${dep_esc(x)}</li>`).join("")}</ul>` : ""}` +
+    `${bad.length ? `<ul class="reidx">${bad.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}` +
     "</div></div>"
   );
 }
 
 async function testWrite() {
   if (!WriterState.CASEDIR) {
-    dep_toast("Link the case folder first");
+    toast("Link the case folder first");
     return;
   }
   if (WriterState.NEEDGRANT) await grantCaseFolder(true);
   if (WriterState.CASEDIR.helper) {
     try {
       await helperJSON("/cases/probe", {});
-      dep_toast("The shared case folder is writable");
+      toast("The shared case folder is writable");
     } catch (err) {
-      dep_toast("Test write FAILED — " + err.message);
+      toast("Test write FAILED — " + err.message);
     }
-    dep_render();
+    render();
     return;
   }
   const name = "_write-test.json";
-  const r = await dep_writeToFolder(name, JSON.stringify({ test: true, at: dep_nowISO() }, null, 2));
-  dep_toast(r.ok ? "Test file written to " + WriterState.DIRNAME + " — look for " + name : "Test write FAILED — " + (r.why || "unknown reason"));
-  dep_render();
+  const r = await writeToFolder(name, JSON.stringify({ test: true, at: nowISO() }, null, 2));
+  toast(r.ok ? "Test file written to " + WriterState.DIRNAME + " — look for " + name : "Test write FAILED — " + (r.why || "unknown reason"));
+  render();
 }
 
 function storageBar() {
@@ -324,11 +312,11 @@ function storageBar() {
 }
 
 function shell(title, crumb, actions, body) {
-  const nav = dep_navigation.rail();
+  const nav = navigation.rail();
   return (
     '<div class="app">\n    <aside class="rail no-print">\n      <div class="ra' +
     'il-brand"><img class="rail-logo" src="' +
-    `${dep_LOGO}` +
+    `${LOGO}` +
     '" alt="City of Madison Building Inspection"><div class="rail-sub">Docume' +
     'nt Writer</div></div>\n      <nav class="writer-navigation" aria-label="M' +
     'ain navigation">' +
@@ -337,16 +325,16 @@ function shell(title, crumb, actions, body) {
     'City of Madison<span id="save-status" role="status" aria-live="polite">D' +
     'rafts save on this device</span><span class="build" title="Which build i' +
     's running">Build ' +
-    `${dep_esc(dep_BUILD)}` +
+    `${esc(BUILD)}` +
     '</span></div>\n    </aside>\n    <div class="main">\n      <header class="t' +
     'opbar no-print"><div><span class="crumb">' +
-    `${dep_esc(crumb)}` +
+    `${esc(crumb)}` +
     "</span><h1>" +
     `${title}` +
     '</h1></div><div class="topbar-actions">' +
     `${actions || ""}` +
     '</div></header>\n      <div class="content">' +
-    `${dep_recordIntegrity.banner()}` +
+    `${recordIntegrity.banner()}` +
     "" +
     `${storageBar()}` +
     "" +
@@ -358,8 +346,8 @@ function shell(title, crumb, actions, body) {
 function sourceDocFor(cid) {
   // Only a document that has actually been issued can be reinspected: it is
   // the numbered list the owner received. DOCS is newest first.
-  const w = dep_docsFor(cid).filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
-  return w.find((d) => !dep_supplemental(d)) || w[0] || null;
+  const w = docsFor(cid).filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
+  return w.find((d) => !supplemental(d)) || w[0] || null;
 }
 
 function evid() {
@@ -368,29 +356,29 @@ function evid() {
 }
 
 function appendEvent(cid, type, payload, at, by) {
-  if (dep_EVENT_TYPES.indexOf(type) < 0) throw new Error("unknown event type " + type);
-  const latest = dep_eventsFor(cid).reduce((n, e) => Math.max(n, Date.parse(e.at) || 0), 0);
-  const recorded = dep_nowISO();
+  if (EVENT_TYPES.indexOf(type) < 0) throw new Error("unknown event type " + type);
+  const latest = eventsFor(cid).reduce((n, e) => Math.max(n, Date.parse(e.at) || 0), 0);
+  const recorded = nowISO();
   const ordered = new Date(Math.max(Date.parse(recorded), latest + 1)).toISOString();
-  const ev = makeEvent(evid(), at || ordered, by || dep_kase(cid).inspectorId || "", type, payload || {});
-  dep_eventsFor(cid).push(ev);
+  const ev = makeEvent(evid(), at || ordered, by || kase(cid).inspectorId || "", type, payload || {});
+  eventsFor(cid).push(ev);
   WriterState.DIRTY = true;
   return ev;
 }
 
 function replay(cid) {
-  return replayEvents(dep_eventsFor(cid));
+  return replayEvents(eventsFor(cid));
 }
 
 function replayEvents(list) {
-  const evs = (list || []).slice().sort(dep_byTime);
+  const evs = (list || []).slice().sort(byTime);
   const docs = [],
     reins = [],
     voided = {};
   evs.forEach((ev) => {
     const p = ev.payload || {};
     if (/\.issued$/.test(ev.type) && p.snapshot) {
-      const d = dep_clone(p.snapshot);
+      const d = clone(p.snapshot);
       d.status = "Final";
       d.issuedAt = ev.at;
       d.issuedBy = ev.by;
@@ -409,7 +397,7 @@ function replayEvents(list) {
           if (r) {
             r.date = patch.date;
             r.time = patch.time;
-            r.results = Object.assign({}, r.results, dep_clone(patch.results));
+            r.results = Object.assign({}, r.results, clone(patch.results));
             r.amendedAt = ev.at;
             r.amendedBy = ev.by;
           }
@@ -417,7 +405,7 @@ function replayEvents(list) {
       }
       docs.push(d);
     } else if (ev.type === "reinspection.recorded" && p.reinspection) {
-      const r = dep_clone(p.reinspection);
+      const r = clone(p.reinspection);
       r.recordedAt = ev.at;
       r.eventId = ev.id;
       reins.push(r);
@@ -427,7 +415,7 @@ function replayEvents(list) {
       const d = docs.find((x) => x.id === p.docId);
       if (d) {
         d.serviceRecords = d.serviceRecords || [];
-        d.serviceRecords.push({ ...dep_clone(p), id: ev.id, at: ev.at, by: ev.by });
+        d.serviceRecords.push({ ...clone(p), id: ev.id, at: ev.at, by: ev.by });
       }
     } else if (ev.type === "document.annotated") {
       const d = docs.find((x) => x.id === p.docId);
@@ -483,7 +471,7 @@ function project() {
 }
 
 function caseDetails(k) {
-  const copy = dep_clone(k);
+  const copy = clone(k);
   delete copy.savedAt;
   return copy;
 }
@@ -505,7 +493,7 @@ function rememberSaved(k, file) {
   const details = caseDetails(file.case);
   details.id = k.id;
   WriterState.SAVE_CHECKPOINTS[k.id] = { case: details, events: (file.events || []).map((e) => e.id) };
-  k.savedAt = dep_nowISO();
+  k.savedAt = nowISO();
 }
 
 function mergeCaseDetails(local, remote, base) {
@@ -525,15 +513,15 @@ function mergeCaseDetails(local, remote, base) {
     if (stableJSON(output[key]) !== stableJSON(b[key]))
       throw new Error("Both copies changed " + key + ". Keep your local case and review the shared copy before saving.");
     if (a[key] === undefined) delete output[key];
-    else output[key] = dep_clone(a[key]);
+    else output[key] = clone(a[key]);
   });
   output.id = local.id;
   return output;
 }
 
 function caseFile(cid) {
-  const k = dep_kase(cid),
-    evs = dep_eventsFor(cid).slice().sort(dep_byTime);
+  const k = kase(cid),
+    evs = eventsFor(cid).slice().sort(byTime);
   const used = {};
   evs.forEach((e) => {
     if (e.by) used[e.by] = 1;
@@ -541,25 +529,23 @@ function caseFile(cid) {
   used[k.inspectorId] = 1;
   return {
     format: "madison-case-file",
-    schema: dep_SCHEMA,
-    exported: dep_nowISO(),
-    exportedBy: dep_insp(k.inspectorId).name || "",
+    schema: SCHEMA,
+    exported: nowISO(),
+    exportedBy: insp(k.inspectorId).name || "",
     case: caseDetails(k),
-    inspectors: dep_INSPECTORS.filter((i) => used[i.id]),
-    events: dep_clone(evs),
+    inspectors: INSPECTORS.filter((i) => used[i.id]),
+    events: clone(evs),
   };
 }
 
 function caseNumberAllowed(k) {
   return (
-    !!k &&
-    (dep_validCaseNumber(k.number) ||
-      (!!dep_caseNumberKey(k.number) && !!(k.savedAt || WriterState.SAVE_CHECKPOINTS[k.id] || dep_eventsFor(k.id).length)))
+    !!k && (validCaseNumber(k.number) || (!!caseNumberKey(k.number) && !!(k.savedAt || WriterState.SAVE_CHECKPOINTS[k.id] || eventsFor(k.id).length)))
   );
 }
 
 function caseFileName(k) {
-  if (!dep_caseNumberKey(k.number)) return null;
+  if (!caseNumberKey(k.number)) return null;
   return (
     (k.address || "PROPERTY")
       .replace(/[\\/:*?"<>|]/g, "-")
@@ -576,7 +562,7 @@ function caseFileName(k) {
 
 function libEntry(key) {
   if (!key) return null;
-  const cl = dep_LIBRARY.find((x) => x.code === key.c),
+  const cl = LIBRARY.find((x) => x.code === key.c),
     g = cl && cl.groups.find((x) => x.code === key.g),
     it = g && g.items.find((x) => x.o === key.o);
   return it ? { cl: cl, g: g, it: it } : null;
@@ -584,18 +570,18 @@ function libEntry(key) {
 
 function violationType(it) {
   const e = libEntry(it.lib);
-  if (e) return dep_libType(e, "library");
+  if (e) return libType(e, "library");
   const t = String(it.title || "").trim(),
     s = (it.sections || []).join("|"),
     hits = [];
-  dep_LIBRARY.forEach((cl) =>
+  LIBRARY.forEach((cl) =>
     cl.groups.forEach((g) =>
       g.items.forEach((x) => {
         if (String(x.t).trim() === t && (x.s || []).join("|") === s) hits.push({ cl: cl, g: g, it: x });
       }),
     ),
   );
-  if (hits.length === 1) return dep_libType(hits[0], "matched");
+  if (hits.length === 1) return libType(hits[0], "matched");
   const s0 = (it.sections || [])[0] || "";
   return { key: "unclassified/" + s0, label: "Unclassified: " + (s0 || "no ordinance"), how: "section" };
 }
@@ -603,24 +589,24 @@ function violationType(it) {
 function summarize(f) {
   const k = f["case"] || {},
     st = replayEvents(f.events || []);
-  const roster = (f.inspectors || []).concat(dep_INSPECTORS);
+  const roster = (f.inspectors || []).concat(INSPECTORS);
   const nameOf = (id) => (roster.find((i) => i.id === id) || {}).name || "";
-  const day = dep_recordDay;
+  const day = recordDay;
   const issuedDay = (d) => (d.revision && (d.revision.actionDate || d.revision.originalIssued)) || d.mailed || day(d.issuedAt);
   const starts = (d) => (d.revision ? day(d.issuedAt) : d.mailed || day(d.issuedAt));
   const ends = (d) => [d.void && day(d.void.at), d.superseded && day(d.superseded.at)].filter(Boolean).sort()[0] || "";
   const docs = st.documents.slice().reverse(); // oldest first
-  const live = docs.filter(dep_isEffective);
+  const live = docs.filter(isEffective);
   const notice = docs.find((d) => d.type === "notice" && d.items.length) || null;
   const noticeActive = live.some((d) => d.type === "notice" && d.items.length);
-  const restrictions = dep_activeRestrictions(live);
-  const withItems = live.filter((d) => d.items.length && !dep_supplemental(d));
+  const restrictions = activeRestrictions(live);
+  const withItems = live.filter((d) => d.items.length && !supplemental(d));
   const lastItems = withItems[withItems.length - 1] || null;
   const lastDoc = live[live.length - 1] || null;
   const comp = lastItems && lastItems.type === "compliance" ? lastItems : null;
   const everReferred = live.some((d) => d.type === "referral");
   const status =
-    dep_snow.isCase(k) && lastDoc
+    snow.isCase(k) && lastDoc
       ? "Cited – snow"
       : restrictions.length
         ? "Occupancy restricted"
@@ -634,7 +620,7 @@ function summarize(f) {
                 ? "Referred"
                 : lastDoc.type === "noOccupancy" && lastDoc.special?.mode === "release" && !lastItems
                   ? "Restriction released"
-                  : dep_STATUS_OF[(lastItems || lastDoc).type] || (lastItems || lastDoc).type;
+                  : STATUS_OF[(lastItems || lastDoc).type] || (lastItems || lastDoc).type;
   // Current case grouping follows reviewed case metadata; each document retains its printed owner.
   const printed = (lastDoc && lastDoc.frozen && lastDoc.frozen.case) || k;
 
@@ -669,7 +655,7 @@ function summarize(f) {
           desc: c.desc || "",
           issued: issuedDay(d),
           courtDate: c.courtDate || "",
-          amount: dep_moneyNum(c.amount),
+          amount: moneyNum(c.amount),
           tier: c.tier || "",
           overrideBasis: c.overrideBasis || null,
           caseType: d.caseType || d.frozen?.case?.caseType || "",
@@ -678,7 +664,7 @@ function summarize(f) {
       }),
     );
 
-  const snowFirst = dep_snow.isCase(k) ? docs.find((d) => dep_snow.is(d)) : null;
+  const snowFirst = snow.isCase(k) ? docs.find((d) => snow.is(d)) : null;
   const violations = ((notice || snowFirst)?.items || []).map((it) => {
     const no = String(it.no || "");
     let done = false,
@@ -707,12 +693,12 @@ function summarize(f) {
     );
     const x = lastItems && lastItems.items.find((i) => String(i.no || "") === no);
     if (x) {
-      const projected = dep_newDocuments.continuingItems(lastItems, visits).find((i) => String(i.no) === no) || x;
+      const projected = newDocuments.continuingItems(lastItems, visits).find((i) => String(i.no) === no) || x;
       done = !!projected.done;
       doneOn = projected.done ? projected.doneOn || doneOn : "";
     }
     const history = docs
-      .filter((d) => !dep_supplemental(d))
+      .filter((d) => !supplemental(d))
       .map((d) => {
         const item = d.items.find((x) => String(x.no || "") === no);
         return item
@@ -735,7 +721,7 @@ function summarize(f) {
       })
       .filter(Boolean);
     visits
-      .filter((r) => !docs.some((d) => !dep_supplemental(d) && d.fromReinspId === r.id))
+      .filter((r) => !docs.some((d) => !supplemental(d) && d.fromReinspId === r.id))
       .forEach((r) => {
         const parent = docs.find((d) => d.id === r.sourceDocId),
           sourceItem = parent?.items.find((i) => String(i.no) === no),
@@ -781,11 +767,11 @@ function summarize(f) {
   const zip = (/\b(\d{5})(?:-\d{4})?\s*$/.exec(String(k.siteCity || "")) || [])[1] || "";
   return {
     format: "madison-case-summary",
-    summaryVersion: dep_SUMMARY_VERSION,
-    schema: f.schema || dep_SCHEMA,
-    integrity: dep_recordIntegrity.status(k),
-    build: dep_BUILD,
-    written: dep_nowISO(),
+    summaryVersion: SUMMARY_VERSION,
+    schema: f.schema || SCHEMA,
+    integrity: recordIntegrity.status(k),
+    build: BUILD,
+    written: nowISO(),
     sourceFile: caseFileName(k),
     eventCount: (f.events || []).length,
     case: {
@@ -795,7 +781,7 @@ function summarize(f) {
       siteCity: k.siteCity || "",
       zip: zip,
       parcel: k.parcel || "",
-      parcelKey: dep_normParcel(k.parcel),
+      parcelKey: normParcel(k.parcel),
       description: k.description || "",
       inspectorId: k.inspectorId || "",
       inspector: nameOf(k.inspectorId),
@@ -804,12 +790,8 @@ function summarize(f) {
       noticeActive: noticeActive,
       status: noticeActive || live.length ? status : notice ? "Withdrawn" : "Not issued",
       closedOn:
-        dep_snow.isCase(k) && lastDoc?.filedAt && lastDoc.frozen?.snowCloseOnFiling !== false
-          ? dep_recordDay(lastDoc.filedAt)
-          : comp
-            ? starts(comp)
-            : "",
-      ownerAddressKey: dep_respondentKey(k),
+        snow.isCase(k) && lastDoc?.filedAt && lastDoc.frozen?.snowCloseOnFiling !== false ? recordDay(lastDoc.filedAt) : comp ? starts(comp) : "",
+      ownerAddressKey: respondentKey(k),
       owner: k.owner || printed.owner || "",
       ownerAddr: (k.ownerAddr || printed.ownerAddr || []).slice(),
       historic: !!k.historic,
@@ -828,20 +810,20 @@ function summarize(f) {
       .map((d) => ({
         id: d.id,
         reviewDate: d.special.reviewDate,
-        contactBy: d.special.reviewDate ? dep_addDays(d.special.reviewDate, -7) : "",
+        contactBy: d.special.reviewDate ? addDays(d.special.reviewDate, -7) : "",
         expiryDate: d.special.expiryMode === "fixed" ? d.special.expiryDate || "" : "",
         affected: d.special.affected || [],
       })),
     violations: violations,
     snowInspections: live
-      .filter((d) => dep_snow.is(d))
+      .filter((d) => snow.is(d))
       .map((d) => ({
         id: d.snowInspectionId,
         docId: d.id,
         date: d.inspDate,
         time: d.inspTime,
         inspector: d.frozen?.inspector?.name || nameOf(d.issuedBy),
-        snow: dep_clone(d.snow),
+        snow: clone(d.snow),
         citationNumber: Object.values(d.cits || {})[0]?.num || "",
       })),
     visits: visits.map((r) => ({
@@ -853,11 +835,11 @@ function summarize(f) {
         .map((id) => ({ no: noOf[r.sourceDocId + ":" + id] || "", oc: r.results[id].oc })),
     })),
     documents: docs.map((d) => ({
-      special: d.special ? dep_clone(d.special) : null,
+      special: d.special ? clone(d.special) : null,
       serviceRecords: d.serviceRecords || [],
       id: d.id,
       type: d.type,
-      label: (dep_DOC_TYPES.find((x) => x.id === d.type) || {}).label || d.type,
+      label: (DOC_TYPES.find((x) => x.id === d.type) || {}).label || d.type,
       issued: issuedDay(d),
       effectiveFrom: starts(d),
       effectiveTo: ends(d),
@@ -883,8 +865,8 @@ function summarize(f) {
         docId: e.payload.docId,
         replaces: e.payload.replaces,
         reason: e.payload.reason,
-        changes: dep_clone(e.payload.changes || []),
-        caseChanges: dep_clone(e.payload.caseChanges || {}),
+        changes: clone(e.payload.changes || []),
+        caseChanges: clone(e.payload.caseChanges || {}),
       })),
     citations: citations,
     referrals: live
@@ -907,12 +889,12 @@ function migrate(f) {
     guard = 0;
   if (v === 4) return f;
   while (v < 4 && guard++ < 20) {
-    const step = dep_MIGRATIONS[v];
+    const step = MIGRATIONS[v];
     if (!step) throw new Error("no migration from schema " + v);
     f = step(f);
     v = f.schema || v + 1;
   }
-  if (v > dep_SCHEMA) throw new Error("this file was written by a newer version of the program (schema " + v + ")");
+  if (v > SCHEMA) throw new Error("this file was written by a newer version of the program (schema " + v + ")");
   return f;
 }
 
@@ -930,7 +912,7 @@ function badIds(o, depth) {
   if (!o || typeof o !== "object" || (depth || 0) > 12) return false;
   return Object.keys(o).some((key) => {
     const v = o[key];
-    if (typeof v === "string") return dep_ID_FIELDS.indexOf(key) >= 0 && v !== "" && !dep_ID_OK.test(v);
+    if (typeof v === "string") return ID_FIELDS.indexOf(key) >= 0 && v !== "" && !ID_OK.test(v);
     return badIds(v, (depth || 0) + 1);
   });
 }
@@ -982,7 +964,7 @@ function caseFileFault(f) {
     if (e.type === "reinspection.recorded" && (!p.reinspection || typeof p.reinspection !== "object")) return "a reinspection carries no record" + at;
   }
   if (badIds(f)) return "it carries an identifier the program cannot use";
-  return dep_correctionHistoryFault(f.events || []);
+  return correctionHistoryFault(f.events || []);
 }
 
 function mergeCaseEvents(k, f) {
@@ -995,26 +977,26 @@ function mergeCaseEvents(k, f) {
       if (p.caseId === inc.id) p.caseId = k.id;
     });
   }
-  const combined = new Map(dep_eventsFor(k.id).map((e) => [e.id, e]));
+  const combined = new Map(eventsFor(k.id).map((e) => [e.id, e]));
   (f.events || []).forEach((e) => {
     const old = combined.get(e.id);
     if (old && stableJSON(old) !== stableJSON(e)) throw new Error("Conflicting content for an existing event");
     combined.set(e.id, e);
   });
-  const fault = dep_correctionHistoryFault(Array.from(combined.values()));
+  const fault = correctionHistoryFault(Array.from(combined.values()));
   if (fault) throw new Error(fault);
   const have = {};
-  dep_eventsFor(k.id).forEach((e) => {
+  eventsFor(k.id).forEach((e) => {
     have[e.id] = 1;
   });
   let added = 0;
   (f.events || []).forEach((e) => {
     if (!have[e.id]) {
-      dep_eventsFor(k.id).push(e);
+      eventsFor(k.id).push(e);
       added++;
     }
   });
-  if (added) dep_eventsFor(k.id).sort(dep_byTime);
+  if (added) eventsFor(k.id).sort(byTime);
   return added;
 }
 
@@ -1023,15 +1005,15 @@ function loadCaseFile(text, isSaved = true) {
   try {
     f = JSON.parse(text);
   } catch (err) {
-    dep_toast("That file is not readable JSON");
+    toast("That file is not readable JSON");
     return null;
   }
   if (!f || f.format !== "madison-case-file" || !f["case"]) {
-    dep_toast("Not a Madison case file");
+    toast("Not a Madison case file");
     return null;
   }
-  if (f.schema >= 5 && !dep_recordIntegrity.hasProof(f)) {
-    void dep_recordIntegrity.verify(f).then(() => {
+  if (f.schema >= 5 && !recordIntegrity.hasProof(f)) {
+    void recordIntegrity.verify(f).then(() => {
       loadCaseFile(JSON.stringify(f), isSaved);
     });
     return null;
@@ -1039,19 +1021,19 @@ function loadCaseFile(text, isSaved = true) {
   try {
     f = migrate(f);
   } catch (err) {
-    dep_toast(err.message);
+    toast(err.message);
     return null;
   }
   const fault = caseFileFault(f);
   if (fault) {
-    dep_toast("That case file was not loaded — " + fault);
+    toast("That case file was not loaded — " + fault);
     return null;
   }
   // nothing is touched until the whole file has been accepted and replayed
   const undo = {
-    events: dep_clone(WriterState.EVENTS),
-    cases: dep_clone(WriterState.CASES),
-    inspectors: dep_INSPECTORS.length,
+    events: clone(WriterState.EVENTS),
+    cases: clone(WriterState.CASES),
+    inspectors: INSPECTORS.length,
     docs: WriterState.DOCS.slice(),
     reinsp: WriterState.REINSP.slice(),
   };
@@ -1060,12 +1042,12 @@ function loadCaseFile(text, isSaved = true) {
   try {
     bumpSeq(f);
     (f.inspectors || []).forEach((i) => {
-      if (!dep_INSPECTORS.some((x) => x.id === i.id || x.name === i.name)) dep_INSPECTORS.push(i);
+      if (!INSPECTORS.some((x) => x.id === i.id || x.name === i.name)) INSPECTORS.push(i);
     });
     const inc = f["case"];
     k = WriterState.CASES.find((c) => c.number === inc.number);
     if (!k) {
-      k = dep_clone(inc);
+      k = clone(inc);
       WriterState.CASES.push(k);
     } else if (isSaved) {
       const combined = mergeCaseDetails(k, inc, WriterState.SAVE_CHECKPOINTS[k.id] && WriterState.SAVE_CHECKPOINTS[k.id].case);
@@ -1078,23 +1060,23 @@ function loadCaseFile(text, isSaved = true) {
   } catch (err) {
     WriterState.EVENTS = undo.events;
     WriterState.CASES = undo.cases;
-    dep_INSPECTORS.length = undo.inspectors;
+    INSPECTORS.length = undo.inspectors;
     WriterState.DOCS = undo.docs;
     WriterState.REINSP = undo.reinsp;
     project();
-    dep_render();
-    dep_toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
+    render();
+    toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
     return null;
   }
   const inc = f["case"];
   WriterState.state.screen = "cases";
   WriterState.DIRTY = false;
-  dep_render();
+  render();
   const st = replay(k.id);
   if (isSaved) rememberSaved(k, f);
-  dep_saveDrafts();
-  dep_refreshArtifactLocations();
-  dep_toast(
+  saveDrafts();
+  refreshArtifactLocations();
+  toast(
     "Loaded " +
       inc.number +
       " — " +
@@ -1113,7 +1095,7 @@ function loadCaseFile(text, isSaved = true) {
 function idb() {
   if (WriterState.IDBCONN) return WriterState.IDBCONN;
   WriterState.IDBCONN = new Promise((res, rej) => {
-    if (!dep_IDB_OK) return rej(new Error("no indexeddb"));
+    if (!IDB_OK) return rej(new Error("no indexeddb"));
     const rq = indexedDB.open("madison-doc-writer", 1);
     rq.onupgradeneeded = () => {
       if (!rq.result.objectStoreNames.contains("kv")) rq.result.createObjectStore("kv");
@@ -1174,12 +1156,12 @@ async function idbSet(key, val) {
 async function linkCaseFolder() {
   if (WriterState.HELPER && WriterState.HELPER.caseStore) {
     await restoreCaseFolder();
-    await dep_flushPending();
-    dep_toast("Using " + WriterState.HELPER.caseDir);
+    await flushPending();
+    toast("Using " + WriterState.HELPER.caseDir);
     return true;
   }
-  if (!dep_FS_OK) {
-    dep_toast("Direct folder access needs the program opened from the localhost address");
+  if (!FS_OK) {
+    toast("Direct folder access needs the program opened from the localhost address");
     return false;
   }
   try {
@@ -1189,11 +1171,9 @@ async function linkCaseFolder() {
     WriterState.DIRNAME = h.name;
     WriterState.NEEDGRANT = false;
     await idbSet("casedir", h);
-    await dep_flushPending();
-    dep_toast(
-      was && was !== h.name ? "Now writing to " + h.name + " instead of " + was : "Linked to " + h.name + " — case files will be written there",
-    );
-    dep_render();
+    await flushPending();
+    toast(was && was !== h.name ? "Now writing to " + h.name + " instead of " + was : "Linked to " + h.name + " — case files will be written there");
+    render();
     return true;
   } catch (err) {
     return false;
@@ -1202,13 +1182,13 @@ async function linkCaseFolder() {
 
 async function restoreCaseFolder() {
   if (WriterState.HELPER && WriterState.HELPER.caseStore) {
-    WriterState.CASEDIR = dep_helperFolder();
-    WriterState.DIRNAME = dep_CASEDIR_EXPECT;
+    WriterState.CASEDIR = helperFolder();
+    WriterState.DIRNAME = CASEDIR_EXPECT;
     WriterState.NEEDGRANT = false;
-    dep_render();
+    render();
     return;
   }
-  if (!dep_FS_OK) return;
+  if (!FS_OK) return;
   const h = await idbGet("casedir");
   if (!h) return;
   WriterState.CASEDIR = h;
@@ -1219,7 +1199,7 @@ async function restoreCaseFolder() {
   } catch (e) {
     WriterState.NEEDGRANT = true;
   }
-  dep_render();
+  render();
 }
 
 async function grantCaseFolder(quiet) {
@@ -1228,10 +1208,10 @@ async function grantCaseFolder(quiet) {
     const p = await WriterState.CASEDIR.requestPermission({ mode: "readwrite" });
     WriterState.NEEDGRANT = p !== "granted";
     if (!WriterState.NEEDGRANT && !quiet) {
-      dep_toast("Reconnected to " + WriterState.DIRNAME);
-      await dep_flushPending();
+      toast("Reconnected to " + WriterState.DIRNAME);
+      await flushPending();
     }
-    if (!quiet) dep_render();
+    if (!quiet) render();
     return !WriterState.NEEDGRANT;
   } catch (e) {
     return false;
@@ -1250,7 +1230,7 @@ async function helperJSON(url, body) {
     error.definitive = response.status >= 400 && response.status < 500;
     throw error;
   }
-  if (data.file) await dep_recordIntegrity.verify(data.file, data.integrity);
+  if (data.file) await recordIntegrity.verify(data.file, data.integrity);
   return data;
 }
 

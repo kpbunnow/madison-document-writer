@@ -1,26 +1,17 @@
-import { toast as dep_toast } from "./court_and_deposits.js";
-import { helperJSON as dep_helperJSON } from "./workspace_shell.js";
-import { saveDrafts as dep_saveDrafts } from "./case_files.js";
-import { render as dep_render } from "./inspection_import.js";
-import {
-  A11Y as dep_A11Y,
-  ccList as dep_ccList,
-  doc as dep_doc,
-  docCase as dep_docCase,
-  esc as dep_esc,
-  kase as dep_kase,
-  recordIntegrity as dep_recordIntegrity,
-  uid as dep_uid,
-} from "./app_core.js";
+import { toast } from "./court_and_deposits.js";
+import { helperJSON } from "./workspace_shell.js";
+import { saveDrafts } from "./case_files.js";
+import { render } from "./inspection_import.js";
+import { A11Y, ccList, doc, docCase, esc, kase, recordIntegrity, uid } from "./app_core.js";
 import { WriterState } from "./state.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */
 export function initAddressParser() {
   const pending = new Map();
   function context(scope, index = 0) {
-    const d = dep_doc(WriterState.state.docId),
-      k = d ? dep_docCase(d) : dep_kase(WriterState.state.caseId);
+    const d = doc(WriterState.state.docId),
+      k = d ? docCase(d) : kase(WriterState.state.caseId);
     if (!k) return null;
-    const target = scope === "owner" ? k : scope === "agent" ? k.agent || {} : dep_ccList(k)[index];
+    const target = scope === "owner" ? k : scope === "agent" ? k.agent || {} : ccList(k)[index];
     if (!target) return null;
     const lines = scope === "owner" ? k.ownerAddr || [] : [target.addr || "", target.city || ""];
     return { d, k, target, scope, index, lines, raw: lines.join("\n") };
@@ -29,7 +20,7 @@ export function initAddressParser() {
   function fault(k) {
     const all = [
       { parsed: k.ownerAddressParsed, lines: k.ownerAddr || [], scope: "owner", index: 0, selector: '[data-case="ownerBlock"]' },
-      ...dep_ccList(k).map((c, index) => ({
+      ...ccList(k).map((c, index) => ({
         parsed: c.addressParsed,
         lines: [c.addr || "", c.city || ""],
         scope: "copy",
@@ -51,40 +42,40 @@ export function initAddressParser() {
   }
   async function preview(scope, index = 0) {
     const c = context(scope, index);
-    if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || dep_recordIntegrity.blocked(c.k.id)) return false;
+    if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || recordIntegrity.blocked(c.k.id)) return false;
     const signature = c.raw;
     let result;
     try {
-      result = await dep_helperJSON("/address/parse", { raw: c.raw });
+      result = await helperJSON("/address/parse", { raw: c.raw });
     } catch (error) {
-      dep_toast("Address parser unavailable. The R19 address standardizer remains available.");
+      toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
     if (context(scope, index)?.raw !== signature || WriterState.state.docId !== c.d?.id) return false;
     if (!result.available) {
-      dep_toast("Address parser unavailable. The R19 address standardizer remains available.");
+      toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
     const parsed = { ...result, accepted: false };
     if (scope === "owner") c.k.ownerAddressParsed = parsed;
     else c.target.addressParsed = parsed;
-    const token = dep_uid("a");
+    const token = uid("a");
     pending.set(token, c);
     c.parsed = parsed;
-    dep_A11Y.utility(
+    A11Y.utility(
       "Mailing address preview",
       "<p>Entered exactly as supplied:</p><pre>" +
-        dep_esc(c.raw) +
+        esc(c.raw) +
         "</pre><p>" +
-        dep_esc(parsed.warning || "Review the standardized mailing lines. Names remain as entered.") +
+        esc(parsed.warning || "Review the standardized mailing lines. Names remain as entered.") +
         "</p><pre>" +
-        dep_esc([parsed.recipientLine, ...parsed.standardized].filter(Boolean).join("\n")) +
+        esc([parsed.recipientLine, ...parsed.standardized].filter(Boolean).join("\n")) +
         "</pre>" +
         (parsed.type === "ambiguous"
           ? '<p role="alert">This address is ambiguous. Edit the raw text; no standardized guess is available.</p>'
           : '<button class="btn btn-primary" data-accept-address="' + token + '">Accept standardized address</button>'),
     );
-    dep_saveDrafts();
+    saveDrafts();
     return true;
   }
   function accept(token) {
@@ -104,9 +95,9 @@ export function initAddressParser() {
     }
     WriterState.DIRTY = true;
     pending.delete(token);
-    dep_saveDrafts();
+    saveDrafts();
     document.getElementById("utility-dialog")?.close();
-    dep_render();
+    render();
     return true;
   }
   document.addEventListener("click", (e) => {
