@@ -1602,24 +1602,38 @@ async function axeThemes(page, screen) {
   await reports.close();
   clearTimeout(coreTimer);
   suiteTimings.push({ suite: "core-browser-workflow", elapsedMs: Math.round(performance.now() - coreStarted), limitMs: 150000 });
-  const r26Results = await runSuite("browser_r26.js", () => require("./browser_r26.js")(browser, page, context, OUT, axeScreen));
-  const r30Results = await runSuite("browser_r30.js", () => require("./browser_r30.js")(browser, page, OUT, axeScreen));
-  const r33Results = await runSuite("browser_r33.js", () => require("./browser_r33.js")(browser, page, OUT, axeScreen, work, base));
-  const r34Results = await runSuite("browser_r34.js", () => require("./browser_r34.js")(browser, page, OUT, axeScreen));
-  const r32Results = await runSuite("browser_r32.js", () => require("./browser_r32.js")(browser, page, OUT, axeScreen, work, base));
-  const r31Results = await runSuite("browser_r31.js", () => require("./browser_r31.js")(browser, page, OUT, axeScreen, work, base));
-  const r40Results = await runSuite("browser_r40.js", () => require("./browser_r40.js")(browser, page, OUT, axeScreen, work, base));
-  const r41Results = await runSuite("browser_r41.js", () => require("./browser_r41.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r42Results = await runSuite("browser_r42.js", () => require("./browser_r42.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r43Results = await runSuite("browser_r43.js", () => require("./browser_r43.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r45Results = await runSuite("browser_r45.js", () => require("./browser_r45.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r46Results = await runSuite("browser_r46.js", () => require("./browser_r46.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r48Results = await runSuite("browser_r48.js", () => require("./browser_r48.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r47Results = await runSuite("browser_r47.js", () => require("./browser_r47.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r50ImportResults = await runSuite("browser_r50_import.js", () => require("./browser_r50_import.js")(browser, page, OUT, axeScreen));
-  const r49Results = await runSuite("browser_r49.js", () => require("./browser_r49.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r44Results = await runSuite("browser_r44.js", () => require("./browser_r44.js")(browser, page, OUT, axeScreen, axeThemes));
-  const r54Results = await runSuite("browser_r54.js", () => require("./browser_r54.js")(browser, page, OUT, axeScreen));
+  // Browser workflow suites run in this order; each row names the suite and the arguments it receives.
+  // Results are stored as <name>Results (browser_r50_import.js -> r50ImportResults).
+  const suiteArgs = { browser, page, context, OUT, axeScreen, axeThemes, work, base };
+  const browserSuites = [
+    ["browser_r26.js", "browser page context OUT axeScreen"],
+    ["browser_r30.js", "browser page OUT axeScreen"],
+    ["browser_r33.js", "browser page OUT axeScreen work base"],
+    ["browser_r34.js", "browser page OUT axeScreen"],
+    ["browser_r32.js", "browser page OUT axeScreen work base"],
+    ["browser_r31.js", "browser page OUT axeScreen work base"],
+    ["browser_r40.js", "browser page OUT axeScreen work base"],
+    ["browser_r41.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r42.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r43.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r45.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r46.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r48.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r47.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r50_import.js", "browser page OUT axeScreen"],
+    ["browser_r49.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r44.js", "browser page OUT axeScreen axeThemes"],
+    ["browser_r54.js", "browser page OUT axeScreen"],
+  ];
+  const suiteResults = {};
+  for (const [file, args] of browserSuites) {
+    const key = file.slice("browser_".length, -".js".length).replace(/_(\w)/g, (_, c) => c.toUpperCase()) + "Results";
+    const values = args.split(" ").map((name) => {
+      assert.ok(name in suiteArgs, file + " names unknown argument " + name);
+      return suiteArgs[name];
+    });
+    suiteResults[key] = await runSuite(file, () => require("./" + file)(...values));
+  }
   assert.deepEqual(errors, []);
   assert.deepEqual(cspViolations, [], "Both applications operate without CSP violations");
   assert.equal(
@@ -1652,25 +1666,8 @@ async function axeThemes(page, screen) {
         axe: axeResults,
         pdfDelivery: "mocked; layout rendered by real Chromium",
         pdfResults,
-        r50ImportResults,
+        ...suiteResults,
         cspViolations,
-        r49Results,
-        r48Results,
-        r47Results,
-        r46Results,
-        r45Results,
-        r44Results,
-        r54Results,
-        r43Results,
-        r42Results,
-        r41Results,
-        r40Results,
-        r26Results,
-        r30Results,
-        r31Results,
-        r32Results,
-        r33Results,
-        r34Results,
         reportCounts,
         checks: [
           "five-destination Writer rail and grouped Tools controls",

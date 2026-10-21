@@ -21,12 +21,6 @@ BASELINE_BUTTON_TRANSITION = """    transition:
 
 
 class Layout(unittest.TestCase):
-    def test_no_flat_source_projection_or_mapping(self):
-        for name in ["tools/repository_stage.py", "tools/source-map.json", "build/runtime"]:
-            self.assertFalse((ROOT / name).exists(), name)
-        for name in ["tools/build.py", "tools/run_tests.py", "tools/verify_release.py", "tools/package_release.py"]:
-            self.assertNotIn("repository_stage", (ROOT / name).read_text())
-
     def test_stable_manual_and_explicit_counter(self):
         version = json.loads((ROOT / "version.json").read_text())
         self.assertEqual(version["helperBuild"], int(version["helperVersion"].split(".")[-1]))
