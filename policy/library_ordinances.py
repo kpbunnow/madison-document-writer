@@ -40,7 +40,7 @@ def audit(root, library=None):
     root = Path(root)
     library = library or json.loads((root / "app/assets/library.js").read_text().split("=", 1)[1].rsplit(";", 1)[0])
     chapters = {}
-    for path in sorted((root / "tests/fixtures/reference").glob("r30-CHAPTER_*.txt")):
+    for path in sorted((root / "policy/sources").glob("r30-CHAPTER_*.txt")):
         match = re.search(r"CHAPTER_(\d+)_", path.name)
         if match:
             chapters[match[1]] = (path, *chapter_index(path))

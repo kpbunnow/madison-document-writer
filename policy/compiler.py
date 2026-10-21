@@ -45,7 +45,7 @@ def unchanged(old, new):
 
 def validate_retained_sources(root):
     root = Path(root)
-    grammar = read(root / "tests/fixtures/reference/citation_policy_source.json")["grammar"]
+    grammar = read(root / "policy/sources/citation_policy_source.json")["grammar"]
     library = json.loads((root / "app/assets/library.js").read_text().split("=", 1)[1].rsplit(";", 1)[0])
     for category in library:
         for group in category["groups"]:

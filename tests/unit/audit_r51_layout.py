@@ -57,6 +57,16 @@ class Layout(unittest.TestCase):
             self.assertEqual(hashlib.sha256(code.encode()).hexdigest(), reviewed["files"][name]["normalizedCodeSha256"], name)
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 
+    def test_staff_docs_name_no_release_numbered_files(self):
+        # Packaged records are renamed per release and the manual has one stable filename.
+        stale = re.compile(r"\bR\d{2}-(?:ACCEPTANCE-RECORD|PRODUCTION-READINESS|REVIEW)\.md|\bR\d{2}_Program_Instruction_Manual")
+        from zipfile import ZipFile
+
+        texts = {p.name: p.read_text() for p in (ROOT / "docs/staff").glob("*") if p.suffix in {".md", ".html"}}
+        texts["Program_Instruction_Manual.docx"] = ZipFile(ROOT / "docs/staff/Program_Instruction_Manual.docx").read("word/document.xml").decode()
+        for name, text in texts.items():
+            self.assertEqual(stale.findall(text), [], name)
+
     def test_current_release_package_documents_exist(self):
         version = json.loads((ROOT / "version.json").read_text())
         release = version["release"].split()[-1]

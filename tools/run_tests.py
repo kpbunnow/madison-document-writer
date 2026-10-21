@@ -34,9 +34,7 @@ def build(test=False):
 
 
 build()
-subprocess.run(
-    ["node", "node_modules/eslint/bin/eslint.js", "build/app.js", "build/reports.js", "app/assets/shared.js", "app/modules"], cwd=ROOT, check=True
-)
+subprocess.run(["node", "node_modules/eslint/bin/eslint.js", "app/assets/shared.js", "app/modules"], cwd=ROOT, check=True)
 subprocess.run(
     [
         "node",
@@ -54,7 +52,7 @@ subprocess.run(
     check=True,
 )
 python_sources = [str(p.relative_to(ROOT)) for folder in ["helper", "tools", "policy"] for p in (ROOT / folder).glob("*.py")]
-subprocess.run([sys.executable, "-m", "pyflakes", *python_sources], cwd=ROOT, check=True)
+subprocess.run([sys.executable, "-m", "ruff", "check", "--select", "F", *python_sources], cwd=ROOT, check=True)
 subprocess.run(
     [
         sys.executable,

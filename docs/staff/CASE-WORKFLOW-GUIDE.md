@@ -1,8 +1,8 @@
-# R50 case workflow guide
+# Case workflow guide
 
-Release 2026-10-16 R50 · helper 2026.10.16.50 · authoring 11 · case schema 5 · summary 6 · workspace backup 2.
+Applies to the current release. The Writer shows its build and helper version; the install guide states the expected values.
 
-Current instructions are consolidated in PROGRAM-MANUAL.html and R50_Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use R49-ACCEPTANCE-RECORD.md for outstanding City acceptance and legal/policy approvals.
+Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.
 
 ## 1 Start here and daily routine
 
@@ -10,7 +10,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Run the Document Writer desktop shortcut or approved launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-16 R50 and helper 2026.10.16.50. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Run the Document Writer desktop shortcut or approved launcher. Keep one Writer tab open in the same browser profile. Confirm the Build and helper versions match the install guide. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
 **Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use Show checks or Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 

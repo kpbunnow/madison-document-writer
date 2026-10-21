@@ -36,8 +36,8 @@ def tiers(raw):
 
 
 def regenerate():
-    rows = json.loads((ROOT / "tests/fixtures/reference/r30-schedule-table.json").read_text())
-    reviews = json.loads((ROOT / "tests/fixtures/reference/r30-deposit-reviews.json").read_text())
+    rows = json.loads((ROOT / "policy/sources/r30-schedule-table.json").read_text())
+    reviews = json.loads((ROOT / "policy/sources/r30-deposit-reviews.json").read_text())
     entries, exclusions = [], []
     for row, (desc, column, raw) in enumerate(rows[1:], 1):
         # Stop before explanatory IBC/SPS cross-references, never tokenize them.
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     data, excluded = regenerate()
-    paths = {"app/assets/deposits.js": data, "tests/fixtures/reference/r30-schedule-exclusions.json": json.dumps(excluded, indent=2) + "\n"}
+    paths = {"app/assets/deposits.js": data, "policy/sources/r30-schedule-exclusions.json": json.dumps(excluded, indent=2) + "\n"}
     for name, text in paths.items():
         if args.check:
             if (ROOT / name).read_text() != text:

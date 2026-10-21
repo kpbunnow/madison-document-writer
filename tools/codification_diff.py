@@ -37,7 +37,7 @@ def normalized(row):
 def propose_export(path, effective_dates, codification):
     if not str(codification).strip():
         raise ValueError("Record the actual codification version")
-    baseline = json.loads((ROOT / "tests/fixtures/reference/r30-schedule-table.json").read_text())
+    baseline = json.loads((ROOT / "policy/sources/r30-schedule-table.json").read_text())
     before = {normalized(row) for row in baseline[1:]}
     after = table_rows(path)
     new = {normalized(row) for row in after[1:]}

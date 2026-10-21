@@ -1,6 +1,6 @@
-# R50 current reporting
+# Reporting
 
-Release 2026-10-16 R50 · helper 2026.10.16.50 · summary version 6.
+Applies to the current release (summary version 6).
 
 ## 16 Run reports and interpret their dates
 
