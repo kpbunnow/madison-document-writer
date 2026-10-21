@@ -949,141 +949,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if refused:
             return self._json(403, {"ok": False, "error": refused})
         route = urlsplit(self.path).path
-        if route == "/locks/status":
-            try:
-                return self._json(200, operations_helper.lock_status(case_dir(), parse_qs(urlsplit(self.path).query).get("number", [""])[0]))
-            except (ValueError, TypeError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except OSError:
-                return self._json(503, {"ok": False, "error": "Shared case folder unavailable"})
-        if route in ("/cases/search", "/outbox/list", "/reporting/views"):
-            try:
-                if route == "/cases/search":
-                    result = workflow_helper.search_cases(case_dir(), parse_qs(urlsplit(self.path).query).get("q", [""])[0])
-                elif route == "/outbox/list":
-                    result = workflow_helper.outbox_files(sys.modules[__name__])
-                else:
-                    result = workflow_helper.shared_views(case_dir())
-                return self._json(200, result)
-            except (ValueError, TypeError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except OSError:
-                return self._json(503, {"ok": False, "error": "Shared folder unavailable"})
-        if route == "/administration/snow-letter":
-            import snow_rules
-
-            refused = self._guard_read()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                return self._json(200, {"ok": True, "letter": snow_rules.validate_letter(snow_rules.read_letter(case_dir()))})
-            except (OSError, ValueError, TypeError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-        if route == "/citations/history":
-            try:
-                return self._json(200, citation_history(case_dir()))
-            except (ValueError, TypeError):
-                return self._json(400, {"ok": False, "error": "Shared citation history is incomplete. Resolve unreadable or duplicate case records."})
-            except OSError:
-                return self._json(503, {"ok": False, "error": "Shared citation history unavailable"})
-        if route == "/cases/list":
-            try:
-                cd = case_dir()
-                if not cd.is_dir():
-                    raise OSError("The shared case folder is unavailable")
-                files = [
-                    {"name": p.name, "size": p.stat().st_size, "mod": p.stat().st_mtime * 1000}
-                    for p in cd.glob("*.json")
-                    if not p.name.startswith("_")
-                ]
-                return self._json(200, {"ok": True, "files": sorted(files, key=lambda p: p["mod"], reverse=True)})
-            except Exception as error:
-                return self._json(503, {"ok": False, "error": str(error)})
-        if route == "/cases/open":
-            try:
-                return self._json(200, read_case(case_dir(), parse_qs(urlsplit(self.path).query).get("name", [""])[0]))
-            except FileNotFoundError:
-                return self._json(404, {"ok": False, "missing": True, "error": "Case file not found"})
-            except Exception as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-        if route == "/cases/resolve":
-            try:
-                number = parse_qs(urlsplit(self.path).query).get("number", [""])[0]
-                number_key = case_number_key(number)
-                folder = case_dir()
-                if not folder.is_dir():
-                    return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
-                names = [p.name for p in folder.glob("*.json") if case_file_key(p) == number_key]
-                if not names:
-                    raise FileNotFoundError("Case file not found")
-                if len(names) != 1:
-                    raise ValueError("Conflicting case files for this number")
-                found = read_case(case_dir(), names[0])
-                if case_number_key(found["file"]["case"]["number"]) != number_key:
-                    raise ValueError("Case number differs from its filename")
-                return self._json(200, found)
-            except FileNotFoundError as error:
-                return self._json(404, {"ok": False, "missing": True, "error": str(error)})
-            except OSError:
-                return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
-            except Exception as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-        if self.path.startswith("/reporting/"):
-            try:
-                if self.path.startswith("/reporting/index"):
-                    return self._json(200, read_index())
-                if self.path.startswith("/reporting/parcels"):
-                    with CACHE_LOCK:
-                        c = read_cache()
-                    return self._json(
-                        200,
-                        {"ok": True, "parcels": {p: v for p, v in c["parcels"].items() if p not in c["missing"]}, "missing": sorted(c["missing"])},
-                    )
-                if self.path.startswith("/reporting/areas"):
-                    return self._json(200, read_areas())
-            except Exception as e:
-                return self._json(500, {"ok": False, "error": str(e)})
-            return self._json(404, {"ok": False, "error": "unknown endpoint"})
-        if route == "/dw-status":
-            if not self._has_token():
-                return self._json(200, {"ok": True, "version": HELPER_VERSION, "ready": True})
-            status = {
-                "ok": True,
-                "version": HELPER_VERSION,
-                "caseStore": True,
-                "caseDir": "",
-                "caseReachable": False,
-                "out": "",
-                "outReachable": False,
-                "outLocal": False,
-                "outbox": 0,
-                "chrome": bool(find_chrome()),
-                "outlook": bool(find_outlook()),
-            }
-            try:
-                folder = case_dir()
-                status.update(caseDir=str(folder), caseReachable=folder.is_dir())
-            except (OSError, ValueError):
-                pass
-            try:
-                dest = out_dir()
-                status.update(
-                    out=str(dest), outReachable=dest.is_dir(), outLocal=dest == HERE / OUTDIR_NAME and share_root() != HERE, outbox=outbox_count()
-                )
-            except (OSError, ValueError):
-                pass
-            status.update(operations_helper.health(sys.modules[__name__]))
-            return self._json(200, status)
-        if route == "/draft-backups/list":
-            try:
-                return self._json(200, backup_list())
-            except Exception as error:
-                return self._json(503, {"ok": False, "error": str(error)})
-        if route == "/catalog/reviews":
-            try:
-                return self._json(200, {"ok": True, "events": catalog_events()})
-            except Exception as error:
-                return self._json(503, {"ok": False, "error": str(error)})
+        handler = GET_ROUTES.get(route) or (Handler._get_reporting if self.path.startswith("/reporting/") else None)
+        if handler:
+            return handler(self, route)
         if route == "/":
             self.path = "/madison-document-writer.html"
         elif route not in (
@@ -1127,9 +995,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def _administration_post(self, route):
         import admin_rules
 
-        refused = self._guard()
-        if refused:
-            return self._json(403, {"ok": False, "error": refused})
         try:
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 65536:
@@ -1150,203 +1015,330 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self._guard_read():
             return self._json(403, {"ok": False, "error": "Forbidden"})
         route = urlsplit(self.path).path
-        if route == "/session/bootstrap":
-            if self._guard():
-                return self._json(403, {"ok": False, "error": "Forbidden"})
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 0 < size <= 16 or json.loads(self.rfile.read(size)) != {}:
-                    raise ValueError("Invalid bootstrap request")
-            except (ValueError, TypeError):
-                return self._json(400, {"ok": False, "error": "Invalid bootstrap request"})
-            return self._json(200, {"ok": True, "token": SESSION_TOKEN, "bootstrap": SESSION_BOOTSTRAP})
-        if route in ("/administration/deposit-override", "/administration/snow-letter"):
-            return self._administration_post(route)
-        if route in ("/locks/release", "/setup/probe"):
+        handler = POST_ROUTES.get(route)
+        if handler:
+            # Every API POST is JSON from this machine's own page; checked here so no route can skip it.
             refused = self._guard()
             if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 0 < size <= 4096:
-                    raise ValueError("Invalid request size")
-                data = json.loads(self.rfile.read(size))
-                if not isinstance(data, dict):
-                    raise ValueError("Expected JSON object")
-                if route == "/locks/release":
-                    result = operations_helper.release_lock(case_dir(), data)
-                else:
-                    if data:
-                        raise ValueError("No setup parameters expected")
-                    result = {
-                        "ok": True,
-                        "version": HELPER_VERSION,
-                        "chrome": bool(find_chrome()),
-                        "outlook": bool(find_outlook()),
-                        **operations_helper.health(sys.modules[__name__], True),
-                    }
-                return self._json(200, result)
-            except (ValueError, TypeError, KeyError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except (OSError, RuntimeError):
-                return self._json(503, {"ok": False, "error": "Shared case folder unavailable; no lock released"})
-        if route in ("/outbox/read", "/outbox/batch-sync", "/reporting/views", "/email/reminder"):
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 0 < size <= 32768:
-                    raise ValueError("Invalid request size")
-                data = json.loads(self.rfile.read(size))
-                if route == "/outbox/read":
-                    _, raw = workflow_helper.outbox_read(sys.modules[__name__], data)
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/pdf")
-                    self.send_header("Content-Length", str(len(raw)))
-                    self.end_headers()
-                    return self.wfile.write(raw)
-                if route == "/outbox/batch-sync":
-                    result = workflow_helper.sync_selected(sys.modules[__name__], data)
-                elif route == "/reporting/views":
-                    result = workflow_helper.save_view(case_dir(), data)
-                else:
-                    result = workflow_helper.reminder_draft(sys.modules[__name__], data)
-                return self._json(200, result)
-            except (ValueError, TypeError, KeyError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except (OSError, RuntimeError):
-                return self._json(503, {"ok": False, "error": "Operation unavailable; local work kept"})
-        if route == "/address/parse":
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                n = int(self.headers.get("Content-Length", "0"))
-                if not 0 < n <= 12000:
-                    raise ValueError("Invalid address request size")
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
-                if not isinstance(data, dict) or set(data) != {"raw"}:
-                    raise ValueError("Expected only a raw mailing address")
-                return self._json(200, {"ok": True, **address_parser.parse_address(data["raw"])})
-            except (ValueError, TypeError):
-                return self._json(400, {"ok": False, "error": "Invalid local address parse request"})
-        if route == "/case-lookup":
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                n = int(self.headers.get("Content-Length", "0"))
-                if not 0 < n <= 2048:
-                    return self._json(413, {"ok": False, "error": "Invalid lookup request size"})
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
-                if not isinstance(data, dict) or set(data) != {"caseNumber"}:
-                    raise ValueError("Expected only a caseNumber")
-                return self._json(200, lookup_case(share_root(), data["caseNumber"]))
-            except CaseLookupError as error:
-                return self._json(error.status, {"ok": False, "error": str(error)})
-            except (ValueError, TypeError):
-                return self._json(400, {"ok": False, "error": "Invalid case lookup request"})
-            except Exception:
-                return self._json(503, {"ok": False, "error": "Case lookup is unavailable. Check the installation and retry; your work is kept."})
-        if route in (
-            "/cases/save",
-            "/cases/summary",
-            "/cases/probe",
-            "/outbox/sync",
-            "/draft-backups/write",
-            "/draft-backups/read",
-            "/catalog/review",
-            "/artifact/status",
-        ):
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                n = int(self.headers.get("Content-Length", "0"))
-                if not 0 < n <= MAX_BODY:
-                    return self._json(413, {"ok": False, "error": "Invalid request size"})
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
-                if not isinstance(data, dict):
-                    raise ValueError("Expected a JSON object")
-                if route == "/cases/save":
-                    answer = save_case(
-                        case_dir(),
-                        data.get("name"),
-                        data.get("file"),
-                        data.get("baseRevision", ""),
-                        data.get("baseCase"),
-                        data.get("idempotencyEvent", ""),
-                        catalog_path(),
-                        resource("catalog_manifest.json"),
-                    )
-                elif route == "/cases/summary":
-                    answer = save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
-                elif route == "/cases/probe":
-                    with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
-                        probe.write(b"Madison Document Writer connection check")
-                        probe.flush()
-                        os.fsync(probe.fileno())
-                    answer = {"ok": True}
-                elif route == "/draft-backups/write":
-                    answer = backup_write(data)
-                elif route == "/draft-backups/read":
-                    answer = backup_read(data)
-                elif route == "/catalog/review":
-                    answer = catalog_review(data)
-                elif route == "/artifact/status":
-                    answer = artifact_status(data.get("items"))
-                else:
-                    answer = sync_outbox()
-                return self._json(200, answer)
-            except (ValueError, TypeError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except Exception as error:
-                return self._json(503, {"ok": False, "error": str(error)})
-        if route == "/artifact/read":
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
-            try:
-                n = int(self.headers.get("Content-Length") or 0)
-                if not 0 < n <= 4096:
-                    raise ValueError("Invalid artifact request size")
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
-                if not isinstance(data, dict) or set(data) != {"filename", "sha256", "docId"}:
-                    raise ValueError("Invalid artifact request")
-                path, raw = verified_artifact(data["filename"], data["sha256"], data["docId"])
-                if len(raw) > MAX_BODY:
-                    raise ValueError("Archived PDF exceeds the response limit")
+                return self._json(403, {"ok": False, "error": "Forbidden" if route == "/session/bootstrap" else refused})
+            return handler(self, route)
+        return self._json(404, {"ok": False, "error": "unknown endpoint"})
+
+    def _get_lock_status(self, route):
+        try:
+            return self._json(200, operations_helper.lock_status(case_dir(), parse_qs(urlsplit(self.path).query).get("number", [""])[0]))
+        except (ValueError, TypeError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except OSError:
+            return self._json(503, {"ok": False, "error": "Shared case folder unavailable"})
+
+    def _get_workflow_reads(self, route):
+        try:
+            if route == "/cases/search":
+                result = workflow_helper.search_cases(case_dir(), parse_qs(urlsplit(self.path).query).get("q", [""])[0])
+            elif route == "/outbox/list":
+                result = workflow_helper.outbox_files(sys.modules[__name__])
+            else:
+                result = workflow_helper.shared_views(case_dir())
+            return self._json(200, result)
+        except (ValueError, TypeError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except OSError:
+            return self._json(503, {"ok": False, "error": "Shared folder unavailable"})
+
+    def _get_snow_letter(self, route):
+        import snow_rules
+
+        refused = self._guard_read()
+        if refused:
+            return self._json(403, {"ok": False, "error": refused})
+        try:
+            return self._json(200, {"ok": True, "letter": snow_rules.validate_letter(snow_rules.read_letter(case_dir()))})
+        except (OSError, ValueError, TypeError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+
+    def _get_citation_history(self, route):
+        try:
+            return self._json(200, citation_history(case_dir()))
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Shared citation history is incomplete. Resolve unreadable or duplicate case records."})
+        except OSError:
+            return self._json(503, {"ok": False, "error": "Shared citation history unavailable"})
+
+    def _get_case_list(self, route):
+        try:
+            cd = case_dir()
+            if not cd.is_dir():
+                raise OSError("The shared case folder is unavailable")
+            files = [
+                {"name": p.name, "size": p.stat().st_size, "mod": p.stat().st_mtime * 1000} for p in cd.glob("*.json") if not p.name.startswith("_")
+            ]
+            return self._json(200, {"ok": True, "files": sorted(files, key=lambda p: p["mod"], reverse=True)})
+        except Exception as error:
+            return self._json(503, {"ok": False, "error": str(error)})
+
+    def _get_case_open(self, route):
+        try:
+            return self._json(200, read_case(case_dir(), parse_qs(urlsplit(self.path).query).get("name", [""])[0]))
+        except FileNotFoundError:
+            return self._json(404, {"ok": False, "missing": True, "error": "Case file not found"})
+        except Exception as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+
+    def _get_case_resolve(self, route):
+        try:
+            number = parse_qs(urlsplit(self.path).query).get("number", [""])[0]
+            number_key = case_number_key(number)
+            folder = case_dir()
+            if not folder.is_dir():
+                return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
+            names = [p.name for p in folder.glob("*.json") if case_file_key(p) == number_key]
+            if not names:
+                raise FileNotFoundError("Case file not found")
+            if len(names) != 1:
+                raise ValueError("Conflicting case files for this number")
+            found = read_case(case_dir(), names[0])
+            if case_number_key(found["file"]["case"]["number"]) != number_key:
+                raise ValueError("Case number differs from its filename")
+            return self._json(200, found)
+        except FileNotFoundError as error:
+            return self._json(404, {"ok": False, "missing": True, "error": str(error)})
+        except OSError:
+            return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
+        except Exception as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+
+    def _get_reporting(self, route):
+        try:
+            if self.path.startswith("/reporting/index"):
+                return self._json(200, read_index())
+            if self.path.startswith("/reporting/parcels"):
+                with CACHE_LOCK:
+                    c = read_cache()
                 return self._json(
                     200,
-                    {"ok": True, "pdf": base64.b64encode(raw).decode("ascii"), "sha256": data["sha256"], "local": path.parent == HERE / OUTDIR_NAME},
+                    {"ok": True, "parcels": {p: v for p, v in c["parcels"].items() if p not in c["missing"]}, "missing": sorted(c["missing"])},
                 )
-            except (ValueError, TypeError, KeyError) as error:
-                return self._json(400, {"ok": False, "error": str(error)})
-            except FileNotFoundError as error:
-                return self._json(404, {"ok": False, "error": str(error)})
-            except Exception as error:
-                return self._json(503, {"ok": False, "error": str(error)})
-        if route == "/save-pdf":
-            return self._pdf(email=False)
-        if route == "/email":
-            return self._pdf(email=True)
-        if route == "/reporting/parcels":
-            try:
-                refused = self._guard()
-                if refused:
-                    return self._json(403, {"ok": False, "error": refused})
-                n = int(self.headers.get("Content-Length") or 0)
-                if n <= 0 or n > 1024 * 1024:
-                    return self._json(413, {"ok": False, "error": "that request is not a parcel list"})
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
-                ids = data.get("ids") or []
-                if not isinstance(ids, list) or len(ids) > 5000:
-                    return self._json(400, {"ok": False, "error": "ids must be a list of parcels"})
-                return self._json(200, lookup_parcels(ids, bool(data.get("refresh"))))
-            except Exception as e:
-                return self._json(500, {"ok": False, "error": str(e)})
+            if self.path.startswith("/reporting/areas"):
+                return self._json(200, read_areas())
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
         return self._json(404, {"ok": False, "error": "unknown endpoint"})
+
+    def _get_status(self, route):
+        if not self._has_token():
+            return self._json(200, {"ok": True, "version": HELPER_VERSION, "ready": True})
+        status = {
+            "ok": True,
+            "version": HELPER_VERSION,
+            "caseStore": True,
+            "caseDir": "",
+            "caseReachable": False,
+            "out": "",
+            "outReachable": False,
+            "outLocal": False,
+            "outbox": 0,
+            "chrome": bool(find_chrome()),
+            "outlook": bool(find_outlook()),
+        }
+        try:
+            folder = case_dir()
+            status.update(caseDir=str(folder), caseReachable=folder.is_dir())
+        except (OSError, ValueError):
+            pass
+        try:
+            dest = out_dir()
+            status.update(
+                out=str(dest), outReachable=dest.is_dir(), outLocal=dest == HERE / OUTDIR_NAME and share_root() != HERE, outbox=outbox_count()
+            )
+        except (OSError, ValueError):
+            pass
+        status.update(operations_helper.health(sys.modules[__name__]))
+        return self._json(200, status)
+
+    def _get_backup_list(self, route):
+        try:
+            return self._json(200, backup_list())
+        except Exception as error:
+            return self._json(503, {"ok": False, "error": str(error)})
+
+    def _get_catalog_reviews(self, route):
+        try:
+            return self._json(200, {"ok": True, "events": catalog_events()})
+        except Exception as error:
+            return self._json(503, {"ok": False, "error": str(error)})
+
+    def _post_session_bootstrap(self, route):
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 16 or json.loads(self.rfile.read(size)) != {}:
+                raise ValueError("Invalid bootstrap request")
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Invalid bootstrap request"})
+        return self._json(200, {"ok": True, "token": SESSION_TOKEN, "bootstrap": SESSION_BOOTSTRAP})
+
+    def _post_lock_or_probe(self, route):
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 4096:
+                raise ValueError("Invalid request size")
+            data = json.loads(self.rfile.read(size))
+            if not isinstance(data, dict):
+                raise ValueError("Expected JSON object")
+            if route == "/locks/release":
+                result = operations_helper.release_lock(case_dir(), data)
+            else:
+                if data:
+                    raise ValueError("No setup parameters expected")
+                result = {
+                    "ok": True,
+                    "version": HELPER_VERSION,
+                    "chrome": bool(find_chrome()),
+                    "outlook": bool(find_outlook()),
+                    **operations_helper.health(sys.modules[__name__], True),
+                }
+            return self._json(200, result)
+        except (ValueError, TypeError, KeyError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except (OSError, RuntimeError):
+            return self._json(503, {"ok": False, "error": "Shared case folder unavailable; no lock released"})
+
+    def _post_workflow(self, route):
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 32768:
+                raise ValueError("Invalid request size")
+            data = json.loads(self.rfile.read(size))
+            if route == "/outbox/read":
+                _, raw = workflow_helper.outbox_read(sys.modules[__name__], data)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/pdf")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                return self.wfile.write(raw)
+            if route == "/outbox/batch-sync":
+                result = workflow_helper.sync_selected(sys.modules[__name__], data)
+            elif route == "/reporting/views":
+                result = workflow_helper.save_view(case_dir(), data)
+            else:
+                result = workflow_helper.reminder_draft(sys.modules[__name__], data)
+            return self._json(200, result)
+        except (ValueError, TypeError, KeyError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except (OSError, RuntimeError):
+            return self._json(503, {"ok": False, "error": "Operation unavailable; local work kept"})
+
+    def _post_address_parse(self, route):
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if not 0 < n <= 12000:
+                raise ValueError("Invalid address request size")
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            if not isinstance(data, dict) or set(data) != {"raw"}:
+                raise ValueError("Expected only a raw mailing address")
+            return self._json(200, {"ok": True, **address_parser.parse_address(data["raw"])})
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Invalid local address parse request"})
+
+    def _post_case_lookup(self, route):
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if not 0 < n <= 2048:
+                return self._json(413, {"ok": False, "error": "Invalid lookup request size"})
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            if not isinstance(data, dict) or set(data) != {"caseNumber"}:
+                raise ValueError("Expected only a caseNumber")
+            return self._json(200, lookup_case(share_root(), data["caseNumber"]))
+        except CaseLookupError as error:
+            return self._json(error.status, {"ok": False, "error": str(error)})
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Invalid case lookup request"})
+        except Exception:
+            return self._json(503, {"ok": False, "error": "Case lookup is unavailable. Check the installation and retry; your work is kept."})
+
+    def _post_shared_records(self, route):
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if not 0 < n <= MAX_BODY:
+                return self._json(413, {"ok": False, "error": "Invalid request size"})
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("Expected a JSON object")
+            if route == "/cases/save":
+                answer = save_case(
+                    case_dir(),
+                    data.get("name"),
+                    data.get("file"),
+                    data.get("baseRevision", ""),
+                    data.get("baseCase"),
+                    data.get("idempotencyEvent", ""),
+                    catalog_path(),
+                    resource("catalog_manifest.json"),
+                )
+            elif route == "/cases/summary":
+                answer = save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
+            elif route == "/cases/probe":
+                with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
+                    probe.write(b"Madison Document Writer connection check")
+                    probe.flush()
+                    os.fsync(probe.fileno())
+                answer = {"ok": True}
+            elif route == "/draft-backups/write":
+                answer = backup_write(data)
+            elif route == "/draft-backups/read":
+                answer = backup_read(data)
+            elif route == "/catalog/review":
+                answer = catalog_review(data)
+            elif route == "/artifact/status":
+                answer = artifact_status(data.get("items"))
+            else:
+                answer = sync_outbox()
+            return self._json(200, answer)
+        except (ValueError, TypeError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except Exception as error:
+            return self._json(503, {"ok": False, "error": str(error)})
+
+    def _post_artifact_read(self, route):
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if not 0 < n <= 4096:
+                raise ValueError("Invalid artifact request size")
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            if not isinstance(data, dict) or set(data) != {"filename", "sha256", "docId"}:
+                raise ValueError("Invalid artifact request")
+            path, raw = verified_artifact(data["filename"], data["sha256"], data["docId"])
+            if len(raw) > MAX_BODY:
+                raise ValueError("Archived PDF exceeds the response limit")
+            return self._json(
+                200,
+                {"ok": True, "pdf": base64.b64encode(raw).decode("ascii"), "sha256": data["sha256"], "local": path.parent == HERE / OUTDIR_NAME},
+            )
+        except (ValueError, TypeError, KeyError) as error:
+            return self._json(400, {"ok": False, "error": str(error)})
+        except FileNotFoundError as error:
+            return self._json(404, {"ok": False, "error": str(error)})
+        except Exception as error:
+            return self._json(503, {"ok": False, "error": str(error)})
+
+    def _post_save_pdf(self, route):
+        return self._pdf(email=False)
+
+    def _post_email(self, route):
+        return self._pdf(email=True)
+
+    def _post_parcels(self, route):
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if n <= 0 or n > 1024 * 1024:
+                return self._json(413, {"ok": False, "error": "that request is not a parcel list"})
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            ids = data.get("ids") or []
+            if not isinstance(ids, list) or len(ids) > 5000:
+                return self._json(400, {"ok": False, "error": "ids must be a list of parcels"})
+            return self._json(200, lookup_parcels(ids, bool(data.get("refresh"))))
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
 
     def _guard(self):
         """Only this machine's own page may drive the helper.
@@ -1372,9 +1364,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _pdf(self, email=False):
         try:
-            refused = self._guard()
-            if refused:
-                return self._json(403, {"ok": False, "error": refused})
             raw = self.headers.get("Content-Length")
             if raw is None or not raw.strip().isdigit():
                 return self._json(411, {"ok": False, "error": "a length is required"})
@@ -1432,6 +1421,49 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             record("email-draft" if email else "pdf", "failed", error=e)
             return self._json(400 if isinstance(e, (ValueError, TypeError)) else 500, {"ok": False, "error": str(e)})
+
+
+# Every API route and the Handler method that answers it. do_GET/do_POST apply the shared guards first;
+# a mistyped method name fails at import.
+GET_ROUTES = {
+    "/locks/status": Handler._get_lock_status,
+    "/cases/search": Handler._get_workflow_reads,
+    "/outbox/list": Handler._get_workflow_reads,
+    "/reporting/views": Handler._get_workflow_reads,
+    "/administration/snow-letter": Handler._get_snow_letter,
+    "/citations/history": Handler._get_citation_history,
+    "/cases/list": Handler._get_case_list,
+    "/cases/open": Handler._get_case_open,
+    "/cases/resolve": Handler._get_case_resolve,
+    "/dw-status": Handler._get_status,
+    "/draft-backups/list": Handler._get_backup_list,
+    "/catalog/reviews": Handler._get_catalog_reviews,
+}
+POST_ROUTES = {
+    "/session/bootstrap": Handler._post_session_bootstrap,
+    "/administration/deposit-override": Handler._administration_post,
+    "/administration/snow-letter": Handler._administration_post,
+    "/locks/release": Handler._post_lock_or_probe,
+    "/setup/probe": Handler._post_lock_or_probe,
+    "/outbox/read": Handler._post_workflow,
+    "/outbox/batch-sync": Handler._post_workflow,
+    "/reporting/views": Handler._post_workflow,
+    "/email/reminder": Handler._post_workflow,
+    "/address/parse": Handler._post_address_parse,
+    "/case-lookup": Handler._post_case_lookup,
+    "/cases/save": Handler._post_shared_records,
+    "/cases/summary": Handler._post_shared_records,
+    "/cases/probe": Handler._post_shared_records,
+    "/outbox/sync": Handler._post_shared_records,
+    "/draft-backups/write": Handler._post_shared_records,
+    "/draft-backups/read": Handler._post_shared_records,
+    "/catalog/review": Handler._post_shared_records,
+    "/artifact/status": Handler._post_shared_records,
+    "/artifact/read": Handler._post_artifact_read,
+    "/save-pdf": Handler._post_save_pdf,
+    "/email": Handler._post_email,
+    "/reporting/parcels": Handler._post_parcels,
+}
 
 
 class Server(socketserver.ThreadingTCPServer):
