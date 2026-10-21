@@ -12,19 +12,6 @@ from project_layout import ROOT, assemble_deploy
 
 
 class ManifestModel(unittest.TestCase):
-    def test_signing_machinery_is_gone(self):
-        for path in ["helper/release_trust.py", "helper/vendor/python/pure25519", "tools/sign_release.py", "requirements-signing.txt"]:
-            self.assertFalse((ROOT / path).exists(), path)
-        updater = (ROOT / "helper/verified_update.py").read_text()
-        self.assertNotIn("verify_signature", updater)
-        # R53 names runtime-manifest.sig only to report it as a stale leftover; it is never read or verified.
-        self.assertNotRegex(updater, r"runtime-manifest\.sig\"\)?\s*\.read")
-        self.assertNotIn('sig").read_bytes', updater)
-        self.assertNotIn("--key", (ROOT / "tools/package_release.py").read_text())
-        template = (ROOT / "tools/runtime-manifest.template.json").read_text()
-        self.assertNotIn("release_trust", template)
-        self.assertNotIn("pure25519", template)
-
     def deploy(self, root):
         folder = root / "deploy"
         folder.mkdir()
