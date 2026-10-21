@@ -6,12 +6,12 @@ import json
 from pathlib import Path
 from zipfile import ZipFile
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def restore(source):
     source = Path(source)
-    proof = json.loads((ROOT / "docs/developer/R51-HISTORY-RESTORE.json").read_text())
+    proof = json.loads((ROOT / "docs/history/R51-HISTORY-RESTORE.json").read_text())
     if hashlib.sha256(source.read_bytes()).hexdigest() != proof["sha256"]:
         raise ValueError("Historical archive differs from the retained R49 source")
     destination = ROOT / "archive/development-history"

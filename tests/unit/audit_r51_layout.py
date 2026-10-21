@@ -101,7 +101,7 @@ class Layout(unittest.TestCase):
         history = ROOT / "archive/development-history/README.md"
         if (ROOT / "archive").exists():
             self.assertTrue(history.is_file())
-        provenance = json.loads((ROOT / "docs/developer/R51-HISTORY-RESTORE.json").read_text())
+        provenance = json.loads((ROOT / "docs/history/R51-HISTORY-RESTORE.json").read_text())
         self.assertEqual(len(provenance["sha256"]), 64)
         self.assertTrue(provenance["files"])
         text = (ROOT / "docs/developer/05-TESTING.md").read_text()
