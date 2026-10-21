@@ -6,9 +6,9 @@ by the release owner; IT records that permission check in the acceptance record.
 """
 
 from pathlib import Path
-import argparse, hashlib, json, shutil, sys, tempfile, zipfile
+import argparse, hashlib, json, shutil, sys, tempfile
 from project_layout import ROOT, fingerprint, assemble_deploy
-from release_inputs import source_inventory, verify_deployment, verify_source_copy, verify_package_links
+from release_inputs import archive, checksum, complete, prefixed, source_inventory, verify_deployment, verify_source_copy, verify_package_links
 
 WORK = ROOT
 sys.path[:0] = [str(ROOT / p) for p in ["helper", "policy", "tools", "build/generated"]]
@@ -105,37 +105,19 @@ summary = {
 (stage / (R + "-Verification-Summary.json")).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
 
-def checksum(folder):
-    pairs = [
-        hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.relative_to(folder).as_posix()
-        for p in sorted(folder.rglob("*"))
-        if p.is_file() and p.name != "SHA256SUMS.txt"
-    ]
-    (folder / "SHA256SUMS.txt").write_text("\n".join(pairs) + "\n", encoding="utf-8")
-    for entry in pairs:
-        expected, relative = entry.split("  ", 1)
-        if hashlib.sha256((folder / relative).read_bytes()).hexdigest() != expected:
-            raise ValueError("Checksum differs " + relative)
-    return len(pairs)
-
-
-def archive(folder, dest, prefix=""):
-    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for p in sorted(folder.rglob("*")):
-            if p.is_file():
-                z.write(p, prefix + p.relative_to(folder).as_posix())
-    with zipfile.ZipFile(dest) as z:
-        if z.testzip() is not None:
-            raise ValueError("Archive failed integrity check")
-
-
 # Recheck verified bytes after assembly and before producing any release archives.
 verify_deployment(ROOT, verified_inputs, stage, finalized=True)
-verify_source_copy(ROOT, stage / "source")
-# The deploy file set is defined by runtime-manifest.json. A checksum file inside deploy/
-# would be an unlisted extra file, so deploy/ never gets one.
-checksum(stage / "source")
-count = checksum(stage)
+source_package = verify_source_copy(ROOT, stage / "source")
+# Every archive holds exactly an approved file set with verified bytes; staging is never
+# traversed for content. The deploy file set is defined by runtime-manifest.json. A checksum
+# file inside deploy/ would be an unlisted extra file, so deploy/ never gets one.
+deploy_files = complete(stage / "deploy", [t.removeprefix("deploy/") for t in verified_inputs if t.startswith("deploy/")])
+generated = {f: hashlib.sha256((stage / f).read_bytes()).hexdigest() for f in ["README.md", R + "-Verification-Summary.json"]}
+top_level = {**{f: verified_inputs[f]["sha256"] for f in release_docs}, **generated}
+source_package = checksum(stage / "source", source_package)
+package_files = {**prefixed("deploy/", deploy_files), **prefixed("source/", source_package), **top_level}
+checksum(stage, package_files)
+count = sum(Path(f).name != "SHA256SUMS.txt" for f in package_files)
 with tempfile.TemporaryDirectory(prefix="final-deploy-") as tmp:
     p = Path(tmp)
     (p / "staged").mkdir()
@@ -144,24 +126,28 @@ with tempfile.TemporaryDirectory(prefix="final-deploy-") as tmp:
 # Separate evidence includes original logs, JSON proof and synthetic PDFs, with screenshots omitted.
 evidence = base / (R + "-Verification-Evidence")
 evidence.mkdir()
+evidence_files = []
 for folder, dest in [(proof, "final"), (ROOT / "build/test-results", "suites")]:
     for p in folder.rglob("*"):
         if not p.is_file() or p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".zip"}:
             continue
-        target = evidence / dest / p.relative_to(folder)
+        relative = dest + "/" + p.relative_to(folder).as_posix()
+        target = evidence / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(p, target)
+        evidence_files.append(relative)
 format_proof = ROOT / "build/format-proof.json"
 if format_proof.is_file():
     shutil.copyfile(format_proof, evidence / "format-proof.json")
-checksum(evidence)
-archive(stage / "deploy", base / (name + "-deploy.zip"))
-archive(stage / "source", base / (name + "-source.zip"))
-archive(evidence, base / (name + "-evidence.zip"), R + "-Verification-Evidence/")
+    evidence_files.append("format-proof.json")
+evidence_files = checksum(evidence, complete(evidence, evidence_files))
+archive(stage / "deploy", base / (name + "-deploy.zip"), deploy_files)
+archive(stage / "source", base / (name + "-source.zip"), source_package)
+archive(evidence, base / (name + "-evidence.zip"), evidence_files, R + "-Verification-Evidence/")
 evidence_zip = base / (name + "-evidence.zip")
 (stage / "EVIDENCE-SHA256.txt").write_text(hashlib.sha256(evidence_zip.read_bytes()).hexdigest() + "  " + evidence_zip.name + "\n", encoding="utf-8")
-checksum(stage)
-archive(stage, base / (name + ".zip"), name + "/")
+package_files["EVIDENCE-SHA256.txt"] = hashlib.sha256((stage / "EVIDENCE-SHA256.txt").read_bytes()).hexdigest()
+archive(stage, base / (name + ".zip"), checksum(stage, package_files), name + "/")
 for ext in ["pdf", "docx"]:
     source = stage / "deploy" / ("Program_Instruction_Manual." + ext)
     shutil.copyfile(source, base / source.name)

@@ -73,6 +73,28 @@ def checked_file(root, relative):
     return current
 
 
+def staged_files(root):
+    """Every file under a staging folder, with no exclusions, refusing links, reparse points and special files."""
+    root = Path(root)
+    info = root.lstat()
+    if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400 or not stat.S_ISDIR(info.st_mode):
+        raise ValueError("Linked staging folder refused: " + str(root))
+    files = {}
+    for current, directories, names in os.walk(root, followlinks=False):
+        folder = Path(current)
+        for name in sorted(directories + names):
+            candidate = folder / name
+            relative = candidate.relative_to(root).as_posix()
+            info = candidate.lstat()
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+                raise ValueError("Linked staged file refused: " + relative)
+            if name in names:
+                if not stat.S_ISREG(info.st_mode):
+                    raise ValueError("Special staged file refused: " + relative)
+                files[relative] = hashlib.sha256(candidate.read_bytes()).hexdigest()
+    return dict(sorted(files.items()))
+
+
 def fingerprint(root=ROOT):
     root = Path(root)
     info = root.lstat()
