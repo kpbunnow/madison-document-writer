@@ -1,4 +1,4 @@
-# R54 current architecture
+# R55 current architecture
 
 Authoring-12 Best Interest and Vacancy Extensions reuse the regular Extension's layout and item table, with their unchanged language and retained supervisory signer after the table. Conditional vacancy labels do not alter stored repair dates. Authoring-11 and earlier special documents and their corrections retain the historical narrative renderer; the regular Extension output remains unchanged at every authoring version. Publication and correction snapshots retain the selected rendering version.
 
@@ -16,4 +16,4 @@ Application CSP authenticates the inline bootstrap and bundle by SHA-256, restri
 
 The installed layout stays flat under LOCALAPPDATA/MadisonDocWriter. R52 integrity model (no signing key): the installed launcher checks the share against runtime-manifest.json, staging every listed file and rechecking its size and SHA-256; it rejects additions, omissions, symlinks, changes and downgrades (helperBuild and helper version). Run from the share, launch.py first removes its own folder from the import path and hands off to the installed launcher. Deliberate tampering is guarded by NTFS permissions on the deployment folder (release owner write, inspectors read), which IT verifies before rollout.
 
-The maintained layout is the only source tree. Tools resolve source assets directly and generate derived modules and identity under build/. The deploy manifest resolves maintained paths to stable installed filenames. The trusted installed launcher authenticates the candidate share using installed verification code and the installed key; the shared bootstrap performs only a standard-library handoff when a verified installation exists.
+The maintained layout is the only source tree. Tools resolve source assets directly and generate derived modules and identity under build/. The deploy manifest resolves maintained paths to stable installed filenames. The trusted installed launcher authenticates the candidate share using installed verification code and the candidate file manifest, with deployment-folder permissions protecting against deliberate replacement; the shared bootstrap performs only a standard-library handoff when a verified installation exists.

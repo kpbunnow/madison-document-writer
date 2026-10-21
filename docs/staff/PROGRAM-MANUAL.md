@@ -2,11 +2,11 @@
 
 Madison Building Inspection Document Writer
 
-Release 2026-10-20 R54 · Helper 2026.10.20.55 · 20 October 2026
+Release 2026-10-21 R55 · Helper 2026.10.21.56 · 21 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R54 is a packaged release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R55 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -14,7 +14,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-20 R54 and helper 2026.10.20.55. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-21 R55 and helper 2026.10.21.56. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
 **Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use Show checks or Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
@@ -23,6 +23,9 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 **End a working day.** Use Save & continue later and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. Close Writer and the helper when instructed for an update. Do not clear browser site data while unfinished work exists.
 
 The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Reports opens separately. Editing a case remains within Workspace; returning from Reports offers Back to Reports.
+
+**Warnings.** Warnings at the top of the page clear after 15 seconds (hovering or focusing a warning restarts the timer). Cleared warnings remain in Message history. Ongoing conditions stay visible in their own indicator until resolved.
+
 
 ## 2 Install update and verify the workstation
 
@@ -68,7 +71,15 @@ Navigation first saves device work. If that save fails, Writer keeps the current
 
 **Direct lookup.** Open Import inspection, enter the complete case number and choose Find case or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
 
-A new case with one unambiguous eligible completed initial inspection may advance directly to its draft. This does not issue a document. When there are multiple eligible inspection results, no inspection is selected automatically. Select the actual unused completed inspection. Scheduled, Pending and Assist inspections are excluded. Pending, missing-date and unsupported rows explain why they cannot be used. Accela result statuses Completed, Official Notice, Citation and Compliance are eligible when the inspection has an actual date and a supported type. Official Notice, Citation and Compliance are inspection results, not proof that this program already issued a document. The program checks its shared record separately to prevent reusing an inspection. Unknown statuses stay blocked and show the source result for correction.
+Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
+
+The imported inspection's **Inspection Type** and **Inspection Status** decide the document; there is no “Choose next action” step.
+
+- **Initial Inspection** starts a new case only (a case that already exists, including a snow case, is refused). Official Notice → Official Notice; Citation → Citation (at least one item marked for citation); No Occupancy → No Occupancy; Abatement Summary → Summary Abatement; Abatement Non-Summary → Non-Summary Abatement.
+- **Reinspection** needs an existing case. CA Referral or City Attorney Referral → Referral for Prosecution (the case’s first referral); Compliance → Compliance Letter (every item Corrected); Citation → Citation (at least one item cited); Extension Processing → choose Extension, Best Interest Extension or Vacancy Extension; No Occupancy → No Occupancy. On a snow case, Citation records the next snow event.
+- **CA Reinspection** needs an existing case that has been referred. Compliance → Compliance Letter; Non Compliance → Update for Case Referral.
+- Completed and any other unlisted result cannot be imported: set the specific result in Accela and retrieve it again.
+- If recorded results contradict the status (for example Compliance with an item not Corrected), the document cannot be issued. Correct the results, or correct the status in Accela and import the same inspection again; the open draft or worksheet is updated without losing your work.
 
 **Review an existing case.** Check the case number, address, selected inspection and proposed property or owner changes. Expand source details if needed. Choose Continue existing case to open its retained draft, worksheet or latest effective issued source without importing the proposed changes. Choose Import later inspection only for an eligible unused physical inspection after the shared preflight succeeds. Existing unfinished work and reused observations must be resolved first.
 
@@ -161,6 +172,8 @@ The snow item has no due date. Ordinary deadline assignment, reminders, overdue 
 Tools & settings → Review snow-letter content records the administrator, reason, source and confirmation. New snapshots freeze the content actually used. Old reprints do not automatically adopt a later season or price.
 
 ## 9 Record a reinspection
+
+**Group due dates on reinspection.** On an open reinspection worksheet, Assign due dates lists the items still outstanding; select items, choose a date and Apply to selected. Undo restores the previous dates. The three-date limit and seven-day spacing apply.
 
 Open Reinspect from the case or import an eligible unused completed reinspection. Enter the actual physical inspection date and time and the responsible inspector. Review all items is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
 
@@ -430,7 +443,7 @@ Preserve work first. Keep the active tab open when device saving is uncertain, d
 | PDF contains an external resource or active element | Preserve the issued original and report the error; use embedded approved document resources rather than external or local file references |
 | The case could not be exported | Keep the case open and preserve the workspace backup if available; no empty case file should be written |
 | Report could not be sorted | Default order is shown with a notice; review order before export and report the error if it repeats |
-| No eligible inspection results | Open Source and import details and read the result status. Completed, Official Notice, Citation and Compliance are supported; Scheduled, Pending, Assist, unknown statuses and missing actual dates cannot be imported. If valid results are absent, use the complete current installation and retrieve the case again. An already used result requires Continue existing case |
+| No eligible inspection results | Open Source and import details and read the result status. Eligibility depends on both Inspection Type and Inspection Status. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. Missing actual dates also block import; use the type/status rules in section 4. If valid results are absent, use the complete current installation and retrieve the case again. An already used result requires Continue existing case |
 | An older helper is running | Close its helper window and Writer tabs, then run the approved launcher again; confirm both versions match the install guide |
 | A case is missing from Workspace | Clear workspace search/inspector filters, inspect All cases, then use Search all cases for the share |
 | Lookup finds only Scheduled or Assist records | Confirm the source inspection was actually completed; use the division's report procedure, not a fabricated date |
@@ -479,17 +492,3 @@ Use an isolated acceptance deployment and unmistakably synthetic records. Each e
 | Workspace | The current browser profile's loaded cases and unfinished work |
 
 The release package records technical verification and remaining City acceptance. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md) to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this manual.
-
-## Documents follow the Accela inspection result (R53)
-
-The imported inspection's **Inspection Type** and **Inspection Status** decide the document; there is no “Choose next action” step.
-
-- **Initial Inspection** starts a new case only (a case that already exists, including a snow case, is refused). Official Notice → Official Notice; Citation → Citation (at least one item marked for citation); No Occupancy → No Occupancy; Abatement Summary → Summary Abatement; Abatement Non-Summary → Non-Summary Abatement.
-- **Reinspection** needs an existing case. CA Referral or City Attorney Referral → Referral for Prosecution (the case’s first referral); Compliance → Compliance Letter (every item Corrected); Citation → Citation (at least one item cited); Extension Processing → choose Extension, Best Interest Extension or Vacancy Extension; No Occupancy → No Occupancy. On a snow case, Citation records the next snow event.
-- **CA Reinspection** needs an existing case that has been referred. Compliance → Compliance Letter; Non Compliance → Update for Case Referral.
-- Completed and any other unlisted result cannot be imported: set the specific result in Accela and retrieve it again.
-- If recorded results contradict the status (for example Compliance with an item not Corrected), the document cannot be issued. Correct the results, or correct the status in Accela and import the same inspection again; the open draft or worksheet is updated without losing your work.
-
-**Group due dates on reinspection.** On an open reinspection worksheet, Assign due dates lists the items still outstanding; select items, choose a date and Apply to selected. Undo restores the previous dates. The three-date limit and seven-day spacing apply.
-
-**Warnings.** Warnings at the top of the page clear after 15 seconds (hovering or focusing a warning restarts the timer). Cleared warnings remain in Message history. Ongoing conditions stay visible in their own indicator until resolved.

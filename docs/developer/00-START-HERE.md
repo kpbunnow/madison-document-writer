@@ -1,6 +1,6 @@
-# R54 developer start guide
+# R55 developer start guide
 
-Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity. R54 uses authoring 12 for the aligned special-extension layout; historical authoring-11 and earlier layouts remain available. Case schema 5, summary 6 and workspace backup 2 remain unchanged. version-notes.md documents the independent helperBuild counter. See R54-REVIEW.md for the confirmed extension decisions and regression boundaries.
+Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity. R54 uses authoring 12 for the aligned special-extension layout; historical authoring-11 and earlier layouts remain available. Case schema 5, summary 6 and workspace backup 2 remain unchanged. version-notes.md documents the independent helperBuild counter. See R55-REVIEW.md for the current development scope and docs/history/R54-REVIEW.md for the confirmed extension decisions and regression boundaries.
 
 Build directly from app/, helper/, policy/, tools/, tests/ and docs/. Generated modules, policies, identity, bundles, evidence and caches belong under build/. No flat source staging tree or source mapping exists. The Windows deployment and installed filenames remain stable.
 
@@ -28,6 +28,6 @@ ACCEPTANCE-RECORD.md and PRODUCTION-READINESS.md are living records. Update them
 
 First installation comes from a deploy ZIP whose SHA-256 IT has checked against the release owner’s separately published value. After installation, run the installed shortcut. Shared launch.py hands control to the installed launcher before importing any sibling module.
 
-docs/staff/PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf/.docx are staff guidance. docs/history/ and the optional, ignored archive/development-history are inert reference, excluded from all build inputs and release packages. docs/history/R51-HISTORY-RESTORE.json identifies the R49 source ZIP that archive/development-history is restored from.
+docs/staff/PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf/.docx are staff guidance. docs/history/ is inert provenance included in source distributions and maintained-source fingerprints, but excluded from runtime/deployment inputs. The optional, ignored archive/development-history is excluded from fingerprints and every release archive. docs/history/R51-HISTORY-RESTORE.json identifies the R49 source ZIP that archive/development-history is restored from.
 
 Legal holds and all open City acceptance items remain open. Automated checks do not supply legal, City hardware, native print, accessibility or staff approval.

@@ -1,6 +1,8 @@
 # Release changelog
 
-## Unreleased
+## 2026-10-21 R55
+
+Helper 2026.10.21.56, helperBuild 56; authoring 12, schema 5, summary 6 and backup 2 unchanged. Verification binds all deployment inputs and generated helper/release files; packaging checks staged bytes and an explicit source inventory, excluding local credentials/environments/operational data. Reconciles current import rules and security guidance, regenerates all manual editions, preserves fixture ownership and consolidation provenance. Carries the consolidation refactors, approved-language extraction and central helper route guards. City acceptance and legal holds remain open.
 
 Snow citation fields (snowfall date, inches, condition, photographed) keep keyboard focus when the editor repaints in the background, for example when shared citation history finishes loading; previously focus fell to the page and further typing was lost. This was the cause of the intermittent browser_r34 failure.
 

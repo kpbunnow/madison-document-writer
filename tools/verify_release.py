@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI-style local release gate. Evidence stays under source/verification/latest."""
+"""CI-style local release gate. Evidence stays under build/verification/latest."""
 
 import json
 import os
@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from release_evidence import fingerprint
+from release_inputs import deployment_inputs, source_inventory
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ["DW_REPO_ROOT"] = str(ROOT)
@@ -27,6 +28,7 @@ def run(command, name, env=None):
 
 run([sys.executable, "tools/check_format.py"], "format.log")
 run([sys.executable, "tools/run_tests.py"], "regression.log")
+source_inventory(ROOT)
 source = fingerprint(ROOT)
 run(["node", "tests/browser/audit_browser.js"], "browser.log", {**os.environ, "DW_QA_OUTPUT": str(OUT / "browser")})
 final_source = fingerprint(ROOT)
@@ -47,6 +49,7 @@ if not all(x["passed"] for x in checks) or not browser.get("passed") or not axe.
             "axeScreens": len(axe["checks"]),
             "runtimeHashes": browser["runtimeHashes"],
             "sourceFiles": source,
+            "deploymentInputs": deployment_inputs(ROOT),
         },
         indent=2,
     )

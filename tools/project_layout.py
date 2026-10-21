@@ -1,19 +1,97 @@
 """Maintained source ownership and version validation without a staging layer."""
 
 from pathlib import Path
-import hashlib, json, re, shutil
+import hashlib, json, os, re, shutil, stat
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDES = {".rsync-tmp", ".ruff_cache", "node_modules", "build", "dist", ".git", "archive", ".hypothesis", "__pycache__"}
+LOCAL_DIRS = {
+    ".venv",
+    "venv",
+    ".cache",
+    ".pytest_cache",
+    ".mypy_cache",
+    "playwright-report",
+    "test-results",
+    "site",
+    ".aws",
+    ".ssh",
+    ".azure",
+    ".gnupg",
+    ".config",
+    ".secrets",
+}
+OPERATIONAL = {
+    "Case JSON Files",
+    "Reporting Index",
+    "Reporting GIS",
+    "Documents To Be Mailed And Recorded",
+    "Case Lookup",
+    "Orders",
+    "outbox",
+    "_integrity",
+    "logs",
+}
+
+
+def forbidden_source(relative):
+    p = Path(relative)
+    excluded = {x.casefold() for x in EXCLUDES | LOCAL_DIRS | OPERATIONAL}
+    return (
+        any(x.casefold() in excluded for x in p.parts)
+        or any(x.casefold() == ".env" or x.casefold().startswith(".env.") and x.casefold() != ".env.example" for x in p.parts)
+        or p.name.casefold()
+        in {
+            "credentials.json",
+            "secrets.json",
+            "id_rsa",
+            "id_dsa",
+            "id_ecdsa",
+            "id_ed25519",
+            "share.txt",
+            "integrity-settings.json",
+            "case-lookup-settings.json",
+            ".helper-session.json",
+        }
+        or p.suffix.lower() in {".pyc", ".key", ".pem", ".p12", ".pfx", ".p8", ".jks"}
+    )
+
+
+def checked_file(root, relative):
+    """Refuse traversal, links and Windows reparse points before reading an input."""
+    p = Path(relative)
+    if not relative or "\\" in relative or ":" in relative or p.is_absolute() or any(x in {"", ".", ".."} for x in relative.split("/")):
+        raise ValueError("Invalid input path: " + relative)
+    current = Path(root)
+    for part in p.parts:
+        current = current / part
+        info = current.lstat()
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            raise ValueError("Linked input refused: " + relative)
+    if not current.is_file():
+        raise ValueError("Missing input file: " + relative)
+    return current
 
 
 def fingerprint(root=ROOT):
     root = Path(root)
-    return {
-        p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in sorted(root.rglob("*"))
-        if p.is_file() and not any(x in EXCLUDES for x in p.relative_to(root).parts) and p.suffix != ".pyc"
-    }
+    info = root.lstat()
+    if root.is_symlink() or getattr(info, "st_file_attributes", 0) & 0x400:
+        raise ValueError("Linked source root refused: " + str(root))
+    files = {}
+    for current, directories, names in os.walk(root, followlinks=False):
+        folder = Path(current)
+        directories[:] = sorted(n for n in directories if not forbidden_source((folder / n).relative_to(root)))
+        for name in directories:
+            candidate = folder / name
+            info = candidate.lstat()
+            if candidate.is_symlink() or getattr(info, "st_file_attributes", 0) & 0x400:
+                raise ValueError("Linked source directory refused: " + str(candidate.relative_to(root)))
+        for name in sorted(names):
+            relative = (folder / name).relative_to(root).as_posix()
+            if relative != "SHA256SUMS.txt" and not forbidden_source(relative):
+                files[relative] = hashlib.sha256(checked_file(root, relative).read_bytes()).hexdigest()
+    return dict(sorted(files.items()))
 
 
 def version():
@@ -43,11 +121,15 @@ def assemble_deploy(destination):
     destination.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text())
     for target, relative in manifest["deploy"].items():
-        source = ROOT / relative
-        if not source.is_file() or relative.startswith("archive/"):
+        source = checked_file(ROOT, relative)
+        if forbidden_source(relative) and not relative.startswith(("build/generated/", "build/dist/")):
             raise ValueError("Missing or forbidden deployment input: " + relative)
         path = destination / target
         path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, path)
-    shutil.copytree(ROOT / "helper/vendor", destination / "vendor", dirs_exist_ok=True, ignore=shutil.ignore_patterns("site", "__pycache__", "*.pyc"))
+    for relative in fingerprint(ROOT / "helper/vendor"):
+        source = checked_file(ROOT, "helper/vendor/" + relative)
+        target = destination / "vendor" / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
     return manifest

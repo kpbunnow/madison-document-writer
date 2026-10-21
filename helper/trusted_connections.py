@@ -1,4 +1,4 @@
-"""Outbound trust comes from the signed release, never the writable share."""
+"""Outbound trust comes from the verified release, never the writable share."""
 
 import json
 from pathlib import Path
@@ -11,12 +11,12 @@ MAX_JSON_BYTES = 20 * 1024 * 1024
 def policy():
     value = json.loads(Path(__file__).with_name("trusted-connections.json").read_text())
     if value.get("version") != 1:
-        raise ValueError("The signed connection allowlist is invalid")
+        raise ValueError("The released connection allowlist is invalid")
     return value
 
 
 def approved_gis(url):
-    message = "GIS URL settings require HTTPS on a host in the signed release allowlist."
+    message = "GIS URL settings require HTTPS on a host in the verified release allowlist."
     try:
         value = urlsplit(url)
         allowed = (
@@ -57,4 +57,4 @@ def fetch_json(url, timeout=25):
 
 def approved_sql(server):
     if not isinstance(server, str) or server.casefold() not in {s.casefold() for s in policy()["sqlServers"]}:
-        raise ValueError(("Case Lookup server must be in the signed release SQL allowlist, including when certificate validation is bypassed."))
+        raise ValueError(("Case Lookup server must be in the verified release SQL allowlist, including when certificate validation is bypassed."))
