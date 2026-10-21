@@ -40,7 +40,7 @@ import {
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { alignedExtension, specialType } from "./new_documents.js";
+import { alignedExtension, datedExtension, specialType } from "./new_documents.js";
 
 function noticeHTML(d) {
   const aligned = alignedExtension(d);
@@ -226,7 +226,7 @@ function noticeHTML(d) {
                         '" aria-label="Due date for item ' +
                         `${esc(num)}` +
                         '" ' +
-                        `${dis}` +
+                        `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
                         ">",
           ) +
           "\n        " +

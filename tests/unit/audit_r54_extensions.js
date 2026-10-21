@@ -104,9 +104,9 @@ const test = async () => {
   ];
   newDocuments.createSpecial(WriterState.REINSP[0], "bestInterestExtension");
   const created = doc(WriterState.state.docId);
-  assert.equal(created.authoringVersion, 12, "new special extensions use authoring 12");
+  assert.equal(created.authoringVersion, 13, "new special extensions use authoring 13");
   assert.equal(created.items[0].note, "R54 visit note", "shared table uses the current inspection note");
-  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 12, "publication retains the selected rendering version");
+  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 13, "publication retains the selected rendering version");
   created.special.affected = ["1"];
   created.special.extendedDues = { 1: "2026-11-20" };
   created.special.reviewed = true;
@@ -166,7 +166,7 @@ const test = async () => {
     newDocuments.caseAction(original.caseId, initialType);
     const administrative = doc(WriterState.state.docId);
     assert.equal(administrative.administrativeAction, true);
-    assert.equal(administrative.authoringVersion, 12, "administrative creation selects current authoring");
+    assert.equal(administrative.authoringVersion, 13, "administrative creation selects current authoring");
     for (const type of ["bestInterestExtension", "vacancyExtension"]) {
       const select = document.createElement("select");
       select.dataset.special = "administrativeType";
@@ -177,11 +177,57 @@ const test = async () => {
       root.innerHTML = noticeHTML(administrative);
       assert.equal(administrative.type, type);
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
-      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 12);
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 13);
+      if (type === "vacancyExtension") assert.equal(administrative.special.deadlineMode, "dated", "authoring-13 Vacancy is always dated");
       select.remove();
     }
   }
-  for (const authoringVersion of [11, 12]) {
+  // Authoring 13: Vacancy is always dated, even from cached conditional details; dates are entered in the items table.
+  WriterState.DOCS = [clone(original)];
+  WriterState.REINSP = [
+    {
+      id: "r56-visit",
+      caseId: original.caseId,
+      sourceDocId: original.id,
+      draft: true,
+      date: "2026-10-20",
+      time: "10:00",
+      inspectorId: INSPECTORS[0].id,
+      results: Object.fromEntries(
+        original.items.map((item, n) => [
+          item.id,
+          { oc: n ? "corrected" : "progress", on: n ? item.doneOn : "2026-10-20", carried: !!n, note: "R56 visit note", due: "2026-11-20" },
+        ]),
+      ),
+      actionDetails: { vacancyExtension: { deadlineMode: "conditional" } },
+    },
+  ];
+  newDocuments.createSpecial(WriterState.REINSP[0], "vacancyExtension");
+  const vacancy = doc(WriterState.state.docId);
+  assert.equal(vacancy.authoringVersion, 13);
+  assert.equal(vacancy.special.deadlineMode, "dated", "a cached conditional model does not carry into authoring 13");
+  const panel = document.createElement("div");
+  panel.innerHTML = newDocuments.details(vacancy);
+  assert.equal(panel.querySelector('[data-special="deadlineMode"]'), null, "no deadline-model choice");
+  assert.equal(panel.querySelector("[data-special-due]"), null, "no separate per-item deadline fields");
+  assert.match(panel.textContent, /new due date in Items and due dates/);
+  vacancy.special.affected = [String(vacancy.items[0].no)];
+  vacancy.mailed = "2026-10-21";
+  const sheet = document.createElement("div");
+  sheet.innerHTML = noticeHTML(vacancy);
+  assert.equal(sheet.querySelector(".conditional-due"), null, "authoring 13 shows due dates, never the conditional label");
+  const dueInputs = [...sheet.querySelectorAll('input[data-field="due"]')];
+  assert.equal(dueInputs.find((x) => x.dataset.id === vacancy.items[0].id).disabled, false, "the affected item's due date is editable");
+  assert.ok(
+    dueInputs.filter((x) => x.dataset.id !== vacancy.items[0].id).every((x) => x.disabled),
+    "unaffected items keep their original dates",
+  );
+  vacancy.items[0].due = vacancy.special.originalDues[vacancy.items[0].no];
+  assert.ok(
+    blockers(vacancy).some((x) => /new due date in Items and due dates|later future due date/.test(x.t)),
+    "a new due date is required",
+  );
+  for (const authoringVersion of [11, 12, 13]) {
     const issued = { ...clone(original), id: "r54-correction-source", type: "bestInterestExtension", authoringVersion, eventId: "r54-source-event" };
     issued.frozen = freezeSources(issued);
     WriterState.DOCS = [issued];

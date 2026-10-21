@@ -299,6 +299,37 @@ class R26StoreTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.save(value)
 
+    def test_authoring_13_vacancy_extensions_require_new_due_dates(self):
+        value = special("vacancyExtension")
+        snap = value["events"][-1]["payload"]["snapshot"]
+        snap["special"] = {
+            **REVIEW,
+            "affected": ["1"],
+            "originalDues": {"1": "2026-10-30"},
+            "noSafety": True,
+            "safetyBasis": "Reviewed nonurgent repairs only",
+            "vacancyFacts": "Vacancy verified",
+            "requestRef": "QA request",
+            "conditions": "Stay vacant and maintain exterior",
+            "reviewDate": "2026-10-15",
+            "deadlineMode": "conditional",
+            "expiryMode": "review",
+            "expiryPolicyRef": "QA review policy",
+            "transferClause": "QA reviewed applicable transfer and disclosure conditions",
+        }
+        snap["items"][0]["due"] = "2026-10-30"
+        # Authoring 12 and earlier keep the reviewed conditional model.
+        snap["authoringVersion"] = 12
+        case_store.validate_special_fields(snap, check_date_window=False)
+        snap["authoringVersion"] = 13
+        with self.assertRaisesRegex(ValueError, "new due date for each affected item"):
+            case_store.validate_special_fields(snap, check_date_window=False)
+        snap["special"]["deadlineMode"] = "dated"
+        with self.assertRaisesRegex(ValueError, "later future deadlines"):
+            case_store.validate_special_fields(snap, check_date_window=False)
+        snap["items"][0]["due"] = "2026-11-15"
+        case_store.validate_special_fields(snap, check_date_window=False)
+
     def test_referral_guard_only_scoped_reviewed_exception(self):
         base = followup(initial(), "ref", "referral")
         base["schema"] = 4
