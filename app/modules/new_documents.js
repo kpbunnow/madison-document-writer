@@ -69,14 +69,14 @@ export const NEW_TYPES = [
   },
   { id: "vacancyExtension", label: "Vacancy Extension", pfx: "VACANCY EXTENSION", group: "time", effect: "items", deadline: "conditional" },
 ].map((x) => ({ ...x, ready: true, stacked: true }));
-export const NUISANCES = [
+const NUISANCES = [
   ["junk", "Junk, trash and debris", "27.05(3)(b)4"],
   ["sidewalk", "Trees or shrubs obstructing a sidewalk", "27.05(3)(b)1"],
   ["tree", "Dead or hazardous tree", "27.05(3)(b)3"],
   ["secure", "Secure a vacant building", "27.085(2)(a)"],
   ["custom", "Custom nuisance with verified authority", ""],
 ];
-export const REMEDY =
+const REMEDY =
   "Remedy from Order. The Building Code, Fire Code, Conveyance Code & Licen" +
   "sing Appeals Board, created by Section 29.18 of these Ordinances, shall " +
   "have no authority to act on orders issued under this subsection. Any per" +

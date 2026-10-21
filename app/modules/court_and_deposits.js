@@ -935,10 +935,6 @@ async function filePdf(d, job) {
 }
 
 export {
-  nthWeekday,
-  lastWeekday,
-  courtHolidays,
-  isCourtHoliday,
   nextCourtDate,
   citationNumber,
   applyDeposit,
@@ -953,7 +949,6 @@ export {
   longDate,
   fmtTime,
   toast,
-  toastHold,
   toastUndo,
   fillBlank,
   allItems,
@@ -961,12 +956,8 @@ export {
   inspAt,
   freezeSources,
   checks,
-  documentFileName,
   checkHelper,
-  emailSubject,
-  emailBody,
   emailDocument,
-  issuedArtifact,
   openIssuedCopy,
   printJob,
   filePdf,

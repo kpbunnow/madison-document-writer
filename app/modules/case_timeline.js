@@ -846,10 +846,6 @@ function assignDue(target, visit, value, ids) {
   return "";
 }
 
-function scheduledEntry(hit) {
-  return resolveOrdinance(hit.ordinance || hit.o, "", hit.id);
-}
-
 function citationDepositFault(c, d = null, i = null) {
   if (!canonicalOrdinance(c.ord)) return "Choose one complete citation ordinance.";
   if (c.issued && !validISO(c.issued)) return "Enter a valid citation issue date.";
@@ -1461,9 +1457,7 @@ function inspectionUsed(k, row) {
 }
 
 export {
-  depositComplete,
   independentArtifact,
-  remindersDue,
   remindersPanel,
   showReminders,
   showReminderDraft,
@@ -1488,7 +1482,6 @@ export {
   dueContext,
   duePanel,
   assignDue,
-  scheduledEntry,
   citationDepositFault,
   editCitation,
   commitCitationEdits,

@@ -1,6 +1,6 @@
 /* Read-only report presentation. All output paths share this stable row ordering. */
 import { reportSort } from "./contracts.js";
-export const reportValue = (x) => (x == null ? "" : typeof x === "object" ? (x.n ?? x.text ?? x.kase ?? "") : x);
+const reportValue = (x) => (x == null ? "" : typeof x === "object" ? (x.n ?? x.text ?? x.kase ?? "") : x);
 export function orderedRows(res, sort, onFailure = () => {}) {
   const rows = res.rows.map((row, ri) => ({ row, ri }));
   try {

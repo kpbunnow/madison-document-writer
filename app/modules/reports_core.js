@@ -67,7 +67,6 @@ export const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-export const pad = (n) => String(n).padStart(2, "0");
 export const iso = (d) => recordDay(d);
 export const validISO = (s) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ""))) return false;
@@ -83,7 +82,7 @@ export const fmtMoney = (n) =>
   n == null || isNaN(n) ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const plural = (n, w, p) => fmtNum(n) + " " + (n === 1 ? w : p || w + "s");
 export const uniq = (a) => Array.from(new Set(a));
-export const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 
 /* ---------- owner key ----------
    One owner is recognized by mailing address (division, 09/18/2026): the
@@ -235,7 +234,7 @@ export const violOk = (v, F) => (!F.vtype || v.type === F.vtype) && (!F.ord || v
    when recorded, not at the old letter's mailing date; void/replacement ends
    that version without removing the days for which it was on the record. */
 
-export const openAt = (c, date) =>
+const openAt = (c, date) =>
   c.caseType === "snow-10.28"
     ? c.documents.some((d) => d.type === "citation" && versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
     : noticeAt(c, date) && !["Closed", "Withdrawn"].includes(statusAt(c, date));
@@ -244,10 +243,10 @@ export const openAt = (c, date) =>
    Each returns {cols, rows, total, area, points, note}. A numeric cell is
    {n, ids, fmt}; ids are the case numbers behind it, so every count links
    through to its cases. area is {areaKey: n}, for shading the map. */
-export const cell = (n, ids, fmt) => ({ n: n, ids: ids ? uniq(ids) : null, fmt: fmt || "int" });
+const cell = (n, ids, fmt) => ({ n: n, ids: ids ? uniq(ids) : null, fmt: fmt || "int" });
 
-export const nos = (list) => list.map((x) => (x.c ? x.c.number : x.number));
-export const count = (l) => cell(l.length, nos(l));
+const nos = (list) => list.map((x) => (x.c ? x.c.number : x.number));
+const count = (l) => cell(l.length, nos(l));
 
 export const REPORTS = [
   {
