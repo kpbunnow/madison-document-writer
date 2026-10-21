@@ -21,7 +21,9 @@ Authoring 13 (new); case schema 5, summary 6 and workspace backup 2 are unchange
    When a re-import changes the status to one that does not permit citations (for example
    Citation corrected to Official Notice), existing citation marks and their draft citation and
    deposit data are cleared, also for drafts restored from this machine; an existing mark can
-   always be removed (review of PR #21).
+   always be removed (review of PR #21). While only such an old mark remains, every item row
+   keeps the Cite column, empty where no box is offered, so Due Date stays under its heading
+   (follow-up review of PR #21).
 5. The "Add violation item" button below the document is removed; "+ Select violations" in
    Items and due dates remains.
 6. Authoring 13: new Best Interest and Vacancy Extensions require a later due date for each

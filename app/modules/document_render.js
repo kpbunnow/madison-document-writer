@@ -54,6 +54,8 @@ function noticeHTML(d) {
   // while the first notice is still a draft the numbering follows the order;
   // after it is issued the stored number is what the owner has in hand
   const struct = structEditable(d);
+  // One condition for the Cite heading and every row's cell, so the columns stay aligned when only an old mark remains.
+  const citeColumn = struct && (citeAllowed(d) || d.items.some((i) => i.cite));
   const rows = d.items
     .map((it, ix) => {
       let head = "";
@@ -178,14 +180,16 @@ function noticeHTML(d) {
           ) +
           "</td>\n      " +
           "".concat(
-            struct && (citeAllowed(d) || d.items.some((i) => i.cite)) && !it.done && (citeAllowed(d) || it.cite)
-              ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
+            !citeColumn
+              ? ""
+              : !it.done && (citeAllowed(d) || it.cite)
+                ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
                   'ice"><input type="checkbox" data-notecite="' +
                   `${esc(it.id)}` +
                   '" ' +
                   `${it.cite ? "checked" : ""}` +
                   "><span>Cite</span></label></td>"
-              : "",
+                : '<td class="c-cite no-print"></td>',
           ) +
           '\n      <td class="c-due">' +
           "".concat(
@@ -366,7 +370,7 @@ function noticeHTML(d) {
     '\n    <table class="notice"><thead><tr><th class="c-no">Item No.</th><th ' +
     'class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>C' +
     "orrections Required</th>" +
-    `${struct && (citeAllowed(d) || d.items.some((i) => i.cite)) ? '<th class="c-cite no-print">Cite</th>' : ""}` +
+    `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
     `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +

@@ -123,6 +123,19 @@ const test = async () => {
   WriterState.state.docId = legacy.id;
   const boxes = citeBoxes();
   assert.equal(boxes.length, 1, "only the existing mark is shown");
+  // Every item row keeps the Cite column, empty where no box is offered, so Due Date stays under its heading.
+  const table = boxes[0].closest("table");
+  const column = (cells, name) => cells.findIndex((c) => c.classList.contains(name));
+  const headings = [...table.querySelectorAll("thead th")];
+  const itemRows = [...table.querySelectorAll("tbody tr")].filter((tr) => tr.querySelector(".c-due"));
+  assert.equal(itemRows.length, 2);
+  for (const tr of itemRows) {
+    const cells = [...tr.children];
+    assert.equal(cells.length, headings.length, "each item row has a cell for every heading");
+    for (const name of ["c-cite", "c-due"])
+      assert.equal(column(cells, name), column(headings, name), name + " stays under its heading");
+  }
+  assert.equal(itemRows[1].querySelector(".c-cite").children.length, 0, "the uncited row's Cite cell is empty");
   boxes[0].click();
   assert.equal(legacy.items[0].cite, false, "the mark can be removed");
   assert.equal(citeBoxes().length, 0, "and cannot be added back without a Citation import");
