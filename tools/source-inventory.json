@@ -317,6 +317,7 @@
     "tests/fixtures/reference/r50-import-fixtures/official-notice.xlsx",
     "tests/fixtures/reference/r50-print-fixture-payload.js",
     "tests/fixtures/reference/r51-print-fixture-payload.js",
+    "tests/fixtures/report_output.cjs",
     "tests/fixtures/report_summaries.py",
     "tests/fixtures/tagcheck.js",
     "tests/fixtures/test_support.py",

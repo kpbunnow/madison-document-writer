@@ -8,6 +8,8 @@ Snow citation fields (snowfall date, inches, condition, photographed) keep keybo
 
 Post-PR #16 corrections (identity retained; R55 had not been distributed): case, integrity and tool text is read and written as explicit UTF-8, so Unicode cases verify on Windows code pages; outbox transfer and direct filing share one per-name lock and never replace an existing PDF; packaging verifies and archives exactly the approved staged files; the manual builder stages and validates all editions before replacing them together, and each edition carries a source digest. Adds acceptance item C10. No format version changes.
 
+Post-PR #18 correction: Reports summary validation distinguishes JSON booleans from numbers on save and read (a withdrawn notice's `noticeActive: false` altered to `0` was accepted and counted as active). No format version changes.
+
 Post-PR #17 corrections (identity retained): Reports uses a cached summary only when its reported facts equal the helper's projection of the verified case; a summary changed on its own (owner, status, dates, documents, violations, citations) is excluded and explained with the rebuild step, and the helper refuses to write one. Adds helper/case_projection.py and its generated projection_tables.json to the deployment. Policy scripts read and write UTF-8 explicitly. No format version changes.
 
 Staff quick guides and the program manual (Markdown, HTML, PDF, Word) no longer name files that do not ship (R49/R51-ACCEPTANCE-RECORD.md, R50_Program_Instruction_Manual.pdf) or tell staff to confirm an R50/R51 build; the manual's compatibility paragraph states authoring 12 with the rollback caution. The install guide states authoring 12. No program change.

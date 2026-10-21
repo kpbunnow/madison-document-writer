@@ -19,6 +19,7 @@ import re
 from functools import cmp_to_key
 
 from case_store import CITY_ZONE
+from case_integrity import rfc8785  # the vendored RFC 8785 canonicalizer; case-history hashing is unchanged
 from runtime_paths import resource
 
 SUMMARY_VERSION = 6
@@ -871,20 +872,25 @@ def reportable(summary):
     return {k: v for k, v in summary.items() if k not in METADATA}
 
 
-def canonical(value):
-    """JSON numbers compare by value: 197 and 197.0 are the same JavaScript number."""
-    if isinstance(value, dict):
-        return {k: canonical(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [canonical(v) for v in value]
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    return value
+def json_text(value):
+    """RFC 8785 canonical JSON, the comparison form for summary fields. Python's == treats
+    False as 0 and True as 1; JSON and Reports (`k.noticeActive !== false`) do not. Booleans
+    stay distinct from numbers at every depth, 197 and 197.0 are the same number, object key
+    order is ignored and array order kept. A value JSON cannot represent (non-finite or
+    out-of-range numbers, non-JSON types) raises rather than being coerced."""
+    return rfc8785.dumps(value)
+
+
+def same_json(a, b):
+    try:
+        return json_text(a) == json_text(b)
+    except (rfc8785.CanonicalizationError, TypeError, ValueError):
+        return False
 
 
 def projected(record, loaded=False):
     workspace = Workspace(loaded)
-    return canonical(reportable(plain(project(record, workspace)))), workspace.consulted
+    return reportable(plain(project(record, workspace))), workspace.consulted
 
 
 def used_by_reports(summary):
@@ -901,10 +907,10 @@ def used_by_reports(summary):
 def mismatched_fields(summary, record):
     """Top-level reportable fields where a cached summary differs from the verified case projection.
     Raises when the case cannot be projected (summarize() could not have produced a summary)."""
-    actual = canonical(reportable(summary))
+    actual = reportable(summary)
 
     def differences(expected):
-        return sorted(f for f in set(expected) | set(actual) if f not in actual or f not in expected or actual[f] != expected[f])
+        return sorted(f for f in set(expected) | set(actual) if f not in actual or f not in expected or not same_json(actual[f], expected[f]))
 
     expected, ambiguous = projected(record)
     fields = differences(expected)

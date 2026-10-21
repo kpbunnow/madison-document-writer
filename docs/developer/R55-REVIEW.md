@@ -55,6 +55,15 @@ to reconfirm before packaging). Formats unchanged.
 2. Policy tooling reads and writes UTF-8 explicitly, so the deposit provenance check
    passes on Windows code pages. Approved policy data is unchanged.
 
+## Post-PR #18 correction
+
+Baseline: main `e3f3828`. Summary fields are compared as RFC 8785 canonical JSON on both
+the write (save_summary) and read (read_index) paths. Python equality had accepted
+`noticeActive: 0` for a withdrawn notice's `false`, which Reports (`!== false`) counts as
+active; that summary is now refused and excluded. Numeric equivalence (197 and 197.0)
+and key-order independence are kept; non-finite or out-of-range numbers never match.
+Case-history canonicalization is unchanged.
+
 ## Retained R54 extension decisions
 
 The R54 review and screenshots remain in source under docs/history/R54-REVIEW.md
