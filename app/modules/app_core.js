@@ -171,6 +171,8 @@ import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./d
 
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
+// Approved wording lives in app/assets/approved_language.json (acceptance item L5).
+import { APPROVED_LANGUAGE } from "./data/approved_language.js";
 import { languageClick } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
@@ -243,57 +245,7 @@ const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
 
 /* Document-level blocks that print below the item table. These appear
    on real notices; they are not part of the checklist export. */
-export const BLOCKS = {
-  FEES: {
-    label: "Reinspection fees",
-    always: true,
-    text:
-      "The Madison General Ordinances require that a fee of $75.00 be charged f" +
-      "or reinspections that do not result in full compliance, including reinsp" +
-      "ections resulting in an extended due date. Attempted reinspections resul" +
-      "ting in no entry are billed at $35.00 each.",
-  },
-  LANGUAGE: {
-    label: "Language access",
-    always: true,
-    text:
-      "If you need an interpreter, translator, materials in alternate formats o" +
-      "r other accommodations to access this information, please call (608) 266" +
-      "-6552 immediately.\nSi necesita un intérprete, traductor, algún material " +
-      "en otro formato u otras adaptaciones para acceder a esta información, ll" +
-      "ame al (608) 266-6552 de inmediato.\nYog tias koj xav tau ib tug neeg txh" +
-      "ais lus, tus neeg txhais ntawv, los sis xav tau cov ntaub ntawv ua lwm h" +
-      "om ntawv los sis lwm cov kev pab kom paub txog cov lus qhia no, thov hu " +
-      "rau (608) 266-6552 tam sim no.\n如果您获取此类信息时需要口译人员、翻译人员、不同格式的材料，请立即致电 (608)" +
-      " 266-6552。",
-  },
-  PERMIT_500: {
-    label: "Permit threshold",
-    text:
-      "Depending on the scope of work, repairs or alterations exceeding $500 in" +
-      " market value require a permit prior to commencing work. Contact Buildin" +
-      "g Inspection at 608.266.4551 to determine whether a building permit is r" +
-      "equired, obtain the permit if required, and schedule all required inspec" +
-      "tions.",
-  },
-  /* Optional designated-landmark wording prints only when supplied.
-     Its absence does not block issuance (division request, 10/07/2026).
-     Keep both keys for frozen snapshots; LANDMARKS is the separate
-     Historic District paragraph. */
-  LANDMARK: { label: "Landmark", text: "" },
-  LANDMARKS: {
-    label: "Historic district",
-    text:
-      "This property is located in a Historic District. Any exterior work must " +
-      "be reviewed and approved by the Landmarks Commission or staff designee, " +
-      "a Certificate of Appropriateness granted, and any required permits obtai" +
-      "ned before exterior work may begin. Contact the Historic Preservation Pl" +
-      "anner at landmarkscommission@cityofmadison.com or (608) 266-6552. Per MG" +
-      "O 41.14(4) and MGO 1.08(c), violations are subject to a minimum forfeitu" +
-      "re of $250 plus applicable penalty assessments per day, and each day a v" +
-      "iolation continues is a separate violation.",
-  },
-};
+export const BLOCKS = APPROVED_LANGUAGE.blocks;
 
 export const EXTERIOR_WORK = /exterior|porch|siding|fence|paint|window|roof/i;
 
@@ -324,112 +276,7 @@ export const OUTCOMES = [
 ];
 
 /* Body copy per document type, transcribed from notices on file. */
-export const DOCBODY = {
-  notice:
-    "<p>An inspector found one or more code violations at the above property." +
-    " This letter explains what the issue is and how to correct it. If you ha" +
-    "ve questions, contact the inspector as soon as possible.</p>" +
-    "<p>If you complete the work by the due date, you may avoid:</p>" +
-    ("<ul><li>A $75 reinspection fee;</li><li>A citation;</li><li>Having this " +
-      "case sent to the City Attorney&rsquo;s Office for legal action.</li></ul" +
-      ">") +
-    ("<p>The inspectors may charge a reinspection fee even if they grant an ex" +
-      "tension. Recurrent violations may lead to citations without any more war" +
-      "ning. You must comply with this order on a continuous basis. Correct the" +
-      " issues and notify your inspector as soon as possible to avoid penalties" +
-      ". If we need access to inspect, you must call your inspector before the " +
-      "listed due date.</p>") +
-    ("<p>Any items on this notice may be subject to rent abatement if uncorrec" +
-      "ted by the due date. Items automatically eligible for abatement have a &" +
-      "ldquo;Y&rdquo; in the Abate column. The Hearing Examiner may determine f" +
-      "inal abatement awards.</p>") +
-    "<p>To appeal this order, you must contact us in writing within 15 days of this letter&rsquo;s postmark.</p>",
-  extension:
-    "<p>On reinspection, we found that the work on one or more items is incom" +
-    "plete. We have granted you an extension to finish the work because you h" +
-    "ave made progress. However, the inspector may still charge you a $75.00 " +
-    "reinspection fee. We may charge this fee every time we find unfinished w" +
-    "ork on reinspection.</p>" +
-    ("<p>Below is a list of items that need further work and your new due date" +
-      ". Once you correct the issues, you must schedule a reinspection with you" +
-      "r inspector. Please call before the listed date.</p>") +
-    ('<p style="margin-left:16px">If you do not complete the work and contact ' + "the inspector by the new due date, we may:</p>") +
-    ("<ul><li>Issue a citation; or</li><li>Send the case to the City Attorney&" + "rsquo;s Office for legal action/prosecution.</li></ul>") +
-    ("<p>Please note that an extension does not affect rent abatement. The ten" +
-      "ant will receive an award for any uncorrected rent abatement items.</p>"),
-  referral:
-    "<p>An inspection found that one or more code violations remain unresolve" +
-    "d and past due. As a result, we have referred this case to the City Atto" +
-    "rney&rsquo;s office. We will also charge a $75.00 reinspection fee since" +
-    " the work was incomplete.</p>" +
-    ("<p>You will receive a letter from the City Attorney&rsquo;s office with " +
-      "prosecution details. Please note that penalties increase each day that y" +
-      "ou do not correct the listed item(s).</p>") +
-    ("<p>Below is a list of items and history of the case. This case is now wi" +
-      "th the City Attorney&rsquo;s office, and it is your responsibility to co" +
-      "rrect the outstanding item(s). Fines accumulate daily so you should make" +
-      " corrections as soon as possible. Remaining items are not considered com" +
-      "plete until you have arranged for reinspection and the assigned inspecto" +
-      "r has confirmed compliance. If you have questions, contact your inspecto" +
-      "r immediately.</p>"),
-  referralUpdate:
-    "<p>An inspection found that one or more code violations remain unresolve" +
-    "d and past due. As a result, we have referred this case to the City Atto" +
-    "rney&rsquo;s office. We will also charge a $75.00 reinspection fee since" +
-    " the work was incomplete.</p>" +
-    ("<p>You will receive a letter from the City Attorney&rsquo;s office with " +
-      "prosecution details. Please note that penalties increase each day that y" +
-      "ou do not correct the listed item(s).</p>") +
-    ("<p>Below is an updated list of items and history of the case. This case " +
-      "remains with the City Attorney&rsquo;s office. This case did not achieve" +
-      " compliance, and it remains your responsibility to correct the outstandi" +
-      "ng item(s). Fines continue to accumulate daily so you should make correc" +
-      "tions as soon as possible. Remaining items are not considered complete u" +
-      "ntil you have arranged for reinspection and the assigned inspector has c" +
-      "onfirmed compliance. If you have questions, contact your inspector immed" +
-      "iately.</p>"),
-  compliance:
-    "<p>The code violations listed against the property have been corrected t" +
-    "o the undersigned inspector&rsquo;s satisfaction. The date(s) of complia" +
-    "nce are shown with the items below.</p>" +
-    "<p>This case is now closed. Keep this letter with your records for the property.</p>" +
-    "<p>Thank you for your cooperation in correcting these items.</p>",
-  citation:
-    "<p>A reinspection found that the work on one or more items is incomplete" +
-    ". Below is a list of items that need further work and your new due date." +
-    "</p>" +
-    ("<p><strong>We are issuing a citation for the unfinished work.</strong> P" +
-      "lease see the included Court Citation document for more information. We " +
-      "may also charge a $75.00 reinspection fee since the work is incomplete. " +
-      "The $75.00 fee is separate from the citation amount.</p>") +
-    ("<p>Once you finish the work, schedule a reinspection with your inspector" +
-      ". If you do not complete the work and contact the inspector by the new d" +
-      "ue date, we may:</p>") +
-    ("<ul><li>Issue a citation; or</li><li>Send the case to the City Attorney&" + "rsquo;s Office for legal action/prosecution.</li></ul>") +
-    "<p>Contact your inspector right away if you have questions.</p>",
-  initialCitation:
-    "<p>An inspector found one or more code violations at the above property." +
-    " This letter explains what the issue is and how to correct it. If you ha" +
-    "ve questions, contact the inspector as soon as possible.</p>" +
-    ("<p><strong>We are issuing a citation for the documented violation.</stro" +
-      "ng> Please see the included Court Citation document for more information" +
-      ".</p>") +
-    ("<p>Complete the corrections listed below by the due dates shown. If you " +
-      "do not complete the work and contact the inspector by the due date, we m" +
-      "ay:</p>") +
-    ("<ul><li>Issue another citation; or</li><li>Send the case to the City Att" + "orney&rsquo;s Office for legal action/prosecution.</li></ul>") +
-    ("<p>The inspectors may charge a reinspection fee even if they grant an ex" +
-      "tension. Recurrent violations may lead to citations without any more war" +
-      "ning. You must comply with this order on a continuous basis. Correct the" +
-      " issues and notify your inspector as soon as possible to avoid penalties" +
-      ". If we need access to inspect, you must call your inspector before the " +
-      "listed due date.</p>") +
-    ("<p>Any items on this notice may be subject to rent abatement if uncorrec" +
-      "ted by the due date. Items automatically eligible for abatement have a &" +
-      "ldquo;Y&rdquo; in the Abate column. The Hearing Examiner may determine f" +
-      "inal abatement awards.</p>") +
-    "<p>To appeal this order, you must contact us in writing within 15 days of this letter&rsquo;s postmark.</p>",
-};
+export const DOCBODY = APPROVED_LANGUAGE.documentBodies;
 /* R35: an initial-inspection citation (authoring 11+) is the only mailed document; its paired Official Notice
    snapshot is the case's internal record of the deadlines and is never printed, filed or emailed separately. */
 export const initialOrderCitation = (d) =>
@@ -437,66 +284,14 @@ export const initialOrderCitation = (d) =>
 export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.authoringVersion >= 11 && !!d.issuanceGroup?.citationId;
 export const effectiveFiled = (d) => (deliveredByCitation(d) ? !!doc(d.issuanceGroup.citationId)?.filedAt : !!d?.filedAt);
 
-export const COURT = {
-  name: "CITY OF MADISON MUNICIPAL COURT",
-  room: "RM#201,",
-  addr: "210 MARTIN LUTHER KING JR. BLVD.",
-  city: "MADISON, WI 53703",
-};
+export const COURT = APPROVED_LANGUAGE.court;
 /* The four copies are not identical. The court copy carries the narrative
    only; agency and inspector copies add a disposition record for the court to
    complete; the defendant's copy drops the narrative and carries the plea
    instructions instead. Transcribed from the division's own citations. */
-export const CIT_COPIES = [
-  { label: "COURT COPY", comment: true, record: "", instructions: false },
-  { label: "AGENCY COPY", comment: true, record: "AGENCY RECORD", instructions: false },
-  { label: "INSPECTOR COPY", comment: true, record: "INSPECTOR RECORD", instructions: false },
-  { label: "DEFENDANT'S COPY: READ NOTICE BELOW", comment: false, record: "", instructions: true },
-];
-export const CIT_INSTRUCTIONS = [
-  "<p>No in-person appearance is required. You may enter a plea of guilty, " +
-    "no contest, or not guilty via email, regular mail, fax or telephone on o" +
-    "r before the assigned court date on your citation(s) or complaint. Conta" +
-    "ct information for submitting your plea is below.</p>",
-  "<p><strong>IF YOU WANT TO PLEAD NOT GUILTY:</strong> DO NOT APPEAR in pe" +
-    "rson on your assigned court date. If you choose to plead not guilty, the" +
-    " court will schedule a telephone pretrial conference with the Madison Ci" +
-    "ty Attorney just as if you had appeared in person and entered your plea." +
-    " A pretrial is where you attempt to negotiate an agreement with the pros" +
-    "ecutor. If you are able to reach a settlement with the prosecutor at the" +
-    " telephone pretrial, the court will review and likely approve the agreem" +
-    "ent. If you are not able to reach an agreement with the prosecutor, the " +
-    "court will set the case for a trial and send you a notice of the trial d" +
-    "ate.</p>",
-  "<p><strong>IF YOU WANT TO PLEAD GUILTY OR NO CONTEST:</strong> You can p" +
-    "lead guilty or no contest without appearing in court. If you wish to ple" +
-    "ad guilty or no contest, a judgment will be ordered on the charge(s) des" +
-    "cribed in the citation(s)/complaint. The Judge will set the penalty with" +
-    "in the minimum and maximum allowed by law. You may provide a written sta" +
-    "tement about mitigating factors you want the court to take into consider" +
-    "ation for sentencing purposes. Payment will be due in 90 days from your " +
-    "assigned court date unless you request a payment plan with the court. Yo" +
-    "u can also mail in the payment amount listed on the citation(s) on or be" +
-    "fore your assigned court date and it will be considered as a no contest " +
-    "plea by the court. If you choose to appear in court, you will be require" +
-    "d to follow safety protocols.</p>",
-  "<p><strong>IF YOU DO NOT ENTER A PLEA OR MAIL IN PAYMENT ON OR BEFORE YO" +
-    "UR ASSIGNED COURT DATE:</strong> The court will enter an order of convic" +
-    "tion on the charge(s) against you and inform you of what you must pay an" +
-    "d other legal sanctions that may apply to your case.</p>",
-  "<p>You must notify the court of any change of address that is different " +
-    "than what is listed on your citation(s) or complaint. For additional que" +
-    "stions or concerns please visit the Madison Municipal Court website at w" +
-    "ww.cityofmadison.com/municipalcourt or contact the court directly:</p>",
-].join("");
-export const COURT_CONTACT = {
-  name: "Madison Municipal Court",
-  addr: "210 MLK Jr. Blvd., Rm. 203",
-  city: "Madison, WI 53703",
-  phone: "Phone: 608-264-9282",
-  fax: "Fax: 608-266-5930",
-  email: "Email: municipalcourt@cityofmadison.com",
-};
+export const CIT_COPIES = APPROVED_LANGUAGE.citationCopies;
+export const CIT_INSTRUCTIONS = APPROVED_LANGUAGE.citationInstructions.join("");
+export const COURT_CONTACT = APPROVED_LANGUAGE.courtContact;
 
 /* ---------- what a citation actually costs ----------
    The amount on an MC-2000 is the cash deposit, not the forfeiture. Under

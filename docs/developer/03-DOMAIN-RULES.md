@@ -1,6 +1,6 @@
 # Domain rules
 
-Legal wording, ordinance interpretation, court schedules, numbering, authority, seasonal policy and language approval belong to the division. The mandatory-appearance hold remains enforced in Writer and helper until approved distinct defendant instructions are supplied. Historical frozen reprints remain unchanged.
+Legal wording, ordinance interpretation, court schedules, numbering, authority, seasonal policy and language approval belong to the division. The mandatory-appearance hold remains enforced in Writer and helper until approved distinct defendant instructions are supplied. Historical frozen reprints remain unchanged. Current approved document and court wording (notice blocks, document bodies, court details, copies, instructions and contact) is data in app/assets/approved_language.json; change it only with the division's language approval (L5). Issued documents keep their frozen copies.
 
 Preserve issued snapshots, event/item/root/visit identities, action chronology, correction lineage, withdrawals versus compliance, deadline limits, initial notice/citation atomic publication and legacy readers. Device saving is not issuance; a filed marker is not PDF proof; an Outlook draft is not delivery. A pending publication confirms its retained request before another action.
 

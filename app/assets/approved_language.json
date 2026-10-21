@@ -1,0 +1,85 @@
+{
+  "format": "madison-approved-language",
+  "version": 1,
+  "note": "Approved document and court wording. Issued documents keep their frozen copies; change only with the division language approval (acceptance item L5).",
+  "blocks": {
+    "FEES": {
+      "label": "Reinspection fees",
+      "always": true,
+      "text": "The Madison General Ordinances require that a fee of $75.00 be charged for reinspections that do not result in full compliance, including reinspections resulting in an extended due date. Attempted reinspections resulting in no entry are billed at $35.00 each."
+    },
+    "LANGUAGE": {
+      "label": "Language access",
+      "always": true,
+      "text": "If you need an interpreter, translator, materials in alternate formats or other accommodations to access this information, please call (608) 266-6552 immediately.\nSi necesita un intérprete, traductor, algún material en otro formato u otras adaptaciones para acceder a esta información, llame al (608) 266-6552 de inmediato.\nYog tias koj xav tau ib tug neeg txhais lus, tus neeg txhais ntawv, los sis xav tau cov ntaub ntawv ua lwm hom ntawv los sis lwm cov kev pab kom paub txog cov lus qhia no, thov hu rau (608) 266-6552 tam sim no.\n如果您获取此类信息时需要口译人员、翻译人员、不同格式的材料，请立即致电 (608) 266-6552。"
+    },
+    "PERMIT_500": {
+      "label": "Permit threshold",
+      "text": "Depending on the scope of work, repairs or alterations exceeding $500 in market value require a permit prior to commencing work. Contact Building Inspection at 608.266.4551 to determine whether a building permit is required, obtain the permit if required, and schedule all required inspections."
+    },
+    "LANDMARK": {
+      "label": "Landmark",
+      "text": ""
+    },
+    "LANDMARKS": {
+      "label": "Historic district",
+      "text": "This property is located in a Historic District. Any exterior work must be reviewed and approved by the Landmarks Commission or staff designee, a Certificate of Appropriateness granted, and any required permits obtained before exterior work may begin. Contact the Historic Preservation Planner at landmarkscommission@cityofmadison.com or (608) 266-6552. Per MGO 41.14(4) and MGO 1.08(c), violations are subject to a minimum forfeiture of $250 plus applicable penalty assessments per day, and each day a violation continues is a separate violation."
+    }
+  },
+  "documentBodies": {
+    "notice": "<p>An inspector found one or more code violations at the above property. This letter explains what the issue is and how to correct it. If you have questions, contact the inspector as soon as possible.</p><p>If you complete the work by the due date, you may avoid:</p><ul><li>A $75 reinspection fee;</li><li>A citation;</li><li>Having this case sent to the City Attorney&rsquo;s Office for legal action.</li></ul><p>The inspectors may charge a reinspection fee even if they grant an extension. Recurrent violations may lead to citations without any more warning. You must comply with this order on a continuous basis. Correct the issues and notify your inspector as soon as possible to avoid penalties. If we need access to inspect, you must call your inspector before the listed due date.</p><p>Any items on this notice may be subject to rent abatement if uncorrected by the due date. Items automatically eligible for abatement have a &ldquo;Y&rdquo; in the Abate column. The Hearing Examiner may determine final abatement awards.</p><p>To appeal this order, you must contact us in writing within 15 days of this letter&rsquo;s postmark.</p>",
+    "extension": "<p>On reinspection, we found that the work on one or more items is incomplete. We have granted you an extension to finish the work because you have made progress. However, the inspector may still charge you a $75.00 reinspection fee. We may charge this fee every time we find unfinished work on reinspection.</p><p>Below is a list of items that need further work and your new due date. Once you correct the issues, you must schedule a reinspection with your inspector. Please call before the listed date.</p><p style=\"margin-left:16px\">If you do not complete the work and contact the inspector by the new due date, we may:</p><ul><li>Issue a citation; or</li><li>Send the case to the City Attorney&rsquo;s Office for legal action/prosecution.</li></ul><p>Please note that an extension does not affect rent abatement. The tenant will receive an award for any uncorrected rent abatement items.</p>",
+    "referral": "<p>An inspection found that one or more code violations remain unresolved and past due. As a result, we have referred this case to the City Attorney&rsquo;s office. We will also charge a $75.00 reinspection fee since the work was incomplete.</p><p>You will receive a letter from the City Attorney&rsquo;s office with prosecution details. Please note that penalties increase each day that you do not correct the listed item(s).</p><p>Below is a list of items and history of the case. This case is now with the City Attorney&rsquo;s office, and it is your responsibility to correct the outstanding item(s). Fines accumulate daily so you should make corrections as soon as possible. Remaining items are not considered complete until you have arranged for reinspection and the assigned inspector has confirmed compliance. If you have questions, contact your inspector immediately.</p>",
+    "referralUpdate": "<p>An inspection found that one or more code violations remain unresolved and past due. As a result, we have referred this case to the City Attorney&rsquo;s office. We will also charge a $75.00 reinspection fee since the work was incomplete.</p><p>You will receive a letter from the City Attorney&rsquo;s office with prosecution details. Please note that penalties increase each day that you do not correct the listed item(s).</p><p>Below is an updated list of items and history of the case. This case remains with the City Attorney&rsquo;s office. This case did not achieve compliance, and it remains your responsibility to correct the outstanding item(s). Fines continue to accumulate daily so you should make corrections as soon as possible. Remaining items are not considered complete until you have arranged for reinspection and the assigned inspector has confirmed compliance. If you have questions, contact your inspector immediately.</p>",
+    "compliance": "<p>The code violations listed against the property have been corrected to the undersigned inspector&rsquo;s satisfaction. The date(s) of compliance are shown with the items below.</p><p>This case is now closed. Keep this letter with your records for the property.</p><p>Thank you for your cooperation in correcting these items.</p>",
+    "citation": "<p>A reinspection found that the work on one or more items is incomplete. Below is a list of items that need further work and your new due date.</p><p><strong>We are issuing a citation for the unfinished work.</strong> Please see the included Court Citation document for more information. We may also charge a $75.00 reinspection fee since the work is incomplete. The $75.00 fee is separate from the citation amount.</p><p>Once you finish the work, schedule a reinspection with your inspector. If you do not complete the work and contact the inspector by the new due date, we may:</p><ul><li>Issue a citation; or</li><li>Send the case to the City Attorney&rsquo;s Office for legal action/prosecution.</li></ul><p>Contact your inspector right away if you have questions.</p>",
+    "initialCitation": "<p>An inspector found one or more code violations at the above property. This letter explains what the issue is and how to correct it. If you have questions, contact the inspector as soon as possible.</p><p><strong>We are issuing a citation for the documented violation.</strong> Please see the included Court Citation document for more information.</p><p>Complete the corrections listed below by the due dates shown. If you do not complete the work and contact the inspector by the due date, we may:</p><ul><li>Issue another citation; or</li><li>Send the case to the City Attorney&rsquo;s Office for legal action/prosecution.</li></ul><p>The inspectors may charge a reinspection fee even if they grant an extension. Recurrent violations may lead to citations without any more warning. You must comply with this order on a continuous basis. Correct the issues and notify your inspector as soon as possible to avoid penalties. If we need access to inspect, you must call your inspector before the listed due date.</p><p>Any items on this notice may be subject to rent abatement if uncorrected by the due date. Items automatically eligible for abatement have a &ldquo;Y&rdquo; in the Abate column. The Hearing Examiner may determine final abatement awards.</p><p>To appeal this order, you must contact us in writing within 15 days of this letter&rsquo;s postmark.</p>"
+  },
+  "court": {
+    "name": "CITY OF MADISON MUNICIPAL COURT",
+    "room": "RM#201,",
+    "addr": "210 MARTIN LUTHER KING JR. BLVD.",
+    "city": "MADISON, WI 53703"
+  },
+  "citationCopies": [
+    {
+      "label": "COURT COPY",
+      "comment": true,
+      "record": "",
+      "instructions": false
+    },
+    {
+      "label": "AGENCY COPY",
+      "comment": true,
+      "record": "AGENCY RECORD",
+      "instructions": false
+    },
+    {
+      "label": "INSPECTOR COPY",
+      "comment": true,
+      "record": "INSPECTOR RECORD",
+      "instructions": false
+    },
+    {
+      "label": "DEFENDANT'S COPY: READ NOTICE BELOW",
+      "comment": false,
+      "record": "",
+      "instructions": true
+    }
+  ],
+  "citationInstructions": [
+    "<p>No in-person appearance is required. You may enter a plea of guilty, no contest, or not guilty via email, regular mail, fax or telephone on or before the assigned court date on your citation(s) or complaint. Contact information for submitting your plea is below.</p>",
+    "<p><strong>IF YOU WANT TO PLEAD NOT GUILTY:</strong> DO NOT APPEAR in person on your assigned court date. If you choose to plead not guilty, the court will schedule a telephone pretrial conference with the Madison City Attorney just as if you had appeared in person and entered your plea. A pretrial is where you attempt to negotiate an agreement with the prosecutor. If you are able to reach a settlement with the prosecutor at the telephone pretrial, the court will review and likely approve the agreement. If you are not able to reach an agreement with the prosecutor, the court will set the case for a trial and send you a notice of the trial date.</p>",
+    "<p><strong>IF YOU WANT TO PLEAD GUILTY OR NO CONTEST:</strong> You can plead guilty or no contest without appearing in court. If you wish to plead guilty or no contest, a judgment will be ordered on the charge(s) described in the citation(s)/complaint. The Judge will set the penalty within the minimum and maximum allowed by law. You may provide a written statement about mitigating factors you want the court to take into consideration for sentencing purposes. Payment will be due in 90 days from your assigned court date unless you request a payment plan with the court. You can also mail in the payment amount listed on the citation(s) on or before your assigned court date and it will be considered as a no contest plea by the court. If you choose to appear in court, you will be required to follow safety protocols.</p>",
+    "<p><strong>IF YOU DO NOT ENTER A PLEA OR MAIL IN PAYMENT ON OR BEFORE YOUR ASSIGNED COURT DATE:</strong> The court will enter an order of conviction on the charge(s) against you and inform you of what you must pay and other legal sanctions that may apply to your case.</p>",
+    "<p>You must notify the court of any change of address that is different than what is listed on your citation(s) or complaint. For additional questions or concerns please visit the Madison Municipal Court website at www.cityofmadison.com/municipalcourt or contact the court directly:</p>"
+  ],
+  "courtContact": {
+    "name": "Madison Municipal Court",
+    "addr": "210 MLK Jr. Blvd., Rm. 203",
+    "city": "Madison, WI 53703",
+    "phone": "Phone: 608-264-9282",
+    "fax": "Fax: 608-266-5930",
+    "email": "Email: municipalcourt@cityofmadison.com"
+  }
+}
