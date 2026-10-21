@@ -60,8 +60,10 @@ const T =
   "d;WriterState.state.screen='write';render();\nvar h=document.querySelecto" +
   "r('.desk').innerHTML;\nok('drag handles present',(h.match(/data-grip/g)||" +
   "[]).length===3);\nok('remove buttons present',(h.match(/class=\"rm no-prin" +
-  "t\"/g)||[]).length===3);\nok('cite boxes present',(h.match(/data-notecite/" +
-  "g)||[]).length===3);\nok('text is editable',h.indexOf('contenteditable')>" +
+  "t\"/g)||[]).length===3);\nok('no cite boxes unless the Accela status is Citation',(h.match(/data-notecite/" +
+  "g)||[]).length===0);\nN.importRule={kind:'initial',doc:'notice',cite:true,label:'Citation',status:'Citation'};render();" +
+  "\nok('cite boxes present for a Citation import',(document.querySelector('.desk').innerHTML.match(/data-notecite/g)||[]).length===3);" +
+  "\ndelete N.importRule;render();\nok('text is editable',h.indexOf('contenteditable')>" +
   "=0);\nok('abate is a button',h.indexOf('ab-btn')>=0);\n// reorder and dele" +
   "te actually work\nvar order0=N.items.map(function(i){return i.title;}).jo" +
   "in(',');\nN.items.reverse();renumber(N);\nok('reordering renumbers 1..n',N" +

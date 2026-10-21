@@ -4,6 +4,7 @@ import { fmtDate, fmtTime, inspAt, longDate, parseTime } from "./court_and_depos
 import { documentItemHistory, revisionPrintNote } from "./issuance_and_corrections.js";
 import { catalogDraftNotice } from "./language_catalog.js";
 import {
+  citeAllowed,
   BOXN,
   BOXY,
   DOC_TYPES,
@@ -177,7 +178,7 @@ function noticeHTML(d) {
           ) +
           "</td>\n      " +
           "".concat(
-            struct && !it.done
+            struct && citeAllowed(d) && !it.done
               ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
                   'ice"><input type="checkbox" data-notecite="' +
                   `${esc(it.id)}` +
@@ -349,7 +350,6 @@ function noticeHTML(d) {
     '-space:pre-wrap">' +
     `${esc(ownerLines(k).join("\n"))}` +
     "</div>" +
-    "".concat(d.draft && !isLocked(d) ? '<button class="btn btn-sm no-print" data-parse-address="owner|0">Preview mailing address</button>' : "") +
     '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div' +
     ' class="n-winspace" aria-hidden="true"></div>\n\n    ' +
     `${revisionPrintNote(d)}` +
@@ -366,11 +366,11 @@ function noticeHTML(d) {
     '\n    <table class="notice"><thead><tr><th class="c-no">Item No.</th><th ' +
     'class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>C' +
     "orrections Required</th>" +
-    `${struct ? '<th class="c-cite no-print">Cite</th>' : ""}` +
+    `${struct && citeAllowed(d) ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
     `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +
-    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — add the first violation below.</td></tr>') +
+    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Select violations in Items and due dates.</td></tr>') +
     "</tbody></table>\n    " +
     (aligned
       ? '<div class="extension-signer"><p>' +
@@ -379,9 +379,6 @@ function noticeHTML(d) {
         esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
         "</p></div>"
       : "") +
-    "".concat(
-      !struct ? "" : '<div class="addwrap no-print"><button class="btn btn-primary addrow" id=' + '"btn-add">Add violation item</button></div>',
-    ) +
     "\n    " +
     "".concat(
       (function () {

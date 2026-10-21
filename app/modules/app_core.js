@@ -1170,6 +1170,8 @@ export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : unde
    The helper commits the revision and supersession together under its case lock.
    A failed/ambiguous save retains an idempotent attempt on the local draft. */
 export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
+/* Items may be cited only when the imported Accela inspection status is Citation. */
+export const citeAllowed = (d) => !!d?.importRule?.cite;
 const isRecordEvent = (e) =>
   /\.issued$/.test(e.type) || e.type === "document.voided" || e.type === "reinspection.recorded" || e.type === "document.served";
 export const recordHead = (cid) =>
@@ -2325,7 +2327,7 @@ document.addEventListener("change", (e) => {
     e.target.matches(
       "[data-case-action-group],[data-case-action-type],[data-service-field],[d" +
         "ata-action-group],[data-action-type],[data-special],[data-special-item]," +
-        "[data-special-due],[data-initial-action],[data-administrative-type],[dat" +
+        "[data-special-due],[data-administrative-type],[dat" +
         'a-special="administrativeType"]',
     )
   )
@@ -2388,7 +2390,7 @@ document.addEventListener("click", async (e) => {
       "ata-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[da" +
       "ta-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo]" +
       ",[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk" +
-      "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add,#btn-add-to" +
+      "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-to" +
       "p,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#" +
       "btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-ex" +
       "portcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-acti" +
@@ -2846,7 +2848,7 @@ document.addEventListener("click", async (e) => {
     toast("Added: " + src.t);
     return;
   }
-  if (t.id === "btn-add" || t.id === "btn-add-top") {
+  if (t.id === "btn-add-top") {
     if (!structEditable(d)) return;
     if (WriterState.state.pickerDoc !== d.id) {
       WriterState.state.pickerStatus = "approved";
@@ -2918,7 +2920,7 @@ document.addEventListener("click", async (e) => {
     return;
   }
   if (t.dataset.notecite) {
-    if (!structEditable(d)) return;
+    if (!structEditable(d) || !citeAllowed(d)) return;
     const it = d.items.find((i) => i.id === t.dataset.notecite);
     if (it) {
       it.cite = !it.cite;
@@ -3508,7 +3510,7 @@ document.addEventListener("change", (e) => {
   }
   const rr = reinsp(WriterState.state.reinspId),
     ds = e.target.dataset || {};
-  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || ds.ricite)) {
+  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && rr.importRule?.cite))) {
     const id = ds.ridate || ds.ridue || ds.ricite,
       res = rr.results[id];
     if (res) {

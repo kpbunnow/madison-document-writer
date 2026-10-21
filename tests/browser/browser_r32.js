@@ -41,6 +41,10 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
       },
       { number, ordinance, title },
     );
+    await page.evaluate(() => {
+      doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
+      render();
+    });
     await page.locator("[data-notecite]").check();
   }
   async function issue(label, total) {

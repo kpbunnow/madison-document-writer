@@ -20,6 +20,15 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     signerTitle: "Director of Building Inspection (QA sample)",
     delegation: "SYNTHETIC QA authority / delegation record",
   };
+  // Initial emergency documents come from the imported Accela status, applied exactly as the import does.
+  async function importedStatus(type) {
+    const status = { summaryAbatement: "Abatement Summary", nonSummaryAbatement: "Abatement Non-Summary", noOccupancy: "No Occupancy" }[type];
+    await page.evaluate((status) => {
+      applyImportRule(doc(WriterState.state.docId), { ...statusRule("Initial Inspection", status), status });
+      render();
+    }, status);
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).type), type);
+  }
   async function fresh(primary = false, count = 2) {
     serial++;
     return page.evaluate(
@@ -231,8 +240,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
   ])
     for (const variant of variants) {
       const record = await fresh(false);
-      await page.locator(".editor-initial-options summary").click();
-      await page.locator("[data-initial-action]").selectOption(type);
+      await importedStatus(type);
       await page.locator('[data-special="variant"]').selectOption(variant);
       const condition =
         variant === "sidewalk"
@@ -287,8 +295,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
       }
     }
   await fresh(false);
-  await page.locator(".editor-initial-options summary").click();
-  await page.locator("[data-initial-action]").selectOption("noOccupancy");
+  await importedStatus("noOccupancy");
   await facts({
     mode: "restrict",
     scope: "unit",

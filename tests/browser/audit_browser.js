@@ -354,11 +354,16 @@ async function axeThemes(page, screen) {
     render();
   });
   await page.locator("#btn-final").click();
-  await page.locator(".modal .check").filter({ hasText: "No parcel number" }).getByRole("button", { name: "Parcel number" }).click();
-  assert.equal(await page.evaluate(() => document.activeElement.dataset.case), "parcel");
-  assert.equal(await page.locator(".case-check-fields").getAttribute("open"), "");
-  await page.locator('[data-case="parcel"]').fill(savedParcel);
-  assert.equal(await page.locator('[data-case="parcel"]').getAttribute("aria-invalid"), null, "Correcting the parcel removes its highlight");
+  // The parcel comes from the Accela import: the check blocks with the correction route and no editable field.
+  const parcelCheck = page.locator(".modal .check").filter({ hasText: "No parcel number" });
+  assert.match(await parcelCheck.innerText(), /Add it in Accela, then import this inspection again/);
+  assert.equal(await parcelCheck.getByRole("button").count(), 0);
+  assert.equal(await page.locator('[data-case="parcel"]').count(), 0);
+  await page.evaluate((parcel) => {
+    WriterState.state.modal = null;
+    docCase(doc(WriterState.state.docId)).parcel = parcel; // the corrected Accela value on re-import
+    render();
+  }, savedParcel);
 
   await page
     .locator('[data-field="text"]')
@@ -893,6 +898,10 @@ async function axeThemes(page, screen) {
   await page.locator('[data-pick="' + picks[0] + '"]').click();
   await page.getByRole("button", { name: "Done adding" }).click();
   await page.locator('[data-field="sections"]').first().fill("SPS 999.99");
+  await page.evaluate(() => {
+    doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
+    render();
+  });
   await page.locator("[data-notecite]").check();
   await page.locator("[data-deposit-request]").waitFor();
   assert.equal(await page.evaluate(() => Object.keys(doc(WriterState.state.docId).cits).length), 0);

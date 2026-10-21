@@ -1151,20 +1151,6 @@ export function initNewDocuments() {
       "</div></section>"
     );
   }
-  function initialPanel(d) {
-    if (d.type !== "notice" || !d.draft || originalNotice(d.caseId)) return "";
-    return (
-      '<section class="card no-print"><div class="card-b"><label class="f"><spa' +
-      "n>Initial inspection action</span><select data-initial-action><option va" +
-      'lue="notice">Official Notice</option>' +
-      NEW_TYPES.filter((t) => t.effect === "supplemental")
-        .map((t) => '<option value="' + t.id + '">' + t.label + "</option>")
-        .join("") +
-      ('</select></label><p class="hint">Use the actual imported inspection for ' +
-        "an emergency action. No dummy notice or return visit is required.</p></d" +
-        "iv></section>")
-    );
-  }
   function caseAction(cid, type) {
     if (snow.isCase(kase(cid))) {
       toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
@@ -1335,17 +1321,6 @@ export function initNewDocuments() {
       refreshControls(el);
       return true;
     }
-    if (el.hasAttribute("data-initial-action") && d && d.draft) {
-      d.selectionCache = d.selectionCache || {};
-      d.selectionCache[d.type] = clone(d.special || {});
-      d.special = clone(d.selectionCache[el.value] || {});
-      d.type = el.value;
-      d.initialAction = d.type !== "notice";
-      d.special = d.special || {};
-      saveDrafts();
-      render();
-      return true;
-    }
     if (!d || isLocked(d) || !specialType(d.type)) return false;
     const s = d.special || (d.special = {});
     if (el.dataset.special) {
@@ -1489,7 +1464,6 @@ export function initNewDocuments() {
     createSpecial,
     specialLifecycle,
     actionPanel,
-    initialPanel,
     caseAction,
     caseActionScreen,
     editEvent,

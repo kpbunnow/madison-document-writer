@@ -518,13 +518,7 @@ function checks(d) {
     ok: !recipientProblem,
     t: recipientProblem ? recipientProblem.message : "Copy and registered-agent addresses are complete",
     targets: recipientProblem
-      ? [
-          checkTarget(
-            "#btn-cc",
-            "Copies & email",
-            "recipient:" + recipientProblem.scope + ":" + recipientProblem.index + ":" + recipientProblem.field,
-          ),
-        ]
+      ? [checkTarget("#btn-cc", "Recipients", "recipient:" + recipientProblem.scope + ":" + recipientProblem.index + ":" + recipientProblem.field)]
       : [],
   });
   const forComp = [
@@ -596,7 +590,7 @@ function checks(d) {
     cited.filter((i) => !String(((d.cits || {})[i.id] || {}).deptId || "").trim()),
     ["deptId"],
   );
-  forCit[5].targets = noAgent ? [checkTarget("#btn-cc", "Copies & email")] : [];
+  forCit[5].targets = noAgent ? [checkTarget("#btn-cc", "Recipients")] : [];
   // the inspection this document was written from
   const at = inspAt(d),
     forInsp = [
@@ -616,8 +610,8 @@ function checks(d) {
       t: pk
         ? "Parcel number recorded"
         : String(docCase(d).parcel || "").trim()
-          ? "The parcel number is not 12 digits — check it against Accela"
-          : "No parcel number on the case — a notice cannot be issued without one",
+          ? "The parcel number is not 12 digits — correct it in Accela, then import this inspection again"
+          : "No parcel number on the case — a notice cannot be issued without one. Add it in Accela, then import this inspection again",
     });
   }
   forInsp.push({
