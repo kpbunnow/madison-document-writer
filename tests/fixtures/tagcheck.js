@@ -7,18 +7,8 @@ for (const name of ["madison-document-writer.html", "madison-reports.html"]) {
   assert.match(html, /<\/body>\s*<\/html>\s*$/);
   assert.equal(new (require("jsdom").JSDOM)(html).window.document.compatMode, "CSS1Compat");
 }
-const src = Buffer.from(
-  /var B="([A-Za-z0-9+\/=]+)"/.exec(
-    fs.readFileSync(
-      require("path").join(
-        process.env.DW_OUTPUT_DIR || require("path").join(require("path").resolve(__dirname, "../.."), "build/dist"),
-        "madison-document-writer.html",
-      ),
-      "utf8",
-    ),
-  )[1],
-  "base64",
-).toString("utf8");
+const { builtPage, bundleSource } = require("./built_bundle.cjs");
+const src = bundleSource(builtPage());
 const store = {},
   mkEl = (id) => ({
     id,

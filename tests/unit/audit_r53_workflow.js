@@ -1,15 +1,9 @@
 /* R53 WP2 (group due dates on reinspection) and WP3 (top-of-page warnings clear after 15 seconds). */
 globalThis.MADISON_TEST_DATA = true;
-const fs = require("fs"),
-  path = require("path"),
-  assert = require("assert/strict"),
+const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const payload = Buffer.from(
-  /var B="([A-Za-z0-9+/=]+)"/.exec(
-    fs.readFileSync(path.join(path.resolve(__dirname, "../.."), "build/dist/madison-document-writer.html"), "utf8"),
-  )[1],
-  "base64",
-).toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const payload = bundleSource(builtPage());
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,

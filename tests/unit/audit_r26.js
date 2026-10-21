@@ -1,11 +1,10 @@
 /* R26 scoped actions, truthful restrictions and inspection reuse. Synthetic only. */
 globalThis.MADISON_TEST_DATA = true;
-const fs = require("fs"),
-  path = require("path"),
-  assert = require("assert/strict"),
+const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const html = fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "build/dist/madison-document-writer.html"), "utf8"),
-  src = Buffer.from(/var B="([A-Za-z0-9+/=]+)"/.exec(html)[1], "base64").toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = builtPage(),
+  src = bundleSource(html);
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,

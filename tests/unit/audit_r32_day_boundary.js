@@ -1,7 +1,5 @@
 /* Real built date paths under clocks on both sides of midnight in Chicago. */
-const fs = require("fs"),
-  path = require("path"),
-  assert = require("assert/strict"),
+const assert = require("assert/strict"),
   cp = require("child_process");
 if (!process.env.R32_CLOCK) {
   for (const zone of ["UTC", "America/Los_Angeles", "America/New_York"])
@@ -30,12 +28,8 @@ global.getSelection = () => window.getSelection();
 global.fetch = async () => {
   throw Error("offline");
 };
-const payload = Buffer.from(
-  /var B="([A-Za-z0-9+/=]+)"/.exec(
-    fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "build/dist/madison-document-writer.html"), "utf8"),
-  )[1],
-  "base64",
-).toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const payload = bundleSource(builtPage());
 const child = require("child_process");
 const day = process.env.R32_CLOCK.includes("04:30") ? "2026-07-29" : "2026-07-30";
 assert.equal(

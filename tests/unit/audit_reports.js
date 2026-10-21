@@ -6,14 +6,9 @@ const fs = require("fs"),
 const { JSDOM } = require("jsdom");
 cp.execFileSync("node", ["tests/fixtures/mk_summaries.js"], { cwd: require("path").resolve(__dirname, "../.."), stdio: "ignore" });
 const REAL = JSON.parse(fs.readFileSync("/tmp/real_summaries.json", "utf8"));
-const html = fs.readFileSync(
-  require("path").join(
-    process.env.DW_OUTPUT_DIR || require("path").join(require("path").resolve(__dirname, "../.."), "build/dist"),
-    "madison-reports.html",
-  ),
-  "utf8",
-);
-const src = Buffer.from(/var B="([A-Za-z0-9+\/=]+)"/.exec(html)[1], "base64").toString("utf8");
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = builtPage("reports"),
+  src = bundleSource(html);
 const CSS = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
 const dom = new JSDOM("<!doctype html><html><head><style>" + CSS + '</style></head><body><div id="app"></div></body></html>', {
   pretendToBeVisual: true,

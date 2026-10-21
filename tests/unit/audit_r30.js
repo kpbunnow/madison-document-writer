@@ -4,15 +4,8 @@ const fs = require("fs"),
   path = require("path"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const payload = Buffer.from(
-  /var B="([A-Za-z0-9+/=]+)"/.exec(
-    fs.readFileSync(
-      path.join(process.env.DW_OUTPUT_DIR || path.join(require("path").resolve(__dirname, "../.."), "build/dist"), "madison-document-writer.html"),
-      "utf8",
-    ),
-  )[1],
-  "base64",
-).toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const payload = bundleSource(builtPage());
 const golden = JSON.parse(fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/deposit_golden.json"), "utf8"));
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
