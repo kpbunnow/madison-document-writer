@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
 
 os.environ["TZ"] = "America/Chicago"
@@ -84,9 +85,8 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
             ROOT / "tests/fixtures/tagcheck.js",
             *sorted((ROOT / "tests/unit").glob("audit_*.py")),
         ]
-        for suite in suites:
-            if suite.name == "audit_browser.js":
-                continue
+
+        def run_suite(suite):
             started = time.monotonic()
             try:
                 run = subprocess.run(
@@ -102,16 +102,26 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
                 output, code = "FAIL suite exceeded 150 seconds\n", 124
             (LOGS / (suite.name + ".log")).write_text(output, encoding="utf-8")
             failed = code != 0 or bool(re.search(r"^\s*(?:FAIL\b|CRASH\b|[1-9][0-9]* (?:FAILURE|DATA ISSUE))", output, re.M))
-            results.append(
-                {
-                    "suite": suite.name,
-                    "passed": not failed,
-                    "exit_code": code,
-                    "elapsedMs": round((time.monotonic() - started) * 1000),
-                    "limitMs": 150000,
-                }
-            )
             print(("FAIL " if failed else "PASS ") + suite.name, flush=True)
+            return {
+                "suite": suite.name,
+                "passed": not failed,
+                "exit_code": code,
+                "elapsedMs": round((time.monotonic() - started) * 1000),
+                "limitMs": 150000,
+            }
+
+        # Measured performance suites run last and alone; suites that launch Chromium run one at a time.
+        # Everything else shares a small worker pool. Each suite keeps its own 150-second deadline.
+        performance = [s for s in suites if "performance" in s.name]
+        chromium = [s for s in suites if s not in performance and re.search(r"chromium|playwright|DW_BROWSER", s.read_text())]
+        pooled = [s for s in suites if s not in performance and s not in chromium]
+        workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            finished = dict(zip(pooled, pool.map(run_suite, pooled)))
+        for suite in chromium + performance:
+            finished[suite] = run_suite(suite)
+        results = [finished[s] for s in suites]
     finally:
         build()
 (LOGS / "results.json").write_text(json.dumps(results, indent=2) + "\n")
