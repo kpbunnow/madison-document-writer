@@ -1,8 +1,8 @@
-# R50 notice and citation guide
+# Notice and citation guide
 
-Release 2026-10-16 R50 · helper 2026.10.16.50 · authoring 11 · case schema 5 · summary 6 · workspace backup 2.
+Applies to the current release. The Writer shows its build and helper version; the install guide states the expected values.
 
-Current instructions are consolidated in PROGRAM-MANUAL.html and R50_Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use R49-ACCEPTANCE-RECORD.md for outstanding City acceptance and legal/policy approvals.
+Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.
 
 ## 5 Prepare an Official Notice
 

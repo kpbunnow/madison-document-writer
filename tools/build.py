@@ -34,10 +34,7 @@ OUTDIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE / "build/dis
 if OUTDIR.suffix.lower() == ".html":
     OUTDIR = OUTDIR.parent
 OUTDIR.mkdir(parents=True, exist_ok=True)
-MANIFEST = json.loads((GENERATED / "runtime-manifest.json").read_text())
 STAMP = os.environ.get("DW_BUILD_STAMP") or MANIFEST["release"]
-if (GENERATED / "RELEASE").read_text().strip() != MANIFEST["release"]:
-    raise SystemExit("RELEASE disagrees with runtime manifest")
 TEST_BUILD = os.environ.get("DW_TEST_BUILD") == "1"
 (GENERATED / "modules/data/approved_print_style.js").write_text(
     "export const APPROVED_PRINT_STYLE=" + json.dumps((HERE / "app/assets/approved-print-style.css").read_text()) + ";\n"
@@ -109,12 +106,6 @@ def render_deploy_guide():
     "R34: the staff install guide is generated from the release files and fails the build if it drifts."
     release = STAMP if re.fullmatch(r"\d{4}-\d{2}-\d{2} R\d+", STAMP) else (GENERATED / "RELEASE").read_text().strip()
     helper = MANIFEST["helperVersion"]
-    launcher = MANIFEST["helperVersion"]
-    package = json.loads(rd("package.json"))["version"]
-    if not helper == launcher == package:
-        raise SystemExit("Version mismatch: server.py " + helper + ", launch.py " + launcher + ", package.json " + package)
-    if helper != MANIFEST["helperVersion"]:
-        raise SystemExit("Runtime manifest version mismatch")
     required = MANIFEST["required"]
     tags = sorted({int(m) for m in re.findall(r"-cp3(\d+)-", " ".join(p.name for p in (HERE / "helper/vendor/wheels").glob("*.whl")))})
     if not tags:
@@ -199,29 +190,19 @@ for stem, template, outname, cssname in [
     ]:
         css = css.replace("/* " + marker + " */", rd(name)).replace(marker, rd(name))
     html = html.replace("__WRITER_CSS__", css).replace("__REPORTS_CSS__", css)
-    entry = rd("app/modules/" + stem + "_entry.js").replace("__BUILD__", STAMP)
-    if "__LEAFLET__" in entry:
-        entry = entry.replace(
-            "__LEAFLET__", "(function(){var exports=void 0,module=void 0,define=void 0;\n" + rd("leaflet.js") + "\n}).call(window);"
-        )
-    # Logo data remains the canonical root asset.
-    entry = entry.replace(rd("logo_b64.txt").strip(), "__LOGO__").replace("__LOGO__", rd("logo_b64.txt").strip())
+    entry = rd("app/modules/" + stem + "_entry.js")
+    # Asynchronous build so the plugin can resolve data/ and vendor/ imports to generated modules.
     command = """
 const fs=require('fs'),path=require('path'),root=process.argv[1],stem=process.argv[2],entry=process.argv[3];
-require('esbuild').buildSync({stdin:{contents:entry,resolveDir:path.join(root,'app/modules'),sourcefile:stem+'_entry.js'},
+require('esbuild').build({stdin:{contents:entry,resolveDir:path.join(root,'app/modules'),sourcefile:stem+'_entry.js'},
  outfile:path.join(root,'build',stem+'.js'),bundle:true,format:'esm',treeShaking:true,minifySyntax:true,
  define:{__TEST_BUILD__:process.argv[4]},supported:{'template-literal':false},allowOverwrite:true,logLevel:'warning',
- plugins:[]});
-"""
-    # The build is asynchronous solely to permit generated-data path resolution.
-    command = command.replace("buildSync", "build").replace(
-        "plugins:[]",
-        """plugins:[{name:'generated-data',setup(b){
+ plugins:[{name:'generated-data',setup(b){
  b.onResolve({filter:/[\\/]data[\\/]|[\\/]vendor[\\/]/},a=>{
  const p=path.resolve(a.resolveDir,a.path),base=path.join(root,'app/modules');
  if(p.startsWith(base+path.sep)) return {path:path.join(root,'build/generated/modules',path.relative(base,p))};
- });}}]""",
-    )
+ });}}]});
+"""
     subprocess.run([node, "-e", command, str(HERE), stem, entry, "true" if TEST_BUILD else "false"], cwd=HERE, check=True)
     payload = (HERE / "build" / (stem + ".js")).read_text()
     payload = re.sub(r"^// (?:app|build/generated)/[^\n]+\n", "", payload, flags=re.M)

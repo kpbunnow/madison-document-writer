@@ -6,7 +6,7 @@ Release 2026-10-20 R54 · Helper 2026.10.20.55 · 20 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R54 is a development build for review and City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R54 is a packaged release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -26,17 +26,17 @@ The five Writer destinations are Import inspection, Workspace, Order language, R
 
 ## 2 Install update and verify the workstation
 
-**Administrator procedure.** Use the deploy folder from the R51 deployment package. Do not install individual files from source. Inspectors do not need Node.js or npm. The supported environment is 64-bit Windows with Chrome or Edge and a compatible Python version listed in the generated deployment guide. Classic Outlook is the supported draft handoff target; New Outlook has not been accepted.
+**Administrator procedure.** Use the deploy folder from the current release package. Do not install individual files from source. Inspectors do not need Node.js or npm. The supported environment is 64-bit Windows with Chrome or Edge and a compatible Python version listed in the generated deployment guide. Classic Outlook is the supported draft handoff target; New Outlook has not been accepted.
 
 1. Back up the existing program, case folder, PDF folder, GIS folder, configuration and integrity evidence. Ask every user to save and sync work, close Writer tabs and close the old helper window.
 2. Before extraction, compare the package SHA-256 with the digest obtained independently from the release owner. Use Get-FileHash -Algorithm SHA256 in PowerShell. Keep verified prior packages separately for deliberate IT rollback and test acceptance in isolation.
 3. Place all deploy files and the vendor folder in a division-owned program folder. Preserve operational folders and settings. Grant inspectors read-only program access and grant write access to the release owner only; grant case, PDF and GIS write access as required. Keep these permissions distinct. Restrict administration and independent anchor permissions through IT.
 4. Have IT check the deploy ZIP’s SHA-256 against the value the release owner publishes separately, then run Start Document Writer.bat once on each PC from that checked deployment. It installs the local runtime and creates the desktop shortcut.
-5. Confirm the R51 build and helper versions. If an older helper is running, close that helper and its browser tabs, then run the launcher again.
+5. Confirm the build and helper versions shown in the install guide. If an older helper is running, close that helper and its browser tabs, then run the launcher again.
 6. Open Tools & settings → Saved work & connection. Expand Connection checks and technical details, then open connection checks and Storage diagnostics. Confirm the intended shared paths, helper health and permissions. Use Rebuild reporting index in Storage diagnostics when an administrator has confirmed a rebuild is appropriate.
 7. Open Reports → Data and definitions. Review coverage and excluded records. Test an approved synthetic case through save, exact PDF retrieval and recovery before operational use.
 
-**Compatibility.** R51 retains the preceding verified releases' case schema 5, summary version 6, workspace backup version 2 and authoring version 11. Earlier releases predating schema 5 cannot read schema-5 case files. A runtime rollback changes installed files; it does not reverse issued records or restore workspace data. IT must assess data compatibility and retained requests before rollback. Never replace current operational records with an old backup without an approved recovery plan.
+**Compatibility.** This release uses case schema 5, summary version 6, workspace backup version 2 and authoring version 12; R54 introduced authoring 12 for the aligned Best Interest and Vacancy Extension layout. Earlier releases predating schema 5 cannot read schema-5 case files. An earlier release does not know a newer authoring layout: before rollback, finish or discard unfinished drafts and corrections, and afterwards rely on the retained original PDFs for documents issued under the newer release. A runtime rollback changes installed files; it does not reverse issued records or restore workspace data. IT must assess data compatibility and retained requests before rollback. Never replace current operational records with an old backup without an approved recovery plan.
 
 **Checked updates.** After the first installation, launch from the installed desktop shortcut. Before replacing program files, the launcher checks the shared deployment against runtime-manifest.json: exactly the listed files, each with its listed size and SHA-256, and no older release than the one installed. Missing, extra, changed, partial or older copies are refused and the PC keeps its current version. This catches mistakes and damaged copies; protection against deliberate tampering comes from the deployment folder being writable only by the release owner.
 
@@ -46,7 +46,7 @@ The five Writer destinations are Import inspection, Workspace, Order language, R
 
 **Deliberate rollback.** IT first preserves the complete current installation, device profile and backup, operational records, PDF receipts, configuration and independent anchor evidence, then closes the helper and tabs. Restore the separately retained trusted earlier installer using the documented rollback procedure. The shared folder never downgrades a PC automatically. Runtime rollback never rewinds issued records or replaces current case data.
 
-The generated Start Document Writer - READ ME.md is the file-level installation reference. R51-ACCEPTANCE-RECORD.md provides the required test and signoff form.
+The generated Start Document Writer - READ ME.md is the file-level installation reference. The City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) provides the required test and signoff form.
 
 ## 3 Use Workspace and case history
 
@@ -389,9 +389,9 @@ Use the division's IT and policy owners for changes. Deploy configuration as a c
 
 **SQL.** The shipped query uses typed case-number parameters and read-only Windows integrated authentication. Shared Case Lookup/settings.json accepts server, database and enabled. Choose a trusted certificate chain and matching server name. The SQL server must also appear in the release allowlist (trusted-connections.json), whose initial approved entry is sqlelam. A per-user certificate-validation workaround cannot authorize an off-list server. The existing per-profile certificate-validation bypass is an exceptional IT decision documented in CASE-LOOKUP-GUIDE.md; do not copy it into shared settings or make it the normal deployment default.
 
-**Policy and catalog.** Record actual authority for language approval, new scoped documents, pricing exceptions and seasonal content. Mandatory defendant instructions need a separately approved source and release integration. Existing supplied pricing-date and snow-default questions remain policy decisions, not automatically approved by R51.
+**Policy and catalog.** Record actual authority for language approval, new scoped documents, pricing exceptions and seasonal content. Mandatory defendant instructions need a separately approved source and release integration. Existing supplied pricing-date and snow-default questions remain policy decisions, not automatically approved by this release.
 
-**Retention.** Retain case events, migration evidence, anchor receipts and exact original PDF operation receipts according to approved records policy. R51 does not compact or delete them. Future compaction requires records approval and proof of archived-byte retrieval and interruption recovery before implementation.
+**Retention.** Retain case events, migration evidence, anchor receipts and exact original PDF operation receipts according to approved records policy. The program does not compact or delete them. Future compaction requires records approval and proof of archived-byte retrieval and interruption recovery before implementation.
 
 **Release ownership.** Only the release owner writes to the deployment folder’s program files; inspectors have read-only access there. The release owner builds each release with the complete gate (tools/verify_release.py, then tools/package_release.py), publishes the deploy ZIP’s SHA-256 through a separate trusted channel, and keeps the previous complete release for deliberate rollback. IT records the folder permissions in the acceptance record.
 
@@ -430,8 +430,8 @@ Preserve work first. Keep the active tab open when device saving is uncertain, d
 | PDF contains an external resource or active element | Preserve the issued original and report the error; use embedded approved document resources rather than external or local file references |
 | The case could not be exported | Keep the case open and preserve the workspace backup if available; no empty case file should be written |
 | Report could not be sorted | Default order is shown with a notice; review order before export and report the error if it repeats |
-| No eligible inspection results | Open Source and import details and read the result status. Completed, Official Notice, Citation and Compliance are supported; Scheduled, Pending, Assist, unknown statuses and missing actual dates cannot be imported. If valid results are absent, use the complete R51 installation and retrieve the case again. An already used result requires Continue existing case |
-| An older helper is running | Close its helper window and Writer tabs, then run the approved launcher again; confirm both R51 versions |
+| No eligible inspection results | Open Source and import details and read the result status. Completed, Official Notice, Citation and Compliance are supported; Scheduled, Pending, Assist, unknown statuses and missing actual dates cannot be imported. If valid results are absent, use the complete current installation and retrieve the case again. An already used result requires Continue existing case |
+| An older helper is running | Close its helper window and Writer tabs, then run the approved launcher again; confirm both versions match the install guide |
 | A case is missing from Workspace | Clear workspace search/inspector filters, inspect All cases, then use Search all cases for the share |
 | Lookup finds only Scheduled or Assist records | Confirm the source inspection was actually completed; use the division's report procedure, not a fabricated date |
 | SQL or certificate error | Give IT the safe error code and time; check approved network, account, database and certificate configuration |
@@ -478,7 +478,7 @@ Use an isolated acceptance deployment and unmistakably synthetic records. Each e
 | Anchor | Independently protected receipt supporting history integrity verification |
 | Workspace | The current browser profile's loaded cases and unfinished work |
 
-The release package records technical verification and remaining City acceptance. Use the carried-forward R51-ACCEPTANCE-RECORD.md to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this R51 manual.
+The release package records technical verification and remaining City acceptance. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md) to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this manual.
 
 ## Documents follow the Accela inspection result (R53)
 

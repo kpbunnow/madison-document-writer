@@ -22,7 +22,6 @@ class PolicyTests(unittest.TestCase):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
                 shutil.copytree("policy", root / "policy")
-                shutil.copytree("tests/fixtures/reference", root / "tests/fixtures/reference")
                 (root / "app/assets").mkdir(parents=True, exist_ok=True)
                 shutil.copyfile("app/assets/library.js", root / "app/assets/library.js")
                 shutil.copyfile("app/assets/deposits.js", root / "app/assets/deposits.js")
@@ -54,7 +53,6 @@ class PolicyTests(unittest.TestCase):
             (root / "app/assets").mkdir(parents=True, exist_ok=True)
             shutil.copyfile("app/assets/library.js", root / "app/assets/library.js")
             shutil.copyfile("app/assets/deposits.js", root / "app/assets/deposits.js")
-            shutil.copytree("tests/fixtures/reference", root / "tests/fixtures/reference")
             target = root / "policy/surcharges.json"
             d = json.loads(target.read_text())
             d["court"][-1]["to"] = "2026-12-31"
@@ -74,7 +72,7 @@ class PolicyTests(unittest.TestCase):
         from codification_diff import propose_export, NS
 
         before = Path("build/generated/citation_policy.json").read_bytes()
-        rows = copy.deepcopy(json.loads(Path("tests/fixtures/reference/r30-schedule-table.json").read_text()))
+        rows = copy.deepcopy(json.loads(Path("policy/sources/r30-schedule-table.json").read_text()))
         rows[1][2] = "$60"
         w = "{" + NS["w"] + "}"
         document = ET.Element(w + "document")

@@ -1,6 +1,6 @@
-# R50 case lookup and import guide
+# Case lookup and import guide
 
-Release 2026-10-16 R50 · helper 2026.10.16.50. Current operating instructions and SQL setup are below. See PROGRAM-MANUAL.html and R49-ACCEPTANCE-RECORD.md.
+Applies to the current release. Current operating instructions and SQL setup are below. See PROGRAM-MANUAL.html and the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package).
 
 ## 4 Import a case or later inspection
 
@@ -21,7 +21,7 @@ The source query has no permanent inspection ID. Matching uses case, type, actua
 
 ## Connection and deployment
 
-Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, close the old helper, and launch again. Confirm build **2026-10-16 R50** and helper **2026.10.16.50**. The launcher requires `case_lookup.py`, `case_lookup.ps1` and `case_lookup.sql` in addition to the prior core runtime. Windows PowerShell 5.1 and the Windows .NET Framework System.Data provider are used; no additional Python/ODBC package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
+Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, close the old helper, and launch again. Confirm the build and helper versions match the install guide. The launcher requires `case_lookup.py`, `case_lookup.ps1` and `case_lookup.sql` in addition to the prior core runtime. Windows PowerShell 5.1 and the Windows .NET Framework System.Data provider are used; no additional Python/ODBC package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
 
 Defaults reproduce the RDL connection: server `sqlelam`, Windows integrated authentication, and no explicit database name. A blank database uses the Windows account's SQL default database. The user's expectation that this works for all inspectors has not been verified on the City network. For deterministic behavior across accounts, IT can set the explicit database containing `dbo.BI_ENF_RECORD` and `dbo.BI_ENF_INSPECTION`.
 
@@ -85,8 +85,8 @@ This setting makes the client accept the certificate presented by the server wit
 | `SQL_CONNECT_TYPE_<type>_HR_<hresult>_WIN32_<number>` | Give IT the full code and approximate time. The exception type/HRESULT/native code helps identify a PowerShell, .NET, network or Windows-level failure. |
 | `SQL_CONNECT_..._OP_<operation>_ARG_<name>` | The operation/argument labels narrow down the helper call. After one failed lookup, give IT the full code and the local file `%LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt`. It contains full provider messages and stack details and may include server, database, account or local path names; review it and send it only to IT. The next failed lookup replaces this file. |
 | `SCRIPT_POLICY` | Ask IT to approve the delivered helper under City policy. Do not bypass PowerShell policy. |
-| `HELPER_RUNTIME` | Ask IT to confirm the complete R50 deployment and Windows PowerShell/.NET SQL support. |
-| Script/helper returned no data | Confirm the complete R50 deployment is installed and PowerShell is permitted by City policy. |
+| `HELPER_RUNTIME` | Ask IT to confirm the complete deployment and Windows PowerShell/.NET SQL support. |
+| Script/helper returned no data | Confirm the complete deployment is installed and PowerShell is permitted by City policy. |
 
 The SSRS Excel report import remains available while direct lookup is unavailable. The optional profile setting keeps encryption but skips validating the SQL server's identity.
 
@@ -98,4 +98,4 @@ Closed cases, existing drafts, pending issue confirmations, unreadable shared fi
 
 ## Approved server configuration
 
-The SQL server must also appear in the signed trusted-connections.json allowlist. A certificate workaround does not authorize another server. Ask the release owner to review and sign any required allowlist change; inspectors must not alter it or bypass the refusal.
+The SQL server must also appear in the trusted-connections.json allowlist. A certificate workaround does not authorize another server. Ask the release owner to make any required allowlist change in a new release; inspectors must not alter it or bypass the refusal.
