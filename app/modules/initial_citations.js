@@ -10,7 +10,8 @@ import {
 import { evid as dep_evid } from "./workspace_shell.js";
 import { citationTier as dep_citationTier } from "./issuance_and_corrections.js";
 import { citationReview as dep_citationReview } from "./case_timeline.js";
-import { citationFaces as dep_citationFaces, editorSync as dep_editorSync } from "./inspection_import.js";
+import { editorSync as dep_editorSync } from "./inspection_import.js";
+import { citationFaces as dep_citationFaces } from "./document_render.js";
 import {
   checkTarget as dep_checkTarget,
   citSelector as dep_citSelector,
