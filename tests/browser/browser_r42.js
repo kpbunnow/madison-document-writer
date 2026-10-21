@@ -106,6 +106,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.waitForFunction(() => !document.getElementById("utility-dialog"));
     assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-editor-preview")), true);
     // The complete fixed print packet is independent of the representative screen copies.
+    await page.evaluate(() => {
+      doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
+      render();
+    });
     await page.locator("[data-notecite]").first().check();
     await page.waitForFunction(() => initialCitations.enabled(doc(WriterState.state.docId)));
     await page.locator(".initial-citation-previews .cit").first().waitFor();

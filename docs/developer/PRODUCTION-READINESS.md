@@ -20,12 +20,16 @@ printing (including historical snow citations), performance, manual accessibilit
 and staff acceptance remain OPEN. Approval fields remain blank until their
 actual owners record evidence and signoff.
 
-R55 Reports performance acceptance must include the summary-to-case projection check
+R56 Reports performance acceptance must include the summary-to-case projection check
 on representative real case sizes (first load after a change pays it once per case).
 
-R55 additionally requires C10: a native Windows Unicode case on the default code page
+R56 carries C10: a native Windows Unicode case on the default code page
 (automated tests only simulate that encoding), and P3 now includes a direct filing of
 the same name during an outbox transfer.
+
+R56 additionally requires S56: staff review of the simplified editor (single
+Recipients button, no parcel field or initial-action panel, Cite only for a Citation
+import) and P7 now includes authoring-13 dated Best Interest and Vacancy Extensions.
 
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and

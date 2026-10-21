@@ -1,5 +1,9 @@
 # Release changelog
 
+## 2026-10-21 R56
+
+Helper 2026.10.21.57, helperBuild 57, authoring 13; schema 5, summary 6 and backup 2 unchanged. Writer simplification requested by the division: the document's Preview mailing address button, the notice's Property record details parcel field, the Other initial inspection actions panel and the bottom Add violation item button are removed; one Recipients button opens copies, email and registered agent; Cite is offered only when the imported Accela status is Citation. A notice still requires a 12-digit parcel, now corrected in Accela and re-imported. New Best Interest and Vacancy Extensions (authoring 13) require a later due date for each affected item, entered in Items and due dates; Vacancy Extensions are always dated. Authoring-12 and earlier documents are unchanged. Adds acceptance item S56 and extends P7.
+
 ## 2026-10-21 R55
 
 Helper 2026.10.21.56, helperBuild 56; authoring 12, schema 5, summary 6 and backup 2 unchanged. Verification binds all deployment inputs and generated helper/release files; packaging checks staged bytes and an explicit source inventory, excluding local credentials/environments/operational data. Reconciles current import rules and security guidance, regenerates all manual editions, preserves fixture ownership and consolidation provenance. Carries the consolidation refactors, approved-language extraction and central helper route guards. City acceptance and legal holds remain open.

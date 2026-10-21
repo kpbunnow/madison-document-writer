@@ -1170,6 +1170,34 @@ export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : unde
    The helper commits the revision and supersession together under its case lock.
    A failed/ambiguous save retains an idempotent attempt on the local draft. */
 export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
+/* Items may be cited only when the imported Accela inspection status is Citation. */
+export const citeAllowed = (d) => !!d?.importRule?.cite;
+/* When an imported status does not permit citations (for example Citation corrected to Official Notice in Accela
+   and re-imported), clear the citation marks and their draft citation and deposit data on a draft notice or an
+   open worksheet. Issued and corrected documents are never changed. Returns whether anything was cleared. */
+export function clearProhibitedCitations(target) {
+  if (!target?.importRule || target.importRule.cite) return false;
+  let cleared = false;
+  if (target.results) {
+    if (!target.draft || target.docId) return false;
+    for (const res of Object.values(target.results)) {
+      if (res?.cite) {
+        res.cite = false;
+        cleared = true;
+      }
+    }
+    return cleared;
+  }
+  if (!target.draft || target.correction || target.pendingIssue || target.pendingAmendment || !Array.isArray(target.items)) return false;
+  for (const it of target.items) {
+    if (!it.cite) continue;
+    it.cite = false;
+    delete target.depositRequests?.[it.id];
+    delete target.cits?.[it.id];
+    cleared = true;
+  }
+  return cleared;
+}
 const isRecordEvent = (e) =>
   /\.issued$/.test(e.type) || e.type === "document.voided" || e.type === "reinspection.recorded" || e.type === "document.served";
 export const recordHead = (cid) =>
@@ -2325,7 +2353,7 @@ document.addEventListener("change", (e) => {
     e.target.matches(
       "[data-case-action-group],[data-case-action-type],[data-service-field],[d" +
         "ata-action-group],[data-action-type],[data-special],[data-special-item]," +
-        "[data-special-due],[data-initial-action],[data-administrative-type],[dat" +
+        "[data-special-due],[data-administrative-type],[dat" +
         'a-special="administrativeType"]',
     )
   )
@@ -2388,7 +2416,7 @@ document.addEventListener("click", async (e) => {
       "ata-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[da" +
       "ta-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo]" +
       ",[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk" +
-      "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add,#btn-add-to" +
+      "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-to" +
       "p,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#" +
       "btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-ex" +
       "portcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-acti" +
@@ -2846,7 +2874,7 @@ document.addEventListener("click", async (e) => {
     toast("Added: " + src.t);
     return;
   }
-  if (t.id === "btn-add" || t.id === "btn-add-top") {
+  if (t.id === "btn-add-top") {
     if (!structEditable(d)) return;
     if (WriterState.state.pickerDoc !== d.id) {
       WriterState.state.pickerStatus = "approved";
@@ -2920,7 +2948,8 @@ document.addEventListener("click", async (e) => {
   if (t.dataset.notecite) {
     if (!structEditable(d)) return;
     const it = d.items.find((i) => i.id === t.dataset.notecite);
-    if (it) {
+    // A mark that is no longer permitted can still be removed; a new one needs a Citation import.
+    if (it && (it.cite || citeAllowed(d))) {
       it.cite = !it.cite;
       if (!it.cite) {
         delete d.depositRequests?.[it.id];
@@ -3508,7 +3537,7 @@ document.addEventListener("change", (e) => {
   }
   const rr = reinsp(WriterState.state.reinspId),
     ds = e.target.dataset || {};
-  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || ds.ricite)) {
+  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked)))) {
     const id = ds.ridate || ds.ridue || ds.ricite,
       res = rr.results[id];
     if (res) {

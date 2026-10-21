@@ -24,6 +24,7 @@ Add a new suite under the feature it covers.
 | `audit_r50_import.js` | Result-status eligibility table (Completed, Official Notice, Citation, Compliance) |
 | `audit_r50_import_repaint.js` | Import disclosure, picker focus and navigation across repaints |
 | `audit_r53_status_rules.js` | Inspection type and status decide the document |
+| `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
 
 ## Document authoring and language
 
@@ -36,7 +37,7 @@ Add a new suite under the feature it covers.
 | `audit_r47_language.js` | Catalog truth, private draft identity, asynchronous isolation |
 | `audit_r50_cached_reviews.js` | Cached catalog review status and refresh outcomes |
 | `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints |
-| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer |
+| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Items and due dates, no conditional model) |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
 | `audit_valid.js` | Document blockers and mailing-date limits |

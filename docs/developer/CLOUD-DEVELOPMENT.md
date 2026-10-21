@@ -13,7 +13,11 @@ check); regenerating the manual also needs pandoc. Dependency versions are pinne
 `package-lock.json` and hash-checked `requirements-dev.txt`. Recorded cloud
 environments: the R53 import used Node 24.19.0, Python 3.12.14 and system
 Chromium 154.0.8037.57; R54 verification used Node 22.22.0, Python 3.12.3 and
-Chromium 141.0.7390.37 through `DW_BROWSER`.
+Chromium 141.0.7390.37 through `DW_BROWSER`. R56 regenerated the manual and ran final
+verification with the Playwright-pinned Chromium 145.0.7632.6, installed outside the checkout
+with `PLAYWRIGHT_BROWSERS_PATH="$RUNTIME/pw-browsers" npx playwright install chromium`; the
+environment's allowed domains must include `cdn.playwright.dev` and
+`playwright.download.prss.microsoft.com` for that download.
 
 ```sh
 python3 -m venv "$RUNTIME/venv"

@@ -37,7 +37,16 @@ const test = async () => {
   const app = document.getElementById("app");
   assert.equal(app.querySelectorAll(".topbar-actions .btn-primary").length, 1);
   assert.ok(document.querySelector("#btn-save"));
-  assert.equal(app.querySelectorAll("[data-editor-section]").length, 3);
+  // One Recipients button opens the recipient dialog; the other two move to their sections.
+  assert.equal(app.querySelectorAll("[data-editor-section]").length, 2);
+  const recipients = app.querySelector(".editor-sections #btn-cc");
+  assert.equal(recipients.textContent, "Recipients");
+  assert.equal(app.querySelectorAll("#btn-cc").length, 1);
+  assert.ok(!/Copies &amp; email|Copies & email|Inspection &amp; recipients/.test(app.innerHTML));
+  recipients.click();
+  assert.equal(WriterState.state.modal, "cc");
+  WriterState.state.modal = null;
+  render();
   assert.ok(document.querySelector("#checkbox-panel .fail"));
   assert.equal(document.querySelector(".passed-checks").open, false);
   assert.equal(document.querySelector("#btn-checks").getAttribute("aria-expanded"), "true");

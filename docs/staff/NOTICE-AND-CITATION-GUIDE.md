@@ -6,18 +6,18 @@ Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruc
 
 ## 5 Prepare an Official Notice
 
-Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. Expand the case details when a check identifies a missing field. Review the mailing block rather than relying on an address parser to establish ownership or service.
+Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. Expand the case details when a check identifies a missing field. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service.
 
 1. Open Add items. Find the appropriate selectable order language and select it once. A checkmark means it is already on this notice. Select it again to remove it from the unissued draft. The same library entry cannot be added twice.
 2. Choose Done adding. Review each item's ordinance, corrective action, location and case-specific details. Outlined fill-in bubbles identify missing details. Click a bubble or focus it and press Enter, enter the factual detail, and review the sentence afterward.
 3. In Assign due dates below the document, select the items sharing a deadline, enter the date and choose Apply to selected. Use Select all when appropriate. Repeat for other groups. New items begin without an automatic deadline.
 4. Keep no more than three distinct outstanding-item deadlines under the existing notice rules. A batch that would create a fourth is rejected without changing the items. An invalid individual edit may be saved as work in progress but blocks issuance.
-5. Review the whole document, not only the edited sentence. Check recipients, contact details, the mailing date, the item order and all warnings. Use Show checks to jump to the affected field and correct it.
+5. Review the whole document, not only the edited sentence. Check recipients (the Recipients button opens copies, email and registered agent), contact details, the mailing date, the item order and all warnings. Use Show checks to jump to the affected field and correct it.
 6. Choose Save & continue later to retain unfinished work, or Review & issue when ready. Verify the resulting save state.
 
 Private wording edits belong to the retained draft. Removing and reselecting the same source in that draft restores its identity, edited text, ordinances, due date, location and notes. A newer catalog version requires explicit review and adoption; it does not silently replace private wording.
 
-**Initial citations.** Select Cite only for the items actually being charged. Complete Initial-inspection citations before using Issue notice and citations together. The deadline record and citation save atomically; the initial-citation letter carries the notice content. The notice is retained as Delivered within the citation rather than producing an extra owner notice. Each charge has four court copies. No reinspection is invented.
+**Initial citations.** The Cite option appears only when the imported Accela inspection status is Citation. Select Cite only for the items actually being charged. Complete Initial-inspection citations before using Issue notice and citations together. The deadline record and citation save atomically; the initial-citation letter carries the notice content. The notice is retained as Delivered within the citation rather than producing an extra owner notice. Each charge has four court copies. No reinspection is invented.
 
 Use a correction after issuance. Do not renumber or delete historical items to hide an error. The program's checks support the division's process; a green check is not a legal determination about the selected ordinance or deadline.
 

@@ -38,6 +38,14 @@ import {
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
 export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+/* Authoring 13 (R56): every extended Best Interest or Vacancy item carries a later repair due date, entered in
+   Items and due dates; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
+export const DATED_EXTENSIONS = 13;
+export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+const requireDated = (type, s) => {
+  if (type === "vacancyExtension") s.deadlineMode = "dated";
+  return s;
+};
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
 export const NEW_TYPES = [
   {
@@ -462,7 +470,9 @@ export function initNewDocuments() {
       if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
         add(
           selected(d, s).every((i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "")),
-          "Enter later future deadlines for all affected items.",
+          datedExtension(d)
+            ? "Enter a later future due date in Items and due dates for each affected item."
+            : "Enter later future deadlines for all affected items.",
           "affected",
         );
         const dates = [
@@ -629,7 +639,7 @@ export function initNewDocuments() {
               " · " +
               e(i.title || i.text.slice(0, 60)) +
               "</label>" +
-              ((s.affected || []).includes(String(i.no)) && (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
+              ((s.affected || []).includes(String(i.no)) && !datedExtension(d) && (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
                 ? '<label class="f"><span>Extended deadline for item ' +
                   e(i.no) +
                   '</span><input type="date" data-special-due="' +
@@ -641,6 +651,9 @@ export function initNewDocuments() {
           )
           .join("") +
         "</fieldset>" +
+        (datedExtension(d)
+          ? '<p class="hint">Enter each affected item\u2019s new due date in Items and due dates. Other items keep their original dates.</p>'
+          : "") +
         ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
         f("safetyBasis", "Reviewed factual basis for excluding safety items", "textarea");
       if (d.type === "bestInterestExtension")
@@ -660,10 +673,12 @@ export function initNewDocuments() {
           f("vacancyFacts", "Verified vacancy basis", "textarea") +
           f("conditions", "Approved continuing conditions", "textarea") +
           f("reviewDate", "Next scheduled review inspection", "date") +
-          sel("deadlineMode", "Repair deadline model", [
-            ["dated", "Specific repair deadlines"],
-            ["conditional", "Conditional; no replacement repair dates"],
-          ]) +
+          (datedExtension(d)
+            ? ""
+            : sel("deadlineMode", "Repair deadline model", [
+                ["dated", "Specific repair deadlines"],
+                ["conditional", "Conditional; no replacement repair dates"],
+              ])) +
           sel("expiryMode", "Expiration / review model", [
             ["fixed", "Fixed expiration"],
             ["review", "Reviewed at next inspection"],
@@ -942,13 +957,13 @@ export function initNewDocuments() {
       return;
     }
     const src = doc(r.sourceDocId),
-      s = clone(r.actionDetails?.[type] || {});
+      s = requireDated(type, clone(r.actionDetails?.[type] || {}));
     s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
     const d = {
       id: uid("d"),
       caseId: r.caseId,
       type,
-      authoringVersion: 12,
+      authoringVersion: DATED_EXTENSIONS,
       draft: true,
       status: "Draft",
       created: day(),
@@ -1151,20 +1166,6 @@ export function initNewDocuments() {
       "</div></section>"
     );
   }
-  function initialPanel(d) {
-    if (d.type !== "notice" || !d.draft || originalNotice(d.caseId)) return "";
-    return (
-      '<section class="card no-print"><div class="card-b"><label class="f"><spa' +
-      "n>Initial inspection action</span><select data-initial-action><option va" +
-      'lue="notice">Official Notice</option>' +
-      NEW_TYPES.filter((t) => t.effect === "supplemental")
-        .map((t) => '<option value="' + t.id + '">' + t.label + "</option>")
-        .join("") +
-      ('</select></label><p class="hint">Use the actual imported inspection for ' +
-        "an emergency action. No dummy notice or return visit is required.</p></d" +
-        "iv></section>")
-    );
-  }
   function caseAction(cid, type) {
     if (snow.isCase(kase(cid))) {
       toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
@@ -1201,7 +1202,7 @@ export function initNewDocuments() {
       mailed: "",
       cc: "",
       cits: {},
-      authoringVersion: 12,
+      authoringVersion: DATED_EXTENSIONS,
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: recordHead(cid),
@@ -1209,7 +1210,7 @@ export function initNewDocuments() {
       inspectorId: factual?.inspectorId || docInsp(src).id,
       inspDate: factual?.date || inspAt(src).date,
       inspTime: factual?.time || inspAt(src).time,
-      special: { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) },
+      special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }),
       items: continuingItems(src).map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id, cite: false })),
     };
     WriterState.DOCS.unshift(d);
@@ -1330,20 +1331,10 @@ export function initNewDocuments() {
       d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
       d.type = el.value;
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
+      if (datedExtension(d)) requireDated(d.type, d.special);
       restoreDues(d);
       saveDrafts();
       refreshControls(el);
-      return true;
-    }
-    if (el.hasAttribute("data-initial-action") && d && d.draft) {
-      d.selectionCache = d.selectionCache || {};
-      d.selectionCache[d.type] = clone(d.special || {});
-      d.special = clone(d.selectionCache[el.value] || {});
-      d.type = el.value;
-      d.initialAction = d.type !== "notice";
-      d.special = d.special || {};
-      saveDrafts();
-      render();
       return true;
     }
     if (!d || isLocked(d) || !specialType(d.type)) return false;
@@ -1489,7 +1480,6 @@ export function initNewDocuments() {
     createSpecial,
     specialLifecycle,
     actionPanel,
-    initialPanel,
     caseAction,
     caseActionScreen,
     editEvent,

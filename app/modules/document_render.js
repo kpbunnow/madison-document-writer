@@ -4,6 +4,7 @@ import { fmtDate, fmtTime, inspAt, longDate, parseTime } from "./court_and_depos
 import { documentItemHistory, revisionPrintNote } from "./issuance_and_corrections.js";
 import { catalogDraftNotice } from "./language_catalog.js";
 import {
+  citeAllowed,
   BOXN,
   BOXY,
   DOC_TYPES,
@@ -39,7 +40,7 @@ import {
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { alignedExtension, specialType } from "./new_documents.js";
+import { alignedExtension, datedExtension, specialType } from "./new_documents.js";
 
 function noticeHTML(d) {
   const aligned = alignedExtension(d);
@@ -53,6 +54,8 @@ function noticeHTML(d) {
   // while the first notice is still a draft the numbering follows the order;
   // after it is issued the stored number is what the owner has in hand
   const struct = structEditable(d);
+  // One condition for the Cite heading and every row's cell, so the columns stay aligned when only an old mark remains.
+  const citeColumn = struct && (citeAllowed(d) || d.items.some((i) => i.cite));
   const rows = d.items
     .map((it, ix) => {
       let head = "";
@@ -177,14 +180,16 @@ function noticeHTML(d) {
           ) +
           "</td>\n      " +
           "".concat(
-            struct && !it.done
-              ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
+            !citeColumn
+              ? ""
+              : !it.done && (citeAllowed(d) || it.cite)
+                ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
                   'ice"><input type="checkbox" data-notecite="' +
                   `${esc(it.id)}` +
                   '" ' +
                   `${it.cite ? "checked" : ""}` +
                   "><span>Cite</span></label></td>"
-              : "",
+                : '<td class="c-cite no-print"></td>',
           ) +
           '\n      <td class="c-due">' +
           "".concat(
@@ -225,7 +230,7 @@ function noticeHTML(d) {
                         '" aria-label="Due date for item ' +
                         `${esc(num)}` +
                         '" ' +
-                        `${dis}` +
+                        `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
                         ">",
           ) +
           "\n        " +
@@ -349,7 +354,6 @@ function noticeHTML(d) {
     '-space:pre-wrap">' +
     `${esc(ownerLines(k).join("\n"))}` +
     "</div>" +
-    "".concat(d.draft && !isLocked(d) ? '<button class="btn btn-sm no-print" data-parse-address="owner|0">Preview mailing address</button>' : "") +
     '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div' +
     ' class="n-winspace" aria-hidden="true"></div>\n\n    ' +
     `${revisionPrintNote(d)}` +
@@ -366,11 +370,11 @@ function noticeHTML(d) {
     '\n    <table class="notice"><thead><tr><th class="c-no">Item No.</th><th ' +
     'class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>C' +
     "orrections Required</th>" +
-    `${struct ? '<th class="c-cite no-print">Cite</th>' : ""}` +
+    `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
     `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +
-    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — add the first violation below.</td></tr>') +
+    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Select violations in Items and due dates.</td></tr>') +
     "</tbody></table>\n    " +
     (aligned
       ? '<div class="extension-signer"><p>' +
@@ -379,9 +383,6 @@ function noticeHTML(d) {
         esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
         "</p></div>"
       : "") +
-    "".concat(
-      !struct ? "" : '<div class="addwrap no-print"><button class="btn btn-primary addrow" id=' + '"btn-add">Add violation item</button></div>',
-    ) +
     "\n    " +
     "".concat(
       (function () {

@@ -162,19 +162,13 @@ const tests = async function () {
     parcel = list.find((c) => !c.ok && /parcel/.test(c.t));
   ok("Blank check targets only the incomplete item", blank.targets.length === 1 && blank.targets[0].selector === itemSelector("a", "text"));
   ok("Multiple missing due dates provide separate item links", dates.targets.length === 2);
-  ok("Missing parcel targets an editable property field", parcel.targets[0].selector === '[data-case="parcel"]');
+  // The parcel comes only from the Accela import: the check still blocks, names the correction, and links to no field.
+  ok("Missing parcel still blocks the notice", !parcel.ok && /Add it in Accela, then import this inspection again/.test(parcel.t));
+  ok("Missing parcel offers no editable field", (parcel.targets || []).length === 0);
   document.getElementById("app").innerHTML = screenWrite();
   highlightOpenChecks();
-  ok(
-    "Incomplete fields highlighted even with checks collapsed",
-    document.querySelector(itemSelector("a", "text")).classList.contains("check-open") &&
-      document.querySelector('[data-case="parcel"]').classList.contains("check-open"),
-  );
-  focusCheckTarget(parcel.targets[0], parcel.t);
-  ok(
-    "Check navigation opens collapsed details and focuses field",
-    document.activeElement.dataset.case === "parcel" && document.activeElement.closest("details").open,
-  );
+  ok("The editor has no parcel field", !document.querySelector('[data-case="parcel"]') && !document.querySelector(".case-check-fields"));
+  ok("Incomplete fields highlighted even with checks collapsed", document.querySelector(itemSelector("a", "text")).classList.contains("check-open"));
   // Exercise the actual rendered link used in the inspection result/check panel.
   render = () => {
     document.getElementById("app").innerHTML = screenWrite();

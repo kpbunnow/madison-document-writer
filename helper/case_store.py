@@ -163,6 +163,9 @@ def validate_special_fields(snap, at=None, check_date_window=True):
             )
             if s["expiryMode"] == "fixed":
                 assert_fact(calendar_date(s.get("expiryDate")) and s["expiryDate"] > mailed, "Record a separate future expiration")
+            # Authoring 13 (R56): extended items always carry new repair dates; conditional remains for older reprints.
+            if snap.get("authoringVersion", 0) >= 13:
+                assert_fact(s["deadlineMode"] == "dated", "Vacancy Extensions require a new due date for each affected item")
         if kind == "bestInterestExtension" or s.get("deadlineMode") == "dated":
             assert_fact(
                 all(calendar_date(i.get("due")) and i["due"] > max(mailed, originals.get(str(i["no"]), "")) for i in selected),

@@ -416,24 +416,14 @@ function acceptAccela() {
   return result;
 }
 
-function caseCheckFields(d) {
-  if (isLocked(d) || d.correction || d.type !== "notice") return "";
-  return (
-    '<details class="card case-check-fields no-print"><summary>Property recor' +
-    'd details</summary><div class="card-b"><label class="f"><span>Parcel num' +
-    'ber</span><input data-case="parcel" value="' +
-    `${esc(docCase(d).parcel || "")}` +
-    '" aria-label="Parcel number"></label></div></details>'
-  );
-}
-
 function attachCheckTargets(d, c) {
   if (c.ok || c.targets?.length) return c;
   const t = c.t.toLowerCase(),
     targets = [],
     add = (s, l, a) => targets.push(checkTarget(s, l, a));
   const visit = () => add("#btn-editvisit", "Review inspection", "visit");
-  if (/parcel/.test(t)) add('[data-case="parcel"]', "Parcel number");
+  // The parcel comes only from the Accela import; its check names that correction instead of a field.
+  if (/parcel/.test(t)) return c;
   else if (/registered agent/.test(t)) ["name", "addr", "city"].forEach((f) => add('[data-agent="' + f + '"]', "Registered agent " + f, "contacts"));
   else if (/mailing block/.test(t)) add('[data-case="ownerBlock"]', "Mailing block");
   else if (/case number/.test(t)) {
@@ -848,7 +838,7 @@ function screenReinspect() {
                 ) +
                 "</label>\n      " +
                 "".concat(
-                  open
+                  open && (r.importRule?.cite || res.cite)
                     ? '<label class="ri-cite"><input type="checkbox" data-ricite="' +
                         `${esc(it.id)}` +
                         '" ' +
@@ -1416,8 +1406,6 @@ function screenWrite() {
     "ce</button></div>";
   const inspection =
     '<div class="editor-taskbar no-print">' +
-    `${editable ? '<button class="btn" id="btn-cc">Copies &amp; email…</button>' : ""}` +
-    "" +
     "".concat(fr && fr.draft && !d.correction && !d.pendingAmendment ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
     '<p class="hint">' +
     "".concat(
@@ -1426,17 +1414,7 @@ function screenWrite() {
         : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
     ) +
     "</p></div>" +
-    "".concat(
-      newDocuments.initialPanel(d)
-        ? '<details class="editor-initial-options no-print"><summary>Other initial inspection actions</summary>' +
-            newDocuments.initialPanel(d) +
-            "</details>"
-        : "",
-    ) +
-    "" +
     `${newDocuments.details(d)}` +
-    "" +
-    `${caseCheckFields(d)}` +
     "" +
     `${snow.factsForm(d)}` +
     "" +
@@ -1526,9 +1504,10 @@ function screenWrite() {
               '">Open the corrected document</button></div></div>'
           : "",
       ) +
-      '<nav class="editor-sections no-print" aria-label="Document tasks"><butto' +
-      'n data-editor-section="editor-inspection">Inspection &amp; recipients</b' +
-      'utton><button data-editor-section="editor-items">Items &amp; due dates</' +
+      '<nav class="editor-sections no-print" aria-label="Document tasks">' +
+      // Recipients opens the copies and email dialog itself rather than moving to a section.
+      `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
+      '<button data-editor-section="editor-items">Items &amp; due dates</' +
       'button><button data-editor-section="editor-review">Review' +
       `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
       "</button></nav>" +
@@ -1540,7 +1519,7 @@ function screenWrite() {
           : "",
       ) +
       "" +
-      `${editorSection("editor-inspection", "Inspection and recipients", inspection)}` +
+      `${editorSection("editor-inspection", "Inspection", inspection)}` +
       "" +
       `${editorSection("editor-items", "Items and due dates", work)}` +
       "" +
@@ -1952,7 +1931,7 @@ function modalHTML() {
         if (!list.length)
           return (
             '<p class="hint" style="margin-top:14px">No email recipients on this case' +
-            ". Add them under <strong>Copies &amp; email</strong> if you want this se" +
+            ". Add them under <strong>Recipients</strong> if you want this se" +
             "nt as well as filed.</p>"
           );
         return (
@@ -2058,16 +2037,6 @@ function render() {
         el.dataset.reviewDetails,
       ])
     : [];
-  const initialOptions = previous?.querySelector(".editor-initial-options");
-  const keepInitialOptions = WriterState.state.screen === "write" && previous?.dataset.editorDoc === WriterState.state.docId && initialOptions?.open;
-  const initialFocus =
-    keepInitialOptions && initialOptions.contains(active)
-      ? active.tagName === "SUMMARY"
-        ? "summary"
-        : active.matches("[data-initial-action]")
-          ? "[data-initial-action]"
-          : ""
-      : "";
   // A background repaint of the same snow citation must keep focus in the snow fact being entered.
   const snowFocus = sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + checkAttr(active.dataset.snow) + '"]' : "";
   const worksheet = document.querySelector("[data-worksheet-context]"),
@@ -2167,14 +2136,6 @@ function render() {
     const current = document.querySelector('[data-charge="' + checkAttr(charge) + '"] [data-review-details="' + checkAttr(key) + '"]');
     if (current) current.open = true;
   }
-  // Background helper refreshes must keep the current document's action visible.
-  if (keepInitialOptions) {
-    const current = document.querySelector(".editor-initial-options");
-    if (current) {
-      current.open = true;
-      if (initialFocus && !WriterState.state.modal && !WriterState.state.picker) current.querySelector(initialFocus)?.focus({ preventScroll: true });
-    }
-  }
   if (snowFocus && !WriterState.state.modal && !WriterState.state.picker)
     document.querySelector(".document-workspace " + snowFocus)?.focus({ preventScroll: true });
   const q = document.getElementById("pk-q");
@@ -2248,7 +2209,7 @@ function newDoc(caseId, type) {
     status: "Draft",
     draft: true,
     mailed: recordDay(today),
-    authoringVersion: 12,
+    authoringVersion: 13,
     items: [],
     cc: "",
     cits: {},

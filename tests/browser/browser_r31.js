@@ -22,6 +22,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     });
     newDoc(id, "notice");
     const d = doc(WriterState.state.docId);
+    // Items can be cited only when the imported Accela status is Citation.
+    d.importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
     d.items = [
       {
         id: "r31-item",
@@ -45,13 +47,28 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   await page.locator('[data-deposit-form] [name="depositSource"]').fill("Synthetic court approval R31 QA: approved base deposit.");
   await page.getByRole("button", { name: "Complete charge", exact: true }).click();
   assert.equal(await page.evaluate(() => Object.values(doc(WriterState.state.docId).cits)[0].amount), "6411.00");
-  await page.locator('[data-parse-address="owner|0"]').click();
-  await page.locator("#utility-dialog").waitFor();
+  // The document has no owner address preview; the respondent key uses the address as imported.
+  assert.equal(await page.locator('[data-parse-address="owner|0"]').count(), 0);
   assert.deepEqual(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).ownerAddr), ["123 East Main Street #4", "MADISON WI 53703"]);
-  await axeScreen(page, "r31-address-preview");
-  await page.getByRole("button", { name: /Accept standardized address/i }).click();
   assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).owner), "EXACT ACCELA SYNTHETIC OWNER");
   assert.equal(await page.evaluate(() => respondentKey(kase(doc(WriterState.state.docId).caseId))), "123 E MAIN ST UNIT 4|53703");
+  // Copy recipients keep the standardized-address preview, opened from the single Recipients button.
+  await page.evaluate(() => {
+    kase(doc(WriterState.state.docId).caseId).ccList = [
+      { name: "SYNTHETIC COPY RECIPIENT", addr: "123 East Main Street #4", city: "MADISON WI 53703" },
+    ];
+    render();
+  });
+  await page.locator(".editor-sections #btn-cc").click();
+  await page.locator('[data-parse-address="copy|0"]').click();
+  await page.locator("#utility-dialog").waitFor();
+  await axeScreen(page, "r31-address-preview");
+  await page.getByRole("button", { name: /Accept standardized address/i }).click();
+  assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).ccList[0].addressParsed.accepted), true);
+  await page.evaluate(() => {
+    WriterState.state.modal = null;
+    render();
+  });
   await page.waitForFunction(() => blockers(doc(WriterState.state.docId)).length === 0);
   const ids = await page.evaluate(() => ({ noticeId: doc(WriterState.state.docId).id, citationId: doc(WriterState.state.docId).initialCitationId }));
   await page.locator("#btn-final").click();
