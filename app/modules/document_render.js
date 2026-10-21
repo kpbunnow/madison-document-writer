@@ -765,4 +765,4 @@ function citationFaces(d, locked) {
 
 /* R42 presentation only: storage/publication and fixed print construction stay in their owners. */
 
-export { noticeHTML, documentHTML, citField, citAmount, citationFaces };
+export { documentHTML, citationFaces };

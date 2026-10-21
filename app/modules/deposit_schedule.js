@@ -3,7 +3,7 @@ import { esc } from "./reports_core.js";
 /* Read-only dated legislation explorer; descriptions never determine a charge. */
 import { recordDay } from "../assets/shared.js";
 import { policyAt, formatDeposit, pricingDateBasis } from "./citation_policy.js";
-export function describeDepositRule(e) {
+function describeDepositRule(e) {
   const money = (c) => formatDeposit((c / 100).toFixed(2)),
     r = e.rule;
   if (!r)

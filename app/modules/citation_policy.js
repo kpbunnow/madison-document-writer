@@ -110,11 +110,11 @@ export function respondentKey(k) {
   return normalized + "|" + zip[1];
 }
 /* R34: property matching for site and site-season windows; mirrored exactly by citation_pricing.py. */
-export function normalizedParcel(value) {
+function normalizedParcel(value) {
   const d = String(value == null ? "" : value).replace(/[\s-]/g, "");
   return /^\d{12}$/.test(d) ? d : "";
 }
-export function propertyKey(address) {
+function propertyKey(address) {
   const t = String(address || "")
     .split(",")[0]
     .toUpperCase()
@@ -304,7 +304,7 @@ export function policyAt(date) {
   return result;
 }
 
-export function ruleBase(entry, tier, measurements = {}) {
+function ruleBase(entry, tier, measurements = {}) {
   const r = entry.rule,
     m = measurements;
   if (!r) return null;

@@ -11,7 +11,7 @@ const normalize = (value) =>
     .normalize("NFKD")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
-export function languageMatches(R, item, query) {
+function languageMatches(R, item, query) {
   const e = R.effectiveCatalog(item),
     c = R.LIBRARY[item.ci],
     g = c.groups[item.gi];
@@ -24,7 +24,7 @@ export function languageMatches(R, item, query) {
       return (aliases.find((group) => group.includes(word)) || [term]).some((value) => text.includes(value));
     });
 }
-export function languageFilterOptions(R, selected, picker = false) {
+function languageFilterOptions(R, selected, picker = false) {
   const choices = [
     ["approved", "Approved language"],
     ["usable", "Approved and standard"],
@@ -35,7 +35,7 @@ export function languageFilterOptions(R, selected, picker = false) {
   if (picker) choices.push(["selected", "Selected on this notice"]);
   return choices.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${R.esc(label)}</option>`).join("");
 }
-export function languageBadge(R, item) {
+function languageBadge(R, item) {
   const s = R.catalogStatus(item),
     label = {
       ready: "Approved",
@@ -48,7 +48,7 @@ export function languageBadge(R, item) {
     }[s.code];
   return `<span class="tag ${s.code === "ready" ? "ok" : "warn"}">${R.esc(label || s.label)}</span>`;
 }
-export function languageDetails(R, item, working = null) {
+function languageDetails(R, item, working = null) {
   const e = R.effectiveCatalog(item),
     s = R.catalogStatus(item),
     review = s.review,

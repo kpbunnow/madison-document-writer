@@ -21,10 +21,9 @@ import {
   nowISO,
   recordIntegrity,
 } from "./app_core.js";
-import { app_languagediscoveryContext, app_savedworkContext } from "./app_view_contexts.js";
+import { app_savedworkContext } from "./app_view_contexts.js";
 import { BUILD } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
-import { languageBadge } from "./language_discovery.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
@@ -134,10 +133,6 @@ function catalogSelection(i) {
   return status.code === "ready"
     ? { ...i, a: r.wording, s: r.ordinances, p: "approved", catalogVersion: r.version, catalogReviewId: r.id }
     : { ...i, catalogVersion: 0 };
-}
-
-function catalogBadge(i) {
-  return languageBadge(app_languagediscoveryContext(), i);
 }
 
 function catalogVisible(i, filter) {
@@ -907,7 +902,6 @@ async function globalSearch() {
 
 export {
   catalogReview,
-  catalogReplacement,
   catalogStatus,
   effectiveCatalog,
   catalogItem,
@@ -915,23 +909,17 @@ export {
   catalogDraftNotice,
   adoptCatalogReview,
   catalogSelection,
-  catalogBadge,
   catalogVisible,
   refreshCatalog,
   catalogForm,
   catalogReplacementOptions,
   catalogReviewPanel,
-  readSharedCase,
-  localCaseWork,
   compareSharedCase,
   preflightCase,
   sharedChangeModal,
   keepChangedLocal,
   openChangedShared,
   persistWorkspacePatch,
-  resolvedCaseFields,
-  friendlyField,
-  conflictControls,
   applyConflict,
   safetyCaseStatus,
   showSafety,

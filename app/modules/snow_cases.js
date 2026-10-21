@@ -27,7 +27,7 @@ import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citatio
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
-export const SNOW_TYPE = "snow-10.28",
+const SNOW_TYPE = "snow-10.28",
   SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
 export function initSnow() {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),

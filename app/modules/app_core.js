@@ -226,7 +226,7 @@ document.addEventListener(
   },
   true,
 );
-export const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
+const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
 
 /* =====================================================================
    MADISON BUILDING INSPECTION — DOCUMENT WRITER (prototype)
@@ -517,7 +517,7 @@ export const COURT_CONTACT = {
 /* ---------- when the citation is answerable ----------
    Court dates fall on a Tuesday at least six weeks out. If that Tuesday is a
    court holiday the date moves on a week. Sessions sit at 8:30 or 9:30 AM. */
-export const COURT_TIMES = ["08:30", "09:30"];
+const COURT_TIMES = ["08:30", "09:30"];
 
 export const courtTime = () => COURT_TIMES[0]; // One suggested session; inspector reviews court scheduling.
 
@@ -560,7 +560,7 @@ export const money = (n) => (Math.round((+n || 0) * 100) / 100).toFixed(2);
    Phone numbers are not in the sheet — the four here are read back from
    notices the division has issued. */
 
-export const TEST_CASES = __TEST_BUILD__ ? TEST_CASE_DATA : [];
+const TEST_CASES = __TEST_BUILD__ ? TEST_CASE_DATA : [];
 
 WriterState.CASES = __TEST_BUILD__ && globalThis.MADISON_TEST_DATA ? JSON.parse(JSON.stringify(TEST_CASES)) : [];
 
@@ -649,6 +649,7 @@ export const daysBetween = (a, b) => Math.round((new Date(b + "T12:00:00") - new
 /* the table prints a dash for a missing date; an editable field shows nothing
    so its placeholder can do the work */
 /* test fixture API: retained for audit_*.js; production uses confirmed publication. */
+// Test hook: exported so the test build keeps it; tests call it by name.
 export const fmtDateEd = __TEST_BUILD__ ? $testFixtures.fmtDateEd : undefined;
 /* A date that does not read as a real calendar day has to be rejected
    rather than compared: every comparison against NaN is false, so an
@@ -670,7 +671,7 @@ export const ownerLines = (k) =>
 WriterState.undoFn = null;
 
 // the city's fill-in convention is a literal "( )" in the corrective action
-export const BLANK = /\(\s{0,8}\)/g;
+const BLANK = /\(\s{0,8}\)/g;
 export const countBlanks = (s) => (String(s).match(BLANK) || []).length;
 export const markBlanks = (s) => nl2(s).replace(/\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>');
 export const editableBlanks = (s) =>
@@ -746,7 +747,7 @@ export const docBody = (d) =>
           ? initialCitationBody(d)
           : DOCBODY[d && d.type]) ||
       DOCBODY.notice;
-export const blockText = (b) => ({ key: b, label: (BLOCKS[b] || {}).label || "", text: (BLOCKS[b] || {}).text || "" });
+const blockText = (b) => ({ key: b, label: (BLOCKS[b] || {}).label || "", text: (BLOCKS[b] || {}).text || "" });
 export const docBlocks = (d) => (d && d.correction && d.correction.blocks) || (frozenOf(d) && frozenOf(d).blocks) || activeBlocks(d).map(blockText);
 /* The inspection a document was written from (division, 09/18/2026). A
    follow-up carries its own inspDate/inspTime, taken from the reinspection;
@@ -761,6 +762,7 @@ export const blockers = (d) => checks(d).filter((c) => !c.ok && !c.soft);
 export const MINDUE = () => addDays(recordDay(today), 1);
 // a due date is never today or earlier
 /* test fixture API: retained for audit_*.js; production uses confirmed publication. */
+// Test hook: exported so the test build keeps it; tests call it by name.
 export const futureDue = __TEST_BUILD__ ? $testFixtures.futureDue : undefined;
 
 /* Printing: window.print() is blocked inside a sandboxed frame, so the
@@ -930,7 +932,7 @@ export const STATUS_OF = {
    is opened, or loading it twice appends the whole history again. The
    ordinal preserves the order the file was written in: same-day documents
    all migrate to noon, and a tie on the timestamp is broken on the id. */
-export const migId = (cid, n, kind, ref) =>
+const migId = (cid, n, kind, ref) =>
   "mig1_" +
   String(cid || "").replace(/[^A-Za-z0-9]/g, "") +
   "_" +
@@ -1249,7 +1251,7 @@ const RULE = {
   extension: { choose: ["extension", "bestInterestExtension", "vacancyExtension"], label: "Extension, Best Interest Extension or Vacancy Extension" },
   referralUpdate: { doc: "referralUpdate", label: "Update for Case Referral", needsReferral: true },
 };
-export const STATUS_RULES = {
+const STATUS_RULES = {
   initial: {
     "official notice": RULE.notice,
     citation: RULE.initialCitation,
@@ -1315,7 +1317,7 @@ export const accNorm = (v) => accStr(v).replace(/\s+/g, " ").toLowerCase();
 /* an Excel serial to a local date and a whole minute. 11:39:59.999 is 11:40:
    floating point, not a different time, so round rather than truncate. */
 
-export const accHM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+const accHM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 export const accTime = (v) => {
   if (typeof v === "number" && v >= 0 && v < 1) return accHM(Math.round(v * 1440) % 1440);
   return parseTime(accStr(v));
@@ -1355,6 +1357,7 @@ export const REFERRED_ONLY = ["referralUpdate", "compliance"];
    record still reads correctly years later when the library language has moved
    on and the owner has changed. */
 /* test fixture API: retained for audit_*.js; production uses confirmed publication. */
+// Test hook: exported so the test build keeps it; tests call it by name.
 export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : undefined;
 
 /* Everything that happens once a document is issued: the case record is
@@ -1372,7 +1375,7 @@ export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : unde
    The helper commits the revision and supersession together under its case lock.
    A failed/ambiguous save retains an idempotent attempt on the local draft. */
 export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
-export const isRecordEvent = (e) =>
+const isRecordEvent = (e) =>
   /\.issued$/.test(e.type) || e.type === "document.voided" || e.type === "reinspection.recorded" || e.type === "document.served";
 export const recordHead = (cid) =>
   eventsFor(cid)
@@ -1422,6 +1425,7 @@ export const FIELD_NAMES = {
 };
 
 /* test fixture API */
+// Test hook: exported so the test build keeps it; tests call it by name.
 export const reissueDocument = __TEST_BUILD__ ? $testFixtures.reissueDocument : undefined;
 
 WriterState.AMENDMENT_BUSY = false;

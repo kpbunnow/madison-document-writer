@@ -482,4 +482,4 @@ function enhanceDialog() {
   }
 }
 
-export { docFromReinspection, refreshSheet, contHead, paginate, syncChip, refreshOverlay, enhanceDialog };
+export { docFromReinspection, refreshSheet, paginate, syncChip, refreshOverlay, enhanceDialog };
