@@ -11,12 +11,12 @@ import { narrativeFor as dep_narrativeFor } from "./reinspection_walkthrough.js"
 import { itemHistory as dep_itemHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults as dep_worksheetFaults } from "./draft_recovery.js";
 import {
-  documentHTML as dep_documentHTML,
   editorSync as dep_editorSync,
   highlightOpenChecks as dep_highlightOpenChecks,
   overlayHTML as dep_overlayHTML,
   render as dep_render,
 } from "./inspection_import.js";
+import { documentHTML as dep_documentHTML } from "./document_render.js";
 import {
   A11Y as dep_A11Y,
   DOC_TYPES as dep_DOC_TYPES,

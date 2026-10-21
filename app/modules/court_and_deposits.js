@@ -19,7 +19,8 @@ import {
   citationDepositFault as dep_citationDepositFault,
   refreshArtifactLocations as dep_refreshArtifactLocations,
 } from "./case_timeline.js";
-import { attachCheckTargets as dep_attachCheckTargets, documentHTML as dep_documentHTML, render as dep_render } from "./inspection_import.js";
+import { attachCheckTargets as dep_attachCheckTargets, render as dep_render } from "./inspection_import.js";
+import { documentHTML as dep_documentHTML } from "./document_render.js";
 import { paginate as dep_paginate } from "./document_pagination.js";
 import {
   A11Y as dep_A11Y,
