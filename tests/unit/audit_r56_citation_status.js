@@ -132,8 +132,7 @@ const test = async () => {
   for (const tr of itemRows) {
     const cells = [...tr.children];
     assert.equal(cells.length, headings.length, "each item row has a cell for every heading");
-    for (const name of ["c-cite", "c-due"])
-      assert.equal(column(cells, name), column(headings, name), name + " stays under its heading");
+    for (const name of ["c-cite", "c-due"]) assert.equal(column(cells, name), column(headings, name), name + " stays under its heading");
   }
   assert.equal(itemRows[1].querySelector(".c-cite").children.length, 0, "the uncited row's Cite cell is empty");
   boxes[0].click();
