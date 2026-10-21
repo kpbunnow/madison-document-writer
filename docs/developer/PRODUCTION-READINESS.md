@@ -23,6 +23,6 @@ actual owners record evidence and signoff.
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and
 historical corrections. The five confirmed layout defaults and supervisory
-signer exception are documented in [R54-REVIEW.md](R54-REVIEW.md); these decisions
+signer exception are documented in [the current release review]({{RELEASE_NUMBER}}-REVIEW.md); these decisions
 do not close any existing acceptance hold. Authoring-11 and earlier rendering,
 frozen fixtures, approved language and the regular Extension remain protected.

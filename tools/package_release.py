@@ -8,6 +8,7 @@ by the release owner; IT records that permission check in the acceptance record.
 from pathlib import Path
 import argparse, hashlib, json, shutil, sys, tempfile, zipfile
 from project_layout import ROOT, fingerprint, assemble_deploy
+from release_inputs import source_inventory, verify_deployment, verify_source_copy, verify_package_links
 
 WORK = ROOT
 sys.path[:0] = [str(ROOT / p) for p in ["helper", "policy", "tools", "build/generated"]]
@@ -29,6 +30,9 @@ from release_evidence import verify
 
 verify(WORK)
 gate = json.loads((proof / "verification.json").read_text())
+verified_inputs = gate.get("deploymentInputs")
+verify_deployment(ROOT, verified_inputs)
+source_files = source_inventory(ROOT)
 browser = json.loads((args.evidence / "browser-results.json").read_text())
 axe = json.loads((args.evidence / "axe-results.json").read_text())
 hashes = {
@@ -56,7 +60,7 @@ if stage.exists():
 (stage / "source").mkdir()
 assemble_deploy(stage / "deploy")
 # No archive, dependency installation, generated code or browser screenshots in maintained source.
-for relative in fingerprint():
+for relative in source_files:
     p = stage / "source" / relative
     p.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / relative, p)
@@ -64,6 +68,15 @@ from verified_update import stage_update
 from deploy_manifest import write_manifest
 
 
+R = version["release"].split()[-1]
+release_docs = [R + "-REVIEW.md", R + "-PRODUCTION-READINESS.md", R + "-ACCEPTANCE-RECORD.md"]
+shutil.copyfile(ROOT / "docs/developer" / release_docs[0], stage / release_docs[0])
+# The living records are rendered with this release's identity by tools/build.py.
+for doc in release_docs[1:]:
+    shutil.copyfile(ROOT / "build/generated/release-docs" / doc, stage / doc)
+verify_deployment(ROOT, verified_inputs, stage)
+verify_source_copy(ROOT, stage / "source")
+verify_package_links(stage, release_docs)
 write_manifest(stage / "deploy")
 # Independently recheck the finished deploy folder with the installer's own verifier.
 with tempfile.TemporaryDirectory(prefix="deploy-check-") as tmp:
@@ -71,12 +84,6 @@ with tempfile.TemporaryDirectory(prefix="deploy-check-") as tmp:
     (p / "staged").mkdir()
     (p / "local").mkdir()
     stage_update(stage / "deploy", p / "staged", p / "local")
-R = version["release"].split()[-1]
-release_docs = [R + "-REVIEW.md", R + "-PRODUCTION-READINESS.md", R + "-ACCEPTANCE-RECORD.md"]
-shutil.copyfile(ROOT / "docs/developer" / release_docs[0], stage / release_docs[0])
-# The living records are rendered with this release's identity by tools/build.py.
-for doc in release_docs[1:]:
-    shutil.copyfile(ROOT / "build/generated/release-docs" / doc, stage / doc)
 (stage / "README.md").write_text(
     "# Madison Building Inspection " + R + "\n\n"
     "Install the complete deploy folder using its Start Document Writer - READ ME.md. Before the first installation, IT checks the deploy ZIP's "
@@ -121,6 +128,9 @@ def archive(folder, dest, prefix=""):
             raise ValueError("Archive failed integrity check")
 
 
+# Recheck verified bytes after assembly and before producing any release archives.
+verify_deployment(ROOT, verified_inputs, stage, finalized=True)
+verify_source_copy(ROOT, stage / "source")
 # The deploy file set is defined by runtime-manifest.json. A checksum file inside deploy/
 # would be an unlisted extra file, so deploy/ never gets one.
 checksum(stage / "source")

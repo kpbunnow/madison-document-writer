@@ -39,7 +39,7 @@ Do not replace L1 with test wording. If the City elects a restricted pilot, reco
 
 | ID | Procedure | Required result |
 | --- | --- | --- |
-| C1 | Install complete deploy offline on each Python/browser configuration; relaunch after an old helper | Both R50 versions match; optional parser state explained; no missing runtime files |
+| C1 | Install complete deploy offline on each Python/browser configuration; relaunch after an old helper | Application and helper match the current release identity; optional parser state explained; no missing runtime files |
 | C2 | Two PCs open the same test case and publish conflicting changes simultaneously | One current committed history; stale client reviews conflict; no silent overwrite or duplicate action |
 | C3 | Change counted citation history/tier on PC B while PC A prepares a charge | A refreshes/reviews changed tier before publication; no stale price accepted |
 | C4 | Interrupt save acknowledgement after the shared write; retry from a new helper process | Retained original request confirms exactly once; same document/event/visit/citation identities |
@@ -56,7 +56,7 @@ Results C1–C9 with evidence references: ____________________
 | ID | Procedure | Required result |
 | --- | --- | --- |
 | I1 | Under two real inspector accounts, lookup an approved ordinary case and known Snow Removal case; compare with SSRS | Same approved database/source facts; completed inspection/time/inspector match; Snow routes to 10.28 |
-| I2 | Import equivalent actual Excel bytes; test Scheduled-only, Assist-only, multiple completed and missing-time data | Explicit eligible choice, truthful exclusion reasons and blank time retained |
+| I2 | Import equivalent actual Excel bytes; test Scheduled-only, Assist-only, multiple eligible results, Completed refusal and missing-time data | Explicit eligible choice, truthful exclusion reasons and blank time retained |
 | I3 | Save/reopen review; change shared history from PC B; cancel lookup and navigate while delayed | Renewed comparison, retained draft, no late result replacing new work |
 | P1 | Generate native PDFs for all ten families plus long narratives/addresses/descriptions and all four citation copies | Required content intact; no clipping, overlaps or accidental blank pages; retained continuation pages |
 | P2 | Lose acknowledgement during PDF render/file; restart helper, retry and compare SHA256 bytes | Exact retained original retrieved; no new render replacing a prepared original |
@@ -136,7 +136,7 @@ These lines carry the existing acceptance record forward; they do not approve Ci
 | S50D | Use approved and off-list SQL targets with certificate workaround both on and off | Approved connectivity matches SSRS; off-list target refused in both modes before Windows authentication is sent |
 | S50E | Check local anchor configuration and a share-only file on fresh/existing PCs | Local approved configuration retained; share-only settings never installed; independent anchor permissions proven |
 | S50F | Restart helper with a saved draft and open a public page from another profile/account | Old token refused; authorized reload reconnects and retains device work; unauthenticated page receives no token or API access |
-| I50 | Retest the actual R49 failed inspection plus Official Notice/Citation/Compliance results in SQL and equivalent Excel | Defined results import without source-status edits; multiple choices explicit; incomplete/unknown/Assist/reused rows blocked; time and Snow Removal route preserved |
+| I50 | Retest the actual R49 failed inspection plus Official Notice/Citation/Compliance results in SQL and equivalent Excel | Type/status pairs from the current rules import; Completed is refused; multiple choices explicit; incomplete/unknown/Assist/reused rows blocked; time and Snow Removal route preserved |
 
 Results, named operator/date and actual evidence references S50A–I50: ____________________
 
@@ -152,7 +152,7 @@ All items below remain OPEN. Automated evidence does not constitute City accepta
 | T1 | On a City PC with an installation, run the shared batch file and confirm hand-off to the installed launcher and preservation of the installed version after a refused update | OPEN | ____________________ |
 | T2 | Confirm the first-install procedure compares the package SHA-256 to a digest independently obtained from the release owner before extraction, and confirm installed shortcut/direct local startup. | OPEN | |
 | P1/P6-R53 | Include an authoring-9 R33-era snow citation in native City print acceptance. Its unchanged cover can paginate onto one or two cover pages depending on that PC's fonts. Confirm complete language access and four court copies with no clipping. | OPEN | |
-| SQL-R53 | Confirm the City's actual SQL server value. Case Lookup/settings.json must exactly match an entry in trusted-connections.json; shipped entry sqlelam. A fully qualified name requires an approved signed allowlist update. | OPEN | |
+| SQL-R53 | Confirm the City's actual SQL server value. Case Lookup/settings.json must exactly match an entry in trusted-connections.json; shipped entry sqlelam. A fully qualified name requires an approved allowlist update in a newly verified release. | OPEN | |
 
 The acceptance record ships only at the release package top level. It is not installed on inspector PCs. Legal decisions L1–L5, the mandatory-appearance defendant-wording hold and all earlier City environment, accessibility and staff checks remain unresolved unless separately signed off by their actual owners.
 

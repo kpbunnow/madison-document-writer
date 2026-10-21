@@ -29,3 +29,11 @@ After a passing gate, package to a new folder outside the source tree:
 Release packaging: tools/package_release.py writes runtime-manifest.json for every deployed file through tools/deploy_manifest.py, then rechecks the finished deploy folder with helper/verified_update.py. audit_r50_updates.py, audit_r51_updates.py, audit_r51_bootstrap.py, audit_r50_connections.py and audit_r52_manifest.py cover the manifest, tamper classes, downgrade protection and the launcher hand-off.
 
 Automated axe does not establish WCAG conformance. City Windows, ACL/SMB/SQL, Outlook, native printing, staff tasks, legal and seasonal decisions remain in ACCEPTANCE-RECORD.md. Never mark those items accepted from automated checks.
+
+## Source ownership and deployment evidence
+
+`tools/source-inventory.json` lists every maintained source-package file. Review and stage additions/deletions, then run `python3 tools/release_inputs.py --update-source-inventory` and review/stage the inventory diff. Unexpected maintained files refuse packaging; local credentials, environments, operational folders and caches are excluded before reading and cannot be registered. Links/reparse points in owned inputs are refused. This inventory also works in extracted source ZIPs without Git; root SHA256SUMS.txt is generated archive metadata, not maintained input. Uncommitted content changes still require fresh exact-byte verification and reviewed checkpoints.
+
+The gate fingerprints all mapped deployment inputs, vendored runtime bytes and generated release records. Packaging checks them before output, after copy and before archives, retaining the installer manifest verifier. `audit_release_inputs.py` exercises the real packager with isolated synthetic inputs, including altered generated policy/identity/guidance and private files.
+
+The manual Markdown is authoritative. Before verification, run `python3 tools/build_manual.py` with pandoc and the pinned Playwright browser available to regenerate HTML, Word and PDF. The 22 chapter anchors and original screen/print style are retained. Manual editions are committed inputs; the gate never regenerates them.

@@ -11,6 +11,11 @@ def fingerprint(root):
     files = maintained_fingerprint(root)
     for p in sorted((root / "build/dist").glob("*.html")):
         files[p.relative_to(root).as_posix()] = hashlib.sha256(p.read_bytes()).hexdigest()
+    if (root / "build/generated/runtime-manifest.json").is_file():
+        from release_inputs import deployment_inputs
+
+        for value in deployment_inputs(root).values():
+            files[value["source"]] = value["sha256"]
     return files
 
 

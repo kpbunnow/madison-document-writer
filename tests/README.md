@@ -191,3 +191,10 @@ workflow. Each receives the arguments named in its row.
 | `browser_r46.js`, `browser_r47.js` | Reinspection phase; language catalog |
 | `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
+
+## Release input security
+
+| Suite | Covers |
+| --- | --- |
+| `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors and current security/acceptance wording |
+| `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |
