@@ -92,6 +92,11 @@ assert json.loads(rd("catalog_manifest.json")) == {"format": "madison-catalog-ma
     + json.dumps(json.loads(rd("snow_letter.json")), ensure_ascii=False, separators=(",", ":"))
     + ";\nexport { DEFAULT_SNOW_LETTER };\n"
 )
+approved_language = json.loads(rd("approved_language.json"))
+assert approved_language["format"] == "madison-approved-language" and approved_language["version"] == 1
+(GENERATED / "modules/data/approved_language.js").write_text(
+    "const APPROVED_LANGUAGE=" + json.dumps(approved_language, ensure_ascii=False, separators=(",", ":")) + ";\nexport { APPROVED_LANGUAGE };\n"
+)
 for name in ("library.js", "deposits.js", "inspectors.js"):
     data = rd(name)
     symbols = re.findall(r"^(?:const|let|var)\s+(\w+)\s*=", data, re.M)
