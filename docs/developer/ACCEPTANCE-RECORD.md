@@ -48,8 +48,9 @@ Do not replace L1 with test wording. If the City elects a restricted pilot, reco
 | C7 | Compare active local lock, active remote lock and a proven orphan; exercise supported token-bound recovery | Active owner protected; age alone insufficient; only proven eligible lock recovered |
 | C8 | Interrupt program update; recover and separately exercise R48 runtime rollback with compatible copied data | A coherent installed release; operational data not rewound; logs and original requests retained |
 | C9 | Device save failure, differing local/shared recovery, one-case recovery and empty-profile workspace restore | No false saved state; private wording and partial fields retained; no overwrite without comparison |
+| C10 | On a native Windows PC with the default (non-UTF-8) code page, create, save, reopen, anchor and review citation history for a copied or synthetic case whose owner/address/narrative contain accented and typographic characters (for example `José — SYNTHETIC OWNER`) | Record stays valid and readable on every PC; no "changed outside the program" report; daily anchor and citation-history review succeed; characters print unchanged |
 
-Results C1–C9 with evidence references: ____________________
+Results C1–C10 with evidence references: ____________________
 
 ## SQL imports native PDFs and delivery
 
@@ -60,7 +61,7 @@ Results C1–C9 with evidence references: ____________________
 | I3 | Save/reopen review; change shared history from PC B; cancel lookup and navigate while delayed | Renewed comparison, retained draft, no late result replacing new work |
 | P1 | Generate native PDFs for all ten families plus long narratives/addresses/descriptions and all four citation copies | Required content intact; no clipping, overlaps or accidental blank pages; retained continuation pages |
 | P2 | Lose acknowledgement during PDF render/file; restart helper, retry and compare SHA256 bytes | Exact retained original retrieved; no new render replacing a prepared original |
-| P3 | Transfer selected outbox PDF; simulate same-name/different-byte target and network interruption | Unselected files retained; conflicting target not silently overwritten; safe retry |
+| P3 | Transfer selected outbox PDF; simulate same-name/different-byte target, a direct filing of the same name during transfer, and network interruption | Unselected files retained; conflicting target not silently overwritten; conflicting outbox copy retained; safe retry |
 | P4 | Open Classic Outlook test draft and compare recipients/body/attachments | Correct draft; no claim of actual sending from handoff alone |
 | P5 | Print ordinary/long letters and all court copies on actual approved printer; test envelope alignment | City operations/court sign physical output; document continuation retained |
 | P6 | Retrieve a frozen pre-R49 ordinary/mandatory/snow PDF and compare with retained original | Original bytes and historical wording unchanged |

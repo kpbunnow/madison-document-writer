@@ -94,7 +94,7 @@ def stage_update(share, staging, local):
         if type(build) is not int or build < 0 or build != version[-1]:
             raise ValueError("Invalid helper build counter")
         if pin.exists():
-            previous = json.loads(pin.read_text())
+            previous = json.loads(pin.read_text(encoding="utf-8"))
             old_version = version_tuple(previous["helperVersion"])
             old_build = previous.get("helperBuild", old_version[-1])
             # Legacy R50 pins may be written by the old launcher during upgrade.
@@ -172,7 +172,8 @@ def stage_update(share, staging, local):
                 },
                 sort_keys=True,
             )
-            + "\n"
+            + "\n",
+            encoding="utf-8",
         )
         return manifest
     except (OSError, ValueError, KeyError, TypeError, AssertionError) as error:

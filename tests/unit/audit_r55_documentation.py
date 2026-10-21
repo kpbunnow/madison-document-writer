@@ -5,11 +5,10 @@ from html.parser import HTMLParser
 from pathlib import Path
 import json
 import re
-import shutil
-import subprocess
 import unittest
 import xml.etree.ElementTree as ET
 from zipfile import ZipFile
+import build_manual
 
 ROOT = Path(__file__).resolve().parents[2]
 STAFF = ROOT / "docs/staff"
@@ -41,8 +40,8 @@ class Documentation(unittest.TestCase):
             doc = ET.fromstring(archive.read("word/document.xml"))
             ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
             editions["Word"] = " ".join("".join(p.itertext()) for p in doc.findall(".//w:p", ns))
-        if shutil.which("pdftotext"):
-            editions["PDF"] = subprocess.check_output(["pdftotext", "-layout", str(STAFF / "Program_Instruction_Manual.pdf"), "-"], text=True)
+        # PDF inspection is a required gate prerequisite: a missing pdftotext fails, never skips.
+        editions["PDF"] = build_manual.pdf_text(STAFF / "Program_Instruction_Manual.pdf")
         for name, text in editions.items():
             with self.subTest(edition=name):
                 text = normalized(text)
@@ -62,6 +61,10 @@ class Documentation(unittest.TestCase):
         lookup = (STAFF / "CASE-LOOKUP-GUIDE.md").read_text()
         self.assertIn(WARNING, lookup)
         self.assertIn("Completed and all unlisted results are refused.", (ROOT / "docs/developer/03-DOMAIN-RULES.md").read_text())
+
+    def test_every_edition_is_generated_from_the_current_sources(self):
+        # A same-release Markdown or style change without regenerating every edition fails here.
+        build_manual.check_editions(STAFF, build_manual.source_digest(STAFF), build_manual.identity())
 
     def test_manual_keeps_anchors_and_current_security_explanations(self):
         html = (STAFF / "PROGRAM-MANUAL.html").read_text()

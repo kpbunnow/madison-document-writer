@@ -20,7 +20,7 @@ def install(root):
     identity = {"lock": hashlib.sha256(lock.read_bytes()).hexdigest(), "python": list(sys.version_info[:2])}
     marker = site / ".installed-runtime.json"
     try:
-        if marker.exists() and json.loads(marker.read_text()) == identity:
+        if marker.exists() and json.loads(marker.read_text(encoding="utf-8")) == identity:
             return {"available": True, "cached": True}
     except (ValueError, OSError):
         pass
@@ -42,8 +42,8 @@ def install(root):
         str(lock),
     ]
     try:
-        subprocess.run(command, check=True, timeout=120, capture_output=True, text=True)
-        marker.write_text(json.dumps(identity))
+        subprocess.run(command, check=True, timeout=120, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        marker.write_text(json.dumps(identity), encoding="utf-8")
         return {"available": True}
     except (OSError, subprocess.SubprocessError):
         return {"available": False, "reason": "address parser unavailable; R19 fallback remains available"}

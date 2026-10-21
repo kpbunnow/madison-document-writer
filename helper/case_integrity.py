@@ -37,7 +37,7 @@ def body(record):
 
 def protected_folder(folder):
     try:
-        configured = json.loads(SETTINGS.read_text())["anchorFolder"]
+        configured = json.loads(SETTINGS.read_text(encoding="utf-8"))["anchorFolder"]
         path = Path(configured)
         if not path.is_absolute() or path.resolve() == Path(folder).resolve() or Path(folder).resolve() in path.resolve().parents:
             return None
@@ -89,7 +89,7 @@ def registry(folder):
     if not path.exists():
         return {"format": "madison-migration-registry", "entries": []}
     try:
-        value = json.loads(path.read_text())
+        value = json.loads(path.read_text(encoding="utf-8"))
     except (ValueError, OSError) as error:
         raise ValueError("Migration registry is damaged; contact an administrator") from error
     if (
@@ -154,7 +154,7 @@ class VerificationContext:
         external = external or protected_folder(folder)
         seen = set()
         for path in sorted(Path(external).glob("*.sha256"), reverse=True) if external else []:
-            receipt = json.loads(path.read_text())
+            receipt = json.loads(path.read_text(encoding="utf-8"))
             name = receipt["digestFile"]
             if Path(name).name != name:
                 raise ValueError("Invalid digest filename")
@@ -176,13 +176,13 @@ class VerificationContext:
         for path in (self.folder / "_integrity").glob("*.json"):
             if path.name in ("migrated.json", "anchor-status.json"):
                 continue
-            digest = json.loads(path.read_text())
+            digest = json.loads(path.read_text(encoding="utf-8"))
             for entry in digest.get("entries", []):
                 self.known.update(n.casefold() for n in entry.get("heads", {}))
 
         def read_summary(path):
             try:
-                return json.loads(path.read_text())
+                return json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 return None
 
@@ -230,7 +230,7 @@ def intent_path(folder, number):
 
 
 def read_intent(path):
-    value = json.loads(Path(path).read_bytes())
+    value = json.loads(Path(path).read_text(encoding="utf-8"))
     from case_store import safe_json_name, case_file_key, case_number_key
 
     if value.get("format") != "madison-integrity-transaction" or not isinstance(value.get("recovery"), bool):
@@ -305,7 +305,7 @@ def reconstruct_registry(folder):
         return
     for path in sorted(root.glob("*.json")):
         try:
-            record = json.loads(path.read_text())
+            record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
                 register_migration(root, record, path.name, reconstructed=True)
         except (OSError, ValueError, KeyError, TypeError):
@@ -450,7 +450,7 @@ def anchor_daily(folder, external=None):
             raise ValueError("Administrator must complete pending recovery before anchoring")
         heads = {}
         for path in sorted(folder.glob("*.json")):
-            record = json.loads(path.read_text())
+            record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") != "madison-case-file":
                 continue
             status = require_valid(record, folder, context)
@@ -482,7 +482,7 @@ def anchor_daily(folder, external=None):
         else:
             atomic_write(target, raw)
         expected = canonical({"digestFile": target.name, "sha256": identity})
-        if any(json.loads(p.read_bytes()).get("digestFile") == target.name for p in external.glob("*.sha256")):
+        if any(json.loads(p.read_text(encoding="utf-8")).get("digestFile") == target.name for p in external.glob("*.sha256")):
             return {"anchored": True, "day": day, "entries": 1, "digestFile": target.name}
         # Timestamp sorts new receipt generations before older ones; UUID prevents collision.
         receipt = external / (datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S%f") + "-" + identity + ".sha256")
@@ -521,7 +521,7 @@ def anchor_health(folder):
         return "WARNING: no external anchor configured; the migration registry is on the same share. IT must choose a protected destination"
     if folder and protected_folder(folder):
         try:
-            status = json.loads((Path(folder) / "_integrity/anchor-status.json").read_bytes())
+            status = json.loads((Path(folder) / "_integrity/anchor-status.json").read_text(encoding="utf-8"))
             if not status.get("anchored"):
                 return status.get("reason", "Anchoring needs administrator review")
         except (OSError, ValueError):

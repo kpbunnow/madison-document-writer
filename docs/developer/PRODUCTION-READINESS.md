@@ -20,6 +20,10 @@ printing (including historical snow citations), performance, manual accessibilit
 and staff acceptance remain OPEN. Approval fields remain blank until their
 actual owners record evidence and signoff.
 
+R55 additionally requires C10: a native Windows Unicode case on the default code page
+(automated tests only simulate that encoding), and P3 now includes a direct filing of
+the same name during an outbox transfer.
+
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and
 historical corrections. The five confirmed layout defaults and supervisory

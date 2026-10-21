@@ -23,7 +23,7 @@ def is_snow(snap):
 
 def read_letter(folder=None):
     path = Path(folder) / "_administration/snow_letter.json" if folder else None
-    return json.loads((path if path and path.is_file() else resource("snow_letter.json")).read_text())
+    return json.loads((path if path and path.is_file() else resource("snow_letter.json")).read_text(encoding="utf-8"))
 
 
 def validate_letter(letter, review_required=False):

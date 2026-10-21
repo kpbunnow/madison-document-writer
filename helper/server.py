@@ -28,7 +28,7 @@ GET  /reporting/areas      alder district and ZIP outlines, where available
 
 from runtime_paths import resource as _resource
 
-import http.server, socketserver, json, os, sys, subprocess, tempfile, shutil, threading, time
+import http.server, socketserver, json, os, stat, sys, subprocess, tempfile, shutil, threading, time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "vendor/site"))
@@ -51,7 +51,7 @@ import workflow_helper
 from helper_logging import logged, record
 from datetime import datetime, timezone
 from case_lookup import lookup as lookup_case, CaseLookupError
-from case_store import read_case, save_case, save_summary, file_lock, atomic_write, case_number_key, case_file_key, citation_history
+from case_store import read_case, save_case, save_summary, file_lock, atomic_write, publish_new, case_number_key, case_file_key, citation_history
 
 SESSION_TOKEN = secrets.token_urlsafe(32)
 SESSION_BOOTSTRAP = secrets.token_urlsafe(32)
@@ -535,12 +535,7 @@ def make_pdf(html: str, target: Path) -> str:
                 raise RuntimeError("the renderer produced something that is not a PDF")
         # A historical issued PDF is immutable. Even a retry with newer
         # formatting cannot replace different bytes at the same name.
-        if target.exists():
-            if hashlib.sha256(target.read_bytes()).digest() != hashlib.sha256(part.read_bytes()).digest():
-                raise ValueError("An archived PDF already exists with different contents; it was not overwritten")
-        else:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            atomic_write(target, part.read_bytes())
+        file_pdf_bytes(target, part.read_bytes())
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
         try:
@@ -551,15 +546,35 @@ def make_pdf(html: str, target: Path) -> str:
     return str(target)
 
 
+PDF_CONFLICT = "An archived PDF already exists with different contents; it was not overwritten"
+
+
+def archived_pdf_matches(target, raw):
+    """False when the name is free; True for identical bytes; refuses links and different bytes."""
+    try:
+        info = target.lstat()
+    except FileNotFoundError:
+        return False
+    if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400 or not stat.S_ISREG(info.st_mode):
+        raise ValueError(PDF_CONFLICT)
+    if target.read_bytes() != raw:
+        raise ValueError(PDF_CONFLICT)
+    return True
+
+
 def file_pdf_bytes(target, raw):
+    """The only way a PDF original reaches a filing folder: direct filing, outbox
+    transfer and rendering all share this per-name lock and never replace bytes."""
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
     with file_lock(target.parent, "issued-pdf:" + target.name):
-        if target.exists():
-            if target.read_bytes() != raw:
-                raise ValueError("An archived PDF already exists with different contents; it was not overwritten")
-        else:
-            atomic_write(target, raw)
+        if not archived_pdf_matches(target, raw):
+            try:
+                publish_new(target, raw)
+            except FileExistsError:
+                # Written meanwhile by something outside the program's locks.
+                if not archived_pdf_matches(target, raw):
+                    raise ValueError(PDF_CONFLICT) from None
     return str(target)
 
 

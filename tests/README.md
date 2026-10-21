@@ -96,6 +96,8 @@ Add a new suite under the feature it covers.
 | `audit_contracts.js` | Exact event and store contracts |
 | `audit_r31_integrity.js`, `audit_r31_integrity.py`, `audit_r32_integrity.py` | Canonical hashing, tamper detection, migration, anchors, downgrade refusal |
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
+| `audit_utf8_io.py` | Case, integrity and tool text is UTF-8 under a simulated Windows CP1252 default; no implicit encodings |
+| `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |
 | `audit_archive.py` | Byte-level archive and local HTTP |
 | `audit_review_r12.py` | R12 source-review regressions |
@@ -196,5 +198,6 @@ workflow. Each receives the arguments named in its row.
 
 | Suite | Covers |
 | --- | --- |
-| `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors and current security/acceptance wording |
+| `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors, current security/acceptance wording; every edition (PDF inspection required) carries the current source digest |
+| `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |

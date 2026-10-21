@@ -19,16 +19,17 @@ DATA = GENERATED / "modules/data"
 DATA.mkdir(parents=True, exist_ok=True)
 (GENERATED / "modules/vendor").mkdir(parents=True, exist_ok=True)
 identity = version()
-MANIFEST = json.loads((HERE / "tools/runtime-manifest.template.json").read_text())
+MANIFEST = json.loads((HERE / "tools/runtime-manifest.template.json").read_text(encoding="utf-8"))
 MANIFEST.update(identity)
-(GENERATED / "runtime-manifest.json").write_text(json.dumps(MANIFEST, indent=2) + "\n")
-(GENERATED / "RELEASE").write_text(identity["release"] + "\n")
+(GENERATED / "runtime-manifest.json").write_text(json.dumps(MANIFEST, indent=2) + "\n", encoding="utf-8")
+(GENERATED / "RELEASE").write_text(identity["release"] + "\n", encoding="utf-8")
 (GENERATED / "runtime_identity.py").write_text(
     '"""Generated from version.json; do not edit."""\nVERSION = '
     + repr(identity["helperVersion"])
     + "\nHELPER_BUILD = "
     + str(identity["helperBuild"])
-    + "\n"
+    + "\n",
+    encoding="utf-8",
 )
 OUTDIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE / "build/dist"
 if OUTDIR.suffix.lower() == ".html":
@@ -37,7 +38,8 @@ OUTDIR.mkdir(parents=True, exist_ok=True)
 STAMP = os.environ.get("DW_BUILD_STAMP") or MANIFEST["release"]
 TEST_BUILD = os.environ.get("DW_TEST_BUILD") == "1"
 (GENERATED / "modules/data/approved_print_style.js").write_text(
-    "export const APPROVED_PRINT_STYLE=" + json.dumps((HERE / "app/assets/approved-print-style.css").read_text()) + ";\n"
+    "export const APPROVED_PRINT_STYLE=" + json.dumps((HERE / "app/assets/approved-print-style.css").read_text(encoding="utf-8")) + ";\n",
+    encoding="utf-8",
 )
 (GENERATED / "modules/data/build_identity.js").write_text(
     "export const BUILD="
@@ -45,8 +47,9 @@ TEST_BUILD = os.environ.get("DW_TEST_BUILD") == "1"
     + ";\nexport const HELPER_VERSION="
     + json.dumps(MANIFEST["helperVersion"])
     + ";\nexport const LOGO="
-    + json.dumps("data:image/png;base64," + (HERE / "app/assets/logo_b64.txt").read_text().strip())
-    + ";\n"
+    + json.dumps("data:image/png;base64," + (HERE / "app/assets/logo_b64.txt").read_text(encoding="utf-8").strip())
+    + ";\n",
+    encoding="utf-8",
 )
 node = shutil.which("node")
 if not node or not (HERE / "node_modules/esbuild/lib/main.js").is_file():
@@ -70,15 +73,16 @@ policy = {
     key: int(re.search(r"const " + key + r"\s*=\s*(\d+)\s*;", rd("shared.js")).group(1))
     for key in ("MAILED_MAX_DAYS_AHEAD", "CITATION_MAX_DAYS_AHEAD")
 }
-(GENERATED / "calendar_policy.json").write_text(json.dumps(policy, indent=2) + "\n")
+(GENERATED / "calendar_policy.json").write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
 subprocess.run([sys.executable, str(HERE / "policy/regenerate_deposits.py"), "--check"], check=True)
 library = json.loads(rd("library.js").split("=", 1)[1].rsplit(";", 1)[0])
 from compiler import compile_policy
 
 citation_policy = compile_policy(HERE)
-(GENERATED / "citation_policy.json").write_text(json.dumps(citation_policy, indent=2) + "\n")
+(GENERATED / "citation_policy.json").write_text(json.dumps(citation_policy, indent=2) + "\n", encoding="utf-8")
 (GENERATED / "modules/data/citation_policy.js").write_text(
-    "const CITATION_POLICY=" + json.dumps(citation_policy, ensure_ascii=False, separators=(",", ":")) + ";\nexport { CITATION_POLICY };\n"
+    "const CITATION_POLICY=" + json.dumps(citation_policy, ensure_ascii=False, separators=(",", ":")) + ";\nexport { CITATION_POLICY };\n",
+    encoding="utf-8",
 )
 manifest = {
     json.dumps([c["code"], g["code"], i["o"]], separators=(",", ":")): {"draft": i.get("p") == "draft", "ordinances": i.get("s", [])}
@@ -90,26 +94,29 @@ assert json.loads(rd("catalog_manifest.json")) == {"format": "madison-catalog-ma
 (GENERATED / "modules/data/snow_letter.js").write_text(
     "const DEFAULT_SNOW_LETTER="
     + json.dumps(json.loads(rd("snow_letter.json")), ensure_ascii=False, separators=(",", ":"))
-    + ";\nexport { DEFAULT_SNOW_LETTER };\n"
+    + ";\nexport { DEFAULT_SNOW_LETTER };\n",
+    encoding="utf-8",
 )
 approved_language = json.loads(rd("approved_language.json"))
 assert approved_language["format"] == "madison-approved-language" and approved_language["version"] == 1
 (GENERATED / "modules/data/approved_language.js").write_text(
-    "const APPROVED_LANGUAGE=" + json.dumps(approved_language, ensure_ascii=False, separators=(",", ":")) + ";\nexport { APPROVED_LANGUAGE };\n"
+    "const APPROVED_LANGUAGE=" + json.dumps(approved_language, ensure_ascii=False, separators=(",", ":")) + ";\nexport { APPROVED_LANGUAGE };\n",
+    encoding="utf-8",
 )
 for name in ("library.js", "deposits.js", "inspectors.js"):
     data = rd(name)
     symbols = re.findall(r"^(?:const|let|var)\s+(\w+)\s*=", data, re.M)
-    (GENERATED / "modules/data" / name).write_text(data + "\nexport { " + ", ".join(symbols) + " };\n")
+    (GENERATED / "modules/data" / name).write_text(data + "\nexport { " + ", ".join(symbols) + " };\n", encoding="utf-8")
 
 (GENERATED / "modules/vendor/leaflet_runtime.js").write_text(
-    "export function installLeaflet(){\n(function(){var exports=void 0,module=void 0,define=void 0;\n" + rd("leaflet.js") + "\n}).call(window);\n}\n"
+    "export function installLeaflet(){\n(function(){var exports=void 0,module=void 0,define=void 0;\n" + rd("leaflet.js") + "\n}).call(window);\n}\n",
+    encoding="utf-8",
 )
 
 
 def render_deploy_guide():
     "R34: the staff install guide is generated from the release files and fails the build if it drifts."
-    release = STAMP if re.fullmatch(r"\d{4}-\d{2}-\d{2} R\d+", STAMP) else (GENERATED / "RELEASE").read_text().strip()
+    release = STAMP if re.fullmatch(r"\d{4}-\d{2}-\d{2} R\d+", STAMP) else (GENERATED / "RELEASE").read_text(encoding="utf-8").strip()
     helper = MANIFEST["helperVersion"]
     required = MANIFEST["required"]
     tags = sorted({int(m) for m in re.findall(r"-cp3(\d+)-", " ".join(p.name for p in (HERE / "helper/vendor/wheels").glob("*.whl")))})
@@ -209,9 +216,9 @@ require('esbuild').build({stdin:{contents:entry,resolveDir:path.join(root,'app/m
  });}}]});
 """
     subprocess.run([node, "-e", command, str(HERE), stem, entry, "true" if TEST_BUILD else "false"], cwd=HERE, check=True)
-    payload = (HERE / "build" / (stem + ".js")).read_text()
+    payload = (HERE / "build" / (stem + ".js")).read_text(encoding="utf-8")
     payload = re.sub(r"^// (?:app|build/generated)/[^\n]+\n", "", payload, flags=re.M)
-    (HERE / "build" / (stem + ".js")).write_text(payload)
+    (HERE / "build" / (stem + ".js")).write_text(payload, encoding="utf-8")
     assert "`" not in payload
     data = base64.b64encode(payload.encode()).decode("ascii")
     boot = (

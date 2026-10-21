@@ -73,6 +73,28 @@ def checked_file(root, relative):
     return current
 
 
+def staged_files(root):
+    """Every file under a staging folder, with no exclusions, refusing links, reparse points and special files."""
+    root = Path(root)
+    info = root.lstat()
+    if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400 or not stat.S_ISDIR(info.st_mode):
+        raise ValueError("Linked staging folder refused: " + str(root))
+    files = {}
+    for current, directories, names in os.walk(root, followlinks=False):
+        folder = Path(current)
+        for name in sorted(directories + names):
+            candidate = folder / name
+            relative = candidate.relative_to(root).as_posix()
+            info = candidate.lstat()
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+                raise ValueError("Linked staged file refused: " + relative)
+            if name in names:
+                if not stat.S_ISREG(info.st_mode):
+                    raise ValueError("Special staged file refused: " + relative)
+                files[relative] = hashlib.sha256(candidate.read_bytes()).hexdigest()
+    return dict(sorted(files.items()))
+
+
 def fingerprint(root=ROOT):
     root = Path(root)
     info = root.lstat()
@@ -95,9 +117,9 @@ def fingerprint(root=ROOT):
 
 
 def version():
-    v = json.loads((ROOT / "version.json").read_text())
+    v = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
     for name in ["package.json", "package-lock.json"]:
-        value = json.loads((ROOT / name).read_text())
+        value = json.loads((ROOT / name).read_text(encoding="utf-8"))
         if value["version"] != v["helperVersion"] or name == "package-lock.json" and value["packages"][""]["version"] != v["helperVersion"]:
             raise ValueError(name + " disagrees with version.json; run tools/sync_version.py")
     if type(v.get("helperBuild")) is not int or v["helperBuild"] != int(v["helperVersion"].split(".")[-1]):
@@ -109,7 +131,7 @@ def version():
         ("authoringVersion", "app/modules/inspection_import.js", r"authoringVersion\s*:\s*(\d+)"),
     ]
     for key, name, pattern in consumers:
-        found = re.search(pattern, (ROOT / name).read_text())
+        found = re.search(pattern, (ROOT / name).read_text(encoding="utf-8"))
         if not found or int(found[1]) != v[key]:
             raise ValueError(name + " disagrees with version.json " + key)
     return v
@@ -119,7 +141,7 @@ def assemble_deploy(destination):
     """Assemble installed output only; never create a copied source tree."""
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
-    manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text())
+    manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
     for target, relative in manifest["deploy"].items():
         source = checked_file(ROOT, relative)
         if forbidden_source(relative) and not relative.startswith(("build/generated/", "build/dist/")):

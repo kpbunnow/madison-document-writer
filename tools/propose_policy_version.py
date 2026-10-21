@@ -32,5 +32,12 @@ if __name__ == "__main__":
     p.add_argument("--output", type=Path, required=True)
     a = p.parse_args()
     a.output.write_text(
-        json.dumps(propose(json.loads(a.existing.read_text()), json.loads(a.candidate.read_text()), a.effective, a.ordinance), indent=2) + "\n"
+        json.dumps(
+            propose(
+                json.loads(a.existing.read_text(encoding="utf-8")), json.loads(a.candidate.read_text(encoding="utf-8")), a.effective, a.ordinance
+            ),
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
     )

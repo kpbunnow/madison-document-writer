@@ -48,7 +48,7 @@ def health(server, probe=False):
         except OSError:
             writable = False
     try:
-        manifest = json.loads(server.resource("catalog_manifest.json").read_text())
+        manifest = json.loads(server.resource("catalog_manifest.json").read_text(encoding="utf-8"))
         catalog = manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
     except (OSError, ValueError):
         catalog = False

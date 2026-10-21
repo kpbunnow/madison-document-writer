@@ -12,7 +12,7 @@ import re
 
 @lru_cache(maxsize=1)
 def policy():
-    return json.loads(resource("citation_policy.json").read_text())
+    return json.loads(resource("citation_policy.json").read_text(encoding="utf-8"))
 
 
 def canonical_ordinance(value):

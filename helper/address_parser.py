@@ -8,8 +8,8 @@ try:
     import usaddress as PARSER
 except ImportError:
     PARSER = None
-SUFFIX = json.loads(resource("postal_suffixes.json").read_text())["aliases"]
-STATES = {k.upper(): v for k, v in json.loads(resource("postal_states.json").read_text()).items()}
+SUFFIX = json.loads(resource("postal_suffixes.json").read_text(encoding="utf-8"))["aliases"]
+STATES = {k.upper(): v for k, v in json.loads(resource("postal_states.json").read_text(encoding="utf-8")).items()}
 STATES.update({v: v for v in STATES.values()})
 DIRECTIONS = {"NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W", "NORTHEAST": "NE", "NORTHWEST": "NW", "SOUTHEAST": "SE", "SOUTHWEST": "SW"}
 UNITS = {

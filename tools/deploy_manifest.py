@@ -10,7 +10,7 @@ from pathlib import Path
 
 def write_manifest(directory):
     directory = Path(directory)
-    value = json.loads((directory / "runtime-manifest.json").read_text())
+    value = json.loads((directory / "runtime-manifest.json").read_text(encoding="utf-8"))
     value["files"] = {
         f.relative_to(directory).as_posix(): {"size": f.stat().st_size, "sha256": hashlib.sha256(f.read_bytes()).hexdigest()}
         for f in sorted(directory.rglob("*"))

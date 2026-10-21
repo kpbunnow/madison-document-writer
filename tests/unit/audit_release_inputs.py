@@ -12,9 +12,25 @@ import zipfile
 
 from project_layout import fingerprint
 from release_evidence import fingerprint as release_fingerprint
-from release_inputs import deployment_inputs, verify_deployment, source_inventory, verify_package_links
+from release_inputs import archive, checksum, deployment_inputs, verify_deployment, verify_source_copy, source_inventory, verify_package_links
 
 ROOT = Path(__file__).resolve().parents[2]
+PRIVATE = [".env", ".env.local", "credentials.json", "helper/id_ed25519", "tools/private.pem", "share.txt", "notes.txt", "helper/vendor/.env"]
+# Runs the real packager, planting a file beside one it copies into staging.
+PLANT = """
+import runpy, shutil, sys
+from pathlib import Path
+sys.path.insert(0, "tools")
+copy, (marker, planted, output) = shutil.copyfile, sys.argv[1:]
+def planting(src, dst, **kwargs):
+    result = copy(src, dst, **kwargs)
+    if Path(dst).as_posix().endswith(marker):
+        (Path(dst).parent / planted).write_text("SYNTHETIC PRIVATE CONTENT")
+    return result
+shutil.copyfile = planting
+sys.argv = ["tools/package_release.py", "--output", output]
+runpy.run_path("tools/package_release.py", run_name="__main__")
+"""
 
 
 def put(root, name, value):
@@ -200,6 +216,78 @@ class ReleaseInputs(unittest.TestCase):
             put(stage, "deploy/runtime_identity.py", "CHANGED DURING ASSEMBLY")
             with self.assertRaisesRegex(ValueError, "verified bytes"):
                 verify_deployment(root, expected, stage)
+
+    def staged_source(self, tmp):
+        root = Path(tmp) / "source"
+        root.mkdir()
+        fixture(root)
+        stage = Path(tmp) / "stage"
+        for name in source_inventory(root):
+            (stage / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(root / name, stage / name)
+        return root, stage
+
+    def test_complete_staged_source_is_verified_without_exclusions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root, stage = self.staged_source(tmp)
+            self.assertEqual(verify_source_copy(root, stage), source_inventory(root))
+            for name in PRIVATE:
+                with self.subTest(planted=name):
+                    put(stage, name, "SYNTHETIC PRIVATE CONTENT")
+                    with self.assertRaisesRegex(ValueError, "approved list.*" + name.replace(".", r"\.")):
+                        verify_source_copy(root, stage)
+                    (stage / name).unlink()
+            outside = Path(tmp) / "outside"
+            outside.mkdir()
+            for link, directory in [("helper/linked.py", False), ("linked-folder", True)]:
+                with self.subTest(link=link):
+                    (stage / link).symlink_to(outside if directory else root / "version.json", target_is_directory=directory)
+                    with self.assertRaisesRegex(ValueError, "Linked staged file refused"):
+                        verify_source_copy(root, stage)
+                    (stage / link).unlink()
+            put(stage, "version.json", "CHANGED IN STAGING")
+            with self.assertRaisesRegex(ValueError, "verified bytes"):
+                verify_source_copy(root, stage)
+            (stage / "version.json").unlink()
+            with self.assertRaisesRegex(ValueError, "approved list.*version.json"):
+                verify_source_copy(root, stage)
+
+    def test_archives_hold_only_approved_verified_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root, stage = self.staged_source(tmp)
+            approved = checksum(stage, verify_source_copy(root, stage))
+            put(stage, ".env", "SYNTHETIC PRIVATE CONTENT")
+            with self.assertRaisesRegex(ValueError, "approved list"):
+                archive(stage, Path(tmp) / "refused.zip", approved)
+            (stage / ".env").unlink()
+            original = (stage / "version.json").read_bytes()
+            (stage / "version.json").write_bytes(original + b" CHANGED AFTER VERIFICATION")
+            with self.assertRaisesRegex(ValueError, "verified bytes"):
+                archive(stage, Path(tmp) / "refused.zip", approved)
+            (stage / "version.json").write_bytes(original)
+            archive(stage, Path(tmp) / "source.zip", approved, "prefix/")
+            with zipfile.ZipFile(Path(tmp) / "source.zip") as z:
+                self.assertEqual(z.namelist(), ["prefix/" + name for name in sorted(approved)])
+
+    def test_files_planted_during_packaging_are_refused(self):
+        for marker, planted in [
+            ("source/version.json", ".env"),
+            ("source/tools/package_release.py", "credentials.json"),
+            ("R55-REVIEW.md", ".env.local"),
+            ("suites/results.json", "notes.txt"),
+            ("deploy/madison-reports.html", "id_ed25519"),
+        ]:
+            with self.subTest(beside=marker, planted=planted), tempfile.TemporaryDirectory() as tmp:
+                base = Path(tmp)
+                root = base / "source"
+                root.mkdir()
+                fixture(root)
+                run = subprocess.run(
+                    [sys.executable, "-c", PLANT, marker, planted, str(base / "release")], cwd=root, capture_output=True, text=True, timeout=30
+                )
+                self.assertNotEqual(run.returncode, 0, run.stdout + run.stderr)
+                self.assertRegex(run.stderr, "approved list|file set")
+                self.assertEqual(list((base / "release").glob("*.zip")), [])
 
 
 if __name__ == "__main__":

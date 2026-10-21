@@ -22,6 +22,25 @@ This candidate also carries the post-R54 snow focus fix, renderer extraction,
 approved-language data extraction, narrower exports and centralized helper route guards.
 The retrospective consolidation record and fixture index preserve provenance.
 
+## Post-PR #16 corrections
+
+Baseline: main `66b344c`. The R55 package had not been distributed, so the
+identity is retained (release owner confirmation). Four reproduced defects are corrected:
+
+1. Explicit UTF-8: helper and tool text no longer depends on the Windows code page.
+   A valid Unicode case previously failed citation-history review and anchoring under
+   CP1252 and was reported as changed outside the program. Stored bytes,
+   canonicalization and refusal of altered or malformed records are unchanged.
+2. PDF publication: outbox transfer and direct filing share one per-name lock and a
+   publication that never replaces a name, so a concurrent filing can no longer be
+   silently overwritten. Conflicts keep the outbox copy.
+3. Staged inventory: packaging verifies every staged file with no exclusions and
+   archives only approved, re-hashed file sets; a planted `.env` is refused.
+4. Manual generation: editions are staged, validated and replaced together, and each
+   carries a source digest checked by the gate; PDF inspection is required.
+
+New acceptance item C10 (native Windows Unicode case) and an extended P3 are open.
+
 ## Retained R54 extension decisions
 
 The R54 review and screenshots remain in source under docs/history/R54-REVIEW.md

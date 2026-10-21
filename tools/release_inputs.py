@@ -3,14 +3,15 @@
 import hashlib
 import json
 import re
+import zipfile
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
-from project_layout import checked_file, fingerprint, forbidden_source
+from project_layout import checked_file, fingerprint, forbidden_source, staged_files
 
 
 def source_inventory(root):
     root = Path(root)
-    value = json.loads(checked_file(root, "tools/source-inventory.json").read_text())
+    value = json.loads(checked_file(root, "tools/source-inventory.json").read_text(encoding="utf-8"))
     names = value["files"]
     if value.get("format") != "madison-source-inventory" or value.get("version") != 1 or not isinstance(names, list):
         raise ValueError("Invalid source inventory")
@@ -26,7 +27,7 @@ def source_inventory(root):
 
 def deployment_inputs(root):
     root = Path(root)
-    manifest = json.loads(checked_file(root, "build/generated/runtime-manifest.json").read_text())
+    manifest = json.loads(checked_file(root, "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
     result = {}
     for target, relative in manifest["deploy"].items():
         if forbidden_source(relative) and not relative.startswith(("build/generated/", "build/dist/")):
@@ -64,8 +65,8 @@ def verify_deployment(root, expected, staged=None, finalized=False):
     for target, value in expected.items():
         path = checked_file(staged, target)
         if finalized and target == "deploy/runtime-manifest.json":
-            original = json.loads(checked_file(root, value["source"]).read_text())
-            actual = json.loads(path.read_text())
+            original = json.loads(checked_file(root, value["source"]).read_text(encoding="utf-8"))
+            actual = json.loads(path.read_text(encoding="utf-8"))
             actual.pop("files", None)
             if actual != original:
                 raise ValueError("Staged runtime manifest identity changed")
@@ -73,17 +74,59 @@ def verify_deployment(root, expected, staged=None, finalized=False):
             raise ValueError("Staged input differs from verified bytes: " + target)
 
 
+def complete(folder, approved):
+    """The folder holds exactly the approved files with the approved bytes. Nothing is
+    excluded from view, so a staged .env or credential cannot pass unseen; links are refused."""
+    actual = staged_files(folder)
+    if isinstance(approved, dict):
+        changed = sorted(f for f in set(actual) & set(approved) if actual[f] != approved[f])
+        if changed:
+            raise ValueError("Staged files differ from verified bytes in " + Path(folder).name + ": " + ", ".join(changed))
+    extra, missing = sorted(set(actual) - set(approved)), sorted(set(approved) - set(actual))
+    if extra or missing:
+        raise ValueError("Staged files differ from the approved list in " + Path(folder).name + ": " + ", ".join(extra + missing))
+    return actual
+
+
 def verify_source_copy(root, staged):
-    expected = source_inventory(root)
-    actual = fingerprint(staged)
-    if actual != expected:
-        raise ValueError("Staged source differs from the maintained inventory")
+    return complete(staged, source_inventory(root))
+
+
+def checksum(folder, approved):
+    """Write SHA256SUMS.txt for exactly the approved files (nested checksum files are not listed)
+    and return the approved set including it."""
+    folder = Path(folder)
+    listed = {f: d for f, d in approved.items() if f != "SHA256SUMS.txt"}
+    (folder / "SHA256SUMS.txt").unlink(missing_ok=True)
+    complete(folder, listed)
+    pairs = [d + "  " + f for f, d in sorted(listed.items()) if Path(f).name != "SHA256SUMS.txt"]
+    (folder / "SHA256SUMS.txt").write_text("\n".join(pairs) + "\n", encoding="utf-8")
+    return complete(folder, {**listed, "SHA256SUMS.txt": hashlib.sha256((folder / "SHA256SUMS.txt").read_bytes()).hexdigest()})
+
+
+def archive(folder, dest, approved, prefix=""):
+    """Archive exactly the approved files and bytes; staging is checked, never traversed for content."""
+    complete(folder, approved)
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for relative, digest in sorted(approved.items()):
+            path = checked_file(folder, relative)
+            raw = path.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != digest:
+                raise ValueError("Staged file changed before archiving: " + relative)
+            z.writestr(zipfile.ZipInfo.from_file(path, prefix + relative), raw, zipfile.ZIP_DEFLATED, 9)
+    with zipfile.ZipFile(dest) as z:
+        if z.testzip() is not None or z.namelist() != [prefix + r for r in sorted(approved)]:
+            raise ValueError("Archive failed integrity check")
+
+
+def prefixed(prefix, files):
+    return {prefix + f: d for f, d in files.items()}
 
 
 def verify_package_links(staged, documents):
     staged = Path(staged)
     for document in documents:
-        for link in re.findall(r"\]\(([^)]+)\)", checked_file(staged, document).read_text()):
+        for link in re.findall(r"\]\(([^)]+)\)", checked_file(staged, document).read_text(encoding="utf-8")):
             url = urlsplit(link)
             if not url.scheme and url.path:
                 checked_file(staged, unquote(url.path))
@@ -104,5 +147,5 @@ if __name__ == "__main__":
     for name in names:
         checked_file(ROOT, name)
     (ROOT / "tools/source-inventory.json").write_text(
-        json.dumps({"format": "madison-source-inventory", "version": 1, "files": names}, indent=2) + "\n"
+        json.dumps({"format": "madison-source-inventory", "version": 1, "files": names}, indent=2) + "\n", encoding="utf-8"
     )

@@ -59,7 +59,7 @@ def prepare(token, folder=None):
     path = folder / NAME
     if path.exists():
         check_private(path)
-        value = json.loads(path.read_text())
+        value = json.loads(path.read_text(encoding="utf-8"))
         master = value["bootstrap"]
         if not isinstance(master, str) or len(master) != 43:
             raise ValueError("The helper browser session file is invalid; preserve drafts and contact the administrator.")
@@ -83,7 +83,7 @@ def prepare(token, folder=None):
 def launch_token():
     path = profile_folder() / NAME
     check_private(path)
-    value = json.loads(path.read_text())
+    value = json.loads(path.read_text(encoding="utf-8"))
     token = value.get("token")
     if not isinstance(token, str) or len(token) != 43:
         raise ValueError("No current helper session is available. Restart from the trusted installed shortcut.")
