@@ -64,6 +64,9 @@ class SessionSecurity(unittest.TestCase):
             "/email/reminder",
             "/administration/deposit-override",
         ]
+        # Every registered route, so a new one cannot be left out; /dw-status is public by design (see below).
+        routes = sorted((set(routes) | set(server.GET_ROUTES) | set(server.POST_ROUTES)) - {"/dw-status"})
+        self.assertGreaterEqual(len(routes), 35)
         for route in routes:
             for body in (None, {}):
                 with self.subTest(route=route, body=body):
