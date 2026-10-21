@@ -687,6 +687,15 @@ def save_summary(folder, name, revision, summary):
         if case_number_key(current["file"].get("case", {}).get("number", "")) != number:
             raise ValueError("The summary belongs to another case")
         summary["integrity"] = case_integrity.require_valid(current["file"], folder)
+        import case_projection
+
+        # Write only a summary that represents this exact case; reads check again.
+        try:
+            fields = case_projection.mismatched_fields(summary, current["file"]) if case_projection.used_by_reports(summary) else []
+        except Exception as error:
+            raise ValueError("The saved case cannot be summarized for Reports; the summary was not written") from error
+        if fields:
+            raise ValueError("The summary does not match the saved case (" + ", ".join(fields) + "); it was not written")
         summary["sourceFile"] = name
         summary["sourceRevision"] = revision
         target = folder / "Reporting Index"

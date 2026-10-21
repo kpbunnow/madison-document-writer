@@ -53,7 +53,7 @@ It lists every program item in the deployment folder that is not in the new rele
 2. After checking the package fingerprint (see Independent package verification), run `Start Document Writer.bat` from that trusted deployment once on each PC. It installs the program under `%LOCALAPPDATA%\MadisonDocWriter`, installs the bundled address parser offline, creates a desktop shortcut and opens the browser.
 3. Confirm the application shows **Build {{RELEASE}}** and helper **{{HELPER_VERSION}}**. If an older helper is detected, close its command window and browser tabs, then run the launcher again.
 4. Open **Tools & settings → Saved work & connection → Connection checks and technical details**. Open connection checks and **Storage diagnostics** to verify helper/share paths and permissions. Use **Rebuild reporting index** there when appropriate; it does not repair an altered case history.
-5. Open **Reports → Data and definitions** and resolve any unreadable, duplicate or stale summaries before relying on totals.
+5. Open **Reports → Data and definitions** and resolve any unreadable, duplicate, stale or non-matching summaries before relying on totals.
 
 The launcher checks that these program files are present:
 

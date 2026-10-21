@@ -12,6 +12,7 @@ import case_integrity as integrity
 import case_store as store
 import server
 from audit_helper import record
+from report_summaries import report_summary
 
 
 class Responsiveness(unittest.TestCase):
@@ -42,14 +43,12 @@ class Responsiveness(unittest.TestCase):
                     )
                     (idx / (v["case"]["number"] + ".json")).write_text(
                         json.dumps(
-                            {
-                                "format": "madison-case-summary",
-                                "summaryVersion": 6,
-                                "case": v["case"],
-                                "sourceFile": name,
-                                "sourceRevision": hashlib.sha256(raw).hexdigest(),
-                                "integrity": {"headHash": v["integrity"]["headHash"]},
-                            }
+                            report_summary(
+                                v,
+                                sourceFile=name,
+                                sourceRevision=hashlib.sha256(raw).hexdigest(),
+                                integrity={"headHash": v["integrity"]["headHash"]},
+                            )
                         )
                     )
                 (root / "_integrity").mkdir()

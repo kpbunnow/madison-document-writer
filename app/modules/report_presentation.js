@@ -104,8 +104,9 @@ export function coverage(R) {
     missing = x.missing || [],
     stale = x.stale || [],
     bad = x.unreadable || [],
+    mismatched = x.mismatched || [],
     old = M.versionStale || [],
-    incomplete = missing.length || stale.length || bad.length || old.length,
+    incomplete = missing.length || stale.length || bad.length || mismatched.length || old.length,
     unlocated = M.counted.filter((c) => !R.areaKey(c, R.S.F)).length;
   return (
     '<div class="report-coverage"><p><b>Shared reporting: ' +
@@ -124,6 +125,8 @@ export function coverage(R) {
             R.plural(old.length, "earlier-format summary", "earlier-format summaries") +
             "; " +
             R.plural(bad.length, "unreadable/duplicate summary entry", "unreadable/duplicate summary entries") +
+            "; " +
+            R.plural(mismatched.length, "summary not matching its verified case", "summaries not matching their verified cases") +
             ('. These categories can overlap. <button class="linkish" data-screen="dat' +
               'a">Review excluded records and rebuild instructions</button></p>')
         : "",

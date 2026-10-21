@@ -18,6 +18,7 @@ import operations_helper as operations
 import server
 from audit_helper import record
 from audit_r28_helper import pair
+from report_summaries import report_summary
 
 
 class DurableStorage(unittest.TestCase):
@@ -231,7 +232,7 @@ class DurableStorage(unittest.TestCase):
             value["schema"] = 5
             name = "101 TEST - QA-001.json"
             saved = store.save_case(root, name, value)
-            summary = {"format": "madison-case-summary", "version": 6, "case": dict(saved["file"]["case"])}
+            summary = report_summary(saved["file"])
             store.save_summary(root, name, saved["revision"], summary)
             with patch.object(server, "case_dir", return_value=root):
                 self.assertEqual(len(server.read_index()["summaries"]), 1)
@@ -242,7 +243,7 @@ class DurableStorage(unittest.TestCase):
                 index = server.read_index()
                 self.assertEqual(index["summaries"], [])
                 self.assertEqual(index["stale"], [name])
-                summary["case"] = dict(next_save["file"]["case"])
+                summary = report_summary(next_save["file"])
                 store.save_summary(root, name, next_save["revision"], summary)
                 self.assertEqual(server.read_index()["summaries"][0]["case"]["owner"], "Owner B")
                 data = json.loads((root / "Reporting Index/qa-001.json").read_bytes())

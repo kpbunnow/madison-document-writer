@@ -838,6 +838,15 @@ function dataView() {
         ? "<li><b>" + `${plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` + ".</b>" + `${li(x.unreadable)}` + "</li>"
         : "",
     ) +
+    "".concat(
+      (x.mismatched || []).length
+        ? "<li><b>" +
+            `${plural(x.mismatched.length, "summary", "summaries")}` +
+            " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
+            `${li(x.mismatched)}` +
+            "</li>"
+        : "",
+    ) +
     "\n      <li><b>" +
     `${plural(unlocated.length, "case")}` +
     " not located on the map.</b>" +
@@ -1259,6 +1268,7 @@ function exportSheets() {
     ["Cases in the period", cases.length],
     ["Case files without a summary", ReportsState.S.raw.missing.length],
     ["Stale summaries", ReportsState.S.raw.stale.length + M.versionStale.length],
+    ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
     ["Cases not located", M.counted.filter((c) => !c.located).length],
     [],
     ["Definitions"],
@@ -1288,7 +1298,7 @@ function exportSheets() {
         ),
     );
   const sheets = [
-    { name: "About", rows: about, opt: { boldRows: [0, 14] } },
+    { name: "About", rows: about, opt: { boldRows: [0, about.findIndex((r) => r[0] === "Definitions")] } },
     { name: "Cases", rows: casesRows, opt: { header: true } },
     { name: "Violations", rows: vRows, opt: { header: true } },
     { name: "Visits", rows: visitRows, opt: { header: true } },

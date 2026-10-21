@@ -887,6 +887,17 @@ def projected(record, loaded=False):
     return canonical(reportable(plain(project(record, workspace)))), workspace.consulted
 
 
+def used_by_reports(summary):
+    """Reports excludes `(summaryVersion ?? version ?? 0) < SUMMARY_VERSION` as an earlier format;
+    every other summary reaches report totals and must match its case."""
+    version = summary.get("summaryVersion")
+    version = summary.get("version") if version is None else version
+    version = 0 if version is None else version
+    if isinstance(version, str) and re.fullmatch(r"[0-9]+(?:\.[0-9]*)?", version.strip(JS_SPACE)):
+        version = float(version.strip(JS_SPACE))
+    return not (isinstance(version, (int, float)) and version < SUMMARY_VERSION)
+
+
 def mismatched_fields(summary, record):
     """Top-level reportable fields where a cached summary differs from the verified case projection.
     Raises when the case cannot be projected (summarize() could not have produced a summary)."""

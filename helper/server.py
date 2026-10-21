@@ -17,8 +17,10 @@ POST /email      {"filename": "...", "html": "...", "subject": "...", "body": ".
                     attached, for the inspector to address and send
 
 Reporting (read-only against the case record):
-GET  /reporting/index      every summary in <case folder>/Reporting Index, plus
-                           which case files have no summary or a stale one
+GET  /reporting/index      every summary in <case folder>/Reporting Index that
+                           equals the projection of its verified case, plus which
+                           case files have no summary, a stale one or one that
+                           does not match the case
 GET  /reporting/parcels    the parcel lookup cache
 POST /reporting/parcels    {"ids": [...], "refresh": false}
                            -> looks up parcels not yet cached on the city's
@@ -40,6 +42,7 @@ import secrets
 import hmac
 import helper_session
 import case_integrity
+import case_projection
 from reporting_reads import ordered_reads
 import citation_pricing
 import sys
@@ -152,6 +155,31 @@ def norm_parcel(p):
     return d if re.fullmatch(r"[0-9]{12}", d) else ""
 
 
+PROJECTION_MATCHES, PROJECTION_LOCK = {}, threading.Lock()
+
+
+def projection_mismatch(summary, summary_sha256, record_value):
+    """Fields where a summary differs from the projection of its verified case.
+
+    A match depends only on the exact summary bytes and case bytes (sourceRevision is
+    already proven equal to the case hash), so matching pairs are remembered for this
+    helper process. Integrity is still verified on every request."""
+    key = (summary_sha256, summary.get("sourceRevision"))
+    with PROJECTION_LOCK:
+        if key in PROJECTION_MATCHES:
+            return []
+    try:
+        fields = case_projection.mismatched_fields(summary, record_value)
+    except Exception:  # summarize() could not have written any summary for this case
+        return ["case could not be projected"]
+    if not fields:
+        with PROJECTION_LOCK:
+            if len(PROJECTION_MATCHES) >= 20000:
+                PROJECTION_MATCHES.clear()
+            PROJECTION_MATCHES[key] = True
+    return fields
+
+
 def read_index(read_workers=4):
     """Every summary, and every case file whose summary is absent or older."""
     cd = case_dir()
@@ -162,12 +190,13 @@ def read_index(read_workers=4):
         "unreadable": [],
         "missing": [],
         "stale": [],
+        "mismatched": [],
         "readAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
     if not cd.is_dir():
         out.update(ok=False, error="the case folder %s cannot be reached" % cd)
         return out
-    by_number, files, seen, duplicates = {}, {}, set(), set()
+    by_number, files, seen, duplicates, mismatched = {}, {}, set(), set(), set()
     for path in sorted(cd.glob("*.json")):
         if not path.name.startswith("_"):
             files.setdefault(case_file_key(path), []).append(path)
@@ -182,9 +211,12 @@ def read_index(read_workers=4):
         # Speculative reads only. Identity, duplicate, revision and chain checks
         # remain in their original order on this request's consuming thread.
         try:
-            summary = json.loads(path.read_bytes())
+            summary_raw = path.read_bytes()
+            summary = json.loads(summary_raw)
         except (OSError, ValueError, TypeError, KeyError) as error:
             return path, None, None, error
+        if isinstance(summary, dict):
+            summary["__raw_sha256"] = hashlib.sha256(summary_raw).hexdigest()
         raw, error = None, None
         if isinstance(summary, dict) and isinstance(summary.get("case"), dict):
             try:
@@ -199,6 +231,7 @@ def read_index(read_workers=4):
         try:
             if summary is None and read_error:
                 raise read_error
+            summary_sha256 = summary.pop("__raw_sha256", None) if isinstance(summary, dict) else None
             if not isinstance(summary, dict) or summary.get("format") != "madison-case-summary" or not isinstance(summary.get("case"), dict):
                 raise ValueError("not a case summary")
             number = case_number_key(summary["case"].get("number"))
@@ -227,6 +260,15 @@ def read_index(read_workers=4):
             status = case_integrity.verify_record(record_value, cd, context=context)
             if not status["valid"]:
                 raise ValueError(status["label"])
+            # The verified case is the authority for reportable facts: a summary naming the
+            # current revision is used only if it equals the projection of that case. Earlier
+            # summary formats pass through to Reports, which excludes them as earlier-format.
+            if case_projection.used_by_reports(summary):
+                fields = projection_mismatch(summary, summary_sha256, record_value)
+                if fields:
+                    out["mismatched"].append("%s (%s; differs in %s)" % (p.name, casefile.name, ", ".join(fields)))
+                    mismatched.add(casefile.name)
+                    continue
             summary["integrity"] = status
             by_number[number] = summary
         except (OSError, ValueError, TypeError, KeyError) as error:
@@ -234,9 +276,9 @@ def read_index(read_workers=4):
     for number in duplicates:
         by_number.pop(number, None)
     out["summaries"] = list(by_number.values())
-    stale = set(out["stale"])
+    excluded = set(out["stale"]) | mismatched
     for number, paths in files.items():
-        if number not in by_number and not any(p.name in stale for p in paths):
+        if number not in by_number and not any(p.name in excluded for p in paths):
             out["missing"].extend(p.name for p in paths)
     return out
 
