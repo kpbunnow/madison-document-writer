@@ -341,4 +341,4 @@ const releaseChecks = async function () {
   console.log("Release regressions: " + failures.length + " failure(s)");
   process.exit(failures.length ? 1 : 0);
 };
-eval(src + "\n;(" + releaseChecks.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");
+eval(src + require("../fixtures/projection_capture.cjs") + "\n;(" + releaseChecks.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");

@@ -465,4 +465,4 @@ const test = async function () {
   if (failures.length) console.log(failures.join("\n"));
   process.exit(failures.length ? 1 : 0);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");
+eval(payload + require("../fixtures/projection_capture.cjs") + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");

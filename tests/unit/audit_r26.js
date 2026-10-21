@@ -323,4 +323,4 @@ const tests = async () => {
   );
   process.exit(0);
 };
-eval(src + "\n(" + tests.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+eval(src + require("../fixtures/projection_capture.cjs") + "\n(" + tests.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");

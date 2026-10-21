@@ -291,7 +291,7 @@ const test = async function () {
   process.exit(failures.length ? 1 : 0);
 };
 try {
-  eval(src + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");
+  eval(src + require("../fixtures/projection_capture.cjs") + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");
 } catch (e) {
   console.error(e);
   process.exit(1);

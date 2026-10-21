@@ -76,6 +76,43 @@ policy = {
 (GENERATED / "calendar_policy.json").write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
 subprocess.run([sys.executable, str(HERE / "policy/regenerate_deposits.py"), "--check"], check=True)
 library = json.loads(rd("library.js").split("=", 1)[1].rsplit(";", 1)[0])
+# The helper's reporting projection (case_projection.py) classifies violations and names
+# inspectors from the same library and roster the application bundles.
+roster = subprocess.run(
+    [
+        node,
+        "-e",
+        "const vm=require('vm'),c={};vm.runInNewContext(require('fs').readFileSync(process.argv[1],'utf8')+';this.R=INSPECTORS;',c);process.stdout.write(JSON.stringify(c.R))",
+        str(HERE / "app/assets/inspectors.js"),
+    ],
+    check=True,
+    capture_output=True,
+    encoding="utf-8",
+).stdout
+(GENERATED / "projection_tables.json").write_text(
+    json.dumps(
+        {
+            "format": "madison-projection-tables",
+            "version": 1,
+            "library": [
+                {
+                    "code": c["code"],
+                    "name": c["name"],
+                    "groups": [
+                        {"code": g["code"], "name": g["name"], "items": [{k: i[k] for k in ("o", "t", "s") if k in i} for i in g["items"]]}
+                        for g in c["groups"]
+                    ],
+                }
+                for c in library
+            ],
+            "inspectors": [{"id": i["id"], "name": i["name"]} for i in json.loads(roster)],
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    + "\n",
+    encoding="utf-8",
+)
 from compiler import compile_policy
 
 citation_policy = compile_policy(HERE)

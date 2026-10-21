@@ -338,4 +338,4 @@ const T =
   "));\nif(fails.length)process.exitCode=1;\n})().catch(function(e){console.l" +
   "og('CRASH',e&&e.stack||e);process.exitCode=1;});\n";
 global.CSSTEXT = CSS;
-eval(src + "\n;;\n" + T);
+eval(src + "\n;;\n" + require("../fixtures/projection_capture.cjs") + T);
