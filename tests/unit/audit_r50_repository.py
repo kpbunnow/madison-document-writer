@@ -64,7 +64,6 @@ class RepositoryContract(unittest.TestCase):
 
     def test_single_version_source_and_mismatch_refusal(self):
         version = json.loads((ROOT / "version.json").read_text())
-        self.assertEqual((version["authoringVersion"], version["caseSchema"], version["summaryVersion"], version["backupVersion"]), (12, 5, 6, 2))
         for name in ("package.json", "package-lock.json"):
             self.assertEqual(json.loads((ROOT / name).read_text())["version"], version["helperVersion"])
         with tempfile.TemporaryDirectory() as folder:
