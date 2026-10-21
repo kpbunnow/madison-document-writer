@@ -9,7 +9,7 @@ MAX_JSON_BYTES = 20 * 1024 * 1024
 
 
 def policy():
-    value = json.loads(Path(__file__).with_name("trusted-connections.json").read_text())
+    value = json.loads(Path(__file__).with_name("trusted-connections.json").read_text(encoding="utf-8"))
     if value.get("version") != 1:
         raise ValueError("The released connection allowlist is invalid")
     return value

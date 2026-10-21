@@ -26,7 +26,7 @@ if browser_check.returncode:
     raise SystemExit(browser_check.returncode)
 LOGS = ROOT / "build/test-results"
 LOGS.mkdir(parents=True, exist_ok=True)
-(LOGS / "results.json").write_text("[]\n")
+(LOGS / "results.json").write_text("[]\n", encoding="utf-8")
 (LOGS / "evidence.json").unlink(missing_ok=True)
 
 
@@ -72,7 +72,7 @@ subprocess.run(
     check=True,
 )
 inputs = fingerprint(ROOT)
-(LOGS / "source-before-tests.json").write_text(json.dumps(inputs, indent=2) + "\n")
+(LOGS / "source-before-tests.json").write_text(json.dumps(inputs, indent=2) + "\n", encoding="utf-8")
 results = []
 with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
     import shutil
@@ -92,10 +92,12 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
                 run = subprocess.run(
                     [sys.executable if suite.suffix == ".py" else "node", str(suite.relative_to(ROOT))],
                     cwd=ROOT,
-                    env={**os.environ, "DW_PRODUCTION_DIR": str(Path(production) / "dist")},
+                    env={**os.environ, "DW_PRODUCTION_DIR": str(Path(production) / "dist"), "PYTHONIOENCODING": "utf-8"},
                     capture_output=True,
                     text=True,
                     timeout=150,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 output, code = run.stdout + run.stderr, run.returncode
             except subprocess.TimeoutExpired:
@@ -114,7 +116,7 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
         # Measured performance suites run last and alone; suites that launch Chromium run one at a time.
         # Everything else shares a small worker pool. Each suite keeps its own 150-second deadline.
         performance = [s for s in suites if "performance" in s.name]
-        chromium = [s for s in suites if s not in performance and re.search(r"chromium|playwright|DW_BROWSER", s.read_text())]
+        chromium = [s for s in suites if s not in performance and re.search(r"chromium|playwright|DW_BROWSER", s.read_text(encoding="utf-8"))]
         pooled = [s for s in suites if s not in performance and s not in chromium]
         workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))
         with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -124,7 +126,7 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
         results = [finished[s] for s in suites]
     finally:
         build()
-(LOGS / "results.json").write_text(json.dumps(results, indent=2) + "\n")
+(LOGS / "results.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
 final_inputs = fingerprint(ROOT)
 if inputs != final_inputs:
     changed = sorted(name for name in inputs.keys() | final_inputs.keys() if inputs.get(name) != final_inputs.get(name))
@@ -132,5 +134,6 @@ if inputs != final_inputs:
 if any(not x["passed"] for x in results):
     raise SystemExit(1)
 (LOGS / "evidence.json").write_text(
-    json.dumps({"files": inputs, "resultsSha256": hashlib.sha256((LOGS / "results.json").read_bytes()).hexdigest()}, indent=2) + "\n"
+    json.dumps({"files": inputs, "resultsSha256": hashlib.sha256((LOGS / "results.json").read_bytes()).hexdigest()}, indent=2) + "\n",
+    encoding="utf-8",
 )

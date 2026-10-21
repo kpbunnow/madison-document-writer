@@ -96,6 +96,7 @@ Add a new suite under the feature it covers.
 | `audit_contracts.js` | Exact event and store contracts |
 | `audit_r31_integrity.js`, `audit_r31_integrity.py`, `audit_r32_integrity.py` | Canonical hashing, tamper detection, migration, anchors, downgrade refusal |
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
+| `audit_utf8_io.py` | Case, integrity and tool text is UTF-8 under a simulated Windows CP1252 default; no implicit encodings |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |
 | `audit_archive.py` | Byte-level archive and local HTTP |
 | `audit_review_r12.py` | R12 source-review regressions |

@@ -14,15 +14,15 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 STAFF = ROOT / "docs/staff"
-text = (STAFF / "PROGRAM-MANUAL.md").read_text()
+text = (STAFF / "PROGRAM-MANUAL.md").read_text(encoding="utf-8")
 chapters = re.findall(r"^## (\d+) (.+)$", text, re.M)
 if [int(n) for n, _ in chapters] != list(range(1, 23)):
     raise ValueError("The manual must retain its 22 numbered chapters")
 markdown = re.sub(r"^## (\d+) (.+)$", lambda m: "## " + m[1] + " " + m[2] + " {#chapter-" + m[1] + "}", text, flags=re.M)
 fragment = subprocess.check_output(
-    ["pandoc", "--from=markdown+pipe_tables+header_attributes", "--to=html5", "--wrap=none"], input=markdown, text=True
+    ["pandoc", "--from=markdown+pipe_tables+header_attributes", "--to=html5", "--wrap=none"], input=markdown, text=True, encoding="utf-8"
 )
-style = (STAFF / "manual-style.css").read_text()
+style = (STAFF / "manual-style.css").read_text(encoding="utf-8")
 nav = '<p class="downloads"><a href="Program_Instruction_Manual.pdf">Printable PDF</a><a href="Program_Instruction_Manual.docx">Word manual</a><a href="PROGRAM-MANUAL.md">Markdown source</a></p>'
 nav += '<nav aria-label="Manual contents"><h2>Contents</h2><ol>'
 nav += "".join('<li><a href="#chapter-' + n + '">' + escape(title) + "</a></li>" for n, title in chapters)
@@ -35,7 +35,7 @@ html = (
     + fragment
     + '</div><p class="meta">End of program instructions. See the packaged production readiness and City acceptance record for release decisions.</p></main></body></html>\n'
 )
-(STAFF / "PROGRAM-MANUAL.html").write_text(html)
+(STAFF / "PROGRAM-MANUAL.html").write_text(html, encoding="utf-8")
 with tempfile.TemporaryDirectory(prefix="manual-styles-") as tmp:
     reference = Path(tmp) / "reference.docx"
     shutil.copyfile(STAFF / "Program_Instruction_Manual.docx", reference)
@@ -63,4 +63,4 @@ const {chromium}=require('playwright');
 })().catch(e=>{console.error(e);process.exit(1)});
 """
 subprocess.run(["node", "-e", code, (STAFF / "PROGRAM-MANUAL.html").as_uri(), str(STAFF / "Program_Instruction_Manual.pdf")], cwd=ROOT, check=True)
-print("Regenerated HTML, Word and PDF for " + json.loads((ROOT / "version.json").read_text())["release"])
+print("Regenerated HTML, Word and PDF for " + json.loads((ROOT / "version.json").read_text(encoding="utf-8"))["release"])

@@ -22,19 +22,19 @@ if args.output.resolve().is_relative_to(ROOT):
 proof = ROOT / "build/verification/latest"
 if not args.evidence:
     args.evidence = proof / "browser"
-repository = json.loads((proof / "repository.json").read_text())
+repository = json.loads((proof / "repository.json").read_text(encoding="utf-8"))
 if repository.get("passed") is not True or repository.get("files") != fingerprint():
     raise SystemExit("Maintained source changed or repository verification is missing. Run tools/verify_release.py.")
 
 from release_evidence import verify
 
 verify(WORK)
-gate = json.loads((proof / "verification.json").read_text())
+gate = json.loads((proof / "verification.json").read_text(encoding="utf-8"))
 verified_inputs = gate.get("deploymentInputs")
 verify_deployment(ROOT, verified_inputs)
 source_files = source_inventory(ROOT)
-browser = json.loads((args.evidence / "browser-results.json").read_text())
-axe = json.loads((args.evidence / "axe-results.json").read_text())
+browser = json.loads((args.evidence / "browser-results.json").read_text(encoding="utf-8"))
+axe = json.loads((args.evidence / "axe-results.json").read_text(encoding="utf-8"))
 hashes = {
     name: hashlib.sha256((ROOT / "build/dist" / name).read_bytes()).hexdigest() for name in ["madison-document-writer.html", "madison-reports.html"]
 }
@@ -46,8 +46,8 @@ if (
     or not axe.get("passed")
 ):
     raise SystemExit("Passing production browser evidence must match every runtime byte.")
-version = json.loads((ROOT / "version.json").read_text())
-manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text())
+version = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
+manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
 if any(manifest.get(k) != v for k, v in version.items()):
     raise SystemExit("Runtime identity differs from version.json.")
 base = args.output.resolve()
@@ -90,18 +90,19 @@ with tempfile.TemporaryDirectory(prefix="deploy-check-") as tmp:
     "SHA-256 against the value the release owner publishes separately. After that, inspectors use the installed desktop shortcut; each update is "
     "checked file by file against runtime-manifest.json. The deployment folder must be writable only by the release owner.\n\n"
     "Source is maintained under source/ with one version.json. Verification is in the matching evidence ZIP. The manual is in "
-    "deploy/PROGRAM-MANUAL.html and its Word/PDF editions. City acceptance remains open in the acceptance record; no live rollout has been performed.\n"
+    "deploy/PROGRAM-MANUAL.html and its Word/PDF editions. City acceptance remains open in the acceptance record; no live rollout has been performed.\n",
+    encoding="utf-8",
 )
 summary = {
     "release": version["release"],
     "passed": True,
     "suiteCount": gate["suiteCount"],
     "axeScreens": gate["axeScreens"],
-    "printVariants": len(json.loads((ROOT / "build/test-results/r50-print-compatibility.json").read_text())["checks"]),
+    "printVariants": len(json.loads((ROOT / "build/test-results/r50-print-compatibility.json").read_text(encoding="utf-8"))["checks"]),
     "runtimeHashes": hashes,
     "cityNativeAcceptance": False,
 }
-(stage / (R + "-Verification-Summary.json")).write_text(json.dumps(summary, indent=2) + "\n")
+(stage / (R + "-Verification-Summary.json")).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
 
 def checksum(folder):
@@ -110,7 +111,7 @@ def checksum(folder):
         for p in sorted(folder.rglob("*"))
         if p.is_file() and p.name != "SHA256SUMS.txt"
     ]
-    (folder / "SHA256SUMS.txt").write_text("\n".join(pairs) + "\n")
+    (folder / "SHA256SUMS.txt").write_text("\n".join(pairs) + "\n", encoding="utf-8")
     for entry in pairs:
         expected, relative = entry.split("  ", 1)
         if hashlib.sha256((folder / relative).read_bytes()).hexdigest() != expected:
@@ -158,7 +159,7 @@ archive(stage / "deploy", base / (name + "-deploy.zip"))
 archive(stage / "source", base / (name + "-source.zip"))
 archive(evidence, base / (name + "-evidence.zip"), R + "-Verification-Evidence/")
 evidence_zip = base / (name + "-evidence.zip")
-(stage / "EVIDENCE-SHA256.txt").write_text(hashlib.sha256(evidence_zip.read_bytes()).hexdigest() + "  " + evidence_zip.name + "\n")
+(stage / "EVIDENCE-SHA256.txt").write_text(hashlib.sha256(evidence_zip.read_bytes()).hexdigest() + "  " + evidence_zip.name + "\n", encoding="utf-8")
 checksum(stage)
 archive(stage, base / (name + ".zip"), name + "/")
 for ext in ["pdf", "docx"]:

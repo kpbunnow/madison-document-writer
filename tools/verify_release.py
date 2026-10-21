@@ -35,16 +35,16 @@ final_source = fingerprint(ROOT)
 if source != final_source:
     changed = sorted(name for name in source.keys() | final_source.keys() if source.get(name) != final_source.get(name))
     raise SystemExit("Source changed during verification; rerun. Changed files: " + ", ".join(changed))
-checks = json.loads((ROOT / "build/test-results/results.json").read_text())
-browser = json.loads((OUT / "browser/browser-results.json").read_text())
-axe = json.loads((OUT / "browser/axe-results.json").read_text())
+checks = json.loads((ROOT / "build/test-results/results.json").read_text(encoding="utf-8"))
+browser = json.loads((OUT / "browser/browser-results.json").read_text(encoding="utf-8"))
+axe = json.loads((OUT / "browser/axe-results.json").read_text(encoding="utf-8"))
 if not all(x["passed"] for x in checks) or not browser.get("passed") or not axe.get("passed"):
     raise SystemExit("Failed regression, browser or axe checks.")
 (OUT / "verification.json").write_text(
     json.dumps(
         {
             "passed": True,
-            "release": (ROOT / "build/generated/RELEASE").read_text().strip(),
+            "release": (ROOT / "build/generated/RELEASE").read_text(encoding="utf-8").strip(),
             "suiteCount": len(checks),
             "axeScreens": len(axe["checks"]),
             "runtimeHashes": browser["runtimeHashes"],
@@ -53,9 +53,10 @@ if not all(x["passed"] for x in checks) or not browser.get("passed") or not axe.
         },
         indent=2,
     )
-    + "\n"
+    + "\n",
+    encoding="utf-8",
 )
 from project_layout import fingerprint as maintained_fingerprint
 
-(OUT / "repository.json").write_text(json.dumps({"passed": True, "files": maintained_fingerprint()}, indent=2) + "\n")
+(OUT / "repository.json").write_text(json.dumps({"passed": True, "files": maintained_fingerprint()}, indent=2) + "\n", encoding="utf-8")
 print("Verified release evidence: " + str(OUT))

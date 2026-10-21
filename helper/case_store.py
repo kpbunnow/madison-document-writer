@@ -31,7 +31,7 @@ try:
 except ZoneInfoNotFoundError:
     with (resource("city-timezone.tzif")).open("rb") as stream:
         CITY_ZONE = ZoneInfo.from_file(stream, key="America/Chicago")
-MAILING_POLICY = json.loads((resource("calendar_policy.json")).read_text())
+MAILING_POLICY = json.loads((resource("calendar_policy.json")).read_text(encoding="utf-8"))
 SPECIAL_TYPES = ("summaryAbatement", "nonSummaryAbatement", "noOccupancy", "bestInterestExtension", "vacancyExtension")
 SUPPLEMENTAL_TYPES = ("summaryAbatement", "nonSummaryAbatement", "noOccupancy")
 
@@ -371,7 +371,7 @@ def file_lock(folder, key, wait=5):
         try:
             if identity is not None and (path.stat().st_dev, path.stat().st_ino) == identity:
                 path.unlink()
-            elif identity is None and json.loads(path.read_text()).get("owner") == owner:
+            elif identity is None and json.loads(path.read_text(encoding="utf-8")).get("owner") == owner:
                 path.unlink()
         except (OSError, ValueError):
             pass
@@ -385,7 +385,7 @@ def file_lock(folder, key, wait=5):
             stat = os.fstat(fd)
             identity = (stat.st_dev, stat.st_ino)
             try:
-                with os.fdopen(fd, "w") as stream:
+                with os.fdopen(fd, "w", encoding="utf-8") as stream:
                     json.dump(
                         {"pid": os.getpid(), "host": os.environ.get("COMPUTERNAME") or socket.gethostname(), "at": time.time(), "owner": owner},
                         stream,
@@ -411,7 +411,7 @@ def file_lock(folder, key, wait=5):
     finally:
         record("lock", "released")
         try:
-            if json.loads(path.read_text()).get("owner") == owner:
+            if json.loads(path.read_text(encoding="utf-8")).get("owner") == owner:
                 path.unlink(missing_ok=True)
         except (OSError, ValueError):
             pass
@@ -813,7 +813,7 @@ def citation_history(folder, exclude_number=""):
     for path in sorted(root.glob("*.json")):
         if path.name.startswith("_"):
             continue
-        value = json.loads(path.read_text())
+        value = json.loads(path.read_text(encoding="utf-8"))
         validate_case(value, legacy=True)
         case_integrity.require_valid(value, folder, context)
         number = case_number_key(value["case"]["number"])

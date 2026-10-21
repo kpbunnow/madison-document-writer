@@ -25,7 +25,7 @@ def recover(local):
     journal = local / "install-transaction.json"
     if not journal.exists():
         return False
-    value = json.loads(journal.read_text())
+    value = json.loads(journal.read_text(encoding="utf-8"))
     identity = value["id"]
     if len(identity) != 32 or any(c not in "0123456789abcdef" for c in identity):
         raise ValueError("Invalid installation recovery identity")

@@ -95,9 +95,9 @@ def fingerprint(root=ROOT):
 
 
 def version():
-    v = json.loads((ROOT / "version.json").read_text())
+    v = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
     for name in ["package.json", "package-lock.json"]:
-        value = json.loads((ROOT / name).read_text())
+        value = json.loads((ROOT / name).read_text(encoding="utf-8"))
         if value["version"] != v["helperVersion"] or name == "package-lock.json" and value["packages"][""]["version"] != v["helperVersion"]:
             raise ValueError(name + " disagrees with version.json; run tools/sync_version.py")
     if type(v.get("helperBuild")) is not int or v["helperBuild"] != int(v["helperVersion"].split(".")[-1]):
@@ -109,7 +109,7 @@ def version():
         ("authoringVersion", "app/modules/inspection_import.js", r"authoringVersion\s*:\s*(\d+)"),
     ]
     for key, name, pattern in consumers:
-        found = re.search(pattern, (ROOT / name).read_text())
+        found = re.search(pattern, (ROOT / name).read_text(encoding="utf-8"))
         if not found or int(found[1]) != v[key]:
             raise ValueError(name + " disagrees with version.json " + key)
     return v
@@ -119,7 +119,7 @@ def assemble_deploy(destination):
     """Assemble installed output only; never create a copied source tree."""
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
-    manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text())
+    manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
     for target, relative in manifest["deploy"].items():
         source = checked_file(ROOT, relative)
         if forbidden_source(relative) and not relative.startswith(("build/generated/", "build/dist/")):

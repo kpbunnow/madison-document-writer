@@ -91,7 +91,7 @@ from runtime_identity import VERSION
 
 PORT = 8777
 URL = "http://127.0.0.1:%d/madison-document-writer.html" % PORT
-MANIFEST = json.loads(resource("runtime-manifest.json").read_text())
+MANIFEST = json.loads(resource("runtime-manifest.json").read_text(encoding="utf-8"))
 REQUIRED = tuple(MANIFEST["required"])
 
 

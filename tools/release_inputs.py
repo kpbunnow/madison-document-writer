@@ -10,7 +10,7 @@ from project_layout import checked_file, fingerprint, forbidden_source
 
 def source_inventory(root):
     root = Path(root)
-    value = json.loads(checked_file(root, "tools/source-inventory.json").read_text())
+    value = json.loads(checked_file(root, "tools/source-inventory.json").read_text(encoding="utf-8"))
     names = value["files"]
     if value.get("format") != "madison-source-inventory" or value.get("version") != 1 or not isinstance(names, list):
         raise ValueError("Invalid source inventory")
@@ -26,7 +26,7 @@ def source_inventory(root):
 
 def deployment_inputs(root):
     root = Path(root)
-    manifest = json.loads(checked_file(root, "build/generated/runtime-manifest.json").read_text())
+    manifest = json.loads(checked_file(root, "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
     result = {}
     for target, relative in manifest["deploy"].items():
         if forbidden_source(relative) and not relative.startswith(("build/generated/", "build/dist/")):
@@ -64,8 +64,8 @@ def verify_deployment(root, expected, staged=None, finalized=False):
     for target, value in expected.items():
         path = checked_file(staged, target)
         if finalized and target == "deploy/runtime-manifest.json":
-            original = json.loads(checked_file(root, value["source"]).read_text())
-            actual = json.loads(path.read_text())
+            original = json.loads(checked_file(root, value["source"]).read_text(encoding="utf-8"))
+            actual = json.loads(path.read_text(encoding="utf-8"))
             actual.pop("files", None)
             if actual != original:
                 raise ValueError("Staged runtime manifest identity changed")
@@ -83,7 +83,7 @@ def verify_source_copy(root, staged):
 def verify_package_links(staged, documents):
     staged = Path(staged)
     for document in documents:
-        for link in re.findall(r"\]\(([^)]+)\)", checked_file(staged, document).read_text()):
+        for link in re.findall(r"\]\(([^)]+)\)", checked_file(staged, document).read_text(encoding="utf-8")):
             url = urlsplit(link)
             if not url.scheme and url.path:
                 checked_file(staged, unquote(url.path))
@@ -104,5 +104,5 @@ if __name__ == "__main__":
     for name in names:
         checked_file(ROOT, name)
     (ROOT / "tools/source-inventory.json").write_text(
-        json.dumps({"format": "madison-source-inventory", "version": 1, "files": names}, indent=2) + "\n"
+        json.dumps({"format": "madison-source-inventory", "version": 1, "files": names}, indent=2) + "\n", encoding="utf-8"
     )
