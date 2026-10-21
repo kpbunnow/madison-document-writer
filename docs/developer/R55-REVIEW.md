@@ -55,6 +55,14 @@ to reconfirm before packaging). Formats unchanged.
 2. Policy tooling reads and writes UTF-8 explicitly, so the deposit provenance check
    passes on Windows code pages. Approved policy data is unchanged.
 
+## Post-PR #19 correction
+
+Baseline: main `e6a599f`. read_index validates summary and case-file metadata types
+before using them: a non-text `sourceFile`, or a case file whose JSON is not an object
+with a case object, excludes only that summary as unreadable instead of failing the
+whole request with HTTP 500. Absent, null or empty `sourceFile` is accepted as before;
+a non-text falsy value (previously ignored) is now excluded. Reading writes nothing.
+
 ## Post-PR #18 correction
 
 Baseline: main `e3f3828`. Summary fields are compared as RFC 8785 canonical JSON on both
