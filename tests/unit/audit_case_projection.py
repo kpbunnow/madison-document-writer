@@ -71,8 +71,9 @@ class CaseProjection(unittest.TestCase):
                             cp.project(case["file"])
                         refused += 1
                         continue
-                    expected = cp.canonical(cp.reportable(case["summary"]))
-                    self.assertEqual(cp.projected(case["file"])[0], expected)
+                    # Canonical JSON text, not Python ==, which would equate false with 0.
+                    expected = cp.json_text(cp.reportable(case["summary"]))
+                    self.assertEqual(cp.json_text(cp.projected(case["file"])[0]), expected)
                     compared += 1
         self.assertGreater(compared, 5000)
         self.assertGreater(refused, 0)
@@ -83,8 +84,52 @@ class CaseProjection(unittest.TestCase):
             for n, case in enumerate(captured):
                 with self.subTest(suite=name, summary=n):
                     self.assertEqual(cp.mismatched_fields(case["summary"], case["file"]), [])
+                    projections = [cp.json_text(cp.projected(case["file"], loaded)[0]) for loaded in (False, True)]
+                    self.assertIn(cp.json_text(cp.reportable(case["summary"])), projections)
                     total += 1
         self.assertGreater(total, 300)
+
+    def test_comparison_distinguishes_booleans_from_numbers(self):
+        for a, b in [
+            (False, 0),
+            (True, 1),
+            (0, False),
+            (1, True),
+            ({"x": {"y": False}}, {"x": {"y": 0}}),
+            ([1, True], [1, 1]),
+            ([{"a": [False]}], [{"a": [0]}]),
+        ]:
+            with self.subTest(a=a, b=b):
+                self.assertTrue(a == b, "Python equality alone would accept this substitution")
+                self.assertFalse(cp.same_json(a, b))
+        for a, b in [(197, 197.0), ({"b": 1, "a": 2.5}, {"a": 2.5, "b": 1.0}), ([False, True], [False, True]), (None, None)]:
+            with self.subTest(a=a, b=b):
+                self.assertTrue(cp.same_json(a, b))
+        self.assertFalse(cp.same_json([1, 2], [2, 1]))
+        self.assertFalse(cp.same_json(None, 0))
+        for value in [float("nan"), float("inf"), 2**60, cp.UNDEF, {1: "non-string key"}]:
+            with self.subTest(unsupported=repr(value)):
+                self.assertFalse(cp.same_json(value, value))
+
+    def test_corpus_booleans_stay_booleans(self):
+        # Every boolean summarize() writes is a boolean in the projection too, at any depth.
+        def booleans(value, path=""):
+            if isinstance(value, bool):
+                yield path
+            elif isinstance(value, dict):
+                for k, v in value.items():
+                    yield from booleans(v, path + "/" + k)
+            elif isinstance(value, list):
+                for i, v in enumerate(value):
+                    yield from booleans(v, path + "/" + str(i))
+
+        checked = 0
+        for case in self.corpora[0]["cases"]:
+            if case["summary"]:
+                expected = list(booleans(cp.reportable(case["summary"])))
+                self.assertEqual(list(booleans(cp.projected(case["file"])[0])), expected)
+                checked += len(expected)
+        self.assertGreater(checked, 10000)
 
     def test_corpus_covers_reportable_content(self):
         summaries = [c["summary"] for corpus in self.corpora for c in corpus["cases"] if c["summary"]]

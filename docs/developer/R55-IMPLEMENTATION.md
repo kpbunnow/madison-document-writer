@@ -74,3 +74,13 @@ case (12 KB), once per changed summary/case pair per helper process. The manual 
 was again printed with Chromium 141 through DW_BROWSER. Gate outcomes are recorded in
 build/verification/latest/ and the pull request, not in this file. No packaging,
 publication, deployment or City approval is performed or implied.
+
+## Post-PR #18 correction
+
+Branch: fix/projection-type-comparison. Baseline: e3f3828. case_projection compares
+summary fields with the vendored RFC 8785 canonicalizer (same_json) instead of Python
+equality; canonical() is removed. Reproduction against the previous helper: the
+withdrawn notice's summary with noticeActive 0 was saved, read with no mismatch on an
+anchored case, and counted one case in Cases by inspector instead of zero. Parity
+assertions now compare canonical JSON text and check every corpus boolean's type.
+No packaging, publication, deployment or City approval is performed or implied.

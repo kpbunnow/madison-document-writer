@@ -1,11 +1,12 @@
 """Reports uses a cached summary only when it equals the projection of its verified case."""
 
-import copy, json, tempfile, unittest
+import copy, json, subprocess, tempfile, unittest
 from pathlib import Path
 from unittest.mock import patch
 import case_integrity as integrity
 import case_store as store
 import server
+import case_projection as cp
 from audit_r28_helper import pair
 from report_summaries import report_summary
 
@@ -46,6 +47,31 @@ def extend(previous):
         },
     ]
     return integrity.commit_record(previous, value)
+
+
+def at(summary, path):
+    """The container and key a /-separated path names inside a summary."""
+    *parents, last = path.split("/")
+    for key in parents:
+        summary = summary[int(key)] if isinstance(summary, list) else summary[key]
+    return summary, int(last) if isinstance(summary, list) else last
+
+
+# JSON type substitutions that Python equality (False == 0, True == 1) would not notice.
+SUBSTITUTIONS = [
+    ("case/noticeActive", True, 1),
+    ("case/historic", False, 0),
+    ("documents/0/void", False, 0),
+    ("documents/2/allWithdrawn", False, 0),
+    ("violations/0/done", True, 1),
+    ("violations/0/withdrawn", False, 0),
+    ("violations/0/history/0/done", False, 0),
+    ("violations/0/visits", 1, True),
+    ("violations/0/cited", 1, True),
+    ("violations/0/sections/0", "27.05(2)(c)", 27.05),
+]
+# Representations of the same JSON value that must still be accepted.
+EQUIVALENT = [("citations/0/amount", 197, 197.0), ("eventCount", 4, 4.0), ("violations/0/visits", 1, 1.0)]
 
 
 # Summary-only edits that keep sourceRevision; each changes a fact Reports would count, group or export.
@@ -201,6 +227,155 @@ class ReportProjection(unittest.TestCase):
             index.pop("readAt")
         self.assertEqual(serial, parallel)
         self.assertEqual((len(serial["summaries"]), len(serial["mismatched"])), (9, 4))
+
+    def test_boolean_and_number_substitutions_are_excluded_on_read(self):
+        for anchored in (False, True):
+            # A successful comparison remembered from an earlier read must not hide a later change.
+            self.assertEqual(len(self.read(anchored)["summaries"]), 1)
+            for path, legitimate, substitute in SUBSTITUTIONS:
+                with self.subTest(anchored=anchored, path=path, value=substitute):
+                    altered = copy.deepcopy(self.summary)
+                    holder, key = at(altered, path)
+                    self.assertTrue(cp.same_json(holder[key], legitimate))
+                    holder[key] = substitute
+                    self.assertTrue(altered == self.summary or path.endswith("sections/0"), "Python equality would accept it")
+                    self.write(altered)
+                    index = self.read(anchored)
+                    self.assertEqual(index["summaries"], [])
+                    self.assertEqual(len(index["mismatched"]), 1)
+                    self.assertIn("differs in " + path.split("/")[0] + ")", index["mismatched"][0])
+                    self.assertEqual((self.root / self.name).read_bytes(), self.case_bytes)
+            self.write(self.summary)
+            self.assertEqual(len(self.read(anchored)["summaries"]), 1)
+
+    def test_boolean_and_number_substitutions_are_refused_on_write(self):
+        before = (self.root / SUMMARY).read_bytes()
+        for path, legitimate, substitute in SUBSTITUTIONS:
+            for first, second in ((legitimate, substitute), (substitute, legitimate)):
+                with self.subTest(path=path, written=second):
+                    summary = report_summary(self.case)
+                    holder, key = at(summary, path)
+                    holder[key] = second
+                    if cp.same_json(second, legitimate):
+                        continue  # the legitimate value is the valid summary itself
+                    with self.assertRaisesRegex(ValueError, "does not match the saved case"):
+                        store.save_summary(self.root, self.name, self.revision, summary)
+                    self.assertEqual((self.root / SUMMARY).read_bytes(), before)
+
+    def test_equivalent_numbers_and_key_order_are_accepted(self):
+        altered = json.loads(json.dumps(self.summary), object_pairs_hook=lambda pairs: dict(reversed(pairs)))
+        for path, legitimate, equivalent in EQUIVALENT:
+            holder, key = at(altered, path)
+            self.assertTrue(cp.same_json(holder[key], legitimate))
+            holder[key] = equivalent
+        self.write(altered)
+        for anchored in (False, True):
+            with self.subTest(anchored=anchored):
+                index = self.read(anchored)
+                self.assertEqual((len(index["summaries"]), index["mismatched"]), (1, []))
+        store.save_summary(self.root, self.name, self.revision, json.loads((self.root / SUMMARY).read_bytes()))
+
+    def test_unsupported_json_values_never_match(self):
+        for value in ("NaN", "Infinity", "-Infinity", "9007199254740993"):
+            with self.subTest(value=value):
+                text = json.dumps(self.summary).replace('"eventCount": 4', '"eventCount": ' + value)
+                self.assertIn(value, text)
+                (self.root / SUMMARY).write_text(text, encoding="utf-8")
+                index = self.read(False)
+                self.assertEqual((index["summaries"], len(index["mismatched"])), ([], 1))
+
+
+class WithdrawnNotice(unittest.TestCase):
+    """The reproduced bypass: a voided notice and citation, then noticeActive false changed to 0."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.anchor = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.name = "101 TEST - QA-LIFE.json"
+        saved = store.save_case(self.root, self.name, life())
+        value = copy.deepcopy(saved["file"])
+        for n, doc in enumerate(["notice_1", "initial_citation"]):
+            value["events"].append(
+                {
+                    "id": "void_" + str(n),
+                    "at": "2026-08-02T15:00:00.00" + str(n) + "Z",
+                    "by": "inspector_1",
+                    "type": "document.voided",
+                    "payload": {"docId": doc, "reason": "Synthetic void"},
+                }
+            )
+        saved = store.save_case(self.root, self.name, value, saved["revision"], saved["file"]["case"])
+        self.case, self.revision = saved["file"], saved["revision"]
+        store.save_summary(self.root, self.name, self.revision, report_summary(self.case))
+        self.summary = json.loads((self.root / SUMMARY).read_bytes())
+        self.case_bytes = (self.root / self.name).read_bytes()
+        server.PROJECTION_MATCHES.clear()
+
+    def tearDown(self):
+        self.temp.cleanup()
+        self.anchor.cleanup()
+
+    def read(self, anchored):
+        anchor = Path(self.anchor.name) if anchored else None
+        with patch.object(server, "case_dir", return_value=self.root), patch.object(integrity, "protected_folder", return_value=anchor):
+            if anchored:
+                integrity.anchor_daily(self.root, anchor)
+            return server.read_index(4)
+
+    def report(self, index):
+        path = Path(self.temp.name) / "index.json"
+        path.write_text(json.dumps(index), encoding="utf-8")
+        output = Path(self.temp.name) / "report.json"
+        subprocess.run(
+            ["node", "tests/fixtures/report_output.cjs", str(path), "byInspector", str(output)], cwd=ROOT, capture_output=True, timeout=60, check=True
+        )
+        return json.loads(output.read_bytes())
+
+    def altered(self):
+        altered = copy.deepcopy(self.summary)
+        self.assertIs(altered["case"]["noticeActive"], False)
+        altered["case"]["noticeActive"] = 0
+        return altered
+
+    def test_altered_notice_activity_is_refused_and_excluded(self):
+        self.assertEqual((self.summary["case"]["status"], [d["void"] for d in self.summary["documents"]]), ("Withdrawn", [True, True]))
+        with self.assertRaisesRegex(ValueError, "does not match the saved case"):
+            store.save_summary(self.root, self.name, self.revision, self.altered())
+        self.assertEqual(json.loads((self.root / SUMMARY).read_bytes()), self.summary)
+        for anchored in (False, True):
+            with self.subTest(anchored=anchored):
+                legitimate = self.read(anchored)
+                self.assertEqual((len(legitimate["summaries"]), legitimate["mismatched"]), (1, []))
+                self.assertIs(legitimate["summaries"][0]["integrity"]["anchored"], anchored)
+                (self.root / SUMMARY).write_text(json.dumps(self.altered()), encoding="utf-8")
+                index = self.read(anchored)
+                self.assertEqual(index["summaries"], [])
+                self.assertEqual(index["mismatched"], ["qa-life.json (" + self.name + "; differs in case)"])
+                (self.root / SUMMARY).write_text(json.dumps(self.summary), encoding="utf-8")
+        self.assertEqual((self.root / self.name).read_bytes(), self.case_bytes)
+
+    def test_report_results_cannot_consume_the_altered_summary(self):
+        legitimate = self.report(self.read(True))
+        self.assertEqual(legitimate["rows"][-1], ["All inspectors", 0])  # a withdrawn notice is not an active case
+        # The stakes: given to Reports directly, the altered summary is counted as an active case.
+        bypass = self.read(True)
+        bypass["summaries"] = [{**self.altered(), "integrity": bypass["summaries"][0]["integrity"]}]
+        self.assertEqual(self.report(bypass)["rows"][-1][-1], 1)
+        (self.root / SUMMARY).write_text(json.dumps(self.altered()), encoding="utf-8")
+        excluded = self.report(self.read(True))
+        self.assertEqual((excluded["counted"], excluded["rows"]), (0, legitimate["rows"]))
+        self.assertIn("1 summary not matching its verified case", excluded["coverage"])
+        about = next(s for s in excluded["sheets"] if s["name"] == "About")["rows"]
+        self.assertIn(["Summaries not matching their case", 1], about)
+        output = json.dumps({k: excluded[k] for k in ("rows", "sheets", "page")})
+        self.assertNotIn("QA-LIFE", output.replace("qa-life.json", "").replace(self.name, ""))
+        # Rebuilding rewrites the summary from the verified case; the case is unchanged.
+        store.save_summary(self.root, self.name, self.revision, report_summary(self.case))
+        rebuilt = self.read(True)
+        self.assertEqual((len(rebuilt["summaries"]), rebuilt["mismatched"]), (1, []))
+        self.assertEqual(self.report(rebuilt)["rows"], legitimate["rows"])
+        self.assertEqual((self.root / self.name).read_bytes(), self.case_bytes)
 
 
 if __name__ == "__main__":
