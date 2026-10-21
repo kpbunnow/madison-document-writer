@@ -50,3 +50,27 @@ the pinned browser download is blocked here; regenerate it with the pinned brows
 before release. Gate outcomes are recorded in build/verification/latest/ and the
 pull request, not in this file. No packaging, publication, deployment or City
 approval is performed or implied.
+
+## Post-PR #17 corrections
+
+Branch: fix/reporting-projection-and-policy-utf8. Baseline: dfe0687. User authorization:
+implement the remaining-corrections handoff; the projection was chosen by the user
+(helper-side Python mirror of summarize(), not a browser recomputation).
+
+D1: helper/case_projection.py and build/generated/projection_tables.json (deployed);
+read_index validation with a "mismatched" coverage category and per-process memo of
+matching byte pairs; save_summary refusal; Reports coverage, data screen and export
+metadata (audit_case_projection, audit_report_projection, audit_report_mismatch).
+D2: explicit UTF-8 in policy/ and the encoding audit extended to it (audit_utf8_io).
+
+Reproductions against the previous code: the altered anchored summary was accepted
+with valid: true, anchored: true and no warning; the provenance check failed under
+simulated CP1252 with "Schedule differs from division table/review provenance:
+app/assets/deposits.js". Existing fixtures that wrote placeholder version-6 summaries
+now write real projections; their assertions are unchanged.
+
+Projection cost: about 0.07 ms for a minimal case and 2.5 ms for the largest generated
+case (12 KB), once per changed summary/case pair per helper process. The manual PDF
+was again printed with Chromium 141 through DW_BROWSER. Gate outcomes are recorded in
+build/verification/latest/ and the pull request, not in this file. No packaging,
+publication, deployment or City approval is performed or implied.

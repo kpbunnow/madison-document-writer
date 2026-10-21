@@ -15,6 +15,7 @@ import case_store as store
 import reporting_reads
 import server
 from audit_helper import record
+from report_summaries import report_summary
 
 
 def fixture(root, count):
@@ -34,14 +35,12 @@ def fixture(root, count):
         )
         (idx / ("qa-" + str(n) + ".json")).write_text(
             json.dumps(
-                {
-                    "format": "madison-case-summary",
-                    "summaryVersion": 6,
-                    "case": value["case"],
-                    "sourceFile": name,
-                    "sourceRevision": hashlib.sha256(raw).hexdigest(),
-                    "integrity": {"headHash": value["integrity"]["headHash"]},
-                }
+                report_summary(
+                    value,
+                    sourceFile=name,
+                    sourceRevision=hashlib.sha256(raw).hexdigest(),
+                    integrity={"headHash": value["integrity"]["headHash"]},
+                )
             )
         )
     (root / "_integrity").mkdir()

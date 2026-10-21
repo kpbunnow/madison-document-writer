@@ -13,6 +13,7 @@ import case_integrity as integrity
 import case_store as store
 import server
 from audit_r49_readiness import fixture
+from report_summaries import report_summary
 
 
 class MeasuredReporting(unittest.TestCase):
@@ -119,9 +120,10 @@ class MeasuredReporting(unittest.TestCase):
                     value = integrity.commit_record(previous, value)
                 raw = store.encoded(value)
                 (root / name).write_bytes(raw)
-                s = json.loads((root / "Reporting Index" / ("qa-" + str(n) + ".json")).read_bytes())
-                s["sourceRevision"] = integrity.hash_bytes(raw)
-                s["integrity"]["headHash"] = value["integrity"]["headHash"]
+                # The summary of the extended history, as the Writer would rewrite it.
+                s = report_summary(
+                    value, sourceFile=name, sourceRevision=integrity.hash_bytes(raw), integrity={"headHash": value["integrity"]["headHash"]}
+                )
                 (root / "Reporting Index" / ("qa-" + str(n) + ".json")).write_text(json.dumps(s))
             with patch.object(integrity, "protected_folder", return_value=anchor):
                 integrity.anchor_daily(root, anchor)

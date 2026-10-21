@@ -36,8 +36,8 @@ def tiers(raw):
 
 
 def regenerate():
-    rows = json.loads((ROOT / "policy/sources/r30-schedule-table.json").read_text())
-    reviews = json.loads((ROOT / "policy/sources/r30-deposit-reviews.json").read_text())
+    rows = json.loads((ROOT / "policy/sources/r30-schedule-table.json").read_text(encoding="utf-8"))
+    reviews = json.loads((ROOT / "policy/sources/r30-deposit-reviews.json").read_text(encoding="utf-8"))
     entries, exclusions = [], []
     for row, (desc, column, raw) in enumerate(rows[1:], 1):
         # Stop before explanatory IBC/SPS cross-references, never tokenize them.
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     paths = {"app/assets/deposits.js": data, "policy/sources/r30-schedule-exclusions.json": json.dumps(excluded, indent=2) + "\n"}
     for name, text in paths.items():
         if args.check:
-            if (ROOT / name).read_text() != text:
+            if (ROOT / name).read_text(encoding="utf-8") != text:
                 raise SystemExit("Schedule differs from division table/review provenance: " + name)
         else:
-            (ROOT / name).write_text(text)
+            (ROOT / name).write_text(text, encoding="utf-8")

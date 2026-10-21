@@ -46,7 +46,7 @@ def unchanged(old, new):
 def validate_retained_sources(root):
     root = Path(root)
     grammar = read(root / "policy/sources/citation_policy_source.json")["grammar"]
-    library = json.loads((root / "app/assets/library.js").read_text().split("=", 1)[1].rsplit(";", 1)[0])
+    library = json.loads((root / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
     for category in library:
         for group in category["groups"]:
             for item in group["items"]:
@@ -59,7 +59,7 @@ def validate_retained_sources(root):
                         normalized += "."
                     if not re.fullmatch(grammar, normalized):
                         raise ValueError("Invalid library ordinance: " + key + " " + section)
-    entries = json.loads((root / "app/assets/deposits.js").read_text().split("const DEPOSITS=", 1)[1].rsplit(";", 1)[0])
+    entries = json.loads((root / "app/assets/deposits.js").read_text(encoding="utf-8").split("const DEPOSITS=", 1)[1].rsplit(";", 1)[0])
     for entry in entries:
         if not re.fullmatch(grammar, entry["ordinance"]):
             raise ValueError("Invalid schedule ordinance: " + entry["ordinance"])
@@ -126,7 +126,7 @@ def compile_policy(root):
     try:
         pricing.policy = lambda: p
         for path in sorted((folder / "tests").glob("*.yaml")):
-            for test in yaml.safe_load(path.read_text()) or []:
+            for test in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
                 at = str(test["date"])
                 entry = pricing.resolve(test["ordinance"], entry_id=test.get("entryId", ""), at=at)
                 base = pricing.base_cents(entry, test["tier"])

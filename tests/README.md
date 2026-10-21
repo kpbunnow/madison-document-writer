@@ -96,7 +96,7 @@ Add a new suite under the feature it covers.
 | `audit_contracts.js` | Exact event and store contracts |
 | `audit_r31_integrity.js`, `audit_r31_integrity.py`, `audit_r32_integrity.py` | Canonical hashing, tamper detection, migration, anchors, downgrade refusal |
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
-| `audit_utf8_io.py` | Case, integrity and tool text is UTF-8 under a simulated Windows CP1252 default; no implicit encodings |
+| `audit_utf8_io.py` | Case, integrity, tool and policy text is UTF-8 under a simulated Windows CP1252 default (including the deposit provenance check); no implicit encodings in helper/, tools/ or policy/ |
 | `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |
 | `audit_archive.py` | Byte-level archive and local HTTP |
@@ -119,6 +119,9 @@ Add a new suite under the feature it covers.
 | `audit_r21_reports.js` | Saved date semantics, read-only Reports-to-Writer transport |
 | `audit_r48_reports.js`, `audit_r49_ui.js`, `audit_r50_report_errors.js` | Filters, ordering, coverage wording, report errors |
 | `audit_server_reporting.py` | Reporting endpoints over real HTTP |
+| `audit_case_projection.py` | The helper's reporting projection (`helper/case_projection.py`) equals the real `summarize()` over 6,000 generated cases and every summary written by seven Writer flow suites (`fixtures/projection_corpus.cjs`, `fixtures/projection_capture.cjs`) |
+| `audit_report_projection.py` | Summary-only changes (owner, status, notice/closure dates, documents, violations, citations) with `sourceRevision` unchanged are excluded as not matching the verified case, anchored or not; the helper refuses to write them; rebuild restores; existing exclusions and serial/parallel equivalence hold |
+| `audit_report_mismatch.js` | Reports explains summaries not matching their case and keeps them out of totals, tables, CSV, workbook and print |
 
 ## Security, sessions and connections
 
