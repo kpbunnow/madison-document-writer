@@ -73,8 +73,10 @@ with tempfile.TemporaryDirectory(prefix="deploy-check-") as tmp:
     stage_update(stage / "deploy", p / "staged", p / "local")
 R = version["release"].split()[-1]
 release_docs = [R + "-REVIEW.md", R + "-PRODUCTION-READINESS.md", R + "-ACCEPTANCE-RECORD.md"]
-for doc in release_docs:
-    shutil.copyfile(ROOT / "docs/developer" / doc, stage / doc)
+shutil.copyfile(ROOT / "docs/developer" / release_docs[0], stage / release_docs[0])
+# The living records are rendered with this release's identity by tools/build.py.
+for doc in release_docs[1:]:
+    shutil.copyfile(ROOT / "build/generated/release-docs" / doc, stage / doc)
 (stage / "README.md").write_text(
     "# Madison Building Inspection " + R + "\n\n"
     "Install the complete deploy folder using its Start Document Writer - READ ME.md. Before the first installation, IT checks the deploy ZIP's "

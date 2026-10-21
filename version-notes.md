@@ -1,6 +1,6 @@
 # Release and helper identity
 
-R54 uses release 2026-10-20 R54, helper 2026.10.20.55 and helperBuild 55. Authoring 12 aligns newly authored Best Interest and Vacancy Extensions with the regular Extension layout, while authoring-11 and earlier special extensions retain their historical rendering. The regular Extension, case schema 5, summary 6 and backup 2 remain unchanged.
+version.json holds the current release, helper version, helperBuild and data-format versions; CHANGELOG.md records what each release changed.
 
 The release label identifies a reviewed package such as R51. `helperBuild` is a separate monotonically increasing integer, independent of that label. The helper version has four numeric segments YYYY.MM.DD.helperBuild. The build validates that its last segment matches `helperBuild` and synchronizes npm identities from version.json.
 

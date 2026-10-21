@@ -139,10 +139,16 @@ def render_deploy_guide():
         "FILE_LIST": "\n".join("- `" + name + "`" for name in required),
         "SNOW_SEASON": "%d–%s" % (year, str(year + 1)[-2:]),
         "SNOW_SETTINGS": "\n".join("   - " + labels[k] + ": **" + str(value(meta[k])) + "** (`" + k + "`)" for k in snow),
+        "CASE_SCHEMA": str(MANIFEST["caseSchema"]),
+        "SUMMARY_VERSION": str(MANIFEST["summaryVersion"]),
+        "AUTHORING": str(MANIFEST["authoringVersion"]),
     }.items():
         text = text.replace("{{" + key + "}}", val)
     if "{{" in text:
         raise SystemExit("Install guide template has an unfilled placeholder")
+    for key, pattern in [("caseSchema", r"\bcase schema (\d+)"), ("summaryVersion", r"\bsummary (\d+)"), ("authoringVersion", r"\bauthoring (\d+)")]:
+        if any(int(v) != MANIFEST[key] for v in re.findall(pattern, text)):
+            raise SystemExit("Install guide states " + key + " other than " + str(MANIFEST[key]))
     number = release.split()[-1]
     if any(r != number for r in re.findall(r"\bR\d{2,3}\b", text.replace(number + "-ACCEPTANCE-RECORD.md", "City acceptance record"))):
         raise SystemExit("Install guide names a release other than " + number)
@@ -154,6 +160,29 @@ def render_deploy_guide():
 
 
 render_deploy_guide()
+
+
+def render_release_docs():
+    "The living acceptance and readiness records are packaged under release-named copies."
+    number = MANIFEST["release"].split()[-1]
+    target = GENERATED / "release-docs"
+    shutil.rmtree(target, ignore_errors=True)
+    target.mkdir()
+    for name in ("ACCEPTANCE-RECORD.md", "PRODUCTION-READINESS.md"):
+        text = rd("docs/developer/" + name)
+        for key, val in {
+            "RELEASE": MANIFEST["release"],
+            "RELEASE_NUMBER": number,
+            "HELPER_VERSION": MANIFEST["helperVersion"],
+            "AUTHORING": str(MANIFEST["authoringVersion"]),
+        }.items():
+            text = text.replace("{{" + key + "}}", val)
+        if "{{" in text:
+            raise SystemExit(name + " has an unfilled placeholder")
+        (target / (number + "-" + name)).write_text(text, encoding="utf-8")
+
+
+render_release_docs()
 # Direct ES module exports are authoritative; no generated ownership registry.
 
 for stem, template, outname, cssname in [

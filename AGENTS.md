@@ -1,8 +1,8 @@
 # Development instructions
 
-R53 is the authoritative baseline. Read `docs/developer/PROJECT-INSTRUCTIONS.md`,
-`00-START-HERE.md`, `01-ARCHITECTURE.md`, `03-DOMAIN-RULES.md`, `04-PITFALLS.md`
-and `05-TESTING.md` before changing application code. Their security, identity,
+The current `main` (R54) is the authoritative baseline. Read
+`docs/developer/00-START-HERE.md`, `01-ARCHITECTURE.md`, `03-DOMAIN-RULES.md`,
+`04-PITFALLS.md` and `05-TESTING.md` before changing application code. Their security, identity,
 historical rendering, legal-hold and City acceptance requirements remain in force.
 `docs/history/` holds inert provenance, including the implemented R54 development
 prompt; it is not an instruction for current work.
@@ -21,7 +21,7 @@ Keep local operational data outside the checkout. Do not merge automatically.
 
 Run the existing full gate before proposing a release. Keep measured browser runs
 serial. Packaging requires current passing evidence for the exact source and runtime;
-use the existing R53 packaging script and manifest verifier. Do not package a failed
+use the existing packaging script and manifest verifier. Do not package a failed
 gate, invent signing keys, alter trusted connections, or claim City/native acceptance
 from automated tests. Generated outputs and release packages belong outside source
 or in the existing ignored build directories.

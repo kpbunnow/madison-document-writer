@@ -37,7 +37,7 @@ The anchor lets the program prove a case file was not altered outside it. Withou
 
 1. Ask each inspector to save and sync their work, close Writer tabs and close the helper command window.
 2. Back up `Case JSON Files`, `Documents To Be Mailed And Recorded`, `Reporting GIS` and the current program files.
-3. This release retains the preceding verified package’s case schema 5, summary 6 and authoring 11. Releases predating schema 5 refuse schema-5 records. IT must assess data compatibility and retained pending work before rollback. Runtime rollback does not rewind issued records or restore private workspace data. Coordinate any data recovery rather than replacing newer shared work with an old backup.
+3. This release uses case schema {{CASE_SCHEMA}}, summary {{SUMMARY_VERSION}} and authoring {{AUTHORING}}; the release notes say which of these changed. Releases predating schema 5 refuse schema-5 records. An earlier release does not know a newer authoring layout: before rollback, finish or discard unfinished drafts and corrections, and afterwards rely on the retained original PDFs for documents issued under this release rather than reprints. IT must assess data compatibility and retained pending work before rollback. Runtime rollback does not rewind issued records or restore private workspace data. Coordinate any data recovery rather than replacing newer shared work with an old backup.
 
 ## Applying a release to the deployment folder
 

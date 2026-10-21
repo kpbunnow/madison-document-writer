@@ -1,4 +1,4 @@
-# R50 current domain rules
+# Domain rules
 
 Legal wording, ordinance interpretation, court schedules, numbering, authority, seasonal policy and language approval belong to the division. The mandatory-appearance hold remains enforced in Writer and helper until approved distinct defendant instructions are supplied. Historical frozen reprints remain unchanged.
 
