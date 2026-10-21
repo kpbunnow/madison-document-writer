@@ -14,4 +14,9 @@
 - Never put generated source, developer dependencies, historical development prompts or operational records in deployment packages.
 - Never run concurrent Chromium jobs during a measured browser performance gate. JSDOM cannot prove layout, SQL text equality cannot prove City connectivity, and mocked Outlook cannot prove native delivery.
 
+- Name UTF-8 for every helper and tool text read or write and every text subprocess. The Windows default code page is not UTF-8; audit_utf8_io refuses implicit encodings. Keep strict decoding: never accept BOM, UTF-16 or replacement characters in case or integrity data.
+- File PDF originals only through server.file_pdf_bytes. It holds the per-name "issued-pdf" lock, compares bytes and publishes with publish_new, which never replaces a name. Never add another lock key, an existence check outside that lock or a replacing write for a filing folder; remove an outbox copy only after the shared copy reads back identical.
+- Archive only an approved path-to-SHA-256 set through release_inputs.archive. Never traverse a staging folder for archive content or verify it through an excluding fingerprint.
+- Regenerate manual editions only with tools/build_manual.py, which stages, validates and replaces all three together. Never hand-edit or copy a single edition; every edition carries the current source digest.
+
 - The manifest catches mistakes and damaged copies, not someone who can rewrite both the files and the manifest. Never weaken the deployment folder’s NTFS permissions (release owner write, inspectors read).

@@ -27,3 +27,26 @@ The final full-gate outcome is retained in build/verification/latest/verificatio
 build/test-results/results.json and the checkpoint commit verification notes. These
 exact-byte records, rather than a self-modifying source document, establish whether
 the final candidate passed. A checkpoint is not release or City approval.
+
+## Post-PR #16 corrections
+
+Branch: fix/post-r55-corrections. Baseline: 66b344c. User authorization: implement the
+post-PR #16 correction handoff; the release owner confirmed no R55 package was
+distributed, so R55/build 56 is retained.
+
+D1: explicit UTF-8 for helper and tool text and text subprocesses (audit_utf8_io).
+D2: one per-name lock and no-replace publication for every filing-folder PDF write
+(audit_pdf_publication).
+D3: complete staged-file verification and archives from approved hashed sets
+(audit_release_inputs).
+D4: staged, validated, journaled manual publication with a source digest; PDF
+inspection required (audit_manual_publication, audit_r55_documentation).
+
+Each new test fails against the previous code: implicit encodings and the CP1252
+history/anchor failure, the overwritten direct filing, the planted `.env` in the
+source and aggregate ZIPs, and mixed manual editions after a PDF failure.
+The regenerated PDF edition was printed with Chromium 141 through DW_BROWSER because
+the pinned browser download is blocked here; regenerate it with the pinned browser
+before release. Gate outcomes are recorded in build/verification/latest/ and the
+pull request, not in this file. No packaging, publication, deployment or City
+approval is performed or implied.

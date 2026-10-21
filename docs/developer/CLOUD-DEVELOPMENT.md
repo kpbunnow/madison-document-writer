@@ -8,7 +8,8 @@ checkout; `$RUNTIME` below stands for that folder.
 
 ## Setup
 
-Use Node.js, Python 3.12 and Chromium. Dependency versions are pinned by
+Use Node.js, Python 3.12, Chromium and pdftotext (poppler-utils, required by the gate's manual
+check); regenerating the manual also needs pandoc. Dependency versions are pinned by
 `package-lock.json` and hash-checked `requirements-dev.txt`. Recorded cloud
 environments: the R53 import used Node 24.19.0, Python 3.12.14 and system
 Chromium 154.0.8037.57; R54 verification used Node 22.22.0, Python 3.12.3 and
