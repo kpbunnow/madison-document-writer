@@ -1,18 +1,7 @@
 globalThis.MADISON_TEST_DATA = true;
-const fs = require("fs");
 const { JSDOM } = require("jsdom");
-const src = Buffer.from(
-  /var B="([A-Za-z0-9+\/=]+)"/.exec(
-    fs.readFileSync(
-      require("path").join(
-        process.env.DW_OUTPUT_DIR || require("path").join(require("path").resolve(__dirname, "../.."), "build/dist"),
-        "madison-document-writer.html",
-      ),
-      "utf8",
-    ),
-  )[1],
-  "base64",
-).toString("utf8");
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const src = bundleSource(builtPage());
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div><div id="overlay"></div><div id="toast"></div></body></html>', {
   pretendToBeVisual: true,
 });

@@ -1,7 +1,6 @@
 /* Every current compiled row and random measurements must agree with Python. */
 globalThis.MADISON_TEST_DATA = true;
 const fs = require("fs"),
-  path = require("path"),
   assert = require("assert/strict"),
   cp = require("child_process"),
   { JSDOM } = require("jsdom");
@@ -16,12 +15,8 @@ global.getSelection = () => window.getSelection();
 global.fetch = async () => {
   throw Error("offline");
 };
-const payload = Buffer.from(
-  /var B="([A-Za-z0-9+/=]+)"/.exec(
-    fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "build/dist/madison-document-writer.html"), "utf8"),
-  )[1],
-  "base64",
-).toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const payload = bundleSource(builtPage());
 const test = async () => {
   await new Promise((r) => setTimeout(r, 25));
   assert.equal(canonicalOrdinance("Section 27.05(2)(c)"), "27.05(2)(c)");

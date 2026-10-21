@@ -1,11 +1,10 @@
 /* Correction lifecycle regressions. HTTP semantics are independently exercised
    by audit_helper.py and the real browser suite. No operational data is used. */
 globalThis.MADISON_TEST_DATA = true;
-const fs = require("fs"),
-  path = require("path"),
-  { JSDOM } = require("jsdom");
-const html = fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "build/dist/madison-document-writer.html"), "utf8");
-const src = Buffer.from(/var B="([A-Za-z0-9+\/=]+)"/.exec(html)[1], "base64").toString("utf8");
+const { JSDOM } = require("jsdom");
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = builtPage(),
+  src = bundleSource(html);
 const dom = new JSDOM(
   "<!doctype html><style>" +
     /<style>([\s\S]*?)<\/style>/.exec(html)[1] +

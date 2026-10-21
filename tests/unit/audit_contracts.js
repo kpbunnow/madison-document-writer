@@ -1,5 +1,4 @@
 const assert = require("assert/strict"),
-  fs = require("fs"),
   path = require("path"),
   { JSDOM } = require("jsdom"),
   esbuild = require("esbuild");
@@ -21,8 +20,9 @@ assert.deepEqual(eventFactory("id", "time", "inspector", "notice.issued", { a: 1
 });
 const request = { name: "case.json", file: {}, baseRevision: "r", baseCase: null };
 assert.equal(storeRequestFactory(request), request);
-const html = fs.readFileSync(path.join(process.env.DW_PRODUCTION_DIR, "madison-document-writer.html"), "utf8");
-const payload = Buffer.from(/var B="([A-Za-z0-9+/=]+)"/.exec(html)[1], "base64").toString();
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = builtPage("app", process.env.DW_PRODUCTION_DIR),
+  payload = bundleSource(html);
 assert.ok(!payload.includes("function issueDocument("));
 require("acorn").parse(payload, { ecmaVersion: 2022, sourceType: "script" });
 const dom = new JSDOM(html, { url: "http://127.0.0.1:8777", pretendToBeVisual: true });

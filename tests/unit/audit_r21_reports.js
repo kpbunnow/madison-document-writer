@@ -1,12 +1,8 @@
 /* Saved date semantics and read-only report-to-Writer transport. */
-const fs = require("fs"),
-  path = require("path"),
-  { JSDOM } = require("jsdom");
-const html = fs.readFileSync(
-  path.join(process.env.DW_OUTPUT_DIR || path.join(require("path").resolve(__dirname, "../.."), "build/dist"), "madison-reports.html"),
-  "utf8",
-);
-const payload = Buffer.from(/var B="([A-Za-z0-9+\/=]+)"/.exec(html)[1], "base64").toString("utf8");
+const { JSDOM } = require("jsdom");
+const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = builtPage("reports"),
+  payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', { url: "http://127.0.0.1:8777/madison-reports.html" });
 const w = dom.window;
 w.__NO_AUTOLOAD__ = true;
