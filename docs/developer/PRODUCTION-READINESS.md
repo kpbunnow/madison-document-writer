@@ -20,6 +20,9 @@ printing (including historical snow citations), performance, manual accessibilit
 and staff acceptance remain OPEN. Approval fields remain blank until their
 actual owners record evidence and signoff.
 
+R55 Reports performance acceptance must include the summary-to-case projection check
+on representative real case sizes (first load after a change pays it once per case).
+
 R55 additionally requires C10: a native Windows Unicode case on the default code page
 (automated tests only simulate that encoding), and P3 now includes a direct filing of
 the same name during an outbox transfer.

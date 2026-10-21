@@ -19,4 +19,7 @@
 - Archive only an approved path-to-SHA-256 set through release_inputs.archive. Never traverse a staging folder for archive content or verify it through an excluding fingerprint.
 - Regenerate manual editions only with tools/build_manual.py, which stages, validates and replaces all three together. Never hand-edit or copy a single edition; every edition carries the current source digest.
 
+- summarize() in workspace_shell.js and helper/case_projection.py are one projection in two languages. Change them together, with the mirrored tables; audit_case_projection compares them over generated and captured real cases. Never accept a cached summary field the projection of the verified case does not reproduce, and never repair a summary by editing the case.
+- Policy scripts follow the same explicit UTF-8 rule as helper/ and tools/; audit_utf8_io scans all three.
+
 - The manifest catches mistakes and damaged copies, not someone who can rewrite both the files and the manifest. Never weaken the deployment folder’s NTFS permissions (release owner write, inspectors read).

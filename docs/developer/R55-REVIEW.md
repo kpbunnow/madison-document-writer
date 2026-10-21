@@ -41,6 +41,20 @@ identity is retained (release owner confirmation). Four reproduced defects are c
 
 New acceptance item C10 (native Windows Unicode case) and an extended P3 are open.
 
+## Post-PR #17 corrections
+
+Baseline: main `dfe0687`. Identity retained (no R55 package distributed; release owner
+to reconfirm before packaging). Formats unchanged.
+
+1. Reports summaries: the verified case is the authority for reportable facts. The
+   helper projects each case with helper/case_projection.py, an exact mirror of the
+   Writer's summarize() checked against the real function over generated and captured
+   cases, and excludes a summary whose fields differ, even with a valid, anchored case
+   and an unchanged sourceRevision. Reports explains the exclusion and the rebuild;
+   the helper refuses to write such a summary. Case bytes and history are untouched.
+2. Policy tooling reads and writes UTF-8 explicitly, so the deposit provenance check
+   passes on Windows code pages. Approved policy data is unchanged.
+
 ## Retained R54 extension decisions
 
 The R54 review and screenshots remain in source under docs/history/R54-REVIEW.md
