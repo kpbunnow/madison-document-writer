@@ -338,7 +338,10 @@ module.exports = async function (browser, page, context, out, axeScreen) {
           "SYNTHETIC reviewed transfer clause: contact Building Inspection before a" +
           " sale or transfer to review violations and case responsibility.",
       });
-      await page.locator('[data-special-due="1"]').fill(await page.evaluate(() => addDays(recordDay(today), 35)));
+      // Authoring 13: the affected item's new due date is entered in the items table, not the extension panel.
+      assert.equal(await page.locator("[data-special-due]").count(), 0);
+      const affected = await page.evaluate(() => doc(WriterState.state.docId).items.find((i) => String(i.no) === "1").id);
+      await page.locator('[data-field="due"][data-id="' + affected + '"]').fill(await page.evaluate(() => addDays(recordDay(today), 35)));
       await axeScreen(page, "r26-" + type + "-" + scope);
       await issue((type === "bestInterestExtension" ? "best-interest-extension" : "vacancy-extension") + "-" + scope);
     }
