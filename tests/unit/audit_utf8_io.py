@@ -101,10 +101,33 @@ class Utf8Io(unittest.TestCase):
                 integrity.reconstruct_registry(self.root)
                 self.assertEqual(integrity.registry(self.root)["entries"], [])
 
-    def test_helper_and_tools_state_every_text_encoding(self):
-        for path in sorted([*ROOT.glob("helper/*.py"), *ROOT.glob("tools/*.py")]):
+    def test_helper_tools_and_policy_state_every_text_encoding(self):
+        for path in sorted([*ROOT.glob("helper/*.py"), *ROOT.glob("tools/*.py"), *ROOT.glob("policy/**/*.py")]):
             with self.subTest(file=path.relative_to(ROOT).as_posix()):
                 self.assertEqual(implicit_encodings(path), [])
+
+    def test_policy_provenance_compilation_and_ordinances_under_cp1252(self):
+        import runpy, sys
+        import compiler, library_ordinances, regenerate_deposits
+
+        expected = (compiler.compile_policy(ROOT), library_ordinances.audit(ROOT))
+        with cp1252_default():
+            # The build's own provenance check, exactly as tools/build.py runs it; it exits on any difference.
+            with patch.object(sys, "argv", ["regenerate_deposits.py", "--check"]):
+                runpy.run_path(str(ROOT / "policy/regenerate_deposits.py"), run_name="__main__")
+            data, _ = regenerate_deposits.regenerate()
+            self.assertEqual((compiler.compile_policy(ROOT), library_ordinances.audit(ROOT)), expected)
+        # Generated output stays UTF-8, and the schedule does exercise non-ASCII text.
+        self.assertEqual((ROOT / "app/assets/deposits.js").read_bytes(), data.encode("utf-8"))
+        self.assertTrue(any(ord(c) > 127 for c in data))
+
+    def test_policy_reads_reject_invalid_utf8(self):
+        import compiler
+
+        path = self.root / "policy.json"
+        path.write_bytes(b'{"label": "Jos\xe9"}')
+        with cp1252_default(), self.assertRaises(ValueError):
+            compiler.read(path)
 
     def test_maintained_manual_source_is_not_cp1252_safe(self):
         # Guards the premise of the explicit manual encoding: the source contains UTF-8 text.

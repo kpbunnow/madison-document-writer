@@ -38,7 +38,7 @@ def chapter_index(path):
 
 def audit(root, library=None):
     root = Path(root)
-    library = library or json.loads((root / "app/assets/library.js").read_text().split("=", 1)[1].rsplit(";", 1)[0])
+    library = library or json.loads((root / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
     chapters = {}
     for path in sorted((root / "policy/sources").glob("r30-CHAPTER_*.txt")):
         match = re.search(r"CHAPTER_(\d+)_", path.name)
