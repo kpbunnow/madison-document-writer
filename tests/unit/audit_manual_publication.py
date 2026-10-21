@@ -7,7 +7,7 @@ from unittest.mock import patch
 import build_manual as manual
 
 ROOT = Path(__file__).resolve().parents[2]
-IDENTITY = {"release": "2026-10-21 R55", "helperVersion": "2026.10.21.56"}
+IDENTITY = {k: json.loads((ROOT / "version.json").read_bytes())[k] for k in ("release", "helperVersion")}
 PDF_HEADER = b"%PDF-1.7\n/StructTreeRoot synthetic tagged print\n"
 
 

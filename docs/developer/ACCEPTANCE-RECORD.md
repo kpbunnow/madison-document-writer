@@ -66,7 +66,7 @@ Results C1–C10 with evidence references: ____________________
 | P5 | Print ordinary/long letters and all court copies on actual approved printer; test envelope alignment | City operations/court sign physical output; document continuation retained |
 | P6 | Retrieve a frozen pre-R49 ordinary/mandatory/snow PDF and compare with retained original | Original bytes and historical wording unchanged |
 
-| P7 | Print regular, Best Interest and Vacancy Extensions side by side, one-page and multi-page, including conditional vacancy and historical authoring-11 corrections | Same shared layout and copy/footer handling; retained supervisory signers on the two special types; approved language unchanged; conditional dates truthful; historical reprints unchanged |
+| P7 | Print regular, Best Interest and Vacancy Extensions side by side, one-page and multi-page, including R56 authoring-13 dated extensions, authoring-12 conditional vacancy and historical authoring-11 corrections | Same shared layout and copy/footer handling; retained supervisory signers on the two special types; approved language unchanged; every authoring-13 affected item shows its new due date; conditional dates truthful; historical reprints unchanged |
 
 Results I1–P7 with evidence references: ____________________
 
@@ -176,3 +176,4 @@ R53 removed release signing (decision: option 3). Updates are checked against ru
 | S53 | With real Accela data, import each Initial Inspection, Reinspection and CA Reinspection status in the rules and confirm the document; confirm Completed is refused | OPEN | ____________________ |
 | N53 | Confirm follow-up snow inspections are recorded in Accela as Reinspection with status Citation | OPEN | ____________________ |
 | W53 | Staff review the 15-second warning behavior and Message history | OPEN | ____________________ |
+| S56 | Staff review the R56 editor: one Recipients button opens copies/email/agent; no parcel field (a missing parcel is corrected in Accela and re-imported); no other initial inspection actions or bottom Add violation item; Cite appears only for an imported Citation status; Best Interest and Vacancy Extensions take each affected item's due date in Items and due dates | OPEN | ____________________ |

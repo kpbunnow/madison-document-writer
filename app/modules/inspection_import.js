@@ -2209,7 +2209,7 @@ function newDoc(caseId, type) {
     status: "Draft",
     draft: true,
     mailed: recordDay(today),
-    authoringVersion: 12,
+    authoringVersion: 13,
     items: [],
     cc: "",
     cits: {},
