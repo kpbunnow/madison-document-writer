@@ -22,6 +22,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     });
     newDoc(id, "notice");
     const d = doc(WriterState.state.docId);
+    // Retain this historical authoring-11 deposit/print scenario; R59 tests current-version preservation.
+    d.authoringVersion = 11;
     // Items can be cited only when the imported Accela status is Citation.
     d.importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
     d.items = [

@@ -210,7 +210,7 @@ const test = async () => {
   panel.innerHTML = newDocuments.details(vacancy);
   assert.equal(panel.querySelector('[data-special="deadlineMode"]'), null, "no deadline-model choice");
   assert.equal(panel.querySelector("[data-special-due]"), null, "no separate per-item deadline fields");
-  assert.match(panel.textContent, /Select affected items and enter their new due dates in Items and due dates/);
+  assert.match(panel.textContent, /Select affected items and enter their new due dates in Violation items/);
   assert.equal(panel.querySelector("fieldset.r26-items"), null, "authoring 13 selects affected items in the items table, not a separate list");
   assert.equal(panel.querySelector("[data-special-item]"), null, "no separate affected-item checkboxes in the details card");
   vacancy.special.affected = [String(vacancy.items[0].no)];
@@ -236,7 +236,7 @@ const test = async () => {
   );
   vacancy.items[0].due = vacancy.special.originalDues[vacancy.items[0].no];
   assert.ok(
-    blockers(vacancy).some((x) => /new due date in Items and due dates|later future due date/.test(x.t)),
+    blockers(vacancy).some((x) => /new due date in Violation items|later future due date/.test(x.t)),
     "a new due date is required",
   );
   for (const authoringVersion of [11, 12, 13]) {

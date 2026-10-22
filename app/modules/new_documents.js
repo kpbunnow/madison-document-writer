@@ -40,7 +40,7 @@ import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
 export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* Authoring 13 (R56): every extended Best Interest or Vacancy item carries a later repair due date, entered in
-   Items and due dates; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
+   Violation items; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
 export const DATED_EXTENSIONS = 13;
 export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
@@ -488,11 +488,11 @@ export function initNewDocuments() {
       }
       if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
         const laterDue = (i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
-        // Authoring 13 enters these dates in Items and due dates; link each affected item's due-date field there.
+        // Authoring 13 enters these dates in Violation items; link each affected item's due-date field there.
         add(
           selected(d, s).every(laterDue),
           datedExtension(d)
-            ? "Enter a later future due date in Items and due dates for each affected item."
+            ? "Enter a later future due date in Violation items for each affected item."
             : "Enter later future deadlines for all affected items.",
           "affected",
           datedExtension(d)
@@ -652,7 +652,7 @@ export function initNewDocuments() {
     } else {
       fields +=
         (rowAffectedSelection(d)
-          ? '<p class="hint">Select affected items and enter their new due dates in Items and due dates. Other items keep their original dates.</p>'
+          ? '<p class="hint">Select affected items and enter their new due dates in Violation items. Other items keep their original dates.</p>'
           : '<fieldset class="r26-items"><legend>Affected outstanding items</legend>' +
             d.items
               .filter((i) => !i.done && !i.withdrawn)

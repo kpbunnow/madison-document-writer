@@ -4,7 +4,7 @@ import { caseFileName, caseNumberAllowed, loadCaseFile, shell, sourceDocFor, sta
 import { listCaseFolder, saveDrafts, scheduleDraftSave, startReinspection } from "./case_files.js";
 import { importResumePanel, workingNotesPanel } from "./issuance_and_corrections.js";
 import { recoveryStatusHTML, unissuedVisitFor } from "./draft_recovery.js";
-import { caseSearchText } from "./language_catalog.js";
+import { caseSearchText, saveWorkflowPrefs } from "./language_catalog.js";
 import {
   independentArtifact,
   inspectionIdentity,
@@ -442,6 +442,37 @@ function caseState(k) {
   };
 }
 
+/* R59: after an issuance Workspace opens on a view that lists the case. The current view, search and inspector
+   filter are kept when they already show it; only a filter that would hide it is relaxed (view to All cases,
+   search or inspector cleared). The row stays highlighted until the next navigation away from Workspace. */
+function revealIssuedCase(cid) {
+  const s = WriterState.state,
+    rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
+    row = workspaceQueue(rows, workspaceTasks(rows), app_workspacequeueContext()).find((r) => r.k.id === cid);
+  if (!row) return false;
+  const before = [s.caseFilter, s.caseQ, s.caseInspector].join("|"),
+    query = String(s.caseQ || "")
+      .toLowerCase()
+      .trim();
+  if (!queueMatches(row, s.caseFilter)) s.caseFilter = "all";
+  if (query && !caseSearchText(row.k).includes(query)) s.caseQ = "";
+  if (s.caseInspector && row.k.inspectorId !== s.caseInspector) s.caseInspector = "";
+  s.metric = "";
+  s.modal = null;
+  s.picker = false;
+  s.screen = "cases";
+  s.issuedCase = cid;
+  if ([s.caseFilter, s.caseQ, s.caseInspector].join("|") !== before) saveWorkflowPrefs();
+  return true;
+}
+
+function focusIssuedCase(cid) {
+  const row = [...document.querySelectorAll("tr[data-issued-highlight]")].find((el) => el.dataset.queueCase === cid);
+  if (!row) return;
+  row.scrollIntoView?.({ block: "center" });
+  row.focus({ preventScroll: true });
+}
+
 function screenCases() {
   const rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
     tasks = workspaceTasks(rows);
@@ -494,10 +525,13 @@ function screenCases() {
             ">Review</button></div>",
         )
         .join("");
+      const issued = WriterState.state.issuedCase === k.id;
       return (
         '<tr data-queue-case="' +
         `${esc(k.id)}` +
-        '"><td><div class="addr">' +
+        '"' +
+        (issued ? ' data-issued-highlight aria-current="true" class="check-focus" tabindex="-1"' : "") +
+        '><td><div class="addr">' +
         `${esc(k.address)}` +
         '</div><div class="mono">' +
         `${esc(k.number)}` +
@@ -1166,7 +1200,12 @@ function baseLookupPlan(acc) {
     const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id);
     if (p.used)
       p.blockers.push(
-        "This inspection has already been used to generate a document. Choose Con" + "tinue existing case to continue or correct that document.",
+        "This inspection has already been used to generate a document. Choose Con" +
+          "tinue existing case to continue or correct that document." +
+          // R59: a used result stays selectable so its reason is shown; another eligible result can still be chosen.
+          (c.rows.filter((x) => x.selectable && accStatusEligible(x.status, x.type)).length > 1
+            ? " To import a different inspection, choose another result above."
+            : ""),
       );
     else if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
     else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
@@ -1518,18 +1557,19 @@ function accelaPanel() {
         ) +
         "</div></div>"
       : "";
+  // R59: four labelled facts per candidate; selection is shown by the highlighted, pressed state only.
+  const when = (x) => (x.date ? fmtDate(x.date) + (x.time ? " at " + fmtTime(x.time) : " · time not supplied") : "not supplied");
   const summary = (x) =>
-    "<strong>" +
-    `${esc(x.type)}` +
-    " · " +
-    `${fmtDate(x.date)}` +
-    "</strong><span>Result: " +
-    `${esc(x.status)}` +
-    "</span><span>" +
-    `${x.time ? esc(fmtTime(x.time)) : "Time not supplied"}` +
-    " · " +
-    `${esc(x.inspectorName || "Inspector not supplied")}` +
-    "</span>";
+    [
+      ["Inspection type", x.type],
+      ["Date", when(x)],
+      ["Inspector", x.inspectorName],
+      ["Status", x.status],
+    ]
+      .map(([label, value]) => '<span data-import-field="' + label + '">' + label + ": <strong>" + esc(value || "not supplied") + "</strong></span>")
+      .join("");
+  const blockerId = "acc-blockers";
+  const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
   const inspections =
     choices.length > 1
       ? '<fieldset class="import-choices"><legend>Choose the inspection result yo' +
@@ -1539,19 +1579,19 @@ function accelaPanel() {
           choices
             .map(
               (x) =>
-                '<button class="import-inspection ' +
+                '<button type="button" class="import-inspection ' +
                 `${x.i === acc.sel ? "is-selected" : ""}` +
                 '" data-accsel="' +
                 `${x.i}` +
                 '" aria-pressed="' +
                 `${x.i === acc.sel}` +
                 '" ' +
+                `${x.i === acc.sel && visibleBlockers.length ? 'aria-describedby="' + blockerId + '"' : ""}` +
+                " " +
                 `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
                 ">" +
                 `${summary(x)}` +
-                "<span>" +
-                `${x.i === acc.sel ? "Selected" : "Select inspection"}` +
-                "</span></button>",
+                "</button>",
             )
             .join(""),
         ) +
@@ -1560,7 +1600,6 @@ function accelaPanel() {
         ? `<div class="import-selected">${summary(choices[0])}</div>`
         : "";
   const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id));
-  const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
   const label = k ? "Import later inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
   return (
     '<section class="card acc import-review"><div class="card-h"><div><h2>' +
@@ -1605,7 +1644,9 @@ function accelaPanel() {
     "\n    " +
     "".concat(
       visibleBlockers.length
-        ? '<div class="banner alert"><div><strong>' +
+        ? '<div class="banner alert" id="' +
+            blockerId +
+            '"><div><strong>' +
             `${esc(visibleBlockers[0])}` +
             "</strong>" +
             "".concat(
@@ -1657,9 +1698,14 @@ function accelaPanel() {
     ) +
     "" +
     `${(p.notes || []).map((n) => `<p>${esc(n)}</p>`).join("")}` +
-    "<p>Completed, Official Notice, Citation and Compliance results are avail" +
-    "able. Scheduled, Pending, Assist and unknown statuses cannot be imported" +
-    ". Blank inspection times stay blank until explicitly corrected.</p></det" +
+    "<p>The inspection type and its result status decide the document: an In" +
+    "itial Inspection with Official Notice, Citation, No Occupancy or an Abat" +
+    "ement result; a Reinspection with CA Referral (City Attorney Referral), " +
+    "Compliance, Citation, Ext" +
+    "ension Processing or No Occupancy; a CA Reinspection with Compliance or " +
+    "Non Compliance. Completed, Scheduled, Pending, Assist and unknown statuse" +
+    "s cannot be imported. Blank inspection times stay blank until explicitly" +
+    " corrected.</p></det" +
     'ails>\n    <p class="hint">Case details change only when you confirm. Sav' +
     "e draft &amp; return to Workspace keeps this review on this device when saving succee" +
     'ds.</p>\n    <div class="acc-go"><button class="btn ' +
@@ -1752,6 +1798,8 @@ export {
   uiIcon,
   caseState,
   screenCases,
+  revealIssuedCase,
+  focusIssuedCase,
   accelaTable,
   baseLookupPlan,
   readAccelaFile,

@@ -968,6 +968,8 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
                 raise ValueError("Two issued records share a document identity")
             if payload.get("lifecycle"):
                 validate_publication(record, event, documents, superseded, voided, visits, check_window)
+                if event["id"] not in historical_ids:
+                    validate_document_import(event, documents, visits)
             if kind == "correction.issued":
                 target = payload.get("replaces")
                 old = documents.get(target)
@@ -1115,6 +1117,65 @@ def continuing_items(source, visits):
     return rows
 
 
+IMPORT_USED = "This imported inspection has already been used; open the existing case"
+# inspectionKind in app_core.js: the imported inspection types. A visit worksheet is opened only from a
+# Reinspection or a CA Reinspection; documents may also carry the Initial Inspection they were written from.
+IMPORT_TYPES = ("initial", "reinspection", "caReinspection")
+VISIT_IMPORT_TYPES = ("reinspection", "caReinspection")
+
+
+def visit_import_identity(visit):
+    """A recorded visit's import key; a legacy visit without one is keyed by its reinspection date and time."""
+    return visit.get("importInspection") or dict(type="reinspection", date=visit.get("date"), time=visit.get("time", ""))
+
+
+def same_import_identity(key, imported):
+    """Mirror of sameInspection in case_timeline.js: a missing time on either side matches any time that day."""
+    return bool(
+        isinstance(key, dict)
+        and key
+        and key.get("type") == imported.get("type")
+        and key.get("date") == imported.get("date")
+        and (not key.get("time") or not imported.get("time") or key.get("time") == imported.get("time"))
+    )
+
+
+def validate_document_import(event, documents, visits):
+    """R59: a new document may not reuse an imported inspection already recorded in this case.
+
+    Refused when any earlier issued document (including corrected or withdrawn ones, whose evidence is
+    retained) or any recorded visit in the case carries the same identity. Not refused: a correction
+    (it keeps its original's identity); the visit the document is written from and any other document
+    written from that same visit (fromReinspId); the companion in the same initial issuance group.
+    Drafts are device-only, so the R53 refresh of an unissued draft never reaches this check.
+    """
+    snap = event["payload"]["snapshot"]
+    imported = snap.get("importInspection")
+    if event["type"] == "correction.issued" or not imported:
+        return
+    if not isinstance(imported, dict) or imported.get("type") not in IMPORT_TYPES or not calendar_date(imported.get("date")):
+        raise ValueError("Invalid imported inspection identity")
+    linked, group = snap.get("fromReinspId"), snap.get("issuanceGroup")
+    for other, other_event in documents.values():
+        # Only the named companion citation shares its initial notice's exemption. Arbitrary follow-ups
+        # may carry copied metadata, but that must never authorize inspection reuse.
+        companion = (
+            isinstance(group, dict)
+            and group.get("id") == other_event
+            and group.get("noticeId") == other.get("id") == snap.get("fromDocId")
+            and group.get("citationId") == snap.get("id")
+            and snap.get("type") == "citation"
+            and other.get("type") == "notice"
+            and other.get("issuanceGroup") == group
+        )
+        if linked and other.get("fromReinspId") == linked or companion:
+            continue
+        if same_import_identity(other.get("importInspection"), imported):
+            raise ValueError(IMPORT_USED)
+    if any(same_import_identity(visit_import_identity(r), imported) for r in visits if not linked or r.get("id") != linked):
+        raise ValueError(IMPORT_USED)
+
+
 def validate_visit(record, visit, documents, superseded, voided, visits, at=None, check_date_window=True):
     if visit.get("purpose") == "occupancyRelease":
         source = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == visit.get("sourceDocId")), None)
@@ -1147,18 +1208,12 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
         raise ValueError("An inspection identity can only be recorded once")
     imported = visit.get("importInspection")
     if imported:
-        if not isinstance(imported, dict) or imported.get("type") != "reinspection" or not calendar_date(imported.get("date")):
+        if not isinstance(imported, dict) or imported.get("type") not in VISIT_IMPORT_TYPES or not calendar_date(imported.get("date")):
             raise ValueError("Invalid imported inspection identity")
-        prior = [r.get("importInspection") or dict(type="reinspection", date=r.get("date"), time=r.get("time", "")) for r in visits]
+        prior = [visit_import_identity(r) for r in visits]
         prior.extend(d[0].get("importInspection") for d in documents.values())
-        if any(
-            key
-            and key.get("type") == imported.get("type")
-            and key.get("date") == imported.get("date")
-            and (not key.get("time") or not imported.get("time") or key.get("time") == imported.get("time"))
-            for key in prior
-        ):
-            raise ValueError("This imported inspection has already been used; open the existing case")
+        if any(same_import_identity(key, imported) for key in prior):
+            raise ValueError(IMPORT_USED)
     date = visit.get("date", "")
     initial = source.get("frozen", {}).get("case", {}).get("date", record["case"].get("date", ""))
     earliest = source.get("inspDate", initial)

@@ -194,3 +194,16 @@ All items below remain OPEN. They apply to R58, the release that first packages 
 | L58-7 | Exit is refused while a document is issuing, a PDF is filing, the outbox is transferring or an update is installing, and is allowed only after acknowledgment when queued or offline items remain; closing every window does not stop the helper; Windows sign-out does | OPEN | ____________________ |
 | L58-8 | Icon renders clearly on the desktop, taskbar, app window, Alt+Tab and the starting indicator at 100%, 150% and 200% scaling and in high contrast | OPEN | ____________________ |
 | L58-9 | Staff review the Exit Document Writer wording, its placement in Tools & settings and the stopped message | OPEN | ____________________ |
+
+## Writer workflow and screen consistency (R59)
+
+All items below remain OPEN. Automated Chromium checks do not establish staff, legal or native acceptance. See docs/developer/R59-REVIEW.md.
+
+| ID | Required City check | Status | Evidence and signoff |
+| --- | --- | --- | --- |
+| S59-1 | Staff review import selection with real Accela data: the four facts on each candidate, the selected highlight, and the explanation shown for an inspection already used on the case | OPEN | ____________________ |
+| S59-2 | Staff review Violation Items, the Review dialog (blocking concerns, advisories, no concerns) and Issue returning to Workspace with the issued case highlighted | OPEN | ____________________ |
+| S59-3 | Division/legal review of the charged-ordinance select with real multi-ordinance items and the configured deposit schedule, including saved drafts that must choose a section and a different charge that needs an approved source | OPEN | ____________________ |
+| S59-4 | Staff review warnings and errors clearing after 15 seconds and their Message history entries | OPEN | ____________________ |
+| S59-5 | Typography on City PCs at the display settings and browser zoom in use (100%, 125%, 150%, 200%), Writer screens and Reports: readable sizes, wrapping buttons and labels, nothing clipped | OPEN | ____________________ |
+| S59-6 | Remove item and due-date controls at City zoom and display scaling: the calendar button opens the date picker, the remove button removes only its item, and both are reachable by keyboard | OPEN | ____________________ |

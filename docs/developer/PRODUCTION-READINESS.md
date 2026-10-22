@@ -40,6 +40,11 @@ R58 adds the desktop launch and Exit Document Writer. Native Windows items L58-1
 network and offline start, safe exit, icon rendering and staff review) remain open and must be
 recorded on City PCs; automated Linux tests simulate Windows calls only.
 
+R59 changes the Writer workflow (import selection, charged-ordinance select, Violation Items,
+Review dialog, Issue returning to Workspace, 15-second messages) and screen typography; documents
+and print are unchanged. Staff and native items S59-1 to S59-6 remain open; the charged-ordinance
+select needs division/legal review with real multi-ordinance items (S59-3).
+
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and
 historical corrections. The five confirmed layout defaults and supervisory

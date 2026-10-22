@@ -1,5 +1,17 @@
 import { caseNumberKey, recordDay } from "../assets/shared.js";
-import { applyDeposit, feeLines, fmtDate, inspAt, parseDate, parseTime, toast, validISO } from "./court_and_deposits.js";
+import {
+  applyDeposit,
+  changeCharge,
+  chargeChoices,
+  choosesCharge,
+  feeLines,
+  fmtDate,
+  inspAt,
+  parseDate,
+  parseTime,
+  toast,
+  validISO,
+} from "./court_and_deposits.js";
 import { caseFileFault, helperJSON, loadCaseFile, sourceDocFor, stableJSON } from "./workspace_shell.js";
 import { caseState } from "./reinspection_walkthrough.js";
 import { hasSetupWork } from "./issuance_and_corrections.js";
@@ -962,32 +974,29 @@ function citationDepositFault(c, d = null, i = null) {
   return "";
 }
 
+// R59: an ordinance with several schedule rows needs its scheduled offense before it can be priced.
+const scheduledOffenseNeeded = (c) =>
+  !c.scheduleEntryId && CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord)).length > 1;
+
 function editCitation(d, id, field, value, phase = "commit") {
-  const c = d.cits[id];
+  // R59: the different-charge ordinance input edits the same stored charge as the section select, and a
+  // charge awaiting its deposit basis keeps an editable ordinance.
+  if (field === "ordOther") field = "ord";
+  const c = d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
   if (!c) return;
   if (["courtDate", "issued", "violDate"].includes(field)) value = parseDate(value) || String(value || "").trim();
   if (["courtTime", "violTime"].includes(field)) value = parseTime(value) || String(value || "").trim();
   if (field === "ord") {
-    const canonical = (v) => canonicalOrdinance(v) || String(v || "").trim();
     if (phase === "input") {
       if (!Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
       c.ord = String(value || "");
       if (d.correction) d.correction.reviewed = false;
       return;
     }
-    const previous = Object.prototype.hasOwnProperty.call(c, "ordEditingFrom") ? c.ordEditingFrom : c.ord;
+    if (Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
     delete c.ordEditingFrom;
-    value = canonical(value);
-    if (canonical(previous) === value) {
-      c.ord = value;
-      return;
-    }
-    c.ord = value;
-    c.autoFilledCharge = false;
-    delete c.chargeStale;
-    delete c.scheduleEntryId;
-    applyDeposit(d, id, c.ord);
-    if (d.correction) d.correction.reviewed = false;
+    // Nothing priced, measured or approved for the previous charge carries over to the new one.
+    if (changeCharge(d, id, value) && d.correction) d.correction.reviewed = false;
     return;
   }
   if (c[field] === value) return;
@@ -1093,14 +1102,25 @@ function authoringChecks(d) {
             ok: false,
             t:
               prefix +
-              (!canonicalOrdinance(request.ord)
-                ? "choose one complete ordinance and complete the approved deposit basis in Citation review."
-                : request.measurementFields?.length
-                  ? "complete the required measurements in Citation review."
-                  : "complete the approved deposit basis in Citation review."),
+              (choosesCharge(i) && !String(request.ord || "").trim()
+                ? "choose the charged ordinance from its sections."
+                : scheduledOffenseNeeded(request)
+                  ? "choose the scheduled offense in Citation review."
+                  : !canonicalOrdinance(request.ord)
+                    ? "choose one complete ordinance and complete the approved deposit basis in Citation review."
+                    : request.measurementFields?.length
+                      ? "complete the required measurements in Citation review."
+                      : "complete the approved deposit basis in Citation review."),
             targets: [
               checkTarget(
-                '[data-deposit-form="' + checkAttr(i.id) + '"] ' + (request.measurementFields?.length ? '[name^="measure-"]' : '[name="ord"]'),
+                '[data-deposit-form="' +
+                  checkAttr(i.id) +
+                  '"] ' +
+                  (request.measurementFields?.length
+                    ? '[name^="measure-"]'
+                    : canonicalOrdinance(request.ord) && scheduledOffenseNeeded(request)
+                      ? '[name="scheduleEntryId"]'
+                      : '[name="ord"]'),
                 "Item " + i.no + " · complete charge",
               ),
             ],
@@ -1116,7 +1136,12 @@ function authoringChecks(d) {
           ["ord"],
         );
         check(!i.done, prefix + "only outstanding violations may be cited.");
-        check(!!canonicalOrdinance(c.ord), prefix + "enter one complete ordinance number, not a list of sections.", ["ord"]);
+        const unchosen = choosesCharge(i) && !String(c.ord || "").trim();
+        check(
+          !unchosen && !!canonicalOrdinance(c.ord),
+          prefix + (unchosen ? "choose the charged ordinance from its sections." : "enter one complete ordinance number, not a list of sections."),
+          ["ord"],
+        );
         check(!citationPricing.chargeFault(d, i, c), prefix + (citationPricing.chargeFault(d, i, c) || "charge matches the current item."), [
           "ord",
           "differentChargeSource",
@@ -1184,6 +1209,33 @@ function citationReview(d) {
     '" ' +
     `${extra}` +
     "></label>";
+  // R59: several sections → a select of exactly those sections with no default; the different-charge path stays secondary.
+  const chargeSelect = (i, c, readonly) => {
+    const choices = chargeChoices(i),
+      chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
+      listed = choices.some((x) => x.value === chosen);
+    return (
+      '<label class="f"><span>Ordinance</span><select data-review-cit="' +
+      esc(i.id) +
+      '|ord" aria-label="Ordinance for item ' +
+      esc(i.no) +
+      '" ' +
+      (readonly ? "disabled" : "") +
+      '><option value="">Choose the charged ordinance</option>' +
+      choices
+        .map((x) => '<option value="' + esc(x.value) + '" ' + (listed && x.value === chosen ? "selected" : "") + ">" + esc(x.label) + "</option>")
+        .join("") +
+      "</select></label>" +
+      field(
+        i,
+        { ordOther: listed ? "" : c.ord || "" },
+        "ordOther",
+        "Different charge — ordinance outside the item’s sections",
+        "text",
+        readonly ? "readonly" : "",
+      )
+    );
+  };
   const detail = (key, label, body, open = false) =>
     '<details data-review-details="' +
     `${key}` +
@@ -1234,12 +1286,14 @@ function citationReview(d) {
         const chargeFields =
           "" +
           "".concat(
-            (i.sections || []).length > 1
-              ? '<p class="hint">Item sections: ' + esc(i.sections.join(", ")) + ". Confirm the one ordinance charged.</p>"
+            choosesCharge(i)
+              ? '<p class="hint">Item sections: ' +
+                  esc(i.sections.join(", ")) +
+                  ". Choose the one ordinance charged; a charge outside these sections needs its approved source.</p>"
               : "",
           ) +
           '<div class="grid g2">' +
-          `${field(i, c, "ord", "Ordinance", "text", snow.is(d) ? "readonly" : "")}` +
+          `${choosesCharge(i) ? chargeSelect(i, c, snow.is(d)) : field(i, c, "ord", "Ordinance", "text", snow.is(d) ? "readonly" : "")}` +
           "" +
           `${field(i, c, "differentChargeSource", "Different charge — approved source / confirmation")}` +
           "" +

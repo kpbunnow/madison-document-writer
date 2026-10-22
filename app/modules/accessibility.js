@@ -34,8 +34,14 @@ export function createAccessibility() {
     if (m.started) m.remaining = Math.max(0, m.remaining - (Date.now() - m.started));
     m.started = 0;
   }
+  /* R59: success messages keep their own duration; warnings and errors clear 15 seconds after each time they
+     are shown or shown again; progress messages stay until their operation replaces them. Hover and keyboard
+     focus pause every timer. Message history keeps every message, and clearing a message never clears the
+     condition it reports (blocking checks stay in Review and inline, and issuance stays blocked). */
+  const ALERT_MS = 15000;
+  const lifetime = (severity, duration) => (severity === "success" ? Math.max(6000, Number(duration) || 7000) : ALERT_MS);
   function resume(m) {
-    if (!m || m.severity !== "success" || m.started) return;
+    if (!m || m.severity === "progress" || m.started) return;
     if (m.remaining <= 0) {
       dismiss(m.id);
       return;
@@ -60,6 +66,9 @@ export function createAccessibility() {
     requestPaint();
   }
   function paint() {
+    const active = document.activeElement,
+      focusedMessage = active?.closest?.("[data-message]"),
+      focusedAction = active?.hasAttribute?.("data-message-undo") ? "undo" : "dismiss";
     let host = document.getElementById("toast");
     if (!host && document.body) {
       host = document.createElement("div");
@@ -105,6 +114,12 @@ export function createAccessibility() {
         .filter((m) => m.scope === title)
         .map(markup)
         .join("");
+    // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
+    // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
+    if (focusedMessage)
+      document
+        .querySelector('[data-message="' + focusedMessage.dataset.message + '"] [data-message-' + focusedAction + "]")
+        ?.focus({ preventScroll: true });
     for (const el of document.querySelectorAll("[data-message]")) {
       const m = messages.find((m) => m.id === el.dataset.message);
       if (!m) continue;
@@ -141,6 +156,14 @@ export function createAccessibility() {
       messages.find((m) => (key ? m.key === key : m.text === value && m.severity === severity));
     if (duplicate) {
       duplicate.scope = document.querySelector("#utility-title")?.textContent || "";
+      if (duplicate.severity !== "progress") {
+        // Shown again: a fresh 15-second interval, still paused while the message is hovered or focused.
+        const paused = !duplicate.started;
+        clearTimeout(duplicate.timer);
+        duplicate.started = 0;
+        duplicate.remaining = lifetime(duplicate.severity);
+        if (!paused) resume(duplicate);
+      }
       requestPaint();
       return;
     }
@@ -152,7 +175,7 @@ export function createAccessibility() {
       scope: document.querySelector("#utility-title")?.textContent || "",
       text: value,
       severity,
-      remaining: Math.max(6000, Number(options.duration) || 7000),
+      remaining: lifetime(severity, options.duration),
       started: 0,
       at: new Date().toISOString(),
     };

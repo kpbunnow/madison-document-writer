@@ -25,6 +25,7 @@ Add a new suite under the feature it covers.
 | `audit_r50_import_repaint.js` | Import disclosure, picker focus and navigation across repaints |
 | `audit_r53_status_rules.js` | Inspection type and status decide the document |
 | `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
+| `audit_r59_import_selection.js`, `audit_r59_import_reuse.py` | Four labelled facts per inspection candidate, highlighted pressed selection, a used candidate selectable with its blocker, stale shared checks ignored; the store refuses a new document reusing an imported inspection and accepts a CA Reinspection visit identity |
 
 ## Document authoring and language
 
@@ -34,10 +35,11 @@ Add a new suite under the feature it covers.
 | `audit_data.js` | Language library integrity: codes, groups, titles, ordinances, provenance |
 | `audit_r26.js`, `audit_r26_helper.py` | Scoped new-document actions, restrictions and inspection reuse |
 | `audit_r42_editor.js` | Document tasks, readiness, publication routing, print packets |
+| `audit_r59_editor_flow.js` | Warning and error messages clear after 15 seconds (history kept, hover/focus pause, re-shown interval, progress persists) without clearing their condition; Violation Items opens the picker without scrolling; one Review dialog (blocking, advisory, no-concerns, check links, focus return); Issue label, no draft Print preview, validation at issuance; return to Workspace with the issued case highlighted and focused; failed and unconfirmed saves stay; one issuance per double click |
 | `audit_r47_language.js` | Catalog truth, private draft identity, asynchronous isolation |
 | `audit_r50_cached_reviews.js` | Cached catalog review status and refresh outcomes |
 | `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
-| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Items and due dates, no conditional model) |
+| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Violation items, no conditional model) |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
 | `audit_valid.js` | Document blockers and mailing-date limits |
@@ -56,6 +58,7 @@ Add a new suite under the feature it covers.
 | `audit_r33_core.js`, `audit_r33_core.py` | Immutable citation faces, court fields, library identity |
 | `audit_r35.js` | Initial-inspection citation replaces the Official Notice |
 | `audit_properties.js`, `audit_properties_helper.py` | Property-based pricing and storage checks with replayed seeds |
+| `audit_r59_charge_select.js` | Several item sections: explicit charged-ordinance select, pricing from the configured schedule, changed choice clears the previous charge's values, unscheduled and multi-row ordinances, different-charge path, save/reopen |
 
 ## Snow citations
 
@@ -199,11 +202,12 @@ workflow. Each receives the arguments named in its row.
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |
 | `browser_r40.js` | R40 production checks |
 | `browser_r41.js`, `browser_r44.js` | Busy workspace; saved-work panel |
-| `browser_r42.js`, `browser_r43.js` | Task navigation and preview; charge cards |
+| `browser_r42.js`, `browser_r43.js` | Task navigation and preview, remove button and due-date separation; charge cards |
 | `browser_r45.js`, `browser_r50_import.js` | Import with real workbook bytes |
 | `browser_r46.js`, `browser_r47.js` | Reinspection phase; language catalog |
 | `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
+| `browser_r59.js` | R59 type tokens across Writer and Reports, reflow and zoom, selected inspection and issued case highlights |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security

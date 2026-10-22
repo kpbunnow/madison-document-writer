@@ -37,8 +37,10 @@ const test = async () => {
   const app = document.getElementById("app");
   assert.equal(app.querySelectorAll(".topbar-actions .btn-primary").length, 1);
   assert.ok(document.querySelector("#btn-save"));
-  // One Recipients button opens the recipient dialog; the other two move to their sections.
-  assert.equal(app.querySelectorAll("[data-editor-section]").length, 2);
+  // R59: Recipients, Violation Items and Review each open a dialog; no task button scrolls to a section.
+  assert.equal(app.querySelectorAll("[data-editor-section]").length, 0);
+  assert.equal(app.querySelector(".editor-sections #btn-add-top").textContent, "Violation Items");
+  assert.equal(app.querySelector(".editor-sections #btn-review").textContent, "Review · " + editorReadiness(d).required.length);
   const recipients = app.querySelector(".editor-sections #btn-cc");
   assert.equal(recipients.textContent, "Recipients");
   assert.equal(app.querySelectorAll("#btn-cc").length, 1);
@@ -47,9 +49,13 @@ const test = async () => {
   assert.equal(WriterState.state.modal, "cc");
   WriterState.state.modal = null;
   render();
-  assert.ok(document.querySelector("#checkbox-panel .fail"));
-  assert.equal(document.querySelector(".passed-checks").open, false);
-  assert.equal(document.querySelector("#btn-checks").getAttribute("aria-expanded"), "true");
+  assert.equal(document.querySelector("#checkbox-panel,#btn-checks,#editor-review"), null, "one review presentation");
+  document.querySelector("#btn-review").click();
+  assert.equal(WriterState.state.modal, "review");
+  assert.ok(document.querySelector("#overlay [data-review-blocking] .fail"));
+  assert.equal(document.querySelector("#overlay .passed-checks").open, false);
+  WriterState.state.modal = null;
+  render();
   assert.ok(
     document.querySelector(".desk").compareDocumentPosition(document.querySelector('[aria-label="Assign due dates"]')) &
       window.Node.DOCUMENT_POSITION_FOLLOWING,
@@ -57,8 +63,12 @@ const test = async () => {
   const check = checks(d).find((c) => !c.ok && c.targets?.some((t) => t.selector.includes("text")));
   focusCheckTarget(check.targets[0], check.t);
   assert.equal(document.activeElement.dataset.field, "text");
-  document.querySelector('[data-editor-section="editor-review"]').click();
-  assert.equal(document.activeElement.id, "editor-review-title");
+  document.querySelector("#btn-review").focus();
+  document.querySelector("#btn-review").click();
+  assert.ok(document.querySelector("#overlay [data-review-dialog]").contains(document.activeElement), "focus moves into Review");
+  document.activeElement.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(WriterState.state.modal, null);
+  assert.equal(document.activeElement.id, "btn-review", "focus returns to Review");
   const text = document.querySelector('[data-field="text"]');
   text.focus();
   Object.defineProperty(text, "isContentEditable", { value: true });
@@ -78,7 +88,7 @@ const test = async () => {
   );
   d.items[0].due = addDays(recordDay(today), 21);
   render();
-  assert.equal(document.querySelector("#btn-final").textContent, "Review & issue");
+  assert.equal(document.querySelector("#btn-final").textContent, "Issue");
   const newer = { ...clone(d), id: "r42-newer" };
   WriterState.DOCS.unshift(newer);
   render();
@@ -137,7 +147,7 @@ const test = async () => {
   };
   render();
   assert.equal(document.querySelector("#btn-final").textContent, "Review held draft");
-  assert.equal(document.querySelector("[data-editor-preview]").disabled, true);
+  assert.equal(document.querySelector("[data-editor-preview]"), null, "no draft Print preview");
   assert.equal(document.querySelectorAll(".cit-inst").length, 0);
   const ids = [...document.querySelectorAll("[id]")].map((n) => n.id);
   assert.equal(new Set(ids).size, ids.length, "editor has unique element identities");

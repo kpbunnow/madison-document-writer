@@ -106,7 +106,8 @@ export function initCitationPricing() {
     d.authoringVersion = Math.max(11, d.authoringVersion || 0);
     for (const [id, request] of Object.entries(d.depositRequests || {})) {
       const item = d.items.find((i) => i.id === id && i.cite && !i.withdrawn);
-      if (!item) continue;
+      // R59: a charge still being typed is priced when it is committed, as for drafted citations below.
+      if (!item || Object.hasOwn(request, "ordEditingFrom")) continue;
       const price = resolveCitationAmount({
         ordinance: request.ord,
         libraryItem: key(item),

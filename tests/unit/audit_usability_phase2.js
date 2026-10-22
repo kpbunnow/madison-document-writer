@@ -74,17 +74,21 @@ const test = async () => {
   assert.equal(chip.textContent, summaryText(ready));
   assert.match(chip.textContent, /^\d+ required fix(es)?( · \d+ advisor(y|ies))?$/);
   assert.ok(!document.getElementById("app").textContent.includes("Required checks link to the field that needs attention."));
-  assert.equal(document.querySelector('[data-editor-section="editor-review"]').textContent, "Review · " + ready.required.length);
-  // One complete checklist in Review: failures plus the collapsed passed checks, without a second status chip.
-  const review = document.getElementById("editor-review");
-  assert.equal(document.querySelectorAll("#checkbox-panel").length, 1);
+  assert.equal(document.querySelector("#btn-review").textContent, "Review · " + ready.required.length);
+  // R59: one complete checklist in the Review dialog: blocking concerns, then advisories, then the collapsed passed
+  // checks, without a second status chip. The document page carries no competing checklist.
+  assert.equal(document.querySelectorAll("#checkbox-panel,#btn-checks,.passed-checks").length, 0, "no checklist on the page");
+  document.querySelector("#btn-review").click();
+  const review = document.querySelector("#overlay [data-review-dialog]");
+  assert.equal(review.querySelector("h2").textContent, "Review");
   assert.equal(document.querySelectorAll(".passed-checks").length, 1);
-  assert.ok(review.querySelector("#checkbox-panel .passed-checks"));
   assert.equal(review.querySelector(".passed-checks").open, false);
   assert.equal(review.querySelectorAll(".cchip").length, 0, "Review does not repeat the status chip");
-  assert.equal(review.querySelector(".chipstrip strong").textContent, "Full checklist");
-  assert.equal(review.querySelectorAll("#checkbox-panel .check.fail").length, ready.required.length, "every required fix is listed once");
-  assert.ok(review.querySelector("#btn-checks"), "the checklist can still be hidden and shown");
+  assert.equal(review.querySelector("[data-review-blocking] h3").textContent, "Must fix before issuing");
+  assert.equal(review.querySelectorAll("[data-review-blocking] .check.fail").length, ready.required.length, "every required fix is listed once");
+  assert.equal(review.querySelectorAll(".check.fail").length, ready.required.length);
+  WriterState.state.modal = null;
+  render();
   // Go to first required field uses the existing check-link path to the first unresolved required check's field.
   const go = document.querySelector(".editor-readiness [data-readiness-first]");
   assert.equal(go.textContent, "Go to first required field");
@@ -94,13 +98,12 @@ const test = async () => {
   go.click();
   assert.equal(document.activeElement, document.querySelector(first.targets[0].selector), "focus lands on the first required field");
   assert.ok(document.activeElement.closest(".desk"), "the field is on the working document");
-  // Open full checklist reaches Review and shows the checklist even after it was hidden.
-  document.getElementById("btn-checks").click();
-  assert.equal(document.getElementById("checkbox-panel").style.display, "none");
+  // Open full checklist opens the same Review dialog.
   document.querySelector(".editor-readiness [data-open-checklist]").click();
-  assert.equal(document.getElementById("checkbox-panel").style.display, "block");
-  assert.equal(document.getElementById("btn-checks").textContent, "Hide checks");
-  assert.equal(document.activeElement.id, "editor-review-title");
+  assert.equal(WriterState.state.modal, "review");
+  assert.ok(document.querySelector("#overlay [data-review-dialog]").contains(document.activeElement));
+  WriterState.state.modal = null;
+  render();
   // Typing updates the summary and its first-field button in place.
   const text = document.querySelector('[data-field="text"][data-id="u2-a"]');
   text.textContent = "Repair the damaged wall.";
@@ -117,7 +120,7 @@ const test = async () => {
   const after = document.querySelector(".editor-readiness [data-readiness-first]");
   if (ready.advice.some((c) => c.targets?.length)) assert.equal(after.textContent, "Go to first advisory");
   else assert.equal(after, null, "no first-field button without an open check");
-  assert.equal(document.querySelector('[data-editor-section="editor-review"]').textContent, "Review");
+  assert.equal(document.querySelector("#btn-review").textContent, "Review");
   // An advisory-only document offers its first advisory.
   const advisory = { ...ready, required: [], advice: [{ ok: false, soft: true, t: "Advisory", targets: [checkTarget("#bulk-due", "x")] }] };
   advisory.list = [{ ok: true, t: "Passed" }, ...advisory.advice];
@@ -315,7 +318,7 @@ const test = async () => {
     const details = document.getElementById("r26-details");
     assert.equal(details.querySelector("fieldset.r26-items"), null, type + ": no distant affected-item list");
     assert.equal(details.querySelectorAll("[data-special-item],[data-special-due]").length, 0);
-    assert.ok(details.textContent.includes("Select affected items and enter their new due dates in Items and due dates."));
+    assert.ok(details.textContent.includes("Select affected items and enter their new due dates in Violation items."));
     assert.equal(document.querySelector('[aria-label="Assign due dates"]'), null, type + ": no shared-date bar");
     assert.equal(document.querySelectorAll(".desk [data-due-select]").length, 0);
     const boxes = () => [...document.querySelectorAll(".desk [data-special-item]")];

@@ -155,8 +155,6 @@ import {
   acceptAccela,
   cancelCaseLookup,
   confirmDatabaseCase,
-  editorNavigate,
-  editorPreview,
   findDatabaseCase,
   focusCheckTarget,
   highlightOpenChecks,
@@ -166,6 +164,7 @@ import {
   render,
   renderKeep,
   renumber,
+  selectImportInspection,
   worksheetChecks,
 } from "./inspection_import.js";
 import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./document_pagination.js";
@@ -381,6 +380,7 @@ WriterState.state = {
   caseQ: "",
   caseFilter: "attention",
   caseInspector: "",
+  issuedCase: "",
   metric: "",
   keepAdding: true,
   folderQ: "",
@@ -2072,11 +2072,14 @@ document.addEventListener("change", (e) => {
   if (ds.reviewCit) {
     const d = doc(WriterState.state.docId);
     if (d && !isLocked(d)) {
-      editCitation(d, ...ds.reviewCit.split("|"), e.target.value);
+      const [id, field] = ds.reviewCit.split("|");
+      editCitation(d, id, field, e.target.value);
       WriterState.DIRTY = true;
       saveDrafts();
       refreshSheet();
       initialCitations.refresh(d);
+      // R59: a charge that now needs its deposit basis keeps focus on that charge's completion form.
+      if ((field === "ord" || field === "ordOther") && d.depositRequests?.[id]) depositStep.open(d, id);
     }
     return;
   }
@@ -2134,6 +2137,8 @@ WriterState.LOOKUP_BUSY = false;
 WriterState.LOOKUP_ERROR = "";
 WriterState.LOOKUP_CONTROLLER = null;
 WriterState.LOOKUP_SERIAL = 0;
+// R59: bumps on every inspection-candidate change so a check started for an earlier selection is ignored.
+WriterState.ACC_SELECTION_SERIAL = 0;
 
 export const LOOKUP_READY = new WeakSet();
 export const SQL_COLUMNS = {
@@ -2399,9 +2404,7 @@ document.addEventListener("paste", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const button = e.target.closest(
-    "[data-editor-section],[data-editor-preview],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]",
-  );
+  const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]");
   if (!button) return;
   e.preventDefault();
   captureWork();
@@ -2411,30 +2414,12 @@ document.addEventListener("click", (e) => {
     if (primary && !primary.disabled) primary.click();
     return;
   }
-  if (button.hasAttribute("data-mobile-review")) {
-    editorNavigate("editor-review");
-    return;
-  }
-  if (button.hasAttribute("data-open-checklist")) {
-    // The summary's link shows the complete checklist even when it was hidden.
-    const panel = document.getElementById("checkbox-panel"),
-      toggle = document.getElementById("btn-checks");
-    if (panel?.style.display === "none") {
-      panel.style.display = "block";
-      if (toggle) {
-        toggle.textContent = "Hide checks";
-        toggle.setAttribute("aria-expanded", "true");
-      }
-    }
-    editorNavigate("editor-review");
-    return;
-  }
-  if (button.hasAttribute("data-editor-section")) {
-    editorNavigate(button.dataset.editorSection);
-    return;
-  }
-  if (button.hasAttribute("data-editor-preview")) {
-    editorPreview();
+  if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
+    // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
+    if (!doc(WriterState.state.docId)) return;
+    WriterState.state.picker = false;
+    WriterState.state.modal = "review";
+    render();
     return;
   }
   const target = document.getElementById(button.dataset.editorCommand);
@@ -2459,7 +2444,7 @@ document.addEventListener("click", async (e) => {
       ",#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc" +
       ",#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notec" +
       "ite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-disca" +
-      "rdri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-checks" +
+      "rdri],[data-discard],[data-openfolder],#btn-print,#btn-final" +
       ",#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-pick,#acc-go,#acc-cance" +
       "l,[data-acccase],[data-accsel]",
   );
@@ -2928,15 +2913,6 @@ document.addEventListener("click", async (e) => {
     render();
     return;
   }
-  if (t.id === "btn-checks") {
-    const p = document.getElementById("checkbox-panel");
-    const show = p.style.display === "none";
-    p.style.display = show ? "block" : "none";
-    t.textContent = show ? "Hide checks" : "Show checks";
-    t.setAttribute("aria-expanded", String(show));
-    syncChip();
-    return;
-  }
   if (t.dataset.del) {
     if (!structEditable(d)) {
       toast("This notice has been issued — its items are fixed");
@@ -3137,7 +3113,7 @@ document.addEventListener("click", async (e) => {
   }
   if (t.id === "fin-go") {
     // a document with an open check never gets issued, whatever the click path
-    if (!d || !d.draft) return;
+    if (!d || !d.draft || t.disabled || WriterState.AMENDMENT_BUSY || WriterState.state.publicationBusy) return;
     const mailedEl = document.getElementById("fin-mailed");
     if (mailedEl) initialCitations.mailed(d, mailedEl.value);
     if (d.correction) {
@@ -3172,6 +3148,8 @@ document.addEventListener("click", async (e) => {
     });
     WriterState.state.emailOnIssue = picked.length > 0;
     d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
+    // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
+    t.disabled = true;
     if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
       grantCaseFolder(true).then(() => runFinalize(d));
       return;
@@ -3208,6 +3186,7 @@ document.addEventListener("click", async (e) => {
         serial = WriterState.LOOKUP_SERIAL;
       WriterState.state.acc.caseIx = ix;
       WriterState.state.acc.sel = WriterState.state.acc.cases[ix].sel;
+      WriterState.ACC_SELECTION_SERIAL++;
       WriterState.state.acc.manualDate = "";
       WriterState.state.acc.manualTime = "";
       accelaFromShare().then(() => {
@@ -3232,7 +3211,7 @@ document.addEventListener("click", async (e) => {
   }
   if (t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY) {
     const selected = +t.dataset.accsel;
-    WriterState.state.acc.sel = selected;
+    if (!selectImportInspection(selected)) return;
     scheduleDraftSave();
     renderKeep();
     document.querySelector('[data-accsel="' + selected + '"]')?.focus({ preventScroll: true });

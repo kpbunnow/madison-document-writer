@@ -2,12 +2,13 @@ import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.j
 import { emailDocument, filePdf, freezeSources, inspAt, parseTime, printJob, rnd12, toast, validISO } from "./court_and_deposits.js";
 import { badIds, caseFileFault, evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor, stableJSON } from "./workspace_shell.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
-import { clearWalk, walkIdentity } from "./reinspection_walkthrough.js";
-import { captureWork, commitAmendment, hasSetupWork } from "./issuance_and_corrections.js";
+import { clearWalk, focusIssuedCase, revealIssuedCase, walkIdentity } from "./reinspection_walkthrough.js";
+import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
 import { compareSharedCase, refreshCatalog } from "./language_catalog.js";
 import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
 import { cancelCaseLookup, dueCheck, render } from "./inspection_import.js";
 import {
+  DOC_TYPES,
   ENTRY_IDS,
   IDB_OK,
   ID_OK,
@@ -456,7 +457,21 @@ function makePublication(d) {
   return initialCitations.enabled(d) ? initialCitations.group(d, attempt) : attempt;
 }
 
+// R59: one issuance per draft at a time. A second click or a Confirm save during an issuance is ignored, so a
+// double submission can never prepare a second publication event.
+const PUBLISHING = new Set();
+
 async function publishDocument(d) {
+  if (!d || PUBLISHING.has(d.id)) return false;
+  PUBLISHING.add(d.id);
+  try {
+    return await publishOnce(d);
+  } finally {
+    PUBLISHING.delete(d.id);
+  }
+}
+
+async function publishOnce(d) {
   if (d && recordIntegrity.blocked(d.caseId)) {
     toast("This record was changed outside the program. Open read-only and refer it for review.");
     return false;
@@ -497,6 +512,7 @@ async function publishDocument(d) {
   }
   if (!d.pendingAmendment && blockers(d).length) {
     toast("Resolve the document and inspection checks before issuing.");
+    render(); // the final confirmation lists the new blockers and keeps its Issue button disabled
     return false;
   }
   const cid = d.caseId,
@@ -548,21 +564,39 @@ async function publishDocument(d) {
   }
   // Both official snapshots are committed before either PDF is filed. Each filing
   // is independent and recoverable; a lost save response retries the same pair.
+  let filed = true,
+    workspace = false;
   try {
     for (const issued of issuedDocs) {
       try {
         const job = preparedJobs.get(issued.id) || printJob(issued);
-        if (!(await filePdf(issued, job))) toast("Document issued. Use File issued PDF to produce its copy.");
-        else if (sendEmail) await emailDocument(issued, clone(issued.emailedTo), true, job);
+        if (!(await filePdf(issued, job))) {
+          filed = false;
+          toast("Document issued. Use File issued PDF to produce its copy.");
+        } else if (sendEmail) await emailDocument(issued, clone(issued.emailedTo), true, job);
       } catch (e) {
+        filed = false;
         toast("Document issued; its PDF needs a retry. Use File issued PDF.");
       }
     }
     await saveDrafts();
+    // R59: once the shared save is confirmed and filing and email were attempted, return to Workspace with the
+    // issued case highlighted. A legacy notice still waiting for its separate initial citation stays open, and
+    // an inspector who has already moved on (another screen, document or dialog) is not pulled back.
+    const stillHere =
+      WriterState.state.screen === "write" && !WriterState.state.modal && [id, ...issuedDocs.map((x) => x.id)].includes(WriterState.state.docId);
+    if (stillHere && !needsInitialCitation(doc(id))) {
+      workspace = revealIssuedCase(cid);
+      if (workspace && filed) {
+        const labels = [...new Set(issuedDocs.map((x) => (DOC_TYPES.find((t) => t.id === x.type) || {}).label || "Document"))];
+        toast((labels.join(" and ") || "Document") + " issued for " + (kase(cid)?.number || "this case") + ".", { severity: "success" });
+      }
+    }
     return true;
   } finally {
     WriterState.state.publicationBusy = null;
     render();
+    if (workspace) focusIssuedCase(cid);
   }
 }
 

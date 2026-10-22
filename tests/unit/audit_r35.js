@@ -37,6 +37,8 @@ const test = async () => {
   ];
   newDoc("k1", "notice");
   const d = doc(WriterState.state.docId);
+  // This suite retains the R35 authoring-11 behavior. R59 separately checks that current drafts stay at 13.
+  d.authoringVersion = 11;
   const ci = LIBRARY.findIndex((x) => x.code === "ENF_PM_PROPMAINT"),
     groups = LIBRARY[ci].groups;
   const add = (code, n) => {
