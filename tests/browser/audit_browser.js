@@ -447,7 +447,39 @@ async function axeThemes(page, screen) {
   await page.evaluate(() => render());
   assert.equal(await page.locator(".editor-more").evaluate((el) => el.open), true, "A late filing repaint retains the opened document actions");
   await page.locator("#btn-correct").click();
-  await page.locator("#correction-reason").fill("Correct the transcribed location and the owner spelling.");
+  // A shared save that completes while the inspector types the correction reason repaints the editor.
+  // Hold the real helper response, finish the save mid-typing and require the rest of the typing to reach the draft.
+  let saveRequested, releaseSave;
+  const saveHeld = new Promise((resolve) => (saveRequested = resolve)),
+    saveReleased = new Promise((resolve) => (releaseSave = resolve));
+  const holdSave = async (route) => {
+    const response = await route.fetch();
+    saveRequested();
+    await saveReleased;
+    await route.fulfill({ response });
+  };
+  await context.route("**/cases/save", holdSave);
+  await page.locator("#correction-reason").waitFor();
+  await page.evaluate(() => {
+    window.heldCorrectionSave = saveCaseFile(WriterState.CASES[0].id);
+  });
+  await saveHeld;
+  await page.locator("#correction-reason").focus();
+  await page.keyboard.type("Correct the ");
+  releaseSave();
+  assert.equal(await page.evaluate(() => window.heldCorrectionSave), true, "The held shared save completes during correction typing");
+  await context.unroute("**/cases/save", holdSave);
+  assert.equal(
+    await page.evaluate(() => document.activeElement.id),
+    "correction-reason",
+    "A completed shared save keeps focus in the correction reason",
+  );
+  await page.keyboard.type("transcribed location and the owner spelling.");
+  assert.equal(
+    await page.evaluate(() => [document.getElementById("correction-reason").value, doc(WriterState.state.docId).correction.reason].join("|")),
+    "Correct the transcribed location and the owner spelling.|Correct the transcribed location and the owner spelling.",
+    "Typing after the save completion reaches the correction reason and its draft",
+  );
   await page.locator('[data-field="text"]').first().fill("Repair the west exterior wall.");
   await page.locator('[data-case="ownerBlock"]').fill("CORRECTED TEST PROPERTY OWNER\n101 EXAMPLE LANE\nMADISON WI 53703");
   assert.equal(

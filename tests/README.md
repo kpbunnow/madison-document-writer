@@ -36,7 +36,7 @@ Add a new suite under the feature it covers.
 | `audit_r42_editor.js` | Document tasks, readiness, publication routing, print packets |
 | `audit_r47_language.js` | Catalog truth, private draft identity, asynchronous isolation |
 | `audit_r50_cached_reviews.js` | Cached catalog review status and refresh outcomes |
-| `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints |
+| `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
 | `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Items and due dates, no conditional model) |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
@@ -191,7 +191,7 @@ workflow. Each receives the arguments named in its row.
 
 | Suite | Covers |
 | --- | --- |
-| `audit_browser.js` | Core production workflow, axe screens, PDFs, CSP; runs the suites below |
+| `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
 | `browser_r30.js`, `browser_r31.js`, `browser_r32.js` | Pricing and deposits through the loopback helper |
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |
