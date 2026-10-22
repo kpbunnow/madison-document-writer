@@ -179,9 +179,9 @@ R53 removed release signing (decision: option 3). Updates are checked against ru
 | S56 | Staff review the R56 editor: one Recipients button opens copies/email/agent; no parcel field (a missing parcel is corrected in Accela and re-imported); no other initial inspection actions or bottom Add violation item; Cite appears only for an imported Citation status; Best Interest and Vacancy Extensions take each affected item's due date in Items and due dates | OPEN | ____________________ |
 | S56B | Staff review the R57 usability changes: save actions named by destination; Workspace quick views and More views; Remove from this workspace keeps the shared record; the readiness summary (Go to first required field, Open full checklist); row selection with Apply date to selected items; Affected beside each due date on new Best Interest/Vacancy Extensions; Search this workspace / Search shared case records / Find Accela inspection; Open case in Writer and Back to Reports; Review all items / One item at a time; Browse language, Select for this notice, Review catalog and the collapsed Administrator tools. On real narrow-screen and mobile devices with a virtual keyboard, confirm the compact header and bottom task bar (it hides while typing) and that no field or action is hidden | ACCEPTED (requester) | Accepted by the requester 2026-10-22, recorded in PR #26; not an automated result |
 
-## Desktop launch and safe shutdown (post-R57 development)
+## Desktop launch and safe shutdown (R58)
 
-All items below remain OPEN. They apply to the release that first packages the desktop launch and Exit Document Writer (that release needs a new release identity). Automated tests simulate Windows calls; they do not establish native behavior. See docs/developer/DESKTOP-LAUNCH.md.
+All items below remain OPEN. They apply to R58, the release that first packages the desktop launch and Exit Document Writer. After an upgrade from R57 or earlier, the shortcut is migrated at the second start (the first start runs the previously installed launcher). Automated tests simulate Windows calls; they do not establish native behavior. See docs/developer/DESKTOP-LAUNCH.md.
 
 | ID | Required City check | Status | Evidence and signoff |
 | --- | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Desktop launch and safe shutdown
 
-Post-R57 development (branch `develop/desktop-launch`). Release identity is unchanged: version.json still names R57 and helperBuild 58. Packaging this work for inspectors needs a new release identity authorized by the release owner, because installed launchers compare helperBuild and helper version before accepting an update and before reusing a running helper (see Release identity below).
+Released as R58 (2026-10-22, helper 2026.10.22.59, helperBuild 59), authorized by the requester. Installed launchers compare helperBuild and helper version before accepting an update and before reusing a running helper (see Release identity below), so this work needed a new identity.
 
 Stage A added the console-free start; stage B added Exit Document Writer. Staff instructions are in docs/staff/DEPLOY.template.md (Starting, stopping and logs) and chapter 1 of the program manual.
 
@@ -48,7 +48,7 @@ The launcher first runs the trusted share hand-off and the manifest-checked upda
 
 ## Release identity
 
-`launch.py` compares the running helper's `/dw-status` version with its own `VERSION`, and `verified_update` refuses a manifest whose helperBuild or helper version is older than the installed pin (an equal identity is accepted). With identity unchanged, a PC still running an R57 helper reuses it as compatible (same version), so it is never reported as an older version and the update is not applied until that helper stops; PCs, logs and acceptance evidence also cannot tell the two builds apart. A release containing this work must carry a new helperBuild and helper version, authorized by the release owner; until then this work is development only.
+`launch.py` compares the running helper's `/dw-status` version with its own `VERSION`, and `verified_update` refuses a manifest whose helperBuild or helper version is older than the installed pin (an equal identity is accepted). R58 therefore carries helperBuild 59: a PC still running an R57 or earlier helper sees a different version and gets the older-helper dialog instead of reusing it, and logs and acceptance evidence identify the build. Upgrading from R57 or earlier, the first start still runs the previously installed launcher, which installs R58 and starts it with a command window; the desktop shortcut is migrated by the R58 launcher at the following start.
 
 ## Security notes
 

@@ -2,11 +2,11 @@
 
 Madison Building Inspection Document Writer
 
-Release 2026-10-22 R57 · Helper 2026.10.22.58 · 22 October 2026
+Release 2026-10-22 R58 · Helper 2026.10.22.59 · 22 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R57 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R58 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -14,7 +14,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Double-click the Document Writer icon on the desktop. It starts the program without a command window and opens Writer in its own Chrome or Edge window; if Document Writer is already running, the icon opens Writer again. Keep one Writer window open in the same browser profile. Confirm Build 2026-10-22 R57 and helper 2026.10.22.58. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Double-click the Document Writer icon on the desktop. It starts the program without a command window and opens Writer in its own Chrome or Edge window; if Document Writer is already running, the icon opens Writer again. Keep one Writer window open in the same browser profile. Confirm Build 2026-10-22 R58 and helper 2026.10.22.59. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
 **Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use the readiness summary at the top of a document (Go to first required field, Open full checklist) or a worksheet's Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
