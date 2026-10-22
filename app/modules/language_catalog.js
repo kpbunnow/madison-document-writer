@@ -890,12 +890,12 @@ function caseSearchText(k) {
 async function globalSearch() {
   navigation.utilityContext();
   A11Y.utility(
-    "Search all shared cases",
+    "Search shared case records",
     '<form id="global-search-form"><label>Case, address, owner or citation nu' +
       'mber <input type="search" name="query" required minlength="2" maxlength=' +
       '"200" value="' +
       `${esc(WriterState.state.caseQ)}` +
-      '"></label><button class="btn" type="submit">Search shared cases</button>' +
+      '"></label><button class="btn" type="submit">Search shared case records</button>' +
       '</form><div id="global-search-results" aria-live="polite"></div>',
   );
 }

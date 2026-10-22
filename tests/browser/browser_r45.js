@@ -128,7 +128,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       window.fetch = async () => await new Promise((r) => (window.__r45Lookup = r));
     });
     await page.locator("#lookup-number").fill("CB2026-280-00046");
-    await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+    await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
     await page.waitForFunction(() => typeof window.__r45Lookup === "function");
     await page.locator("#lookup-cancel").click();
     await page.locator("[data-nav=cases]").first().click();

@@ -785,45 +785,57 @@ function duePanel(target, visit) {
   const work = target.dueWork || {},
     selected = new Set(work.selected || []),
     dates = distinctDues(items);
+  /* A notice draft selects items in the items table (data-due-select beside each due date), so its panel is a compact
+     bar; the reinspection worksheet keeps its item list. Both apply through assignDue. */
   return (
     '<section class="card no-print authoring-panel' +
     `${visit ? "" : " due-compact"}` +
     '" aria-label="Assign due dates"><div class="card-h"><h2>Assign due dates' +
     "</h2><span data-due-count>" +
     `${dates.length}` +
-    ' of 3 dates used</span></div><div class="card-b"><p class="hint">Select ' +
-    "items that share a deadline and apply a date. Up to three distinct deadl" +
-    'ines are allowed.</p><div class="deadline-items">' +
-    "".concat(
-      items
-        .map(
-          (i) =>
-            '<label class="deadline-item"><input type="checkbox" data-due-select="' +
-            `${dep_esc(i.id)}` +
-            '" ' +
-            `${selected.has(i.id) ? "checked" : ""}` +
-            "><span><strong>Item " +
-            `${dep_esc(i.no)}` +
-            "</strong> · " +
-            `${dep_esc(i.title || "Violation")}` +
-            '<small data-due-label="' +
-            `${dep_esc(i.id)}` +
-            '">' +
-            `${i.due ? dep_esc(fmtDate(i.due)) : "Date needed"}` +
-            "</small></span></label>",
-        )
-        .join(""),
-    ) +
-    '</div><div class="editor-tools"><button class="btn btn-sm" data-due-all=' +
-    '"1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear' +
+    ' of 3 dates used</span></div><div class="card-b"><p class="hint">' +
+    (visit
+      ? "Select items that share a deadline and apply a date. Up to three distinct deadlines are allowed."
+      : "Select items in the table above, then apply one date to them. Up to three distinct due dates are allowed.") +
+    "</p>" +
+    (visit
+      ? '<div class="deadline-items">' +
+        items
+          .map(
+            (i) =>
+              '<label class="deadline-item"><input type="checkbox" data-due-select="' +
+              `${dep_esc(i.id)}` +
+              '" ' +
+              `${selected.has(i.id) ? "checked" : ""}` +
+              "><span><strong>Item " +
+              `${dep_esc(i.no)}` +
+              "</strong> · " +
+              `${dep_esc(i.title || "Violation")}` +
+              '<small data-due-label="' +
+              `${dep_esc(i.id)}` +
+              '">' +
+              `${i.due ? dep_esc(fmtDate(i.due)) : "Date needed"}` +
+              "</small></span></label>",
+          )
+          .join("") +
+        "</div>"
+      : "") +
+    '<div class="editor-tools">' +
+    (visit ? "" : "<span data-due-selected>" + dueSelectedText(items, selected) + "</span>") +
+    '<button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear' +
     ' selection</button><label for="bulk-due">Date for selected items</label>' +
     '<input type="date" id="bulk-due" value="' +
     `${dep_esc(work.date || "")}` +
     '" min="' +
     `${MINDUE()}` +
-    '"><button class="btn btn-primary" id="btn-bulkdue">Apply to selected</bu' +
+    '"><button class="btn btn-primary" id="btn-bulkdue">Apply date to selected items</bu' +
     "tton></div></div></section>"
   );
+}
+
+function dueSelectedText(items, selected) {
+  const n = items.filter((i) => selected.has(i.id)).length;
+  return n + " of " + items.length + " item" + (items.length === 1 ? "" : "s") + " selected";
 }
 
 function assignDue(target, visit, value, ids) {
@@ -1420,7 +1432,7 @@ function citationReview(d) {
     `${d.initialPreview ? "Initial-inspection citations · complete before issuance" : "Citation review"}` +
     '</h2><div><button class="btn btn-sm" data-refresh-citation-history>Refre' +
     'sh citation history</button> <button class="btn btn-sm" id="btn-savework' +
-    '">Save &amp; continue later</button></div></div><div class="card-b"><p c' +
+    '">Save draft &amp; return to Workspace</button></div></div><div class="card-b"><p c' +
     'lass="hint">Review each charge, deposit and court session. ' +
     "".concat(d.initialPreview ? "All selected citations and the inspection are saved together after every check passes." : "") +
     " Each completed charge produces four matching court copies. Expand a cha" +
@@ -1481,6 +1493,7 @@ export {
   dueDateSpacingConflicts,
   dueContext,
   duePanel,
+  dueSelectedText,
   assignDue,
   citationDepositFault,
   editCitation,

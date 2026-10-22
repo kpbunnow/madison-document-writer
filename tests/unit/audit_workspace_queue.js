@@ -132,11 +132,14 @@ const tests = async function () {
   ok(
     "Each waiting record shows its specific next action",
     markup.includes('data-case-sync="sync"') &&
-      markup.includes("Finish PDF filing") &&
+      markup.includes("File issued PDF") &&
       markup.includes("Confirm saved action") &&
       markup.includes('data-reinsp="soon"'),
   );
-  ok("All cases remains a one-step alternate view", markup.includes("All cases (9)"));
+  ok(
+    "All cases remains a one-step alternate view",
+    markup.includes('data-queue-view="all" aria-pressed="false"><span>All cases</span><strong>9</strong>'),
+  );
   WriterState.state.caseFilter = "all";
   markup = screenCases();
   ok("All cases brings future-due and closed records back into the list", markup.includes("CASE-FUTURE") && markup.includes("CASE-CLOSED"));

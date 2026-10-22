@@ -25,6 +25,7 @@ import {
   isEffective,
   isHistoryDoc,
   isLocked,
+  itemSelector,
   kase,
   openItems,
   originalNotice,
@@ -42,6 +43,9 @@ export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestIntere
    Items and due dates; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
 export const DATED_EXTENSIONS = 13;
 export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+/* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
+   table, beside each due date (data-special-item); special.affected remains the source of truth. */
+export const rowAffectedSelection = (d) => datedExtension(d) && !isLocked(d) && !d.correction;
 const requireDated = (type, s) => {
   if (type === "vacancyExtension") s.deadlineMode = "dated";
   return s;
@@ -340,7 +344,22 @@ export function initNewDocuments() {
     if (!specialType(d.type)) return [];
     const s = d.special || {},
       out = [],
-      add = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [checkTarget('[data-special="' + key + '"]', t)] : [] });
+      // Affected items are checkboxes (data-special-item), not data-special fields: beside each due date in the items
+      // table for an editable authoring-13 draft, otherwise in the Affected outstanding items fieldset.
+      outstanding = d.items.some((i) => !i.done && !i.withdrawn),
+      affectedTarget = rowAffectedSelection(d)
+        ? outstanding
+          ? ".desk [data-special-item]"
+          : ".desk table.notice"
+        : outstanding
+          ? "#r26-details [data-special-item]"
+          : "#r26-details fieldset.r26-items",
+      add = (ok, t, key, targets) =>
+        out.push({
+          ok: !!ok,
+          t,
+          targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
+        });
     const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
     ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
       need(
@@ -468,12 +487,19 @@ export function initNewDocuments() {
         add(["dated", "conditional"].includes(s.deadlineMode), "Choose the approved repair deadline model.", "deadlineMode");
       }
       if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
+        const laterDue = (i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
+        // Authoring 13 enters these dates in Items and due dates; link each affected item's due-date field there.
         add(
-          selected(d, s).every((i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "")),
+          selected(d, s).every(laterDue),
           datedExtension(d)
             ? "Enter a later future due date in Items and due dates for each affected item."
             : "Enter later future deadlines for all affected items.",
           "affected",
+          datedExtension(d)
+            ? selected(d, s)
+                .filter((i) => !laterDue(i))
+                .map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date"))
+            : [],
         );
         const dates = [
           ...new Set(
@@ -625,35 +651,36 @@ export function initNewDocuments() {
           f("access", "Approved access conditions (optional)", "textarea");
     } else {
       fields +=
-        '<fieldset class="r26-items"><legend>Affected outstanding items</legend>' +
-        d.items
-          .filter((i) => !i.done && !i.withdrawn)
-          .map(
-            (i) =>
-              '<label><input type="checkbox" data-special-item="' +
-              e(i.no) +
-              '" ' +
-              ((s.affected || []).includes(String(i.no)) ? "checked" : "") +
-              "> Item " +
-              e(i.no) +
-              " · " +
-              e(i.title || i.text.slice(0, 60)) +
-              "</label>" +
-              ((s.affected || []).includes(String(i.no)) && !datedExtension(d) && (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
-                ? '<label class="f"><span>Extended deadline for item ' +
+        (rowAffectedSelection(d)
+          ? '<p class="hint">Select affected items and enter their new due dates in Items and due dates. Other items keep their original dates.</p>'
+          : '<fieldset class="r26-items"><legend>Affected outstanding items</legend>' +
+            d.items
+              .filter((i) => !i.done && !i.withdrawn)
+              .map(
+                (i) =>
+                  '<label><input type="checkbox" data-special-item="' +
                   e(i.no) +
-                  '</span><input type="date" data-special-due="' +
+                  '" ' +
+                  ((s.affected || []).includes(String(i.no)) ? "checked" : "") +
+                  "> Item " +
                   e(i.no) +
-                  '" value="' +
-                  e(i.due || "") +
-                  '"></label>'
-                : ""),
-          )
-          .join("") +
-        "</fieldset>" +
-        (datedExtension(d)
-          ? '<p class="hint">Enter each affected item\u2019s new due date in Items and due dates. Other items keep their original dates.</p>'
-          : "") +
+                  " · " +
+                  e(i.title || i.text.slice(0, 60)) +
+                  "</label>" +
+                  ((s.affected || []).includes(String(i.no)) &&
+                  !datedExtension(d) &&
+                  (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
+                    ? '<label class="f"><span>Extended deadline for item ' +
+                      e(i.no) +
+                      '</span><input type="date" data-special-due="' +
+                      e(i.no) +
+                      '" value="' +
+                      e(i.due || "") +
+                      '"></label>'
+                    : ""),
+              )
+              .join("") +
+            "</fieldset>") +
         ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
         f("safetyBasis", "Reviewed factual basis for excluding safety items", "textarea");
       if (d.type === "bestInterestExtension")

@@ -36,7 +36,7 @@ Add a new suite under the feature it covers.
 | `audit_r42_editor.js` | Document tasks, readiness, publication routing, print packets |
 | `audit_r47_language.js` | Catalog truth, private draft identity, asynchronous isolation |
 | `audit_r50_cached_reviews.js` | Cached catalog review status and refresh outcomes |
-| `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints |
+| `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
 | `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Items and due dates, no conditional model) |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
@@ -124,6 +124,7 @@ Add a new suite under the feature it covers.
 | `audit_report_projection.py` | Summary-only changes (owner, status, notice/closure dates, documents, violations, citations) and boolean/number substitutions at any depth (`false`/`0`, `true`/`1`) with `sourceRevision` unchanged are excluded as not matching the verified case, anchored or not; the helper refuses to write them; equivalent numbers and key order still match; the withdrawn-notice report result (`noticeActive` `false` vs `0`) is preserved through the real Reports bundle (`fixtures/report_output.cjs`); rebuild restores; existing exclusions and serial/parallel equivalence hold |
 | `audit_report_metadata.py` | Over real HTTP with one and four readers: a non-text `sourceFile` or a case file that is not a case record excludes only that summary (unreadable coverage) while healthy summaries stay available; reading writes nothing; filename, letter-case, absent/empty/null and earlier-format rules and other exclusions unchanged |
 | `audit_report_mismatch.js` | Reports explains summaries not matching their case and keeps them out of totals, tables, CSV, workbook and print |
+| `audit_report_export_scope.js` | Reports workbook sheet scope: unchanged record-sheet selections (violation type not applied to Citations, Corrections by recorded date, Visits outside the period), the About sheet's per-sheet date basis and filter exceptions, and the export note |
 
 ## Security, sessions and connections
 
@@ -149,6 +150,9 @@ Add a new suite under the feature it covers.
 | --- | --- |
 | `audit_accessibility.js` | Alerts, message history, labels, landmarks |
 | `audit_workspace_queue.js`, `audit_r41_queue.js` | Workspace queue, filters, recovery actions |
+| `audit_usability_phase1.js` | R56 usability: Inspection section only when actionable, special check links, save/removal wording, quick views and More views that keep search and inspector until Clear search and inspector, issued-document Save case to shared folder when connected or Download workspace backup with Connect shared folder when not, Done-only Recipients, recovery groups, report export labels |
+| `audit_usability_phase2.js` | R56 usability: one editor readiness summary with Go to first required field, a single Review checklist, a decision-focused issuance dialog that still validates at issuance, row selection with Apply date to selected items, unchanged worksheet and batch due dates, authoring-13 Affected selection beside due dates (authoring 12 unchanged) |
+| `audit_usability_phase3.js` | R56 usability: named search scopes with a shared-search offer that keeps the workspace query, Open case in Writer and Back to Reports/Open Reports labels with restored report filters, date mode and sort through the existing-tab return message and the page-load return, Review all items and One item at a time modes with a step indicator and collapsed tips, shortcut sheet labels matching OUTCOMES, narrow-screen editor task bar structure, Browse language/Review catalog/Select for this notice, collapsed Administrator tools |
 | `audit_r29.js` | Navigation and continuity |
 | `audit_workflow_tools.js`, `audit_workflow_tools.py` | Search, selected PDF filing, shared views, reminders |
 | `audit_r50_calendar.js`, `audit_r32_day_boundary.js` | Chicago calendar and midnight boundaries |
@@ -187,7 +191,7 @@ workflow. Each receives the arguments named in its row.
 
 | Suite | Covers |
 | --- | --- |
-| `audit_browser.js` | Core production workflow, axe screens, PDFs, CSP; runs the suites below |
+| `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
 | `browser_r30.js`, `browser_r31.js`, `browser_r32.js` | Pricing and deposits through the loopback helper |
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |

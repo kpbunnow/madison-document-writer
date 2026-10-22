@@ -210,11 +210,23 @@ const test = async () => {
   panel.innerHTML = newDocuments.details(vacancy);
   assert.equal(panel.querySelector('[data-special="deadlineMode"]'), null, "no deadline-model choice");
   assert.equal(panel.querySelector("[data-special-due]"), null, "no separate per-item deadline fields");
-  assert.match(panel.textContent, /new due date in Items and due dates/);
+  assert.match(panel.textContent, /Select affected items and enter their new due dates in Items and due dates/);
+  assert.equal(panel.querySelector("fieldset.r26-items"), null, "authoring 13 selects affected items in the items table, not a separate list");
+  assert.equal(panel.querySelector("[data-special-item]"), null, "no separate affected-item checkboxes in the details card");
   vacancy.special.affected = [String(vacancy.items[0].no)];
   vacancy.mailed = "2026-10-21";
   const sheet = document.createElement("div");
   sheet.innerHTML = noticeHTML(vacancy);
+  const affectedBoxes = [...sheet.querySelectorAll("[data-special-item]")];
+  assert.deepEqual(
+    affectedBoxes.map((x) => [x.dataset.specialItem, x.checked]),
+    vacancy.items.filter((i) => !i.done && !i.withdrawn).map((i) => [String(i.no), vacancy.special.affected.includes(String(i.no))]),
+    "each outstanding row carries its Affected selection beside the due date",
+  );
+  assert.ok(
+    affectedBoxes.every((x) => x.closest(".c-due") && x.closest(".no-print")),
+    "row Affected selection sits in the due-date cell and never prints",
+  );
   assert.equal(sheet.querySelector(".conditional-due"), null, "authoring 13 shows due dates, never the conditional label");
   const dueInputs = [...sheet.querySelectorAll('input[data-field="due"]')];
   assert.equal(dueInputs.find((x) => x.dataset.id === vacancy.items[0].id).disabled, false, "the affected item's due date is editable");

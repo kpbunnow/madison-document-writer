@@ -6,7 +6,7 @@ Release 2026-10-21 R56 · Helper 2026.10.21.57 · 21 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R55 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R56 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -14,15 +14,15 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-21 R55 and helper 2026.10.21.56. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Run the Document Writer desktop shortcut or installed launcher. Keep one Writer tab open in the same browser profile. Confirm Build 2026-10-21 R56 and helper 2026.10.21.57. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
-**Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use Show checks or Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
+**Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use the readiness summary at the top of a document (Go to first required field, Open full checklist) or a worksheet's Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
 **Finish an action.** Review the complete document, citation copies where applicable, dates and recipients. Use Review & issue only when the facts and required approvals are complete. Wait for confirmation of the shared save. Then verify original PDF filing, printing, actual mailing or email sending, and the division's court or Accela recording separately.
 
-**End a working day.** Use Save & continue later and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. Close Writer and the helper when instructed for an update. Do not clear browser site data while unfinished work exists.
+**End a working day.** Use Save draft & return to Workspace and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. Close Writer and the helper when instructed for an update. Do not clear browser site data while unfinished work exists.
 
-The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Reports opens separately. Editing a case remains within Workspace; returning from Reports offers Back to Reports.
+The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
 
 **Warnings.** Warnings at the top of the page clear after 15 seconds (hovering or focusing a warning restarts the timer). Cleared warnings remain in Message history. Ongoing conditions stay visible in their own indicator until resolved.
 
@@ -53,23 +53,23 @@ The generated Start Document Writer - READ ME.md is the file-level installation 
 
 ## 3 Use Workspace and case history
 
-Workspace is the queue for cases loaded on this device. It starts in Needs attention. Continue work, Deadlines, Needs resolution and All cases provide other views of the same loaded cases. Counts represent cases rather than individual tasks within a view; a case may appear in more than one view. Summary buttons clear the search and inspector filters. Check the View selector when the expected case is not visible.
+Workspace is the queue for cases loaded on this device. It starts in Needs attention. The quick views Needs attention, Continue work, Deadlines, Needs resolution and All cases are the main filter; More views adds Due within 7 days, Past due, Open and Closed. Counts represent cases rather than individual tasks within a view; a case may appear in more than one view. Quick views and More views keep the workspace search and inspector filter, so the rows shown match all three; only Clear search and inspector removes them. Returning More views to More views… shows Needs attention again. Needs resolution lists cases with unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers; device save and connection problems appear in the Saved work & connection banner. Check All cases and More views when the expected case is not visible.
 
-**Find and continue a case.** Search this workspace by address, case number, owner or parcel. Apply the inspector filter if useful. Use the main action beside the case to continue its next task. It may say Continue import, Continue document, Continue reinspection, Complete recorded visit, Reinspect or View case. An uncertain shared save takes priority over starting another draft. A record verification problem takes priority over editing.
+**Find and continue a case.** Search this workspace by address, case number, owner or parcel. Apply the inspector filter if useful. When a workspace search finds nothing, Search shared case records for “…” opens the shared search with the same text; it searches only when you submit it. Use the main action beside the case to continue its next task. It may say Continue import, Continue document, Continue reinspection, Complete recorded visit, Reinspect or View case. An uncertain shared save takes priority over starting another draft. A record verification problem takes priority over editing.
 
-Open Case details and history for secondary actions, the document list, timeline, case export and Put away. Put away removes a case from this device's queue after the relevant safeguards; it does not delete the shared case. Use Search all cases in Tools & settings to locate records outside the current device workspace. Open saved case can load an exported case record, subject to the program's shared-history checks.
+Open Case details and history for secondary actions, the document list, timeline, case export and Remove from this workspace. Removing a case from this workspace takes it off this device's queue after the relevant safeguards; the shared case record is not deleted. A case with unsaved or unconfirmed work is refused or asks before that work is lost. Remove cases from this workspace, below the list, removes several cases and separates those that are safe to remove. Use Search shared case records (Workspace toolbar or Tools & settings) to locate records outside the current device workspace. Open saved case can load an exported case record, subject to the program's shared-history checks.
 
 **Understand the record.** A case retains the original numbered items and the issued event history. A new visit records what happened on a genuinely completed inspection. A correction amends a recording error in an existing action. A record note adds an explanation without rewriting the earlier document. A withdrawn item keeps its identity and reason and is not credited as corrected.
 
 Issued documents use frozen source facts. Changes to current owner details, catalog wording or policy do not rewrite an old issued PDF. Review current case facts for future documents and use the correction process when issued evidence contains an error.
 
-**Resolve attention states.** Open the named case action rather than making a replacement case. Confirm save uses the retained original request. Review shared changes compares the current shared record. File issued PDF completes original filing after issuance. Saved work & connection explains whether the remaining work concerns this device, shared cases or PDFs.
+**Resolve attention states.** Open the named case action rather than making a replacement case. Confirm save uses the retained original request. Review shared changes compares the current shared record. Save case to shared folder saves a queued case file after shared history is checked; it is also among an issued document's actions while the shared folder is connected. Without a connection that action reads Download workspace backup: it downloads a backup and does not save the shared case record. Connect shared folder beside it opens the connection settings. File issued PDF completes original filing after issuance. Saved work & connection explains whether the remaining work concerns this device, shared cases or PDFs.
 
 Navigation first saves device work. If that save fails, Writer keeps the current screen and offers a workspace backup. Keep the tab open and preserve that backup before restarting or clearing anything.
 
 ## 4 Import a case or later inspection
 
-**Direct lookup.** Open Import inspection, enter the complete case number and choose Find case or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
+**Direct lookup.** Open Import inspection, enter the complete case number and choose Find Accela inspection or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
 
 Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
 
@@ -87,20 +87,20 @@ The imported inspection's **Inspection Type** and **Inspection Status** decide t
 
 Record Category Snow Removal selects the snow workflow and preloads its 10.28 item. The new-case workflow selector is an additional deliberate choice, not a way to bypass missing or reused inspection facts. Existing case and file identities remain stable.
 
-**Pause or retry.** Save & continue later retains the lookup or review on this device. A retained review is a snapshot with its retrieval time; use Find case again for fresh information. Cancel lookup suppresses its result. A failed or empty lookup preserves prior work. If the shared case changed, review the refreshed comparison and confirm again. A delayed earlier result must not replace the current case or reopen Import after navigation.
+**Pause or retry.** Save draft & return to Workspace retains the lookup or review on this device. A retained review is a snapshot with its retrieval time; use Find Accela inspection again for fresh information. Cancel lookup suppresses its result. A failed or empty lookup preserves prior work. If the shared case changed, review the refreshed comparison and confirm again. A delayed earlier result must not replace the current case or reopen Import after navigation.
 
 The source query has no permanent inspection ID. Matching uses case, type, actual date and normalized time, with conservative handling of missing historical time. Do not alter time to bypass a reuse warning. See CASE-LOOKUP-GUIDE.md for SQL setup and diagnostic codes.
 
 ## 5 Prepare an Official Notice
 
-Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. Expand the case details when a check identifies a missing field. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service.
+Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. When a check identifies a missing field, use Go to first required field or the check's link to reach it on the working document. The Inspection section appears only when there is something to act on there, such as special-document details, snow facts or a correction. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service.
 
-1. Open Add items. Find the appropriate selectable order language and select it once. A checkmark means it is already on this notice. Select it again to remove it from the unissued draft. The same library entry cannot be added twice.
+1. In Items and due dates, choose + Select violations. In the Select for this notice picker, find the appropriate selectable order language and select it once. A checkmark means it is already on this notice. Select it again to remove it from the unissued draft. The same library entry cannot be added twice.
 2. Choose Done adding. Review each item's ordinance, corrective action, location and case-specific details. Outlined fill-in bubbles identify missing details. Click a bubble or focus it and press Enter, enter the factual detail, and review the sentence afterward.
-3. In Assign due dates below the document, select the items sharing a deadline, enter the date and choose Apply to selected. Use Select all when appropriate. Repeat for other groups. New items begin without an automatic deadline.
+3. Tick the checkbox beside each due date that shares a deadline (Select item N for a shared due date). In Assign due dates below the document, which counts the selected items, enter the date and choose Apply date to selected items. Use Select all or Clear when appropriate. Repeat for other groups. New items begin without an automatic deadline.
 4. Keep no more than three distinct outstanding-item deadlines under the existing notice rules. A batch that would create a fourth is rejected without changing the items. An invalid individual edit may be saved as work in progress but blocks issuance.
-5. Review the whole document, not only the edited sentence. Check recipients (the Recipients button opens copies, email and registered agent), contact details, the mailing date, the item order and all warnings. Use Show checks to jump to the affected field and correct it.
-6. Choose Save & continue later to retain unfinished work, or Review & issue when ready. Verify the resulting save state.
+5. Review the whole document, not only the edited sentence. Check recipients (the Recipients button opens copies, email and registered agent; Done closes it once the entries are valid), contact details, the mailing date, the item order and all warnings. The readiness summary at the top counts required fixes and advisories; Go to first required field jumps to the affected field, and Open full checklist shows every check in the Review section.
+6. Choose Save draft & return to Workspace to retain unfinished work, or Review & issue when ready. Verify the resulting save state.
 
 Private wording edits belong to the retained draft. Removing and reselecting the same source in that draft restores its identity, edited text, ordinances, due date, location and notes. A newer catalog version requires explicit review and adoption; it does not silently replace private wording.
 
@@ -110,7 +110,7 @@ Use a correction after issuance. Do not renumber or delete historical items to h
 
 ## 6 Find select and review order language
 
-Order language and the Add items picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
+Order language (Browse language) and the Select for this notice picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
 
 Each result shows an ordinance and a short corrective-action preview. Open Full wording and guidance for complete text, fill-ins, retained draft wording and review provenance. Check the status before selecting. “Review status from cache · refreshing” identifies retained browser review information while the helper checks it. “Review status from cache · refresh unavailable” means that check could not finish. A cached label does not grant approval or bypass the helper's publication checks; reconnect and refresh when current review confirmation is needed.
 
@@ -124,7 +124,7 @@ Each result shows an ordinance and a short corrective-action preview. Open Full 
 
 Unreviewed proposed, incomplete, replaced, retired and unavailable sources cannot be newly selected. Find approved replacement locates an alternative; it does not change the draft. Review and use v… opens a comparison before adopting a new source version. Issued documents remain frozen.
 
-**Review administration.** An authorized reviewer opens Review administration within Order language, or Order language review in Tools. Select the entry, compare bundled/current/unsubmitted wording, and supply the actual reviewer, corrective action, ordinance references and source or authority. Identify a replaced entry where applicable. Confirm the intended review explicitly.
+**Review catalog.** An authorized reviewer opens Review catalog within Order language, or Tools & settings → Administrator tools → Review catalog; Browse language returns to search. Select the entry, compare bundled/current/unsubmitted wording, and supply the actual reviewer, corrective action, ordinance references and source or authority. Identify a replaced entry where applicable. Confirm the intended review explicitly.
 
 Recording creates an immutable shared version. If another operator has submitted a newer version, compare it and choose Use current v… as review basis before retrying. The app preserves unsubmitted forms on this device, including later edits made while a save was pending.
 
@@ -173,11 +173,11 @@ Tools & settings → Review snow-letter content records the administrator, reaso
 
 ## 9 Record a reinspection
 
-**Group due dates on reinspection.** On an open reinspection worksheet, Assign due dates lists the items still outstanding; select items, choose a date and Apply to selected. Undo restores the previous dates. The three-date limit and seven-day spacing apply.
+**Group due dates on reinspection.** On an open reinspection worksheet, Assign due dates lists the items still outstanding; select items, choose a date and Apply date to selected items. Undo restores the previous dates. The three-date limit and seven-day spacing apply.
 
-Open Reinspect from the case or import an eligible unused completed reinspection. Enter the actual physical inspection date and time and the responsible inspector. Review all items is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
+Open Reinspect from the case or import an eligible unused completed reinspection. Enter the actual physical inspection date and time and the responsible inspector. Review all items, which shows every item, is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
 
-**Walk through items.** Choose Start walk-through. The current item shows its original number, wording and original deadline. Choose 1 Corrected, 2 Progress, 3 No change or 4 No access. Quick mode advances to the next unresolved item. Complete details, then next holds the item for dates and notes. Skip for now leaves details unfinished; Return to unfinished details finds them again. Review all items pauses the walk-through and exposes the complete worksheet.
+**One item at a time.** Choose One item at a time to bring the next unanswered item into focus; Review all items returns to the complete worksheet at any time. Four steps show progress: record the outcome, complete required details, continue to the next item, then review the inspection and permitted follow-up. The current item shows its original number, wording and original deadline. Choose 1 Corrected, 2 Progress made, 3 No change or 4 No access. Under After an outcome, Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date. Previous item goes back. Skip for now leaves details unfinished; Return to unfinished details finds them again. Keyboard shortcuts and tips, collapsed below, lists the keys. Nothing is recorded until you choose an outcome.
 
 | Date field | What it records |
 | --- | --- |
@@ -191,7 +191,7 @@ Use Undo last result or U to reverse the last worksheet result within its contex
 
 Open Inspection checks for missing or inconsistent facts. A check reveals all rows and focuses the exact affected field. Completing outcomes also exposes all items for final review. Select the required action group and an available document only after reviewing the facts. Nothing is automatically chosen as the legal action.
 
-Save & continue later retains incomplete or invalid work only after device saving succeeds. A draft's Review inspection action returns to the worksheet and retains its previous draft. Restore previous draft and inspection recovers that exact paired state, including private wording. A pending issuance must be confirmed through its retained attempt before changing the worksheet.
+Save draft & return to Workspace retains incomplete or invalid work only after device saving succeeds. A draft's Review inspection action returns to the worksheet and retains its previous draft. Restore previous draft and inspection recovers that exact paired state, including private wording. A pending issuance must be confirmed through its retained attempt before changing the worksheet.
 
 One physical visit may support a primary follow-up and compatible scoped documents. Issuing another compatible document does not create another inspection. See the next two chapters for eligibility and authority requirements.
 
@@ -230,11 +230,11 @@ The five scoped order and administrative families begin without legal approval. 
 
 **No Occupancy.** Specify the actual building or unit scope, findings, truthful posting status, effective date, release conditions and signer. A restriction does not end automatically through compliance, vacancy, ownership change or an unrelated expiry date. Written release is a mode within this family: select the exact active restriction and document verified corrections, the real release inspection, actual placard removal and the approved release form. Reference an existing recorded physical visit, or record a genuinely completed external release inspection with its inspector, date and external reference. The program does not fabricate violation results for it.
 
-**Best Interest Extension.** Identify the prior notice, selected eligible items, owner's plan and benefit, supervisor review, and factual exclusion of safety or urgent items. Enter each affected item's new due date in Items and due dates. Internal supervisory prosecution review is not a City Attorney referral.
+**Best Interest Extension.** Identify the prior notice, selected eligible items, owner's plan and benefit, supervisor review, and factual exclusion of safety or urgent items. In Items and due dates, tick Affected beside each affected item's due date and enter its new due date. Internal supervisory prosecution review is not a City Attorney referral.
 
-**Vacancy Extension.** Verify vacancy, request, selected items, maintenance/security conditions, review appointment, approved expiration model and transfer/disclosure wording. Enter each affected item's new due date in Items and due dates. Contact-by is calculated seven calendar days before the actual review appointment; short notice needs the approved procedure reference. Renewal requires a new reviewed action. Apartment scope preserves common-area duties.
+**Vacancy Extension.** Verify vacancy, request, selected items, maintenance/security conditions, review appointment, approved expiration model and transfer/disclosure wording. In Items and due dates, tick Affected beside each affected item's due date and enter its new due date. Contact-by is calculated seven calendar days before the actual review appointment; short notice needs the approved procedure reference. Renewal requires a new reviewed action. Apartment scope preserves common-area duties.
 
-**R54 extension layout.** Newly authored Best Interest and Vacancy Extensions use the regular Extension's header, recipient block, items table, continuation headers, footer and copy handling. Their approved language remains unchanged. All items are listed, including corrected items ruled through with the confirmed date. Extended items show the new due date; unselected items keep the existing date. From R56 (authoring 13), every affected item of a new Best Interest or Vacancy Extension needs a later due date, entered in Items and due dates; unaffected items keep their dates. Vacancy Extensions issued before R56 may be conditional: they display “Conditional — see conditions above” for affected items, keep their stored repair dates and reprint unchanged. Both special types retain their supervisory signer after the table. The regular Extension is unchanged. Previously issued documents and corrections of authoring-11 or earlier documents retain their historical layout.
+**R54 extension layout.** Newly authored Best Interest and Vacancy Extensions use the regular Extension's header, recipient block, items table, continuation headers, footer and copy handling. Their approved language remains unchanged. All items are listed, including corrected items ruled through with the confirmed date. Extended items show the new due date; unselected items keep the existing date. From R56 (authoring 13), every affected item of a new Best Interest or Vacancy Extension needs a later due date, marked Affected and entered in Items and due dates; unaffected items keep their dates. Authoring-12 and earlier drafts keep the Affected outstanding items list in their details. Vacancy Extensions issued before R56 may be conditional: they display “Conditional — see conditions above” for affected items, keep their stored repair dates and reprint unchanged. Both special types retain their supervisory signer after the table. The regular Extension is unchanged. Previously issued documents and corrections of authoring-11 or earlier documents retain their historical layout.
 
 A referred case needs an explicit reviewed exception and City Attorney coordination for an otherwise eligible emergency or occupancy action. Draft wording, supplied templates and synthetic test approvals are not proof of current law. Use the division's actual review; current-code and procedure approval remain documented acceptance items.
 
@@ -242,7 +242,7 @@ A referred case needs an explicit reviewed exception and City Attorney coordinat
 
 Review the complete letter and every associated court copy. Check the case identity, respondent, item scope, factual dates, mailing date, recipients, signature authority, approved pricing and all unresolved checks. Clicking a check reveals the relevant collapsed section and focuses its specific field. Fill-in bubbles, missing dates or sources, shared conflicts and policy holds must be resolved before issuance.
 
-**Issue deliberately.** Open Review & issue, read the summary and confirm the intended action. Writer first retains the exact issue request on this device. The helper validates and publishes the document and any new visit together to the shared record. Initial notice/citation companions use their atomic batch. Only confirmed shared publication establishes issued status.
+**Issue deliberately.** Open Review & issue, read the summary and confirm the intended action. The dialog lists only checks that block issuance or advise, each linked to its field; passed checks stay in the Review section's Full checklist. Confirming validates the current document again. Writer first retains the exact issue request on this device. The helper validates and publishes the document and any new visit together to the shared record. Initial notice/citation companions use their atomic batch. Only confirmed shared publication establishes issued status.
 
 | State after an attempt | Correct next step |
 | --- | --- |
@@ -299,7 +299,7 @@ Open Saved work & connection from Tools & settings, below Workspace, or from the
 
 Repeated unresolved messages appear once. Dismissing an alert does not clear its underlying case state. Message history in Tools retains dismissed messages. Case-specific integrity evidence is read-only for inspectors.
 
-Expand Backups and recovery for one-case recovery, a new unfinished-work recovery copy, a workspace download or empty-workspace restore. Expand Connection checks and technical details for helper/share/SQL information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
+Expand Backups and recovery. Recovery on this device holds Recover an unfinished case and Create recovery copy on this device; Download or restore a workspace holds Download workspace backup and Restore workspace backup (into an empty workspace). Expand Connection checks and technical details for helper/share/SQL information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
 
 ## 15 Back up restore and recover safely
 
@@ -309,12 +309,12 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 | --- | --- |
 | Download workspace backup | Device drafts, worksheets, unfinished forms, retained case facts, save checkpoints and pending requests together |
 | Download case record | Case metadata and issued history; not the complete private workspace |
-| Back up unfinished work now | A fresh helper recovery copy of unfinished work |
+| Create recovery copy on this device | A fresh helper recovery copy of unfinished work |
 | Recover an unfinished case | One case after a shared-change comparison and deliberate replacement safeguards |
 | Restore workspace backup | A complete workspace into an empty workspace |
 | Program update rollback | Installed program files; not an automatic reversal of issued records or device data |
 
-**Recover one case.** Open Saved work & connection → Backups and recovery → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
+**Recover one case.** Open Saved work & connection → Backups and recovery → Recovery on this device → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
 
 **Restore a workspace.** Preserve the current profile first. Use an empty workspace and the same approved program release or a verified compatible version. Choose Restore workspace backup, select the intended file and review its identity. Do not use restore to merge two independently edited active workspaces. Recheck shared state and PDF filing after recovery before issuing.
 
@@ -358,9 +358,9 @@ Each included current summary must match the independently read case bytes and i
 
 **Maps.** Switch between table and map when the report supports a map. Select area/boundary and basemap choices deliberately. GIS enrichment depends on access to City services; records without a usable location remain disclosed. Use the map's table alternative for the same report population and review unlocated records. A missing point is not evidence that a case was excluded from the report count.
 
-**Drill into data.** Open a count or case link to inspect its underlying cases. Open a case in Writer to continue its existing work. Back to Reports restores the retained report context and sort. Check dates and filters after a return or data refresh, especially when a source record has changed.
+**Drill into data.** Open a count or case link to inspect its underlying cases. Open case in Writer continues its existing work in Writer. Back to Reports in the Writer rail returns to the open Reports tab, or opens Reports in this tab when none answers, and restores the report, filters, view, date mode and sort retained when the case was opened; relative date choices recalculate for today. Check dates and filters after a return or data refresh, especially when a source record has changed.
 
-**Export.** Expand the export controls. CSV downloads the active report rows. Workbook downloads the collection of named sheets, including the matching report sheet with numeric/date values where appropriate. Print uses the active report presentation. Check the title, date range, applied filters, row order and coverage statement before distributing an export. An invalid date range clears stale report results so an earlier table is not exported as the new request.
+**Export.** Expand the export controls. Current report — CSV contains exactly the rows and columns of this table, with its filters, dates and sort. Reports workbook — Excel contains an About sheet, record sheets (Cases, Violations, Visits, Citations, Referrals, Corrections) and a sheet for every named report, with numeric/date values where appropriate. Sheets do not all apply the filters the same way; the About sheet's Sheet scope lists each one. Cases, Violations and Visits contain cases opened in the period; Visits lists every visit on those cases, so a visit date can fall outside the period. Citations and Referrals use the date issued on any counted case, and the inspector filter means the issuing or referring inspector; Citations does not apply the violation type filter. Corrections uses the date each correction was recorded, so it can list cases opened before the period. Violations applies violation type and ordinance to each item; other sheets apply them to the case (any matching item), except Citations, which applies the ordinance to the citation. Area, owner and status always apply to the case, and status is its current status. Numbered report sheets match each report on screen: reports 1 and 3 use the As of date, reports 2 and 4–7 the case opening date, and reports 8–11 the date issued. This report's sheet keeps the table sort and other report sheets use their default order. Print uses the active report presentation. Check the title, date range, applied filters, row order and coverage statement before distributing an export. An invalid date range clears stale report results so an earlier table is not exported as the new request.
 
 **Deposit schedule.** The deposit explorer presents searchable human-readable rules, conditions, effective dates and source details. Pagination limits screen volume; it does not omit the retained schedule. A displayed row may be conditional or require an authorized manual amount. The explorer is not a new court policy. If a sort fails, the report displays its default order and a notice; review the active order again before distributing an export. A malformed helper response reports its HTTP status and asks you to refresh or contact IT rather than showing an unreadable response as current report data.
 
@@ -368,9 +368,9 @@ Each included current summary must match the independently read case bytes and i
 
 ## 18 Use planning tools and display controls
 
-Tools & settings groups actions by purpose. Cases & planning contains Search all cases, Reminders and Batch draft due dates. Saved work & connection and Open saved case handle persistence. Administration contains Order language review, Administrator deposit override and Review snow-letter content. Display and help contains theme, message history and shortcut help. Program instructions opens this manual and its printable PDF.
+Tools & settings groups actions by purpose. Cases & planning contains Search shared case records, Reminders and Batch draft due dates. Saved work & connection and Open saved case handle persistence. Program instructions opens this manual and its printable PDF. Display & help contains theme, message history and keyboard shortcuts. Administrator tools, collapsed at the end, contains Review catalog, Administrator deposit override and Review snow-letter content; each keeps its own administrator checks, and the grouping grants no authorization.
 
-**Search all cases.** Use the shared search when a case is not loaded in Workspace. Review identity and open it through the existing shared-history checks. A search result does not override a conflict, active draft or unreadable record.
+**Search shared case records.** Use the shared search, also on the Workspace toolbar, when a case is not loaded in Workspace. Review identity and open it through the existing shared-history checks. A search result does not override a conflict, active draft or unreadable record.
 
 **Reminders.** Configure the intended reminder period and enabled state. Workspace exposes applicable reminder actions. Draft a reminder, inspect the recipient and wording, and complete the Outlook sending step separately. Reminders do not change a due date, prove service or create a new inspection. Snow items have no ordinary deadline reminder.
 
@@ -382,7 +382,7 @@ Tools & settings groups actions by purpose. Cases & planning contains Search all
 
 **Messages.** Read persistent error and recovery messages before dismissing them. Message history retains dismissed notices for review. A dismissed notification does not mean a pending save or PDF job has completed. Keyboard help is available here and through ? outside an editable field.
 
-**Administrative deposit exceptions.** Only an operator acting under actual division authority should use Administrator deposit override. Supply the actual named administrator, reason, source and required confirmation. The helper records authorization and Reports exposes overridden deposits. This does not change the master schedule, establish court authority or approve unrelated citations.
+**Administrative deposit exceptions.** Only an operator acting under actual division authority should use Administrator deposit override. Open it from Tools & settings → Administrator tools. Supply the actual named administrator, reason, source and required confirmation. The helper records authorization and Reports exposes overridden deposits. This does not change the master schedule, establish court authority or approve unrelated citations.
 
 Keep technical diagnostics with the administrator. Avoid putting passwords, operational personal data or whole case folders in casual support messages. Provide the specific safe error code, time and approved log excerpt needed to investigate.
 
@@ -417,14 +417,14 @@ Use Tab and Shift+Tab to move through controls. Enter or Space activates the foc
 | ? | Outside an editable field, opens keyboard help |
 | Ctrl+S or Cmd+S | In Writer, requests device saving; verify its resulting status |
 | Escape | Closes supported dialogs when no protected save is pending |
-| 1, 2, 3, 4 | In the reinspection walk-through outside fields, selects Corrected, Progress, No change or No access |
+| 1, 2, 3, 4 | In One item at a time, outside fields, selects Corrected, Progress made, No change or No access |
 | U | Undoes the last result within the current worksheet context |
 
 Held keys do not repeatedly result items. Typing a digit or U into an editable field remains ordinary text entry. Use the visible outcome controls for the same actions on touch devices.
 
-**Read the whole task.** Review all items provides an alternative to one-item walk-through. Reports provides tables alongside supported maps. Expand Full wording and guidance for complete language rather than depending on a truncated preview. Program instructions provides an accessible HTML manual as well as the printable copy.
+**Read the whole task.** Review all items provides an alternative to One item at a time. Reports provides tables alongside supported maps. Expand Full wording and guidance for complete language rather than depending on a truncated preview. Program instructions provides an accessible HTML manual as well as the printable copy.
 
-**Small screens and zoom.** The five Writer destinations remain available. Use vertical scrolling and the applicable table's own scroll area when a wide data table needs it. At high zoom, inspect the actual field labels and current action rather than relying on desktop positions. The HTML manual reflows at 320 CSS pixels and supports browser zoom and find.
+**Small screens and zoom.** The five Writer destinations remain available. On a narrow screen (760 CSS pixels or less) the document editor uses a compact header and one task bar at the bottom with the save state, Next required field, Review and the primary action; the bar hides while you type in a field or a dialog is open and is never printed. Use vertical scrolling and the applicable table's own scroll area when a wide data table needs it. At high zoom, inspect the actual field labels and current action rather than relying on desktop positions. The HTML manual reflows at 320 CSS pixels and supports browser zoom and find.
 
 **Display preferences.** Select High contrast when useful, or use System with the operating system preference. Reduced motion follows the browser setting. Printed issued documents have their own fixed layout; a screen theme does not change the historical body.
 
@@ -445,7 +445,7 @@ Preserve work first. Keep the active tab open when device saving is uncertain, d
 | Report could not be sorted | Default order is shown with a notice; review order before export and report the error if it repeats |
 | No eligible inspection results | Open Source and import details and read the result status. Eligibility depends on both Inspection Type and Inspection Status. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. Missing actual dates also block import; use the type/status rules in section 4. If valid results are absent, use the complete current installation and retrieve the case again. An already used result requires Continue existing case |
 | An older helper is running | Close its helper window and Writer tabs, then run the approved launcher again; confirm both versions match the install guide |
-| A case is missing from Workspace | Clear workspace search/inspector filters, inspect All cases, then use Search all cases for the share |
+| A case is missing from Workspace | Choose Clear search and inspector, inspect All cases and More views, then use Search shared case records for the share |
 | Lookup finds only Scheduled or Assist records | Confirm the source inspection was actually completed; use the division's report procedure, not a fabricated date |
 | SQL or certificate error | Give IT the safe error code and time; check approved network, account, database and certificate configuration |
 | Import says the inspection is already used | Continue its retained case/document or use correction; do not change the time to bypass matching |
@@ -473,11 +473,11 @@ Use an isolated acceptance deployment and unmistakably synthetic records. Each e
 
 **Snow.** Import a known test Snow Removal case. Enter actual synthetic accumulation/inspection facts, photographs and condition. Review property history, season content, price and four copies. Check that no ordinary deadline or invented reinspection appears. Complete seasonal/policy review before any operational use.
 
-**Reinspection.** Open a retained notice, use each outcome on a test item, undo one, pause to review all and resume unfinished details. Enter distinct physical/result/deadline dates correctly. Choose an eligible document; return to the worksheet and restore its paired previous draft. Confirm only one visit when adding a compatible scoped action.
+**Reinspection.** Open a retained notice, use each outcome on a test item in One item at a time, undo one, switch to Review all items and resume unfinished details. Enter distinct physical/result/deadline dates correctly. Choose an eligible document; return to the worksheet and restore its paired previous draft. Confirm only one visit when adding a compatible scoped action.
 
 **Correction and recovery.** Correct a synthetic issued typo, review before/after and verify the original remains. Interrupt a test save response and confirm the retained attempt. Recover one unfinished case, restore a workspace into an empty profile, and verify the exact issued PDF bytes. Test deployment rollback separately.
 
-**Reports and accessibility.** Find a report, apply and reset filters, sort it, export CSV/workbook and compare the matching rows. Open a case and return. Explain exclusions and unlocated map points. Repeat core navigation using keyboard, touch and the approved screen reader; record problems, help requests and actual timings.
+**Reports and accessibility.** Find a report, apply and reset filters, sort it, export Current report — CSV and Reports workbook — Excel and compare the matching rows. Open case in Writer and return with Back to Reports. Explain exclusions and unlocated map points. Repeat core navigation using keyboard, touch and the approved screen reader; record problems, help requests and actual timings.
 
 | Term | Meaning in this program |
 | --- | --- |

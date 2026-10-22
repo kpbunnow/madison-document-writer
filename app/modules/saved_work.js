@@ -49,7 +49,7 @@ export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
   if (st.pendingSync || R.PENDING.some((p) => p.cid === k.id || p.name === R.caseFileName(k)))
     return result(
       connected ? "Shared save needed" : "Waiting for connection",
-      connected ? "Save to shared folder" : "Connect shared folder",
+      connected ? "Save case to shared folder" : "Connect shared folder",
       connected ? "save" : "storage",
       connected
         ? "The queued case file is retained. Shared history will be checked before saving."
@@ -74,7 +74,7 @@ export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
   if (R.caseUnsaved(k))
     return result(
       connected ? "Shared save needed" : "Waiting for connection",
-      connected ? "Save to shared folder" : "Connect shared folder",
+      connected ? "Save case to shared folder" : "Connect shared folder",
       connected ? "save" : "storage",
       connected
         ? "Case details or recorded actions differ from the last confirmed shared save."
@@ -212,17 +212,22 @@ export function savedWorkHTML(R, cid = "", health = {}) {
     "he PDF still exists.</p><p>Printing or opening Outlook does not confirm " +
     "mailing, delivery or Accela recording.</p></details></section>\n    <deta" +
     'ils data-saved-detail="recovery"><summary>Backups and recovery</summary>' +
-    "<p>Automatic recovery copies preserve unfinished work on this computer. " +
-    "Workspace backups are downloaded copies of the whole workspace. Restorin" +
-    'g either does not issue a document.</p><div id="saved-recovery-status">' +
+    "<p>Restoring either kind of copy does not issue a document.</p>" +
+    '<section data-recovery-group="device" aria-labelledby="saved-recovery-device-title">' +
+    '<h4 id="saved-recovery-device-title">Recovery on this device</h4>' +
+    "<p>Recovery copies keep unfinished cases on this computer. Recovering a case does not issue a document or save to the shared folder.</p>" +
+    '<div id="saved-recovery-status">' +
     `${R.recoveryStatusHTML()}` +
     '</div><div class="saved-actions"><button class="btn" id="btn-recovery">R' +
     'ecover an unfinished case</button><button class="btn" data-safety-backup' +
-    '>Back up unfinished work now</button><button class="btn" id="btn-workbac' +
+    ">Create recovery copy on this device</button></div><p>Case recovery checks shared changes and preserv" +
+    "es a recovery copy before replacing differing local work.</p></section>" +
+    '<section data-recovery-group="workspace" aria-labelledby="saved-recovery-workspace-title">' +
+    '<h4 id="saved-recovery-workspace-title">Download or restore a workspace</h4>' +
+    "<p>A workspace backup is a downloaded file of the whole workspace. Restoring one requires an empty workspace.</p>" +
+    '<div class="saved-actions"><button class="btn" id="btn-workbac' +
     'kup">Download workspace backup</button><button class="btn" id="btn-workr' +
-    'estore">Restore workspace backup</button></div><p>Workspace restore requ' +
-    "ires an empty workspace. Case recovery checks shared changes and preserv" +
-    "es a recovery copy before replacing differing local work.</p><p>Program " +
+    'estore">Restore workspace backup</button></div></section><p>Program ' +
     "update rollback restores installed program files. It is separate from re" +
     'storing workspace data.</p></details>\n    <details data-saved-detail="di' +
     'agnostics"><summary>Connection checks and technical details</summary>' +

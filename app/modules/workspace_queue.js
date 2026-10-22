@@ -56,7 +56,7 @@ export function workspaceQueue(rows, tasks, R) {
         priority = 3;
       } else if (has("filing")) {
         action = fact("filing").action;
-        label = "Finish PDF filing";
+        label = "File issued PDF";
         reason = "PDF filing needed for an issued document.";
         priority = 4;
       } else if (has("outbox")) {

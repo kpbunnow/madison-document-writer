@@ -63,7 +63,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     ]) {
       await page.setViewportSize(size);
       await page.evaluate(() => window.scrollTo(0, 0));
-      assert.equal(await page.locator("[data-queue-view]").count(), 4);
+      assert.equal(await page.locator("[data-queue-view]").count(), 5);
       assert.equal(await page.locator("[data-metric]").count(), 0);
       assert.equal(await page.locator("[data-queue-case]").count(), 32);
       assert.equal(await page.locator(".queue-primary").count(), 32);
@@ -75,14 +75,26 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         assert.ok(action.y + action.height < size.height - 24, "First recommended action visible above desktop fold: " + JSON.stringify(action));
       await axeScreen(page, "r41-workspace-" + size.width);
       await page.screenshot({ path: path.join(OUT, "r41-workspace-" + size.width + ".png"), fullPage: false });
-      results.push({ viewport: size, firstRowY: row.y, firstActionY: action.y, summaryButtons: 4, cases: 32 });
+      results.push({ viewport: size, firstRowY: row.y, firstActionY: action.y, summaryButtons: 5, cases: 32 });
     }
     await page.setViewportSize({ width: 1366, height: 768 });
     if (axeThemes) await axeThemes(page, "r41-workspace-busy");
     await page.locator('[data-queue-view="deadlines"]').click();
-    assert.equal(await page.locator("#case-filter").inputValue(), "deadlines");
+    assert.equal(await page.locator("#case-filter").inputValue(), "");
+    assert.equal(await page.locator('[data-queue-view="deadlines"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("[data-queue-case]").count(), 11);
+    // Additional states stay reachable from More views, with counts matching the rows shown.
+    await page.locator("#case-filter").selectOption("overdue");
+    assert.equal(await page.locator("#case-filter").inputValue(), "overdue");
+    assert.equal(await page.locator('[data-queue-view][aria-pressed="true"]').count(), 0);
+    const overdueLabel = await page.locator('#case-filter option[value="overdue"]').textContent();
+    assert.equal(overdueLabel, "Past due (" + (await page.locator("[data-queue-case]").count()) + ")");
+    await page.locator('[data-queue-view="deadlines"]').click();
     await page.locator("#case-search").fill("nothing matches");
+    // Quick views keep the workspace search; only the explicit reset or View all cases removes it.
+    await page.locator('[data-queue-view="all"]').click();
+    assert.equal(await page.locator("#case-search").inputValue(), "nothing matches");
+    assert.equal(await page.locator("[data-queue-case]").count(), 0);
     await page.getByRole("button", { name: "View all cases", exact: true }).click();
     assert.equal(await page.locator("[data-queue-case]").count(), 32);
     assert.equal(await page.locator("#case-search").inputValue(), "");

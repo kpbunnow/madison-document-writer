@@ -15,7 +15,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
   const field = (name) => page.locator('[data-catalog-field="' + name + '"]');
   const mode = async (value) => {
     await page.locator('[data-language-mode="' + value + '"]').click();
-    await page.getByRole("heading", { name: value === "admin" ? "Order language review administration" : "Order language", exact: true }).waitFor();
+    await page.getByRole("heading", { name: value === "admin" ? "Review catalog" : "Browse language", exact: true }).waitFor();
     assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("h1")), true);
   };
   try {

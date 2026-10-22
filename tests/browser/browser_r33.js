@@ -236,6 +236,9 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   await page.waitForFunction(() => !citationPricing.historyFault(doc(WriterState.state.docId)));
   assert.equal(await page.locator("[data-admin-deposit]").count(), 0);
   await page.locator('[data-nav="tools"]').first().click();
+  // Specialist tools are grouped in the collapsed Administrator tools section; access checks are unchanged.
+  assert.equal(await page.locator("[data-tools-admin]").evaluate((el) => el.open), false);
+  await page.locator("[data-tools-admin] > summary").click();
   await page.locator("[data-admin-deposit]").click();
   const form = page.locator("#admin-deposit-form");
   await form.waitFor();
@@ -265,6 +268,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   results.push({ name: "r33-administrative-deposit", passed: true, amount: "245.67", receiptValidated: true });
   // The admin's seasonal edit affects new drafts; issued HTML remains exact.
   await page.locator('[data-nav="tools"]').first().click();
+  await page.locator("[data-tools-admin] > summary").click();
   await page.locator("[data-admin-snow-letter]").click();
   const seasonal = page.locator("#admin-snow-letter-form");
   await seasonal.waitFor();

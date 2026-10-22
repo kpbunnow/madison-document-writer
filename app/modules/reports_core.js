@@ -694,8 +694,8 @@ export const DEFINITIONS = [
   [
     "Case opened",
     "The initial inspection date. Reports with a period filter cases by this " +
-      "date, except citations and referrals, which filter by the date they were" +
-      " issued.",
+      "date, except citations, referrals, overridden deposits and document actions, which filter by the date they were" +
+      " issued. The workbook's Corrections sheet filters by the date each correction was recorded.",
   ],
   ["Open", 'A case with an issued notice and no compliance letter. "As of" a date means open on that date.'],
   [
@@ -734,6 +734,47 @@ export const DEFINITIONS = [
       "istrict as it read when the case opened, as far as the parcel had been l" +
       "ooked up by then. ZIP comes from the Accela site address, else from ZIP " +
       "outlines if provided. Cases with neither are Unlocated.",
+  ],
+];
+
+/* What each workbook sheet selects, for the About sheet. Text only: it describes
+   exportSheets() and the report definitions and must change when they do. */
+export const EXPORT_SCOPE = [
+  [
+    "Cases",
+    "Counted cases opened in the period (case opening date). Area, inspector (the inspector on the case), owner and current " +
+      "status apply. Violation type and ordinance keep cases with at least one matching item that is not withdrawn.",
+  ],
+  [
+    "Violations",
+    "Items on the cases in the Cases sheet that match the violation type and ordinance, including withdrawn items. The period " +
+      "uses the case opening date.",
+  ],
+  [
+    "Visits",
+    "Every visit and item result on the cases in the Cases sheet. Visit date, visit inspector, violation type and ordinance are " +
+      "not applied to the visits, so a visit can fall outside the period.",
+  ],
+  [
+    "Citations",
+    "Citations issued in the period (issue date) on any counted case, whenever it opened. Inspector means the issuing inspector " +
+      "and ordinance the cited ordinance. Violation type is not applied. Area, owner and current status apply to the case.",
+  ],
+  [
+    "Referrals",
+    "Referrals issued in the period (issue date) on any counted case, whenever it opened. Inspector means the referring " +
+      "inspector. Area, owner, current status, violation type and ordinance apply to the case (at least one matching item).",
+  ],
+  [
+    "Corrections",
+    "Corrections recorded in the period (date recorded, Central time) on any counted case, whenever it opened. Area, inspector " +
+      "(the inspector on the case), owner, current status, violation type and ordinance apply to the case.",
+  ],
+  [
+    "Numbered report sheets",
+    "The same rows as each report on screen. Reports 1 and 3 use the As of date instead of the period; reports 2 and 4–7 use " +
+      "the case opening date; reports 8–11 use the date issued and the issuing inspector. Report 8 applies violation type to " +
+      "the cited item, reports 9 and 10 apply it to the case and report 11 does not apply it.",
   ],
 ];
 
@@ -784,9 +825,9 @@ export const STYLES =
 
 export const D = (s) => (validISO(s) ? { d: s } : null);
 export const numOr = (v) => (/^\d+$/.test(String(v)) ? +v : v);
-/* The flat tables follow the current filters. Cases, violations and visits
-   use the period on the case opening date; citations and referrals use the
-   date they were issued. */
+/* The flat tables follow the current filters as EXPORT_SCOPE describes. Cases,
+   violations and visits use the period on the case opening date; citations and
+   referrals use the date they were issued; corrections the date recorded. */
 
 document.addEventListener("click", (e) => {
   const t = e.target.closest?.("[data-report-sort]");
@@ -1020,23 +1061,32 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// Restores the report, filters, view, date mode and sort saved when a case was opened in Writer.
+// Used by both the ?return=1 page load and the existing-tab return message.
+export function restoreReportReturn() {
+  try {
+    const x = JSON.parse(localStorage.getItem("madison-report-return-v1") || "null");
+    if (!x || !reportById(x.report)) return false;
+    ReportsState.S.screen = x.report;
+    ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
+    ReportsState.S.view = x.view === "map" ? "map" : "table";
+    ReportsState.S.tableSort = reportSort(x.sort, x.report);
+    ReportsState.S.dateMode = x.dateMode || "fixed";
+    if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
+    // A drill-down or saved-view selection opened since the handoff belongs to another context; like
+    // applyReportView, start the restored report without either so nothing outside its scope stays visible.
+    ReportsState.S.drill = null;
+    ReportsState.S.savedId = "";
+    ReportsState.S.reportNotice = "Returned to the saved report context.";
+    render();
+    return true;
+  } catch (e) {
+    /* A missing optional return preference does not affect report records or filters. */
+    return false;
+  }
+}
+
 if (!window.__NO_AUTOLOAD__)
   loadAll(false).then(() => {
-    if (new URLSearchParams(location.search).has("return")) {
-      try {
-        const x = JSON.parse(localStorage.getItem("madison-report-return-v1") || "null");
-        if (x && reportById(x.report)) {
-          ReportsState.S.screen = x.report;
-          ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
-          ReportsState.S.view = x.view === "map" ? "map" : "table";
-          ReportsState.S.tableSort = reportSort(x.sort, x.report);
-          ReportsState.S.dateMode = x.dateMode || "fixed";
-          if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
-          ReportsState.S.reportNotice = "Returned to the saved report context.";
-          render();
-        }
-      } catch (e) {
-        /* A missing optional return preference does not affect report records or filters. */
-      }
-    }
+    if (new URLSearchParams(location.search).has("return")) restoreReportReturn();
   });

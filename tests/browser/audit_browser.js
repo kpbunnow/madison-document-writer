@@ -243,9 +243,9 @@ async function axeThemes(page, screen) {
   assert.equal(await second.evaluate(() => WriterState.WRITER_ACCESS), false);
   await second.close();
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
-  assert.equal(await page.locator("h1").textContent(), "Import Inspection Result");
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  assert.equal(await page.locator("h1").textContent(), "Import inspection");
   assert.equal(await page.locator("#m-go,#imp-go,#imp-csv").count(), 0, "Manual and CSV entry options stay removed");
   assert.equal(await page.locator("text=Check what will be imported").count(), 0, "Import preview section stays removed");
   await axeScreen(page, "import-inspection");
@@ -447,7 +447,39 @@ async function axeThemes(page, screen) {
   await page.evaluate(() => render());
   assert.equal(await page.locator(".editor-more").evaluate((el) => el.open), true, "A late filing repaint retains the opened document actions");
   await page.locator("#btn-correct").click();
-  await page.locator("#correction-reason").fill("Correct the transcribed location and the owner spelling.");
+  // A shared save that completes while the inspector types the correction reason repaints the editor.
+  // Hold the real helper response, finish the save mid-typing and require the rest of the typing to reach the draft.
+  let saveRequested, releaseSave;
+  const saveHeld = new Promise((resolve) => (saveRequested = resolve)),
+    saveReleased = new Promise((resolve) => (releaseSave = resolve));
+  const holdSave = async (route) => {
+    const response = await route.fetch();
+    saveRequested();
+    await saveReleased;
+    await route.fulfill({ response });
+  };
+  await context.route("**/cases/save", holdSave);
+  await page.locator("#correction-reason").waitFor();
+  await page.evaluate(() => {
+    window.heldCorrectionSave = saveCaseFile(WriterState.CASES[0].id);
+  });
+  await saveHeld;
+  await page.locator("#correction-reason").focus();
+  await page.keyboard.type("Correct the ");
+  releaseSave();
+  assert.equal(await page.evaluate(() => window.heldCorrectionSave), true, "The held shared save completes during correction typing");
+  await context.unroute("**/cases/save", holdSave);
+  assert.equal(
+    await page.evaluate(() => document.activeElement.id),
+    "correction-reason",
+    "A completed shared save keeps focus in the correction reason",
+  );
+  await page.keyboard.type("transcribed location and the owner spelling.");
+  assert.equal(
+    await page.evaluate(() => [document.getElementById("correction-reason").value, doc(WriterState.state.docId).correction.reason].join("|")),
+    "Correct the transcribed location and the owner spelling.|Correct the transcribed location and the owner spelling.",
+    "Typing after the save completion reaches the correction reason and its draft",
+  );
   await page.locator('[data-field="text"]').first().fill("Repair the west exterior wall.");
   await page.locator('[data-case="ownerBlock"]').fill("CORRECTED TEST PROPERTY OWNER\n101 EXAMPLE LANE\nMADISON WI 53703");
   assert.equal(
@@ -531,7 +563,7 @@ async function axeThemes(page, screen) {
   await page.screenshot({ path: path.join(OUT, "correction-issued.png"), fullPage: true });
   assert.equal(await page.locator("#btn-reconcile").count(), 0, "Correction does not show a separate follow-through prompt");
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator("#case-filter").selectOption("all");
+  await page.locator('[data-queue-view="all"]').click();
   await axeScreen(page, "workspace-filled");
   await page.screenshot({ path: path.join(OUT, "workspace-filled.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -845,7 +877,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => doc(WriterState.state.docId).annotations?.length === 1 && !WriterState.state.modal);
   assert.equal(await page.evaluate(() => Object.keys(WriterState.WORK.recordForms).length), 0);
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator("#case-filter").selectOption("all");
+  await page.locator('[data-queue-view="all"]').click();
   await page.locator("[data-reinsp]").first().click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect" && !!reinsp(WriterState.state.reinspId));
   await page.locator("#ri-time").fill("10:00");
@@ -873,7 +905,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => WriterState.CASES.length === 1 && caseState(WriterState.CASES[0]).closed);
   // R4: resolve a missing deposit through the actual UI, save/resume, issue and correct it.
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.evaluate(() => {
     const id = "qa-cit-002";
     WriterState.CASES.push({
@@ -1118,7 +1150,7 @@ async function axeThemes(page, screen) {
   await manualPage.close();
   // Direct lookup: SQL responses are fixtures; shared records and IndexedDB are real.
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   const sqlNumber = "CB2026-241-90001";
   const sqlRow = {
     CaseNumber: sqlNumber,
@@ -1156,19 +1188,19 @@ async function axeThemes(page, screen) {
   await page.locator("#lookup-number").fill(sqlNumber);
   await axeScreen(page, "case-lookup");
   await page.screenshot({ path: path.join(OUT, "case-lookup.png"), fullPage: true });
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction((n) => WriterState.CASES.some((k) => k.number === n) && WriterState.state.screen === "write", sqlNumber);
   assert.equal(await page.evaluate((n) => WriterState.CASES.filter((k) => k.number === n).length, sqlNumber), 1);
   const lookupId = await page.evaluate((n) => WriterState.CASES.find((k) => k.number === n).id, sqlNumber);
   assert.equal(await page.evaluate((id) => docsFor(id).filter((d) => d.draft).length, lookupId), 1);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   lookupRows = [
     sqlRow,
     { ...sqlRow, InspectionDate: "2026-09-19T00:00:00", InspectionType: "Reinspection", InspectionStatus: "Extension Processing" },
   ];
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.source?.kind === "sql" && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.evaluate(() => WriterState.state.acc.sel), null);
   await page.locator("#btn-savework").click();
@@ -1179,7 +1211,7 @@ async function axeThemes(page, screen) {
   await axeScreen(page, "lookup-resumed");
   await page.screenshot({ path: path.join(OUT, "lookup-resumed.png"), fullPage: true });
   lookupError = "Synthetic connection failure; retry is available.";
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.getByText(lookupError, { exact: true }).waitFor();
   assert.equal(await page.evaluate(() => WriterState.state.acc.cases[0].rows.length), 2);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -1191,7 +1223,7 @@ async function axeThemes(page, screen) {
   // R13 duplicate routing and newest issued source, through real UI and helper.
   lookupError = "";
   lookupRows = [sqlRow];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.sel !== null && !WriterState.LOOKUP_BUSY);
   // R53: searching the same inspection again is either refused as already used or, while its draft is unissued,
   // a refresh of that draft; it can never create a second draft.
@@ -1225,9 +1257,9 @@ async function axeThemes(page, screen) {
   const importedNotice = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.locator("#acc-go").isDisabled(), true);
   await axeScreen(page, "duplicate-inspection");
@@ -1241,7 +1273,7 @@ async function axeThemes(page, screen) {
       InspectionTime: "14:30:00",
     },
   ];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.cases[0].rows[0].typeKey === "reinspection" && !WriterState.LOOKUP_BUSY);
   await page.locator("#acc-go").click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect");
@@ -1263,13 +1295,13 @@ async function axeThemes(page, screen) {
   const importedExtension = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.locator("#acc-go").isDisabled(), true, "Issued reinspection cannot be reused");
   lookupRows = [{ ...lookupRows[0], InspectionDate: "2026-09-20T00:00:00", InspectionTime: "11:15:00" }];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.cases[0].rows[0].date === "2026-09-20" && !WriterState.LOOKUP_BUSY);
   await page.locator("#acc-go").click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect");

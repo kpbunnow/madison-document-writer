@@ -6,14 +6,14 @@ Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruc
 
 ## 5 Prepare an Official Notice
 
-Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. Expand the case details when a check identifies a missing field. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service.
+Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. When a check identifies a missing field, use Go to first required field or the check's link to reach it on the working document. The Inspection section appears only when there is something to act on there, such as special-document details, snow facts or a correction. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service.
 
-1. Open Add items. Find the appropriate selectable order language and select it once. A checkmark means it is already on this notice. Select it again to remove it from the unissued draft. The same library entry cannot be added twice.
+1. In Items and due dates, choose + Select violations. In the Select for this notice picker, find the appropriate selectable order language and select it once. A checkmark means it is already on this notice. Select it again to remove it from the unissued draft. The same library entry cannot be added twice.
 2. Choose Done adding. Review each item's ordinance, corrective action, location and case-specific details. Outlined fill-in bubbles identify missing details. Click a bubble or focus it and press Enter, enter the factual detail, and review the sentence afterward.
-3. In Assign due dates below the document, select the items sharing a deadline, enter the date and choose Apply to selected. Use Select all when appropriate. Repeat for other groups. New items begin without an automatic deadline.
+3. Tick the checkbox beside each due date that shares a deadline (Select item N for a shared due date). In Assign due dates below the document, which counts the selected items, enter the date and choose Apply date to selected items. Use Select all or Clear when appropriate. Repeat for other groups. New items begin without an automatic deadline.
 4. Keep no more than three distinct outstanding-item deadlines under the existing notice rules. A batch that would create a fourth is rejected without changing the items. An invalid individual edit may be saved as work in progress but blocks issuance.
-5. Review the whole document, not only the edited sentence. Check recipients (the Recipients button opens copies, email and registered agent), contact details, the mailing date, the item order and all warnings. Use Show checks to jump to the affected field and correct it.
-6. Choose Save & continue later to retain unfinished work, or Review & issue when ready. Verify the resulting save state.
+5. Review the whole document, not only the edited sentence. Check recipients (the Recipients button opens copies, email and registered agent; Done closes it once the entries are valid), contact details, the mailing date, the item order and all warnings. The readiness summary at the top counts required fixes and advisories; Go to first required field jumps to the affected field, and Open full checklist shows every check in the Review section.
+6. Choose Save draft & return to Workspace to retain unfinished work, or Review & issue when ready. Verify the resulting save state.
 
 Private wording edits belong to the retained draft. Removing and reselecting the same source in that draft restores its identity, edited text, ordinances, due date, location and notes. A newer catalog version requires explicit review and adoption; it does not silently replace private wording.
 
@@ -49,7 +49,7 @@ Equivalent ordinance formatting retains the approved basis. A different ordinanc
 
 Review the complete letter and every associated court copy. Check the case identity, respondent, item scope, factual dates, mailing date, recipients, signature authority, approved pricing and all unresolved checks. Clicking a check reveals the relevant collapsed section and focuses its specific field. Fill-in bubbles, missing dates or sources, shared conflicts and policy holds must be resolved before issuance.
 
-**Issue deliberately.** Open Review & issue, read the summary and confirm the intended action. Writer first retains the exact issue request on this device. The helper validates and publishes the document and any new visit together to the shared record. Initial notice/citation companions use their atomic batch. Only confirmed shared publication establishes issued status.
+**Issue deliberately.** Open Review & issue, read the summary and confirm the intended action. The dialog lists only checks that block issuance or advise, each linked to its field; passed checks stay in the Review section's Full checklist. Confirming validates the current document again. Writer first retains the exact issue request on this device. The helper validates and publishes the document and any new visit together to the shared record. Initial notice/citation companions use their atomic batch. Only confirmed shared publication establishes issued status.
 
 | State after an attempt | Correct next step |
 | --- | --- |

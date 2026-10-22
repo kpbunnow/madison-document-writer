@@ -982,7 +982,7 @@ function recordActionModal() {
         : "",
     ) +
     '</div><div class="modal-f"><button class="btn" data-close="modal">Cancel' +
-    '</button><button class="btn" id="btn-savework">Save &amp; continue later' +
+    '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
     '</button><button class="btn btn-primary" id="record-action-go">' +
     `${held ? "Confirm previous save" : mode === "void" ? "Confirm withdrawal" : "Save to case record"}` +
     "</button></div></div></div>"

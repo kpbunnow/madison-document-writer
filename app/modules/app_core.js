@@ -131,6 +131,7 @@ import {
   activeDueTarget,
   assignDue,
   dueContext,
+  dueSelectedText,
   editCitation,
   initialCitationBody,
   pdfTransferState,
@@ -1897,13 +1898,14 @@ document.addEventListener("submit", async (e) => {
 });
 document.addEventListener("click", async (e) => {
   const t = e.target.closest?.(
-    "[data-global-search],[data-global-open],[data-reminders],[data-reminder-" +
+    "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-" +
       "draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data" +
       "-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
   );
   if (!t) return;
   try {
-    if (t.hasAttribute("data-global-search")) await globalSearch();
+    // The no-results offer opens the same shared search with the workspace query prefilled.
+    if (t.hasAttribute("data-global-search") || t.hasAttribute("data-shared-offer")) await globalSearch();
     else if (t.dataset.globalOpen) {
       await writerOpenReportedCase({ number: t.dataset.globalOpen });
       document.getElementById("utility-dialog")?.close();
@@ -1968,13 +1970,12 @@ document.addEventListener("click", (e) => {
     WriterState.state.caseQ = "";
     WriterState.state.caseInspector = "";
   } else {
+    // Switching views keeps the workspace search and inspector filter; only the reset clears them.
     WriterState.state.caseFilter = t.dataset.queueView;
-    WriterState.state.caseQ = "";
-    WriterState.state.caseInspector = "";
   }
   render();
   saveWorkflowPrefs();
-  document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : "#case-filter")?.focus();
+  document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : '[data-queue-view="' + t.dataset.queueView + '"]')?.focus();
 });
 document.addEventListener("click", (e) => {
   const t = e.target.closest?.("[data-case-task]");
@@ -2083,6 +2084,9 @@ document.addEventListener("change", (e) => {
     if (e.target.checked) selected.add(ds.dueSelect);
     else selected.delete(ds.dueSelect);
     target.dueWork.selected = [...selected];
+    // Notice rows select in the items table; keep the compact bar's count current without a repaint.
+    const count = !visit && document.querySelector("[data-due-selected]");
+    if (count) count.textContent = dueSelectedText(dueContext(target, visit), selected);
     WriterState.DIRTY = true;
     saveDrafts();
   }
@@ -2391,10 +2395,36 @@ document.addEventListener("paste", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const button = e.target.closest("[data-editor-section],[data-editor-preview],[data-editor-command]");
+  const button = e.target.closest(
+    "[data-editor-section],[data-editor-preview],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]",
+  );
   if (!button) return;
   e.preventDefault();
   captureWork();
+  if (button.hasAttribute("data-mobile-primary")) {
+    // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
+    const primary = document.querySelector(".topbar .editor-primary");
+    if (primary && !primary.disabled) primary.click();
+    return;
+  }
+  if (button.hasAttribute("data-mobile-review")) {
+    editorNavigate("editor-review");
+    return;
+  }
+  if (button.hasAttribute("data-open-checklist")) {
+    // The summary's link shows the complete checklist even when it was hidden.
+    const panel = document.getElementById("checkbox-panel"),
+      toggle = document.getElementById("btn-checks");
+    if (panel?.style.display === "none") {
+      panel.style.display = "block";
+      if (toggle) {
+        toggle.textContent = "Hide checks";
+        toggle.setAttribute("aria-expanded", "true");
+      }
+    }
+    editorNavigate("editor-review");
+    return;
+  }
   if (button.hasAttribute("data-editor-section")) {
     editorNavigate(button.dataset.editorSection);
     return;
@@ -2576,13 +2606,18 @@ document.addEventListener("click", async (e) => {
       risky = caseUnsaved(k);
     if (
       risky &&
-      !confirm(k.number + " has " + risky + ". Clearing it off the list loses that work — the file on the share is not touched. Clear it anyway?")
+      !confirm(
+        k.number +
+          " has " +
+          risky +
+          ". Removing it from this workspace loses that work. The shared case record is not deleted. Remove it from this workspace anyway?",
+      )
     )
       return;
-    removeCase(k.id);
+    if (removeCase(k.id) === false) return;
     WriterState.state.screen = "cases";
     render();
-    toast(k.number + " cleared from the list");
+    toast(k.number + " removed from this workspace. The shared case record is not deleted.");
     return;
   }
   if (t.id === "btn-email") {
@@ -2671,6 +2706,8 @@ document.addEventListener("click", async (e) => {
   if (t.dataset.riwalk !== undefined) {
     const r = reinsp(WriterState.state.reinspId);
     if (!r || !r.draft || r.docId) return;
+    // The two review modes are a pressed-button pair; choosing the current mode changes nothing.
+    if ((t.dataset.riwalk === "on") === !!WriterState.state.riWalk) return;
     if (t.dataset.riwalk === "on") {
       clearWalk();
       WriterState.state.riWalk = true;
@@ -3513,8 +3550,11 @@ document.addEventListener("change", (e) => {
   }
   if (e.target.id === "case-filter" || e.target.id === "case-inspector") {
     WriterState.state.metric = "";
-    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] = e.target.value;
+    // Returning More views to its placeholder restores the default Needs attention view.
+    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
+      e.target.id === "case-filter" ? e.target.value || "attention" : e.target.value;
     render();
+    if (e.target.id === "case-filter") document.querySelector("#case-filter")?.focus();
     return;
   }
   if ((e.target.id === "acc-date" || e.target.id === "acc-time") && WriterState.state.acc) {

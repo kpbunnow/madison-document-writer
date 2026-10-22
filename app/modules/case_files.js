@@ -901,7 +901,7 @@ function caseUnsaved(k) {
 
 function removeCase(cid) {
   if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === cid) || docsFor(cid).some((x) => x.pendingAmendment)) {
-    toast("Confirm pending record saves before putting this case away.");
+    toast("Confirm pending record saves before removing this case from this workspace.");
     return false;
   }
   WriterState.CASES = WriterState.CASES.filter((c) => c.id !== cid);
@@ -921,13 +921,16 @@ function clearCases(which) {
   WriterState.CASES.slice().forEach((k) => {
     const risky = caseUnsaved(k);
     if (which === "safe" && risky) return;
-    gone.push(k.number);
-    removeCase(k.id);
+    if (removeCase(k.id) !== false) gone.push(k.number);
   });
   WriterState.state.modal = null;
   WriterState.state.screen = "cases";
   render();
-  toast(gone.length ? gone.length + " case" + (gone.length === 1 ? "" : "s") + " cleared from the list" : "Nothing to clear");
+  toast(
+    gone.length
+      ? gone.length + " case" + (gone.length === 1 ? "" : "s") + " removed from this workspace. Shared case records are not deleted."
+      : "Nothing to remove",
+  );
 }
 
 function startReinspection(cid, importedRow) {

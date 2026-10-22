@@ -40,7 +40,7 @@ import {
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { alignedExtension, datedExtension, specialType } from "./new_documents.js";
+import { alignedExtension, datedExtension, rowAffectedSelection, specialType } from "./new_documents.js";
 
 function noticeHTML(d) {
   const aligned = alignedExtension(d);
@@ -56,6 +56,12 @@ function noticeHTML(d) {
   const struct = structEditable(d);
   // One condition for the Cite heading and every row's cell, so the columns stay aligned when only an old mark remains.
   const citeColumn = struct && (citeAllowed(d) || d.items.some((i) => i.cite));
+  /* Editable-draft controls beside each row's due date (never on issued, locked or correction documents):
+     on a new Official Notice, a selection for a shared due date (the Assign due dates bar applies it);
+     on an authoring-13 Best Interest or Vacancy Extension, the affected-item selection. */
+  const dueSelection = d.type === "notice" && !locked && !d.correction && !snow.is(d),
+    dueSelected = new Set(d.dueWork?.selected || []),
+    affectedRows = rowAffectedSelection(d);
   const rows = d.items
     .map((it, ix) => {
       let head = "";
@@ -221,7 +227,26 @@ function noticeHTML(d) {
                         d.special?.deadlineMode === "conditional" &&
                         d.special.affected?.includes(String(it.no))
                       ? '<span class="conditional-due">Conditional — see conditions above</span>'
-                      : '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+                      : (dueSelection && it.dueExempt !== "snow-10.28"
+                          ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+                            esc(it.id) +
+                            '" aria-label="Select item ' +
+                            esc(num) +
+                            ' for a shared due date" title="Select for a shared due date" ' +
+                            (dueSelected.has(it.id) ? "checked" : "") +
+                            ">"
+                          : "") +
+                        (affectedRows
+                          ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
+                            '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
+                            esc(String(it.no)) +
+                            '" ' +
+                            ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
+                            ' aria-label="Item ' +
+                            esc(num) +
+                            ' is affected by this extension">Affected</label>'
+                          : "") +
+                        '<input type="date" class="d-in due-in" data-field="due" data-id="' +
                         `${esc(it.id)}` +
                         '" value="' +
                         `${esc(it.due || "")}` +

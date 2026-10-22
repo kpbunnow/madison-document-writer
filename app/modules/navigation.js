@@ -114,9 +114,9 @@ export function initNavigation() {
     const reports = WriterState.REPORT_RETURN
       ? `<button class="rail-item" data-report-return>${uiIcon("reports")}<span>Back to Reports</span></button>`
       : '<a class="rail-item" href="madison-reports.html" target="_blank" rel="no' +
-        'opener" aria-label="Reports (opens in a new tab)">' +
+        'opener" aria-label="Open Reports (opens in a new tab)">' +
         `${uiIcon("reports")}` +
-        '<span>Reports</span><span class="nav-external" aria-hidden="true">↗</spa' +
+        '<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</spa' +
         "n></a>";
     return (
       "" +
@@ -135,7 +135,7 @@ export function initNavigation() {
       [
         "Cases & planning",
         [
-          ["Search all cases", "Find shared records by case number, address, owner, citation or parcel.", "data-global-search", "search"],
+          ["Search shared case records", "Find shared records by case number, address, owner, citation or parcel.", "data-global-search", "search"],
           ["Reminders", "Choose upcoming deadlines and personal reinspection plans.", "data-reminders", "calendar"],
           ["Batch draft due dates", "Assign deadlines across selected items in unfinished original notices.", "data-batch-due", "calendar"],
         ],
@@ -152,30 +152,34 @@ export function initNavigation() {
           ["Open saved case", "Open a case JSON file already saved on this computer or the share.", "data-openfile", "cases"],
         ],
       ],
-      [
-        "Administration",
-        [
-          [
-            "Order language review",
-            "Review wording, ordinance authority, replacements and immutable versions.",
-            'data-language-mode="admin"',
-            "library",
-          ],
-          [
-            "Administrator deposit override",
-            "Record an exceptional court or division deposit with its named authorization.",
-            "data-admin-deposit",
-            "tools",
-          ],
-          [
-            "Review snow-letter content",
-            "Confirm seasonal sand sites, contacts and web address for new citations.",
-            "data-admin-snow-letter",
-            "tools",
-          ],
-        ],
-      ],
     ];
+    // Specialist tools; each keeps its own administrator checks. Grouping here grants no authorization.
+    const adminTools = [
+      [
+        "Review catalog",
+        "Review order language wording, ordinance authority, replacements and immutable versions.",
+        'data-language-mode="admin"',
+        "library",
+      ],
+      [
+        "Administrator deposit override",
+        "Record an exceptional court or division deposit with its named authorization.",
+        "data-admin-deposit",
+        "tools",
+      ],
+      ["Review snow-letter content", "Confirm seasonal sand sites, contacts and web address for new citations.", "data-admin-snow-letter", "tools"],
+    ];
+    const toolButton = ([label, description, attributes, icon]) =>
+      '<button class="tool-action" ' +
+      `${attributes}` +
+      ">" +
+      `${uiIcon(icon)}` +
+      "<span><strong>" +
+      `${label}` +
+      "</strong><span>" +
+      `${description}` +
+      '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
+      "on>";
     const theme = document.documentElement.dataset.theme || "system";
     return shell(
       "Tools & settings",
@@ -194,23 +198,7 @@ export function initNavigation() {
                 '">' +
                 `${title}` +
                 '</h2><div class="tools-grid">' +
-                "".concat(
-                  items
-                    .map(
-                      ([label, description, attributes, icon]) =>
-                        '<button class="tool-action" ' +
-                        `${attributes}` +
-                        ">" +
-                        `${uiIcon(icon)}` +
-                        "<span><strong>" +
-                        `${label}` +
-                        "</strong><span>" +
-                        `${description}` +
-                        '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
-                        "on>",
-                    )
-                    .join(""),
-                ) +
+                "".concat(items.map(toolButton).join("")) +
                 "</div></section>",
             )
             .join(""),
@@ -243,7 +231,12 @@ export function initNavigation() {
         `${uiIcon("tools")}` +
         "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
         ' ? outside a text field for quick help.</span></span><span class="tool-a' +
-        'rrow" aria-hidden="true">→</span></button></div></section>',
+        'rrow" aria-hidden="true">→</span></button></div></section>' +
+        '<section class="tools-section tools-admin" aria-labelledby="tools-admin"><details data-tools-admin><summary id="tools-admin">Administrator tools</summary>' +
+        '<p class="hint">Specialist tools for division administrators. Access still depends on the existing administrator checks; this grouping does not grant authorization.</p>' +
+        '<div class="tools-grid">' +
+        adminTools.map(toolButton).join("") +
+        "</div></details></section>",
     );
   }
   function helperVersion() {

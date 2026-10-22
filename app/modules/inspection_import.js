@@ -98,7 +98,7 @@ import { WriterState } from "./state.js";
 import { documentHTML, citationFaces } from "./document_render.js";
 import { authFetch } from "./helper_transport.js";
 import { languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
-import { documentSaveHTML } from "./saved_work.js";
+import { documentSaveHTML, localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 function openImportWorkspace(cid) {
@@ -134,7 +134,7 @@ function openImportWorkspace(cid) {
 
 function lookupCard() {
   return (
-    '<div class="card lookup-card"><div class="card-h"><h2>Find a case</h2><s' +
+    '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
     'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
     "er the case number to retrieve its property, owner and inspection detail" +
     's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
@@ -148,7 +148,7 @@ function lookupCard() {
     '></label>\n    <button class="btn btn-primary" type="submit" ' +
     `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
     ">" +
-    `${WriterState.LOOKUP_BUSY ? "Finding case…" : "Find case"}` +
+    `${WriterState.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
     "</button>\n    " +
     "".concat(
       WriterState.LOOKUP_BUSY
@@ -874,15 +874,37 @@ function screenReinspect() {
   const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
   const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
   const referred = docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x));
+  const walkOn = WriterState.state.riWalk;
+  // Current step of one-item review, from the existing walk state; outcomes are only ever chosen by the inspector.
+  const walkStep = !walkOn
+    ? 0
+    : !WriterState.state.riWalkItem
+      ? 4
+      : WriterState.state.riWalkStage === "details"
+        ? walkItemReady(r, WriterState.state.riWalkItem)
+          ? 3
+          : 2
+        : 1;
+  const walkSteps = ["Record the outcome", "Complete required details", "Continue to the next item", "Review the inspection and permitted follow-up"];
+  const walkKeys = OUTCOMES.map((o, ix) => "<kbd>" + (ix + 1) + "</kbd> " + esc(o.label)).join(" · ") + " · <kbd>U</kbd> Undo the last outcome";
   const walkPanel = !readOnly
     ? '<div class="ri-walk-panel ' +
-      `${WriterState.state.riWalk ? "active" : ""}` +
-      '" aria-label="Reinspection walk-through">\n    <div class="ri-walk-copy">' +
+      `${walkOn ? "active" : ""}` +
+      '" role="group" aria-label="Reinspection review mode">\n    <div class="ri-walk-modes" role="group" aria-label="How to review items">' +
+      '<button type="button" class="btn btn-sm ' +
+      `${walkOn ? "" : "btn-primary"}` +
+      '" data-riwalk="off" aria-pressed="' +
+      `${walkOn ? "false" : "true"}` +
+      '">Review all items</button><button type="button" class="btn btn-sm ' +
+      `${walkOn ? "btn-primary" : ""}` +
+      '" data-riwalk="on" aria-pressed="' +
+      `${walkOn ? "true" : "false"}` +
+      '">One item at a time</button></div>\n    <div class="ri-walk-copy">' +
       "<strong>" +
-      `${WriterState.state.riWalk ? "Walk-through on" : "Walk through items one at a time"}` +
+      `${walkOn ? "One item at a time" : "Review all items"}` +
       '</strong>\n      <span aria-live="polite">' +
       "".concat(
-        WriterState.state.riWalk
+        walkOn
           ? WriterState.state.riWalkStage === "details"
             ? "Complete item " +
               `${esc(src.items.find((i) => i.id === WriterState.state.riWalkItem)?.no || "")}` +
@@ -898,53 +920,61 @@ function screenReinspect() {
                 `${left}` +
                 " left to result."
               : "All items have a result. Review the dates, notes and due dates before creating a document."
-          : "Keep each outcome deliberate. The next unanswered item will be brought into focus.",
+          : "Every item is shown. Choose One item at a time to bring the next unanswered item into focus.",
       ) +
-      "</span>\n      " +
+      "</span>\n    </div>\n    " +
       "".concat(
-        WriterState.state.riWalk
-          ? "<small>Keyboard: <kbd>1</kbd> Corrected · <kbd>2</kbd> Progress · <kbd>3" +
-              "</kbd> No change · <kbd>4</kbd> No access · <kbd>U</kbd> Undo</small>"
-          : "<small>Keyboard shortcuts are available while walk-through is on. They a" + "re ignored while typing in a field.</small>",
+        walkOn
+          ? '<ol class="ri-walk-steps" aria-label="One item at a time steps">' +
+              walkSteps
+                .map(
+                  (label, ix) =>
+                    '<li data-walk-step="' +
+                    (ix + 1) +
+                    '"' +
+                    (walkStep === ix + 1 ? ' aria-current="step" class="current"' : "") +
+                    ">" +
+                    label +
+                    "</li>",
+                )
+                .join("") +
+              "</ol>"
+          : "",
       ) +
-      '\n    </div>\n    <label class="f"><span>After an outcome</span><select id' +
+      '\n    <label class="f"><span>After an outcome</span><select id' +
       '="ri-walk-mode" ' +
-      `${WriterState.state.riWalk ? "" : "disabled"}` +
+      `${walkOn ? "" : "disabled"}` +
       '><option value="quick" ' +
       `${WriterState.state.riWalkMode === "quick" ? "selected" : ""}` +
-      '>Quick: next unanswered item</option><option value="details" ' +
+      '>Go to next unanswered item</option><option value="details" ' +
       `${WriterState.state.riWalkMode === "details" ? "selected" : ""}` +
-      ">Complete details, then next</option></select></label>\n    " +
-      "".concat(WriterState.state.riWalk ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
+      ">Complete details first</option></select></label>\n    " +
+      "".concat(walkOn ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk && WriterState.state.riWalkStage === "details"
+        walkOn && WriterState.state.riWalkStage === "details"
           ? '<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</butto' +
               'n><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>'
           : "",
       ) +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk &&
-          src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
+        walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
           ? '<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>'
           : "",
       ) +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk && WriterState.state.riWalkUndo
+        walkOn && WriterState.state.riWalkUndo
           ? '<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-th' + 'rough result (U)">Undo last result <kbd>U</kbd></button>'
           : "",
       ) +
-      '\n    <button class="btn ' +
-      `${WriterState.state.riWalk ? "" : "btn-primary"}` +
-      ' btn-sm" data-riwalk="' +
-      `${WriterState.state.riWalk ? "off" : "on"}` +
-      '" aria-pressed="' +
-      `${WriterState.state.riWalk ? "true" : "false"}` +
-      '">' +
-      `${WriterState.state.riWalk ? "Review all items (pause)" : "Start walk-through"}` +
-      "</button>\n  </div>"
+      '\n    <details class="ri-walk-tips"><summary>Keyboard shortcuts and tips</summary>' +
+      "<p>In One item at a time: " +
+      walkKeys +
+      ".</p><p>Shortcuts are ignored while typing in a field. Nothing is recorded until you choose an outcome; " +
+      "follow-up choices stay limited to those the imported inspection result permits.</p><p>After an outcome: Go to next unanswered item moves on at once; " +
+      "Complete details first keeps the item open for its date, notes and any new due date.</p></details>\n  </div>"
     : "";
 
   let verdict;
@@ -1026,7 +1056,7 @@ function screenReinspect() {
   return shell(
     esc(k.address),
     `${esc(k.number)} · Reinspection · working off the ${esc(srcLabel.toLowerCase())}`,
-    '<button class="btn" id="btn-savework">Save &amp; continue later</button>',
+    '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
     '<div class="reinspection-workspace" data-worksheet-context="' +
       `${esc(walkIdentity(r))}` +
       '"><p class="ri-source">Inspecting against the ' +
@@ -1181,8 +1211,7 @@ function screenReinspect() {
       `${verdict}` +
       "\n     " +
       "".concat(!closed ? newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
-      '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save &amp' +
-      "; continue later</button></div></div>",
+      '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>',
   );
 }
 
@@ -1193,19 +1222,97 @@ function editorReadiness(d) {
   return { list, required, advice, held: !!d.draft && d.items.some((i) => i.cite && !i.withdrawn && d.cits?.[i.id]?.mandatoryAppearance) };
 }
 
+// One readiness summary: the counts of required fixes and advisories for the editor's top line.
+function readinessText(required, advice) {
+  const fixes = required.length ? required.length + " required fix" + (required.length === 1 ? "" : "es") : "",
+    notes = advice.length ? advice.length + " advisor" + (advice.length === 1 ? "y" : "ies") : "";
+  return required.length ? [fixes, notes].filter(Boolean).join(" · ") : ["Ready for review", notes].filter(Boolean).join(" · ");
+}
+
 function checkChip(d, readiness = editorReadiness(d)) {
   const { required, advice } = readiness;
   return (
     '<span class="cchip ' +
     `${required.length ? "bad" : "good"}` +
-    '" id="chk-chip">' +
-    "".concat(
-      required.length
-        ? required.length + " required check" + (required.length === 1 ? "" : "s") + " remaining"
-        : advice.length
-          ? "Ready for review · " + advice.length + " advisory check" + (advice.length === 1 ? "" : "s")
-          : "Ready for review",
-    ) +
+    '" id="chk-chip" data-editor-readiness>' +
+    readinessText(required, advice) +
+    "</span>"
+  );
+}
+
+// The first unresolved required check (or, with none, advisory) that names a field, as its index in checks(d).
+function readinessFirst(readiness) {
+  const at = (soft) => readiness.list.findIndex((c) => !c.ok && !!c.soft === soft && c.targets?.length);
+  const required = at(false);
+  if (required >= 0) return { index: required, label: "Go to first required field" };
+  if (readiness.required.length) return null;
+  const advisory = at(true);
+  return advisory >= 0 ? { index: advisory, label: "Go to first advisory" } : null;
+}
+
+function readinessActionsHTML(readiness) {
+  const first = readinessFirst(readiness);
+  return (
+    // The existing check-link path (data-check-index) focuses the field through focusCheckTarget.
+    (first
+      ? '<button type="button" class="btn btn-sm" data-readiness-first data-check-index="' +
+        first.index +
+        '" data-check-target="0">' +
+        first.label +
+        "</button>"
+      : "") + '<button type="button" class="lnk" data-open-checklist aria-controls="checkbox-panel">Open full checklist</button>'
+  );
+}
+
+// Narrow-screen task bar: next required field, Review and the primary action (which clicks the toolbar's own button).
+function mobileBarActionsHTML(d, readiness = editorReadiness(d)) {
+  const first = readinessFirst(readiness),
+    primary = editorPrimary(d, readiness);
+  return (
+    (first && readiness.required.length
+      ? '<button type="button" class="btn btn-sm" data-mobile-next data-check-index="' +
+        first.index +
+        '" data-check-target="0">Next required field</button>'
+      : "") +
+    '<button type="button" class="btn btn-sm" data-mobile-review>Review</button>' +
+    '<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ' +
+    (primary.attrs === "disabled" ? "disabled" : "") +
+    ">" +
+    primary.label +
+    "</button>"
+  );
+}
+
+function mobileBarKey(d, readiness) {
+  const primary = editorPrimary(d, readiness);
+  return readinessKey(readiness) + "|" + readiness.required.length + "|" + primary.label + "|" + primary.attrs;
+}
+
+function mobileBarHTML(d, readiness) {
+  return (
+    '<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions">' +
+    '<span class="editor-mobile-save" data-document-device-save>' +
+    esc(localSaveText(app_savedworkContext())) +
+    '</span><div class="editor-mobile-actions" data-bar-key="' +
+    esc(mobileBarKey(d, readiness)) +
+    '">' +
+    mobileBarActionsHTML(d, readiness) +
+    "</div></div>"
+  );
+}
+
+function readinessKey(readiness) {
+  const first = readinessFirst(readiness);
+  return first ? first.index + ":" + first.label : "none";
+}
+
+function readinessLineHTML(d, readiness) {
+  return (
+    checkChip(d, readiness) +
+    '<span class="readiness-actions" data-readiness-key="' +
+    esc(readinessKey(readiness)) +
+    '">' +
+    readinessActionsHTML(readiness) +
     "</span>"
   );
 }
@@ -1242,7 +1349,7 @@ function editorPrimary(d, ready = editorReadiness(d)) {
   if (!locked)
     return { label: ready.held ? "Review held draft" : ready.required.length ? "Continue review" : "Review &amp; issue", attrs: 'id="btn-final"' };
   if (!d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d))
-    return { label: "Finish PDF filing", attrs: 'data-editor-command="btn-retryfiling"' };
+    return { label: "File issued PDF", attrs: 'data-editor-command="btn-retryfiling"' };
   return { label: "Print issued PDF", attrs: 'id="btn-print"' };
 }
 
@@ -1261,8 +1368,13 @@ function editorSync() {
   const readiness = editorReadiness(d);
   const chip = document.getElementById("chk-chip");
   if (chip) chip.outerHTML = checkChip(d, readiness);
-  for (const label of document.querySelectorAll("[data-editor-readiness]"))
-    label.outerHTML = checkChip(d, readiness).replace('id="chk-chip"', "data-editor-readiness");
+  const actions = document.querySelector(".editor-readiness .readiness-actions"),
+    key = readinessKey(readiness);
+  // Replace the actions only when they change, so a focused summary button keeps its focus.
+  if (actions && actions.dataset.readinessKey !== key) {
+    actions.innerHTML = readinessActionsHTML(readiness);
+    actions.dataset.readinessKey = key;
+  }
   const panel = document.getElementById("checkbox-panel");
   if (panel) {
     const open = panel.querySelector(".passed-checks")?.open;
@@ -1271,6 +1383,13 @@ function editorSync() {
   }
   const button = document.getElementById("btn-final");
   if (button) button.innerHTML = editorPrimary(d, readiness).label;
+  const bar = document.querySelector(".editor-mobile-actions"),
+    barKey = mobileBarKey(d, readiness);
+  // Replace only on change, so a focused bar button keeps its focus.
+  if (bar && bar.dataset.barKey !== barKey) {
+    bar.innerHTML = mobileBarActionsHTML(d, readiness);
+    bar.dataset.barKey = barKey;
+  }
   const review = document.querySelector('[data-editor-section="editor-review"]'),
     required = readiness.required.length;
   if (review) review.textContent = "Review" + (required ? " · " + required : "");
@@ -1366,13 +1485,18 @@ function screenWrite() {
                 ""
             : "",
         ) +
-        '<button class="btn" id="btn-savecase">Save case file</button>' +
+        // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
+        (WriterState.CASEDIR
+          ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
+          : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
+            '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
+            `<button class="btn" data-safety-case="${esc(d.caseId)}" data-safety-action="storage">Connect shared folder</button>`) +
         `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
         ""
       : "";
   const actions =
     "" +
-    `${d.draft ? '<button class="btn" id="btn-save">Save &amp; continue later</button>' : ""}` +
+    `${d.draft ? '<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>' : ""}` +
     '<button class="btn btn-primary editor-primary" ' +
     `${primary.attrs}` +
     ">" +
@@ -1404,22 +1528,23 @@ function screenWrite() {
     `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
     '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
     "ce</button></div>";
+  // The Inspection section appears only when it holds something to act on; ordinary inspection, property and
+  // mailing details are edited on the working document, where required checks link to the exact field.
+  const reviewVisit = fr && fr.draft && !d.correction && !d.pendingAmendment,
+    inspectionParts = `${newDocuments.details(d)}${snow.factsForm(d)}${correctionPanel(d)}`;
   const inspection =
-    '<div class="editor-taskbar no-print">' +
-    "".concat(fr && fr.draft && !d.correction && !d.pendingAmendment ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
-    '<p class="hint">' +
-    "".concat(
-      locked
-        ? "Issued details are retained with the document."
-        : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
-    ) +
-    "</p></div>" +
-    `${newDocuments.details(d)}` +
-    "" +
-    `${snow.factsForm(d)}` +
-    "" +
-    `${correctionPanel(d)}` +
-    "";
+    reviewVisit || inspectionParts
+      ? '<div class="editor-taskbar no-print">' +
+        "".concat(reviewVisit ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
+        '<p class="hint">' +
+        "".concat(
+          locked
+            ? "Issued details are retained with the document."
+            : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
+        ) +
+        "</p></div>" +
+        inspectionParts
+      : "";
   const work =
     '<div class="editor-taskbar no-print">' +
     `${structEditable(d) ? '<button class="btn" id="btn-add-top">+ Select violations</button>' : ""}` +
@@ -1463,9 +1588,10 @@ function screenWrite() {
     "" +
     `${specialType(d.type) ? "" : duePanel(d, false)}` +
     "";
+  // The single complete checklist; the status summary itself is the editor's top readiness line.
   const review =
     '<div class="docpanel no-print"><div class="chipstrip">' +
-    `${!locked ? checkChip(d, ready) : '<span class="cchip">This document is read-only</span>'}` +
+    `${!locked ? "<strong>Full checklist</strong>" : '<span class="cchip">This document is read-only</span>'}` +
     '<button class="btn btn-sm" id="btn-checks" aria-controls="checkbox-panel' +
     '" aria-expanded="true">Hide checks</button></div><div id="checkbox-panel' +
     '">' +
@@ -1511,19 +1637,14 @@ function screenWrite() {
       'button><button data-editor-section="editor-review">Review' +
       `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
       "</button></nav>" +
-      "".concat(
-        !locked
-          ? '<div class="editor-readiness no-print">' +
-              checkChip(d, ready).replace('id="chk-chip"', "data-editor-readiness") +
-              "<span>Required checks link to the field that needs attention.</span></div>"
-          : "",
-      ) +
+      "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
       "" +
       `${editorSection("editor-inspection", "Inspection", inspection)}` +
       "" +
       `${editorSection("editor-items", "Items and due dates", work)}` +
       "" +
       `${editorSection("editor-review", "Review", review)}` +
+      `${mobileBarHTML(d, ready)}` +
       "</div>",
   );
 }
@@ -1705,8 +1826,7 @@ function modalHTML() {
       `${esc(recipientPreview(k.agent || {}))}` +
       '</p><button class="btn btn-sm" data-parse-address="agent|0">Preview stan' +
       'dardized agent address</button>\n      </div><div style="width:34px"></di' +
-      'v></div>\n      </div><div class="modal-f"><button class="btn" id="btn-sa' +
-      'vework">Save &amp; continue later</button><button class="btn btn-primary' +
+      'v></div>\n      </div><div class="modal-f"><button class="btn btn-primary' +
       '" data-close="modal">Done</button></div></div></div>'
     );
   }
@@ -1715,10 +1835,10 @@ function modalHTML() {
       safe = WriterState.CASES.filter((k) => !caseUnsaved(k));
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
-      '">\n      <div class="modal-h"><h2>Clear cases off the list</h2></div><di' +
-      'v class="modal-b">\n      <div class="banner info"><div>The list is your ' +
-      "working desk, not the record. Clearing a case does not touch its file on" +
-      " the share &mdash; <strong>Open case file</strong> brings it straight ba" +
+      '">\n      <div class="modal-h"><h2>Remove cases from this workspace</h2></div><di' +
+      'v class="modal-b">\n      <div class="banner info"><div>This workspace is your ' +
+      "working desk, not the record. Removing a case from this workspace does not delete its shared case record" +
+      " &mdash; <strong>Open saved case</strong> brings it straight ba" +
       "ck.</div></div>\n      " +
       "".concat(
         safe.length
@@ -1726,7 +1846,7 @@ function modalHTML() {
               `${safe.length}` +
               " case" +
               `${safe.length === 1 ? "" : "s"}` +
-              " safe to clear</strong> &mdash; all current case details and issued hist" +
+              " safe to remove</strong> &mdash; all current case details and issued hist" +
               "ory are saved to the share; no unfinished work remains.</p>\n        <ul " +
               'class="clearlist">' +
               "".concat(
@@ -1747,7 +1867,7 @@ function modalHTML() {
               `${risky.length}` +
               " case" +
               `${risky.length === 1 ? " has" : "s have"}` +
-              " work that has not reached the share.</strong> Clearing " +
+              " work that has not reached the share.</strong> Removing " +
               `${risky.length === 1 ? "it" : "them"}` +
               ' would lose that work.</div></div>\n        <ul class="clearlist">' +
               "".concat(
@@ -1771,7 +1891,7 @@ function modalHTML() {
       'e="modal">Cancel</button>\n        ' +
       "".concat(
         safe.length
-          ? '<button class="btn btn-primary" data-clearcases="safe">Clear the ' +
+          ? '<button class="btn btn-primary" data-clearcases="safe">Remove the ' +
               `${safe.length}` +
               " safe case" +
               `${safe.length === 1 ? "" : "s"}` +
@@ -1779,7 +1899,9 @@ function modalHTML() {
           : "",
       ) +
       "\n        " +
-      "".concat(risky.length ? `<button class="btn" data-clearcases="all">Clear all ${WriterState.CASES.length}, losing that work</button>` : "") +
+      "".concat(
+        risky.length ? `<button class="btn" data-clearcases="all">Remove all ${WriterState.CASES.length}, losing that unsaved work</button>` : "",
+      ) +
       "\n      </div></div></div>"
     );
   }
@@ -1906,17 +2028,9 @@ function modalHTML() {
           : '<div class="banner ok"><div>Every check passed.</div></div>',
     ) +
     "\n      " +
+    // The decision: blocking failures and advisories link back to their fields; passed checks stay in the Review checklist.
     `${ch.map((c, ix) => (!c.ok ? checkRowHTML(c, ix) : "")).join("")}` +
-    '\n      <details class="passed-checks"><summary>' +
-    `${ch.filter((c) => c.ok).length}` +
-    " checks passed</summary>" +
-    "".concat(
-      ch
-        .filter((c) => c.ok)
-        .map((c) => `<div class="check pass"><span class="m">✓</span><span>${esc(c.t)}</span></div>`)
-        .join(""),
-    ) +
-    '</details>\n      <label class="f" style="margin-top:16px"><span>Mailed d' +
+    '\n      <label class="f" style="margin-top:16px"><span>Mailed d' +
     'ate</span><input type="date" id="fin-mailed" value="' +
     `${esc(d.mailed || recordDay(today))}` +
     '" max="' +
@@ -1973,7 +2087,7 @@ function modalHTML() {
     '.json</span>.</p></div>\n    <div class="modal-f"><button class="btn" dat' +
     'a-close="modal">' +
     `${bad.length ? "Back to the document" : "Cancel"}` +
-    '</button><button class="btn" id="btn-savework">Save &amp; continue later' +
+    '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
     '</button>\n      <button class="btn btn-primary" id="fin-go" ' +
     `${bad.length ? 'disabled title="Clear the outstanding checks first"' : ""}` +
     ">" +
@@ -2039,6 +2153,25 @@ function render() {
     : [];
   // A background repaint of the same snow citation must keep focus in the snow fact being entered.
   const snowFocus = sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + checkAttr(active.dataset.snow) + '"]' : "";
+  // A late save or filing repaint of the same document must not take focus from an identified form field
+  // being typed in, such as the correction reason: its input already reached the model, so the new field
+  // shows the same value. Dialogs, locks, navigation and changed model values use the newly rendered field.
+  const fieldFocus =
+    sameDocument &&
+    !snowFocus &&
+    previous.contains(active) &&
+    active.id &&
+    active.matches("input,textarea,select") &&
+    !WriterState.state.modal &&
+    !WriterState.state.picker &&
+    !isLocked(editingDoc)
+      ? {
+          id: active.id,
+          value: active.value,
+          start: typeof active.selectionStart === "number" ? active.selectionStart : null,
+          end: typeof active.selectionEnd === "number" ? active.selectionEnd : null,
+        }
+      : null;
   const worksheet = document.querySelector("[data-worksheet-context]"),
     inspectionChecks = document.querySelector(".ri-checks");
   const keepInspectionChecks =
@@ -2138,6 +2271,18 @@ function render() {
   }
   if (snowFocus && !WriterState.state.modal && !WriterState.state.picker)
     document.querySelector(".document-workspace " + snowFocus)?.focus({ preventScroll: true });
+  if (fieldFocus && !WriterState.state.modal && !WriterState.state.picker) {
+    const field = document.getElementById(fieldFocus.id);
+    if (field && field.closest(".document-workspace") && field.value === fieldFocus.value && document.activeElement !== field) {
+      field.focus({ preventScroll: true });
+      if (fieldFocus.start !== null && typeof field.setSelectionRange === "function")
+        try {
+          field.setSelectionRange(fieldFocus.start, fieldFocus.end);
+        } catch (error) {
+          // Date and select controls have no text selection; focus alone is restored.
+        }
+    }
+  }
   const q = document.getElementById("pk-q");
   if (q) {
     q.focus();
