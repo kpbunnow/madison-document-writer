@@ -1,9 +1,9 @@
-import { toast } from "./court_and_deposits.js";
+import { changeCharge as changeChargeBasis, chargeChoices, choosesCharge, toast } from "./court_and_deposits.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { saveAndContinue } from "./draft_recovery.js";
 import { citationDepositFault } from "./case_timeline.js";
 import { render } from "./inspection_import.js";
-import { citationPricingDate, doc, esc as dep_esc, isLocked, itemLibraryKey } from "./app_core.js";
+import { citSelector, citationPricing, citationPricingDate, doc, esc as dep_esc, isLocked, itemLibraryKey } from "./app_core.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Required completion is stored as a request, never as a blank citation. */
@@ -18,6 +18,7 @@ export function initDepositStep() {
     const i = d.items.find((x) => x.id === id),
       c = { ...request, ...values },
       ord = canonicalOrdinance(c.ord);
+    delete c.ordEditingFrom;
     if (!ord) return false;
     c.ord = ord;
     const priced = resolveCitationAmount({
@@ -82,6 +83,39 @@ export function initDepositStep() {
       '" ' +
       extra +
       "></label>";
+    // R59: several item sections → choose exactly one; a charge outside them stays a secondary, sourced entry.
+    const chargeSelect = (i, c) => {
+      const choices = chargeChoices(i),
+        chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
+        listed = choices.some((x) => x.value === chosen);
+      return (
+        '<label class="f"><span>Charged ordinance</span><select name="ord" aria-label="' +
+        esc("Charged ordinance for item " + i.no) +
+        '"' +
+        (listed || !chosen ? " required" : "") +
+        '><option value="">Choose the charged ordinance</option>' +
+        choices
+          .map((x) => '<option value="' + esc(x.value) + '" ' + (listed && x.value === chosen ? "selected" : "") + ">" + esc(x.label) + "</option>")
+          .join("") +
+        "</select></label>" +
+        input("ordOther", "Different charge — ordinance outside the item’s sections", "text", "", listed ? "" : c.ord || "")
+      );
+    };
+    // An ordinance with several schedule rows needs its scheduled offense, as on the charge card.
+    const offenseSelect = (i, c) => {
+      const entries = CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord));
+      return entries.length > 1
+        ? '<label class="f"><span>Scheduled offense</span><select name="scheduleEntryId" aria-label="' +
+            esc("Scheduled offense for item " + i.no) +
+            '"><option value="">Choose the charged offense</option>' +
+            entries
+              .map(
+                (e) => '<option value="' + esc(e.id) + '" ' + (c.scheduleEntryId === e.id ? "selected" : "") + ">" + esc(e.description) + "</option>",
+              )
+              .join("") +
+            "</select></label>"
+        : "";
+    };
     const measurements = (c.measurementFields || [])
       .map((f) =>
         f.boolean
@@ -123,7 +157,8 @@ export function initDepositStep() {
       "</h3><p>" +
       esc(c.reason || "Choose an approved deposit basis.") +
       '</p><div class="grid g2">' +
-      input("ord", "Charged ordinance", "text", "required") +
+      (choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required")) +
+      offenseSelect(i, c) +
       (measured
         ? measurements
         : '<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ' +
@@ -181,6 +216,11 @@ export function initDepositStep() {
   }
   function values(node, c) {
     const result = Object.fromEntries(new FormData(node));
+    if (Object.hasOwn(result, "ordOther")) {
+      const other = String(result.ordOther || "").trim();
+      if (other) result.ord = other;
+      delete result.ordOther;
+    }
     if (c.measurementFields?.length) {
       result.depositMode = "schedule";
       result.measurements = Object.fromEntries(
@@ -225,9 +265,48 @@ export function initDepositStep() {
       diameter.required = choice.value !== "false";
       diameter.disabled = choice.value === "false";
     }
-    Object.assign(c, values(node, c));
+    const ordField = /^(ord|ordOther)$/.test(e.target.name || "");
+    if (ordField && e.type === "change" && e.target.name === "ord" && node.querySelector("[name=ordOther]"))
+      node.querySelector("[name=ordOther]").value = "";
+    const next = values(node, c),
+      typed = next.ord;
+    // R59: the charge commits only on its change event, through changeCharge. While it is typed, the text is kept
+    // (ordEditingFrom, as on the charge card) so a repaint never loses it and pricing waits for the commit.
+    delete next.ord;
+    Object.assign(c, next);
     WriterState.DIRTY = true;
+    if (ordField && e.type === "input") {
+      if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
+      c.ord = String(typed || "");
+    }
+    if (ordField && e.type === "change") {
+      changeCharge(ctx, typed);
+      return;
+    }
+    // Choosing the scheduled offense of an ordinance with several rows prices the charge at once.
+    if (e.target.name === "scheduleEntryId" && e.type === "change") {
+      citationPricing.refresh(ctx.d);
+      settle(ctx);
+      return;
+    }
     scheduleDraftSave();
+  }
+  function settle({ d, id }) {
+    saveDrafts();
+    render();
+    const target = d.depositRequests?.[id] ? findForm(id)?.querySelector("[name=ord]") : document.querySelector(citSelector(id, "ord"));
+    target?.focus({ preventScroll: true });
+  }
+  /* R59: a changed charge clears every value priced, measured or approved for the previous one, then runs
+     the ordinary pricing (changeCharge); focus returns to the charge wherever it is now shown. */
+  function changeCharge(ctx, value) {
+    if (Object.hasOwn(ctx.c, "ordEditingFrom")) ctx.c.ord = ctx.c.ordEditingFrom;
+    delete ctx.c.ordEditingFrom;
+    if (!changeChargeBasis(ctx.d, ctx.id, value)) {
+      scheduleDraftSave();
+      return;
+    }
+    settle(ctx);
   }
   document.addEventListener("input", update);
   document.addEventListener("change", update);
@@ -237,7 +316,15 @@ export function initDepositStep() {
     const ctx = context(e.target);
     if (!ctx) return;
     const { node, d, id, c } = ctx;
-    Object.assign(c, values(node, c));
+    const submitted = values(node, c);
+    if (Object.hasOwn(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
+    delete c.ordEditingFrom;
+    // A charge changed without its change event is re-priced from nothing first, never completed with stale values.
+    if ((canonicalOrdinance(submitted.ord) || String(submitted.ord || "").trim()) !== (canonicalOrdinance(c.ord) || String(c.ord || "").trim())) {
+      changeCharge(ctx, submitted.ord);
+      return;
+    }
+    Object.assign(c, submitted);
     const wasMeasured = !!c.measurementFields?.length;
     if (!complete(d, id, values(node, c))) {
       if (wasMeasured && !c.measurementFields?.length) {

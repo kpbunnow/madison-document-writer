@@ -25,6 +25,7 @@ Add a new suite under the feature it covers.
 | `audit_r50_import_repaint.js` | Import disclosure, picker focus and navigation across repaints |
 | `audit_r53_status_rules.js` | Inspection type and status decide the document |
 | `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
+| `audit_r59_import_selection.js`, `audit_r59_import_reuse.py` | Four labelled facts per inspection candidate, highlighted pressed selection, a used candidate selectable with its blocker, stale shared checks ignored; the store refuses a new document reusing an imported inspection |
 
 ## Document authoring and language
 
@@ -56,6 +57,7 @@ Add a new suite under the feature it covers.
 | `audit_r33_core.js`, `audit_r33_core.py` | Immutable citation faces, court fields, library identity |
 | `audit_r35.js` | Initial-inspection citation replaces the Official Notice |
 | `audit_properties.js`, `audit_properties_helper.py` | Property-based pricing and storage checks with replayed seeds |
+| `audit_r59_charge_select.js` | Several item sections: explicit charged-ordinance select, pricing from the configured schedule, changed choice clears the previous charge's values, unscheduled and multi-row ordinances, different-charge path, save/reopen |
 
 ## Snow citations
 

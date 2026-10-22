@@ -355,6 +355,17 @@ async function findDatabaseCase() {
   }
 }
 
+/* R59: any eligible candidate of the current case can be chosen, including one already used, so its
+   duplicate-use blocker is shown for that selection. Each change bumps the selection token. */
+function selectImportInspection(index) {
+  const acc = WriterState.state.acc,
+    c = acc?.cases?.[acc.caseIx || 0];
+  if (!c || !c.rows.some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
+  acc.sel = index;
+  WriterState.ACC_SELECTION_SERIAL++;
+  return true;
+}
+
 async function confirmDatabaseCase() {
   const acc = WriterState.state.acc;
   if (WriterState.LOOKUP_BUSY || !acc) return;
@@ -362,8 +373,13 @@ async function confirmDatabaseCase() {
   acc.shareError = "";
   const before = lookupPlanSignature(acc);
   WriterState.LOOKUP_BUSY = true;
-  const serial = ++WriterState.LOOKUP_SERIAL;
-  const active = () => serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc;
+  const serial = ++WriterState.LOOKUP_SERIAL,
+    selection = WriterState.ACC_SELECTION_SERIAL,
+    selected = acc.sel;
+  // A shared-record result started for an earlier selection never confirms the current one.
+  const sameSelection = () => selection === WriterState.ACC_SELECTION_SERIAL && acc.sel === selected;
+  const active = () =>
+    serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc && sameSelection();
   render();
   try {
     if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
@@ -387,6 +403,7 @@ async function confirmDatabaseCase() {
   } finally {
     if (serial === WriterState.LOOKUP_SERIAL) {
       WriterState.LOOKUP_BUSY = false;
+      if (!sameSelection() && WriterState.state.acc === acc) toast("The selected inspection changed. Review it and confirm again.");
       await saveDrafts();
       render();
     }
@@ -2379,6 +2396,7 @@ export {
   checkLookupShared,
   findDatabaseCase,
   confirmDatabaseCase,
+  selectImportInspection,
   accelaPlan,
   acceptAccela,
   attachCheckTargets,

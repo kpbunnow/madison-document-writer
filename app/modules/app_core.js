@@ -166,6 +166,7 @@ import {
   render,
   renderKeep,
   renumber,
+  selectImportInspection,
   worksheetChecks,
 } from "./inspection_import.js";
 import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./document_pagination.js";
@@ -2072,11 +2073,14 @@ document.addEventListener("change", (e) => {
   if (ds.reviewCit) {
     const d = doc(WriterState.state.docId);
     if (d && !isLocked(d)) {
-      editCitation(d, ...ds.reviewCit.split("|"), e.target.value);
+      const [id, field] = ds.reviewCit.split("|");
+      editCitation(d, id, field, e.target.value);
       WriterState.DIRTY = true;
       saveDrafts();
       refreshSheet();
       initialCitations.refresh(d);
+      // R59: a charge that now needs its deposit basis keeps focus on that charge's completion form.
+      if ((field === "ord" || field === "ordOther") && d.depositRequests?.[id]) depositStep.open(d, id);
     }
     return;
   }
@@ -2134,6 +2138,8 @@ WriterState.LOOKUP_BUSY = false;
 WriterState.LOOKUP_ERROR = "";
 WriterState.LOOKUP_CONTROLLER = null;
 WriterState.LOOKUP_SERIAL = 0;
+// R59: bumps on every inspection-candidate change so a check started for an earlier selection is ignored.
+WriterState.ACC_SELECTION_SERIAL = 0;
 
 export const LOOKUP_READY = new WeakSet();
 export const SQL_COLUMNS = {
@@ -3208,6 +3214,7 @@ document.addEventListener("click", async (e) => {
         serial = WriterState.LOOKUP_SERIAL;
       WriterState.state.acc.caseIx = ix;
       WriterState.state.acc.sel = WriterState.state.acc.cases[ix].sel;
+      WriterState.ACC_SELECTION_SERIAL++;
       WriterState.state.acc.manualDate = "";
       WriterState.state.acc.manualTime = "";
       accelaFromShare().then(() => {
@@ -3232,7 +3239,7 @@ document.addEventListener("click", async (e) => {
   }
   if (t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY) {
     const selected = +t.dataset.accsel;
-    WriterState.state.acc.sel = selected;
+    if (!selectImportInspection(selected)) return;
     scheduleDraftSave();
     renderKeep();
     document.querySelector('[data-accsel="' + selected + '"]')?.focus({ preventScroll: true });

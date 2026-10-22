@@ -22,7 +22,9 @@ import {
   checkTarget,
   citSelector,
   citationPricing,
+  citationPricingDate,
   clone,
+  correctionSource,
   countBlanks,
   daysBetween,
   doc,
@@ -41,6 +43,7 @@ import {
   isLLC,
   isLocked,
   iso,
+  itemLibraryKey,
   itemSelector,
   kase,
   newDocuments,
@@ -51,7 +54,7 @@ import {
   unchangedCorrectionValue,
   unchangedCourtDate,
 } from "./app_core.js";
-import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveOrdinance } from "./citation_policy.js";
+import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";
@@ -126,6 +129,118 @@ function citationNumber() {
     }
   }
   return "B" + String(base).padStart(9, "0").slice(-9) + String(Math.floor(Math.random() * 100)).padStart(2, "0");
+}
+
+/* R59: an item with several sections charges one of them, chosen explicitly. Options keep each section as
+   stored for display and use its canonical ordinance as the charged value. */
+function chargeChoices(i) {
+  const seen = new Set();
+  return (i?.sections || [])
+    .map((s) => ({ value: canonicalOrdinance(s) || String(s || "").trim(), label: String(s || "").trim() }))
+    .filter((x) => x.value && !seen.has(x.value) && seen.add(x.value));
+}
+const choosesCharge = (i) => (i?.sections || []).length > 1;
+
+/* R59: every value derived from, priced for or approved for the previous charge. A new charge is priced
+   afresh; an administrator override, tier override and manual deposit basis are tied to the old charge. */
+const CHARGE_DERIVED = [
+  "scheduleEntryId",
+  "pricedEntryId",
+  "base",
+  "cc",
+  "amount",
+  "assessments",
+  "resolvedVia",
+  "depositSource",
+  "depositReason",
+  "reconfirmDeposit",
+  "depositEditInvalid",
+  "depositApproved",
+  "measurements",
+  "measurementFields",
+  "rowDescription",
+  "rowSelectionNotice",
+  "mandatoryAppearance",
+  "pricedOn",
+  "policyVersionHash",
+  "overrideBasis",
+  "tierOverride",
+  "tierOverrideSource",
+  "historicalDeposit",
+  "countedOffenses",
+  "computedTier",
+  "pricingWarning",
+  "siteMatch",
+  "chargeStale",
+  "reason",
+];
+/* The schedule row, measurements and authorizations of the previous charge. A single-section (or free-text)
+   charge edit clears only these and keeps the R31 contract: an earlier amount stays only as a blocked
+   proposal (reconfirmDeposit) until its source and amount are confirmed again or the new charge is priced. */
+const CHARGE_IDENTITY = [
+  "scheduleEntryId",
+  "pricedEntryId",
+  "rowDescription",
+  "rowSelectionNotice",
+  "measurements",
+  "measurementFields",
+  "mandatoryAppearance",
+  "overrideBasis",
+  "tierOverride",
+  "tierOverrideSource",
+  "depositApproved",
+  "depositEditInvalid",
+  "historicalDeposit",
+  "chargeStale",
+];
+function clearChargeBasis(c, i) {
+  // An explicit choice among several sections starts from nothing: every derived and approved value goes.
+  const full = choosesCharge(i);
+  for (const key of full ? CHARGE_DERIVED : CHARGE_IDENTITY) delete c[key];
+  if (full) c.depositMode = "schedule";
+  c.autoFilledCharge = false;
+  // A different-charge confirmation belongs to that charge; choosing one of the item's sections retires it.
+  if (chargeChoices(i).some((x) => x.value === canonicalOrdinance(c.ord))) delete c.differentChargeSource;
+}
+
+const chargeValue = (v) => canonicalOrdinance(v) || String(v || "").trim();
+
+/* R59: one path for every charge edit (charge card, deposit step, initial citations). A drafted citation or a
+   required-completion request takes the new ordinance without the old charge's basis (clearChargeBasis), then the ordinary pricing
+   runs: a scheduled amount completes the charge; otherwise the request shows that charge's own reason. An
+   unchanged-correction charge returns to its original's retained basis. Returns false when nothing changed. */
+function changeCharge(d, iid, value) {
+  const i = (d.items || []).find((x) => x.id === iid),
+    c = d.cits?.[iid] || d.depositRequests?.[iid];
+  if (!c) return false;
+  const ord = chargeValue(value);
+  if (ord === chargeValue(c.ord)) {
+    c.ord = ord;
+    return false;
+  }
+  c.ord = ord;
+  clearChargeBasis(c, i);
+  const original = d.correction && correctionSource(d)?.cits?.[iid];
+  if (original && chargeValue(original.ord) === ord)
+    for (const key of CHARGE_DERIVED) if (Object.hasOwn(original, key)) c[key] = clone(original[key]);
+  if (d.cits?.[iid] === c) {
+    applyDeposit(d, iid, ord);
+    return true;
+  }
+  citationPricing.refresh(d);
+  if (d.depositRequests?.[iid] === c) {
+    const price = resolveCitationAmount({
+      ordinance: c.ord,
+      libraryItem: itemLibraryKey(i),
+      entryId: c.scheduleEntryId,
+      tier: c.tier || 1,
+      date: citationPricingDate(c, d),
+      measurements: c.measurements || {},
+    });
+    c.reason = price.reason || "Choose an approved deposit basis.";
+    c.measurementFields = price.fields || [];
+  }
+  return true;
 }
 
 function applyDeposit(d, iid, ord) {
@@ -939,6 +1054,11 @@ async function filePdf(d, job) {
 }
 
 export {
+  CHARGE_DERIVED,
+  changeCharge,
+  chargeChoices,
+  choosesCharge,
+  clearChargeBasis,
   nextCourtDate,
   citationNumber,
   applyDeposit,

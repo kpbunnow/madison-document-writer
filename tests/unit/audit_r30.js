@@ -165,7 +165,7 @@ const test = async () => {
     assert.equal(follow.type, "citation");
     assert.equal(Object.keys(follow.cits).length, 0);
     assert.ok(Object.keys(follow.depositRequests).length);
-    assert.ok(authoringChecks(follow).some((x) => !x.ok && /one complete ordinance/.test(x.t)));
+    assert.ok(authoringChecks(follow).some((x) => !x.ok && /choose the charged ordinance from its sections/.test(x.t)));
     assert.ok(depositStep.complete(follow, follow.items[0].id, { ord: "27.05(2)(c)", depositMode: "schedule" }));
     assert.equal(Object.values(follow.cits)[0].amount, "197.00");
     issueDocument(follow);
