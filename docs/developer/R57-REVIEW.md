@@ -1,59 +1,12 @@
-# R56 Writer simplification and dated extensions
+# R57 Document Writer usability
 
-Development baseline: main `422a73e` (R55 as packaged).
-Identity: 2026-10-21 R56, helper 2026.10.21.57, helperBuild 57.
-Authoring 13 (new); case schema 5, summary 6 and workspace backup 2 are unchanged.
-
-## Changes (division requests)
-
-1. The document's "Preview mailing address" button is removed. Copy and registered-agent
-   recipients keep their standardized-address preview; the owner's respondent key uses the
-   imported address.
-2. The notice editor's "Property record details" parcel field and the "Other initial
-   inspection actions" panel are removed. A notice still requires a 12-digit parcel (division
-   rule 09/18/2026); the check now directs staff to correct it in Accela and import again.
-   Initial emergency documents come only from the imported Accela status. The correction
-   panel's audited property-record section is unchanged.
-3. One "Recipients" button replaces "Inspection & recipients" and "Copies & email…" and opens
-   the recipient dialog directly; inspection details remain under an "Inspection" heading.
-4. Cite is offered only when the imported Accela inspection status is Citation, on the notice
-   editor and the reinspection worksheet; the status-match check remains.
-   When a re-import changes the status to one that does not permit citations (for example
-   Citation corrected to Official Notice), existing citation marks and their draft citation and
-   deposit data are cleared, also for drafts restored from this machine; an existing mark can
-   always be removed (review of PR #21). While only such an old mark remains, every item row
-   keeps the Cite column, empty where no box is offered, so Due Date stays under its heading
-   (follow-up review of PR #21).
-5. The "Add violation item" button below the document is removed; "+ Select violations" in
-   Items and due dates remains.
-6. Authoring 13: new Best Interest and Vacancy Extensions require a later due date for each
-   affected item, entered in Items and due dates; Vacancy Extensions are always dated and the
-   deadline-model choice is removed; unaffected items keep their dates. The helper refuses an
-   authoring-13 conditional Vacancy Extension. Authoring-12 and earlier documents, including
-   conditional Vacancy Extensions and their corrections, render and validate unchanged.
-
-## Retained decisions
-
-R54's shared extension layout, supervisory signer, item listing and CC handling remain. The
-R54 conditional label remains for authoring-12 reprints only. Approved wording, frozen
-fixtures, print goldens, all four court copies, integrity checks and the mandatory-appearance
-hold are unchanged.
-
-## Verification and acceptance
-
-Run the complete pinned-browser gate for the final tree; outcomes are recorded in the pull
-request and build/verification/latest/. New acceptance item S56 (staff review of the editor
-changes) and the extended P7 are open with City Windows, permissions/SMB/SQL, Outlook, native
-printing, staff/accessibility, performance and L1–L5. This review does not authorize
-packaging, publication, deployment or acceptance signoff.
-
-## Usability follow-up (development; release identity unchanged)
-
-Branch `develop/r56-usability`, commits `68f53d9`, `68c9815` and `13bfdad`. Identity stays
-2026-10-21 R56 (helper 2026.10.21.57, helperBuild 57, authoring 13); case schema 5, summary 6,
-backup 2, approved language, print stylesheet, frozen fixtures and court copies are unchanged.
-Behaviour is covered by tests/unit/audit_usability_phase1.js, phase2.js and phase3.js and the
-extended browser suites.
+Development baseline: main `5ec7003` (R56 as packaged). Merged as kpbunnow/madison-document-writer#26
+(`6cd619f`); review corrections for issues #22–#25 and #27 and two PR follow-up reviews are included.
+Identity: 2026-10-22 R57, helper 2026.10.22.58, helperBuild 58. Authoring 13, case schema 5,
+summary 6, workspace backup 2, approved language, print stylesheet, frozen fixtures and court copies
+are unchanged: R57 changes the Writer and Reports screens, not document output or data formats.
+Behaviour is covered by tests/unit/audit_usability_phase1.js, phase2.js and phase3.js,
+audit_report_export_scope.js, audit_r50_editor_repaint.js and the extended browser suites.
 
 1. Phase 1 (everyday actions). The editor's Inspection section appears only when it has
    something to act on (special-document details, snow facts, a correction or Review
@@ -116,8 +69,14 @@ element (`[data-special="affected"]`); they now link to the real affected-item c
 affected item's due-date field. Removing a case, singly or in a batch, no longer shows a
 "removed" toast after the removal was refused.
 
-**Acceptance and release.** Staff acceptance item S56B is open; narrow-screen, mobile and
-virtual-keyboard behaviour needs real-device review. Automated checks do not supply staff,
-accessibility or City acceptance. These changes are development work: a new release identity
-(R57) and packaging require the release owner's authorization; this follow-up does not
-authorize packaging, publication or deployment.
+**PR follow-up corrections.** Back to Reports clears any drill-down and saved-view selection
+opened in the Reports tab while Writer was open, so nothing outside the restored report stays
+visible. A late shared-save or filing repaint keeps focus, caret and typing in the identified
+editor field being edited (for example the correction reason) when the new field shows the same
+value; this inherited focus loss caused the intermittent audit_browser correction failure.
+
+**Acceptance and release.** R57 naming was authorized and S56B accepted by the requester on
+2026-10-22 (recorded in PR #26); that is requester acceptance, not a result of automated checks.
+City/native Windows, SMB/SQL, Outlook, native printing, assistive technology, L1–L5 and the
+mandatory-appearance hold remain open in ACCEPTANCE-RECORD.md. Packaging produces a verified
+package; it is not a live rollout.
