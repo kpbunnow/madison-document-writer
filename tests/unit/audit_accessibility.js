@@ -69,6 +69,6 @@ const test = async () => {
   document.querySelector("[data-a11y-history]").click();
   assert.ok(document.querySelector("#utility-dialog").textContent.includes("Synthetic failure"));
   document.querySelector("[data-utility-close]").click();
-  console.log("PASS persistent alerts, history, success duration, labels, landmarks, un" + "changed print source, modal Escape and focus return");
+  console.log("PASS alerts, history, success duration, labels, landmarks, un" + "changed print source, modal Escape and focus return");
 };
 eval(src + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");

@@ -4,7 +4,7 @@ import { caseFileName, caseNumberAllowed, loadCaseFile, shell, sourceDocFor, sta
 import { listCaseFolder, saveDrafts, scheduleDraftSave, startReinspection } from "./case_files.js";
 import { importResumePanel, workingNotesPanel } from "./issuance_and_corrections.js";
 import { recoveryStatusHTML, unissuedVisitFor } from "./draft_recovery.js";
-import { caseSearchText } from "./language_catalog.js";
+import { caseSearchText, saveWorkflowPrefs } from "./language_catalog.js";
 import {
   independentArtifact,
   inspectionIdentity,
@@ -442,6 +442,37 @@ function caseState(k) {
   };
 }
 
+/* R59: after an issuance Workspace opens on a view that lists the case. The current view, search and inspector
+   filter are kept when they already show it; only a filter that would hide it is relaxed (view to All cases,
+   search or inspector cleared). The row stays highlighted until the next navigation away from Workspace. */
+function revealIssuedCase(cid) {
+  const s = WriterState.state,
+    rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
+    row = workspaceQueue(rows, workspaceTasks(rows), app_workspacequeueContext()).find((r) => r.k.id === cid);
+  if (!row) return false;
+  const before = [s.caseFilter, s.caseQ, s.caseInspector].join("|"),
+    query = String(s.caseQ || "")
+      .toLowerCase()
+      .trim();
+  if (!queueMatches(row, s.caseFilter)) s.caseFilter = "all";
+  if (query && !caseSearchText(row.k).includes(query)) s.caseQ = "";
+  if (s.caseInspector && row.k.inspectorId !== s.caseInspector) s.caseInspector = "";
+  s.metric = "";
+  s.modal = null;
+  s.picker = false;
+  s.screen = "cases";
+  s.issuedCase = cid;
+  if ([s.caseFilter, s.caseQ, s.caseInspector].join("|") !== before) saveWorkflowPrefs();
+  return true;
+}
+
+function focusIssuedCase(cid) {
+  const row = [...document.querySelectorAll("tr[data-issued-highlight]")].find((el) => el.dataset.queueCase === cid);
+  if (!row) return;
+  row.scrollIntoView?.({ block: "center" });
+  row.focus({ preventScroll: true });
+}
+
 function screenCases() {
   const rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
     tasks = workspaceTasks(rows);
@@ -494,10 +525,13 @@ function screenCases() {
             ">Review</button></div>",
         )
         .join("");
+      const issued = WriterState.state.issuedCase === k.id;
       return (
         '<tr data-queue-case="' +
         `${esc(k.id)}` +
-        '"><td><div class="addr">' +
+        '"' +
+        (issued ? ' data-issued-highlight aria-current="true" class="check-focus" tabindex="-1"' : "") +
+        '><td><div class="addr">' +
         `${esc(k.address)}` +
         '</div><div class="mono">' +
         `${esc(k.number)}` +
@@ -1764,6 +1798,8 @@ export {
   uiIcon,
   caseState,
   screenCases,
+  revealIssuedCase,
+  focusIssuedCase,
   accelaTable,
   baseLookupPlan,
   readAccelaFile,

@@ -112,7 +112,12 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.evaluate(() => document.activeElement.blur());
     assert.equal(await bar.isVisible(), true);
     await bar.getByRole("button", { name: "Review", exact: true }).click();
-    assert.equal(await page.evaluate(() => document.activeElement.id), "editor-review-title");
+    // R59: the bar's Review opens the Review dialog, and Escape returns focus to the bar's button.
+    await page.locator("#overlay [data-review-dialog]").waitFor();
+    assert.equal(await page.evaluate(() => document.querySelector("[data-review-dialog]").contains(document.activeElement)), true);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
+    assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-mobile-review")), true);
     await page.evaluate(() => scrollTo(0, 0));
     // #25: 320px reflow (WCAG 1.4.10). The editable row's date-selection box, due date and remove button wrap inside
     // the item card, header fields stay inside the sheet and the More menu stays on screen; nothing widens the page
@@ -226,10 +231,11 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       }),
       true,
     );
-    await page.locator('[data-editor-section="editor-review"]').focus();
+    await page.locator("#btn-review").focus();
     await page.keyboard.press("Enter");
-    assert.equal(await page.evaluate(() => document.activeElement.id), "editor-review-title");
-    await page.locator("#checkbox-panel .check-link").filter({ hasText: "Item 1" }).first().focus();
+    await page.locator("#overlay [data-review-dialog]").waitFor();
+    assert.equal(await page.evaluate(() => document.querySelector("[data-review-dialog]").contains(document.activeElement)), true);
+    await page.locator("[data-review-dialog] [data-review-blocking] .check-link").filter({ hasText: "Item 1" }).first().focus();
     await page.keyboard.press("Enter");
     assert.equal(await page.evaluate(() => document.activeElement.dataset.field), "text");
     const field = page.locator('[data-field="text"]').first();
@@ -240,21 +246,20 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       .first()
       .fill(await page.evaluate(() => addDays(recordDay(today), 21)));
     await page.waitForFunction(() => blockers(doc(WriterState.state.docId)).length === 0);
-    assert.equal(await page.locator(".editor-primary").innerText(), "Review & issue");
+    assert.equal(await page.locator(".editor-primary").innerText(), "Issue");
     // Phase 2: one readiness summary in the top line, which now reports no required fixes.
     assert.equal(await page.locator("[data-editor-readiness],#chk-chip").count(), 1);
     assert.match(await page.locator(".editor-readiness #chk-chip[data-editor-readiness]").innerText(), /^Ready for review/);
     assert.equal(await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).count(), 0);
-    await page.locator("[data-editor-preview]").click();
-    await page.getByRole("heading", { name: "Print preview", exact: true }).waitFor();
-    await axeScreen(page, "r42-readonly-preview");
-    const preview = page.frameLocator(".editor-preview-frame");
-    await preview.locator(".desk").waitFor();
-    assert.equal(await preview.locator("[contenteditable],input,select,button").count(), 0);
-    await preview.locator("body").click({ position: { x: 30, y: 30 } });
+    // R59: no draft Print preview; the Review dialog lists the remaining concerns and returns focus on Escape.
+    assert.equal(await page.locator("[data-editor-preview]").count(), 0);
+    await page.locator("#btn-review").click();
+    await page.locator("#overlay [data-review-dialog]").waitFor();
+    assert.equal(await page.locator("[data-review-dialog] [data-review-blocking]").count(), 0);
+    await axeScreen(page, "r42-review-dialog");
     await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.getElementById("utility-dialog"));
-    assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-editor-preview")), true);
+    await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
+    assert.equal(await page.evaluate(() => document.activeElement.id), "btn-review");
     // The complete fixed print packet is independent of the representative screen copies.
     await page.evaluate(() => {
       doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
@@ -276,12 +281,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     } finally {
       await print.close();
     }
-    await page.locator("[data-editor-preview]").click();
-    await page.getByRole("heading", { name: "Print preview", exact: true }).waitFor();
-    await page.frameLocator(".editor-preview-frame").locator(".cit").first().waitFor();
-    assert.equal(await page.frameLocator(".editor-preview-frame").locator(".cit").count(), 4);
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.getElementById("utility-dialog"));
+    assert.equal(await page.locator("[data-editor-preview]").count(), 0, "no draft Print preview for the citation packet");
     fs.writeFileSync(
       path.join(OUT, "r42-editor-results.json"),
       JSON.stringify(
@@ -300,7 +300,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         "invalid draft and actionable keyboard checks",
         "caret retained",
         "readiness updates",
-        "preview focus return",
+        "review dialog focus return",
         "one screen copy and four print copies",
         "three viewport sizes",
         "dark high contrast and system themes",

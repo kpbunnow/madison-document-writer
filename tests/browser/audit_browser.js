@@ -44,6 +44,18 @@ async function axeScreen(page, screen) {
   );
   if (!process.env.DW_COLLECT_AXE) assert.equal(report.violations.length, 0, screen + " axe violations: " + JSON.stringify(report.violations));
 }
+// R59: a confirmed issuance returns to Workspace with the issued case row highlighted and focused; reopen a document from it.
+async function openIssuedFromWorkspace(page, docId, message) {
+  await page.waitForFunction(() => WriterState.state.screen === "cases" && !WriterState.state.publicationBusy);
+  assert.match(await page.locator("#toast").innerText(), message);
+  const row = page.locator("tr[data-issued-highlight]");
+  assert.equal(await row.count(), 1, "the issued case is highlighted in Workspace");
+  assert.equal(await row.evaluate((el) => el === document.activeElement && el.getAttribute("aria-current")), "true", "the issued case row has focus");
+  await row.locator(".queue-details > summary").click();
+  await row.locator('.queue-details [data-open="' + docId + '"]').click();
+  await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, docId);
+}
+
 async function axeThemes(page, screen) {
   for (const theme of ["dark", "high"]) {
     await page.evaluate((value) => A11Y.setTheme(value), theme);
@@ -360,9 +372,13 @@ async function axeThemes(page, screen) {
   await page.locator(".modal .check").filter({ hasText: "unfilled bubble" }).getByRole("button", { name: "Item 1", exact: true }).click();
   assert.equal(await page.evaluate(() => document.activeElement.dataset.field), "text", "Review check focuses the precise corrective-action field");
   assert.equal(await page.locator('[data-field="text"]').first().getAttribute("aria-invalid"), "true");
-  await page.locator("#btn-checks").click();
+  // R59: the Review dialog presents the actionable checks.
+  await page.locator("#btn-review").click();
+  await page.locator("#overlay [data-review-dialog] [data-review-blocking] .check-link").first().waitFor();
   await axeScreen(page, "actionable-checks");
   await page.screenshot({ path: path.join(OUT, "actionable-checks.png"), fullPage: true });
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
   const savedParcel = await page.evaluate(() => docCase(doc(WriterState.state.docId)).parcel);
   await page.evaluate(() => {
     docCase(doc(WriterState.state.docId)).parcel = "";
@@ -454,6 +470,7 @@ async function axeThemes(page, screen) {
   assert.equal(fs.readdirSync(path.join(work, "Case JSON Files", "Reporting Index")).length, 1);
   // Correct through the real UI and helper, including a lost HTTP response.
   const originalId = await page.evaluate(() => sourceDocFor(WriterState.CASES[0].id).id);
+  await openIssuedFromWorkspace(page, originalId, /Official Notice issued for /);
   const originalEvent = await page.evaluate(
     (id) => JSON.stringify(eventsFor(WriterState.CASES[0].id).find((e) => (e.payload.snapshot || {}).id === id)),
     originalId,
@@ -881,6 +898,8 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => !!doc(WriterState.state.docId).filedAt && doc(WriterState.state.docId).type === "extension");
   assert.equal(await page.evaluate(() => reinspFor(WriterState.CASES[0].id).length), 1);
   assert.equal(await page.evaluate(() => eventsFor(WriterState.CASES[0].id).filter((e) => e.type === "extension.issued").length), 1);
+  // R59: a confirmed save of a retained issuance also returns to Workspace with the case highlighted.
+  await openIssuedFromWorkspace(page, await page.evaluate(() => WriterState.state.docId), /Extension issued for /);
   await page.locator("#btn-recordnote").click();
   await page.locator("#record-action-text").fill("A partial record note survives save and continue.");
   await page.locator("#btn-savework").click();
@@ -1121,6 +1140,7 @@ async function axeThemes(page, screen) {
     2,
   );
   assert.equal(await page.evaluate((id) => reinspFor(doc(id).caseId).length, citId), 0);
+  await openIssuedFromWorkspace(page, citId, /Citation issued for /);
   await page.locator(".editor-more summary").click();
   await page.locator("#btn-correct").click();
   await page.waitForFunction(() => !!doc(WriterState.state.docId)?.correction);

@@ -470,7 +470,7 @@ function enhanceDialog() {
     box.setAttribute("aria-labelledby", "dialog-title");
   }
   box.tabIndex = -1;
-  if (WriterState.state.modal === "final") {
+  if (WriterState.state.modal === "final" || WriterState.state.modal === "review") {
     box.focus({ preventScroll: true });
     const body = box.querySelector(".modal-b");
     if (body) body.scrollTop = 0;

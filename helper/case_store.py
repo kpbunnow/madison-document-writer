@@ -1118,6 +1118,10 @@ def continuing_items(source, visits):
 
 
 IMPORT_USED = "This imported inspection has already been used; open the existing case"
+# inspectionKind in app_core.js: the imported inspection types. A visit worksheet is opened only from a
+# Reinspection or a CA Reinspection; documents may also carry the Initial Inspection they were written from.
+IMPORT_TYPES = ("initial", "reinspection", "caReinspection")
+VISIT_IMPORT_TYPES = ("reinspection", "caReinspection")
 
 
 def visit_import_identity(visit):
@@ -1149,7 +1153,7 @@ def validate_document_import(event, documents, visits):
     imported = snap.get("importInspection")
     if event["type"] == "correction.issued" or not imported:
         return
-    if not isinstance(imported, dict) or not imported.get("type") or not calendar_date(imported.get("date")):
+    if not isinstance(imported, dict) or imported.get("type") not in IMPORT_TYPES or not calendar_date(imported.get("date")):
         raise ValueError("Invalid imported inspection identity")
     linked, group = snap.get("fromReinspId"), snap.get("issuanceGroup")
     for other, _ in documents.values():
@@ -1193,7 +1197,7 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
         raise ValueError("An inspection identity can only be recorded once")
     imported = visit.get("importInspection")
     if imported:
-        if not isinstance(imported, dict) or imported.get("type") != "reinspection" or not calendar_date(imported.get("date")):
+        if not isinstance(imported, dict) or imported.get("type") not in VISIT_IMPORT_TYPES or not calendar_date(imported.get("date")):
             raise ValueError("Invalid imported inspection identity")
         prior = [visit_import_identity(r) for r in visits]
         prior.extend(d[0].get("importInspection") for d in documents.values())

@@ -597,7 +597,7 @@ function checks(d) {
   [
     [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
     [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
-    [checkTarget("#btn-add-top", "Select violations")],
+    [checkTarget("#btn-add-top", "Violation Items")],
     itemTargets(
       live.filter((i) => countBlanks(i.text)),
       "text",

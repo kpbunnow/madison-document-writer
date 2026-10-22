@@ -289,7 +289,7 @@ if (process.argv[2] === "reports") {
     const d = doc(WriterState.state.docId);
     d.items = [{ id: "u3-a", no: "1", title: "Wall repair", text: "Repair ( ) on the wall.", sections: ["27.05(2)(c)"], due: "", cite: false }];
     render();
-    assert.equal(text(document.querySelector("#btn-add-top")), "+ Select violations");
+    assert.equal(text(document.querySelector(".editor-sections #btn-add-top")), "Violation Items");
     WriterState.state.picker = true;
     render();
     const picker = document.querySelector(".picker-box");
@@ -300,7 +300,7 @@ if (process.argv[2] === "reports") {
     render();
     const bars = document.querySelectorAll(".document-workspace > .editor-mobile-bar");
     assert.equal(bars.length, 1, "one task bar");
-    const bar = bars[0];
+    let bar = bars[0];
     assert.ok(bar.classList.contains("no-print"));
     assert.equal(bar.getAttribute("role"), "region");
     assert.equal(bar.getAttribute("aria-label"), "Document task actions");
@@ -318,7 +318,7 @@ if (process.argv[2] === "reports") {
     const barPrimary = bar.querySelector("[data-mobile-primary]");
     assert.equal(text(barPrimary), text(document.querySelector(".topbar .editor-primary")));
     assert.equal(
-      bar.querySelectorAll(".editor-primary,#btn-final,[data-readiness-first],[data-editor-section]").length,
+      bar.querySelectorAll(".editor-primary,#btn-final,[data-readiness-first],[data-editor-section],[data-editor-review]").length,
       0,
       "no duplicate ids or toolbar hooks",
     );
@@ -330,7 +330,11 @@ if (process.argv[2] === "reports") {
     barPrimary.click();
     assert.equal(clicked, 1, "the bar's primary action runs the toolbar's own button");
     bar.querySelector("[data-mobile-review]").click();
-    assert.equal(document.activeElement.id, "editor-review-title");
+    assert.equal(WriterState.state.modal, "review", "the bar's Review opens the Review dialog");
+    assert.ok(document.querySelector("#overlay [data-review-dialog]").contains(document.activeElement));
+    WriterState.state.modal = null;
+    render();
+    bar = document.querySelector(".document-workspace > .editor-mobile-bar");
     // Save state is mirrored, including an unsaved state.
     WriterState.LOCAL_SAVE.ok = false;
     updateSaveStatus();

@@ -1,6 +1,6 @@
 import { helperStop } from "./helper_stopped.js";
 import { mailingMaxDay, recordDay, validCaseNumber } from "../assets/shared.js";
-import { checks, fmtDate, inspAt, parseTime, printJob, toast, validISO } from "./court_and_deposits.js";
+import { checks, fmtDate, inspAt, parseTime, toast, validISO } from "./court_and_deposits.js";
 import { caseDetails, helperJSON, loadCaseFile, reindexReport, shell, sourceDocFor, stableJSON, storageReport } from "./workspace_shell.js";
 import { caseUnsaved, recipientPreview, saveDrafts, scheduleDraftSave, updateSaveStatus, validateAndStandardizeAddresses } from "./case_files.js";
 import {
@@ -1278,7 +1278,7 @@ function readinessActionsHTML(readiness) {
         '" data-check-target="0">' +
         first.label +
         "</button>"
-      : "") + '<button type="button" class="lnk" data-open-checklist aria-controls="checkbox-panel">Open full checklist</button>'
+      : "") + '<button type="button" class="lnk" data-open-checklist aria-haspopup="dialog">Open full checklist</button>'
   );
 }
 
@@ -1335,23 +1335,57 @@ function readinessLineHTML(d, readiness) {
   );
 }
 
-function editorChecksHTML(d, readiness = editorReadiness(d)) {
-  const { list, required, advice } = readiness;
+/* R59: the Review dialog is the one review presentation. Blocking concerns come first, then advisories; each keeps
+   its check-link to the exact field (the link closes the dialog). Passed checks stay collapsed. */
+function reviewConcernsHTML(d, readiness = editorReadiness(d)) {
+  if (isLocked(d))
+    return (
+      "<p data-review-readonly>This document is read-only. Issued text and history are retained. Use Document actions for a " +
+      "correction, or Print issued PDF for the archived original.</p>"
+    );
+  const { list, required, advice } = readiness,
+    rows = (soft) => list.map((c, ix) => (!c.ok && !!c.soft === soft ? checkRowHTML(c, ix) : "")).join(""),
+    passed = list.filter((c) => c.ok).length;
   return (
-    "" +
-    "".concat(
-      !required.length && !advice.length
-        ? '<p class="hint">Required checks are complete. Review the document and recipients before issuing.</p>'
-        : "",
-    ) +
-    "" +
-    "".concat(list.map((c, ix) => (!c.ok ? checkRowHTML(c, ix).replace('id="check-msg-doc-', 'id="editor-check-msg-doc-') : "")).join("")) +
-    '<details class="passed-checks"><summary>' +
-    `${list.filter((c) => c.ok).length}` +
-    " checks passed</summary>" +
-    `${list.map((c, ix) => (c.ok ? checkRowHTML(c, ix) : "")).join("")}` +
-    "</details>"
+    (!required.length && !advice.length
+      ? '<div class="banner ok" data-review-clear><div>No concerns. This document is ready to issue.</div></div>'
+      : "") +
+    (required.length
+      ? '<section data-review-blocking aria-labelledby="review-blocking-title"><h3 id="review-blocking-title">Must fix before issuing</h3>' +
+        rows(false) +
+        "</section>"
+      : "") +
+    (advice.length
+      ? '<section data-review-advisories aria-labelledby="review-advisories-title"><h3 id="review-advisories-title">Advisories</h3>' +
+        rows(true) +
+        "</section>"
+      : "") +
+    (passed
+      ? '<details class="passed-checks"><summary>' +
+        passed +
+        " check" +
+        (passed === 1 ? "" : "s") +
+        " passed</summary>" +
+        list.map((c, ix) => (c.ok ? checkRowHTML(c, ix) : "")).join("") +
+        "</details>"
+      : "")
   );
+}
+
+function reviewModalHTML() {
+  const d = doc(WriterState.state.docId);
+  if (!d) return "";
+  return (
+    '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" data-review-dialog><div class="modal-h"><h2>Review</h2></div>' +
+    '<div class="modal-b">' +
+    reviewConcernsHTML(d) +
+    '</div><div class="modal-f"><button class="btn" data-close="modal">Close</button></div></div></div>'
+  );
+}
+
+// Fields keep their aria-describedby text for unresolved checks now that the checklist lives in the Review dialog.
+function editorCheckMessagesHTML(readiness) {
+  return readiness.list.map((c, ix) => (!c.ok ? '<span id="editor-check-msg-doc-' + ix + '">' + esc(c.t) + "</span>" : "")).join("");
 }
 
 function editorPrimary(d, ready = editorReadiness(d)) {
@@ -1365,7 +1399,8 @@ function editorPrimary(d, ready = editorReadiness(d)) {
     return { label: "Finishing document save…", attrs: "disabled" };
   if (d.draft && locked) return { label: "Review saved work", attrs: `data-sync-safety="${esc(d.caseId)}"` };
   if (!locked)
-    return { label: ready.held ? "Review held draft" : ready.required.length ? "Continue review" : "Review &amp; issue", attrs: 'id="btn-final"' };
+    // R59: Issue always opens the final confirmation, which re-runs blockers() and lists anything still to fix.
+    return { label: ready.held ? "Review held draft" : "Issue", attrs: 'id="btn-final"' };
   if (!d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d))
     return { label: "File issued PDF", attrs: 'data-editor-command="btn-retryfiling"' };
   return { label: "Print issued PDF", attrs: 'id="btn-print"' };
@@ -1393,12 +1428,8 @@ function editorSync() {
     actions.innerHTML = readinessActionsHTML(readiness);
     actions.dataset.readinessKey = key;
   }
-  const panel = document.getElementById("checkbox-panel");
-  if (panel) {
-    const open = panel.querySelector(".passed-checks")?.open;
-    panel.innerHTML = editorChecksHTML(d, readiness);
-    if (open) panel.querySelector(".passed-checks").open = true;
-  }
+  const messages = document.querySelector("[data-editor-check-messages]");
+  if (messages) messages.innerHTML = editorCheckMessagesHTML(readiness);
   const button = document.getElementById("btn-final");
   if (button) button.innerHTML = editorPrimary(d, readiness).label;
   const bar = document.querySelector(".editor-mobile-actions"),
@@ -1408,8 +1439,8 @@ function editorSync() {
     bar.innerHTML = mobileBarActionsHTML(d, readiness);
     bar.dataset.barKey = barKey;
   }
-  const review = document.querySelector('[data-editor-section="editor-review"]'),
-    required = readiness.required.length;
+  const review = document.getElementById("btn-review"),
+    required = isLocked(d) ? 0 : readiness.required.length;
   if (review) review.textContent = "Review" + (required ? " · " + required : "");
   editorEnhance();
 }
@@ -1428,56 +1459,6 @@ function editorSection(id, title, body) {
         `${body}` +
         "</section>"
     : "";
-}
-
-function editorNavigate(id) {
-  captureWork();
-  const section = document.getElementById(id);
-  if (!section) return;
-  const target = section.querySelector("h2");
-  target?.focus({ preventScroll: true });
-  section.scrollIntoView?.({ block: "start" });
-}
-
-function editorPreview() {
-  const d = doc(WriterState.state.docId);
-  if (!d) return;
-  const invoker = document.activeElement;
-  captureWork();
-  try {
-    const job = printJob(initialCitations.enabled(d) ? initialCitations.preview(d) : d);
-    if (!job) return;
-    invoker?.focus({ preventScroll: true });
-    A11Y.utility(
-      "Print preview",
-      "<p>" +
-        "".concat(
-          d.draft
-            ? "Draft layout only. This document has not been issued."
-            : "Layout from retained document data. Use Print issued PDF for the verified archived original.",
-        ) +
-        ' All court copies are included when applicable.</p><iframe class="editor' +
-        '-preview-frame" title="Read-only document layout preview" sandbox="allow' +
-        '-same-origin" srcdoc="' +
-        `${esc(job.html)}` +
-        '"></iframe>',
-    );
-    const dialog = document.getElementById("utility-dialog"),
-      frame = dialog?.querySelector(".editor-preview-frame");
-    // Scripts remain sandboxed. Forward Escape from the child document to the native dialog.
-    frame?.addEventListener("load", () =>
-      frame.contentDocument?.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          dialog.close();
-        }
-      }),
-    );
-    dialog?.querySelector("[data-utility-close]")?.focus();
-  } catch (error) {
-    invoker?.focus({ preventScroll: true });
-    toast(error.message || "This draft is not ready for a print preview. Complete its citation checks first.");
-  }
 }
 
 function screenWrite() {
@@ -1565,11 +1546,11 @@ function screenWrite() {
       : "";
   const work =
     '<div class="editor-taskbar no-print">' +
-    `${structEditable(d) ? '<button class="btn" id="btn-add-top">+ Select violations</button>' : ""}` +
     '<p class="hint">' +
     "".concat(
       editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
     ) +
+    "".concat(editable && !structEditable(d) ? " Violations are carried from the earlier document; edit their due dates in the item rows." : "") +
     " " +
     `${d.items.filter((x) => !x.done && !x.withdrawn).length}` +
     " outstanding" +
@@ -1589,11 +1570,7 @@ function screenWrite() {
     ) +
     '<div class="editor-preview-tools no-print"><span>Working document' +
     "".concat(d.type === "citation" || initialCitations.enabled(d) ? " · one representative court copy per charge" : "") +
-    '</span><button class="btn" data-editor-preview ' +
-    "".concat(ready.held ? 'disabled title="Division-approved mandatory appearance instructions are required"' : "") +
-    ">Print preview" +
-    `${d.type === "citation" || initialCitations.enabled(d) ? " · all copies" : ""}` +
-    '</button></div><div class="desk">' +
+    '</span></div><div class="desk">' +
     `${documentHTML(d)}` +
     "</div>" +
     "".concat(
@@ -1606,23 +1583,8 @@ function screenWrite() {
     "" +
     `${specialType(d.type) ? "" : duePanel(d, false)}` +
     "";
-  // The single complete checklist; the status summary itself is the editor's top readiness line.
-  const review =
-    '<div class="docpanel no-print"><div class="chipstrip">' +
-    `${!locked ? "<strong>Full checklist</strong>" : '<span class="cchip">This document is read-only</span>'}` +
-    '<button class="btn btn-sm" id="btn-checks" aria-controls="checkbox-panel' +
-    '" aria-expanded="true">Hide checks</button></div><div id="checkbox-panel' +
-    '">' +
-    "".concat(
-      !locked
-        ? editorChecksHTML(d, ready)
-        : "<p>Issued text and history are retained. Use Document actions for a corr" + "ection, or Print issued PDF for the archived original.</p>",
-    ) +
-    "</div></div>" +
-    `${recordHistoryHTML(d)}` +
-    "" +
-    `${newDocuments.actionPanel(d)}` +
-    "";
+  // R59: the checklist is in the Review dialog; the issued record and next actions stay on the page.
+  const record = `${recordHistoryHTML(d)}${newDocuments.actionPanel(d)}`;
   return shell(
     esc(k.address),
     `${esc(k.number)} · ${esc(tyLabel)}`,
@@ -1651,17 +1613,20 @@ function screenWrite() {
       '<nav class="editor-sections no-print" aria-label="Document tasks">' +
       // Recipients opens the copies and email dialog itself rather than moving to a section.
       `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
-      '<button data-editor-section="editor-items">Items &amp; due dates</' +
-      'button><button data-editor-section="editor-review">Review' +
+      // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
+      // Review dialog. Neither scrolls the page.
+      `${structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
+      '<button id="btn-review" data-editor-review aria-haspopup="dialog">Review' +
       `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
       "</button></nav>" +
       "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
       "" +
       `${editorSection("editor-inspection", "Inspection", inspection)}` +
       "" +
-      `${editorSection("editor-items", "Items and due dates", work)}` +
+      `${editorSection("editor-items", "Violation items", work)}` +
       "" +
-      `${editorSection("editor-review", "Review", review)}` +
+      `${record}` +
+      `${!locked ? "<div hidden data-editor-check-messages>" + editorCheckMessagesHTML(ready) + "</div>" : ""}` +
       `${mobileBarHTML(d, ready)}` +
       "</div>",
   );
@@ -1673,6 +1638,7 @@ function pickerHTML() {
 
 function modalHTML() {
   if (WriterState.state.modal === "shared-change") return sharedChangeModal();
+  if (WriterState.state.modal === "review") return reviewModalHTML();
   if (WriterState.state.modal === "recovery") return recoveryModal();
   if (["void", "recordnote", "reconcile"].includes(WriterState.state.modal)) return recordActionModal();
   if (WriterState.state.modal === "sendto") {
@@ -2107,7 +2073,7 @@ function modalHTML() {
     `${bad.length ? "Back to the document" : "Cancel"}` +
     '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
     '</button>\n      <button class="btn btn-primary" id="fin-go" ' +
-    `${bad.length ? 'disabled title="Clear the outstanding checks first"' : ""}` +
+    `${bad.length ? 'disabled title="Clear the outstanding checks first"' : WriterState.AMENDMENT_BUSY || WriterState.state.publicationBusy ? 'disabled title="The save is in progress"' : ""}` +
     ">" +
     "".concat(d.correction ? "Save &amp; issue correction" : initialCitations.enabled(d) ? "Issue citation" : "Issue document") +
     "</button></div></div></div>"
@@ -2120,6 +2086,7 @@ function overlayHTML() {
 
 function render() {
   if (helperStop.stopped) return; // Exit Document Writer replaced the page with its stopped state.
+  if (WriterState.state.screen !== "cases") WriterState.state.issuedCase = ""; // R59: the issued-case highlight ends on navigation.
   const appRoot = document.getElementById("app"),
     sameImport = WriterState.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
   const importDisclosures = sameImport
@@ -2405,8 +2372,6 @@ export {
   focusCheckTarget,
   dueCheck,
   editorSync,
-  editorNavigate,
-  editorPreview,
   overlayHTML,
   render,
   renderKeep,

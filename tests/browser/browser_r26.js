@@ -117,6 +117,15 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     await page.locator("#btn-final").click();
     await page.locator("#fin-go").click();
     await page.waitForFunction(() => doc(WriterState.state.docId) && !doc(WriterState.state.docId).draft && !!doc(WriterState.state.docId).filedAt);
+    // R59: a confirmed issuance returns to Workspace with the issued case highlighted and focused; reopen the document.
+    await page.waitForFunction(() => WriterState.state.screen === "cases" && !WriterState.state.publicationBusy);
+    const issuedId = await page.evaluate(() => WriterState.state.docId),
+      row = page.locator("tr[data-issued-highlight]");
+    assert.equal(await row.count(), 1, name + ": issued case highlighted");
+    assert.equal(await row.evaluate((el) => el === document.activeElement), true, name + ": issued case focused");
+    await row.locator(".queue-details > summary").click();
+    await row.locator('.queue-details [data-open="' + issuedId + '"]').click();
+    await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, issuedId);
     await page.evaluate(() => saveDrafts());
     const job = await page.evaluate(() => ({
       id: WriterState.state.docId,

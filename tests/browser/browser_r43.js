@@ -132,7 +132,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(await charge.locator("[data-review-details=charge]").evaluate((el) => el.open), true);
     await axeScreen(page, "r43-completed-and-held-charges");
     assert.equal(await page.locator("#btn-final").innerText(), "Review held draft");
-    assert.equal(await page.locator("[data-editor-preview]").isDisabled(), true);
+    assert.equal(await page.locator("[data-editor-preview]").count(), 0, "no draft Print preview");
     assert.equal(await page.locator('[data-charge="r43-4"] [data-deposit-request]').count(), 0);
     await page.evaluate(() => {
       const d = doc(WriterState.state.docId);

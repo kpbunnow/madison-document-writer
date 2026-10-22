@@ -49,7 +49,8 @@ const test = async () => {
   const app = document.getElementById("app");
   assert.equal(document.getElementById("editor-inspection"), null, "no Inspection section for an ordinary draft notice");
   assert.ok(!app.textContent.includes("Edit inspection, property and mailing details"));
-  assert.ok(document.getElementById("editor-items") && document.getElementById("editor-review"));
+  assert.ok(document.getElementById("editor-items") && document.getElementById("btn-review"));
+  assert.equal(document.getElementById("editor-review"), null, "review lives in the Review dialog");
   assert.ok(app.querySelector('.desk [data-case="ownerBlock"]'), "mailing details remain editable on the working document");
   const ownerAddr = docCase(d).ownerAddr;
   docCase(d).ownerAddr = [];
@@ -116,7 +117,7 @@ const test = async () => {
     for (const c of newDocuments.specialChecks(d).filter((x) => !x.ok))
       for (const target of c.targets) assert.ok(document.querySelector(target.selector), type + ": " + c.t + " → " + target.selector);
   }
-  // Authoring-13 later due dates are entered in Items and due dates; the check links those fields.
+  // Authoring-13 later due dates are entered in Violation items; the check links those fields.
   d.type = "bestInterestExtension";
   d.special = { affected: ["1"], originalDues: { 1: addDays(recordDay(today), 10), 2: addDays(recordDay(today), 10) } };
   render();

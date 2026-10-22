@@ -130,6 +130,27 @@ class ImportReuseStoreTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, self.assertRaisesRegex(ValueError, "already been used"):
             case_store.save_case(Path(folder), NAME, notice_citation_pair(False, identity))
 
+    def test_ca_reinspection_visit_identity_is_accepted_and_not_reused(self):
+        # A CA Reinspection import opens a worksheet keyed by its own type (inspectionIdentity uses row.typeKey).
+        ca = key("2026-09-01", "10:00", "caReinspection")
+        first, saved = self.committed_visit(ca)
+        self.assertEqual(saved["file"]["events"][-2]["payload"]["reinspection"]["importInspection"], ca)
+        # The same CA Reinspection cannot be recorded again by a later visit or named by a later document.
+        self.refused(imported(workflow.followup(first, "b"), key("2026-09-01", "", "caReinspection"), key("2026-09-02")), saved)
+        self.refused(imported(workflow.followup(first, "c", "citation"), key("2026-09-03"), ca), saved)
+        # A Reinspection on the same date is a different inspection type and is not reuse.
+        other = imported(workflow.followup(first, "d"), key("2026-09-01", "10:00"), key("2026-09-01", "10:00"))
+        self.assertEqual(len(self.save(other, saved)["file"]["events"]), 5)
+
+    def test_visit_identity_shape(self):
+        for bad in (
+            {"type": "initial", "date": "2026-09-01"},
+            {"type": "caReinspection", "date": "09/01/2026"},
+            {"type": "other", "date": "2026-09-01"},
+        ):
+            with self.subTest(identity=bad):
+                self.refused(imported(workflow.followup(self.base, "a"), bad, None), None, "Invalid imported inspection identity")
+
     def test_exemptions_and_identity_shape(self):
         documents = {"doc_a": ({"id": "doc_a", "fromReinspId": "visit_a", "importInspection": key("2026-09-01")}, "issued_a")}
         visits = [{"id": "visit_a", "date": "2026-09-01", "time": "10:00", "importInspection": key("2026-09-01")}]
@@ -145,6 +166,13 @@ class ImportReuseStoreTests(unittest.TestCase):
             case_store.validate_document_import(event(fromReinspId="visit_b", importInspection=key("2026-09-01", "")), documents, visits)
         with self.assertRaisesRegex(ValueError, "Invalid imported inspection"):
             case_store.validate_document_import(event(importInspection={"type": "reinspection", "date": "09/01/2026"}), documents, visits)
+        # A CA Reinspection identity is checked the same way as a Reinspection identity.
+        ca = {"id": "visit_c", "date": "2026-09-05", "time": "", "importInspection": key("2026-09-05", "", "caReinspection")}
+        case_store.validate_document_import(
+            event(fromReinspId="visit_c", importInspection=key("2026-09-05", "", "caReinspection")), documents, [*visits, ca]
+        )
+        with self.assertRaisesRegex(ValueError, "already been used"):
+            case_store.validate_document_import(event(importInspection=key("2026-09-05", "08:00", "caReinspection")), documents, [*visits, ca])
 
 
 if __name__ == "__main__":
