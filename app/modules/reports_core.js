@@ -1073,6 +1073,10 @@ export function restoreReportReturn() {
     ReportsState.S.tableSort = reportSort(x.sort, x.report);
     ReportsState.S.dateMode = x.dateMode || "fixed";
     if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
+    // A drill-down or saved-view selection opened since the handoff belongs to another context; like
+    // applyReportView, start the restored report without either so nothing outside its scope stays visible.
+    ReportsState.S.drill = null;
+    ReportsState.S.savedId = "";
     ReportsState.S.reportNotice = "Returned to the saved report context.";
     render();
     return true;

@@ -74,10 +74,40 @@ if (process.argv[2] === "reports") {
     assert.equal(ReportsState.S.F.status, "open");
     assert.equal(ReportsState.S.F.owner, "owner-key");
     assert.deepEqual(ReportsState.S.tableSort, { report: target.id, ci: 2, dir: -1 });
+    // A saved view and a drill-down opened in Reports while Writer was open belong to another context:
+    // the return must not leave either visible over the restored report (PR #26 follow-up review).
+    const intervening = () => {
+      ReportsState.SAVED_VIEWS.push({
+        id: "other-view",
+        name: "Trash by inspector",
+        report: REPORTS[0].id,
+        filters: { vtype: "trash" },
+        dateMode: "fixed",
+        view: "table",
+      });
+      applyReportView("other-view");
+      assert.equal(ReportsState.S.savedId, "other-view");
+      assert.equal(ReportsState.S.F.vtype, "trash");
+      // The shape a count's drill-down stores (reports_core [data-drill]).
+      ReportsState.S.drill = { at: "0:1", ids: ["QA-A"], title: "Inspector, cases" };
+      ReportsState.SAVED_VIEWS.pop();
+    };
+    const restoredScope = () => {
+      assert.equal(ReportsState.S.screen, target.id);
+      assert.equal(ReportsState.S.drill, null, "no drill-down from the intervening report remains");
+      assert.equal(ReportsState.S.savedId, "", "no unrelated saved view stays selected");
+      assert.notEqual(ReportsState.S.F.vtype, "trash");
+    };
+    const returnFilters = JSON.parse(localStorage.getItem("madison-report-return-v1")).filters;
+    assert.equal(returnFilters.vtype ?? "", "", "the saved return context has no violation-type filter");
+    intervening();
+    returnEvent("u3-return-drill");
+    restoredScope();
+    assert.equal(ReportsState.S.reportNotice, "Returned from Writer to the saved report context.");
     // The ?return=1 page-load path uses the same helper.
-    ReportsState.S.screen = REPORTS[0].id;
+    intervening();
     assert.equal(restoreReportReturn(), true);
-    assert.equal(ReportsState.S.screen, target.id);
+    restoredScope();
     assert.equal(ReportsState.S.reportNotice, "Returned to the saved report context.");
     // A relative date mode is recomputed for today rather than restoring stale dates.
     ReportsState.S.dateMode = "month";

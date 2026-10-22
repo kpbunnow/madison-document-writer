@@ -79,7 +79,9 @@ extended browser suites.
    this workspace, Search shared case records (a workspace search with no results offers it
    with the query kept, not submitted) and Find Accela inspection. Reports uses Open case in
    Writer; Writer's rail shows Back to Reports with a return context, otherwise Open Reports ↗;
-   return-context restoration is the testable restoreReportReturn(). Reinspection offers Review
+   return-context restoration is the testable restoreReportReturn(), used by both the page-load and
+   open-tab return paths; it also clears any drill-down or saved-view selection opened in between
+   (PR #26 follow-up review). Reinspection offers Review
    all items and One item at a time with a four-step indicator, collapsed Keyboard shortcuts
    and tips, and After an outcome choices Go to next unanswered item and Complete details
    first; the shortcut sheet uses the outcome names. At 760px and below the editor has a
