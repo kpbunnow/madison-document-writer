@@ -1,4 +1,4 @@
-# R56 current architecture
+# R57 current architecture
 
 Authoring-12 Best Interest and Vacancy Extensions reuse the regular Extension's layout and item table, with their unchanged language and retained supervisory signer after the table. Conditional vacancy labels (authoring 12 and earlier only) do not alter stored repair dates. From authoring 13 every affected Best Interest or Vacancy item carries a later due date entered in the items table, and Vacancy Extensions are always dated. Authoring-11 and earlier special documents and their corrections retain the historical narrative renderer; the regular Extension output remains unchanged at every authoring version. Publication and correction snapshots retain the selected rendering version.
 
