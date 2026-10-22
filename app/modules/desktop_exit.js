@@ -64,7 +64,12 @@ export function exitReview(R, busy = {}) {
       text: plural(R.PENDING.length, "shared save") + " queued on this device.",
       guidance: "They have not reached the shared folder. They stay queued on this device and are retried when Document Writer starts again.",
     });
-  if (R.HELPER?.outbox)
+  if (!Number.isInteger(R.HELPER?.outbox) || R.HELPER.outbox < 0)
+    unresolved.push({
+      text: "The local PDF outbox has not been checked.",
+      guidance: "Its transfer status is unknown. Check Saved work & connection before exiting, or review it after Document Writer starts again.",
+    });
+  else if (R.HELPER.outbox)
     unresolved.push({
       text: plural(R.HELPER.outbox, "PDF") + " waiting in the local outbox.",
       guidance:
@@ -147,11 +152,26 @@ function stoppedDetails() {
   return details;
 }
 
+function releaseStoppedWorkspace() {
+  // A stopped page cannot edit again. Keeping its lifetime Web Lock would block the next icon launch
+  // until the old window is closed, and its Reports channel must not compete with the new Writer.
+  WriterState.WRITER_ACCESS = false;
+  WriterState.releaseWorkspaceLock?.();
+  WriterState.releaseWorkspaceLock = null;
+  WriterState.HANDOFF_SEQ++;
+  if (WriterState.WRITER_CHANNEL) {
+    WriterState.WRITER_CHANNEL.onmessage = null;
+    WriterState.WRITER_CHANNEL.close?.();
+    WriterState.WRITER_CHANNEL = null;
+  }
+}
+
 function stopped() {
   const details = stoppedDetails();
   helperStop.stopped = true;
   clearTimeout(WriterState.RECOVERY_TIMER);
   WriterState.HELPER = null;
+  releaseStoppedWorkspace();
   announceStop();
   showStopped(details);
 }
@@ -172,6 +192,7 @@ async function requestExit(form) {
     button = form.querySelector("[data-exit-confirm]");
   button.disabled = true;
   const kept = await flushDrafts();
+  if (!form.isConnected || !form.closest("dialog")?.open) return false;
   const review = currentReview();
   // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
   if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
@@ -180,6 +201,16 @@ async function requestExit(form) {
   }
   alert.textContent = "Stopping Document Writer…";
   await settleRecoveryCopy();
+  // Cancel/Escape or a different dialog may have superseded this request while device/recovery saving ran.
+  if (!form.isConnected || !form.closest("dialog")?.open) return false;
+  const finalReview = currentReview();
+  if (finalReview.blocking.length || JSON.stringify(finalReview.unresolved) !== JSON.stringify(review.unresolved)) {
+    await openExit(false);
+    return false;
+  }
+  form.dataset.shutdownRequested = "true";
+  const cancel = form.closest("dialog")?.querySelector("[data-utility-close]");
+  if (cancel) cancel.disabled = true;
   try {
     const response = await authFetch("/helper/shutdown", {
       method: "POST",
@@ -203,6 +234,8 @@ async function requestExit(form) {
       "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. " +
       "To start again, double-click Document Writer on the desktop.";
   }
+  delete form.dataset.shutdownRequested;
+  if (cancel) cancel.disabled = false;
   button.disabled = false;
   return false;
 }
@@ -216,6 +249,23 @@ export async function openExit(save = true) {
   if (close) close.textContent = "Cancel";
   const form = document.getElementById("exit-writer-form");
   if (!form) return;
+  // Preparation is cancellable; after the shutdown POST is sent it cannot be recalled.
+  close?.addEventListener("click", (event) => {
+    if (form.dataset.shutdownRequested) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dialog.close();
+  });
+  dialog.addEventListener(
+    "cancel",
+    (event) => {
+      if (form.dataset.shutdownRequested) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      dialog.close();
+    },
+    true,
+  );
   form.onsubmit = (event) => {
     event.preventDefault();
     confirmExit(form);
@@ -228,6 +278,8 @@ async function stoppedElsewhere() {
   if (WriterState.WRITER_ACCESS) await flushDrafts();
   helperStop.stopped = true;
   WriterState.HELPER = null;
+  clearTimeout(WriterState.RECOVERY_TIMER);
+  releaseStoppedWorkspace();
   showStopped(["Exit Document Writer was used in another Writer window.", "Drafts saved on this device stay on this device."]);
 }
 

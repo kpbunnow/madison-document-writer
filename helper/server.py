@@ -69,6 +69,9 @@ from case_store import (
 
 SESSION_TOKEN = secrets.token_urlsafe(32)
 SESSION_BOOTSTRAP = secrets.token_urlsafe(32)
+# Public correlation only, never an authentication credential. A delayed stop announcement from an old
+# browser window must not disable pages connected to a newly started helper on the same origin.
+HELPER_INSTANCE = secrets.token_hex(16)
 STATIC_ROUTES = {
     "/",
     "/madison-document-writer.html",
@@ -1001,6 +1004,18 @@ def end_activity(label):
             del ACTIVE_WORK[label]
 
 
+def run_anchor_once():
+    """Register background integrity work before it can acquire a lock or write a diagnostic."""
+    label = "Record integrity information is being updated."
+    if not begin_activity(label):
+        return False
+    try:
+        case_integrity.anchor_after_save(case_dir())
+        return True
+    finally:
+        end_activity(label)
+
+
 def active_work():
     """Readable reasons the helper must keep running. Caller holds ACTIVITY_LOCK."""
     reasons = list(dict.fromkeys(label for label, count in ACTIVE_WORK.items() if count))
@@ -1124,7 +1139,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             name = "madison-document-writer.html" if route == "/" else route.lstrip("/")
             value = resource(name).read_text(encoding="utf-8")
             token = SESSION_TOKEN if self._has_token() else ""
-            head = '<meta name="docwriter-token" content="' + token + '"><script>' + helper_session.BOOTSTRAP_SCRIPT + "</script>"
+            head = (
+                '<meta name="docwriter-token" content="' + token + '">'
+                '<meta name="docwriter-instance" content="' + HELPER_INSTANCE + '"><script>' + helper_session.BOOTSTRAP_SCRIPT + "</script>"
+            )
             value = value.replace("<head>", "<head>" + head, 1)
             # Start only after authenticated bootstrap has completed. Nothing secret
             # is supplied to an unauthenticated page or written to the runtime file.
@@ -1710,12 +1728,14 @@ if __name__ == "__main__":
                 print("  " + NO_BROWSER)
 
         def anchor_clock():
-            while True:
+            while not STOPPING.is_set():
                 try:
-                    case_integrity.anchor_after_save(case_dir())
+                    if not run_anchor_once():
+                        return
                 except (OSError, ValueError):
                     pass
-                time.sleep(60)
+                if STOPPING.wait(60):
+                    return
 
         threading.Thread(target=anchor_clock, daemon=True).start()
         try:

@@ -137,15 +137,22 @@ try:
     from runtime_identity import VERSION
 
     MANIFEST = json.loads(resource("runtime-manifest.json").read_text(encoding="utf-8"))
-except (ImportError, OSError, ValueError, KeyError) as error:
+    required = MANIFEST["required"]
+    if not isinstance(required, list) or not required or any(not isinstance(name, str) or not name for name in required):
+        raise ValueError("Invalid required program files")
+    REQUIRED = tuple(required)
+except (ImportError, OSError, ValueError, KeyError, TypeError) as error:
     if __name__ != "__main__":
         raise
     installation_damaged(error)
 
 PORT = desktop_launch.PORT
-REQUIRED = tuple(MANIFEST["required"])
 # Problems that do not stop start-up (a rejected update); a desktop launch shows them after Writer opens.
 startup_warnings = []
+
+
+class RestartInstalled(Exception):
+    """A verified update replaced imported code; continue in a fresh installed process."""
 
 
 def main():
@@ -189,11 +196,13 @@ def main():
         share = None
     if share and share.is_dir():
         say("Checking the shared release before updating.")
+        restart = False
         try:
             with tempfile.TemporaryDirectory(prefix="install-", dir=local) as staging:
                 approved = verified_update.stage_update(share, Path(staging), local)
                 names = list(approved["files"]) + ["runtime-manifest.json", "verified-install.json"]
                 install_release.install(Path(staging), local, names)
+                restart = approved != MANIFEST
             say("Installed release is current with the shared folder.")
         except ValueError as error:
             say(str(error), WARNING)
@@ -203,6 +212,8 @@ def main():
             startup_warnings.append(str(error).split("\n")[0] + " Document Writer has started with the version already installed.")
         # Anchor settings are configured locally by IT and never copied from a share.
         share_file.write_text(str(share), encoding="utf-8")
+        if restart:
+            raise RestartInstalled()
     else:
         say("The shared folder is unavailable. Starting the installed copy; shared saves will queue on this device.")
     absent = [name for name in REQUIRED if not (local / name).is_file()]
@@ -251,7 +262,21 @@ def run(argv):
         splash.start()
     startup_warnings.clear()
     try:
-        code = main()
+        try:
+            code = main()
+        except RestartInstalled:
+            # Do not mix the old launcher's imports/version with a newly installed server. Close the old
+            # indicator before the fresh launcher starts, and keep the existing diagnostic/desktop mode.
+            splash.close()
+            env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+            env.pop("PYTHONPATH", None)
+            say("Verified update installed. Restarting the installed launcher.")
+            return subprocess.call(
+                [sys.executable, "-B", str(local / "launch.py")],
+                cwd=str(local),
+                env=env,
+                creationflags=desktop_launch.no_window() if desktop_launch.windowless() else 0,
+            )
     except Exception as error:
         splash.close()
         desktop_launch.LOGGER.error("Start-up failed (%s).", type(error).__name__, exc_info=True)

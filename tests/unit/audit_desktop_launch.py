@@ -11,6 +11,7 @@ import io
 import json
 import os
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -447,6 +448,50 @@ class Desktop(unittest.TestCase):
         self.assertNotIn("DW_OPEN_BROWSER", env)
         self.assertEqual(self.boxes, [])
         self.assertIn("The shared folder is unavailable. Starting the installed copy", self.log_text())
+
+    def test_changed_verified_release_restarts_before_using_old_imports(self):
+        self.windowless()
+        self.install_fixture()
+        share = self.root / "new release"
+        share.mkdir()
+        (self.local / "share.txt").write_text(str(share), encoding="utf-8")
+        approved = {**launch.MANIFEST, "helperVersion": "2099.01.01.999", "helperBuild": 999, "files": {"server.py": {}}}
+        with (
+            patch.object(launch.socket, "create_connection", side_effect=OSError("free")),
+            patch.object(launch, "__file__", str(self.local / "launch.py")),
+            patch.object(launch.sys, "argv", [str(self.local / "launch.py")]),
+            patch.object(verified_update, "stage_update", return_value=approved),
+            patch.object(launch.install_release, "install") as install,
+            patch.object(desktop_launch, "start_background_helper", side_effect=AssertionError("old imports must not start the new helper")),
+            patch.object(desktop_launch, "create_shortcut", side_effect=AssertionError("restart before using old launch code")),
+            patch.object(launch.subprocess, "call", return_value=0) as restart,
+        ):
+            self.assertEqual(launch.run(["launch.py"]), 0)
+        install.assert_called_once()
+        self.assertEqual(restart.call_args.args[0], [sys.executable, "-B", str(self.local / "launch.py")])
+        self.assertEqual(restart.call_args.kwargs["cwd"], str(self.local))
+        self.assertEqual(restart.call_args.kwargs["creationflags"], NO_WINDOW)
+        self.assertEqual((self.local / "share.txt").read_text(encoding="utf-8"), str(share))
+
+    def test_damaged_required_file_metadata_reports_repair_instead_of_silent_exit(self):
+        import ctypes
+
+        manifest = self.root / "damaged-manifest.json"
+        for value in ({}, {"required": None}, {"required": "server.py"}):
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+            with (
+                self.subTest(value=value),
+                patch.object(runtime_paths, "resource", return_value=manifest),
+                patch.object(sys, "platform", "win32"),
+                patch.object(sys, "stdout", None),
+                patch.object(ctypes, "windll", create=True) as windows,
+                self.assertRaises(SystemExit) as stopped,
+            ):
+                runpy.run_path(str(ROOT / "helper/launch.py"), run_name="__main__")
+            self.assertEqual(stopped.exception.code, 1)
+            message = windows.user32.MessageBoxW.call_args.args[1]
+            self.assertIn("incomplete or damaged", message)
+            self.assertIn("Ask IT to repair", message)
 
     def test_update_check_uses_the_verifier_and_rejection_keeps_the_installed_version(self):
         self.windowless()

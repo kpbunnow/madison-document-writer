@@ -25,6 +25,10 @@ function setup(stem, url) {
   const w = dom.window;
   global.window = w;
   global.document = w.document;
+  const instance = w.document.createElement("meta");
+  instance.name = "docwriter-instance";
+  instance.content = "synthetic-current-helper";
+  w.document.head.append(instance);
   global.FormData = w.FormData;
   global.localStorage = w.localStorage;
   global.getSelection = () => w.getSelection();
@@ -66,7 +70,11 @@ if (process.argv[2] === "reports") {
     assert.ok(channel && typeof channel.onmessage === "function", "Reports listens for Exit Document Writer");
     channel.onmessage({ data: { kind: "other" } });
     assert.equal(document.querySelector("[data-helper-stopped]"), null, "only a stop message changes the page");
-    channel.onmessage({ data: { kind: "stopped" } });
+    for (const instance of ["previous-helper", undefined]) {
+      channel.onmessage({ data: { kind: "stopped", instance } });
+      assert.equal(document.querySelector("[data-helper-stopped]"), null, "an old or unscoped stop cannot stop the new Reports session");
+    }
+    channel.onmessage({ data: { kind: "stopped", instance: "synthetic-current-helper" } });
     const page = document.querySelector("[data-helper-stopped]");
     assertStoppedMessage(page);
     assert.match(page.textContent, /Reports cannot read case records until Document Writer starts again/);
@@ -154,6 +162,42 @@ if (process.argv[2] === "reports") {
     assert.equal(dialog(), null, "Cancel closes the dialog");
     assert.deepEqual(shutdowns, [], "Cancel never asks the helper to stop");
 
+    const knownHelper = WriterState.HELPER;
+    WriterState.HELPER = { ok: true };
+    const unknownOutbox = exitReview(app_savedworkContext());
+    assert.ok(unknownOutbox.unresolved.some((item) => /outbox has not been checked/.test(item.text)));
+    WriterState.HELPER = knownHelper;
+
+    // Cancellation while the recovery request is held must cancel the pending shutdown, too.
+    const originalBackup = backupUnfinished;
+    let releaseRecovery;
+    backupUnfinished = () =>
+      new Promise((resolve) => {
+        releaseRecovery = resolve;
+      });
+    await openExit();
+    let pendingExit = confirmExit(document.getElementById("exit-writer-form"));
+    await until(() => releaseRecovery, "held recovery copy");
+    dialog().querySelector("[data-utility-close]").click();
+    releaseRecovery();
+    assert.equal(await pendingExit, false);
+    assert.deepEqual(shutdowns, [], "Cancel during recovery never asks the helper to stop");
+    assert.equal(dialog(), null);
+
+    // Work that starts while recovery is being written must be reviewed before shutdown.
+    releaseRecovery = null;
+    await openExit();
+    pendingExit = confirmExit(document.getElementById("exit-writer-form"));
+    await until(() => releaseRecovery, "second held recovery copy");
+    WriterState.FILING_ACTIVE = 1;
+    releaseRecovery();
+    assert.equal(await pendingExit, false);
+    assert.deepEqual(shutdowns, [], "new active work prevents shutdown after recovery");
+    assert.match(squash(dialog().querySelector("[data-exit-blocking]")), /A PDF is being filed/);
+    WriterState.FILING_ACTIVE = 0;
+    backupUnfinished = originalBackup;
+    dialog().querySelector("[data-utility-close]").click();
+
     // A publication in flight: refused, with guidance and no way to confirm.
     WriterState.state.publicationBusy = "dx-doc";
     await openExit();
@@ -229,11 +273,14 @@ if (process.argv[2] === "reports") {
     const channel = FakeChannel.all.find((c) => c.name === "madison-helper-stopped-v1");
     assert.ok(channel && typeof channel.onmessage === "function", "Writer listens for Exit in other windows");
     order.length = 0;
-    channel.onmessage({ data: { kind: "stopped" } });
+    channel.onmessage({ data: { kind: "stopped", instance: "previous-helper" } });
+    assert.equal(document.querySelector("[data-helper-stopped]"), null, "Writer ignores a previous helper's stop");
+    channel.onmessage({ data: { kind: "stopped", instance: "synthetic-current-helper" } });
     await until(() => document.querySelector("[data-helper-stopped]"), "the stopped state from another window");
     assert.deepEqual(order, ["device save"]);
     assert.match(squash(document.querySelector("[data-helper-stopped]")), /used in another Writer window/);
     helperStop.stopped = false;
+    WriterState.WRITER_ACCESS = true; // Simulate a new Writer owning the workspace after restart.
     WriterState.HELPER = { ok: true, outbox: 2 };
     WriterState.state.screen = "tools";
     render();
@@ -243,6 +290,17 @@ if (process.argv[2] === "reports") {
     await openExit();
     dialog().querySelector('input[name="acknowledged"]').checked = true;
     shutdowns.length = 0;
+    let released = 0,
+      handoffClosed = 0;
+    WriterState.releaseWorkspaceLock = () => {
+      released++;
+    };
+    WriterState.WRITER_CHANNEL = {
+      onmessage: () => {},
+      close: () => {
+        handoffClosed++;
+      },
+    };
     submit();
     await until(() => document.querySelector("[data-helper-stopped]"), "the stopped page");
     assert.equal(shutdowns.length, 1);
@@ -251,8 +309,12 @@ if (process.argv[2] === "reports") {
     const page = squash(document.querySelector("[data-helper-stopped]"));
     assert.match(page, /Drafts saved on this device stay on this device/);
     assert.match(page, /1 shared save and 2 PDF transfers remain queued on this device\. They have not reached the shared folder/);
-    assert.deepEqual(channel.sent, [{ kind: "stopped" }], "other Writer and Reports windows are told");
+    assert.deepEqual(channel.sent, [{ kind: "stopped", instance: "synthetic-current-helper" }], "only windows of this helper instance are told");
     assert.equal(WriterState.HELPER, null);
+    assert.equal(WriterState.WRITER_ACCESS, false);
+    assert.equal(released, 1, "the stopped page releases the workspace for a new Writer");
+    assert.equal(handoffClosed, 1, "the stopped page no longer handles Reports requests");
+    assert.equal(WriterState.WRITER_CHANNEL, null);
     render();
     assert.ok(document.querySelector("[data-helper-stopped]"), "a later render does not replace the stopped state");
     await assert.rejects(realAuthFetch("/cases/list"), /Document Writer has stopped/, "no helper request after the stop");

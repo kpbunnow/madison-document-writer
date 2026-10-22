@@ -686,6 +686,7 @@ export const byTime = (a, b) => (Date.parse(a.at) || 0) - (Date.parse(b.at) || 0
 WriterState.SAVE_CHECKPOINTS = {};
 
 WriterState.WRITER_ACCESS = true;
+WriterState.releaseWorkspaceLock = null;
 
 /* ---------- reporting summaries ----------
    One flat summary per case, written beside the case file into

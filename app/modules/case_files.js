@@ -634,7 +634,9 @@ async function bootStorage() {
             return;
           }
           resolve(true);
-          return new Promise(() => {}); // held until this tab closes
+          return new Promise((release) => {
+            WriterState.releaseWorkspaceLock = release;
+          }); // held until this tab closes or Writer stops
         })
         .catch(() => resolve(false)),
     );

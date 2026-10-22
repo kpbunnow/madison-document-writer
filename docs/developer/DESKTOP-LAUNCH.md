@@ -59,6 +59,30 @@ The launcher first runs the trusted share hand-off and the manifest-checked upda
 
 ## Windows verification checklist
 
+### PR 29 review corrections
+
+- A verified release change restarts the installed launcher before starting the helper. This reloads its
+  version, manifest and imported code; an old launcher must not wait for an old version from a new server.
+- Required-file metadata is validated inside the startup repair-dialog boundary, including missing,
+  null and incorrectly typed lists.
+- Background integrity anchoring registers activity before acquiring any file lock and through its
+  final status write. Shutdown refuses the entire operation and no anchor begins after stopping.
+- Exit preparation can be cancelled with Cancel or Escape while device/recovery saving is pending.
+  The dialog is checked again after each wait, and newly active work or changed warnings require a fresh
+  review. Once the shutdown request is sent, Cancel is visibly disabled because it cannot recall the request.
+- Unknown PDF outbox status is disclosed and requires acknowledgment; it is never interpreted as zero.
+- Stop announcements carry the helper's public, non-secret instance ID, supplied in application HTML.
+  Writer and Reports ignore old or unscoped announcements, so an old window cannot disable a newly
+  restarted session. Authentication tokens and bootstrap credentials are never broadcast.
+- A stopped Writer releases its browser workspace lock and closes its Reports handoff channel after
+  device saving, so a new Writer can start even when the old stopped window remains open. Late handoff
+  completions cannot send through the retired channel.
+
+The focused regressions cover a changed verified release, malformed manifests, anchoring before its first
+lock, cancellation during held recovery, work beginning during recovery and unknown outbox status.
+These tests do not establish the native Windows acceptance below. Concurrent launches during an update
+remain a native acceptance scenario; the existing installation transaction is not a cross-process launcher mutex.
+
 Automated tests run on Linux with simulated Windows calls and a real helper process. Record these on City Windows PCs (acceptance items L58-1 to L58-9):
 
 1. Fresh install from the batch launcher: icon created with the Document Writer icon; later starts from the icon show no console window at any point (launcher, helper, pip, PowerShell, PDF rendering, Outlook).

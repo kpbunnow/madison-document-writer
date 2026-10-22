@@ -153,6 +153,30 @@ class HelperShutdown(unittest.TestCase):
         (self.root / "install-transaction.json").unlink()
         self.assertTrue(self.thread.is_alive())
 
+    def test_anchor_is_counted_before_it_acquires_any_file_lock(self):
+        entered, release = threading.Event(), threading.Event()
+
+        def anchor(folder):
+            entered.set()
+            release.wait(5)
+
+        with patch.object(server.case_integrity, "anchor_after_save", side_effect=anchor) as work:
+            worker = threading.Thread(target=server.run_anchor_once)
+            worker.start()
+            try:
+                self.assertTrue(entered.wait(3))
+                self.assertEqual(case_store.held_lock_kinds(), [])
+                status, answer = self.post("/helper/shutdown")
+                self.assertEqual(status, 409)
+                self.assertIn("Record integrity information is being updated.", answer["reasons"])
+            finally:
+                release.set()
+                worker.join(5)
+            self.assertEqual(server.ACTIVE_WORK, {})
+            self.assertEqual(self.post("/helper/shutdown")[0], 200)
+            self.assertFalse(server.run_anchor_once())
+            work.assert_called_once()
+
     def test_idle_helper_answers_then_stops_and_starts_no_new_work(self):
         status, answer = self.post("/helper/shutdown")
         self.assertEqual((status, answer), (200, {"ok": True, "stopping": True}))

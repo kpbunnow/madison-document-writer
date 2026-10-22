@@ -3,7 +3,7 @@
 export const HELPER_STOPPED_CHANNEL = "madison-helper-stopped-v1";
 export const STOPPED_TITLE = "Document Writer has stopped";
 export const STOPPED_TEXT = "Document Writer has stopped. You can close this window. To start again, double-click Document Writer on the desktop.";
-export const helperStop = { stopped: false, channel: null };
+export const helperStop = { stopped: false, channel: null, instance: "" };
 
 const escapeText = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -40,9 +40,10 @@ export function showStopped(details = []) {
 export function listenForStop(onStopped) {
   if (typeof window === "undefined" || !("BroadcastChannel" in window) || helperStop.channel) return helperStop.channel;
   try {
+    helperStop.instance = document.querySelector('meta[name="docwriter-instance"]')?.content || "";
     helperStop.channel = new window.BroadcastChannel(HELPER_STOPPED_CHANNEL);
     helperStop.channel.onmessage = (event) => {
-      if (event.data?.kind === "stopped" && !helperStop.stopped) onStopped();
+      if (event.data?.kind === "stopped" && helperStop.instance && event.data.instance === helperStop.instance && !helperStop.stopped) onStopped();
     };
   } catch (error) {
     helperStop.channel = null; /* Without a channel, other windows show their own connection errors instead. */
@@ -52,7 +53,7 @@ export function listenForStop(onStopped) {
 
 export function announceStop() {
   try {
-    helperStop.channel?.postMessage({ kind: "stopped" });
+    if (helperStop.instance) helperStop.channel?.postMessage({ kind: "stopped", instance: helperStop.instance });
   } catch (error) {
     /* Other windows then report the lost connection on their next request. */
   }

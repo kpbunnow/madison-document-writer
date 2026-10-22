@@ -112,6 +112,15 @@ module.exports = async function (browser, OUT, axeScreen, work) {
     await reports.locator("[data-helper-stopped]").waitFor({ timeout: 10000 });
     assert.match(await reports.locator("[data-helper-stopped]").innerText(), /Reports cannot read case records until Document Writer starts again/);
     await axeScreen(writer, "exit-stopped");
+    // Leave the stopped Writer open: a new session must be able to own this profile's workspace.
+    assert.equal(await writer.evaluate(() => WriterState.WRITER_ACCESS), false);
+    assert.equal(await writer.evaluate(() => WriterState.WRITER_CHANNEL), null);
+    await reports.waitForFunction(async () => !(await navigator.locks.query()).held.some((lock) => lock.name === "madison-writer-workspace"));
+    assert.equal(
+      await reports.evaluate(() => navigator.locks.request("madison-writer-workspace", { ifAvailable: true }, (lock) => !!lock)),
+      true,
+      "Exit releases the browser workspace lock without requiring the stopped window to close",
+    );
 
     const ended = await Promise.race([exited, delay(15000).then(() => null)]);
     assert.ok(ended, "the helper process exited after Exit Document Writer: " + log);
