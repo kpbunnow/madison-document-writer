@@ -95,7 +95,7 @@ export function initInitialCitations() {
   function group(d, noticeEvent) {
     const p = preview(d);
     p.initialPreview = false;
-    p.authoringVersion = 11;
+    p.authoringVersion = Math.max(11, p.authoringVersion || 0);
     p.status = "Final";
     p.items = p.items.map((i) => ({ ...i, id: uid("x"), srcItemId: i.id }));
     p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, clone(d.cits[i.srcItemId])]));
@@ -116,7 +116,7 @@ export function initInitialCitations() {
     p.issuanceGroup = identity; // set before freezing so the replacing citation freezes the notice's order furniture
     p.frozen = freezeSources(p);
     noticeEvent.payload.snapshot.issuanceGroup = identity;
-    noticeEvent.payload.snapshot.authoringVersion = 11;
+    noticeEvent.payload.snapshot.authoringVersion = Math.max(11, noticeEvent.payload.snapshot.authoringVersion || 0);
     noticeEvent.payload.snapshot.cits = {};
     delete noticeEvent.payload.snapshot.initialCitationId;
     p.issuanceGroup = identity;

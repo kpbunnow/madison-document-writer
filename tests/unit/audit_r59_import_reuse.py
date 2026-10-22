@@ -130,6 +130,26 @@ class ImportReuseStoreTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, self.assertRaisesRegex(ValueError, "already been used"):
             case_store.save_case(Path(folder), NAME, notice_citation_pair(False, identity))
 
+    def test_copied_initial_group_cannot_exempt_an_unrelated_followup(self):
+        identity = key("2026-08-01", "", "initial")
+        base = notice_citation_pair(True, identity)
+        candidate = imported(workflow.followup(base, "unrelated"), key("2026-09-01"), identity)
+        # The follow-up copied the companion citation's group. It is not that named citation.
+        self.assertEqual(candidate["events"][-1]["payload"]["snapshot"]["issuanceGroup"], base["events"][0]["payload"]["snapshot"]["issuanceGroup"])
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            first = case_store.save_case(root, NAME, base)
+            with self.assertRaisesRegex(ValueError, "already been used"):
+                case_store.save_case(root, NAME, candidate, first["revision"], first["file"]["case"], candidate["events"][-1]["id"])
+            self.assertEqual(case_store.read_case(root, NAME)["file"]["events"], base["events"])
+
+    def test_arbitrary_matching_groups_do_not_exempt_document_reuse(self):
+        first = imported(workflow.followup(self.base, "a"), key("2026-09-01"), key("2026-09-01"))
+        first["events"][-1]["payload"]["snapshot"]["issuanceGroup"] = {"id": "unrelated-group"}
+        saved = self.save(first)
+        candidate = imported(workflow.followup(first, "b"), key("2026-09-02"), key("2026-09-01"))
+        self.refused(candidate, saved)
+
     def test_ca_reinspection_visit_identity_is_accepted_and_not_reused(self):
         # A CA Reinspection import opens a worksheet keyed by its own type (inspectionIdentity uses row.typeKey).
         ca = key("2026-09-01", "10:00", "caReinspection")

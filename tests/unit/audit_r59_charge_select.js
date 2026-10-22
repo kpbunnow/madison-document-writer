@@ -50,6 +50,7 @@ const test = async () => {
     const d = doc(WriterState.state.docId);
     d.items = [{ id: "r59", no: "1", title: "Synthetic charge", text: "Repair.", cite: true, sections: list, due: addDays(recordDay(today), 21) }];
     initialCitations.prepare(d);
+    assert.equal(d.authoringVersion, 13, "Preparing initial charges retains the current authoring version");
     return d;
   };
   const show = (d) => {
@@ -131,6 +132,7 @@ const test = async () => {
   fire(select, FIXED, ["change"]);
   let c = d.cits?.r59;
   ok("Choosing a fixed-schedule section completes the charge", !!c && !d.depositRequests?.r59 && c.ord === FIXED);
+  assert.equal(d.authoringVersion, 13, "Selecting an ordinance does not downgrade the draft");
   ok("Pricing equals resolveCitationAmount for the chosen ordinance", sameAs(c, priced(d, c, FIXED)), JSON.stringify(c));
   ok("Choosing a section raises no ordinance blocker", !blockers(d).some((x) => /charged ordinance|one complete ordinance/.test(x.t)));
   view = show(d);
@@ -177,6 +179,45 @@ const test = async () => {
       c.courtDate === kept.courtDate &&
       c.deptId === kept.deptId,
   );
+
+  // Returning to an original charge in a correction restores the exact retained basis, even after the
+  // intermediate ordinance moved the charge into a deposit request instead of a completed citation.
+  const correction = draft(sections),
+    original = clone(correction);
+  changeCharge(correction, "r59", FIXED);
+  original.cits = clone(correction.cits);
+  original.id = "r59-original-charge";
+  original.type = "citation";
+  original.draft = false;
+  const retained = original.cits.r59;
+  retained.depositMode = "total";
+  retained.amount = "150.00";
+  retained.depositSource = "Synthetic retained approved total";
+  retained.tier = "2nd";
+  retained.tierOverride = "2";
+  retained.tierOverrideSource = "Synthetic retained tier authority";
+  delete retained.assessments;
+  correction.type = "citation";
+  correction.correction = { targetId: original.id };
+  correction.cits = clone(original.cits);
+  WriterState.DOCS.push(original);
+  for (const intermediate of [OTHER, UNSCHEDULED]) {
+    changeCharge(correction, "r59", intermediate);
+    changeCharge(correction, "r59", FIXED);
+    const restored = correction.cits.r59;
+    assert.ok(restored && !correction.depositRequests?.r59, "An unchanged original is restored as a completed charge");
+    for (const field of [...CHARGE_DERIVED, "depositMode", "tier"].filter((field) => field !== "historicalDeposit"))
+      assert.equal(stableJSON(restored[field]), stableJSON(retained[field]), "Retained correction basis: " + field);
+    assert.equal(citationDepositFault(restored, correction, correction.items[0]), "", "Returning to the unchanged charge stays valid");
+    assert.equal(correction.authoringVersion, 13);
+  }
+  WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== original.id && x.id !== correction.id);
+  WriterState.state.docId = d.id;
+
+  const pair = makePublication(d);
+  assert.equal(pair.payload.snapshot.authoringVersion, 13, "Atomic companion publication retains current authoring");
+  assert.equal(d.publicationEvents[0].payload.snapshot.authoringVersion, 13, "Atomic notice publication retains current authoring");
+  delete d.publicationEvents;
 
   // No verified schedule: the existing manual path, never the previous amount.
   view = show(d);
@@ -244,6 +285,23 @@ const test = async () => {
     "A saved different charge with its source is kept on reopening",
     outside.cits.r59.ord === "27.04(2)(c)" && !citationPricing.chargeFault(outside, outside.items[0], outside.cits.r59),
   );
+  const nextOutside = CITATION_POLICY.entries.find(
+    (entry) =>
+      !sections.map(canonicalOrdinance).includes(entry.ordinance) &&
+      entry.ordinance !== c.ord &&
+      resolveCitationAmount({ ordinance: entry.ordinance, date: citationPricingDate(c, d) }).kind === "priced",
+  ).ordinance;
+  editCitation(d, "r59", "ord", nextOutside);
+  c = charge(d);
+  assert.equal(c.differentChargeSource, undefined, "A different charge's approval cannot authorize another outside ordinance");
+  assert.ok(citationPricing.chargeFault(d, d.items[0], c), "The new different charge requires its own confirmation");
+  const singleSection = draft([FIXED]);
+  editCitation(singleSection, "r59", "ord", "27.04(2)(c)");
+  editCitation(singleSection, "r59", "differentChargeSource", "Synthetic first different-charge approval");
+  editCitation(singleSection, "r59", "ord", nextOutside);
+  assert.equal(charge(singleSection).differentChargeSource, undefined, "Single-section free-text charge changes also clear prior approval");
+  WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== singleSection.id);
+  WriterState.state.docId = d.id;
   view = show(d);
   fire(view.querySelector('[data-review-cit="r59|ord"]'), FIXED);
   ok(

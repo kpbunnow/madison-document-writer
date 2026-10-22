@@ -25,6 +25,8 @@ module.exports = async function (browser, page, out, axeScreen) {
         });
         newDoc(id, "notice");
         const d = doc(WriterState.state.docId);
+        // Retain this historical authoring-11 pricing/print scenario; R59 tests current-version preservation.
+        d.authoringVersion = 11;
         d.items = [
           {
             id: uid("x"),

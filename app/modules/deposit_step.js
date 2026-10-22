@@ -58,7 +58,7 @@ export function initDepositStep() {
     delete c.reconfirmDeposit;
     c.preparedSections = (i.sections || []).map(canonicalOrdinance);
     c.differentChargeSource = c.preparedSections.includes(ord) ? c.differentChargeSource : c.depositSource;
-    d.authoringVersion = 11;
+    d.authoringVersion = Math.max(11, d.authoringVersion || 0);
     d.cits = d.cits || {};
     d.cits[id] = c;
     delete d.depositRequests[id];

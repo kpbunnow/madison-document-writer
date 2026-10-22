@@ -120,6 +120,24 @@ const test = async () => {
   el.dispatchEvent(new window.FocusEvent("focusout", { bubbles: true }));
   await __advance(15_000);
   assert.ok(!shown("Synthetic R59 focused warning"));
+  // A different notification or a repeated message repaints the stack while keyboard focus pauses a timer.
+  A11Y.notify("Synthetic R59 focus survives repaint", { severity: "warning" });
+  await tick();
+  el = [...document.querySelectorAll("#toast [data-message]")].find((x) => x.textContent.includes("Synthetic R59 focus survives repaint"));
+  el.querySelector("button").focus();
+  for (const text of ["Synthetic R59 another warning", "Synthetic R59 focus survives repaint"]) {
+    A11Y.notify(text, { severity: "warning" });
+    await tick();
+    assert.ok(
+      document.activeElement.closest("[data-message]")?.textContent.includes("Synthetic R59 focus survives repaint"),
+      "Message repaint preserves keyboard focus",
+    );
+  }
+  await __advance(60_000);
+  assert.ok(shown("Synthetic R59 focus survives repaint"), "Repainted focused warning stays paused");
+  document.activeElement.blur();
+  await __advance(15_000);
+  assert.ok(!shown("Synthetic R59 focus survives repaint"), "Leaving the repainted warning resumes its timer");
   // Progress messages stay until their operation replaces them.
   A11Y.notify("Filing synthetic R59 packet — this takes a few seconds", { severity: "progress" });
   await tick();

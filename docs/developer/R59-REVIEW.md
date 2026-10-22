@@ -65,6 +65,31 @@ CA Reinspection identity: a visit imported from a CA Reinspection is accepted by
 refused as an invalid identity since R53); reuse is still refused across reinspection and CA
 reinspection records.
 
+## PR 30 corrective review
+
+- The helper's new inspection-reuse exemption is limited to the named initial notice and companion
+  citation, with matching document and event identities. Copying an issuanceGroup onto an unrelated
+  follow-up cannot authorize reuse. Store-level regressions cover copied real groups and arbitrary
+  matching groups, check refusal without modifying the case, and retain the valid companion case.
+- Returning a correction to its original charged ordinance restores its complete retained deposit
+  basis, including the deposit method, tier and original approvals, and removes fields absent from
+  the original. This also works when the intermediate charge required a deposit-completion request.
+  Repricing the unchanged original must not reset its retained method or approvals.
+- Changing one different-charge ordinance to another clears the earlier charge's approved-source
+  confirmation, for both the section picker and the existing free-text path. The new charge needs
+  its own confirmation; an unchanged correction restores its original confirmation with its basis.
+- Existing citation preparation, charge editing, deposit completion and atomic initial publication
+  paths no longer lower an authoring-13 draft or snapshot to authoring 11. Older layouts and issued
+  snapshots are not rewritten; current-format version constants are unchanged.
+  The R35 unit and R30/R31 browser fixtures explicitly use authoring 11 and retain their original assertions; the R59 regressions
+  separately verify that preparing and publishing current authoring-13 drafts keeps version 13.
+- Repainting the shared message stack preserves keyboard focus on the same message action. Otherwise
+  a focused warning loses its focusout event when another message appears and its new R59 timer can
+  remain paused indefinitely. The regression checks focus across another/repeated notification,
+  continued pause while focused, and expiry after focus leaves.
+
+These corrections add automated coverage; native, City and staff acceptance below remain open.
+
 ## Reviewed screen CSS exception
 
 Items 2 and 7, the selected inspection, the issued case row and the Review dialog spacing are one

@@ -1156,8 +1156,19 @@ def validate_document_import(event, documents, visits):
     if not isinstance(imported, dict) or imported.get("type") not in IMPORT_TYPES or not calendar_date(imported.get("date")):
         raise ValueError("Invalid imported inspection identity")
     linked, group = snap.get("fromReinspId"), snap.get("issuanceGroup")
-    for other, _ in documents.values():
-        if linked and other.get("fromReinspId") == linked or group and other.get("issuanceGroup") == group:
+    for other, other_event in documents.values():
+        # Only the named companion citation shares its initial notice's exemption. Arbitrary follow-ups
+        # may carry copied metadata, but that must never authorize inspection reuse.
+        companion = (
+            isinstance(group, dict)
+            and group.get("id") == other_event
+            and group.get("noticeId") == other.get("id") == snap.get("fromDocId")
+            and group.get("citationId") == snap.get("id")
+            and snap.get("type") == "citation"
+            and other.get("type") == "notice"
+            and other.get("issuanceGroup") == group
+        )
+        if linked and other.get("fromReinspId") == linked or companion:
             continue
         if same_import_identity(other.get("importInspection"), imported):
             raise ValueError(IMPORT_USED)

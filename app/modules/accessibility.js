@@ -66,6 +66,9 @@ export function createAccessibility() {
     requestPaint();
   }
   function paint() {
+    const active = document.activeElement,
+      focusedMessage = active?.closest?.("[data-message]"),
+      focusedAction = active?.hasAttribute?.("data-message-undo") ? "undo" : "dismiss";
     let host = document.getElementById("toast");
     if (!host && document.body) {
       host = document.createElement("div");
@@ -111,6 +114,12 @@ export function createAccessibility() {
         .filter((m) => m.scope === title)
         .map(markup)
         .join("");
+    // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
+    // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
+    if (focusedMessage)
+      document
+        .querySelector('[data-message="' + focusedMessage.dataset.message + '"] [data-message-' + focusedAction + "]")
+        ?.focus({ preventScroll: true });
     for (const el of document.querySelectorAll("[data-message]")) {
       const m = messages.find((m) => m.id === el.dataset.message);
       if (!m) continue;

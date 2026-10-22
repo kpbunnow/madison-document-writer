@@ -153,6 +153,7 @@ const CHARGE_DERIVED = [
   "resolvedVia",
   "depositSource",
   "depositReason",
+  "differentChargeSource",
   "reconfirmDeposit",
   "depositEditInvalid",
   "depositApproved",
@@ -192,6 +193,7 @@ const CHARGE_IDENTITY = [
   "depositEditInvalid",
   "historicalDeposit",
   "chargeStale",
+  "differentChargeSource",
 ];
 function clearChargeBasis(c, i) {
   // An explicit choice among several sections starts from nothing: every derived and approved value goes.
@@ -199,8 +201,6 @@ function clearChargeBasis(c, i) {
   for (const key of full ? CHARGE_DERIVED : CHARGE_IDENTITY) delete c[key];
   if (full) c.depositMode = "schedule";
   c.autoFilledCharge = false;
-  // A different-charge confirmation belongs to that charge; choosing one of the item's sections retires it.
-  if (chargeChoices(i).some((x) => x.value === canonicalOrdinance(c.ord))) delete c.differentChargeSource;
 }
 
 const chargeValue = (v) => canonicalOrdinance(v) || String(v || "").trim();
@@ -221,8 +221,19 @@ function changeCharge(d, iid, value) {
   c.ord = ord;
   clearChargeBasis(c, i);
   const original = d.correction && correctionSource(d)?.cits?.[iid];
-  if (original && chargeValue(original.ord) === ord)
-    for (const key of CHARGE_DERIVED) if (Object.hasOwn(original, key)) c[key] = clone(original[key]);
+  if (original && chargeValue(original.ord) === ord) {
+    // Returning to the unchanged original restores its complete retained basis, including absent fields.
+    // Do not run applyDeposit: it resets the method and approvals before refresh recognizes a correction.
+    for (const key of [...CHARGE_DERIVED, "depositMode", "tier"]) {
+      if (Object.hasOwn(original, key)) c[key] = clone(original[key]);
+      else delete c[key];
+    }
+    d.cits = d.cits || {};
+    d.cits[iid] = c;
+    delete d.depositRequests?.[iid];
+    citationPricing.refresh(d);
+    return true;
+  }
   if (d.cits?.[iid] === c) {
     applyDeposit(d, iid, ord);
     return true;
@@ -246,7 +257,7 @@ function changeCharge(d, iid, value) {
 function applyDeposit(d, iid, ord) {
   const c = (d.cits || {})[iid];
   if (!c) return;
-  d.authoringVersion = 11;
+  d.authoringVersion = Math.max(11, d.authoringVersion || 0);
   c.depositMode = "schedule";
   delete c.depositApproved;
   delete c.tierOverrideSource;
