@@ -79,6 +79,16 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     }
     await page.setViewportSize({ width: 1366, height: 768 });
     await axeThemes(page, "r42-document");
+    // The summary's first-field button reaches the first unresolved required field.
+    await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).click();
+    assert.equal(
+      await page.evaluate(() => {
+        const ready = editorReadiness(doc(WriterState.state.docId)),
+          first = ready.list.find((c) => !c.ok && !c.soft && c.targets?.length);
+        return document.activeElement === document.querySelector(first.targets[0].selector);
+      }),
+      true,
+    );
     await page.locator('[data-editor-section="editor-review"]').focus();
     await page.keyboard.press("Enter");
     assert.equal(await page.evaluate(() => document.activeElement.id), "editor-review-title");
@@ -94,7 +104,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       .fill(await page.evaluate(() => addDays(recordDay(today), 21)));
     await page.waitForFunction(() => blockers(doc(WriterState.state.docId)).length === 0);
     assert.equal(await page.locator(".editor-primary").innerText(), "Review & issue");
-    assert.equal(await page.locator("[data-editor-readiness]").innerText(), await page.locator("#chk-chip").innerText());
+    // Phase 2: one readiness summary in the top line, which now reports no required fixes.
+    assert.equal(await page.locator("[data-editor-readiness],#chk-chip").count(), 1);
+    assert.match(await page.locator(".editor-readiness #chk-chip[data-editor-readiness]").innerText(), /^Ready for review/);
+    assert.equal(await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).count(), 0);
     await page.locator("[data-editor-preview]").click();
     await page.getByRole("heading", { name: "Print preview", exact: true }).waitFor();
     await axeScreen(page, "r42-readonly-preview");

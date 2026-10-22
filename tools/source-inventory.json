@@ -459,6 +459,7 @@
     "tests/unit/audit_storage.js",
     "tests/unit/audit_summary.js",
     "tests/unit/audit_usability_phase1.js",
+    "tests/unit/audit_usability_phase2.js",
     "tests/unit/audit_utf8_io.py",
     "tests/unit/audit_valid.js",
     "tests/unit/audit_walkthrough.js",

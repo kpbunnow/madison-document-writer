@@ -68,10 +68,13 @@ const test = async () => {
   await Promise.resolve();
   assert.equal(document.activeElement, text);
   assert.equal(d.items[0].text, "Repair the damaged wall.");
+  // Phase 2: one readiness summary (the top line carries #chk-chip) updates while typing.
+  assert.equal(document.querySelectorAll("[data-editor-readiness],#chk-chip").length, 1, "one readiness summary");
+  assert.ok(document.querySelector(".editor-readiness #chk-chip[data-editor-readiness]"));
   assert.equal(
-    document.querySelector("[data-editor-readiness]").textContent,
     document.querySelector("#chk-chip").textContent,
-    "readiness summaries update together",
+    readinessText(editorReadiness(d).required, editorReadiness(d).advice),
+    "the readiness summary updates with the draft",
   );
   d.items[0].due = addDays(recordDay(today), 21);
   render();

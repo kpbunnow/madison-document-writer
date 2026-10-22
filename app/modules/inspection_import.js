@@ -1192,19 +1192,60 @@ function editorReadiness(d) {
   return { list, required, advice, held: !!d.draft && d.items.some((i) => i.cite && !i.withdrawn && d.cits?.[i.id]?.mandatoryAppearance) };
 }
 
+// One readiness summary: the counts of required fixes and advisories for the editor's top line.
+function readinessText(required, advice) {
+  const fixes = required.length ? required.length + " required fix" + (required.length === 1 ? "" : "es") : "",
+    notes = advice.length ? advice.length + " advisor" + (advice.length === 1 ? "y" : "ies") : "";
+  return required.length ? [fixes, notes].filter(Boolean).join(" · ") : ["Ready for review", notes].filter(Boolean).join(" · ");
+}
+
 function checkChip(d, readiness = editorReadiness(d)) {
   const { required, advice } = readiness;
   return (
     '<span class="cchip ' +
     `${required.length ? "bad" : "good"}` +
-    '" id="chk-chip">' +
-    "".concat(
-      required.length
-        ? required.length + " required check" + (required.length === 1 ? "" : "s") + " remaining"
-        : advice.length
-          ? "Ready for review · " + advice.length + " advisory check" + (advice.length === 1 ? "" : "s")
-          : "Ready for review",
-    ) +
+    '" id="chk-chip" data-editor-readiness>' +
+    readinessText(required, advice) +
+    "</span>"
+  );
+}
+
+// The first unresolved required check (or, with none, advisory) that names a field, as its index in checks(d).
+function readinessFirst(readiness) {
+  const at = (soft) => readiness.list.findIndex((c) => !c.ok && !!c.soft === soft && c.targets?.length);
+  const required = at(false);
+  if (required >= 0) return { index: required, label: "Go to first required field" };
+  if (readiness.required.length) return null;
+  const advisory = at(true);
+  return advisory >= 0 ? { index: advisory, label: "Go to first advisory" } : null;
+}
+
+function readinessActionsHTML(readiness) {
+  const first = readinessFirst(readiness);
+  return (
+    // The existing check-link path (data-check-index) focuses the field through focusCheckTarget.
+    (first
+      ? '<button type="button" class="btn btn-sm" data-readiness-first data-check-index="' +
+        first.index +
+        '" data-check-target="0">' +
+        first.label +
+        "</button>"
+      : "") + '<button type="button" class="lnk" data-open-checklist aria-controls="checkbox-panel">Open full checklist</button>'
+  );
+}
+
+function readinessKey(readiness) {
+  const first = readinessFirst(readiness);
+  return first ? first.index + ":" + first.label : "none";
+}
+
+function readinessLineHTML(d, readiness) {
+  return (
+    checkChip(d, readiness) +
+    '<span class="readiness-actions" data-readiness-key="' +
+    esc(readinessKey(readiness)) +
+    '">' +
+    readinessActionsHTML(readiness) +
     "</span>"
   );
 }
@@ -1260,8 +1301,13 @@ function editorSync() {
   const readiness = editorReadiness(d);
   const chip = document.getElementById("chk-chip");
   if (chip) chip.outerHTML = checkChip(d, readiness);
-  for (const label of document.querySelectorAll("[data-editor-readiness]"))
-    label.outerHTML = checkChip(d, readiness).replace('id="chk-chip"', "data-editor-readiness");
+  const actions = document.querySelector(".editor-readiness .readiness-actions"),
+    key = readinessKey(readiness);
+  // Replace the actions only when they change, so a focused summary button keeps its focus.
+  if (actions && actions.dataset.readinessKey !== key) {
+    actions.innerHTML = readinessActionsHTML(readiness);
+    actions.dataset.readinessKey = key;
+  }
   const panel = document.getElementById("checkbox-panel");
   if (panel) {
     const open = panel.querySelector(".passed-checks")?.open;
@@ -1463,9 +1509,10 @@ function screenWrite() {
     "" +
     `${specialType(d.type) ? "" : duePanel(d, false)}` +
     "";
+  // The single complete checklist; the status summary itself is the editor's top readiness line.
   const review =
     '<div class="docpanel no-print"><div class="chipstrip">' +
-    `${!locked ? checkChip(d, ready) : '<span class="cchip">This document is read-only</span>'}` +
+    `${!locked ? "<strong>Full checklist</strong>" : '<span class="cchip">This document is read-only</span>'}` +
     '<button class="btn btn-sm" id="btn-checks" aria-controls="checkbox-panel' +
     '" aria-expanded="true">Hide checks</button></div><div id="checkbox-panel' +
     '">' +
@@ -1511,13 +1558,7 @@ function screenWrite() {
       'button><button data-editor-section="editor-review">Review' +
       `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
       "</button></nav>" +
-      "".concat(
-        !locked
-          ? '<div class="editor-readiness no-print">' +
-              checkChip(d, ready).replace('id="chk-chip"', "data-editor-readiness") +
-              "<span>Required checks link to the field that needs attention.</span></div>"
-          : "",
-      ) +
+      "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
       "" +
       `${editorSection("editor-inspection", "Inspection", inspection)}` +
       "" +
@@ -1907,17 +1948,9 @@ function modalHTML() {
           : '<div class="banner ok"><div>Every check passed.</div></div>',
     ) +
     "\n      " +
+    // The decision: blocking failures and advisories link back to their fields; passed checks stay in the Review checklist.
     `${ch.map((c, ix) => (!c.ok ? checkRowHTML(c, ix) : "")).join("")}` +
-    '\n      <details class="passed-checks"><summary>' +
-    `${ch.filter((c) => c.ok).length}` +
-    " checks passed</summary>" +
-    "".concat(
-      ch
-        .filter((c) => c.ok)
-        .map((c) => `<div class="check pass"><span class="m">✓</span><span>${esc(c.t)}</span></div>`)
-        .join(""),
-    ) +
-    '</details>\n      <label class="f" style="margin-top:16px"><span>Mailed d' +
+    '\n      <label class="f" style="margin-top:16px"><span>Mailed d' +
     'ate</span><input type="date" id="fin-mailed" value="' +
     `${esc(d.mailed || recordDay(today))}` +
     '" max="' +

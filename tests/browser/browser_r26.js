@@ -318,7 +318,8 @@ module.exports = async function (browser, page, context, out, axeScreen) {
       await facts({
         scope,
         unit: "Apartment 3-C",
-        affected: ["1"],
+        // Phase 2: the affected item is selected beside its due date in the items table (below).
+        affected: [],
         noSafety: true,
         safetyBasis: "Reviewer confirms these are nonurgent interior repair items; security and safety obligations are excluded.",
         noticeRef: "SYNTHETIC original Official Notice reference",
@@ -340,6 +341,9 @@ module.exports = async function (browser, page, context, out, axeScreen) {
       });
       // Authoring 13: the affected item's new due date is entered in the items table, not the extension panel.
       assert.equal(await page.locator("[data-special-due]").count(), 0);
+      assert.equal(await page.locator("#r26-details fieldset.r26-items").count(), 0, "no separate affected-item list");
+      await page.locator('.desk [data-special-item="1"]').check();
+      assert.deepEqual(await page.evaluate(() => doc(WriterState.state.docId).special.affected), ["1"]);
       const affected = await page.evaluate(() => doc(WriterState.state.docId).items.find((i) => String(i.no) === "1").id);
       await page.locator('[data-field="due"][data-id="' + affected + '"]').fill(await page.evaluate(() => addDays(recordDay(today), 35)));
       await axeScreen(page, "r26-" + type + "-" + scope);

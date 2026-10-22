@@ -131,6 +131,7 @@ import {
   activeDueTarget,
   assignDue,
   dueContext,
+  dueSelectedText,
   editCitation,
   initialCitationBody,
   pdfTransferState,
@@ -2083,6 +2084,9 @@ document.addEventListener("change", (e) => {
     if (e.target.checked) selected.add(ds.dueSelect);
     else selected.delete(ds.dueSelect);
     target.dueWork.selected = [...selected];
+    // Notice rows select in the items table; keep the compact bar's count current without a repaint.
+    const count = !visit && document.querySelector("[data-due-selected]");
+    if (count) count.textContent = dueSelectedText(dueContext(target, visit), selected);
     WriterState.DIRTY = true;
     saveDrafts();
   }
@@ -2391,10 +2395,24 @@ document.addEventListener("paste", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const button = e.target.closest("[data-editor-section],[data-editor-preview],[data-editor-command]");
+  const button = e.target.closest("[data-editor-section],[data-editor-preview],[data-editor-command],[data-open-checklist]");
   if (!button) return;
   e.preventDefault();
   captureWork();
+  if (button.hasAttribute("data-open-checklist")) {
+    // The summary's link shows the complete checklist even when it was hidden.
+    const panel = document.getElementById("checkbox-panel"),
+      toggle = document.getElementById("btn-checks");
+    if (panel?.style.display === "none") {
+      panel.style.display = "block";
+      if (toggle) {
+        toggle.textContent = "Hide checks";
+        toggle.setAttribute("aria-expanded", "true");
+      }
+    }
+    editorNavigate("editor-review");
+    return;
+  }
   if (button.hasAttribute("data-editor-section")) {
     editorNavigate(button.dataset.editorSection);
     return;

@@ -102,7 +102,8 @@ const test = async () => {
   assert.equal(affected.targets.length, 1);
   const before = toasts.length;
   focusCheckTarget(affected.targets[0], affected.t);
-  assert.ok(document.activeElement.matches("#r26-details [data-special-item]"), "affected check focuses the first affected-item checkbox");
+  // Phase 2: authoring-13 drafts select affected items in the items table, beside each due date.
+  assert.ok(document.activeElement.matches(".desk [data-special-item]"), "affected check focuses the first row Affected checkbox");
   assert.equal(document.activeElement.dataset.specialItem, "1");
   assert.equal(toasts.length, before, "no fallback toast for the affected check");
   // Every failing special check that names a target resolves to a real element.
@@ -134,7 +135,7 @@ const test = async () => {
   render();
   const vacancy = checks(d).find((c) => c.t === "Select at least one outstanding affected item.");
   focusCheckTarget(vacancy.targets[0], vacancy.t);
-  assert.ok(document.activeElement.matches("[data-special-item]"));
+  assert.ok(document.activeElement.matches(".desk [data-special-item]"));
   // A correction draft keeps the section for its correction panel.
   d.type = "notice";
   delete d.special;

@@ -139,6 +139,9 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       render();
     }, original);
     await page.bringToFront();
+    // Authoring 12 keeps its affected-item fieldset; only authoring-13 drafts select affected items in the table.
+    assert.equal(await page.locator('#r26-details fieldset.r26-items [data-special-item="1"]').isChecked(), true);
+    assert.equal(await page.locator(".desk [data-special-item]").count(), 0);
     await page.locator('[data-field="due"][data-id="r54-open"]').fill("2026-11-27");
     assert.equal(await page.evaluate(() => doc(WriterState.state.docId).special.extendedDues[1]), "2026-11-27");
     assert.equal(await page.evaluate(() => doc(WriterState.state.docId).special.reviewed), false);
