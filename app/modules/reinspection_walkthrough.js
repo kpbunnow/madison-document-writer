@@ -615,7 +615,7 @@ function screenCases() {
     "Building Inspection",
     '<button class="btn" data-global-search>' +
       `${uiIcon("search")}` +
-      ' Search all shared cases</button><button class="btn btn-primary" data-na' +
+      ' Search shared case records</button><button class="btn btn-primary" data-na' +
       'v="import">' +
       `${uiIcon("import")}` +
       " Import inspection</button>",
@@ -736,13 +736,21 @@ function screenCases() {
                   '<tr><td colspan="5"><div class="empty">' +
                     `${query || WriterState.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
                     ' <button class="lnk" data-queue-reset>Clear search and inspector</button' +
-                    '> <button class="lnk" id="case-showall">View all cases</button></div></t' +
-                    "d></tr>",
+                    '> <button class="lnk" id="case-showall">View all cases</button>' +
+                    // The shared search opens with this workspace query prefilled; it is not submitted automatically.
+                    "".concat(
+                      query
+                        ? ' <button class="btn btn-sm" data-shared-offer>Search shared case records for “' +
+                            esc(String(WriterState.state.caseQ || "").trim()) +
+                            "”</button>"
+                        : "",
+                    ) +
+                    "</div></td></tr>",
               ) +
               '</tbody></table></div><div class="case-count">' +
               `${WriterState.CASES.length}` +
-              " cases on this device. Use Search all shared cases for records outside t" +
-              "his workspace." +
+              " cases on this device. Use Search shared case records for records outsid" +
+              "e this workspace." +
               `${importCount ? " An import is waiting for review above." : ""}` +
               "</div>",
       ) +
@@ -1644,7 +1652,7 @@ function accelaPanel() {
       acc.source?.kind === "sql"
         ? "<p>Retrieved " +
             `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
-            ". This is a saved snapshot; use Find case again to refresh it.</p>"
+            ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
         : "",
     ) +
     "" +

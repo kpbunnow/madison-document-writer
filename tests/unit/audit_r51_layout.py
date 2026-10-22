@@ -19,6 +19,18 @@ BASELINE_BUTTON_TRANSITION = """    transition:
       background 0.12s,
       border-color 0.12s;"""
 
+# Reviewed R56 usability phase 3 screen-only addition: one contiguous block appended to ui-refresh.css (review
+# modes, administrator tools group and the narrow-screen editor task bar). It must be byte-identical to the
+# reviewed block and appear exactly once in each built shell; it is removed before the historical comparison.
+PHASE3_SCREEN_MARKER = "\n/* R56 usability phase 3 (screen only):"
+PHASE3_SCREEN_BYTES = 4246
+PHASE3_SCREEN_SHA256 = "1f789008fe985432e9daafffb0e2ed9f6ee3917529881d887d2664c5e012b2d0"
+
+
+def phase3_screen_block():
+    source = (ROOT / "app/assets/ui-refresh.css").read_text(encoding="utf-8")
+    return source[source.index(PHASE3_SCREEN_MARKER) :]
+
 
 class Layout(unittest.TestCase):
     def test_stable_manual_and_explicit_counter(self):
@@ -35,12 +47,17 @@ class Layout(unittest.TestCase):
         baseline = json.loads((ROOT / "tests/fixtures/reference/R51-R50-parity.json").read_text())
         version = json.loads((ROOT / "version.json").read_text())
         production = Path(os.environ.get("DW_PRODUCTION_DIR", ROOT / "build/dist"))
+        phase3 = phase3_screen_block()
+        self.assertEqual(len(phase3.encode()), PHASE3_SCREEN_BYTES, "reviewed R56 phase 3 block size")
+        self.assertEqual(hashlib.sha256(phase3.encode()).hexdigest(), PHASE3_SCREEN_SHA256, "reviewed R56 phase 3 block bytes")
         for name, expected in baseline["files"].items():
             text = (production / name).read_text()
             bundle = re.search(r'var B="([A-Za-z0-9+/=]+)"', text)[1]
             shell = text.replace(bundle, "PAYLOAD").replace(version["release"], "@RELEASE@")
             self.assertEqual(shell.count(THEME_BUTTON_TRANSITION), 1, name + ": exact screen contrast correction")
             shell = shell.replace(THEME_BUTTON_TRANSITION, BASELINE_BUTTON_TRANSITION)
+            self.assertEqual(shell.count(phase3), 1, name + ": exact R56 phase 3 screen block")
+            shell = shell.replace(phase3, "")
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 
     def test_staff_docs_name_no_release_numbered_files(self):

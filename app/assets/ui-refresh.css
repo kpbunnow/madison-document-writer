@@ -1900,3 +1900,180 @@
     outline-offset: 3px;
   }
 }
+
+/* R56 usability phase 3 (screen only): review modes, administrator tools and the narrow-screen task bar. */
+@media screen {
+  .ri-walk-modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex-basis: 100%;
+  }
+  .ri-walk-steps {
+    display: flex;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: walk-step;
+  }
+  .ri-walk-steps li {
+    counter-increment: walk-step;
+    padding: 3px 9px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: 12.5px;
+  }
+  .ri-walk-steps li::before {
+    content: counter(walk-step) ". ";
+  }
+  .ri-walk-steps li.current {
+    border: 2px solid var(--civic);
+    color: var(--ink);
+    font-weight: 650;
+  }
+  .ri-walk-tips {
+    flex-basis: 100%;
+    color: var(--ink-2);
+    font-size: 12.5px;
+  }
+  .ri-walk-tips > summary,
+  .tools-admin > details > summary {
+    min-height: 32px;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .ri-walk-tips p {
+    margin: 4px 0;
+  }
+  .tools-admin > details > summary {
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 650;
+  }
+  .editor-mobile-bar {
+    display: none;
+  }
+  @media (max-width: 760px) {
+    body:has(.document-workspace) .rail-brand {
+      padding: 8px 16px;
+    }
+    body:has(.document-workspace) .rail-logo {
+      width: 52px;
+    }
+    body:has(.document-workspace) .rail nav.writer-navigation {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 4px 12px 8px;
+    }
+    body:has(.document-workspace) .writer-navigation .rail-item {
+      flex: 0 0 auto;
+      width: auto;
+      white-space: nowrap;
+    }
+    body:has(.document-workspace) .topbar {
+      padding: 10px 12px;
+    }
+    body:has(.document-workspace) .topbar .crumb {
+      display: block;
+      overflow: hidden;
+      font-size: 11px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    body:has(.document-workspace) .topbar h1 {
+      margin-top: 2px;
+      font-size: 18px;
+    }
+    body:has(.document-workspace) .topbar-actions {
+      flex-direction: row;
+      margin-top: 8px;
+      gap: 8px;
+    }
+    body:has(.document-workspace) .topbar-actions > .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      white-space: normal;
+    }
+    body:has(.document-workspace) .content {
+      padding-top: 10px;
+    }
+    .document-workspace {
+      padding-bottom: 112px;
+    }
+    .document-workspace .editor-context {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin-bottom: 4px;
+    }
+    .document-workspace .document-save {
+      gap: 8px;
+      margin: 0 0 4px;
+      font-size: 12px;
+    }
+    .document-workspace .editor-sections {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 6px;
+      margin: 6px 0;
+    }
+    .document-workspace .editor-sections button {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
+    .document-workspace .editor-readiness {
+      margin: 6px 0 10px;
+    }
+    .document-workspace .editor-section {
+      margin: 12px 0;
+    }
+    .document-workspace .editor-taskbar {
+      margin-bottom: 8px;
+    }
+    .document-workspace .editor-preview-tools {
+      margin: 8px 0 6px;
+    }
+    .editor-mobile-bar {
+      display: block;
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 700;
+      padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--rule);
+      background: var(--surface);
+      box-shadow: 0 -2px 8px #19334514;
+    }
+    .editor-mobile-save {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink-2);
+      font-size: 12px;
+    }
+    .editor-mobile-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .editor-mobile-actions .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 44px;
+      line-height: 1.2;
+      white-space: normal;
+    }
+    body:has(.document-workspace :is(input, select, textarea, [contenteditable]:not([contenteditable="false"])):focus) .editor-mobile-bar,
+    body:has(.modal, .picker) .editor-mobile-bar {
+      display: none;
+    }
+  }
+}

@@ -1898,13 +1898,14 @@ document.addEventListener("submit", async (e) => {
 });
 document.addEventListener("click", async (e) => {
   const t = e.target.closest?.(
-    "[data-global-search],[data-global-open],[data-reminders],[data-reminder-" +
+    "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-" +
       "draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data" +
       "-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
   );
   if (!t) return;
   try {
-    if (t.hasAttribute("data-global-search")) await globalSearch();
+    // The no-results offer opens the same shared search with the workspace query prefilled.
+    if (t.hasAttribute("data-global-search") || t.hasAttribute("data-shared-offer")) await globalSearch();
     else if (t.dataset.globalOpen) {
       await writerOpenReportedCase({ number: t.dataset.globalOpen });
       document.getElementById("utility-dialog")?.close();
@@ -2395,10 +2396,22 @@ document.addEventListener("paste", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const button = e.target.closest("[data-editor-section],[data-editor-preview],[data-editor-command],[data-open-checklist]");
+  const button = e.target.closest(
+    "[data-editor-section],[data-editor-preview],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]",
+  );
   if (!button) return;
   e.preventDefault();
   captureWork();
+  if (button.hasAttribute("data-mobile-primary")) {
+    // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
+    const primary = document.querySelector(".topbar .editor-primary");
+    if (primary && !primary.disabled) primary.click();
+    return;
+  }
+  if (button.hasAttribute("data-mobile-review")) {
+    editorNavigate("editor-review");
+    return;
+  }
   if (button.hasAttribute("data-open-checklist")) {
     // The summary's link shows the complete checklist even when it was hidden.
     const panel = document.getElementById("checkbox-panel"),
@@ -2694,6 +2707,8 @@ document.addEventListener("click", async (e) => {
   if (t.dataset.riwalk !== undefined) {
     const r = reinsp(WriterState.state.reinspId);
     if (!r || !r.draft || r.docId) return;
+    // The two review modes are a pressed-button pair; choosing the current mode changes nothing.
+    if ((t.dataset.riwalk === "on") === !!WriterState.state.riWalk) return;
     if (t.dataset.riwalk === "on") {
       clearWalk();
       WriterState.state.riWalk = true;

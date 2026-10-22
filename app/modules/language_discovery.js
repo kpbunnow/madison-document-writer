@@ -141,9 +141,9 @@ export function languageScreen(R) {
     const selected = R.catalogItem(R.state.catalogAdminKey),
       context = "admin|" + (selected ? R.catalogKey(selected) : "");
     return R.shell(
-      "Order language review administration",
-      "Versioned division review",
-      '<button class="btn" data-language-mode="browse">Back to language search</button>',
+      "Review catalog",
+      "Order language · versioned division review",
+      '<button class="btn" data-language-mode="browse">Browse language</button>',
       '<div class="language-admin" data-language-context="' +
         `${R.esc(context)}` +
         '"><p>Review wording, ordinance sources and replacement relationships her' +
@@ -205,9 +205,9 @@ export function languageScreen(R) {
     groups.get(key).items.push(i);
   }
   return R.shell(
-    "Order language",
-    "Find language for the condition you observed",
-    '<button class="btn" data-language-mode="admin">Review administration</button>',
+    "Browse language",
+    "Order language · find language for the condition you observed",
+    '<button class="btn" data-language-mode="admin">Review catalog</button>',
     '<div class="language-browser" data-language-context="browse"><p>Search a' +
       "cross every checklist by ordinary terms, ordinance or wording. Approved " +
       "language is shown by default. Standard sources and proposed or retired e" +
@@ -281,6 +281,8 @@ export function languagePicker(R) {
     selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter));
   const items = all.filter((i) => visible(i) && languageMatches(R, i, q) && (q || R.state.cl < 0 || (i.ci === R.state.cl && i.gi === R.state.grp)));
+  // Selecting language for the open draft, distinct from browsing or reviewing the catalog.
+  const pickerTitle = "Select for this " + (current?.type === "notice" ? "notice" : "document");
   const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp],
     label = q ? "Search results across all checklists" : group ? group.name : "All checklists";
   const tree = R.LIBRARY.map((c, ci) => {
@@ -309,10 +311,14 @@ export function languagePicker(R) {
   }).join("");
   return (
     '<div class="picker" id="picker-bg"><div class="picker-box" role="dialog"' +
-    ' aria-modal="true" aria-label="Add violation item" data-language-context' +
+    ' aria-modal="true" aria-label="' +
+    pickerTitle +
+    '" data-language-context' +
     '="picker|' +
     `${R.esc(R.state.docId)}` +
-    '">\n <div class="picker-h"><h2>Add violation item</h2><button class="btn ' +
+    '">\n <div class="picker-h"><h2>' +
+    pickerTitle +
+    '</h2><button class="btn ' +
     'btn-sm" data-close="picker">Close</button></div>\n <div class="picker-sea' +
     'rch"><label class="f"><span>Search all order language</span><input type=' +
     '"search" id="pk-q" value="' +

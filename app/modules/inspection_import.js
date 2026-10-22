@@ -98,7 +98,7 @@ import { WriterState } from "./state.js";
 import { documentHTML, citationFaces } from "./document_render.js";
 import { authFetch } from "./helper_transport.js";
 import { languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
-import { documentSaveHTML } from "./saved_work.js";
+import { documentSaveHTML, localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 function openImportWorkspace(cid) {
@@ -134,7 +134,7 @@ function openImportWorkspace(cid) {
 
 function lookupCard() {
   return (
-    '<div class="card lookup-card"><div class="card-h"><h2>Find a case</h2><s' +
+    '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
     'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
     "er the case number to retrieve its property, owner and inspection detail" +
     's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
@@ -148,7 +148,7 @@ function lookupCard() {
     '></label>\n    <button class="btn btn-primary" type="submit" ' +
     `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
     ">" +
-    `${WriterState.LOOKUP_BUSY ? "Finding case…" : "Find case"}` +
+    `${WriterState.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
     "</button>\n    " +
     "".concat(
       WriterState.LOOKUP_BUSY
@@ -874,15 +874,37 @@ function screenReinspect() {
   const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
   const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
   const referred = docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x));
+  const walkOn = WriterState.state.riWalk;
+  // Current step of one-item review, from the existing walk state; outcomes are only ever chosen by the inspector.
+  const walkStep = !walkOn
+    ? 0
+    : !WriterState.state.riWalkItem
+      ? 4
+      : WriterState.state.riWalkStage === "details"
+        ? walkItemReady(r, WriterState.state.riWalkItem)
+          ? 3
+          : 2
+        : 1;
+  const walkSteps = ["Record the outcome", "Complete required details", "Continue to the next item", "Review the inspection and permitted follow-up"];
+  const walkKeys = OUTCOMES.map((o, ix) => "<kbd>" + (ix + 1) + "</kbd> " + esc(o.label)).join(" · ") + " · <kbd>U</kbd> Undo the last outcome";
   const walkPanel = !readOnly
     ? '<div class="ri-walk-panel ' +
-      `${WriterState.state.riWalk ? "active" : ""}` +
-      '" aria-label="Reinspection walk-through">\n    <div class="ri-walk-copy">' +
+      `${walkOn ? "active" : ""}` +
+      '" role="group" aria-label="Reinspection review mode">\n    <div class="ri-walk-modes" role="group" aria-label="How to review items">' +
+      '<button type="button" class="btn btn-sm ' +
+      `${walkOn ? "" : "btn-primary"}` +
+      '" data-riwalk="off" aria-pressed="' +
+      `${walkOn ? "false" : "true"}` +
+      '">Review all items</button><button type="button" class="btn btn-sm ' +
+      `${walkOn ? "btn-primary" : ""}` +
+      '" data-riwalk="on" aria-pressed="' +
+      `${walkOn ? "true" : "false"}` +
+      '">One item at a time</button></div>\n    <div class="ri-walk-copy">' +
       "<strong>" +
-      `${WriterState.state.riWalk ? "Walk-through on" : "Walk through items one at a time"}` +
+      `${walkOn ? "One item at a time" : "Review all items"}` +
       '</strong>\n      <span aria-live="polite">' +
       "".concat(
-        WriterState.state.riWalk
+        walkOn
           ? WriterState.state.riWalkStage === "details"
             ? "Complete item " +
               `${esc(src.items.find((i) => i.id === WriterState.state.riWalkItem)?.no || "")}` +
@@ -898,53 +920,61 @@ function screenReinspect() {
                 `${left}` +
                 " left to result."
               : "All items have a result. Review the dates, notes and due dates before creating a document."
-          : "Keep each outcome deliberate. The next unanswered item will be brought into focus.",
+          : "Every item is shown. Choose One item at a time to bring the next unanswered item into focus.",
       ) +
-      "</span>\n      " +
+      "</span>\n    </div>\n    " +
       "".concat(
-        WriterState.state.riWalk
-          ? "<small>Keyboard: <kbd>1</kbd> Corrected · <kbd>2</kbd> Progress · <kbd>3" +
-              "</kbd> No change · <kbd>4</kbd> No access · <kbd>U</kbd> Undo</small>"
-          : "<small>Keyboard shortcuts are available while walk-through is on. They a" + "re ignored while typing in a field.</small>",
+        walkOn
+          ? '<ol class="ri-walk-steps" aria-label="One item at a time steps">' +
+              walkSteps
+                .map(
+                  (label, ix) =>
+                    '<li data-walk-step="' +
+                    (ix + 1) +
+                    '"' +
+                    (walkStep === ix + 1 ? ' aria-current="step" class="current"' : "") +
+                    ">" +
+                    label +
+                    "</li>",
+                )
+                .join("") +
+              "</ol>"
+          : "",
       ) +
-      '\n    </div>\n    <label class="f"><span>After an outcome</span><select id' +
+      '\n    <label class="f"><span>After an outcome</span><select id' +
       '="ri-walk-mode" ' +
-      `${WriterState.state.riWalk ? "" : "disabled"}` +
+      `${walkOn ? "" : "disabled"}` +
       '><option value="quick" ' +
       `${WriterState.state.riWalkMode === "quick" ? "selected" : ""}` +
-      '>Quick: next unanswered item</option><option value="details" ' +
+      '>Go to next unanswered item</option><option value="details" ' +
       `${WriterState.state.riWalkMode === "details" ? "selected" : ""}` +
-      ">Complete details, then next</option></select></label>\n    " +
-      "".concat(WriterState.state.riWalk ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
+      ">Complete details first</option></select></label>\n    " +
+      "".concat(walkOn ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk && WriterState.state.riWalkStage === "details"
+        walkOn && WriterState.state.riWalkStage === "details"
           ? '<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</butto' +
               'n><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>'
           : "",
       ) +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk &&
-          src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
+        walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
           ? '<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>'
           : "",
       ) +
       "\n    " +
       "".concat(
-        WriterState.state.riWalk && WriterState.state.riWalkUndo
+        walkOn && WriterState.state.riWalkUndo
           ? '<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-th' + 'rough result (U)">Undo last result <kbd>U</kbd></button>'
           : "",
       ) +
-      '\n    <button class="btn ' +
-      `${WriterState.state.riWalk ? "" : "btn-primary"}` +
-      ' btn-sm" data-riwalk="' +
-      `${WriterState.state.riWalk ? "off" : "on"}` +
-      '" aria-pressed="' +
-      `${WriterState.state.riWalk ? "true" : "false"}` +
-      '">' +
-      `${WriterState.state.riWalk ? "Review all items (pause)" : "Start walk-through"}` +
-      "</button>\n  </div>"
+      '\n    <details class="ri-walk-tips"><summary>Keyboard shortcuts and tips</summary>' +
+      "<p>In One item at a time: " +
+      walkKeys +
+      ".</p><p>Shortcuts are ignored while typing in a field. Nothing is recorded until you choose an outcome; " +
+      "follow-up choices stay limited to those the imported inspection result permits.</p><p>After an outcome: Go to next unanswered item moves on at once; " +
+      "Complete details first keeps the item open for its date, notes and any new due date.</p></details>\n  </div>"
     : "";
 
   let verdict;
@@ -1234,6 +1264,43 @@ function readinessActionsHTML(readiness) {
   );
 }
 
+// Narrow-screen task bar: next required field, Review and the primary action (which clicks the toolbar's own button).
+function mobileBarActionsHTML(d, readiness = editorReadiness(d)) {
+  const first = readinessFirst(readiness),
+    primary = editorPrimary(d, readiness);
+  return (
+    (first && readiness.required.length
+      ? '<button type="button" class="btn btn-sm" data-mobile-next data-check-index="' +
+        first.index +
+        '" data-check-target="0">Next required field</button>'
+      : "") +
+    '<button type="button" class="btn btn-sm" data-mobile-review>Review</button>' +
+    '<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ' +
+    (primary.attrs === "disabled" ? "disabled" : "") +
+    ">" +
+    primary.label +
+    "</button>"
+  );
+}
+
+function mobileBarKey(d, readiness) {
+  const primary = editorPrimary(d, readiness);
+  return readinessKey(readiness) + "|" + readiness.required.length + "|" + primary.label + "|" + primary.attrs;
+}
+
+function mobileBarHTML(d, readiness) {
+  return (
+    '<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions">' +
+    '<span class="editor-mobile-save" data-document-device-save>' +
+    esc(localSaveText(app_savedworkContext())) +
+    '</span><div class="editor-mobile-actions" data-bar-key="' +
+    esc(mobileBarKey(d, readiness)) +
+    '">' +
+    mobileBarActionsHTML(d, readiness) +
+    "</div></div>"
+  );
+}
+
 function readinessKey(readiness) {
   const first = readinessFirst(readiness);
   return first ? first.index + ":" + first.label : "none";
@@ -1316,6 +1383,13 @@ function editorSync() {
   }
   const button = document.getElementById("btn-final");
   if (button) button.innerHTML = editorPrimary(d, readiness).label;
+  const bar = document.querySelector(".editor-mobile-actions"),
+    barKey = mobileBarKey(d, readiness);
+  // Replace only on change, so a focused bar button keeps its focus.
+  if (bar && bar.dataset.barKey !== barKey) {
+    bar.innerHTML = mobileBarActionsHTML(d, readiness);
+    bar.dataset.barKey = barKey;
+  }
   const review = document.querySelector('[data-editor-section="editor-review"]'),
     required = readiness.required.length;
   if (review) review.textContent = "Review" + (required ? " · " + required : "");
@@ -1565,6 +1639,7 @@ function screenWrite() {
       `${editorSection("editor-items", "Items and due dates", work)}` +
       "" +
       `${editorSection("editor-review", "Review", review)}` +
+      `${mobileBarHTML(d, ready)}` +
       "</div>",
   );
 }

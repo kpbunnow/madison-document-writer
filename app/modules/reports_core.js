@@ -1020,23 +1020,27 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// Restores the report, filters, view, date mode and sort saved when a case was opened in Writer.
+function restoreReportReturn() {
+  try {
+    const x = JSON.parse(localStorage.getItem("madison-report-return-v1") || "null");
+    if (!x || !reportById(x.report)) return false;
+    ReportsState.S.screen = x.report;
+    ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
+    ReportsState.S.view = x.view === "map" ? "map" : "table";
+    ReportsState.S.tableSort = reportSort(x.sort, x.report);
+    ReportsState.S.dateMode = x.dateMode || "fixed";
+    if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
+    ReportsState.S.reportNotice = "Returned to the saved report context.";
+    render();
+    return true;
+  } catch (e) {
+    /* A missing optional return preference does not affect report records or filters. */
+    return false;
+  }
+}
+
 if (!window.__NO_AUTOLOAD__)
   loadAll(false).then(() => {
-    if (new URLSearchParams(location.search).has("return")) {
-      try {
-        const x = JSON.parse(localStorage.getItem("madison-report-return-v1") || "null");
-        if (x && reportById(x.report)) {
-          ReportsState.S.screen = x.report;
-          ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
-          ReportsState.S.view = x.view === "map" ? "map" : "table";
-          ReportsState.S.tableSort = reportSort(x.sort, x.report);
-          ReportsState.S.dateMode = x.dateMode || "fixed";
-          if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
-          ReportsState.S.reportNotice = "Returned to the saved report context.";
-          render();
-        }
-      } catch (e) {
-        /* A missing optional return preference does not affect report records or filters. */
-      }
-    }
+    if (new URLSearchParams(location.search).has("return")) restoreReportReturn();
   });

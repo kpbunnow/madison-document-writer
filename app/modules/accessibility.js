@@ -222,9 +222,9 @@ export function createAccessibility() {
         'nside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Clos' +
         'e a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S /' +
         " Command+S</th><td>Save Writer work on this device</td></tr><tr><th scop" +
-        'e="row">1 / 2 / 3 / 4</th><td>Walk-through: corrected / progress / no pr' +
-        'ogress / no access</td></tr><tr><th scope="row">U</th><td>Undo the last ' +
-        'walk-through outcome</td></tr><tr><th scope="row">Enter / Space</th><td>' +
+        'e="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress m' +
+        'ade / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last ' +
+        'outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>' +
         "Activate the focused button or blank bubble</td></tr></tbody></table>",
     );
   }

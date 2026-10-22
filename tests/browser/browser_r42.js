@@ -77,7 +77,45 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         header: await page.locator(".topbar").boundingBox(),
       });
     }
+    // Phase 3: at 390x844 one fixed task bar carries Next required field, Review and the primary action.
+    const bar = page.locator(".editor-mobile-bar");
+    assert.equal(await bar.isVisible(), true);
+    assert.deepEqual(await bar.locator("button").allInnerTexts(), [
+      "Next required field",
+      "Review",
+      await page.locator(".editor-primary").innerText(),
+    ]);
+    assert.match(await bar.locator("[data-document-device-save]").innerText(), /device/i);
+    const barBox = await bar.boundingBox();
+    assert.equal(Math.round(barBox.y + barBox.height), 844);
+    assert.equal(await page.locator(".editor-mobile-bar").count(), 1);
+    // The workspace's bottom padding keeps its last content clear of the bar when scrolled to the end.
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    const clear = await page.evaluate(() => {
+      const bar = document.querySelector(".editor-mobile-bar").getBoundingClientRect(),
+        sections = document.querySelectorAll(".document-workspace > .editor-section"),
+        last = sections[sections.length - 1].getBoundingClientRect();
+      return { lastBottom: last.bottom, barTop: bar.top };
+    });
+    assert.ok(clear.lastBottom <= clear.barTop, JSON.stringify(clear));
+    // Next required field focuses the field; the bar hides while a field is focused (virtual keyboard) and returns after.
+    await bar.getByRole("button", { name: "Next required field", exact: true }).click();
+    assert.equal(
+      await page.evaluate(() => {
+        const ready = editorReadiness(doc(WriterState.state.docId)),
+          first = ready.list.find((c) => !c.ok && !c.soft && c.targets?.length);
+        return document.activeElement === document.querySelector(first.targets[0].selector);
+      }),
+      true,
+    );
+    assert.equal(await bar.isVisible(), false);
+    await page.evaluate(() => document.activeElement.blur());
+    assert.equal(await bar.isVisible(), true);
+    await bar.getByRole("button", { name: "Review", exact: true }).click();
+    assert.equal(await page.evaluate(() => document.activeElement.id), "editor-review-title");
+    await page.evaluate(() => scrollTo(0, 0));
     await page.setViewportSize({ width: 1366, height: 768 });
+    assert.equal(await bar.isVisible(), false, "the task bar is narrow-screen only");
     await axeThemes(page, "r42-document");
     // The summary's first-field button reaches the first unresolved required field.
     await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).click();

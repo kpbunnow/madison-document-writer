@@ -302,7 +302,7 @@ function cellHTML(x, ri, ci, max, isTotal) {
       `${esc(x.kase)}` +
       '</button> <button class="linkish" data-writer="' +
       `${esc(x.kase)}` +
-      '">Open in Writer</button></td>'
+      '">Open case in Writer</button></td>'
     );
   if (x.owner !== undefined)
     return (
@@ -433,7 +433,7 @@ function caseTable(list) {
             `${esc(c.number)}` +
             '</button> <button class="linkish" data-writer="' +
             `${esc(c.number)}` +
-            '">Open in Writer</button></td><td>' +
+            '">Open case in Writer</button></td><td>' +
             `${esc(c.address)}` +
             "</td>\n      <td>" +
             `${esc(areaLabel(areaKey(c)))}` +
@@ -627,7 +627,7 @@ function caseCard(c) {
     `${esc(c.number)}` +
     ' <button class="linkish" data-writer="' +
     `${esc(c.number)}` +
-    '">Open in Writer</button>' +
+    '">Open case in Writer</button>' +
     `${c.description ? ", " + esc(c.description) : ""}` +
     '</div></div>\n      <div><span class="st st-' +
     `${esc(c.status)}` +
