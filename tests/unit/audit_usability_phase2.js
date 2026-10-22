@@ -272,7 +272,7 @@ const test = async () => {
   sheet.innerHTML = duePanel(worksheet, true);
   assert.equal(sheet.querySelectorAll(".deadline-item [data-due-select]").length, 2, "worksheet keeps its item list");
   assert.equal(sheet.querySelectorAll("[data-due-label]").length, 2);
-  assert.equal(sheet.querySelector("[data-due-selected]"), null);
+  assert.equal(sheet.querySelector("[data-due-selected]").textContent, "0 of 2 items selected");
   assert.equal(sheet.querySelector("#btn-bulkdue").textContent, "Apply date to selected items");
   assert.equal(assignDue(worksheet, true, A, ["s1"]), "");
   assert.equal(worksheet.results.s1.due, A);

@@ -1581,7 +1581,9 @@ function screenWrite() {
     ) +
     '<div class="editor-preview-tools no-print"><span>Working document' +
     "".concat(d.type === "citation" || initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
-    '</span></div><div class="desk">' +
+    "</span>" +
+    `${d.type === "citation" || initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (WriterState.state.allCitationCopies === d.id) + '">' + (WriterState.state.allCitationCopies === d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
+    '</div><div class="desk">' +
     `${documentHTML(d)}` +
     "</div>" +
     "".concat(
@@ -1592,7 +1594,6 @@ function screenWrite() {
         : "",
     ) +
     "" +
-    `${d.type === "citation" || initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (WriterState.state.allCitationCopies === d.id) + '">' + (WriterState.state.allCitationCopies === d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
     `${specialType(d.type) ? "" : duePanel(d, false)}` +
     "";
   // R59: the checklist is in the Review dialog; the issued record and next actions stay on the page.

@@ -11,6 +11,9 @@ require("../fixtures/bundle_test.cjs")(`
   assert.equal(document.querySelector('.writer-navigation [data-nav="import"]'), null);
   assert.equal(document.querySelectorAll('.workspace-start [data-nav="import"]').length, 1);
   assert.equal(document.querySelectorAll('.workspace-start [data-global-search]').length, 1);
+  const loadedCases=WriterState.CASES;WriterState.CASES=[];render();
+  assert.equal(document.querySelectorAll('#app [data-nav="import"]').length,1,'one import entry in an empty Workspace');
+  WriterState.CASES=loadedCases;
   newDoc('k1','notice');
   const d = doc(WriterState.state.docId);
   d.items = [{id:'item1',no:'1',sections:['27.05(2)(c)'],text:'Repair ( ) and ( ).',title:'Wall'}]; render();

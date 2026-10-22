@@ -712,8 +712,7 @@ function screenCases() {
               `${uiIcon("cases")}` +
               "</div><h2>A clear desk. A clear next step.</h2><p>Bring in the case deta" +
               "ils, choose the violations, then review and issue. Your unfinished work " +
-              'is saved on this device.</p><button class="btn btn-primary" data-nav="im' +
-              'port">Import inspection</button> <button class="btn" data-openfil' +
+              'is saved on this device. Use the actions above to start or find case work.</p><button class="btn" data-openfil' +
               "e>Open saved case</button></div>"
           : '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
               'ce</span><input type="search" id="case-search" value="' +

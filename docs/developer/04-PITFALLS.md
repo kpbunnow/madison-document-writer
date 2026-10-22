@@ -1,4 +1,4 @@
-# R59 current pitfalls
+# R60 current pitfalls
 
 - Keep authoring-11 and earlier special extensions and their corrections on the historical renderer. Do not downgrade authoring-12 drafts during pricing refresh, publication or correction. Conditional vacancy labels are presentation, not replacement repair dates, and exist only for authoring-12 and earlier reprints; never create an authoring-13 conditional Vacancy Extension.
 
