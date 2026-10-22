@@ -2153,6 +2153,25 @@ function render() {
     : [];
   // A background repaint of the same snow citation must keep focus in the snow fact being entered.
   const snowFocus = sameDocument && previous.contains(active) && active.dataset?.snow ? '[data-snow="' + checkAttr(active.dataset.snow) + '"]' : "";
+  // A late save or filing repaint of the same document must not take focus from an identified form field
+  // being typed in, such as the correction reason: its input already reached the model, so the new field
+  // shows the same value. Dialogs, locks, navigation and changed model values use the newly rendered field.
+  const fieldFocus =
+    sameDocument &&
+    !snowFocus &&
+    previous.contains(active) &&
+    active.id &&
+    active.matches("input,textarea,select") &&
+    !WriterState.state.modal &&
+    !WriterState.state.picker &&
+    !isLocked(editingDoc)
+      ? {
+          id: active.id,
+          value: active.value,
+          start: typeof active.selectionStart === "number" ? active.selectionStart : null,
+          end: typeof active.selectionEnd === "number" ? active.selectionEnd : null,
+        }
+      : null;
   const worksheet = document.querySelector("[data-worksheet-context]"),
     inspectionChecks = document.querySelector(".ri-checks");
   const keepInspectionChecks =
@@ -2252,6 +2271,18 @@ function render() {
   }
   if (snowFocus && !WriterState.state.modal && !WriterState.state.picker)
     document.querySelector(".document-workspace " + snowFocus)?.focus({ preventScroll: true });
+  if (fieldFocus && !WriterState.state.modal && !WriterState.state.picker) {
+    const field = document.getElementById(fieldFocus.id);
+    if (field && field.closest(".document-workspace") && field.value === fieldFocus.value && document.activeElement !== field) {
+      field.focus({ preventScroll: true });
+      if (fieldFocus.start !== null && typeof field.setSelectionRange === "function")
+        try {
+          field.setSelectionRange(fieldFocus.start, fieldFocus.end);
+        } catch (error) {
+          // Date and select controls have no text selection; focus alone is restored.
+        }
+    }
+  }
   const q = document.getElementById("pk-q");
   if (q) {
     q.focus();
