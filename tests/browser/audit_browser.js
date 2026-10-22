@@ -413,8 +413,9 @@ async function axeThemes(page, screen) {
     .first()
     .locator("..")
     .screenshot({ path: path.join(OUT, "fill-in-bubble.png") });
-  page.once("dialog", (dialog) => dialog.accept("the damaged masonry"));
   await page.locator(".blank-edit").click();
+  await page.locator("#corrective-detail").fill("the damaged masonry");
+  await page.locator("#corrective-detail-form button[type=submit]").click();
   assert.equal(
     await page.evaluate(() => doc(WriterState.state.docId).items[0].text),
     "Repair the damaged masonry on the wall. Keep existing finish.",
