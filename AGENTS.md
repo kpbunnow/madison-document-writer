@@ -1,6 +1,6 @@
 # Development instructions
 
-The current `main` is the authoritative baseline; R59 Writer changes are development work until reviewed and merged. Read
+The current `main` is the authoritative baseline; R60 Workspace/referral changes are development work until reviewed and merged. Read
 `docs/developer/00-START-HERE.md`, `01-ARCHITECTURE.md`, `03-DOMAIN-RULES.md`,
 `04-PITFALLS.md` and `05-TESTING.md` before changing application code. Their security, identity,
 historical rendering, legal-hold and City acceptance requirements remain in force.

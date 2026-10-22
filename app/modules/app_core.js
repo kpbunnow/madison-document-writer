@@ -79,6 +79,7 @@ import {
   correctionTypeAllowed,
   issueCorrection,
   itemHistory,
+  itemInspectionHistory,
   needsInitialCitation,
   reconcileDocument,
   recordReinspection,
@@ -2092,7 +2093,7 @@ document.addEventListener("change", (e) => {
     else selected.delete(ds.dueSelect);
     target.dueWork.selected = [...selected];
     // Notice rows select in the items table; keep the compact bar's count current without a repaint.
-    const count = !visit && document.querySelector("[data-due-selected]");
+    const count = document.querySelector("[data-due-selected]");
     if (count) count.textContent = dueSelectedText(dueContext(target, visit), selected);
     WriterState.DIRTY = true;
     saveDrafts();
@@ -2113,11 +2114,24 @@ document.addEventListener("click", (e) => {
       toast(fault);
       return;
     }
+    const applied = Object.fromEntries(dueContext(target, visit).map((i) => [i.id, i.due || ""]));
     toastUndo("Due date applied to selected items.", () => {
-      Object.entries(before).forEach(([id, due]) => {
+      const active = activeDueTarget();
+      const current = dueContext(target, visit);
+      if (
+        active.target !== target ||
+        active.visit !== visit ||
+        (visit ? !target.draft || target.docId : isLocked(target)) ||
+        current.length !== Object.keys(before).length ||
+        current.some((i) => !Object.hasOwn(before, i.id) || i.due !== applied[i.id])
+      ) {
+        toast("This draft changed. Reopen its dates to make a new adjustment.");
+        return;
+      }
+      for (const [id, due] of Object.entries(before)) {
         if (visit) target.results[id].due = due;
         else target.items.find((x) => x.id === id).due = due;
-      });
+      }
       WriterState.DIRTY = true;
       saveDrafts();
       render();
@@ -3510,7 +3524,7 @@ document.addEventListener("change", (e) => {
       d.type = e.target.value;
       d.correction.body = d.type === src.type ? docBody(src) : DOCBODY[d.type] || DOCBODY.notice;
       d.items.forEach((it) => {
-        if (isHistoryDoc(d)) it.hist = itemHistory(d.caseId, it.no);
+        if (isHistoryDoc(d)) it.hist = d.authoringVersion >= 14 ? itemInspectionHistory(d, it) : itemHistory(d.caseId, it.no);
       });
     } else {
       const it = d.items.find((x) => x.id === e.target.dataset.correctionOutcome);

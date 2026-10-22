@@ -1,5 +1,15 @@
 # Release changelog
 
+## 2026-10-22 R60 — Workspace and item history (development)
+
+- Workspace now owns prominent import/shared-search entry; the import rail destination is removed.
+- Missing corrective-action details use an accessible application dialog with stale-context checks.
+- Reinspection batch dates are visible beside item review, with eligibility validation and selected counts.
+- Editors can show all four distinct citation copies; final packets retain all copies per charge.
+- Editor mailing addresses flow below expanding headers without changing approved print geometry.
+- Authoring-14 referrals show item-specific observations and Days Outstanding from first observation to correction, or latest observation while outstanding. Historical formats remain unchanged.
+- Helper build 61; case schema 5, summary 6 and backup 2 unchanged. City/native/staff acceptance remains open.
+
 ## 2026-10-22 R59
 
 Helper 2026.10.22.60, helperBuild 60; authoring 13, schema 5, summary 6 and backup 2 unchanged. Writer workflow and screen consistency. Inspection candidates show type, date, inspector and status, the selected one is highlighted, and a used inspection explains why it cannot be imported; the helper refuses a new document whose imported inspection is already recorded on the case. An item with several ordinance sections offers a select of those sections with no default, and the deposit fields fill from the configured schedule for the pricing date. A visit imported from a CA Reinspection is accepted. Warnings and errors clear after 15 seconds and stay in Message history. Violation Items opens the violation list; Review opens a dialog; Print preview is removed and Issue returns to Workspace with the issued case highlighted. The remove button no longer covers the due date's calendar button above 860px. Writer screens and the Reports chrome share one set of type sizes (generated and printed documents unchanged). Adds open acceptance items S59-1 to S59-6.

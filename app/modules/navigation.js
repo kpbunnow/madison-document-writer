@@ -91,7 +91,6 @@ export function initNavigation() {
   }
   function rail() {
     const entries = [
-      ["import", "Import inspection"],
       ["cases", "Workspace"],
       ["library", "Order language"],
     ];

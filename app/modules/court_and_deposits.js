@@ -386,11 +386,44 @@ function fillBlank(el) {
   const field = el.closest('[data-field="text"]'),
     d = doc(WriterState.state.docId);
   if (!field || !d || isLocked(d)) return;
-  const value = prompt("Enter the missing corrective-action detail:");
-  if (value === null || !value.trim()) return;
-  el.replaceWith(document.createTextNode(value.trim()));
-  field.dispatchEvent(new Event("input", { bubbles: true }));
-  field.focus();
+  const itemId = field.dataset.id,
+    documentId = d.id;
+  A11Y.utility(
+    "Add corrective-action detail",
+    '<form id="corrective-detail-form"><label class="f" for="corrective-detail"><span>Enter the missing corrective-action detail</span><textarea id="corrective-detail" rows="4" required></textarea></label><p class="hint" id="corrective-detail-error" role="alert"></p><button type="submit" class="btn btn-primary">Save</button></form>',
+  );
+  const dialog = document.getElementById("utility-dialog"),
+    form = dialog.querySelector("form");
+  dialog.querySelector("[data-utility-close]").textContent = "Cancel";
+  dialog.querySelector("textarea").focus();
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const value = dialog.querySelector("textarea").value.trim();
+    if (!value) {
+      dialog.querySelector("#corrective-detail-error").textContent = "Enter text, or choose Cancel to leave this item unchanged.";
+      return;
+    }
+    const current = doc(documentId),
+      item = current?.items.find((it) => it.id === itemId);
+    if (
+      WriterState.state.screen !== "write" ||
+      WriterState.state.docId !== documentId ||
+      !current ||
+      isLocked(current) ||
+      !item ||
+      item.withdrawn ||
+      (item.done && !current.correction) ||
+      !field.isConnected ||
+      !field.contains(el)
+    ) {
+      dialog.querySelector("#corrective-detail-error").textContent = "This item is no longer editable. Cancel and reopen the current document.";
+      return;
+    }
+    el.replaceWith(document.createTextNode(value));
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+    dialog.close();
+    field.focus();
+  });
 }
 
 function allItems() {

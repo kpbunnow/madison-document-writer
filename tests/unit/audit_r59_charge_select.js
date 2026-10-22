@@ -50,7 +50,7 @@ const test = async () => {
     const d = doc(WriterState.state.docId);
     d.items = [{ id: "r59", no: "1", title: "Synthetic charge", text: "Repair.", cite: true, sections: list, due: addDays(recordDay(today), 21) }];
     initialCitations.prepare(d);
-    assert.equal(d.authoringVersion, 13, "Preparing initial charges retains the current authoring version");
+    assert.equal(d.authoringVersion, 14, "Preparing initial charges retains the current authoring version");
     return d;
   };
   const show = (d) => {

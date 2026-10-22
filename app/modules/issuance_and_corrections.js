@@ -1043,13 +1043,64 @@ function correctionVisitChecks(d) {
   ];
 }
 
+/* R60: follow retained item IDs through source documents, never item numbers. A carried result is not
+   another observation. Only the current worksheet and recorded visits may contribute to a new referral. */
+function itemInspectionHistory(d, it) {
+  const lineage = new Map(),
+    seen = new Set();
+  let source = d,
+    item = it,
+    initial = null;
+  while (source && item && !seen.has(source.id)) {
+    seen.add(source.id);
+    lineage.set(source.id, item.id);
+    const previous = doc(source.fromDocId || reinsp(source.fromReinspId)?.sourceDocId);
+    if (!previous) {
+      if (!source.fromDocId && !source.fromReinspId) initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+      break;
+    }
+    const prior = previous.items.find((x) => x.id === item.srcItemId);
+    if (!prior) {
+      if (!item.srcItemId) initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+      break;
+    }
+    source = previous;
+    item = prior;
+  }
+  const rows = [initial || { on: "", oc: "initial", note: "", cit: "" }];
+  for (const visit of reinspFor(d.caseId)) {
+    if (visit.draft && visit.id !== d.fromReinspId) continue;
+    const id = lineage.get(visit.sourceDocId),
+      result = id && visit.results?.[id];
+    if (!result?.oc || result.carried || result.oc === "withdrawn") continue;
+    rows.push({
+      visitId: visit.id,
+      on: result.manualDate ? result.on : result.on || visit.date,
+      oc: result.oc,
+      note: String(result.note || "").trim(),
+      cit: "",
+    });
+  }
+  // Citation metadata may annotate an observed visit, but issue dates never create inspection observations.
+  for (const row of rows) {
+    if (!row.visitId) continue;
+    for (const citation of docsFor(d.caseId)) {
+      if (citation.draft || citation.void || citation.superseded || citation.type !== "citation" || citation.fromReinspId !== row.visitId) continue;
+      const observedId = lineage.get(citation.fromDocId);
+      const cited = citation.items.find((x) => x.srcItemId === observedId && x.cite && !x.withdrawn);
+      if (cited && citation.cits?.[cited.id]?.num) row.cit = citation.cits[cited.id].num;
+    }
+  }
+  return rows.sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")) || String(a.visitId || "").localeCompare(String(b.visitId || "")));
+}
+
 function documentItemHistory(d, it) {
   if (!d.correction || !isHistoryDoc(d)) return it.hist || [];
   const patch = correctionVisitPatch(d),
     r = patch && reinsp(patch.id);
   if (!r) return it.hist || [];
   const res = patch.results[it.srcItemId] || r.results[it.srcItemId];
-  return itemHistory(d.caseId, it.no).map((x) =>
+  return (d.authoringVersion >= 14 ? it.hist || [] : itemHistory(d.caseId, it.no)).map((x) =>
     x.visitId === r.id && res ? { ...x, on: res.on || patch.date, oc: res.oc, note: res.note || "" } : x,
   );
 }
@@ -1296,6 +1347,7 @@ export {
   recordActionModal,
   correctionTypeAllowed,
   documentItemHistory,
+  itemInspectionHistory,
   commitRecordAttempt,
   hasSetupWork,
   importResumePanel,

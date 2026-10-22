@@ -647,13 +647,14 @@ function screenCases() {
   return shell(
     "Your workspace",
     "Building Inspection",
-    '<button class="btn" data-global-search>' +
-      `${uiIcon("search")}` +
-      ' Search shared case records</button><button class="btn btn-primary" data-na' +
-      'v="import">' +
-      `${uiIcon("import")}` +
-      " Import inspection</button>",
-    "" +
+    "",
+    '<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start or find case work</h2></div><div class="card-b grid g2">' +
+      '<div><button class="btn btn-primary" data-nav="import">' +
+      uiIcon("import") +
+      ' Import inspection</button><p class="hint">Start new work from an unused Accela inspection.</p></div>' +
+      '<div><button class="btn" data-global-search>' +
+      uiIcon("search") +
+      ' Search shared case records</button><p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>' +
       `${importResumePanel()}` +
       "" +
       "".concat(WriterState.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(WriterState.PREFLIGHT_NOTICE)}</div>` : "") +

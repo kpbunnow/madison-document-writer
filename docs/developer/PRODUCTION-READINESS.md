@@ -51,3 +51,5 @@ historical corrections. The five confirmed layout defaults and supervisory
 signer exception are documented in [the current release review]({{RELEASE_NUMBER}}-REVIEW.md); these decisions
 do not close any existing acceptance hold. Authoring-11 and earlier rendering,
 frozen fixtures, approved language and the regular Extension remain protected.
+
+R60 adds S60-1 through S60-6 for Workspace entry, dialog accessibility, scoped reinspection dates, complete citation packets, physical address alignment and referral history semantics. These remain OPEN; automated verification does not supply staff or native acceptance.

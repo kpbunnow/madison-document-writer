@@ -1701,6 +1701,7 @@ async function axeThemes(page, screen) {
     ["browser_r44.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r54.js", "browser page OUT axeScreen"],
     ["browser_r59.js", "browser page context OUT axeScreen axeThemes base"],
+    ["browser_r60.js", "browser page OUT axeScreen"],
     // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
     ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];
@@ -1749,7 +1750,7 @@ async function axeThemes(page, screen) {
         cspViolations,
         reportCounts,
         checks: [
-          "five-destination Writer rail and grouped Tools controls",
+          "four-destination Writer rail and grouped Tools controls",
           "failed navigation retains editor and downloads approved fields in backup",
           "equivalent ordinance typing preserves approved deposit",
           "dynamic helper health version match",

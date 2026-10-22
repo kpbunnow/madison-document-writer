@@ -2,7 +2,7 @@ import { recordDay } from "../assets/shared.js";
 import { applyDeposit, citationNumber, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { narrativeFor } from "./reinspection_walkthrough.js";
-import { itemHistory } from "./issuance_and_corrections.js";
+import { itemHistory, itemInspectionHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
 import { editorSync, highlightOpenChecks, overlayHTML, render } from "./inspection_import.js";
 import { documentHTML } from "./document_render.js";
@@ -102,6 +102,7 @@ function docFromReinspection(r, type) {
     mailed: recordDay(today),
     cc: "",
     cits: {},
+    ...(hasHistory ? { authoringVersion: 14 } : {}),
     fromReinspId: r.id,
     fromDocId: src.id,
     expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
@@ -131,6 +132,7 @@ function docFromReinspection(r, type) {
   // a citation is filed per ordinance, so each ticked item gets its own form
   // register the document before its citations are numbered, so each number is
   // checked against the ones already issued on this document too
+  if (hasHistory) nd.items.forEach((it) => (it.hist = itemInspectionHistory(nd, it)));
   WriterState.DOCS.unshift(nd);
   if (REFERRED_ONLY.indexOf(type) < 0 && docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x))) {
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);

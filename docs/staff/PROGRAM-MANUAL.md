@@ -2,11 +2,11 @@
 
 Madison Building Inspection Document Writer
 
-Release 2026-10-22 R59 · Helper 2026.10.22.60 · 22 October 2026
+Release 2026-10-22 R60 · Helper 2026.10.22.61 · 22 October 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R59 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R60 is a development candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 ## 1 Start here and daily routine
 
@@ -14,7 +14,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
 
-**Start a working day.** Double-click the Document Writer icon on the desktop. It starts the program without a command window and opens Writer in its own Chrome or Edge window; if Document Writer is already running, the icon opens Writer again. Keep one Writer window open in the same browser profile. Confirm Build 2026-10-22 R59 and helper 2026.10.22.60. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
+**Start a working day.** Double-click the Document Writer icon on the desktop. It starts the program without a command window and opens Writer in its own Chrome or Edge window; if Document Writer is already running, the icon opens Writer again. Keep one Writer window open in the same browser profile. Confirm Build 2026-10-22 R60 and helper 2026.10.22.61. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
 **Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use the readiness summary at the top of a document (Go to first required field; Review or Open full checklist opens the Review dialog) or a worksheet's Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
@@ -24,7 +24,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Stop Document Writer.** Exit Document Writer first saves your drafts on this device and lists anything unfinished. It refuses while a document is being issued, a PDF is being filed, an email is being prepared or device saving has failed; wait or follow the guidance shown, then choose Exit again. Queued shared saves and PDFs waiting in the local outbox are listed with what happens to them: they stay queued on this device and are retried when the program starts again, and they are not in the shared folder until then. Confirm that you understand, then choose Exit Document Writer. Every open Writer and Reports window then shows Document Writer has stopped and loses its connection. Drafts saved on this device stay. To start again, double-click Document Writer on the desktop.
 
-The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
+The four Writer destinations are Workspace, Order language, Reports, and Tools & settings. Writer normally opens in Workspace. Its Start or find case work area contains Import inspection for unused Accela inspections and Search shared case records for existing work. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
 
 **Warnings and errors.** Warning and error messages at the top of the page clear after 15 seconds each time they are shown (hovering or focusing a message restarts the timer), in Writer and in Reports. Cleared messages remain in Message history. Checks that block issuance stay in the Review dialog until resolved, and ongoing conditions stay visible in their own indicator until resolved.
 
@@ -41,7 +41,7 @@ The five Writer destinations are Import inspection, Workspace, Order language, R
 6. Open Tools & settings → Saved work & connection. Expand Connection checks and technical details, then open connection checks and Storage diagnostics. Confirm the intended shared paths, helper health and permissions. Use Rebuild reporting index in Storage diagnostics when an administrator has confirmed a rebuild is appropriate.
 7. Open Reports → Data and definitions. Review coverage and excluded records. Test an approved synthetic case through save, exact PDF retrieval and recovery before operational use.
 
-**Compatibility.** This release uses case schema 5, summary version 6, workspace backup version 2 and authoring version 13; R54 introduced authoring 12 for the aligned Best Interest and Vacancy Extension layout, and R56 introduced authoring 13 for their required item due dates. Earlier releases predating schema 5 cannot read schema-5 case files. An earlier release does not know a newer authoring layout: before rollback, finish or discard unfinished drafts and corrections, and afterwards rely on the retained original PDFs for documents issued under the newer release. A runtime rollback changes installed files; it does not reverse issued records or restore workspace data. IT must assess data compatibility and retained requests before rollback. Never replace current operational records with an old backup without an approved recovery plan.
+**Compatibility.** This release uses case schema 5, summary version 6, workspace backup version 2 and current authoring version 14; new referrals use item-specific history and Days Outstanding, while earlier issued formats and existing special-document layouts retain their versions; R54 introduced authoring 12 for the aligned Best Interest and Vacancy Extension layout, and R56 introduced authoring 13 for their required item due dates. Earlier releases predating schema 5 cannot read schema-5 case files. An earlier release does not know a newer authoring layout: before rollback, finish or discard unfinished drafts and corrections, and afterwards rely on the retained original PDFs for documents issued under the newer release. A runtime rollback changes installed files; it does not reverse issued records or restore workspace data. IT must assess data compatibility and retained requests before rollback. Never replace current operational records with an old backup without an approved recovery plan.
 
 **Checked updates.** After the first installation, launch from the installed desktop shortcut. Before replacing program files, the launcher checks the shared deployment against runtime-manifest.json: exactly the listed files, each with its listed size and SHA-256, and no older release than the one installed. Missing, extra, changed, partial or older copies are refused and the PC keeps its current version. This catches mistakes and damaged copies; protection against deliberate tampering comes from the deployment folder being writable only by the release owner.
 
@@ -71,7 +71,7 @@ Navigation first saves device work. If that save fails, Writer keeps the current
 
 ## 4 Import a case or later inspection
 
-**Direct lookup.** Open Import inspection, enter the complete case number and choose Find Accela inspection or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
+**Direct lookup.** In Workspace choose Import inspection, enter the complete case number and choose Find Accela inspection or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
 
 Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly: each result shows its Inspection type, Date (with time), Inspector and Status, and the one you choose is highlighted. An inspection already recorded on any document or visit of the case, including drafts, withdrawn and corrected documents, can still be selected; it then explains that it was already used and cannot be imported again. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
 
@@ -175,7 +175,7 @@ Tools & settings → Review snow-letter content records the administrator, reaso
 
 ## 9 Record a reinspection
 
-**Group due dates on reinspection.** On an open reinspection worksheet, Assign due dates lists the items still outstanding; select items, choose a date and Apply date to selected items. Undo restores the previous dates. The three-date limit and seven-day spacing apply.
+**Group due dates on reinspection.** On an open reinspection worksheet with an extension or citation intent (or before choosing an intent), Assign due dates appears beside item review, outside collapsed Inspection checks. It lists the items still outstanding; select items, choose a date and Apply date to selected items. The selected-item count shows the scope within this reinspection only. Corrected, withdrawn and carried results are excluded. Undo restores the previous dates while the worksheet remains editable. The three-date limit and seven-day spacing apply.
 
 Open Reinspect from the case or import an eligible unused completed reinspection. Enter the actual physical inspection date and time and the responsible inspector. Review all items, which shows every item, is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
 
@@ -372,7 +372,7 @@ Each included current summary must match the independently read case bytes and i
 
 Tools & settings groups actions by purpose. Cases & planning contains Search shared case records, Reminders and Batch draft due dates. Saved work & connection and Open saved case handle persistence; Exit Document Writer, in the same group, stops the program on this computer (see chapter 1). Program instructions opens this manual and its printable PDF. Display & help contains theme, message history and keyboard shortcuts. Administrator tools, collapsed at the end, contains Review catalog, Administrator deposit override and Review snow-letter content; each keeps its own administrator checks, and the grouping grants no authorization.
 
-**Search shared case records.** Use the shared search, also on the Workspace toolbar, when a case is not loaded in Workspace. Review identity and open it through the existing shared-history checks. A search result does not override a conflict, active draft or unreadable record.
+**Search shared case records.** Use the shared search, also in Workspace’s Start or find case work area, when a case is not loaded in Workspace. Review identity and open it through the existing shared-history checks. A search result does not override a conflict, active draft or unreadable record.
 
 **Reminders.** Configure the intended reminder period and enabled state. Workspace exposes applicable reminder actions. Draft a reminder, inspect the recipient and wording, and complete the Outlook sending step separately. Reminders do not change a due date, prove service or create a new inspection. Snow items have no ordinary deadline reminder.
 
@@ -426,7 +426,7 @@ Held keys do not repeatedly result items. Typing a digit or U into an editable f
 
 **Read the whole task.** Review all items provides an alternative to One item at a time. Reports provides tables alongside supported maps. Expand Full wording and guidance for complete language rather than depending on a truncated preview. Program instructions provides an accessible HTML manual as well as the printable copy.
 
-**Small screens and zoom.** The five Writer destinations remain available. On a narrow screen (760 CSS pixels or less) the document editor uses a compact header and one task bar at the bottom with the save state, Next required field, Review and the primary action; Review opens the Review dialog; the bar hides while you type in a field or a dialog is open and is never printed. Use vertical scrolling and the applicable table's own scroll area when a wide data table needs it. At high zoom, inspect the actual field labels and current action rather than relying on desktop positions. The HTML manual reflows at 320 CSS pixels and supports browser zoom and find.
+**Small screens and zoom.** The four Writer destinations remain available; open Import inspection from Workspace. On a narrow screen (760 CSS pixels or less) the document editor uses a compact header and one task bar at the bottom with the save state, Next required field, Review and the primary action; Review opens the Review dialog; the bar hides while you type in a field or a dialog is open and is never printed. Use vertical scrolling and the applicable table's own scroll area when a wide data table needs it. At high zoom, inspect the actual field labels and current action rather than relying on desktop positions. The HTML manual reflows at 320 CSS pixels and supports browser zoom and find.
 
 **Display preferences.** Select High contrast when useful, or use System with the operating system preference. Reduced motion follows the browser setting. Printed issued documents have their own fixed layout; a screen theme does not change the historical body.
 
@@ -496,3 +496,14 @@ Use an isolated acceptance deployment and unmistakably synthetic records. Each e
 | Workspace | The current browser profile's loaded cases and unfinished work |
 
 The release package records technical verification and remaining City acceptance. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md) to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this manual.
+
+
+### Current Workspace and referral improvements
+
+To fill a missing corrective-action detail, activate its fill-in bubble, enter text in Add corrective-action detail and choose Save. Cancel or Escape leaves the bubble unchanged. The dialog returns focus to the item and uses the ordinary draft-saving process.
+
+Citation editors initially show representative court copies to keep editing compact. Choose Show all four citation copies to inspect Court, Agency, Inspector and Defendant copies. Every final citation packet contains all four distinct approved copies for each charge; longer packets may contain additional letter or continuation pages. Verify the issued PDF, not only the compact editor view.
+
+New City Attorney referrals and updates show each item’s recorded inspection observations, including corrected items. Days Outstanding starts at that item’s first observation and stops at correction; an outstanding item uses its latest recorded observation. Later inspections do not increase a corrected item’s duration. Unrelated visits and carried findings are excluded. Missing or inconsistent dates display Unavailable; investigate the source record rather than assuming zero days. Previously issued referrals keep their historical format.
+
+In the editor, mailing addresses flow below the header to prevent overlap when interactive fields expand. Issued PDFs retain their existing approved left-window positioning. Native envelope and printer acceptance remains required.

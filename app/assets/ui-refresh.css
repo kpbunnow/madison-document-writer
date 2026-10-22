@@ -2320,3 +2320,21 @@
     }
   }
 }
+
+/* R60 screen styles (screen only): keep the editable address after its expanding header. */
+@media screen and (min-width: 861px) {
+  .document-workspace .sheet:not(.cont) .n-owner {
+    position: relative;
+    top: auto;
+    left: 0.275in;
+    margin: 0.2in 0 0;
+    max-height: none;
+    overflow: visible;
+  }
+  .document-workspace .sheet:not(.cont) .n-winspace {
+    height: 0.75in;
+  }
+  .document-workspace .sheet .win-note {
+    display: none;
+  }
+}
