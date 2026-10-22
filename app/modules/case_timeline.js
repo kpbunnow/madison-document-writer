@@ -1420,7 +1420,7 @@ function citationReview(d) {
     `${d.initialPreview ? "Initial-inspection citations · complete before issuance" : "Citation review"}` +
     '</h2><div><button class="btn btn-sm" data-refresh-citation-history>Refre' +
     'sh citation history</button> <button class="btn btn-sm" id="btn-savework' +
-    '">Save &amp; continue later</button></div></div><div class="card-b"><p c' +
+    '">Save draft &amp; return to Workspace</button></div></div><div class="card-b"><p c' +
     'lass="hint">Review each charge, deposit and court session. ' +
     "".concat(d.initialPreview ? "All selected citations and the inspection are saved together after every check passes." : "") +
     " Each completed charge produces four matching court copies. Expand a cha" +

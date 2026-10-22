@@ -87,7 +87,18 @@ const test = async () => {
     return document.getElementById("app");
   };
   let app = mount();
-  assert.equal(app.querySelectorAll("[data-queue-view]").length, 4);
+  // Five quick views are primary; More views holds only the additional states behind a placeholder.
+  assert.deepEqual(
+    [...app.querySelectorAll("[data-queue-view]")].map((b) => b.dataset.queueView),
+    ["attention", "continue", "deadlines", "resolution", "all"],
+  );
+  assert.equal(app.querySelector('[data-queue-view="attention"]').getAttribute("aria-pressed"), "true");
+  assert.equal(app.querySelector("#case-filter").getAttribute("aria-label"), "More views");
+  assert.deepEqual(
+    [...app.querySelectorAll("#case-filter option")].map((o) => o.value),
+    ["", "soon", "overdue", "open", "closed"],
+  );
+  assert.equal(app.querySelector("#case-filter").value, "");
   assert.equal(app.querySelectorAll("[data-metric]").length, 0);
   assert.equal(app.querySelectorAll("thead th").length, 5);
   assert.equal(app.querySelectorAll("[data-queue-case]").length, 32);
@@ -134,8 +145,9 @@ const test = async () => {
   assert.equal(WriterState.state.caseFilter, "deadlines");
   assert.equal(WriterState.state.caseQ, "");
   assert.equal(WriterState.state.caseInspector, "");
-  assert.equal(document.querySelector("#case-filter").value, "deadlines");
-  assert.equal(document.activeElement.id, "case-filter");
+  assert.equal(document.querySelector("#case-filter").value, "");
+  assert.equal(document.activeElement, document.querySelector('[data-queue-view="deadlines"]'));
+  assert.equal(document.querySelector('[data-queue-view="deadlines"]').getAttribute("aria-pressed"), "true");
   assert.equal(WriterState.WORKFLOW_PREFS.filter, "deadlines");
   const deadlineCount = document.querySelectorAll("[data-queue-case]").length;
   assert.equal(deadlineCount, 11);

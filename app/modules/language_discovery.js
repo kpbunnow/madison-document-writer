@@ -416,8 +416,8 @@ export function languagePicker(R) {
     `${current?.items.length || 0}` +
     " item" +
     `${current?.items.length === 1 ? "" : "s"}` +
-    ' on this notice</span><button class="btn" id="btn-savework">Save &amp; c' +
-    'ontinue later</button><button class="btn btn-primary" data-close="picker' +
+    ' on this notice</span><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
+    '</button><button class="btn btn-primary" data-close="picker' +
     '">Done adding</button></div></div></div>'
   );
 }

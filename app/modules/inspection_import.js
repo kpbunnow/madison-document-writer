@@ -1026,7 +1026,7 @@ function screenReinspect() {
   return shell(
     esc(k.address),
     `${esc(k.number)} · Reinspection · working off the ${esc(srcLabel.toLowerCase())}`,
-    '<button class="btn" id="btn-savework">Save &amp; continue later</button>',
+    '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
     '<div class="reinspection-workspace" data-worksheet-context="' +
       `${esc(walkIdentity(r))}` +
       '"><p class="ri-source">Inspecting against the ' +
@@ -1181,8 +1181,7 @@ function screenReinspect() {
       `${verdict}` +
       "\n     " +
       "".concat(!closed ? newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
-      '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save &amp' +
-      "; continue later</button></div></div>",
+      '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>',
   );
 }
 
@@ -1242,7 +1241,7 @@ function editorPrimary(d, ready = editorReadiness(d)) {
   if (!locked)
     return { label: ready.held ? "Review held draft" : ready.required.length ? "Continue review" : "Review &amp; issue", attrs: 'id="btn-final"' };
   if (!d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d))
-    return { label: "Finish PDF filing", attrs: 'data-editor-command="btn-retryfiling"' };
+    return { label: "File issued PDF", attrs: 'data-editor-command="btn-retryfiling"' };
   return { label: "Print issued PDF", attrs: 'id="btn-print"' };
 }
 
@@ -1366,13 +1365,13 @@ function screenWrite() {
                 ""
             : "",
         ) +
-        '<button class="btn" id="btn-savecase">Save case file</button>' +
+        '<button class="btn" id="btn-savecase">Save case to shared folder</button>' +
         `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
         ""
       : "";
   const actions =
     "" +
-    `${d.draft ? '<button class="btn" id="btn-save">Save &amp; continue later</button>' : ""}` +
+    `${d.draft ? '<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>' : ""}` +
     '<button class="btn btn-primary editor-primary" ' +
     `${primary.attrs}` +
     ">" +
@@ -1404,22 +1403,23 @@ function screenWrite() {
     `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
     '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
     "ce</button></div>";
+  // The Inspection section appears only when it holds something to act on; ordinary inspection, property and
+  // mailing details are edited on the working document, where required checks link to the exact field.
+  const reviewVisit = fr && fr.draft && !d.correction && !d.pendingAmendment,
+    inspectionParts = `${newDocuments.details(d)}${snow.factsForm(d)}${correctionPanel(d)}`;
   const inspection =
-    '<div class="editor-taskbar no-print">' +
-    "".concat(fr && fr.draft && !d.correction && !d.pendingAmendment ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
-    '<p class="hint">' +
-    "".concat(
-      locked
-        ? "Issued details are retained with the document."
-        : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
-    ) +
-    "</p></div>" +
-    `${newDocuments.details(d)}` +
-    "" +
-    `${snow.factsForm(d)}` +
-    "" +
-    `${correctionPanel(d)}` +
-    "";
+    reviewVisit || inspectionParts
+      ? '<div class="editor-taskbar no-print">' +
+        "".concat(reviewVisit ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
+        '<p class="hint">' +
+        "".concat(
+          locked
+            ? "Issued details are retained with the document."
+            : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
+        ) +
+        "</p></div>" +
+        inspectionParts
+      : "";
   const work =
     '<div class="editor-taskbar no-print">' +
     `${structEditable(d) ? '<button class="btn" id="btn-add-top">+ Select violations</button>' : ""}` +
@@ -1705,8 +1705,7 @@ function modalHTML() {
       `${esc(recipientPreview(k.agent || {}))}` +
       '</p><button class="btn btn-sm" data-parse-address="agent|0">Preview stan' +
       'dardized agent address</button>\n      </div><div style="width:34px"></di' +
-      'v></div>\n      </div><div class="modal-f"><button class="btn" id="btn-sa' +
-      'vework">Save &amp; continue later</button><button class="btn btn-primary' +
+      'v></div>\n      </div><div class="modal-f"><button class="btn btn-primary' +
       '" data-close="modal">Done</button></div></div></div>'
     );
   }
@@ -1715,10 +1714,10 @@ function modalHTML() {
       safe = WriterState.CASES.filter((k) => !caseUnsaved(k));
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
-      '">\n      <div class="modal-h"><h2>Clear cases off the list</h2></div><di' +
-      'v class="modal-b">\n      <div class="banner info"><div>The list is your ' +
-      "working desk, not the record. Clearing a case does not touch its file on" +
-      " the share &mdash; <strong>Open case file</strong> brings it straight ba" +
+      '">\n      <div class="modal-h"><h2>Remove cases from this workspace</h2></div><di' +
+      'v class="modal-b">\n      <div class="banner info"><div>This workspace is your ' +
+      "working desk, not the record. Removing a case from this workspace does not delete its shared case record" +
+      " &mdash; <strong>Open saved case</strong> brings it straight ba" +
       "ck.</div></div>\n      " +
       "".concat(
         safe.length
@@ -1726,7 +1725,7 @@ function modalHTML() {
               `${safe.length}` +
               " case" +
               `${safe.length === 1 ? "" : "s"}` +
-              " safe to clear</strong> &mdash; all current case details and issued hist" +
+              " safe to remove</strong> &mdash; all current case details and issued hist" +
               "ory are saved to the share; no unfinished work remains.</p>\n        <ul " +
               'class="clearlist">' +
               "".concat(
@@ -1747,7 +1746,7 @@ function modalHTML() {
               `${risky.length}` +
               " case" +
               `${risky.length === 1 ? " has" : "s have"}` +
-              " work that has not reached the share.</strong> Clearing " +
+              " work that has not reached the share.</strong> Removing " +
               `${risky.length === 1 ? "it" : "them"}` +
               ' would lose that work.</div></div>\n        <ul class="clearlist">' +
               "".concat(
@@ -1771,7 +1770,7 @@ function modalHTML() {
       'e="modal">Cancel</button>\n        ' +
       "".concat(
         safe.length
-          ? '<button class="btn btn-primary" data-clearcases="safe">Clear the ' +
+          ? '<button class="btn btn-primary" data-clearcases="safe">Remove the ' +
               `${safe.length}` +
               " safe case" +
               `${safe.length === 1 ? "" : "s"}` +
@@ -1779,7 +1778,9 @@ function modalHTML() {
           : "",
       ) +
       "\n        " +
-      "".concat(risky.length ? `<button class="btn" data-clearcases="all">Clear all ${WriterState.CASES.length}, losing that work</button>` : "") +
+      "".concat(
+        risky.length ? `<button class="btn" data-clearcases="all">Remove all ${WriterState.CASES.length}, losing that unsaved work</button>` : "",
+      ) +
       "\n      </div></div></div>"
     );
   }
@@ -1973,7 +1974,7 @@ function modalHTML() {
     '.json</span>.</p></div>\n    <div class="modal-f"><button class="btn" dat' +
     'a-close="modal">' +
     `${bad.length ? "Back to the document" : "Cancel"}` +
-    '</button><button class="btn" id="btn-savework">Save &amp; continue later' +
+    '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
     '</button>\n      <button class="btn btn-primary" id="fin-go" ' +
     `${bad.length ? 'disabled title="Clear the outstanding checks first"' : ""}` +
     ">" +

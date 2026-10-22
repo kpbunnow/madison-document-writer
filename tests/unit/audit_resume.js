@@ -81,7 +81,7 @@ const T =
   "UMED TOO');\nstartReinspection('k1');\nvar r=WriterState.REINSP.filter(fun" +
   "ction(x){return x.draft;})[0];\nvar pub=docsFor('k1')[0];\nr.results[pub.i" +
   "tems[0].id]={oc:'corrected',on:r.date,due:'',note:'',cite:false};\nvar ri" +
-  "=screenReinspect();\nok('worksheet offers Save & continue later',ri.index" +
+  "=screenReinspect();\nok('worksheet offers Save draft & return to Workspace',ri.index" +
   "Of('btn-risave')>=0);\nok('  no bare Back to cases',ri.indexOf('Back to c" +
   "ases')<0);\n// save it\nsaveDrafts();WriterState.state.screen='cases';rend" +
   "er();\nok('row offers to finish the reinspection',actionFor(NUM)==='Conti" +

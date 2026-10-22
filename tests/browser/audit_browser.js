@@ -243,9 +243,9 @@ async function axeThemes(page, screen) {
   assert.equal(await second.evaluate(() => WriterState.WRITER_ACCESS), false);
   await second.close();
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
-  assert.equal(await page.locator("h1").textContent(), "Import Inspection Result");
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  assert.equal(await page.locator("h1").textContent(), "Import inspection");
   assert.equal(await page.locator("#m-go,#imp-go,#imp-csv").count(), 0, "Manual and CSV entry options stay removed");
   assert.equal(await page.locator("text=Check what will be imported").count(), 0, "Import preview section stays removed");
   await axeScreen(page, "import-inspection");
@@ -531,7 +531,7 @@ async function axeThemes(page, screen) {
   await page.screenshot({ path: path.join(OUT, "correction-issued.png"), fullPage: true });
   assert.equal(await page.locator("#btn-reconcile").count(), 0, "Correction does not show a separate follow-through prompt");
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator("#case-filter").selectOption("all");
+  await page.locator('[data-queue-view="all"]').click();
   await axeScreen(page, "workspace-filled");
   await page.screenshot({ path: path.join(OUT, "workspace-filled.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -845,7 +845,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => doc(WriterState.state.docId).annotations?.length === 1 && !WriterState.state.modal);
   assert.equal(await page.evaluate(() => Object.keys(WriterState.WORK.recordForms).length), 0);
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator("#case-filter").selectOption("all");
+  await page.locator('[data-queue-view="all"]').click();
   await page.locator("[data-reinsp]").first().click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect" && !!reinsp(WriterState.state.reinspId));
   await page.locator("#ri-time").fill("10:00");
@@ -873,7 +873,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => WriterState.CASES.length === 1 && caseState(WriterState.CASES[0]).closed);
   // R4: resolve a missing deposit through the actual UI, save/resume, issue and correct it.
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.evaluate(() => {
     const id = "qa-cit-002";
     WriterState.CASES.push({
@@ -1118,7 +1118,7 @@ async function axeThemes(page, screen) {
   await manualPage.close();
   // Direct lookup: SQL responses are fixtures; shared records and IndexedDB are real.
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   const sqlNumber = "CB2026-241-90001";
   const sqlRow = {
     CaseNumber: sqlNumber,
@@ -1162,7 +1162,7 @@ async function axeThemes(page, screen) {
   const lookupId = await page.evaluate((n) => WriterState.CASES.find((k) => k.number === n).id, sqlNumber);
   assert.equal(await page.evaluate((id) => docsFor(id).filter((d) => d.draft).length, lookupId), 1);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   lookupRows = [
     sqlRow,
     { ...sqlRow, InspectionDate: "2026-09-19T00:00:00", InspectionType: "Reinspection", InspectionStatus: "Extension Processing" },
@@ -1225,7 +1225,7 @@ async function axeThemes(page, screen) {
   const importedNotice = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
   await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
@@ -1263,7 +1263,7 @@ async function axeThemes(page, screen) {
   const importedExtension = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
   await page.locator('[data-nav="import"]').first().click();
-  await page.getByRole("heading", { name: "Import Inspection Result", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
   await page.locator("#lookup-form").getByRole("button", { name: "Find case", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);

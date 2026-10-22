@@ -445,7 +445,7 @@ function caseState(k) {
 function screenCases() {
   const rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
     tasks = workspaceTasks(rows);
-  // Retire legacy metric selection into the single visible View control.
+  // Retire legacy metric selection into the workspace views.
   if (WriterState.state.metric) {
     WriterState.state.caseFilter =
       { drafts: "continue", overdue: "overdue", soon: "soon", open: "open", imports: "all" }[WriterState.state.metric] || "resolution";
@@ -455,17 +455,21 @@ function screenCases() {
     query = String(WriterState.state.caseQ || "")
       .toLowerCase()
       .trim();
-  const views = [
-    ["attention", "Needs attention"],
-    ["continue", "Continue work"],
-    ["deadlines", "Deadlines"],
-    ["resolution", "Needs resolution"],
-    ["all", "All cases"],
-    ["soon", "Due within 7 days"],
-    ["overdue", "Past due"],
-    ["open", "Open"],
-    ["closed", "Closed"],
-  ];
+  // Quick views are the primary filter; More views holds the additional states.
+  const quickViews = [
+      ["attention", "Needs attention"],
+      ["continue", "Continue work"],
+      ["deadlines", "Deadlines"],
+      ["resolution", "Needs resolution"],
+      ["all", "All cases"],
+    ],
+    moreViews = [
+      ["soon", "Due within 7 days"],
+      ["overdue", "Past due"],
+      ["open", "Open"],
+      ["closed", "Closed"],
+    ],
+    views = [...quickViews, ...moreViews];
   if (WriterState.state.caseFilter === "drafts") WriterState.state.caseFilter = "continue";
   if (!views.some(([key]) => key === WriterState.state.caseFilter)) WriterState.state.caseFilter = "attention";
   const count = (filter) => queue.filter((row) => queueMatches(row, filter)).length;
@@ -556,7 +560,7 @@ function screenCases() {
         ) +
         '\n      <button data-rmcase="' +
         `${esc(k.id)}` +
-        '">Put away case</button></div></details></td>\n      <td><span class="pil' +
+        '">Remove from this workspace</button></div></details></td>\n      <td><span class="pil' +
         "l " +
         `${row.resolution ? "late" : st.closed ? "closed" : row.continuing ? "draft" : "open"}` +
         '">' +
@@ -633,19 +637,16 @@ function screenCases() {
           ? '<div class="queue-summary" role="group" aria-label="Filter workspace cas' +
               'es">' +
               "".concat(
-                [
-                  ["continue", "Continue work"],
-                  ["deadlines", "Deadlines"],
-                  ["resolution", "Needs resolution"],
-                  ["all", "All cases"],
-                ]
+                quickViews
                   .map(
                     ([key, label]) =>
                       '<button class="btn queue-summary-button" data-queue-view="' +
                       `${key}` +
                       '" aria-pressed="' +
                       `${WriterState.state.caseFilter === key}` +
-                      '"><span>' +
+                      '"' +
+                      `${key === "resolution" ? ' aria-describedby="queue-resolution-desc" title="Unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers"' : ""}` +
+                      "><span>" +
                       `${label}` +
                       "</span><strong>" +
                       `${count(key)}` +
@@ -653,7 +654,9 @@ function screenCases() {
                   )
                   .join(""),
               ) +
-              "</div>"
+              '</div><p class="hint queue-view-note"><span id="queue-resolution-desc">Needs resolution lists cases with unconfirmed or queued saves, PDF ' +
+              "filing and transfers, record problems and other blockers.</span> Device save and connection problems appear in the Saved work &amp; " +
+              "connection banner.</p>"
           : "",
       ) +
       "\n     " +
@@ -675,16 +678,17 @@ function screenCases() {
               "</div><h2>A clear desk. A clear next step.</h2><p>Bring in the case deta" +
               "ils, choose the violations, then review and issue. Your unfinished work " +
               'is saved on this device.</p><button class="btn btn-primary" data-nav="im' +
-              'port">Import Inspection Result</button> <button class="btn" data-openfil' +
+              'port">Import inspection</button> <button class="btn" data-openfil' +
               "e>Open saved case</button></div>"
           : '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
               'ce</span><input type="search" id="case-search" value="' +
               `${esc(WriterState.state.caseQ)}` +
               '" placeholder="Search this workspace…"></label>\n      <label class="case' +
-              '-view"><span>View</span><select id="case-filter" aria-label="View cases"' +
+              '-view"><span class="sr-only">More views</span><select id="case-filter" aria-label="More views"' +
               ">" +
+              `<option value="" ${moreViews.some(([key]) => key === WriterState.state.caseFilter) ? "" : "selected"}>More views…</option>` +
               "".concat(
-                views
+                moreViews
                   .map(
                     ([key, label]) =>
                       `<option value="${key}" ${WriterState.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`,
@@ -747,7 +751,7 @@ function screenCases() {
       ' class="hint" aria-live="polite">' +
       `${recoveryStatusHTML()}` +
       "</div>" +
-      `${WriterState.CASES.length ? '<button class="lnk" id="btn-clear">Put away cases</button>' : ""}` +
+      `${WriterState.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : ""}` +
       "</div>\n     " +
       `${remindersPanel()}` +
       "" +
@@ -1649,7 +1653,7 @@ function accelaPanel() {
     "able. Scheduled, Pending, Assist and unknown statuses cannot be imported" +
     ". Blank inspection times stay blank until explicitly corrected.</p></det" +
     'ails>\n    <p class="hint">Case details change only when you confirm. Sav' +
-    "e and continue later keeps this review on this device when saving succee" +
+    "e draft &amp; return to Workspace keeps this review on this device when saving succee" +
     'ds.</p>\n    <div class="acc-go"><button class="btn ' +
     `${unfinished ? "" : "btn-primary"}` +
     '" id="acc-go" ' +
@@ -1681,9 +1685,9 @@ function screenImport() {
     (WriterState.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "") +
     ">Snow removal (MGO 10.28)</option></select></label>";
   return shell(
-    "Import Inspection Result",
+    "Import inspection",
     "Bring in case details",
-    '<button class="btn" id="btn-savework">Save &amp; continue later</button>',
+    '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
     '<div style="max-width:980px">\n      ' +
       `${lookupCard()}` +
       "\n      " +

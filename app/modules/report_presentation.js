@@ -49,11 +49,14 @@ export function reportActions(R) {
   return (
     '<button class="btn" data-act="reload">Refresh data</button><details id="' +
     'report-exports" class="report-actions"><summary>Export and print</summar' +
-    'y><div><button class="btn" data-report-csv>Export this report CSV</butto' +
+    'y><div><button class="btn" data-report-csv>Current report — CSV</butto' +
     'n><button class="btn" data-report-print>Print report</button><button cla' +
-    'ss="btn btn-primary" data-act="export">Export to Excel</button><p class=' +
-    '"small">The current report sheet keeps the table filters and sort. Other' +
-    " sheets use their named report definitions.</p></div></details><details " +
+    'ss="btn btn-primary" data-act="export">Reports workbook — Excel</button><p class=' +
+    '"small" data-report-export-note>The CSV contains exactly the rows and columns of this table, with its filters, dates and sort. ' +
+    "The workbook has an About sheet, record sheets (Cases, Violations, Visits, Citations, Referrals, Corrections) and a sheet for " +
+    "every named report. All sheets use the same filters and dates, but each applies them through its own definition (an as-of " +
+    "date or a period measured by that sheet’s own date, as listed on the About sheet). This report’s sheet keeps the table sort; " +
+    "other report sheets use their default order.</p></div></details><details " +
     'id="report-views" class="report-actions"><summary>Saved views</summary><' +
     'div><label class="f">Saved views<select id="saved-view"><option value=""' +
     ">Choose a view</option>" +

@@ -56,6 +56,15 @@ const test = () => {
   };
   const done = () => document.querySelector('.modal [data-close="modal"]').click();
   document.querySelector("#btn-cc").click();
+  const footer = [...document.querySelectorAll(".modal .modal-f button")];
+  ok(
+    "Recipients completes with Done only; save-and-exit stays in the editor toolbar",
+    footer.length === 1 &&
+      footer[0].textContent === "Done" &&
+      footer[0].dataset.close === "modal" &&
+      !document.querySelector(".modal #btn-savework,.modal #btn-save") &&
+      !!document.querySelector("#btn-save"),
+  );
   document.querySelector("#btn-addcc").click();
   fill('[data-cc="0|name"]', " Jane Doe ");
   fill('[data-cc="0|addr"]', "123 north Main Street, Apartment 4");

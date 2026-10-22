@@ -139,7 +139,7 @@ async function restoreWorkspaceBackup(value) {
         "Case " +
           k.number +
           (" is already on this workspace. Its current work has been kept. Restore t" +
-            "his backup in an empty browser profile, or put away that case only after" +
+            "his backup in an empty browser profile, or remove that case from this workspace only after" +
             " saving its work."),
       );
     const fault = caseFileFault({ format: "madison-case-file", schema: SCHEMA, case: k, inspectors: [], events: b.events[k.id] || [] });

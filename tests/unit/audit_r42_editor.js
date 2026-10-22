@@ -91,7 +91,7 @@ const test = async () => {
   d.status = "Final";
   d.frozen = freezeSources(d);
   render();
-  assert.equal(document.querySelector(".editor-primary").textContent, "Finish PDF filing");
+  assert.equal(document.querySelector(".editor-primary").textContent, "File issued PDF");
   d.filedAt = nowISO();
   WriterState.RECORD_ATTEMPTS.pending = { cid: d.caseId, recordKey: "pending", pendingAmendment: { payload: { docId: d.id } } };
   render();

@@ -1974,7 +1974,7 @@ document.addEventListener("click", (e) => {
   }
   render();
   saveWorkflowPrefs();
-  document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : "#case-filter")?.focus();
+  document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : '[data-queue-view="' + t.dataset.queueView + '"]')?.focus();
 });
 document.addEventListener("click", (e) => {
   const t = e.target.closest?.("[data-case-task]");
@@ -2576,13 +2576,18 @@ document.addEventListener("click", async (e) => {
       risky = caseUnsaved(k);
     if (
       risky &&
-      !confirm(k.number + " has " + risky + ". Clearing it off the list loses that work — the file on the share is not touched. Clear it anyway?")
+      !confirm(
+        k.number +
+          " has " +
+          risky +
+          ". Removing it from this workspace loses that work. The shared case record is not deleted. Remove it from this workspace anyway?",
+      )
     )
       return;
-    removeCase(k.id);
+    if (removeCase(k.id) === false) return;
     WriterState.state.screen = "cases";
     render();
-    toast(k.number + " cleared from the list");
+    toast(k.number + " removed from this workspace. The shared case record is not deleted.");
     return;
   }
   if (t.id === "btn-email") {
@@ -3513,8 +3518,11 @@ document.addEventListener("change", (e) => {
   }
   if (e.target.id === "case-filter" || e.target.id === "case-inspector") {
     WriterState.state.metric = "";
-    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] = e.target.value;
+    // Returning More views to its placeholder restores the default Needs attention view.
+    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
+      e.target.id === "case-filter" ? e.target.value || "attention" : e.target.value;
     render();
+    if (e.target.id === "case-filter") document.querySelector("#case-filter")?.focus();
     return;
   }
   if ((e.target.id === "acc-date" || e.target.id === "acc-time") && WriterState.state.acc) {

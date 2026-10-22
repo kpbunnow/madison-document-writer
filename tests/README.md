@@ -149,6 +149,7 @@ Add a new suite under the feature it covers.
 | --- | --- |
 | `audit_accessibility.js` | Alerts, message history, labels, landmarks |
 | `audit_workspace_queue.js`, `audit_r41_queue.js` | Workspace queue, filters, recovery actions |
+| `audit_usability_phase1.js` | R56 usability: Inspection section only when actionable, special check links, save/removal wording, quick views with More views, Done-only Recipients, recovery groups, report export labels |
 | `audit_r29.js` | Navigation and continuity |
 | `audit_workflow_tools.js`, `audit_workflow_tools.py` | Search, selected PDF filing, shared views, reminders |
 | `audit_r50_calendar.js`, `audit_r32_day_boundary.js` | Chicago calendar and midnight boundaries |
