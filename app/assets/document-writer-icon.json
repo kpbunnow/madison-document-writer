@@ -1,0 +1,13 @@
+{
+  "source": "document-writer-icon.svg",
+  "sourceSha256": "21c3d6178bbf26c6426a7460403dd638d8218f79960e20a6c5f2e2921dbc1bb0",
+  "renderer": "Chromium 145.0.7632.6",
+  "sizes": [
+    16,
+    32,
+    48,
+    256
+  ],
+  "icon": "document-writer.ico",
+  "iconSha256": "4ff8d00561e62958d9c83f222aba371eea12be11066e01a9971485445c784df2"
+}

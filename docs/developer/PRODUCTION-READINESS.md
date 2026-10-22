@@ -35,6 +35,11 @@ searches, readiness summary and deadline selection, and real-device review of na
 mobile and virtual-keyboard behaviour. The requester accepted S56B on 2026-10-22 (PR #26);
 the other acceptance items remain open.
 
+R58 adds the desktop launch and Exit Document Writer. Native Windows items L58-1 to L58-9
+(installation and upgrade, shortcut migration, no console windows, Chrome/Edge app windows,
+network and offline start, safe exit, icon rendering and staff review) remain open and must be
+recorded on City PCs; automated Linux tests simulate Windows calls only.
+
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and
 historical corrections. The five confirmed layout defaults and supervisory

@@ -724,11 +724,12 @@ async function emailDocument(d, picked, reuse, job) {
   }
   const to = (picked || []).filter((e) => String(e.addr || "").trim());
   if (!WriterState.HELPER) {
-    toast("Emailing needs the program started with Start Document Writer.bat");
+    toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
     return false;
   }
 
   toastHold("Preparing the email — this takes a few seconds");
+  WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
   try {
     const r = await authFetch("/email", {
       method: "POST",
@@ -760,6 +761,8 @@ async function emailDocument(d, picked, reuse, job) {
   } catch (e) {
     toast("Could not reach the local helper to send the email");
     return false;
+  } finally {
+    WriterState.FILING_ACTIVE -= 1;
   }
 }
 
@@ -891,6 +894,7 @@ async function filePdf(d, job) {
     version: await recordIntegrity.sourceHash(snapshot),
   };
   toastHold("Filing " + jb.name + " — this takes a few seconds");
+  WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
   try {
     const r = await authFetch("/save-pdf", {
       method: "POST",
@@ -929,6 +933,8 @@ async function filePdf(d, job) {
   } catch (e) {
     toast("PDF filing needed. The helper response is uncertain. Use File issued PDF to retry the same original.");
     return false;
+  } finally {
+    WriterState.FILING_ACTIVE -= 1;
   }
 }
 

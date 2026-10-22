@@ -5,7 +5,7 @@ Release **{{RELEASE}}** · helper **{{HELPER_VERSION}}**. This guide is generate
 ## 1. Requirements
 
 - Windows, 64-bit.
-- Python {{PYTHON_RANGE}} on each PC. These are the versions the bundled address-parser wheels cover. Other Python 3 versions still run the program, with the address parser reported as unavailable.
+- Python {{PYTHON_RANGE}} on each PC, installed with the standard Windows installer (it provides `pythonw.exe`, which starts Document Writer without a command window). These are the versions the bundled address-parser wheels cover. Other Python 3 versions still run the program, with the address parser reported as unavailable.
 - Chrome or Microsoft Edge.
 - Classic Outlook for the email handoff. New Outlook has not been tested.
 - For case lookup: Windows PowerShell 5.1, approved script execution, City SQL read access and a trusted SQL certificate. See `CASE-LOOKUP-GUIDE.md`.
@@ -35,7 +35,7 @@ The anchor lets the program prove a case file was not altered outside it. Withou
 
 ## 4. Before upgrading
 
-1. Ask each inspector to save and sync their work, close Writer tabs and close the helper command window.
+1. Ask each inspector to save and sync their work and stop the program with **Exit Document Writer** (Tools & settings → Saved work & connection). An older version without Exit Document Writer stops another way: close its command window if it was started from `Start Document Writer.bat`; one started from the desktop icon has no window and stops when the inspector signs out of Windows.
 2. Back up `Case JSON Files`, `Documents To Be Mailed And Recorded`, `Reporting GIS` and the current program files.
 3. This release uses case schema {{CASE_SCHEMA}}, summary {{SUMMARY_VERSION}} and authoring {{AUTHORING}}; the release notes say which of these changed. Releases predating schema 5 refuse schema-5 records. An earlier release does not know a newer authoring layout: before rollback, finish or discard unfinished drafts and corrections, and afterwards rely on the retained original PDFs for documents issued under this release rather than reprints. IT must assess data compatibility and retained pending work before rollback. Runtime rollback does not rewind issued records or restore private workspace data. Coordinate any data recovery rather than replacing newer shared work with an old backup.
 
@@ -50,10 +50,28 @@ It lists every program item in the deployment folder that is not in the new rele
 ## 5. Install
 
 1. Copy **all files from `deploy`**, including the `vendor` folder, into the deployment folder. Leave the operational folders in place.
-2. After checking the package fingerprint (see Independent package verification), run `Start Document Writer.bat` from that trusted deployment once on each PC. It installs the program under `%LOCALAPPDATA%\MadisonDocWriter`, installs the bundled address parser offline, creates a desktop shortcut and opens the browser.
-3. Confirm the application shows **Build {{RELEASE}}** and helper **{{HELPER_VERSION}}**. If an older helper is detected, close its command window and browser tabs, then run the launcher again.
-4. Open **Tools & settings → Saved work & connection → Connection checks and technical details**. Open connection checks and **Storage diagnostics** to verify helper/share paths and permissions. Use **Rebuild reporting index** there when appropriate; it does not repair an altered case history.
-5. Open **Reports → Data and definitions** and resolve any unreadable, duplicate, stale or non-matching summaries before relying on totals.
+2. After checking the package fingerprint (see Independent package verification), run `Start Document Writer.bat` (the diagnostic launcher) from that trusted deployment once on each PC. It installs the program under `%LOCALAPPDATA%\MadisonDocWriter`, installs the bundled address parser offline, creates or updates the **Document Writer** desktop icon and opens Writer. During this first run the helper works in the visible command window; Exit Document Writer or closing that window stops it.
+3. Confirm the application shows **Build {{RELEASE}}** and helper **{{HELPER_VERSION}}**. If the launcher reports that an older version is still running, stop it as the message explains (Exit Document Writer when it offers one; otherwise close its command window, or sign out of Windows and back in), then run the launcher again.
+4. From then on inspectors double-click the **Document Writer** desktop icon. It checks the deployment folder for an approved update, starts the helper without a command window (or reuses one that is already running) and opens Writer in a Chrome or Edge app window using the inspector's normal browser profile. If `pythonw.exe` is unavailable, the icon falls back to `Start Document Writer.bat` and the reason is in the launcher log. See Starting, stopping and logs below.
+5. Open **Tools & settings → Saved work & connection → Connection checks and technical details**. Open connection checks and **Storage diagnostics** to verify helper/share paths and permissions. Use **Rebuild reporting index** there when appropriate; it does not repair an altered case history.
+6. Open **Reports → Data and definitions** and resolve any unreadable, duplicate, stale or non-matching summaries before relying on totals.
+
+
+### Starting, stopping and logs
+
+**The Document Writer icon.** Every launch creates or updates `Document Writer.lnk` on the inspector's desktop. It runs the installation's own `pythonw.exe -B "%LOCALAPPDATA%\MadisonDocWriter\launch.py"` with the installed folder as its working directory and `document-writer.ico` as its icon, so no command window appears. The launcher only uses a `pythonw.exe` that sits beside the Python used for installation and reports the same version; otherwise the icon points to `Start Document Writer.bat` and the launcher log says why.
+
+**Existing shortcuts.** A desktop shortcut named **Document Writer** that started `Start Document Writer.bat` is changed in place to the windowless launcher the next time this release's launcher runs (from either launcher). After upgrading from a release without the desktop icon, the first start still runs the previously installed launcher: it installs this release and opens Writer with a command window; the shortcut is changed at the following start. Copies pinned to the taskbar or Start menu, or renamed copies, are not changed: they keep opening the diagnostic launcher with a command window. Unpin them and pin the updated desktop icon instead.
+
+**Diagnostic launcher.** `Start Document Writer.bat` (in the deployment folder for first installation, and in `%LOCALAPPDATA%\MadisonDocWriter` afterwards) is for IT. It shows progress in a command window and runs the helper in that window, where request errors are printed. Inspectors use the desktop icon.
+
+**Logs.** The launcher records each start, update outcome and startup problem in `%LOCALAPPDATA%\MadisonDocWriter\logs\launcher.log` (rotated at 1 MB, four files). Open the folder with `pythonw.exe -B "%LOCALAPPDATA%\MadisonDocWriter\launch.py" --open-logs`. The helper's case-free operation log is `logs\helper.jsonl` in the same installation. Neither log contains session tokens, Writer addresses or case contents.
+
+**Exit Document Writer.** Inspectors stop the program from **Tools & settings → Saved work & connection → Exit Document Writer**. It saves drafts on this device, lists unfinished work and refuses while the helper or this window is issuing a document, making or filing a PDF, preparing an email, transferring the outbox, saving a case, holding a shared lock or installing an update. Queued shared saves and PDFs in the local outbox may be left after the inspector confirms; they stay queued on the PC and resume at the next start. After Exit, every open Writer and Reports window shows **Document Writer has stopped** and has no connection. Closing a window never stops the helper. Exit stops only the Document Writer helper; it does not close browsers or other programs.
+
+**Starting again.** Double-click the **Document Writer** icon. Drafts are reloaded from the same browser profile; queued saves resume when the shared folder is reachable.
+
+**Signing out.** A helper started from the icon has no window. Signing out of Windows also stops it, without the unfinished-work check; prefer Exit Document Writer.
 
 The launcher checks that these program files are present:
 
@@ -89,14 +107,26 @@ Complete the carried-forward **{{RELEASE_NUMBER}}-ACCEPTANCE-RECORD.md** before 
 
 | Symptom | What to do |
 | --- | --- |
-| “This computer has an older signed installation … that cannot accept this release” | Close the window, rename `%LOCALAPPDATA%\MadisonDocWriter` (keep `integrity-settings.json`), run `Start Document Writer.bat` from the deployment folder once, then put `integrity-settings.json` back. |
+| “This computer has an older signed installation … that cannot accept this release” | Stop the older helper (close its command window or sign out of Windows), rename `%LOCALAPPDATA%\MadisonDocWriter` (keep `integrity-settings.json`), run `Start Document Writer.bat` from the deployment folder once, then put `integrity-settings.json` back. |
 | “The deployment folder still contains files from an earlier signed release” | The release owner runs `prepare_deployment.py` (Applying a release) so the deployment folder holds exactly the current release. |
 | “The shared program files failed verification” | Send `%LOCALAPPDATA%\MadisonDocWriter\update-diagnostic.txt` to the release owner; it names the operation and file. |
-| "An older helper is running" | Close the old helper command window and browser tabs, then run the launcher again. |
+| "An older version of Document Writer is still running" | The update waits until the older helper stops. Save work, then use Exit Document Writer if that version offers it; otherwise close its command window (started from `Start Document Writer.bat`) or sign out of Windows and back in. Double-click the Document Writer icon again. The launcher never stops a running helper itself. |
+| "Document Writer could not start" dialog, or nothing appears | Read `%LOCALAPPDATA%\MadisonDocWriter\logs\launcher.log` (open the folder with `pythonw.exe -B "%LOCALAPPDATA%\MadisonDocWriter\launch.py" --open-logs`). For full console output, run `%LOCALAPPDATA%\MadisonDocWriter\Start Document Writer.bat`, the diagnostic launcher. |
+| "Port 8777 is already in use by another program" | Another program holds the port Document Writer needs. Restart the PC; if it persists, IT identifies the program. |
+| "Document Writer's local helper did not start" | Double-click the icon again. If it repeats, run the installed `Start Document Writer.bat` to see the helper's error in its window, and check `launcher.log`. |
+| "Document Writer is running, but no web browser could be opened" | Install or repair Chrome or Edge. The helper keeps running; double-click the icon again to open Writer. Do not copy Writer addresses between computers or users. |
+| "An interrupted update was rolled back" | The previous update did not finish and was undone. Double-click the icon again; the update is retried from the deployment folder. |
+| "… Document Writer has started with the version already installed" (warning after Writer opens) | The deployment folder failed verification; the PC kept its verified version. Send `update-diagnostic.txt` to the release owner. |
+| "Document Writer's installed program files are incomplete or damaged" | IT repairs the installation by running `Start Document Writer.bat` from the verified deployment folder. |
+| "Integrity library missing" or "Run the installed Document Writer shortcut" | The local installation is incomplete. IT runs `Start Document Writer.bat` from the verified deployment folder once. |
+| A starting indicator stays for a long time | Start-up waits up to 45 seconds for the helper. If a dialog follows, use the row for its message. |
+| Exit Document Writer says work is still in progress | Wait for the named work (issuing, PDF filing, email, saving, outbox transfer, update) to finish and choose Exit again. Do not end Python processes in Task Manager. |
+| A window shows "Document Writer has stopped" | Exit Document Writer was used. Close the window and double-click the icon to start again. |
+| The desktop icon opens a command window | `pythonw.exe` was not found beside the Python used for installation, so the icon uses the diagnostic launcher. Repair the Python installation, then run `Start Document Writer.bat` once to update the icon. |
 | Address parser unavailable | Check the PC's Python version is {{PYTHON_RANGE}}; run the launcher again. Addresses still work with the basic standardizer. |
 | "Migration registry is damaged; contact an administrator" | Do not edit case files. An administrator reviews `Case JSON Files\_integrity` with IT before any recovery. |
 | "This record was changed outside the program" | The case opens read only. Report it to an administrator; recovery is an offline administrator command, never an inspector action. |
-| Anything else | Send the helper log, `%LOCALAPPDATA%\MadisonDocWriter\logs\helper.jsonl`, to the administrator. |
+| Anything else | Send the launcher log `%LOCALAPPDATA%\MadisonDocWriter\logs\launcher.log` and the helper log `%LOCALAPPDATA%\MadisonDocWriter\logs\helper.jsonl` to the administrator. Neither contains session tokens or case contents. |
 
 ## How program files are checked
 
@@ -105,7 +135,7 @@ This release has **no signing key**. Every PC checks the shared deployment again
 **What protects against deliberate tampering: folder permissions.** The manifest catches mistakes and damaged copies, but someone who can write to the deployment folder could change both the program files and the manifest. Therefore:
 
 - The deployment folder's program files are **read-only for inspectors** and writable **only by the release owner**. IT tests and records these NTFS permissions in the acceptance record before rollout.
-- After installation, inspectors start the program **only from the installed desktop shortcut**. The shared `Start Document Writer.bat` is for first installation by IT; if it is run on an installed PC, it hands off to the installed launcher.
+- After installation, inspectors start the program **only from the installed Document Writer desktop icon**. The shared `Start Document Writer.bat` is the diagnostic launcher for first installation and troubleshooting by IT; if it is run on an installed PC, it hands off to the installed launcher.
 - Put nothing else in the deployment folder. Any file not in the manifest blocks every update, except the operational folders `Case JSON Files`, `Documents To Be Mailed And Recorded`, `Reporting GIS`, `Case Lookup` and `Orders`.
 
 **Building a release (release owner).** With the pinned development dependencies installed, run the complete gate with `python3 tools/verify_release.py`, then `python3 tools/package_release.py --output ../release` from the source root. The packager writes the manifest for every deployed file and rechecks the finished deploy folder with the installer's own verifier before writing the archives.
@@ -114,15 +144,15 @@ This release has **no signing key**. Every PC checks the shared deployment again
 
 **Integrity anchor settings.** IT supplies `integrity-settings.json` locally in each installed program folder. The launcher never imports it from the share, including on a fresh PC.
 
-**Session.** The installed shortcut starts the private helper session. A page without the session token cannot use case, PDF, email or administration routes. After a helper restart, reload in the original browser profile and check saved work before retrying. Never copy a session URL between users.
+**Session.** The installed shortcut starts the private helper session. A page without the session token cannot use case, PDF, email or administration routes, including Exit Document Writer, so no other web page or program can stop the helper through it. After a helper restart, reload in the original browser profile and check saved work before retrying. Never copy a session URL between users.
 
-**Rollback.** Close the helper and program tabs, and preserve the current installation, browser profile, operational records, original PDFs, settings and anchor evidence. IT restores a separately retained earlier installation through its approved procedure; the shared folder never downgrades a PC automatically. Rollback never rewinds operational records.
+**Rollback.** Stop the program (Exit Document Writer; for a version without it, close its command window or sign out of Windows), close its windows, and preserve the current installation, browser profile, operational records, original PDFs, settings and anchor evidence. IT restores a separately retained earlier installation through its approved procedure; the shared folder never downgrades a PC automatically. Rollback never rewinds operational records.
 
 ## Independent package verification
 
 Before a first installation, obtain the deploy ZIP's SHA-256 from the release owner through a separate trusted channel (for example, the release owner's email or IT ticket, not the ZIP itself). In PowerShell run `Get-FileHash -Algorithm SHA256 .\Madison-Building-Inspection-{{RELEASE}}-deploy.zip` and compare the entire value before extracting. If it differs, stop. Thereafter use the installed Document Writer shortcut; if no shortcut exists, open `%LOCALAPPDATA%\MadisonDocWriter\Start Document Writer.bat` directly.
 
-**PCs installed with a version that required a signing key.** Those versions accept only signed releases, which this release no longer uses. On each such PC, IT closes the helper window and renames `%LOCALAPPDATA%\MadisonDocWriter` (keep its `integrity-settings.json` to restore afterwards), then performs a first installation. Drafts stored in the browser are not affected.
+**PCs installed with a version that required a signing key.** Those versions accept only signed releases, which this release no longer uses. On each such PC, IT stops the helper (closes its command window, or signs the inspector out of Windows) and renames `%LOCALAPPDATA%\MadisonDocWriter` (keep its `integrity-settings.json` to restore afterwards), then performs a first installation. Drafts stored in the browser are not affected.
 
 The SQL server in the share's `Case Lookup/settings.json` must exactly match an allowlist entry in `trusted-connections.json`. The shipped entry is `sqlelam`; a fully qualified name is a different value and needs an allowlist update in a new release.
 

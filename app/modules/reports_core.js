@@ -1,3 +1,4 @@
+import { listenForStop, showStopped } from "./helper_stopped.js";
 import {
   applyReportView,
   areaKey,
@@ -1086,6 +1087,10 @@ export function restoreReportReturn() {
   }
 }
 
+/* Exit Document Writer in a Writer window stops the helper: this window shows the same stopped state. */
+listenForStop(() =>
+  showStopped(["Exit Document Writer was used in a Writer window. Reports cannot read case records until Document Writer starts again."]),
+);
 if (!window.__NO_AUTOLOAD__)
   loadAll(false).then(() => {
     if (new URLSearchParams(location.search).has("return")) restoreReportReturn();

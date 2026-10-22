@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 
+from runtime_paths import no_window
+
 
 def install(root):
     root = Path(root)
@@ -42,11 +44,15 @@ def install(root):
         str(lock),
     ]
     try:
-        subprocess.run(command, check=True, timeout=120, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        subprocess.run(
+            command, check=True, timeout=120, capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=no_window()
+        )
         marker.write_text(json.dumps(identity), encoding="utf-8")
         return {"available": True}
-    except (OSError, subprocess.SubprocessError):
-        return {"available": False, "reason": "address parser unavailable; R19 fallback remains available"}
+    except (OSError, subprocess.SubprocessError) as error:
+        # pip's own output names the failing wheel; the launcher writes it to its log, never to a dialog.
+        output = (getattr(error, "stderr", None) or getattr(error, "stdout", None) or str(error))[-1500:]
+        return {"available": False, "reason": "address parser unavailable; R19 fallback remains available", "detail": output}
 
 
 if __name__ == "__main__":

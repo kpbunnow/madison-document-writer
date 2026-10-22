@@ -41,7 +41,9 @@
     "trusted-connections.json",
     "administrative_basis.py",
     "runtime_identity.py",
-    "runtime_paths.py"
+    "runtime_paths.py",
+    "desktop_launch.py",
+    "document-writer.ico"
   ],
   "optional": [
     "integrity_admin.py",
@@ -129,6 +131,8 @@
     "Program_Instruction_Manual.pdf": "docs/staff/Program_Instruction_Manual.pdf",
     "Program_Instruction_Manual.docx": "docs/staff/Program_Instruction_Manual.docx",
     "runtime_paths.py": "helper/runtime_paths.py",
-    "prepare_deployment.py": "helper/prepare_deployment.py"
+    "prepare_deployment.py": "helper/prepare_deployment.py",
+    "desktop_launch.py": "helper/desktop_launch.py",
+    "document-writer.ico": "app/assets/document-writer.ico"
   }
 }

@@ -665,20 +665,24 @@ async function writerOpenReportedCase(message) {
 
 function initWriterHandoff() {
   if ("BroadcastChannel" in window) {
-    WriterState.WRITER_CHANNEL = new BroadcastChannel(HANDOFF_CHANNEL);
-    WriterState.WRITER_CHANNEL.onmessage = async (e) => {
+    const channel = new BroadcastChannel(HANDOFF_CHANNEL);
+    WriterState.WRITER_CHANNEL = channel;
+    channel.onmessage = async (e) => {
+      if (!WriterState.WRITER_ACCESS || WriterState.WRITER_CHANNEL !== channel) return;
       const m = e.data;
       if (m?.kind === "return-ack") {
         WriterState.RETURN_ACK = m.request;
         return;
       }
       if (m?.kind !== "open" || !m.request) return;
-      WriterState.WRITER_CHANNEL.postMessage({ kind: "accepted", request: m.request });
+      channel.postMessage({ kind: "accepted", request: m.request });
       try {
         const detail = await writerOpenReportedCase(m);
-        WriterState.WRITER_CHANNEL.postMessage({ kind: "result", request: m.request, ok: true, detail });
+        if (WriterState.WRITER_ACCESS && WriterState.WRITER_CHANNEL === channel)
+          channel.postMessage({ kind: "result", request: m.request, ok: true, detail });
       } catch (err) {
-        WriterState.WRITER_CHANNEL.postMessage({ kind: "result", request: m.request, ok: false, error: err.message });
+        if (WriterState.WRITER_ACCESS && WriterState.WRITER_CHANNEL === channel)
+          channel.postMessage({ kind: "result", request: m.request, ok: false, error: err.message });
       }
     };
   }

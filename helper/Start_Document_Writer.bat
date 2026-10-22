@@ -1,7 +1,10 @@
 @echo off
+rem Document Writer (diagnostics): first installation and troubleshooting by IT.
 setlocal EnableExtensions DisableDelayedExpansion
 set "PYTHONDONTWRITEBYTECODE=1"
-title Madison Building Inspection - Document Writer
+title Document Writer (diagnostics)
+echo Document Writer (diagnostics). This window shows start-up progress.
+echo Closing this window stops a Document Writer helper started from it.
 set "DW_LAUNCH=%~dp0launch.py"
 if exist "%LOCALAPPDATA%\MadisonDocWriter\verified-install.json" set "DW_LAUNCH=%LOCALAPPDATA%\MadisonDocWriter\launch.py"
 py -3 -c "import sys;sys.exit(0 if sys.version_info >= (3,10) else 1)" >nul 2>nul
@@ -20,5 +23,6 @@ exit /b 1
 :finished
 if not errorlevel 1 exit /b 0
 echo.
+echo The launcher log is in %LOCALAPPDATA%\MadisonDocWriter\logs\launcher.log
 pause
 exit /b 1

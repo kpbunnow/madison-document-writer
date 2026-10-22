@@ -8,6 +8,8 @@ import stat
 import subprocess
 import tempfile
 
+from runtime_paths import no_window
+
 NAME = ".helper-session.json"
 
 
@@ -39,6 +41,7 @@ def windows_privacy(path, create=False):
         capture_output=True,
         check=True,
         timeout=15,
+        creationflags=no_window(),
     )
 
 

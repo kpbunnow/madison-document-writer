@@ -686,6 +686,7 @@ export const byTime = (a, b) => (Date.parse(a.at) || 0) - (Date.parse(b.at) || 0
 WriterState.SAVE_CHECKPOINTS = {};
 
 WriterState.WRITER_ACCESS = true;
+WriterState.releaseWorkspaceLock = null;
 
 /* ---------- reporting summaries ----------
    One flat summary per case, written beside the case file into
@@ -1253,6 +1254,9 @@ export const FIELD_NAMES = {
 export const reissueDocument = __TEST_BUILD__ ? $testFixtures.reissueDocument : undefined;
 
 WriterState.AMENDMENT_BUSY = false;
+
+/* PDF filing and email requests in flight in this window; Exit Document Writer waits for them. */
+WriterState.FILING_ACTIVE = 0;
 
 WriterState.RECORD_ATTEMPTS = {};
 

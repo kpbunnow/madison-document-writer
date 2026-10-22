@@ -178,6 +178,21 @@ async function axeThemes(page, screen) {
   await page.goto(base + "/");
   await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER);
   assert.equal(await page.locator("h1").textContent(), "Your workspace");
+  // The helper serves the application icon without a token; the page loads it under its own CSP (img-src 'self').
+  // A separate context without request routing: Playwright interception refuses URLs ending in /favicon.ico.
+  const iconContext = await browser.newContext();
+  const iconPage = await iconContext.newPage();
+  await iconPage.goto(base + "/");
+  const favicon = await iconPage.evaluate(async () => {
+    const response = await fetch("/favicon.ico");
+    const image = new Image();
+    image.src = "/favicon.ico";
+    await image.decode();
+    return { status: response.status, type: response.headers.get("content-type"), loaded: image.naturalWidth > 0 };
+  });
+  assert.deepEqual(favicon, { status: 200, type: "image/x-icon", loaded: true }, "The favicon is served and permitted by the CSP");
+  await iconContext.close();
+  await page.bringToFront();
   assert.equal((await page.locator(".rail nav .rail-item").nth(0).innerText()).trim(), "Import inspection");
   assert.equal((await page.locator(".rail nav .rail-item").nth(1).innerText()).trim().split("\n")[0], "Workspace");
   await axeScreen(page, "workspace-empty");
@@ -1665,6 +1680,8 @@ async function axeThemes(page, screen) {
     ["browser_r49.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r44.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r54.js", "browser page OUT axeScreen"],
+    // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
+    ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];
   const suiteResults = {};
   for (const [file, args] of browserSuites) {

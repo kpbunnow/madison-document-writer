@@ -20,3 +20,9 @@ _Framework.log_message
 _Framework.do_POST
 # ThreadingMixIn reads the class policy dynamically to manage request threads.
 _Framework.daemon_threads
+# print(), logging and library code read these file-object members from sys.stdout/sys.stderr; under
+# pythonw.exe desktop_launch._LogStream stands in for those streams.
+_Framework.encoding
+_Framework.isatty
+# The logging module reads this process-wide flag when a handler fails; the windowless launcher clears it.
+_Framework.raiseExceptions

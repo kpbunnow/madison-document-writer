@@ -34,3 +34,7 @@ class UpdateCounter(unittest.TestCase):
                     else:
                         verified_update.stage_update(share, stage, local)
                         self.assertEqual(json.loads((stage / "verified-install.json").read_text())["helperBuild"], build)
+
+
+if __name__ == "__main__":
+    unittest.main()

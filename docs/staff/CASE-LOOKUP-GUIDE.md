@@ -29,7 +29,7 @@ The source query has no permanent inspection ID. Matching uses case, type, actua
 
 ## Connection and deployment
 
-Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, close the old helper, and launch again. Confirm the build and helper versions match the install guide. The launcher requires `case_lookup.py`, `case_lookup.ps1` and `case_lookup.sql` in addition to the prior core runtime. Windows PowerShell 5.1 and the Windows .NET Framework System.Data provider are used; no additional Python/ODBC package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
+Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, stop the running program (Exit Document Writer in Tools & settings; for an older version without it, close its command window or sign out of Windows), and double-click the Document Writer icon again. Confirm the build and helper versions match the install guide. The launcher requires `case_lookup.py`, `case_lookup.ps1` and `case_lookup.sql` in addition to the prior core runtime. Windows PowerShell 5.1 and the Windows .NET Framework System.Data provider are used; no additional Python/ODBC package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
 
 Defaults reproduce the RDL connection: server `sqlelam`, Windows integrated authentication, and no explicit database name. A blank database uses the Windows account's SQL default database. The user's expectation that this works for all inspectors has not been verified on the City network. For deterministic behavior across accounts, IT can set the explicit database containing `dbo.BI_ENF_RECORD` and `dbo.BI_ENF_INSPECTION`.
 
@@ -79,9 +79,9 @@ The preferred fix is for the PC to trust the SQL server's certificate authority.
 }
 ```
 
-3. Close and relaunch the Document Writer, then retry the lookup.
+3. Stop Document Writer with Exit Document Writer in Tools & settings, double-click the Document Writer icon to start it again, then retry the lookup.
 
-This setting makes the client accept the certificate presented by the server without verifying its issuer or identity. A fake server on the network could impersonate SQL Server and receive the connection attempt, including Windows integrated authentication. Use it only if you accept that risk and only on a trusted network. To restore normal certificate validation, delete `case-lookup-local-settings.json` and restart the helper. Do not add this setting to the shared `Case Lookup/settings.json`; the program rejects it there.
+This setting makes the client accept the certificate presented by the server without verifying its issuer or identity. A fake server on the network could impersonate SQL Server and receive the connection attempt, including Windows integrated authentication. Use it only if you accept that risk and only on a trusted network. To restore normal certificate validation, delete `case-lookup-local-settings.json`, then stop Document Writer (Exit Document Writer) and start it again from the desktop icon. Do not add this setting to the shared `Case Lookup/settings.json`; the program rejects it there.
 
 | Displayed error | What IT should check |
 |---|---|

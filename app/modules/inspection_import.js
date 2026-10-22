@@ -1,3 +1,4 @@
+import { helperStop } from "./helper_stopped.js";
 import { mailingMaxDay, recordDay, validCaseNumber } from "../assets/shared.js";
 import { checks, fmtDate, inspAt, parseTime, printJob, toast, validISO } from "./court_and_deposits.js";
 import { caseDetails, helperJSON, loadCaseFile, reindexReport, shell, sourceDocFor, stableJSON, storageReport } from "./workspace_shell.js";
@@ -2101,6 +2102,7 @@ function overlayHTML() {
 }
 
 function render() {
+  if (helperStop.stopped) return; // Exit Document Writer replaced the page with its stopped state.
   const appRoot = document.getElementById("app"),
     sameImport = WriterState.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
   const importDisclosures = sameImport
