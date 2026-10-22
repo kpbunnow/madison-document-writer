@@ -30,9 +30,10 @@ the same name during an outbox transfer.
 R56 additionally requires S56: staff review of the simplified editor (single
 Recipients button, no parcel field or initial-action panel, Cite only for a Citation
 import) and P7 now includes authoring-13 dated Best Interest and Vacancy Extensions.
-The R56 usability follow-up (identity unchanged) adds S56B: staff review of the renamed
-actions, views, searches, readiness summary and deadline selection, and real-device review
-of narrow-screen, mobile and virtual-keyboard behaviour.
+R57 (the usability follow-up) adds S56B: staff review of the renamed actions, views,
+searches, readiness summary and deadline selection, and real-device review of narrow-screen,
+mobile and virtual-keyboard behaviour. The requester accepted S56B on 2026-10-22 (PR #26);
+the other acceptance items remain open.
 
 R54 additionally requires P7: native side-by-side review of regular, Best Interest
 and Vacancy Extensions, including one-page, multi-page, conditional vacancy and
