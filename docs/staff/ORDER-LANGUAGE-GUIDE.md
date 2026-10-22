@@ -6,7 +6,7 @@ Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruc
 
 ## 6 Find select and review order language
 
-Order language and the Add items picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
+Order language (Browse language) and the Select for this notice picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
 
 Each result shows an ordinance and a short corrective-action preview. Open Full wording and guidance for complete text, fill-ins, retained draft wording and review provenance. Check the status before selecting.
 
@@ -20,7 +20,7 @@ Each result shows an ordinance and a short corrective-action preview. Open Full 
 
 Unreviewed proposed, incomplete, replaced, retired and unavailable sources cannot be newly selected. Find approved replacement locates an alternative; it does not change the draft. Review and use v… opens a comparison before adopting a new source version. Issued documents remain frozen.
 
-**Review administration.** An authorized reviewer opens Review administration within Order language, or Order language review in Tools. Select the entry, compare bundled/current/unsubmitted wording, and supply the actual reviewer, corrective action, ordinance references and source or authority. Identify a replaced entry where applicable. Confirm the intended review explicitly.
+**Review catalog.** An authorized reviewer opens Review catalog within Order language, or Tools & settings → Administrator tools → Review catalog; Browse language returns to search. Select the entry, compare bundled/current/unsubmitted wording, and supply the actual reviewer, corrective action, ordinance references and source or authority. Identify a replaced entry where applicable. Confirm the intended review explicitly.
 
 Recording creates an immutable shared version. If another operator has submitted a newer version, compare it and choose Use current v… as review basis before retrying. The app preserves unsubmitted forms on this device, including later edits made while a save was pending.
 

@@ -12,28 +12,28 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **Start a working day.** Run the Document Writer desktop shortcut or approved launcher. Keep one Writer tab open in the same browser profile. Confirm the Build and helper versions match the install guide. Open Workspace and resolve any save confirmation, shared-history or PDF-filing exceptions before creating replacement work. Check pending deadlines and reminders.
 
-**Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use Show checks or Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
+**Prepare work.** Use Import inspection for a new case or unused completed inspection. Use Workspace to continue a retained document or worksheet. Add the appropriate language, fill all case-specific details and assign required deadlines deliberately. Use the readiness summary at the top of a document (Go to first required field, Open full checklist) or a worksheet's Inspection checks to find incomplete fields. Saving an unfinished draft is permitted even when issuance checks are unresolved.
 
 **Finish an action.** Review the complete document, citation copies where applicable, dates and recipients. Use Review & issue only when the facts and required approvals are complete. Wait for confirmation of the shared save. Then verify original PDF filing, printing, actual mailing or email sending, and the division's court or Accela recording separately.
 
-**End a working day.** Use Save & continue later and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. Close Writer and the helper when instructed for an update. Do not clear browser site data while unfinished work exists.
+**End a working day.** Use Save draft & return to Workspace and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. Close Writer and the helper when instructed for an update. Do not clear browser site data while unfinished work exists.
 
-The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Reports opens separately. Editing a case remains within Workspace; returning from Reports offers Back to Reports.
+The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
 
 
 ## 3 Use Workspace and case history
 
-Workspace is the queue for cases loaded on this device. It starts in Needs attention. Continue work, Deadlines, Needs resolution and All cases provide other views of the same loaded cases. Counts represent cases rather than individual tasks within a view; a case may appear in more than one view. Summary buttons clear the search and inspector filters. Check the View selector when the expected case is not visible.
+Workspace is the queue for cases loaded on this device. It starts in Needs attention. The quick views Needs attention, Continue work, Deadlines, Needs resolution and All cases are the main filter; More views adds Due within 7 days, Past due, Open and Closed. Counts represent cases rather than individual tasks within a view; a case may appear in more than one view. Choosing a quick view clears the search and inspector filters; More views keeps them, and returning it to More views… shows Needs attention again. Needs resolution lists cases with unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers; device save and connection problems appear in the Saved work & connection banner. Check All cases and More views when the expected case is not visible.
 
-**Find and continue a case.** Search this workspace by address, case number, owner or parcel. Apply the inspector filter if useful. Use the main action beside the case to continue its next task. It may say Continue import, Continue document, Continue reinspection, Complete recorded visit, Reinspect or View case. An uncertain shared save takes priority over starting another draft. A record verification problem takes priority over editing.
+**Find and continue a case.** Search this workspace by address, case number, owner or parcel. Apply the inspector filter if useful. When a workspace search finds nothing, Search shared case records for “…” opens the shared search with the same text; it searches only when you submit it. Use the main action beside the case to continue its next task. It may say Continue import, Continue document, Continue reinspection, Complete recorded visit, Reinspect or View case. An uncertain shared save takes priority over starting another draft. A record verification problem takes priority over editing.
 
-Open Case details and history for secondary actions, the document list, timeline, case export and Put away. Put away removes a case from this device's queue after the relevant safeguards; it does not delete the shared case. Use Search all cases in Tools & settings to locate records outside the current device workspace. Open saved case can load an exported case record, subject to the program's shared-history checks.
+Open Case details and history for secondary actions, the document list, timeline, case export and Remove from this workspace. Removing a case from this workspace takes it off this device's queue after the relevant safeguards; the shared case record is not deleted. A case with unsaved or unconfirmed work is refused or asks before that work is lost. Remove cases from this workspace, below the list, removes several cases and separates those that are safe to remove. Use Search shared case records (Workspace toolbar or Tools & settings) to locate records outside the current device workspace. Open saved case can load an exported case record, subject to the program's shared-history checks.
 
 **Understand the record.** A case retains the original numbered items and the issued event history. A new visit records what happened on a genuinely completed inspection. A correction amends a recording error in an existing action. A record note adds an explanation without rewriting the earlier document. A withdrawn item keeps its identity and reason and is not credited as corrected.
 
 Issued documents use frozen source facts. Changes to current owner details, catalog wording or policy do not rewrite an old issued PDF. Review current case facts for future documents and use the correction process when issued evidence contains an error.
 
-**Resolve attention states.** Open the named case action rather than making a replacement case. Confirm save uses the retained original request. Review shared changes compares the current shared record. File issued PDF completes original filing after issuance. Saved work & connection explains whether the remaining work concerns this device, shared cases or PDFs.
+**Resolve attention states.** Open the named case action rather than making a replacement case. Confirm save uses the retained original request. Review shared changes compares the current shared record. Save case to shared folder saves a queued case file after shared history is checked; it is also among an issued document's actions. File issued PDF completes original filing after issuance. Saved work & connection explains whether the remaining work concerns this device, shared cases or PDFs.
 
 Navigation first saves device work. If that save fails, Writer keeps the current screen and offers a workspace backup. Keep the tab open and preserve that backup before restarting or clearing anything.
 
@@ -84,7 +84,7 @@ Open Saved work & connection from Tools & settings, below Workspace, or from the
 
 Repeated unresolved messages appear once. Dismissing an alert does not clear its underlying case state. Message history in Tools retains dismissed messages. Case-specific integrity evidence is read-only for inspectors.
 
-Expand Backups and recovery for one-case recovery, a new unfinished-work recovery copy, a workspace download or empty-workspace restore. Expand Connection checks and technical details for helper/share/SQL information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
+Expand Backups and recovery. Recovery on this device holds Recover an unfinished case and Create recovery copy on this device; Download or restore a workspace holds Download workspace backup and Restore workspace backup (into an empty workspace). Expand Connection checks and technical details for helper/share/SQL information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
 
 
 ## 15 Back up restore and recover safely
@@ -95,12 +95,12 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 | --- | --- |
 | Download workspace backup | Device drafts, worksheets, unfinished forms, retained case facts, save checkpoints and pending requests together |
 | Download case record | Case metadata and issued history; not the complete private workspace |
-| Back up unfinished work now | A fresh helper recovery copy of unfinished work |
+| Create recovery copy on this device | A fresh helper recovery copy of unfinished work |
 | Recover an unfinished case | One case after a shared-change comparison and deliberate replacement safeguards |
 | Restore workspace backup | A complete workspace into an empty workspace |
 | Program update rollback | Installed program files; not an automatic reversal of issued records or device data |
 
-**Recover one case.** Open Saved work & connection → Backups and recovery → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
+**Recover one case.** Open Saved work & connection → Backups and recovery → Recovery on this device → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
 
 **Restore a workspace.** Preserve the current profile first. Use an empty workspace and the same approved program release or a verified compatible version. Choose Restore workspace backup, select the intended file and review its identity. Do not use restore to merge two independently edited active workspaces. Recheck shared state and PDF filing after recovery before issuing.
 

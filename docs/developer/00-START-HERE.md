@@ -1,6 +1,6 @@
 # R56 developer start guide
 
-Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity. R54 introduced authoring 12 for the aligned special-extension layout and R56 authoring 13 for their required item due dates; historical authoring-12, -11 and earlier layouts remain available. Case schema 5, summary 6 and workspace backup 2 remain unchanged. version-notes.md documents the independent helperBuild counter. See R55-REVIEW.md for the current development scope and docs/history/R54-REVIEW.md for the confirmed extension decisions and regression boundaries.
+Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity. R54 introduced authoring 12 for the aligned special-extension layout and R56 authoring 13 for their required item due dates; historical authoring-12, -11 and earlier layouts remain available. Case schema 5, summary 6 and workspace backup 2 remain unchanged. version-notes.md documents the independent helperBuild counter. See R56-REVIEW.md for the current development scope, including its usability follow-up, and docs/history/R54-REVIEW.md for the confirmed extension decisions and regression boundaries.
 
 Build directly from app/, helper/, policy/, tools/, tests/ and docs/. Generated modules, policies, identity, bundles, evidence and caches belong under build/. No flat source staging tree or source mapping exists. The Windows deployment and installed filenames remain stable.
 
@@ -16,7 +16,7 @@ For offline development, DW_BROWSER selects a compatible Chromium executable. Re
 
 ## Maintenance rules
 
-Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep exactly five Writer destinations; importing inspection results stays first. Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice, exceptional recovery in Tools, and manual links inside Tools.
+Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep exactly five Writer destinations; importing inspection results stays first. Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice (items are selected beside their due dates; the Assign due dates bar applies the date), exceptional recovery in Tools, and manual links inside Tools. Specialist tools sit in the collapsed Administrator tools group in Tools; the grouping grants no authorization and each tool keeps its own administrator checks.
 
 Use direct module imports and state.js; never recreate the universal runtime registry. Edit maintained source only; generated files live under build/. version.json is the release identity source; check generated consumers. Source or policy changes require fresh complete verification and packaging. Actual City approval is not supplied by an automated gate. No live rollout is performed by release packaging.
 

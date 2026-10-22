@@ -4,7 +4,7 @@ Applies to the current release. Current operating instructions and SQL setup are
 
 ## 4 Import a case or later inspection
 
-**Direct lookup.** Open Import inspection, enter the complete case number and choose Find case or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
+**Direct lookup.** Open Import inspection, enter the complete case number and choose Find Accela inspection or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
 
 Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
 
@@ -22,7 +22,7 @@ The imported inspection's **Inspection Type** and **Inspection Status** decide t
 
 Record Category Snow Removal selects the snow workflow and preloads its 10.28 item. The new-case workflow selector is an additional deliberate choice, not a way to bypass missing or reused inspection facts. Existing case and file identities remain stable.
 
-**Pause or retry.** Save & continue later retains the lookup or review on this device. A retained review is a snapshot with its retrieval time; use Find case again for fresh information. Cancel lookup suppresses its result. A failed or empty lookup preserves prior work. If the shared case changed, review the refreshed comparison and confirm again. A delayed earlier result must not replace the current case or reopen Import after navigation.
+**Pause or retry.** Save draft & return to Workspace retains the lookup or review on this device. A retained review is a snapshot with its retrieval time; use Find Accela inspection again for fresh information. Cancel lookup suppresses its result. A failed or empty lookup preserves prior work. If the shared case changed, review the refreshed comparison and confirm again. A delayed earlier result must not replace the current case or reopen Import after navigation.
 
 The source query has no permanent inspection ID. Matching uses case, type, actual date and normalized time, with conservative handling of missing historical time. Do not alter time to bypass a reuse warning. See CASE-LOOKUP-GUIDE.md for SQL setup and diagnostic codes.
 
