@@ -24,6 +24,7 @@ OPERATIONS = {
     "setup",
     "report-view",
     "search",
+    "shutdown",
 }
 ERRORS = {"OSError", "ValueError", "TypeError", "RuntimeError", "CaseLookupError", "FileNotFoundError", "PermissionError", "TimeoutExpired"}
 

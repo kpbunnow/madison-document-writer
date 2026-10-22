@@ -54,7 +54,18 @@ import workflow_helper
 from helper_logging import logged, record
 from datetime import datetime, timezone
 from case_lookup import lookup as lookup_case, CaseLookupError
-from case_store import read_case, save_case, save_summary, file_lock, atomic_write, publish_new, case_number_key, case_file_key, citation_history
+from case_store import (
+    read_case,
+    save_case,
+    save_summary,
+    file_lock,
+    atomic_write,
+    publish_new,
+    case_number_key,
+    case_file_key,
+    citation_history,
+    held_lock_kinds,
+)
 
 SESSION_TOKEN = secrets.token_urlsafe(32)
 SESSION_BOOTSTRAP = secrets.token_urlsafe(32)
@@ -939,6 +950,82 @@ def sync_outbox():
     }
 
 
+# ---------------------------------------------------------------- safe shutdown (Exit Document Writer)
+# Work this helper is doing right now, counted per kind. Memory only; no new persistence. A POST is counted
+# for as long as its handler runs, so a save, PDF render/filing, outbox transfer or recovery copy in progress
+# (from any Writer or Reports window) refuses /helper/shutdown. Labels never name a case or a file.
+ACTIVITY_LOCK = threading.Lock()
+ACTIVE_WORK = {}
+STOPPING = threading.Event()
+POST_ACTIVITY = {
+    "/cases/save": "A case record is being saved to the shared folder.",
+    "/cases/summary": "A case record is being saved to the shared folder.",
+    "/save-pdf": "A PDF is being made or filed.",
+    "/email": "An email is being prepared in Outlook.",
+    "/outbox/sync": "PDFs are being transferred from the local outbox.",
+    "/outbox/batch-sync": "PDFs are being transferred from the local outbox.",
+    "/draft-backups/write": "A recovery copy is being written.",
+    "/catalog/review": "A catalog review is being recorded.",
+    "/locks/release": "A shared lock is being released by an administrator.",
+    "/administration/deposit-override": "An administrator decision is being recorded.",
+    "/administration/snow-letter": "An administrator decision is being recorded.",
+    "/reporting/parcels": "Reports is looking up parcels.",
+}
+OTHER_ACTIVITY = "Another Writer or Reports window is waiting for the helper."
+LOCK_ACTIVITY = {
+    "case": "A case record is locked while it is being saved.",
+    "issued-pdf": "An issued PDF is being filed.",
+    "pdf-operation": "A PDF publication is in progress.",
+    "pdf-outbox": "The local PDF outbox is being updated.",
+    "citation-pricing": "Citation pricing is being recorded.",
+    "integrity-registry": "Record integrity information is being updated.",
+    "integrity-anchor": "Record integrity information is being updated.",
+}
+INSTALL_JOURNAL = "install-transaction.json"
+STOPPED_MESSAGE = "Document Writer is stopping. To start again, double-click Document Writer on the desktop."
+
+
+def begin_activity(label):
+    """Count one piece of work; False once the helper has agreed to stop (nothing new may start)."""
+    with ACTIVITY_LOCK:
+        if STOPPING.is_set():
+            return False
+        ACTIVE_WORK[label] = ACTIVE_WORK.get(label, 0) + 1
+        return True
+
+
+def end_activity(label):
+    with ACTIVITY_LOCK:
+        ACTIVE_WORK[label] -= 1
+        if ACTIVE_WORK[label] <= 0:
+            del ACTIVE_WORK[label]
+
+
+def active_work():
+    """Readable reasons the helper must keep running. Caller holds ACTIVITY_LOCK."""
+    reasons = list(dict.fromkeys(label for label, count in ACTIVE_WORK.items() if count))
+    for kind in held_lock_kinds():
+        reasons.append(LOCK_ACTIVITY.get(kind, "A shared-folder lock is held."))
+    if (HERE / INSTALL_JOURNAL).exists():
+        reasons.append("A program update is being installed.")
+    return list(dict.fromkeys(reasons))
+
+
+def agree_to_stop():
+    """Refuse (reasons) or, atomically with the check, stop accepting new work ([])."""
+    with ACTIVITY_LOCK:
+        reasons = active_work()
+        if not reasons:
+            STOPPING.set()
+        return reasons
+
+
+def stop_serving(httpd, answered):
+    """Separate thread: let the shutdown answer reach the page, then end serve_forever (the socket closes in main)."""
+    answered.wait(5)
+    httpd.shutdown()
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     timeout = 60  # a half-sent request must not hold a thread forever
 
@@ -1102,8 +1189,48 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             refused = self._guard()
             if refused:
                 return self._json(403, {"ok": False, "error": "Forbidden" if route == "/session/bootstrap" else refused})
-            return handler(self, route)
+            if handler is Handler._post_shutdown:
+                return handler(self, route)
+            label = POST_ACTIVITY.get(route, OTHER_ACTIVITY)
+            if not begin_activity(label):
+                return self._json(503, {"ok": False, "error": STOPPED_MESSAGE})
+            try:
+                return handler(self, route)
+            finally:
+                end_activity(label)
         return self._json(404, {"ok": False, "error": "unknown endpoint"})
+
+    def _post_shutdown(self, route):
+        """Exit Document Writer. Authenticated and guarded like every POST route (token, Host, Origin,
+        fetch-site, JSON). Refused with the reasons while this helper is doing work it knows about; a client
+        "force" only records that the user acknowledged client-side warnings and never overrides a refusal."""
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 256:
+                raise ValueError("Invalid shutdown request")
+            data = json.loads(self.rfile.read(size))
+            if not isinstance(data, dict) or set(data) - {"force"} or type(data.get("force", False)) is not bool:
+                raise ValueError("Invalid shutdown request")
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Invalid shutdown request"})
+        reasons = agree_to_stop()
+        if reasons:
+            record("shutdown", "conflict")
+            return self._json(
+                409,
+                {
+                    "ok": False,
+                    "error": "Document Writer is still working, so it was not stopped. Wait for this work to finish, then exit again.",
+                    "reasons": reasons,
+                },
+            )
+        record("shutdown", "ok")
+        answered = threading.Event()
+        threading.Thread(target=stop_serving, args=(self.server, answered), name="helper-shutdown", daemon=True).start()
+        try:
+            self._json(200, {"ok": True, "stopping": True})
+        finally:
+            answered.set()
 
     def _get_lock_status(self, route):
         try:
@@ -1544,6 +1671,7 @@ POST_ROUTES = {
     "/save-pdf": Handler._post_save_pdf,
     "/email": Handler._post_email,
     "/reporting/parcels": Handler._post_parcels,
+    "/helper/shutdown": Handler._post_shutdown,
 }
 
 
@@ -1567,7 +1695,8 @@ if __name__ == "__main__":
         print("  NOTE: Outlook was not found. Emailing a document will fall back")
         print("        to your default mail program, without the attachment.")
     print()
-    print("  Leave this window open while you work. Closing it stops the program.")
+    print("  Leave this window open while you work. To stop the program, use Exit Document Writer")
+    print("  in Tools & settings (closing this window also stops it).")
     print()
     case_integrity.reconstruct_registry(case_dir())
     with Server(("127.0.0.1", PORT), Handler) as httpd:
@@ -1593,3 +1722,5 @@ if __name__ == "__main__":
             httpd.serve_forever()
         except KeyboardInterrupt:
             pass
+    # serve_forever returns after Exit Document Writer; leaving the with-block closed the listening socket.
+    print("  Document Writer has stopped.")

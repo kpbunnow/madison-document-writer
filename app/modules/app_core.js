@@ -1254,6 +1254,9 @@ export const reissueDocument = __TEST_BUILD__ ? $testFixtures.reissueDocument : 
 
 WriterState.AMENDMENT_BUSY = false;
 
+/* PDF filing and email requests in flight in this window; Exit Document Writer waits for them. */
+WriterState.FILING_ACTIVE = 0;
+
 WriterState.RECORD_ATTEMPTS = {};
 
 export const recordNow = (cid) => new Date(Math.max(Date.now(), ...eventsFor(cid).map((e) => Date.parse(e.at) + 1))).toISOString();

@@ -47,10 +47,14 @@ PORT_IN_USE = (
     "Port 8777 is already in use by another program, so Document Writer cannot start. "
     "Restart the computer and try again. If this keeps happening, ask IT to check which program uses port 8777."
 )
+# R57 and earlier helpers have no shutdown route; a later helper's route needs its session token, which the
+# launcher never uses. So the dialog tells the user how to stop the older helper; the launcher stops nothing itself.
 OLDER_HELPER = (
     "An older version of Document Writer is still running on this computer, so the update cannot be applied yet. "
-    "Save your work and close the Writer windows, then use Exit Document Writer (or sign out of Windows and back in) "
-    "and double-click the Document Writer icon again. If this keeps happening, contact IT."
+    "Save your work, then stop the older version: if its Writer window offers Exit Document Writer in Tools & settings, "
+    "use it; if it was started with Start Document Writer.bat, close that window; otherwise close the Writer windows "
+    "and sign out of Windows and back in. Then double-click the Document Writer icon again. "
+    "If this keeps happening, contact IT."
 )
 HELPER_DID_NOT_START = (
     "Document Writer's local helper did not start. Double-click the Document Writer icon again. "

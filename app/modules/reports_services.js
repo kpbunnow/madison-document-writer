@@ -1,3 +1,4 @@
+import { helperStop } from "./helper_stopped.js";
 import { SUMMARY_VERSION, csvText, downloadText, normParcel } from "../assets/shared.js";
 import { drawMap, shell } from "./reports_screens.js";
 import {
@@ -663,7 +664,7 @@ function groupBy(list, fn) {
 
 function render() {
   const app = document.getElementById("app");
-  if (!app) return;
+  if (!app || helperStop.stopped) return;
   const ui = rememberUI(ReportsState.S);
   ReportsState.S.rep = null;
   app.innerHTML = shell();

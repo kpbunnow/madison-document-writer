@@ -144,6 +144,7 @@ Add a new suite under the feature it covers.
 | `audit_r50_updates.py`, `audit_r51_updates.py`, `audit_r52_manifest.py` | Manifest-checked updates, tamper classes, downgrade protection |
 | `audit_r51_bootstrap.py`, `audit_r53_update_recovery.py` | Launcher hand-off, signing-era retirement, deployment cleaner |
 | `audit_desktop_launch.py` | Desktop launch with simulated Windows calls: shortcut fields and quoting (spaces, apostrophes, UNC), pythonw discovery and batch fallback, no console window for every helper child process, hidden helper start and readiness, running-helper reuse and refusal dialogs, rejected and offline updates, Chrome/Edge app window without a new profile, launcher log without tokens, favicon route and icon sizes/source digest |
+| `audit_desktop_exit.py`, `audit_desktop_exit.js` | Exit Document Writer: `/helper/shutdown` only as a guarded POST route (token, Host, Origin, fetch-site, JSON), refused with reasons for an in-flight request, held lock or install transaction (force never bypasses), idle stop of serve_forever, launcher never stops a helper; Writer saves drafts before the review and the request, lists queued and unconfirmed work without calling it saved, refuses during publication/filing/device-save failure, shows helper refusals and the stopped state; Reports and other windows show the stopped state; no request on window close |
 
 ## Workspace, navigation, calendar and accessibility
 
@@ -203,6 +204,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_r46.js`, `browser_r47.js` | Reinspection phase; language catalog |
 | `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
+| `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security
 

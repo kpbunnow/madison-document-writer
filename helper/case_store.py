@@ -18,6 +18,7 @@ import citation_pricing
 import os
 import re
 import tempfile
+import threading
 import time
 import socket
 import uuid
@@ -360,6 +361,24 @@ def safe_json_name(name):
     return name
 
 
+# Locks this helper process holds right now, by kind ("case", "issued-pdf", ...). Memory only: Exit Document
+# Writer refuses to stop the helper while any is held. Case numbers and file names are never recorded here.
+HELD_LOCKS = {}
+HELD_LOCKS_GUARD = threading.Lock()
+
+
+def held_lock_kinds():
+    with HELD_LOCKS_GUARD:
+        return sorted(kind for kind, count in HELD_LOCKS.items() if count)
+
+
+def _hold(kind, change):
+    with HELD_LOCKS_GUARD:
+        HELD_LOCKS[kind] = HELD_LOCKS.get(kind, 0) + change
+        if HELD_LOCKS[kind] <= 0:
+            del HELD_LOCKS[kind]
+
+
 @contextlib.contextmanager
 def file_lock(folder, key, wait=5):
     locks = Path(folder) / ".locks"
@@ -409,9 +428,12 @@ def file_lock(folder, key, wait=5):
                 )
             time.sleep(0.05)
     record("lock", "acquired")
+    kind = key.split(":", 1)[0]
+    _hold(kind, 1)
     try:
         yield
     finally:
+        _hold(kind, -1)
         record("lock", "released")
         try:
             if json.loads(path.read_text(encoding="utf-8")).get("owner") == owner:

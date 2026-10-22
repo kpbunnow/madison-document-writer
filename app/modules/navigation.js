@@ -180,6 +180,11 @@ export function initNavigation() {
       `${description}` +
       '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
       "on>";
+    // Stops the local helper for every open Writer and Reports window, after reviewing unresolved work (desktop_exit.js).
+    const exitWriter =
+      '<div data-tools-exit><p class="hint">Finished for the day? Exit stops Document Writer on this computer after ' +
+      "saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p>" +
+      '<p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
     const theme = document.documentElement.dataset.theme || "system";
     return shell(
       "Tools & settings",
@@ -199,7 +204,9 @@ export function initNavigation() {
                 `${title}` +
                 '</h2><div class="tools-grid">' +
                 "".concat(items.map(toolButton).join("")) +
-                "</div></section>",
+                "</div>" +
+                (title === "Saved work & connection" ? exitWriter : "") +
+                "</section>",
             )
             .join(""),
         ) +

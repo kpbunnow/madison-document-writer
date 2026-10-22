@@ -166,6 +166,8 @@ def main():
         except Exception:
             raise RuntimeError(desktop_launch.PORT_IN_USE)
         if status.get("version") != VERSION:
+            # Never stop it from here: R57 and earlier helpers have no shutdown route, and a later helper's
+            # route requires the session token, which the launcher does not send. The dialog explains how.
             raise RuntimeError(desktop_launch.OLDER_HELPER)
         # A compatible helper is serving this release: never update under it; reuse it.
         say("Document Writer is already running. Opening the workspace.")

@@ -1680,6 +1680,8 @@ async function axeThemes(page, screen) {
     ["browser_r49.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r44.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r54.js", "browser page OUT axeScreen"],
+    // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
+    ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];
   const suiteResults = {};
   for (const [file, args] of browserSuites) {
