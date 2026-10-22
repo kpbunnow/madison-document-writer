@@ -88,9 +88,19 @@ extended browser suites.
    modes read Browse language, Select for this notice (picker) and Review catalog. Tools moves
    Review catalog, Administrator deposit override and Review snow-letter content into a
    collapsed Administrator tools group, which grants no authorization.
+4. Review corrections (issues #23 and #25). Print preview and filed PDFs measure page breaks
+   without the screen-only row controls (Affected and shared-due-date checkboxes), so an
+   editable authoring-13 Best Interest or Vacancy draft paginates exactly like its
+   non-editable rendering (browser_r54 compares item counts 1–17 across their page breaks).
+   The 320px reflow rules in the phase 3 block keep the editor within the screen: an editable
+   due-date cell wraps its selection box, date (at least 9em wide) and remove button inside the
+   item card; long header values such as the inspector's e-mail address wrap; at 420px and
+   below each header label sits above its field; and the Document actions (More) menu opens
+   under the action row aligned to its right edge. Touch targets are unchanged
+   (browser_r42 checks 320, 390 and 760px).
 
-**Reviewed CSS exception.** The new screen CSS is one block appended to
-app/assets/ui-refresh.css, beginning `/* R56 usability phase 3 (screen only):`.
+**Reviewed CSS exception.** The new screen CSS, including the 320px reflow rules, is one block
+appended to app/assets/ui-refresh.css, beginning `/* R56 usability phase 3 (screen only):`.
 audit_r51_layout.py pins its exact size and SHA-256, requires it once in each built shell and
 removes it before the unchanged historical shell comparison (05-TESTING.md). No reference hash
 was regenerated.

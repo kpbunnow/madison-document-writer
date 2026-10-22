@@ -862,6 +862,10 @@ function printJob(d) {
         paginate(fd.querySelector(".desk"), d);
         return { docId: d.id, name: documentFileName(d) + ".pdf", html: "<!doctype html>" + fd.documentElement.outerHTML };
       }
+      // Row selection controls (affected-item and shared-due-date checkboxes) are screen-only and sit in the
+      // due-date cell; printableHTML drops them, so drop them before measuring page breaks as well. Page
+      // breaks then match the non-editable rendering of the same facts.
+      stage.querySelectorAll(".affected-pick,.due-pick").forEach((n) => n.remove());
       paginate(stage, d);
       return { docId: d.id, name: documentFileName(d) + ".pdf", html: printableHTML(d, stage) };
     }

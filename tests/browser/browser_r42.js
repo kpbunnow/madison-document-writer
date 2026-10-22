@@ -114,6 +114,105 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await bar.getByRole("button", { name: "Review", exact: true }).click();
     assert.equal(await page.evaluate(() => document.activeElement.id), "editor-review-title");
     await page.evaluate(() => scrollTo(0, 0));
+    // #25: 320px reflow (WCAG 1.4.10). The editable row's date-selection box, due date and remove button wrap inside
+    // the item card, header fields stay inside the sheet and the More menu stays on screen; nothing widens the page
+    // and no control shrinks below its narrow-screen size.
+    const reflow = () =>
+      page.evaluate(() => {
+        const box = (el) => {
+          const r = el.getBoundingClientRect();
+          return { left: r.left, right: r.right, width: r.width, height: r.height };
+        };
+        const row = document.querySelector(".desk tbody tr:not(.grp)"),
+          sheet = document.querySelector(".desk .sheet");
+        return {
+          width: innerWidth,
+          scrollWidth: document.scrollingElement.scrollWidth,
+          row: box(row),
+          sheet: box(sheet),
+          pick: box(row.querySelector("[data-due-select]")),
+          due: { ...box(row.querySelector(".due-in")), font: parseFloat(getComputedStyle(row.querySelector(".due-in")).fontSize) },
+          remove: box(row.querySelector("[data-del]")),
+          rowControls: [...row.querySelectorAll("input,button,select,[contenteditable]")].map(box),
+          header: [...sheet.querySelectorAll(".n-head input,.n-head select")].map(box),
+        };
+      });
+    const reflowSizes = {};
+    for (const size of [
+      { width: 760, height: 900 },
+      { width: 390, height: 844 },
+      { width: 320, height: 700 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.evaluate(() => scrollTo(0, 0));
+      const m = await reflow();
+      reflowSizes[size.width] = m;
+      assert.ok(m.scrollWidth <= m.width, size.width + "px: no page-level horizontal overflow " + JSON.stringify(m.scrollWidth));
+      for (const control of m.rowControls) {
+        assert.ok(control.left >= m.row.left - 0.5 && control.right <= m.row.right + 0.5, size.width + "px: row control inside its card");
+        assert.ok(control.left >= 0 && control.right <= m.width, size.width + "px: row control inside the viewport");
+      }
+      for (const field of m.header)
+        assert.ok(field.left >= m.sheet.left - 3 && field.right <= m.sheet.right + 0.5, size.width + "px: header field inside the sheet");
+      assert.ok(m.pick.width >= 24 && m.pick.height >= 24, size.width + "px: date-selection box keeps a 24px target");
+      assert.ok(m.remove.width >= 40 && m.remove.height >= 40, size.width + "px: remove button keeps its 40px target");
+      assert.ok(m.due.height >= 40 && m.due.width >= 9 * m.due.font - 0.5, size.width + "px: due date stays full height and readable");
+      assert.ok(m.remove.right <= m.width && m.pick.left >= 0, size.width + "px: selection and removal stay visible");
+      assert.equal(await bar.isVisible(), true, size.width + "px: one fixed task bar");
+      const barBox = await bar.boundingBox();
+      assert.equal(Math.round(barBox.y + barBox.height), size.height, size.width + "px: task bar sits on the bottom edge");
+      assert.ok(barBox.x >= 0 && barBox.x + barBox.width <= size.width, size.width + "px: task bar inside the viewport");
+      for (const button of await bar.locator("button").all()) {
+        const target = await button.boundingBox();
+        assert.ok(target.height >= 24 && target.width >= 24, size.width + "px: bar actions keep 24px targets");
+        assert.ok(target.x >= 0 && target.x + target.width <= size.width, size.width + "px: bar action inside the viewport");
+      }
+      await page.screenshot({ path: path.join(OUT, "r42-editor-reflow-" + size.width + ".png"), fullPage: false });
+    }
+    for (const key of ["pick", "remove"])
+      for (const dimension of ["width", "height"])
+        assert.ok(reflowSizes[320][key][dimension] >= reflowSizes[390][key][dimension] - 0.5, "320px " + key + " " + dimension + " not reduced");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflowX), "visible", "overflow is not hidden");
+    await axeScreen(page, "r42-notice-320");
+    // The issued copy's More menu (Document actions) opens inside the 320px screen.
+    await page.evaluate(() => {
+      const d = doc(WriterState.state.docId);
+      window.__r42Reflow = clone(d);
+      d.draft = false;
+      d.status = "Final";
+      d.mailed = recordDay(today);
+      render();
+    });
+    await page.locator(".editor-more > summary").click();
+    const menu = await page.evaluate(() => ({
+      width: innerWidth,
+      scrollWidth: document.scrollingElement.scrollWidth,
+      items: [...document.querySelectorAll(".editor-more > div button")].map((b) => {
+        const r = b.getBoundingClientRect();
+        return { left: r.left, right: r.right, height: r.height };
+      }),
+    }));
+    assert.ok(menu.items.length, "issued copy offers document actions");
+    assert.ok(menu.scrollWidth <= menu.width, "open More menu adds no horizontal overflow " + menu.scrollWidth);
+    assert.ok(
+      menu.items.every((i) => i.left >= 0 && i.right <= menu.width),
+      "every More menu action is on screen",
+    );
+    await page.evaluate(() => {
+      document.querySelector(".editor-more").open = false;
+      const d = doc(WriterState.state.docId);
+      Object.keys(d).forEach((key) => delete d[key]);
+      Object.assign(d, window.__r42Reflow);
+      delete window.__r42Reflow;
+      render();
+    });
+    results.push({
+      reflow: Object.fromEntries(
+        Object.entries(reflowSizes).map(([w, m]) => [w, { scrollWidth: m.scrollWidth, remove: m.remove, pick: m.pick, due: m.due }]),
+      ),
+      menu,
+    });
+    await page.evaluate(() => scrollTo(0, 0));
     await page.setViewportSize({ width: 1366, height: 768 });
     assert.equal(await bar.isVisible(), false, "the task bar is narrow-screen only");
     await axeThemes(page, "r42-document");

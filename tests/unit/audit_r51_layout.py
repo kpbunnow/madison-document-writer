@@ -23,8 +23,8 @@ BASELINE_BUTTON_TRANSITION = """    transition:
 # modes, administrator tools group and the narrow-screen editor task bar). It must be byte-identical to the
 # reviewed block and appear exactly once in each built shell; it is removed before the historical comparison.
 PHASE3_SCREEN_MARKER = "\n/* R56 usability phase 3 (screen only):"
-PHASE3_SCREEN_BYTES = 4246
-PHASE3_SCREEN_SHA256 = "1f789008fe985432e9daafffb0e2ed9f6ee3917529881d887d2664c5e012b2d0"
+PHASE3_SCREEN_BYTES = 6198
+PHASE3_SCREEN_SHA256 = "a04521eaf16338cdee94d07b27944ace99535db3e78d651ab596d8e97d835524"
 
 
 def phase3_screen_block():

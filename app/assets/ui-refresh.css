@@ -1901,7 +1901,7 @@
   }
 }
 
-/* R56 usability phase 3 (screen only): review modes, administrator tools and the narrow-screen task bar. */
+/* R56 usability phase 3 (screen only): review modes, administrator tools, the narrow-screen task bar and 320px reflow. */
 @media screen {
   .ri-walk-modes {
     display: flex;
@@ -2000,6 +2000,20 @@
       min-width: 0;
       white-space: normal;
     }
+    /* The More menu opens under the action row, aligned with its right edge, so it never runs off the screen. */
+    body:has(.document-workspace) .topbar-actions {
+      position: relative;
+    }
+    body:has(.document-workspace) .topbar-actions > .editor-more {
+      position: static;
+    }
+    body:has(.document-workspace) .topbar-actions > .editor-more > div {
+      right: 0;
+      left: auto;
+      width: 210px;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
     body:has(.document-workspace) .content {
       padding-top: 10px;
     }
@@ -2074,6 +2088,51 @@
     body:has(.document-workspace :is(input, select, textarea, [contenteditable]:not([contenteditable="false"])):focus) .editor-mobile-bar,
     body:has(.modal, .picker) .editor-mobile-bar {
       display: none;
+    }
+  }
+  /* Document cards (860px and below), so nothing widens the page at 320px: long header values such as the
+     inspector's e-mail address wrap, and an editable due-date cell wraps its selection box, date and remove
+     button inside the item card. */
+  @media (max-width: 860px) {
+    .sheet .n-meta dd {
+      overflow-wrap: anywhere;
+    }
+    .sheet table.notice td.c-due:has(> .due-in) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      white-space: normal;
+    }
+    .sheet table.notice td.c-due:has(> .due-in)::before {
+      flex: 0 0 100%;
+      margin-bottom: 0;
+    }
+    .sheet table.notice td.c-due:has(> .due-in) > .affected-pick,
+    .sheet table.notice td.c-due:has(> .due-in) > [data-withdraw] {
+      flex: 0 0 100%;
+      margin: 0;
+    }
+    .sheet table.notice td.c-due > .due-in {
+      flex: 1 1 9em;
+      width: auto;
+      min-width: 9em;
+      max-width: 220px;
+    }
+    .sheet table.notice td.c-due > .due-pick,
+    .sheet table.notice td.c-due > .rm {
+      flex: 0 0 auto;
+    }
+  }
+  /* 420px and below: each header label sits above its value, so the date, time and inspector fields keep their
+     full width inside the sheet. */
+  @media (max-width: 420px) {
+    .sheet .n-col {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sheet .n-col .hdr-in {
+      /* content-box: leave room for the field's own padding and border */
+      max-width: calc(100% - 6px);
     }
   }
 }

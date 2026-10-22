@@ -170,6 +170,87 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       assert.deepEqual(edited, { text: "Synthetic revised printed correction.", reviewed: false, cached: false, visit: false });
       assert.equal(await page.locator('[data-special="reviewed"]').isChecked(), false);
     }
+    // R56 #23: authoring-13 row controls (affected-item and shared-due-date checkboxes) are screen-only. Print
+    // preview of an editable draft must paginate exactly like the non-editable rendering of the same facts,
+    // including at the counts where a page break moves.
+    const boundary = [];
+    for (const type of ["bestInterestExtension", "vacancyExtension"]) {
+      const runs = [];
+      for (let count = 1; count <= 17; count++) {
+        const run = await page.evaluate(
+          ({ original, type, count }) => {
+            const make = (editable) => {
+              const d = { ...clone(original), type, authoringVersion: 13, id: "r56-boundary-" + type, draft: true };
+              delete d.frozen;
+              delete d.mailed;
+              d.items = Array.from({ length: count }, (_, n) => ({
+                id: "r56-row-" + n,
+                no: String(n + 1),
+                sections: ["27.05(2)(c)"],
+                text: "Repair the synthetic wall condition.",
+                group: "Exterior",
+                due: "2026-12-15",
+              }));
+              d.special = {
+                ...clone(original.special),
+                deadlineMode: "dated",
+                affected: d.items.map((i) => i.no),
+                originalDues: Object.fromEntries(d.items.map((i) => [i.no, "2026-10-21"])),
+              };
+              if (!editable) d.status = "Final";
+              return d;
+            };
+            const out = {};
+            for (const mode of ["editable", "locked"]) {
+              const d = make(mode === "editable");
+              WriterState.DOCS = [d];
+              WriterState.state.docId = d.id;
+              WriterState.state.screen = "write";
+              WriterState.state.modal = null;
+              render();
+              const onScreen = document.querySelectorAll(".desk .affected-pick [data-special-item]").length;
+              const job = printJob(d);
+              const printed = new DOMParser().parseFromString(job.html, "text/html");
+              out[mode] = {
+                onScreen,
+                html: job.html,
+                controls: printed.querySelectorAll(".affected-pick,.due-pick,[data-special-item],[data-due-select],input,button").length,
+                pages: [...printed.querySelectorAll(".sheet")].map((sheet) =>
+                  [...sheet.querySelectorAll("tbody tr:not(.grp) .c-no")].map((cell) => (cell.textContent.match(/\d+/) || [""])[0]),
+                ),
+              };
+            }
+            return out;
+          },
+          { original, type, count },
+        );
+        assert.equal(run.editable.onScreen, count, type + " " + count + ": editable draft shows a row control for every item");
+        assert.equal(run.locked.onScreen, 0, type + " " + count + ": non-editable rendering has no row controls");
+        assert.equal(run.editable.controls, 0, type + " " + count + ": no row controls in the printable preview");
+        assert.equal(run.locked.controls, 0, type + " " + count + ": no row controls in the non-editable copy");
+        assert.deepEqual(
+          run.editable.pages.flat(),
+          Array.from({ length: count }, (_, n) => String(n + 1)),
+          type + " " + count + ": every item printed once, in order",
+        );
+        assert.equal(run.editable.pages.length, run.locked.pages.length, type + " " + count + ": preview page count matches the non-editable copy");
+        assert.deepEqual(run.editable.pages, run.locked.pages, type + " " + count + ": preview items per page match the non-editable copy");
+        runs.push({ count, pages: run.editable.pages.length, distribution: run.editable.pages.map((p) => p.length), html: run.editable.html });
+      }
+      // The range must cross at least one page break, or the comparison proves nothing about boundaries.
+      const breaks = runs.filter((r, n) => n && r.pages > runs[n - 1].pages);
+      assert.ok(breaks.length, type + ": item counts cross a page boundary");
+      for (const at of breaks.flatMap((r) => [r.count - 1, r.count])) {
+        const run = runs.find((r) => r.count === at);
+        const layout = await page.evaluate((html) => inspectPrintPacket(html, false), run.html);
+        assert.ok(
+          layout.geometry.every((p) => !p.clipped && !p.overflow && p.continuation),
+          type + " " + at + ": boundary packet is complete and unclipped",
+        );
+      }
+      boundary.push({ type, boundaries: breaks.map((r) => r.count), runs: runs.map(({ html, ...r }) => r) });
+    }
+    results.push({ authoring13PrintPreviewBoundaries: boundary });
     const result = { passed: true, checks: results };
     fs.writeFileSync(path.join(OUT, "r54-results.json"), JSON.stringify(result, null, 2));
     return result;
