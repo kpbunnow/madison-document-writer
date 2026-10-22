@@ -136,19 +136,43 @@ const test = async () => {
   assert.equal(app.querySelectorAll("[data-queue-case]").length, before - 1);
   assert.ok(!app.querySelector('[data-queue-case="queue-0"]'));
   assert.equal(Number(app.querySelector('[data-queue-view="resolution"] strong').textContent), before - 1);
-  // Summary clicks clear search/inspector and leave only the displayed filter.
-  WriterState.state.caseQ = "nothing";
-  WriterState.state.caseInspector = "other";
+  // Summary clicks change only the view: search and inspector stay applied, so the rows are their intersection.
+  const shownIds = () => [...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase);
+  WriterState.state.caseQ = "QA-1";
+  WriterState.state.caseInspector = "i4";
   app = mount();
-  app.querySelector('[data-queue-view="deadlines"]').click();
+  app.querySelector('[data-queue-view="all"]').click();
+  assert.equal(WriterState.state.caseQ, "QA-1");
+  assert.equal(WriterState.state.caseInspector, "i4");
+  const searchedAll = shownIds();
+  assert.ok(searchedAll.length > 1 && searchedAll.length < 32, "the search narrows All cases");
+  document.querySelector('[data-queue-view="deadlines"]').click();
   assert.equal(WriterState.state.metric, "");
   assert.equal(WriterState.state.caseFilter, "deadlines");
-  assert.equal(WriterState.state.caseQ, "");
-  assert.equal(WriterState.state.caseInspector, "");
+  assert.equal(WriterState.state.caseQ, "QA-1", "search kept when switching quick views");
+  assert.equal(WriterState.state.caseInspector, "i4", "inspector kept when switching quick views");
+  assert.equal(document.querySelector("#case-search").value, "QA-1");
+  assert.equal(document.querySelector("#case-inspector").value, "i4");
   assert.equal(document.querySelector("#case-filter").value, "");
   assert.equal(document.activeElement, document.querySelector('[data-queue-view="deadlines"]'));
   assert.equal(document.querySelector('[data-queue-view="deadlines"]').getAttribute("aria-pressed"), "true");
   assert.equal(WriterState.WORKFLOW_PREFS.filter, "deadlines");
+  assert.equal(WriterState.WORKFLOW_PREFS.query, "QA-1");
+  assert.equal(WriterState.WORKFLOW_PREFS.inspector, "i4");
+  const searchedDeadlines = shownIds();
+  // Only the explicit reset clears search and inspector; the view stays.
+  document.querySelector("[data-queue-reset]").click();
+  assert.equal(WriterState.state.caseQ, "");
+  assert.equal(WriterState.state.caseInspector, "");
+  assert.equal(WriterState.state.caseFilter, "deadlines");
+  assert.equal(document.activeElement, document.querySelector("#case-search"));
+  const allDeadlines = shownIds();
+  assert.deepEqual(
+    searchedDeadlines,
+    allDeadlines.filter((id) => searchedAll.includes(id)),
+    "filtered Deadlines rows are the intersection of Deadlines and the search",
+  );
+  assert.ok(searchedDeadlines.length > 0 && searchedDeadlines.length < allDeadlines.length);
   const deadlineCount = document.querySelectorAll("[data-queue-case]").length;
   assert.equal(deadlineCount, 11);
   assert.equal(Number(document.querySelector('[data-queue-view="deadlines"] strong').textContent), deadlineCount);

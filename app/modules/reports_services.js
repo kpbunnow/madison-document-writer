@@ -11,6 +11,7 @@ import {
   iso,
   plural,
   reportById,
+  restoreReportReturn,
   uniq,
   validISO,
   violOk,
@@ -305,9 +306,11 @@ function reportsChannel() {
         render();
       }
       if (e.data?.kind === "return") {
+        // Restore the context saved by Open case in Writer before acknowledging; without one the current view stays.
+        const restored = restoreReportReturn();
         ReportsState.REPORT_LINK.postMessage({ kind: "return-ack", request: e.data.request });
         window.focus();
-        ReportsState.S.reportNotice = "Returned from Writer.";
+        ReportsState.S.reportNotice = restored ? "Returned from Writer to the saved report context." : "Returned from Writer.";
         render();
       }
     };

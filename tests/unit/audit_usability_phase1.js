@@ -162,7 +162,6 @@ const test = async () => {
   d.mailed = recordDay(today);
   d.frozen = freezeSources(d);
   render();
-  assert.equal(document.querySelector("#btn-savecase").textContent, "Save case to shared folder");
   assert.equal(document.querySelector(".editor-primary").textContent, "File issued PDF");
   assert.equal(document.querySelector(".editor-primary").getAttribute("data-editor-command"), "btn-retryfiling");
   assert.equal(document.getElementById("btn-save"), null);
@@ -172,6 +171,67 @@ const test = async () => {
   assert.equal(savedCaseState(app_savedworkContext(), k, false).label, "Connect shared folder");
   WriterState.PENDING = [];
   assert.ok(shared.label);
+  // Disconnected: the action is labelled as the backup it is, says it does not save the shared record,
+  // offers the existing connection flow, and its handler downloads a backup without a shared write.
+  assert.equal(WriterState.CASEDIR, null);
+  const helperCalls = [],
+    originalHelperJSON = helperJSON,
+    originalWriteSummary = writeSummary,
+    originalDownloadWorkspace = downloadWorkspace;
+  let backups = 0;
+  helperJSON = async (url, body) => {
+    helperCalls.push(url);
+    if (url !== "/cases/save") throw new Error("Unexpected helper URL " + url);
+    return { ok: true, file: body.file, revision: "u1-revision", name: body.name };
+  };
+  writeSummary = async () => true;
+  downloadWorkspace = () => {
+    backups++;
+  };
+  const backupButton = document.querySelector("#btn-savecase");
+  assert.equal(backupButton.textContent, "Download workspace backup");
+  assert.ok(!document.querySelector(".editor-more").textContent.includes("Save case to shared folder"));
+  const backupNote = document.getElementById(backupButton.getAttribute("aria-describedby"));
+  assert.equal(backupNote.textContent, "Shared folder not connected — this downloads a backup; it does not save the shared case record.");
+  const connect = document.querySelector('.editor-more [data-safety-action="storage"]');
+  assert.equal(connect.textContent, "Connect shared folder");
+  assert.equal(connect.dataset.safetyCase, k.id);
+  toasts.length = 0;
+  backupButton.click();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(backups, 1, "disconnected action downloads one workspace backup");
+  assert.deepEqual(helperCalls, [], "disconnected action makes no shared write");
+  assert.equal(toasts.at(-1), "Workspace backup downloaded. Connect the current helper to save a verified case record.");
+  assert.ok(!toasts.some((m) => /^Saved to /.test(m)), "a backup is never reported as a shared save");
+  connect.click();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(WriterState.state.modal, "storage", "Connect shared folder opens the existing storage connection");
+  WriterState.state.modal = null;
+  // Connected through the helper: the shared-folder label, no backup note, and the handler writes the case record.
+  WriterState.CASEDIR = {
+    helper: true,
+    getFileHandle: async () => {
+      throw Object.assign(new Error("missing"), { name: "NotFoundError" });
+    },
+  };
+  WriterState.DIRNAME = "Synthetic case folder";
+  WriterState.NEEDGRANT = false;
+  render();
+  assert.equal(document.querySelector("#btn-savecase").textContent, "Save case to shared folder");
+  assert.equal(document.querySelector("#btn-savecase").hasAttribute("aria-describedby"), false);
+  assert.equal(document.getElementById("savecase-note"), null);
+  assert.equal(document.querySelector('.editor-more [data-safety-action="storage"]'), null);
+  toasts.length = 0;
+  document.querySelector("#btn-savecase").click();
+  for (let i = 0; i < 20 && !toasts.some((m) => /^Saved to /.test(m)); i++) await new Promise((r) => setTimeout(r, 5));
+  assert.deepEqual(helperCalls, ["/cases/save"], "connected action writes the case record through the helper");
+  assert.equal(backups, 1, "connected action downloads no backup");
+  assert.ok(toasts.includes("Saved to Synthetic case folder — " + caseFileName(k)), toasts.join(" | "));
+  helperJSON = originalHelperJSON;
+  writeSummary = originalWriteSummary;
+  downloadWorkspace = originalDownloadWorkspace;
+  WriterState.CASEDIR = null;
+  COMMITTED.clear();
 
   // 5. Backups and recovery: two labelled groups with all original controls.
   const work = document.createElement("div");
@@ -289,7 +349,38 @@ const test = async () => {
   sel.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert.equal(WriterState.state.caseFilter, "attention", "More views placeholder returns to Needs attention");
   assert.equal(WriterState.state.caseQ, "U1-1", "search kept");
-  WriterState.state.caseQ = "";
+  // Quick views keep search and inspector too (#22): inspector i4 and search U1-1 leave one row in every view.
+  const ids = () => [...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase);
+  const matches = (view) =>
+    WriterState.CASES.filter(
+      (c) =>
+        c.inspectorId === "i4" &&
+        c.number === "U1-1" &&
+        queueMatches(
+          workspaceQueue([{ k: c, st: caseState(c) }], workspaceTasks([{ k: c, st: caseState(c) }]), app_workspacequeueContext())[0],
+          view,
+        ),
+    ).map((c) => c.id);
+  WriterState.state.caseInspector = "i4";
+  render();
+  for (const key of ["deadlines", "all", "attention"]) {
+    document.querySelector(`[data-queue-view="${key}"]`).click();
+    assert.equal(WriterState.state.caseFilter, key);
+    assert.equal(WriterState.state.caseQ, "U1-1", key + " keeps the search");
+    assert.equal(WriterState.state.caseInspector, "i4", key + " keeps the inspector");
+    assert.equal(document.getElementById("case-search").value, "U1-1");
+    assert.equal(document.getElementById("case-inspector").value, "i4");
+    assert.deepEqual(ids(), matches(key), key + " shows the intersection of the view, search and inspector");
+  }
+  assert.deepEqual(ids(), ["u1-case-1"]);
+  document.querySelector('[data-queue-view="deadlines"]').click();
+  assert.deepEqual(ids(), ["u1-case-1"], "Deadlines does not widen to cases outside the search");
+  document.querySelector("[data-queue-reset]").click();
+  assert.equal(WriterState.state.caseQ, "");
+  assert.equal(WriterState.state.caseInspector, "");
+  assert.equal(WriterState.state.caseFilter, "deadlines", "reset clears only search and inspector");
+  assert.deepEqual(ids(), ["u1-case-0", "u1-case-1"]);
+  WriterState.state.caseFilter = "attention";
 
   // 7. Labels: remove from this workspace, and Import inspection.
   render();

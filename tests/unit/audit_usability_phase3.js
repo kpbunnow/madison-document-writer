@@ -16,8 +16,16 @@ if (process.argv[2] === "reports") {
   w.__NO_AUTOLOAD__ = true;
   Object.assign(global, { window: w, document: w.document, localStorage: w.localStorage, location: w.location });
   w.open = () => ({});
+  w.focus = () => {};
+  // Records each message with the report context at the moment it was posted.
   w.BroadcastChannel = class {
-    postMessage() {}
+    constructor() {
+      this.sent = [];
+    }
+    postMessage(message) {
+      const S = global.REPORTS_STATE_PROBE?.();
+      this.sent.push({ message, context: S && { screen: S.screen, view: S.view, dateMode: S.dateMode, from: S.F.from, owner: S.F.owner } });
+    }
   };
   global.BroadcastChannel = w.BroadcastChannel;
   const reports = async () => {
@@ -40,7 +48,24 @@ if (process.argv[2] === "reports") {
     ReportsState.S.dateMode = "month";
     ReportsState.S.F = { ...ReportsState.S.F, from: "2025-05-01", to: "2025-05-31", status: "", owner: "" };
     ReportsState.S.tableSort = null;
-    assert.equal(restoreReportReturn(), true);
+    // Back to Reports reaches an already open Reports tab as a channel message (#24): drive the registered handler.
+    global.REPORTS_STATE_PROBE = () => ReportsState.S;
+    const channel = ReportsState.REPORT_LINK;
+    assert.equal(typeof channel.onmessage, "function", "Open case in Writer registered the return handler");
+    const returnEvent = (request) => {
+      channel.sent.length = 0;
+      channel.onmessage({ data: { kind: "return", request } });
+      assert.equal(channel.sent.length, 1);
+      assert.deepEqual(channel.sent[0].message, { kind: "return-ack", request });
+      return channel.sent[0].context;
+    };
+    const atAck = returnEvent("u3-return-1");
+    assert.deepEqual(
+      atAck,
+      { screen: target.id, view: "map", dateMode: "fixed", from: "2026-01-01", owner: "owner-key" },
+      "the saved context is restored before the return is acknowledged",
+    );
+    assert.equal(ReportsState.S.reportNotice, "Returned from Writer to the saved report context.");
     assert.equal(ReportsState.S.screen, target.id);
     assert.equal(ReportsState.S.view, "map");
     assert.equal(ReportsState.S.dateMode, "fixed");
@@ -49,18 +74,40 @@ if (process.argv[2] === "reports") {
     assert.equal(ReportsState.S.F.status, "open");
     assert.equal(ReportsState.S.F.owner, "owner-key");
     assert.deepEqual(ReportsState.S.tableSort, { report: target.id, ci: 2, dir: -1 });
+    // The ?return=1 page-load path uses the same helper.
+    ReportsState.S.screen = REPORTS[0].id;
+    assert.equal(restoreReportReturn(), true);
+    assert.equal(ReportsState.S.screen, target.id);
     assert.equal(ReportsState.S.reportNotice, "Returned to the saved report context.");
     // A relative date mode is recomputed for today rather than restoring stale dates.
     ReportsState.S.dateMode = "month";
     ReportsState.S.F.from = "2020-01-01";
     openInWriter("QA-U3");
     ReportsState.S.dateMode = "fixed";
+    returnEvent("u3-return-2");
+    assert.equal(ReportsState.S.dateMode, "month");
+    assert.equal(ReportsState.S.F.from, iso(new Date()).slice(0, 7) + "-01");
+    ReportsState.S.dateMode = "fixed";
     assert.equal(restoreReportReturn(), true);
     assert.equal(ReportsState.S.dateMode, "month");
     assert.equal(ReportsState.S.F.from, iso(new Date()).slice(0, 7) + "-01");
-    // A missing or unknown report context changes nothing.
-    localStorage.setItem("madison-report-return-v1", JSON.stringify({ report: "no-such-report" }));
-    assert.equal(restoreReportReturn(), false);
+    // A missing, unknown or malformed report context changes nothing; the return is still acknowledged.
+    const unchanged = () => ({
+      screen: ReportsState.S.screen,
+      view: ReportsState.S.view,
+      dateMode: ReportsState.S.dateMode,
+      F: { ...ReportsState.S.F },
+    });
+    for (const stored of [JSON.stringify({ report: "no-such-report" }), "{not json", null]) {
+      if (stored === null) localStorage.removeItem("madison-report-return-v1");
+      else localStorage.setItem("madison-report-return-v1", stored);
+      ReportsState.S.view = "table";
+      const before = unchanged();
+      assert.equal(restoreReportReturn(), false);
+      returnEvent("u3-return-unknown");
+      assert.deepEqual(unchanged(), before);
+      assert.equal(ReportsState.S.reportNotice, "Returned from Writer.");
+    }
     console.log("R56 usability phase 3 Reports checks passed");
   };
   eval(payload + "\n(" + reports.toString() + ")().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1)});");

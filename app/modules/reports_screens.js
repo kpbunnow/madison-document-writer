@@ -6,6 +6,7 @@ import {
   CRC_T,
   D,
   DEFINITIONS,
+  EXPORT_SCOPE,
   REPORTS,
   STATUSES,
   STATUS_COL,
@@ -1258,7 +1259,7 @@ function exportSheets() {
     ["Exported", iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
     ["Build", BUILD],
     ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
-    ["Period", fmtDate(F.from) + " to " + fmtDate(F.to) + " (case opening date; issue date for citations and referrals)"],
+    ["Period", fmtDate(F.from) + " to " + fmtDate(F.to) + " (each sheet's date is listed under Sheet scope)"],
     ["As of (open-case reports)", fmtDate(F.asOf)],
     [
       "Area",
@@ -1271,8 +1272,14 @@ function exportSheets() {
     ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
     ["Cases not located", M.counted.filter((c) => !c.located).length],
     [],
-    ["Definitions"],
-  ].concat(DEFINITIONS.map((d) => [d[0], d[1]]));
+    // Describes the selections below exactly; it does not change them.
+    ["Sheet scope"],
+  ]
+    .concat(EXPORT_SCOPE.map((d) => [d[0], d[1]]))
+    .concat(
+      [[], ["Definitions"]],
+      DEFINITIONS.map((d) => [d[0], d[1]]),
+    );
   const correctionRows = [
     ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
   ];
@@ -1298,7 +1305,11 @@ function exportSheets() {
         ),
     );
   const sheets = [
-    { name: "About", rows: about, opt: { boldRows: [0, about.findIndex((r) => r[0] === "Definitions")] } },
+    {
+      name: "About",
+      rows: about,
+      opt: { boldRows: [0, about.findIndex((r) => r[0] === "Definitions"), about.findIndex((r) => r[0] === "Sheet scope")] },
+    },
     { name: "Cases", rows: casesRows, opt: { header: true } },
     { name: "Violations", rows: vRows, opt: { header: true } },
     { name: "Visits", rows: visitRows, opt: { header: true } },

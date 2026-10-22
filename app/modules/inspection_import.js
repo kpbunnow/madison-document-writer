@@ -1485,7 +1485,12 @@ function screenWrite() {
                 ""
             : "",
         ) +
-        '<button class="btn" id="btn-savecase">Save case to shared folder</button>' +
+        // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
+        (WriterState.CASEDIR
+          ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
+          : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
+            '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
+            `<button class="btn" data-safety-case="${esc(d.caseId)}" data-safety-action="storage">Connect shared folder</button>`) +
         `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
         ""
       : "";

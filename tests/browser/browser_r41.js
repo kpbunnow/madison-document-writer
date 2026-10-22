@@ -91,6 +91,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(overdueLabel, "Past due (" + (await page.locator("[data-queue-case]").count()) + ")");
     await page.locator('[data-queue-view="deadlines"]').click();
     await page.locator("#case-search").fill("nothing matches");
+    // Quick views keep the workspace search; only the explicit reset or View all cases removes it.
+    await page.locator('[data-queue-view="all"]').click();
+    assert.equal(await page.locator("#case-search").inputValue(), "nothing matches");
+    assert.equal(await page.locator("[data-queue-case]").count(), 0);
     await page.getByRole("button", { name: "View all cases", exact: true }).click();
     assert.equal(await page.locator("[data-queue-case]").count(), 32);
     assert.equal(await page.locator("#case-search").inputValue(), "");

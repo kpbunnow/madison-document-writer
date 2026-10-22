@@ -1970,9 +1970,8 @@ document.addEventListener("click", (e) => {
     WriterState.state.caseQ = "";
     WriterState.state.caseInspector = "";
   } else {
+    // Switching views keeps the workspace search and inspector filter; only the reset clears them.
     WriterState.state.caseFilter = t.dataset.queueView;
-    WriterState.state.caseQ = "";
-    WriterState.state.caseInspector = "";
   }
   render();
   saveWorkflowPrefs();

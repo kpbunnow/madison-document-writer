@@ -54,9 +54,10 @@ export function reportActions(R) {
     'ss="btn btn-primary" data-act="export">Reports workbook — Excel</button><p class=' +
     '"small" data-report-export-note>The CSV contains exactly the rows and columns of this table, with its filters, dates and sort. ' +
     "The workbook has an About sheet, record sheets (Cases, Violations, Visits, Citations, Referrals, Corrections) and a sheet for " +
-    "every named report. All sheets use the same filters and dates, but each applies them through its own definition (an as-of " +
-    "date or a period measured by that sheet’s own date, as listed on the About sheet). This report’s sheet keeps the table sort; " +
-    "other report sheets use their default order.</p></div></details><details " +
+    "every named report. Sheets do not all apply the filters the same way: each uses its own date (case opened; citation or " +
+    "referral issued; correction recorded; or the As of date), and some ignore a filter or apply it to a different person or " +
+    "record — for example, Citations ignores violation type and uses the issuing inspector. The About sheet lists each " +
+    "sheet’s scope. This report’s sheet keeps the table sort; other report sheets use their default order.</p></div></details><details " +
     'id="report-views" class="report-actions"><summary>Saved views</summary><' +
     'div><label class="f">Saved views<select id="saved-view"><option value=""' +
     ">Choose a view</option>" +
