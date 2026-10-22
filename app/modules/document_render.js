@@ -64,6 +64,7 @@ function referralHistoryHTML(d, it) {
               esc(x.oc === "initial" ? "First observed" : OC_WORD[x.oc] || x.oc) +
               "</em>" +
               (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
+              (x.note ? "<em>Note: " + esc(x.note) + "</em>" : "") +
               "</span>",
           )
           .join("")
@@ -196,7 +197,7 @@ function noticeHTML(d) {
           "\n        " +
           "".concat(
             isHistoryDoc(d)
-              ? documentItemHistory(d, it)
+              ? (d.authoringVersion >= 14 ? [] : documentItemHistory(d, it))
                   .filter((x) => x.note)
                   .map(
                     (x) =>

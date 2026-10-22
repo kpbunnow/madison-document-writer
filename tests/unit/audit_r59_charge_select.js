@@ -132,7 +132,7 @@ const test = async () => {
   fire(select, FIXED, ["change"]);
   let c = d.cits?.r59;
   ok("Choosing a fixed-schedule section completes the charge", !!c && !d.depositRequests?.r59 && c.ord === FIXED);
-  assert.equal(d.authoringVersion, 13, "Selecting an ordinance does not downgrade the draft");
+  assert.equal(d.authoringVersion, 14, "Selecting an ordinance does not downgrade the draft");
   ok("Pricing equals resolveCitationAmount for the chosen ordinance", sameAs(c, priced(d, c, FIXED)), JSON.stringify(c));
   ok("Choosing a section raises no ordinance blocker", !blockers(d).some((x) => /charged ordinance|one complete ordinance/.test(x.t)));
   view = show(d);
@@ -209,14 +209,14 @@ const test = async () => {
     for (const field of [...CHARGE_DERIVED, "depositMode", "tier"].filter((field) => field !== "historicalDeposit"))
       assert.equal(stableJSON(restored[field]), stableJSON(retained[field]), "Retained correction basis: " + field);
     assert.equal(citationDepositFault(restored, correction, correction.items[0]), "", "Returning to the unchanged charge stays valid");
-    assert.equal(correction.authoringVersion, 13);
+    assert.equal(correction.authoringVersion, 14);
   }
   WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== original.id && x.id !== correction.id);
   WriterState.state.docId = d.id;
 
   const pair = makePublication(d);
-  assert.equal(pair.payload.snapshot.authoringVersion, 13, "Atomic companion publication retains current authoring");
-  assert.equal(d.publicationEvents[0].payload.snapshot.authoringVersion, 13, "Atomic notice publication retains current authoring");
+  assert.equal(pair.payload.snapshot.authoringVersion, 14, "Atomic companion publication retains current authoring");
+  assert.equal(d.publicationEvents[0].payload.snapshot.authoringVersion, 14, "Atomic notice publication retains current authoring");
   delete d.publicationEvents;
 
   // No verified schedule: the existing manual path, never the previous amount.

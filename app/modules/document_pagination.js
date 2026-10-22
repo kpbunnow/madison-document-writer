@@ -418,6 +418,32 @@ function paginate(deskOverride, documentOverride) {
       if (carry) p._tb.appendChild(carry);
       p._tb.appendChild(r);
     }
+    if (d.authoringVersion >= 14 && isHistoryDoc(d)) {
+      let current = r;
+      while (over(p)) {
+        const history = current.querySelector(".visit-list");
+        if (!history || history.children.length < 2) break;
+        const continuation = current.cloneNode(true),
+          rest = [];
+        while (over(p) && history.children.length > 1) {
+          rest.unshift(history.lastElementChild);
+          history.lastElementChild.remove();
+        }
+        if (!rest.length) break;
+        continuation.removeAttribute("data-row");
+        continuation.querySelectorAll("[contenteditable],[data-field],[data-id]").forEach((el) => {
+          el.removeAttribute("contenteditable");
+          el.removeAttribute("data-field");
+          el.removeAttribute("data-id");
+        });
+        continuation.querySelector(".c-no").textContent = (r.querySelector(".num")?.textContent || "") + " (continued)";
+        continuation.querySelector(".corr").textContent = "Inspection history continued.";
+        continuation.querySelector(".visit-list").replaceChildren(...rest);
+        p = newPage(true);
+        p._tb.appendChild(continuation);
+        current = continuation;
+      }
+    }
   });
   // the closing blocks follow the table, spilling to a page of their own only
   // if they will not fit under it

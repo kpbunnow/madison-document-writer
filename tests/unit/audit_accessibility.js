@@ -40,7 +40,7 @@ const test = async () => {
   toast("Synthetic warning", { severity: "warning" });
   await Promise.resolve();
   assert.equal(document.querySelectorAll("#toast [role=alert]").length, 2);
-  assert.equal(document.querySelectorAll(".writer-navigation .rail-item").length, 5);
+  assert.equal(document.querySelectorAll(".writer-navigation .rail-item").length, 4);
   assert.equal(
     document.querySelectorAll(".writer-navigation [data-a11y-history],.writer-navigation [data-a11y-help],.writer-navigation [data-a11y-theme]")
       .length,

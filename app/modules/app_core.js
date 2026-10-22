@@ -3524,7 +3524,7 @@ document.addEventListener("change", (e) => {
       d.type = e.target.value;
       d.correction.body = d.type === src.type ? docBody(src) : DOCBODY[d.type] || DOCBODY.notice;
       d.items.forEach((it) => {
-        if (isHistoryDoc(d)) it.hist = d.authoringVersion >= 14 ? itemInspectionHistory(d, it) : itemHistory(d.caseId, it.no);
+        if (isHistoryDoc(d)) it.hist = d.authoringVersion >= 14 ? it.hist || itemInspectionHistory(d, it) : itemHistory(d.caseId, it.no);
       });
     } else {
       const it = d.items.find((x) => x.id === e.target.dataset.correctionOutcome);

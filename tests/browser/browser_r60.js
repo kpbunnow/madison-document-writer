@@ -94,6 +94,29 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       .locator(".sheet")
       .evaluateAll((els) => els.map((el) => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)))
       assert.equal(clipped, false);
+    const longJob = await page.evaluate(() => {
+      const d = doc(WriterState.state.docId);
+      const it = clone(d.items[0]);
+      it.id = "long-history";
+      it.done = false;
+      it.doneOn = "";
+      it.hist = Array.from({ length: 45 }, (_, n) => ({
+        on: addDays("2026-03-01", n),
+        oc: n ? "none" : "initial",
+        note: "Synthetic observation " + (n + 1),
+      }));
+      d.items = [it];
+      return printJob(d);
+    });
+    await printPage.setContent(longJob.html);
+    assert.ok((await printPage.locator(".sheet").count()) > 1, "one long item history continues onto another page");
+    const longText = await printPage.locator("body").innerText();
+    for (let n = 1; n <= 45; n++) assert.ok(longText.includes("Synthetic observation " + n), "retained observation " + n);
+    assert.match(longText, /Days Outstanding: 44/);
+    for (const clipped of await printPage
+      .locator(".sheet")
+      .evaluateAll((els) => els.map((el) => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)))
+      assert.equal(clipped, false, "long history stays inside each page");
     // Initial and reinspection final packet paths must both retain four distinct approved copies per charge.
     const packets = [];
     for (const reinspection of [false, true])
