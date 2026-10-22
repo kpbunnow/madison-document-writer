@@ -6,7 +6,7 @@ Applies to the current release. Current operating instructions and SQL setup are
 
 **Direct lookup.** Open Import inspection, enter the complete case number and choose Find Accela inspection or press Enter. The Windows helper runs the supplied read-only SQL query with the signed-in Windows account. Inspectors do not enter SQL, passwords or server settings. The initial default server is sqlelam; IT can set the approved database and server in shared Case Lookup/settings.json.
 
-Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
+Select an eligible unused inspection with an actual date and supported type. If several results qualify, choose explicitly: each result shows its Inspection type, Date (with time), Inspector and Status, and the one you choose is highlighted. An inspection already recorded on any document or visit of the case, including drafts, withdrawn and corrected documents, can still be selected; it then explains that it was already used and cannot be imported again. Completed, Scheduled, Pending, Assist and unlisted results cannot be imported. A result status is not proof that this program issued a document; shared records independently prevent inspection reuse.
 
 The imported inspection's **Inspection Type** and **Inspection Status** decide the document; there is no “Choose next action” step.
 

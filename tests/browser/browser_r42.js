@@ -77,6 +77,98 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         header: await page.locator(".topbar").boundingBox(),
       });
     }
+    // R59: above 860px the remove button never covers the due date or its calendar button. Widths 1093 and 911 are
+    // the CSS viewport of a 1366px screen at 125% and 150% browser zoom.
+    await page.evaluate(() => {
+      const d = doc(WriterState.state.docId);
+      window.__r42Items = clone(d.items);
+      d.items.push({ ...clone(d.items[0]), id: "r42-overlap-item", no: "2", title: "Repair porch", due: addDays(recordDay(today), 30) });
+      d.items[0].due = addDays(recordDay(today), 21);
+      render();
+    });
+    const overlap = {};
+    for (const width of [1366, 1024, 900, 1093, 911]) {
+      await page.setViewportSize({ width, height: 768 });
+      const row = page.locator(".desk tbody tr:not(.grp)").first();
+      await row.scrollIntoViewIfNeeded();
+      await row.hover();
+      const m = await row.evaluate((tr) => {
+        const box = (el) => {
+          const r = el.getBoundingClientRect();
+          return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+        };
+        const due = box(tr.querySelector(".due-in")),
+          boxes = { pick: box(tr.querySelector(".due-pick")), due, calendar: { ...due, left: due.right - 20 }, remove: box(tr.querySelector(".rm")) };
+        const hit = (b, x = (b.left + b.right) / 2) => {
+          const el = document.elementFromPoint(x, (b.top + b.bottom) / 2);
+          return el?.matches(".due-pick") ? "pick" : el?.matches(".due-in") ? "due" : el?.matches(".rm") ? "remove" : String(el?.className);
+        };
+        return {
+          boxes,
+          hits: { pick: hit(boxes.pick), due: hit(boxes.due), calendar: hit(boxes.calendar), remove: hit(boxes.remove) },
+          cellRight: tr.querySelector(".c-due").getBoundingClientRect().right,
+          scrollWidth: document.scrollingElement.scrollWidth,
+        };
+      });
+      overlap[width] = m;
+      const meets = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      for (const [a, b] of [
+        ["pick", "due"],
+        ["pick", "remove"],
+        ["due", "remove"],
+        ["calendar", "remove"],
+      ])
+        assert.equal(meets(m.boxes[a], m.boxes[b]), false, width + "px: " + a + " and " + b + " do not intersect " + JSON.stringify(m.boxes));
+      assert.deepEqual(m.hits, { pick: "pick", due: "due", calendar: "due", remove: "remove" }, width + "px: each control hit-tests to itself");
+      assert.ok(m.boxes.due.right <= m.cellRight + 0.5, width + "px: the due date stays inside its cell");
+      assert.ok(m.boxes.remove.left - m.boxes.due.right >= 8, width + "px: space between the date field and the remove button");
+      assert.ok(
+        m.boxes.remove.right - m.boxes.remove.left >= 24 && m.boxes.remove.bottom - m.boxes.remove.top >= 24,
+        width + "px: 24px remove target",
+      );
+      assert.ok(m.scrollWidth <= width, width + "px: no horizontal overflow");
+    }
+    // Clicking the calendar area of item 1 removes nothing; clicking item 2's remove button removes only item 2.
+    await page.setViewportSize({ width: 1366, height: 768 });
+    const firstRow = page.locator(".desk tbody tr:not(.grp)").first();
+    await firstRow.scrollIntoViewIfNeeded();
+    const calendar = await firstRow.locator(".due-in").boundingBox();
+    await page.mouse.click(calendar.x + calendar.width - 10, calendar.y + calendar.height / 2);
+    await page.keyboard.press("Escape");
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items.length), 2, "the calendar button does not remove an item");
+    const secondRemove = page.locator('.desk [data-del="r42-overlap-item"]');
+    assert.equal(await secondRemove.getAttribute("aria-label"), "Remove item 2");
+    // Keyboard focus shows the remove button without hovering.
+    await page.mouse.move(0, 0);
+    await secondRemove.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    assert.equal(
+      await secondRemove.evaluate((el) => el === document.activeElement && getComputedStyle(el).opacity),
+      "1",
+      "focused remove button is visible",
+    );
+    const removeBox = await secondRemove.boundingBox();
+    await page.mouse.click(removeBox.x + removeBox.width / 2, removeBox.y + removeBox.height / 2);
+    assert.deepEqual(
+      await page.evaluate(() => doc(WriterState.state.docId).items.map((i) => i.id)),
+      ["r42-fixture-item"],
+      "the remove button removes only its own item",
+    );
+    // The remove and selection controls stay out of print.
+    await page.emulateMedia({ media: "print" });
+    const printed = await page.evaluate(() => [...document.querySelectorAll(".desk .rm,.desk .due-pick")].map((el) => getComputedStyle(el).display));
+    assert.ok(printed.length === 2 && printed.every((x) => x === "none"), "screen-only controls are not printed " + JSON.stringify(printed));
+    await page.emulateMedia({ media: "screen" });
+    await page.locator("[data-message-dismiss]").evaluateAll((nodes) => nodes.forEach((n) => n.click()));
+    await page.evaluate(() => {
+      doc(WriterState.state.docId).items = window.__r42Items;
+      delete window.__r42Items;
+      render();
+    });
+    results.push({ removeAndDueDate: overlap });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(() => scrollTo(0, 0));
     // Phase 3: at 390x844 one fixed task bar carries Next required field, Review and the primary action.
     const bar = page.locator(".editor-mobile-bar");
     assert.equal(await bar.isVisible(), true);

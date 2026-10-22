@@ -26,10 +26,27 @@ PHASE3_SCREEN_MARKER = "\n/* R56 usability phase 3 (screen only):"
 PHASE3_SCREEN_BYTES = 6198
 PHASE3_SCREEN_SHA256 = "a04521eaf16338cdee94d07b27944ace99535db3e78d651ab596d8e97d835524"
 
+# Reviewed R59 screen-only addition: one contiguous block appended after the phase 3 block (type tokens for Writer
+# screens and the Reports chrome, the item due-date and remove controls, the selected inspection, the issued case
+# row and the Review dialog sections). Same rules: exact bytes, exactly once per built shell, removed before the
+# historical comparison.
+R59_SCREEN_MARKER = "\n/* R59 screen styles (screen only):"
+R59_SCREEN_BYTES = 5258
+R59_SCREEN_SHA256 = "d3dc770011d70a2612b9ea893299e3936a39d046a7e03d96b19aa88402879cf5"
+
+
+def _ui_refresh():
+    return (ROOT / "app/assets/ui-refresh.css").read_text(encoding="utf-8")
+
 
 def phase3_screen_block():
-    source = (ROOT / "app/assets/ui-refresh.css").read_text(encoding="utf-8")
-    return source[source.index(PHASE3_SCREEN_MARKER) :]
+    source = _ui_refresh()
+    return source[source.index(PHASE3_SCREEN_MARKER) : source.index(R59_SCREEN_MARKER)]
+
+
+def r59_screen_block():
+    source = _ui_refresh()
+    return source[source.index(R59_SCREEN_MARKER) :]
 
 
 class Layout(unittest.TestCase):
@@ -50,6 +67,11 @@ class Layout(unittest.TestCase):
         phase3 = phase3_screen_block()
         self.assertEqual(len(phase3.encode()), PHASE3_SCREEN_BYTES, "reviewed R56 phase 3 block size")
         self.assertEqual(hashlib.sha256(phase3.encode()).hexdigest(), PHASE3_SCREEN_SHA256, "reviewed R56 phase 3 block bytes")
+        r59 = r59_screen_block()
+        self.assertEqual(len(r59.encode()), R59_SCREEN_BYTES, "reviewed R59 screen block size")
+        self.assertEqual(hashlib.sha256(r59.encode()).hexdigest(), R59_SCREEN_SHA256, "reviewed R59 screen block bytes")
+        self.assertEqual(_ui_refresh().count(R59_SCREEN_MARKER), 1, "one R59 screen block")
+        self.assertTrue(_ui_refresh().endswith(r59), "the R59 block is the end of ui-refresh.css")
         for name, expected in baseline["files"].items():
             text = (production / name).read_text()
             bundle = re.search(r'var B="([A-Za-z0-9+/=]+)"', text)[1]
@@ -58,6 +80,8 @@ class Layout(unittest.TestCase):
             shell = shell.replace(THEME_BUTTON_TRANSITION, BASELINE_BUTTON_TRANSITION)
             self.assertEqual(shell.count(phase3), 1, name + ": exact R56 phase 3 screen block")
             shell = shell.replace(phase3, "")
+            self.assertEqual(shell.count(r59), 1, name + ": exact R59 screen block")
+            shell = shell.replace(r59, "")
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 
     def test_staff_docs_name_no_release_numbered_files(self):

@@ -2136,3 +2136,187 @@
     }
   }
 }
+
+/* R59 screen styles (screen only): type tokens for every Writer screen and the Reports chrome, the item due-date
+   and remove controls, the selected inspection, the issued case in Workspace and the Review dialog sections. The
+   document sheet and every printed or generated document keep their own type and layout. */
+@media screen {
+  :root {
+    --type-title: 24px;
+    --type-title-narrow: 20px;
+    --type-title-lh: 1.25;
+    --type-h2: 18px;
+    --type-h2-lh: 1.35;
+    --type-h3: 15px;
+    --type-h3-lh: 1.4;
+    --type-body: 14px;
+    --type-body-lh: 1.5;
+    --type-label: 12px;
+    --type-label-lh: 1.4;
+    --type-table: 14px;
+    --type-table-lh: 1.45;
+    --type-table-head: 12px;
+    --type-table-num: 13.5px;
+    --type-button: 13px;
+    --type-button-sm: 12px;
+    --type-button-lh: 1.25;
+    --type-hint: 13px;
+    --type-hint-lh: 1.5;
+    --type-error: 13px;
+    --type-small: 12px;
+    --type-badge: 11.5px;
+    --type-chip: 12px;
+  }
+  body {
+    font-size: var(--type-body);
+  }
+  /* Page titles */
+  .topbar h1,
+  body:has(.document-workspace) .topbar h1 {
+    font-size: var(--type-title);
+    line-height: var(--type-title-lh);
+  }
+  .topbar .crumb {
+    font-size: var(--type-small);
+  }
+  /* Section and dialog headings (level 2), card and dialog subsection headings (level 3) */
+  .editor-section > h2,
+  .panel-h h2,
+  .tools-section h2,
+  .record-history h2,
+  .correction-panel h2,
+  .modal-h h2,
+  .picker-h h2,
+  .workspace-lead h2,
+  .empty-state h2,
+  .tools-admin > details > summary {
+    font-size: var(--type-h2);
+    line-height: var(--type-h2-lh);
+    font-weight: 650;
+  }
+  .card-h h2,
+  [data-review-dialog] :is([data-review-blocking], [data-review-advisories]) > h3 {
+    font-size: var(--type-h3);
+    line-height: var(--type-h3-lh);
+    font-weight: 650;
+  }
+  /* Field labels */
+  :is(label.f, .filters .f, .ri-item .f) > span:not(.hint) {
+    font-size: var(--type-label);
+    line-height: var(--type-label-lh);
+    font-weight: 650;
+  }
+  /* Help, hint and inline error text */
+  .hint:not(.sheet *) {
+    font-size: var(--type-hint);
+    line-height: var(--type-hint-lh);
+  }
+  .hint.badt:not(.sheet *),
+  .message-error {
+    font-size: var(--type-error);
+  }
+  /* Tables */
+  table.list th,
+  table.rep th {
+    font-size: var(--type-table-head);
+  }
+  .case-table th {
+    font-size: var(--type-table-head) !important;
+  }
+  table.list td,
+  table.rep td {
+    font-size: var(--type-table);
+    line-height: var(--type-table-lh);
+  }
+  table.rep td.n {
+    font-size: var(--type-table-num);
+  }
+  /* Buttons */
+  .btn {
+    font-size: var(--type-button);
+    line-height: var(--type-button-lh);
+  }
+  .btn.btn-sm {
+    font-size: var(--type-button-sm);
+  }
+  /* Badges and chips keep their compact size through tokens */
+  .pill:not(.sheet *),
+  .case-table .pill {
+    font-size: var(--type-badge);
+  }
+  .chip:not(.sheet *) {
+    font-size: var(--type-chip);
+  }
+  @media (max-width: 760px) {
+    .topbar h1,
+    body:has(.document-workspace) .topbar h1 {
+      font-size: var(--type-title-narrow);
+    }
+    .case-table td::before {
+      font-size: var(--type-label);
+    }
+  }
+
+  /* Item due date and remove button (wider than 860px): the date field fits inside its cell beside the selection
+     box, so the remove button, which sits outside the cell, never covers the date field or its calendar button.
+     The remove button also shows while its row has keyboard focus. */
+  @media (min-width: 861px) {
+    .sheet table.notice td.c-due > .due-in {
+      max-width: 100%;
+    }
+    .sheet table.notice td.c-due > .due-pick + .due-in {
+      width: calc(100% - 31px);
+    }
+  }
+  .sheet tr:focus-within .rm {
+    opacity: 0.75;
+  }
+  .sheet tr:focus-within .rm:focus-visible {
+    opacity: 1;
+    outline: 3px solid var(--civic);
+    outline-offset: 2px;
+  }
+
+  /* Selected inspection candidate */
+  .import-inspection.is-selected,
+  .import-inspection[aria-pressed="true"] {
+    border-color: var(--civic);
+    background: var(--civic-tint);
+    box-shadow: inset 4px 0 0 var(--civic);
+  }
+  /* The case just issued, highlighted in Workspace */
+  .case-table tr[data-issued-highlight] > td {
+    background: var(--civic-tint);
+  }
+  .case-table tr[data-issued-highlight] > td:first-child {
+    box-shadow: inset 4px 0 0 var(--civic);
+  }
+  .case-table tr[data-queue-case]:focus,
+  .case-table tr[data-queue-case]:focus-visible {
+    outline: 3px solid var(--civic);
+    outline-offset: -3px;
+  }
+  /* Review dialog sections */
+  [data-review-dialog] :is([data-review-blocking], [data-review-advisories]) {
+    margin: 0 0 16px;
+  }
+  [data-review-dialog] :is([data-review-blocking], [data-review-advisories]) > h3 {
+    margin: 0 0 8px;
+  }
+  [data-review-dialog] [data-review-advisories] {
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+  }
+  [data-review-dialog] [data-review-blocking] + [data-review-advisories] {
+    margin-top: 4px;
+  }
+  /* High contrast (forced colors) drops backgrounds and shadows: keep the highlights as outlines. */
+  @media (forced-colors: active) {
+    .import-inspection.is-selected,
+    .import-inspection[aria-pressed="true"],
+    .case-table tr[data-issued-highlight] {
+      outline: 3px solid Highlight;
+      outline-offset: -3px;
+    }
+  }
+}

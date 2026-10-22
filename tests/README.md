@@ -202,11 +202,12 @@ workflow. Each receives the arguments named in its row.
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |
 | `browser_r40.js` | R40 production checks |
 | `browser_r41.js`, `browser_r44.js` | Busy workspace; saved-work panel |
-| `browser_r42.js`, `browser_r43.js` | Task navigation and preview; charge cards |
+| `browser_r42.js`, `browser_r43.js` | Task navigation and preview, remove button and due-date separation; charge cards |
 | `browser_r45.js`, `browser_r50_import.js` | Import with real workbook bytes |
 | `browser_r46.js`, `browser_r47.js` | Reinspection phase; language catalog |
 | `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
+| `browser_r59.js` | R59 type tokens across Writer and Reports, reflow and zoom, selected inspection and issued case highlights |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security

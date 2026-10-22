@@ -399,7 +399,7 @@ function noticeHTML(d) {
     '<th class="c-due">' +
     `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +
-    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Select violations in Items and due dates.</td></tr>') +
+    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
     "</tbody></table>\n    " +
     (aligned
       ? '<div class="extension-signer"><p>' +
