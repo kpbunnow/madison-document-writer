@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Document Writer application icon (original artwork, not City branding).
+       A navy civic building merges into a white document; a teal pen stroke forms a checkmark.
+       Coordinates follow a 16-unit grid so edges stay crisp at 16 px. A light halo keeps the
+       navy shapes visible on dark taskbars. Shapes marked class="detail" are omitted at 16 and
+       32 px by tools/build_icon.py. Edit this file, then run: python3 tools/build_icon.py -->
+  <title>Document Writer</title>
+  <defs>
+    <path id="building" d="M8 96 L88 24 L168 96 H160 V112 H152 V208 H164 Q168 208 168 212 V236 Q168 240 164 240 H12 Q8 240 8 236 V212 Q8 208 12 208 H24 V112 H16 V96 Z" />
+    <path id="sheet" d="M104 56 H192 L232 96 V228 Q232 240 220 240 H116 Q104 240 104 228 Z" />
+    <path id="check" d="M128 176 L160 208 L226 128" />
+  </defs>
+  <use href="#building" fill="#eef3f9" stroke="#eef3f9" stroke-width="16" stroke-linejoin="round" />
+  <use href="#building" fill="#17325a" stroke="#17325a" stroke-width="4" stroke-linejoin="round" />
+  <g class="detail" fill="#eef3f9">
+    <rect x="44" y="128" width="14" height="64" rx="3" />
+    <rect x="76" y="128" width="14" height="64" rx="3" />
+    <circle cx="88" cy="70" r="10" />
+  </g>
+  <use href="#sheet" fill="#ffffff" stroke="#17325a" stroke-width="16" stroke-linejoin="round" />
+  <path d="M192 56 V96 H232" fill="#c9d6e6" stroke="#17325a" stroke-width="16" stroke-linejoin="round" />
+  <g class="detail" stroke="#17325a" stroke-width="10" stroke-linecap="round">
+    <line x1="130" y1="108" x2="168" y2="108" />
+    <line x1="130" y1="136" x2="206" y2="136" />
+  </g>
+  <use href="#check" fill="none" stroke="#ffffff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" />
+  <use href="#check" fill="none" stroke="#0f9e96" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

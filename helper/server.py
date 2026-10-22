@@ -28,7 +28,7 @@ POST /reporting/parcels    {"ids": [...], "refresh": false}
 GET  /reporting/areas      alder district and ZIP outlines, where available
 """
 
-from runtime_paths import resource as _resource
+from runtime_paths import no_window, resource as _resource
 
 import http.server, socketserver, json, os, stat, sys, subprocess, tempfile, shutil, threading, time
 from pathlib import Path
@@ -66,7 +66,11 @@ STATIC_ROUTES = {
     "/PROGRAM-MANUAL.md",
     "/Program_Instruction_Manual.pdf",
     "/Program_Instruction_Manual.docx",
+    "/favicon.ico",
 }
+# Public, secret-free application icon. Browsers request /favicon.ico on their own, so the frozen page
+# templates need no link element; img-src 'self' in the application CSP already permits it.
+FAVICON = "document-writer.ico"
 
 
 def start_session(folder=None):
@@ -530,6 +534,7 @@ def open_in_outlook(attachment: Path, subject: str, body: str, to: str = "") -> 
         subprocess.Popen(
             [exe, "/c", "ipm.note", "/m", mailto.removeprefix("mailto:")] + (["/a", str(attachment)] if attachment is not None else []),
             close_fds=True,
+            creationflags=no_window(),
         )
         return "outlook"
     # no Outlook found: at least open the default mail client, unattached
@@ -572,7 +577,7 @@ def make_pdf(html: str, target: Path) -> str:
     ]
     try:
         with RENDERERS:
-            r = subprocess.run(cmd, capture_output=True, timeout=90)
+            r = subprocess.run(cmd, capture_output=True, timeout=90, creationflags=no_window())
         why = (r.stderr or b"").decode("utf-8", "ignore")[-400:]
         if r.returncode != 0:
             raise RuntimeError(why or "the renderer exited with code %d" % r.returncode)
@@ -1015,6 +1020,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         handler = GET_ROUTES.get(route) or (Handler._get_reporting if self.path.startswith("/reporting/") else None)
         if handler:
             return handler(self, route)
+        if route == "/favicon.ico":
+            return self._favicon()
         if route == "/":
             self.path = "/madison-document-writer.html"
         elif route not in (
@@ -1054,6 +1061,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(raw)
             return
         return super().do_GET()
+
+    def _favicon(self):
+        try:
+            raw = resource(FAVICON).read_bytes()
+        except OSError:
+            return self._json(404, {"ok": False, "error": "Not found"})
+        self.send_response(200)
+        self.send_header("Content-Type", "image/x-icon")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
 
     def _administration_post(self, route):
         import admin_rules
@@ -1555,9 +1573,12 @@ if __name__ == "__main__":
     with Server(("127.0.0.1", PORT), Handler) as httpd:
         start_session()
         if os.environ.get("DW_OPEN_BROWSER") == "1":
-            from launch import open_browser
+            # Diagnostic (console) launches open Writer once the port is bound and the session is written.
+            # Desktop launches leave this unset: the launcher waits for /dw-status and opens the window itself.
+            from desktop_launch import NO_BROWSER, open_app_window
 
-            open_browser()
+            if not open_app_window():
+                print("  " + NO_BROWSER)
 
         def anchor_clock():
             while True:
