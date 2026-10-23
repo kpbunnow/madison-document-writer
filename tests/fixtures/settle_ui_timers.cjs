@@ -62,7 +62,8 @@ async function drain() {
     const [handle, timer] = live.sort((a, b) => a[1].due - b[1].due)[0];
     native.clearTimeout(handle);
     pending.delete(handle);
-    timer.fn.apply(globalThis, timer.args);
+    // Native Node timeout callbacks receive the Timeout handle as their receiver.
+    timer.fn.apply(handle, timer.args);
   }
   throw new Error("Long UI timers did not settle after the suite completed.");
 }

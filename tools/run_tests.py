@@ -23,11 +23,12 @@ sys.path[:0] = [str(ROOT / p) for p in ["helper", "tools", "policy", "tests/unit
 os.environ["DW_REPO_ROOT"] = str(ROOT)
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 os.environ["PYTHONPATH"] = os.pathsep.join(sys.path[:6])
-# The browser precheck runs before evidence is touched: audit_r51_layout runs this script without a browser during
-# the gate, and that nested run must not clear the gate's own evidence.
-browser_check = subprocess.run(["node", "tools/check_browser.cjs"], cwd=ROOT)
-if browser_check.returncode:
-    raise SystemExit(browser_check.returncode)
+# A read-only preflight supports diagnostics from inside the gate without invalidating its evidence.
+# Every actual test run, including one that fails preflight, invalidates earlier regression evidence first.
+if sys.argv[1:] == ["--check-browser-only"]:
+    raise SystemExit(subprocess.run(["node", "tools/check_browser.cjs"], cwd=ROOT).returncode)
+if sys.argv[1:]:
+    raise SystemExit("Usage: python3 tools/run_tests.py [--check-browser-only]")
 LOGS = ROOT / "build/test-results"
 LOGS.mkdir(parents=True, exist_ok=True)
 # Consolidation Phase 2 (T3): DW_FAST=1 is a reduced-coverage development run. It skips the measured performance
@@ -37,6 +38,9 @@ MODE = "fast" if os.environ.get("DW_FAST") == "1" else "full"
 (LOGS / "results.json").write_text("[]\n", encoding="utf-8")
 (LOGS / "evidence.json").unlink(missing_ok=True)
 (LOGS / "r50-print-compatibility.json").unlink(missing_ok=True)
+browser_check = subprocess.run(["node", "tools/check_browser.cjs"], cwd=ROOT)
+if browser_check.returncode:
+    raise SystemExit(browser_check.returncode)
 
 
 def build(test=False):

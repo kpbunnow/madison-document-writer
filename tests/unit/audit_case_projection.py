@@ -28,10 +28,15 @@ def load_capture(path, suite, run, source):
     if not path.is_file():
         raise AssertionError(suite + ": projection capture is missing (" + str(path) + ")")
     try:
-        capture = json.loads(path.read_bytes())
+        capture = json.loads(path.read_text(encoding="utf-8"))
     except ValueError as error:
         raise AssertionError(suite + ": projection capture is malformed: " + str(error)) from None
-    if not isinstance(capture, dict) or capture.get("format") != "madison-projection-capture" or capture.get("version") != 1:
+    if (
+        not isinstance(capture, dict)
+        or capture.get("format") != "madison-projection-capture"
+        or type(capture.get("version")) is not int
+        or capture.get("version") != 1
+    ):
         raise AssertionError(suite + ": projection capture has no recognized envelope")
     if capture.get("run") != run or capture.get("suite") != suite or capture.get("source") != source:
         raise AssertionError(suite + ": projection capture is from another run, suite or source")

@@ -45,6 +45,7 @@ class ProjectionCapture(unittest.TestCase):
             "malformed": "{not json",
             "partial": '{"format": "madison-projection-capture", "version": 1, "run": "run-1"',
             "no envelope": [GOOD["summaries"][0]],
+            "boolean version": {**GOOD, "version": True},
             "older run": {**GOOD, "run": "run-0"},
             "other suite": {**GOOD, "suite": "audit_lifecycle"},
             "other source": {**GOOD, "source": "digest-0"},
@@ -59,6 +60,13 @@ class ProjectionCapture(unittest.TestCase):
                 if value is not None:
                     self.write(value)
                 with self.assertRaises(AssertionError):
+                    self.load()
+
+    def test_non_utf8_or_bom_capture_is_refused(self):
+        for encoding in ("utf-16", "utf-8-sig"):
+            with self.subTest(encoding):
+                self.path.write_bytes(json.dumps(GOOD).encode(encoding))
+                with self.assertRaises((AssertionError, UnicodeError)):
                     self.load()
 
     def run_capture(self, exit_code):

@@ -2,6 +2,8 @@
 
 ## Unreleased — Consolidation Phase 2 (development)
 
+- Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.
+
 - Verification only; no application behavior, document output or helper rule changed.
 - JS suites finish when their work completes: remaining long UI timers run immediately after completion instead of being waited for (tests/fixtures/settle_ui_timers.cjs).
 - The gate captures the seven Writer projection flows while they run and audit_case_projection.py reuses those run-bound captures instead of re-running the flows.

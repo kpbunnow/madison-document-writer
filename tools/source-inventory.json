@@ -363,6 +363,7 @@
     "tests/unit/audit_events.js",
     "tests/unit/audit_final.js",
     "tests/unit/audit_func.js",
+    "tests/unit/audit_gate_lifecycle.py",
     "tests/unit/audit_helper.py",
     "tests/unit/audit_import.js",
     "tests/unit/audit_import_r13.js",
