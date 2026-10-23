@@ -1,5 +1,12 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 2 (development)
+
+- Verification only; no application behavior, document output or helper rule changed.
+- JS suites finish when their work completes: remaining long UI timers run immediately after completion instead of being waited for (tests/fixtures/settle_ui_timers.cjs).
+- The gate captures the seven Writer projection flows while they run and audit_case_projection.py reuses those run-bound captures instead of re-running the flows.
+- Optional fast development tier (`DW_FAST=1`): skips measured performance suites and uses one projection seed; labelled fast, never release evidence, refused by packaging.
+
 ## 2026-10-23 R62 — Development 3 (development)
 
 - Import rules add Reinspection No Fee Extension Processing and No Fee No Occupancy. Scheduled, Pending, Completed, Inspection, No Violation, Reinspection and No Fee Reinspection results, Initial Inspection No Entry, Assist, undated rows and inspections already used on the case are hidden; other pairs are listed greyed with their reason.

@@ -1,6 +1,8 @@
 /* Focused regressions for universal catalog search, correction withdrawals,
    selected email notices, and recipient address validation/display. */
 globalThis.MADISON_TEST_DATA = true;
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
 const html = builtPage(),
@@ -139,4 +141,4 @@ const test = async () => {
   console.log("Order and address checks: " + count + " assertions, " + failures.length + " failures.");
   if (failures.length) process.exit(1);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});");
+settle(eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);});"), global.window);

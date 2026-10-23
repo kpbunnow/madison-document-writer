@@ -2,6 +2,8 @@ globalThis.MADISON_TEST_DATA = true;
 // Reporting, writer side: the library key on picked items, the parcel rule on
 // an Official Notice, the pure replay, summarize() over a whole case life,
 // summary writes beside the case file, and the index rebuild.
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
 const html = builtPage(),
@@ -338,4 +340,4 @@ const T =
   "));\nif(fails.length)process.exitCode=1;\n})().catch(function(e){console.l" +
   "og('CRASH',e&&e.stack||e);process.exitCode=1;});\n";
 global.CSSTEXT = CSS;
-eval(src + "\n;;\n" + require("../fixtures/projection_capture.cjs") + T);
+settle(eval(src + "\n;;\n" + require("../fixtures/projection_capture.cjs") + T), global.window);

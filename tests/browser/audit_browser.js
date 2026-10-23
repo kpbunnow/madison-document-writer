@@ -12,7 +12,8 @@ const { runSuite, timings: suiteTimings } = require("../../tools/browser_suite.c
 const ROOT = require("path").resolve(__dirname, "../.."),
   OUT = path.resolve(process.env.DW_QA_OUTPUT || path.join(ROOT, "browser-results"));
 fs.mkdirSync(OUT, { recursive: true });
-for (const name of ["browser-results.json", "lookup-results.json"]) fs.rmSync(path.join(OUT, name), { force: true });
+// A new run invalidates the previous run's evidence before anything else (Consolidation Phase 2, T3).
+for (const name of ["browser-results.json", "axe-results.json", "lookup-results.json"]) fs.rmSync(path.join(OUT, name), { force: true });
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "madison-browser-"));
 let server, browser, auditPage, coreTimer;
 const coreStarted = performance.now();
@@ -1756,6 +1757,8 @@ async function axeThemes(page, screen) {
     JSON.stringify(
       {
         passed: true,
+        // Consolidation Phase 2 (T3): "fast" runs are development checks and are never packaged.
+        mode: process.env.DW_FAST === "1" ? "fast" : "full",
         productionBuild: true,
         release: fs.readFileSync(path.join(ROOT, "build/generated/RELEASE"), "utf8").trim(),
         runtimeHashes,

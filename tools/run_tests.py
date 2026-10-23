@@ -8,8 +8,10 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import shutil
 import tempfile
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
 
@@ -26,8 +28,13 @@ if browser_check.returncode:
     raise SystemExit(browser_check.returncode)
 LOGS = ROOT / "build/test-results"
 LOGS.mkdir(parents=True, exist_ok=True)
+# Consolidation Phase 2 (T3): DW_FAST=1 is a reduced-coverage development run. It skips the measured performance
+# suites and uses one projection corpus seed; its evidence is labelled "fast" and is never packaged.
+MODE = "fast" if os.environ.get("DW_FAST") == "1" else "full"
+# A new run invalidates the previous run's evidence first, so an aborted run never leaves earlier results in place.
 (LOGS / "results.json").write_text("[]\n", encoding="utf-8")
 (LOGS / "evidence.json").unlink(missing_ok=True)
+(LOGS / "r50-print-compatibility.json").unlink(missing_ok=True)
 
 
 def build(test=False):
@@ -73,10 +80,20 @@ subprocess.run(
 )
 inputs = fingerprint(ROOT)
 (LOGS / "source-before-tests.json").write_text(json.dumps(inputs, indent=2) + "\n", encoding="utf-8")
+# Consolidation Phase 2 (T2): the Writer flows that audit_case_projection.py compares are captured while they run in
+# the pool, in a directory created fresh for this run; the projection check runs afterwards and accepts only
+# captures bound to this run, suite and source.
+from audit_case_projection import FLOWS as PROJECTION_FLOWS
+
+PROJECTION = LOGS / "projection"
+shutil.rmtree(PROJECTION, ignore_errors=True)
+PROJECTION.mkdir(parents=True)
+projection_env = {
+    "DW_PROJECTION_RUN": uuid.uuid4().hex,
+    "DW_PROJECTION_SOURCE": hashlib.sha256(json.dumps(inputs, sort_keys=True).encode("utf-8")).hexdigest(),
+}
 results = []
 with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
-    import shutil
-
     shutil.copytree(ROOT / "build/dist", Path(production) / "dist")
     build(True)
     try:
@@ -86,13 +103,21 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
             *sorted((ROOT / "tests/unit").glob("audit_*.py")),
         ]
 
+        def suite_env(suite):
+            env = {**os.environ, "DW_PRODUCTION_DIR": str(Path(production) / "dist"), "PYTHONIOENCODING": "utf-8"}
+            if suite.stem in PROJECTION_FLOWS:
+                env.update(projection_env, DW_PROJECTION_CAPTURE=str(PROJECTION / (suite.stem + ".json")), DW_PROJECTION_SUITE=suite.stem)
+            if suite.name == "audit_case_projection.py":
+                env.update(projection_env, DW_PROJECTION_DIR=str(PROJECTION))
+            return env
+
         def run_suite(suite):
             started = time.monotonic()
             try:
                 run = subprocess.run(
                     [sys.executable if suite.suffix == ".py" else "node", str(suite.relative_to(ROOT))],
                     cwd=ROOT,
-                    env={**os.environ, "DW_PRODUCTION_DIR": str(Path(production) / "dist"), "PYTHONIOENCODING": "utf-8"},
+                    env=suite_env(suite),
                     capture_output=True,
                     text=True,
                     timeout=150,
@@ -115,13 +140,26 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
 
         # Measured performance suites run last and alone; suites that launch Chromium run one at a time.
         # Everything else shares a small worker pool. Each suite keeps its own 150-second deadline.
+        # The projection check reads the flows' captures, so it starts after the pool and runs beside the serial
+        # Chromium suites.
         performance = [s for s in suites if "performance" in s.name]
+        if MODE == "fast":
+            print("FAST RUN: skipping measured performance suites " + ", ".join(s.name for s in performance), flush=True)
+            suites = [s for s in suites if s not in performance]
+            performance = []
         chromium = [s for s in suites if s not in performance and re.search(r"chromium|playwright|DW_BROWSER", s.read_text(encoding="utf-8"))]
-        pooled = [s for s in suites if s not in performance and s not in chromium]
+        after_pool = [s for s in suites if s.name == "audit_case_projection.py"]
+        pooled = [s for s in suites if s not in performance and s not in chromium and s not in after_pool]
         workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))
         with ThreadPoolExecutor(max_workers=workers) as pool:
             finished = dict(zip(pooled, pool.map(run_suite, pooled)))
-        for suite in chromium + performance:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            projection = [pool.submit(run_suite, suite) for suite in after_pool]
+            for suite in chromium:
+                finished[suite] = run_suite(suite)
+            for suite, future in zip(after_pool, projection):
+                finished[suite] = future.result()
+        for suite in performance:
             finished[suite] = run_suite(suite)
         results = [finished[s] for s in suites]
     finally:
@@ -134,6 +172,6 @@ if inputs != final_inputs:
 if any(not x["passed"] for x in results):
     raise SystemExit(1)
 (LOGS / "evidence.json").write_text(
-    json.dumps({"files": inputs, "resultsSha256": hashlib.sha256((LOGS / "results.json").read_bytes()).hexdigest()}, indent=2) + "\n",
+    json.dumps({"mode": MODE, "files": inputs, "resultsSha256": hashlib.sha256((LOGS / "results.json").read_bytes()).hexdigest()}, indent=2) + "\n",
     encoding="utf-8",
 )

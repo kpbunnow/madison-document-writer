@@ -1,6 +1,8 @@
 globalThis.MADISON_TEST_DATA = true;
 /* audit_review.js — one check per defect from the external review.
    Every check here fails against the build that preceded the fixes. */
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
 const html = builtPage(),
@@ -357,4 +359,4 @@ const T =
   "ails.length+' FAILURE(S): '+fails.join(' | '):'review regressions all pa" +
   "ss'));\nif(fails.length)process.exitCode=1;\n})();\n";
 global.CSSTEXT = CSS;
-eval(src + "\n;;\n" + T);
+settle(eval(src + "\n;;\n" + T), global.window);

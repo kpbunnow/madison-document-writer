@@ -23,6 +23,8 @@ def verify(root):
     root = Path(root)
     results = json.loads((root / "build/test-results/results.json").read_text(encoding="utf-8"))
     evidence = json.loads((root / "build/test-results/evidence.json").read_text(encoding="utf-8"))
+    if evidence.get("mode") != "full":
+        raise ValueError("Packaging needs full-gate test evidence; fast or unlabelled evidence is never packaged.")
     expected = sorted([p.name for p in (root / "tests/unit").glob("audit_*") if p.suffix in {".js", ".py"}] + ["tagcheck.js"])
     if not results or sorted(r["suite"] for r in results) != expected or not all(r.get("passed") is True for r in results):
         raise ValueError("The complete regression suite must pass before packaging.")

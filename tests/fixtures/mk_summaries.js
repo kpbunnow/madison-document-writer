@@ -2,6 +2,8 @@ globalThis.MADISON_TEST_DATA = true;
 // Reporting, writer side: the library key on picked items, the parcel rule on
 // an Official Notice, the pure replay, summarize() over a whole case life,
 // summary writes beside the case file, and the index rebuild.
+// Consolidation Phase 2 (T1): run remaining long UI timers once the flow completes instead of waiting.
+const { settle } = require("./settle_ui_timers.cjs");
 const fs = require("fs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("./built_bundle.cjs");
@@ -141,4 +143,4 @@ const T =
   "stringify(['k1','k2','k3'].map(function(c){return summarize(caseFile(c))" +
   ";})));\nconsole.log('wrote');\n";
 global.CSSTEXT = CSS;
-eval(src + "\n;;\n" + T);
+settle(eval(src + "\n;;\n" + T), global.window);

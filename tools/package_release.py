@@ -42,10 +42,12 @@ if (
     browser.get("runtimeHashes") != hashes
     or gate.get("runtimeHashes") != hashes
     or not gate.get("passed")
+    or gate.get("mode") != "full"
+    or browser.get("mode") != "full"
     or not browser.get("passed")
     or not axe.get("passed")
 ):
-    raise SystemExit("Passing production browser evidence must match every runtime byte.")
+    raise SystemExit("Passing full-gate production browser evidence must match every runtime byte; fast or unlabelled evidence is never packaged.")
 version = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
 manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
 if any(manifest.get(k) != v for k, v in version.items()):

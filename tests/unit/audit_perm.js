@@ -1,4 +1,6 @@
 globalThis.MADISON_TEST_DATA = true;
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
 const html = builtPage(),
@@ -153,4 +155,4 @@ const T =
   "te.modal=null;\n\nif(fails.length)process.exitCode=1;\nconsole.log('\\n'+(fa" +
   "ils.length?fails.length+' FAILURE(S): '+fails.join(' | '):'permission ha" +
   "ndling correct'));\n})();\n";
-eval(src + "\n;;\n" + T);
+settle(eval(src + "\n;;\n" + T), global.window);
