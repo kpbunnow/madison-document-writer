@@ -90,6 +90,12 @@ const test = () => {
   assert.equal(ReportsState.S.F.ord, F.ord, "local and shared saved views restore the canonical filter key");
   assert.equal(reportById("openViolations").run(M, ReportsState.S.F).total[1].n, 2);
   assert.equal(JSON.stringify(saved), retainedView, "loading does not rewrite stored view preferences");
+  const returnContext = JSON.stringify(saved);
+  localStorage.setItem("madison-report-return-v1", returnContext);
+  assert.equal(restoreReportReturn(), true);
+  assert.equal(ReportsState.S.F.ord, F.ord, "returning from Writer restores the canonical filter key too");
+  assert.equal(reportById("openViolations").run(M, ReportsState.S.F).total[1].n, 2);
+  assert.equal(localStorage.getItem("madison-report-return-v1"), returnContext, "return preferences stay unchanged");
   console.log("PASS R61 Reports treats 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance");
 };
 eval(payload + "\n(" + test.toString() + ")();process.exit(0);");

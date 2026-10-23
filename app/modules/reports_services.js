@@ -704,6 +704,7 @@ export {
   relativeDates,
   saveReportView,
   applyReportView,
+  reportOrdinance,
   deleteReportView,
   openInWriter,
   loadAll,

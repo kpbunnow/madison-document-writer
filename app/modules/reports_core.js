@@ -15,6 +15,7 @@ import {
   ordSort,
   printReport,
   relativeDates,
+  reportOrdinance,
   render,
   saveReportView,
   shareReportView,
@@ -1070,6 +1071,7 @@ export function restoreReportReturn() {
     if (!x || !reportById(x.report)) return false;
     ReportsState.S.screen = x.report;
     ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
+    ReportsState.S.F.ord = reportOrdinance(ReportsState.S.F.ord);
     ReportsState.S.view = x.view === "map" ? "map" : "table";
     ReportsState.S.tableSort = reportSort(x.sort, x.report);
     ReportsState.S.dateMode = x.dateMode || "fixed";

@@ -35,5 +35,5 @@ Focused history/currency/copy/catalog tests and retained R60, R59 charge-selecti
 ## Follow-up review
 
 - As-of reporting previously restored undotted section references from each violation's history over its normalized current fields. With the canonical Ordinance filter selected, new R61 violations disappeared from Open violations by area. The read-only report model now also normalizes copied historical section arrays, preserving effective dates, correction states and the verified stored summary.
-- Loading a local or shared saved view with an undotted Ordinance value previously restored a filter that matched no canonical model rows. View loading now normalizes the active filter only; stored preferences remain unchanged. The shared-view loader uses the same path.
+- Loading a local or shared saved view, or returning from Writer to a saved report context, with an undotted Ordinance value previously restored a filter that matched no canonical model rows. Both restoration paths now normalize the active filter only; stored preferences remain unchanged. The shared-view loader uses the same path as local views.
 - Regression coverage exercises both failures, old/new histories, a before/after-correction As-of count, and preservation of source summaries and saved preferences. Exact full-gate results and reviewed commit are recorded on PR 33.
