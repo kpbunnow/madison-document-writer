@@ -1,5 +1,6 @@
-/* R59: inspection candidates show four labelled facts, selection is a highlighted pressed state, any eligible
-   candidate can be chosen, and duplicate-use validation always follows the current selection. Synthetic data. */
+/* R59: inspection candidates show four labelled facts, selection is a highlighted pressed state, any listed eligible
+   candidate can be chosen, and validation always follows the current selection. R62: inspections already used on
+   the case are hidden and cannot be selected. Synthetic data. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
@@ -101,7 +102,8 @@ const tests = async function () {
     JSON.stringify([WriterState.DOCS.map((d) => [d.id, d.draft]), WriterState.REINSP.map((x) => [x.id, x.draft]), WriterState.EVENTS]);
   const baseline = issued();
 
-  // Four eligible candidates of this case: the issued initial, the used reinspection, one with blanks and an unused one.
+  // Four eligible results of this case: the issued initial, the used reinspection, one with blanks and an unused one.
+  // R62 (owner, Development 3): the two already-used results are hidden; the other two are offered.
   WriterState.state.screen = "import";
   const acc = make([row, reinspection(used, "14:30"), reinspection(blank, "", { InspectorName: "" }), reinspection(unused, "10:00")]);
   WriterState.state.acc = acc;
@@ -109,7 +111,13 @@ const tests = async function () {
   ok("Several eligible candidates have no default selection", acc.sel === null);
   paint();
   const buttons = () => [...document.querySelectorAll("[data-accsel]")];
-  ok("Every eligible candidate is offered", buttons().length === 4);
+  ok(
+    "Every unused eligible candidate is offered; used results are hidden",
+    buttons().length === 2 &&
+      !document.querySelector('[data-accsel="' + index(used) + '"]') &&
+      !document.querySelector('[data-accsel="' + index(initial) + '"]') &&
+      !document.getElementById("app").textContent.includes(fmtDate(used)),
+  );
   const labels = ["Inspection type", "Date", "Inspector", "Status"];
   ok(
     "Each candidate shows the four labelled facts",
@@ -118,15 +126,15 @@ const tests = async function () {
   );
   const facts = (b) =>
     Object.fromEntries([...b.querySelectorAll("[data-import-field]")].map((f) => [f.dataset.importField, f.querySelector("strong").textContent]));
-  const usedFacts = facts(document.querySelector('[data-accsel="' + index(used) + '"]')),
+  const unusedFacts = facts(document.querySelector('[data-accsel="' + index(unused) + '"]')),
     blankFacts = facts(document.querySelector('[data-accsel="' + index(blank) + '"]'));
   ok(
     "Facts carry the type, date with time, inspector and status",
-    usedFacts["Inspection type"] === "Reinspection" &&
-      usedFacts.Date === fmtDate(used) + " at " + fmtTime("14:30") &&
-      usedFacts.Inspector === INSPECTORS[0].name &&
-      usedFacts.Status === "Extension Processing",
-    JSON.stringify(usedFacts),
+    unusedFacts["Inspection type"] === "Reinspection" &&
+      unusedFacts.Date === fmtDate(unused) + " at " + fmtTime("10:00") &&
+      unusedFacts.Inspector === INSPECTORS[0].name &&
+      unusedFacts.Status === "Extension Processing",
+    JSON.stringify(unusedFacts),
   );
   ok(
     "Blank values keep the not-supplied wording",
@@ -148,14 +156,16 @@ const tests = async function () {
         !b.classList.contains("is-selected"),
     ),
   );
+  ok("A hidden used result cannot be selected", !selectImportInspection(index(used)) && acc.sel === null);
+  // A stale selection of a result that is now used (the shared record arrived later) is cleared.
+  acc.sel = index(used);
+  ok("A selection that became hidden is cleared", !accelaPlan(acc).row && acc.sel === null);
 
-  // Selecting the already-used candidate is allowed and shows why it cannot be imported.
-  acc.manualDate = "2026-09-10";
-  acc.manualTime = "09:05";
+  // Selecting the candidate with blanks shows why it cannot be imported.
   const serial = WriterState.ACC_SELECTION_SERIAL;
-  document.querySelector('[data-accsel="' + index(used) + '"]').click();
-  let pressed = document.querySelector('[data-accsel="' + index(used) + '"]');
-  ok("A used candidate can be selected", acc.sel === index(used) && WriterState.ACC_SELECTION_SERIAL === serial + 1);
+  document.querySelector('[data-accsel="' + index(blank) + '"]').click();
+  let pressed = document.querySelector('[data-accsel="' + index(blank) + '"]');
+  ok("A listed candidate can be selected", acc.sel === index(blank) && WriterState.ACC_SELECTION_SERIAL === serial + 1);
   ok(
     "Selection is shown by the highlight and pressed state only",
     pressed.classList.contains("is-selected") &&
@@ -165,30 +175,27 @@ const tests = async function () {
   );
   const banner = document.getElementById("acc-blockers");
   ok(
-    "The used candidate shows the duplicate-use blocker, described by the selected candidate",
-    /already been used to generate a document/.test(banner?.textContent) &&
-      /choose another result above/.test(banner.textContent) &&
-      pressed.getAttribute("aria-describedby") === "acc-blockers",
+    "The blank candidate shows its blocker, described by the selected candidate",
+    banner && banner.textContent.length > 0 && pressed.getAttribute("aria-describedby") === "acc-blockers",
   );
-  ok("Import is disabled for the used candidate", document.getElementById("acc-go").disabled);
+  ok("Import is disabled for the blank candidate", document.getElementById("acc-go").disabled);
   helperJSON = async () => ({ files: [] });
   WriterState.CASEDIR = { helper: true };
   await confirmDatabaseCase();
-  ok("Confirming the used candidate is refused and changes nothing", issued() === baseline && WriterState.state.acc === acc);
-  ok("Other entered information is preserved", acc.manualDate === "2026-09-10" && acc.manualTime === "09:05");
+  ok("Confirming the blank candidate is refused and changes nothing", issued() === baseline && WriterState.state.acc === acc);
 
-  // Rapid change: used then unused — validation follows the latest selection.
+  // Rapid change: blank then unused — validation follows the latest selection.
   document.querySelector('[data-accsel="' + index(unused) + '"]').click();
   ok(
     "Validation follows the newly selected candidate",
-    acc.sel === index(unused) && !accelaPlan(acc).used && !accelaPlan(acc).blockers.some((b) => /already been used/.test(b)),
+    acc.sel === index(unused) && !accelaPlan(acc).blockers.length,
     JSON.stringify(accelaPlan(acc).blockers),
   );
   ok(
     "Only the new candidate is highlighted",
     document.querySelector('[data-accsel="' + index(unused) + '"]').getAttribute("aria-pressed") === "true" &&
-      document.querySelector('[data-accsel="' + index(used) + '"]').getAttribute("aria-pressed") === "false" &&
-      !document.querySelector('[data-accsel="' + index(used) + '"]').classList.contains("is-selected"),
+      document.querySelector('[data-accsel="' + index(blank) + '"]').getAttribute("aria-pressed") === "false" &&
+      !document.querySelector('[data-accsel="' + index(blank) + '"]').classList.contains("is-selected"),
   );
   ok("A row that is not an eligible candidate of this case cannot be selected", !selectImportInspection(99) && acc.sel === index(unused));
 
@@ -197,25 +204,25 @@ const tests = async function () {
   helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
   const pending = confirmDatabaseCase();
   ok("The shared check is in flight for the unused candidate", WriterState.LOOKUP_BUSY && typeof release === "function");
-  selectImportInspection(index(used));
+  selectImportInspection(index(blank));
   release();
   await pending;
   ok(
     "A result for the earlier selection never imports the new one",
-    issued() === baseline && WriterState.state.acc === acc && acc.sel === index(used),
+    issued() === baseline && WriterState.state.acc === acc && acc.sel === index(blank),
   );
   ok(
     "The person is told the selection changed",
     toasts.some((t) => /selected inspection changed/.test(t)),
   );
-  ok("The current (used) selection still shows its blocker", accelaPlan(acc).used && document.getElementById("acc-go").disabled);
+  ok("The current (blank) selection still shows its blocker", accelaPlan(acc).blockers.length && document.getElementById("acc-go").disabled);
   release = null;
   helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
   const second = confirmDatabaseCase();
   selectImportInspection(index(unused));
   release();
   await second;
-  ok("A check started for the used candidate does not confirm the unused one", issued() === baseline && WriterState.state.acc === acc);
+  ok("A check started for the blank candidate does not confirm the unused one", issued() === baseline && WriterState.state.acc === acc);
 
   // Confirming the current, unused selection imports exactly that inspection.
   helperJSON = async () => ({ files: [] });

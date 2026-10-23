@@ -355,12 +355,12 @@ async function findDatabaseCase() {
   }
 }
 
-/* R59: any eligible candidate of the current case can be chosen, including one already used, so its
-   duplicate-use blocker is shown for that selection. Each change bumps the selection token. */
+/* R59: any eligible listed candidate of the current case can be chosen. R62: an inspection already used on the
+   case is not listed, so it cannot be chosen. Each change bumps the selection token. */
 function selectImportInspection(index) {
   const acc = WriterState.state.acc,
     c = acc?.cases?.[acc.caseIx || 0];
-  if (!c || !c.rows.some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
+  if (!c || !(accelaPlan(acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
   acc.sel = index;
   WriterState.ACC_SELECTION_SERIAL++;
   return true;

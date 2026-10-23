@@ -100,11 +100,11 @@ const test = async () => {
     return { acc, p: accelaPlan(acc) };
   };
 
-  // 2. "Completed" is not importable, with the instruction.
+  // 2. "Completed" is not importable. R62 (owner, Development 3): it is hidden, and the report explains why.
   reset();
   let { p } = plan([row("CB2026-100-00001", "Initial Inspection", "Completed")]);
   assert.ok(
-    p.blockers.some((b) => /status "Completed" has no document rule/.test(b)),
+    p.blockers.some((b) => /status is not an inspection result \(such as Pending, Completed or No Violation\)/.test(b)),
     JSON.stringify(p.blockers),
   );
 
@@ -146,14 +146,13 @@ const test = async () => {
   assert.ok(blockers(d).some((b) => /Accela status is Official Notice, so no item can be cited/.test(b.t)));
 
   // 5. An Initial Inspection cannot import into an existing case (snow included); a reinspection needs a case.
+  // R62: on a case that already has its notice, an Initial Inspection counts as used and is hidden.
+  const usedHidden = /already been used to generate a document/;
   reset();
   plan([row("CB2026-100-00005", "Initial Inspection", "Official Notice")]);
   acceptAccela();
   ({ p } = plan([row("CB2026-100-00005", "Initial Inspection", "Official Notice", "", day, "10:00 AM")]));
-  assert.ok(
-    p.blockers.some((b) => /An Initial Inspection result can only start a new case/.test(b)),
-    JSON.stringify(p.blockers),
-  );
+  assert.ok(p.candidates.length === 0 && p.blockers.some((b) => usedHidden.test(b)), JSON.stringify(p.blockers));
   reset();
   ({ p } = plan([row("CB2026-100-00006", "Reinspection", "Citation")]));
   assert.ok(

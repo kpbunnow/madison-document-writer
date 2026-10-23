@@ -1064,7 +1064,9 @@ const STATUS_RULES = {
     compliance: RULE.compliance,
     citation: RULE.citation,
     "extension processing": RULE.extension,
+    "no fee extension processing": RULE.extension,
     "no occupancy": RULE.noOccupancy,
+    "no fee no occupancy": RULE.noOccupancy,
   },
   caReinspection: {
     compliance: { ...RULE.compliance, needsReferral: true },
@@ -1082,6 +1084,16 @@ export function statusRule(type, status) {
       error: accStr(type) + ' status "' + (accStr(status) || "not supplied") + '" has no document rule',
     };
   return { kind, status: accStr(status), ...rule };
+}
+/* R62: rows that never appear among import candidates (owner, Development 3). Statuses apply to every inspection
+   type; No Entry is hidden only on an Initial Inspection and is otherwise a listed pair without a rule. */
+const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation", "reinspection", "no fee reinspection"]);
+export function hiddenImportRow(type, status) {
+  if (/^assist$/.test(accNorm(type))) return "assist";
+  const key = statusKey(status);
+  if (HIDDEN_STATUSES.has(key)) return key === "scheduled" ? "scheduled" : "notDone";
+  if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
+  return "";
 }
 export const accStatusEligible = (status, type) => (type === undefined ? ACC_STATUS[accNorm(status)]?.sel === true : !statusRule(type, status).error);
 export const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];

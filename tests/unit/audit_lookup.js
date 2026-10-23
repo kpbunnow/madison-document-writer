@@ -72,8 +72,14 @@ const test = async function () {
     number,
   );
   ok("Multiple completed inspections require an explicit choice", acc.sel === null && !lookupCanOpen(acc));
-  acc = sqlReport(response([{ ...row, InspectionDate: null, InspectionStatus: "Pending" }]), number);
-  ok("Scheduled-only inspection cannot create document", !acc.cases[0].rows[0].selectable && accelaPlan(acc).blockers.length > 0);
+  // R62: an undated Pending row is hidden, so a lookup returning only that row lists nothing and explains why.
+  let hiddenOnly = "";
+  try {
+    sqlReport(response([{ ...row, InspectionDate: null, InspectionStatus: "Pending" }]), number);
+  } catch (e) {
+    hiddenOnly = e.message;
+  }
+  ok("Scheduled-only inspection cannot create document", /No eligible completed inspection/.test(hiddenOnly), hiddenOnly);
   for (const rows of [
     [],
     [{ ...row, CaseNumber: "WRONG" }],
@@ -117,7 +123,9 @@ const test = async function () {
   ok(
     "Reusing the issued initial inspection is blocked without changing case or history",
     WriterState.CASES[0].owner === "TEST OWNER" &&
-      accelaPlan(WriterState.state.acc).used &&
+      // R62: the used initial inspection is hidden; nothing is selected and the reason is shown.
+      !accelaPlan(WriterState.state.acc).row &&
+      accelaPlan(WriterState.state.acc).blockers.some((b) => /already been used to generate a document/.test(b)) &&
       JSON.stringify(WriterState.EVENTS) === history &&
       JSON.stringify(doc(d.id).frozen) === frozen,
   );

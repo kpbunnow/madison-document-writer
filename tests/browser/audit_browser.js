@@ -1269,7 +1269,8 @@ async function axeThemes(page, screen) {
   lookupError = "";
   lookupRows = [sqlRow];
   await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
-  await page.waitForFunction(() => WriterState.state.acc?.sel !== null && !WriterState.LOOKUP_BUSY);
+  // R62: a used inspection is hidden and its selection cleared, so wait for the review rather than a selection.
+  await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   // R53: searching the same inspection again is either refused as already used or, while its draft is unissued,
   // a refresh of that draft; it can never create a second draft.
   assert.equal(

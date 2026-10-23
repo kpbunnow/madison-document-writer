@@ -156,7 +156,12 @@ const test = async function () {
   const frozen = JSON.stringify(WriterState.DOCS);
   WriterState.state.screen = "import";
   WriterState.state.acc = report([row]);
-  ok("Reused inspection stays blocked", accelaPlan(WriterState.state.acc).used);
+  // R62: the reused inspection is hidden, so nothing can be selected and the reason is shown.
+  ok(
+    "Reused inspection stays blocked",
+    !accelaPlan(WriterState.state.acc).row &&
+      accelaPlan(WriterState.state.acc).blockers.some((b) => /already been used to generate a document/.test(b)),
+  );
   await confirmDatabaseCase();
   ok("Reused import preserves frozen documents", JSON.stringify(WriterState.DOCS) === frozen);
   WriterState.state.acc = report([
