@@ -1351,7 +1351,16 @@ document.addEventListener(
       const d = doc(WriterState.state.docId);
       if (d && !d.draft) {
         button.disabled = true;
-        filePdf(d, printJob(d)).finally(() => render());
+        // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
+        let job;
+        try {
+          job = printJob(d);
+        } catch (error) {
+          toast(error.message);
+          render();
+          return;
+        }
+        filePdf(d, job).finally(() => render());
       }
       return;
     }

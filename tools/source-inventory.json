@@ -471,6 +471,8 @@
     "tests/unit/audit_r60_review_fixes.js",
     "tests/unit/audit_r61_best_interest.py",
     "tests/unit/audit_r61_development.js",
+    "tests/unit/audit_r61_reports_ordinance.js",
+    "tests/unit/audit_r61_review_fixes.js",
     "tests/unit/audit_recipient_flow.js",
     "tests/unit/audit_release.js",
     "tests/unit/audit_release_inputs.py",

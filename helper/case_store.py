@@ -43,6 +43,15 @@ def active_restrictions(documents, superseded, voided):
     return [d for d in live if d.get("special", {}).get("mode") != "release" and d["id"] not in released]
 
 
+def validate_best_interest_correction(snap, replaced):
+    """The simplified (authoring 15) Best Interest rules drop the reviewer and signer. A correction may use them
+    only when its original was simplified too, and may not drop back to the older rules from them."""
+    if snap.get("type") != "bestInterestExtension" or not replaced:
+        return
+    if (snap.get("authoringVersion", 0) >= 15) != (replaced.get("authoringVersion", 0) >= 15):
+        raise ValueError("A Best Interest Extension correction must keep its original's format")
+
+
 def validate_special_fields(snap, at=None, check_date_window=True):
     """Mirror R26 variant requirements; supplied review evidence is not role authentication."""
     kind, s = snap["type"], snap.get("special", {})
@@ -933,6 +942,8 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
                 if snap.get("authoringVersion", 0) < 4 or kind != "correction.issued" and payload.get("lifecycle") != 1:
                     raise ValueError("R26 actions require current authoring and atomic lifecycle validation")
                 validate_special_fields(snap, event.get("at"), check_window)
+                if kind == "correction.issued" and event["id"] not in historical_ids:
+                    validate_best_interest_correction(snap, documents.get(payload.get("replaces"), (None,))[0])
             if snap.get("authoringVersion", 0) >= 4:
                 original = documents.get(payload.get("replaces"), (None,))[0] if kind == "correction.issued" else None
                 if check_window and snap.get("authoringVersion", 0) >= 9:

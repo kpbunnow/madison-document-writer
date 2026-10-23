@@ -1024,7 +1024,8 @@ function printJob(d) {
       if (d.type === "citation" && (d.draft || d.authoringVersion >= 15)) {
         const faces = [...stage.querySelectorAll(".cit")],
           cited = d.items.filter((it) => it.cite && !it.withdrawn),
-          labels = CIT_COPIES.map((copy) => copy.label);
+          // The rendered faces use the document's frozen copies; compare with those, not today's labels.
+          labels = ((frozenOf(d) || {}).courtCopies || CIT_COPIES).map((copy) => copy.label);
         if (
           labels.length !== 4 ||
           faces.length !== cited.length * 4 ||
@@ -1035,7 +1036,8 @@ function printJob(d) {
           )
         )
           throw new Error(
-            "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Your draft is retained.",
+            "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Nothing was filed; " +
+              (d.draft ? "your draft is retained." : "the issued record is unchanged and its PDF still needs filing."),
           );
       }
       if (snow.is(d) && d.authoringVersion >= 9) {

@@ -83,5 +83,19 @@ class BestInterestRules(unittest.TestCase):
                 self.validate(snap)
 
 
+class BestInterestCorrections(unittest.TestCase):
+    def test_correction_keeps_its_originals_format(self):
+        check = case_store.validate_best_interest_correction
+        for original, correction in ((13, 13), (14, 14), (15, 15), (15, 16)):
+            check({"type": "bestInterestExtension", "authoringVersion": correction}, {"authoringVersion": original})
+        for original, correction in ((13, 15), (14, 15), (15, 14), (11, 15)):
+            with self.subTest(original=original, correction=correction):
+                with self.assertRaisesRegex(ValueError, "keep its original's format"):
+                    check({"type": "bestInterestExtension", "authoringVersion": correction}, {"authoringVersion": original})
+        # Other families and a missing original are not affected by this rule.
+        check({"type": "vacancyExtension", "authoringVersion": 15}, {"authoringVersion": 13})
+        check({"type": "bestInterestExtension", "authoringVersion": 15}, None)
+
+
 if __name__ == "__main__":
     unittest.main()

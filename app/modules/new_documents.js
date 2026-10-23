@@ -1376,9 +1376,16 @@ export function initNewDocuments() {
     if (el.dataset.special === "administrativeType" && d && d.draft) {
       d.selectionCache = d.selectionCache || {};
       d.selectionCache[d.type] = clone(d.special || {});
+      // Switching families never adopts the simplified Best Interest format; that remains an explicit choice.
+      d.authoringCache = d.authoringCache || {};
+      d.authoringCache[d.type] = d.authoringVersion;
       d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
+      const created = d.authoringCache.created ?? (d.authoringCache.created = d.authoringVersion);
       d.type = el.value;
-      d.authoringVersion = d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS;
+      // A family already visited keeps its own version; a draft created at 15 gets the R61 defaults; an older
+      // draft keeps its version as before R61, so its review and signer model stay in force.
+      d.authoringVersion =
+        d.authoringCache[d.type] ?? (created >= 15 ? (d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS) : d.authoringVersion);
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
       if (datedExtension(d)) requireDated(d.type, d.special);
       restoreDues(d);
