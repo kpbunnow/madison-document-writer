@@ -18,8 +18,8 @@ In the reinspection chooser, select Give more time, Take enforcement action, Res
 | Summary Abatement | Reviewed immediate nuisance action with its own authority and facts |
 | Non-Summary Abatement | Reviewed nuisance order with compliance, service and court facts |
 | No Occupancy | A continuing scoped occupancy restriction, or its expressly reviewed release |
-| Best Interest Extension | A reviewed supervisory extension with its own plan and exclusions |
-| Vacancy Extension | A reviewed vacancy model with appointment, repair and expiration facts |
+| Best Interest Extension | Additional time for every uncorrected item, with recorded reasons and new due dates |
+| Vacancy Extension | Time for every uncorrected item while the building or unit remains vacant, with a review inspection |
 
 An extension changes selected deadlines, not the historical original deadlines. A citation charges selected outstanding items; all carried items remain accounted for. A referral does not invent a new repair deadline. After City Attorney referral, ordinary new extensions and citations are unavailable through this path. A referral update or applicable compliance action preserves the referral history.
 
@@ -40,9 +40,9 @@ The five scoped order and administrative families begin without legal approval. 
 
 **No Occupancy.** Specify the actual building or unit scope, findings, truthful posting status, effective date, release conditions and signer. A restriction does not end automatically through compliance, vacancy, ownership change or an unrelated expiry date. Written release is a mode within this family: select the exact active restriction and document verified corrections, the real release inspection, actual placard removal and the approved release form. Reference an existing recorded physical visit, or record a genuinely completed external release inspection with its inspector, date and external reference. The program does not fabricate violation results for it.
 
-**Best Interest Extension.** Identify the prior notice, selected eligible items, owner's plan and benefit, supervisor review, and factual exclusion of safety or urgent items. In the violation items table, tick Affected beside each affected item's due date and enter its new due date. Internal supervisory prosecution review is not a City Attorney referral.
+**Best Interest Extension.** A new Best Interest Extension (R62, authoring 16) extends every uncorrected item. Enter Reasons for Additional Time. Due dates work as on a normal Extension: enter each outstanding item's Next due date on the reinspection worksheet; you can change them in Violation items. There are no Affected checkboxes, no safety confirmation and no signer block. Earlier Best Interest documents and drafts keep their format. It is not a City Attorney referral.
 
-**Vacancy Extension.** Verify vacancy, request, selected items, maintenance/security conditions, review appointment, approved expiration model and transfer/disclosure wording. In the violation items table, tick Affected beside each affected item's due date and enter its new due date. Contact-by is calculated seven calendar days before the actual review appointment; short notice needs the approved procedure reference. Renewal requires a new reviewed action. Apartment scope preserves common-area duties.
+**Vacancy Extension.** A new Vacancy Extension (R62, authoring 16) extends every uncorrected item while the building or apartment / unit remains vacant. Enter Scope and the Next scheduled review inspection, at least seven days after the mailing date; contact-by is calculated seven calendar days before it. Uncorrected items print no due date; corrected items keep their dates. There are no Affected checkboxes, safety, request, vacancy-basis, conditions, expiration, transfer, short-notice or authority/signer fields, and no signer block. Earlier Vacancy Extensions reprint unchanged. Renewal requires a new action. Apartment scope preserves common-area duties.
 
-A referred case needs an explicit reviewed exception and City Attorney coordination for an otherwise eligible emergency or occupancy action. Draft wording, supplied templates and synthetic test approvals are not proof of current law. Use the division's actual review; current-code and procedure approval remain documented acceptance items.
+A referred case allows only an Update for Case Referral or a Compliance Letter; the former reviewed emergency / occupancy exception is removed. Draft wording, supplied templates and synthetic test approvals are not proof of current law. Use the division's actual review; current-code and procedure approval remain documented acceptance items.
 

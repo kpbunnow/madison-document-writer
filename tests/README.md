@@ -228,6 +228,11 @@ workflow. Each receives the arguments named in its row.
 | `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
 | `audit_r61_development.js` | Authoring-15 history/compliance, Abate values, currency units, packet completeness and normalized catalog references |
 | `audit_r61_review_fixes.js` | PR 33 review corrections: administrative family switch keeps each family's authoring version, packet check uses frozen copy labels, refused retry filing explains itself |
+| `audit_r62_import_rules.js` | R62 import table with No Fee statuses, hidden status/type/undated rows and messages, greyed unavailable pairs, single remaining result after used rows are hidden |
+| `audit_r62_extensions.js` | Authoring-16 Best Interest (worksheet Next due dates, no selection or safety) and Vacancy (no due dates, Scope and review date only) Extensions, family switching, historical formats |
+| `audit_r62_extensions_helper.py` | Helper enforcement of the authoring-16 extension rules and earlier-format requirements |
+| `audit_r62_history_notes.js` | Authoring-16 history notes under the violation on every item, and referred cases limited to Update for Case Referral or Compliance |
 | `audit_r61_reports_ordinance.js` | Reports lists, filters and counts 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance without changing stored summaries |
 | `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
+| `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
 | `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |

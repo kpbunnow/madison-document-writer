@@ -233,3 +233,15 @@ No R60 item is accepted by automated checks. Existing open items and legal holds
 | S61-5 | Print one/multiple-page documents on City equipment | Correct retained footer conventions, no clipping, correct address geometry and copy content |
 
 All R61 items remain OPEN. Existing holds and carried acceptance items remain open.
+
+## R62 Development 3 acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S62-1 | Retrieve real cases with each Accela status, including No Fee statuses, used and undated inspections | Allowed pairs import to the listed document; hidden rows are absent; other pairs are greyed with their reason |
+| S62-2 | Prepare a Best Interest Extension from a reinspection worksheet | Every uncorrected item carries its worksheet Next due date; no safety confirmation or signer; wording reviewed by the division |
+| S62-3 | Prepare building and apartment / unit Vacancy Extensions | Every uncorrected item without a due date, corrected dates retained, review date and contact-by correct; removed fields absent; wording reviewed |
+| S62-4 | Review new referral, referral-update and compliance PDFs with City Attorney staff | Every note under its violation, including corrected items, none in the history column; long notes paginate without loss |
+| S62-5 | Attempt other documents on a referred case | Only Update for Case Referral and Compliance Letter are offered; the removed emergency exception is acceptable to the division and City Attorney |
+
+All R62 items remain OPEN.
