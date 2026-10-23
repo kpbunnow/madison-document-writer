@@ -69,7 +69,7 @@ function referralHistoryHTML(d, it) {
           )
           .join("")
       : "<span>Inspection history unavailable</span>") +
-    (it.done
+    (it.done && !it.withdrawn
       ? '<span class="done-note"><strong>Corrected</strong>' + esc(validISO(it.doneOn) ? fmtDate(it.doneOn) : "Date unavailable") + "</span>"
       : "") +
     "<span><strong>Days Outstanding: " +
@@ -236,7 +236,8 @@ function noticeHTML(d) {
           '\n      <td class="c-due">' +
           "".concat(
             it.withdrawn
-              ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>`
+              ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
+                  (isHistoryDoc(d) && d.authoringVersion >= 14 ? referralHistoryHTML(d, it) : "")
               : isHistoryDoc(d)
                 ? d.authoringVersion >= 14
                   ? referralHistoryHTML(d, it)

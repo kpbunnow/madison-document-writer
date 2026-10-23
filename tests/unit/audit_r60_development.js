@@ -67,6 +67,12 @@ require("../fixtures/bundle_test.cjs")(`
     const it = {hist:[{on:start,oc:'initial'},{on:end,oc:'none'}]};
     assert.ok(referralHistoryHTML(referral,it).includes('Days Outstanding: '+expected));
   }
+  const withdrawn = clone(referral);withdrawn.items[0].withdrawn=true;withdrawn.items[0].done=false;withdrawn.items[0].doneOn='';
+  printed.innerHTML=noticeHTML(withdrawn);
+  const withdrawnHistory=printed.querySelector('[data-row="c"] .c-due').textContent;
+  assert.match(withdrawnHistory,/Withdrawn.*Entered in error/);
+  assert.match(withdrawnHistory,/First observed/);
+  assert.match(withdrawnHistory,/Days Outstanding: Unavailable/);
   const old = {...clone(referral),authoringVersion:13};
   assert.ok(!noticeHTML(old).includes('Days Outstanding'));
   assert.ok(!noticeHTML(old).includes('First observed'));
