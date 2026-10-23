@@ -181,10 +181,11 @@ const test = async () => {
       root.innerHTML = noticeHTML(administrative);
       assert.equal(administrative.type, type);
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
-      // An authoring-16 draft stays authoring 16 in both families; an older draft keeps the R61 defaults.
-      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, allItems ? 16 : type === "bestInterestExtension" ? 15 : 13);
-      if (type === "vacancyExtension" && !allItems)
-        assert.equal(administrative.special.deadlineMode, "dated", "authoring-13 Vacancy is always dated");
+      // Every administrative draft in this loop was created by R62, including the unchanged scoped-order model.
+      // Older drafts' defaults remain covered by audit_r61_review_fixes and the explicit authoring-13 cases below.
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 16);
+      if (type === "vacancyExtension")
+        assert.equal(administrative.special.deadlineMode, undefined, "new authoring-16 Vacancy has no repair-deadline model");
       select.remove();
     }
   }

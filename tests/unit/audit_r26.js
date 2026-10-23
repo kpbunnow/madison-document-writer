@@ -261,6 +261,7 @@ const tests = async () => {
   d = doc(WriterState.state.docId);
   // The family-switch checks below cover the authoring-13 dated model; R62 covers authoring 16.
   d.authoringVersion = 13;
+  delete d.authoringCache; // A pre-R62 draft has no current-release family defaults.
   assert.equal(d.factualVisitId, r.id);
   assert.equal(d.items[2].done, true);
   assert.equal(d.items[2].doneOn, r.date);
