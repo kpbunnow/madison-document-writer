@@ -51,9 +51,13 @@ def audit(root, library=None):
             result.append({"section": section, "verdict": "unverified", "reason": "Chapter text was not supplied; citation left unchanged."})
             continue
         path, index, digest = chapters[match[1]]
-        if section not in index:
+        # Display references may omit the terminal subdivision punctuation; the retained source does not.
+        source_section = section + "." if re.search(r"\)\d+$", section) else section
+        if source_section not in index:
             raise ValueError("Library section absent from supplied chapter text: " + section)
-        result.append({"section": section, "verdict": "confirmed", "source": path.name, "sourceSha256": digest, "chapterText": index[section][:1800]})
+        result.append(
+            {"section": section, "verdict": "confirmed", "source": path.name, "sourceSha256": digest, "chapterText": index[source_section][:1800]}
+        )
     return result
 
 

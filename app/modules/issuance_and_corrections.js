@@ -1,3 +1,4 @@
+import { cents } from "./citation_policy.js";
 import { recordDay } from "../assets/shared.js";
 import {
   applyDeposit,
@@ -220,6 +221,38 @@ function changeText(v) {
           : String(v) || "—";
 }
 
+// Presentation only: citation base/amount are dollars, assessment components are integer cents.
+function correctionValueText(path, value) {
+  const match = /^citation\..+\.(base|amount|cc|assessments|overrideBasis)$/.exec(path);
+  if (!match) return changeText(value);
+  const currency = (v, integerCents = false) => {
+    const n = integerCents ? (Number.isSafeInteger(v) && v >= 0 ? v : null) : cents(v);
+    return n === null ? "—" : "$" + (n / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  if (!["assessments", "overrideBasis"].includes(match[1])) return currency(value);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "—";
+  const labels =
+    match[1] === "overrideBasis"
+      ? { baseCents: "Base", courtCents: "Court costs", totalCents: "Total" }
+      : {
+          base: "Base",
+          penalty: "Penalty assessment",
+          jail: "Jail assessment",
+          crimeLab: "Crime lab",
+          court: "Court costs",
+          total: "Total",
+        };
+  return (
+    Object.entries(value)
+      .map(([key, v]) => (labels[key] || key) + ": " + (Object.hasOwn(labels, key) ? currency(v, true) : changeText(v)))
+      .join("; ") || "—"
+  );
+}
+
+// History presentation is separate from referral classification/eligibility.
+export const hasItemInspectionHistory = (d) =>
+  !!d && ((isHistoryDoc(d) && d.authoringVersion >= 14) || (d.type === "compliance" && d.authoringVersion >= 15));
+
 function correctionChanges(d) {
   const old = correctionSource(d);
   if (!old) return [];
@@ -238,6 +271,10 @@ function correctionChanges(d) {
   ["type", "mailed", "inspDate", "inspTime", "inspectorId"].forEach((k) =>
     add(k, FIELD_NAMES[k], k === "inspectorId" ? docInsp(old).id : old[k], d[k]),
   );
+  if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
+    add("special.reason", "Reasons for Additional Time", old.special?.reason, d.special?.reason);
+    add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
+  }
   d.items.forEach((it) => {
     const was = old.items.find((x) => x.id === it.id);
     if (!was) return;
@@ -253,7 +290,23 @@ function correctionChanges(d) {
     const a = (old.cits || {})[it.id] || {},
       b = (d.cits || {})[it.id] || {};
     new Set(Object.keys(a).concat(Object.keys(b))).forEach((k) =>
-      add("citation." + it.no + "." + k, "Citation for item " + it.no + " · " + (FIELD_NAMES[k] || k), a[k], b[k]),
+      add(
+        "citation." + it.no + "." + k,
+        "Citation for item " +
+          it.no +
+          " · " +
+          ({
+            base: "Base deposit",
+            amount: "Total deposit",
+            cc: "Court costs",
+            assessments: "Assessment breakdown",
+            overrideBasis: "Approved pricing basis",
+          }[k] ||
+            FIELD_NAMES[k] ||
+            k),
+        a[k],
+        b[k],
+      ),
     );
   });
   return out;
@@ -456,7 +509,7 @@ function makeCorrectionAttempt(d) {
   delete snap.selectionCache;
   snap.frozen = freezeSources(d);
   snap.replaces = old.id;
-  if (isHistoryDoc(d)) snap.items.forEach((it) => (it.hist = clone(documentItemHistory(d, it))));
+  if (isHistoryDoc(d) || hasItemInspectionHistory(d)) snap.items.forEach((it) => (it.hist = clone(documentItemHistory(d, it))));
   delete snap.publicationEvents;
   delete snap.expectedHead;
   snap.revision = {
@@ -704,9 +757,9 @@ function correctionDiffHTML(d) {
             "<tr><th>" +
             `${esc(c.label)}` +
             "</th><td>" +
-            `${esc(changeText(c.before))}` +
+            `${esc(correctionValueText(c.path, c.before))}` +
             "</td><td>" +
-            `${esc(changeText(c.after))}` +
+            `${esc(correctionValueText(c.path, c.after))}` +
             "</td></tr>",
         )
         .join("") || '<tr><td colspan="3">No changes yet.</td></tr>',
@@ -1115,7 +1168,7 @@ function itemInspectionHistory(d, it) {
 }
 
 function documentItemHistory(d, it) {
-  if (!d.correction || !isHistoryDoc(d)) return it.hist || [];
+  if (!d.correction || (!isHistoryDoc(d) && !hasItemInspectionHistory(d))) return it.hist || [];
   const patch = correctionVisitPatch(d),
     r = patch && reinsp(patch.id);
   if (!r) return it.hist || [];

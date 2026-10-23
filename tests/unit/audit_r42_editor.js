@@ -132,7 +132,7 @@ const test = async () => {
   initialCitations.prepare(d);
   render();
   assert.equal(document.querySelectorAll(".initial-citation-previews .cit").length, 4);
-  assert.equal(document.querySelectorAll(".initial-citation-previews [data-editor-extra-copy]").length, 3);
+  assert.equal(document.querySelectorAll(".initial-citation-previews [data-editor-extra-copy]").length, 0);
   const printable = printJob(initialCitations.preview(d));
   assert.equal((printable.html.match(/class="cit /g) || []).length, 4);
   const printFrame = new JSDOM(printable.html).window.document;

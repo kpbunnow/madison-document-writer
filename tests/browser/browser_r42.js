@@ -352,7 +352,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
     assert.equal(await page.evaluate(() => document.activeElement.id), "btn-review");
-    // The complete fixed print packet is independent of the representative screen copies.
+    // All four copies appear by default; compact preview must not trim the print packet.
     await page.evaluate(() => {
       doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
       render();
@@ -360,8 +360,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator("[data-notecite]").first().check();
     await page.waitForFunction(() => initialCitations.enabled(doc(WriterState.state.docId)));
     await page.locator(".initial-citation-previews .cit").first().waitFor();
-    assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 1);
+    assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 4);
     assert.equal(await page.locator(".initial-citation-previews .cit").count(), 4);
+    await page.locator("[data-citation-copies]").click();
+    assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 1);
     const job = await page.evaluate(() => printJob(initialCitations.preview(doc(WriterState.state.docId))));
     const print = await browser.newPage();
     try {

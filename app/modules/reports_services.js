@@ -250,6 +250,14 @@ function saveReportView() {
   }
 }
 
+/* R61 prints a numeric subdivision without its trailing period (27.05(2)(g)2) while citation charges keep the
+   canonical form (27.05(2)(g)2.). Reports filters, lists and counts use one key for both, following the
+   canonical rule; stored summaries and the summarize()/case_projection mirror are unchanged. */
+function reportOrdinance(value) {
+  const text = String(value ?? "").trim();
+  return /\)\d+$/.test(text) ? text + "." : text;
+}
+
 function applyReportView(id) {
   const x = ReportsState.SAVED_VIEWS.find((v) => v.id === id);
   if (!x) return;
@@ -260,6 +268,7 @@ function applyReportView(id) {
   }
   ReportsState.S.screen = x.report;
   ReportsState.S.F = { ...ReportsState.S.F, ...JSON.parse(JSON.stringify(x.filters)), areas: Array.isArray(x.filters.areas) ? x.filters.areas : [] };
+  ReportsState.S.F.ord = reportOrdinance(ReportsState.S.F.ord);
   const dates = relativeDates(x.dateMode);
   if (dates) Object.assign(ReportsState.S.F, dates);
   ReportsState.S.tableSort = validSort(x.sort, x.report);
@@ -495,8 +504,18 @@ function buildModel(summaries, parcels, areas) {
       const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
       if (f) c.zip = areaIdOf(f, zipField);
     }
-    c.violations = (s.violations || []).map((v) => Object.assign({}, v, { c: c, sections: v.sections || [] }));
-    c.citations = (s.citations || []).map((x) => Object.assign({}, x, { c: c }));
+    c.violations = (s.violations || []).map((v) =>
+      Object.assign({}, v, {
+        c: c,
+        sections: (v.sections || []).map(reportOrdinance),
+        // As-of reports replace current fields with a retained historical version.
+        // Normalize those copies too, without rewriting the verified summary.
+        ...(Array.isArray(v.history)
+          ? { history: v.history.map((h) => ({ ...h, ...(Array.isArray(h.sections) ? { sections: h.sections.map(reportOrdinance) } : {}) })) }
+          : {}),
+      }),
+    );
+    c.citations = (s.citations || []).map((x) => Object.assign({}, x, { c: c, ordinance: reportOrdinance(x.ordinance) }));
     c.referrals = (s.referrals || []).map((x) => Object.assign({}, x, { c: c, ownerKey: ownerKey(x.ownerAddr) }));
     c.visits = s.visits || [];
     c.documents = s.documents || [];
@@ -685,6 +704,7 @@ export {
   relativeDates,
   saveReportView,
   applyReportView,
+  reportOrdinance,
   deleteReportView,
   openInWriter,
   loadAll,

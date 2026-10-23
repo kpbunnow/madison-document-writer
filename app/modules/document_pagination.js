@@ -2,7 +2,7 @@ import { recordDay } from "../assets/shared.js";
 import { applyDeposit, citationNumber, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { narrativeFor } from "./reinspection_walkthrough.js";
-import { itemHistory, itemInspectionHistory } from "./issuance_and_corrections.js";
+import { itemHistory, itemInspectionHistory, hasItemInspectionHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
 import { editorSync, highlightOpenChecks, overlayHTML, render } from "./inspection_import.js";
 import { documentHTML } from "./document_render.js";
@@ -91,7 +91,7 @@ function docFromReinspection(r, type) {
     return;
   }
   const pos = new Map(src.items.map((it, i) => [it.id, i]));
-  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history;
+  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
   const nd = {
     id: uid("d"),
     caseId: r.caseId,
@@ -102,7 +102,7 @@ function docFromReinspection(r, type) {
     mailed: recordDay(today),
     cc: "",
     cits: {},
-    ...(hasHistory ? { authoringVersion: 14 } : {}),
+    ...(hasHistory || type === "citation" ? { authoringVersion: 15 } : {}),
     fromReinspId: r.id,
     fromDocId: src.id,
     expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
@@ -118,7 +118,7 @@ function docFromReinspection(r, type) {
         ...it,
         id: uid("x"),
         no: it.no || String((pos.get(it.id) || 0) + 1),
-        due: hasHistory || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
+        due: (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
         done: cleared,
         doneOn: cleared ? res.on || r.date : "",
         note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
@@ -418,7 +418,7 @@ function paginate(deskOverride, documentOverride) {
       if (carry) p._tb.appendChild(carry);
       p._tb.appendChild(r);
     }
-    if (d.authoringVersion >= 14 && isHistoryDoc(d)) {
+    if (hasItemInspectionHistory(d)) {
       let current = r;
       while (over(p)) {
         const history = current.querySelector(".visit-list");

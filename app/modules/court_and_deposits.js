@@ -1,6 +1,7 @@
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
+import { simplifiedBestInterest } from "./new_documents.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import { catalogDraftBlocked } from "./language_catalog.js";
@@ -464,7 +465,7 @@ function freezeSources(d) {
     case: clone(docCase(d)),
     inspector: clone(docInsp(d)),
     body: docBody(d),
-    ...(d.special
+    ...(d.special && !simplifiedBestInterest(d)
       ? {
           documentPolicyVersion: 26,
           authorizedSigner: { name: d.special.signerName, title: d.special.signerTitle, delegation: d.special.delegation },
@@ -1018,6 +1019,27 @@ function printJob(d) {
       );
       fd.close();
       const stage = fd.querySelector(".desk");
+      // Refuse an incomplete new packet instead of filing a successful-looking
+      // PDF with missing copies. Historical retained PDFs are never rewritten.
+      if (d.type === "citation" && (d.draft || d.authoringVersion >= 15)) {
+        const faces = [...stage.querySelectorAll(".cit")],
+          cited = d.items.filter((it) => it.cite && !it.withdrawn),
+          // The rendered faces use the document's frozen copies; compare with those, not today's labels.
+          labels = ((frozenOf(d) || {}).courtCopies || CIT_COPIES).map((copy) => copy.label);
+        if (
+          labels.length !== 4 ||
+          faces.length !== cited.length * 4 ||
+          faces.some(
+            (face, index) =>
+              face.querySelector(".cit-foot span:last-child")?.textContent !== labels[index % 4] ||
+              face.querySelector(".cit-no")?.textContent.trim() !== String(d.cits?.[cited[Math.floor(index / 4)]?.id]?.num || "").trim(),
+          )
+        )
+          throw new Error(
+            "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Nothing was filed; " +
+              (d.draft ? "your draft is retained." : "the issued record is unchanged and its PDF still needs filing."),
+          );
+      }
       if (snow.is(d) && d.authoringVersion >= 9) {
         // Measure the same locked print styles and value spans that will be filed.
         const html = printableHTML(d, stage);

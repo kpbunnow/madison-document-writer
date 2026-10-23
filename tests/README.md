@@ -225,4 +225,9 @@ workflow. Each receives the arguments named in its row.
 | --- | --- |
 | `audit_r60_development.js` | Workspace entry, safe text-dialog changes, reinspection deadline scope, item lineage, retained referral history and calendar-day calculations |
 | `audit_r60_review_fixes.js` | PR 31 review corrections: batch dates with an undecided follow-up, stale hidden selections, dialog focus after an asynchronous close, initial citation numbers in item history, Workspace current while importing |
+| `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
+| `audit_r61_development.js` | Authoring-15 history/compliance, Abate values, currency units, packet completeness and normalized catalog references |
+| `audit_r61_review_fixes.js` | PR 33 review corrections: administrative family switch keeps each family's authoring version, packet check uses frozen copy labels, refused retry filing explains itself |
+| `audit_r61_reports_ordinance.js` | Reports lists, filters and counts 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance without changing stored summaries |
+| `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
 | `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |

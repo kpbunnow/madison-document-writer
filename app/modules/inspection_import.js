@@ -1410,7 +1410,7 @@ document.addEventListener("click", (event) => {
   if (!event.target.closest("[data-citation-copies]")) return;
   const d = doc(WriterState.state.docId);
   if (!d || WriterState.state.screen !== "write") return;
-  WriterState.state.allCitationCopies = WriterState.state.allCitationCopies === d.id ? null : d.id;
+  WriterState.state.compactCitationCopies = WriterState.state.compactCitationCopies === d.id ? null : d.id;
   render();
   document.querySelector("[data-citation-copies]")?.focus();
 });
@@ -1422,7 +1422,9 @@ function editorEnhance() {
   for (const parent of document.querySelectorAll(".document-workspace .desk,.document-workspace .initial-citation-previews")) {
     parent
       .querySelectorAll(".cit")
-      .forEach((face, index) => face.toggleAttribute("data-editor-extra-copy", WriterState.state.allCitationCopies !== d.id && index % count !== 0));
+      .forEach((face, index) =>
+        face.toggleAttribute("data-editor-extra-copy", WriterState.state.compactCitationCopies === d.id && index % count !== 0),
+      );
   }
 }
 
@@ -1582,7 +1584,7 @@ function screenWrite() {
     '<div class="editor-preview-tools no-print"><span>Working document' +
     "".concat(d.type === "citation" || initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
     "</span>" +
-    `${d.type === "citation" || initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (WriterState.state.allCitationCopies === d.id) + '">' + (WriterState.state.allCitationCopies === d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
+    `${d.type === "citation" || initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (WriterState.state.compactCitationCopies !== d.id) + '">' + (WriterState.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
     '</div><div class="desk">' +
     `${documentHTML(d)}` +
     "</div>" +
@@ -2353,7 +2355,7 @@ function newDoc(caseId, type) {
     status: "Draft",
     draft: true,
     mailed: recordDay(today),
-    authoringVersion: 14,
+    authoringVersion: 15,
     items: [],
     cc: "",
     cits: {},

@@ -43,9 +43,19 @@ def active_restrictions(documents, superseded, voided):
     return [d for d in live if d.get("special", {}).get("mode") != "release" and d["id"] not in released]
 
 
+def validate_best_interest_correction(snap, replaced):
+    """The simplified (authoring 15) Best Interest rules drop the reviewer and signer. A correction may use them
+    only when its original was simplified too, and may not drop back to the older rules from them."""
+    if snap.get("type") != "bestInterestExtension" or not replaced:
+        return
+    if (snap.get("authoringVersion", 0) >= 15) != (replaced.get("authoringVersion", 0) >= 15):
+        raise ValueError("A Best Interest Extension correction must keep its original's format")
+
+
 def validate_special_fields(snap, at=None, check_date_window=True):
     """Mirror R26 variant requirements; supplied review evidence is not role authentication."""
     kind, s = snap["type"], snap.get("special", {})
+    simple_best = kind == "bestInterestExtension" and snap.get("authoringVersion", 0) >= 15
     if not isinstance(s, dict):
         raise ValueError("Document-specific facts must be an object")
 
@@ -59,16 +69,17 @@ def validate_special_fields(snap, at=None, check_date_window=True):
 
     if re.search(r"◯|\(\s{0,8}\)|class=[\"\']blank[\"\']", str(snap.get("frozen", {}).get("body", ""))):
         raise ValueError("Fill all printed narrative placeholders before issuance")
-    require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
-    assert_fact(
-        s.get("reviewed") is True
-        and calendar_date(s.get("reviewDateLegal"))
-        and (not check_date_window or s["reviewDateLegal"] <= city_day(at).isoformat()),
-        "Current ordinance, wording, procedure and signer authority need recorded division review",
-    )
-    assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
-    if s["scope"] == "unit":
-        require("unit")
+    if not simple_best:
+        require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
+        assert_fact(
+            s.get("reviewed") is True
+            and calendar_date(s.get("reviewDateLegal"))
+            and (not check_date_window or s["reviewDateLegal"] <= city_day(at).isoformat()),
+            "Current ordinance, wording, procedure and signer authority need recorded division review",
+        )
+        assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
+        if s["scope"] == "unit":
+            require("unit")
     inspected = snap.get("inspDate") or snap.get("frozen", {}).get("case", {}).get("date", "")
     mailed = snap.get("mailed", "")
     if kind in ("summaryAbatement", "nonSummaryAbatement"):
@@ -135,14 +146,17 @@ def validate_special_fields(snap, at=None, check_date_window=True):
         selected = [i for i in snap["items"] if str(i.get("no")) in affected and not i.get("done") and not i.get("withdrawn")]
         assert_fact(len(selected) == len(affected), "Affected items must be outstanding source items")
         assert_fact(s.get("noSafety") is True, "Extensions must exclude reviewed safety and urgent obligations")
-        require("safetyBasis")
+        if not simple_best:
+            require("safetyBasis")
         originals = s.get("originalDues", {})
         assert_fact(isinstance(originals, dict), "Retain source deadlines")
         assert_fact(
             all(i.get("due", "") == originals.get(str(i.get("no")), i.get("due", "")) for i in snap["items"] if str(i.get("no")) not in affected),
             "Unselected item deadlines cannot change",
         )
-        if kind == "bestInterestExtension":
+        if simple_best:
+            require("reason")
+        elif kind == "bestInterestExtension":
             require("noticeRef", "reason", "intentions", "supervisor")
             assert_fact(s.get("stage") in ("administrative", "supervisory"), "Record the actual internal review stage")
             if s["stage"] == "supervisory":
@@ -928,6 +942,8 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
                 if snap.get("authoringVersion", 0) < 4 or kind != "correction.issued" and payload.get("lifecycle") != 1:
                     raise ValueError("R26 actions require current authoring and atomic lifecycle validation")
                 validate_special_fields(snap, event.get("at"), check_window)
+                if kind == "correction.issued" and event["id"] not in historical_ids:
+                    validate_best_interest_correction(snap, documents.get(payload.get("replaces"), (None,))[0])
             if snap.get("authoringVersion", 0) >= 4:
                 original = documents.get(payload.get("replaces"), (None,))[0] if kind == "correction.issued" else None
                 if check_window and snap.get("authoringVersion", 0) >= 9:

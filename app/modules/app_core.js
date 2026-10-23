@@ -1351,7 +1351,16 @@ document.addEventListener(
       const d = doc(WriterState.state.docId);
       if (d && !d.draft) {
         button.disabled = true;
-        filePdf(d, printJob(d)).finally(() => render());
+        // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
+        let job;
+        try {
+          job = printJob(d);
+        } catch (error) {
+          toast(error.message);
+          render();
+          return;
+        }
+        filePdf(d, job).finally(() => render());
       }
       return;
     }
@@ -3418,8 +3427,8 @@ document.addEventListener("input", (e) => {
     } else if (el.dataset.fmt === "time") {
       k[f] = parseTime(val) || String(val || "").trim();
     } else k[f] = val;
-    const foot = document.querySelector(".n-foot span:last-child");
-    if (f === "number" && foot) foot.textContent = val;
+    if (f === "number")
+      document.querySelectorAll(".document-workspace .n-foot .mono,.document-workspace .n-cont .r").forEach((foot) => (foot.textContent = val));
     syncChip();
     return;
   }

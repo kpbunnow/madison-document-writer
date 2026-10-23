@@ -53,3 +53,5 @@ do not close any existing acceptance hold. Authoring-11 and earlier rendering,
 frozen fixtures, approved language and the regular Extension remain protected.
 
 R60 adds S60-1 through S60-6 for Workspace entry, dialog accessibility, scoped reinspection dates, complete citation packets, physical address alignment and referral history semantics. These remain OPEN; automated verification does not supply staff or native acceptance.
+
+R61 Development 2 adds S61-1 through S61-5. All remain OPEN. The owner confirmed the retained Best Interest safety checkbox; this branch is not deployment approval.

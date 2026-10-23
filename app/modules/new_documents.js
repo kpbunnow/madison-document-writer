@@ -42,6 +42,7 @@ export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestIntere
 /* Authoring 13 (R56): every extended Best Interest or Vacancy item carries a later repair due date, entered in
    Violation items; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
 export const DATED_EXTENSIONS = 13;
+export const simplifiedBestInterest = (d) => d?.type === "bestInterestExtension" && d.authoringVersion >= 15;
 export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -238,6 +239,8 @@ export function initNewDocuments() {
         );
         if (text(s.access)) paras.push("Approved access conditions: " + s.access);
       }
+    } else if (type === "bestInterestExtension" && simplifiedBestInterest(d)) {
+      paras.push("Additional time is granted for the selected items for the following reasons: " + clause(val(s, "reason")) + ".");
     } else if (type === "bestInterestExtension") {
       if (s.stage === "supervisory")
         paras.push(
@@ -361,25 +364,27 @@ export function initNewDocuments() {
           targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
         });
     const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
-    ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
-      need(
-        k,
-        {
-          reviewer: "the division reviewer",
-          reviewRef: "the approved current ordinance and wording reference",
-          codeSource: "the verified current-code source URL / official source reference",
-          codeRevision: "the code revision / effective information and amendment review",
-          authority: "the verified authority",
-          signerName: "the authorized signer",
-          signerTitle: "the signer’s title",
-          delegation: "the signer’s authorization / delegation reference",
-        }[k],
-      ),
-    );
-    add(validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
-    add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
-    add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
-    if (s.scope === "unit") need("unit", "the apartment / unit identifier");
+    if (!simplifiedBestInterest(d)) {
+      ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
+        need(
+          k,
+          {
+            reviewer: "the division reviewer",
+            reviewRef: "the approved current ordinance and wording reference",
+            codeSource: "the verified current-code source URL / official source reference",
+            codeRevision: "the code revision / effective information and amendment review",
+            authority: "the verified authority",
+            signerName: "the authorized signer",
+            signerTitle: "the signer’s title",
+            delegation: "the signer’s authorization / delegation reference",
+          }[k],
+        ),
+      );
+      add(validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
+      add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
+      add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
+      if (s.scope === "unit") need("unit", "the apartment / unit identifier");
+    }
     if (docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x))) {
       add(
         specialType(d.type).effect === "supplemental" && s.emergencyApproved === true && text(s.referralCoordination),
@@ -457,11 +462,15 @@ export function initNewDocuments() {
     } else {
       add(selected(d, s).length > 0, "Select at least one outstanding affected item.", "affected");
       add(
-        s.noSafety === true && text(s.safetyBasis),
-        "Confirm the reviewed factual basis excluding safety, security and urgent obligations.",
-        "safetyBasis",
+        s.noSafety === true && (simplifiedBestInterest(d) || text(s.safetyBasis)),
+        simplifiedBestInterest(d)
+          ? "Confirm affected items exclude safety, security and urgent obligations."
+          : "Confirm the reviewed factual basis excluding safety, security and urgent obligations.",
+        simplifiedBestInterest(d) ? "noSafety" : "safetyBasis",
       );
-      if (d.type === "bestInterestExtension") {
+      if (simplifiedBestInterest(d)) {
+        need("reason", "the reasons for additional time");
+      } else if (d.type === "bestInterestExtension") {
         need("noticeRef", "the prior Official Notice reference");
         need("reason", "the reasons for additional time");
         need("intentions", "the owner’s intended corrective work");
@@ -531,14 +540,16 @@ export function initNewDocuments() {
     return out;
   }
   function details(d) {
-    if (!specialType(d.type) || isLocked(d) || d.correction) return "";
+    if (!specialType(d.type) || isLocked(d) || (d.correction && !simplifiedBestInterest(d))) return "";
     const s = d.special || (d.special = {}),
       f = (k, label, type = "text") =>
         '<label class="f"><span>' +
         e(label) +
         "</span><" +
         (type === "textarea" ? 'textarea rows="3"' : 'input type="' + type + '"') +
-        ' data-special="' +
+        ' aria-label="' +
+        e(label) +
+        '" data-special="' +
         k +
         '" ' +
         (type === "textarea" ? "" : 'value="' + e(s[k] || "") + '"') +
@@ -554,6 +565,13 @@ export function initNewDocuments() {
         opts.map(([v, l]) => '<option value="' + v + '" ' + (s[k] === v ? "selected" : "") + ">" + e(l) + "</option>").join("") +
         "</select></label>",
       ck = (k, l) => '<label><input type="checkbox" data-special="' + k + '" ' + (s[k] ? "checked" : "") + "> " + e(l) + "</label>";
+    if (simplifiedBestInterest(d))
+      return (
+        '<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>' +
+        f("reason", "Reasons for Additional Time", "textarea") +
+        ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
+        "</div></section>"
+      );
     let fields =
       (d.importRule
         ? '<p class="f"><span>Document from the Accela status</span><strong>' +
@@ -755,6 +773,9 @@ export function initNewDocuments() {
         "ed unfinished. Issuance requires recorded division review of current law" +
         ", wording and signer authority. Review entries are supplied by the opera" +
         'tor; they are not authenticated role checks.</p><div class="grid g2">') +
+      (d.type === "bestInterestExtension"
+        ? '<div class="banner">This draft retains the earlier reviewed extension format. <button class="btn" data-adopt-best-interest>Use simplified Reasons-only format (no signer)</button></div>'
+        : "") +
       fields +
       '</div><details><summary>Authority, wording and signer review</summary><div class="grid g2">' +
       review +
@@ -990,7 +1011,7 @@ export function initNewDocuments() {
       id: uid("d"),
       caseId: r.caseId,
       type,
-      authoringVersion: DATED_EXTENSIONS,
+      authoringVersion: type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS,
       draft: true,
       status: "Draft",
       created: day(),
@@ -1229,7 +1250,7 @@ export function initNewDocuments() {
       mailed: "",
       cc: "",
       cits: {},
-      authoringVersion: DATED_EXTENSIONS,
+      authoringVersion: type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS,
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: recordHead(cid),
@@ -1355,8 +1376,16 @@ export function initNewDocuments() {
     if (el.dataset.special === "administrativeType" && d && d.draft) {
       d.selectionCache = d.selectionCache || {};
       d.selectionCache[d.type] = clone(d.special || {});
+      // Switching families never adopts the simplified Best Interest format; that remains an explicit choice.
+      d.authoringCache = d.authoringCache || {};
+      d.authoringCache[d.type] = d.authoringVersion;
       d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
       d.type = el.value;
+      // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
+      // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
+      d.authoringVersion =
+        d.authoringCache[d.type] ??
+        (d.authoringVersion >= DATED_EXTENSIONS ? (d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS) : d.authoringVersion);
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
       if (datedExtension(d)) requireDated(d.type, d.special);
       restoreDues(d);
@@ -1374,6 +1403,7 @@ export function initNewDocuments() {
         if (box) box.checked = false;
       }
       s[k] = el.type === "checkbox" ? el.checked : el.value;
+      if (k === "reason" && simplifiedBestInterest(d) && d.correction) d.correction.body = specialBody(d);
       if (k === "deadlineMode") restoreDues(d);
       if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
       if (d.fromReinspId) {
@@ -1400,6 +1430,7 @@ export function initNewDocuments() {
       s.affected = s.affected || [];
       s.affected = el.checked ? [...new Set([...s.affected, no])] : s.affected.filter((x) => x !== no);
       restoreDues(d);
+      invalidateSafety(d);
       cacheDetails(d);
       saveDrafts();
       refreshControls(el);
@@ -1415,7 +1446,16 @@ export function initNewDocuments() {
     }
     return false;
   }
+  function invalidateSafety(d) {
+    if (simplifiedBestInterest(d)) {
+      (d.special ||= {}).noSafety = false;
+      const box = document.querySelector('[data-special="noSafety"]');
+      if (box) box.checked = false;
+    }
+    if (d.selectionCache?.bestInterestExtension) d.selectionCache.bestInterestExtension.noSafety = false;
+  }
   function invalidateItemReview(d) {
+    invalidateSafety(d);
     const s = d.special || (d.special = {});
     s.reviewed = false;
     document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
@@ -1437,9 +1477,21 @@ export function initNewDocuments() {
   }
   function clickEvent(ev) {
     const el = ev.target.closest(
-      "[data-create-action],[data-another-action],[data-case-action],[data-save" + "-service],[data-create-case-action],[data-initial-notice]",
+      "[data-create-action],[data-another-action],[data-case-action],[data-save" +
+        "-service],[data-create-case-action],[data-initial-notice],[data-adopt-best-interest]",
     );
     if (!el) return false;
+    if (el.hasAttribute("data-adopt-best-interest")) {
+      const d = doc(WriterState.state.docId);
+      if (d?.type === "bestInterestExtension" && d.draft && !isLocked(d) && !d.correction && !d.pendingAmendment) {
+        d.authoringVersion = 15;
+        // Keep earlier review data for recovery; it is not asserted as new authorization.
+        saveDrafts();
+        render();
+        document.querySelector('[data-special="reason"]')?.focus();
+      }
+      return true;
+    }
     if (el.dataset.initialNotice) {
       const src = doc(el.dataset.initialNotice);
       if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {

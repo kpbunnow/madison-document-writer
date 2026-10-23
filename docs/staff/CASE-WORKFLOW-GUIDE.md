@@ -52,7 +52,7 @@ In the reinspection chooser, select Give more time, Take enforcement action, Res
 | Summary Abatement | Reviewed immediate nuisance action with its own authority and facts |
 | Non-Summary Abatement | Reviewed nuisance order with compliance, service and court facts |
 | No Occupancy | A continuing scoped occupancy restriction, or its expressly reviewed release |
-| Best Interest Extension | A reviewed supervisory extension with its own plan and exclusions |
+| Best Interest Extension | Selected-item extension with reasons; new authoring-15 output has no signer |
 | Vacancy Extension | A reviewed vacancy model with appointment, repair and expiration facts |
 
 An extension changes selected deadlines, not the historical original deadlines. A citation charges selected outstanding items; all carried items remain accounted for. A referral does not invent a new repair deadline. After City Attorney referral, ordinary new extensions and citations are unavailable through this path. A referral update or applicable compliance action preserves the referral history.
@@ -110,3 +110,5 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 
 **Test recovery.** Use isolated synthetic cases for restore drills. Verify private wording, partial citation values, worksheet outcomes, pending original identities and exact original PDF retrieval. A successful program launch alone does not prove that the data and recovery paths work.
 
+
+R61 compliance letters retain item-specific observation histories/notes and Abate values. New citation previews show all four copies by default; optional compact viewing never controls the final packet. Review actual regular and snow citation PDFs for all four distinct copies per charge.

@@ -511,14 +511,14 @@
       "draft": false,
       "ordinances": [
         "27.05(2)(g)1.",
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
     "[\"ENF_HSE\",\"STRUCTURAL\",20]": {
       "draft": false,
       "ordinances": [
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)",
         "29.10"
       ]
@@ -527,7 +527,7 @@
       "draft": false,
       "ordinances": [
         "27.05(2)(g)1.",
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
@@ -595,7 +595,7 @@
     "[\"ENF_HSE\",\"GM_INTERIOR\",30]": {
       "draft": false,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_HSE\",\"GM_INTERIOR\",40]": {
@@ -625,7 +625,7 @@
     "[\"ENF_HSE\",\"GM_EXTERIOR\",10]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
@@ -638,7 +638,7 @@
     "[\"ENF_HSE\",\"GM_EXTERIOR\",30]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_HSE\",\"GM_EXTERIOR\",40]": {
@@ -650,13 +650,13 @@
     "[\"ENF_HSE\",\"SIDING\",10]": {
       "draft": false,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_HSE\",\"SIDING\",20]": {
       "draft": false,
       "ordinances": [
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
@@ -780,7 +780,7 @@
       "draft": true,
       "ordinances": [
         "27.05(2)(g)1.",
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_HSE\",\"PESTS\",10]": {
@@ -792,7 +792,7 @@
     "[\"ENF_HSE\",\"PESTS\",20]": {
       "draft": false,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_HSE\",\"KEEPING\",10]": {
@@ -1176,7 +1176,7 @@
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",52]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",53]": {
@@ -1300,14 +1300,14 @@
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",73]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2.",
+        "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",74]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",75]": {
@@ -1350,13 +1350,13 @@
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",81]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",82]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",83]": {
@@ -1381,25 +1381,25 @@
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",86]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",87]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",88]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",89]": {
       "draft": true,
       "ordinances": [
-        "27.05(2)(g)2."
+        "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",90]": {

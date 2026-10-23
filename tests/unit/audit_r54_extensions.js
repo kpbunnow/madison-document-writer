@@ -104,9 +104,11 @@ const test = async () => {
   ];
   newDocuments.createSpecial(WriterState.REINSP[0], "bestInterestExtension");
   const created = doc(WriterState.state.docId);
-  assert.equal(created.authoringVersion, 13, "new special extensions use authoring 13");
+  assert.equal(created.authoringVersion, 15, "new Best Interest Extensions use authoring 15");
   assert.equal(created.items[0].note, "R54 visit note", "shared table uses the current inspection note");
-  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 13, "publication retains the selected rendering version");
+  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 15, "publication retains the selected rendering version");
+  // Continue the retained authoring-13 review invalidation contract below.
+  created.authoringVersion = 13;
   created.special.affected = ["1"];
   created.special.extendedDues = { 1: "2026-11-20" };
   created.special.reviewed = true;
@@ -166,7 +168,11 @@ const test = async () => {
     newDocuments.caseAction(original.caseId, initialType);
     const administrative = doc(WriterState.state.docId);
     assert.equal(administrative.administrativeAction, true);
-    assert.equal(administrative.authoringVersion, 13, "administrative creation selects current authoring");
+    assert.equal(
+      administrative.authoringVersion,
+      initialType === "bestInterestExtension" ? 15 : 13,
+      "administrative creation selects the family rendering version",
+    );
     for (const type of ["bestInterestExtension", "vacancyExtension"]) {
       const select = document.createElement("select");
       select.dataset.special = "administrativeType";
@@ -177,7 +183,7 @@ const test = async () => {
       root.innerHTML = noticeHTML(administrative);
       assert.equal(administrative.type, type);
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
-      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 13);
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, type === "bestInterestExtension" ? 15 : 13);
       if (type === "vacancyExtension") assert.equal(administrative.special.deadlineMode, "dated", "authoring-13 Vacancy is always dated");
       select.remove();
     }

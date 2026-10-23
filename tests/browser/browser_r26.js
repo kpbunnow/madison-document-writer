@@ -101,6 +101,15 @@ module.exports = async function (browser, page, context, out, axeScreen) {
               ? "27.08"
               : "SYNTHETIC reviewed division extension authority");
         d.special = { ...d.special, ...review, ...extra, authority };
+        if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
+          // Prove actual helper publication with only the supported new inputs,
+          // rather than accidentally satisfying obsolete requirements via this fixture.
+          d.special = Object.fromEntries(
+            ["affected", "originalDues", "extendedDues", "reason", "noSafety"]
+              .filter((key) => Object.hasOwn(d.special, key))
+              .map((key) => [key, d.special[key]]),
+          );
+        }
         d.mailed = day;
         render();
       },
@@ -108,6 +117,13 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     );
   }
   async function issue(name) {
+    if (
+      await page.evaluate(() => {
+        const d = doc(WriterState.state.docId);
+        return d.type === "bestInterestExtension" && d.authoringVersion >= 15;
+      })
+    )
+      await page.locator('[data-special="noSafety"]').check();
     if (await page.locator('[data-special="reviewed"]').count()) {
       if (!(await page.locator('[data-special="reviewed"]').isVisible())) await page.locator("#r26-details summary").click();
       await page.locator('[data-special="reviewed"]').check();
@@ -130,6 +146,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     const job = await page.evaluate(() => ({
       id: WriterState.state.docId,
       type: doc(WriterState.state.docId).type,
+      authoringVersion: doc(WriterState.state.docId).authoringVersion,
       emailCount: (doc(WriterState.state.docId).emailedTo || []).length,
       body: doc(WriterState.state.docId).frozen.body,
       ...printJob(doc(WriterState.state.docId)),
@@ -424,7 +441,11 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     assert.ok((await print.locator(".n-cc").count()) > 0, job.name + " preserves copies");
     assert.equal(await print.locator(".cc-mail").count(), job.emailCount ? 1 : 0, job.name + " email footer follows selected recipients");
     const text = await print.locator("body").innerText();
-    if (!["shared-inspection-extension", "restricted-case-compliance"].includes(job.name)) assert.ok(text.includes("SYNTHETIC AUTHORIZED SIGNER"));
+    if (job.type === "bestInterestExtension" && job.authoringVersion >= 15) {
+      assert.equal(await print.locator(".extension-signer").count(), 0, "new Best Interest has no signer block");
+      assert.ok(!text.includes("SYNTHETIC AUTHORIZED SIGNER"));
+    } else if (!["shared-inspection-extension", "restricted-case-compliance"].includes(job.name))
+      assert.ok(text.includes("SYNTHETIC AUTHORIZED SIGNER"));
     assert.ok(!text.includes("◯"), "No missing-detail placeholder in issued sample");
     if (geometry.length > 1) assert.equal(await print.locator(".n-foot").count(), geometry.length, "Every continuation page has a footer");
     await print.pdf({ path: path.join(out, job.name + ".pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });

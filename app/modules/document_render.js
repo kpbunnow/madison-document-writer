@@ -1,7 +1,7 @@
 /* Document and citation-face renderers: authored notice HTML, print documents and the four court copies. */
 import { mailingMaxDay, recordDay } from "../assets/shared.js";
 import { fmtDate, fmtTime, inspAt, longDate, parseTime, validISO } from "./court_and_deposits.js";
-import { documentItemHistory, revisionPrintNote } from "./issuance_and_corrections.js";
+import { documentItemHistory, revisionPrintNote, hasItemInspectionHistory } from "./issuance_and_corrections.js";
 import { catalogDraftNotice } from "./language_catalog.js";
 import {
   citeAllowed,
@@ -61,7 +61,7 @@ function referralHistoryHTML(d, it) {
               "<span><b>" +
               esc(validISO(x.on) ? fmtDate(x.on) : "Date unavailable") +
               "</b><em>" +
-              esc(x.oc === "initial" ? "First observed" : OC_WORD[x.oc] || x.oc) +
+              esc(x.oc === "initial" ? "First observed" : d.authoringVersion >= 15 && x.oc === "corrected" ? "CORRECTED" : OC_WORD[x.oc] || x.oc) +
               "</em>" +
               (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
               (x.note ? "<em>Note: " + esc(x.note) + "</em>" : "") +
@@ -69,8 +69,12 @@ function referralHistoryHTML(d, it) {
           )
           .join("")
       : "<span>Inspection history unavailable</span>") +
-    (it.done && !it.withdrawn
-      ? '<span class="done-note"><strong>Corrected</strong>' + esc(validISO(it.doneOn) ? fmtDate(it.doneOn) : "Date unavailable") + "</span>"
+    (it.done && !it.withdrawn && (d.authoringVersion < 15 || !history.some((x) => x.oc === "corrected" && x.on === it.doneOn))
+      ? d.authoringVersion >= 15
+        ? "<span><b>" +
+          esc(validISO(it.doneOn) ? fmtDate(it.doneOn) : "Date unavailable") +
+          "</b><em>CORRECTED</em><em>Correction observation unavailable</em></span>"
+        : '<span class="done-note"><strong>Corrected</strong>' + esc(validISO(it.doneOn) ? fmtDate(it.doneOn) : "Date unavailable") + "</span>"
       : "") +
     "<span><strong>Days Outstanding: " +
     (it.withdrawn || days === null ? "Unavailable" : days) +
@@ -168,19 +172,21 @@ function noticeHTML(d) {
           `${it.sections.map((x) => esc(d.authoringVersion >= 9 ? it.printedReferences?.[x] || x : x)).join("<br>")}` +
           '</div></td>\n      <td class="c-ab">' +
           "".concat(
-            it.done
-              ? "&mdash;"
-              : d.type !== "notice"
-                ? `<span class="ab-fixed">${it.abate ? "Yes" : "No"}</span>`
-                : '<button class="ab-btn" data-abate="' +
-                  `${esc(it.id)}` +
-                  '" data-on="' +
-                  `${it.abate ? 1 : 0}` +
-                  '" ' +
-                  `${dis}` +
-                  ">" +
-                  `${it.abate ? "Yes" : "No"}` +
-                  "</button>",
+            d.type === "compliance" && d.authoringVersion >= 15
+              ? `<span class="ab-fixed">${typeof it.abate === "boolean" ? (it.abate ? "Yes" : "No") : "Unavailable"}</span>`
+              : it.done
+                ? "&mdash;"
+                : d.type !== "notice"
+                  ? `<span class="ab-fixed">${it.abate ? "Yes" : "No"}</span>`
+                  : '<button class="ab-btn" data-abate="' +
+                    `${esc(it.id)}` +
+                    '" data-on="' +
+                    `${it.abate ? 1 : 0}` +
+                    '" ' +
+                    `${dis}` +
+                    ">" +
+                    `${it.abate ? "Yes" : "No"}` +
+                    "</button>",
           ) +
           '</td>\n      <td class="corr">' +
           "".concat(
@@ -196,7 +202,7 @@ function noticeHTML(d) {
           `${d.draft ? catalogDraftNotice(it) : ""}` +
           "\n        " +
           "".concat(
-            isHistoryDoc(d)
+            isHistoryDoc(d) || hasItemInspectionHistory(d)
               ? (d.authoringVersion >= 14 ? [] : documentItemHistory(d, it))
                   .filter((x) => x.note)
                   .map(
@@ -237,8 +243,8 @@ function noticeHTML(d) {
           "".concat(
             it.withdrawn
               ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
-                  (isHistoryDoc(d) && d.authoringVersion >= 14 ? referralHistoryHTML(d, it) : "")
-              : isHistoryDoc(d)
+                  (hasItemInspectionHistory(d) ? referralHistoryHTML(d, it) : "")
+              : isHistoryDoc(d) || hasItemInspectionHistory(d)
                 ? d.authoringVersion >= 14
                   ? referralHistoryHTML(d, it)
                   : it.done
@@ -436,11 +442,11 @@ function noticeHTML(d) {
     "orrections Required</th>" +
     `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
-    `${isHistoryDoc(d) ? (d.authoringVersion >= 14 ? "Inspection History" : "") : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
+    `${hasItemInspectionHistory(d) ? "Inspection History" : isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +
     "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
     "</tbody></table>\n    " +
-    (aligned
+    (aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15)
       ? '<div class="extension-signer"><p>' +
         esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
         "\n" +

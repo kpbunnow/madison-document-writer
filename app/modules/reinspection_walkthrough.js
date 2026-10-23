@@ -1600,7 +1600,7 @@ function accelaPanel() {
         ? `<div class="import-selected">${summary(choices[0])}</div>`
         : "";
   const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id));
-  const label = k ? "Import later inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
+  const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
   return (
     '<section class="card acc import-review"><div class="card-h"><div><h2>' +
     `${esc(c.number)}` +
@@ -1619,7 +1619,7 @@ function accelaPanel() {
             `${unfinished ? "btn-primary" : ""}` +
             '" data-import-workspace="' +
             `${esc(k.id)}` +
-            '">Continue existing case</button></div><h3>Import later inspection</h3><' +
+            '">Continue existing case</button></div><h3>Inspection to import</h3><' +
             'p class="hint">Use an unused completed inspection to start ' +
             `${p.next === "snow" ? "a snow citation" : "a reinspection worksheet"}` +
             ". Existing issued documents stay unchanged.</p>"
