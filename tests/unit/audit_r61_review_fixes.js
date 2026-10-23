@@ -43,6 +43,14 @@ require("../fixtures/bundle_test.cjs")(`
   control('administrativeType', 'bestInterestExtension');
   assert.equal(current.authoringVersion, 15);
 
+  // A current Vacancy draft switched to Best Interest for the first time gets the current Best Interest format.
+  const vacancy = adminDraft(DATED_EXTENSIONS, { originalDues: { 1: addDays(stamp, 30) } });
+  vacancy.type = 'vacancyExtension';
+  control('administrativeType', 'bestInterestExtension');
+  assert.equal(vacancy.authoringVersion, 15);
+  control('administrativeType', 'vacancyExtension');
+  assert.equal(vacancy.authoringVersion, DATED_EXTENSIONS);
+
   // The packet check compares the frozen copy labels the faces are rendered from, not today's global labels.
   WriterState.DOCS = []; newDoc('k1', 'notice');
   const citation = doc(WriterState.state.docId);

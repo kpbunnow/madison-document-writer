@@ -1380,12 +1380,12 @@ export function initNewDocuments() {
       d.authoringCache = d.authoringCache || {};
       d.authoringCache[d.type] = d.authoringVersion;
       d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
-      const created = d.authoringCache.created ?? (d.authoringCache.created = d.authoringVersion);
       d.type = el.value;
-      // A family already visited keeps its own version; a draft created at 15 gets the R61 defaults; an older
-      // draft keeps its version as before R61, so its review and signer model stay in force.
+      // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
+      // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
       d.authoringVersion =
-        d.authoringCache[d.type] ?? (created >= 15 ? (d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS) : d.authoringVersion);
+        d.authoringCache[d.type] ??
+        (d.authoringVersion >= DATED_EXTENSIONS ? (d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS) : d.authoringVersion);
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
       if (datedExtension(d)) requireDated(d.type, d.special);
       restoreDues(d);
