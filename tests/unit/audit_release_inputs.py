@@ -158,19 +158,25 @@ class ReleaseInputs(unittest.TestCase):
                 self.assertRegex(run.stdout + run.stderr, "fast or unlabelled evidence is never packaged")
                 self.assertEqual(list((base / "release").glob("*.zip")) if (base / "release").exists() else [], [])
 
-    def test_missing_gate_proof_is_refused_without_a_traceback(self):
-        # A fast run or an interrupted gate writes no repository.json; packaging refuses with its message.
-        with tempfile.TemporaryDirectory() as tmp:
-            base = Path(tmp)
-            root = base / "source"
-            root.mkdir()
-            fixture(root)
-            (root / "build/verification/latest/repository.json").unlink()
-            run = self.package(root, base / "release")
-            self.assertNotEqual(run.returncode, 0)
-            self.assertIn("repository verification is missing", run.stdout + run.stderr)
-            self.assertNotIn("Traceback", run.stdout + run.stderr)
-            self.assertFalse((base / "release").exists())
+    def test_missing_gate_or_print_proof_is_refused_without_a_traceback(self):
+        # A fast or interrupted run leaves no repository.json, and a run whose print evidence was lost leaves no
+        # r50-print-compatibility.json; packaging refuses each with its message.
+        missing = {
+            "build/verification/latest/repository.json": "repository verification is missing",
+            "build/test-results/r50-print-compatibility.json": "Print compatibility evidence is missing",
+        }
+        for relative, message in missing.items():
+            with self.subTest(relative), tempfile.TemporaryDirectory() as tmp:
+                base = Path(tmp)
+                root = base / "source"
+                root.mkdir()
+                fixture(root)
+                (root / relative).unlink()
+                run = self.package(root, base / "release")
+                self.assertNotEqual(run.returncode, 0)
+                self.assertIn(message, run.stdout + run.stderr)
+                self.assertNotIn("Traceback", run.stdout + run.stderr)
+                self.assertFalse((base / "release").exists())
 
     def test_forbidden_inventory_entries_and_directory_links_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:

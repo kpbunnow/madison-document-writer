@@ -30,6 +30,8 @@ if repository.get("passed") is not True or repository.get("files") != fingerprin
 from release_evidence import verify
 
 verify(WORK)
+if not (ROOT / "build/test-results/r50-print-compatibility.json").is_file():
+    raise SystemExit("Print compatibility evidence is missing. Run tools/verify_release.py.")
 gate = json.loads((proof / "verification.json").read_text(encoding="utf-8"))
 verified_inputs = gate.get("deploymentInputs")
 verify_deployment(ROOT, verified_inputs)
