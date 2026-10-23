@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.request
@@ -126,6 +127,11 @@ class HelperShutdown(unittest.TestCase):
             release.set()
             worker.join(5)
         self.assertEqual(results[0][0], 200, "the in-flight save completed normally")
+        # The handler writes its response before its finally block releases the activity, so the client can
+        # see the answer a moment before the counter clears. Wait (bounded) for the release itself.
+        deadline = time.monotonic() + 5
+        while server.ACTIVE_WORK and time.monotonic() < deadline:
+            time.sleep(0.01)
         self.assertEqual(server.ACTIVE_WORK, {})
         self.assertEqual(self.post("/helper/shutdown")[0], 200)
         self.assertTrue(self.stops())
