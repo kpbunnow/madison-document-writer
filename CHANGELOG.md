@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 1 (development)
+
+- The screen frame escapes its plain-text title and breadcrumb once; imported addresses on the case-actions screen are no longer inserted as markup, and no breadcrumb is escaped twice.
+- The install guide's Get-FileHash command names the packaged deploy ZIP (the packager's file-name rule is shared with the build).
+- Release identity unchanged (R62); assigned when a deploy package is requested.
+
 ## 2026-10-23 R62 — Development 3 (development)
 
 - Import rules add Reinspection No Fee Extension Processing and No Fee No Occupancy. Scheduled, Pending, Completed, Inspection, No Violation, Reinspection and No Fee Reinspection results, Initial Inspection No Entry, Assist, undated rows and inspections already used on the case are hidden; other pairs are listed greyed with their reason.

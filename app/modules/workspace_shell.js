@@ -314,6 +314,8 @@ function storageBar() {
   return connectionBanner(app_savedworkContext());
 }
 
+/* The screen frame. title and crumb are plain text and are escaped here (callers never pre-escape them);
+   actions and body are HTML built by the caller. */
 function shell(title, crumb, actions, body) {
   const nav = navigation.rail();
   return (
@@ -333,7 +335,7 @@ function shell(title, crumb, actions, body) {
     'opbar no-print"><div><span class="crumb">' +
     `${esc(crumb)}` +
     "</span><h1>" +
-    `${title}` +
+    `${esc(title)}` +
     '</h1></div><div class="topbar-actions">' +
     `${actions || ""}` +
     '</div></header>\n      <div class="content">' +
