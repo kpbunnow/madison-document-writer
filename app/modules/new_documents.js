@@ -61,7 +61,11 @@ export const syncAffected = (d) => {
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
 export const rowAffectedSelection = (d) => datedExtension(d) && !allItemExtension(d) && !isLocked(d) && !d.correction;
 const requireDated = (type, s, version = DATED_EXTENSIONS) => {
-  if (type === "vacancyExtension" && version < ALL_ITEM_EXTENSIONS) s.deadlineMode = "dated";
+  // Authoring 13-15 Vacancy is always dated; authoring 16 has no repair-deadline model, so a cached one is dropped.
+  if (type === "vacancyExtension") {
+    if (version < ALL_ITEM_EXTENSIONS) s.deadlineMode = "dated";
+    else delete s.deadlineMode;
+  }
   return s;
 };
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
