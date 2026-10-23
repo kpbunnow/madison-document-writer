@@ -867,7 +867,9 @@ function assignDue(target, visit, value, ids) {
   if (
     visit
       ? // An empty or missing intent is "not yet decided" (an import rule that asks for a choice sets "").
-        !target.draft || target.docId || (target.followupIntent && !["undecided", "extension", "citation"].includes(target.followupIntent))
+        !target.draft ||
+        target.docId ||
+        (target.followupIntent && !["undecided", "extension", "bestInterestExtension", "citation"].includes(target.followupIntent))
       : isLocked(target) || target.type !== "notice" || target.correction
   )
     return "Assign due dates is available on a new Official Notice or an open reinspection worksheet.";

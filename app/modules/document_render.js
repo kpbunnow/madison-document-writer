@@ -40,7 +40,7 @@ import {
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { alignedExtension, datedExtension, rowAffectedSelection, specialType } from "./new_documents.js";
+import { alignedExtension, datedExtension, rowAffectedSelection, simpleVacancy, specialType } from "./new_documents.js";
 
 function referralHistoryHTML(d, it) {
   const history = documentItemHistory(d, it)
@@ -267,41 +267,43 @@ function noticeHTML(d) {
                   ? `<span class="mono">${esc(fmtDate(it.doneOn || it.due))}</span>`
                   : it.done
                     ? `<span class="done-note"><strong>Corrected</strong>${esc(fmtDate(it.doneOn))}</span>`
-                    : aligned &&
-                        d.type === "vacancyExtension" &&
-                        d.special?.deadlineMode === "conditional" &&
-                        d.special.affected?.includes(String(it.no))
-                      ? '<span class="conditional-due">Conditional — see conditions above</span>'
-                      : (dueSelection && it.dueExempt !== "snow-10.28"
-                          ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
-                            esc(it.id) +
-                            '" aria-label="Select item ' +
-                            esc(num) +
-                            ' for a shared due date" title="Select for a shared due date" ' +
-                            (dueSelected.has(it.id) ? "checked" : "") +
-                            ">"
-                          : "") +
-                        (affectedRows
-                          ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
-                            '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
-                            esc(String(it.no)) +
-                            '" ' +
-                            ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
-                            ' aria-label="Item ' +
-                            esc(num) +
-                            ' is affected by this extension">Affected</label>'
-                          : "") +
-                        '<input type="date" class="d-in due-in" data-field="due" data-id="' +
-                        `${esc(it.id)}` +
-                        '" value="' +
-                        `${esc(it.due || "")}` +
-                        '" min="' +
-                        `${d.correction ? "" : MINDUE()}` +
-                        '" aria-label="Due date for item ' +
-                        `${esc(num)}` +
-                        '" ' +
-                        `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
-                        ">",
+                    : simpleVacancy(d)
+                      ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
+                      : aligned &&
+                          d.type === "vacancyExtension" &&
+                          d.special?.deadlineMode === "conditional" &&
+                          d.special.affected?.includes(String(it.no))
+                        ? '<span class="conditional-due">Conditional — see conditions above</span>'
+                        : (dueSelection && it.dueExempt !== "snow-10.28"
+                            ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+                              esc(it.id) +
+                              '" aria-label="Select item ' +
+                              esc(num) +
+                              ' for a shared due date" title="Select for a shared due date" ' +
+                              (dueSelected.has(it.id) ? "checked" : "") +
+                              ">"
+                            : "") +
+                          (affectedRows
+                            ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
+                              '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
+                              esc(String(it.no)) +
+                              '" ' +
+                              ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
+                              ' aria-label="Item ' +
+                              esc(num) +
+                              ' is affected by this extension">Affected</label>'
+                            : "") +
+                          '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+                          `${esc(it.id)}` +
+                          '" value="' +
+                          `${esc(it.due || "")}` +
+                          '" min="' +
+                          `${d.correction ? "" : MINDUE()}` +
+                          '" aria-label="Due date for item ' +
+                          `${esc(num)}` +
+                          '" ' +
+                          `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
+                          ">",
           ) +
           "\n        " +
           "".concat(
@@ -446,7 +448,7 @@ function noticeHTML(d) {
     "</th></tr></thead>\n      <tbody>" +
     "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
     "</tbody></table>\n    " +
-    (aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15)
+    (aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15) && !simpleVacancy(d)
       ? '<div class="extension-signer"><p>' +
         esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
         "\n" +

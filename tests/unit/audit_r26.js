@@ -87,8 +87,11 @@ const tests = async () => {
     newDocuments.createSpecial(r, type);
     const d = doc(WriterState.state.docId);
     assert.equal(d.type, type);
-    // Retain the original reviewed special-document contract; R61 has separate coverage.
+    // Retain the original reviewed special-document contract; R61 and R62 have separate coverage.
     d.authoringVersion = 13;
+    // R62 creates authoring-16 extensions, which take worksheet or blank due dates; an authoring-13 draft began
+    // with every item on its source deadline.
+    if (["bestInterestExtension", "vacancyExtension"].includes(type)) d.items.forEach((i) => (i.due = d.special.originalDues[i.no] ?? i.due));
     d.mailed = stamp;
     d.special = { ...d.special, ...review, ...facts };
     return d;
@@ -256,6 +259,8 @@ const tests = async () => {
   issueDocument(d);
   newDocuments.caseAction(base.id, "bestInterestExtension");
   d = doc(WriterState.state.docId);
+  // The family-switch checks below cover the authoring-13 dated model; R62 covers authoring 16.
+  d.authoringVersion = 13;
   assert.equal(d.factualVisitId, r.id);
   assert.equal(d.items[2].done, true);
   assert.equal(d.items[2].doneOn, r.date);

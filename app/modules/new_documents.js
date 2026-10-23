@@ -44,11 +44,24 @@ export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestIntere
 export const DATED_EXTENSIONS = 13;
 export const simplifiedBestInterest = (d) => d?.type === "bestInterestExtension" && d.authoringVersion >= 15;
 export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+/* Authoring 16 (R62, owner Development 3): Best Interest and Vacancy Extensions cover every uncorrected item, with
+   no affected-item selection or safety confirmation. Best Interest due dates work as on a normal Extension (the
+   worksheet's Next due date, editable in Violation items); a Vacancy Extension prints no due date for uncorrected
+   items and keeps only Scope and the next review inspection date. */
+export const ALL_ITEM_EXTENSIONS = 16;
+export const allItemExtension = (d) =>
+  (d?.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+export const simpleVacancy = (d) => d?.type === "vacancyExtension" && (d.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS;
+const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn).map((i) => String(i.no));
+/* The affected list is derived for authoring 16, so the stored record and helper checks still name the items. */
+export const syncAffected = (d) => {
+  if (allItemExtension(d)) (d.special ||= {}).affected = outstandingNumbers(d);
+};
 /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
-export const rowAffectedSelection = (d) => datedExtension(d) && !isLocked(d) && !d.correction;
-const requireDated = (type, s) => {
-  if (type === "vacancyExtension") s.deadlineMode = "dated";
+export const rowAffectedSelection = (d) => datedExtension(d) && !allItemExtension(d) && !isLocked(d) && !d.correction;
+const requireDated = (type, s, version = DATED_EXTENSIONS) => {
+  if (type === "vacancyExtension" && version < ALL_ITEM_EXTENSIONS) s.deadlineMode = "dated";
   return s;
 };
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
@@ -145,8 +158,14 @@ export function initNewDocuments() {
     return rows;
   }
   function restoreDues(d) {
+    syncAffected(d);
     const s = d.special || {},
       dated = d.type === "bestInterestExtension" || (d.type === "vacancyExtension" && s.deadlineMode === "dated");
+    if (simpleVacancy(d)) {
+      // Uncorrected items print no due date; their source deadlines stay in originalDues.
+      d.items.forEach((i) => (i.due = !i.done && !i.withdrawn ? "" : (s.originalDues?.[i.no] ?? i.due)));
+      return;
+    }
     d.items.forEach((i) => {
       i.due = dated && (s.affected || []).includes(String(i.no)) && s.extendedDues?.[i.no] ? s.extendedDues[i.no] : (s.originalDues?.[i.no] ?? i.due);
     });
@@ -163,6 +182,7 @@ export function initNewDocuments() {
     if (selector) document.querySelector(selector)?.focus({ preventScroll: true });
   }
   function specialBody(d) {
+    syncAffected(d);
     const s = d.special || {},
       type = d.type,
       at = inspAt(d),
@@ -239,6 +259,8 @@ export function initNewDocuments() {
         );
         if (text(s.access)) paras.push("Approved access conditions: " + s.access);
       }
+    } else if (type === "bestInterestExtension" && allItemExtension(d)) {
+      paras.push("Additional time is granted for the uncorrected items for the following reasons: " + clause(val(s, "reason")) + ".");
     } else if (type === "bestInterestExtension" && simplifiedBestInterest(d)) {
       paras.push("Additional time is granted for the selected items for the following reasons: " + clause(val(s, "reason")) + ".");
     } else if (type === "bestInterestExtension") {
@@ -257,6 +279,45 @@ export function initNewDocuments() {
       paras.push("The compliance dates for Item(s) " + refs + " are extended as shown below. Unlisted items retain their existing deadlines.");
       if (s.stage === "supervisory" && s.prosecutionClause)
         paras.push("If the work is not completed by the extended date, the case will be forw" + "arded to the City Attorney for legal action.");
+    } else if (simpleVacancy(d)) {
+      const place = s.scope === "unit" ? "apartment / unit" : "building";
+      paras.push(
+        "Your request for additional time to correct the violations at " +
+          address +
+          " has been reviewed. While the " +
+          place +
+          " remains vacant and the conditions below are met, we grant an extension for the uncorrected item(s).",
+      );
+      paras.push(
+        "The " +
+          place +
+          " must remain secure. The exterior" +
+          (s.scope === "unit" ? " and building common areas" : "") +
+          (" must be maintained, including removal of trash and debris, grass cuttin" +
+            "g, sidewalk snow removal, and general exterior maintenance. The property" +
+            " may be inspected periodically, including unscheduled inspections."),
+      );
+      paras.push(
+        "The next scheduled review inspection is " +
+          date(s.reviewDate) +
+          ". This appointment is separate from repair deadlines and does not grant permission to occupy.",
+      );
+      paras.push(
+        "Contact " +
+          contact(d) +
+          " at least one week before that inspection (by " +
+          date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
+          ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
+            "or Building Inspection approval may result in a citation or referral to " +
+            "the City Attorney. Failure to maintain the required areas may void this " +
+            "extension and result in enforcement action."),
+      );
+      paras.push(
+        "A further extension will be considered after the next inspection, provid" +
+          "ed vacancy and the extension conditions continue. Contact Building Inspe" +
+          "ction before a sale or transfer to arrange review of the outstanding vio" +
+          "lations and case responsibility.",
+      );
     } else if (type === "vacancyExtension") {
       paras.push(
         "Your request for additional time to correct the violations at " +
@@ -345,6 +406,7 @@ export function initNewDocuments() {
   }
   function specialChecks(d) {
     if (!specialType(d.type)) return [];
+    syncAffected(d);
     const s = d.special || {},
       out = [],
       // Affected items are checkboxes (data-special-item), not data-special fields: beside each due date in the items
@@ -364,7 +426,10 @@ export function initNewDocuments() {
           targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
         });
     const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
-    if (!simplifiedBestInterest(d)) {
+    if (simpleVacancy(d)) {
+      add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
+      if (s.scope === "unit") need("unit", "the apartment / unit identifier");
+    } else if (!simplifiedBestInterest(d)) {
       ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
         need(
           k,
@@ -459,6 +524,49 @@ export function initNewDocuments() {
           add(validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
         else need("prePostingRef", "the approved pre-posting order wording / procedure");
       }
+    } else if (allItemExtension(d)) {
+      // R62: every uncorrected item is covered; there is no selection or safety confirmation.
+      add(selected(d, s).length > 0, "There are no uncorrected items to extend.", "affected");
+      if (d.type === "bestInterestExtension") {
+        need("reason", "the reasons for additional time");
+        // The same due-date rules as a normal Extension: a future date for each uncorrected item, at most three
+        // outstanding dates, at least seven days apart.
+        const missing = selected(d, s).filter((i) => !(validISO(i.due) && i.due > (d.mailed || day())));
+        add(
+          !missing.length,
+          "Enter a future due date in Violation items for each uncorrected item.",
+          "affected",
+          missing.map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date")),
+        );
+        const dates = [
+          ...new Set(
+            selected(d, s)
+              .map((i) => i.due)
+              .filter(Boolean),
+          ),
+        ].sort();
+        add(
+          dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
+          "Use at most three outstanding dates, at least seven days apart.",
+          "affected",
+        );
+      } else {
+        add(
+          validISO(s.reviewDate) && daysBetween(d.mailed || day(), s.reviewDate) >= 7,
+          "Enter a next review inspection date at least seven days after the mailing date.",
+          "reviewDate",
+        );
+        add(
+          selected(d, s).every((i) => !i.due),
+          "Uncorrected items on a Vacancy Extension have no due date.",
+          "affected",
+        );
+      }
+      add(
+        d.items.filter((i) => i.done || i.withdrawn).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
+        "Corrected items keep their dates.",
+        "affected",
+      );
     } else {
       add(selected(d, s).length > 0, "Select at least one outstanding affected item.", "affected");
       add(
@@ -540,7 +648,7 @@ export function initNewDocuments() {
     return out;
   }
   function details(d) {
-    if (!specialType(d.type) || isLocked(d) || (d.correction && !simplifiedBestInterest(d))) return "";
+    if (!specialType(d.type) || isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
     const s = d.special || (d.special = {}),
       f = (k, label, type = "text") =>
         '<label class="f"><span>' +
@@ -565,6 +673,34 @@ export function initNewDocuments() {
         opts.map(([v, l]) => '<option value="' + v + '" ' + (s[k] === v ? "selected" : "") + ">" + e(l) + "</option>").join("") +
         "</select></label>",
       ck = (k, l) => '<label><input type="checkbox" data-special="' + k + '" ' + (s[k] ? "checked" : "") + "> " + e(l) + "</label>";
+    if (allItemExtension(d)) {
+      const family = d.administrativeAction
+        ? sel(
+            "administrativeType",
+            "Document family",
+            NEW_TYPES.map((t) => [t.id, t.label]),
+          )
+        : "";
+      return (
+        '<section class="card no-print" id="r26-details"><div class="card-h"><h2>' +
+        e(specialType(d.type).label) +
+        ' details</h2></div><div class="card-b">' +
+        (d.type === "bestInterestExtension"
+          ? '<p class="hint">Every uncorrected item is extended. Enter or change each due date in Violation items.</p>' +
+            family +
+            f("reason", "Reasons for Additional Time", "textarea")
+          : '<p class="hint">Every uncorrected item is extended while the property remains vacant; uncorrected items have no due date. Corrected items keep their dates.</p><div class="grid g2">' +
+            family +
+            sel("scope", "Scope", [
+              ["building", "Entire building"],
+              ["unit", "Apartment / unit"],
+            ]) +
+            (s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "") +
+            f("reviewDate", "Next scheduled review inspection", "date") +
+            "</div>") +
+        "</div></section>"
+      );
+    }
     if (simplifiedBestInterest(d))
       return (
         '<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>' +
@@ -1005,13 +1141,16 @@ export function initNewDocuments() {
       return;
     }
     const src = doc(r.sourceDocId),
-      s = requireDated(type, clone(r.actionDetails?.[type] || {}));
+      s = requireDated(type, clone(r.actionDetails?.[type] || {}), ALL_ITEM_EXTENSIONS);
     s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
+    const extension = ["bestInterestExtension", "vacancyExtension"].includes(type),
+      open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn;
     const d = {
       id: uid("d"),
       caseId: r.caseId,
       type,
-      authoringVersion: type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS,
+      // R62: only the extension families change format; scoped orders keep authoring 13.
+      authoringVersion: extension ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
       draft: true,
       status: "Draft",
       created: day(),
@@ -1031,12 +1170,9 @@ export function initNewDocuments() {
           ...clone(i),
           id: uid("x"),
           srcItemId: i.id,
-          due:
-            (s.affected || []).includes(String(i.no)) &&
-            s.extendedDues?.[i.no] &&
-            (type === "bestInterestExtension" || (type === "vacancyExtension" && s.deadlineMode === "dated"))
-              ? s.extendedDues[i.no]
-              : i.due,
+          // R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
+          // worksheet; a Vacancy Extension prints no due date for uncorrected items.
+          due: !open(i) ? i.due : type === "bestInterestExtension" ? (r.results[i.id] || {}).due || "" : "",
           done: res.oc === "corrected",
           doneOn: res.oc === "corrected" ? res.on || r.date : "",
           ...(["bestInterestExtension", "vacancyExtension"].includes(type)
@@ -1049,6 +1185,7 @@ export function initNewDocuments() {
         };
       }),
     };
+    syncAffected(d);
     WriterState.DOCS.unshift(d);
     if (r.draft) r.docId = d.id;
     WriterState.state.docId = d.id;
@@ -1250,7 +1387,7 @@ export function initNewDocuments() {
       mailed: "",
       cc: "",
       cits: {},
-      authoringVersion: type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS,
+      authoringVersion: ["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: recordHead(cid),
@@ -1258,9 +1395,10 @@ export function initNewDocuments() {
       inspectorId: factual?.inspectorId || docInsp(src).id,
       inspDate: factual?.date || inspAt(src).date,
       inspTime: factual?.time || inspAt(src).time,
-      special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }),
+      special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }, ALL_ITEM_EXTENSIONS),
       items: continuingItems(src).map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id, cite: false })),
     };
+    if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
     WriterState.DOCS.unshift(d);
     WriterState.state.docId = d.id;
     saveDrafts();
@@ -1383,11 +1521,18 @@ export function initNewDocuments() {
       d.type = el.value;
       // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
       // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
+      // R62: an authoring-16 draft stays on the all-item model in both families.
       d.authoringVersion =
         d.authoringCache[d.type] ??
-        (d.authoringVersion >= DATED_EXTENSIONS ? (d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS) : d.authoringVersion);
+        (d.authoringVersion >= ALL_ITEM_EXTENSIONS
+          ? ALL_ITEM_EXTENSIONS
+          : d.authoringVersion >= DATED_EXTENSIONS
+            ? d.type === "bestInterestExtension"
+              ? 15
+              : DATED_EXTENSIONS
+            : d.authoringVersion);
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
-      if (datedExtension(d)) requireDated(d.type, d.special);
+      if (datedExtension(d)) requireDated(d.type, d.special, d.authoringVersion);
       restoreDues(d);
       saveDrafts();
       refreshControls(el);
@@ -1403,7 +1548,7 @@ export function initNewDocuments() {
         if (box) box.checked = false;
       }
       s[k] = el.type === "checkbox" ? el.checked : el.value;
-      if (k === "reason" && simplifiedBestInterest(d) && d.correction) d.correction.body = specialBody(d);
+      if (d.correction && (allItemExtension(d) || (k === "reason" && simplifiedBestInterest(d)))) d.correction.body = specialBody(d);
       if (k === "deadlineMode") restoreDues(d);
       if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
       if (d.fromReinspId) {
@@ -1484,7 +1629,9 @@ export function initNewDocuments() {
     if (el.hasAttribute("data-adopt-best-interest")) {
       const d = doc(WriterState.state.docId);
       if (d?.type === "bestInterestExtension" && d.draft && !isLocked(d) && !d.correction && !d.pendingAmendment) {
-        d.authoringVersion = 15;
+        // R62: adoption moves to the current all-item format (Reasons, no safety confirmation or signer).
+        d.authoringVersion = ALL_ITEM_EXTENSIONS;
+        restoreDues(d);
         // Keep earlier review data for recovery; it is not asserted as new authorization.
         saveDrafts();
         render();

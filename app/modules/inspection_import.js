@@ -536,7 +536,8 @@ function worksheetChecks(r) {
   if (!src) return [];
   const out = [],
     add = (t, selector, label) => out.push({ ok: false, t, targets: [checkTarget(selector, label)] });
-  const dueRelevant = !r.followupIntent || r.followupIntent === "undecided" || ["extension", "citation"].includes(r.followupIntent);
+  const dueRelevant =
+    !r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
   const initial = docCase(src).date || "",
     earliest = inspAt(src).date || initial;
   if (!validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
@@ -821,7 +822,10 @@ function screenReinspect() {
                 '><span class="hint">When this result was observed; no later than this vi' +
                 "sit.</span></label>\n        " +
                 "".concat(
-                  open && (!r.followupIntent || r.followupIntent === "undecided" || ["extension", "citation"].includes(r.followupIntent))
+                  open &&
+                    (!r.followupIntent ||
+                      r.followupIntent === "undecided" ||
+                      ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent))
                     ? '<label class="f"><span>Next due date</span>\n          <input type="date"' +
                         ' data-ridue="' +
                         `${esc(it.id)}` +
@@ -1026,7 +1030,7 @@ function screenReinspect() {
       " was corrected.</strong> Write the compliance letter to tell the owner t" +
       "he case is closed. It records the visit and carries the date each item w" +
       "as met.</div></div>";
-  } else if (badDue.length && ["extension", "citation"].includes(r.followupIntent)) {
+  } else if (badDue.length && ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent)) {
     verdict =
       '<div class="banner warn"><div><strong>' +
       `${badDue.length}` +
@@ -1213,7 +1217,7 @@ function screenReinspect() {
           : "",
       ) +
       "\n     " +
-      `${!r.followupIntent || ["undecided", "extension", "citation"].includes(r.followupIntent) ? duePanel(r, true) : ""}` +
+      `${!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? duePanel(r, true) : ""}` +
       `${rows}` +
       "\n\n     " +
       "".concat(
@@ -2355,7 +2359,7 @@ function newDoc(caseId, type) {
     status: "Draft",
     draft: true,
     mailed: recordDay(today),
-    authoringVersion: 15,
+    authoringVersion: 16,
     items: [],
     cc: "",
     cits: {},

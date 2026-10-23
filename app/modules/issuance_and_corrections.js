@@ -273,7 +273,13 @@ function correctionChanges(d) {
   );
   if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
     add("special.reason", "Reasons for Additional Time", old.special?.reason, d.special?.reason);
-    add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
+    if (d.authoringVersion < 16)
+      add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
+  }
+  if (d.type === "vacancyExtension" && d.authoringVersion >= 16) {
+    add("special.scope", "Scope", old.special?.scope, d.special?.scope);
+    add("special.unit", "Apartment / unit identifier", old.special?.unit, d.special?.unit);
+    add("special.reviewDate", "Next scheduled review inspection", old.special?.reviewDate, d.special?.reviewDate);
   }
   d.items.forEach((it) => {
     const was = old.items.find((x) => x.id === it.id);

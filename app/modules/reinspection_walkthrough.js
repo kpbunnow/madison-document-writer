@@ -161,7 +161,7 @@ function walkItemReady(r, id) {
     on = result.manualDate ? result.on : result.on || r.date;
   if (!result.oc || !validISO(on) || on < docCase(source).date || on > r.date) return false;
   if (result.oc === "corrected") return true;
-  return !["extension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
+  return !["extension", "bestInterestExtension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
 }
 
 function advanceWalk(r) {

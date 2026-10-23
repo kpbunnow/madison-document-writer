@@ -102,7 +102,7 @@ function docFromReinspection(r, type) {
     mailed: recordDay(today),
     cc: "",
     cits: {},
-    ...(hasHistory || type === "citation" ? { authoringVersion: 15 } : {}),
+    ...(hasHistory || type === "citation" ? { authoringVersion: 16 } : {}),
     fromReinspId: r.id,
     fromDocId: src.id,
     expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),

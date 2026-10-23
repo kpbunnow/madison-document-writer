@@ -43,19 +43,34 @@ def active_restrictions(documents, superseded, voided):
     return [d for d in live if d.get("special", {}).get("mode") != "release" and d["id"] not in released]
 
 
+def extension_format(snap, kind=None):
+    """The rule set an extension's authoring version selects: R61 simplified Best Interest (15) and the R62
+    all-item Best Interest and Vacancy formats (16) drop rules the earlier formats require."""
+    version, kind = snap.get("authoringVersion", 0), kind or snap.get("type")
+    if kind == "bestInterestExtension":
+        return "all-items" if version >= 16 else "simplified" if version >= 15 else "reviewed"
+    if kind == "vacancyExtension":
+        return "all-items" if version >= 16 else "reviewed"
+    return ""
+
+
 def validate_best_interest_correction(snap, replaced):
-    """The simplified (authoring 15) Best Interest rules drop the reviewer and signer. A correction may use them
-    only when its original was simplified too, and may not drop back to the older rules from them."""
-    if snap.get("type") != "bestInterestExtension" or not replaced:
+    """A Best Interest or Vacancy Extension correction keeps its original's format (R61 authoring 15, R62 authoring
+    16), so it can neither drop rules its original required nor return to them."""
+    if snap.get("type") not in ("bestInterestExtension", "vacancyExtension") or not replaced:
         return
-    if (snap.get("authoringVersion", 0) >= 15) != (replaced.get("authoringVersion", 0) >= 15):
-        raise ValueError("A Best Interest Extension correction must keep its original's format")
+    if extension_format(snap) != extension_format(replaced, snap["type"]):
+        label = "Best Interest" if snap["type"] == "bestInterestExtension" else "Vacancy"
+        raise ValueError("A " + label + " Extension correction must keep its original's format")
 
 
 def validate_special_fields(snap, at=None, check_date_window=True):
     """Mirror R26 variant requirements; supplied review evidence is not role authentication."""
     kind, s = snap["type"], snap.get("special", {})
     simple_best = kind == "bestInterestExtension" and snap.get("authoringVersion", 0) >= 15
+    # R62 (authoring 16): every uncorrected item is covered; Vacancy keeps only Scope and the review date.
+    all_items = extension_format(snap) == "all-items"
+    simple_vacancy = all_items and kind == "vacancyExtension"
     if not isinstance(s, dict):
         raise ValueError("Document-specific facts must be an object")
 
@@ -69,7 +84,11 @@ def validate_special_fields(snap, at=None, check_date_window=True):
 
     if re.search(r"◯|\(\s{0,8}\)|class=[\"\']blank[\"\']", str(snap.get("frozen", {}).get("body", ""))):
         raise ValueError("Fill all printed narrative placeholders before issuance")
-    if not simple_best:
+    if simple_vacancy:
+        assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
+        if s["scope"] == "unit":
+            require("unit")
+    elif not simple_best:
         require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
         assert_fact(
             s.get("reviewed") is True
@@ -140,6 +159,36 @@ def validate_special_fields(snap, at=None, check_date_window=True):
                 )
             else:
                 require("prePostingRef")
+    elif all_items:
+        outstanding = [i for i in snap["items"] if not i.get("done") and not i.get("withdrawn")]
+        affected = s.get("affected", [])
+        assert_fact(
+            isinstance(affected, list) and outstanding and sorted(map(str, affected)) == sorted(str(i.get("no")) for i in outstanding),
+            "The extension covers every uncorrected item",
+        )
+        originals = s.get("originalDues", {})
+        assert_fact(isinstance(originals, dict), "Retain source deadlines")
+        assert_fact(
+            all(i.get("due", "") == originals.get(str(i.get("no")), i.get("due", "")) for i in snap["items"] if i not in outstanding),
+            "Corrected item dates cannot change",
+        )
+        if kind == "bestInterestExtension":
+            require("reason")
+            assert_fact(all(calendar_date(i.get("due")) and i["due"] > mailed for i in outstanding), "Each uncorrected item needs a future due date")
+            dates = sorted({i["due"] for i in outstanding})
+            assert_fact(
+                len(dates) <= 3
+                and all((datetime.date.fromisoformat(b) - datetime.date.fromisoformat(a)).days >= 7 for a, b in zip(dates, dates[1:])),
+                "Use at most three outstanding dates, seven days apart",
+            )
+        else:
+            assert_fact(
+                calendar_date(s.get("reviewDate"))
+                and calendar_date(mailed)
+                and (datetime.date.fromisoformat(s["reviewDate"]) - datetime.date.fromisoformat(mailed)).days >= 7,
+                "Record a review inspection at least seven days after mailing",
+            )
+            assert_fact(all(not i.get("due") for i in outstanding), "Uncorrected Vacancy Extension items have no due date")
     else:
         affected = s.get("affected", [])
         assert_fact(isinstance(affected, list) and affected and len(set(affected)) == len(affected), "Choose affected outstanding item numbers")
