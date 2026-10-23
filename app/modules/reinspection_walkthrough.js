@@ -24,6 +24,7 @@ import {
   ACC_MAX,
   ACC_REQUIRED,
   ACC_STATUS,
+  REFERRED_ONLY,
   DOC_TYPES,
   OUTCOMES,
   STATUS_OF,
@@ -1252,6 +1253,15 @@ function baseLookupPlan(acc) {
   if (k && !p.refresh && row?.rule && !row.rule.error) {
     const referred = docsFor(k.id).some((d) => !d.draft && !d.void && !d.superseded && (d.type === "referral" || d.type === "referralUpdate"));
     if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
+    // R62: a referred case allows only an Update for Case Referral or a Compliance Letter.
+    else if (referred && !(row.rule.choose || [row.rule.doc]).some((t) => REFERRED_ONLY.includes(t)))
+      p.blockers.push(
+        "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written; the Accela status " +
+          row.rule.status +
+          " calls for " +
+          row.rule.label +
+          ".",
+      );
     if (row.rule.needsReferral && !referred)
       p.blockers.push("This case has not been referred to the City Attorney. Use a Reinspection with status CA Referral for the first referral.");
   }

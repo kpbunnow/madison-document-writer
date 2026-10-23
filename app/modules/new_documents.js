@@ -65,6 +65,7 @@ const requireDated = (type, s, version = DATED_EXTENSIONS) => {
   return s;
 };
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
+export const REFERRED_MESSAGE = "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written.";
 export const NEW_TYPES = [
   {
     id: "summaryAbatement",
@@ -450,13 +451,9 @@ export function initNewDocuments() {
       add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
       if (s.scope === "unit") need("unit", "the apartment / unit identifier");
     }
-    if (docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x))) {
-      add(
-        specialType(d.type).effect === "supplemental" && s.emergencyApproved === true && text(s.referralCoordination),
-        "A referred case needs an approved emergency / occupancy exception and City Attorney coordination reference.",
-        "referralCoordination",
-      );
-    }
+    // R62 (owner, Development 3): a referred case allows only an Update for Case Referral or a Compliance Letter;
+    // the former emergency / occupancy exception is removed.
+    if (!d.correction && docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x))) add(false, REFERRED_MESSAGE);
     if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) {
       add(
         NUISANCES.some((v) => v[0] === s.variant && (d.type === "summaryAbatement" || v[0] !== "secure")),
@@ -887,10 +884,6 @@ export function initNewDocuments() {
           )
           .join("") +
         "</fieldset>";
-    if (docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x)))
-      fields +=
-        ck("emergencyApproved", "Approved emergency / occupancy exception on referred case") +
-        f("referralCoordination", "City Attorney coordination / approved exception reference");
     const review =
       f("authority", "Verified ordinance authority") +
       f("codeSource", "Verified current-code source URL / official reference") +
@@ -926,7 +919,7 @@ export function initNewDocuments() {
   ];
   function choices(r) {
     const referred = docsFor(r.caseId).some((x) => isEffective(x) && isHistoryDoc(x));
-    return [
+    return referredOnly(referred, [
       ["extension", "Extension", "time", "Allow more time for outstanding violations."],
       ["bestInterestExtension", "Best Interest Extension", "time", "Record a reviewed supervisory extension."],
       ["vacancyExtension", "Vacancy Extension", "time", "Grant time subject to verified vacancy and conditions."],
@@ -941,7 +934,11 @@ export function initNewDocuments() {
       ["nonSummaryAbatement", "Non-Summary Abatement", "enforcement", "Order nuisance abatement with a compliance date and Circuit Court remedy."],
       ["noOccupancy", "No Occupancy", "occupancy", "Restrict human habitation or document an approved release."],
       ["compliance", "Compliance Letter", "compliance", "Confirm correction of all active violation items."],
-    ];
+    ]);
+  }
+  // R62: on a referred case only Update for Case Referral and Compliance Letter are offered.
+  function referredOnly(referred, list) {
+    return referred ? list.filter((c) => ["referralUpdate", "compliance"].includes(c[0])) : list;
   }
   function allowedByStatus(r) {
     return r.importRule ? r.importRule.choose || [r.importRule.doc] : null;
@@ -977,8 +974,7 @@ export function initNewDocuments() {
     if (issued.some((d) => d.type === type)) return "This inspection already has that action. Open the existing document.";
     if (!supplemental({ type }) && issued.some((d) => !supplemental(d)))
       return "This inspection already has a primary follow-up. Add a compatible scoped order.";
-    if (referred && !["referralUpdate", "compliance"].includes(type) && !supplemental({ type }))
-      return "The case is with the City Attorney. Extensions and new citations are unavailable.";
+    if (referred && !["referralUpdate", "compliance"].includes(type)) return REFERRED_MESSAGE;
     if (type === "compliance" && open.length) return "Some violation items remain outstanding.";
     if (!supplemental({ type }) && type !== "compliance" && !open.length) return "No outstanding items for this action.";
     if (type === "citation" && !open.some((i) => r.results[i.id]?.cite)) return "Select the outstanding items to cite on the worksheet.";
@@ -1050,6 +1046,7 @@ export function initNewDocuments() {
       "ng one does not record another visit.</p><fieldset><legend>What should h" +
       'appen next?</legend><div class="r26-groups">' +
       groups
+        .filter(([v]) => list.some((c) => c[2] === v))
         .map(
           ([v, l]) =>
             '<label class="r26-choice"><input type="radio" name="action-group" data-action-group="' +
@@ -1356,6 +1353,10 @@ export function initNewDocuments() {
       toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
       return null;
     }
+    if (type && docsFor(cid).some((d) => isEffective(d) && isHistoryDoc(d))) {
+      toast(REFERRED_MESSAGE);
+      return null;
+    }
     if (!type) {
       WriterState.WORK.currentAction = { cid, type: "", group: "" };
       WriterState.state.screen = "caseactions";
@@ -1409,12 +1410,16 @@ export function initNewDocuments() {
       k = kase(choice.cid),
       referred = docsFor(choice.cid).some((d) => isEffective(d) && isHistoryDoc(d)),
       closed = sourceDocFor(choice.cid)?.type === "compliance";
-    const why = (t) =>
-      t.effect === "items" && (referred || closed)
-        ? referred
-          ? "Case is with the City Attorney; extensions remain unavailable."
-          : "The case’s violations are complete."
-        : "";
+    const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
+    if (referred)
+      return shell(
+        k.address || "Current case action",
+        k.number || "",
+        '<button class="btn" data-nav="cases">Workspace</button>',
+        '<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>' +
+          e(REFERRED_MESSAGE) +
+          " Import a CA Reinspection to write them.</p></div></section>",
+      );
     return shell(
       k.address || "Current case action",
       k.number || "",

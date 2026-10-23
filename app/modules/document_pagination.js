@@ -421,17 +421,52 @@ function paginate(deskOverride, documentOverride) {
     if (hasItemInspectionHistory(d)) {
       let current = r;
       while (over(p)) {
-        const history = current.querySelector(".visit-list");
-        if (!history || !history.children.length) break;
+        const history = current.querySelector(".visit-list"),
+          notesOf = () => [...current.querySelectorAll(".corr [data-history-note]")];
+        if ((!history || !history.children.length) && !notesOf().length) break;
         const continuation = current.cloneNode(true),
-          rest = [];
-        while (over(p) && history.children.length > 1) {
+          rest = [],
+          restNotes = [];
+        // R62: authoring-16 notes sit under the violation; later notes continue on the next page, and one note
+        // that does not fit is split at a word boundary, every character printed once.
+        while (over(p) && notesOf().length) {
+          const note = notesOf().at(-1);
+          restNotes.unshift(note);
+          note.remove();
+        }
+        if (restNotes.length && !over(p)) {
+          const note = restNotes[0],
+            body = note.lastChild,
+            chars = Array.from(body?.nodeType === 3 ? body.textContent : "");
+          if (chars.length) {
+            const partial = note.cloneNode(true);
+            current.querySelector(".corr").appendChild(partial);
+            const text = partial.lastChild;
+            let low = 0,
+              high = chars.length;
+            while (low < high) {
+              const middle = Math.ceil((low + high) / 2);
+              text.textContent = chars.slice(0, middle).join("");
+              if (over(p)) high = middle - 1;
+              else low = middle;
+            }
+            let split = low;
+            while (split > 0 && split < chars.length && !/\s/.test(chars[split - 1])) split--;
+            if (!split) split = low;
+            if (split > 0) {
+              text.textContent = chars.slice(0, split).join("");
+              if (split < chars.length) body.textContent = chars.slice(split).join("");
+              else restNotes.shift();
+            } else partial.remove();
+          }
+        }
+        while (history && over(p) && history.children.length > 1) {
           rest.unshift(history.lastElementChild);
           history.lastElementChild.remove();
         }
         // One observation can itself exceed a page. Split its note while
         // retaining the observation's date/outcome on each continuation.
-        const observation = history.firstElementChild,
+        const observation = history?.firstElementChild,
           note = observation?.lastElementChild;
         if (over(p) && note?.tagName === "EM" && note.textContent.startsWith("Note: ")) {
           const chars = Array.from(note.textContent.slice(6));
@@ -454,7 +489,7 @@ function paginate(deskOverride, documentOverride) {
             rest.unshift(remainder);
           } else note.textContent = "Note: " + chars.join("");
         }
-        if (!rest.length) break;
+        if (!rest.length && !restNotes.length) break;
         continuation.removeAttribute("data-row");
         continuation.querySelectorAll("[contenteditable],[data-field],[data-id]").forEach((el) => {
           el.removeAttribute("contenteditable");
@@ -463,7 +498,8 @@ function paginate(deskOverride, documentOverride) {
         });
         continuation.querySelector(".c-no").textContent = (r.querySelector(".num")?.textContent || "") + " (continued)";
         continuation.querySelector(".corr").textContent = "Inspection history continued.";
-        continuation.querySelector(".visit-list").replaceChildren(...rest);
+        continuation.querySelector(".corr").append(...restNotes);
+        continuation.querySelector(".visit-list")?.replaceChildren(...rest);
         p = newPage(true);
         p._tb.appendChild(continuation);
         current = continuation;

@@ -101,15 +101,17 @@ module.exports = async function (browser, page, context, out, axeScreen) {
               ? "27.08"
               : "SYNTHETIC reviewed division extension authority");
         d.special = { ...d.special, ...review, ...extra, authority };
-        if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
-          // Prove actual helper publication with only the supported new inputs,
-          // rather than accidentally satisfying obsolete requirements via this fixture.
-          d.special = Object.fromEntries(
-            ["affected", "originalDues", "extendedDues", "reason", "noSafety"]
-              .filter((key) => Object.hasOwn(d.special, key))
-              .map((key) => [key, d.special[key]]),
-          );
-        }
+        // Prove actual helper publication with only the supported new inputs, rather than accidentally satisfying
+        // obsolete requirements via this fixture: R61 Best Interest (15) and the R62 all-item formats (16).
+        const supported =
+          d.type === "bestInterestExtension" && d.authoringVersion >= 16
+            ? ["affected", "originalDues", "extendedDues", "reason"]
+            : d.type === "vacancyExtension" && d.authoringVersion >= 16
+              ? ["affected", "originalDues", "scope", "unit", "reviewDate"]
+              : d.type === "bestInterestExtension" && d.authoringVersion >= 15
+                ? ["affected", "originalDues", "extendedDues", "reason", "noSafety"]
+                : null;
+        if (supported) d.special = Object.fromEntries(supported.filter((key) => Object.hasOwn(d.special, key)).map((key) => [key, d.special[key]]));
         d.mailed = day;
         render();
       },
@@ -120,7 +122,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     if (
       await page.evaluate(() => {
         const d = doc(WriterState.state.docId);
-        return d.type === "bestInterestExtension" && d.authoringVersion >= 15;
+        return d.type === "bestInterestExtension" && d.authoringVersion === 15;
       })
     )
       await page.locator('[data-special="noSafety"]').check();
@@ -365,13 +367,13 @@ module.exports = async function (browser, page, context, out, axeScreen) {
           "SYNTHETIC reviewed transfer clause: contact Building Inspection before a" +
           " sale or transfer to review violations and case responsibility.",
       });
-      // Authoring 13: the affected item's new due date is entered in the items table, not the extension panel.
       assert.equal(await page.locator("[data-special-due]").count(), 0);
       assert.equal(await page.locator("#r26-details fieldset.r26-items").count(), 0, "no separate affected-item list");
-      await page.locator('.desk [data-special-item="1"]').check();
-      assert.deepEqual(await page.evaluate(() => doc(WriterState.state.docId).special.affected), ["1"]);
-      const affected = await page.evaluate(() => doc(WriterState.state.docId).items.find((i) => String(i.no) === "1").id);
-      await page.locator('[data-field="due"][data-id="' + affected + '"]').fill(await page.evaluate(() => addDays(recordDay(today), 35)));
+      // R62 (authoring 16): every uncorrected item is covered, with no selection; Best Interest takes the worksheet's
+      // Next due dates and a Vacancy Extension has no due date for uncorrected items.
+      assert.equal(await page.evaluate(() => doc(WriterState.state.docId).authoringVersion), 16);
+      assert.equal(await page.locator(".desk [data-special-item]").count(), 0, "no affected-item checkboxes");
+      assert.equal(await page.locator('.desk [data-field="due"]').count(), type === "vacancyExtension" ? 0 : 2);
       await axeScreen(page, "r26-" + type + "-" + scope);
       await issue((type === "bestInterestExtension" ? "best-interest-extension" : "vacancy-extension") + "-" + scope);
     }
@@ -441,8 +443,8 @@ module.exports = async function (browser, page, context, out, axeScreen) {
     assert.ok((await print.locator(".n-cc").count()) > 0, job.name + " preserves copies");
     assert.equal(await print.locator(".cc-mail").count(), job.emailCount ? 1 : 0, job.name + " email footer follows selected recipients");
     const text = await print.locator("body").innerText();
-    if (job.type === "bestInterestExtension" && job.authoringVersion >= 15) {
-      assert.equal(await print.locator(".extension-signer").count(), 0, "new Best Interest has no signer block");
+    if ((job.type === "bestInterestExtension" && job.authoringVersion >= 15) || (job.type === "vacancyExtension" && job.authoringVersion >= 16)) {
+      assert.equal(await print.locator(".extension-signer").count(), 0, "new Best Interest and Vacancy Extensions have no signer block");
       assert.ok(!text.includes("SYNTHETIC AUTHORIZED SIGNER"));
     } else if (!["shared-inspection-extension", "restricted-case-compliance"].includes(job.name))
       assert.ok(text.includes("SYNTHETIC AUTHORIZED SIGNER"));

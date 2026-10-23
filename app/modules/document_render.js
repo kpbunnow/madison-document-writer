@@ -42,6 +42,25 @@ import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { alignedExtension, datedExtension, rowAffectedSelection, simpleVacancy, specialType } from "./new_documents.js";
 
+/* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
+   note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the
+   approved print style hides notes on corrected rows, so these notes keep an explicit display. */
+function historyNotesHTML(d, it) {
+  return documentItemHistory(d, it)
+    .filter((x) => x.note)
+    .slice()
+    .sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")))
+    .map(
+      (x) =>
+        '<div class="it-note" data-history-note style="display:block"><span class="it-note-h">Inspector\'s note &middot; ' +
+        esc(validISO(x.on) ? fmtDate(x.on) : "Date unavailable") +
+        "</span>" +
+        esc(x.note) +
+        "</div>",
+    )
+    .join("");
+}
+
 function referralHistoryHTML(d, it) {
   const history = documentItemHistory(d, it)
     .slice()
@@ -64,7 +83,8 @@ function referralHistoryHTML(d, it) {
               esc(x.oc === "initial" ? "First observed" : d.authoringVersion >= 15 && x.oc === "corrected" ? "CORRECTED" : OC_WORD[x.oc] || x.oc) +
               "</em>" +
               (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
-              (x.note ? "<em>Note: " + esc(x.note) + "</em>" : "") +
+              // R62: authoring-16 notes print under the violation, not in the history column.
+              (x.note && d.authoringVersion < 16 ? "<em>Note: " + esc(x.note) + "</em>" : "") +
               "</span>",
           )
           .join("")
@@ -203,17 +223,19 @@ function noticeHTML(d) {
           "\n        " +
           "".concat(
             isHistoryDoc(d) || hasItemInspectionHistory(d)
-              ? (d.authoringVersion >= 14 ? [] : documentItemHistory(d, it))
-                  .filter((x) => x.note)
-                  .map(
-                    (x) =>
-                      '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
-                      `${esc(fmtDate(x.on))}` +
-                      "</span>" +
-                      `${esc(x.note)}` +
-                      "</div>",
-                  )
-                  .join("")
+              ? d.authoringVersion >= 16
+                ? historyNotesHTML(d, it)
+                : (d.authoringVersion >= 14 ? [] : documentItemHistory(d, it))
+                    .filter((x) => x.note)
+                    .map(
+                      (x) =>
+                        '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
+                        `${esc(fmtDate(x.on))}` +
+                        "</span>" +
+                        `${esc(x.note)}` +
+                        "</div>",
+                    )
+                    .join("")
               : it.note
                 ? '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
                   `${esc(fmtDate(it.noteOn))}` +

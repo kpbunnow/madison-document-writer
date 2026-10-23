@@ -252,16 +252,17 @@ def validate_special_fields(snap, at=None, check_date_window=True):
         raise ValueError("The document needs its actual factual inspection date")
 
 
-def validate_special_publication(record, snap, documents, superseded, voided, visits):
+def validate_special_publication(record, snap, documents, superseded, voided, visits, correction=False):
     if record.get("schema") not in (4, 5):
         raise ValueError("R26 actions require schema 4; update the writer and helper together")
     kind, s, rid = snap["type"], snap.get("special", {}), snap.get("fromReinspId")
     live = [d[0] for key, d in documents.items() if key not in superseded and key not in voided]
     referred = any(d.get("type") in ("referral", "referralUpdate") for d in live)
-    if referred and not (kind in SUPPLEMENTAL_TYPES and s.get("emergencyApproved") is True and str(s.get("referralCoordination", "")).strip()):
-        raise ValueError(
-            ("A referred case requires an approved scoped emergency exception and City Attorney coordination; extensions remain blocked")
-        )
+    # R62 (owner, Development 3): a referred case allows only an Update for Case Referral or a Compliance Letter; the
+    # former approved emergency / occupancy exception for scoped orders is removed. Correcting a document issued
+    # before the referral remains possible.
+    if referred and not correction:
+        raise ValueError("A referred case permits only an Update for Case Referral or a Compliance Letter")
     if snap.get("initialAction"):
         if kind not in SUPPLEMENTAL_TYPES or any(d.get("type") not in SUPPLEMENTAL_TYPES for d in live):
             raise ValueError("Use the current case source for this action")
@@ -1361,7 +1362,7 @@ def validate_publication(record, event, documents, superseded, voided, visits, c
     ):
         raise ValueError("Outstanding items require a future due date")
     if kind in SPECIAL_TYPES:
-        validate_special_publication(record, snap, documents, superseded, voided, visits)
+        validate_special_publication(record, snap, documents, superseded, voided, visits, event["type"] == "correction.issued")
         return
     source = current_document(documents, superseded, voided)
     if kind == "notice":
