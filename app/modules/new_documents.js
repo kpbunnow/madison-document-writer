@@ -1389,6 +1389,14 @@ export function initNewDocuments() {
       cc: "",
       cits: {},
       authoringVersion: ["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+      // Scoped orders retain authoring 13, so their version alone cannot date this new draft.
+      // Seed current family defaults without upgrading any pre-existing draft's cached formats.
+      authoringCache: Object.fromEntries(
+        NEW_TYPES.map((family) => [
+          family.id,
+          ["bestInterestExtension", "vacancyExtension"].includes(family.id) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+        ]),
+      ),
       administrativeAction: true,
       fromDocId: src.id,
       expectedHead: recordHead(cid),

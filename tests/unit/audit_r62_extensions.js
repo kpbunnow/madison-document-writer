@@ -220,6 +220,18 @@ const tests = async () => {
   assert.ok(/extension for Item\(s\)/.test(docBody(older)));
   const r61 = { ...clone(d), type: "bestInterestExtension", authoringVersion: 15, special: { affected: ["1"], reason: "Plan." } };
   assert.ok(docBody(r61).includes("Additional time is granted for the selected items"));
+  WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id);
+  newDocuments.caseAction(base.id, "noOccupancy");
+  const currentScoped = doc(WriterState.state.docId);
+  assert.equal(currentScoped.type, "noOccupancy");
+  assert.equal(currentScoped.authoringVersion, 13, "unchanged scoped order layout keeps its version");
+  control("administrativeType", "bestInterestExtension");
+  assert.equal(currentScoped.authoringVersion, 16, "a new R62 administrative order selects the current extension format");
+  control("administrativeType", "vacancyExtension");
+  assert.equal(currentScoped.authoringVersion, 16, "both extension families use the current all-item format");
+  WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== currentScoped.id);
+  WriterState.DOCS.unshift(d);
+  WriterState.state.docId = d.id;
   d.draft = false;
   d.status = "Final";
   d.eventId = "r62-vacancy-issued";
