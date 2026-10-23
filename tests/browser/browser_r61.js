@@ -33,6 +33,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, work, base) 
       newDoc("k1", "notice");
       const d = doc(WriterState.state.docId);
       d.type = "compliance";
+      // R61 output; R62 (authoring 16) has its own coverage in browser_r62.js.
+      d.authoringVersion = 15;
       d.items = Array.from({ length: 3 }, (_, n) => ({
         id: "item-" + n,
         no: String(n + 1),

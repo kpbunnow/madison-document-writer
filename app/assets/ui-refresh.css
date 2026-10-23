@@ -2354,3 +2354,21 @@
     display: none;
   }
 }
+
+/* R62 screen styles (screen only): import results that cannot be used are listed, greyed, with their reason. */
+@media screen {
+  .import-unavailable-list h3 {
+    margin: 16px 0 0;
+  }
+  .import-unavailable {
+    border-style: dashed;
+    background: var(--bg);
+    color: var(--ink-2);
+  }
+  .import-unavailable strong {
+    color: var(--ink-2);
+  }
+  .import-why {
+    font-weight: 700;
+  }
+}

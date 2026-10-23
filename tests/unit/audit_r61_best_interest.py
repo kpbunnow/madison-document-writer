@@ -86,14 +86,20 @@ class BestInterestRules(unittest.TestCase):
 class BestInterestCorrections(unittest.TestCase):
     def test_correction_keeps_its_originals_format(self):
         check = case_store.validate_best_interest_correction
-        for original, correction in ((13, 13), (14, 14), (15, 15), (15, 16)):
+        # R62 adds the all-item format (authoring 16), so 15 and 16 are now different formats.
+        for original, correction in ((13, 13), (14, 14), (15, 15), (16, 16), (16, 17)):
             check({"type": "bestInterestExtension", "authoringVersion": correction}, {"authoringVersion": original})
-        for original, correction in ((13, 15), (14, 15), (15, 14), (11, 15)):
+        for original, correction in ((13, 15), (14, 15), (15, 14), (11, 15), (15, 16), (16, 15), (13, 16)):
             with self.subTest(original=original, correction=correction):
                 with self.assertRaisesRegex(ValueError, "keep its original's format"):
                     check({"type": "bestInterestExtension", "authoringVersion": correction}, {"authoringVersion": original})
-        # Other families and a missing original are not affected by this rule.
+        # Vacancy Extensions changed format only at authoring 16; a missing original is not affected by this rule.
         check({"type": "vacancyExtension", "authoringVersion": 15}, {"authoringVersion": 13})
+        check({"type": "vacancyExtension", "authoringVersion": 16}, {"authoringVersion": 16})
+        for original, correction in ((13, 16), (16, 13)):
+            with self.subTest(vacancy=(original, correction)):
+                with self.assertRaisesRegex(ValueError, "Vacancy Extension correction must keep its original's format"):
+                    check({"type": "vacancyExtension", "authoringVersion": correction}, {"authoringVersion": original})
         check({"type": "bestInterestExtension", "authoringVersion": 15}, None)
 
 

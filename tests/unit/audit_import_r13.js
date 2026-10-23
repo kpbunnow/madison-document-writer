@@ -60,6 +60,11 @@ const tests = async function () {
       if (WriterState.state.acc) LOOKUP_READY.delete(WriterState.state.acc);
     }
   };
+  // R62: a used inspection is hidden from the candidates, so nothing is selected and the reason is shown.
+  const usedHidden = (acc) => {
+    const p = accelaPlan(acc);
+    return p.usedHidden > 0 && !p.row && p.blockers.some((b) => /already been used to generate a document/.test(b));
+  };
   WriterState.state.acc = make([row]);
   ok(
     "A new case starts with an initial notice",
@@ -83,7 +88,7 @@ const tests = async function () {
   WriterState.state.acc.sel = WriterState.state.acc.cases[0].rows[0].i;
   ok(
     "Changed status/owner cannot bypass duplicate inspection detection",
-    accelaPlan(WriterState.state.acc).used && accept() === null && k.owner === "TEST OWNER",
+    usedHidden(WriterState.state.acc) && accept() === null && k.owner === "TEST OWNER",
   );
   ok("Rejected repeat keeps issued evidence unchanged", JSON.stringify(WriterState.EVENTS) === history);
   let second = { ...row, InspectionType: "Reinspection", InspectionStatus: "Extension Processing", InspectionDate: visit, InspectionTime: "14:30" };
@@ -121,7 +126,7 @@ const tests = async function () {
   r.draft = false;
   r.docId = ext.id;
   WriterState.state.acc = make([second]);
-  ok("A completed reinspection cannot be imported a second time", accelaPlan(WriterState.state.acc).used && accept() === null);
+  ok("A completed reinspection cannot be imported a second time", usedHidden(WriterState.state.acc) && accept() === null);
   WriterState.state.acc = make([{ ...second, InspectionDate: "2026-09-16", InspectionTime: "10:45" }]);
   accept();
   const next = reinsp(WriterState.state.reinspId);

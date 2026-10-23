@@ -54,14 +54,18 @@ const check = async function () {
     WriterState.CASEDIR = { helper: true };
     helperJSON = async () => ({ files: [] });
   };
-  // R53: an Initial Inspection with status Completed or Compliance has no document rule and is refused (SQL and Excel).
+  // R53: an Initial Inspection with status Compliance has no document rule and is refused (SQL and Excel).
+  // R62 (owner, Development 3): status Completed is hidden, so a lookup returning only Completed lists nothing.
   for (const status of ["Completed", "Compliance"]) {
     reset();
-    WriterState.state.acc = report(status);
-    assert.ok(
-      accelaPlan(WriterState.state.acc).blockers.some((b) => /has no document rule/.test(b)),
-      status + " SQL refused",
-    );
+    if (status === "Completed") assert.throws(() => report(status), /status is not an inspection result/, status + " SQL hidden");
+    else {
+      WriterState.state.acc = report(status);
+      assert.ok(
+        accelaPlan(WriterState.state.acc).blockers.some((b) => /has no document rule/.test(b)),
+        status + " SQL refused",
+      );
+    }
     reset();
     const refusedBytes = fs.readFileSync(
       path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/r50-import-fixtures", status.toLowerCase() + ".xlsx"),
@@ -108,7 +112,7 @@ const check = async function () {
         status + " snow refused",
       );
   }
-  for (const status of ["Pending", "Cancelled", "Unknown", ""]) {
+  for (const status of ["Cancelled", "Unknown", ""]) {
     reset();
     WriterState.state.acc = report(status);
     assert.equal(WriterState.state.acc.sel, null);
@@ -120,9 +124,11 @@ const check = async function () {
   for (const [status, extra] of [
     ["Scheduled", {}],
     ["Official Notice", { InspectionType: "Assist" }],
+    // R62: Pending is hidden like Scheduled.
+    ["Pending", {}],
   ]) {
     reset();
-    assert.throws(() => report(status, extra), /Scheduled|Assist/);
+    assert.throws(() => report(status, extra), /Scheduled|Assist|not an inspection result/);
   }
   // Multiple valid results require a choice and show the actual result, not a false exclusion.
   reset();
@@ -143,7 +149,9 @@ const check = async function () {
   assert.ok(issueDocument(d));
   WriterState.state.screen = "import";
   WriterState.state.acc = report("Official Notice");
-  assert.ok(accelaPlan(WriterState.state.acc).used);
+  // R62: the used inspection is hidden; nothing can be selected and the reason is given.
+  assert.equal(accelaPlan(WriterState.state.acc).candidates.length, 0);
+  assert.ok(accelaPlan(WriterState.state.acc).blockers.some((b) => /already been used to generate a document/.test(b)));
   await confirmDatabaseCase();
   assert.equal(WriterState.REINSP.length, 0);
   WriterState.state.acc = report("Citation", { InspectionType: "Reinspection", InspectionDate: "2026-09-22" });

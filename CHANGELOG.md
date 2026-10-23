@@ -1,5 +1,14 @@
 # Release changelog
 
+## 2026-10-23 R62 — Development 3 (development)
+
+- Import rules add Reinspection No Fee Extension Processing and No Fee No Occupancy. Scheduled, Pending, Completed, Inspection, No Violation, Reinspection and No Fee Reinspection results, Initial Inspection No Entry, Assist, undated rows and inspections already used on the case are hidden; other pairs are listed greyed with their reason.
+- Authoring-16 Best Interest Extensions cover every uncorrected item, take the worksheet's Next due date like a normal Extension and have no safety confirmation.
+- Authoring-16 Vacancy Extensions cover every uncorrected item with no due date and keep only Scope and a review inspection at least seven days after mailing; the removed fields, conditions, transfer wording and signer are gone.
+- Authoring-16 referral, referral-update and compliance documents print inspector notes under the violation, corrected items included, not in the history column.
+- A referred case offers and allows only Update for Case Referral and Compliance Letter; the emergency / occupancy exception is removed.
+- Helper build 63; case schema 5, summary 6 and backup 2 unchanged. City/native acceptance remains open.
+
 ## 2026-10-23 R61 — Development 2 (development)
 
 - Authoring-15 referral/compliance histories retain item observations, notes and correction dates; compliance retains Abate values.

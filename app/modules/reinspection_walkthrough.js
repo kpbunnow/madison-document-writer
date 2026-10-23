@@ -24,6 +24,7 @@ import {
   ACC_MAX,
   ACC_REQUIRED,
   ACC_STATUS,
+  REFERRED_ONLY,
   DOC_TYPES,
   OUTCOMES,
   STATUS_OF,
@@ -33,6 +34,7 @@ import {
   accKids,
   accNorm,
   accStatusEligible,
+  hiddenImportRow,
   inspectionKind,
   statusRule,
   accStr,
@@ -160,7 +162,7 @@ function walkItemReady(r, id) {
     on = result.manualDate ? result.on : result.on || r.date;
   if (!result.oc || !validISO(on) || on < docCase(source).date || on > r.date) return false;
   if (result.oc === "corrected") return true;
-  return !["extension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
+  return !["extension", "bestInterestExtension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
 }
 
 function advanceWalk(r) {
@@ -964,8 +966,30 @@ function accParcel(v) {
   return { v: raw, warn: raw ? "Parcel number " + raw + " is not 12 digits — imported as delivered" : "" };
 }
 
+/* R62: why nothing could be listed, naming each hidden category that occurred. */
+const HIDDEN_ROW_TEXT = {
+  scheduled: "Scheduled rows (the inspection has not been completed)",
+  notDone: "rows whose status is not an inspection result (such as Pending, Completed or No Violation)",
+  noEntry: "Initial Inspection rows with status No Entry",
+  assist: "Assist rows",
+  noDate: "rows without an inspection date",
+};
+function hiddenRowsMessage(excluded, used = 0) {
+  const parts = Object.keys(HIDDEN_ROW_TEXT)
+    .filter((k) => excluded?.[k])
+    .map((k) => HIDDEN_ROW_TEXT[k]);
+  if (used && !parts.length)
+    return "Every inspection returned for this case has already been used to generate a document. Choose Continue existing case to continue or correct that work.";
+  if (!parts.length) return "";
+  return (
+    "No eligible completed inspection: the report returned only " +
+    (parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts.at(-1) : parts[0]) +
+    ". Choose a completed Initial Inspection or Reinspection."
+  );
+}
+
 function accelaTable(grid) {
-  const res = { cases: [], errors: [], notes: [], excluded: { scheduled: 0, assist: 0 } };
+  const res = { cases: [], errors: [], notes: [], excluded: { scheduled: 0, assist: 0, notDone: 0, noEntry: 0, noDate: 0 } };
   const known = Object.keys(ACC_COLS).map((k) => ACC_COLS[k]);
   const hr = grid.findIndex((r) => r && r.some((v) => accNorm(v) === "case number") && r.filter((v) => known.indexOf(accNorm(v)) >= 0).length >= 4);
   if (hr < 0) {
@@ -1000,14 +1024,12 @@ function accelaTable(grid) {
     if (!r) return;
     const num = accStr(get(r, "number"));
     if (!num) return;
-    if (/^scheduled$/i.test(accStr(get(r, "status")))) {
-      res.excluded.scheduled++;
+    // R62: hidden rows never appear among candidates and are not retained in the import history.
+    const hidden = hiddenImportRow(get(r, "type"), get(r, "status")) || (accWhen(get(r, "date"), get(r, "time")).date ? "" : "noDate");
+    if (hidden) {
+      res.excluded[hidden]++;
       return;
     }
-    if (/^assist$/i.test(accStr(get(r, "type")))) {
-      res.excluded.assist++;
-      return;
-    } // Excluded from selection and retained import history.
     let c = by[num];
     if (!c) {
       c = by[num] = { number: num, raw: {}, conflicts: [], rows: [] };
@@ -1046,10 +1068,7 @@ function accelaTable(grid) {
       warn: [],
     };
     if (w.warn) row.warn.push(w.warn);
-    if (!w.date) {
-      row.selectable = false;
-      row.why = "No inspection date";
-    } else if (st?.why) {
+    if (st?.why) {
       row.selectable = false;
       row.why = st.why;
     } else if (rule.error) {
@@ -1058,23 +1077,34 @@ function accelaTable(grid) {
     }
     c.rows.push(row);
   });
-  if (!res.cases.length)
-    res.errors.push(
-      res.excluded.scheduled || res.excluded.assist
-        ? "No eligible completed inspection: " +
-            (res.excluded.scheduled && res.excluded.assist
-              ? "only Scheduled and Assist rows were returned."
-              : res.excluded.scheduled
-                ? "only Scheduled rows were returned; the inspection has not been completed."
-                : "only Assist rows were returned; choose a completed Initial Inspection or Reinspection.")
-        : "The report has a header row but no case rows",
-    );
+  if (!res.cases.length) res.errors.push(hiddenRowsMessage(res.excluded) || "The report has a header row but no case rows");
   res.cases.forEach((c) => {
     c.rows.sort((a, b) => !a.date - !b.date || (a.date + a.time < b.date + b.time ? -1 : a.date + a.time > b.date + b.time ? 1 : 0));
     const done = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
     c.sel = done.length === 1 ? done[0].i : null;
   });
   return res;
+}
+
+/* R62: the rows offered for import. A row already used on the case is hidden, except the R53 refresh of an
+   unissued draft or worksheet's own inspection, which updates that work instead of creating new work. */
+function refreshImportPending(k, row) {
+  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
+  return pending?.draft &&
+    !pending.correction &&
+    !pending.pendingAmendment &&
+    pending.importInspection &&
+    sameInspection(pending.importInspection, inspectionIdentity(row))
+    ? pending
+    : null;
+}
+
+function importCandidates(c, k) {
+  if (!k) return c.rows;
+  return c.rows.filter((row) => {
+    if (refreshImportPending(k, row)) return true;
+    return !inspectionUsed(k, row);
+  });
 }
 
 const INITIAL_EXISTS = "An Initial Inspection result can only start a new case, and this case already exists.";
@@ -1133,17 +1163,31 @@ function baseLookupPlan(acc) {
     p.warnings.push("The report lists " + inits.length + " initial inspections — the earliest, " + fmtDate(inits[0].date) + ", is used");
   const k = WriterState.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
   p.existing = k;
-  const row = c.rows.find((x) => x.i === acc.sel) || null;
+  // R62: an inspection already used on this case is hidden. The shared record can arrive after selection,
+  // so a selection that became hidden is cleared; when exactly one eligible result remains it is the selection,
+  // as when the report lists only one (it is shown as the selected result, with nothing to choose).
+  const visible = importCandidates(c, k),
+    eligible = visible.filter((x) => x.selectable && accStatusEligible(x.status, x.type));
+  p.candidates = visible;
+  p.usedHidden = c.rows.length - visible.length;
+  const current = eligible.some((x) => x.i === acc.sel) ? acc.sel : eligible.length === 1 ? eligible[0].i : null;
+  if (current !== (acc.sel ?? null)) {
+    acc.sel = current;
+    WriterState.ACC_SELECTION_SERIAL++;
+  }
+  const row = eligible.find((x) => x.i === acc.sel) || null;
   p.row = row;
   const snowCase = snow.isCase(k) || snow.matchesImport(row);
   if (!row)
     p.blockers.push(
-      c.rows.some((x) => x.selectable && accStatusEligible(x.status, x.type))
+      eligible.length
         ? "Choose the inspection result you are documenting."
-        : "No eligible inspection result is available: " +
+        : !visible.length
+          ? hiddenRowsMessage(null, p.usedHidden)
+          : "No eligible inspection result is available: " +
             [
               ...new Set(
-                c.rows.map(
+                visible.map(
                   (x) =>
                     x.why || (accStatusEligible(x.status, x.type) ? "Missing required inspection fields" : "status " + (x.status || "not supplied")),
                 ),
@@ -1193,8 +1237,7 @@ function baseLookupPlan(acc) {
   p.next = k && src ? "reinspect" : "notice";
   // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
   // updates the stored Accela status instead of being refused as already used.
-  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
-  p.refresh = row && pending?.importInspection && sameInspection(pending.importInspection, inspectionIdentity(row)) ? pending : null;
+  p.refresh = refreshImportPending(k, row);
   if (k && !p.refresh) {
     p.used = row && inspectionUsed(k, row);
     const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id);
@@ -1203,9 +1246,7 @@ function baseLookupPlan(acc) {
         "This inspection has already been used to generate a document. Choose Con" +
           "tinue existing case to continue or correct that document." +
           // R59: a used result stays selectable so its reason is shown; another eligible result can still be chosen.
-          (c.rows.filter((x) => x.selectable && accStatusEligible(x.status, x.type)).length > 1
-            ? " To import a different inspection, choose another result above."
-            : ""),
+          (eligible.length > 1 ? " To import a different inspection, choose another result above." : ""),
       );
     else if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
     else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
@@ -1221,6 +1262,15 @@ function baseLookupPlan(acc) {
   if (k && !p.refresh && row?.rule && !row.rule.error) {
     const referred = docsFor(k.id).some((d) => !d.draft && !d.void && !d.superseded && (d.type === "referral" || d.type === "referralUpdate"));
     if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
+    // R62: a referred case allows only an Update for Case Referral or a Compliance Letter.
+    else if (referred && !(row.rule.choose || [row.rule.doc]).some((t) => REFERRED_ONLY.includes(t)))
+      p.blockers.push(
+        "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written; the Accela status " +
+          row.rule.status +
+          " calls for " +
+          row.rule.label +
+          ".",
+      );
     if (row.rule.needsReferral && !referred)
       p.blockers.push("This case has not been referred to the City Attorney. Use a Reinspection with status CA Referral for the first referral.");
   }
@@ -1534,7 +1584,8 @@ function accelaPanel() {
   const c = p.c,
     k = p.existing;
   if (!c) return "";
-  const choices = c.rows.filter((x) => x.selectable && accStatusEligible(x.status, x.type));
+  const choices = p.candidates.filter((x) => x.selectable && accStatusEligible(x.status, x.type)),
+    unavailable = p.candidates.filter((x) => !(x.selectable && accStatusEligible(x.status, x.type)));
   const pick =
     acc.cases.length > 1
       ? '<div class="f"><span>Choose a case from this report</span><div class="ch' +
@@ -1599,6 +1650,21 @@ function accelaPanel() {
       : choices.length === 1
         ? `<div class="import-selected">${summary(choices[0])}</div>`
         : "";
+  // R62: results that cannot be used are listed, greyed and not selectable, each with its reason.
+  const notAvailable = unavailable.length
+    ? '<div class="import-unavailable-list"><h3>Not available for import</h3>' +
+      unavailable
+        .map(
+          (x) =>
+            '<div class="import-selected import-unavailable" aria-disabled="true">' +
+            summary(x) +
+            '<span class="import-why">Not available: ' +
+            esc(x.why || "status " + (x.status || "not supplied") + " has no document rule") +
+            "</span></div>",
+        )
+        .join("") +
+      "</div>"
+    : "";
   const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id));
   const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
   return (
@@ -1627,6 +1693,7 @@ function accelaPanel() {
     ) +
     "\n    " +
     `${inspections}` +
+    `${notAvailable}` +
     "\n    " +
     "".concat(
       p.needDate
@@ -1701,10 +1768,13 @@ function accelaPanel() {
     "<p>The inspection type and its result status decide the document: an In" +
     "itial Inspection with Official Notice, Citation, No Occupancy or an Abat" +
     "ement result; a Reinspection with CA Referral (City Attorney Referral), " +
-    "Compliance, Citation, Ext" +
-    "ension Processing or No Occupancy; a CA Reinspection with Compliance or " +
-    "Non Compliance. Completed, Scheduled, Pending, Assist and unknown statuse" +
-    "s cannot be imported. Blank inspection times stay blank until explicitly" +
+    "Compliance, Citation, Extension Processing, No Fee Extension Processing, " +
+    "No Occupancy or No Fee No Occupancy; a CA Reinspection with Compliance or " +
+    "Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, " +
+    "Completed, Inspection, No Violation, Reinspection, No Fee Reinspection, an " +
+    "Initial Inspection with No Entry), Assist inspections, undated rows and " +
+    "inspections already used on the case are not listed; other combinations are " +
+    "listed as not available. Blank inspection times stay blank until explicitly" +
     " corrected.</p></det" +
     'ails>\n    <p class="hint">Case details change only when you confirm. Sav' +
     "e draft &amp; return to Workspace keeps this review on this device when saving succee" +

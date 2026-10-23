@@ -104,9 +104,10 @@ const test = async () => {
   ];
   newDocuments.createSpecial(WriterState.REINSP[0], "bestInterestExtension");
   const created = doc(WriterState.state.docId);
-  assert.equal(created.authoringVersion, 15, "new Best Interest Extensions use authoring 15");
+  // R62: new Best Interest and Vacancy Extensions use the all-item format, authoring 16.
+  assert.equal(created.authoringVersion, 16, "new Best Interest Extensions use authoring 16");
   assert.equal(created.items[0].note, "R54 visit note", "shared table uses the current inspection note");
-  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 15, "publication retains the selected rendering version");
+  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 16, "publication retains the selected rendering version");
   // Continue the retained authoring-13 review invalidation contract below.
   created.authoringVersion = 13;
   created.special.affected = ["1"];
@@ -168,11 +169,8 @@ const test = async () => {
     newDocuments.caseAction(original.caseId, initialType);
     const administrative = doc(WriterState.state.docId);
     assert.equal(administrative.administrativeAction, true);
-    assert.equal(
-      administrative.authoringVersion,
-      initialType === "bestInterestExtension" ? 15 : 13,
-      "administrative creation selects the family rendering version",
-    );
+    const allItems = initialType !== "notice";
+    assert.equal(administrative.authoringVersion, allItems ? 16 : 13, "administrative creation selects the family rendering version");
     for (const type of ["bestInterestExtension", "vacancyExtension"]) {
       const select = document.createElement("select");
       select.dataset.special = "administrativeType";
@@ -183,8 +181,11 @@ const test = async () => {
       root.innerHTML = noticeHTML(administrative);
       assert.equal(administrative.type, type);
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
-      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, type === "bestInterestExtension" ? 15 : 13);
-      if (type === "vacancyExtension") assert.equal(administrative.special.deadlineMode, "dated", "authoring-13 Vacancy is always dated");
+      // Every administrative draft in this loop was created by R62, including the unchanged scoped-order model.
+      // Older drafts' defaults remain covered by audit_r61_review_fixes and the explicit authoring-13 cases below.
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 16);
+      if (type === "vacancyExtension")
+        assert.equal(administrative.special.deadlineMode, undefined, "new authoring-16 Vacancy has no repair-deadline model");
       select.remove();
     }
   }
@@ -210,8 +211,13 @@ const test = async () => {
   ];
   newDocuments.createSpecial(WriterState.REINSP[0], "vacancyExtension");
   const vacancy = doc(WriterState.state.docId);
-  assert.equal(vacancy.authoringVersion, 13);
-  assert.equal(vacancy.special.deadlineMode, "dated", "a cached conditional model does not carry into authoring 13");
+  assert.equal(vacancy.authoringVersion, 16);
+  assert.equal(vacancy.special.deadlineMode, undefined, "a cached conditional model does not carry into a new Vacancy Extension");
+  // The checks below cover the authoring-13 dated model (R62 covers authoring 16): an authoring-13 draft is dated and
+  // began with every item on its source deadline.
+  vacancy.authoringVersion = 13;
+  vacancy.special.deadlineMode = "dated";
+  vacancy.items.forEach((i) => (i.due = vacancy.special.originalDues[i.no] ?? i.due));
   const panel = document.createElement("div");
   panel.innerHTML = newDocuments.details(vacancy);
   assert.equal(panel.querySelector('[data-special="deadlineMode"]'), null, "no deadline-model choice");

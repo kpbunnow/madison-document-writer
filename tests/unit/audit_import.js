@@ -629,18 +629,12 @@ async function ACC_TESTS() {
     const acc = await load(FX03868, "CB2026-254-03868.xlsx");
     ok("no read errors", acc.errors.length === 0, acc.errors.join("|"));
     const c = acc.cases[0];
-    ok("one case, two inspections", acc.cases.length === 1 && c.rows.length === 2);
-    ok("pending row listed last and not selectable", c.rows[1].status === "Pending" && !c.rows[1].selectable && c.rows[0].typeKey === "initial");
-    ok("the defined Official Notice result is selected while Pending stays excluded", acc.sel === c.rows[0].i);
+    // R62 (owner, Development 3): the report's undated Pending row is hidden rather than listed as unavailable.
+    ok("one case; the undated Pending row is hidden", acc.cases.length === 1 && c.rows.length === 1 && c.rows[0].typeKey === "initial");
+    ok("the defined Official Notice result is selected", acc.sel === c.rows[0].i);
     let p = accelaPlan(acc);
     ok("the actual report result is importable without changing its status", p.blockers.length === 0);
-    acc.sel = c.rows[1].i;
-    p = accelaPlan(acc);
-    ok(
-      "selecting the undated Pending result still cannot authorize an import",
-      !p.row.selectable && p.blockers.some((b) => /No inspection date/.test(b)),
-    );
-    acc.sel = c.rows[0].i;
+    ok("the hidden Pending row cannot be selected", !selectImportInspection(1) && acc.sel === c.rows[0].i);
     p = accelaPlan(acc);
     ok("Official Notice is a valid inspection result rather than proof of prior program issuance", p.blockers.length === 0);
     // Retain the actual exported source status throughout the import.
@@ -663,7 +657,8 @@ async function ACC_TESTS() {
     await confirmDatabaseCase();
     const k = WriterState.CASES.find((x) => x.number === "CB2026-254-03868");
     ok("case created", !!k && k.address === "1155 WILLIAMSON ST" && k.inspectorId === "i10" && k.date === "2026-09-16" && k.time === "11:12");
-    ok("history kept as reference, not events", k.accela && k.accela.inspections.length === 2 && eventsFor(k.id).length === 0);
+    // R62: like Scheduled rows, a hidden row is not part of the retained import reference.
+    ok("history kept as reference, not events", k.accela && k.accela.inspections.length === 1 && eventsFor(k.id).length === 0);
     ok(
       "a notice was opened",
       WriterState.state.screen === "write" &&
@@ -982,7 +977,7 @@ async function ACC_TESTS() {
     fresh0();
     await load(fx02537());
     WriterState.state.acc.sel = WriterState.state.acc.cases[0].rows[0].i;
-    WriterState.state.acc.cases[0].rows[0].status = "Completed";
+    // R62: selection follows the listed eligible results; the report row keeps its Official Notice status.
     acceptAccela();
     const k = WriterState.CASES.find((x) => x.number === "CB2026-180-02537");
     let N = draftDocFor(k.id);

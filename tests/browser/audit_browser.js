@@ -1269,7 +1269,8 @@ async function axeThemes(page, screen) {
   lookupError = "";
   lookupRows = [sqlRow];
   await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
-  await page.waitForFunction(() => WriterState.state.acc?.sel !== null && !WriterState.LOOKUP_BUSY);
+  // R62: a used inspection is hidden and its selection cleared, so wait for the review rather than a selection.
+  await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   // R53: searching the same inspection again is either refused as already used or, while its draft is unissued,
   // a refresh of that draft; it can never create a second draft.
   assert.equal(
@@ -1717,6 +1718,7 @@ async function axeThemes(page, screen) {
     ["browser_r59.js", "browser page context OUT axeScreen axeThemes base"],
     ["browser_r60.js", "browser page OUT axeScreen"],
     ["browser_r61.js", "browser page OUT axeScreen work base"],
+    ["browser_r62.js", "browser page OUT axeScreen"],
     // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
     ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];

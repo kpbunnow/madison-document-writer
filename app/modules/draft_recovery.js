@@ -256,14 +256,15 @@ function worksheetFaults(r, type) {
       if (!OUTCOMES.some((o) => o.id === res.oc)) faults.push("Choose a valid inspection outcome.");
       const on = res.manualDate ? res.on : res.on || r.date;
       if (!validISO(on) || on < initial || on > r.date) faults.push("Result dates must be between the initial inspection and this visit.");
-      if (type && ["extension", "citation"].includes(type) && res.oc !== "corrected" && !dueCheck(res.due, r.date).ok)
+      // R62: a Best Interest Extension takes its due dates from the worksheet, as a normal Extension does.
+      if (type && ["extension", "bestInterestExtension", "citation"].includes(type) && res.oc !== "corrected" && !dueCheck(res.due, r.date).ok)
         faults.push("Set a future due date for each outstanding item.");
     });
   if (src.type === "compliance" || src.items.every((i) => i.withdrawn))
     faults.push("This case is completed. New observations require a new case; correct a r" + "ecording error through the document history.");
-  if (["extension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)
+  if (["extension", "bestInterestExtension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)
     faults.push("Use no more than three distinct due dates.");
-  if (["extension", "citation"].includes(type) && dueDateSpacingConflicts(dueContext(r, true)).length)
+  if (["extension", "bestInterestExtension", "citation"].includes(type) && dueDateSpacingConflicts(dueContext(r, true)).length)
     faults.push("Keep distinct due dates at least seven days apart.");
   return [...new Set(faults)];
 }

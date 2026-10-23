@@ -12,7 +12,11 @@ import build_manual
 
 ROOT = Path(__file__).resolve().parents[2]
 STAFF = ROOT / "docs/staff"
-WARNING = "Completed, Scheduled, Pending, Assist and unlisted results cannot be imported."
+# R62 (owner, Development 3): hidden import rows replace the earlier "cannot be imported" list.
+WARNING = (
+    "Scheduled, Pending, Completed, Inspection, No Violation, Reinspection and No Fee Reinspection results, Initial Inspection"
+    " results with No Entry, Assist inspections, undated rows and inspections already used on the case are not listed."
+)
 
 
 class VisibleText(HTMLParser):

@@ -336,9 +336,12 @@ class R26StoreTests(unittest.TestCase):
         value = append_action(base, "summaryAbatement", special()["events"][-1]["payload"]["snapshot"]["special"], True)
         with self.assertRaises(ValueError):
             self.save(value)
+        # R62 (owner, Development 3): the approved emergency / occupancy exception is removed; a referred case allows
+        # only an Update for Case Referral or a Compliance Letter.
         s = value["events"][-1]["payload"]["snapshot"]["special"]
         s.update(emergencyApproved=True, referralCoordination="QA approved City Attorney coordination")
-        self.save(value)
+        with self.assertRaisesRegex(ValueError, "only an Update for Case Referral or a Compliance Letter"):
+            self.save(value)
 
     def test_service_evidence_separate_and_correctable(self):
         value = special("nonSummaryAbatement")

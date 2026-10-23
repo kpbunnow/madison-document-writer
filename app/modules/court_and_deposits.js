@@ -1,7 +1,7 @@
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
-import { simplifiedBestInterest } from "./new_documents.js";
+import { simpleVacancy, simplifiedBestInterest } from "./new_documents.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import { catalogDraftBlocked } from "./language_catalog.js";
@@ -465,7 +465,8 @@ function freezeSources(d) {
     case: clone(docCase(d)),
     inspector: clone(docInsp(d)),
     body: docBody(d),
-    ...(d.special && !simplifiedBestInterest(d)
+    // Authoring-15+ Best Interest and authoring-16 Vacancy Extensions have no signer or division review.
+    ...(d.special && !simplifiedBestInterest(d) && !simpleVacancy(d)
       ? {
           documentPolicyVersion: 26,
           authorizedSigner: { name: d.special.signerName, title: d.special.signerTitle, delegation: d.special.delegation },

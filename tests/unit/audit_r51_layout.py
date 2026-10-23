@@ -39,6 +39,12 @@ R60_SCREEN_MARKER = "\n/* R60 screen styles (screen only):"
 R60_SCREEN_BYTES = 756
 R60_SCREEN_SHA256 = "b3ee90fb22f0309ec21fe09991c49115c795b370da3970a41f6ae602c37c6bec"
 
+# Reviewed R62 screen-only addition appended after the R60 block: import results that cannot be used are listed,
+# greyed, with their reason. Same rules as the earlier blocks.
+R62_SCREEN_MARKER = "\n/* R62 screen styles (screen only):"
+R62_SCREEN_BYTES = 398
+R62_SCREEN_SHA256 = "d31322331f8b614d288f335c43ba644c74b1cfd8f982af6945578fdf7eb919f2"
+
 
 def _ui_refresh():
     return (ROOT / "app/assets/ui-refresh.css").read_text(encoding="utf-8")
@@ -76,10 +82,14 @@ class Layout(unittest.TestCase):
         self.assertEqual(len(r59.encode()), R59_SCREEN_BYTES, "reviewed R59 screen block size")
         self.assertEqual(hashlib.sha256(r59.encode()).hexdigest(), R59_SCREEN_SHA256, "reviewed R59 screen block bytes")
         self.assertEqual(_ui_refresh().count(R59_SCREEN_MARKER), 1, "one R59 screen block")
-        r60 = _ui_refresh()[_ui_refresh().index(R60_SCREEN_MARKER) :]
+        r60 = _ui_refresh()[_ui_refresh().index(R60_SCREEN_MARKER) : _ui_refresh().index(R62_SCREEN_MARKER)]
         self.assertEqual(_ui_refresh().count(R60_SCREEN_MARKER), 1)
         self.assertEqual(len(r60.encode()), R60_SCREEN_BYTES)
         self.assertEqual(hashlib.sha256(r60.encode()).hexdigest(), R60_SCREEN_SHA256)
+        r62 = _ui_refresh()[_ui_refresh().index(R62_SCREEN_MARKER) :]
+        self.assertEqual(_ui_refresh().count(R62_SCREEN_MARKER), 1)
+        self.assertEqual(len(r62.encode()), R62_SCREEN_BYTES)
+        self.assertEqual(hashlib.sha256(r62.encode()).hexdigest(), R62_SCREEN_SHA256)
         for name, expected in baseline["files"].items():
             text = (production / name).read_text()
             bundle = re.search(r'var B="([A-Za-z0-9+/=]+)"', text)[1]
@@ -92,6 +102,8 @@ class Layout(unittest.TestCase):
             shell = shell.replace(r59, "")
             self.assertEqual(shell.count(r60), 1, name + ": exact R60 address-flow correction")
             shell = shell.replace(r60, "")
+            self.assertEqual(shell.count(r62), 1, name + ": exact R62 import availability styles")
+            shell = shell.replace(r62, "")
             self.assertEqual(hashlib.sha256(shell.encode()).hexdigest(), expected["normalizedShellSha256"], name)
 
     def test_staff_docs_name_no_release_numbered_files(self):
