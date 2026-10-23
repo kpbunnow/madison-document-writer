@@ -158,6 +158,20 @@ class ReleaseInputs(unittest.TestCase):
                 self.assertRegex(run.stdout + run.stderr, "fast or unlabelled evidence is never packaged")
                 self.assertEqual(list((base / "release").glob("*.zip")) if (base / "release").exists() else [], [])
 
+    def test_missing_gate_proof_is_refused_without_a_traceback(self):
+        # A fast run or an interrupted gate writes no repository.json; packaging refuses with its message.
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "source"
+            root.mkdir()
+            fixture(root)
+            (root / "build/verification/latest/repository.json").unlink()
+            run = self.package(root, base / "release")
+            self.assertNotEqual(run.returncode, 0)
+            self.assertIn("repository verification is missing", run.stdout + run.stderr)
+            self.assertNotIn("Traceback", run.stdout + run.stderr)
+            self.assertFalse((base / "release").exists())
+
     def test_forbidden_inventory_entries_and_directory_links_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "source"

@@ -23,9 +23,6 @@ sys.path[:0] = [str(ROOT / p) for p in ["helper", "tools", "policy", "tests/unit
 os.environ["DW_REPO_ROOT"] = str(ROOT)
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 os.environ["PYTHONPATH"] = os.pathsep.join(sys.path[:6])
-browser_check = subprocess.run(["node", "tools/check_browser.cjs"], cwd=ROOT)
-if browser_check.returncode:
-    raise SystemExit(browser_check.returncode)
 LOGS = ROOT / "build/test-results"
 LOGS.mkdir(parents=True, exist_ok=True)
 # Consolidation Phase 2 (T3): DW_FAST=1 is a reduced-coverage development run. It skips the measured performance
@@ -35,6 +32,9 @@ MODE = "fast" if os.environ.get("DW_FAST") == "1" else "full"
 (LOGS / "results.json").write_text("[]\n", encoding="utf-8")
 (LOGS / "evidence.json").unlink(missing_ok=True)
 (LOGS / "r50-print-compatibility.json").unlink(missing_ok=True)
+browser_check = subprocess.run(["node", "tools/check_browser.cjs"], cwd=ROOT)
+if browser_check.returncode:
+    raise SystemExit(browser_check.returncode)
 
 
 def build(test=False):

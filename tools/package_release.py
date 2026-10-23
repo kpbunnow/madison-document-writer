@@ -22,7 +22,8 @@ if args.output.resolve().is_relative_to(ROOT):
 proof = ROOT / "build/verification/latest"
 if not args.evidence:
     args.evidence = proof / "browser"
-repository = json.loads((proof / "repository.json").read_text(encoding="utf-8"))
+# A fast run or an interrupted gate leaves no repository.json; that is the same refusal, not a traceback.
+repository = json.loads((proof / "repository.json").read_text(encoding="utf-8")) if (proof / "repository.json").is_file() else {}
 if repository.get("passed") is not True or repository.get("files") != fingerprint():
     raise SystemExit("Maintained source changed or repository verification is missing. Run tools/verify_release.py.")
 
