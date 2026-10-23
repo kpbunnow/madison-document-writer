@@ -1076,8 +1076,8 @@ function screenReinspect() {
   }
 
   return shell(
-    esc(k.address),
-    `${esc(k.number)} · Reinspection · working off the ${esc(srcLabel.toLowerCase())}`,
+    k.address,
+    `${k.number} · Reinspection · working off the ${srcLabel.toLowerCase()}`,
     '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
     '<div class="reinspection-workspace" data-worksheet-context="' +
       `${esc(walkIdentity(r))}` +
@@ -1605,8 +1605,8 @@ function screenWrite() {
   // R59: the checklist is in the Review dialog; the issued record and next actions stay on the page.
   const record = `${recordHistoryHTML(d)}${newDocuments.actionPanel(d)}`;
   return shell(
-    esc(k.address),
-    `${esc(k.number)} · ${esc(tyLabel)}`,
+    k.address,
+    `${k.number} · ${tyLabel}`,
     actions,
     '<div class="document-workspace" data-editor-doc="' +
       `${esc(d.id)}` +

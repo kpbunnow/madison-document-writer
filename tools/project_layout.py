@@ -116,6 +116,11 @@ def fingerprint(root=ROOT):
     return dict(sorted(files.items()))
 
 
+def package_name(release):
+    """The release-package base name: the release label with its space replaced, as packaged and documented."""
+    return "Madison-Building-Inspection-" + release.replace(" ", "-")
+
+
 def version():
     v = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
     for name in ["package.json", "package-lock.json"]:

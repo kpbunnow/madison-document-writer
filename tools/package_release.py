@@ -7,7 +7,7 @@ by the release owner; IT records that permission check in the acceptance record.
 
 from pathlib import Path
 import argparse, hashlib, json, shutil, sys, tempfile
-from project_layout import ROOT, fingerprint, assemble_deploy
+from project_layout import ROOT, fingerprint, assemble_deploy, package_name
 from release_inputs import archive, checksum, complete, prefixed, source_inventory, verify_deployment, verify_source_copy, verify_package_links
 
 WORK = ROOT
@@ -57,7 +57,7 @@ if any(manifest.get(k) != v for k, v in version.items()):
     raise SystemExit("Runtime identity differs from version.json.")
 base = args.output.resolve()
 base.mkdir(parents=True, exist_ok=True)
-name = "Madison-Building-Inspection-" + version["release"].replace(" ", "-")
+name = package_name(version["release"])
 stage = base / name
 if stage.exists():
     raise SystemExit("Choose a new output folder; existing release packages are never overwritten.")
