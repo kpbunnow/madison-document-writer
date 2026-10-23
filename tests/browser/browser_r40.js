@@ -110,6 +110,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     internalNotice: details,
     globalRecovery: true,
     realChromiumPdf: {
+      documentId: receiptData.operation.docId,
+      filename: receiptData.filename,
       bytes: raw.length,
       sha256: original.sha256,
       lostResponse: true,

@@ -3,13 +3,35 @@ const fs = require("fs"),
   path = require("path"),
   assert = require("assert/strict"),
   crypto = require("crypto");
+const { execFileSync } = require("child_process");
 module.exports = async function (browser, page, out, axeScreen, work, base) {
   const results = [],
+    packetJobs = [],
     hash = (s) => crypto.createHash("sha256").update(s).digest("hex");
   async function printCopy(label, id, amount) {
-    const data = await page.evaluate((id) => {
-      const d = doc(id);
-      return { html: printJob(d).html, snapshot: clone(d), name: caseFileName(kase(d.caseId)) };
+    // The shared browser harness mocks delivery here. Verify its byte binding;
+    // R61 separately files these real Chromium packets through actual HTTP receipts.
+    const retained = await page.evaluate(async (id) => {
+      const d = doc(id),
+        request = { ...d.filedArtifact, docId: id };
+      return {
+        first: await helperJSON("/artifact/read", request),
+        second: await helperJSON("/artifact/read", request),
+        sha256: d.filedArtifact.sha256,
+      };
+    }, id);
+    const original = Buffer.from(retained.first.pdf, "base64");
+    assert.equal(hash(original), retained.sha256, "filed original matches its receipt");
+    assert.equal(retained.second.pdf, retained.first.pdf, "repeat distribution retrieves identical original bytes");
+    const data = await page.evaluate(async (id) => {
+      const d = doc(id),
+        snapshot = eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === id).payload.snapshot;
+      return {
+        html: printJob(d).html,
+        snapshot: clone(d),
+        name: caseFileName(kase(d.caseId)),
+        operation: { docId: id, caseId: d.caseId, caseNumber: kase(d.caseId).number, version: await recordIntegrity.sourceHash(snapshot) },
+      };
     }, id);
     fs.writeFileSync(path.join(out, label + ".html"), data.html);
     const print = await browser.newPage();
@@ -35,6 +57,11 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
       label + " geometry " + JSON.stringify(geometry),
     );
     await print.pdf({ path: path.join(out, label + ".pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
+    const actualText = execFileSync("pdftotext", [path.join(out, label + ".pdf"), "-"], { encoding: "utf8" });
+    for (const copy of ["COURT COPY", "AGENCY COPY", "INSPECTOR COPY", "DEFENDANT'S COPY"])
+      assert.equal(actualText.split(copy).length - 1, 1, label + " Chromium PDF contains " + copy);
+    packetJobs.push({ label, html: data.html, operation: data.operation, pdfPath: path.join(out, label + ".pdf") });
+    fs.writeFileSync(path.join(out, "r33-packet-jobs.json"), JSON.stringify(packetJobs));
     fs.writeFileSync(path.join(out, label + ".html"), data.html);
     await print.close();
     return data;

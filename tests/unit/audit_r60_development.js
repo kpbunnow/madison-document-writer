@@ -101,10 +101,10 @@ require("../fixtures/bundle_test.cjs")(`
   assert.deepEqual(worksheetFaults(visit,'referral'),[]);
   docFromReinspection(visit,'referral');
   const generated=doc(visit.docId);
-  assert.equal(generated.type,'referral');assert.equal(generated.authoringVersion,14);
+  assert.equal(generated.type,'referral');assert.equal(generated.authoringVersion,15);
   assert.equal(generated.items[0].hist[0].on,'2026-03-07');
   assert.equal(generated.items[1].hist[0].on,'2026-03-09');
   const snap=makePublication(generated).payload.snapshot;
-  assert.equal(snap.authoringVersion,14);assert.deepEqual(snap.items[0].hist,generated.items[0].hist);
+  assert.equal(snap.authoringVersion,15);assert.deepEqual(snap.items[0].hist,generated.items[0].hist);
   console.log('PASS R60 Workspace, safe text dialog, scoped batch deadlines, item lineage, frozen history and civil-day calculations');
 `);

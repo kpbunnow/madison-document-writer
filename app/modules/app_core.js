@@ -3418,8 +3418,8 @@ document.addEventListener("input", (e) => {
     } else if (el.dataset.fmt === "time") {
       k[f] = parseTime(val) || String(val || "").trim();
     } else k[f] = val;
-    const foot = document.querySelector(".n-foot span:last-child");
-    if (f === "number" && foot) foot.textContent = val;
+    if (f === "number")
+      document.querySelectorAll(".document-workspace .n-foot .mono,.document-workspace .n-cont .r").forEach((foot) => (foot.textContent = val));
     syncChip();
     return;
   }

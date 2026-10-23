@@ -221,3 +221,15 @@ All items below remain OPEN. Automated Chromium checks do not establish staff, l
 | S60-6 | Review corrected, outstanding and later-added item histories against source observations | First-observation start; correction stop; no unrelated/carried observations; historical output retained |
 
 No R60 item is accepted by automated checks. Existing open items and legal holds remain open.
+
+## R61 Development 2 acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S61-1 | Compare referral and compliance histories to synthetic observations | One correction date per event, complete item notes, correct Abate values; historical output retained |
+| S61-2 | Inspect regular/snow citation preview, filed PDF and repeat distribution | Four distinct approved copies per charge with matching immutable receipt bytes |
+| S61-3 | Review monetary correction changes and normalized catalog references | Correct dollar/cent display; unchanged stored charges/prices and private overrides |
+| S61-4 | Exercise new Best Interest workflow and older drafts/issued output | Confirmed safety-recording workflow, no signer placeholders, valid selected deadlines; other families unchanged |
+| S61-5 | Print one/multiple-page documents on City equipment | Correct retained footer conventions, no clipping, correct address geometry and copy content |
+
+All R61 items remain OPEN. Existing holds and carried acceptance items remain open.

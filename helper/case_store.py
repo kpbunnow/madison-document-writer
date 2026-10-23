@@ -46,6 +46,7 @@ def active_restrictions(documents, superseded, voided):
 def validate_special_fields(snap, at=None, check_date_window=True):
     """Mirror R26 variant requirements; supplied review evidence is not role authentication."""
     kind, s = snap["type"], snap.get("special", {})
+    simple_best = kind == "bestInterestExtension" and snap.get("authoringVersion", 0) >= 15
     if not isinstance(s, dict):
         raise ValueError("Document-specific facts must be an object")
 
@@ -59,16 +60,17 @@ def validate_special_fields(snap, at=None, check_date_window=True):
 
     if re.search(r"◯|\(\s{0,8}\)|class=[\"\']blank[\"\']", str(snap.get("frozen", {}).get("body", ""))):
         raise ValueError("Fill all printed narrative placeholders before issuance")
-    require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
-    assert_fact(
-        s.get("reviewed") is True
-        and calendar_date(s.get("reviewDateLegal"))
-        and (not check_date_window or s["reviewDateLegal"] <= city_day(at).isoformat()),
-        "Current ordinance, wording, procedure and signer authority need recorded division review",
-    )
-    assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
-    if s["scope"] == "unit":
-        require("unit")
+    if not simple_best:
+        require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
+        assert_fact(
+            s.get("reviewed") is True
+            and calendar_date(s.get("reviewDateLegal"))
+            and (not check_date_window or s["reviewDateLegal"] <= city_day(at).isoformat()),
+            "Current ordinance, wording, procedure and signer authority need recorded division review",
+        )
+        assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
+        if s["scope"] == "unit":
+            require("unit")
     inspected = snap.get("inspDate") or snap.get("frozen", {}).get("case", {}).get("date", "")
     mailed = snap.get("mailed", "")
     if kind in ("summaryAbatement", "nonSummaryAbatement"):
@@ -135,14 +137,17 @@ def validate_special_fields(snap, at=None, check_date_window=True):
         selected = [i for i in snap["items"] if str(i.get("no")) in affected and not i.get("done") and not i.get("withdrawn")]
         assert_fact(len(selected) == len(affected), "Affected items must be outstanding source items")
         assert_fact(s.get("noSafety") is True, "Extensions must exclude reviewed safety and urgent obligations")
-        require("safetyBasis")
+        if not simple_best:
+            require("safetyBasis")
         originals = s.get("originalDues", {})
         assert_fact(isinstance(originals, dict), "Retain source deadlines")
         assert_fact(
             all(i.get("due", "") == originals.get(str(i.get("no")), i.get("due", "")) for i in snap["items"] if str(i.get("no")) not in affected),
             "Unselected item deadlines cannot change",
         )
-        if kind == "bestInterestExtension":
+        if simple_best:
+            require("reason")
+        elif kind == "bestInterestExtension":
             require("noticeRef", "reason", "intentions", "supervisor")
             assert_fact(s.get("stage") in ("administrative", "supervisory"), "Record the actual internal review stage")
             if s["stage"] == "supervisory":

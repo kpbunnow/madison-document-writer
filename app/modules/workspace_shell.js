@@ -58,6 +58,9 @@ function printableHTML(documentOverride, sheetOverride) {
     return;
   }
   const clone = sheet.cloneNode(true);
+  // A compact editor preference must never suppress a copy in printable HTML,
+  // including the fallback path that clones an already enhanced editor.
+  clone.querySelectorAll("[data-editor-extra-copy]").forEach((n) => n.removeAttribute("data-editor-extra-copy"));
   clone.querySelectorAll(".grip,.gbtn,.rm,.addrow,.no-print").forEach((n) => n.remove());
   clone.querySelectorAll("[contenteditable]").forEach((n) => n.removeAttribute("contenteditable"));
   // native inputs do not print reliably — swap them for their values
@@ -568,16 +571,21 @@ function libEntry(key) {
   return it ? { cl: cl, g: g, it: it } : null;
 }
 
+function reportSectionSignature(sections) {
+  // R61 display punctuation must not reclassify legacy items without library IDs.
+  return sections.map((s) => (s === "27.05(2)(g)2" ? "27.05(2)(g)2." : s)).join("|");
+}
+
 function violationType(it) {
   const e = libEntry(it.lib);
   if (e) return libType(e, "library");
   const t = String(it.title || "").trim(),
-    s = (it.sections || []).join("|"),
+    s = reportSectionSignature(it.sections || []),
     hits = [];
   LIBRARY.forEach((cl) =>
     cl.groups.forEach((g) =>
       g.items.forEach((x) => {
-        if (String(x.t).trim() === t && (x.s || []).join("|") === s) hits.push({ cl: cl, g: g, it: x });
+        if (String(x.t).trim() === t && reportSectionSignature(x.s || []) === s) hits.push({ cl: cl, g: g, it: x });
       }),
     ),
   );

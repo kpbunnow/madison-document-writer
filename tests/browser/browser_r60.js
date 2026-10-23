@@ -207,6 +207,11 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
           assert.equal(text.split(label).length - 1, charges, "PDF includes " + label);
         packets.push({ reinspection, charges, copies: faces.length });
       }
+    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 8);
+    assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "true");
+    await page.locator("[data-citation-copies]").click();
+    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 2);
+    assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "false");
     await page.locator("[data-citation-copies]").click();
     assert.equal(await page.locator(".document-workspace .cit:visible").count(), 8);
     assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "true");

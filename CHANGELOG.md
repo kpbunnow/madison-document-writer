@@ -1,5 +1,14 @@
 # Release changelog
 
+## 2026-10-23 R61 — Development 2 (development)
+
+- Authoring-15 referral/compliance histories retain item observations, notes and correction dates; compliance retains Abate values.
+- Citation previews show all four copies by default and packet generation checks completeness.
+- Correction reviews display monetary values using their recorded dollar/cent units.
+- Best Interest Extensions use Reasons plus the retained safety confirmation, with no signer block; earlier formats remain unchanged.
+- Current order language displays 27.05(2)(g)2 without changing its canonical charge identity.
+- Helper build 62; case schema 5, summary 6 and backup 2 unchanged. City/native acceptance remains open.
+
 ## 2026-10-22 R60 — Workspace and item history (development)
 
 - Workspace now owns prominent import/shared-search entry; the import rail destination is removed.

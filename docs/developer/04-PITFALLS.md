@@ -1,4 +1,4 @@
-# R60 current pitfalls
+# R61 current pitfalls
 
 - Keep authoring-11 and earlier special extensions and their corrections on the historical renderer. Do not downgrade authoring-12 drafts during pricing refresh, publication or correction. Conditional vacancy labels are presentation, not replacement repair dates, and exist only for authoring-12 and earlier reprints; never create an authoring-13 conditional Vacancy Extension.
 
@@ -23,3 +23,5 @@
 - Policy scripts follow the same explicit UTF-8 rule as helper/ and tools/; audit_utf8_io scans all three.
 
 - The manifest catches mistakes and damaged copies, not someone who can rewrite both the files and the manifest. Never weaken the deployment folder’s NTFS permissions (release owner write, inspectors read).
+
+R61 introduces authoring 15 for new referral/compliance history presentation and Best Interest Extensions. Compliance history is a presentation capability, not referral status. Older issued authoring versions and their correction renderers remain unchanged. See R61-REVIEW.md for implementation and the confirmed retained Best Interest safety checkbox.

@@ -87,6 +87,8 @@ const tests = async () => {
     newDocuments.createSpecial(r, type);
     const d = doc(WriterState.state.docId);
     assert.equal(d.type, type);
+    // Retain the original reviewed special-document contract; R61 has separate coverage.
+    d.authoringVersion = 13;
     d.mailed = stamp;
     d.special = { ...d.special, ...review, ...facts };
     return d;
