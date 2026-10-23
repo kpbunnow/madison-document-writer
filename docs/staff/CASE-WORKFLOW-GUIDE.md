@@ -18,7 +18,7 @@ Document Writer prepares Official Notices, Extensions, Citations, Referrals for 
 
 **End a working day.** Use Save draft & return to Workspace and verify device saving. Resolve or preserve queued work through Saved work & connection. Download a workspace backup when moving profiles or when recovery is needed. To stop the program at the end of the day or when IT asks for an update, choose Exit Document Writer in Tools & settings (Saved work & connection). It saves drafts on this device, lists unfinished work and refuses while a document is being issued or a PDF filed; queued shared saves and PDF transfers stay queued on this device until the next start. Closing a window does not stop the program. To start again, double-click Document Writer on the desktop. Do not clear browser site data while unfinished work exists.
 
-The five Writer destinations are Import inspection, Workspace, Order language, Reports, and Tools & settings. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
+The four Writer destinations are Workspace, Order language, Reports, and Tools & settings. Writer normally opens in Workspace. Its Start or find case work area contains Import inspection for unused Accela inspections and Search shared case records for existing work. Open Reports ↗ opens Reports in a new tab. Editing a case remains within Workspace. When Open case in Writer brings a case from Reports, the Writer rail shows Back to Reports instead, which returns to the same report.
 
 
 ## 3 Use Workspace and case history

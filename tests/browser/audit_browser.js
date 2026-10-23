@@ -205,8 +205,9 @@ async function axeThemes(page, screen) {
   assert.deepEqual(favicon, { status: 200, type: "image/x-icon", loaded: true }, "The favicon is served and permitted by the CSP");
   await iconContext.close();
   await page.bringToFront();
-  assert.equal((await page.locator(".rail nav .rail-item").nth(0).innerText()).trim(), "Import inspection");
-  assert.equal((await page.locator(".rail nav .rail-item").nth(1).innerText()).trim().split("\n")[0], "Workspace");
+  assert.equal((await page.locator(".rail nav .rail-item").nth(0).innerText()).trim(), "Workspace");
+  assert.equal(await page.locator('.writer-navigation [data-nav="import"]').count(), 0);
+  assert.equal((await page.locator(".rail nav .rail-item").nth(1).innerText()).trim().split("\n")[0], "Order language");
   await axeScreen(page, "workspace-empty");
   await page.screenshot({ path: path.join(OUT, "workspace-empty.png"), fullPage: true });
   for (const theme of ["dark", "high", "light"]) {
@@ -215,7 +216,7 @@ async function axeThemes(page, screen) {
   }
   await page.locator('.writer-navigation [data-nav="tools"]').click();
   await page.getByRole("heading", { name: "Tools & settings", exact: true }).waitFor();
-  assert.equal(await page.locator(".writer-navigation .rail-item").count(), 5);
+  assert.equal(await page.locator(".writer-navigation .rail-item").count(), 4);
   assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("h1")), true);
   for (const selector of [
     "[data-global-search]",
@@ -269,7 +270,9 @@ async function axeThemes(page, screen) {
   await second.getByText("Document Writer is already open", { exact: true }).waitFor();
   assert.equal(await second.evaluate(() => WriterState.WRITER_ACCESS), false);
   await second.close();
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   assert.equal(await page.locator("h1").textContent(), "Import inspection");
@@ -410,8 +413,9 @@ async function axeThemes(page, screen) {
     .first()
     .locator("..")
     .screenshot({ path: path.join(OUT, "fill-in-bubble.png") });
-  page.once("dialog", (dialog) => dialog.accept("the damaged masonry"));
   await page.locator(".blank-edit").click();
+  await page.locator("#corrective-detail").fill("the damaged masonry");
+  await page.locator("#corrective-detail-form button[type=submit]").click();
   assert.equal(
     await page.evaluate(() => doc(WriterState.state.docId).items[0].text),
     "Repair the damaged masonry on the wall. Keep existing finish.",
@@ -938,7 +942,9 @@ async function axeThemes(page, screen) {
   await page.reload();
   await page.waitForFunction(() => WriterState.CASES.length === 1 && caseState(WriterState.CASES[0]).closed);
   // R4: resolve a missing deposit through the actual UI, save/resume, issue and correct it.
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.evaluate(() => {
     const id = "qa-cit-002";
@@ -1059,7 +1065,7 @@ async function axeThemes(page, screen) {
   await page.locator('.writer-navigation [data-nav="tools"]').click();
   await page.locator("#navigation-save-failure").waitFor();
   assert.equal(await page.evaluate(() => WriterState.state.screen), "write");
-  assert.equal(await page.locator(".writer-navigation .rail-item").count(), 5);
+  assert.equal(await page.locator(".writer-navigation .rail-item").count(), 4);
   await axeScreen(page, "navigation-save-failure");
   await axeThemes(page, "navigation-save-failure");
   const emergencyBackup = await Promise.all([page.waitForEvent("download"), page.locator("[data-workbackup]").click()]);
@@ -1184,7 +1190,9 @@ async function axeThemes(page, screen) {
   await manualPage.pdf({ path: path.join(OUT, "manual-deposit-citation.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
   await manualPage.close();
   // Direct lookup: SQL responses are fixtures; shared records and IndexedDB are real.
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   const sqlNumber = "CB2026-241-90001";
   const sqlRow = {
@@ -1228,7 +1236,9 @@ async function axeThemes(page, screen) {
   assert.equal(await page.evaluate((n) => WriterState.CASES.filter((k) => k.number === n).length, sqlNumber), 1);
   const lookupId = await page.evaluate((n) => WriterState.CASES.find((k) => k.number === n).id, sqlNumber);
   assert.equal(await page.evaluate((id) => docsFor(id).filter((d) => d.draft).length, lookupId), 1);
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   lookupRows = [
     sqlRow,
@@ -1291,7 +1301,9 @@ async function axeThemes(page, screen) {
   await page.waitForFunction((id) => !!sourceDocFor(id) && !draftDocFor(id), lookupId);
   const importedNotice = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
   await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
@@ -1329,7 +1341,9 @@ async function axeThemes(page, screen) {
   await page.waitForFunction((id) => sourceDocFor(id)?.type === "extension" && !draftDocFor(id), lookupId);
   const importedExtension = await page.evaluate((id) => sourceDocFor(id).id, lookupId);
   await page.waitForFunction(() => !WriterState.AMENDMENT_BUSY && !WriterState.LOOKUP_BUSY && !WriterState.LOCAL_SAVE.saving);
-  await page.locator('[data-nav="import"]').first().click();
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.waitForFunction(() => WriterState.state.screen === "cases");
+  await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
   await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
@@ -1701,6 +1715,7 @@ async function axeThemes(page, screen) {
     ["browser_r44.js", "browser page OUT axeScreen axeThemes"],
     ["browser_r54.js", "browser page OUT axeScreen"],
     ["browser_r59.js", "browser page context OUT axeScreen axeThemes base"],
+    ["browser_r60.js", "browser page OUT axeScreen"],
     // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
     ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];
@@ -1749,7 +1764,7 @@ async function axeThemes(page, screen) {
         cspViolations,
         reportCounts,
         checks: [
-          "five-destination Writer rail and grouped Tools controls",
+          "four-destination Writer rail and grouped Tools controls",
           "failed navigation retains editor and downloads approved fields in backup",
           "equivalent ordinance typing preserves approved deposit",
           "dynamic helper health version match",

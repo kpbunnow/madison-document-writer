@@ -90,7 +90,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       time: kase(doc(WriterState.state.docId).caseId).time,
     }));
     assert.equal(draft.time, "");
-    await page.locator("[data-nav=import]").first().click();
+    await page.locator(".writer-navigation [data-nav=cases]").click();
+    await page.waitForFunction(() => WriterState.state.screen === "cases");
+    await page.locator(".workspace-start [data-nav=import]").click();
     await openExcel();
     await upload("multiple");
     assert.equal(await page.locator("[data-import-workspace]").innerText(), "Continue existing case");
@@ -100,7 +102,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, draft.id);
     assert.equal(await page.evaluate(() => WriterState.DOCS.length), 1);
     for (const name of ["scheduled-only", "assist-only", "pending-only"]) {
-      await page.locator("[data-nav=import]").first().click();
+      await page.locator(".writer-navigation [data-nav=cases]").click();
+      await page.waitForFunction(() => WriterState.state.screen === "cases");
+      await page.locator(".workspace-start [data-nav=import]").click();
       await page.locator("#acc-cancel").click();
       await openExcel();
       await upload(name);
@@ -123,7 +127,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(await page.evaluate(() => doc(WriterState.state.docId).inspTime), "");
     await axeScreen(page, "r45-snow-blank-time");
     // Fetch ignores abort deliberately to prove result-generation protection.
-    await page.locator("[data-nav=import]").first().click();
+    await page.locator(".writer-navigation [data-nav=cases]").click();
+    await page.waitForFunction(() => WriterState.state.screen === "cases");
+    await page.locator(".workspace-start [data-nav=import]").click();
     await page.evaluate(() => {
       window.fetch = async () => await new Promise((r) => (window.__r45Lookup = r));
     });

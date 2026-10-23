@@ -1,6 +1,6 @@
 /* Document and citation-face renderers: authored notice HTML, print documents and the four court copies. */
 import { mailingMaxDay, recordDay } from "../assets/shared.js";
-import { fmtDate, fmtTime, inspAt, longDate, parseTime } from "./court_and_deposits.js";
+import { fmtDate, fmtTime, inspAt, longDate, parseTime, validISO } from "./court_and_deposits.js";
 import { documentItemHistory, revisionPrintNote } from "./issuance_and_corrections.js";
 import { catalogDraftNotice } from "./language_catalog.js";
 import {
@@ -41,6 +41,42 @@ import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } 
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { alignedExtension, datedExtension, rowAffectedSelection, specialType } from "./new_documents.js";
+
+function referralHistoryHTML(d, it) {
+  const history = documentItemHistory(d, it)
+    .slice()
+    .sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")));
+  const dates = history.map((x) => x.on),
+    end = it.done ? it.doneOn : dates.at(-1),
+    start = dates[0];
+  const valid =
+    dates.length && dates.every(validISO) && validISO(end) && end >= start && (!it.done || history.some((x) => x.oc === "corrected" && x.on === end));
+  const days = valid ? (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) / 86400000 : null;
+  return (
+    '<span class="visit-list" style="white-space:normal;overflow-wrap:anywhere">' +
+    (history.length
+      ? history
+          .map(
+            (x) =>
+              "<span><b>" +
+              esc(validISO(x.on) ? fmtDate(x.on) : "Date unavailable") +
+              "</b><em>" +
+              esc(x.oc === "initial" ? "First observed" : OC_WORD[x.oc] || x.oc) +
+              "</em>" +
+              (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
+              (x.note ? "<em>Note: " + esc(x.note) + "</em>" : "") +
+              "</span>",
+          )
+          .join("")
+      : "<span>Inspection history unavailable</span>") +
+    (it.done && !it.withdrawn
+      ? '<span class="done-note"><strong>Corrected</strong>' + esc(validISO(it.doneOn) ? fmtDate(it.doneOn) : "Date unavailable") + "</span>"
+      : "") +
+    "<span><strong>Days Outstanding: " +
+    (it.withdrawn || days === null ? "Unavailable" : days) +
+    "</strong></span></span>"
+  );
+}
 
 function noticeHTML(d) {
   const aligned = alignedExtension(d);
@@ -161,7 +197,7 @@ function noticeHTML(d) {
           "\n        " +
           "".concat(
             isHistoryDoc(d)
-              ? documentItemHistory(d, it)
+              ? (d.authoringVersion >= 14 ? [] : documentItemHistory(d, it))
                   .filter((x) => x.note)
                   .map(
                     (x) =>
@@ -200,24 +236,27 @@ function noticeHTML(d) {
           '\n      <td class="c-due">' +
           "".concat(
             it.withdrawn
-              ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>`
+              ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
+                  (isHistoryDoc(d) && d.authoringVersion >= 14 ? referralHistoryHTML(d, it) : "")
               : isHistoryDoc(d)
-                ? it.done
-                  ? `<span class="done-note"><strong>Corrected</strong>${esc(fmtDate(it.doneOn))}</span>`
-                  : '<span class="visit-list">' +
-                    "".concat(
-                      documentItemHistory(d, it).length
-                        ? documentItemHistory(d, it)
-                            .map(
-                              (x) =>
-                                `<span><b>${esc(fmtDate(x.on))}</b><em>${esc(OC_WORD[x.oc] || x.oc)}</em>${
-                                  x.cit ? `<i>Citation ${esc(x.cit)}</i>` : ""
-                                }</span>`,
-                            )
-                            .join("")
-                        : '<span class="muted">no reinspection recorded</span>',
-                    ) +
-                    "</span>"
+                ? d.authoringVersion >= 14
+                  ? referralHistoryHTML(d, it)
+                  : it.done
+                    ? `<span class="done-note"><strong>Corrected</strong>${esc(fmtDate(it.doneOn))}</span>`
+                    : '<span class="visit-list">' +
+                      "".concat(
+                        documentItemHistory(d, it).length
+                          ? documentItemHistory(d, it)
+                              .map(
+                                (x) =>
+                                  `<span><b>${esc(fmtDate(x.on))}</b><em>${esc(OC_WORD[x.oc] || x.oc)}</em>${
+                                    x.cit ? `<i>Citation ${esc(x.cit)}</i>` : ""
+                                  }</span>`,
+                              )
+                              .join("")
+                          : '<span class="muted">no reinspection recorded</span>',
+                      ) +
+                      "</span>"
                 : d.type === "compliance"
                   ? `<span class="mono">${esc(fmtDate(it.doneOn || it.due))}</span>`
                   : it.done
@@ -397,7 +436,7 @@ function noticeHTML(d) {
     "orrections Required</th>" +
     `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
     '<th class="c-due">' +
-    `${isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
+    `${isHistoryDoc(d) ? (d.authoringVersion >= 14 ? "Inspection History" : "") : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
     "</th></tr></thead>\n      <tbody>" +
     "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
     "</tbody></table>\n    " +

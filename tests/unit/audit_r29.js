@@ -163,7 +163,7 @@ const test = async () => {
   WriterState.REPORT_RETURN = true;
   WriterState.state.screen = "caseactions";
   rail.innerHTML = navigation.rail();
-  assert.equal(rail.children.length, 5);
+  assert.equal(rail.children.length, 4);
   assert.equal(rail.querySelectorAll("[data-report-return]").length, 1);
   assert.equal(rail.querySelectorAll("a").length, 0);
   assert.equal(rail.querySelector('[data-nav="cases"]').getAttribute("aria-current"), "page");
@@ -223,7 +223,7 @@ const test = async () => {
   WriterState.state.screen = "tools";
   render();
   A11Y.enhance();
-  assert.equal(document.querySelectorAll(".writer-navigation .rail-item").length, 5);
+  assert.equal(document.querySelectorAll(".writer-navigation .rail-item").length, 4);
   assert.ok(document.querySelector("[data-a11y-history]"));
   console.log(
     "PASS R29 typed charge preservation, resumed edits, commit validation, fa" +

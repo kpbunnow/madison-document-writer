@@ -190,7 +190,7 @@ if (process.argv[2] === "reports") {
     const search = document.getElementById("case-search");
     assert.equal(text(search.closest("label").querySelector(".sr-only")), "Search this workspace");
     assert.equal(search.placeholder, "Search this workspace…");
-    assert.equal(text(document.querySelector(".topbar [data-global-search]")), "Search shared case records");
+    assert.equal(text(document.querySelector(".workspace-start [data-global-search]")), "Search shared case records");
     assert.match(text(document.querySelector(".case-count")), /Use Search shared case records for records outside this workspace\./);
     assert.equal(document.querySelector("[data-shared-offer]"), null, "no offer while workspace results are shown");
     WriterState.state.caseQ = "  QA-NOT-HERE-77 ";
@@ -198,7 +198,7 @@ if (process.argv[2] === "reports") {
     assert.match(text(document.querySelector(".case-table .empty")), /^No cases match these filters\./);
     const offer = document.querySelector(".case-table .empty [data-shared-offer]");
     assert.equal(text(offer), "Search shared case records for “QA-NOT-HERE-77”");
-    assert.equal(document.querySelectorAll("[data-global-search]").length, 1, "the toolbar entry stays the only data-global-search control");
+    assert.equal(document.querySelectorAll("[data-global-search]").length, 1, "the Workspace entry stays the only data-global-search control");
     fetches = 0;
     offer.click();
     await tick();

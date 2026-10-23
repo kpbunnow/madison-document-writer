@@ -207,3 +207,17 @@ All items below remain OPEN. Automated Chromium checks do not establish staff, l
 | S59-4 | Staff review warnings and errors clearing after 15 seconds and their Message history entries | OPEN | ____________________ |
 | S59-5 | Typography on City PCs at the display settings and browser zoom in use (100%, 125%, 150%, 200%), Writer screens and Reports: readable sizes, wrapping buttons and labels, nothing clipped | OPEN | ____________________ |
 | S59-6 | Remove item and due-date controls at City zoom and display scaling: the calendar button opens the date picker, the remove button removes only its item, and both are reachable by keyboard | OPEN | ____________________ |
+
+
+## R60 Workspace and referral acceptance — OPEN
+
+| ID | Procedure | Required result |
+| --- | --- | --- |
+| S60-1 | Start from the desktop icon; find/import a case from Workspace, cancel and resume unfinished work | Clear four-destination navigation; no lost work or duplicate import |
+| S60-2 | Fill corrective-action text using keyboard and assistive technology; Save, Cancel and Escape | Clear labels, focus trap/return, unchanged text on cancellation |
+| S60-3 | Select outstanding items in one reinspection and apply a shared due date; test conflicts and failed saves | Explicit scope, eligibility and existing deadline rules; truthful retained/save state |
+| S60-4 | Inspect initial/reinspection, one/multiple-charge citation PDFs and Outlook attachments | Court, Agency, Inspector and Defendant copies all present with distinct approved content |
+| S60-5 | Compare referral/update editors at normal/enlarged zoom and print with City left-window envelopes | No editor overlap; approved physical address alignment preserved |
+| S60-6 | Review corrected, outstanding and later-added item histories against source observations | First-observation start; correction stop; no unrelated/carried observations; historical output retained |
+
+No R60 item is accepted by automated checks. Existing open items and legal holds remain open.

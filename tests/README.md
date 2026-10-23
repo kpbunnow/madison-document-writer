@@ -217,3 +217,12 @@ workflow. Each receives the arguments named in its row.
 | `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors, current security/acceptance wording; every edition (PDF inspection required) carries the current source digest |
 | `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |
+
+
+## R60 Workspace and referrals
+
+| Suite | Covers |
+| --- | --- |
+| `audit_r60_development.js` | Workspace entry, safe text-dialog changes, reinspection deadline scope, item lineage, retained referral history and calendar-day calculations |
+| `audit_r60_review_fixes.js` | PR 31 review corrections: batch dates with an undecided follow-up, stale hidden selections, dialog focus after an asynchronous close, initial citation numbers in item history, Workspace current while importing |
+| `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |

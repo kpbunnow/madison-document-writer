@@ -786,7 +786,16 @@ function dueContext(target, visit) {
   if (visit) {
     const src = doc(target.sourceDocId);
     return (src ? src.items : [])
-      .filter((i) => !i.done && !i.withdrawn && target.results[i.id] && target.results[i.id].oc && target.results[i.id].oc !== "corrected")
+      .filter(
+        (i) =>
+          !i.done &&
+          !i.withdrawn &&
+          target.results[i.id] &&
+          target.results[i.id].oc &&
+          target.results[i.id].oc !== "corrected" &&
+          target.results[i.id].oc !== "withdrawn" &&
+          !target.results[i.id].carried,
+      )
       .map((i) => ({ id: i.id, no: i.no, title: i.title, due: target.results[i.id].due || "" }));
   }
   return dueItems(target);
@@ -837,7 +846,7 @@ function duePanel(target, visit) {
         "</div>"
       : "") +
     '<div class="editor-tools">' +
-    (visit ? "" : "<span data-due-selected>" + dueSelectedText(items, selected) + "</span>") +
+    ("<span data-due-selected>" + dueSelectedText(items, selected) + "</span>") +
     '<button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear' +
     ' selection</button><label for="bulk-due">Date for selected items</label>' +
     '<input type="date" id="bulk-due" value="' +
@@ -855,11 +864,17 @@ function dueSelectedText(items, selected) {
 }
 
 function assignDue(target, visit, value, ids) {
-  if (visit ? !target.draft || target.docId : target.type !== "notice" || target.correction)
+  if (
+    visit
+      ? // An empty or missing intent is "not yet decided" (an import rule that asks for a choice sets "").
+        !target.draft || target.docId || (target.followupIntent && !["undecided", "extension", "citation"].includes(target.followupIntent))
+      : isLocked(target) || target.type !== "notice" || target.correction
+  )
     return "Assign due dates is available on a new Official Notice or an open reinspection worksheet.";
   const items = dueContext(target, visit),
     selected = new Set(ids || []);
-  if (!items.some((i) => selected.has(i.id))) return "Select at least one outstanding item.";
+  if (!selected.size) return "Select at least one outstanding item.";
+  if ([...selected].some((id) => !items.some((i) => i.id === id))) return "The selection changed. Select only current outstanding items.";
   if (!validISO(value) || value < MINDUE()) return "Choose a future due date.";
   const proposed = items.map((i) => ({ ...i, due: selected.has(i.id) ? value : i.due }));
   if (distinctDues(proposed).length > 3) return "That would create more than three due dates. Select a larger group or use an existing date.";

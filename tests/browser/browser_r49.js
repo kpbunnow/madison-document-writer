@@ -25,7 +25,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await page.goto(base);
     await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER);
     await page.locator('[data-nav="tools"]').click();
-    assert.equal(await page.locator(".writer-navigation .rail-item").count(), 5);
+    assert.equal(await page.locator(".writer-navigation .rail-item").count(), 4);
     const link = page.getByRole("link", { name: "Open program manual (new tab)", exact: true });
     assert.equal(await link.getAttribute("href"), "PROGRAM-MANUAL.html");
     const manual = await Promise.all([page.waitForEvent("popup"), link.click()]);
@@ -60,7 +60,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
       manualChapters: 22,
       manualPdfServed: true,
       reflowWidths: [390, 320],
-      fiveDestinations: true,
+      fourDestinations: true,
     };
     fs.writeFileSync(path.join(OUT, "r49-production-results.json"), JSON.stringify(result, null, 2));
     return result;

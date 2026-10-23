@@ -2320,3 +2320,37 @@
     }
   }
 }
+
+/* R60 screen styles (screen only): compact Workspace entry, four destinations and address flow. */
+@media screen {
+  .workspace-start .card-h {
+    padding: 8px 14px;
+  }
+  .workspace-start .card-b {
+    padding: 10px 14px;
+  }
+  .workspace-start p {
+    margin: 6px 0 0;
+  }
+  @media (max-width: 760px) {
+    .writer-navigation .rail-item:last-child {
+      grid-column: auto;
+    }
+  }
+}
+@media screen and (min-width: 861px) {
+  .document-workspace .sheet:not(.cont) .n-owner {
+    position: relative;
+    top: auto;
+    left: 0.275in;
+    margin: 0.2in 0 0;
+    max-height: none;
+    overflow: visible;
+  }
+  .document-workspace .sheet:not(.cont) .n-winspace {
+    height: 0.75in;
+  }
+  .document-workspace .sheet .win-note {
+    display: none;
+  }
+}

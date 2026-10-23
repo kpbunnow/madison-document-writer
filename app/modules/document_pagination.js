@@ -2,7 +2,7 @@ import { recordDay } from "../assets/shared.js";
 import { applyDeposit, citationNumber, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { narrativeFor } from "./reinspection_walkthrough.js";
-import { itemHistory } from "./issuance_and_corrections.js";
+import { itemHistory, itemInspectionHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
 import { editorSync, highlightOpenChecks, overlayHTML, render } from "./inspection_import.js";
 import { documentHTML } from "./document_render.js";
@@ -102,6 +102,7 @@ function docFromReinspection(r, type) {
     mailed: recordDay(today),
     cc: "",
     cits: {},
+    ...(hasHistory ? { authoringVersion: 14 } : {}),
     fromReinspId: r.id,
     fromDocId: src.id,
     expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
@@ -131,6 +132,7 @@ function docFromReinspection(r, type) {
   // a citation is filed per ordinance, so each ticked item gets its own form
   // register the document before its citations are numbered, so each number is
   // checked against the ones already issued on this document too
+  if (hasHistory) nd.items.forEach((it) => (it.hist = itemInspectionHistory(nd, it)));
   WriterState.DOCS.unshift(nd);
   if (REFERRED_ONLY.indexOf(type) < 0 && docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x))) {
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
@@ -415,6 +417,57 @@ function paginate(deskOverride, documentOverride) {
       p = newPage(true);
       if (carry) p._tb.appendChild(carry);
       p._tb.appendChild(r);
+    }
+    if (d.authoringVersion >= 14 && isHistoryDoc(d)) {
+      let current = r;
+      while (over(p)) {
+        const history = current.querySelector(".visit-list");
+        if (!history || !history.children.length) break;
+        const continuation = current.cloneNode(true),
+          rest = [];
+        while (over(p) && history.children.length > 1) {
+          rest.unshift(history.lastElementChild);
+          history.lastElementChild.remove();
+        }
+        // One observation can itself exceed a page. Split its note while
+        // retaining the observation's date/outcome on each continuation.
+        const observation = history.firstElementChild,
+          note = observation?.lastElementChild;
+        if (over(p) && note?.tagName === "EM" && note.textContent.startsWith("Note: ")) {
+          const chars = Array.from(note.textContent.slice(6));
+          let low = 0,
+            high = chars.length;
+          while (low < high) {
+            const middle = Math.ceil((low + high) / 2);
+            note.textContent = "Note: " + chars.slice(0, middle).join("");
+            if (over(p)) high = middle - 1;
+            else low = middle;
+          }
+          if (low > 0 && low < chars.length) {
+            // Prefer a word boundary, without dropping whitespace or characters.
+            let split = low;
+            while (split > 0 && !/\s/.test(chars[split - 1])) split--;
+            if (!split) split = low;
+            const remainder = observation.cloneNode(true);
+            note.textContent = "Note: " + chars.slice(0, split).join("");
+            remainder.lastElementChild.textContent = "Note: " + chars.slice(split).join("");
+            rest.unshift(remainder);
+          } else note.textContent = "Note: " + chars.join("");
+        }
+        if (!rest.length) break;
+        continuation.removeAttribute("data-row");
+        continuation.querySelectorAll("[contenteditable],[data-field],[data-id]").forEach((el) => {
+          el.removeAttribute("contenteditable");
+          el.removeAttribute("data-field");
+          el.removeAttribute("data-id");
+        });
+        continuation.querySelector(".c-no").textContent = (r.querySelector(".num")?.textContent || "") + " (continued)";
+        continuation.querySelector(".corr").textContent = "Inspection history continued.";
+        continuation.querySelector(".visit-list").replaceChildren(...rest);
+        p = newPage(true);
+        p._tb.appendChild(continuation);
+        current = continuation;
+      }
     }
   });
   // the closing blocks follow the table, spilling to a page of their own only

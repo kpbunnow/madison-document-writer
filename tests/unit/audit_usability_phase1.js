@@ -418,7 +418,7 @@ const test = async () => {
   clearCases("all");
   assert.ok(/^\d+ cases? removed from this workspace\. Shared case records are not deleted\.$/.test(toasts.at(-1)), toasts.at(-1));
   render();
-  assert.ok(document.querySelector('.empty-state [data-nav="import"]').textContent === "Import inspection");
+  assert.ok(document.querySelector('.workspace-start [data-nav="import"]').textContent.trim() === "Import inspection");
   WriterState.state.screen = "import";
   render();
   assert.equal(document.querySelector("h1").textContent, "Import inspection");
