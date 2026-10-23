@@ -53,7 +53,7 @@ function referralHistoryHTML(d, it) {
     dates.length && dates.every(validISO) && validISO(end) && end >= start && (!it.done || history.some((x) => x.oc === "corrected" && x.on === end));
   const days = valid ? (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) / 86400000 : null;
   return (
-    '<span class="visit-list">' +
+    '<span class="visit-list" style="white-space:normal;overflow-wrap:anywhere">' +
     (history.length
       ? history
           .map(

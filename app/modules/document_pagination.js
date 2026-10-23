@@ -422,12 +422,37 @@ function paginate(deskOverride, documentOverride) {
       let current = r;
       while (over(p)) {
         const history = current.querySelector(".visit-list");
-        if (!history || history.children.length < 2) break;
+        if (!history || !history.children.length) break;
         const continuation = current.cloneNode(true),
           rest = [];
         while (over(p) && history.children.length > 1) {
           rest.unshift(history.lastElementChild);
           history.lastElementChild.remove();
+        }
+        // One observation can itself exceed a page. Split its note while
+        // retaining the observation's date/outcome on each continuation.
+        const observation = history.firstElementChild,
+          note = observation?.lastElementChild;
+        if (over(p) && note?.tagName === "EM" && note.textContent.startsWith("Note: ")) {
+          const chars = Array.from(note.textContent.slice(6));
+          let low = 0,
+            high = chars.length;
+          while (low < high) {
+            const middle = Math.ceil((low + high) / 2);
+            note.textContent = "Note: " + chars.slice(0, middle).join("");
+            if (over(p)) high = middle - 1;
+            else low = middle;
+          }
+          if (low > 0 && low < chars.length) {
+            // Prefer a word boundary, without dropping whitespace or characters.
+            let split = low;
+            while (split > 0 && !/\s/.test(chars[split - 1])) split--;
+            if (!split) split = low;
+            const remainder = observation.cloneNode(true);
+            note.textContent = "Note: " + chars.slice(0, split).join("");
+            remainder.lastElementChild.textContent = "Note: " + chars.slice(split).join("");
+            rest.unshift(remainder);
+          } else note.textContent = "Note: " + chars.join("");
         }
         if (!rest.length) break;
         continuation.removeAttribute("data-row");

@@ -48,6 +48,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await page.locator("#corrective-detail").fill("the damaged surface");
     await axeScreen(page, "r60-corrective-detail-dialog");
     await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.querySelector("#utility-dialog"));
     assert.equal(await page.locator("#utility-dialog").count(), 0);
     assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true);
     await page.keyboard.press("Enter");
@@ -121,6 +122,28 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       .locator(".sheet")
       .evaluateAll((els) => els.map((el) => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)))
       assert.equal(clipped, false, "long history stays inside each page");
+    // A single observation note can also exceed a page; retain every word once.
+    const noteWords = Array.from({ length: 450 }, (_, n) => "finding-" + n);
+    const noteJob = await page.evaluate((words) => {
+      const d = doc(WriterState.state.docId);
+      d.items[0].hist = [{ on: "2026-03-01", oc: "initial", note: words.join(" ") }];
+      return printJob(d);
+    }, noteWords);
+    await printPage.setContent(noteJob.html);
+    assert.ok((await printPage.locator(".sheet").count()) > 1, "a long observation note continues onto another page");
+    const printedWords = await printPage.locator(".visit-list em").allTextContents();
+    assert.deepEqual(
+      printedWords
+        .filter((text) => text.startsWith("Note: "))
+        .map((text) => text.slice(6))
+        .join("")
+        .split(/\s+/),
+      noteWords,
+    );
+    for (const clipped of await printPage
+      .locator(".sheet")
+      .evaluateAll((els) => els.map((el) => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)))
+      assert.equal(clipped, false, "long observation note stays inside each page");
     // Initial and reinspection final packet paths must both retain four distinct approved copies per charge.
     const packets = [];
     for (const reinspection of [false, true])

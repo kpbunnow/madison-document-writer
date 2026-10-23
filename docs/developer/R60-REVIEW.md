@@ -34,3 +34,7 @@ The all-status review retains earlier inspection dates for withdrawn authoring-1
 - CASE-WORKFLOW-GUIDE describes the four Writer destinations.
 - Open for the owner: a corrected result whose manual date is backdated before an earlier visit's no-change finding still counts; deciding whether the worksheet should refuse such a date is a rule change. Continuation rows of long histories repeat the Sections and Abate cells, and the editor's on-screen page breaks can differ from the filed PDF where the desktop address flow applies (filed PDFs are unaffected).
 
+
+## PR 31 second review correction
+
+A long inspection note in an authoring-14 referral inherited the date column’s no-wrap rule and could overflow horizontally; one observation could also exceed a whole page vertically. The new history renderer explicitly wraps its contents, and pagination splits a lengthy observation note across continuation rows while retaining its date/outcome and every character. This is scoped to authoring-14 referral histories; the approved stylesheet and historical renderers remain unchanged. The production browser regression checks a 450-word single-observation note for exact word preservation and page bounds, alongside the existing 45-observation case. The Escape-dialog test waits for the browser’s asynchronous close event before checking restored focus.
