@@ -1,5 +1,15 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 2 (development)
+
+- Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.
+
+- Verification only; no application behavior, document output or helper rule changed.
+- JS suites finish when their work completes: remaining long UI timers run immediately after completion instead of being waited for (tests/fixtures/settle_ui_timers.cjs).
+- The gate captures the seven Writer projection flows while they run and audit_case_projection.py reuses those run-bound captures instead of re-running the flows.
+- Optional fast development tier (`DW_FAST=1`): skips measured performance suites and uses one projection seed; labelled fast, never release evidence, refused by packaging.
+- Packaging refuses missing gate proof (a fast or interrupted run) or missing print compatibility evidence with a message instead of a traceback.
+
 ## Unreleased — Consolidation Phase 1 (development)
 
 - The screen frame escapes its plain-text title and breadcrumb once; imported addresses on the case-actions screen are no longer inserted as markup, and no breadcrumb is escaped twice.

@@ -49,6 +49,11 @@ python3 tools/build.py
 python3 tools/verify_release.py
 ```
 
+For quicker iteration, `DW_FAST=1 python3 tools/verify_release.py` runs a reduced-coverage
+development check (no measured performance suites, one projection seed). It writes only
+`fast-verification.json`, is never release evidence and never replaces the full gate,
+which is required before proposing a PR and before packaging (see `05-TESTING.md`).
+
 The gate runs formatting, static checks, regression suites and production Chromium,
 axe and print audits. It starts its own local services; no persistent service is
 required. Do not run concurrent Chromium jobs during performance measurements.

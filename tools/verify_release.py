@@ -15,7 +15,11 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 os.environ["PYTHONPATH"] = os.pathsep.join(str(ROOT / p) for p in ["helper", "tools", "policy", "tests/unit", "tests/fixtures", "build/generated"])
 OUT = ROOT / "build/verification/latest"
 OUT.mkdir(parents=True, exist_ok=True)
-(OUT / "verification.json").unlink(missing_ok=True)
+# Consolidation Phase 2 (T3): a new run invalidates all previous gate evidence first. DW_FAST=1 runs the same stages
+# with reduced coverage and writes only fast-verification.json, never release evidence.
+FAST = os.environ.get("DW_FAST") == "1"
+for name in ["verification.json", "repository.json", "fast-verification.json", "browser/browser-results.json", "browser/axe-results.json"]:
+    (OUT / name).unlink(missing_ok=True)
 
 
 def run(command, name, env=None):
@@ -40,10 +44,19 @@ browser = json.loads((OUT / "browser/browser-results.json").read_text(encoding="
 axe = json.loads((OUT / "browser/axe-results.json").read_text(encoding="utf-8"))
 if not all(x["passed"] for x in checks) or not browser.get("passed") or not axe.get("passed"):
     raise SystemExit("Failed regression, browser or axe checks.")
+if FAST:
+    (OUT / "fast-verification.json").write_text(
+        json.dumps({"mode": "fast", "passed": True, "suiteCount": len(checks), "axeScreens": len(axe["checks"]), "releaseEvidence": False}, indent=2)
+        + "\n",
+        encoding="utf-8",
+    )
+    print("FAST RUN passed: reduced coverage, not release evidence. Run the full gate before proposing a PR or packaging.")
+    raise SystemExit(0)
 (OUT / "verification.json").write_text(
     json.dumps(
         {
             "passed": True,
+            "mode": "full",
             "release": (ROOT / "build/generated/RELEASE").read_text(encoding="utf-8").strip(),
             "suiteCount": len(checks),
             "axeScreens": len(axe["checks"]),

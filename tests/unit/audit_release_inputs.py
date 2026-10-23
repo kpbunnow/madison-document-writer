@@ -80,6 +80,7 @@ def fixture(root):
         root,
         "build/test-results/evidence.json",
         {
+            "mode": "full",
             "files": release_fingerprint(root),
             "resultsSha256": hashlib.sha256((root / "build/test-results/results.json").read_bytes()).hexdigest(),
         },
@@ -90,9 +91,9 @@ def fixture(root):
     put(
         root,
         proof + "verification.json",
-        {"passed": True, "runtimeHashes": hashes, "deploymentInputs": deployment_inputs(root), "suiteCount": 2, "axeScreens": 1},
+        {"passed": True, "mode": "full", "runtimeHashes": hashes, "deploymentInputs": deployment_inputs(root), "suiteCount": 2, "axeScreens": 1},
     )
-    put(root, proof + "browser/browser-results.json", {"passed": True, "runtimeHashes": hashes})
+    put(root, proof + "browser/browser-results.json", {"passed": True, "mode": "full", "runtimeHashes": hashes})
     put(root, proof + "browser/axe-results.json", {"passed": True})
 
 
@@ -164,6 +165,54 @@ class ReleaseInputs(unittest.TestCase):
                 readme = [n for n in z.namelist() if n.endswith("Start Document Writer - READ ME.md")]
                 self.assertEqual(len(readme), 1, z.namelist())
                 self.assertIn(synthetic, z.read(readme[0]).decode("utf-8"))
+
+    def test_fast_or_unlabelled_evidence_is_never_packaged(self):
+        # Consolidation Phase 2 (T3): every evidence file must come from a full gate run.
+        proof = "build/verification/latest/"
+        mutations = {
+            "fast regression": ("build/test-results/evidence.json", "fast"),
+            "unlabelled regression": ("build/test-results/evidence.json", None),
+            "fast gate": (proof + "verification.json", "fast"),
+            "unlabelled gate": (proof + "verification.json", None),
+            "fast browser": (proof + "browser/browser-results.json", "fast"),
+            "unlabelled browser": (proof + "browser/browser-results.json", None),
+        }
+        for name, (relative, mode) in mutations.items():
+            with self.subTest(name), tempfile.TemporaryDirectory() as tmp:
+                base = Path(tmp)
+                root = base / "source"
+                root.mkdir()
+                fixture(root)
+                value = json.loads((root / relative).read_text())
+                if mode is None:
+                    value.pop("mode")
+                else:
+                    value["mode"] = mode
+                put(root, relative, value)
+                run = self.package(root, base / "release")
+                self.assertNotEqual(run.returncode, 0, name + " evidence was packaged")
+                self.assertRegex(run.stdout + run.stderr, "fast or unlabelled evidence is never packaged")
+                self.assertEqual(list((base / "release").glob("*.zip")) if (base / "release").exists() else [], [])
+
+    def test_missing_gate_or_print_proof_is_refused_without_a_traceback(self):
+        # A fast or interrupted run leaves no repository.json, and a run whose print evidence was lost leaves no
+        # r50-print-compatibility.json; packaging refuses each with its message.
+        missing = {
+            "build/verification/latest/repository.json": "repository verification is missing",
+            "build/test-results/r50-print-compatibility.json": "Print compatibility evidence is missing",
+        }
+        for relative, message in missing.items():
+            with self.subTest(relative), tempfile.TemporaryDirectory() as tmp:
+                base = Path(tmp)
+                root = base / "source"
+                root.mkdir()
+                fixture(root)
+                (root / relative).unlink()
+                run = self.package(root, base / "release")
+                self.assertNotEqual(run.returncode, 0)
+                self.assertIn(message, run.stdout + run.stderr)
+                self.assertNotIn("Traceback", run.stdout + run.stderr)
+                self.assertFalse((base / "release").exists())
 
     def test_forbidden_inventory_entries_and_directory_links_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:

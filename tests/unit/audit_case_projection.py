@@ -13,6 +13,39 @@ ROOT = Path(__file__).resolve().parents[2]
 # Suites whose real Writer flows write summaries; tests/fixtures/projection_capture.cjs records them.
 FLOWS = ["audit_summary", "audit_lifecycle", "audit_corrections", "audit_r25", "audit_r26", "audit_r28", "audit_release"]
 SEEDS = [20261021, 7, 31337]
+# Consolidation Phase 2 (T3): a fast development run (DW_FAST=1) deliberately reduces coverage to the first seed, with
+# its own threshold. The full gate always uses every seed and the full threshold.
+FAST = os.environ.get("DW_FAST") == "1"
+if FAST:
+    SEEDS = SEEDS[:1]
+MIN_COMPARED = 1500 if FAST else 5000
+
+
+def load_capture(path, suite, run, source):
+    """Consolidation Phase 2 (T2): a capture is accepted only as a complete envelope from this run, suite and source,
+    written by a suite that passed. Anything else fails explicitly; nothing is reused silently."""
+    path = Path(path)
+    if not path.is_file():
+        raise AssertionError(suite + ": projection capture is missing (" + str(path) + ")")
+    try:
+        capture = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as error:
+        raise AssertionError(suite + ": projection capture is malformed: " + str(error)) from None
+    if (
+        not isinstance(capture, dict)
+        or capture.get("format") != "madison-projection-capture"
+        or type(capture.get("version")) is not int
+        or capture.get("version") != 1
+    ):
+        raise AssertionError(suite + ": projection capture has no recognized envelope")
+    if capture.get("run") != run or capture.get("suite") != suite or capture.get("source") != source:
+        raise AssertionError(suite + ": projection capture is from another run, suite or source")
+    if capture.get("passed") is not True:
+        raise AssertionError(suite + ": the source flow failed; its projection capture cannot be used")
+    summaries = capture.get("summaries")
+    if not isinstance(summaries, list) or not summaries or not all(isinstance(c, dict) and {"file", "summary"} <= c.keys() for c in summaries):
+        raise AssertionError(suite + ": projection capture is empty or incomplete")
+    return summaries
 
 
 class CaseProjection(unittest.TestCase):
@@ -26,12 +59,26 @@ class CaseProjection(unittest.TestCase):
             subprocess.run(["node", "tests/fixtures/projection_corpus.cjs", str(path), "2000", str(seed)], cwd=ROOT, check=True, timeout=120)
             return json.loads(path.read_bytes())
 
+        # In the gate, tools/run_tests.py captured the flows while running them; reuse those captures (and fail if
+        # any is unusable). Run on its own, this suite runs the flows itself.
+        gate = os.environ.get("DW_PROJECTION_DIR")
+        run_id = os.environ.get("DW_PROJECTION_RUN", "") if gate else "standalone-" + str(os.getpid())
+        source = os.environ.get("DW_PROJECTION_SOURCE", "") if gate else ""
+
         def flow(name):
+            if gate:
+                return load_capture(Path(gate) / (name + ".json"), name, run_id, source)
             path = folder / (name + ".json")
             run = subprocess.run(
                 ["node", "tests/unit/" + name + ".js"],
                 cwd=ROOT,
-                env={**os.environ, "DW_PROJECTION_CAPTURE": str(path)},
+                env={
+                    **os.environ,
+                    "DW_PROJECTION_CAPTURE": str(path),
+                    "DW_PROJECTION_RUN": run_id,
+                    "DW_PROJECTION_SUITE": name,
+                    "DW_PROJECTION_SOURCE": source,
+                },
                 capture_output=True,
                 encoding="utf-8",
                 errors="replace",
@@ -39,7 +86,7 @@ class CaseProjection(unittest.TestCase):
             )
             if run.returncode:
                 raise AssertionError(name + " failed while capturing:\n" + run.stdout[-2000:] + run.stderr[-2000:])
-            return json.loads(path.read_bytes())
+            return load_capture(path, name, run_id, source)
 
         with ThreadPoolExecutor(max_workers=4) as pool:
             cls.corpora = list(pool.map(corpus, SEEDS))
@@ -75,7 +122,7 @@ class CaseProjection(unittest.TestCase):
                     expected = cp.json_text(cp.reportable(case["summary"]))
                     self.assertEqual(cp.json_text(cp.projected(case["file"])[0]), expected)
                     compared += 1
-        self.assertGreater(compared, 5000)
+        self.assertGreater(compared, MIN_COMPARED)
         self.assertGreater(refused, 0)
 
     def test_real_writer_flows_project_exactly(self):

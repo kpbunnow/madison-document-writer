@@ -22,13 +22,16 @@ if args.output.resolve().is_relative_to(ROOT):
 proof = ROOT / "build/verification/latest"
 if not args.evidence:
     args.evidence = proof / "browser"
-repository = json.loads((proof / "repository.json").read_text(encoding="utf-8"))
+# A fast run or an interrupted gate leaves no repository.json; that is the same refusal, not a traceback.
+repository = json.loads((proof / "repository.json").read_text(encoding="utf-8")) if (proof / "repository.json").is_file() else {}
 if repository.get("passed") is not True or repository.get("files") != fingerprint():
     raise SystemExit("Maintained source changed or repository verification is missing. Run tools/verify_release.py.")
 
 from release_evidence import verify
 
 verify(WORK)
+if not (ROOT / "build/test-results/r50-print-compatibility.json").is_file():
+    raise SystemExit("Print compatibility evidence is missing. Run tools/verify_release.py.")
 gate = json.loads((proof / "verification.json").read_text(encoding="utf-8"))
 verified_inputs = gate.get("deploymentInputs")
 verify_deployment(ROOT, verified_inputs)
@@ -42,10 +45,12 @@ if (
     browser.get("runtimeHashes") != hashes
     or gate.get("runtimeHashes") != hashes
     or not gate.get("passed")
+    or gate.get("mode") != "full"
+    or browser.get("mode") != "full"
     or not browser.get("passed")
     or not axe.get("passed")
 ):
-    raise SystemExit("Passing production browser evidence must match every runtime byte.")
+    raise SystemExit("Passing full-gate production browser evidence must match every runtime byte; fast or unlabelled evidence is never packaged.")
 version = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
 manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
 if any(manifest.get(k) != v for k, v in version.items()):

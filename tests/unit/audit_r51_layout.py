@@ -150,7 +150,7 @@ class Layout(unittest.TestCase):
         self.assertIn("DW_BROWSER", run.stderr)
         self.assertNotIn("at BrowserType", run.stderr)
         runner = subprocess.run(
-            [sys.executable, "tools/run_tests.py"],
+            [sys.executable, "tools/run_tests.py", "--check-browser-only"],
             cwd=ROOT,
             env={**os.environ, "DW_BROWSER": str(ROOT / "no-browser-here")},
             capture_output=True,

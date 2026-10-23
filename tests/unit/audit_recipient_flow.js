@@ -1,5 +1,7 @@
 /* Actual form input, address validation, standardized document output and agent safeguards. */
 globalThis.MADISON_TEST_DATA = true;
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
 const html = builtPage(),
@@ -181,4 +183,4 @@ const test = () => {
   console.log("Recipient flow checks: " + count + " assertions, " + failures.length + " failures.");
   if (failures.length) process.exit(1);
 };
-eval(payload + "\n(" + test.toString() + ")();");
+settle(eval(payload + "\n(" + test.toString() + ")();"), global.window);

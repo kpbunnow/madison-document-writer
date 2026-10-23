@@ -1,6 +1,8 @@
 globalThis.MADISON_TEST_DATA = true;
 // Reporting, reports side. Fed with summaries written by the real Document
 // Writer (mk_summaries.js) plus hand-built ones whose counts are known.
+// Consolidation Phase 2 (T1): run remaining long UI timers once the suite completes instead of waiting.
+const { settle } = require("../fixtures/settle_ui_timers.cjs");
 const fs = require("fs"),
   cp = require("child_process");
 const { JSDOM } = require("jsdom");
@@ -465,4 +467,4 @@ Object.defineProperty(global, "FAIL", {
     FAIL = v;
   },
 });
-eval(src + "\n;;\n" + T);
+settle(eval(src + "\n;;\n" + T), global.window);
