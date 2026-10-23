@@ -34,8 +34,9 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await axeScreen(doc, "r49-program-manual");
     assert.match(await doc.locator("h1").innerText(), /Program instruction manual/);
     assert.equal(await doc.locator("nav a").count(), 22);
+    await doc.bringToFront();
     await doc.locator("nav a").nth(3).focus();
-    await doc.keyboard.press("Enter");
+    await Promise.all([doc.waitForURL(/#chapter-4$/, { timeout: 5000 }), doc.keyboard.press("Enter")]);
     assert.match(doc.url(), /#chapter-4/);
     for (const width of [390, 320]) {
       await doc.setViewportSize({ width, height: 844 });
