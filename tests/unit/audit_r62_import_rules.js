@@ -102,5 +102,11 @@ require("../fixtures/bundle_test.cjs")(`
   const plan = accelaPlan(later);
   assert.equal(plan.candidates.length, 1, "the used initial inspection is hidden");
   assert.equal(plan.row?.date, "2026-09-20", "the one remaining result is selected");
+  const correction = startCorrection(notice.id);
+  assert.ok(correction, "a correction draft of the issued notice opens");
+  later.sel = later.cases[0].rows.find((x) => x.typeKey === "initial").i;
+  const correcting = accelaPlan(later);
+  assert.equal(correcting.candidates.length, 1, "a correction draft does not make its already-used inspection refreshable");
+  assert.equal(correcting.refresh, null, "refresh never rewrites a correction draft");
   console.log("PASS R62 import rules: No Fee statuses, hidden rows and messages, greyed unavailable pairs, single remaining result");
 `);

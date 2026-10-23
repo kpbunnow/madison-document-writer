@@ -51,3 +51,11 @@ Source: the owner's `Document_Writer_Development_3.docx` and the clarification a
 
 S62-1 to S62-5 in the acceptance record remain OPEN, together with every carried City, native, legal and
 accessibility item. Wording of the new Best Interest and Vacancy letters needs division review.
+
+## PR 34 review corrections
+
+- Existing trusted pre-R62 emergency orders on referred cases retain their earlier approval rule during history validation. Previously, applying the new no-exception rule to every historical event prevented subsequent saves of a previously valid case. Newly submitted orders are still refused, including requests claiming an older authoring version; historical status comes from the store's known event IDs, not from the client version.
+- The new authoring-16 Vacancy body no longer retains the sale/transfer sentence the owner explicitly removed. Earlier formats are unchanged.
+- Import refresh uses one shared eligibility predicate for the candidate list and import plan. Correction drafts and pending publication attempts do not exempt an already-used inspection from hiding or authorize refreshing that draft; ordinary unissued draft/worksheet refresh remains available.
+- New extension correction forms no longer offer a document-family switch. Browser correction readiness mirrors the helper's existing protected scope, affected-item and review-date checks, so changing those facts is explained before a rejected shared save. The helper's rule is unchanged.
+- Regression coverage reproduces the historical-event refusal, incorrect correction-draft import visibility, retained transfer wording and correction controls. Full-gate results and the exact verified commit are recorded on PR 34. City/native and division wording acceptance remain open.

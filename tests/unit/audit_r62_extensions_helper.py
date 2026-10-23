@@ -6,6 +6,8 @@ from copy import deepcopy
 import unittest
 
 import case_store
+from audit_r26_helper import append_action, special
+from audit_workflow import initial, followup
 
 
 def fixture(kind):
@@ -35,6 +37,18 @@ def validate(snap):
 
 
 class AllItemExtensions(unittest.TestCase):
+    def test_pre_r62_referred_emergency_history_still_validates(self):
+        base = followup(initial(), "ref", "referral")
+        base["schema"] = 4
+        facts = deepcopy(special()["events"][-1]["payload"]["snapshot"]["special"])
+        facts.update(emergencyApproved=True, referralCoordination="Previously approved City Attorney coordination")
+        value = append_action(base, "summaryAbatement", facts, True)
+        historical = {event["id"] for event in value["events"]}
+        case_store.validate_history(value, historical)
+        # Historical exceptions do not authorize any newly submitted order, even at an old authoring version.
+        with self.assertRaisesRegex(ValueError, "only an Update for Case Referral or a Compliance Letter"):
+            case_store.validate_history(value, historical - {value["events"][-1]["id"]})
+
     def test_valid_documents_need_no_safety_confirmation_or_signer_review(self):
         for kind in ("bestInterestExtension", "vacancyExtension"):
             snap = fixture(kind)

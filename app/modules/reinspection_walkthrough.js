@@ -1088,11 +1088,21 @@ function accelaTable(grid) {
 
 /* R62: the rows offered for import. A row already used on the case is hidden, except the R53 refresh of an
    unissued draft or worksheet's own inspection, which updates that work instead of creating new work. */
+function refreshImportPending(k, row) {
+  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
+  return pending?.draft &&
+    !pending.correction &&
+    !pending.pendingAmendment &&
+    pending.importInspection &&
+    sameInspection(pending.importInspection, inspectionIdentity(row))
+    ? pending
+    : null;
+}
+
 function importCandidates(c, k) {
   if (!k) return c.rows;
   return c.rows.filter((row) => {
-    const pending = row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id);
-    if (pending?.importInspection && sameInspection(pending.importInspection, inspectionIdentity(row))) return true;
+    if (refreshImportPending(k, row)) return true;
     return !inspectionUsed(k, row);
   });
 }
@@ -1227,8 +1237,7 @@ function baseLookupPlan(acc) {
   p.next = k && src ? "reinspect" : "notice";
   // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
   // updates the stored Accela status instead of being refused as already used.
-  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
-  p.refresh = row && pending?.importInspection && sameInspection(pending.importInspection, inspectionIdentity(row)) ? pending : null;
+  p.refresh = refreshImportPending(k, row);
   if (k && !p.refresh) {
     p.used = row && inspectionUsed(k, row);
     const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id);

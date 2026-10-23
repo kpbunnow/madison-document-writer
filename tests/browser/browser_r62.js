@@ -169,6 +169,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     assert.equal(await print.locator(".extension-signer").count(), 0);
     const text = await print.locator("body").innerText();
     assert.ok(text.includes("we grant an extension for the uncorrected item(s)."));
+    assert.ok(!/sale or transfer/i.test(text), "new Vacancy output omits the removed transfer wording");
     assert.ok(!text.includes("◯"));
     await noOverflow();
     await print.pdf({ path: path.join(OUT, "r62-vacancy-extension.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });

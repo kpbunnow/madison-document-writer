@@ -446,6 +446,14 @@ function correctionChecks(d) {
     },
     { ok: sameItems, t: "Previously issued item identities, order and numbers must stay unchanged" },
     {
+      ok:
+        !specialType(src?.type) ||
+        ["mode", "releases", "scope", "unit", "effective", "affected", "deadlineMode", "reviewDate", "expiryDate"].every(
+          (key) => stableJSON(d.special?.[key]) === stableJSON(src.special?.[key]),
+        ),
+      t: "Use a new action to change restriction, release, scope or conditional extension facts",
+    },
+    {
       ok: !!src && c.case.number === docCase(src).number && correctionTypeAllowed(src, d.type),
       t: "Case number stays fixed. A different follow-up type must use the same re" + "corded visit and the existing referral path",
     },

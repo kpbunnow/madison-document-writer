@@ -169,6 +169,7 @@ const tests = async () => {
     "expires on",
     "subject to review under the approved conditions",
     "Item(s)",
+    "sale or transfer",
   ])
     assert.ok(!body.includes(removed), "removed: " + removed);
   d.special.scope = "building";
@@ -219,6 +220,25 @@ const tests = async () => {
   assert.ok(/extension for Item\(s\)/.test(docBody(older)));
   const r61 = { ...clone(d), type: "bestInterestExtension", authoringVersion: 15, special: { affected: ["1"], reason: "Plan." } };
   assert.ok(docBody(r61).includes("Additional time is granted for the selected items"));
+  d.draft = false;
+  d.status = "Final";
+  d.eventId = "r62-vacancy-issued";
+  d.mailed = stamp;
+  d.special.scope = "building";
+  d.special.reviewDate = addDays(stamp, 14);
+  d.frozen = freezeSources(d);
+  const correction = startCorrection(d.id);
+  assert.ok(correction);
+  const correctionDetails = document.createElement("div");
+  correctionDetails.innerHTML = newDocuments.details(correction);
+  assert.equal(correctionDetails.querySelector('[data-special="administrativeType"]'), null, "corrections cannot switch document family");
+  correction.special.scope = "unit";
+  correction.special.unit = "2";
+  assert.ok(
+    correctionChecks(correction).some((c) => !c.ok && /new action.*scope/.test(c.t)),
+    "the browser explains the helper's protected-scope rule before saving",
+  );
+
   console.log(
     "PASS R62 authoring-16 Best Interest and Vacancy Extensions: all uncorrected items, worksheet dates, removed fields, historical formats",
   );

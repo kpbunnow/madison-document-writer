@@ -252,7 +252,7 @@ def validate_special_fields(snap, at=None, check_date_window=True):
         raise ValueError("The document needs its actual factual inspection date")
 
 
-def validate_special_publication(record, snap, documents, superseded, voided, visits, correction=False):
+def validate_special_publication(record, snap, documents, superseded, voided, visits, correction=False, new_action=True):
     if record.get("schema") not in (4, 5):
         raise ValueError("R26 actions require schema 4; update the writer and helper together")
     kind, s, rid = snap["type"], snap.get("special", {}), snap.get("fromReinspId")
@@ -261,7 +261,10 @@ def validate_special_publication(record, snap, documents, superseded, voided, vi
     # R62 (owner, Development 3): a referred case allows only an Update for Case Referral or a Compliance Letter; the
     # former approved emergency / occupancy exception for scoped orders is removed. Correcting a document issued
     # before the referral remains possible.
-    if referred and not correction:
+    historical_exception = (
+        not new_action and kind in SUPPLEMENTAL_TYPES and s.get("emergencyApproved") is True and str(s.get("referralCoordination", "")).strip()
+    )
+    if referred and not correction and not historical_exception:
         raise ValueError("A referred case permits only an Update for Case Referral or a Compliance Letter")
     if snap.get("initialAction"):
         if kind not in SUPPLEMENTAL_TYPES or any(d.get("type") not in SUPPLEMENTAL_TYPES for d in live):
@@ -1362,7 +1365,9 @@ def validate_publication(record, event, documents, superseded, voided, visits, c
     ):
         raise ValueError("Outstanding items require a future due date")
     if kind in SPECIAL_TYPES:
-        validate_special_publication(record, snap, documents, superseded, voided, visits, event["type"] == "correction.issued")
+        validate_special_publication(
+            record, snap, documents, superseded, voided, visits, event["type"] == "correction.issued", new_action=check_date_window
+        )
         return
     source = current_document(documents, superseded, voided)
     if kind == "notice":

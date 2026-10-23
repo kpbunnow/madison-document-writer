@@ -317,12 +317,7 @@ export function initNewDocuments() {
             "the City Attorney. Failure to maintain the required areas may void this " +
             "extension and result in enforcement action."),
       );
-      paras.push(
-        "A further extension will be considered after the next inspection, provid" +
-          "ed vacancy and the extension conditions continue. Contact Building Inspe" +
-          "ction before a sale or transfer to arrange review of the outstanding vio" +
-          "lations and case responsibility.",
-      );
+      paras.push("A further extension will be considered after the next inspection, provid" + "ed vacancy and the extension conditions continue.");
     } else if (type === "vacancyExtension") {
       paras.push(
         "Your request for additional time to correct the violations at " +
@@ -675,13 +670,14 @@ export function initNewDocuments() {
         "</select></label>",
       ck = (k, l) => '<label><input type="checkbox" data-special="' + k + '" ' + (s[k] ? "checked" : "") + "> " + e(l) + "</label>";
     if (allItemExtension(d)) {
-      const family = d.administrativeAction
-        ? sel(
-            "administrativeType",
-            "Document family",
-            NEW_TYPES.map((t) => [t.id, t.label]),
-          )
-        : "";
+      const family =
+        d.administrativeAction && !d.correction
+          ? sel(
+              "administrativeType",
+              "Document family",
+              NEW_TYPES.map((t) => [t.id, t.label]),
+            )
+          : "";
       return (
         '<section class="card no-print" id="r26-details"><div class="card-h"><h2>' +
         e(specialType(d.type).label) +
