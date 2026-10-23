@@ -80,9 +80,20 @@ class ReviewTests(unittest.TestCase):
         (self.root / "build/dist/app.html").write_text("runtime one")
         results = self.root / "build/test-results/results.json"
         results.write_text(json.dumps([{"suite": "audit_sample.js", "passed": True}, {"suite": "tagcheck.js", "passed": True}]))
-        evidence = {"files": release_evidence.fingerprint(self.root), "resultsSha256": hashlib.sha256(results.read_bytes()).hexdigest()}
+        evidence = {
+            "mode": "full",
+            "files": release_evidence.fingerprint(self.root),
+            "resultsSha256": hashlib.sha256(results.read_bytes()).hexdigest(),
+        }
         (self.root / "build/test-results/evidence.json").write_text(json.dumps(evidence))
         release_evidence.verify(self.root)
+        # Consolidation Phase 2 (T3): fast or unlabelled regression evidence is never accepted.
+        for mode in ("fast", None):
+            labelled = {k: v for k, v in evidence.items() if k != "mode"} if mode is None else {**evidence, "mode": mode}
+            (self.root / "build/test-results/evidence.json").write_text(json.dumps(labelled))
+            with self.assertRaisesRegex(ValueError, "fast or unlabelled evidence"):
+                release_evidence.verify(self.root)
+        (self.root / "build/test-results/evidence.json").write_text(json.dumps(evidence))
         (self.root / "app_template.html").write_text("source two")
         with self.assertRaisesRegex(ValueError, "changed after testing"):
             release_evidence.verify(self.root)
