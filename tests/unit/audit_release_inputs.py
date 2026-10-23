@@ -10,7 +10,7 @@ import tempfile
 import unittest
 import zipfile
 
-from project_layout import fingerprint
+from project_layout import fingerprint, package_name
 from release_evidence import fingerprint as release_fingerprint
 from release_inputs import archive, checksum, deployment_inputs, verify_deployment, verify_source_copy, source_inventory, verify_package_links
 
@@ -128,6 +128,42 @@ class ReleaseInputs(unittest.TestCase):
             with zipfile.ZipFile(source_zip) as z:
                 z.extractall(extracted)
             self.assertEqual(source_inventory(root), source_inventory(extracted))
+
+    def test_documented_deploy_zip_is_the_packaged_file(self):
+        # Consolidation Phase 1 (B1): the install guide's integrity command names the file the packager writes.
+        release = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))["release"]
+        guide = (ROOT / "build/generated/DEPLOY.md").read_text(encoding="utf-8")
+        name = package_name(release) + "-deploy.zip"
+        self.assertIn("Get-FileHash -Algorithm SHA256 .\\" + name, guide)
+        self.assertNotIn(release + "-deploy.zip", guide, "no space-separated release in a file name")
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "source"
+            root.mkdir()
+            fixture(root)
+            synthetic = package_name("2026-10-21 R55") + "-deploy.zip"
+            put(root, "build/generated/DEPLOY.md", "Get-FileHash -Algorithm SHA256 .\\" + synthetic + "\n")
+            manifest = json.loads((root / "build/generated/runtime-manifest.json").read_text())
+            manifest["deploy"]["Start Document Writer - READ ME.md"] = manifest["deploy"].pop("DEPLOY.md")
+            put(root, "build/generated/runtime-manifest.json", manifest)
+            names = sorted(fingerprint(root))
+            put(root, "tools/source-inventory.json", {"format": "madison-source-inventory", "version": 1, "files": names})
+            evidence = json.loads((root / "build/test-results/evidence.json").read_text())
+            evidence["files"] = release_fingerprint(root)
+            put(root, "build/test-results/evidence.json", evidence)
+            proof = "build/verification/latest/"
+            put(root, proof + "repository.json", {"passed": True, "files": fingerprint(root)})
+            verification = json.loads((root / proof / "verification.json").read_text())
+            verification["deploymentInputs"] = deployment_inputs(root)
+            put(root, proof + "verification.json", verification)
+            run = self.package(root, base / "release")
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            packaged = base / "release" / synthetic
+            self.assertTrue(packaged.is_file(), "the named ZIP is in the release output, not nested in its deploy folder")
+            with zipfile.ZipFile(packaged) as z:
+                readme = [n for n in z.namelist() if n.endswith("Start Document Writer - READ ME.md")]
+                self.assertEqual(len(readme), 1, z.namelist())
+                self.assertIn(synthetic, z.read(readme[0]).decode("utf-8"))
 
     def test_forbidden_inventory_entries_and_directory_links_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -12,7 +12,7 @@ import sys
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(HERE / "policy"), str(HERE / "tools"), str(HERE / "helper"), str(HERE / "build/generated")]
-from project_layout import version
+from project_layout import package_name, version
 
 GENERATED = HERE / "build/generated"
 DATA = GENERATED / "modules/data"
@@ -173,6 +173,8 @@ def render_deploy_guide():
     text = rd("DEPLOY.template.md")
     for key, val in {
         "RELEASE": release,
+        # Package file names use the packager's rule (no space), so documented commands name the real file.
+        "PACKAGE_NAME": package_name(release),
         "RELEASE_NUMBER": release.split()[-1],
         "HELPER_VERSION": helper,
         "PYTHON_RANGE": "3.%d–3.%d" % (tags[0], tags[-1]),

@@ -150,7 +150,7 @@ This release has **no signing key**. Every PC checks the shared deployment again
 
 ## Independent package verification
 
-Before a first installation, obtain the deploy ZIP's SHA-256 from the release owner through a separate trusted channel (for example, the release owner's email or IT ticket, not the ZIP itself). In PowerShell run `Get-FileHash -Algorithm SHA256 .\Madison-Building-Inspection-{{RELEASE}}-deploy.zip` and compare the entire value before extracting. If it differs, stop. Thereafter use the installed Document Writer shortcut; if no shortcut exists, open `%LOCALAPPDATA%\MadisonDocWriter\Start Document Writer.bat` directly.
+Before a first installation, obtain the deploy ZIP's SHA-256 from the release owner through a separate trusted channel (for example, the release owner's email or IT ticket, not the ZIP itself). In PowerShell run `Get-FileHash -Algorithm SHA256 .\{{PACKAGE_NAME}}-deploy.zip` and compare the entire value before extracting. If it differs, stop. Thereafter use the installed Document Writer shortcut; if no shortcut exists, open `%LOCALAPPDATA%\MadisonDocWriter\Start Document Writer.bat` directly.
 
 **PCs installed with a version that required a signing key.** Those versions accept only signed releases, which this release no longer uses. On each such PC, IT stops the helper (closes its command window, or signs the inspector out of Windows) and renames `%LOCALAPPDATA%\MadisonDocWriter` (keep its `integrity-settings.json` to restore afterwards), then performs a first installation. Drafts stored in the browser are not affected.
 
