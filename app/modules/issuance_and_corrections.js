@@ -1050,18 +1050,25 @@ function itemInspectionHistory(d, it) {
     seen = new Set();
   let source = d,
     item = it,
-    initial = null;
+    initial = null,
+    rootId = "";
   while (source && item && !seen.has(source.id)) {
     seen.add(source.id);
     lineage.set(source.id, item.id);
     const previous = doc(source.fromDocId || reinsp(source.fromReinspId)?.sourceDocId);
     if (!previous) {
-      if (!source.fromDocId && !source.fromReinspId) initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+      if (!source.fromDocId && !source.fromReinspId) {
+        initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+        rootId = source.id;
+      }
       break;
     }
     const prior = previous.items.find((x) => x.id === item.srcItemId);
     if (!prior) {
-      if (!item.srcItemId) initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+      if (!item.srcItemId) {
+        initial = { on: inspAt(source).date, oc: "initial", note: "", cit: "" };
+        rootId = source.id;
+      }
       break;
     }
     source = previous;
@@ -1082,6 +1089,19 @@ function itemInspectionHistory(d, it) {
     });
   }
   // Citation metadata may annotate an observed visit, but issue dates never create inspection observations.
+  // A citation issued with (or in place of) the original notice annotates the first observation; its
+  // number would otherwise be lost from the referral, as earlier history formats retain it.
+  if (initial && rootId) {
+    const rootItem = lineage.get(rootId);
+    for (const citation of docsFor(d.caseId)) {
+      if (citation.draft || citation.void || citation.superseded || citation.type !== "citation" || citation.fromReinspId) continue;
+      const cited =
+        citation.id === rootId
+          ? citation.items.find((x) => x.id === rootItem && x.cite && !x.withdrawn)
+          : citation.fromDocId === rootId && citation.items.find((x) => x.srcItemId === rootItem && x.cite && !x.withdrawn);
+      if (cited && citation.cits?.[cited.id]?.num) initial.cit = citation.cits[cited.id].num;
+    }
+  }
   for (const row of rows) {
     if (!row.visitId) continue;
     for (const citation of docsFor(d.caseId)) {

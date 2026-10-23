@@ -421,6 +421,9 @@ function fillBlank(el) {
     }
     el.replaceWith(document.createTextNode(value));
     field.dispatchEvent(new Event("input", { bubbles: true }));
+    // The browser delivers "close" asynchronously and the utility dialog's own handler then restores focus to
+    // the replaced blank, which no longer exists. Return focus to the item text after that handler runs.
+    dialog.addEventListener("close", () => field.isConnected && field.focus(), { once: true });
     dialog.close();
     field.focus();
   });

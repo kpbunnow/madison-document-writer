@@ -465,6 +465,7 @@
     "tests/unit/audit_r59_import_reuse.py",
     "tests/unit/audit_r59_import_selection.js",
     "tests/unit/audit_r60_development.js",
+    "tests/unit/audit_r60_review_fixes.js",
     "tests/unit/audit_recipient_flow.js",
     "tests/unit/audit_release.js",
     "tests/unit/audit_release_inputs.py",

@@ -9,7 +9,8 @@ import { WriterState } from "./state.js";
 /* Main destinations and infrequent tools share safe, saved navigation. */
 export function initNavigation() {
   const routes = new Set(["import", "cases", "library", "tools"]);
-  const caseScreens = new Set(["cases", "write", "reinspect", "caseactions", "actions"]);
+  // Import inspection is opened from Workspace, so Workspace stays the current destination while importing.
+  const caseScreens = new Set(["cases", "import", "write", "reinspect", "caseactions", "actions"]);
   let navigationSequence = 0,
     utilitySequence = 0;
   const current = (sequence) => sequence === navigationSequence;

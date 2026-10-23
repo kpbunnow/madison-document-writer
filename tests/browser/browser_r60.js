@@ -54,6 +54,10 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await page.locator("#corrective-detail").fill("the damaged surface");
     await page.locator("#corrective-detail-form button").click();
     assert.equal(await page.locator('[data-field="text"]').innerText(), "Repair the damaged surface on the wall.");
+    // Chromium delivers the dialog's close event asynchronously; focus must still end on the item text.
+    await page.waitForFunction(() => !document.querySelector("#utility-dialog"));
+    await page.waitForFunction(() => document.activeElement?.dataset?.field === "text", null, { timeout: 2000 });
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.field), "text", "focus returns to the item text after Save");
     await page.evaluate(() => {
       const d = doc(WriterState.state.docId);
       d.type = "referralUpdate";

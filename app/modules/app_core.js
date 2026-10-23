@@ -2109,6 +2109,9 @@ document.addEventListener("click", (e) => {
     target.dueWork.selected = el.dataset.dueAll === "1" ? dueContext(target, visit).map((i) => i.id) : [];
   } else {
     const before = Object.fromEntries(dueContext(target, visit).map((i) => [i.id, i.due || ""]));
+    // An item that has since been corrected, withdrawn or carried has no checkbox any more; drop it from the
+    // selection rather than refusing a choice the inspector can no longer see.
+    target.dueWork.selected = (target.dueWork.selected || []).filter((id) => Object.hasOwn(before, id));
     const fault = assignDue(target, visit, target.dueWork.date, target.dueWork.selected);
     if (fault) {
       toast(fault);

@@ -12,7 +12,7 @@ The owner's confirmed prompt is retained in R60-DEVELOPMENT-PROMPT.md. Batch dat
 3. The existing reinspection batch-date panel was inside collapsed Inspection checks. Move it beside item review, display selected counts, reject stale/ineligible mixed selections before mutation, and preserve the separate cross-draft facility and date rules.
 4. The editor intentionally hid three copies per charge. Add a deliberate all-four-copies toggle and identify the complete issued packet. Final generation is tested independently in real Chromium/PDF; no duplicate form renderer or historical PDF rewrite is introduced.
 5. Accessibility minimum-height controls and the unbounded screen header can expand into the fixed mailing block. Flow the editor address below its header on desktop, preserving narrow-screen behavior and the fixed approved print geometry. No printed envelope measurement is changed.
-6. New referrals use authoring 14 and retain observations in the existing item hist array. Follow source item/document IDs, exclude unrelated/carried observations, include the current worksheet, and retain corrected history. Calculate civil dates using UTC-midnight arithmetic. Missing/contradictory dates show Unavailable. Long single-item histories split into labeled continuation rows during authoring-14 pagination; observation notes travel with their dates. Authoring-13 and earlier referrals retain their renderer, including corrections. Current ordinary drafts use authoring 14; unchanged special-document families retain 13.
+6. New referrals use authoring 14 and retain observations in the existing item hist array. Follow source item/document IDs, exclude unrelated/carried observations, include the current worksheet, and retain corrected history. Calculate civil dates using UTC-midnight arithmetic. Missing or invalid dates, and a corrected item without a matching correction date, show Unavailable. Long single-item histories split into labeled continuation rows during authoring-14 pagination; observation notes travel with their dates. Authoring-13 and earlier referrals retain their renderer, including corrections. Drafts created with newDoc use authoring 14, and documents written from a reinspection carry 14 only for the referral history types; other follow-ups keep their existing version (citations at least 11). Unchanged special-document families retain 13.
 
 ## Verification record
 
@@ -23,3 +23,14 @@ Preliminary gate: formatting passed; the run was stopped after two navigation te
 The complete browser preflight caught the new Workspace panel pushing the first recommended action below the 1366×768 fold. Compact panel spacing fixes that regression; the original visibility assertion remains. Narrow-screen navigation now fits four destinations in two rows. The same preflight also required the retained native-prompt test to use the new application dialog while keeping its original text-preservation assertion.
 
 The all-status review retains earlier inspection dates for withdrawn authoring-14 referral items while preserving Entered in error and an unavailable violation duration. It does not give compliance credit. The later Excel-import browser workflow now returns through Workspace before reopening Import inspection.
+
+## PR 31 review corrections
+
+- Batch due dates on a reinspection worksheet now apply when the follow-up is still undecided as an empty or missing value (an import rule that asks for a choice sets ""); the panel was shown but Apply refused.
+- Apply drops selected items that have since become ineligible (corrected, withdrawn or carried) and therefore have no checkbox, instead of refusing a selection the inspector cannot see.
+- The corrective-action dialog returns focus to the item text after Chromium's asynchronous close event; focus previously fell to the main content.
+- Workspace stays the current rail destination on the Import inspection screen.
+- Authoring-14 item history keeps the number of a citation issued with (or in place of) the original notice on the first observation row; it was dropped although earlier formats retain it. No observation or date is created from the citation.
+- CASE-WORKFLOW-GUIDE describes the four Writer destinations.
+- Open for the owner: a corrected result whose manual date is backdated before an earlier visit's no-change finding still counts; deciding whether the worksheet should refuse such a date is a rule change. Continuation rows of long histories repeat the Sections and Abate cells, and the editor's on-screen page breaks can differ from the filed PDF where the desktop address flow applies (filed PDFs are unaffected).
+
