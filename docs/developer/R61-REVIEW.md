@@ -26,9 +26,14 @@ Focused history/currency/copy/catalog tests and retained R60, R59 charge-selecti
 ## PR 33 review corrections
 
 - Reports normalizes ordinance values to one key in its model (R61 prints 27.05(2)(g)2 while citation charges keep 27.05(2)(g)2.), so the Ordinance list, filters and counts no longer split one ordinance. Stored summaries and the summarize()/case_projection mirror are unchanged.
-- Switching an administrative extension's family keeps each family's authoring version; only a draft created at 15 receives the R61 defaults. An older Best Interest draft no longer silently adopts the signer-free format; adoption stays explicit.
+- Switching an administrative extension's family keeps each visited family's authoring version. A first visit uses R61 defaults for dated extensions (Best Interest 15, Vacancy 13); pre-dated-model drafts keep their older version. An older Best Interest draft no longer silently adopts the signer-free format on returning to that family; adoption stays explicit.
 - The helper refuses a new Best Interest correction whose format (authoring 15 or later versus earlier) differs from its original's; the browser already kept the original's version.
 - The incomplete-packet check compares the document's own frozen copy labels, states accurately that nothing was filed after issuance, and a refused retry filing shows the reason instead of leaving the button disabled.
 - CASE-LOOKUP-GUIDE uses Import inspection.
 - Not changed (owner decision): policy/metadata.json still carries the dotted 27.05(2)(g)2. display reference and correction text for the ENF_HSE structural mapping; changing approved policy data is outside this review. A legacy compliance item without a boolean Abate value prints Unavailable and cannot be resolved in the compliance table before issuance.
 
+## Follow-up review
+
+- As-of reporting previously restored undotted section references from each violation's history over its normalized current fields. With the canonical Ordinance filter selected, new R61 violations disappeared from Open violations by area. The read-only report model now also normalizes copied historical section arrays, preserving effective dates, correction states and the verified stored summary.
+- Loading a local or shared saved view with an undotted Ordinance value previously restored a filter that matched no canonical model rows. View loading now normalizes the active filter only; stored preferences remain unchanged. The shared-view loader uses the same path.
+- Regression coverage exercises both failures, old/new histories, a before/after-correction As-of count, and preservation of source summaries and saved preferences. Exact full-gate results and reviewed commit are recorded on PR 33.

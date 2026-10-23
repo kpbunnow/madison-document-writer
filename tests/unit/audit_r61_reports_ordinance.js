@@ -24,7 +24,19 @@ const test = () => {
       inspector: "INSPECTOR A",
       owner: "OWNER",
     },
-    violations: [{ no: "1", title: "Structure", type: "structural", typeLabel: "Structural", sections: [section] }],
+    violations: [
+      {
+        no: "1",
+        title: "Structure",
+        type: "structural",
+        typeLabel: "Structural",
+        sections: [section],
+        history: [
+          { effectiveFrom: "2026-01-05", effectiveTo: "2026-04-01", sections: [section], done: false },
+          { effectiveFrom: "2026-04-01", sections: [section], done: true, doneOn: "2026-04-01" },
+        ],
+      },
+    ],
     citations: [{ num: "C-" + number, no: "1", ordinance, issued: "2026-01-20", by: "INSPECTOR A" }],
     referrals: [],
     visits: [],
@@ -46,10 +58,38 @@ const test = () => {
     "the filter matches old and new violations",
   );
   assert.equal(M.cases.flatMap((c) => c.citations).filter((x) => x.ordinance === F.ord).length, 2, "and both citations");
+  const historicalFilters = { ...ReportsState.S.F, ...F, asOf: "2026-01-31" };
+  const historical = reportById("openViolations").run(M, historicalFilters);
+  assert.equal(historical.total[1].n, 2, "as-of ordinance filter includes old and new inspection history");
+  assert.equal(
+    reportById("openViolations").run(M, { ...historicalFilters, asOf: "2026-04-02" }).total[1].n,
+    0,
+    "normalization preserves the actual correction date",
+  );
   // Other ordinances are unchanged.
   const other = buildModel([summary("QA-C", "27.05(2)(c)", "27.05(2)(c)")], {}, {});
   assert.deepEqual(other.cases[0].violations[0].sections, ["27.05(2)(c)"]);
   assert.equal(JSON.stringify(summaries), stored, "the stored summaries are not changed");
+  ReportsState.S.phase = "ready";
+  ReportsState.S.M = M;
+  ReportsState.S.raw = { summaries, missing: [], stale: [], unreadable: [], mismatched: [] };
+  const saved = {
+    id: "old-display-view",
+    name: "Stored display reference",
+    report: "openViolations",
+    filters: {
+      ...historicalFilters,
+      ord: "27.05(2)(g)2",
+    },
+    dateMode: "fixed",
+    view: "table",
+  };
+  ReportsState.SAVED_VIEWS = [saved];
+  const retainedView = JSON.stringify(saved);
+  applyReportView(saved.id);
+  assert.equal(ReportsState.S.F.ord, F.ord, "local and shared saved views restore the canonical filter key");
+  assert.equal(reportById("openViolations").run(M, ReportsState.S.F).total[1].n, 2);
+  assert.equal(JSON.stringify(saved), retainedView, "loading does not rewrite stored view preferences");
   console.log("PASS R61 Reports treats 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance");
 };
 eval(payload + "\n(" + test.toString() + ")();process.exit(0);");
