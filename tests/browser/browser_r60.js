@@ -9,7 +9,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     printPage = await context.newPage();
   try {
     await page.goto(new URL("/", hostPage.url()).href);
-    await page.waitForFunction(() => typeof WriterState !== "undefined");
+    // Restore storage before injecting fixtures: a late startup render can replace the focused editor node.
+    await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
     await page.evaluate(() => {
       WriterState.CASES = [
         {
