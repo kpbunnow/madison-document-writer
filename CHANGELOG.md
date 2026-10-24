@@ -1,9 +1,14 @@
 # Release changelog
 
+## Unreleased — Import status validation fix (development)
+
+- Fix (pre-existing): an Accela status of `constructor` or `__proto__` (any case) was treated as having a document rule, so the row was importable and could be auto-selected. Import rules now read only their own entries, and such a row is listed greyed with "has no document rule", like any unknown status.
+- Fix (pre-existing): a report case number spelled like an inherited object property (`constructor`, `__proto__`, `toString`, …) failed the import with an internal TypeError. Cases are now grouped by their own text.
+- Applies to both the uploaded report and the SQL lookup; covered by audit_status_own_property.js. Release identity, authoring and storage versions unchanged.
+
 ## Unreleased — Consolidation Phase 3 (development)
 
 - Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged. The browser workflow explicitly foregrounds Reports when returning from Writer and checks navigation readiness without extending its deadline. Escape focus restoration uses a bounded wait for the asynchronous dialog close event, retaining the original focus assertion.
-
 
 - Dead code removed with reachability evidence; no user-visible behavior, document output or helper rule changed.
 - Obsolete Accela status table `ACC_STATUS`, the one-argument `accStatusEligible` branch and the unreachable Pending explanation removed; eligibility is `statusRule(type, status)`.

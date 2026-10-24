@@ -502,6 +502,7 @@
     "tests/unit/audit_server_reporting.py",
     "tests/unit/audit_shell_escaping.js",
     "tests/unit/audit_snow_repaint.js",
+    "tests/unit/audit_status_own_property.js",
     "tests/unit/audit_storage.js",
     "tests/unit/audit_summary.js",
     "tests/unit/audit_usability_phase1.js",
