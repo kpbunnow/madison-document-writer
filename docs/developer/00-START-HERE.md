@@ -1,6 +1,23 @@
 # R62 developer start guide
 
-Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. R60 adds Workspace entry, application text entry, visible reinspection deadlines and authoring-14 referral item history with Days Outstanding. R62 (authoring 16) changes import eligibility, Best Interest and Vacancy Extensions, history-note placement and referred-case options; see R62-REVIEW.md. version.json owns release and protocol identity. R54 introduced authoring 12 for the aligned special-extension layout and R56 authoring 13 for their required item due dates; historical authoring-12, -11 and earlier layouts remain available. Case schema 5, summary 6 and workspace backup 2 remain unchanged. version-notes.md documents the independent helperBuild counter. See R61-REVIEW.md for current scope and R60-REVIEW.md for preceding scope and R59-REVIEW.md for the preceding release scope (inspection selection, charged ordinance, Violation Items, the Review dialog and Issue return, 15-second messages, remove/date controls and screen typography), docs/history/R58-REVIEW.md for desktop launch and safe exit (design in DESKTOP-LAUNCH.md), docs/history/R57-REVIEW.md for the usability follow-up, docs/history/R56-REVIEW.md for the R56 Writer simplification, and docs/history/R54-REVIEW.md for the confirmed extension decisions and regression boundaries.
+Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity: the current release writes authoring version 16 with case schema 5, summary 6 and workspace backup 2, and every earlier authoring format remains readable and reprintable. version-notes.md documents the independent helperBuild counter.
+
+## Developer documents
+
+| Document | Read it for |
+| --- | --- |
+| [01-ARCHITECTURE.md](01-ARCHITECTURE.md) | Runtime, modules, import, documents and authoring versions, helper storage, PDFs, security, installation and build |
+| [02-CODE-MAP.md](02-CODE-MAP.md) | Which module owns what |
+| [03-DOMAIN-RULES.md](03-DOMAIN-RULES.md) | Rules the program enforces, by feature, including owner-confirmed rules |
+| [04-PITFALLS.md](04-PITFALLS.md) | Mistakes to avoid, by area |
+| [05-TESTING.md](05-TESTING.md) | The gate, feature suites, evidence and packaging |
+| [../../tests/README.md](../../tests/README.md) | Every suite by feature, with former suite names |
+| [CLOUD-DEVELOPMENT.md](CLOUD-DEVELOPMENT.md), [DESKTOP-LAUNCH.md](DESKTOP-LAUNCH.md) | Cloud setup and validation; the desktop launch and exit design |
+| [ACCEPTANCE-RECORD.md](ACCEPTANCE-RECORD.md), [PRODUCTION-READINESS.md](PRODUCTION-READINESS.md) | Living acceptance and readiness records (see Release documents) |
+| [R62-REVIEW.md](R62-REVIEW.md), [R61-REVIEW.md](R61-REVIEW.md), [R60-REVIEW.md](R60-REVIEW.md), [R59-REVIEW.md](R59-REVIEW.md) | The current and recent release reviews; older reviews are in [../history/](../history/README.md) |
+| [CONSOLIDATION-PROMPT.md](CONSOLIDATION-PROMPT.md), [CSS-CANDIDATES.md](CSS-CANDIDATES.md) | The consolidation plan and its unused-CSS inventory |
+
+Release-by-release history is in CHANGELOG.md, the release reviews and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md. The R60, R61 and R62 development prompts kept here are implemented records, not instructions for current work.
 
 Build directly from app/, helper/, policy/, tools/, tests/ and docs/. Generated modules, policies, identity, bundles, evidence and caches belong under build/. No flat source staging tree or source mapping exists. The Windows deployment and installed filenames remain stable.
 
@@ -16,7 +33,7 @@ For offline development, DW_BROWSER selects a compatible Chromium executable. Re
 
 ## Maintenance rules
 
-Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep four Writer rail destinations: Workspace, Order language, Reports and Tools & settings. Import inspection remains an internal route entered from Workspace. This owner-approved R60 change supersedes the former five-destination/import-first rule. Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice (items are selected beside their due dates; the Assign due dates bar applies the date), exceptional recovery in Tools, and manual links inside Tools. Specialist tools sit in the collapsed Administrator tools group in Tools; the grouping grants no authorization and each tool keeps its own administrator checks.
+Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep four Writer rail destinations: Workspace, Order language, Reports and Tools & settings. Import inspection remains an internal route entered from Workspace (owner-approved; it superseded a former five-destination, import-first rule). Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice (items are selected beside their due dates; the Assign due dates bar applies the date), exceptional recovery in Tools, and manual links inside Tools. Specialist tools sit in the collapsed Administrator tools group in Tools; the grouping grants no authorization and each tool keeps its own administrator checks.
 
 Use direct module imports and state.js; never recreate the universal runtime registry. Edit maintained source only; generated files live under build/. version.json is the release identity source; check generated consumers. Source or policy changes require fresh complete verification and packaging. Actual City approval is not supplied by an automated gate. No live rollout is performed by release packaging.
 
@@ -31,5 +48,3 @@ First installation comes from a deploy ZIP whose SHA-256 IT has checked against 
 docs/staff/PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf/.docx are staff guidance. docs/history/ is inert provenance included in source distributions and maintained-source fingerprints, but excluded from runtime/deployment inputs. The optional, ignored archive/development-history is excluded from fingerprints and every release archive. docs/history/R51-HISTORY-RESTORE.json identifies the R49 source ZIP that archive/development-history is restored from.
 
 Legal holds and all open City acceptance items remain open. Automated checks do not supply legal, City hardware, native print, accessibility or staff approval.
-
-R61 introduces authoring 15 for new referral/compliance history presentation and Best Interest Extensions. Compliance history is a presentation capability, not referral status. Older issued authoring versions and their correction renderers remain unchanged. See R61-REVIEW.md for implementation and the confirmed retained Best Interest safety checkbox.

@@ -69,7 +69,7 @@ Use a separate test deployment and an approved case number. Under at least two i
 
 ## Optional per-computer certificate workaround
 
-The preferred fix is for the PC to trust the SQL server's certificate authority. If you cannot have the certificate chain fixed and accept the security tradeoff, R10 provides a per-user opt-in that keeps the connection encrypted but skips certificate validation. It affects only the current Windows profile, not other inspectors.
+The preferred fix is for the PC to trust the SQL server's certificate authority. If you cannot have the certificate chain fixed and accept the security tradeoff, Document Writer provides a per-user opt-in that keeps the connection encrypted but skips certificate validation. It affects only the current Windows profile, not other inspectors.
 
 1. Open `%LOCALAPPDATA%\MadisonDocWriter` in File Explorer. Create the folder if needed.
 2. Create `case-lookup-local-settings.json` containing exactly:
