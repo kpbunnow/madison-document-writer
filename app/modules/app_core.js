@@ -1180,6 +1180,10 @@ export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : unde
    The helper commits the revision and supersession together under its case lock.
    A failed/ambiguous save retains an idempotent attempt on the local draft. */
 export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
+/* The case is with the City Attorney now: it has an effective (issued, not voided or superseded) referral or
+   referral update. Live state only; as-of projections, source-excluding correction checks and helper validation keep
+   their own predicates. */
+export const isReferredCase = (caseId) => docsFor(caseId).some((d) => isEffective(d) && isHistoryDoc(d));
 /* Items may be cited only when the imported Accela inspection status is Citation. */
 export const citeAllowed = (d) => !!d?.importRule?.cite;
 /* When an imported status does not permit citations (for example Citation corrected to Official Notice in Accela

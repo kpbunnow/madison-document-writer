@@ -487,6 +487,7 @@
     "tests/unit/audit_r62_history_notes.js",
     "tests/unit/audit_r62_import_rules.js",
     "tests/unit/audit_recipient_flow.js",
+    "tests/unit/audit_referred_case.js",
     "tests/unit/audit_release.js",
     "tests/unit/audit_release_inputs.py",
     "tests/unit/audit_report_export_scope.js",

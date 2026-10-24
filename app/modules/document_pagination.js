@@ -16,11 +16,10 @@ import {
   depositStep,
   doc,
   docCase,
-  docsFor,
   esc,
   insp,
   isEffective,
-  isHistoryDoc,
+  isReferredCase,
   kase,
   newDocuments,
   openItems,
@@ -134,7 +133,7 @@ function docFromReinspection(r, type) {
   // checked against the ones already issued on this document too
   if (hasHistory) nd.items.forEach((it) => (it.hist = itemInspectionHistory(nd, it)));
   WriterState.DOCS.unshift(nd);
-  if (REFERRED_ONLY.indexOf(type) < 0 && docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x))) {
+  if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
     toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
     return;

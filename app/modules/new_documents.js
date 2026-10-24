@@ -23,7 +23,7 @@ import {
   esc,
   insp,
   isEffective,
-  isHistoryDoc,
+  isReferredCase,
   isLocked,
   itemSelector,
   kase,
@@ -451,7 +451,7 @@ export function initNewDocuments() {
     }
     // R62 (owner, Development 3): a referred case allows only an Update for Case Referral or a Compliance Letter;
     // the former emergency / occupancy exception is removed.
-    if (!d.correction && docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x))) add(false, REFERRED_MESSAGE);
+    if (!d.correction && isReferredCase(d.caseId)) add(false, REFERRED_MESSAGE);
     if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) {
       add(
         NUISANCES.some((v) => v[0] === s.variant && (d.type === "summaryAbatement" || v[0] !== "secure")),
@@ -917,7 +917,7 @@ export function initNewDocuments() {
     ["compliance", "Confirm compliance"],
   ];
   function choices(r) {
-    const referred = docsFor(r.caseId).some((x) => isEffective(x) && isHistoryDoc(x));
+    const referred = isReferredCase(r.caseId);
     return referredOnly(referred, [
       ["extension", "Extension", "time", "Allow more time for outstanding violations."],
       ["bestInterestExtension", "Best Interest Extension", "time", "Record a reviewed supervisory extension."],
@@ -966,7 +966,7 @@ export function initNewDocuments() {
     if (fault) return fault;
     const src = doc(r.sourceDocId),
       open = openItems(r),
-      referred = docsFor(r.caseId).some((x) => isEffective(x) && isHistoryDoc(x));
+      referred = isReferredCase(r.caseId);
     if (type === "notice") return "Official Notice is created from an initial imported inspection.";
     if (!src || !isEffective(src)) return "The inspection source is no longer effective.";
     const issued = docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
@@ -1352,7 +1352,7 @@ export function initNewDocuments() {
       toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
       return null;
     }
-    if (type && docsFor(cid).some((d) => isEffective(d) && isHistoryDoc(d))) {
+    if (type && isReferredCase(cid)) {
       toast(REFERRED_MESSAGE);
       return null;
     }
@@ -1415,7 +1415,7 @@ export function initNewDocuments() {
   function caseActionScreen() {
     const choice = WriterState.WORK.currentAction || {},
       k = kase(choice.cid),
-      referred = docsFor(choice.cid).some((d) => isEffective(d) && isHistoryDoc(d)),
+      referred = isReferredCase(choice.cid),
       closed = sourceDocFor(choice.cid)?.type === "compliance";
     const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
     if (referred)

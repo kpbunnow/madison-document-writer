@@ -1061,6 +1061,7 @@ function correctionTypeAllowed(src, type, historyOnly = false) {
   if (specialType(src.type)) return false;
   if (!src.fromReinspId || src.type === "citation" || !["extension", "referral", "referralUpdate", "compliance"].includes(type)) return false;
   if (historyOnly) return true;
+  // Not isReferredCase: a correction's own source document does not count as the earlier referral.
   const priorReferral = docsFor(src.caseId).some((x) => isEffective(x) && x.id !== src.id && isHistoryDoc(x));
   return !priorReferral || ["referralUpdate", "compliance"].includes(type);
 }
