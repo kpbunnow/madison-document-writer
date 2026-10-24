@@ -20,8 +20,8 @@ assert.deepEqual(eventFactory("id", "time", "inspector", "notice.issued", { a: 1
 });
 const request = { name: "case.json", file: {}, baseRevision: "r", baseCase: null };
 assert.equal(storeRequestFactory(request), request);
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = builtPage("app", process.env.DW_PRODUCTION_DIR),
+const { productionPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = productionPage("app", process.env.DW_PRODUCTION_DIR),
   payload = bundleSource(html);
 assert.ok(!payload.includes("function issueDocument("));
 require("acorn").parse(payload, { ecmaVersion: 2022, sourceType: "script" });

@@ -379,6 +379,7 @@
     "tests/unit/audit_order_improvements.js",
     "tests/unit/audit_pdf_publication.py",
     "tests/unit/audit_perm.js",
+    "tests/unit/audit_production_build_guard.js",
     "tests/unit/audit_projection_capture.py",
     "tests/unit/audit_properties.js",
     "tests/unit/audit_properties_helper.py",

@@ -21,6 +21,7 @@ function validatePacket(layout) {
   const baseline = JSON.parse(fs.readFileSync(path.join(root, "tests/fixtures/reference/R51-authored-print-golden.json"), "utf8"));
   const frozen = JSON.parse(fs.readFileSync(path.join(root, "tests/fixtures/reference/R49-print-golden.json"), "utf8"));
   const runtime = path.join(process.env.DW_PRODUCTION_DIR || path.join(root, "build/dist"), "madison-document-writer.html");
+  require("../fixtures/built_bundle.cjs").assertProductionPage(runtime);
   const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", req.url === "/" ? "text/html" : "application/json");
     res.end(req.url === "/" ? fs.readFileSync(runtime) : '{"ok":false}');

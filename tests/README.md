@@ -103,6 +103,7 @@ Add a new suite under the feature it covers.
 | `audit_utf8_io.py` | Case, integrity, tool and policy text is UTF-8 under a simulated Windows CP1252 default (including the deposit provenance check); no implicit encodings in helper/, tools/ or policy/ |
 | `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |
 | `audit_status_own_property.js` | Reject inherited-property status names (`constructor`, `__proto__`) across supported inspection types on uploaded-report and SQL paths; group inherited-property case numbers safely and preserve report order |
+| `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
 | `audit_referred_case.js` | One live referred-case predicate: effective referral or referral update only (drafts, voided, superseded, other types and other cases excluded); equal to the three spellings it replaced; correction checks keep the source-document exclusion |
 | `audit_shell_escaping.js` | Screen titles and breadcrumbs escape imported text exactly once (case actions in normal and referred branches, editor) |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |

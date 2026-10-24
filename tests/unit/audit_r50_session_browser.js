@@ -17,6 +17,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       process.env.DW_PRODUCTION_DIR && ["madison-document-writer.html", "madison-reports.html"].includes(name)
         ? path.join(process.env.DW_PRODUCTION_DIR, name)
         : path.join(root, source);
+    if (["madison-document-writer.html", "madison-reports.html"].includes(name))
+      require("../fixtures/built_bundle.cjs").assertProductionPage(runtime);
     fs.copyFileSync(runtime, path.join(work, name));
   }
   fs.cpSync(path.join(root, "helper/vendor"), path.join(work, "vendor"), { recursive: true, filter: (p) => !p.includes("__pycache__") });

@@ -6,8 +6,8 @@ const fs = require("fs"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const runtime = process.env.DW_PRODUCTION_DIR || path.join(path.resolve(__dirname, "../.."), "build/dist");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = builtPage("app", runtime),
+const { productionPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = productionPage("app", runtime),
   payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",

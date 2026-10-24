@@ -1,5 +1,12 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 4 (development)
+
+- Consolidation only; no document output, user-visible message or helper rule changed.
+- One live referred-case predicate, `isReferredCase(caseId)`, replaces ten equivalent checks with three spellings. The correction check keeps its source-document exclusion; Reports status and the workspace's "ever referred" flag are separate rules and unchanged (audit_referred_case.js).
+- Tests that mean "the current format" read a pinned per-family authoring table (tests/fixtures/authoring_expectations.cjs) checked against version.json; historical literals stay.
+- Production-only suites recognise a test bundle from its content and stop with one clear message (audit_production_build_guard.js).
+
 ## Unreleased — Import status validation fix (development)
 
 - Fix (pre-existing): an Accela status of `constructor` or `__proto__` (any case) was treated as having a document rule, so the row was importable and could be auto-selected. Import rules now read only their own entries, and such a row is listed greyed with "has no document rule", like any unknown status.
