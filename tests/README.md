@@ -16,8 +16,8 @@ covers, or a new suite under its feature.
 ## Inspection import and case lookup
 
 | Suite | Covers |
-| `audit_feature_accela_import.js` | Feature suite: workbook parsing and columns, type/status routing and case rules, candidate selection, stale state and repaint (former `audit_import`, `audit_r45_import`, `audit_r50_import`, `audit_r50_import_repaint`, `audit_r53_status_rules`, `audit_r62_import_rules`, `audit_status_own_property`) |
 | --- | --- |
+| `audit_feature_accela_import.js` | Feature suite: workbook parsing and columns, type/status routing and case rules, candidate selection, stale state and repaint (former `audit_import`, `audit_r45_import`, `audit_r50_import`, `audit_r50_import_repaint`, `audit_r53_status_rules`, `audit_r62_import_rules`, `audit_status_own_property`) |
 | `audit_import_r13.js`, `audit_import_r13.py` | Case routing, retained inspection identity, reuse refused at the store |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
@@ -197,6 +197,7 @@ covers, or a new suite under its feature.
 | `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
 | `audit_scenario_harness.js` | Feature suites run each scenario in its own process; any throw, rejection, non-zero exit or silent scenario fails the suite |
 | `audit_suite_classes.py` | Suites that may launch Chromium are found through the local modules they require, so they stay serial |
+| `audit_suite_process.py` | The suite deadline stops scenario descendants as well as the parent; output and failure statuses are preserved |
 
 ## Performance (run last, alone)
 

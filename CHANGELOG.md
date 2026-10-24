@@ -2,6 +2,7 @@
 
 ## Unreleased — Consolidation Phase 6 (development)
 
+- Review: suite timeouts now terminate scenario descendants as well as their feature-suite parent. The 150-second deadline is unchanged; an integration check verifies that a timed-out scenario stops writing and that output/failure statuses are retained.
 - Test organization only; no application code, assertion, expected value or message changed.
 - Feature suites (`audit_feature_*.js`) group scenarios by feature; tests/fixtures/scenarios.cjs runs each scenario in its own process, so isolation is unchanged (audit_scenario_harness.js).
 - Thirteen suites moved: seven import suites and two history/referral suites whole, and the R60/R61 development and review-fix suites split block by block into their feature homes (Accela import, extensions, histories and referrals, citation packets, editor screens, worksheet dates, corrections, language catalog). The same 902 assertions and 108 import checks run.

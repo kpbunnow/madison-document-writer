@@ -15,6 +15,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
 from suite_classes import uses_browser
+from suite_process import run_suite_process
 
 os.environ["TZ"] = "America/Chicago"
 if hasattr(__import__("time"), "tzset"):
@@ -121,15 +122,11 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
         def run_suite(suite):
             started = time.monotonic()
             try:
-                run = subprocess.run(
+                run = run_suite_process(
                     [sys.executable if suite.suffix == ".py" else "node", str(suite.relative_to(ROOT))],
                     cwd=ROOT,
                     env=suite_env(suite),
-                    capture_output=True,
-                    text=True,
                     timeout=150,
-                    encoding="utf-8",
-                    errors="replace",
                 )
                 output, code = run.stdout + run.stderr, run.returncode
             except subprocess.TimeoutExpired:
