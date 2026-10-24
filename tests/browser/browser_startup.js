@@ -7,13 +7,15 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
   context.on("page", (p) => p.on("pageerror", (error) => errors.push(error.message)));
   let release;
   try {
-    await context.addInitScript(() => {
+    await context.addInitScript((applicationOrigin) => {
+      // Blank pages and opaque-origin frames cannot access sessionStorage.
+      if (location.origin !== applicationOrigin) return;
       if (sessionStorage.getItem("qa-storage-failure") === "1") {
         indexedDB.open = () => {
           throw new DOMException("Synthetic storage failure", "UnknownError");
         };
       }
-    });
+    }, new URL(hostPage.url()).origin);
     const page = await context.newPage();
     await page.goto(new URL("/", hostPage.url()).href);
     await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
