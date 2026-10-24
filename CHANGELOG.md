@@ -1,5 +1,12 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 5 (development)
+
+- Review: the R60 browser fixture waits for Writer startup restoration before injecting case data. This prevents a late startup repaint from replacing the corrective-detail dialog's focus target; the Escape-focus assertion and its deadline are unchanged. The race also reproduces on the pre-Phase-5 bundle.
+- Mechanical module realignment; no function body, initializer, listener registration or document output changed.
+- New accela_import.js holds the whole Accela import path (from app_core.js, reinspection_walkthrough.js and inspection_import.js); reinspection_walkthrough.js is now reinspection.js (worksheet, checks and walkthrough); inspection_import.js is now editor_screens.js (document editor); new app_screens.js holds render, the shared modals and the case list.
+- The Reports bundle is byte-identical; the Writer bundle has the same 439 function bodies, the same 140 executable top-level statements in the same order and the same 217 declarators.
+
 ## Unreleased — Consolidation Phase 4 (development)
 
 - Consolidation only; no document output, user-visible message or helper rule changed.

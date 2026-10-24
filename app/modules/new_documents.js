@@ -2,10 +2,10 @@ import { recordDay } from "../assets/shared.js";
 import { fmtDate, inspAt, toast, validISO } from "./court_and_deposits.js";
 import { evid, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
-import { screenCases } from "./reinspection_walkthrough.js";
+import { screenCases, renderKeep, render } from "./app_screens.js";
 import { commitRecordAttempt } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
-import { newDoc, render, renderKeep } from "./inspection_import.js";
+import { newDoc } from "./editor_screens.js";
 import { docFromReinspection, refreshSheet } from "./document_pagination.js";
 import {
   DOC_TYPES,

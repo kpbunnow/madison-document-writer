@@ -1,6 +1,6 @@
 import { normParcel } from "../assets/shared.js";
 import { inspAt, lookupForf, toast } from "./court_and_deposits.js";
-import { renderKeep } from "./inspection_import.js";
+import { renderKeep } from "./app_screens.js";
 import { citationPricingDate, correctionSource, daysBetween, doc, docCase, isLocked, itemLibraryKey, libraryReview, snow } from "./app_core.js";
 import {
   CITATION_POLICY,

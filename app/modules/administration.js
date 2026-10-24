@@ -1,7 +1,7 @@
 import { toast } from "./court_and_deposits.js";
 import { helperJSON, stableJSON } from "./workspace_shell.js";
 import { saveDrafts } from "./case_files.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import { A11Y, citationPricing, docCase, esc as dep_esc, isLocked, itemLibraryKey, snow } from "./app_core.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { WriterState } from "./state.js";

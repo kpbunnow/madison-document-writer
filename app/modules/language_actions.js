@@ -1,6 +1,6 @@
 import { catalogKey, keepCatalogForms } from "./draft_recovery.js";
 import { catalogForm, catalogItem, catalogReview, refreshCatalog } from "./language_catalog.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import { refreshOverlay } from "./document_pagination.js";
 import { navigation } from "./app_core.js";
 import { WriterState } from "./state.js";

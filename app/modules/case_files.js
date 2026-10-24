@@ -20,12 +20,12 @@ import {
   stableJSON,
   summarize,
 } from "./workspace_shell.js";
-import { clearWalk, restoreWalkFor } from "./reinspection_walkthrough.js";
+import { clearWalk, restoreWalkFor } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 import { refreshCatalog } from "./language_catalog.js";
 import { initWriterHandoff, inspectionIdentity, markWriterReady, refreshArtifactLocations } from "./case_timeline.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import {
   clearProhibitedCitations,
   CASEDIR_EXPECT,

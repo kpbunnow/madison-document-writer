@@ -1,12 +1,13 @@
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
-import { simpleVacancy, simplifiedBestInterest } from "./new_documents.js";
+import { simpleVacancy, simplifiedBestInterest, specialType } from "./new_documents.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import { catalogDraftBlocked } from "./language_catalog.js";
 import { authoringChecks, citationDepositFault, refreshArtifactLocations } from "./case_timeline.js";
-import { attachCheckTargets, render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
+import { attachCheckTargets } from "./reinspection.js";
 import { documentHTML } from "./document_render.js";
 import { paginate } from "./document_pagination.js";
 import {
@@ -57,7 +58,6 @@ import {
 } from "./app_core.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
-import { specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 /* app functions; direct dependencies use explicit shared state. */

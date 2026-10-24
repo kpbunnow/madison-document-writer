@@ -2,11 +2,13 @@ import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.j
 import { emailDocument, filePdf, freezeSources, inspAt, parseTime, printJob, rnd12, toast, validISO } from "./court_and_deposits.js";
 import { badIds, caseFileFault, evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor, stableJSON } from "./workspace_shell.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
-import { clearWalk, focusIssuedCase, revealIssuedCase, walkIdentity } from "./reinspection_walkthrough.js";
+import { clearWalk, walkIdentity, dueCheck } from "./reinspection.js";
+import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
 import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
 import { compareSharedCase, refreshCatalog } from "./language_catalog.js";
 import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
-import { cancelCaseLookup, dueCheck, render } from "./inspection_import.js";
+
+import { cancelCaseLookup } from "./accela_import.js";
 import {
   DOC_TYPES,
   ENTRY_IDS,

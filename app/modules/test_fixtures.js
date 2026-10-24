@@ -3,7 +3,7 @@ import { fmtDate, freezeSources, toast } from "./court_and_deposits.js";
 import { appendEvent, project } from "./workspace_shell.js";
 import { saveDrafts, validateAndStandardizeAddresses } from "./case_files.js";
 import { recordReinspection, startCorrection } from "./issuance_and_corrections.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import { ISSUE_EVENT, MINDUE, addDays, clone, doc, docCase, docInsp, isLLC, recordHead, reinsp } from "./app_core.js";
 import { WriterState } from "./state.js";
 const TEST_CASES = [

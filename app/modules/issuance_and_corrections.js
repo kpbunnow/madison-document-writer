@@ -1,4 +1,4 @@
-import { cents } from "./citation_policy.js";
+import { cents, canonicalOrdinance } from "./citation_policy.js";
 import { recordDay } from "../assets/shared.js";
 import {
   applyDeposit,
@@ -28,10 +28,11 @@ import {
   stableJSON,
 } from "./workspace_shell.js";
 import { saveDrafts, validateAndStandardizeAddresses, writeSummary } from "./case_files.js";
-import { ensureWalkContext, priorCitations } from "./reinspection_walkthrough.js";
+import { ensureWalkContext } from "./reinspection.js";
+import { priorCitations, render } from "./app_screens.js";
 import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.js";
 import { commitCitationEdits } from "./case_timeline.js";
-import { render } from "./inspection_import.js";
+
 import {
   CASE_CORRECTION_FIELDS,
   COMMITTED,
@@ -73,7 +74,6 @@ import {
   summaryName,
   uid,
 } from "./app_core.js";
-import { canonicalOrdinance } from "./citation_policy.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { specialType } from "./new_documents.js";
 import { WriterState } from "./state.js";

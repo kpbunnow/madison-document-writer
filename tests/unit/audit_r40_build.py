@@ -26,7 +26,7 @@ class BuildContract(unittest.TestCase):
             core = Path("app/modules", stem + "_core.js").read_text()
             self.assertNotIn("$modules", core)
             self.assertNotIn("const $runtime=", core)
-        self.assertIn("function render(", Path("app/modules/inspection_import.js").read_text())
+        self.assertIn("function render(", Path("app/modules/app_screens.js").read_text())
         self.assertIn("function render(", Path("app/modules/reports_services.js").read_text())
         self.assertFalse(Path("generate_module_index.cjs").exists())
 

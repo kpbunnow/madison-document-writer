@@ -1,10 +1,11 @@
 import { recordDay } from "../assets/shared.js";
 import { applyDeposit, citationNumber, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
-import { narrativeFor } from "./reinspection_walkthrough.js";
+import { narrativeFor, highlightOpenChecks } from "./reinspection.js";
 import { itemHistory, itemInspectionHistory, hasItemInspectionHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
-import { editorSync, highlightOpenChecks, overlayHTML, render } from "./inspection_import.js";
+import { editorSync } from "./editor_screens.js";
+import { overlayHTML, render } from "./app_screens.js";
 import { documentHTML } from "./document_render.js";
 import {
   A11Y,

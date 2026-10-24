@@ -2,7 +2,8 @@ import { recordDay } from "../assets/shared.js";
 import { citationNumber, fmtDate, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
 import { helperJSON, stableJSON } from "./workspace_shell.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
-import { render, renderKeep } from "./inspection_import.js";
+
+import { renderKeep, render } from "./app_screens.js";
 import { refreshSheet } from "./document_pagination.js";
 import {
   addDays,

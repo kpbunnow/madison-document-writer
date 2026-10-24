@@ -2,10 +2,10 @@ import { caseNumberKey } from "../assets/shared.js";
 import { allItems, toast } from "./court_and_deposits.js";
 import { caseDetails, caseFileFault, caseFileName, helperJSON, idbSet, loadCaseFile, project, rememberSaved, stableJSON } from "./workspace_shell.js";
 import { caseUnsaved, draftBundle, saveCaseFile, saveDrafts } from "./case_files.js";
-import { clearWalk } from "./reinspection_walkthrough.js";
+import { clearWalk } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { catalogKey, recoveryCaseKey, recoverySnapshot, scheduleRecoveryBackup } from "./draft_recovery.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import { refreshSheet } from "./document_pagination.js";
 import {
   A11Y,

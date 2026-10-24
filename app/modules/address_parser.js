@@ -1,7 +1,7 @@
 import { toast } from "./court_and_deposits.js";
 import { helperJSON } from "./workspace_shell.js";
 import { saveDrafts } from "./case_files.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import { A11Y, ccList, doc, docCase, esc, kase, recordIntegrity, uid } from "./app_core.js";
 import { WriterState } from "./state.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */

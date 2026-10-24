@@ -1,9 +1,10 @@
 import { toast } from "./court_and_deposits.js";
 import { shell } from "./workspace_shell.js";
 import { saveDrafts } from "./case_files.js";
-import { uiIcon } from "./reinspection_walkthrough.js";
+import { uiIcon, render } from "./app_screens.js";
 import { captureWork } from "./issuance_and_corrections.js";
-import { cancelCaseLookup, render } from "./inspection_import.js";
+
+import { cancelCaseLookup } from "./accela_import.js";
 import { HELPER_VERSION } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
 /* Main destinations and infrequent tools share safe, saved navigation. */
