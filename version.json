@@ -1,9 +1,9 @@
 {
-  "release": "2026-10-23 R62",
-  "helperVersion": "2026.10.23.63",
+  "release": "2026-10-24 R63",
+  "helperVersion": "2026.10.24.64",
   "authoringVersion": 16,
   "caseSchema": 5,
   "summaryVersion": 6,
   "backupVersion": 2,
-  "helperBuild": 63
+  "helperBuild": 64
 }

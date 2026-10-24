@@ -57,3 +57,5 @@ R60 adds S60-1 through S60-6 for Workspace entry, dialog accessibility, scoped r
 R62 Development 3 adds S62-1 through S62-5. All remain OPEN; automated verification does not supply staff, City Attorney or native acceptance.
 
 R61 Development 2 adds S61-1 through S61-5. All remain OPEN. The retained Best Interest safety checkbox applies to authoring-15 drafts and historical R61-format acceptance; current authoring-16 Best Interest has no safety checkbox (S62-2). Implementation is merged, but this is not deployment approval.
+
+R63 is the first release package since R61. It adds S63-1 and S63-2 for startup restoration and the two newly shareable report views. All remain OPEN. It is published against the retained R61 deployment manifest; packaging is not deployment approval.
