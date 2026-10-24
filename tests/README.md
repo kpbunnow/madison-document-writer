@@ -223,6 +223,7 @@ workflow. Each receives the arguments named in its row.
 
 | Suite | Covers |
 | --- | --- |
+| `browser_startup.js` | Real IndexedDB startup restoration barrier, deferred navigation/early-save refusal, read-failure screen and reload recovery; two startup accessibility screens |
 | `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
 | `browser_r30.js`, `browser_r31.js`, `browser_r32.js` | Pricing and deposits through the loopback helper |

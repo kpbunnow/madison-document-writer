@@ -199,7 +199,7 @@ async function axeThemes(page, screen) {
   const page = await context.newPage();
   auditPage = page;
   await page.goto(base + "/");
-  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER);
+  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER && WriterState.WRITER_READY === true);
   assert.equal(await page.locator("h1").textContent(), "Your workspace");
   // The helper serves the application icon without a token; the page loads it under its own CSP (img-src 'self').
   // A separate context without request routing: Playwright interception refuses URLs ending in /favicon.ico.
@@ -895,13 +895,13 @@ async function axeThemes(page, screen) {
   const restoreContext = await browser.newContext({ timezoneId: "America/Chicago" }),
     restorePage = await restoreContext.newPage();
   await restorePage.goto(base + "/");
-  await restorePage.waitForFunction(() => typeof WriterState.CASEDIR !== "undefined" && WriterState.CASEDIR);
+  await restorePage.waitForFunction(() => typeof WriterState.CASEDIR !== "undefined" && WriterState.CASEDIR && WriterState.WRITER_READY === true);
   const backup = JSON.parse(fs.readFileSync(backupPath, "utf8"));
   await restorePage.evaluate((value) => restoreWorkspaceBackup(value), backup);
   assert.equal(await restorePage.evaluate(() => WriterState.DOCS.filter((d) => d.draft && d.pendingAmendment).length), 1);
   assert.equal(await restorePage.evaluate(() => WriterState.DOCS.filter((d) => !d.draft && d.type === "extension").length), 0);
   await restorePage.reload();
-  await restorePage.waitForFunction(() => WriterState.DOCS.some((d) => d.draft && d.pendingAmendment));
+  await restorePage.waitForFunction(() => WriterState.WRITER_READY === true && WriterState.DOCS.some((d) => d.draft && d.pendingAmendment));
   await restoreContext.close();
   await page.bringToFront();
   await page.locator('.writer-navigation [data-nav="cases"]').click();
@@ -1723,6 +1723,7 @@ async function axeThemes(page, screen) {
   // Results are stored as <name>Results (browser_r50_import.js -> r50ImportResults).
   const suiteArgs = { browser, page, context, OUT, axeScreen, axeThemes, work, base };
   const browserSuites = [
+    ["browser_startup.js", "browser page OUT axeScreen"],
     ["browser_r26.js", "browser page context OUT axeScreen"],
     ["browser_r30.js", "browser page OUT axeScreen"],
     ["browser_r33.js", "browser page OUT axeScreen work base"],

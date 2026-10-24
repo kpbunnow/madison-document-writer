@@ -148,12 +148,12 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     restoreContext = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, timezoneId: "America/Chicago" });
     const restored = await restoreContext.newPage();
     await restored.goto(page.url());
-    await restored.waitForFunction(() => typeof WriterState.state !== "undefined");
+    await restored.waitForFunction(() => typeof WriterState.state !== "undefined" && WriterState.WRITER_READY === true);
     await restored.evaluate(async (b) => {
       await idbSet("drafts", b);
     }, bundle);
     await restored.reload();
-    await restored.waitForFunction(() => WriterState.REINSP.some((r) => r.caseId === "r46-synthetic"));
+    await restored.waitForFunction(() => WriterState.WRITER_READY === true && WriterState.REINSP.some((r) => r.caseId === "r46-synthetic"));
     await restored.evaluate(() => startReinspection("r46-synthetic"));
     assert.equal(
       await restored.locator('[data-rinote="r46-item-3"]').inputValue(),

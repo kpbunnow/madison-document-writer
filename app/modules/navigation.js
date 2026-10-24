@@ -7,6 +7,7 @@ import { captureWork } from "./issuance_and_corrections.js";
 import { cancelCaseLookup } from "./accela_import.js";
 import { HELPER_VERSION } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
+import { WRITER_READY_WAIT } from "./app_core.js";
 /* Main destinations and infrequent tools share safe, saved navigation. */
 export function initNavigation() {
   const routes = new Set(["import", "cases", "library", "tools"]);
@@ -53,6 +54,10 @@ export function initNavigation() {
   }
   async function leave(action) {
     const sequence = ++navigationSequence;
+    if (!WriterState.WORKSPACE_RESTORED && !WriterState.WRITER_READY) {
+      await WRITER_READY_WAIT;
+      if (!current(sequence) || !WriterState.WRITER_READY) return false;
+    }
     ++utilitySequence;
     cancelCaseLookup();
     captureWork();

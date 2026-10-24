@@ -24,7 +24,7 @@ import { clearWalk, restoreWalkFor } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 import { refreshCatalog } from "./language_catalog.js";
-import { initWriterHandoff, inspectionIdentity, markWriterReady, refreshArtifactLocations } from "./case_timeline.js";
+import { initWriterHandoff, inspectionIdentity, markWriterReady, markWriterFailed, refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import {
   clearProhibitedCitations,
@@ -320,7 +320,7 @@ async function queuePending(name, body, cid) {
 }
 
 async function restorePending() {
-  const p = await idbGet("pending");
+  const p = await idbGet("pending", IDB_OK);
   if (Array.isArray(p) && p.length) {
     WriterState.PENDING = p;
     render();
@@ -516,7 +516,7 @@ function draftBundle() {
 }
 
 async function saveDrafts() {
-  if (!WriterState.WRITER_ACCESS) return false;
+  if (!WriterState.WRITER_ACCESS || (!WriterState.WORKSPACE_RESTORED && !WriterState.WRITER_READY)) return false;
   if (WriterState.WORK_PATCH) await WriterState.WORK_PATCH;
   captureWork();
   const generation = ++WriterState.LOCAL_CHANGED,
@@ -560,7 +560,7 @@ function scheduleDraftSave() {
 }
 
 async function restoreDrafts() {
-  const b = await idbGet("drafts");
+  const b = await idbGet("drafts", IDB_OK);
   if (b && b.work) {
     WriterState.WORK = b.work;
     WriterState.WORK.entry = WriterState.WORK.entry || {};
@@ -624,45 +624,53 @@ async function discardDraft(id) {
 }
 
 async function bootStorage() {
-  if (navigator.locks && navigator.locks.request) {
-    WriterState.WRITER_ACCESS = false;
-    const acquired = await new Promise((resolve) =>
-      navigator.locks
-        .request("madison-writer-workspace", { ifAvailable: true }, (lock) => {
-          if (!lock) {
-            resolve(false);
-            return;
-          }
-          resolve(true);
-          return new Promise((release) => {
-            WriterState.releaseWorkspaceLock = release;
-          }); // held until this tab closes or Writer stops
-        })
-        .catch(() => resolve(false)),
-    );
-    if (!acquired) {
-      document.getElementById("app").innerHTML =
-        '<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:s' +
-        'ystem-ui"><h1>Document Writer is already open</h1><p>Continue in your ex' +
-        "isting Writer tab. To use this tab, close the other Writer tab and reloa" +
-        "d this page.</p><button data-reload-tab>Reload this tab</button> <a href" +
-        '="madison-reports.html">Open Reports</a></main>';
-      document.querySelector("[data-reload-tab]").addEventListener("click", () => location.reload());
-      return;
+  try {
+    if (navigator.locks && navigator.locks.request) {
+      WriterState.WRITER_ACCESS = false;
+      const acquired = await new Promise((resolve) =>
+        navigator.locks
+          .request("madison-writer-workspace", { ifAvailable: true }, (lock) => {
+            if (!lock) {
+              resolve(false);
+              return;
+            }
+            resolve(true);
+            return new Promise((release) => {
+              WriterState.releaseWorkspaceLock = release;
+            }); // held until this tab closes or Writer stops
+          })
+          .catch(() => resolve(false)),
+      );
+      if (!acquired) {
+        WriterState.STARTUP_STATUS = "locked";
+        WriterState.releaseWriterReady(false);
+        document.getElementById("app").innerHTML =
+          '<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:s' +
+          'ystem-ui"><h1>Document Writer is already open</h1><p>Continue in your ex' +
+          "isting Writer tab. To use this tab, close the other Writer tab and reloa" +
+          "d this page.</p><button data-reload-tab>Reload this tab</button> <a href" +
+          '="madison-reports.html">Open Reports</a></main>';
+        document.querySelector("[data-reload-tab]").addEventListener("click", () => location.reload());
+        return;
+      }
     }
+    WriterState.WRITER_ACCESS = true;
+    initWriterHandoff();
+    await checkHelper();
+    if (WriterState.HELPER) await refreshCatalog();
+    await restoreCaseFolder();
+    await restorePending();
+    await restoreDrafts();
+    // Internal pending-write recovery may save only after every retained draft has been read.
+    WriterState.WORKSPACE_RESTORED = true;
+    await recordIntegrity.refresh();
+    await refreshArtifactLocations();
+    await flushPending();
+    markWriterReady();
+    if (WriterState.HELPER) scheduleRecoveryBackup();
+  } catch (error) {
+    markWriterFailed(error);
   }
-  WriterState.WRITER_ACCESS = true;
-  initWriterHandoff();
-  await checkHelper();
-  if (WriterState.HELPER) await refreshCatalog();
-  await restoreCaseFolder();
-  await restorePending();
-  await restoreDrafts();
-  await recordIntegrity.refresh();
-  await refreshArtifactLocations();
-  await flushPending();
-  markWriterReady();
-  if (WriterState.HELPER) scheduleRecoveryBackup();
 }
 
 function pickCaseFile() {

@@ -623,12 +623,24 @@ function workspaceTasks(rows) {
 
 function markWriterReady() {
   WriterState.WRITER_READY = true;
-  WriterState.releaseWriterReady();
+  WriterState.STARTUP_STATUS = "ready";
+  WriterState.releaseWriterReady(true);
+  render();
+}
+
+function markWriterFailed(error) {
+  WriterState.WRITER_READY = false;
+  WriterState.WORKSPACE_RESTORED = false;
+  WriterState.STARTUP_STATUS = "failed";
+  WriterState.STARTUP_ERROR = String(error?.message || error || "Workspace restoration failed");
+  WriterState.releaseWriterReady(false);
+  render();
 }
 
 async function writerOpenReportedCase(message) {
   if (!WriterState.WRITER_ACCESS) throw new Error("Another Writer tab owns this workspace");
   if (!WriterState.WRITER_READY) await WRITER_READY_WAIT;
+  if (!WriterState.WRITER_READY) throw new Error("Saved workspace restoration must finish before opening a case.");
   const number = String(message.number || "");
   if (!caseNumberKey(number)) throw new Error("Invalid case number");
   const request = ++WriterState.HANDOFF_SEQ;
@@ -1560,6 +1572,7 @@ export {
   pdfTransferState,
   workspaceTasks,
   markWriterReady,
+  markWriterFailed,
   writerOpenReportedCase,
   initWriterHandoff,
   initialCitationBody,

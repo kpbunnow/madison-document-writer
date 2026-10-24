@@ -1133,7 +1133,7 @@ function idb() {
   return WriterState.IDBCONN;
 }
 
-async function idbGet(key) {
+async function idbGet(key, required = false) {
   try {
     const db = await idb();
     return await new Promise((res, rej) => {
@@ -1143,6 +1143,7 @@ async function idbGet(key) {
     });
   } catch (e) {
     WriterState.IDBCONN = null;
+    if (required) throw e;
     return undefined;
   }
 }

@@ -40,6 +40,10 @@ The helper mirrors the extension rules (extension_format) and, on a referred cas
 
 The regular Extension output is unchanged at every authoring version.
 
+## Startup and workspace restoration
+
+Workspace lock ownership is separate from restoration readiness. While persistent workspace data is being restored, Writer shows a startup screen and does not expose editable routes. saveDrafts refuses storage replacement until retained drafts are read; internal held-write recovery can save only after that read. A failed required storage read shows a reload/retry screen and leaves user saves blocked. Reports handoffs and queued navigation stop on failure. No private draft is treated as absent merely because its IndexedDB read failed.
+
 ## Helper storage, integrity and recovery
 
 The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.

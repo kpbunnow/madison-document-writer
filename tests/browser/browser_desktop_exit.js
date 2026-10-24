@@ -77,7 +77,7 @@ module.exports = async function (browser, OUT, axeScreen, work) {
     context.on("page", (p) => p.on("pageerror", (e) => errors.push(e.message)));
     const writer = await context.newPage();
     await writer.goto(base + "/");
-    await writer.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.HELPER && WriterState.WRITER_READY !== undefined);
+    await writer.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.HELPER && WriterState.WRITER_READY === true);
     const reports = await context.newPage();
     await reports.goto(base + "/madison-reports.html");
     await reports.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase && ReportsState.S.phase !== "loading");

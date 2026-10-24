@@ -1881,6 +1881,10 @@ WriterState.HANDOFF_SEQ = 0;
 WriterState.RETURN_ACK = "";
 
 WriterState.WRITER_READY = false;
+WriterState.STARTUP_STATUS = "starting";
+// A browser without IndexedDB has no retained workspace to restore; its existing save warnings still apply.
+WriterState.WORKSPACE_RESTORED = !IDB_OK;
+WriterState.STARTUP_ERROR = "";
 WriterState.releaseWriterReady = undefined;
 
 export const WRITER_READY_WAIT = new Promise((resolve) => {

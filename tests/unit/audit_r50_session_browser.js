@@ -72,7 +72,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base + "/#session=" + first.token);
-  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER?.ok);
+  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER?.ok && WriterState.WRITER_READY === true);
   assert.equal(await page.evaluate(() => location.hash), "");
   assert.equal(await page.locator("meta[name=docwriter-token]").getAttribute("content"), first.token);
   await page.evaluate(async () => {
