@@ -55,6 +55,7 @@ class RepositoryContract(unittest.TestCase):
             root = Path(folder)
             (root / "tools").mkdir()
             shutil.copyfile(ROOT / "tools/project_layout.py", root / "tools/project_layout.py")
+            shutil.copyfile(ROOT / "tools/version_schema.py", root / "tools/version_schema.py")
             (root / "version.json").write_text(json.dumps(version))
             (root / "package.json").write_text('{"version":"wrong"}')
             result = subprocess.run(
@@ -66,11 +67,12 @@ class RepositoryContract(unittest.TestCase):
     def test_protocol_drift_is_refused_before_build(self):
         paths = [
             "tools/project_layout.py",
+            "tools/version_schema.py",
             "version.json",
             "package.json",
             "package-lock.json",
             "app/assets/shared.js",
-            "app/modules/app_core.js",
+            "app/modules/document_types.js",
             "app/modules/draft_recovery.js",
             "app/modules/editor_screens.js",
         ]
