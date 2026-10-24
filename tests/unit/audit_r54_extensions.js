@@ -191,7 +191,8 @@ const test = async () => {
       assert.equal(administrative.type, type);
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
       // Every administrative draft in this loop was created by R62, including the unchanged scoped-order model.
-      // Older drafts' defaults remain covered by audit_r61_review_fixes and the explicit authoring-13 cases below.
+      // Older drafts' defaults remain covered by audit_feature_extensions.js (family switching, from audit_r61_review_fixes)
+      // and the explicit authoring-13 cases below.
       assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, CURRENT_AUTHORING.allItemExtension);
       if (type === "vacancyExtension")
         assert.equal(administrative.special.deadlineMode, undefined, "new authoring-16 Vacancy has no repair-deadline model");

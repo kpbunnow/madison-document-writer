@@ -5,25 +5,24 @@
 Chromium workflow and the browser suites listed in its `browserSuites` table. See
 `docs/developer/05-TESTING.md` for the gate.
 
-Most suites are named after the release that introduced them. They are listed here
-by the feature they cover; a suite that spans several features appears under
-"Release-wide regressions". Names are kept because release reviews cite them.
-Add a new suite under the feature it covers.
+Suites are listed by the feature they cover. Most are named after the release that
+introduced them. `audit_feature_*.js` suites group scenarios by feature: each scenario
+runs in its own process with a fresh bundle, DOM, state, storage and mocks
+(`tests/fixtures/scenarios.cjs`), and its label names the suite it came from (see
+"Former suite names"). A suite that spans several features and has not been split
+appears under "Release-wide regressions". Add a new scenario to the feature suite it
+covers, or a new suite under its feature.
 
 ## Inspection import and case lookup
 
 | Suite | Covers |
+| `audit_feature_accela_import.js` | Feature suite: workbook parsing and columns, type/status routing and case rules, candidate selection, stale state and repaint (former `audit_import`, `audit_r45_import`, `audit_r50_import`, `audit_r50_import_repaint`, `audit_r53_status_rules`, `audit_r62_import_rules`, `audit_status_own_property`) |
 | --- | --- |
-| `audit_import.js` | Accela/SSRS workbook import, routing and draft creation |
 | `audit_import_r13.js`, `audit_import_r13.py` | Case routing, retained inspection identity, reuse refused at the store |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
 | `audit_r38.py`, `audit_r39.py` | Lookup query matches the live report query; error 207 reporting |
-| `audit_r45_import.js` | Source-selection parity, interruption and draft continuity |
-| `audit_r50_import.js` | Result-status eligibility table (Completed, Official Notice, Citation, Compliance) |
-| `audit_r50_import_repaint.js` | Import disclosure, picker focus and navigation across repaints |
-| `audit_r53_status_rules.js` | Inspection type and status decide the document |
 | `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
 | `audit_r59_import_selection.js`, `audit_r59_import_reuse.py` | Four labelled facts per inspection candidate, highlighted pressed selection, a used candidate selectable with its blocker, stale shared checks ignored; the store refuses a new document reusing an imported inspection and accepts a CA Reinspection visit identity |
 
@@ -39,10 +38,27 @@ Add a new suite under the feature it covers.
 | `audit_r47_language.js` | Catalog truth, private draft identity, asynchronous isolation |
 | `audit_r50_cached_reviews.js` | Cached catalog review status and refresh outcomes |
 | `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
-| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Violation items, no conditional model) |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
 | `audit_valid.js` | Document blockers and mailing-date limits |
+| `audit_feature_editor_screens.js` | Feature suite: Workspace import entry and current destination, the corrective-detail dialog and focus after it closes, case-number edits in page furniture |
+| `audit_feature_language_catalog.js` | Feature suite: dotted 27.05(2)(g)2 references normalize to one catalog entry, price and classification |
+
+## Extensions
+
+| Suite | Covers |
+| --- | --- |
+| `audit_feature_extensions.js` | Feature suite: administrative family switching keeps each family's authoring version; Best Interest checks, correction of an issued Best Interest and explicit adoption |
+| `audit_r62_extensions.js` | Authoring-16 Best Interest (worksheet Next due dates, no selection or safety) and Vacancy (no due dates, Scope and review date only) Extensions, family switching, historical formats |
+| `audit_r62_extensions_helper.py` | Helper enforcement of the authoring-16 extension rules and earlier-format requirements |
+| `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
+| `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Violation items, no conditional model) |
+
+## Histories and referrals
+
+| Suite | Covers |
+| --- | --- |
+| `audit_feature_history_referrals.js` | Feature suite: item-specific observation history and lineage, frozen history, correction endpoints, compliance history, initial citation numbers, authoring-16 notes, the live referred-case predicate, and the dependent lineage → scoped batch deadlines → generated referral scenario |
 
 ## Citations, pricing and deposits
 
@@ -59,6 +75,7 @@ Add a new suite under the feature it covers.
 | `audit_r35.js` | Initial-inspection citation replaces the Official Notice |
 | `audit_properties.js`, `audit_properties_helper.py` | Property-based pricing and storage checks with replayed seeds |
 | `audit_r59_charge_select.js` | Several item sections: explicit charged-ordinance select, pricing from the configured schedule, changed choice clears the previous charge's values, unscheduled and multi-row ordinances, different-charge path, save/reopen |
+| `audit_feature_citation_packets.js` | Feature suite: frozen copy labels and complete four-copy packets, compact editor preview, a refused retry filing explains itself |
 
 ## Snow citations
 
@@ -81,6 +98,8 @@ Add a new suite under the feature it covers.
 | `audit_r53_workflow.js` | Grouped reinspection due dates; top-of-page warnings clear after 15 seconds |
 | `audit_resume.js` | Resuming unfinished work |
 | `audit_workflow.py` | Lifecycle gates against the file store, racing atomic batches |
+| `audit_feature_corrections.js` | Feature suite: correction change values for money, assessments, overrides and ordinances |
+| `audit_feature_worksheet_dates.js` | Feature suite: worksheet batch due dates with an undecided follow-up; Apply uses the visible selection |
 
 ## Saved work, recovery and browser storage
 
@@ -102,9 +121,6 @@ Add a new suite under the feature it covers.
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
 | `audit_utf8_io.py` | Case, integrity, tool and policy text is UTF-8 under a simulated Windows CP1252 default (including the deposit provenance check); no implicit encodings in helper/, tools/ or policy/ |
 | `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |
-| `audit_status_own_property.js` | Reject inherited-property status names (`constructor`, `__proto__`) across supported inspection types on uploaded-report and SQL paths; group inherited-property case numbers safely and preserve report order |
-| `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
-| `audit_referred_case.js` | One live referred-case predicate: effective referral or referral update only (drafts, voided, superseded, other types and other cases excluded); equal to the three spellings it replaced; correction checks keep the source-document exclusion |
 | `audit_shell_escaping.js` | Screen titles and breadcrumbs escape imported text exactly once (case actions in normal and referred branches, editor) |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |
 | `audit_archive.py` | Byte-level archive and local HTTP |
@@ -134,6 +150,7 @@ Add a new suite under the feature it covers.
 | `audit_report_metadata.py` | Over real HTTP with one and four readers: a non-text `sourceFile` or a case file that is not a case record excludes only that summary (unreadable coverage) while healthy summaries stay available; reading writes nothing; filename, letter-case, absent/empty/null and earlier-format rules and other exclusions unchanged |
 | `audit_report_mismatch.js` | Reports explains summaries not matching their case and keeps them out of totals, tables, CSV, workbook and print |
 | `audit_report_export_scope.js` | Reports workbook sheet scope: unchanged record-sheet selections (violation type not applied to Citations, Corrections by recorded date, Visits outside the period), the About sheet's per-sheet date basis and filter exceptions, and the export note |
+| `audit_r61_reports_ordinance.js` | Reports lists, filters and counts 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance without changing stored summaries |
 
 ## Security, sessions and connections
 
@@ -177,6 +194,9 @@ Add a new suite under the feature it covers.
 | `audit_r50_repository.py`, `audit_r51_layout.py` | Version consistency, deploy inventory, shell parity, release documents, staff-doc file names |
 | `audit_r40_build.py`, `audit_r45_evidence.py` | Runtime inventory; release evidence detects drift |
 | `fixtures/tagcheck.js` | Built pages are well-formed standards-mode HTML |
+| `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
+| `audit_scenario_harness.js` | Feature suites run each scenario in its own process; any throw, rejection, non-zero exit or silent scenario fails the suite |
+| `audit_suite_classes.py` | Suites that may launch Chromium are found through the local modules they require, so they stay serial |
 
 ## Performance (run last, alone)
 
@@ -214,6 +234,9 @@ workflow. Each receives the arguments named in its row.
 | `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
 | `browser_r59.js` | R59 type tokens across Writer and Reports, reflow and zoom, selected inspection and issued case highlights |
+| `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |
+| `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
+| `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security
@@ -224,21 +247,16 @@ workflow. Each receives the arguments named in its row.
 | `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |
 
+## Former suite names
 
-## R60 Workspace and referrals
+Consolidation Phase 6 moved these suites into feature suites without changing their
+code; each scenario label starts with the former name. Release reviews cite them.
 
-| Suite | Covers |
-| --- | --- |
-| `audit_r60_development.js` | Workspace entry, safe text-dialog changes, reinspection deadline scope, item lineage, retained referral history and calendar-day calculations |
-| `audit_r60_review_fixes.js` | PR 31 review corrections: batch dates with an undecided follow-up, stale hidden selections, dialog focus after an asynchronous close, initial citation numbers in item history, Workspace current while importing |
-| `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
-| `audit_r61_development.js` | Authoring-15 history/compliance, Abate values, currency units, packet completeness and normalized catalog references |
-| `audit_r61_review_fixes.js` | PR 33 review corrections: administrative family switch keeps each family's authoring version, packet check uses frozen copy labels, refused retry filing explains itself |
-| `audit_r62_import_rules.js` | R62 import table with No Fee statuses, hidden status/type/undated rows and messages, greyed unavailable pairs, single remaining result after used rows are hidden |
-| `audit_r62_extensions.js` | Authoring-16 Best Interest (worksheet Next due dates, no selection or safety) and Vacancy (no due dates, Scope and review date only) Extensions, family switching, historical formats |
-| `audit_r62_extensions_helper.py` | Helper enforcement of the authoring-16 extension rules and earlier-format requirements |
-| `audit_r62_history_notes.js` | Authoring-16 history notes under the violation on every item, and referred cases limited to Update for Case Referral or Compliance |
-| `audit_r61_reports_ordinance.js` | Reports lists, filters and counts 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance without changing stored summaries |
-| `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
-| `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
-| `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |
+| Former suite | Now in | Scenarios |
+| --- | --- | --- |
+| `audit_import.js`, `audit_r45_import.js`, `audit_r50_import.js`, `audit_r50_import_repaint.js`, `audit_r53_status_rules.js`, `audit_r62_import_rules.js`, `audit_status_own_property.js` | `audit_feature_accela_import.js` | one each, whole suite |
+| `audit_r62_history_notes.js`, `audit_referred_case.js` | `audit_feature_history_referrals.js` | one each, whole suite |
+| `audit_r60_review_fixes.js` | `audit_feature_editor_screens.js` (Workspace current while importing; dialog focus), `audit_feature_worksheet_dates.js` (batch dates and stale selection), `audit_feature_history_referrals.js` (initial citation numbers in history) | four |
+| `audit_r61_review_fixes.js` | `audit_feature_extensions.js` (family switching), `audit_feature_citation_packets.js` (packet labels and retry filing) | two |
+| `audit_r61_development.js` | `audit_feature_corrections.js`, `audit_feature_history_referrals.js` (history rendering; compliance generation), `audit_feature_language_catalog.js`, `audit_feature_extensions.js`, `audit_feature_citation_packets.js`, `audit_feature_editor_screens.js` | seven |
+| `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; corrective-detail dialog), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
