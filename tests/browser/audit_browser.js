@@ -654,7 +654,12 @@ async function axeThemes(page, screen) {
     fixtureBindings.join("\n") +
     "\n" +
     fixtureFunction.getText(fixtureAST).replace(/^export\s+function\s+initTestFixtures\b/, "function initLayoutFixtures");
-  await page.evaluate("(()=>{" + layoutFixtures + "\nwindow.DW_LAYOUT_FIXTURES=initLayoutFixtures();})()");
+  await page.evaluate(
+    "(()=>{" +
+      layoutFixtures +
+      "\nwindow.DW_LAYOUT_FIXTURES=initLayoutFixtures({fmtDate,freezeSources,toast,appendEvent,project,saveDrafts," +
+      "validateAndStandardizeAddresses,recordReinspection,startCorrection,render,MINDUE});})()",
+  );
   const variants = await page.evaluate(() => {
     const source = sourceDocFor(WriterState.CASES[0].id),
       result = [{ type: "notice", ...printJob(source) }];
