@@ -1,12 +1,13 @@
 /* R54 shared extension layout: start red against the unchanged R53 renderer. */
 globalThis.MADISON_TEST_DATA = true;
+globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
 const fs = require("fs"),
   path = require("path"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const runtime = process.env.DW_PRODUCTION_DIR || path.join(path.resolve(__dirname, "../.."), "build/dist");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = builtPage("app", runtime),
+const { productionPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const html = productionPage("app", runtime),
   payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
@@ -105,9 +106,13 @@ const test = async () => {
   newDocuments.createSpecial(WriterState.REINSP[0], "bestInterestExtension");
   const created = doc(WriterState.state.docId);
   // R62: new Best Interest and Vacancy Extensions use the all-item format, authoring 16.
-  assert.equal(created.authoringVersion, 16, "new Best Interest Extensions use authoring 16");
+  assert.equal(created.authoringVersion, CURRENT_AUTHORING.allItemExtension, "new Best Interest Extensions use the current all-item format");
   assert.equal(created.items[0].note, "R54 visit note", "shared table uses the current inspection note");
-  assert.equal(makePublication(created).payload.snapshot.authoringVersion, 16, "publication retains the selected rendering version");
+  assert.equal(
+    makePublication(created).payload.snapshot.authoringVersion,
+    CURRENT_AUTHORING.allItemExtension,
+    "publication retains the selected rendering version",
+  );
   // Continue the retained authoring-13 review invalidation contract below.
   created.authoringVersion = 13;
   created.special.affected = ["1"];
@@ -170,7 +175,11 @@ const test = async () => {
     const administrative = doc(WriterState.state.docId);
     assert.equal(administrative.administrativeAction, true);
     const allItems = initialType !== "notice";
-    assert.equal(administrative.authoringVersion, allItems ? 16 : 13, "administrative creation selects the family rendering version");
+    assert.equal(
+      administrative.authoringVersion,
+      allItems ? CURRENT_AUTHORING.allItemExtension : CURRENT_AUTHORING.scopedOrder,
+      "administrative creation selects the family rendering version",
+    );
     for (const type of ["bestInterestExtension", "vacancyExtension"]) {
       const select = document.createElement("select");
       select.dataset.special = "administrativeType";
@@ -183,7 +192,7 @@ const test = async () => {
       assert.ok(root.querySelector("table.notice:not(.r26-narrative)"), "administrative type switch uses shared table");
       // Every administrative draft in this loop was created by R62, including the unchanged scoped-order model.
       // Older drafts' defaults remain covered by audit_r61_review_fixes and the explicit authoring-13 cases below.
-      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, 16);
+      assert.equal(makePublication(administrative).payload.snapshot.authoringVersion, CURRENT_AUTHORING.allItemExtension);
       if (type === "vacancyExtension")
         assert.equal(administrative.special.deadlineMode, undefined, "new authoring-16 Vacancy has no repair-deadline model");
       select.remove();
@@ -211,7 +220,7 @@ const test = async () => {
   ];
   newDocuments.createSpecial(WriterState.REINSP[0], "vacancyExtension");
   const vacancy = doc(WriterState.state.docId);
-  assert.equal(vacancy.authoringVersion, 16);
+  assert.equal(vacancy.authoringVersion, CURRENT_AUTHORING.allItemExtension);
   assert.equal(vacancy.special.deadlineMode, undefined, "a cached conditional model does not carry into a new Vacancy Extension");
   // The checks below cover the authoring-13 dated model (R62 covers authoring 16): an authoring-13 draft is dated and
   // began with every item on its source deadline.

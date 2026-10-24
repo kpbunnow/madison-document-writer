@@ -5,6 +5,7 @@ const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "../..");
 (async () => {
   const runtime = path.join(process.env.DW_PRODUCTION_DIR || path.join(root, "build/dist"), "madison-document-writer.html");
+  require("../fixtures/built_bundle.cjs").assertProductionPage(runtime);
   const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", req.url === "/" ? "text/html" : "application/json");
     res.end(req.url === "/" ? fs.readFileSync(runtime) : '{"ok":false}');

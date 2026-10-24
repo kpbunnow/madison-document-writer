@@ -33,7 +33,7 @@ import {
   initialCitations,
   insp,
   isEffective,
-  isHistoryDoc,
+  isReferredCase,
   kase,
   libraryKey,
   navigation,
@@ -372,10 +372,9 @@ function lifecycleChecks(d) {
   }
   if (src && stableJSON(src.items.map((i) => String(i.no))) !== stableJSON(d.items.map((i) => String(i.no))))
     faults.push("Every issued item must retain its number and order through the follow-up.");
-  if (d.type !== "notice" && REFERRED_ONLY.indexOf(d.type) < 0 && docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x)))
+  if (d.type !== "notice" && REFERRED_ONLY.indexOf(d.type) < 0 && isReferredCase(d.caseId))
     faults.push("A referred case permits only referral updates or compliance.");
-  if (d.type === "referralUpdate" && !docsFor(d.caseId).some((x) => isEffective(x) && isHistoryDoc(x)))
-    faults.push("Issue the initial referral before a referral update.");
+  if (d.type === "referralUpdate" && !isReferredCase(d.caseId)) faults.push("Issue the initial referral before a referral update.");
   if (d.type === "citation") {
     const numbers = d.items
       .filter((i) => i.cite && !i.withdrawn)

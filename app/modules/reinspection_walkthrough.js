@@ -54,6 +54,7 @@ import {
   esc,
   insp,
   isHistoryDoc,
+  isReferredCase,
   iso,
   kase,
   nowISO,
@@ -1250,7 +1251,7 @@ function baseLookupPlan(acc) {
   } else if (row && row.typeKey !== "initial") p.blockers.push(NO_CASE);
   // R53 referral rules: Reinspection/CA Referral is the case's first referral; CA Reinspection requires one.
   if (k && !p.refresh && row?.rule && !row.rule.error) {
-    const referred = docsFor(k.id).some((d) => !d.draft && !d.void && !d.superseded && (d.type === "referral" || d.type === "referralUpdate"));
+    const referred = isReferredCase(k.id);
     if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
     // R62: a referred case allows only an Update for Case Referral or a Compliance Letter.
     else if (referred && !(row.rule.choose || [row.rule.doc]).some((t) => REFERRED_ONLY.includes(t)))

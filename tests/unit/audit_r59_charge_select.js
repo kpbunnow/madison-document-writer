@@ -1,6 +1,7 @@
 /* R59: a citation item with several sections charges one of them, chosen explicitly from a select, and a changed
    charge is priced afresh from the configured schedule. Real policy rows; synthetic case data only. */
 globalThis.MADISON_TEST_DATA = true;
+globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
@@ -50,7 +51,7 @@ const test = async () => {
     const d = doc(WriterState.state.docId);
     d.items = [{ id: "r59", no: "1", title: "Synthetic charge", text: "Repair.", cite: true, sections: list, due: addDays(recordDay(today), 21) }];
     initialCitations.prepare(d);
-    assert.equal(d.authoringVersion, 16, "Preparing initial charges retains the current authoring version");
+    assert.equal(d.authoringVersion, CURRENT_AUTHORING.initialNotice, "Preparing initial charges retains the current authoring version");
     return d;
   };
   const show = (d) => {
@@ -132,7 +133,7 @@ const test = async () => {
   fire(select, FIXED, ["change"]);
   let c = d.cits?.r59;
   ok("Choosing a fixed-schedule section completes the charge", !!c && !d.depositRequests?.r59 && c.ord === FIXED);
-  assert.equal(d.authoringVersion, 16, "Selecting an ordinance does not downgrade the draft");
+  assert.equal(d.authoringVersion, CURRENT_AUTHORING.initialNotice, "Selecting an ordinance does not downgrade the draft");
   ok("Pricing equals resolveCitationAmount for the chosen ordinance", sameAs(c, priced(d, c, FIXED)), JSON.stringify(c));
   ok("Choosing a section raises no ordinance blocker", !blockers(d).some((x) => /charged ordinance|one complete ordinance/.test(x.t)));
   view = show(d);
@@ -209,14 +210,18 @@ const test = async () => {
     for (const field of [...CHARGE_DERIVED, "depositMode", "tier"].filter((field) => field !== "historicalDeposit"))
       assert.equal(stableJSON(restored[field]), stableJSON(retained[field]), "Retained correction basis: " + field);
     assert.equal(citationDepositFault(restored, correction, correction.items[0]), "", "Returning to the unchanged charge stays valid");
-    assert.equal(correction.authoringVersion, 16);
+    assert.equal(correction.authoringVersion, CURRENT_AUTHORING.initialNotice);
   }
   WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== original.id && x.id !== correction.id);
   WriterState.state.docId = d.id;
 
   const pair = makePublication(d);
-  assert.equal(pair.payload.snapshot.authoringVersion, 16, "Atomic companion publication retains current authoring");
-  assert.equal(d.publicationEvents[0].payload.snapshot.authoringVersion, 16, "Atomic notice publication retains current authoring");
+  assert.equal(pair.payload.snapshot.authoringVersion, CURRENT_AUTHORING.initialNotice, "Atomic companion publication retains current authoring");
+  assert.equal(
+    d.publicationEvents[0].payload.snapshot.authoringVersion,
+    CURRENT_AUTHORING.initialNotice,
+    "Atomic notice publication retains current authoring",
+  );
   delete d.publicationEvents;
 
   // No verified schedule: the existing manual path, never the previous amount.

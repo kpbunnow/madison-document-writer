@@ -70,7 +70,7 @@ import {
   initialCitations,
   insp,
   isEffective,
-  isHistoryDoc,
+  isReferredCase,
   isLLC,
   isLocked,
   iso,
@@ -895,7 +895,7 @@ function screenReinspect() {
   const cited = openItems(r).filter((i) => (r.results[i.id] || {}).cite);
   const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
   const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
-  const referred = docsFor(r.caseId).some((x) => !x.draft && !x.void && !x.superseded && isHistoryDoc(x));
+  const referred = isReferredCase(r.caseId);
   const walkOn = WriterState.state.riWalk;
   // Current step of one-item review, from the existing walk state; outcomes are only ever chosen by the inspector.
   const walkStep = !walkOn
