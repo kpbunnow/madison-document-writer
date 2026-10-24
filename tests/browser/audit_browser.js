@@ -23,7 +23,7 @@ const axeResults = [];
 // not just their headings or the HTML source: an incomplete capture must fail verification.
 function assertCitationCoverPDF(filename) {
   const compact = (text) => text.normalize("NFC").replace(/\s+/g, "");
-  const text = compact(execFileSync("pdftotext", [path.join(OUT, filename), "-"], { encoding: "utf8" }));
+  const text = compact(execFileSync("pdftotext", ["-layout", path.join(OUT, filename), "-"], { encoding: "utf8" }));
   const blocks = JSON.parse(fs.readFileSync(path.join(ROOT, "app/assets/approved_language.json"), "utf8")).blocks;
   for (const key of ["FEES", "LANGUAGE"])
     for (const paragraph of blocks[key].text.split("\n").filter(Boolean))
