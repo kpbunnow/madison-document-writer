@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Feature-owned event handlers (development)
+
+- Move the 60 core document/window handlers into 14 feature event owners, preserving explicit registration positions, capture phases, original condition order and document snapshots. Cross-feature action bodies have scoped interfaces; construction does not access later service/state declarations. Synchronous permission and other user-action calls remain synchronous.
+- Register each feature listener once per target/key, with retries after a failed registration. Tests cover registration order/state checkpoints, inert and lazy interfaces, repeated registration, exclusive routing, capture cancellation, synchronous permissions and preserved typing focus/caret. Existing historical assertions and print references are unchanged.
+- app_core drops from 3,049 to 1,249 lines. Event owners import only foundations and the registration helper, without growing the Writer/Reports dependency cycles. Ownership docs, cleanup roadmap, test index and source inventory are updated. Current R63/build-64 identity and authored/storage formats are unchanged; no release package or deployment is included.
+
 ## Unreleased — Module cleanup: shared foundations (development)
 
 - Extract document metadata, explicit authoring/item rules, live workspace queries, presentation formatting, calendar arithmetic, mailing facts and record-value helpers into seven independent owners. Callers import those owners directly. Service composition, workspace initialization and global listener/startup order stay in app_core; no persisted or installed names change.

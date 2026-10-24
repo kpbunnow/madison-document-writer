@@ -1,0 +1,486 @@
+{
+  "baseline": "fc847bb9d09c37549b80a9e81fd118091c0eef2c",
+  "description": "Existing core listener order, capture phases and preceding state/startup checkpoints. Callback bodies are not frozen.",
+  "registrations": [
+    {
+      "owner": "utility",
+      "name": "registerHelpClicks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "services initialized"
+    },
+    {
+      "owner": "utility",
+      "name": "registerHelpKeys",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "services initialized"
+    },
+    {
+      "owner": "utility",
+      "name": "registerHelpClose",
+      "target": "document",
+      "type": "close",
+      "capture": true,
+      "checkpoint": "services initialized"
+    },
+    {
+      "owner": "editor",
+      "name": "registerBlankClicks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.undoFn"
+    },
+    {
+      "owner": "editor",
+      "name": "registerBlankKeys",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "WriterState.undoFn"
+    },
+    {
+      "owner": "reinspection",
+      "name": "registerWalkKeys",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "WriterState.undoFn"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerWorkingInput",
+      "target": "document",
+      "type": "input",
+      "capture": true,
+      "checkpoint": "WriterState.LOCAL_SAVE_CHAIN"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerWorkingChange",
+      "target": "document",
+      "type": "change",
+      "capture": true,
+      "checkpoint": "WriterState.LOCAL_SAVE_CHAIN"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerWorkingActions",
+      "target": "document",
+      "type": "click",
+      "capture": true,
+      "checkpoint": "WriterState.LOCAL_SAVE_CHAIN"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerRecoveryActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.RECOVERY_BUSY"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerRecoveryImport",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.RECOVERY_BUSY"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerGuidanceToggle",
+      "target": "document",
+      "type": "toggle",
+      "capture": true,
+      "checkpoint": "WriterState.CATALOG_FORMS"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerReviewInput",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.CATALOG_FORMS"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerReplacementQuery",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.CATALOG_FORMS"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerReviewChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.CATALOG_FORMS"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerReviewActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.CATALOG_FORMS"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerSharedConflictActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.PREFLIGHT_NOTICE"
+    },
+    {
+      "owner": "safety",
+      "name": "registerLockRelease",
+      "target": "document",
+      "type": "submit",
+      "capture": false,
+      "checkpoint": "WriterState.WORK_PATCH"
+    },
+    {
+      "owner": "safety",
+      "name": "registerSafetyActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.WORK_PATCH"
+    },
+    {
+      "owner": "workflow",
+      "name": "registerToolForms",
+      "target": "document",
+      "type": "submit",
+      "capture": false,
+      "checkpoint": "WriterState.OUTBOX_FILES"
+    },
+    {
+      "owner": "workflow",
+      "name": "registerToolActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.OUTBOX_FILES"
+    },
+    {
+      "owner": "workflow",
+      "name": "registerTimelineFilter",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.OUTBOX_FILES"
+    },
+    {
+      "owner": "workflow",
+      "name": "registerSearchPreferences",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.OUTBOX_FILES"
+    },
+    {
+      "owner": "workspace",
+      "name": "registerQueueViews",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.ARTIFACT_IDENTITY"
+    },
+    {
+      "owner": "workspace",
+      "name": "registerCaseTasks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.ARTIFACT_IDENTITY"
+    },
+    {
+      "owner": "workspace",
+      "name": "registerReportReturn",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.releaseWriterReady"
+    },
+    {
+      "owner": "citation",
+      "name": "registerReviewInput",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.releaseWriterReady"
+    },
+    {
+      "owner": "citation",
+      "name": "registerReviewChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.releaseWriterReady"
+    },
+    {
+      "owner": "dueDate",
+      "name": "registerBulkAssignment",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.releaseWriterReady"
+    },
+    {
+      "owner": "import",
+      "name": "registerLookupSubmit",
+      "target": "document",
+      "type": "submit",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "import",
+      "name": "registerLookupClicks",
+      "target": "document",
+      "type": "click",
+      "capture": true,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "import",
+      "name": "registerLookupDrop",
+      "target": "document",
+      "type": "drop",
+      "capture": true,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "utility",
+      "name": "registerCheckLinks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "utility",
+      "name": "registerInputChecks",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "utility",
+      "name": "registerChangeChecks",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "editor",
+      "name": "registerPointerStart",
+      "target": "document",
+      "type": "pointerdown",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "editor",
+      "name": "registerPointerMove",
+      "target": "document",
+      "type": "pointermove",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "editor",
+      "name": "registerPointerEnd",
+      "target": "document",
+      "type": "pointerup",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "editor",
+      "name": "registerPointerCancel",
+      "target": "document",
+      "type": "pointercancel",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "editor",
+      "name": "registerReorderKeys",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "utility",
+      "name": "registerDialogKeys",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "specialDocument",
+      "name": "registerActionClicks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "specialDocument",
+      "name": "registerActionInput",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "specialDocument",
+      "name": "registerActionChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerVisibilitySave",
+      "target": "document",
+      "type": "visibilitychange",
+      "capture": false,
+      "checkpoint": "WriterState.dragging"
+    },
+    {
+      "owner": "editor",
+      "name": "registerGroupFocus",
+      "target": "document",
+      "type": "focusin",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "editor",
+      "name": "registerDatePicker",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "editor",
+      "name": "registerPlainPaste",
+      "target": "document",
+      "type": "paste",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "editor",
+      "name": "registerReviewCommands",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "workspace",
+      "name": "registerWorkspaceClicks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "import",
+      "name": "registerDragOver",
+      "target": "document",
+      "type": "dragover",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "import",
+      "name": "registerDragLeave",
+      "target": "document",
+      "type": "dragleave",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "import",
+      "name": "registerFileDrop",
+      "target": "document",
+      "type": "drop",
+      "capture": false,
+      "checkpoint": "WriterState.groupOld"
+    },
+    {
+      "owner": "recovery",
+      "name": "registerUnloadWarning",
+      "target": "window",
+      "type": "beforeunload",
+      "capture": false,
+      "checkpoint": "bootStorage"
+    },
+    {
+      "owner": "editor",
+      "name": "registerDocumentInput",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "bootStorage"
+    },
+    {
+      "owner": "editor",
+      "name": "registerDocumentChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "bootStorage"
+    },
+    {
+      "owner": "utility",
+      "name": "registerDismissKey",
+      "target": "document",
+      "type": "keydown",
+      "capture": false,
+      "checkpoint": "bootStorage"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerLanguageActions",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "render"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerFilterInput",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "render"
+    },
+    {
+      "owner": "catalog",
+      "name": "registerFilterChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "render"
+    }
+  ]
+}
