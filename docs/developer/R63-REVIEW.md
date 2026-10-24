@@ -14,6 +14,7 @@ Release 2026-10-24 R63, helper 2026.10.24.64 (build 64), authoring 16; case sche
 
 - version.json, package.json and package-lock.json carry the R63 identity; tools/version_schema.py validates it (matching release/helper dates, helperBuild 64).
 - The publication baseline is the retained R61 deployment manifest (SHA-256 fd898f109343896ceb77b13abc7724d4c4d4c82638db50baa3f7f3b396340933, inside the R61 deploy ZIP whose published SHA-256 is 006f0310d9935185329788fc3873e456de38bd1a79b47e8f4493d52cfa466492). R63 advances the release number (61 → 63) and helperBuild (62 → 64) without calendar rollback.
+- The deploy README's release-owner packaging command (docs/staff/DEPLOY.template.md) now includes `--published-manifest`; the first R63 packaging run showed it still had the pre-baseline command. That run was never published and was discarded.
 - Authoring, case schema, summary and backup versions are unchanged, so no data migration is needed. Documents issued under R61 keep their formats.
 
 ## Rollback
