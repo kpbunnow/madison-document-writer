@@ -245,3 +245,12 @@ All R61 items remain OPEN. Existing holds and carried acceptance items remain op
 | S62-5 | Attempt other documents on a referred case | Only Update for Case Referral and Compliance Letter are offered; the removed emergency exception is acceptable to the division and City Attorney |
 
 All R62 items remain OPEN.
+
+## R63 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S63-1 | Open Writer on a City PC profile that holds unfinished drafts, including a slow start and a browser restart | Restoring saved workspace shows until drafts are back; no navigation or save replaces them; a storage failure shows Reload and retry and the drafts survive the retry |
+| S63-2 | Save and reopen shared views for Overridden deposits and Document actions in Reports | Both views save to the shared folder and reopen with their filters |
+
+All R63 items remain OPEN. S60–S62 and carried items remain OPEN.

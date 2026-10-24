@@ -1,6 +1,6 @@
 {
   "name": "madison-building-inspection-document-writer",
-  "version": "2026.10.23.63",
+  "version": "2026.10.24.64",
   "private": true,
   "description": "Offline document writer and read-only reports for Madison Building Inspection",
   "scripts": {
