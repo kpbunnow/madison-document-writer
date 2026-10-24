@@ -1,3 +1,4 @@
+import { continuingItemsForVisits } from "./case_projection.js";
 import { NEW_TYPES, DOC_TYPES } from "./document_types.js";
 import {
   alignedExtension,
@@ -14,7 +15,8 @@ import {
 } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
 import { fmtDate, inspAt, toast, validISO } from "./court_and_deposits.js";
-import { evid, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
+import { evid, shell, sourceDocFor } from "./workspace_shell.js";
+import { stableJSON, clone } from "./record_values.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { screenCases, renderKeep, render } from "./app_screens.js";
 import { commitRecordAttempt } from "./issuance_and_corrections.js";
@@ -40,7 +42,7 @@ import {
   reinsp,
   reinspFor,
 } from "./writer_queries.js";
-import { clone } from "./record_values.js";
+
 import { docBody, isLocked, snow, uid } from "./app_core.js";
 
 import { INSPECTORS } from "./data/inspectors.js";
@@ -102,23 +104,7 @@ export function initNewDocuments() {
   };
   const selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn);
   function continuingItems(source, visits = reinspFor(source.caseId)) {
-    const rows = clone(source.items || []);
-    visits
-      .filter((r) => !r.draft && r.sourceDocId === source.id)
-      .sort((a, b) => a.date.localeCompare(b.date) || String(a.recordedAt || "").localeCompare(String(b.recordedAt || "")))
-      .forEach((r) =>
-        rows.forEach((i) => {
-          const res = r.results?.[i.id];
-          if (res?.oc === "corrected") {
-            i.done = true;
-            i.doneOn = res.on || r.date;
-          } else if (res && res.oc !== "withdrawn" && !i.done) {
-            i.done = false;
-            i.doneOn = "";
-          }
-        }),
-      );
-    return rows;
+    return continuingItemsForVisits(source, visits);
   }
   function restoreDues(d) {
     syncAffected(d);

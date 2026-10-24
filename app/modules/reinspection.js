@@ -1,6 +1,7 @@
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 import { fmtDate, inspAt, parseTime, toast, validISO, checks } from "./court_and_deposits.js";
-import { shell, stableJSON } from "./workspace_shell.js";
+import { shell } from "./workspace_shell.js";
+import { stableJSON, clone } from "./record_values.js";
 import { scheduleDraftSave, validateAndStandardizeAddresses } from "./case_files.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { worksheetFaults, returnToWorksheet } from "./draft_recovery.js";
@@ -9,7 +10,7 @@ import { dueContext, dueDateSpacingConflicts, duePanel } from "./case_timeline.j
 import { renderKeep, screenCases, render } from "./app_screens.js";
 import { DOC_TYPES, OUTCOMES } from "./document_types.js";
 import { doc, docCase, doneItems, insp, isReferredCase, kase, originalNotice, reinsp, unchecked, openItems, reinspFor } from "./writer_queries.js";
-import { clone } from "./record_values.js";
+
 import { daysBetween } from "./calendar.js";
 import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
 import { ocOf, dueItems, distinctDues, itemLibraryKey } from "./document_rules.js";

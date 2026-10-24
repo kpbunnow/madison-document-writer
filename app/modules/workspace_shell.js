@@ -1,32 +1,27 @@
+import { caseFileFault, mergeCaseDetails, correctionHistoryFault } from "./case_file_rules.js";
+
+import { migrate } from "./case_migrations.js";
+import { replayEvents, summarizeRecord } from "./case_projection.js";
+
+import { caseDetails, stableJSON, byTime, clone } from "./record_values.js";
+
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
-import { SUMMARY_DIR, SUMMARY_VERSION, caseNumberKey, normParcel, recordDay, validCaseNumber } from "../assets/shared.js";
+import { SUMMARY_DIR, caseNumberKey, validCaseNumber } from "../assets/shared.js";
 import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
 import { flushPending, helperFolder, saveDrafts, writeToFolder } from "./case_files.js";
-import { correctionHistoryFault } from "./issuance_and_corrections.js";
+
 import { refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
-import {
-  CASEDIR_EXPECT,
-  FS_OK,
-  IDB_OK,
-  ID_FIELDS,
-  ID_OK,
-  MIGRATIONS,
-  libType,
-  navigation,
-  newDocuments,
-  recordIntegrity,
-  snow,
-  storageMode,
-} from "./app_core.js";
-import { DOC_TYPES, EVENT_TYPES, SCHEMA, STATUS_OF } from "./document_types.js";
-import { addDays, nowISO } from "./calendar.js";
+import { CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode } from "./app_core.js";
+
+import { EVENT_TYPES, SCHEMA } from "./document_types.js";
+import { nowISO } from "./calendar.js";
 import { doc, docCase, docsFor, eventsFor, insp, kase } from "./writer_queries.js";
-import { byTime, clone } from "./record_values.js";
-import { esc, moneyNum } from "./presentation_format.js";
-import { isEffective, activeRestrictions, supplemental } from "./document_rules.js";
+
+import { esc } from "./presentation_format.js";
+import { supplemental } from "./document_rules.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
-import { respondentKey } from "./citation_policy.js";
+
 import { BUILD, LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { LIBRARY } from "./data/library.js";
@@ -364,91 +359,6 @@ function replay(cid) {
   return replayEvents(eventsFor(cid));
 }
 
-function replayEvents(list) {
-  const evs = (list || []).slice().sort(byTime);
-  const docs = [],
-    reins = [],
-    voided = {};
-  evs.forEach((ev) => {
-    const p = ev.payload || {};
-    if (/\.issued$/.test(ev.type) && p.snapshot) {
-      const d = clone(p.snapshot);
-      d.status = "Final";
-      d.issuedAt = ev.at;
-      d.issuedBy = ev.by;
-      d.eventId = ev.id;
-      if (p.replaces) d.replaces = p.replaces;
-      if (ev.type === "correction.issued") {
-        const old = docs.find((x) => x.id === p.replaces);
-        if (old) {
-          old.superseded = { at: ev.at, by: ev.by, replacedBy: d.id, reason: p.reason };
-          if (old.void) old.void.replacedBy = d.id;
-        }
-        d.revision = Object.assign({}, d.revision, { at: ev.at, by: ev.by });
-        if (p.visitCorrection) {
-          const patch = p.visitCorrection,
-            r = reins.find((x) => x.id === patch.id);
-          if (r) {
-            r.date = patch.date;
-            r.time = patch.time;
-            r.results = Object.assign({}, r.results, clone(patch.results));
-            r.amendedAt = ev.at;
-            r.amendedBy = ev.by;
-          }
-        }
-      }
-      docs.push(d);
-    } else if (ev.type === "reinspection.recorded" && p.reinspection) {
-      const r = clone(p.reinspection);
-      r.recordedAt = ev.at;
-      r.eventId = ev.id;
-      reins.push(r);
-    } else if (ev.type === "document.voided") {
-      voided[p.docId] = { reason: p.reason || "", at: ev.at, by: ev.by, replacedBy: p.replacedBy || "" };
-    } else if (ev.type === "document.served") {
-      const d = docs.find((x) => x.id === p.docId);
-      if (d) {
-        d.serviceRecords = d.serviceRecords || [];
-        d.serviceRecords.push({ ...clone(p), id: ev.id, at: ev.at, by: ev.by });
-      }
-    } else if (ev.type === "document.annotated") {
-      const d = docs.find((x) => x.id === p.docId);
-      if (d) {
-        d.annotations = d.annotations || [];
-        d.annotations.push({ at: ev.at, by: ev.by, text: p.text });
-      }
-    } else if (ev.type === "document.reconciled") {
-      const d = docs.find((x) => x.id === p.docId);
-      if (d) {
-        d.reconciliation = { at: ev.at, by: ev.by, reference: p.reference };
-      }
-    } else if (ev.type === "document.recorded") {
-      const d = docs.find((x) => x.id === p.docId);
-      if (d) {
-        d.accelaAt = ev.at;
-        d.accelaRef = p.reference || "";
-      }
-    } else if (ev.type === "document.filed") {
-      const d = docs.find((x) => x.id === p.docId);
-      if (d) {
-        d.filedAt = ev.at;
-        d.filedRef = p.reference || "";
-        d.filedArtifact = p.sha256 && p.filename ? { filename: p.filename, sha256: p.sha256 } : null;
-      }
-    }
-  });
-  docs.forEach((d) => {
-    if (voided[d.id]) {
-      d.void = voided[d.id];
-    }
-  });
-  docs.forEach((d) => {
-    const rep = docs.find((x) => x.replaces === d.id);
-    if (rep && d.void && !d.void.replacedBy) d.void.replacedBy = rep.id;
-  });
-  return { documents: docs.reverse(), reinspections: reins }; // newest document first
-}
-
 function project() {
   WriterState.DOCS = WriterState.DOCS.filter((d) => d.draft);
   WriterState.REINSP = WriterState.REINSP.filter((r) => r.draft);
@@ -464,53 +374,11 @@ function project() {
   });
 }
 
-function caseDetails(k) {
-  const copy = clone(k);
-  delete copy.savedAt;
-  return copy;
-}
-
-function stableJSON(value) {
-  return JSON.stringify(value, function (key, v) {
-    if (v && typeof v === "object" && !Array.isArray(v)) {
-      const out = {};
-      Object.keys(v)
-        .sort()
-        .forEach((k) => (out[k] = v[k]));
-      return out;
-    }
-    return v;
-  });
-}
-
 function rememberSaved(k, file) {
   const details = caseDetails(file.case);
   details.id = k.id;
   WriterState.SAVE_CHECKPOINTS[k.id] = { case: details, events: (file.events || []).map((e) => e.id) };
   k.savedAt = nowISO();
-}
-
-function mergeCaseDetails(local, remote, base) {
-  const output = caseDetails(remote),
-    a = caseDetails(local),
-    b = base ? caseDetails(base) : null;
-  const keys = new Set(Object.keys(a).concat(Object.keys(output)));
-  keys.forEach((key) => {
-    if (key === "id") return;
-    if (stableJSON(a[key]) === stableJSON(output[key])) return;
-    if (!b)
-      throw new Error(
-        "Case details differ from the shared copy. Export your local case for rev" +
-          "iew, then remove it from the workspace and reopen the shared case.",
-      );
-    if (stableJSON(a[key]) === stableJSON(b[key])) return;
-    if (stableJSON(output[key]) !== stableJSON(b[key]))
-      throw new Error("Both copies changed " + key + ". Keep your local case and review the shared copy before saving.");
-    if (a[key] === undefined) delete output[key];
-    else output[key] = clone(a[key]);
-  });
-  output.id = local.id;
-  return output;
 }
 
 function caseFile(cid) {
@@ -538,365 +406,6 @@ function caseNumberAllowed(k) {
   );
 }
 
-function caseFileName(k) {
-  if (!caseNumberKey(k.number)) return null;
-  return (
-    (k.address || "PROPERTY")
-      .replace(/[\\/:*?"<>|]/g, "-")
-      .replace(/\s+/g, " ")
-      .trim() +
-    " - " +
-    k.number
-      .replace(/[\\/:*?"<>|]/g, "-")
-      .replace(/\s+/g, " ")
-      .trim() +
-    ".json"
-  );
-}
-
-function libEntry(key) {
-  if (!key) return null;
-  const cl = LIBRARY.find((x) => x.code === key.c),
-    g = cl && cl.groups.find((x) => x.code === key.g),
-    it = g && g.items.find((x) => x.o === key.o);
-  return it ? { cl: cl, g: g, it: it } : null;
-}
-
-function reportSectionSignature(sections) {
-  // R61 display punctuation must not reclassify legacy items without library IDs.
-  return sections.map((s) => (s === "27.05(2)(g)2" ? "27.05(2)(g)2." : s)).join("|");
-}
-
-function violationType(it) {
-  const e = libEntry(it.lib);
-  if (e) return libType(e, "library");
-  const t = String(it.title || "").trim(),
-    s = reportSectionSignature(it.sections || []),
-    hits = [];
-  LIBRARY.forEach((cl) =>
-    cl.groups.forEach((g) =>
-      g.items.forEach((x) => {
-        if (String(x.t).trim() === t && reportSectionSignature(x.s || []) === s) hits.push({ cl: cl, g: g, it: x });
-      }),
-    ),
-  );
-  if (hits.length === 1) return libType(hits[0], "matched");
-  const s0 = (it.sections || [])[0] || "";
-  return { key: "unclassified/" + s0, label: "Unclassified: " + (s0 || "no ordinance"), how: "section" };
-}
-
-function summarize(f) {
-  const k = f["case"] || {},
-    st = replayEvents(f.events || []);
-  const roster = (f.inspectors || []).concat(INSPECTORS);
-  const nameOf = (id) => (roster.find((i) => i.id === id) || {}).name || "";
-  const day = recordDay;
-  const issuedDay = (d) => (d.revision && (d.revision.actionDate || d.revision.originalIssued)) || d.mailed || day(d.issuedAt);
-  const starts = (d) => (d.revision ? day(d.issuedAt) : d.mailed || day(d.issuedAt));
-  const ends = (d) => [d.void && day(d.void.at), d.superseded && day(d.superseded.at)].filter(Boolean).sort()[0] || "";
-  const docs = st.documents.slice().reverse(); // oldest first
-  const live = docs.filter(isEffective);
-  const notice = docs.find((d) => d.type === "notice" && d.items.length) || null;
-  const noticeActive = live.some((d) => d.type === "notice" && d.items.length);
-  const restrictions = activeRestrictions(live);
-  const withItems = live.filter((d) => d.items.length && !supplemental(d));
-  const lastItems = withItems[withItems.length - 1] || null;
-  const lastDoc = live[live.length - 1] || null;
-  const comp = lastItems && lastItems.type === "compliance" ? lastItems : null;
-  const everReferred = live.some((d) => d.type === "referral");
-  const status =
-    snow.isCase(k) && lastDoc
-      ? "Cited – snow"
-      : restrictions.length
-        ? "Occupancy restricted"
-        : !lastDoc
-          ? "Not issued"
-          : lastItems && lastItems.items.length && lastItems.items.every((i) => i.withdrawn)
-            ? "Withdrawn"
-            : comp
-              ? "Closed"
-              : everReferred
-                ? "Referred"
-                : lastDoc.type === "noOccupancy" && lastDoc.special?.mode === "release" && !lastItems
-                  ? "Restriction released"
-                  : STATUS_OF[(lastItems || lastDoc).type] || (lastItems || lastDoc).type;
-  // Current case grouping follows reviewed case metadata; each document retains its printed owner.
-  const printed = (lastDoc && lastDoc.frozen && lastDoc.frozen.case) || k;
-
-  // a reissue re-records its visit; the visit it replaced no longer counts
-  const superseded = {};
-  st.reinspections.forEach((r) => {
-    if (!r.replaces) return;
-    const vd = docs.find((d) => d.id === r.replaces);
-    if (vd && vd.fromReinspId) superseded[vd.fromReinspId] = 1;
-  });
-  const visits = st.reinspections.filter((r) => !superseded[r.id]).sort((a, b) => (a.date === b.date ? 0 : a.date < b.date ? -1 : 1));
-  const noOf = {};
-  docs.forEach((d) =>
-    d.items.forEach((it) => {
-      noOf[d.id + ":" + it.id] = String(it.no || "");
-    }),
-  );
-
-  const citations = [],
-    seen = {};
-  live
-    .filter((d) => d.type === "citation")
-    .forEach((d) =>
-      d.items.forEach((it) => {
-        const c = (d.cits || {})[it.id];
-        if (it.withdrawn || !it.cite || !c || !c.num || seen[c.num]) return;
-        seen[c.num] = 1;
-        citations.push({
-          num: c.num,
-          no: String(it.no || ""),
-          ordinance: c.ord || (it.sections || [])[0] || "",
-          desc: c.desc || "",
-          issued: issuedDay(d),
-          courtDate: c.courtDate || "",
-          amount: moneyNum(c.amount),
-          tier: c.tier || "",
-          overrideBasis: c.overrideBasis || null,
-          caseType: d.caseType || d.frozen?.case?.caseType || "",
-          by: d.frozen && d.frozen.inspector ? d.frozen.inspector.name : nameOf(d.issuedBy),
-        });
-      }),
-    );
-
-  const snowFirst = snow.isCase(k) ? docs.find((d) => snow.is(d)) : null;
-  const violations = ((notice || snowFirst)?.items || []).map((it) => {
-    const no = String(it.no || "");
-    let done = false,
-      doneOn = "",
-      last = "",
-      n = 0;
-    visits.forEach((r) =>
-      Object.keys(r.results || {}).forEach((id) => {
-        if (noOf[r.sourceDocId + ":" + id] !== no) return;
-        const res = r.results[id];
-        if (!res || !res.oc) return;
-        if (!res.carried) {
-          n++;
-          last = res.oc;
-        }
-        if (res.oc === "corrected") {
-          if (!done) {
-            done = true;
-            doneOn = res.on || r.date || "";
-          }
-        } else if (!res.carried) {
-          done = false;
-          doneOn = "";
-        }
-      }),
-    );
-    const x = lastItems && lastItems.items.find((i) => String(i.no || "") === no);
-    if (x) {
-      const projected = newDocuments.continuingItems(lastItems, visits).find((i) => String(i.no) === no) || x;
-      done = !!projected.done;
-      doneOn = projected.done ? projected.doneOn || doneOn : "";
-    }
-    const history = docs
-      .filter((d) => !supplemental(d))
-      .map((d) => {
-        const item = d.items.find((x) => String(x.no || "") === no);
-        return item
-          ? {
-              docId: d.id,
-              issued: starts(d),
-              effectiveFrom: starts(d),
-              effectiveTo: ends(d),
-              void: !!d.void,
-              voidAt: d.void ? day(d.void.at) : "",
-              done: !!item.done,
-              doneOn: item.doneOn || "",
-              withdrawn: !!item.withdrawn,
-              due: item.due || "",
-              title: item.title || "",
-              sections: item.sections || [],
-              ...violationType(item),
-            }
-          : null;
-      })
-      .filter(Boolean);
-    visits
-      .filter((r) => !docs.some((d) => !supplemental(d) && d.fromReinspId === r.id))
-      .forEach((r) => {
-        const parent = docs.find((d) => d.id === r.sourceDocId),
-          sourceItem = parent?.items.find((i) => String(i.no) === no),
-          res = sourceItem && r.results[sourceItem.id];
-        if (res)
-          history.push({
-            docId: r.id,
-            issued: r.date,
-            effectiveFrom: r.date,
-            effectiveTo: "",
-            done: res.oc === "corrected",
-            doneOn: res.oc === "corrected" ? res.on || r.date : "",
-            withdrawn: !!sourceItem.withdrawn,
-            due: sourceItem.due || "",
-            title: sourceItem.title || "",
-            sections: sourceItem.sections || [],
-            ...violationType(sourceItem),
-          });
-      });
-    history.sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom));
-    const current = x || it,
-      ty = violationType(current);
-    return {
-      dueExempt: current.dueExempt || "",
-      no: no,
-      title: current.title || "",
-      sections: (current.sections || []).slice(),
-      type: ty.key,
-      typeLabel: ty.label,
-      withdrawn: !!current.withdrawn,
-      withdrawalReason: current.withdrawalReason || "",
-      typeHow: ty.how,
-      history: history,
-      due: x ? x.due || "" : it.due || "",
-      done: done,
-      doneOn: doneOn,
-      lastOutcome: last,
-      visits: n,
-      cited: citations.filter((c) => c.no === no).length,
-    };
-  });
-
-  const zip = (/\b(\d{5})(?:-\d{4})?\s*$/.exec(String(k.siteCity || "")) || [])[1] || "";
-  return {
-    format: "madison-case-summary",
-    summaryVersion: SUMMARY_VERSION,
-    schema: f.schema || SCHEMA,
-    integrity: recordIntegrity.status(k),
-    build: BUILD,
-    written: nowISO(),
-    sourceFile: caseFileName(k),
-    eventCount: (f.events || []).length,
-    case: {
-      caseType: k.caseType || "",
-      number: k.number || "",
-      address: k.address || "",
-      siteCity: k.siteCity || "",
-      zip: zip,
-      parcel: k.parcel || "",
-      parcelKey: normParcel(k.parcel),
-      description: k.description || "",
-      inspectorId: k.inspectorId || "",
-      inspector: nameOf(k.inspectorId),
-      opened: k.date || "",
-      noticeIssued: notice ? issuedDay(live.find((d) => d.type === "notice") || notice) : "",
-      noticeActive: noticeActive,
-      status: noticeActive || live.length ? status : notice ? "Withdrawn" : "Not issued",
-      closedOn:
-        snow.isCase(k) && lastDoc?.filedAt && lastDoc.frozen?.snowCloseOnFiling !== false ? recordDay(lastDoc.filedAt) : comp ? starts(comp) : "",
-      ownerAddressKey: respondentKey(k),
-      owner: k.owner || printed.owner || "",
-      ownerAddr: (k.ownerAddr || printed.ownerAddr || []).slice(),
-      historic: !!k.historic,
-      landmark: !!k.landmark,
-    },
-    restrictions: restrictions.map((d) => ({
-      id: d.id,
-      scope: d.special.scope,
-      unit: d.special.unit || "",
-      effective: d.special.effective,
-      posting: d.special.posting,
-      conditions: d.special.releaseConditions,
-    })),
-    conditionalExtensions: live
-      .filter((d) => d.type === "vacancyExtension")
-      .map((d) => ({
-        id: d.id,
-        reviewDate: d.special.reviewDate,
-        contactBy: d.special.reviewDate ? addDays(d.special.reviewDate, -7) : "",
-        expiryDate: d.special.expiryMode === "fixed" ? d.special.expiryDate || "" : "",
-        affected: d.special.affected || [],
-      })),
-    violations: violations,
-    snowInspections: live
-      .filter((d) => snow.is(d))
-      .map((d) => ({
-        id: d.snowInspectionId,
-        docId: d.id,
-        date: d.inspDate,
-        time: d.inspTime,
-        inspector: d.frozen?.inspector?.name || nameOf(d.issuedBy),
-        snow: clone(d.snow),
-        citationNumber: Object.values(d.cits || {})[0]?.num || "",
-      })),
-    visits: visits.map((r) => ({
-      date: r.date || "",
-      purpose: r.purpose || "violation",
-      inspector: r.inspector?.name || nameOf(r.inspectorId),
-      results: Object.keys(r.results || {})
-        .filter((id) => (r.results[id] || {}).oc && !(r.results[id] || {}).carried)
-        .map((id) => ({ no: noOf[r.sourceDocId + ":" + id] || "", oc: r.results[id].oc })),
-    })),
-    documents: docs.map((d) => ({
-      special: d.special ? clone(d.special) : null,
-      serviceRecords: d.serviceRecords || [],
-      id: d.id,
-      type: d.type,
-      label: (DOC_TYPES.find((x) => x.id === d.type) || {}).label || d.type,
-      issued: issuedDay(d),
-      effectiveFrom: starts(d),
-      effectiveTo: ends(d),
-      recordedAt: d.issuedAt,
-      allWithdrawn: d.items.length > 0 && d.items.every((i) => i.withdrawn),
-      revision: d.revision || null,
-      superseded: !!d.superseded,
-      voidAt: d.void ? day(d.void.at) : "",
-      annotations: d.annotations || [],
-      reconciliation: d.reconciliation || null,
-      by: d.frozen && d.frozen.inspector ? d.frozen.inspector.name : nameOf(d.issuedBy),
-      void: !!d.void,
-      voidReason: d.void ? d.void.reason || "" : "",
-      replaces: d.replaces || "",
-      accelaAt: d.accelaAt || "",
-      accelaRef: d.accelaRef || "",
-    })),
-    corrections: (f.events || [])
-      .filter((e) => e.type === "correction.issued")
-      .map((e) => ({
-        at: e.at,
-        by: nameOf(e.by),
-        docId: e.payload.docId,
-        replaces: e.payload.replaces,
-        reason: e.payload.reason,
-        changes: clone(e.payload.changes || []),
-        caseChanges: clone(e.payload.caseChanges || {}),
-      })),
-    citations: citations,
-    referrals: live
-      .filter((d) => d.type === "referral")
-      .map((d) => {
-        const pc = (d.frozen && d.frozen.case) || k;
-        return {
-          id: d.id,
-          issued: issuedDay(d),
-          by: d.frozen && d.frozen.inspector ? d.frozen.inspector.name : nameOf(d.issuedBy),
-          owner: pc.owner || "",
-          ownerAddr: (pc.ownerAddr || []).slice(),
-        };
-      }),
-  };
-}
-
-function migrate(f) {
-  let v = f.schema || f.version || 1,
-    guard = 0;
-  if (v === 4) return f;
-  while (v < 4 && guard++ < 20) {
-    const step = MIGRATIONS[v];
-    if (!step) throw new Error("no migration from schema " + v);
-    f = step(f);
-    v = f.schema || v + 1;
-  }
-  if (v > SCHEMA) throw new Error("this file was written by a newer version of the program (schema " + v + ")");
-  return f;
-}
-
 function bumpSeq(o) {
   const scan = (v) => {
     if (typeof v === "string") {
@@ -905,65 +414,6 @@ function bumpSeq(o) {
     } else if (v && typeof v === "object") Object.keys(v).forEach((kk) => scan(v[kk]));
   };
   scan(o);
-}
-
-function badIds(o, depth) {
-  if (!o || typeof o !== "object" || (depth || 0) > 12) return false;
-  return Object.keys(o).some((key) => {
-    const v = o[key];
-    if (typeof v === "string") return ID_FIELDS.indexOf(key) >= 0 && v !== "" && !ID_OK.test(v);
-    return badIds(v, (depth || 0) + 1);
-  });
-}
-
-function caseFileFault(f) {
-  if (!f || typeof f !== "object") return "it is not a record";
-  if (f.format !== "madison-case-file") return "it is not a Madison case file";
-  const k = f["case"];
-  if (!k || typeof k !== "object") return "it carries no case";
-  if (!String(k.id || "").trim() || !String(k.number || "").trim()) return "the case has no number";
-  if (k.ownerAddr !== undefined && (!Array.isArray(k.ownerAddr) || k.ownerAddr.some((x) => typeof x !== "string")))
-    return "the owner address is not a list of text lines";
-  if (k.emails !== undefined && !Array.isArray(k.emails)) return "email recipients are not a list";
-  if (k.ccList !== undefined && !Array.isArray(k.ccList)) return "copy recipients are not a list";
-  if (f.inspectors !== undefined && !Array.isArray(f.inspectors)) return "the inspector list is not a list";
-  if ((f.inspectors || []).some((i) => !i || typeof i !== "object" || !String(i.id || "").trim())) return "an inspector record is incomplete";
-  if (f.events !== undefined && !Array.isArray(f.events)) return "the event list is not a list";
-  const seen = {};
-  const evs = f.events || [];
-  for (let n = 0; n < evs.length; n++) {
-    const e = evs[n],
-      at = " (event " + (n + 1) + " of " + evs.length + ")";
-    if (!e || typeof e !== "object") return "an event is not a record" + at;
-    if (!String(e.id || "").trim()) return "an event has no id" + at;
-    if (seen[e.id]) return "two events share an id" + at;
-    seen[e.id] = 1;
-    if (!String(e.at || "").trim() || isNaN(new Date(e.at).getTime())) return "an event has no usable date" + at;
-    if (!String(e.type || "").trim()) return "an event has no type" + at;
-    if (e.payload !== undefined && (!e.payload || typeof e.payload !== "object")) return "an event payload is not a record" + at;
-    const p = e.payload || {};
-    if (/\.issued$/.test(e.type)) {
-      if (!p.snapshot || typeof p.snapshot !== "object") return "an issued document carries no snapshot" + at;
-      if (!Array.isArray(p.snapshot.items)) return "an issued document has no item list" + at;
-      if (!p.snapshot.id || !p.snapshot.caseId) return "an issued document has no identity" + at;
-      if (
-        p.snapshot.items.some(
-          (it) => !it || typeof it !== "object" || !it.id || !Array.isArray(it.sections) || it.sections.some((x) => typeof x !== "string"),
-        )
-      )
-        return "an item has an invalid identity or ordinance list" + at;
-      if (
-        p.snapshot.frozen &&
-        p.snapshot.frozen.case &&
-        p.snapshot.frozen.case.ownerAddr !== undefined &&
-        !Array.isArray(p.snapshot.frozen.case.ownerAddr)
-      )
-        return "a frozen mailing address is invalid" + at;
-    }
-    if (e.type === "reinspection.recorded" && (!p.reinspection || typeof p.reinspection !== "object")) return "a reinspection carries no record" + at;
-  }
-  if (badIds(f)) return "it carries an identifier the program cannot use";
-  return correctionHistoryFault(f.events || []);
 }
 
 function mergeCaseEvents(k, f) {
@@ -1246,15 +696,8 @@ export {
   evid,
   appendEvent,
   project,
-  caseDetails,
-  stableJSON,
   rememberSaved,
   caseFile,
-  caseFileName,
-  summarize,
-  migrate,
-  badIds,
-  caseFileFault,
   mergeCaseEvents,
   loadCaseFile,
   idb,
@@ -1265,3 +708,14 @@ export {
   grantCaseFolder,
   helperJSON,
 };
+
+export function summarize(f) {
+  return summarizeRecord(f, {
+    inspectors: INSPECTORS,
+    library: LIBRARY,
+    cases: WriterState.CASES,
+    integrity: recordIntegrity.status(f["case"] || {}),
+    build: BUILD,
+    written: nowISO(),
+  });
+}

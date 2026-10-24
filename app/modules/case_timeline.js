@@ -12,7 +12,9 @@ import {
   toast,
   validISO,
 } from "./court_and_deposits.js";
-import { caseFileFault, helperJSON, loadCaseFile, sourceDocFor, stableJSON } from "./workspace_shell.js";
+import { caseFileFault } from "./case_file_rules.js";
+import { helperJSON, loadCaseFile, sourceDocFor } from "./workspace_shell.js";
+import { stableJSON, clone } from "./record_values.js";
 import { caseState, render } from "./app_screens.js";
 import { hasSetupWork } from "./issuance_and_corrections.js";
 import { preflightCase } from "./language_catalog.js";
@@ -39,7 +41,7 @@ import { CITFEES, DOCBODY, DOC_TYPES } from "./document_types.js";
 import { addDays, daysBetween } from "./calendar.js";
 import { checkAttr, checkTarget, citSelector, countBlanks, esc as dep_esc, itemSelector, money, validMoney } from "./presentation_format.js";
 import { correctionSource, doc, docCase, docsFor, effectiveFiled, eventsFor, kase, reinsp, reinspFor } from "./writer_queries.js";
-import { clone } from "./record_values.js";
+
 import { deliveredByCitation, distinctDues, dueItems, itemLibraryKey, libraryKey } from "./document_rules.js";
 import {
   CITATION_POLICY,

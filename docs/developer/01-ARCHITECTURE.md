@@ -44,6 +44,12 @@ The regular Extension output is unchanged at every authoring version.
 
 Workspace lock ownership is separate from restoration readiness. While persistent workspace data is being restored, Writer shows a startup screen and does not expose editable routes. saveDrafts refuses storage replacement until retained drafts are read; internal held-write recovery can save only after that read. A failed required storage read shows a reload/retry screen and leaves user saves blocked. Reports handoffs and queued navigation stop on failure. No private draft is treated as absent merely because its IndexedDB read failed.
 
+## Record rules and adapters
+
+case_migrations, case_file_rules, case_projection and record_sources contain record calculations without UI, storage, live workspace or clock dependencies. They retain deterministic legacy event identities, schema-4 browser migration, correction-history checks, frozen/correction source precedence, replay ordering and item carry-forward. Browser legacy migration does not create schema-5 integrity evidence; the helper retains that authority.
+
+workspace_shell keeps live-state mutation, load/rollback orchestration, integrity verification, helper/file/IndexedDB access and the summarize adapter. The adapter supplies current inspector/library/case facts, build, cache write time and integrity status explicitly to summarizeRecord. Summary data shape and the independent helper projection remain unchanged. Classification keeps its existing bundled-catalog default for direct callers; the summary calculation supplies its catalog explicitly. new_documents retains the live reinspection default through a thin continuingItems adapter. Pure correction type eligibility is shared with history validation; live correction restrictions still exclude the source document when checking earlier referrals.
+
 ## Helper storage, integrity and recovery
 
 The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.

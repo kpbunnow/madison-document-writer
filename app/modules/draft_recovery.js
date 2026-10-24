@@ -1,6 +1,8 @@
 import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.js";
 import { emailDocument, filePdf, freezeSources, inspAt, parseTime, printJob, rnd12, toast, validISO } from "./court_and_deposits.js";
-import { badIds, caseFileFault, evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor, stableJSON } from "./workspace_shell.js";
+import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
+import { evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./workspace_shell.js";
+import { stableJSON, clone } from "./record_values.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
 import { clearWalk, walkIdentity, dueCheck } from "./reinspection.js";
 import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
@@ -13,7 +15,6 @@ import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./docum
 import {
   ENTRY_IDS,
   IDB_OK,
-  ID_OK,
   RECOVERY_CASE_KEYS,
   RECOVERY_WORKSPACE,
   RECOVERY_WORKSPACE_KEY,
@@ -26,6 +27,7 @@ import {
   recordIntegrity,
   snow,
 } from "./app_core.js";
+
 import {
   doc,
   docCase,
@@ -42,7 +44,7 @@ import {
   reinspFor,
   unchecked,
 } from "./writer_queries.js";
-import { clone } from "./record_values.js";
+
 import { deliveredByCitation, distinctDues, isEffective, libraryKey, specialType } from "./document_rules.js";
 import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";

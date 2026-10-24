@@ -1,5 +1,6 @@
+import { SNOW_TYPE, DOC_TYPES, NEW_TYPES } from "./document_types.js";
 /* Rules read only their arguments and document metadata; no live workspace or UI wiring. */
-import { DOC_TYPES, NEW_TYPES } from "./document_types.js";
+
 export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 
 /* Authoring 13 (R56): every extended Best Interest or Vacancy item carries a later repair due date, entered in
@@ -113,3 +114,11 @@ export const itemLibraryKey = (it) => it.libraryKey || libraryKey(it.lib);
 export const dueItems = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn && i.dueExempt !== "snow-10.28");
 
 export const distinctDues = (items) => [...new Set(items.map((i) => i.due).filter(Boolean))];
+
+export function recordCorrectionTypeAllowed(src, type) {
+  if (type === src.type) return true;
+  if (specialType(src.type)) return false;
+  if (!src.fromReinspId || src.type === "citation" || !["extension", "referral", "referralUpdate", "compliance"].includes(type)) return false;
+  return true;
+}
+export const isSnowCase = (k) => k?.caseType === SNOW_TYPE;

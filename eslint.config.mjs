@@ -24,6 +24,10 @@ export default [
       "app/modules/calendar.js",
       "app/modules/mailing_rules.js",
       "app/modules/record_values.js",
+      "app/modules/case_migrations.js",
+      "app/modules/case_file_rules.js",
+      "app/modules/case_projection.js",
+      "app/modules/record_sources.js",
     ],
     rules: {
       "no-restricted-globals": [
@@ -37,6 +41,31 @@ export default [
         "XMLHttpRequest",
         "WebSocket",
         "BroadcastChannel",
+      ],
+    },
+  },
+  {
+    files: ["app/modules/case_migrations.js", "app/modules/case_file_rules.js", "app/modules/case_projection.js", "app/modules/record_sources.js"],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        { object: "Date", property: "now", message: "Supply record/cache time through the adapter." },
+        { object: "Math", property: "random", message: "Record identities are supplied facts." },
+      ],
+      "no-restricted-globals": [
+        "error",
+        "document",
+        "window",
+        "fetch",
+        "indexedDB",
+        "localStorage",
+        "sessionStorage",
+        "XMLHttpRequest",
+        "WebSocket",
+        "BroadcastChannel",
+        "globalThis",
+        "self",
+        "today",
       ],
     },
   },

@@ -240,3 +240,5 @@ export const globalCourt = () => COURT,
   globalCourtCopies = () => CIT_COPIES,
   globalCourtInstructions = () => CIT_INSTRUCTIONS,
   globalCourtContact = () => COURT_CONTACT;
+
+export const SNOW_TYPE = "snow-10.28";

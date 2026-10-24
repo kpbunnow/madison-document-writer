@@ -1,5 +1,6 @@
 import { allItems as ctx_app_allItems } from "./court_and_deposits.js";
-import { caseFileName as ctx_app_caseFileName, caseNumberAllowed as ctx_app_caseNumberAllowed, shell as ctx_app_shell } from "./workspace_shell.js";
+import { caseFileName as ctx_app_caseFileName, summaryName as ctx_app_summaryName } from "./case_file_rules.js";
+import { caseNumberAllowed as ctx_app_caseNumberAllowed, shell as ctx_app_shell } from "./workspace_shell.js";
 import { caseUnsaved as ctx_app_caseUnsaved } from "./case_files.js";
 import { caseState as ctx_app_caseState } from "./app_screens.js";
 import { catalogKey as ctx_app_catalogKey, recoveryStatusHTML as ctx_app_recoveryStatusHTML } from "./draft_recovery.js";
@@ -18,8 +19,8 @@ import {
   recordIntegrity as ctx_app_recordIntegrity,
   snow as ctx_app_snow,
   storageMode as ctx_app_storageMode,
-  summaryName as ctx_app_summaryName,
 } from "./app_core.js";
+
 import { checkAttr as ctx_app_checkAttr, esc as ctx_app_esc, markBlanks as ctx_app_markBlanks } from "./presentation_format.js";
 import { deliveredByCitation as ctx_app_deliveredByCitation, itemLibraryKey as ctx_app_itemLibraryKey } from "./document_rules.js";
 import { doc as ctx_app_doc, docsFor as ctx_app_docsFor, kase as ctx_app_kase } from "./writer_queries.js";

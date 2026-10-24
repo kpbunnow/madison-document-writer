@@ -1,3 +1,4 @@
+import { recordCase } from "./record_sources.js";
 /* Live workspace queries, not startup: never capture array references or initialize shared state here. */
 import { WriterState } from "./state.js";
 import { INSPECTORS } from "./data/inspectors.js";
@@ -10,7 +11,7 @@ export const insp = (id) => INSPECTORS.find((i) => i.id === id) || {};
 
 export const doc = (id) => WriterState.DOCS.find((d) => d.id === id);
 
-export const docCase = (d) => (d && d.correction && d.correction.case) || (frozenOf(d) && frozenOf(d).case) || kase(d && d.caseId);
+export const docCase = (d) => recordCase(d, WriterState.CASES);
 
 export const docInsp = (d) =>
   d && d.correction ? insp(d.inspectorId) : (frozenOf(d) && frozenOf(d).inspector) || insp((d && d.inspectorId) || docCase(d).inspectorId);
