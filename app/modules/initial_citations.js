@@ -1,23 +1,18 @@
-import { applyDeposit, checks as dep_checks, citationNumber, fmtDate, freezeSources, inspAt, nextCourtDate } from "./court_and_deposits.js";
-import { evid } from "./workspace_shell.js";
-import { citationTier } from "./issuance_and_corrections.js";
-import { citationReview } from "./case_timeline.js";
-import { editorSync } from "./editor_screens.js";
-import { citationFaces } from "./document_render.js";
+/* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { checkTarget, citSelector } from "./presentation_format.js";
-import { citationPricing, libraryReview, uid } from "./app_core.js";
+
 import { docInsp, docsFor } from "./writer_queries.js";
 import { clone } from "./record_values.js";
 import { courtTime } from "./document_types.js";
 import { canonicalOrdinance } from "./citation_policy.js";
 /* Initial-visit notices and citations share one review and one atomic save. */
-export function initInitialCitations() {
+export function initInitialCitations(services) {
   const enabled = (d) => !!d && d.type === "notice" && d.draft && !d.correction && d.items.some((i) => i.cite && !i.withdrawn);
   function prepare(d) {
     if (!enabled(d) || d.pendingAmendment) return;
-    libraryReview.refresh(d);
+    services.libraryReview.refresh(d);
     d.cits = d.cits || {};
-    d.initialCitationId = d.initialCitationId || uid("d");
+    d.initialCitationId = d.initialCitationId || services.uid("d");
     for (const i of d.items.filter((i) => i.cite && !i.done && !i.withdrawn)) {
       const sections = (i.sections || []).map(canonicalOrdinance).filter(Boolean),
         existing = d.cits[i.id];
@@ -34,10 +29,10 @@ export function initInitialCitations() {
         }
         continue;
       }
-      const at = inspAt(d),
+      const at = services.inspAt(d),
         ord = sections.length === 1 ? sections[0] : "";
       d.cits[i.id] = {
-        num: citationNumber(),
+        num: services.citationNumber(),
         ord,
         autoFilledCharge: !!ord,
         preparedSections: sections,
@@ -45,19 +40,19 @@ export function initInitialCitations() {
         deptId: docInsp(d).badge || "",
         issued: d.mailed,
         issuedAutomatic: true,
-        courtDate: nextCourtDate(d.mailed),
+        courtDate: services.nextCourtDate(d.mailed),
         courtTime: courtTime(),
-        tier: citationTier(d.caseId, i.no),
+        tier: services.citationTier(d.caseId, i.no),
         depositMode: "schedule",
-        comment: "Initial inspection on " + fmtDate(at.date) + " documented " + String(i.title || "the violation") + ".",
+        comment: "Initial inspection on " + services.fmtDate(at.date) + " documented " + String(i.title || "the violation") + ".",
       };
-      applyDeposit(d, i.id, ord);
+      services.applyDeposit(d, i.id, ord);
     }
-    citationPricing.refresh(d);
+    services.citationPricing.refresh(d);
   }
   function preview(d) {
     prepare(d);
-    const at = inspAt(d);
+    const at = services.inspAt(d);
     return {
       ...d,
       authoringVersion: d.authoringVersion || 9,
@@ -75,7 +70,7 @@ export function initInitialCitations() {
   function checks(d) {
     if (!enabled(d)) return [];
     const p = preview(d),
-      out = dep_checks(p).filter((c) => !c.ok);
+      out = services.dep_checks(p).filter((c) => !c.ok);
     const numbers = p.items
       .filter((i) => i.cite && !i.withdrawn)
       .map((i) => p.cits[i.id]?.num)
@@ -101,7 +96,7 @@ export function initInitialCitations() {
     p.initialPreview = false;
     p.authoringVersion = Math.max(11, p.authoringVersion || 0);
     p.status = "Final";
-    p.items = p.items.map((i) => ({ ...i, id: uid("x"), srcItemId: i.id }));
+    p.items = p.items.map((i) => ({ ...i, id: services.uid("x"), srcItemId: i.id }));
     p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, clone(d.cits[i.srcItemId])]));
     for (const key of [
       "draft",
@@ -118,14 +113,14 @@ export function initInitialCitations() {
       delete p[key];
     const identity = { id: noticeEvent.id, noticeId: d.id, citationId: p.id };
     p.issuanceGroup = identity; // set before freezing so the replacing citation freezes the notice's order furniture
-    p.frozen = freezeSources(p);
+    p.frozen = services.freezeSources(p);
     noticeEvent.payload.snapshot.issuanceGroup = identity;
     noticeEvent.payload.snapshot.authoringVersion = Math.max(11, noticeEvent.payload.snapshot.authoringVersion || 0);
     noticeEvent.payload.snapshot.cits = {};
     delete noticeEvent.payload.snapshot.initialCitationId;
     p.issuanceGroup = identity;
     const event = {
-      id: evid(),
+      id: services.evid(),
       at: new Date(Date.parse(noticeEvent.at) + 1).toISOString(),
       by: noticeEvent.by,
       type: "citation.issued",
@@ -145,7 +140,7 @@ export function initInitialCitations() {
     const panel = document.getElementById("citation-review");
     if (!panel) return;
     const container = document.createElement("div");
-    container.innerHTML = citationReview(d);
+    container.innerHTML = services.citationReview(d);
     function patch(old, next, active) {
       if (old.nodeType !== next.nodeType || old.nodeName !== next.nodeName || old.dataset?.reviewCit !== next.dataset?.reviewCit) {
         old.replaceWith(next);
@@ -186,8 +181,8 @@ export function initInitialCitations() {
     }
     const copies = document.querySelector(".initial-citation-previews");
     if (copies && enabled(d)) {
-      copies.innerHTML = citationFaces(preview(d), true);
-      editorSync();
+      copies.innerHTML = services.citationFaces(preview(d), true);
+      services.editorSync();
     }
   }
   return { enabled, prepare, preview, checks, mailed, group, refresh };

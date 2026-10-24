@@ -20,6 +20,16 @@ import { esc } from "./presentation_format.js";
 import { addDays } from "./calendar.js";
 
 import {
+  citationNumber,
+  fmtDate,
+  nextCourtDate,
+  changeCharge as changeChargeBasis,
+  chargeChoices,
+  choosesCharge,
+  applyDeposit,
+  checks as dep_checks,
+  freezeSources,
+  lookupForf,
   activeBlocks,
   checkHelper,
   checks,
@@ -37,7 +47,18 @@ import {
   toastUndo,
   validISO,
 } from "./court_and_deposits.js";
-import { caseFile, caseNumberAllowed, grantCaseFolder, helperJSON, linkCaseFolder, loadCaseFile, printNotice, testWrite } from "./workspace_shell.js";
+import {
+  shell,
+  evid,
+  caseFile,
+  caseNumberAllowed,
+  grantCaseFolder,
+  helperJSON,
+  linkCaseFolder,
+  loadCaseFile,
+  printNotice,
+  testWrite,
+} from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import {
@@ -81,7 +102,7 @@ import {
   highlightOpenChecks,
   worksheetChecks,
 } from "./reinspection.js";
-import { caseState, renderKeep, render } from "./app_screens.js";
+import { uiIcon, caseState, renderKeep, render } from "./app_screens.js";
 import {
   accelaFromShare,
   pickAccelaFile,
@@ -95,6 +116,7 @@ import {
   selectImportInspection,
 } from "./accela_import.js";
 import {
+  citationTier,
   addRecordNote,
   captureWork,
   citationFromNotice,
@@ -153,6 +175,8 @@ import {
   showSafety,
 } from "./language_catalog.js";
 import {
+  citationDepositFault,
+  citationReview,
   activeDueTarget,
   assignDue,
   dueContext,
@@ -175,13 +199,13 @@ import {
   updateDueIndicators,
   writerOpenReportedCase,
 } from "./case_timeline.js";
-import { moveItem, newDoc, renumber } from "./editor_screens.js";
+import { editorSync, moveItem, newDoc, renumber } from "./editor_screens.js";
 import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./document_pagination.js";
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
 // Approved wording lives in app/assets/approved_language.json (acceptance item L5).
 
-import { languageClick } from "./language_actions.js";
+import { createLanguageActions } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
@@ -200,14 +224,108 @@ import { initCitationPricing } from "./citation_pricing.js";
 
 import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.js";
 
-export const snow = initSnow();
+import { citationFaces } from "./document_render.js";
+
+export const snow = initSnow({
+  citationNumber: (...args) => citationNumber(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  nextCourtDate: (...args) => nextCourtDate(...args),
+  toast: (...args) => toast(...args),
+  validISO: (...args) => validISO(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  render: (...args) => render(...args),
+  refreshSheet: (...args) => refreshSheet(...args),
+  get citationPricing() {
+    return citationPricing;
+  },
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  uid: (...args) => uid(...args),
+});
 export const administration = initAdministration();
 export const libraryReview = initReviewedLibrary();
 export const newDocuments = initNewDocuments();
-export const citationPricing = initCitationPricing();
-export const depositStep = initDepositStep();
-export const initialCitations = initInitialCitations();
-export const navigation = initNavigation();
+export const citationPricing = initCitationPricing({
+  inspAt: (...args) => inspAt(...args),
+  lookupForf: (...args) => lookupForf(...args),
+  toast: (...args) => toast(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  citationPricingDate: (...args) => citationPricingDate(...args),
+  isLocked: (...args) => isLocked(...args),
+  get libraryReview() {
+    return libraryReview;
+  },
+  get snow() {
+    return snow;
+  },
+});
+export const depositStep = initDepositStep({
+  changeChargeBasis: (...args) => changeChargeBasis(...args),
+  chargeChoices: (...args) => chargeChoices(...args),
+  choosesCharge: (...args) => choosesCharge(...args),
+  toast: (...args) => toast(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  saveAndContinue: (...args) => saveAndContinue(...args),
+  citationDepositFault: (...args) => citationDepositFault(...args),
+  render: (...args) => render(...args),
+  get citationPricing() {
+    return citationPricing;
+  },
+  citationPricingDate: (...args) => citationPricingDate(...args),
+  isLocked: (...args) => isLocked(...args),
+});
+export const initialCitations = initInitialCitations({
+  applyDeposit: (...args) => applyDeposit(...args),
+  dep_checks: (...args) => dep_checks(...args),
+  citationNumber: (...args) => citationNumber(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  freezeSources: (...args) => freezeSources(...args),
+  inspAt: (...args) => inspAt(...args),
+  nextCourtDate: (...args) => nextCourtDate(...args),
+  evid: (...args) => evid(...args),
+  citationTier: (...args) => citationTier(...args),
+  citationReview: (...args) => citationReview(...args),
+  editorSync: (...args) => editorSync(...args),
+  citationFaces: (...args) => citationFaces(...args),
+  get citationPricing() {
+    return citationPricing;
+  },
+  get libraryReview() {
+    return libraryReview;
+  },
+  uid: (...args) => uid(...args),
+});
+export const navigation = initNavigation({
+  toast: (...args) => toast(...args),
+  shell: (...args) => shell(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  uiIcon: (...args) => uiIcon(...args),
+  render: (...args) => render(...args),
+  captureWork: (...args) => captureWork(...args),
+  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
+  get WRITER_READY_WAIT() {
+    return WRITER_READY_WAIT;
+  },
+});
+const languageClick = createLanguageActions({
+  catalogKey: (...args) => catalogKey(...args),
+  keepCatalogForms: (...args) => keepCatalogForms(...args),
+  catalogForm: (...args) => catalogForm(...args),
+  catalogItem: (...args) => catalogItem(...args),
+  catalogReview: (...args) => catalogReview(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  render: (...args) => render(...args),
+  refreshOverlay: (...args) => refreshOverlay(...args),
+  get navigation() {
+    return navigation;
+  },
+});
 export const recordIntegrity = initRecordIntegrity({
   store: WriterState,
   kase: (...args) => kase(...args),

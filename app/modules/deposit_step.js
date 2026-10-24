@@ -1,16 +1,12 @@
-import { changeCharge as changeChargeBasis, chargeChoices, choosesCharge, toast } from "./court_and_deposits.js";
-import { saveDrafts, scheduleDraftSave } from "./case_files.js";
-import { saveAndContinue } from "./draft_recovery.js";
-import { citationDepositFault } from "./case_timeline.js";
-import { render } from "./app_screens.js";
+/* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { citSelector, esc as dep_esc } from "./presentation_format.js";
-import { citationPricing, citationPricingDate, isLocked } from "./app_core.js";
+
 import { doc } from "./writer_queries.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Required completion is stored as a request, never as a blank citation. */
-export function initDepositStep() {
+export function initDepositStep(services) {
   let active = null;
   function close() {
     active = null;
@@ -28,7 +24,7 @@ export function initDepositStep() {
       ordinance: ord,
       libraryItem: itemLibraryKey(i),
       tier: c.tier || 1,
-      date: citationPricingDate(c, d),
+      date: services.citationPricingDate(c, d),
       entryId: c.scheduleEntryId,
       measurements: c.measurements || {},
     });
@@ -43,10 +39,10 @@ export function initDepositStep() {
       delete c.kind;
     } else {
       if (!["base", "total"].includes(c.depositMode) || String(c.depositSource || "").trim().length < 10) return false;
-      c.cc = courtCents(citationPricingDate(c, d)) / 100;
+      c.cc = courtCents(services.citationPricingDate(c, d)) / 100;
       if (c.depositMode === "base") {
         if (cents(c.base) === null || (cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits)) return false;
-        const v = assessmentCents(cents(c.base), cents(c.cc), citationPricingDate(c, d));
+        const v = assessmentCents(cents(c.base), cents(c.cc), services.citationPricingDate(c, d));
         c.amount = (v.total / 100).toFixed(2);
         c.assessments = v;
       } else {
@@ -54,7 +50,7 @@ export function initDepositStep() {
         delete c.assessments;
       }
       c.resolvedVia = "approved-" + c.depositMode;
-      c.pricedOn = citationPricingDate(c, d);
+      c.pricedOn = services.citationPricingDate(c, d);
       c.policyVersionHash = CITATION_POLICY.versionHash;
     }
     delete c.reason;
@@ -88,7 +84,7 @@ export function initDepositStep() {
       "></label>";
     // R59: several item sections → choose exactly one; a charge outside them stays a secondary, sourced entry.
     const chargeSelect = (i, c) => {
-      const choices = chargeChoices(i),
+      const choices = services.chargeChoices(i),
         chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
         listed = choices.some((x) => x.value === chosen);
       return (
@@ -160,7 +156,7 @@ export function initDepositStep() {
       "</h3><p>" +
       esc(c.reason || "Choose an approved deposit basis.") +
       '</p><div class="grid g2">' +
-      (choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required")) +
+      (services.choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required")) +
       offenseSelect(i, c) +
       (measured
         ? measurements
@@ -199,7 +195,7 @@ export function initDepositStep() {
     return [...document.querySelectorAll("[data-deposit-form]")].find((el) => el.dataset.depositForm === id);
   }
   function open(d, id) {
-    if (!d?.depositRequests?.[id] || isLocked(d) || d.pendingAmendment) return;
+    if (!d?.depositRequests?.[id] || services.isLocked(d) || d.pendingAmendment) return;
     active = { d, id };
     const el = findForm(id);
     if (!el) return;
@@ -215,7 +211,7 @@ export function initDepositStep() {
     if (!node) return null;
     const d = doc(node.dataset.depositDoc) || WriterState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
       id = node.dataset.depositForm;
-    return d?.draft && !isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
+    return d?.draft && !services.isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
   }
   function values(node, c) {
     const result = Object.fromEntries(new FormData(node));
@@ -288,15 +284,15 @@ export function initDepositStep() {
     }
     // Choosing the scheduled offense of an ordinance with several rows prices the charge at once.
     if (e.target.name === "scheduleEntryId" && e.type === "change") {
-      citationPricing.refresh(ctx.d);
+      services.citationPricing.refresh(ctx.d);
       settle(ctx);
       return;
     }
-    scheduleDraftSave();
+    services.scheduleDraftSave();
   }
   function settle({ d, id }) {
-    saveDrafts();
-    render();
+    services.saveDrafts();
+    services.render();
     const target = d.depositRequests?.[id] ? findForm(id)?.querySelector("[name=ord]") : document.querySelector(citSelector(id, "ord"));
     target?.focus({ preventScroll: true });
   }
@@ -305,8 +301,8 @@ export function initDepositStep() {
   function changeCharge(ctx, value) {
     if (Object.hasOwn(ctx.c, "ordEditingFrom")) ctx.c.ord = ctx.c.ordEditingFrom;
     delete ctx.c.ordEditingFrom;
-    if (!changeChargeBasis(ctx.d, ctx.id, value)) {
-      scheduleDraftSave();
+    if (!services.changeChargeBasis(ctx.d, ctx.id, value)) {
+      services.scheduleDraftSave();
       return;
     }
     settle(ctx);
@@ -331,8 +327,8 @@ export function initDepositStep() {
     const wasMeasured = !!c.measurementFields?.length;
     if (!complete(d, id, values(node, c))) {
       if (wasMeasured && !c.measurementFields?.length) {
-        saveDrafts();
-        render();
+        services.saveDrafts();
+        services.render();
         open(d, id);
         return;
       }
@@ -343,8 +339,8 @@ export function initDepositStep() {
       return;
     }
     active = null;
-    saveDrafts();
-    render();
+    services.saveDrafts();
+    services.render();
     const card = [...document.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === id);
     if (card) {
       card.setAttribute("tabindex", "-1");
@@ -356,34 +352,34 @@ export function initDepositStep() {
     const later = e.target.closest?.("[data-deposit-later]");
     if (later) {
       const ctx = context(later);
-      if (ctx) saveAndContinue();
+      if (ctx) services.saveAndContinue();
       return;
     }
     const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
     if (!t) return;
     const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
       d = doc(docId) || WriterState.DOCS.find((x) => x.initialCitationId === docId);
-    if (!d || isLocked(d) || d.pendingAmendment) return;
+    if (!d || services.isLocked(d) || d.pendingAmendment) return;
     if (t.dataset.confirmDeposit) {
       const c = d.cits?.[id];
       if (!c || String(c.depositSource || "").trim().length < 10 || !(cents(c.amount) > 0)) {
-        toast("Enter the approved source and amount before confirming.");
+        services.toast("Enter the approved source and amount before confirming.");
         return;
       }
       delete c.reconfirmDeposit;
       if (
-        citationDepositFault(
+        services.citationDepositFault(
           c,
           d,
           d.items.find((i) => i.id === id),
         )
       ) {
         c.reconfirmDeposit = true;
-        toast("Correct the deposit basis before confirming.");
+        services.toast("Correct the deposit basis before confirming.");
         return;
       }
-      saveDrafts();
-      render();
+      services.saveDrafts();
+      services.render();
     } else if (id) open(d, id);
     else openNext(d);
   });

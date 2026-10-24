@@ -34,13 +34,41 @@ const allowed = {
   ],
   "citation_policy.js": ["./data/citation_policy.js"],
 };
-for (const [name, dependencies] of Object.entries(allowed)) {
+const scopedServices = {
+  "navigation.js": ["./data/build_identity.js", "./state.js"],
+  "snow_cases.js": [
+    "../assets/shared.js",
+    "./calendar.js",
+    "./citation_policy.js",
+    "./data/library.js",
+    "./data/snow_letter.js",
+    "./document_rules.js",
+    "./document_types.js",
+    "./presentation_format.js",
+    "./record_values.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
+  "citation_pricing.js": [
+    "../assets/shared.js",
+    "./calendar.js",
+    "./citation_policy.js",
+    "./document_rules.js",
+    "./helper_transport.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
+  "deposit_step.js": ["./citation_policy.js", "./document_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+  "initial_citations.js": ["./citation_policy.js", "./document_types.js", "./presentation_format.js", "./record_values.js", "./writer_queries.js"],
+  "language_actions.js": ["./state.js"],
+};
+for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedServices })) {
   for (const dependency of graph.imports[name]) assert.ok(dependencies.includes(dependency), `${name} must not depend on ${dependency}`);
   assert.ok(!graph.cycles.some((cycle) => cycle.includes(name)), `${name} must stay outside UI cycles`);
 }
 assert.ok(graph.cycles.length <= 2, "do not introduce another cyclic component");
 for (const cycle of graph.cycles) {
-  const cap = cycle.includes("app_core.js") ? 25 : cycle.includes("reports_core.js") ? 5 : 0;
+  const cap = cycle.includes("app_core.js") ? 19 : cycle.includes("reports_core.js") ? 5 : 0;
   assert.ok(cycle.length <= cap, "do not grow the retained Writer/Reports cycles or introduce an unrelated cycle");
 }
 // Re-exports, static and dynamic imports all contribute to the graph; source is never evaluated.
@@ -138,6 +166,7 @@ try {
       modules: Object.keys(graph.edges).length,
       largestCycle: Math.max(...graph.cycles.map((c) => c.length)),
       isolatedFoundations: Object.keys(allowed).length,
+      isolatedServices: Object.keys(scopedServices).length,
     }),
   );
 })().catch((error) => {

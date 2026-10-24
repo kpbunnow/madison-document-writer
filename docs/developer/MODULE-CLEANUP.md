@@ -47,7 +47,7 @@ Feature factories import foundations, receive only their explicit service/peer i
 
 `audit_event_registration` checks the baseline registration order, capture phases and state/startup checkpoints in feature_event_order.json. Callback bodies are not frozen. It also verifies inert/lazy construction, no imports back into UI/persistence adapters, duplicate/refused registration, first-match exclusivity, synchronous permission calls, capture confirmation stopping later bubble handlers, retained input focus/caret and default-prevented keyboard behavior. The existing full functional/browser/print checks remain authoritative.
 
-## Third increment: record rules separated from UI/storage
+## Third increment: record rules separated from UI/storage (merged in PR #48)
 
 Four additional owners isolate record calculations:
 
@@ -66,11 +66,28 @@ The browser migration stops at legacy schema 4 and returns schema-5 records unch
 
 The graph now has 71 modules, with unchanged Writer/Reports cycle caps of 25 and 5. Import-layer tests and lint rules keep the new modules free of UI/storage/workspace imports and direct clock/randomness access. audit_record_rules checks standalone loading, repeatable migration IDs, unmodified inputs, frozen authoring data, corrected visits, continued items, typed comparisons and merge/history refusals. Existing generated/captured projection parity and all historical assertions remain in place.
 
+## Fourth increment: scoped Writer service dependencies
+
+Six existing feature owners now import only foundations, static data and their retained transport where needed. app_core supplies their named UI/peer operations through lazy forwarding functions and service getters; no universal registry or compatibility barrel is introduced.
+
+| Owner | Supplied operations |
+| --- | --- |
+| navigation | Saved navigation, capture, lookup cancellation, rendering and the later readiness promise |
+| language_actions | Catalog actions, guarded navigation, rendering and overlay updates |
+| citation_pricing | Inspection/pricing context, locks, reviewed language, snow preparation and notifications |
+| deposit_step | Charge editing, deposit validation, saves, continuation and rendering |
+| initial_citations | Initial citation preparation, review, pricing, frozen sources and editor refresh |
+| snow_cases | Citation/date services, saves, helper requests, rendering and peer refresh |
+
+The six factories stay at their original composition positions; languageClick is constructed immediately after navigation and remains registered at its original catalog-event checkpoint. Factories do not read supplied services during construction. Snow, pricing and deposit factories still register their existing nine listeners at initialization, in their original order and phases; this increment does not make their construction side-effect free or add repeat-registration guarantees. No await is added to synchronous dispatch.
+
+The static Writer cycle drops from 25 to 19 modules; Reports remains 5. The guard is narrowed to 19/5 and explicitly restricts the six owners' imports. audit_writer_services loads all six without starting Writer, checks exact named lazy interfaces and initialization order, verifies the retained nine listener registrations, and exercises readiness, failed saves, stale navigation, edits during saving, language navigation and citation guards. The existing 60-listener registration test, historical print references and functional/browser assertions remain unchanged.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Reduce the remaining Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 19-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
