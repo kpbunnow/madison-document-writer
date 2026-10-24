@@ -1012,14 +1012,6 @@ export const ACC_COLS = {
 };
 export const ACC_REQUIRED = ["number", "inspector", "address", "owner", "ownerAddr", "type", "date", "status"];
 export const ACC_LABEL = (k) => ACC_COLS[k].replace(/\b\w/g, (m) => m.toUpperCase());
-/* what each Accela status means (division, 09/18/2026) */
-export const ACC_STATUS = {
-  pending: { sel: false, why: "Pending — the inspection has not been done" },
-  completed: { sel: true },
-  "official notice": { sel: true, doc: true },
-  citation: { sel: true, doc: true },
-  compliance: { sel: true, doc: true },
-};
 /* R53: the imported inspection's type and status decide the document (division rules and decisions, 10/19/2026).
    Snow cases follow the same table: Initial Inspection/Citation starts the season case and Reinspection/Citation
    records each later snow event. "Completed" has no rule and is not importable. */
@@ -1098,7 +1090,7 @@ export function hiddenImportRow(type, status) {
   if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
   return "";
 }
-export const accStatusEligible = (status, type) => (type === undefined ? ACC_STATUS[accNorm(status)]?.sel === true : !statusRule(type, status).error);
+export const accStatusEligible = (status, type) => !statusRule(type, status).error;
 export const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];
 
 /* ZIP central directory -> {name: text} for the entries asked for */

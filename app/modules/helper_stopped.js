@@ -1,13 +1,13 @@
 /* Shared by Writer and Reports: the state shown after Exit Document Writer stopped the local helper.
    Closing a window never stops the helper; only the authenticated Exit Document Writer request does. */
-export const HELPER_STOPPED_CHANNEL = "madison-helper-stopped-v1";
-export const STOPPED_TITLE = "Document Writer has stopped";
+const HELPER_STOPPED_CHANNEL = "madison-helper-stopped-v1";
+const STOPPED_TITLE = "Document Writer has stopped";
 export const STOPPED_TEXT = "Document Writer has stopped. You can close this window. To start again, double-click Document Writer on the desktop.";
 export const helperStop = { stopped: false, channel: null, instance: "" };
 
 const escapeText = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-export function stoppedHTML(details = []) {
+function stoppedHTML(details = []) {
   return (
     '<main data-helper-stopped style="max-width:620px;margin:12vh auto;padding:28px;font-family:system-ui">' +
     '<h1 tabindex="-1">' +

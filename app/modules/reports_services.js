@@ -684,7 +684,7 @@ function groupBy(list, fn) {
 function render() {
   const app = document.getElementById("app");
   if (!app || helperStop.stopped) return;
-  const ui = rememberUI(ReportsState.S);
+  const ui = rememberUI();
   ReportsState.S.rep = null;
   app.innerHTML = shell();
   A11Y.enhance();
