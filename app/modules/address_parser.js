@@ -2,7 +2,10 @@ import { toast } from "./court_and_deposits.js";
 import { helperJSON } from "./workspace_shell.js";
 import { saveDrafts } from "./case_files.js";
 import { render } from "./app_screens.js";
-import { A11Y, ccList, doc, docCase, esc, kase, recordIntegrity, uid } from "./app_core.js";
+import { A11Y, recordIntegrity, uid } from "./app_core.js";
+import { ccList } from "./mailing_rules.js";
+import { doc, docCase, kase } from "./writer_queries.js";
+import { esc } from "./presentation_format.js";
 import { WriterState } from "./state.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */
 export function initAddressParser() {

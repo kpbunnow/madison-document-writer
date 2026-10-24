@@ -7,41 +7,30 @@ import { refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import {
   CASEDIR_EXPECT,
-  DOC_TYPES,
-  EVENT_TYPES,
   FS_OK,
   IDB_OK,
   ID_FIELDS,
   ID_OK,
   MIGRATIONS,
-  SCHEMA,
-  STATUS_OF,
-  addDays,
-  byTime,
-  clone,
-  doc,
-  docCase,
-  docsFor,
-  esc,
-  eventsFor,
-  insp,
-  isEffective,
-  kase,
   libType,
-  moneyNum,
   navigation,
   newDocuments,
-  nowISO,
   recordIntegrity,
   snow,
   storageMode,
 } from "./app_core.js";
+import { DOC_TYPES, EVENT_TYPES, SCHEMA, STATUS_OF } from "./document_types.js";
+import { addDays, nowISO } from "./calendar.js";
+import { doc, docCase, docsFor, eventsFor, insp, kase } from "./writer_queries.js";
+import { byTime, clone } from "./record_values.js";
+import { esc, moneyNum } from "./presentation_format.js";
+import { isEffective, activeRestrictions, supplemental } from "./document_rules.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
 import { respondentKey } from "./citation_policy.js";
 import { BUILD, LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { LIBRARY } from "./data/library.js";
-import { activeRestrictions, supplemental } from "./new_documents.js";
+
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 import { connectionBanner } from "./saved_work.js";

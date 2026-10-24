@@ -3,7 +3,10 @@ import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 import { saveAndContinue } from "./draft_recovery.js";
 import { citationDepositFault } from "./case_timeline.js";
 import { render } from "./app_screens.js";
-import { citSelector, citationPricing, citationPricingDate, doc, esc as dep_esc, isLocked, itemLibraryKey } from "./app_core.js";
+import { citSelector, esc as dep_esc } from "./presentation_format.js";
+import { citationPricing, citationPricingDate, isLocked } from "./app_core.js";
+import { doc } from "./writer_queries.js";
+import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Required completion is stored as a request, never as a blank citation. */

@@ -19,50 +19,28 @@ import { preflightCase } from "./language_catalog.js";
 
 import {
   A11Y,
-  CITFEES,
-  DOCBODY,
-  DOC_TYPES,
   HANDOFF_CHANNEL,
   MINDUE,
   WRITER_READY_WAIT,
-  addDays,
   administration,
-  checkAttr,
-  checkTarget,
-  citSelector,
   citationPricing,
   citationPricingDate,
-  clone,
-  correctionSource,
-  countBlanks,
-  daysBetween,
-  deliveredByCitation,
   depositStep,
-  distinctDues,
-  doc,
-  docCase,
-  docsFor,
-  dueItems,
-  effectiveFiled,
-  esc as dep_esc,
-  eventsFor,
   initialCitations,
   initialOrderCitation,
   isLocked,
-  itemLibraryKey,
-  itemSelector,
-  kase,
-  libraryKey,
-  money,
   navigation,
-  reinsp,
-  reinspFor,
   snow,
   structEditable,
   uid,
   unchangedCorrectionValue,
-  validMoney,
 } from "./app_core.js";
+import { CITFEES, DOCBODY, DOC_TYPES } from "./document_types.js";
+import { addDays, daysBetween } from "./calendar.js";
+import { checkAttr, checkTarget, citSelector, countBlanks, esc as dep_esc, itemSelector, money, validMoney } from "./presentation_format.js";
+import { correctionSource, doc, docCase, docsFor, effectiveFiled, eventsFor, kase, reinsp, reinspFor } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { deliveredByCitation, distinctDues, dueItems, itemLibraryKey, libraryKey } from "./document_rules.js";
 import {
   CITATION_POLICY,
   canonicalOrdinance,

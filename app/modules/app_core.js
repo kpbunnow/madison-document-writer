@@ -1,3 +1,10 @@
+import { BLOCKS, DOCBODY } from "./document_types.js";
+import { deliveredByCitation, frozenOf, isHistoryDoc, citeAllowed, itemLibraryKey, alignedExtension, specialType } from "./document_rules.js";
+import { kase, doc, reinsp, docsFor, reinspFor, draftDocFor, docCase, docInsp, eventsFor, correctionSource } from "./writer_queries.js";
+import { clone, byTime } from "./record_values.js";
+import { esc, countBlanks } from "./presentation_format.js";
+import { addDays, nowISO } from "./calendar.js";
+import { ccList, emailList, isLLC } from "./mailing_rules.js";
 import {
   activeBlocks,
   checkHelper,
@@ -168,23 +175,24 @@ import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./d
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
 // Approved wording lives in app/assets/approved_language.json (acceptance item L5).
-import { APPROVED_LANGUAGE } from "./data/approved_language.js";
+
 import { languageClick } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
 import { SUMMARY_VERSION, validCaseNumber, caseNumberKey, recordDay, csvText, downloadText } from "../assets/shared.js";
-import { NEW_TYPES, alignedExtension, specialType, initNewDocuments } from "./new_documents.js";
+
+import { initNewDocuments } from "./new_documents.js";
 import { initInitialCitations } from "./initial_citations.js";
 import { initAddressParser } from "./address_parser.js";
 import { initRecordIntegrity } from "./record_integrity.js";
 import { initNavigation } from "./navigation.js";
 import { createAccessibility } from "./accessibility.js";
 import { LIBRARY } from "./data/library.js";
-import { CITATION_POLICY, citationPricingDate as policyCitationPricingDate } from "./citation_policy.js";
+import { citationPricingDate as policyCitationPricingDate } from "./citation_policy.js";
 import { initDepositStep } from "./deposit_step.js";
 import { initCitationPricing } from "./citation_pricing.js";
-import { INSPECTORS } from "./data/inspectors.js";
+
 import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.js";
 
 export const snow = initSnow();
@@ -223,110 +231,13 @@ document.addEventListener(
 );
 const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
 
-/* =====================================================================
-   MADISON BUILDING INSPECTION — DOCUMENT WRITER (prototype)
-   Template model follows the city's guide checklist export:
-     CHECKLIST → GROUP → ITEM {display order, display text,
-                               ordinance violation, corrective action}
-   Library data below is extracted from
-   ChecklistOutput_JG_PropertyMaintenance.xlsx.
-   Issued records are shared; working drafts are retained on this device.
-   ===================================================================== */
-
-/* Housing (ENF_HSE_*) and Zoning (ENF_ZONE_*) checklists exist in the
-   export but every row is a PLACE HOLDER — no language written yet. */
-
-/* Document-level blocks that print below the item table. These appear
-   on real notices; they are not part of the checklist export. */
-export const BLOCKS = APPROVED_LANGUAGE.blocks;
-
-export const EXTERIOR_WORK = /exterior|porch|siding|fence|paint|window|roof/i;
-
-export const DOC_TYPES = [
-  { id: "notice", label: "Official Notice", ready: true, pfx: "" },
-  { id: "extension", label: "Extension", ready: true, pfx: "EXTENSION" },
-  { id: "citation", label: "Citation", ready: true, pfx: "CITATION" },
-  { id: "reinspect", label: "Reinspection Notice", ready: false },
-  { id: "compliance", label: "Compliance Letter", ready: true, pfx: "COMPLIANCE" },
-  /* the referral heading is too long to sit on the notice line, so it stacks
-     above it as the division's own referrals do */
-  { id: "referral", label: "Referral for Prosecution", ready: true, pfx: "REFERRAL FOR PROSECUTION", stacked: true, history: true },
-  /* once a case is with the City Attorney every later visit reports on it
-     rather than starting over */
-  { id: "referralUpdate", label: "Update for Case Referral", ready: true, pfx: "UPDATE FOR CASE REFERRAL", stacked: true, history: true },
-  { id: "placard", label: "Placard / Order to Vacate", ready: false },
-]
-  .filter((t) => t.ready)
-  .concat(NEW_TYPES);
-
-/* Reinspection outcomes. Anything that is not 'corrected' stays on the case
-   and carries onto the next document with its original item number. */
-export const OUTCOMES = [
-  { id: "corrected", label: "Corrected", found: "the work complete" },
-  { id: "progress", label: "Progress made", found: "partial progress, with the work still incomplete" },
-  { id: "none", label: "No change", found: "no change" },
-  { id: "noaccess", label: "No access", found: "no access to inspect" },
-];
-
-/* Body copy per document type, transcribed from notices on file. */
-export const DOCBODY = APPROVED_LANGUAGE.documentBodies;
 /* R35: an initial-inspection citation (authoring 11+) is the only mailed document; its paired Official Notice
    snapshot is the case's internal record of the deadlines and is never printed, filed or emailed separately. */
 export const initialOrderCitation = (d) =>
   !!d && d.type === "citation" && !d.fromReinspId && d.authoringVersion >= 11 && !snow.is(d) && !!(d.issuanceGroup || d.initialPreview);
-export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.authoringVersion >= 11 && !!d.issuanceGroup?.citationId;
-export const effectiveFiled = (d) => (deliveredByCitation(d) ? !!doc(d.issuanceGroup.citationId)?.filedAt : !!d?.filedAt);
 
-export const COURT = APPROVED_LANGUAGE.court;
-/* The four copies are not identical. The court copy carries the narrative
-   only; agency and inspector copies add a disposition record for the court to
-   complete; the defendant's copy drops the narrative and carries the plea
-   instructions instead. Transcribed from the division's own citations. */
-export const CIT_COPIES = APPROVED_LANGUAGE.citationCopies;
-export const CIT_INSTRUCTIONS = APPROVED_LANGUAGE.citationInstructions.join("");
-export const COURT_CONTACT = APPROVED_LANGUAGE.courtContact;
+// One suggested session; inspector reviews court scheduling.
 
-/* ---------- what a citation actually costs ----------
-   The amount on an MC-2000 is the cash deposit, not the forfeiture. Under
-   MGO 1.08(3) it is the base deposit for the offence plus the statutory
-   assessments in 1.08(3)(c). Sources, all read from Chapter 1 itself:
-     1.08(3)(a)  the enumerated schedule of deposits, transcribed below
-     1.08(3)(b)  the fallback for Chapters 6, 7, 22, 27, 28, 31, 34 and
-                 Sec. 33.24 when the offence is not enumerated:
-                 $100 first, $200 second, $250 third and subsequent,
-                 within any twelve month period
-     1.08(3)(c)  penalty assessment, jail assessment, crime lab and drug law
-                 enforcement assessment, and court costs of $48 under
-                 Wis. Stat. 814.65 (raised from $38 by 2025 Wis. Act 113 and
-                 adopted by ORD-26-00039, 7-30-26)
-   That reproduces the division's own citations exactly: a first violation of
-   27.05(2)(c) at $100 comes to $197.00, and 10.25(5) at $50 comes to $134.00. */
-
-/* ---------- when the citation is answerable ----------
-   Court dates fall on a Tuesday at least six weeks out. If that Tuesday is a
-   court holiday the date moves on a week. Sessions sit at 8:30 or 9:30 AM. */
-const COURT_TIMES = ["08:30", "09:30"];
-
-export const courtTime = () => COURT_TIMES[0]; // One suggested session; inspector reviews court scheduling.
-
-/* Eleven digits after the B: nine of seconds since 1 Jan 2020, then two at
-   random. The seconds field carries the year, so a citation written on the
-   same date and time next year cannot repeat one written today — the earlier
-   scheme dropped the year and collided once every ten such pairs. The two
-   random digits separate two devices issuing in the same second without any
-   per-device setup; within one device the numbers already on file are checked
-   and the seconds walked until one is free. */
-export const CITEPOCH = Date.UTC(2020, 0, 1);
-
-export const CITFEES = {
-  effectiveDate: CITATION_POLICY.fees.effectiveDate,
-  penaltyPct: CITATION_POLICY.fees.penaltyPercent / 100,
-  crimeLab: CITATION_POLICY.fees.crimeLabCents / 100,
-  courtCosts: CITATION_POLICY.fees.courtRates.at(-1).cents / 100,
-  ccMin: CITATION_POLICY.fees.ccMinCents / 100,
-  ccMax: CITATION_POLICY.fees.ccMaxCents / 100,
-};
-export const money = (n) => (Math.round((+n || 0) * 100) / 100).toFixed(2);
 /* The inspector identifies the offence. The deposit and the statutory
    assessments follow from MGO 1.08(3) with no arithmetic on their part. */
 
@@ -406,15 +317,7 @@ WriterState.seq = 100;
 
 export const uid = (p) => p + ++WriterState.seq + "-" + rnd12();
 WriterState.DIRTY = false;
-/* unsaved work exists that is not in any exported file */
 
-/* ---------- helpers ---------- */
-export const esc = (s) =>
-  String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-export const nl2 = (s) => esc(s).replace(/\n/g, "<br>");
-export const kase = (id) => WriterState.CASES.find((k) => k.id === id) || {};
-export const insp = (id) => INSPECTORS.find((i) => i.id === id) || {};
-export const doc = (id) => WriterState.DOCS.find((d) => d.id === id);
 /* The clock is read at the moment it is used, never captured at load. A
    laptop left open overnight must not keep writing yesterday onto
    documents, and a fixture date silently backdates everything. */
@@ -424,13 +327,6 @@ Object.defineProperty(globalThis, "today", {
     return new Date();
   },
 });
-export const iso = (d) => recordDay(d);
-export const addDays = (s, n) => {
-  const d = new Date(s + "T12:00:00Z");
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
-};
-export const daysBetween = (a, b) => Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 864e5);
 
 /* The header dates are typed, not picked, so they read as plain text on the
    page. Parsing is deliberately forgiving; anything unreadable leaves the
@@ -440,36 +336,8 @@ export const daysBetween = (a, b) => Math.round((new Date(b + "T12:00:00") - new
 /* test fixture API: retained for audit_*.js; production uses confirmed publication. */
 // Test hook: exported so the test build keeps it; tests call it by name.
 export const fmtDateEd = __TEST_BUILD__ ? $testFixtures.fmtDateEd : undefined;
-/* A date that does not read as a real calendar day has to be rejected
-   rather than compared: every comparison against NaN is false, so an
-   unreadable value otherwise satisfies every bound it is checked against.
-   February 31st is shaped like a date and is not one. */
-
-/* ---------- the mailing block ----------
-   First line is the defendant, the rest is the address. A second owner name
-   on line two is part of the address as the division writes it, so it is not
-   treated specially. Blank lines are dropped so a stray return cannot shunt
-   the name out of the defendant field or leave a hole in the address. */
-
-export const ownerLines = (k) =>
-  [k.owner]
-    .concat(k.ownerAddr || [])
-    .map((x) => String(x || "").trim())
-    .filter(Boolean);
 
 WriterState.undoFn = null;
-
-// the city's fill-in convention is a literal "( )" in the corrective action
-const BLANK = /\(\s{0,8}\)/g;
-export const countBlanks = (s) => (String(s).match(BLANK) || []).length;
-export const markBlanks = (s) => nl2(s).replace(/\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>');
-export const editableBlanks = (s) =>
-  esc(s).replace(
-    /\(\s{0,8}\)/g,
-    '<span class="blank blank-edit" contenteditable="false" role="button" tab' +
-      'index="0" aria-label="Fill in missing text" title="Click to fill in miss' +
-      'ing text">( )</span>',
-  );
 
 document.addEventListener("click", (e) => {
   const el = e.target.closest(".blank-edit");
@@ -513,18 +381,6 @@ document.addEventListener("keydown", (e) => {
   recordReinspectionOutcome(WriterState.state.riWalkItem, outcome);
 });
 
-/* ---------- what an issued document renders from ----------
-   Issuing freezes the document, and everything the document was written
-   from goes into the snapshot with it: the case as it read, the inspector
-   who signed it, the body copy and the closing blocks. A property can be
-   sold, an inspector can leave the roster and a later build can reword the
-   library, and none of it may change a document the owner already holds.
-   A draft has no frozen block and reads live; so does an issued document
-   from a file written before this existed. */
-export const frozenOf = (d) => (d && d.frozen) || null;
-export const docCase = (d) => (d && d.correction && d.correction.case) || (frozenOf(d) && frozenOf(d).case) || kase(d && d.caseId);
-export const docInsp = (d) =>
-  d && d.correction ? insp(d.inspectorId) : (frozenOf(d) && frozenOf(d).inspector) || insp((d && d.inspectorId) || docCase(d).inspectorId);
 export const docBody = (d) =>
   snow.is(d) && d.authoringVersion >= 9
     ? snow.body(d)
@@ -538,13 +394,6 @@ export const docBody = (d) =>
       DOCBODY.notice;
 const blockText = (b) => ({ key: b, label: (BLOCKS[b] || {}).label || "", text: (BLOCKS[b] || {}).text || "" });
 export const docBlocks = (d) => (d && d.correction && d.correction.blocks) || (frozenOf(d) && frozenOf(d).blocks) || activeBlocks(d).map(blockText);
-/* The inspection a document was written from (division, 09/18/2026). A
-   follow-up carries its own inspDate/inspTime, taken from the reinspection;
-   an Official Notice, a citation drafted with it, and any document written
-   before this existed have none and read the case's initial inspection. When
-   a document has its own date its time is its own too, or blank: one
-   inspection's date is never printed beside another's time. */
-export const hasOwnInsp = (d) => !!d && Object.prototype.hasOwnProperty.call(d, "inspDate");
 
 export const blockers = (d) => checks(d).filter((c) => !c.ok && !c.soft);
 
@@ -565,44 +414,6 @@ export const futureDue = __TEST_BUILD__ ? $testFixtures.futureDue : undefined;
    files it, which a browser cannot do on its own. */
 WriterState.HELPER = null;
 
-/* Outlook is driven by the local helper rather than a mailto link, because a
-   mailto cannot carry an attachment and the whole point is to send the PDF. */
-
-/* Filing, printing and emailing all happen after the click that started
-   them, and the screen does not wait: finalizing a notice with a citation
-   ticked opens the citation immediately. The page and the filename are
-   therefore captured together, up front, and that one job is what every
-   later step works from — never whatever document is on screen by then. */
-
-/* the finished document as a standalone page: what the printer sees and what
-   the helper turns into the filed PDF */
-
-/* Where documents are going, said on every screen. A case file held back
-   because the browser wants permission is not something an inspector can be
-   left to notice on their own. */
-/* Written because a save that quietly goes to the wrong place is impossible to
-   diagnose over the phone. Everything the storage layer knows, on one screen,
-   plus a probe that actually writes a file and reports what happened. */
-
-/* ---------- case files ----------
-   No backend, so the exported JSON *is* the case record. It holds the case,
-   every document written against it and every reinspection, so any inspector
-   can open it off the shared drive and pick the work up. */
-
-export const reinsp = (id) => WriterState.REINSP.find((r) => r.id === id);
-export const docsFor = (cid) => WriterState.DOCS.filter((d) => d.caseId === cid);
-export const reinspFor = (cid) => WriterState.REINSP.filter((r) => r.caseId === cid);
-/* the document a reinspection is walked against: the newest one with items,
-   which is the original notice on the first return visit and the extension
-   after that */
-
-export const draftDocFor = (cid) => docsFor(cid).find((d) => d.draft) || null;
-export const draftReinspFor = (cid) => WriterState.REINSP.find((r) => r.draft && r.caseId === cid) || null;
-// oldest notice on the case — the one the owner first received
-export const originalNotice = (cid) =>
-  docsFor(cid)
-    .filter((d) => !d.draft && d.type === "notice" && d.items.length)
-    .slice(-1)[0] || null;
 /* Items can be reordered or removed only while the first notice is still a
    draft. Once it is issued the owner has that numbered list, and every later
    document refers back to it. */
@@ -624,53 +435,7 @@ export const isLocked = (d) =>
 export const structEditable = (d) =>
   !!d && !d.correction && d.type === "notice" && d.draft && !isLocked(d) && !docsFor(d.caseId).some((x) => !x.draft) && !reinspFor(d.caseId).length;
 
-/* ---------- the case file as an event log ----------
-   Schema 3. A case file is an ordered list of things that happened, not a
-   picture of how the case looks now. Issuing a document appends an event
-   carrying a frozen snapshot of exactly what printed; nothing already written
-   is ever edited. Current state is replayed from the events.
-
-   Two consequences that matter. Independent record events can merge. Competing official actions
-   and corrections stop for review under the shared lock, so no writer
-   silently replaces another inspector's decision. And every transition already carries its own
-   timestamp, which is what the reporting index is built from. */
-export const SCHEMA = 5;
-/* One place decides which types can be published, and the event registry is
-   built from it. Adding a document type cannot leave issuing broken, and
-   cannot leave the event it emits unrecognised. */
-export const ISSUE_EVENT = {};
-DOC_TYPES.filter((t) => t.ready).forEach((t) => {
-  ISSUE_EVENT[t.id] = t.id + ".issued";
-});
-export const EVENT_TYPES = [
-  "case.opened",
-  "reinspection.recorded",
-  "document.voided",
-  "document.filed",
-  "document.recorded",
-  "correction.issued",
-  "document.annotated",
-  "document.reconciled",
-  "document.served",
-].concat(Object.keys(ISSUE_EVENT).map((k) => ISSUE_EVENT[k]));
-
-/* Event ids must survive a merge between two devices, so they are random
-   rather than sequential. */
-
-export const nowISO = () => new Date().toISOString();
-export const clone = (o) => JSON.parse(JSON.stringify(o));
-
 WriterState.EVENTS = {};
-/* caseId -> [event] */
-export const eventsFor = (cid) => WriterState.EVENTS[cid] || (WriterState.EVENTS[cid] = []);
-
-/* ---------- replay ----------
-   Rebuilds the published documents and reinspection record for a case. Drafts
-   are not in here; they live only on this device until they are issued. */
-/* Pure: an event list in, documents and visits out. Nothing global is read
-   or written, so reporting can replay a file without loading it. */
-
-export const byTime = (a, b) => (Date.parse(a.at) || 0) - (Date.parse(b.at) || 0) || (a.id === b.id ? 0 : a.id < b.id ? -1 : 1);
 
 /* The in-memory projection the screens read. Drafts sit on top of the
    replayed history. */
@@ -693,27 +458,6 @@ export const libType = (e, how) => ({
   label: e.cl.name + " \u203a " + e.g.name + " \u203a " + e.it.t,
   how: how,
 });
-/* What kind of violation an item is: its library entry when it carries one;
-   for items written before that, the one library entry with the same title
-   and the same sections; otherwise its first ordinance section. */
-
-export const moneyNum = (v) => {
-  const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, ""));
-  return isNaN(n) ? null : n;
-};
-export const STATUS_OF = {
-  notice: "Notice",
-  extension: "Extension",
-  citation: "Cited",
-  referral: "Referred",
-  referralUpdate: "Referred",
-  compliance: "Closed",
-  summaryAbatement: "Summary Abatement",
-  nonSummaryAbatement: "Non-Summary Abatement",
-  noOccupancy: "Occupancy restricted",
-  bestInterestExtension: "Best Interest Extension",
-  vacancyExtension: "Vacancy Extension",
-};
 
 /* ---------- migration ----------
    A file written today has to open years from now, after the app has moved
@@ -891,39 +635,6 @@ WriterState.LOCAL_SAVE = { ok: true, at: "", saving: false };
 
 WriterState.LOCAL_CHANGED = 0;
 
-/* ---------- who else hears about this case ----------
-   A carbon copy, an email recipient and a registered agent are all facts about
-   the property rather than about one letter, so they are held on the case and
-   appear on everything written afterwards. */
-export const EMAIL_KINDS = ["Property Owner", "Tenant", "Agent", "Other"];
-export const ccList = (k) => (k && k.ccList) || [];
-export const emailList = (k) => (k && k.emails) || [];
-export const US_STATES = new Set(
-  (
-    "AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS " +
-    "MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV " +
-    "WI WY DC"
-  ).split(" "),
-);
-export const STATE_NAMES = Object.fromEntries(
-  (
-    "Alabama:AL|Alaska:AK|Arizona:AZ|Arkansas:AR|California:CA|Colorado:CO|Co" +
-    "nnecticut:CT|Delaware:DE|Florida:FL|Georgia:GA|Hawaii:HI|Idaho:ID|Illino" +
-    "is:IL|Indiana:IN|Iowa:IA|Kansas:KS|Kentucky:KY|Louisiana:LA|Maine:ME|Mar" +
-    "yland:MD|Massachusetts:MA|Michigan:MI|Minnesota:MN|Mississippi:MS|Missou" +
-    "ri:MO|Montana:MT|Nebraska:NE|Nevada:NV|New Hampshire:NH|New Jersey:NJ|Ne" +
-    "w Mexico:NM|New York:NY|North Carolina:NC|North Dakota:ND|Ohio:OH|Oklaho" +
-    "ma:OK|Oregon:OR|Pennsylvania:PA|Rhode Island:RI|South Carolina:SC|South " +
-    "Dakota:SD|Tennessee:TN|Texas:TX|Utah:UT|Vermont:VT|Virginia:VA|Washingto" +
-    "n:WA|West Virginia:WV|Wisconsin:WI|Wyoming:WY|District of Columbia:DC"
-  )
-    .split("|")
-    .map((x) => {
-      const [name, abbr] = x.split(":");
-      return [name.toLowerCase(), abbr];
-    }),
-);
-
 export const ccLines = (c, normalize = true) =>
   [
     String(c.name || "").trim(),
@@ -938,67 +649,6 @@ export const agentLines = (k, normalize = true) => {
     normalize ? standardCityStateZip(a.city) || String(a.city || "").trim() : String(a.city || "").trim(),
   ].filter(Boolean);
 };
-/* Wisconsin requires a registered agent for service on a limited liability
-   company, so a citation against one cannot go out without it. */
-export const isLLC = (k) => /\b(LLC|L\.L\.C|LLP|L\.L\.P|INC|INCORPORATED|CORP|CORPORATION|LTD)\b/i.test(String((k && k.owner) || ""));
-
-/* ---------- clearing a case off the list ----------
-   The list is a working desk, not the record: the record is the case file on
-   the share. Removing a case puts it away, and Open case file brings it back.
-   Work that has not reached the share yet is a different matter, so it is
-   named and confirmed rather than quietly dropped. */
-
-/* ---------- reinspection ---------- */
-
-export const ocOf = (r, id) => (r.results[id] || {}).oc || "";
-export const openItems = (r) => {
-  const src = doc(r.sourceDocId);
-  return src ? src.items.filter((i) => ocOf(r, i.id) && ocOf(r, i.id) !== "corrected" && ocOf(r, i.id) !== "withdrawn") : [];
-};
-export const doneItems = (r) => {
-  const src = doc(r.sourceDocId);
-  return src ? src.items.filter((i) => ocOf(r, i.id) === "corrected") : [];
-};
-export const unchecked = (r) => {
-  const src = doc(r.sourceDocId);
-  return src ? src.items.filter((i) => !ocOf(r, i.id)) : [];
-};
-
-/* The court citation's violation comment is the case history in prose. Every
-   date in it is already on file, so draft it and let the inspector revise. */
-
-/* ---------- documents ---------- */
-/* ---------- cases ---------- */
-
-/* ZIP central directory -> {name: text} for the entries asked for */
-
-/* the first worksheet of an .xlsx, as rows of cell values */
-
-/* an Excel serial to a local date and a whole minute. 11:39:59.999 is 11:40:
-   floating point, not a different time, so round rather than truncate. */
-
-/* the report's rows, found by header, grouped by case */
-
-/* everything the review panel shows and the confirm handler enforces, worked
-   out from the parsed report and the program's own record — never the screen */
-
-/* a case already on the share is merged in first, so the review compares
-   against the whole record and not only what is on this machine */
-
-/* ---------- order language library ---------- */
-
-/* Every visit that resulted this item, oldest first. Item numbers are fixed
-   from the original notice, so they are what ties a line on today's document
-   back to what was found on each earlier visit. */
-/* MGO 1.08(3) escalates the deposit for a repeat violation, so a second or
-   third citation on the same item steps up the ladder rather than repeating
-   the first-violation figure. */
-
-export const OC_WORD = { corrected: "Completed", none: "No change", progress: "Progress made", noaccess: "No access", cited: "Citation issued" };
-
-export const isHistoryDoc = (d) => !!(DOC_TYPES.find((t) => t.id === (d || {}).type) || {}).history;
-/* what may still be written once a case has gone to the City Attorney */
-export const REFERRED_ONLY = ["referralUpdate", "compliance"];
 
 /* ---------- publishing ----------
    Issuing is the moment the working draft stops being editable and becomes a
@@ -1009,61 +659,6 @@ export const REFERRED_ONLY = ["referralUpdate", "compliance"];
 // Test hook: exported so the test build keeps it; tests call it by name.
 export const issueDocument = __TEST_BUILD__ ? $testFixtures.issueDocument : undefined;
 
-/* Everything that happens once a document is issued: the case record is
-   written, and the copy that goes in the mail is either filed as a PDF by the
-   local helper or sent to the print dialog. Each step reports for itself, so a
-   share that is down or a missing helper never leaves the inspector guessing. */
-/* A notice can carry citations from the very first visit. Issuing it leaves
-   the citation drafted and waiting rather than writing it silently, so the
-   inspector still sets the court details and finalizes it themselves. */
-
-/* A visit where everything passed still has to reach the record — it is the
-   compliance half of every rate the division wants to report on. */
-
-/* Document corrections are revisions of one business action, never new visits.
-   The helper commits the revision and supersession together under its case lock.
-   A failed/ambiguous save retains an idempotent attempt on the local draft. */
-export const isEffective = (d) => !!d && !d.draft && !d.void && !d.superseded;
-/* The case is with the City Attorney now: it has an effective (issued, not voided or superseded) referral or
-   referral update. Live state only; as-of projections, source-excluding correction checks and helper validation keep
-   their own predicates. */
-export const isReferredCase = (caseId) => docsFor(caseId).some((d) => isEffective(d) && isHistoryDoc(d));
-/* Items may be cited only when the imported Accela inspection status is Citation. */
-export const citeAllowed = (d) => !!d?.importRule?.cite;
-/* When an imported status does not permit citations (for example Citation corrected to Official Notice in Accela
-   and re-imported), clear the citation marks and their draft citation and deposit data on a draft notice or an
-   open worksheet. Issued and corrected documents are never changed. Returns whether anything was cleared. */
-export function clearProhibitedCitations(target) {
-  if (!target?.importRule || target.importRule.cite) return false;
-  let cleared = false;
-  if (target.results) {
-    if (!target.draft || target.docId) return false;
-    for (const res of Object.values(target.results)) {
-      if (res?.cite) {
-        res.cite = false;
-        cleared = true;
-      }
-    }
-    return cleared;
-  }
-  if (!target.draft || target.correction || target.pendingIssue || target.pendingAmendment || !Array.isArray(target.items)) return false;
-  for (const it of target.items) {
-    if (!it.cite) continue;
-    it.cite = false;
-    delete target.depositRequests?.[it.id];
-    delete target.cits?.[it.id];
-    cleared = true;
-  }
-  return cleared;
-}
-const isRecordEvent = (e) =>
-  /\.issued$/.test(e.type) || e.type === "document.voided" || e.type === "reinspection.recorded" || e.type === "document.served";
-export const recordHead = (cid) =>
-  eventsFor(cid)
-    .filter(isRecordEvent)
-    .map((e) => e.id)
-    .sort();
-export const correctionSource = (d) => (d && d.correction ? doc(d.correction.targetId) : null);
 export const unchangedCorrectionValue = (d, id, key) => {
   const src = correctionSource(d),
     old = src && src.items.find((i) => i.id === id),
@@ -1073,36 +668,6 @@ export const unchangedCorrectionValue = (d, id, key) => {
 export const unchangedCourtDate = (d, id) => {
   const src = correctionSource(d);
   return !!src && !!src.cits && !!src.cits[id] && src.cits[id].courtDate === ((d.cits || {})[id] || {}).courtDate;
-};
-export const CASE_CORRECTION_FIELDS = ["owner", "ownerAddr", "address", "siteCity", "parcel", "date", "time", "agent", "ccList", "emails"];
-export const FIELD_NAMES = {
-  type: "Document type",
-  owner: "Owner",
-  ownerAddr: "Mailing address",
-  address: "Property",
-  siteCity: "City / ZIP",
-  parcel: "Parcel",
-  date: "Initial inspection date",
-  time: "Initial inspection time",
-  agent: "Registered agent",
-  ccList: "Copies",
-  emails: "Email recipients",
-  mailed: "Mailed date",
-  inspDate: "Inspection date",
-  inspTime: "Inspection time",
-  inspectorId: "Signing inspector",
-  text: "Corrective action",
-  title: "Violation title",
-  sections: "Ordinance",
-  due: "Due date",
-  abate: "Abatement",
-  note: "Inspector note",
-  withdrawn: "Withdrawn as entered in error",
-  withdrawalReason: "Withdrawal reason",
-  done: "Compliance confirmed",
-  doneOn: "Compliance date",
-  courtDate: "Court date",
-  num: "Citation number",
 };
 
 /* test fixture API */
@@ -1115,8 +680,6 @@ WriterState.AMENDMENT_BUSY = false;
 WriterState.FILING_ACTIVE = 0;
 
 WriterState.RECORD_ATTEMPTS = {};
-
-export const recordNow = (cid) => new Date(Math.max(Date.now(), ...eventsFor(cid).map((e) => Date.parse(e.at) + 1))).toISOString();
 
 /* Lifecycle boundaries, durable working papers, and confirmed publication.
    Shared records contain issued facts only. A pending transaction is local. */
@@ -1903,15 +1466,6 @@ document.addEventListener("click", async (e) => {
   });
 });
 
-/* R4 authoring: explicit selections, manual deadlines, and reviewable deposits. */
-export const libraryKey = (lib) => (lib ? JSON.stringify([lib.c, lib.g, lib.o]) : "");
-export const itemLibraryKey = (it) => it.libraryKey || libraryKey(it.lib);
-
-export const dueItems = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn && i.dueExempt !== "snow-10.28");
-export const distinctDues = (items) => [...new Set(items.map((i) => i.due).filter(Boolean))];
-
-export const validMoney = (v) => v !== "" && v !== null && v !== undefined && /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(String(v)) && Number.isFinite(+v);
-
 document.addEventListener("input", (e) => {
   const el = e.target,
     ds = el.dataset || {};
@@ -2068,12 +1622,6 @@ document.addEventListener(
   true,
 );
 
-/* R13 check destinations are data, shared by the review links and field highlights. */
-export const checkTarget = (selector, label, action = "") => ({ selector, label, action });
-export const checkAttr = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-export const itemSelector = (id, field) => '[data-id="' + checkAttr(id) + '"][data-field="' + field + '"]';
-export const citSelector = (id, field) => '[data-review-cit="' + checkAttr(id) + "|" + field + '"]';
-
 document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-check-index]");
   if (!b) return;
@@ -2089,35 +1637,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("input", () => queueMicrotask(highlightOpenChecks));
 document.addEventListener("change", () => queueMicrotask(highlightOpenChecks));
 
-/* ---------- reinspection worksheet ----------
-   The inspector is not writing from a blank page. They are standing at the
-   property with the notice they already issued, walking its numbered list.
-   The notice itself is closed to edits from here on — the owner has it. */
-
-/* A due date is the inspector's judgement, so the check flags rather than
-   blocks: it must be in the future, and unusually tight or long windows
-   are worth a second look. */
-
-/* ---------- writer: the document is the editor ---------- */
-
-/* the whole printable document: the notice, then one page per citation copy */
-
-/* ---------- Wisconsin Uniform Municipal Court Citation (MC-2000) ----------
-   The four copies differ: agency and inspector carry a disposition record,
-   the defendant's carries the plea instructions instead of the narrative.
-   Facsimile of the form on file — confirm against the court's own stock
-   before this is used to produce a filed citation. */
-
-export const BOXY = "&#9744;",
-  BOXN = "&#9746;"; // empty box / checked box
-
-/* One citation is filed per ordinance, and each of the four copies is its own
-   letter page, laid out to the MC-2000 (02/06) form. */
-
-export const globalCourt = () => COURT,
-  globalCourtCopies = () => CIT_COPIES,
-  globalCourtInstructions = () => CIT_INSTRUCTIONS,
-  globalCourtContact = () => COURT_CONTACT;
+// empty box / checked box
 
 /* ---------- picker ---------- */
 

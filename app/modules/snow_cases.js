@@ -5,25 +5,13 @@ import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 
 import { renderKeep, render } from "./app_screens.js";
 import { refreshSheet } from "./document_pagination.js";
-import {
-  addDays,
-  checkTarget,
-  citationPricing,
-  clone,
-  correctionSource,
-  courtTime,
-  doc,
-  docCase,
-  docInsp,
-  docsFor,
-  esc,
-  initialCitations,
-  isLocked,
-  itemLibraryKey,
-  kase,
-  recordHead,
-  uid,
-} from "./app_core.js";
+import { addDays } from "./calendar.js";
+import { checkTarget, esc } from "./presentation_format.js";
+import { citationPricing, initialCitations, isLocked, uid } from "./app_core.js";
+import { correctionSource, doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { courtTime } from "./document_types.js";
+import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";

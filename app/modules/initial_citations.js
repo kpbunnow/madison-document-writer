@@ -4,7 +4,11 @@ import { citationTier } from "./issuance_and_corrections.js";
 import { citationReview } from "./case_timeline.js";
 import { editorSync } from "./editor_screens.js";
 import { citationFaces } from "./document_render.js";
-import { checkTarget, citSelector, citationPricing, clone, courtTime, docInsp, docsFor, libraryReview, uid } from "./app_core.js";
+import { checkTarget, citSelector } from "./presentation_format.js";
+import { citationPricing, libraryReview, uid } from "./app_core.js";
+import { docInsp, docsFor } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { courtTime } from "./document_types.js";
 import { canonicalOrdinance } from "./citation_policy.js";
 /* Initial-visit notices and citations share one review and one atomic save. */
 export function initInitialCitations() {

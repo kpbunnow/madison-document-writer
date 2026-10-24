@@ -2,7 +2,10 @@ import { toast } from "./court_and_deposits.js";
 import { helperJSON, stableJSON } from "./workspace_shell.js";
 import { saveDrafts } from "./case_files.js";
 import { render } from "./app_screens.js";
-import { A11Y, citationPricing, docCase, esc as dep_esc, isLocked, itemLibraryKey, snow } from "./app_core.js";
+import { A11Y, citationPricing, isLocked, snow } from "./app_core.js";
+import { docCase } from "./writer_queries.js";
+import { esc as dep_esc } from "./presentation_format.js";
+import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */

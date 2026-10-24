@@ -1,7 +1,7 @@
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
-import { simpleVacancy, simplifiedBestInterest, specialType } from "./new_documents.js";
+import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, hasOwnInsp, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import { catalogDraftBlocked } from "./language_catalog.js";
@@ -12,50 +12,26 @@ import { documentHTML } from "./document_render.js";
 import { paginate } from "./document_pagination.js";
 import {
   A11Y,
-  BLOCKS,
-  CITEPOCH,
-  CITFEES,
-  CIT_COPIES,
-  CIT_INSTRUCTIONS,
-  COURT,
-  COURT_CONTACT,
-  DOC_TYPES,
-  EXTERIOR_WORK,
-  checkTarget,
-  citSelector,
   citationPricing,
   citationPricingDate,
-  clone,
-  correctionSource,
-  countBlanks,
-  daysBetween,
-  doc,
   docBlocks,
   docBody,
-  docCase,
-  docInsp,
-  emailList,
-  esc,
-  eventsFor,
-  frozenOf,
-  hasOwnInsp,
   initialCitations,
   initialOrderCitation,
-  isHistoryDoc,
-  isLLC,
   isLocked,
-  iso,
-  itemLibraryKey,
-  itemSelector,
-  kase,
   newDocuments,
-  nowISO,
-  ownerLines,
   recordIntegrity,
   snow,
   unchangedCorrectionValue,
   unchangedCourtDate,
 } from "./app_core.js";
+import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, DOC_TYPES, EXTERIOR_WORK } from "./document_types.js";
+import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
+import { correctionSource, doc, docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { daysBetween, iso, nowISO } from "./calendar.js";
+import { emailList, isLLC, ownerLines } from "./mailing_rules.js";
+
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";

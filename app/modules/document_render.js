@@ -3,44 +3,17 @@ import { mailingMaxDay, recordDay } from "../assets/shared.js";
 import { fmtDate, fmtTime, inspAt, longDate, parseTime, validISO } from "./court_and_deposits.js";
 import { documentItemHistory, revisionPrintNote, hasItemInspectionHistory } from "./issuance_and_corrections.js";
 import { catalogDraftNotice } from "./language_catalog.js";
-import {
-  citeAllowed,
-  BOXN,
-  BOXY,
-  DOC_TYPES,
-  MINDUE,
-  OC_WORD,
-  agentLines,
-  ccLines,
-  ccList,
-  countBlanks,
-  docBlocks,
-  docBody,
-  docCase,
-  docInsp,
-  editableBlanks,
-  emailList,
-  esc,
-  eventsFor,
-  frozenOf,
-  globalCourt,
-  globalCourtContact,
-  globalCourtCopies,
-  globalCourtInstructions,
-  hasOwnInsp,
-  initialCitations,
-  isHistoryDoc,
-  isLocked,
-  money,
-  nl2,
-  ownerLines,
-  snow,
-  structEditable,
-} from "./app_core.js";
+import { citeAllowed, frozenOf, hasOwnInsp, isHistoryDoc, alignedExtension, datedExtension, simpleVacancy, specialType } from "./document_rules.js";
+import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./presentation_format.js";
+import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
+import { MINDUE, agentLines, ccLines, docBlocks, docBody, initialCitations, isLocked, snow, structEditable } from "./app_core.js";
+import { ccList, emailList, ownerLines } from "./mailing_rules.js";
+import { docCase, docInsp, eventsFor } from "./writer_queries.js";
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { alignedExtension, datedExtension, rowAffectedSelection, simpleVacancy, specialType } from "./new_documents.js";
+
+import { rowAffectedSelection } from "./new_documents.js";
 
 /* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
    note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the

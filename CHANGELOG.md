@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Module cleanup: shared foundations (development)
+
+- Extract document metadata, explicit authoring/item rules, live workspace queries, presentation formatting, calendar arithmetic, mailing facts and record-value helpers into seven independent owners. Callers import those owners directly. Service composition, workspace initialization and global listener/startup order stay in app_core; no persisted or installed names change.
+- Reviewed-library updates no longer import startup; the largest maintained Writer import cycle drops from 26 modules to 25. A static dependency inventory and foundation-layer/cycle checks guard against renewed coupling. No-DOM tests cover live restored arrays, frozen/correction precedence and historical format cutoffs; existing output and test references are unchanged.
+- Schema validation reads its new document_types owner. Code map and cleanup roadmap describe the remaining feature-listener, event-rule and Writer/Reports cycle work. Release identity, approved wording/styles, screen-shell references and City acceptance are unchanged.
+
 ## 2026-10-24 R63 — Release package
 
 First release package since R61 (helper 2026.10.24.64, build 64; authoring 16, case schema 5, summary 6, backup 2). It contains the R62 Development 3 changes below the R63 sections (the R62 label was a development identity and was never packaged) and the following work, merged through PRs #35–#44. Published against the retained R61 deployment manifest. City, native, staff, legal and seasonal acceptance remain open; packaging is not deployment approval.
