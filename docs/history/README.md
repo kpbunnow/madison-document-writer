@@ -12,6 +12,7 @@ Inert reference material retained for provenance. Nothing here is a runtime buil
 | `R50`–`R54-PRODUCTION-READINESS.md`, `R51`–`R54-ACCEPTANCE-RECORD.md` | Release-named readiness and acceptance records, superseded by the living `docs/developer/PRODUCTION-READINESS.md` and `ACCEPTANCE-RECORD.md`. Packaging renders those under the current release's names; the R54 copies here are byte-identical to that rendering |
 | `R54-runtime-parity.json` | R54's reviewed whole-bundle code hash. Retired: application code is now checked by its rendered output, and the shell by `R51-R50-parity.json` |
 | `R51-HISTORY-RESTORE.json` | Source-archive hash and per-file hashes for restoring R39–R48 development history from the retained R49 source ZIP |
+| `DOCUMENTATION-RELEASE-NARRATIVE.md` | Text that Consolidation Phase 7 replaced when it rewrote the manual, staff guides and developer guides by feature: release narrative, release-labelled format history and the R62 editions of 01, 03 and 04, verbatim |
 | `division-templates/` | The division's original Word letter templates (abatement, No Occupancy, Best Interest and Vacancy Extension), moved byte-for-byte from `tests/fixtures/reference/new-documents/`; filenames and SHA-256 values in its README |
 | `restore_history.py` | One-time tool that restores that history into the ignored `archive/development-history` folder; run with the R49 source ZIP path |
 

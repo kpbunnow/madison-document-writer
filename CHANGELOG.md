@@ -1,5 +1,12 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 7 (development)
+
+- Documentation only; no code, test expectation or document output changed.
+- The Program instruction manual folds its release appendices into the chapters they concern (fill-in details, ordinance display, citation copies, referral and compliance histories, extension layout, editor addresses, correction money display) and adds a concise Earlier document formats section in chapter 22. All 22 chapter anchors, the hidden-import-rows warning, the release identity and the acceptance statement are unchanged. Every edition was regenerated together.
+- Staff guides drop release labels from current instructions. 01-ARCHITECTURE, 03-DOMAIN-RULES and 04-PITFALLS are reorganized by feature with short historical-formats notes; 03-DOMAIN-RULES now lists the current import table, including No Fee statuses, in its import section. 00-START-HERE links every developer document.
+- Replaced text is retained verbatim in docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
+
 ## Unreleased — Consolidation Phase 6 (development)
 
 - Review: suite timeouts now terminate scenario descendants as well as their feature-suite parent. The 150-second deadline is unchanged; an integration check verifies that a timed-out scenario stops writing and that output/failure statuses are retained.

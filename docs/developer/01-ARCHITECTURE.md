@@ -1,29 +1,67 @@
 # R62 current architecture
 
-Authoring-12 Best Interest and Vacancy Extensions reuse the regular Extension's layout and item table, with their unchanged language and retained supervisory signer after the table. Conditional vacancy labels (authoring 12 and earlier only) do not alter stored repair dates. From authoring 13 every affected Best Interest or Vacancy item carries a later due date entered in the items table, and Vacancy Extensions are always dated. Authoring-11 and earlier special documents and their corrections retain the historical narrative renderer; the regular Extension output remains unchanged at every authoring version. Publication and correction snapshots retain the selected rendering version.
+This describes the program as it stands. Release-by-release history is in CHANGELOG.md, the release reviews (R62-REVIEW.md here, earlier ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
+
+## Runtime overview
 
 Writer and Reports are browser applications served by a helper bound to 127.0.0.1. IndexedDB retains private drafts and pending operations; integrity-protected JSON and immutable PDF receipts live in configured operational folders. Reports is read-only against case history. The Reporting Index is a cache: the helper serves a summary only when it equals its projection of the verified case, and writes only summaries that do. No central service is introduced.
 
+## Browser modules
+
 Browser startup entries import their core wiring. Descriptively named modules export their real functions directly. state.js owns shared mutable Writer and Reports stores. Cohesive domain services keep private state; pure presentation functions receive explicit, scoped contexts. There is no bridge registry or universal runtime getter table. The proof service retains a small explicit dependency interface for isolated integrity tests.
 
-Writer modules are organized by feature (Consolidation Phase 5, a mechanical move): accela_import.js holds the whole Accela import path, reinspection.js the worksheet and walkthrough, editor_screens.js the document editor, app_screens.js the screen dispatcher, shared modals and case list, and app_core.js shared state, utilities and the global listeners, whose registration order is unchanged. docs/developer/02-CODE-MAP.md lists every module's ownership.
+Writer modules are organized by feature: accela_import.js holds the whole Accela import path, reinspection.js the worksheet and walkthrough, editor_screens.js the document editor, app_screens.js the screen dispatcher, shared modals and case list, and app_core.js shared state, utilities and the global listeners. docs/developer/02-CODE-MAP.md lists every module's ownership.
+
+Workspace owns the prominent import/shared-search entry area; import stays a guarded internal route. Reinspection deadline assignment reuses duePanel/assignDue and the existing draft result store, outside collapsed Inspection checks. Corrective-action placeholders use the shared accessible utility dialog with context validation. Citation editors can expand all four copies; final printJob remains a separate complete packet. A screen-only rule flows the editor's mailing address below an expanding header; printableHTML keeps the approved fixed envelope positioning.
+
+## Inspection import
+
+Import candidates come from the fixed SQL query or the division's SSRS workbook and pass through one type/status table (accela_import.js; rules in 03-DOMAIN-RULES.md). Status/type categories that are never importable are hidden at parse time; inspections already used on the case are hidden at plan time, after the shared record is merged, and the plan clears a selection that becomes hidden. Rule tables and case grouping read only their own entries.
+
+## Documents and authoring versions
+
+Every document records the authoring version it was written in, and publication and correction snapshots retain it, so reprints and corrections render the issued format. New documents use authoring 16 (version.json); new scoped orders keep authoring 13 because their layout is unchanged. Renderers for earlier versions remain and are selected by the stored version.
+
+Best Interest and Vacancy Extensions share the regular Extension's layout and item table. At authoring 16 they derive special.affected from every uncorrected item (syncAffected) instead of a selection; Best Interest takes the worksheet's Next due date like a normal Extension, and Vacancy prints no due date for uncorrected items, keeping source deadlines in originalDues. Neither has a signer block.
+
+Referrals, referral updates and compliance letters retain item-specific inspection observations in each item's hist field. Lineage follows source-document/item IDs, excludes carried findings and unrelated visits, and includes the current worksheet. The display computes civil calendar days from first observation to correction, or to the latest recorded observation while outstanding; missing or inconsistent dates display Unavailable. Long histories paginate into labeled continuation rows with each observation and note retained. Corrections patch retained visit observations, and issued reprints never query later live case history. Compliance history is a presentation capability, not referral status. At authoring 16 notes render under the violation (historyNotesHTML) and pagination continues them like history rows.
+
+The helper mirrors the extension rules (extension_format) and, on a referred case, refuses new documents other than Update for Case Referral and Compliance Letter; corrections of earlier documents remain possible. The Writer applies the same rule through isReferredCase. Case schema 5, summary 6 and backup 2 are current.
+
+### Historical formats
+
+| Authoring version | Renderer kept for |
+| --- | --- |
+| 11 and earlier | Narrative Best Interest and Vacancy Extensions and their corrections |
+| 12 | Best Interest and Vacancy on the regular Extension layout; conditional Vacancy labels are presentation only and never replace stored repair dates |
+| 13 | Dated Best Interest and Vacancy (every affected item has a later due date); current for new scoped orders |
+| 14 | Referrals with item-specific history and Days Outstanding |
+| 15 | Referral/compliance history with notes in the history column; Best Interest with Reasons, explicit safety confirmation and no signer |
+
+The regular Extension output is unchanged at every authoring version.
+
+## Helper storage, integrity and recovery
 
 The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.
 
+## PDF receipts and filing
+
 PDF receipts bind case/document/frozen-version identity, print-source hash and exact original bytes. Shared coordination precedes producing a new original. Retried filing retrieves the retained bytes; filenames alone do not establish identity. Outbox transfers verify exact bytes and refuse conflicts. Transfer, direct filing and rendering reach a filing folder only through one per-name lock and a publication that never replaces an existing name.
+
+## Sessions, routes and content security
 
 Every non-static helper request requires a random per-start token, with constant-time comparison and existing Host, Origin, fetch-site and JSON guards. helper/server.py lists every API route in GET_ROUTES and POST_ROUTES; do_GET and do_POST apply the token, Host, Origin and fetch-site checks, and for every POST the JSON check, before calling a route's handler, and the session test iterates both tables. A private user-profile bootstrap hands the token to the browser through a fragment that is removed immediately. Public pages disclose no secret. A browser-profile bootstrap credential scoped to the loopback origin and port permits authorized reload after helper restart. Public readiness reveals version and readiness only.
 
 Application CSP authenticates the inline bootstrap and bundle by SHA-256, restricts connections to self and the Reports City GIS origin, and forbids objects, framing by other pages and base overrides. Rendering validates embedded-only resources, inserts a restrictive first-head policy and blocks network resolution in a fresh per-render profile.
 
-The installed layout stays flat under LOCALAPPDATA/MadisonDocWriter. R52 integrity model (no signing key): the installed launcher checks the share against runtime-manifest.json, staging every listed file and rechecking its size and SHA-256; it rejects additions, omissions, symlinks, changes and downgrades (helperBuild and helper version). Run from the share, launch.py first removes its own folder from the import path and hands off to the installed launcher. The desktop icon runs the installed launch.py with the same installation's pythonw.exe: it applies an approved update, starts server.py hidden and detached (or reuses a running helper of the same version), waits for /dw-status, opens Writer in a Chrome/Edge app window in the existing profile and exits; failures are shown in a Windows dialog and logged to logs/launcher.log. Start Document Writer.bat remains the console diagnostic launcher, where the helper runs in the console. Exit Document Writer (Tools & settings) is the only stop path: an authenticated POST /helper/shutdown in POST_ROUTES that refuses with readable reasons (409) while the helper runs another POST, holds a file_lock or finds install-transaction.json, otherwise answers and ends serve_forever so the process exits; a client force flag never bypasses it. The launcher never stops a running helper, closing a window never stops it, and open Writer and Reports windows learn of the stop through a BroadcastChannel. DESKTOP-LAUNCH.md describes the process model, logging and shutdown. Deliberate tampering is guarded by NTFS permissions on the deployment folder (release owner write, inspectors read), which IT verifies before rollout.
+## Installation, launch and shutdown
+
+The installed layout stays flat under LOCALAPPDATA/MadisonDocWriter. Integrity has no signing key: the installed launcher checks the share against runtime-manifest.json, staging every listed file and rechecking its size and SHA-256; it rejects additions, omissions, symlinks, changes and downgrades (helperBuild and helper version). Run from the share, launch.py first removes its own folder from the import path and hands off to the installed launcher. Deliberate tampering is guarded by NTFS permissions on the deployment folder (release owner write, inspectors read), which IT verifies before rollout.
+
+The desktop icon runs the installed launch.py with the same installation's pythonw.exe: it applies an approved update, starts server.py hidden and detached (or reuses a running helper of the same version), waits for /dw-status, opens Writer in a Chrome/Edge app window in the existing profile and exits; failures are shown in a Windows dialog and logged to logs/launcher.log. Start Document Writer.bat remains the console diagnostic launcher, where the helper runs in the console.
+
+Exit Document Writer (Tools & settings) is the only stop path: an authenticated POST /helper/shutdown in POST_ROUTES that refuses with readable reasons (409) while the helper runs another POST, holds a file_lock or finds install-transaction.json, otherwise answers and ends serve_forever so the process exits; a client force flag never bypasses it. The launcher never stops a running helper, closing a window never stops it, and open Writer and Reports windows learn of the stop through a BroadcastChannel. DESKTOP-LAUNCH.md describes the process model, logging and shutdown.
+
+## Source layout and build
 
 The maintained layout is the only source tree. Tools resolve source assets directly and generate derived modules and identity under build/. The deploy manifest resolves maintained paths to stable installed filenames. The trusted installed launcher authenticates the candidate share using installed verification code and the candidate file manifest, with deployment-folder permissions protecting against deliberate replacement; the shared bootstrap performs only a standard-library handoff when a verified installation exists.
-
-R60 authoring-14 referrals retain item-specific inspection observations in each item’s existing hist field. Lineage follows source-document/item IDs, excludes carried findings and unrelated visits, and includes the current worksheet. The display computes civil calendar days from first observation to correction, or latest recorded observation while outstanding; missing or inconsistent dates display Unavailable. Long histories paginate into labeled continuation rows with each observation and note retained. Corrections patch retained visit observations, and issued reprints never query later live case history. Authoring-13 and earlier referral renderers remain unchanged. Case schema, summary and backup versions remain unchanged. New ordinary drafts use authoring 14; the existing special-document families retain authoring 13 because their authored layout is unchanged.
-
-Workspace owns the prominent import/shared-search entry area; import stays a guarded internal route. Reinspection deadline assignment reuses duePanel/assignDue and the existing draft result store, outside collapsed Inspection checks. Corrective-action placeholders use the shared accessible utility dialog with context validation. Citation editors can expand all four copies; final printJob remains a separate complete packet. The R60 screen-only address rule flows the address below an expanding editor header; printableHTML keeps the approved fixed envelope positioning.
-
-R61 introduces authoring 15 for new referral/compliance history presentation and Best Interest Extensions. Compliance history is a presentation capability, not referral status. Older issued authoring versions and their correction renderers remain unchanged. See R61-REVIEW.md for implementation and the confirmed retained Best Interest safety checkbox.
-
-R62 introduces authoring 16. Best Interest and Vacancy Extensions derive special.affected from every uncorrected item (syncAffected) instead of a selection; Best Interest takes the worksheet's Next due date like a normal Extension and Vacancy prints no due date for uncorrected items, keeping source deadlines in originalDues. Authoring-16 history documents render notes under the violation (historyNotesHTML) and pagination continues them like history rows. Import candidates hide status/type categories at parse time and used inspections per case at plan time. The helper mirrors the extension rules (extension_format) and refuses new non-referral documents on a referred case. See R62-REVIEW.md.
