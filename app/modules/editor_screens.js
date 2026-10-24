@@ -12,11 +12,11 @@ import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
 import { checkAttr, esc } from "./presentation_format.js";
 import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
 import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
-import { initialCitations, isLocked, newDocuments, recordIntegrity, snow, structEditable, uid } from "./app_core.js";
+import { initialCitations, isLocked, newDocuments, recordIntegrity, snow, structEditable, uid, documentHTML, citationFaces } from "./app_core.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
 
 import { WriterState } from "./state.js";
-import { documentHTML, citationFaces } from "./document_render.js";
+
 import { documentSaveHTML, localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 

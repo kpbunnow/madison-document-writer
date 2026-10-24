@@ -27,6 +27,7 @@ export default [
       "app/modules/case_migrations.js",
       "app/modules/case_file_rules.js",
       "app/modules/case_projection.js",
+      "app/modules/document_render.js",
       "app/modules/record_sources.js",
     ],
     rules: {
@@ -45,7 +46,13 @@ export default [
     },
   },
   {
-    files: ["app/modules/case_migrations.js", "app/modules/case_file_rules.js", "app/modules/case_projection.js", "app/modules/record_sources.js"],
+    files: [
+      "app/modules/case_migrations.js",
+      "app/modules/case_file_rules.js",
+      "app/modules/case_projection.js",
+      "app/modules/document_render.js",
+      "app/modules/record_sources.js",
+    ],
     rules: {
       "no-restricted-properties": [
         "error",

@@ -14,7 +14,7 @@ import { createCorrectionEvents } from "./correction_events.js";
 import { createContactEvents } from "./contact_events.js";
 import { BLOCKS, DOCBODY } from "./document_types.js";
 import { frozenOf, specialType } from "./document_rules.js";
-import { kase, doc, docsFor, reinspFor, correctionSource } from "./writer_queries.js";
+import { kase, doc, docsFor, reinspFor, correctionSource, docCase, docInsp, eventsFor } from "./writer_queries.js";
 import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { addDays } from "./calendar.js";
@@ -46,6 +46,8 @@ import {
   toast,
   toastUndo,
   validISO,
+  fmtTime,
+  longDate,
 } from "./court_and_deposits.js";
 import {
   shell,
@@ -136,6 +138,9 @@ import {
   startCorrection,
   voidDocument,
   commitRecordAttempt,
+  documentItemHistory,
+  revisionPrintNote,
+  hasItemInspectionHistory,
 } from "./issuance_and_corrections.js";
 import {
   backupUnfinished,
@@ -178,6 +183,7 @@ import {
   showHealth,
   showLock,
   showSafety,
+  catalogDraftNotice,
 } from "./language_catalog.js";
 import {
   citationDepositFault,
@@ -229,7 +235,7 @@ import { initCitationPricing } from "./citation_pricing.js";
 
 import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.js";
 
-import { citationFaces } from "./document_render.js";
+import { createDocumentRenderer } from "./document_render.js";
 
 export const snow = initSnow({
   citationNumber: (...args) => citationNumber(...args),
@@ -391,6 +397,40 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const documentRenderer = createDocumentRenderer({
+  fmtDate: (...args) => fmtDate(...args),
+  fmtTime: (...args) => fmtTime(...args),
+  inspAt: (...args) => inspAt(...args),
+  longDate: (...args) => longDate(...args),
+  parseTime: (...args) => parseTime(...args),
+  validISO: (...args) => validISO(...args),
+  documentItemHistory: (...args) => documentItemHistory(...args),
+  revisionPrintNote: (...args) => revisionPrintNote(...args),
+  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
+  catalogDraftNotice: (...args) => catalogDraftNotice(...args),
+  get newDocuments() {
+    return newDocuments;
+  },
+  MINDUE: (...args) => MINDUE(...args),
+  agentLines: (...args) => agentLines(...args),
+  ccLines: (...args) => ccLines(...args),
+  docBlocks: (...args) => docBlocks(...args),
+  docBody: (...args) => docBody(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  get snow() {
+    return snow;
+  },
+  structEditable: (...args) => structEditable(...args),
+  docCase: (...args) => docCase(...args),
+  docInsp: (...args) => docInsp(...args),
+  eventsFor: (...args) => eventsFor(...args),
+});
+export const { documentHTML, citationFaces } = documentRenderer;
+const { noticeHTML, citAmount, referralHistoryHTML } = documentRenderer;
+
 /* Feature interfaces are lazy: no service or later state is read during construction. */
 const utilityEvents = createUtilityEvents({
   checks: (...args) => checks(...args),
@@ -1325,4 +1365,4 @@ export function citationPricingDate(c, d) {
   return policyCitationPricingDate(c, d, inspAt(d).date);
 }
 
-if (__TEST_BUILD__) globalThis.__DW_TEST_REFERENCES = { deposits: DEPOSITS, safety: safetyCaseStatus };
+if (__TEST_BUILD__) globalThis.__DW_TEST_REFERENCES = { deposits: DEPOSITS, safety: safetyCaseStatus, noticeHTML, citAmount, referralHistoryHTML };

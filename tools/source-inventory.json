@@ -403,6 +403,7 @@
     "tests/unit/audit_desktop_exit.py",
     "tests/unit/audit_desktop_launch.py",
     "tests/unit/audit_development_workflow.py",
+    "tests/unit/audit_document_renderer.js",
     "tests/unit/audit_e2e.js",
     "tests/unit/audit_event_registration.js",
     "tests/unit/audit_events.js",
