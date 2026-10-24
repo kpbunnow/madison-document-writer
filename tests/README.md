@@ -185,6 +185,7 @@ covers, or a new suite under its feature.
 | `audit_r29.js` | Navigation and continuity |
 | `audit_event_registration.js` | Original feature-registration order/capture/checkpoints, inert lazy interfaces, per-target idempotence, synchronous routing and captured confirmation/input/keyboard behavior |
 | `audit_record_rules.js` | Standalone deterministic migration, immutable replay/carry-forward, explicit summary facts, source precedence and record/history/merge refusals |
+| `audit_writer_feature_boundaries.js` | Scoped administrator/address/new-document/test-only factories; lazy composition, explicit acceptance, receipt binding, historical selection and live visits |
 | `audit_writer_services.js` | Six independent scoped service owners; lazy exact interfaces, retained initialization/listener order, readiness/save/stale-navigation races and citation guards |
 | `audit_module_boundaries.js` | Foundation dependency layers and cycle caps; no-DOM loading, live restored-state queries and historical source/authoring rules |
 | `audit_workflow_tools.js`, `audit_workflow_tools.py` | Search, selected PDF filing, shared views, reminders |

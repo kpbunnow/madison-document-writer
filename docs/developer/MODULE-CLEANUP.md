@@ -66,7 +66,7 @@ The browser migration stops at legacy schema 4 and returns schema-5 records unch
 
 The graph now has 71 modules, with unchanged Writer/Reports cycle caps of 25 and 5. Import-layer tests and lint rules keep the new modules free of UI/storage/workspace imports and direct clock/randomness access. audit_record_rules checks standalone loading, repeatable migration IDs, unmodified inputs, frozen authoring data, corrected visits, continued items, typed comparisons and merge/history refusals. Existing generated/captured projection parity and all historical assertions remain in place.
 
-## Fourth increment: scoped Writer service dependencies
+## Fourth increment: scoped Writer service dependencies (merged in PR #49)
 
 Six existing feature owners now import only foundations, static data and their retained transport where needed. app_core supplies their named UI/peer operations through lazy forwarding functions and service getters; no universal registry or compatibility barrel is introduced.
 
@@ -83,11 +83,21 @@ The six factories stay at their original composition positions; languageClick is
 
 The static Writer cycle drops from 25 to 19 modules; Reports remains 5. The guard is narrowed to 19/5 and explicitly restricts the six owners' imports. audit_writer_services loads all six without starting Writer, checks exact named lazy interfaces and initialization order, verifies the retained nine listener registrations, and exercises readiness, failed saves, stale navigation, edits during saving, language navigation and citation guards. The existing 60-listener registration test, historical print references and functional/browser assertions remain unchanged.
 
+## Fifth increment: remaining feature-factory boundaries
+
+Administrator tools, address preview/acceptance and new-document actions now receive their UI/peer operations through explicit lazy interfaces composed by app_core. Their existing factories remain at the original initialization positions. Administrator and address factories retain their two original click listeners and do not read supplied services during construction.
+
+The historical affected-item selection predicate moves inside the new-document factory, which supplies it to the existing renderer as newDocuments.rowAffectedSelection. Its condition/order is unchanged: authoring-13–15 dated extensions, excluding all-item formats, locked documents and corrections. The renderer no longer imports the feature module directly. Other new-document rules, status eligibility, scoped action wording, dates and publication orchestration remain unchanged.
+
+The test-only fixture factory also receives explicit callbacks while staying behind __TEST_BUILD__. It does not gain a production entry point. Browser storage, helper authorization, integrity decisions and publication remain in their established owners; the browser's administrator receipt checks do not independently authorize an override.
+
+The Writer cycle drops from 19 to 15 modules; Reports stays 5. The import allowlists now cover nine production feature services and the test-only factory, and the cycle guard is narrowed to 15/5. audit_writer_feature_boundaries checks independent loading, exact lazy interfaces and composition order, test-only gating, retained click registrations, stale address previews, explicit acceptance, changed-receipt refusal, historical selection and live visit replacement. Existing service/registration tests and historical print assertions remain authoritative.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 19-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 15-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
