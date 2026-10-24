@@ -48,13 +48,12 @@ export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSI
    no affected-item selection or safety confirmation. Best Interest due dates work as on a normal Extension (the
    worksheet's Next due date, editable in Violation items); a Vacancy Extension prints no due date for uncorrected
    items and keeps only Scope and the next review inspection date. */
-export const ALL_ITEM_EXTENSIONS = 16;
-export const allItemExtension = (d) =>
-  (d?.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
+const ALL_ITEM_EXTENSIONS = 16;
+const allItemExtension = (d) => (d?.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
 export const simpleVacancy = (d) => d?.type === "vacancyExtension" && (d.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS;
 const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn).map((i) => String(i.no));
 /* The affected list is derived for authoring 16, so the stored record and helper checks still name the items. */
-export const syncAffected = (d) => {
+const syncAffected = (d) => {
   if (allItemExtension(d)) (d.special ||= {}).affected = outstandingNumbers(d);
 };
 /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
@@ -69,7 +68,7 @@ const requireDated = (type, s, version = DATED_EXTENSIONS) => {
   return s;
 };
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
-export const REFERRED_MESSAGE = "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written.";
+const REFERRED_MESSAGE = "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written.";
 export const NEW_TYPES = [
   {
     id: "summaryAbatement",

@@ -148,7 +148,7 @@ export function coverage(R) {
     "</div>"
   );
 }
-export function rememberUI(S) {
+export function rememberUI() {
   const app = document.getElementById("app"),
     a = document.activeElement,
     selectors = [

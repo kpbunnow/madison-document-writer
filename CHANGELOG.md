@@ -1,5 +1,14 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 3 (development)
+
+- Dead code removed with reachability evidence; no user-visible behavior, document output or helper rule changed.
+- Obsolete Accela status table `ACC_STATUS`, the one-argument `accStatusEligible` branch and the unreachable Pending explanation removed; eligibility is `statusRule(type, status)`.
+- Unreachable "already used to generate a document" import blocker (`plan.used`) removed: a used inspection is never an import candidate. The hidden-row message, helper reuse validation and unfinished-work check are unchanged.
+- Nine module-internal exports made private; unused `rememberUI` parameter removed.
+- Unused screen CSS inventoried as candidates only (docs/developer/CSS-CANDIDATES.md); embedded and frozen stylesheets unchanged.
+- The division Word templates moved byte-for-byte from tests/fixtures/reference/new-documents/ to docs/history/division-templates/.
+
 ## Unreleased — Consolidation Phase 2 (development)
 
 - Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.

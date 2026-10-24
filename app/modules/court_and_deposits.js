@@ -1128,7 +1128,6 @@ export {
   changeCharge,
   chargeChoices,
   choosesCharge,
-  clearChargeBasis,
   nextCourtDate,
   citationNumber,
   applyDeposit,

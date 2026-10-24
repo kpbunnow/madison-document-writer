@@ -1277,7 +1277,7 @@ async function axeThemes(page, screen) {
   assert.equal(
     await page.evaluate(() => {
       const plan = accelaPlan(WriterState.state.acc);
-      return !!plan.refresh || !!plan.used || plan.blockers.length > 0;
+      return !!plan.refresh || plan.blockers.length > 0;
     }),
     true,
   );
