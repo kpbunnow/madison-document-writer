@@ -1786,6 +1786,7 @@ async function axeThemes(page, screen) {
         // Consolidation Phase 2 (T3): "fast" runs are development checks and are never packaged.
         mode: process.env.DW_FAST === "1" ? "fast" : "full",
         productionBuild: true,
+        browserVersion: browser.version(),
         release: fs.readFileSync(path.join(ROOT, "build/generated/RELEASE"), "utf8").trim(),
         runtimeHashes,
         suiteTimings,

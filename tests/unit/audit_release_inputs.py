@@ -28,7 +28,7 @@ def planting(src, dst, **kwargs):
         (Path(dst).parent / planted).write_text("SYNTHETIC PRIVATE CONTENT")
     return result
 shutil.copyfile = planting
-sys.argv = ["tools/package_release.py", "--output", output]
+sys.argv = ["tools/package_release.py", "--output", output, "--first-publication"]
 runpy.run_path("tools/package_release.py", run_name="__main__")
 """
 
@@ -43,6 +43,8 @@ def fixture(root):
     for name in [
         "tools/package_release.py",
         "tools/project_layout.py",
+        "tools/version_schema.py",
+        "tools/release_publication.py",
         "tools/release_inputs.py",
         "tools/release_evidence.py",
         "tools/deploy_manifest.py",
@@ -98,9 +100,65 @@ def fixture(root):
 
 
 class ReleaseInputs(unittest.TestCase):
+    def test_known_uncommitted_source_provenance_refuses_packaging(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "source"
+            root.mkdir()
+            fixture(root)
+            proof = root / "build/verification/latest/verification.json"
+            value = json.loads(proof.read_text(encoding="utf-8"))
+            value["sourceClean"] = False
+            proof.write_text(json.dumps(value), encoding="utf-8")
+            run = self.package(root, base / "release")
+            self.assertNotEqual(run.returncode, 0)
+            self.assertIn("Commit the reviewed source", run.stdout + run.stderr)
+
+    def test_publication_baseline_is_required_valid_and_immutable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "source"
+            root.mkdir()
+            fixture(root)
+            initial = self.package(root, base / "first")
+            self.assertEqual(initial.returncode, 0, initial.stdout + initial.stderr)
+            published = next((base / "first").glob("*/deploy/runtime-manifest.json"))
+
+            def package(output, baseline):
+                return subprocess.run(
+                    [sys.executable, "tools/package_release.py", "--output", str(base / output), "--published-manifest", str(baseline)],
+                    cwd=root,
+                    capture_output=True,
+                    encoding="utf-8",
+                    timeout=30,
+                )
+
+            reinstall = package("identical", published)
+            self.assertEqual(reinstall.returncode, 0, reinstall.stdout + reinstall.stderr)
+            changed = json.loads(published.read_text(encoding="utf-8"))
+            changed["files"][next(iter(changed["files"]))]["sha256"] = "0" * 64
+            baseline = base / "changed-manifest.json"
+            baseline.write_text(json.dumps(changed), encoding="utf-8")
+            refused = package("changed", baseline)
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn("immutable", refused.stdout + refused.stderr)
+            for name, content in (("null", "null"), ("malformed", "{")):
+                baseline = base / (name + ".json")
+                baseline.write_text(content, encoding="utf-8")
+                refused = package(name, baseline)
+                self.assertNotEqual(refused.returncode, 0)
+                self.assertIn("Publication refused", refused.stdout + refused.stderr)
+            refused = package("missing", base / "missing.json")
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn("Publication refused", refused.stdout + refused.stderr)
+
     def package(self, root, output):
         return subprocess.run(
-            [sys.executable, "tools/package_release.py", "--output", str(output)], cwd=root, capture_output=True, text=True, timeout=30
+            [sys.executable, "tools/package_release.py", "--output", str(output), "--first-publication"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
 
     def test_real_archives_exclude_local_data_and_validate_without_git(self):

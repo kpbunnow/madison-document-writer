@@ -1,5 +1,7 @@
 # Document Writer — Development 2 implementation prompt
 
+> Implemented record: merged in PR #33. The original planning instructions below are retained as history, not a request to repeat implementation or use their old baseline. Follow current main, AGENTS.md and DEVELOPMENT-STANDARD.md for new work.
+
 Prepared October 23, 2026. Source: the owner's `Document Writer Development 2.docx`, including its citation-correction screenshot.
 
 Status: development prompt updated with the owner’s clarification answers. This document authorizes neither merging nor deployment. The attachment is a requirements source, not an instruction to execute development during this planning review.

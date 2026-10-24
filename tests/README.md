@@ -168,6 +168,7 @@ covers, or a new suite under its feature.
 | --- | --- |
 | `audit_r31_install.py`, `audit_r40_install.py` | Offline wheels and hashes; interrupted update rollback |
 | `audit_r50_updates.py`, `audit_r51_updates.py`, `audit_r52_manifest.py` | Manifest-checked updates, tamper classes, downgrade protection |
+| `audit_release_identity.py` | Calendar/release/schema validation, sync refusal before consumer writes, immutable publication and monotonic release/build rules |
 | `audit_r51_bootstrap.py`, `audit_r53_update_recovery.py` | Launcher hand-off, signing-era retirement, deployment cleaner |
 | `audit_desktop_launch.py` | Desktop launch with simulated Windows calls: shortcut fields and quoting (spaces, apostrophes, UNC), pythonw discovery and batch fallback, no console window for every helper child process, hidden helper start and readiness, running-helper reuse and refusal dialogs, rejected and offline updates, Chrome/Edge app window without a new profile, launcher log without tokens, favicon route and icon sizes/source digest |
 | `audit_desktop_exit.py`, `audit_desktop_exit.js` | Exit Document Writer: `/helper/shutdown` only as a guarded POST route (token, Host, Origin, fetch-site, JSON), refused with reasons for an in-flight request, held lock or install transaction (force never bypasses), idle stop of serve_forever, launcher never stops a helper; Writer saves drafts before the review and the request, lists queued and unconfirmed work without calling it saved, refuses during publication/filing/device-save failure, shows helper refusals and the stopped state; Reports and other windows show the stopped state; no request on window close |
@@ -197,6 +198,7 @@ covers, or a new suite under its feature.
 | `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
 | `audit_scenario_harness.js` | Feature suites run each scenario in its own process; any throw, rejection, non-zero exit or silent scenario fails the suite |
 | `audit_suite_classes.py` | Suites that may launch Chromium are found through the local modules they require, so they stay serial |
+| `audit_development_workflow.py` | Read-only pinned CI, PR format and title-as-data safety, clean Git/content provenance and source-ZIP fallback |
 | `audit_suite_process.py` | The suite deadline stops scenario descendants as well as the parent; output and failure statuses are preserved |
 
 ## Performance (run last, alone)

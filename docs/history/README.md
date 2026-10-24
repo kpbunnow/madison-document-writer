@@ -17,3 +17,5 @@ Inert reference material retained for provenance. Nothing here is a runtime buil
 | `restore_history.py` | One-time tool that restores that history into the ignored `archive/development-history` folder; run with the R49 source ZIP path |
 
 R54 screenshots remain alongside its review in r54-images/. CONSOLIDATION-2026-10-21.md is explicitly retrospective, reconstructed from Git and the supplied handoff.
+
+- [Post-consolidation review](POST-CONSOLIDATION-REVIEW.md): baseline findings following PR #42; follow-up implementation is recorded in the current changelog and development standard.

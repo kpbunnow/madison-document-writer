@@ -9,6 +9,7 @@ from pathlib import Path
 import argparse, hashlib, json, shutil, sys, tempfile
 from project_layout import ROOT, fingerprint, assemble_deploy, package_name
 from release_inputs import archive, checksum, complete, prefixed, source_inventory, verify_deployment, verify_source_copy, verify_package_links
+from release_publication import check_publication
 
 WORK = ROOT
 sys.path[:0] = [str(ROOT / p) for p in ["helper", "policy", "tools", "build/generated"]]
@@ -16,6 +17,11 @@ sys.path[:0] = [str(ROOT / p) for p in ["helper", "policy", "tools", "build/gene
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--evidence", type=Path)
+publication = parser.add_mutually_exclusive_group(required=True)
+publication.add_argument("--published-manifest", type=Path, help="Deployment manifest retained from the last approved published release")
+publication.add_argument(
+    "--first-publication", action="store_true", help="Explicit release-owner declaration that no preceding published release exists"
+)
 args = parser.parse_args()
 if args.output.resolve().is_relative_to(ROOT):
     raise SystemExit("Release output must be outside maintained source.")
@@ -52,6 +58,8 @@ if (
 ):
     raise SystemExit("Passing full-gate production browser evidence must match every runtime byte; fast or unlabelled evidence is never packaged.")
 version = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
+if gate.get("sourceClean") is False:
+    raise SystemExit("Commit the reviewed source before release packaging, then rerun the full gate.")
 manifest = json.loads((ROOT / "build/generated/runtime-manifest.json").read_text(encoding="utf-8"))
 if any(manifest.get(k) != v for k, v in version.items()):
     raise SystemExit("Runtime identity differs from version.json.")
@@ -83,6 +91,15 @@ verify_deployment(ROOT, verified_inputs, stage)
 verify_source_copy(ROOT, stage / "source")
 verify_package_links(stage, release_docs)
 write_manifest(stage / "deploy")
+try:
+    published = None
+    if args.published_manifest:
+        published = json.loads(args.published_manifest.read_text(encoding="utf-8"))
+        if not isinstance(published, dict):
+            raise ValueError("Published manifest must be an object; a missing baseline is not a first publication")
+    check_publication(json.loads((stage / "deploy/runtime-manifest.json").read_text(encoding="utf-8")), published)
+except (OSError, ValueError) as error:
+    raise SystemExit("Publication refused: " + str(error)) from error
 # Independently recheck the finished deploy folder with the installer's own verifier.
 with tempfile.TemporaryDirectory(prefix="deploy-check-") as tmp:
     p = Path(tmp)
@@ -106,6 +123,7 @@ summary = {
     "printVariants": len(json.loads((ROOT / "build/test-results/r50-print-compatibility.json").read_text(encoding="utf-8"))["checks"]),
     "runtimeHashes": hashes,
     "cityNativeAcceptance": False,
+    **{key: gate.get(key) for key in ("sourceCommit", "sourceClean", "verifiedInputsSha256", "toolchain")},
 }
 (stage / (R + "-Verification-Summary.json")).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 

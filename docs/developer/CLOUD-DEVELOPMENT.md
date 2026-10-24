@@ -76,7 +76,7 @@ not disposable local data or dependency caches.
 Only after the unchanged full gate passes for the final tree:
 
 ```sh
-python3 tools/package_release.py --output "$RUNTIME/releases"
+python3 tools/package_release.py --output "$RUNTIME/releases" --published-manifest "$RUNTIME/last-approved/deploy/runtime-manifest.json"
 ```
 
 Choose a new output directory if a release already exists. The manifest model
@@ -84,3 +84,5 @@ uses file sizes and SHA-256 and rechecks the staged deployment with the existing
 installer verifier. Do not introduce a key or alter release trust. Development
 work does not authorize packaging, deployment or City acceptance. Windows,
 NTFS/SMB/SQL, Outlook and native printing still require their real environments.
+
+Keep the last approved deployment manifest outside source. `--first-publication` is only for a genuinely first program publication, not a first PC installation or an unavailable baseline. See DEVELOPMENT-STANDARD.md.

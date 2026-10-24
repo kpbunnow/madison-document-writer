@@ -18,7 +18,7 @@ class GateLifecycle(unittest.TestCase):
             with self.subTest(mode=mode, args=args), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 (root / "tools").mkdir()
-                for name in ("run_tests.py", "release_evidence.py", "project_layout.py"):
+                for name in ("run_tests.py", "release_evidence.py", "project_layout.py", "version_schema.py"):
                     shutil.copyfile(ROOT / "tools" / name, root / "tools" / name)
                 logs = root / "build/test-results"
                 logs.mkdir(parents=True)
