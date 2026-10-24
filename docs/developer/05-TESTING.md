@@ -40,7 +40,7 @@ Fingerprints bind evidence to maintained source and production output before and
 
 After a passing gate, package to a new folder outside the source tree:
 
-    python3 tools/package_release.py --output ../release
+    python3 tools/package_release.py --output ../release --published-manifest /path/to/last-approved-deploy/runtime-manifest.json
 
 Release packaging: tools/package_release.py writes runtime-manifest.json for every deployed file through tools/deploy_manifest.py, then rechecks the finished deploy folder with helper/verified_update.py. audit_r50_updates.py, audit_r51_updates.py, audit_r51_bootstrap.py, audit_r50_connections.py and audit_r52_manifest.py cover the manifest, tamper classes, downgrade protection and the launcher hand-off.
 
@@ -59,3 +59,5 @@ R60 appends one screen-only block after the unchanged R59 block in ui-refresh.cs
 R62 adds audit_r62_import_rules.js, audit_r62_extensions.js, audit_r62_extensions_helper.py, audit_r62_history_notes.js and browser_r62.js for import eligibility, authoring-16 extensions and helper parity, history notes and referred-case options. R61 adds audit_r61_development.js and audit_r61_best_interest.py for authoring-15 histories/compliance, explicit Best Interest safety confirmation, currency units, legacy classification aliases and complete citation packets. browser_r61 covers new history PDFs and signer-free Best Interest output; browser_r26 publishes the simplified Best Interest through the real helper with obsolete review fields absent. browser_r33 checks mocked-delivery byte binding and real Chromium packet content, then browser_r61 files selected regular/snow/corrected-snow packets through actual HTTP receipts and checks original bytes plus identical repeat retrieval. Its helper renderer is the documented test-only fixture loaded with actual Chromium PDF bytes; native Windows/Outlook handoff is not established. Historical authored-print hashes and the approved stylesheet remain unchanged.
 
 The runner's read-only `python3 tools/run_tests.py --check-browser-only` diagnostic checks browser availability without touching evidence. Every actual regression run invalidates its previous regression/print evidence before the precheck, including when the browser is unavailable. Nested diagnostics use the read-only command so they cannot delete their parent gate's evidence.
+
+The [development standard](DEVELOPMENT-STANDARD.md) defines PR formats, required CI checks and publication inputs. Packaging requires the last approved deployment manifest (or an explicit genuinely first-publication declaration). Source/version validation and immutable publication checks run without changing installer trust. The gate records reviewed Git provenance when available, a verified-input digest and actual toolchain; source ZIPs remain verifiable without Git.

@@ -1,5 +1,7 @@
 # Document Writer — Consolidation and Code-Health Development Prompt
 
+> Completed record: phases 1–7 are merged (PRs #35, #36, #37/#38, #39, #40, #41 and #42). Phase 8 remains declined. Original phase instructions and owner decisions below are retained for provenance; use DEVELOPMENT-STANDARD.md for subsequent work.
+
 Prepared October 23, 2026.
 
 Reviewed baseline: `main` at `f90306c`, following PR #34.

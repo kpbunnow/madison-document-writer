@@ -16,7 +16,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
   };
   try {
     await page.goto(new URL("/", hostPage.url()).href);
-    await page.waitForFunction(() => typeof WriterState !== "undefined");
+    await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
     // 1. Import review: hidden rows are absent; another pair is listed greyed with its reason.
     await page.evaluate(() => {
       WriterState.CASES = [];

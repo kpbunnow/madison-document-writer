@@ -1,5 +1,14 @@
 # Release changelog
 
+## Unreleased — Post-consolidation corrections (development)
+
+- Writer protects retained private work until startup restoration finishes. Editable routes wait behind a restoration screen; early saves are refused. Failed required storage reads show reload/retry guidance instead of being treated as empty data. Internal held-write recovery saves only after drafts are read. Production-browser coverage uses real IndexedDB, delayed startup, navigation, read failure and retry.
+- Shared views now accept all eleven supported Reports IDs, including Overridden deposits and Document actions, with frontend/helper contract coverage and existing invalid-ID/immutability checks retained.
+- Build/synchronization validate canonical release names, actual matching calendar dates and independent positive version counters. Packaging requires the last approved published deployment manifest (or an explicit genuinely first-publication declaration), refuses identity reuse for changed content/protocol metadata and requires increasing release/helper counters without rollback; installer trust is unchanged.
+- PR template, pinned read-only full-gate CI, safe PR-format checks, recorded Git/content/toolchain provenance and the development/release standard are added. GitHub main-branch protection requires administrator setup; integration inspection was denied (403), so server-side settings are not claimed applied.
+- Generic entry points and implemented prompts reflect merged development; historical authoring-15 safety confirmation is distinguished from current authoring-16 behavior. Existing acceptance decisions and all open holds are retained.
+- Current R62/helper-build-63 identity, authored formats, storage versions, frozen print fixtures and installed names are unchanged. No release assignment, packaging, deployment or native/City acceptance is performed by this development change.
+
 ## Unreleased — Consolidation Phase 7 (development)
 
 - Review: retain direct entry-point links to the R59–R61 reviews still in docs/developer. Clarify that the special-extension version table does not describe ordinary Extensions, and that the historical signer-after-table rule starts with the aligned authoring-12 layout. All manual editions regenerated together.

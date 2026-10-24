@@ -10,6 +10,7 @@ Madison Building Inspection Document Writer is an offline Windows browser applic
 | [02-CODE-MAP.md](02-CODE-MAP.md) | Which module owns what |
 | [03-DOMAIN-RULES.md](03-DOMAIN-RULES.md) | Rules the program enforces, by feature, including owner-confirmed rules |
 | [04-PITFALLS.md](04-PITFALLS.md) | Mistakes to avoid, by area |
+| [DEVELOPMENT-STANDARD.md](DEVELOPMENT-STANDARD.md) | PR/branch naming, rule ownership, CI, independent version identities and publication safeguards |
 | [05-TESTING.md](05-TESTING.md) | The gate, feature suites, evidence and packaging |
 | [../../tests/README.md](../../tests/README.md) | Every suite by feature, with former suite names |
 | [CLOUD-DEVELOPMENT.md](CLOUD-DEVELOPMENT.md), [DESKTOP-LAUNCH.md](DESKTOP-LAUNCH.md) | Cloud setup and validation; the desktop launch and exit design |

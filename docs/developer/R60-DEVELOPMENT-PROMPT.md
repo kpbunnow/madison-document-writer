@@ -1,5 +1,7 @@
 # Document Writer — next development prompt
 
+> Implemented record: merged in PR #31. The original planning instructions below are retained as history, not a request to repeat implementation or use their old baseline. Follow current main, AGENTS.md and DEVELOPMENT-STANDARD.md for new work.
+
 Status: planning draft updated with product-owner clarification; remaining questions are listed below.
 Source: Document Writer Development 1.docx supplied by the product owner.
 Baseline: merged PR #30 (R59), merge commit 3983571215519a1de755e955f64fe8645b5a9f5b.

@@ -7,7 +7,19 @@ from pathlib import Path
 import re
 from case_store import atomic_write, case_number_key, file_lock, validate_case
 
-REPORTS = {"openCases", "byInspector", "openViolations", "allCases", "allViolations", "daysToCompliance", "repeatOwners", "citations", "referrals"}
+REPORTS = {
+    "openCases",
+    "byInspector",
+    "openViolations",
+    "allCases",
+    "allViolations",
+    "daysToCompliance",
+    "repeatOwners",
+    "citations",
+    "referrals",
+    "overriddenDeposits",
+    "documentActions",
+}
 FILTERS = {"from", "to", "asOf", "areaType", "boundary", "areas", "inspector", "vtype", "ord", "status", "owner"}
 
 

@@ -1,0 +1,38 @@
+name: Pull request format
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-format:
+    name: PR format
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PR_TITLE: ${{ github.event.pull_request.title }}
+      PR_BODY: ${{ github.event.pull_request.body }}
+    steps:
+      - name: Check title and review sections
+        run: |
+          python3 - <<'PY'
+          from datetime import date
+          import os, re
+          title = os.environ['PR_TITLE']
+          if title.startswith('release: '):
+              label = title.removeprefix('release: ')
+              if not re.fullmatch(r'\d{4}-\d{2}-\d{2} R[1-9]\d*', label):
+                  raise SystemExit('Release titles use release: YYYY-MM-DD Rnn')
+              date.fromisoformat(label.split()[0])
+          elif not re.fullmatch(r'(feat|fix|refactor|docs|test|chore)\([a-z][a-z0-9-]*\): \S.+', title):
+              raise SystemExit('Use <type>(<area>): <concrete change>')
+          required = ['Problem and resulting behavior', 'Scope and rule ownership', 'Version decision', 'Verification', 'Acceptance and readiness']
+          headings = set(re.findall(r'^## (.+)$', os.environ.get('PR_BODY', ''), re.M))
+          missing = set(required) - headings
+          if missing:
+              raise SystemExit('Complete the PR template; missing sections: ' + ', '.join(sorted(missing)))
+          print('PR title and review sections are present; this is not merge or deployment approval.')
+          PY

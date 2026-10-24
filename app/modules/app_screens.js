@@ -33,6 +33,7 @@ import {
   esc,
   iso,
   A11Y,
+  IDB_OK,
 } from "./app_core.js";
 import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
 import { activeRestrictions } from "./new_documents.js";
@@ -998,6 +999,28 @@ function overlayHTML() {
 
 function render() {
   if (helperStop.stopped) return; // Exit Document Writer replaced the page with its stopped state.
+  if (WriterState.STARTUP_STATUS === "locked") return;
+  if (!WriterState.WRITER_READY && (IDB_OK || WriterState.STARTUP_STATUS === "failed")) {
+    const failed = WriterState.STARTUP_STATUS === "failed";
+    document.getElementById("app").innerHTML =
+      '<main id="main-content" tabindex="-1" style="max-width:640px;margin:12vh auto;padding:28px"><h1>' +
+      (failed ? "Saved workspace could not be restored" : "Restoring saved workspace") +
+      '</h1><p role="' +
+      (failed ? "alert" : "status") +
+      '" aria-live="' +
+      (failed ? "assertive" : "polite") +
+      '">' +
+      (failed
+        ? "Editing is paused to protect saved work. Reload to retry. If this continues, ask IT to check this browser’s local storage."
+        : "Please wait while your saved cases and unfinished work are restored.") +
+      "</p>" +
+      (failed ? '<button id="startup-retry">Reload and retry</button>' : "") +
+      "</main>";
+    document.getElementById("overlay").innerHTML = "";
+    document.getElementById("startup-retry")?.addEventListener("click", () => location.reload());
+    if (failed) document.getElementById("main-content")?.focus({ preventScroll: true });
+    return;
+  }
   if (WriterState.state.screen !== "cases") WriterState.state.issuedCase = ""; // R59: the issued-case highlight ends on navigation.
   const appRoot = document.getElementById("app"),
     sameImport = WriterState.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";

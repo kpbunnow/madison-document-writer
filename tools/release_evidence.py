@@ -2,8 +2,29 @@
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from project_layout import fingerprint as maintained_fingerprint
+
+
+def source_provenance(root, inputs):
+    """Git is optional in extracted source ZIPs; verified input hashes remain authoritative."""
+    result = {
+        "sourceCommit": None,
+        "sourceClean": None,
+        "verifiedInputsSha256": hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest(),
+    }
+    if not (Path(root) / ".git").exists():
+        return result
+    try:
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, encoding="utf-8", check=True, timeout=5).stdout.strip()
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=normal"], cwd=root, capture_output=True, encoding="utf-8", check=True, timeout=5
+        ).stdout
+        result.update(sourceCommit=commit, sourceClean=not status.strip())
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return result
 
 
 def fingerprint(root):

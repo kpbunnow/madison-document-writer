@@ -9,7 +9,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, work, base) 
     print = await context.newPage();
   try {
     await page.goto(new URL("/", hostPage.url()).href);
-    await page.waitForFunction(() => typeof WriterState !== "undefined");
+    await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
     await page.evaluate(() => {
       WriterState.CASES = [
         {

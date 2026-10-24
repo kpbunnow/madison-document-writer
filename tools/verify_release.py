@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from release_evidence import fingerprint
+from release_evidence import fingerprint, source_provenance
 from release_inputs import deployment_inputs, source_inventory
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +63,12 @@ if FAST:
             "runtimeHashes": browser["runtimeHashes"],
             "sourceFiles": source,
             "deploymentInputs": deployment_inputs(ROOT),
+            **source_provenance(ROOT, source),
+            "toolchain": {
+                "python": sys.version.split()[0],
+                "node": subprocess.check_output(["node", "--version"], encoding="utf-8").strip(),
+                "chromium": browser["browserVersion"],
+            },
         },
         indent=2,
     )

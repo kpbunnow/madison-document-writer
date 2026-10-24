@@ -1,5 +1,7 @@
 # Document Writer — Development 3 implementation prompt
 
+> Implemented record: merged in PR #34. The original planning instructions below are retained as history, not a request to repeat implementation or use their old baseline. Follow current main, AGENTS.md and DEVELOPMENT-STANDARD.md for new work.
+
 Prepared October 23, 2026. Source: the owner's `Document_Writer_Development_3.docx`, with the owner's clarification answers recorded below.
 
 Status: development prompt. This document authorizes neither merging nor deployment. City, staff and native acceptance remain open until recorded on City equipment.

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -11,6 +12,26 @@ import server
 
 
 class WorkflowToolsTests(unittest.TestCase):
+    def test_every_frontend_report_can_share_a_view(self):
+        source = (Path(__file__).resolve().parents[2] / "app/modules/reports_core.js").read_text(encoding="utf-8")
+        reports = set(re.findall(r'^    id: "([^"]+)",', source, re.M))
+        self.assertEqual(len(reports), 11)
+        self.assertEqual(reports, workflow.REPORTS, "frontend reports and helper shared-view rules must agree")
+        for report in reports:
+            with self.subTest(report=report):
+                view = dict(
+                    format="madison-report-view",
+                    version=1,
+                    id="qa-" + report,
+                    name="Synthetic report view",
+                    report=report,
+                    filters={},
+                    view="table",
+                    dateMode="all",
+                )
+                workflow.save_view(self.cases, view)
+                self.assertIn(view, workflow.shared_views(self.cases)["views"])
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)

@@ -8,7 +8,7 @@ has been performed. Packaging and deployment require separate authorization.
 Before packaging, run `python3 tools/verify_release.py` against the exact final
 source and runtime, with measured browser tests serially. Inspect the actual
 regression, browser, accessibility and PDF evidence. The existing packaging
-procedure is `python3 tools/package_release.py --output <folder>`; its manifest
+procedure is `python3 tools/package_release.py --output <folder> --published-manifest <last-approved-deploy/runtime-manifest.json>`; its manifest
 and installer verification remain required. This document supplies the required
 package-level readiness record; it does not authorize packaging.
 
@@ -56,4 +56,4 @@ R60 adds S60-1 through S60-6 for Workspace entry, dialog accessibility, scoped r
 
 R62 Development 3 adds S62-1 through S62-5. All remain OPEN; automated verification does not supply staff, City Attorney or native acceptance.
 
-R61 Development 2 adds S61-1 through S61-5. All remain OPEN. The owner confirmed the retained Best Interest safety checkbox; this branch is not deployment approval.
+R61 Development 2 adds S61-1 through S61-5. All remain OPEN. The retained Best Interest safety checkbox applies to authoring-15 drafts and historical R61-format acceptance; current authoring-16 Best Interest has no safety checkbox (S62-2). Implementation is merged, but this is not deployment approval.

@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import hashlib, json, os, re, shutil, stat
+from version_schema import validate_identity
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDES = {".rsync-tmp", ".ruff_cache", "node_modules", "build", "dist", ".git", "archive", ".hypothesis", "__pycache__"}
@@ -123,6 +124,7 @@ def package_name(release):
 
 def version():
     v = json.loads((ROOT / "version.json").read_text(encoding="utf-8"))
+    validate_identity(v)
     for name in ["package.json", "package-lock.json"]:
         value = json.loads((ROOT / name).read_text(encoding="utf-8"))
         if value["version"] != v["helperVersion"] or name == "package-lock.json" and value["packages"][""]["version"] != v["helperVersion"]:

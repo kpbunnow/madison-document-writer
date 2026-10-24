@@ -152,7 +152,7 @@ async function axeThemes(page, screen) {
   const page = await context.newPage();
   auditPage = page;
   await page.goto(base + "/");
-  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER);
+  await page.waitForFunction(() => typeof WriterState.HELPER !== "undefined" && WriterState.HELPER && WriterState.WRITER_READY === true);
   await context.route("**/reporting/parcels", (r) => r.fulfill({ json: { ok: true, parcels: {}, missing: [] } }));
   await context.route("**/reporting/areas", (r) =>
     r.fulfill({ json: { ok: true, districts: { type: "FeatureCollection", features: [] }, zips: null, notes: [] } }),

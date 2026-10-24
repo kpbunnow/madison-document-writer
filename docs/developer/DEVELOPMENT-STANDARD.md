@@ -1,0 +1,94 @@
+# Development, pull requests and release standard
+
+This is the current development process. Implemented prompts and release reviews are evidence of earlier decisions, not instructions to repeat those changes. Follow AGENTS.md and the current architecture, domain, pitfalls and testing guides. Preserve all legal holds and owner decisions.
+
+## Focused changes and naming
+
+Use `develop/<issue>-<short-slug>` when an issue exists, or `develop/<short-slug>` for owner-requested maintenance without one. Start from current main. Use `<type>(<area>): <concrete change>` for PR titles; types are `feat`, `fix`, `refactor`, `docs`, `test`, `chore`. Example: `fix(storage): preserve drafts during startup`. Use `release: YYYY-MM-DD Rnn` only for owner-assigned release preparation. The repository PR template and PR format workflow enforce the title and review sections.
+
+Keep one focused concern per PR; related corrections from one approved maintenance review may use separately reviewable commits. Explain the final behavior and risk, not the conversational history. Link the issue or owner-requested review and use the template's scope/rule ownership, version decision, verification and readiness sections.
+
+New source files use descriptive snake_case; JavaScript functions use camelCase, Python functions use snake_case, and immutable constants use UPPER_SNAKE_CASE. New tests use feature names. Retain the test index and former-name map for historical suites.
+
+## Stable names and rule ownership
+
+These names serve distinct roles and stay stable:
+
+| Role | Name |
+| --- | --- |
+| Product | Madison Building Inspection Document Writer |
+| Repository | kpbunnow/madison-document-writer |
+| Private npm package | madison-building-inspection-document-writer |
+| Desktop shortcut | Document Writer.lnk |
+| Internal referral types | `referral` = Referral for Prosecution; `referralUpdate` = Update for Case Referral |
+
+Persisted document/report IDs, JSON keys, event names, operational folders and installed filenames are compatibility contracts. Do not rename them for appearance. Compliance history does not itself make a case referred. Compare frontend/helper rule mirrors with contract tests, including every shareable report ID.
+
+Ownership for new work:
+
+- Navigation/screens express intent and render facts; no private-storage replacement before startup restoration completes.
+- case_files owns workspace persistence and its save chain; lock ownership and readiness to edit are separate states. Internal recovery may save only after retained workspace data has been read.
+- The helper owns validation, authority, integrity, atomic publication and immutable original PDF retention. UI validation does not replace it.
+- Rendering/pagination consumes explicit facts and frozen issued versions; it does not own persistence or query later live history for reprints.
+- Reports consumes verified projections and remains read-only against case history.
+- Prefer scoped service dependencies to new global wiring. Break dependency cycles incrementally only when needed; do not recreate a universal registry or repeat a broad module rename.
+- A new Python/dynamic browser helper must keep its suite serial: extend execution classification and its tests before moving a launch outside the currently followed static local JavaScript requires.
+
+## Verification and merge review
+
+Run the full `python3 tools/verify_release.py` on final reviewed source. Fast runs are iteration only. Keep Chromium/performance work serial and retain every historical assertion and frozen reference. Review fixes require fresh verification for changed inputs. Actual suite/screen/print counts belong in evidence; counts may legitimately increase.
+
+Record the reviewed SHA, actual outcomes, targeted before/after regression, toolchain/browser and evidence link in the PR. The gate records source commit/clean state when Git exists, a verified-input digest and actual toolchain versions. Extracted source ZIPs can still verify without Git, using content fingerprints; do not invent a source commit for them.
+
+CI checks the PR head, installs frozen dependencies and the pinned Playwright browser, runs the full gate and retains evidence even on failure. The metadata workflow treats titles/body as environment data, not executable shell text. No production credentials are needed for synthetic verification. A passing gate is not proof of absence of every bug, native acceptance or deployment approval. Do not merge automatically.
+
+## GitHub administrator setup
+
+After the workflow checks have run, an administrator must configure the main branch rule/ruleset in repository Settings:
+
+1. Require pull requests and resolved review conversations. Prevent force pushes and deletion of main.
+2. Require the **Full gate** and **PR format** checks and an up-to-date branch, so the tested head includes the current base.
+3. Dismiss stale approvals when code changes. Require at least one independent human approval when the team has another reviewer. A single-maintainer repository needs an explicit owner-review policy rather than an impossible self-approval requirement.
+4. Retain reviewed source/evidence and document the owner-controlled emergency path; do not bypass verification silently.
+
+The connected integration returned HTTP 403 when inspecting branch protection during this work. These repository settings have not been verified or applied by the implementation; checked-in workflows/templates do not configure server-side protection.
+
+## Independent version identities
+
+version.json is authoritative. `tools/version_schema.py` validates actual dates, canonical labels, matching release/helper dates, a positive helper build and positive format versions before build/synchronization. npm identities must still agree.
+
+| Field | Rule |
+| --- | --- |
+| release | `YYYY-MM-DD Rnn`, actual date and positive assigned release number |
+| helperVersion | `YYYY.MM.DD.<helperBuild>` |
+| helperBuild | Independent positive integer, advanced for changed published deployment bytes |
+| authoringVersion | New authored format only; preserve historical renderer cutoffs and issued versions |
+| caseSchema / summaryVersion / backupVersion | Change only their own compatibility contract with reader/migration/parity tests |
+
+R62 with helper build 63 is intentional. New ordinary documents use authoring 16; scoped orders retain 13. Constants such as historical authoring 12/13/14/15/16 are capabilities, not values to globally replace during a release bump. The independently pinned per-family test expectations remain separate from application implementation.
+
+The owner authorized development under `2026-10-23 R62` until a deploy package is requested. This work does not assign R63/build 64, package or deploy a release, approve legal wording, or close City acceptance. Phase 8 screen-shell cleanup remains declined.
+
+## Publication and package structure
+
+Keep the existing stem `Madison-Building-Inspection-YYYY-MM-DD-Rnn` and distinct `-deploy.zip`, `-source.zip`, `-evidence.zip` and complete `.zip` packages. Keep installed filenames stable. Adopt case-sensitive `rNN` tags for future assigned releases at the approved source commit; preserve historical tags.
+
+For publication, the release owner supplies the deployment `runtime-manifest.json` retained from the **last approved published release**, not the local verified-install.json pin:
+
+```sh
+python3 tools/package_release.py --output <new-output-folder> --published-manifest <last-approved-deploy/runtime-manifest.json>
+```
+
+The packager refuses changed content or protocol metadata under the same identity, release-number reuse, helper-build reuse and calendar rollback. An identical manifest is an allowed exact reinstall. New published content requires a new authorized release number and helper build. The baseline is supplied by the release owner; this is a publication policy check, not new cryptographic authentication.
+
+Only a genuinely first program publication may use `--first-publication`, an explicit owner declaration that no preceding publication exists. It does **not** mean a first installation on a new PC or a missing baseline. This program already has earlier releases; obtain the retained approved manifest for its next publication. Never fabricate a baseline or use the first-publication declaration to bypass an upgrade.
+
+Retained historical baselines can keep their original calendar labels and derive a legacy counter from helperVersion; newly assigned candidates must follow the current strict identity rules.
+
+Keep the publication input and output outside maintained source. Record release identity, source commit/content digest, clean-source state, actual toolchain, manifest/artifact hashes and evidence. In a Git checkout packaging refuses known uncommitted source. Offline extracted source retains its content evidence and can verify without .git. The existing installer verification and unsigned manifest/NTFS trust model are unchanged.
+
+For an assigned release, edit version.json, run tools/sync_version.py, update the manual source’s current Release/Helper/date line and the current developer first-line release tokens, and create the assigned `Rnn-REVIEW.md`. Keep historical labels and renderer cutoffs unchanged. Update living acceptance/readiness records in place and let the build render their package copies. Regenerate all manual editions together if manual source/style or release identity changes. Publish the deploy ZIP hash separately and retain the prior complete release for deliberate rollback. Do not reuse a published identity for different bytes.
+
+## Acceptance and completion
+
+R60, R61, R62 and consolidation phases 1–7 are implemented. Their original prompts are kept in place for provenance and incoming links. Older format acceptance stays version-specific: authoring-15 Best Interest retains its safety confirmation; authoring-16 does not. Preserve accepted S56B and other recorded decisions; unresolved City/native/staff/legal/seasonal checks remain open until their owners record actual evidence. Merge approval does not authorize rollout.

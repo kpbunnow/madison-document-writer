@@ -1,6 +1,6 @@
 # Development instructions
 
-The current `main` is the authoritative baseline; R62 Development 3 changes are development work until reviewed and merged. Read
+The current `main` is the authoritative baseline. R60–R62 and consolidation phases 1–7 are merged; development keeps the current identity until a release is separately assigned. Read
 `docs/developer/00-START-HERE.md`, `01-ARCHITECTURE.md`, `03-DOMAIN-RULES.md`,
 `04-PITFALLS.md` and `05-TESTING.md` before changing application code. Their security, identity,
 historical rendering, legal-hold and City acceptance requirements remain in force.
@@ -25,3 +25,5 @@ use the existing packaging script and manifest verifier. Do not package a failed
 gate, invent signing keys, alter trusted connections, or claim City/native acceptance
 from automated tests. Generated outputs and release packages belong outside source
 or in the existing ignored build directories.
+
+Use [the development and release standard](docs/developer/DEVELOPMENT-STANDARD.md) and the repository PR template for new work. Preserve independently versioned formats and stable stored/installed names.

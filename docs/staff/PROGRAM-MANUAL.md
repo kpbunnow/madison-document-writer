@@ -10,6 +10,8 @@ R62 is a development candidate for City acceptance. Its security checks require 
 
 ## 1 Start here and daily routine
 
+When Writer opens, wait for **Restoring saved workspace** to finish. If **Saved workspace could not be restored** appears, editing is paused to protect saved work. Choose **Reload and retry**; if the problem continues, ask IT to check this browser profile and preserve its saved work. Do not clear browser site data to bypass the message.
+
 Document Writer prepares Official Notices, Extensions, Citations, Referrals for Prosecution, Compliance Letters, Summary Abatement Orders, Non-Summary Abatement Orders, No Occupancy documents, Best Interest Extensions and Vacancy Extensions. It retains linked corrections, physical inspection history, private drafts, original PDF receipts and reporting summaries. Referral updates and occupancy releases are modes within their families.
 
 **Before using operational cases.** Have IT install the complete deployment, link the approved shared folders and confirm the independent integrity anchor. Have the division complete the acceptance record and authorize the workflows staff will use. The program's entry of a reviewer name is a retained statement, not authentication of a role or proof of legal approval.
