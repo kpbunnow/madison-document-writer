@@ -1,16 +1,14 @@
-import { toast } from "./court_and_deposits.js";
-import { helperJSON } from "./workspace_shell.js";
+/* Core supplies named UI/peer dependencies; construction does not read them. */
+
 import { stableJSON } from "./record_values.js";
-import { saveDrafts } from "./case_files.js";
-import { render } from "./app_screens.js";
-import { A11Y, citationPricing, isLocked, snow } from "./app_core.js";
+
 import { docCase } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { WriterState } from "./state.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
-export function initAdministration() {
+export function initAdministration(services) {
   const esc = (value) => dep_esc(value);
   function overrideFault(c, d) {
     const b = c.overrideBasis,
@@ -56,12 +54,12 @@ export function initAdministration() {
     "istrative decision and its source.</label>";
   async function openOverride() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
-      toast("Connect the local helper and case folder first.");
+      services.toast("Connect the local helper and case folder first.");
       return;
     }
     const targets = [];
-    for (const d of WriterState.DOCS.filter((x) => x.draft && !x.pendingAmendment && !isLocked(x))) {
-      citationPricing.refresh(d);
+    for (const d of WriterState.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
+      services.citationPricing.refresh(d);
       for (const i of d.items || []) {
         const c = d.cits?.[i.id];
         if (!c || c.mandatoryAppearance) continue;
@@ -77,10 +75,10 @@ export function initAdministration() {
       }
     }
     if (!targets.length) {
-      toast("Open a draft with a determined money deposit before authorizing an exception.");
+      services.toast("Open a draft with a determined money deposit before authorizing an exception.");
       return;
     }
-    A11Y.utility(
+    services.A11Y.utility(
       "Administrator deposit override",
       '<form id="admin-deposit-form"><p>Authorize a single exceptional deposit ' +
         "from a court or division instruction. The citation retains the administr" +
@@ -101,7 +99,7 @@ export function initAdministration() {
         v = Object.fromEntries(new FormData(form)),
         x = targets[Number(v.target)];
       try {
-        const result = await helperJSON("/administration/deposit-override", {
+        const result = await services.helperJSON("/administration/deposit-override", {
           caseNumber: docCase(x.d).number,
           citationNumber: x.c.num,
           ordinance: x.c.ord,
@@ -123,10 +121,10 @@ export function initAdministration() {
         x.c.pricedOn = x.c.overrideBasis.pricingDate;
         x.c.policyVersionHash = x.c.overrideBasis.policyVersionHash;
         WriterState.DIRTY = true;
-        await saveDrafts();
+        await services.saveDrafts();
         document.getElementById("utility-dialog")?.close();
-        toast("Administrator override recorded. Review the citation before issuance.");
-        render();
+        services.toast("Administrator override recorded. Review the citation before issuance.");
+        services.render();
       } catch (error) {
         form.querySelector("[role=alert]").textContent = error.message;
       }
@@ -134,12 +132,12 @@ export function initAdministration() {
   }
   async function openLetter() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
-      toast("Connect the local helper and case folder first.");
+      services.toast("Connect the local helper and case folder first.");
       return;
     }
     try {
-      const { letter } = await helperJSON("/administration/snow-letter");
-      A11Y.utility(
+      const { letter } = await services.helperJSON("/administration/snow-letter");
+      services.A11Y.utility(
         "Administrator snow-letter review",
         '<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, con' +
           "tacts and web address. New citations use this review; issued copies keep" +
@@ -196,23 +194,23 @@ export function initAdministration() {
               .replace(/Streets East: [\d-]+/, "Streets East: " + updated.eastPhone),
             b,
           ]);
-          const result = await helperJSON("/administration/snow-letter", {
+          const result = await services.helperJSON("/administration/snow-letter", {
             administrator: v.administrator,
             reason: v.reason,
             sourceReference: v.sourceReference,
             confirmed: v.confirmed === "on",
             letter: updated,
           });
-          snow.setLetter(result.letter);
+          services.snow.setLetter(result.letter);
           document.getElementById("utility-dialog")?.close();
-          toast("Seasonal content updated for new snow citations.");
-          render();
+          services.toast("Seasonal content updated for new snow citations.");
+          services.render();
         } catch (error) {
           form.querySelector("[role=alert]").textContent = error.message;
         }
       };
     } catch (error) {
-      toast(error.message);
+      services.toast(error.message);
     }
   }
   document.addEventListener("click", (e) => {

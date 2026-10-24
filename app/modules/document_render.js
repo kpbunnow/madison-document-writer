@@ -6,14 +6,12 @@ import { catalogDraftNotice } from "./language_catalog.js";
 import { citeAllowed, frozenOf, hasOwnInsp, isHistoryDoc, alignedExtension, datedExtension, simpleVacancy, specialType } from "./document_rules.js";
 import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./presentation_format.js";
 import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
-import { MINDUE, agentLines, ccLines, docBlocks, docBody, initialCitations, isLocked, snow, structEditable } from "./app_core.js";
+import { newDocuments, MINDUE, agentLines, ccLines, docBlocks, docBody, initialCitations, isLocked, snow, structEditable } from "./app_core.js";
 import { ccList, emailList, ownerLines } from "./mailing_rules.js";
 import { docCase, docInsp, eventsFor } from "./writer_queries.js";
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
-
-import { rowAffectedSelection } from "./new_documents.js";
 
 /* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
    note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the
@@ -94,7 +92,7 @@ function noticeHTML(d) {
      on an authoring-13 Best Interest or Vacancy Extension, the affected-item selection. */
   const dueSelection = d.type === "notice" && !locked && !d.correction && !snow.is(d),
     dueSelected = new Set(d.dueWork?.selected || []),
-    affectedRows = rowAffectedSelection(d);
+    affectedRows = newDocuments.rowAffectedSelection(d);
   const rows = d.items
     .map((it, ix) => {
       let head = "";

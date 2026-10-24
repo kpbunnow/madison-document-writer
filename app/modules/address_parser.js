@@ -1,14 +1,11 @@
-import { toast } from "./court_and_deposits.js";
-import { helperJSON } from "./workspace_shell.js";
-import { saveDrafts } from "./case_files.js";
-import { render } from "./app_screens.js";
-import { A11Y, recordIntegrity, uid } from "./app_core.js";
+/* Core supplies named UI/peer dependencies; construction does not read them. */
+
 import { ccList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { WriterState } from "./state.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */
-export function initAddressParser() {
+export function initAddressParser(services) {
   const pending = new Map();
   function context(scope, index = 0) {
     const d = doc(WriterState.state.docId),
@@ -45,27 +42,27 @@ export function initAddressParser() {
   }
   async function preview(scope, index = 0) {
     const c = context(scope, index);
-    if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || recordIntegrity.blocked(c.k.id)) return false;
+    if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || services.recordIntegrity.blocked(c.k.id)) return false;
     const signature = c.raw;
     let result;
     try {
-      result = await helperJSON("/address/parse", { raw: c.raw });
+      result = await services.helperJSON("/address/parse", { raw: c.raw });
     } catch (error) {
-      toast("Address parser unavailable. The R19 address standardizer remains available.");
+      services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
     if (context(scope, index)?.raw !== signature || WriterState.state.docId !== c.d?.id) return false;
     if (!result.available) {
-      toast("Address parser unavailable. The R19 address standardizer remains available.");
+      services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
     const parsed = { ...result, accepted: false };
     if (scope === "owner") c.k.ownerAddressParsed = parsed;
     else c.target.addressParsed = parsed;
-    const token = uid("a");
+    const token = services.uid("a");
     pending.set(token, c);
     c.parsed = parsed;
-    A11Y.utility(
+    services.A11Y.utility(
       "Mailing address preview",
       "<p>Entered exactly as supplied:</p><pre>" +
         esc(c.raw) +
@@ -78,7 +75,7 @@ export function initAddressParser() {
           ? '<p role="alert">This address is ambiguous. Edit the raw text; no standardized guess is available.</p>'
           : '<button class="btn btn-primary" data-accept-address="' + token + '">Accept standardized address</button>'),
     );
-    saveDrafts();
+    services.saveDrafts();
     return true;
   }
   function accept(token) {
@@ -98,9 +95,9 @@ export function initAddressParser() {
     }
     WriterState.DIRTY = true;
     pending.delete(token);
-    saveDrafts();
+    services.saveDrafts();
     document.getElementById("utility-dialog")?.close();
-    render();
+    services.render();
     return true;
   }
   document.addEventListener("click", (e) => {

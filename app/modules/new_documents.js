@@ -1,3 +1,4 @@
+/* Core supplies named UI/peer dependencies; construction does not read them. */
 import { continuingItemsForVisits } from "./case_projection.js";
 import { NEW_TYPES, DOC_TYPES } from "./document_types.js";
 import {
@@ -14,15 +15,8 @@ import {
   isEffective,
 } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
-import { fmtDate, inspAt, toast, validISO } from "./court_and_deposits.js";
-import { evid, shell, sourceDocFor } from "./workspace_shell.js";
+
 import { stableJSON, clone } from "./record_values.js";
-import { saveDrafts, scheduleDraftSave } from "./case_files.js";
-import { screenCases, renderKeep, render } from "./app_screens.js";
-import { commitRecordAttempt } from "./issuance_and_corrections.js";
-import { worksheetFaults } from "./draft_recovery.js";
-import { newDoc } from "./editor_screens.js";
-import { docFromReinspection, refreshSheet } from "./document_pagination.js";
 
 import { addDays, daysBetween } from "./calendar.js";
 import { checkAttr, checkTarget, esc, itemSelector } from "./presentation_format.js";
@@ -43,8 +37,6 @@ import {
   reinspFor,
 } from "./writer_queries.js";
 
-import { docBody, isLocked, snow, uid } from "./app_core.js";
-
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
 
@@ -53,9 +45,6 @@ const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.wi
 const syncAffected = (d) => {
   if (allItemExtension(d)) (d.special ||= {}).affected = outstandingNumbers(d);
 };
-/* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
-   table, beside each due date (data-special-item); special.affected remains the source of truth. */
-export const rowAffectedSelection = (d) => datedExtension(d) && !allItemExtension(d) && !isLocked(d) && !d.correction;
 const requireDated = (type, s, version = DATED_EXTENSIONS) => {
   // Authoring 13-15 Vacancy is always dated; authoring 16 has no repair-deadline model, so a cached one is dropped.
   if (type === "vacancyExtension") {
@@ -85,12 +74,15 @@ const REMEDY =
   "ce, or be forever barred. The court shall determine the reasonableness o" +
   "f the order for abatement of the nuisance.";
 
-export function initNewDocuments() {
+export function initNewDocuments(services) {
+  /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
+   table, beside each due date (data-special-item); special.affected remains the source of truth. */
+  const rowAffectedSelection = (d) => datedExtension(d) && !allItemExtension(d) && !services.isLocked(d) && !d.correction;
   const e = (v) => esc(v),
     text = (v) => String(v || "").trim(),
     day = () => recordDay(today);
   const p = (t) => "<p>" + e(t).replace(/◯|\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>') + "</p>",
-    date = (v) => fmtDate(v) || "◯",
+    date = (v) => services.fmtDate(v) || "◯",
     val = (s, k) => text(s[k]) || "◯";
   const clause = (v) => text(v).replace(/[.\s]+$/, "");
   const scope = (d, s) =>
@@ -123,7 +115,7 @@ export function initNewDocuments() {
     const attr = [...el.attributes].find((a) => a.name.startsWith("data-")),
       selector = attr ? "[" + attr.name + '="' + checkAttr(attr.value) + '"]' : null,
       wasOpen = !!document.querySelector("#r26-details details[open]");
-    renderKeep();
+    services.renderKeep();
     if (wasOpen) {
       const details = document.querySelector("#r26-details details");
       if (details) details.open = true;
@@ -134,7 +126,7 @@ export function initNewDocuments() {
     syncAffected(d);
     const s = d.special || {},
       type = d.type,
-      at = inspAt(d),
+      at = services.inspAt(d),
       address = scope(d, s),
       items = selected(d, s);
     const refs = items.map((i) => i.no).join(", ") || "◯";
@@ -389,7 +381,7 @@ export function initNewDocuments() {
           }[k],
         ),
       );
-      add(validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
+      add(services.validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
       add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
       add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
       if (s.scope === "unit") need("unit", "the apartment / unit identifier");
@@ -407,7 +399,7 @@ export function initNewDocuments() {
       need("work", "the corrective work");
       if (d.type === "summaryAbatement") need("summaryBasis", "the factual basis for immediate summary action");
       else {
-        add(validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
+        add(services.validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
         need("servicePlan", "the approved service / publication plan");
         add(s.remedyReviewed === true, "Confirm the distinct Circuit Court remedy against current code.", "remedyReviewed");
       }
@@ -419,7 +411,7 @@ export function initNewDocuments() {
       }
     } else if (d.type === "noOccupancy") {
       add(
-        validISO(s.effective) && s.effective >= docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
+        services.validISO(s.effective) && s.effective >= docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
         "Enter a valid effective order / release date.",
         "effective",
       );
@@ -432,7 +424,7 @@ export function initNewDocuments() {
           "releases",
         );
         add(
-          validISO(s.releaseInspection) &&
+          services.validISO(s.releaseInspection) &&
             s.releaseInspection <= day() &&
             s.releaseInspection <= s.effective &&
             (!old || s.releaseInspection >= old.special.effective),
@@ -441,7 +433,7 @@ export function initNewDocuments() {
         );
         need("releaseFacts", "the confirmed corrections and reinspection record");
         add(
-          s.placardRemoved && validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
+          s.placardRemoved && services.validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
           "Record actual placard removal before permission to reoccupy.",
           "removalDate",
         );
@@ -461,7 +453,7 @@ export function initNewDocuments() {
         need("releaseConditions", "the conditions necessary for release");
         add(["posted", "pending"].includes(s.posting), "Record posting status.", "posting");
         if (s.posting === "posted")
-          add(validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
+          add(services.validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
         else need("prePostingRef", "the approved pre-posting order wording / procedure");
       }
     } else if (allItemExtension(d)) {
@@ -471,7 +463,7 @@ export function initNewDocuments() {
         need("reason", "the reasons for additional time");
         // The same due-date rules as a normal Extension: a future date for each uncorrected item, at most three
         // outstanding dates, at least seven days apart.
-        const missing = selected(d, s).filter((i) => !(validISO(i.due) && i.due > (d.mailed || day())));
+        const missing = selected(d, s).filter((i) => !(services.validISO(i.due) && i.due > (d.mailed || day())));
         add(
           !missing.length,
           "Enter a future due date in Violation items for each uncorrected item.",
@@ -492,7 +484,7 @@ export function initNewDocuments() {
         );
       } else {
         add(
-          validISO(s.reviewDate) && daysBetween(d.mailed || day(), s.reviewDate) >= 7,
+          services.validISO(s.reviewDate) && daysBetween(d.mailed || day(), s.reviewDate) >= 7,
           "Enter a next review inspection date at least seven days after the mailing date.",
           "reviewDate",
         );
@@ -536,15 +528,15 @@ export function initNewDocuments() {
         need("conditions", "the approved continuing conditions");
         need("expiryPolicyRef", "the approved expiration / review policy");
         need("transferClause", "the reviewed sale / transfer and applicable disclosure wording");
-        add(validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
+        add(services.validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
         if (s.reviewDate && addDays(s.reviewDate, -7) < d.mailed) need("shortNoticeRef", "the approved short-notice contact procedure");
         add(["fixed", "review"].includes(s.expiryMode), "Choose the approved expiration / review model.", "expiryMode");
         if (s.expiryMode === "fixed")
-          add(validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
+          add(services.validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
         add(["dated", "conditional"].includes(s.deadlineMode), "Choose the approved repair deadline model.", "deadlineMode");
       }
       if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
-        const laterDue = (i) => validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
+        const laterDue = (i) => services.validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
         // Authoring 13 enters these dates in Violation items; link each affected item's due-date field there.
         add(
           selected(d, s).every(laterDue),
@@ -584,11 +576,11 @@ export function initNewDocuments() {
         "affected",
       );
     }
-    add(!/◯|\(\s{0,8}\)|class="blank"/.test(docBody(d)), "Fill every placeholder in the printed document before issuance.");
+    add(!/◯|\(\s{0,8}\)|class="blank"/.test(services.docBody(d)), "Fill every placeholder in the printed document before issuance.");
     return out;
   }
   function details(d) {
-    if (!specialType(d.type) || isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
+    if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
     const s = d.special || (d.special = {}),
       f = (k, label, type = "text") =>
         '<label class="f"><span>' +
@@ -933,7 +925,7 @@ export function initNewDocuments() {
       r.followupIntent = picked;
       r.actionGroup = (list.find((c) => c[0] === picked) || [])[2] || "";
     }
-    const faults = picked ? [...worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
+    const faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
     const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
     return (
       '<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b">' +
@@ -979,7 +971,7 @@ export function initNewDocuments() {
     const picked = r.followupIntent || "",
       list = choices(r),
       group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
-      faults = picked ? [...worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
+      faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
     const available = list.filter((c) => !eligibility(r, c[0])),
       options = available.filter((c) => c[2] === group);
     return (
@@ -1064,21 +1056,21 @@ export function initNewDocuments() {
     if (r.docId && doc(r.docId)?.draft) {
       WriterState.state.docId = r.docId;
       WriterState.state.screen = "write";
-      render();
+      services.render();
       return;
     }
     const why = eligibility(r, type),
-      faults = worksheetFaults(r, type);
+      faults = services.worksheetFaults(r, type);
     if (why || faults.length) {
-      toast(why || faults[0]);
+      services.toast(why || faults[0]);
       return;
     }
     const existing = draftDocFor(r.caseId);
     if (existing) {
       WriterState.state.docId = existing.id;
       WriterState.state.screen = "write";
-      render();
-      toast("Resume the unfinished document before starting another.");
+      services.render();
+      services.toast("Resume the unfinished document before starting another.");
       return;
     }
     const src = doc(r.sourceDocId),
@@ -1087,7 +1079,7 @@ export function initNewDocuments() {
     const extension = ["bestInterestExtension", "vacancyExtension"].includes(type),
       open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn;
     const d = {
-      id: uid("d"),
+      id: services.uid("d"),
       caseId: r.caseId,
       type,
       // R62: only the extension families change format; scoped orders keep authoring 13.
@@ -1109,7 +1101,7 @@ export function initNewDocuments() {
         const res = r.results[i.id] || {};
         return {
           ...clone(i),
-          id: uid("x"),
+          id: services.uid("x"),
           srcItemId: i.id,
           // R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
           // worksheet; a Vacancy Extension prints no due date for uncorrected items.
@@ -1131,8 +1123,8 @@ export function initNewDocuments() {
     if (r.draft) r.docId = d.id;
     WriterState.state.docId = d.id;
     WriterState.state.screen = "write";
-    saveDrafts();
-    render();
+    services.saveDrafts();
+    services.render();
   }
   function specialLifecycle(d) {
     if (!specialType(d.type) || !d.draft || d.correction) return [];
@@ -1145,13 +1137,13 @@ export function initNewDocuments() {
       if (docsFor(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
     } else {
       if (!src || !isEffective(src)) faults.push("The factual source is no longer effective.");
-      const current = sourceDocFor(d.caseId);
+      const current = services.sourceDocFor(d.caseId);
       if (current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id))
         faults.push("The source changed. Review the current case before issuing.");
       if (d.administrativeAction && d.type !== "noOccupancy" && src?.type === "compliance")
         faults.push("A completed case cannot receive a new extension or ordinary enforcement action.");
       if (r) {
-        faults.push(...worksheetFaults(r));
+        faults.push(...services.worksheetFaults(r));
         if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time)
           faults.push("The action must match its recorded inspection.");
       } else if (!d.administrativeAction) faults.push("Select the actual inspection for this action.");
@@ -1216,16 +1208,16 @@ export function initNewDocuments() {
     if (
       !d ||
       !["service", "publication"].includes(form.method) ||
-      !validISO(form.date) ||
+      !services.validISO(form.date) ||
       form.date < d.mailed ||
       form.date > day() ||
       text(form.reference).length < 10
     ) {
-      toast("Enter the actual past service / publication date, method and supporting evidence.");
+      services.toast("Enter the actual past service / publication date, method and supporting evidence.");
       return;
     }
     const attempt = {
-      id: evid(),
+      id: services.evid(),
       at: recordNow(d.caseId),
       by: kase(d.caseId).inspectorId,
       type: "document.served",
@@ -1241,16 +1233,16 @@ export function initNewDocuments() {
         lifecycle: 1,
       },
     };
-    if (await commitRecordAttempt(d.caseId, attempt)) {
+    if (await services.commitRecordAttempt(d.caseId, attempt)) {
       delete WriterState.WORK.recordForms[key];
-      saveDrafts();
-      render();
+      services.saveDrafts();
+      services.render();
     }
   }
   function releaseVisit(d) {
     const s = d.special || {};
     if (d.type !== "noOccupancy" || s.mode !== "release" || s.releaseVisitId !== "external") return null;
-    d.releaseVisitIdentity = d.releaseVisitIdentity || uid("r");
+    d.releaseVisitIdentity = d.releaseVisitIdentity || services.uid("r");
     s.verifiedReleaseVisitId = d.releaseVisitIdentity;
     return {
       id: d.releaseVisitIdentity,
@@ -1269,7 +1261,7 @@ export function initNewDocuments() {
     };
   }
   function actionPanel(d) {
-    if (snow.is(d)) return "";
+    if (services.snow.is(d)) return "";
     if (d.draft) return "";
     const restrictions = activeRestrictions(docsFor(d.caseId));
     return (
@@ -1293,29 +1285,29 @@ export function initNewDocuments() {
     );
   }
   function caseAction(cid, type) {
-    if (snow.isCase(kase(cid))) {
-      toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
+    if (services.snow.isCase(kase(cid))) {
+      services.toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
       return null;
     }
     if (type && isReferredCase(cid)) {
-      toast(REFERRED_MESSAGE);
+      services.toast(REFERRED_MESSAGE);
       return null;
     }
     if (!type) {
       WriterState.WORK.currentAction = { cid, type: "", group: "" };
       WriterState.state.screen = "caseactions";
-      saveDrafts();
-      render();
+      services.saveDrafts();
+      services.render();
       return;
     }
     const pending = draftDocFor(cid);
     if (pending) {
       WriterState.state.docId = pending.id;
       WriterState.state.screen = "write";
-      render();
+      services.render();
       return;
     }
-    const src = sourceDocFor(cid) || docsFor(cid).find(isEffective);
+    const src = services.sourceDocFor(cid) || docsFor(cid).find(isEffective);
     if (!src) return;
     WriterState.state.modal = null;
     WriterState.state.screen = "write";
@@ -1323,7 +1315,7 @@ export function initNewDocuments() {
       .filter((r) => !r.draft && r.sourceDocId === src.id)
       .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
     const d = {
-      id: uid("d"),
+      id: services.uid("d"),
       caseId: cid,
       type,
       draft: true,
@@ -1346,25 +1338,25 @@ export function initNewDocuments() {
       expectedHead: recordHead(cid),
       factualVisitId: factual?.id || "",
       inspectorId: factual?.inspectorId || docInsp(src).id,
-      inspDate: factual?.date || inspAt(src).date,
-      inspTime: factual?.time || inspAt(src).time,
+      inspDate: factual?.date || services.inspAt(src).date,
+      inspTime: factual?.time || services.inspAt(src).time,
       special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }, ALL_ITEM_EXTENSIONS),
-      items: continuingItems(src).map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id, cite: false })),
+      items: continuingItems(src).map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id, cite: false })),
     };
     if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
     WriterState.DOCS.unshift(d);
     WriterState.state.docId = d.id;
-    saveDrafts();
-    render();
+    services.saveDrafts();
+    services.render();
   }
   function caseActionScreen() {
     const choice = WriterState.WORK.currentAction || {},
       k = kase(choice.cid),
       referred = isReferredCase(choice.cid),
-      closed = sourceDocFor(choice.cid)?.type === "compliance";
+      closed = services.sourceDocFor(choice.cid)?.type === "compliance";
     const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
     if (referred)
-      return shell(
+      return services.shell(
         k.address || "Current case action",
         k.number || "",
         '<button class="btn" data-nav="cases">Workspace</button>',
@@ -1372,7 +1364,7 @@ export function initNewDocuments() {
           e(REFERRED_MESSAGE) +
           " Import a CA Reinspection to write them.</p></div></section>",
       );
-    return shell(
+    return services.shell(
       k.address || "Current case action",
       k.number || "",
       '<button class="btn" data-nav="cases">Workspace</button>',
@@ -1434,13 +1426,13 @@ export function initNewDocuments() {
     if (el.dataset.caseActionGroup) {
       WriterState.WORK.currentAction.group = el.dataset.caseActionGroup;
       WriterState.WORK.currentAction.type = "";
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.caseActionType) {
       WriterState.WORK.currentAction.type = el.dataset.caseActionType;
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1448,7 +1440,7 @@ export function initNewDocuments() {
       const key = "service:" + d.id;
       WriterState.WORK.recordForms[key] = WriterState.WORK.recordForms[key] || {};
       WriterState.WORK.recordForms[key][el.dataset.serviceField] = el.value;
-      scheduleDraftSave();
+      services.scheduleDraftSave();
       return true;
     }
     if (el.dataset.actionGroup && r) {
@@ -1456,7 +1448,7 @@ export function initNewDocuments() {
       r.followupIntent = "";
       WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
       WriterState.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1464,7 +1456,7 @@ export function initNewDocuments() {
       r.followupIntent = el.dataset.actionType;
       WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
       WriterState.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1491,11 +1483,11 @@ export function initNewDocuments() {
       d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
       if (datedExtension(d)) requireDated(d.type, d.special, d.authoringVersion);
       restoreDues(d);
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
-    if (!d || isLocked(d) || !specialType(d.type)) return false;
+    if (!d || services.isLocked(d) || !specialType(d.type)) return false;
     const s = d.special || (d.special = {});
     if (el.dataset.special) {
       const k = el.dataset.special;
@@ -1515,13 +1507,13 @@ export function initNewDocuments() {
           visit.actionDetails[d.type] = clone(s);
         }
       }
-      scheduleDraftSave();
+      services.scheduleDraftSave();
       if (
         ev.type === "change" &&
         ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"].includes(k)
       ) {
         refreshControls(el);
-      } else refreshSheet();
+      } else services.refreshSheet();
       return true;
     }
     if (el.dataset.specialItem) {
@@ -1534,7 +1526,7 @@ export function initNewDocuments() {
       restoreDues(d);
       invalidateSafety(d);
       cacheDetails(d);
-      saveDrafts();
+      services.saveDrafts();
       refreshControls(el);
       return true;
     }
@@ -1574,8 +1566,8 @@ export function initNewDocuments() {
       document.querySelectorAll('[data-special-due="' + checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
     }
     invalidateItemReview(d);
-    scheduleDraftSave();
-    refreshSheet();
+    services.scheduleDraftSave();
+    services.refreshSheet();
   }
   function clickEvent(ev) {
     const el = ev.target.closest(
@@ -1585,13 +1577,13 @@ export function initNewDocuments() {
     if (!el) return false;
     if (el.hasAttribute("data-adopt-best-interest")) {
       const d = doc(WriterState.state.docId);
-      if (d?.type === "bestInterestExtension" && d.draft && !isLocked(d) && !d.correction && !d.pendingAmendment) {
+      if (d?.type === "bestInterestExtension" && d.draft && !services.isLocked(d) && !d.correction && !d.pendingAmendment) {
         // R62: adoption moves to the current all-item format (Reasons, no safety confirmation or signer).
         d.authoringVersion = ALL_ITEM_EXTENSIONS;
         restoreDues(d);
         // Keep earlier review data for recovery; it is not asserted as new authorization.
-        saveDrafts();
-        render();
+        services.saveDrafts();
+        services.render();
         document.querySelector('[data-special="reason"]')?.focus();
       }
       return true;
@@ -1599,11 +1591,11 @@ export function initNewDocuments() {
     if (el.dataset.initialNotice) {
       const src = doc(el.dataset.initialNotice);
       if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {
-        newDoc(src.caseId, "notice");
+        services.newDoc(src.caseId, "notice");
         const d = doc(WriterState.state.docId);
-        d.items = src.items.map((i) => ({ ...clone(i), id: uid("x"), srcItemId: i.id }));
-        saveDrafts();
-        render();
+        d.items = src.items.map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id }));
+        services.saveDrafts();
+        services.render();
       }
       return true;
     }
@@ -1620,7 +1612,7 @@ export function initNewDocuments() {
       const r = reinsp(WriterState.state.reinspId);
       if (r && r.followupIntent) {
         if (specialType(r.followupIntent)) createSpecial(r, r.followupIntent);
-        else docFromReinspection(r, r.followupIntent);
+        else services.docFromReinspection(r, r.followupIntent);
       }
       return true;
     }
@@ -1629,7 +1621,7 @@ export function initNewDocuments() {
       if (r) {
         WriterState.state.reinspId = r.id;
         WriterState.state.screen = "actions";
-        render();
+        services.render();
       }
       return true;
     }
@@ -1642,15 +1634,16 @@ export function initNewDocuments() {
   function actionScreen() {
     const r = reinsp(WriterState.state.reinspId);
     return r
-      ? shell(
+      ? services.shell(
           "Add document for this inspection",
           kase(r.caseId).number + " · " + date(r.date),
           '<button class="btn" data-nav="cases">Workspace</button>',
           chooser(r),
         )
-      : screenCases();
+      : services.screenCases();
   }
   return {
+    rowAffectedSelection,
     releaseVisit,
     continuingItems,
     eligibility,

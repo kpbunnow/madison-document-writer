@@ -1,11 +1,8 @@
+/* Core supplies named UI/peer dependencies; construction does not read them. */
 import { recordDay } from "../assets/shared.js";
-import { fmtDate, freezeSources, toast } from "./court_and_deposits.js";
-import { appendEvent, project } from "./workspace_shell.js";
-import { saveDrafts, validateAndStandardizeAddresses } from "./case_files.js";
-import { recordReinspection, startCorrection } from "./issuance_and_corrections.js";
-import { render } from "./app_screens.js";
+
 import { ISSUE_EVENT } from "./document_types.js";
-import { MINDUE } from "./app_core.js";
+
 import { addDays } from "./calendar.js";
 import { doc, docCase, docInsp, recordHead, reinsp } from "./writer_queries.js";
 import { clone } from "./record_values.js";
@@ -53,38 +50,38 @@ const TEST_CASES = [
   },
 ];
 export { TEST_CASES };
-export function initTestFixtures() {
-  const fmtDateEd = (v) => (v ? fmtDate(v) : "");
+export function initTestFixtures(services) {
+  const fmtDateEd = (v) => (v ? services.fmtDate(v) : "");
   function futureDue(from, days) {
     const d = addDays(from || recordDay(today), days),
-      m = MINDUE();
+      m = services.MINDUE();
     return d < m ? m : d;
   }
   function issueDocument(d) {
     if (!d || !d.draft) return null;
-    const addressFault = validateAndStandardizeAddresses(docCase(d), d.type === "citation" && isLLC(docCase(d)));
+    const addressFault = services.validateAndStandardizeAddresses(docCase(d), d.type === "citation" && isLLC(docCase(d)));
     if (addressFault) {
-      toast(addressFault.message);
+      services.toast(addressFault.message);
       return null;
     }
     if (d.correction) {
-      toast("Use Review correction to save this revision to the shared record");
+      services.toast("Use Review correction to save this revision to the shared record");
       return null;
     }
     const snap = clone(d);
     delete snap.draft;
     snap.status = "Final";
     // the snapshot has to be everything that printed, not just the document
-    snap.frozen = freezeSources(d);
+    snap.frozen = services.freezeSources(d);
     const type = ISSUE_EVENT[d.type];
     if (!type) {
-      toast("That document type cannot be issued yet");
+      services.toast("That document type cannot be issued yet");
       return null;
     }
     // a reinspection that has not been committed on its own goes on the record now
     const r = d.fromReinspId ? reinsp(d.fromReinspId) : null;
-    if (r && r.draft) recordReinspection(r, true);
-    const ev = appendEvent(
+    if (r && r.draft) services.recordReinspection(r, true);
+    const ev = services.appendEvent(
       d.caseId,
       type,
       {
@@ -99,15 +96,15 @@ export function initTestFixtures() {
       docInsp(d).id,
     );
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id); // the draft is spent
-    project();
-    saveDrafts();
+    services.project();
+    services.saveDrafts();
     const live = doc(d.id);
     if (live) {
       WriterState.state.docId = live.id;
     }
-    render();
+    services.render();
     return ev;
   }
-  const reissueDocument = (docId) => startCorrection(docId);
+  const reissueDocument = (docId) => services.startCorrection(docId);
   return { futureDue, issueDocument, fmtDateEd, reissueDocument };
 }

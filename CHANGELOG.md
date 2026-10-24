@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Remaining Writer feature-factory boundaries (development)
+
+- Compose administrator tools, address preview/acceptance and new-document actions through named lazy UI/peer dependencies, retaining original initialization and click-listener order. The renderer obtains the unchanged historical affected-item predicate from the new-document service; the fixture factory receives explicit callbacks only under its existing test-build flag.
+- Reduce the retained Writer cycle from 19 to 15 modules and narrow dependency guards; Reports remains 5. Add independent tests for stale address responses, explicit acceptance, administrator receipt bindings, historical selection, live visit replacement and test-only composition; preserve all existing functional, service, event and print assertions.
+- Update ownership, cleanup roadmap, source inventory and test index. R63/build-64 and authored/storage identities, helper authorization, integrity/publication boundaries and acceptance holds remain unchanged.
+
 ## Unreleased — Scoped Writer service dependencies (development)
 
 - Replace UI/core back-imports in navigation, language actions, citation pricing, deposit completion, initial citations and snow-case handling with explicitly composed lazy interfaces. Preserve calculation/action bodies, initialization order, existing listener phases, readiness/save guards and synchronous user actions.

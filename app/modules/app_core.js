@@ -58,6 +58,9 @@ import {
   loadCaseFile,
   printNotice,
   testWrite,
+  sourceDocFor,
+  appendEvent,
+  project,
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
@@ -102,7 +105,7 @@ import {
   highlightOpenChecks,
   worksheetChecks,
 } from "./reinspection.js";
-import { uiIcon, caseState, renderKeep, render } from "./app_screens.js";
+import { uiIcon, caseState, renderKeep, render, screenCases } from "./app_screens.js";
 import {
   accelaFromShare,
   pickAccelaFile,
@@ -132,6 +135,7 @@ import {
   runFinalize,
   startCorrection,
   voidDocument,
+  commitRecordAttempt,
 } from "./issuance_and_corrections.js";
 import {
   backupUnfinished,
@@ -151,6 +155,7 @@ import {
   saveAndContinue,
   selectRecovery,
   validateRecovery,
+  worksheetFaults,
 } from "./draft_recovery.js";
 import {
   adoptCatalogReview,
@@ -247,9 +252,48 @@ export const snow = initSnow({
   isLocked: (...args) => isLocked(...args),
   uid: (...args) => uid(...args),
 });
-export const administration = initAdministration();
+export const administration = initAdministration({
+  toast: (...args) => toast(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  get A11Y() {
+    return A11Y;
+  },
+  get citationPricing() {
+    return citationPricing;
+  },
+  isLocked: (...args) => isLocked(...args),
+  get snow() {
+    return snow;
+  },
+});
 export const libraryReview = initReviewedLibrary();
-export const newDocuments = initNewDocuments();
+export const newDocuments = initNewDocuments({
+  fmtDate: (...args) => fmtDate(...args),
+  inspAt: (...args) => inspAt(...args),
+  toast: (...args) => toast(...args),
+  validISO: (...args) => validISO(...args),
+  evid: (...args) => evid(...args),
+  shell: (...args) => shell(...args),
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  screenCases: (...args) => screenCases(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  render: (...args) => render(...args),
+  commitRecordAttempt: (...args) => commitRecordAttempt(...args),
+  worksheetFaults: (...args) => worksheetFaults(...args),
+  newDoc: (...args) => newDoc(...args),
+  docFromReinspection: (...args) => docFromReinspection(...args),
+  refreshSheet: (...args) => refreshSheet(...args),
+  docBody: (...args) => docBody(...args),
+  isLocked: (...args) => isLocked(...args),
+  get snow() {
+    return snow;
+  },
+  uid: (...args) => uid(...args),
+});
 export const citationPricing = initCitationPricing({
   inspAt: (...args) => inspAt(...args),
   lookupForf: (...args) => lookupForf(...args),
@@ -334,7 +378,19 @@ export const recordIntegrity = initRecordIntegrity({
   helperJSON: (...args) => helperJSON(...args),
   render: () => render(),
 });
-export const addressParser = initAddressParser();
+export const addressParser = initAddressParser({
+  toast: (...args) => toast(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  get A11Y() {
+    return A11Y;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  uid: (...args) => uid(...args),
+});
 /* Feature interfaces are lazy: no service or later state is read during construction. */
 const utilityEvents = createUtilityEvents({
   checks: (...args) => checks(...args),
@@ -690,7 +746,21 @@ const contactEvents = createContactEvents({
 utilityEvents.registerHelpClicks();
 utilityEvents.registerHelpKeys();
 utilityEvents.registerHelpClose();
-const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
+const $testFixtures = __TEST_BUILD__
+  ? initTestFixtures({
+      fmtDate: (...args) => fmtDate(...args),
+      freezeSources: (...args) => freezeSources(...args),
+      toast: (...args) => toast(...args),
+      appendEvent: (...args) => appendEvent(...args),
+      project: (...args) => project(...args),
+      saveDrafts: (...args) => saveDrafts(...args),
+      validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+      recordReinspection: (...args) => recordReinspection(...args),
+      startCorrection: (...args) => startCorrection(...args),
+      render: (...args) => render(...args),
+      MINDUE: (...args) => MINDUE(...args),
+    })
+  : null;
 
 /* R35: an initial-inspection citation (authoring 11+) is the only mailed document; its paired Official Notice
    snapshot is the case's internal record of the deadlines and is never printed, filed or emailed separately. */
