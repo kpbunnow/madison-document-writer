@@ -1,5 +1,17 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 3 (development)
+
+- Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged. The browser workflow explicitly foregrounds Reports when returning from Writer and checks navigation readiness without extending its deadline. Escape focus restoration uses a bounded wait for the asynchronous dialog close event, retaining the original focus assertion.
+
+
+- Dead code removed with reachability evidence; no user-visible behavior, document output or helper rule changed.
+- Obsolete Accela status table `ACC_STATUS`, the one-argument `accStatusEligible` branch and the unreachable Pending explanation removed; eligibility is `statusRule(type, status)`.
+- Unreachable "already used to generate a document" import blocker (`plan.used`) removed: a used inspection is never an import candidate. The hidden-row message, helper reuse validation and unfinished-work check are unchanged.
+- Nine module-internal exports made private; unused `rememberUI` parameter removed.
+- Unused screen CSS inventoried as candidates only (docs/developer/CSS-CANDIDATES.md); embedded and frozen stylesheets unchanged.
+- The division Word templates moved byte-for-byte from tests/fixtures/reference/new-documents/ to docs/history/division-templates/.
+
 ## Unreleased — Consolidation Phase 2 (development)
 
 - Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.

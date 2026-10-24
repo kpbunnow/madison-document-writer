@@ -12,7 +12,7 @@ source distributions and never in inspector deployment folders.
 | reference/Document-Generator-Import.rdl | Fixed SQL/query provenance; audit_lookup.py and audit_r39.py |
 | reference/r45-import-fixtures/, r50-import-fixtures/ | Synthetic workbook bytes; import/browser regressions |
 | reference/*-print-fixture-payload.js | Test drivers for authored print baselines; retain with their baseline consumers |
-| reference/new-documents/, Order-Language-Library-Source.xlsx | Original division templates/source provenance; preserve originals and hashes pending a separate consumer/provenance inventory |
+| reference/Order-Language-Library-Source.xlsx | Original order-language source provenance; preserve original and hash pending a separate consumer/provenance inventory. The division Word templates moved to docs/history/division-templates/ (Consolidation Phase 3) |
 | Other reference JSON/text and fixture helpers | Retained compatibility/provenance and test infrastructure; direct filename searches alone cannot prove absence of dynamic consumers |
 
 R55 intentionally moves no fixtures. A later move must inventory direct and dynamic

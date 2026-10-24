@@ -6,7 +6,7 @@ const fs = require("fs"),
   path = require("path"),
   os = require("os"),
   assert = require("assert/strict");
-const { spawn } = require("child_process");
+const { spawn, execFileSync } = require("child_process");
 const { chromium } = require("playwright");
 const { runSuite, timings: suiteTimings } = require("../../tools/browser_suite.cjs");
 const ROOT = require("path").resolve(__dirname, "../.."),
@@ -19,6 +19,16 @@ let server, browser, auditPage, coreTimer;
 const coreStarted = performance.now();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const axeResults = [];
+// These citation artifacts include an Official Notice cover. Assert the full required paragraphs in the PDF,
+// not just their headings or the HTML source: an incomplete capture must fail verification.
+function assertCitationCoverPDF(filename) {
+  const compact = (text) => text.normalize("NFC").replace(/\s+/g, "");
+  const text = compact(execFileSync("pdftotext", ["-layout", path.join(OUT, filename), "-"], { encoding: "utf8" }));
+  const blocks = JSON.parse(fs.readFileSync(path.join(ROOT, "app/assets/approved_language.json"), "utf8")).blocks;
+  for (const key of ["FEES", "LANGUAGE"])
+    for (const paragraph of blocks[key].text.split("\n").filter(Boolean))
+      assert.ok(text.includes(compact(paragraph)), filename + ": missing " + blocks[key].label + " paragraph: " + paragraph);
+}
 async function axeScreen(page, screen) {
   // Audit the active tab: background tabs can stall animation frames and actionability checks.
   await page.bringToFront();
@@ -1137,8 +1147,11 @@ async function axeThemes(page, screen) {
     const job = await page.evaluate((id) => printJob(doc(id)), id),
       pdfPage = await browser.newPage();
     await pdfPage.setContent(job.html, { waitUntil: "load" });
+    await pdfPage.emulateMedia({ media: "print" });
+    await pdfPage.evaluate(() => document.fonts.ready);
     await pdfPage.pdf({ path: path.join(OUT, filename), format: "Letter", printBackground: true, preferCSSPageSize: true });
     await pdfPage.close();
+    assertCitationCoverPDF(filename);
   }
   const citOriginal = await page.evaluate((id) => JSON.stringify(eventsFor(doc(id).caseId).find((e) => e.payload?.snapshot?.id === id)), citId);
   const number = await page.evaluate((id) => Object.values(doc(id).cits)[0].num, citId);
@@ -1188,8 +1201,11 @@ async function axeThemes(page, screen) {
   const manualJob = await page.evaluate(() => printJob(doc(WriterState.state.docId)));
   const manualPage = await browser.newPage();
   await manualPage.setContent(manualJob.html, { waitUntil: "load" });
+  await manualPage.emulateMedia({ media: "print" });
+  await manualPage.evaluate(() => document.fonts.ready);
   await manualPage.pdf({ path: path.join(OUT, "manual-deposit-citation.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
   await manualPage.close();
+  assertCitationCoverPDF("manual-deposit-citation.pdf");
   // Direct lookup: SQL responses are fixtures; shared records and IndexedDB are real.
   await page.locator('.writer-navigation [data-nav="cases"]').click();
   await page.waitForFunction(() => WriterState.state.screen === "cases");
@@ -1277,7 +1293,7 @@ async function axeThemes(page, screen) {
   assert.equal(
     await page.evaluate(() => {
       const plan = accelaPlan(WriterState.state.acc);
-      return !!plan.refresh || !!plan.used || plan.blockers.length > 0;
+      return !!plan.refresh || plan.blockers.length > 0;
     }),
     true,
   );
@@ -1625,6 +1641,8 @@ async function axeThemes(page, screen) {
   assert.equal(await page.evaluate(() => WriterState.HELPER.outbox), 1, "Outbox presentation uses the refreshed retained-file count");
   await page.keyboard.press("Escape");
   // Per-report CSV and shared settings are read-only against case history.
+  // Returning from Writer activates Reports, as a user switching tabs would. Background pages can stall checks.
+  await reports.bringToFront();
   await reports.evaluate(() => {
     ReportsState.S.F.from = "2020-01-01";
     ReportsState.S.F.to = TODAY;
@@ -1633,6 +1651,13 @@ async function axeThemes(page, screen) {
     ReportsState.S.view = "table";
     render();
   });
+  const reportsReady = await reports.evaluate(() => ({
+    navigation: !!document.querySelector("#report-menu"),
+    phase: ReportsState.S.phase,
+    stopped: helperStop.stopped,
+    title: document.title,
+  }));
+  assert.equal(reportsReady.navigation, true, "Reports navigation after returning from Writer: " + JSON.stringify(reportsReady));
   for (const report of await reports.evaluate(() => REPORTS.map((r) => r.id))) {
     await reports.locator("#report-menu").evaluate((el) => (el.open = true));
     await reports.locator('.rail [data-screen="' + report + '"]').click();

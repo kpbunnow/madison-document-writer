@@ -50,6 +50,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector("#utility-dialog"));
     assert.equal(await page.locator("#utility-dialog").count(), 0);
+    // Escape also restores focus after the asynchronous dialog close event, just like Save below.
+    await page.waitForFunction(() => document.activeElement?.classList.contains("blank-edit"), null, { timeout: 2000 });
     assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true);
     await page.keyboard.press("Enter");
     await page.locator("#corrective-detail").fill("the damaged surface");

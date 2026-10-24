@@ -89,7 +89,7 @@ function itemsHTML(R, items) {
   return "<ul>" + items.map((item) => "<li><strong>" + R.esc(item.text) + "</strong> " + R.esc(item.guidance) + "</li>").join("") + "</ul>";
 }
 
-export function exitDialogHTML(R, review) {
+function exitDialogHTML(R, review) {
   const blocked = review.blocking.length > 0;
   return (
     '<form id="exit-writer-form" data-exit-writer-form><p>Exit stops Document Writer on this computer. This window and any other ' +

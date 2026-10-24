@@ -23,7 +23,6 @@ import {
   ACC_LABEL,
   ACC_MAX,
   ACC_REQUIRED,
-  ACC_STATUS,
   REFERRED_ONLY,
   DOC_TYPES,
   OUTCOMES,
@@ -1048,7 +1047,6 @@ function accelaTable(grid) {
     const kind = inspectionKind(type),
       tk = kind || "other",
       rule = statusRule(type, status);
-    const st = ACC_STATUS[accNorm(status)];
     const name = accStr(get(r, "inspector")),
       ins = accInspector(name);
     const row = {
@@ -1068,10 +1066,7 @@ function accelaTable(grid) {
       warn: [],
     };
     if (w.warn) row.warn.push(w.warn);
-    if (st?.why) {
-      row.selectable = false;
-      row.why = st.why;
-    } else if (rule.error) {
+    if (rule.error) {
       row.selectable = false;
       row.why = rule.error;
     }
@@ -1239,16 +1234,9 @@ function baseLookupPlan(acc) {
   // updates the stored Accela status instead of being refused as already used.
   p.refresh = refreshImportPending(k, row);
   if (k && !p.refresh) {
-    p.used = row && inspectionUsed(k, row);
+    // A used inspection is never a candidate (importCandidates), so it cannot be the selected row here.
     const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || unissuedVisitFor(k.id);
-    if (p.used)
-      p.blockers.push(
-        "This inspection has already been used to generate a document. Choose Con" +
-          "tinue existing case to continue or correct that document." +
-          // R59: a used result stays selectable so its reason is shown; another eligible result can still be chosen.
-          (eligible.length > 1 ? " To import a different inspection, choose another result above." : ""),
-      );
-    else if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
+    if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
     else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
     else if (caseState(k).closed) p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
     else if (row) {
