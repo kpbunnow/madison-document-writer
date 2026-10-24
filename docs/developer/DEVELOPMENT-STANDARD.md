@@ -66,9 +66,9 @@ version.json is authoritative. `tools/version_schema.py` validates actual dates,
 | authoringVersion | New authored format only; preserve historical renderer cutoffs and issued versions |
 | caseSchema / summaryVersion / backupVersion | Change only their own compatibility contract with reader/migration/parity tests |
 
-R62 with helper build 63 is intentional. New ordinary documents use authoring 16; scoped orders retain 13. Constants such as historical authoring 12/13/14/15/16 are capabilities, not values to globally replace during a release bump. The independently pinned per-family test expectations remain separate from application implementation.
+R63 with helper build 64 is the current assigned release (the development label R62, build 63, was never published). New ordinary documents use authoring 16; scoped orders retain 13. Constants such as historical authoring 12/13/14/15/16 are capabilities, not values to globally replace during a release bump. The independently pinned per-family test expectations remain separate from application implementation.
 
-The owner authorized development under `2026-10-23 R62` until a deploy package is requested. This work does not assign R63/build 64, package or deploy a release, approve legal wording, or close City acceptance. Phase 8 screen-shell cleanup remains declined.
+The owner authorized development under `2026-10-23 R62` until a deploy package was requested, then assigned `2026-10-24 R63` (helper 2026.10.24.64, build 64) for the authorized release package, published against the R61 deployment manifest. Assigning and packaging a release does not approve legal wording, deploy it or close City acceptance. Phase 8 screen-shell cleanup remains declined.
 
 ## Publication and package structure
 

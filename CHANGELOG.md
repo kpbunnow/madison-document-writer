@@ -6,11 +6,15 @@
 - Reviewed-library updates no longer import startup; the largest maintained Writer import cycle drops from 26 modules to 25. A static dependency inventory and foundation-layer/cycle checks guard against renewed coupling. No-DOM tests cover live restored arrays, frozen/correction precedence and historical format cutoffs; existing output and test references are unchanged.
 - Schema validation reads its new document_types owner. Code map and cleanup roadmap describe the remaining feature-listener, event-rule and Writer/Reports cycle work. Release identity, approved wording/styles, screen-shell references and City acceptance are unchanged.
 
-## Unreleased — Free-plan merge policy (development)
+## 2026-10-24 R63 — Release package
+
+First release package since R61 (helper 2026.10.24.64, build 64; authoring 16, case schema 5, summary 6, backup 2). It contains the R62 Development 3 changes below the R63 sections (the R62 label was a development identity and was never packaged) and the following work, merged through PRs #35–#44. Published against the retained R61 deployment manifest. City, native, staff, legal and seasonal acceptance remain open; packaging is not deployment approval.
+
+### Free-plan merge policy
 
 - The owner chose to keep the private repository on GitHub's free plan, where branch rules are not enforced. DEVELOPMENT-STANDARD.md now records that decision and the merge policy followed by hand (pull requests only, both checks green on the current head and current main, owner approval, main checked after merge); the enforced-rule settings are kept for a future plan change. Documentation only.
 
-## Unreleased — Post-consolidation corrections (development)
+### Post-consolidation corrections
 
 - Writer protects retained private work until startup restoration finishes. Editable routes wait behind a restoration screen; early saves are refused. Failed required storage reads show reload/retry guidance instead of being treated as empty data. Internal held-write recovery saves only after drafts are read. Production-browser coverage uses real IndexedDB, delayed startup, navigation, read failure and retry.
 - Shared views now accept all eleven supported Reports IDs, including Overridden deposits and Document actions, with frontend/helper contract coverage and existing invalid-ID/immutability checks retained.
@@ -19,7 +23,7 @@
 - Generic entry points and implemented prompts reflect merged development; historical authoring-15 safety confirmation is distinguished from current authoring-16 behavior. Existing acceptance decisions and all open holds are retained.
 - Current R62/helper-build-63 identity, authored formats, storage versions, frozen print fixtures and installed names are unchanged. No release assignment, packaging, deployment or native/City acceptance is performed by this development change.
 
-## Unreleased — Consolidation Phase 7 (development)
+### Consolidation Phase 7
 
 - Review: retain direct entry-point links to the R59–R61 reviews still in docs/developer. Clarify that the special-extension version table does not describe ordinary Extensions, and that the historical signer-after-table rule starts with the aligned authoring-12 layout. All manual editions regenerated together.
 - Preserve three additional replaced paragraphs verbatim in the documentation release narrative (maintenance guidance, the certificate workaround release label and Best Interest format guidance).
@@ -28,7 +32,7 @@
 - Staff guides drop release labels from current instructions. 01-ARCHITECTURE, 03-DOMAIN-RULES and 04-PITFALLS are reorganized by feature with short historical-formats notes; 03-DOMAIN-RULES now lists the current import table, including No Fee statuses, in its import section. 00-START-HERE links every developer document.
 - Replaced text is retained verbatim in docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 
-## Unreleased — Consolidation Phase 6 (development)
+### Consolidation Phase 6
 
 - Review: suite timeouts now terminate scenario descendants as well as their feature-suite parent. The 150-second deadline is unchanged; an integration check verifies that a timed-out scenario stops writing and that output/failure statuses are retained.
 - Test organization only; no application code, assertion, expected value or message changed.
@@ -37,27 +41,27 @@
 - Chromium classification follows local requires transitively (tools/suite_classes.py, audit_suite_classes.py); the classification of every existing suite is unchanged.
 - tests/README.md is reorganized by feature and maps former suite names.
 
-## Unreleased — Consolidation Phase 5 (development)
+### Consolidation Phase 5
 
 - Review: the R60 browser fixture waits for Writer startup restoration before injecting case data. This prevents a late startup repaint from replacing the corrective-detail dialog's focus target; the Escape-focus assertion and its deadline are unchanged. The race also reproduces on the pre-Phase-5 bundle.
 - Mechanical module realignment; no function body, initializer, listener registration or document output changed.
 - New accela_import.js holds the whole Accela import path (from app_core.js, reinspection_walkthrough.js and inspection_import.js); reinspection_walkthrough.js is now reinspection.js (worksheet, checks and walkthrough); inspection_import.js is now editor_screens.js (document editor); new app_screens.js holds render, the shared modals and the case list.
 - The Reports bundle is byte-identical; the Writer bundle has the same 439 function bodies, the same 140 executable top-level statements in the same order and the same 217 declarators.
 
-## Unreleased — Consolidation Phase 4 (development)
+### Consolidation Phase 4
 
 - Consolidation only; no document output, user-visible message or helper rule changed.
 - One live referred-case predicate, `isReferredCase(caseId)`, replaces ten equivalent checks with three spellings. The correction check keeps its source-document exclusion; Reports status and the workspace's "ever referred" flag are separate rules and unchanged (audit_referred_case.js).
 - Tests that mean "the current format" read a pinned per-family authoring table (tests/fixtures/authoring_expectations.cjs) checked against version.json; historical literals stay.
 - Production-only suites recognise a test bundle from its content and stop with one clear message (audit_production_build_guard.js).
 
-## Unreleased — Import status validation fix (development)
+### Import status validation fix
 
 - Fix (pre-existing): an Accela status of `constructor` or `__proto__` (any case) was treated as having a document rule, so the row was importable and could be auto-selected. Import rules now read only their own entries, and such a row is listed greyed with "has no document rule", like any unknown status.
 - Fix (pre-existing): a report case number spelled like an inherited object property (`constructor`, `__proto__`, `toString`, …) failed the import with an internal TypeError. Cases are now grouped by their own text.
 - Applies to both the uploaded report and the SQL lookup; covered by audit_status_own_property.js. Release identity, authoring and storage versions unchanged.
 
-## Unreleased — Consolidation Phase 3 (development)
+### Consolidation Phase 3
 
 - Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged. The browser workflow explicitly foregrounds Reports when returning from Writer and checks navigation readiness without extending its deadline. Escape focus restoration uses a bounded wait for the asynchronous dialog close event, retaining the original focus assertion.
 
@@ -68,7 +72,7 @@
 - Unused screen CSS inventoried as candidates only (docs/developer/CSS-CANDIDATES.md); embedded and frozen stylesheets unchanged.
 - The division Word templates moved byte-for-byte from tests/fixtures/reference/new-documents/ to docs/history/division-templates/.
 
-## Unreleased — Consolidation Phase 2 (development)
+### Consolidation Phase 2
 
 - Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.
 
@@ -78,7 +82,7 @@
 - Optional fast development tier (`DW_FAST=1`): skips measured performance suites and uses one projection seed; labelled fast, never release evidence, refused by packaging.
 - Packaging refuses missing gate proof (a fast or interrupted run) or missing print compatibility evidence with a message instead of a traceback.
 
-## Unreleased — Consolidation Phase 1 (development)
+### Consolidation Phase 1
 
 - The screen frame escapes its plain-text title and breadcrumb once; imported addresses on the case-actions screen are no longer inserted as markup, and no breadcrumb is escaped twice.
 - The install guide's Get-FileHash command names the packaged deploy ZIP (the packager's file-name rule is shared with the build).
