@@ -1641,6 +1641,8 @@ async function axeThemes(page, screen) {
   assert.equal(await page.evaluate(() => WriterState.HELPER.outbox), 1, "Outbox presentation uses the refreshed retained-file count");
   await page.keyboard.press("Escape");
   // Per-report CSV and shared settings are read-only against case history.
+  // Returning from Writer activates Reports, as a user switching tabs would. Background pages can stall checks.
+  await reports.bringToFront();
   await reports.evaluate(() => {
     ReportsState.S.F.from = "2020-01-01";
     ReportsState.S.F.to = TODAY;
@@ -1649,6 +1651,13 @@ async function axeThemes(page, screen) {
     ReportsState.S.view = "table";
     render();
   });
+  const reportsReady = await reports.evaluate(() => ({
+    navigation: !!document.querySelector("#report-menu"),
+    phase: ReportsState.S.phase,
+    stopped: helperStop.stopped,
+    title: document.title,
+  }));
+  assert.equal(reportsReady.navigation, true, "Reports navigation after returning from Writer: " + JSON.stringify(reportsReady));
   for (const report of await reports.evaluate(() => REPORTS.map((r) => r.id))) {
     await reports.locator("#report-menu").evaluate((el) => (el.open = true));
     await reports.locator('.rail [data-screen="' + report + '"]').click();
