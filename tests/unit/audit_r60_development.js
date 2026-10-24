@@ -1,5 +1,6 @@
 /* R60 confirmed Workspace, text-entry, worksheet deadlines and item-specific referral rules. */
 globalThis.MADISON_TEST_DATA = true;
+globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
 require("../fixtures/bundle_test.cjs")(`
   global.Event = window.Event;
   Object.defineProperty(window.HTMLElement.prototype,"isContentEditable",{get(){return this.getAttribute("contenteditable")==="true";},configurable:true});
@@ -101,10 +102,10 @@ require("../fixtures/bundle_test.cjs")(`
   assert.deepEqual(worksheetFaults(visit,'referral'),[]);
   docFromReinspection(visit,'referral');
   const generated=doc(visit.docId);
-  assert.equal(generated.type,'referral');assert.equal(generated.authoringVersion,16);
+  assert.equal(generated.type,'referral');assert.equal(generated.authoringVersion,CURRENT_AUTHORING.followUp);
   assert.equal(generated.items[0].hist[0].on,'2026-03-07');
   assert.equal(generated.items[1].hist[0].on,'2026-03-09');
   const snap=makePublication(generated).payload.snapshot;
-  assert.equal(snap.authoringVersion,16);assert.deepEqual(snap.items[0].hist,generated.items[0].hist);
+  assert.equal(snap.authoringVersion,CURRENT_AUTHORING.followUp);assert.deepEqual(snap.items[0].hist,generated.items[0].hist);
   console.log('PASS R60 Workspace, safe text dialog, scoped batch deadlines, item lineage, frozen history and civil-day calculations');
 `);

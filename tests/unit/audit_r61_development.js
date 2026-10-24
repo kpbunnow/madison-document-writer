@@ -1,5 +1,6 @@
 /* R61 new history, monetary presentation, copy completeness and retained output. Synthetic only. */
 globalThis.MADISON_TEST_DATA = true;
+globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
 require("../fixtures/bundle_test.cjs")(`
   saveDrafts = async () => true; scheduleDraftSave = () => {};
   WriterState.DOCS = []; WriterState.REINSP = []; WriterState.EVENTS = {}; WriterState.PENDING = [];
@@ -49,7 +50,7 @@ require("../fixtures/bundle_test.cjs")(`
   const visit={id:'visit',caseId:'k1',sourceDocId:source.id,draft:true,date:stamp,time:'09:00',inspectorId:INSPECTORS[0].id,results:{a:{oc:'corrected',on:stamp,note:'Confirmed repair.'}}};
   WriterState.DOCS=[source];WriterState.REINSP=[visit];WriterState.state.reinspId=visit.id;
   docFromReinspection(visit,'compliance');
-  const generated=doc(visit.docId);assert.equal(generated.type,'compliance');assert.equal(generated.authoringVersion,16);
+  const generated=doc(visit.docId);assert.equal(generated.type,'compliance');assert.equal(generated.authoringVersion,CURRENT_AUTHORING.followUp);
   assert.equal(generated.items[0].abate,false);assert.equal(generated.items[0].due,source.items[0].due,'compliance keeps the original repair deadline in its snapshot');assert.equal(generated.items[0].hist.at(-1).note,'Confirmed repair.');
   const snapshot=makePublication(generated).payload.snapshot;
   const before=noticeHTML(snapshot);visit.results.a.note='Later private change';assert.equal(noticeHTML(snapshot),before,'issued histories retain their snapshot');
@@ -87,7 +88,7 @@ require("../fixtures/bundle_test.cjs")(`
   assert.ok(document.querySelector('[data-adopt-best-interest]'));
   const previousDetails=JSON.stringify(legacyDraft.special);document.querySelector('[data-adopt-best-interest]').click();
   // R62: adoption moves to the current all-item Best Interest format (authoring 16).
-  assert.equal(legacyDraft.authoringVersion,16);assert.equal(JSON.stringify(legacyDraft.special),previousDetails,'adoption retains earlier review data');
+  assert.equal(legacyDraft.authoringVersion,CURRENT_AUTHORING.allItemExtension);assert.equal(JSON.stringify(legacyDraft.special),previousDetails,'adoption retains earlier review data');
   WriterState.DOCS=[];WriterState.REINSP=[];newDoc('k1','notice');
   const citation=doc(WriterState.state.docId);citation.type='citation';citation.items=[{id:'charge',no:'1',text:'Repair wall.',sections:['27.05(2)(c)'],cite:true}];
   citation.cits={charge:{num:'B90000000001',ord:'27.05(2)(c)',issued:stamp,courtDate:addDays(stamp,21),courtTime:'08:30',depositMode:'schedule'}};

@@ -291,6 +291,7 @@
     "tests/browser/browser_r62.js",
     "tests/fixtures/README.md",
     "tests/fixtures/address_corpus.json",
+    "tests/fixtures/authoring_expectations.cjs",
     "tests/fixtures/built_bundle.cjs",
     "tests/fixtures/bundle_test.cjs",
     "tests/fixtures/deposit_golden.json",
