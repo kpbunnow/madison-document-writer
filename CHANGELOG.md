@@ -2,6 +2,9 @@
 
 ## Unreleased — Consolidation Phase 3 (development)
 
+- Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged.
+
+
 - Dead code removed with reachability evidence; no user-visible behavior, document output or helper rule changed.
 - Obsolete Accela status table `ACC_STATUS`, the one-argument `accStatusEligible` branch and the unreachable Pending explanation removed; eligibility is `statusRule(type, status)`.
 - Unreachable "already used to generate a document" import blocker (`plan.used`) removed: a used inspection is never an import candidate. The hidden-row message, helper reuse validation and unfinished-work check are unchanged.

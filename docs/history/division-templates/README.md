@@ -2,7 +2,7 @@
 
 The Building Inspection division's original Word templates for the abatement, No Occupancy, Best Interest Extension and Vacancy Extension letters. They arrived with the R53 source archive (listed in `../R53-INVENTORY.json` under their former path, `tests/fixtures/reference/new-documents/`) as the division's source letters for those document types.
 
-Inert provenance only: no build step, test, tool or deployment package reads them, and they are not an instruction for current work. Approved wording lives in `policy/` and the frozen print references under `tests/fixtures/reference/`. Consolidation Phase 3 (D6) moved them here byte-for-byte; keep every file unchanged.
+Inert provenance only: no build step, test, tool or deployment package reads them, and they are not an instruction for current work. Current approved document and court wording lives in `app/assets/approved_language.json`; policy rules live in `policy/`, and frozen print references remain under `tests/fixtures/reference/`. Consolidation Phase 3 (D6) moved them here byte-for-byte; keep every file unchanged.
 
 | File | SHA-256 |
 | --- | --- |
