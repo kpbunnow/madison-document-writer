@@ -22,7 +22,7 @@ jobs:
       TZ: America/Chicago
       PYTHONDONTWRITEBYTECODE: '1'
       DW_TEST_WORKERS: '2'
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/madison-browsers
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/../madison-browsers
     steps:
       - name: Check out the reviewed head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

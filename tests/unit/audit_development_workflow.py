@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -18,6 +19,15 @@ class DevelopmentWorkflow(unittest.TestCase):
     def workflow(self, name):
         # GitHub uses YAML's event key "on"; BaseLoader avoids YAML 1.1's boolean coercion of that key.
         return yaml.load((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+
+    def test_job_environment_expressions_use_available_contexts(self):
+        # GitHub validates job-level env before runner context exists. Step env has different rules.
+        allowed = {"github", "inputs", "matrix", "needs", "secrets", "strategy", "vars"}
+        for path in (ROOT / ".github/workflows").glob("*.yml"):
+            for name, job in self.workflow(path.name)["jobs"].items():
+                for value in job.get("env", {}).values():
+                    for context in re.findall(r"\$\{\{\s*(\w+)\.", value):
+                        self.assertIn(context, allowed, f"{path.name}/{name}: unavailable job env context {context}")
 
     def test_ci_is_readonly_and_pins_actions_and_toolchain(self):
         workflow = self.workflow("verify.yml")
