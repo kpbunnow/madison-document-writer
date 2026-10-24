@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Document renderer boundary (development)
+
+- Compose notice/document/citation rendering through named lazy dependencies, removing UI and live-query imports from document_render. Core exports the actual instance functions; existing consumers import them there. Preserve all seven template bodies, authored markup and fixed-print/pagination/publication ownership.
+- Reduce the retained Writer cycle from 15 to 14 modules, keep Reports at 5, and narrow import/global guards. Add independent renderer checks; retain private diagnostic bindings through the existing test-only hook and preserve all property, historical, functional and print assertions.
+- Update ownership, cleanup roadmap, source inventory and test index. R63/build-64 and authored/storage identities, court wording, integrity rules and acceptance holds remain unchanged.
+
 ## Unreleased — Remaining Writer feature-factory boundaries (development)
 
 - Compose administrator tools, address preview/acceptance and new-document actions through named lazy UI/peer dependencies, retaining original initialization and click-listener order. The renderer obtains the unchanged historical affected-item predicate from the new-document service; the fixture factory receives explicit callbacks only under its existing test-build flag.
