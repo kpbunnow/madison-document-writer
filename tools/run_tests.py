@@ -14,6 +14,8 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
+from suite_classes import uses_browser
+from suite_process import run_suite_process
 
 os.environ["TZ"] = "America/Chicago"
 if hasattr(__import__("time"), "tzset"):
@@ -120,15 +122,11 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
         def run_suite(suite):
             started = time.monotonic()
             try:
-                run = subprocess.run(
+                run = run_suite_process(
                     [sys.executable if suite.suffix == ".py" else "node", str(suite.relative_to(ROOT))],
                     cwd=ROOT,
                     env=suite_env(suite),
-                    capture_output=True,
-                    text=True,
                     timeout=150,
-                    encoding="utf-8",
-                    errors="replace",
                 )
                 output, code = run.stdout + run.stderr, run.returncode
             except subprocess.TimeoutExpired:
@@ -153,7 +151,7 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
             print("FAST RUN: skipping measured performance suites " + ", ".join(s.name for s in performance), flush=True)
             suites = [s for s in suites if s not in performance]
             performance = []
-        chromium = [s for s in suites if s not in performance and re.search(r"chromium|playwright|DW_BROWSER", s.read_text(encoding="utf-8"))]
+        chromium = [s for s in suites if s not in performance and uses_browser(s)]
         after_pool = [s for s in suites if s.name == "audit_case_projection.py"]
         pooled = [s for s in suites if s not in performance and s not in chromium and s not in after_pool]
         workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))

@@ -1,5 +1,14 @@
 # Release changelog
 
+## Unreleased — Consolidation Phase 6 (development)
+
+- Review: suite timeouts now terminate scenario descendants as well as their feature-suite parent. The 150-second deadline is unchanged; an integration check verifies that a timed-out scenario stops writing and that output/failure statuses are retained.
+- Test organization only; no application code, assertion, expected value or message changed.
+- Feature suites (`audit_feature_*.js`) group scenarios by feature; tests/fixtures/scenarios.cjs runs each scenario in its own process, so isolation is unchanged (audit_scenario_harness.js).
+- Thirteen suites moved: seven import suites and two history/referral suites whole, and the R60/R61 development and review-fix suites split block by block into their feature homes (Accela import, extensions, histories and referrals, citation packets, editor screens, worksheet dates, corrections, language catalog). The same 902 assertions and 108 import checks run.
+- Chromium classification follows local requires transitively (tools/suite_classes.py, audit_suite_classes.py); the classification of every existing suite is unchanged.
+- tests/README.md is reorganized by feature and maps former suite names.
+
 ## Unreleased — Consolidation Phase 5 (development)
 
 - Review: the R60 browser fixture waits for Writer startup restoration before injecting case data. This prevents a late startup repaint from replacing the corrective-detail dialog's focus target; the Escape-focus assertion and its deadline are unchanged. The race also reproduces on the pre-Phase-5 bundle.
