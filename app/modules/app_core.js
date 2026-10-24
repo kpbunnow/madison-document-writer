@@ -1077,7 +1077,10 @@ const STATUS_RULES = {
 export function statusRule(type, status) {
   const kind = inspectionKind(type);
   if (!kind) return { kind: null, error: 'Inspection type "' + (accStr(type) || "not supplied") + '" has no document rule' };
-  const rule = STATUS_RULES[kind][statusKey(status)];
+  // Own properties only: a status such as "constructor" or "__proto__" must not resolve to an inherited value.
+  const rules = STATUS_RULES[kind],
+    key = statusKey(status),
+    rule = Object.hasOwn(rules, key) ? rules[key] : null;
   if (!rule)
     return {
       kind,

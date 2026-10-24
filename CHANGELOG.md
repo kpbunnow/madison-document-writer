@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Import status validation fix (development)
+
+- Fix (pre-existing): an Accela status of `constructor` or `__proto__` (any case) was treated as having a document rule, so the row was importable and could be auto-selected. Import rules now read only their own entries, and such a row is listed greyed with "has no document rule", like any unknown status.
+- Fix (pre-existing): a report case number spelled like an inherited object property (`constructor`, `__proto__`, `toString`, …) failed the import with an internal TypeError. Cases are now grouped by their own text.
+- Applies to both the uploaded report and the SQL lookup; covered by audit_status_own_property.js. Release identity, authoring and storage versions unchanged.
+
 ## Unreleased — Consolidation Phase 2 (development)
 
 - Review fixes: failed browser preflight invalidates prior regression evidence; nested preflight diagnostics are read-only. Timer teardown preserves the native timeout receiver, with automated completion/failure checks. Projection captures reject non-UTF-8 text and boolean format versions.

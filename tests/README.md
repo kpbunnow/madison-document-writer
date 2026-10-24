@@ -102,6 +102,7 @@ Add a new suite under the feature it covers.
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
 | `audit_utf8_io.py` | Case, integrity, tool and policy text is UTF-8 under a simulated Windows CP1252 default (including the deposit provenance check); no implicit encodings in helper/, tools/ or policy/ |
 | `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |
+| `audit_status_own_property.js` | Statuses and case numbers spelled like inherited object properties (`constructor`, `__proto__`) are ordinary text: no document rule, not selectable, no import failure, on both the uploaded-report and SQL lookup paths for every inspection type |
 | `audit_shell_escaping.js` | Screen titles and breadcrumbs escape imported text exactly once (case actions in normal and referred branches, editor) |
 | `audit_safety.js`, `audit_safety.py` | Lock assistance, ownership, diagnostics privacy |
 | `audit_archive.py` | Byte-level archive and local HTTP |

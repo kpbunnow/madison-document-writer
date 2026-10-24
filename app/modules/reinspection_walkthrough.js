@@ -1019,7 +1019,8 @@ function accelaTable(grid) {
     )
     .forEach((k) => res.notes.push("The report has no " + ACC_LABEL(k) + " column"));
   const get = (r, k) => (col[k] === undefined ? "" : r[col[k]]);
-  const by = {};
+  // Keyed by report text, so a Map: a case number such as "constructor" must not find an inherited value.
+  const by = new Map();
   grid.slice(hr + 1).forEach((r) => {
     if (!r) return;
     const num = accStr(get(r, "number"));
@@ -1030,9 +1031,10 @@ function accelaTable(grid) {
       res.excluded[hidden]++;
       return;
     }
-    let c = by[num];
+    let c = by.get(num);
     if (!c) {
-      c = by[num] = { number: num, raw: {}, conflicts: [], rows: [] };
+      c = { number: num, raw: {}, conflicts: [], rows: [] };
+      by.set(num, c);
       res.cases.push(c);
       ACC_CASEFIELDS.forEach((f) => {
         c.raw[f] = accStr(get(r, f));
