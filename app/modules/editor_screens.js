@@ -8,29 +8,13 @@ import { citationRecoveryPanel, correctionEligibility, correctionPanel, filingPa
 import { publicationPanel } from "./draft_recovery.js";
 import { citationReview, duePanel } from "./case_timeline.js";
 import { refreshSheet } from "./document_pagination.js";
-import {
-  DOC_TYPES,
-  checkAttr,
-  deliveredByCitation,
-  doc,
-  docCase,
-  esc,
-  frozenOf,
-  globalCourtCopies,
-  initialCitations,
-  isEffective,
-  isLocked,
-  kase,
-  newDocuments,
-  recordHead,
-  recordIntegrity,
-  reinsp,
-  snow,
-  structEditable,
-  uid,
-} from "./app_core.js";
+import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
+import { checkAttr, esc } from "./presentation_format.js";
+import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
+import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
+import { initialCitations, isLocked, newDocuments, recordIntegrity, snow, structEditable, uid } from "./app_core.js";
 import { app_savedworkContext } from "./app_view_contexts.js";
-import { specialType } from "./new_documents.js";
+
 import { WriterState } from "./state.js";
 import { documentHTML, citationFaces } from "./document_render.js";
 import { documentSaveHTML, localSaveText } from "./saved_work.js";

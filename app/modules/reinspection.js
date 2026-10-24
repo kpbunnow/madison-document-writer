@@ -7,37 +7,14 @@ import { worksheetFaults, returnToWorksheet } from "./draft_recovery.js";
 import { dueContext, dueDateSpacingConflicts, duePanel } from "./case_timeline.js";
 
 import { renderKeep, screenCases, render } from "./app_screens.js";
-import {
-  DOC_TYPES,
-  OUTCOMES,
-  clone,
-  daysBetween,
-  doc,
-  docCase,
-  doneItems,
-  esc,
-  insp,
-  isReferredCase,
-  kase,
-  ocOf,
-  originalNotice,
-  reinsp,
-  unchecked,
-  dueItems,
-  checkTarget,
-  itemSelector,
-  checkAttr,
-  citSelector,
-  distinctDues,
-  isLocked,
-  itemLibraryKey,
-  isLLC,
-  openItems,
-  reinspFor,
-  newDocuments,
-  markBlanks,
-  MINDUE,
-} from "./app_core.js";
+import { DOC_TYPES, OUTCOMES } from "./document_types.js";
+import { doc, docCase, doneItems, insp, isReferredCase, kase, originalNotice, reinsp, unchecked, openItems, reinspFor } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { daysBetween } from "./calendar.js";
+import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
+import { ocOf, dueItems, distinctDues, itemLibraryKey } from "./document_rules.js";
+import { isLocked, newDocuments, MINDUE } from "./app_core.js";
+import { isLLC } from "./mailing_rules.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
 import { openImportWorkspace } from "./accela_import.js";

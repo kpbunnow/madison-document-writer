@@ -9,51 +9,46 @@ import { compareSharedCase, refreshCatalog } from "./language_catalog.js";
 import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
 
 import { cancelCaseLookup } from "./accela_import.js";
+import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 import {
-  DOC_TYPES,
   ENTRY_IDS,
   IDB_OK,
   ID_OK,
-  ISSUE_EVENT,
-  OUTCOMES,
   RECOVERY_CASE_KEYS,
   RECOVERY_WORKSPACE,
   RECOVERY_WORKSPACE_KEY,
-  REFERRED_ONLY,
-  SCHEMA,
   blockers,
   citationPricing,
-  clone,
-  deliveredByCitation,
-  distinctDues,
+  initialCitations,
+  navigation,
+  newDocuments,
+  recordFormKey,
+  recordIntegrity,
+  snow,
+} from "./app_core.js";
+import {
   doc,
   docCase,
   docInsp,
   docsFor,
-  esc,
   eventsFor,
-  initialCitations,
   insp,
-  isEffective,
   isReferredCase,
   kase,
-  libraryKey,
-  navigation,
-  newDocuments,
-  nowISO,
   originalNotice,
-  recordFormKey,
   recordHead,
-  recordIntegrity,
   recordNow,
   reinsp,
   reinspFor,
-  snow,
   unchecked,
-} from "./app_core.js";
+} from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { deliveredByCitation, distinctDues, isEffective, libraryKey, specialType } from "./document_rules.js";
+import { esc } from "./presentation_format.js";
+import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
 import { LIBRARY } from "./data/library.js";
-import { specialType } from "./new_documents.js";
+
 import { WriterState } from "./state.js";
 /* app functions; direct dependencies use explicit shared state. */
 

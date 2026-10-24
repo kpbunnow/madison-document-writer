@@ -1,4 +1,4 @@
-import { itemLibraryKey } from "./app_core.js";
+import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY } from "./citation_policy.js";
 /* Upgrade mutable working items only; issued snapshots and corrections stay frozen. */
 export function initReviewedLibrary() {

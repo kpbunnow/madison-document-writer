@@ -1,42 +1,15 @@
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
 import { sourceDocFor, caseNumberAllowed, caseFileName, storageReport, reindexReport, shell } from "./workspace_shell.js";
-import {
-  draftDocFor,
-  draftReinspFor,
-  docsFor,
-  snow,
-  isHistoryDoc,
-  addDays,
-  STATUS_OF,
-  effectiveFiled,
-  doneItems,
-  unchecked,
-  insp,
-  DOC_TYPES,
-  doc,
-  blockers,
-  initialCitations,
-  kase,
-  emailList,
-  docCase,
-  ccList,
-  isLLC,
-  EMAIL_KINDS,
-  CASEDIR_EXPECT,
-  isLocked,
-  checkAttr,
-  reinsp,
-  navigation,
-  newDocuments,
-  daysBetween,
-  esc,
-  iso,
-  A11Y,
-  IDB_OK,
-} from "./app_core.js";
+import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
+import { snow, blockers, initialCitations, CASEDIR_EXPECT, isLocked, navigation, newDocuments, A11Y, IDB_OK } from "./app_core.js";
+import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
+import { addDays, daysBetween, iso } from "./calendar.js";
+import { STATUS_OF, DOC_TYPES } from "./document_types.js";
+import { emailList, ccList, isLLC, EMAIL_KINDS } from "./mailing_rules.js";
+import { checkAttr, esc } from "./presentation_format.js";
 import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
-import { activeRestrictions } from "./new_documents.js";
+
 import { WriterState } from "./state.js";
 import { independentArtifact, pdfTransferState, workspaceTasks, remindersPanel } from "./case_timeline.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";

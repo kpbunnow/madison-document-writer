@@ -33,49 +33,43 @@ import { priorCitations, render } from "./app_screens.js";
 import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.js";
 import { commitCitationEdits } from "./case_timeline.js";
 
+import { CASE_CORRECTION_FIELDS, DOC_TYPES, FIELD_NAMES, OUTCOMES, courtTime } from "./document_types.js";
 import {
-  CASE_CORRECTION_FIELDS,
   COMMITTED,
-  DOC_TYPES,
   ENTRY_IDS,
-  FIELD_NAMES,
-  OUTCOMES,
   blockers,
-  byTime,
   citationPricing,
-  clone,
-  correctionSource,
-  courtTime,
-  deliveredByCitation,
   depositStep,
-  doc,
   docBlocks,
   docBody,
+  recordFormKey,
+  recordIntegrity,
+  summaryName,
+  uid,
+} from "./app_core.js";
+import {
+  correctionSource,
+  doc,
   docCase,
   docInsp,
   docsFor,
   draftDocFor,
   draftReinspFor,
-  emailList,
-  esc,
   eventsFor,
   insp,
-  isEffective,
-  isHistoryDoc,
-  isLLC,
   kase,
-  nowISO,
-  recordFormKey,
   recordHead,
-  recordIntegrity,
   recordNow,
   reinsp,
   reinspFor,
-  summaryName,
-  uid,
-} from "./app_core.js";
+} from "./writer_queries.js";
+import { byTime, clone } from "./record_values.js";
+import { deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
+import { emailList, isLLC } from "./mailing_rules.js";
+import { esc } from "./presentation_format.js";
+import { nowISO } from "./calendar.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { specialType } from "./new_documents.js";
+
 import { WriterState } from "./state.js";
 /* app functions; direct dependencies use explicit shared state. */
 

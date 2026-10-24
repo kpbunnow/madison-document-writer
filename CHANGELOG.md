@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Module cleanup: shared foundations (development)
+
+- Extract document metadata, explicit authoring/item rules, live workspace queries, presentation formatting, calendar arithmetic, mailing facts and record-value helpers into seven independent owners. Callers import those owners directly. Service composition, workspace initialization and global listener/startup order stay in app_core; no persisted or installed names change.
+- Reviewed-library updates no longer import startup; the largest maintained Writer import cycle drops from 26 modules to 25. A static dependency inventory and foundation-layer/cycle checks guard against renewed coupling. No-DOM tests cover live restored arrays, frozen/correction precedence and historical format cutoffs; existing output and test references are unchanged.
+- Schema validation reads its new document_types owner. Code map and cleanup roadmap describe the remaining feature-listener, event-rule and Writer/Reports cycle work. Release identity, approved wording/styles, screen-shell references and City acceptance are unchanged.
+
 ## Unreleased — Free-plan merge policy (development)
 
 - The owner chose to keep the private repository on GitHub's free plan, where branch rules are not enforced. DEVELOPMENT-STANDARD.md now records that decision and the merge policy followed by hand (pull requests only, both checks green on the current head and current main, owner approval, main checked after merge); the enforced-rule settings are kept for a future plan change. Documentation only.

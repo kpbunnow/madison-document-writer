@@ -4,7 +4,12 @@ import { appendEvent, project } from "./workspace_shell.js";
 import { saveDrafts, validateAndStandardizeAddresses } from "./case_files.js";
 import { recordReinspection, startCorrection } from "./issuance_and_corrections.js";
 import { render } from "./app_screens.js";
-import { ISSUE_EVENT, MINDUE, addDays, clone, doc, docCase, docInsp, isLLC, recordHead, reinsp } from "./app_core.js";
+import { ISSUE_EVENT } from "./document_types.js";
+import { MINDUE } from "./app_core.js";
+import { addDays } from "./calendar.js";
+import { doc, docCase, docInsp, recordHead, reinsp } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { isLLC } from "./mailing_rules.js";
 import { WriterState } from "./state.js";
 const TEST_CASES = [
   {

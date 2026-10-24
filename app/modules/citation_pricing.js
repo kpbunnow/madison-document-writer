@@ -1,7 +1,10 @@
 import { normParcel } from "../assets/shared.js";
 import { inspAt, lookupForf, toast } from "./court_and_deposits.js";
 import { renderKeep } from "./app_screens.js";
-import { citationPricingDate, correctionSource, daysBetween, doc, docCase, isLocked, itemLibraryKey, libraryReview, snow } from "./app_core.js";
+import { citationPricingDate, isLocked, libraryReview, snow } from "./app_core.js";
+import { correctionSource, doc, docCase } from "./writer_queries.js";
+import { daysBetween } from "./calendar.js";
+import { itemLibraryKey } from "./document_rules.js";
 import {
   CITATION_POLICY,
   canonicalOrdinance,

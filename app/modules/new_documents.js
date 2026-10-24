@@ -1,3 +1,17 @@
+import { NEW_TYPES, DOC_TYPES } from "./document_types.js";
+import {
+  alignedExtension,
+  DATED_EXTENSIONS,
+  simplifiedBestInterest,
+  datedExtension,
+  ALL_ITEM_EXTENSIONS,
+  allItemExtension,
+  simpleVacancy,
+  specialType,
+  supplemental,
+  activeRestrictions,
+  isEffective,
+} from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
 import { fmtDate, inspAt, toast, validISO } from "./court_and_deposits.js";
 import { evid, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
@@ -7,25 +21,17 @@ import { commitRecordAttempt } from "./issuance_and_corrections.js";
 import { worksheetFaults } from "./draft_recovery.js";
 import { newDoc } from "./editor_screens.js";
 import { docFromReinspection, refreshSheet } from "./document_pagination.js";
+
+import { addDays, daysBetween } from "./calendar.js";
+import { checkAttr, checkTarget, esc, itemSelector } from "./presentation_format.js";
 import {
-  DOC_TYPES,
-  addDays,
-  checkAttr,
-  checkTarget,
-  clone,
-  daysBetween,
   doc,
-  docBody,
   docCase,
   docInsp,
   docsFor,
   draftDocFor,
-  esc,
   insp,
-  isEffective,
   isReferredCase,
-  isLocked,
-  itemSelector,
   kase,
   openItems,
   originalNotice,
@@ -33,24 +39,13 @@ import {
   recordNow,
   reinsp,
   reinspFor,
-  snow,
-  uid,
-} from "./app_core.js";
+} from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { docBody, isLocked, snow, uid } from "./app_core.js";
+
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
-export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
-/* Authoring 13 (R56): every extended Best Interest or Vacancy item carries a later repair due date, entered in
-   Violation items; the conditional Vacancy model remains only for authoring-12 and earlier reprints. */
-export const DATED_EXTENSIONS = 13;
-export const simplifiedBestInterest = (d) => d?.type === "bestInterestExtension" && d.authoringVersion >= 15;
-export const datedExtension = (d) => (d?.authoringVersion || 0) >= DATED_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
-/* Authoring 16 (R62, owner Development 3): Best Interest and Vacancy Extensions cover every uncorrected item, with
-   no affected-item selection or safety confirmation. Best Interest due dates work as on a normal Extension (the
-   worksheet's Next due date, editable in Violation items); a Vacancy Extension prints no due date for uncorrected
-   items and keeps only Scope and the next review inspection date. */
-const ALL_ITEM_EXTENSIONS = 16;
-const allItemExtension = (d) => (d?.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
-export const simpleVacancy = (d) => d?.type === "vacancyExtension" && (d.authoringVersion || 0) >= ALL_ITEM_EXTENSIONS;
+
 const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn).map((i) => String(i.no));
 /* The affected list is derived for authoring 16, so the stored record and helper checks still name the items. */
 const syncAffected = (d) => {
@@ -69,36 +64,7 @@ const requireDated = (type, s, version = DATED_EXTENSIONS) => {
 };
 /* R26 scoped actions. Supplemental letters never replace continuing item state. */
 const REFERRED_MESSAGE = "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written.";
-export const NEW_TYPES = [
-  {
-    id: "summaryAbatement",
-    label: "Summary Abatement",
-    heading: "Order to Abate Public Nuisance",
-    pfx: "SUMMARY ABATEMENT",
-    group: "enforcement",
-    effect: "supplemental",
-    deadline: "immediate",
-  },
-  {
-    id: "nonSummaryAbatement",
-    label: "Non-Summary Abatement",
-    heading: "Order to Abate Public Nuisance",
-    pfx: "NON-SUMMARY ABATEMENT",
-    group: "enforcement",
-    effect: "supplemental",
-    deadline: "order",
-  },
-  { id: "noOccupancy", label: "No Occupancy", pfx: "NO OCCUPANCY", group: "occupancy", effect: "supplemental", deadline: "restriction" },
-  {
-    id: "bestInterestExtension",
-    label: "Best Interest Extension",
-    pfx: "BEST INTEREST EXTENSION",
-    group: "time",
-    effect: "items",
-    deadline: "extension",
-  },
-  { id: "vacancyExtension", label: "Vacancy Extension", pfx: "VACANCY EXTENSION", group: "time", effect: "items", deadline: "conditional" },
-].map((x) => ({ ...x, ready: true, stacked: true }));
+
 const NUISANCES = [
   ["junk", "Junk, trash and debris", "27.05(3)(b)4"],
   ["sidewalk", "Trees or shrubs obstructing a sidewalk", "27.05(3)(b)1"],
@@ -116,13 +82,6 @@ const REMEDY =
   "pection from entering on the premises and abating or removing the nuisan" +
   "ce, or be forever barred. The court shall determine the reasonableness o" +
   "f the order for abatement of the nuisance.";
-export const specialType = (type) => NEW_TYPES.find((t) => t.id === type);
-export const supplemental = (d) => specialType(d?.type)?.effect === "supplemental";
-export function activeRestrictions(documents) {
-  const live = documents.filter((d) => !d.draft && !d.void && !d.superseded && d.type === "noOccupancy");
-  const released = new Set(live.filter((d) => d.special?.mode === "release").map((d) => d.special.releases));
-  return live.filter((d) => d.special?.mode !== "release" && !released.has(d.id));
-}
 
 export function initNewDocuments() {
   const e = (v) => esc(v),

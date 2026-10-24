@@ -13,29 +13,13 @@
    so both forms read the same. The Detailed Description and Zoning District
    columns are recognised and never read (division, 09/18/2026). */
 import { parseTime, parseDate, inspAt, fmtTime, toast, fmtDate, validISO } from "./court_and_deposits.js";
-import {
-  draftDocFor,
-  draftReinspFor,
-  snow,
-  originalNotice,
-  isReferredCase,
-  REFERRED_ONLY,
-  insp,
-  docsFor,
-  clearProhibitedCitations,
-  clone,
-  nowISO,
-  uid,
-  doc,
-  citationPricing,
-  kase,
-  COMMITTED,
-  summaryName,
-  reinspFor,
-  eventsFor,
-  iso,
-  esc,
-} from "./app_core.js";
+import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
+import { clone } from "./record_values.js";
+import { snow, uid, citationPricing, COMMITTED, summaryName } from "./app_core.js";
+import { REFERRED_ONLY } from "./document_types.js";
+import { clearProhibitedCitations } from "./document_rules.js";
+import { nowISO, iso } from "./calendar.js";
+import { esc } from "./presentation_format.js";
 import { sameInspection, inspectionIdentity, inspectionUsed } from "./case_timeline.js";
 import { WriterState } from "./state.js";
 import { sourceDocFor, loadCaseFile, helperJSON, stableJSON, caseDetails, shell } from "./workspace_shell.js";

@@ -15,4 +15,29 @@ export default [
     },
     rules,
   },
+  {
+    files: [
+      "app/modules/document_types.js",
+      "app/modules/document_rules.js",
+      "app/modules/writer_queries.js",
+      "app/modules/presentation_format.js",
+      "app/modules/calendar.js",
+      "app/modules/mailing_rules.js",
+      "app/modules/record_values.js",
+    ],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        "document",
+        "window",
+        "fetch",
+        "indexedDB",
+        "localStorage",
+        "sessionStorage",
+        "XMLHttpRequest",
+        "WebSocket",
+        "BroadcastChannel",
+      ],
+    },
+  },
 ];
