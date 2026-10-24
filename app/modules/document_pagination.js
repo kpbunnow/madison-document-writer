@@ -7,13 +7,13 @@ import { worksheetFaults } from "./draft_recovery.js";
 import { editorSync } from "./editor_screens.js";
 import { overlayHTML, render } from "./app_screens.js";
 
-import { A11Y, PAGE_PX, depositStep, newDocuments, snow, uid, documentHTML } from "./app_core.js";
+import { A11Y, PAGE_PX, depositStep, newDocuments, snow, uid, documentHTML, app_languagediscoveryContext } from "./app_core.js";
 import { DOC_TYPES, REFERRED_ONLY, courtTime } from "./document_types.js";
 import { doc, docCase, insp, isReferredCase, kase, openItems, recordHead, unchecked } from "./writer_queries.js";
 import { clone } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { isEffective, alignedExtension, supplemental } from "./document_rules.js";
-import { app_languagediscoveryContext } from "./app_view_contexts.js";
+
 import { canonicalOrdinance } from "./citation_policy.js";
 
 import { WriterState } from "./state.js";

@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Scoped Writer view contexts (development)
+
+- Construct saved-work, Workspace queue and language-discovery contexts through separate named lazy interfaces. Core exports their actual instance builders; preserve context field order, callback identities and call-time workspace references without a universal registry.
+- Reduce the retained Writer cycle from 14 to 13 modules and narrow dependency/global guards; Reports remains 5. Add standalone context tests for replaced references and retained presentation warnings, keeping all existing saved-work, exit, language, functional, event and print assertions.
+- Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, integrity/storage/exit/catalog authority and acceptance holds remain unchanged.
+
 ## Unreleased — Document renderer boundary (development)
 
 - Compose notice/document/citation rendering through named lazy dependencies, removing UI and live-query imports from document_render. Core exports the actual instance functions; existing consumers import them there. Preserve all seven template bodies, authored markup and fixed-print/pagination/publication ownership.

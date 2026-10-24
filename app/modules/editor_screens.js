@@ -12,8 +12,18 @@ import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
 import { checkAttr, esc } from "./presentation_format.js";
 import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
 import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
-import { initialCitations, isLocked, newDocuments, recordIntegrity, snow, structEditable, uid, documentHTML, citationFaces } from "./app_core.js";
-import { app_savedworkContext } from "./app_view_contexts.js";
+import {
+  initialCitations,
+  isLocked,
+  newDocuments,
+  recordIntegrity,
+  snow,
+  structEditable,
+  uid,
+  documentHTML,
+  citationFaces,
+  app_savedworkContext,
+} from "./app_core.js";
 
 import { WriterState } from "./state.js";
 

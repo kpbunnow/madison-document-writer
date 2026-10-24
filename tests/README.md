@@ -187,6 +187,7 @@ covers, or a new suite under its feature.
 | `audit_record_rules.js` | Standalone deterministic migration, immutable replay/carry-forward, explicit summary facts, source precedence and record/history/merge refusals |
 | `audit_writer_feature_boundaries.js` | Scoped administrator/address/new-document/test-only factories; lazy composition, explicit acceptance, receipt binding, historical selection and live visits |
 | `audit_document_renderer.js` | Independent lazy renderer, four distinct locked copies, immutable supplied facts, retained refusals, draft refresh and correction-day calculations |
+| `audit_writer_view_contexts.js` | Three independent scoped view contexts; lazy identity-preserving composition, restored references, field order and presentation guards |
 | `audit_writer_services.js` | Six independent scoped service owners; lazy exact interfaces, retained initialization/listener order, readiness/save/stale-navigation races and citation guards |
 | `audit_module_boundaries.js` | Foundation dependency layers and cycle caps; no-DOM loading, live restored-state queries and historical source/authoring rules |
 | `audit_workflow_tools.js`, `audit_workflow_tools.py` | Search, selected PDF filing, shared views, reminders |

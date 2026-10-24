@@ -102,6 +102,14 @@ const scopedServices = {
     "./mailing_rules.js",
     "./presentation_format.js",
   ],
+  "app_view_contexts.js": [
+    "./case_file_rules.js",
+    "./data/library.js",
+    "./document_rules.js",
+    "./presentation_format.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
 };
 for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedServices })) {
   for (const dependency of graph.imports[name]) assert.ok(dependencies.includes(dependency), `${name} must not depend on ${dependency}`);
@@ -109,7 +117,7 @@ for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedService
 }
 assert.ok(graph.cycles.length <= 2, "do not introduce another cyclic component");
 for (const cycle of graph.cycles) {
-  const cap = cycle.includes("app_core.js") ? 14 : cycle.includes("reports_core.js") ? 5 : 0;
+  const cap = cycle.includes("app_core.js") ? 13 : cycle.includes("reports_core.js") ? 5 : 0;
   assert.ok(cycle.length <= cap, "do not grow the retained Writer/Reports cycles or introduce an unrelated cycle");
 }
 // Re-exports, static and dynamic imports all contribute to the graph; source is never evaluated.
