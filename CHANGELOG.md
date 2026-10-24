@@ -2,7 +2,7 @@
 
 ## Unreleased — Consolidation Phase 3 (development)
 
-- Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged. The browser workflow explicitly foregrounds Reports when returning from Writer and checks navigation readiness without extending its deadline.
+- Review: initial and corrected citation PDF artifacts wait for print fonts and verify every required fee/language-access paragraph in extracted PDF text. This closes an unasserted capture gap; the cause of the earlier reported PDF difference remains unconfirmed. Production rendering is unchanged. The browser workflow explicitly foregrounds Reports when returning from Writer and checks navigation readiness without extending its deadline. Escape focus restoration uses a bounded wait for the asynchronous dialog close event, retaining the original focus assertion.
 
 
 - Dead code removed with reachability evidence; no user-visible behavior, document output or helper rule changed.
