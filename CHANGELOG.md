@@ -1,5 +1,9 @@
 # Release changelog
 
+## Unreleased — Free-plan merge policy (development)
+
+- The owner chose to keep the private repository on GitHub's free plan, where branch rules are not enforced. DEVELOPMENT-STANDARD.md now records that decision and the merge policy followed by hand (pull requests only, both checks green on the current head and current main, owner approval, main checked after merge); the enforced-rule settings are kept for a future plan change. Documentation only.
+
 ## Unreleased — Post-consolidation corrections (development)
 
 - Writer protects retained private work until startup restoration finishes. Editable routes wait behind a restoration screen; early saves are refused. Failed required storage reads show reload/retry guidance instead of being treated as empty data. Internal held-write recovery saves only after drafts are read. Production-browser coverage uses real IndexedDB, delayed startup, navigation, read failure and retry.

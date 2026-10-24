@@ -42,16 +42,17 @@ Record the reviewed SHA, actual outcomes, targeted before/after regression, tool
 
 CI checks the PR head, installs frozen dependencies and the pinned Playwright browser, runs the full gate and retains evidence even on failure. The metadata workflow treats titles/body as environment data, not executable shell text. No production credentials are needed for synthetic verification. A passing gate is not proof of absence of every bug, native acceptance or deployment approval. Do not merge automatically.
 
-## GitHub administrator setup
+## Merge policy on the free GitHub plan
 
-After the workflow checks have run, an administrator must configure the main branch rule/ruleset in repository Settings:
+The repository is private on GitHub's free plan. GitHub does not enforce branch rules or rulesets there: its branch-protection and rules APIs answer "Upgrade to GitHub Pro or make this repository public to enable this feature." The owner decided (October 24, 2026) to stay on the free plan. The Full gate and PR format checks still run on every pull request and on every push to main, but nothing on the server prevents a merge or a direct push, so the merge policy is followed by hand:
 
-1. Require pull requests and resolved review conversations. Prevent force pushes and deletion of main.
-2. Require the **Full gate** and **PR format** checks and an up-to-date branch, so the tested head includes the current base.
-3. Dismiss stale approvals when code changes. Require at least one independent human approval when the team has another reviewer. A single-maintainer repository needs an explicit owner-review policy rather than an impossible self-approval requirement.
-4. Retain reviewed source/evidence and document the owner-controlled emergency path; do not bypass verification silently.
+1. Never push directly to main. Every change goes through a pull request from a `develop/...` branch.
+2. Merge only when **Full gate** and **PR format** have both passed on the pull request's current head commit, and the branch includes the current main (update it and wait for the checks again if main moved).
+3. Merge only with the owner's explicit approval, after review conversations are resolved. A merge is never automatic.
+4. After each merge, confirm the Full gate on the resulting main commit passed. If it failed, fix forward through a new pull request; do not rewrite main's history.
+5. Do not force-push to or delete main. An emergency change still goes through a pull request with the full gate; record the reason in the pull request.
 
-The connected integration returned HTTP 403 when inspecting branch protection during this work. These repository settings have not been verified or applied by the implementation; checked-in workflows/templates do not configure server-side protection.
+If the repository later moves to a plan that enforces rules, configure main to require pull requests, resolved conversations, the **Full gate** and **PR format** checks and an up-to-date branch; prevent force pushes and deletion; dismiss stale approvals on new commits; and keep an explicit owner-review policy for a single maintainer instead of an impossible self-approval requirement. Then confirm the rules read back as enforced.
 
 ## Independent version identities
 
