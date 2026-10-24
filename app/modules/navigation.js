@@ -1,15 +1,9 @@
-import { toast } from "./court_and_deposits.js";
-import { shell } from "./workspace_shell.js";
-import { saveDrafts } from "./case_files.js";
-import { uiIcon, render } from "./app_screens.js";
-import { captureWork } from "./issuance_and_corrections.js";
-
-import { cancelCaseLookup } from "./accela_import.js";
+/* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
-import { WRITER_READY_WAIT } from "./app_core.js";
+
 /* Main destinations and infrequent tools share safe, saved navigation. */
-export function initNavigation() {
+export function initNavigation(services) {
   const routes = new Set(["import", "cases", "library", "tools"]);
   // Import inspection is opened from Workspace, so Workspace stays the current destination while importing.
   const caseScreens = new Set(["cases", "import", "write", "reinspect", "caseactions", "actions"]);
@@ -31,7 +25,7 @@ export function initNavigation() {
     );
   }
   function saveFailure() {
-    toast("Your work could not be saved on this device. Keep this screen open and r" + "etry. Download a workspace backup to preserve it.", {
+    services.toast("Your work could not be saved on this device. Keep this screen open and r" + "etry. Download a workspace backup to preserve it.", {
       severity: "error",
       key: "device-save",
       inline: true,
@@ -55,17 +49,17 @@ export function initNavigation() {
   async function leave(action) {
     const sequence = ++navigationSequence;
     if (!WriterState.WORKSPACE_RESTORED && !WriterState.WRITER_READY) {
-      await WRITER_READY_WAIT;
+      await services.WRITER_READY_WAIT;
       if (!current(sequence) || !WriterState.WRITER_READY) return false;
     }
     ++utilitySequence;
-    cancelCaseLookup();
-    captureWork();
+    services.cancelCaseLookup();
+    services.captureWork();
     let saved = false;
     while (current(sequence)) {
       const revision = WriterState.LOCAL_CHANGED;
       try {
-        saved = await saveDrafts();
+        saved = await services.saveDrafts();
       } catch (error) {
         saved = false;
       }
@@ -87,7 +81,7 @@ export function initNavigation() {
       WriterState.state.picker = false;
       WriterState.state.screen = route;
       if (route === "library") WriterState.state.languageMode = "browse";
-      render();
+      services.render();
       window.scrollTo(0, 0);
       const heading = document.querySelector(".main h1");
       if (heading) {
@@ -111,17 +105,17 @@ export function initNavigation() {
             WriterState.state.screen === route || (route === "cases" && caseScreens.has(WriterState.state.screen)) ? 'aria-current="page"' : "",
           ) +
           ">" +
-          `${uiIcon(route)}` +
+          `${services.uiIcon(route)}` +
           "<span>" +
           `${label}` +
           "</span></button>",
       )
       .join("");
     const reports = WriterState.REPORT_RETURN
-      ? `<button class="rail-item" data-report-return>${uiIcon("reports")}<span>Back to Reports</span></button>`
+      ? `<button class="rail-item" data-report-return>${services.uiIcon("reports")}<span>Back to Reports</span></button>`
       : '<a class="rail-item" href="madison-reports.html" target="_blank" rel="no' +
         'opener" aria-label="Open Reports (opens in a new tab)">' +
-        `${uiIcon("reports")}` +
+        `${services.uiIcon("reports")}` +
         '<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</spa' +
         "n></a>";
     return (
@@ -132,7 +126,7 @@ export function initNavigation() {
       '<button class="rail-item" data-nav="tools" ' +
       `${WriterState.state.screen === "tools" ? 'aria-current="page"' : ""}` +
       ">" +
-      `${uiIcon("tools")}` +
+      `${services.uiIcon("tools")}` +
       "<span>Tools &amp; settings</span></button>"
     );
   }
@@ -179,7 +173,7 @@ export function initNavigation() {
       '<button class="tool-action" ' +
       `${attributes}` +
       ">" +
-      `${uiIcon(icon)}` +
+      `${services.uiIcon(icon)}` +
       "<span><strong>" +
       `${label}` +
       "</strong><span>" +
@@ -192,7 +186,7 @@ export function initNavigation() {
       "saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p>" +
       '<p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
     const theme = document.documentElement.dataset.theme || "system";
-    return shell(
+    return services.shell(
       "Tools & settings",
       "Building Inspection",
       `<button class="btn" data-nav="cases">Back to Workspace</button>`,
@@ -236,12 +230,12 @@ export function initNavigation() {
             .join(""),
         ) +
         '</select></label><button class="tool-action" data-a11y-history>' +
-        `${uiIcon("files")}` +
+        `${services.uiIcon("files")}` +
         "<span><strong>Message history</strong><span>Review earlier save confirma" +
         'tions, warnings and errors.</span></span><span class="tool-arrow" aria-h' +
         'idden="true">→</span></button><button class="tool-action" data-a11y-help' +
         ">" +
-        `${uiIcon("tools")}` +
+        `${services.uiIcon("tools")}` +
         "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
         ' ? outside a text field for quick help.</span></span><span class="tool-a' +
         'rrow" aria-hidden="true">→</span></button></div></section>' +

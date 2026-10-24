@@ -14,6 +14,8 @@ Writer modules are organized by feature: accela_import.js holds the whole Accela
 
 Workspace owns the prominent import/shared-search entry area; import stays a guarded internal route. Reinspection deadline assignment reuses duePanel/assignDue and the existing draft result store, outside collapsed Inspection checks. Corrective-action placeholders use the shared accessible utility dialog with context validation. Citation editors can expand all four copies; final printJob remains a separate complete packet. A screen-only rule flows the editor's mailing address below an expanding header; printableHTML keeps the approved fixed envelope positioning.
 
+Six feature services (navigation, language actions, citation pricing, deposit completion, initial citations and snow cases) receive their UI/peer dependencies from core through named lazy interfaces. They import no UI orchestration modules. Existing initialization/listener order and readiness/save guards remain; construction still registers the original snow/pricing/deposit listeners. The Writer cycle is capped at 19 modules and Reports at 5; this is an incremental boundary reduction, not cycle elimination.
+
 ## Inspection import
 
 Import candidates come from the fixed SQL query or the division's SSRS workbook and pass through one type/status table (accela_import.js; rules in 03-DOMAIN-RULES.md). Status/type categories that are never importable are hidden at parse time; inspections already used on the case are hidden at plan time, after the shared record is merged, and the plan clears a selection that becomes hidden. Rule tables and case grouping read only their own entries.

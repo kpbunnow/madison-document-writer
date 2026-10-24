@@ -1,7 +1,6 @@
+/* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { normParcel } from "../assets/shared.js";
-import { inspAt, lookupForf, toast } from "./court_and_deposits.js";
-import { renderKeep } from "./app_screens.js";
-import { citationPricingDate, isLocked, libraryReview, snow } from "./app_core.js";
+
 import { correctionSource, doc, docCase } from "./writer_queries.js";
 import { daysBetween } from "./calendar.js";
 import { itemLibraryKey } from "./document_rules.js";
@@ -20,7 +19,7 @@ import {
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 /* Mutable drafts only. Frozen documents and pending save identities are untouched. */
-export function initCitationPricing() {
+export function initCitationPricing(services) {
   let shared = [],
     busy = null,
     loadedAt = 0,
@@ -59,7 +58,7 @@ export function initCitationPricing() {
       for (const i of d.items || []) {
         if (!i.cite || i.withdrawn) continue;
         const c = d.cits?.[i.id],
-          f = c && lookupForf([c.ord], key(i), c.scheduleEntryId, c.pricedOn || c.issued);
+          f = c && services.lookupForf([c.ord], key(i), c.scheduleEntryId, c.pricedOn || c.issued);
         const date = c?.violDate || d.inspDate || k.date;
         if (f?.id !== ordinanceEntry.id || !withinWindow(date, violationDate, f.window) || seen.has(c.num)) continue;
         seen.add(c.num);
@@ -100,9 +99,9 @@ export function initCitationPricing() {
     );
   }
   function refresh(d) {
-    if (!d || !d.draft || d.pendingAmendment || isLocked(d)) return;
-    libraryReview.refresh(d);
-    snow.prepare(d);
+    if (!d || !d.draft || d.pendingAmendment || services.isLocked(d)) return;
+    services.libraryReview.refresh(d);
+    services.snow.prepare(d);
     const current = JSON.stringify(WriterState.DOCS.filter((x) => !x.draft).map((x) => [x.id, x.void, x.superseded, x.eventId]));
     if (localHistorySignature && current !== localHistorySignature) loadedAt = 0;
     localHistorySignature = current;
@@ -116,7 +115,7 @@ export function initCitationPricing() {
         libraryItem: key(item),
         entryId: request.scheduleEntryId,
         tier: request.tier || 1,
-        date: citationPricingDate(request, d),
+        date: services.citationPricingDate(request, d),
         measurements: request.measurements || {},
       });
       if (price.kind === "priced" && !request.measurementFields?.length) {
@@ -142,8 +141,8 @@ export function initCitationPricing() {
         continue;
       }
       delete c.historicalDeposit;
-      const f = lookupForf([c.ord], key(i), c.scheduleEntryId, citationPricingDate(c, d)),
-        date = c.violDate || inspAt(d).date;
+      const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
+        date = c.violDate || services.inspAt(d).date;
       const history = priorOffenses({
         ordinanceEntry: f,
         respondent,
@@ -172,7 +171,7 @@ export function initCitationPricing() {
         if (note) c.pricingWarning = (c.pricingWarning ? c.pricingWarning + ". " : "") + note;
       } else delete c.siteMatch;
       if (c.depositMode && c.depositMode !== "schedule") {
-        const at = citationPricingDate(c, d);
+        const at = services.citationPricingDate(c, d);
         try {
           if (c.depositMode === "total") delete c.assessments;
           c.pricedOn = at;
@@ -190,7 +189,7 @@ export function initCitationPricing() {
           libraryItem: key(i),
           entryId: c.scheduleEntryId,
           tier: ordinal,
-          date: citationPricingDate(c, d),
+          date: services.citationPricingDate(c, d),
           measurements: c.measurements || {},
         });
         if (priced.kind === "priced") {
@@ -207,7 +206,7 @@ export function initCitationPricing() {
         }
         if (priced.rowDescription && (!c.descEdited || priced.rowSelectionNotice)) c.desc = priced.rowDescription.toUpperCase().replace(/\.$/, "");
         else if (!c.descEdited)
-          c.desc = String(snow.is(d) ? CITATION_POLICY.snowDefaultDescription : i.title || f?.desc || "")
+          c.desc = String(services.snow.is(d) ? CITATION_POLICY.snowDefaultDescription : i.title || f?.desc || "")
             .toUpperCase()
             .replace(/\.$/, "");
       }
@@ -248,7 +247,7 @@ export function initCitationPricing() {
       ok = await busy;
     if (ok) {
       refresh(d);
-      if (before !== signature(d)) toast("Citation history changed. Review the updated offense tiers and deposits before issuance.");
+      if (before !== signature(d)) services.toast("Citation history changed. Review the updated offense tiers and deposits before issuance.");
     }
     return ok;
   }
@@ -256,7 +255,7 @@ export function initCitationPricing() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
     const old = loadedAt;
     void loadShared(d).then((ok) => {
-      if (ok && loadedAt !== old && WriterState.state.docId === d.id && d.draft && !d.pendingAmendment) renderKeep();
+      if (ok && loadedAt !== old && WriterState.state.docId === d.id && d.draft && !d.pendingAmendment) services.renderKeep();
     });
   }
   const signature = (d) => JSON.stringify(Object.entries(d.cits || {}).map(([id, c]) => [id, c.tier, c.base, c.cc, c.amount, c.countedOffenses]));
@@ -268,7 +267,7 @@ export function initCitationPricing() {
       ? "Shared citation history must finish checking. Use Refresh citation history; reconnect if it is unavailable."
       : "";
   function hint(d, i, c) {
-    const f = lookupForf([c.ord], key(i), c.scheduleEntryId, citationPricingDate(c, d)),
+    const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
       history = (c.countedOffenses || [])
         .map((x) => x.number + " (" + x.date + ", " + x.caseNumber + (x.prepared ? ", prepared in this issuance" : "") + ")")
         .join("; ");
@@ -294,8 +293,8 @@ export function initCitationPricing() {
     if (!d || !d.draft || d.pendingAmendment) return;
     void loadShared(d, true).then((ok) => {
       if (WriterState.state.docId !== d.id) return;
-      if (!ok) toast("Shared citation history is unavailable. Reconnect and try Refresh citation history.");
-      renderKeep();
+      if (!ok) services.toast("Shared citation history is unavailable. Reconnect and try Refresh citation history.");
+      services.renderKeep();
     });
   });
   return { refresh, determined, priorOffenses, chargeFault, loadShared, ensureShared, signature, historyFault, hint, unchangedCorrection };

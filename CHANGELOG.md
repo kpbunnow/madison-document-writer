@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Scoped Writer service dependencies (development)
+
+- Replace UI/core back-imports in navigation, language actions, citation pricing, deposit completion, initial citations and snow-case handling with explicitly composed lazy interfaces. Preserve calculation/action bodies, initialization order, existing listener phases, readiness/save guards and synchronous user actions.
+- Reduce the retained Writer cycle from 25 to 19 modules and narrow the import/cycle guard; Reports remains at 5. Add independent service/composition tests covering delayed readiness, failed saves, stale navigation, changes during saving and citation guards; retain the historical functional, print and registration assertions.
+- Update ownership, cleanup status, test index and source inventory. R63/build-64 identity, authoring/storage formats and acceptance holds remain unchanged.
+
 ## Unreleased — Record rules separated from UI/storage (development)
 
 - Extract deterministic legacy migration, record shape/identity/correction-history checks, case merge/name rules, event replay, item carry-forward and summary derivation into four independent record owners. Callers import the defining owners directly; live loading, rollback, integrity verification, workspace mutation and I/O remain in their adapters.

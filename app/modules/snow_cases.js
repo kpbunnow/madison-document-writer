@@ -1,16 +1,13 @@
+/* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { SNOW_TYPE, courtTime } from "./document_types.js";
 import { isSnowCase, itemLibraryKey } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
-import { citationNumber, fmtDate, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
-import { helperJSON } from "./workspace_shell.js";
-import { stableJSON, clone } from "./record_values.js";
-import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 
-import { renderKeep, render } from "./app_screens.js";
-import { refreshSheet } from "./document_pagination.js";
+import { stableJSON, clone } from "./record_values.js";
+
 import { addDays } from "./calendar.js";
 import { checkTarget, esc } from "./presentation_format.js";
-import { citationPricing, initialCitations, isLocked, uid } from "./app_core.js";
+
 import { correctionSource, doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
 
 import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
@@ -18,7 +15,7 @@ import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
 const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
-export function initSnow() {
+export function initSnow(services) {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),
     letterLoaded = false,
     loading = null;
@@ -39,7 +36,7 @@ export function initSnow() {
     const snow = key === SNOW_KEY,
       other = d.items.some((i) => itemLibraryKey(i) !== SNOW_KEY);
     if ((snow && other) || (isCase(kase(d.caseId)) && !snow) || (snow && docsFor(d.caseId).some((x) => !x.draft && !is(x)))) {
-      toast(mixed);
+      services.toast(mixed);
       return false;
     }
     return true;
@@ -55,7 +52,7 @@ export function initSnow() {
     delete d.fromReinspId;
     delete d.issuanceGroup;
     prepare(d);
-    citationPricing.refresh(d);
+    services.citationPricing.refresh(d);
   }
   function removed(d) {
     if (d.items.length) return;
@@ -72,7 +69,7 @@ export function initSnow() {
     const src = libraryItem();
     d.items = [
       {
-        id: uid("x"),
+        id: services.uid("x"),
         no: "1",
         sections: ["10.28"],
         title: src.t,
@@ -90,7 +87,7 @@ export function initSnow() {
     if (!d?.draft || !is(d) || d.pendingAmendment) return;
     if (WriterState.HELPER?.ok && !letterLoaded && !loading)
       void loadLetter().then((ok) => {
-        if (ok && WriterState.state.docId === d.id) renderKeep();
+        if (ok && WriterState.state.docId === d.id) services.renderKeep();
       });
     d.authoringVersion = 11;
     d.caseType = SNOW_TYPE;
@@ -106,14 +103,14 @@ export function initSnow() {
     i.cite = true;
     d.cits = d.cits || {};
     const c = d.cits[i.id] || {
-      num: citationNumber(),
+      num: services.citationNumber(),
       ord: "10.28",
       preparedSections: ["10.28"],
       desc: CITATION_POLICY.snowDefaultDescription,
       deptId: docInsp(d).badge || "",
       issued: d.mailed,
       issuedAutomatic: true,
-      courtDate: nextCourtDate(d.mailed),
+      courtDate: services.nextCourtDate(d.mailed),
       courtTime: courtTime(),
       depositMode: "schedule",
     };
@@ -121,7 +118,7 @@ export function initSnow() {
     c.violDate = d.inspDate;
     c.violTime = d.inspTime;
     if (
-      validISO(d.snow.snowfallDate) &&
+      services.validISO(d.snow.snowfallDate) &&
       Number(d.snow.inches) > 0 &&
       ["snow covered", "ice covered", "snow and ice covered"].includes(d.snow.condition)
     )
@@ -145,7 +142,7 @@ export function initSnow() {
       n = Number(f.inches);
     return (
       "On " +
-      fmtDate(f.snowfallDate) +
+      services.fmtDate(f.snowfallDate) +
       ", " +
       numberText(n) +
       (n === 1 ? " inch" : " inches") +
@@ -161,7 +158,7 @@ export function initSnow() {
       out = [],
       check = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [checkTarget('[data-snow="' + key + '"]', t)] : [] });
     check(d.type === "citation" && d.items.length === 1 && itemLibraryKey(d.items[0]) === SNOW_KEY, mixed);
-    check(validISO(f.snowfallDate), "Enter the snowfall / accumulation date.", "snowfallDate");
+    check(services.validISO(f.snowfallDate), "Enter the snowfall / accumulation date.", "snowfallDate");
     check(
       typeof f.inches === "number" && Number.isFinite(f.inches) && f.inches > 0,
       "Snowfall inches must be a decimal greater than zero.",
@@ -169,12 +166,12 @@ export function initSnow() {
     );
     check(["snow covered", "ice covered", "snow and ice covered"].includes(f.condition), "Choose the observed sidewalk condition.", "condition");
     check(f.photographed === true, "Confirm the violation was photographed before citation.", "photographed");
-    check(validISO(d.inspDate) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(d.inspTime || ""), "Enter the snow inspection date and time.");
-    if (validISO(f.snowfallDate) && validISO(d.inspDate)) {
+    check(services.validISO(d.inspDate) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(d.inspTime || ""), "Enter the snow inspection date and time.");
+    if (services.validISO(f.snowfallDate) && services.validISO(d.inspDate)) {
       const due = addDays(f.snowfallDate, 1);
       check(
         d.inspDate > due || (d.inspDate === due && d.inspTime >= "12:00"),
-        "Under MGO 10.28(1) the owner has until noon on " + fmtDate(due) + "; inspect at or after that time.",
+        "Under MGO 10.28(1) the owner has until noon on " + services.fmtDate(due) + "; inspect at or after that time.",
         "snowfallDate",
       );
     }
@@ -273,7 +270,8 @@ export function initSnow() {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) return false;
     if (letterLoaded && !force) return true;
     if (!loading)
-      loading = helperJSON("/administration/snow-letter")
+      loading = services
+        .helperJSON("/administration/snow-letter")
         .then((x) => {
           letter = clone(x.letter);
           letterLoaded = true;
@@ -292,7 +290,7 @@ export function initSnow() {
   function factsForm(d) {
     if (!is(d)) return "";
     const f = d.snow || {},
-      locked = !d.draft || isLocked(d),
+      locked = !d.draft || services.isLocked(d),
       disabled = locked ? "disabled" : "";
     return (
       '<section class="card no-print" id="snow-facts"><div class="card-h"><h2>S' +
@@ -350,21 +348,21 @@ export function initSnow() {
       key = el.dataset?.snow;
     if (!key) return;
     const d = doc(WriterState.state.docId);
-    if (!d?.draft || isLocked(d) || d.pendingAmendment) return;
+    if (!d?.draft || services.isLocked(d) || d.pendingAmendment) return;
     d.snow = d.snow || {};
     d.snow[key] = el.type === "checkbox" ? el.checked : key === "inches" ? (el.value === "" ? "" : Number(el.value)) : el.value;
     WriterState.DIRTY = true;
     prepare(d);
-    citationPricing.refresh(d);
-    scheduleDraftSave();
-    refreshSheet();
-    initialCitations.refresh(d);
+    services.citationPricing.refresh(d);
+    services.scheduleDraftSave();
+    services.refreshSheet();
+    services.initialCitations.refresh(d);
   }
   document.addEventListener("click", (e) => {
     if (e.target.closest?.("[data-refresh-snow-letter]")) {
       void loadLetter(true).then((ok) => {
-        if (ok) renderKeep();
-        else toast("Seasonal content could not be refreshed. Reconnect and try again.");
+        if (ok) services.renderKeep();
+        else services.toast("Seasonal content could not be refreshed. Reconnect and try again.");
       });
       return;
     }
@@ -375,15 +373,15 @@ export function initSnow() {
     d.cits = {};
     removed(d);
     WriterState.DIRTY = true;
-    saveDrafts();
-    render();
+    services.saveDrafts();
+    services.render();
   });
   document.addEventListener("change", (e) => {
     if (e.target.id === "new-case-type") {
       WriterState.WORK.entry = WriterState.WORK.entry || {};
       WriterState.WORK.entry["new-case-type"] = e.target.value;
-      saveDrafts();
-      renderKeep();
+      services.saveDrafts();
+      services.renderKeep();
     }
   });
   document.addEventListener("input", edit);
