@@ -1,10 +1,24 @@
+import { createUtilityEvents } from "./utility_events.js";
+import { createRecoveryEvents } from "./recovery_events.js";
+import { createCatalogEvents } from "./catalog_events.js";
+import { createSafetyEvents } from "./safety_events.js";
+import { createWorkflowEvents } from "./workflow_events.js";
+import { createWorkspaceEvents } from "./workspace_events.js";
+import { createCitationEvents } from "./citation_events.js";
+import { createDueDateEvents } from "./due_date_events.js";
+import { createImportEvents } from "./import_events.js";
+import { createReinspectionEvents } from "./reinspection_events.js";
+import { createEditorEvents } from "./editor_events.js";
+import { createSpecialDocumentEvents } from "./special_document_events.js";
+import { createCorrectionEvents } from "./correction_events.js";
+import { createContactEvents } from "./contact_events.js";
 import { BLOCKS, DOCBODY } from "./document_types.js";
-import { deliveredByCitation, frozenOf, isHistoryDoc, citeAllowed, itemLibraryKey, alignedExtension, specialType } from "./document_rules.js";
-import { kase, doc, reinsp, docsFor, reinspFor, draftDocFor, docCase, docInsp, eventsFor, correctionSource } from "./writer_queries.js";
+import { frozenOf, specialType } from "./document_rules.js";
+import { kase, doc, docsFor, reinspFor, correctionSource } from "./writer_queries.js";
 import { clone, byTime } from "./record_values.js";
-import { esc, countBlanks } from "./presentation_format.js";
-import { addDays, nowISO } from "./calendar.js";
-import { ccList, emailList, isLLC } from "./mailing_rules.js";
+import { esc } from "./presentation_format.js";
+import { addDays } from "./calendar.js";
+
 import {
   activeBlocks,
   checkHelper,
@@ -180,7 +194,7 @@ import { languageClick } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
-import { SUMMARY_VERSION, validCaseNumber, caseNumberKey, recordDay, csvText, downloadText } from "../assets/shared.js";
+import { SUMMARY_VERSION, caseNumberKey, recordDay } from "../assets/shared.js";
 
 import { initNewDocuments } from "./new_documents.js";
 import { initInitialCitations } from "./initial_citations.js";
@@ -188,7 +202,7 @@ import { initAddressParser } from "./address_parser.js";
 import { initRecordIntegrity } from "./record_integrity.js";
 import { initNavigation } from "./navigation.js";
 import { createAccessibility } from "./accessibility.js";
-import { LIBRARY } from "./data/library.js";
+
 import { citationPricingDate as policyCitationPricingDate } from "./citation_policy.js";
 import { initDepositStep } from "./deposit_step.js";
 import { initCitationPricing } from "./citation_pricing.js";
@@ -212,23 +226,361 @@ export const recordIntegrity = initRecordIntegrity({
   render: () => render(),
 });
 export const addressParser = initAddressParser();
-document.addEventListener("click", (e) => {
-  if (e.target.closest?.("[data-a11y-help],[data-a11y-history],[data-utility-close]")) navigation.invalidateUtilities();
-});
-document.addEventListener("keydown", (e) => {
-  if (
-    !e.defaultPrevented &&
-    (e.key === "Escape" || (e.key === "?" && !e.target.isContentEditable && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)))
-  )
-    navigation.invalidateUtilities();
-});
-document.addEventListener(
-  "close",
-  (e) => {
-    if (e.target.id === "utility-dialog") navigation.invalidateUtilities();
+/* Feature interfaces are lazy: no service or later state is read during construction. */
+const utilityEvents = createUtilityEvents({
+  checks: (...args) => checks(...args),
+  focusCheckTarget: (...args) => focusCheckTarget(...args),
+  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
+  get navigation() {
+    return navigation;
   },
-  true,
-);
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  toast: (...args) => toast(...args),
+  worksheetChecks: (...args) => worksheetChecks(...args),
+});
+const recoveryEvents = createRecoveryEvents({
+  get ENTRY_IDS() {
+    return ENTRY_IDS;
+  },
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  captureWork: (...args) => captureWork(...args),
+  citationFromNotice: (...args) => citationFromNotice(...args),
+  discardDraft: (...args) => discardDraft(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  downloadWorkspace: (...args) => downloadWorkspace(...args),
+  filePdf: (...args) => filePdf(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  keepChangedLocal: (...args) => keepChangedLocal(...args),
+  listRecovery: (...args) => listRecovery(...args),
+  loadCaseFile: (...args) => loadCaseFile(...args),
+  needsInitialCitation: (...args) => needsInitialCitation(...args),
+  openChangedShared: (...args) => openChangedShared(...args),
+  printJob: (...args) => printJob(...args),
+  publishDocument: (...args) => publishDocument(...args),
+  recordFormKey: (...args) => recordFormKey(...args),
+  render: (...args) => render(...args),
+  restorePreviousDraft: (...args) => restorePreviousDraft(...args),
+  restoreRecovery: (...args) => restoreRecovery(...args),
+  restoreWorkspaceFile: (...args) => restoreWorkspaceFile(...args),
+  returnToWorksheet: (...args) => returnToWorksheet(...args),
+  saveAndContinue: (...args) => saveAndContinue(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  selectRecovery: (...args) => selectRecovery(...args),
+  toast: (...args) => toast(...args),
+  validateRecovery: (...args) => validateRecovery(...args),
+});
+const catalogEvents = createCatalogEvents({
+  adoptCatalogReview: (...args) => adoptCatalogReview(...args),
+  catalogForm: (...args) => catalogForm(...args),
+  catalogItem: (...args) => catalogItem(...args),
+  catalogKey: (...args) => catalogKey(...args),
+  catalogReplacementOptions: (...args) => catalogReplacementOptions(...args),
+  catalogReview: (...args) => catalogReview(...args),
+  catalogSelection: (...args) => catalogSelection(...args),
+  catalogStatus: (...args) => catalogStatus(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  keepCatalogForms: (...args) => keepCatalogForms(...args),
+  languageClick: (...args) => languageClick(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  refreshOverlay: (...args) => refreshOverlay(...args),
+  render: (...args) => render(...args),
+  renumber: (...args) => renumber(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  get snow() {
+    return snow;
+  },
+  structEditable: (...args) => structEditable(...args),
+  toast: (...args) => toast(...args),
+  toggleLibraryItem: (...args) => toggleLibraryItem(...args),
+});
+const safetyEvents = createSafetyEvents({
+  get A11Y() {
+    return A11Y;
+  },
+  applyConflict: (...args) => applyConflict(...args),
+  backupUnfinished: (...args) => backupUnfinished(...args),
+  caseState: (...args) => caseState(...args),
+  commitAmendment: (...args) => commitAmendment(...args),
+  flushPending: (...args) => flushPending(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  inspectLock: (...args) => inspectLock(...args),
+  pdfTransferState: (...args) => pdfTransferState(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  recoveryJobs: (...args) => recoveryJobs(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  render: (...args) => render(...args),
+  saveCaseFile: (...args) => saveCaseFile(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  showHealth: (...args) => showHealth(...args),
+  showLock: (...args) => showLock(...args),
+  showOutbox: (...args) => showOutbox(...args),
+  showSafety: (...args) => showSafety(...args),
+  startReinspection: (...args) => startReinspection(...args),
+  toast: (...args) => toast(...args),
+});
+const workflowEvents = createWorkflowEvents({
+  checkHelper: (...args) => checkHelper(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  globalSearch: (...args) => globalSearch(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  persistWorkspacePatch: (...args) => persistWorkspacePatch(...args),
+  planBulkDue: (...args) => planBulkDue(...args),
+  printOutbox: (...args) => printOutbox(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+  render: (...args) => render(...args),
+  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
+  selectedOutbox: (...args) => selectedOutbox(...args),
+  showBulkDue: (...args) => showBulkDue(...args),
+  showOutbox: (...args) => showOutbox(...args),
+  showReminderDraft: (...args) => showReminderDraft(...args),
+  showReminders: (...args) => showReminders(...args),
+  showTimeline: (...args) => showTimeline(...args),
+  timelineCategory: (...args) => timelineCategory(...args),
+  timelineRows: (...args) => timelineRows(...args),
+  toast: (...args) => toast(...args),
+  validISO: (...args) => validISO(...args),
+  writerOpenReportedCase: (...args) => writerOpenReportedCase(...args),
+});
+const workspaceEvents = createWorkspaceEvents({
+  captureWork: (...args) => captureWork(...args),
+  caseFile: (...args) => caseFile(...args),
+  caseFileName: (...args) => caseFileName(...args),
+  caseNumberAllowed: (...args) => caseNumberAllowed(...args),
+  caseState: (...args) => caseState(...args),
+  caseUnsaved: (...args) => caseUnsaved(...args),
+  clearCases: (...args) => clearCases(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  flushPending: (...args) => flushPending(...args),
+  grantCaseFolder: (...args) => grantCaseFolder(...args),
+  linkCaseFolder: (...args) => linkCaseFolder(...args),
+  listCaseFolder: (...args) => listCaseFolder(...args),
+  get navigation() {
+    return navigation;
+  },
+  openFromFolder: (...args) => openFromFolder(...args),
+  pickCaseFile: (...args) => pickCaseFile(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  rebuildIndex: (...args) => rebuildIndex(...args),
+  refreshOverlay: (...args) => refreshOverlay(...args),
+  removeCase: (...args) => removeCase(...args),
+  render: (...args) => render(...args),
+  rnd12: (...args) => rnd12(...args),
+  saveCaseFile: (...args) => saveCaseFile(...args),
+  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
+  startReinspection: (...args) => startReinspection(...args),
+  storageMode: (...args) => storageMode(...args),
+  testWrite: (...args) => testWrite(...args),
+  toast: (...args) => toast(...args),
+  get catalogEvents() {
+    return catalogEvents;
+  },
+  get citationEvents() {
+    return citationEvents;
+  },
+  get contactEvents() {
+    return contactEvents;
+  },
+  get correctionEvents() {
+    return correctionEvents;
+  },
+  get editorEvents() {
+    return editorEvents;
+  },
+  get importEvents() {
+    return importEvents;
+  },
+  get recoveryEvents() {
+    return recoveryEvents;
+  },
+  get reinspectionEvents() {
+    return reinspectionEvents;
+  },
+  get workflowEvents() {
+    return workflowEvents;
+  },
+});
+const citationEvents = createCitationEvents({
+  get depositStep() {
+    return depositStep;
+  },
+  editCitation: (...args) => editCitation(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  refreshSheet: (...args) => refreshSheet(...args),
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  structEditable: (...args) => structEditable(...args),
+  syncChip: (...args) => syncChip(...args),
+  get dueDateEvents() {
+    return dueDateEvents;
+  },
+});
+const dueDateEvents = createDueDateEvents({
+  activeDueTarget: (...args) => activeDueTarget(...args),
+  assignDue: (...args) => assignDue(...args),
+  dueContext: (...args) => dueContext(...args),
+  dueSelectedText: (...args) => dueSelectedText(...args),
+  isLocked: (...args) => isLocked(...args),
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  toast: (...args) => toast(...args),
+  toastUndo: (...args) => toastUndo(...args),
+});
+const importEvents = createImportEvents({
+  accelaFromShare: (...args) => accelaFromShare(...args),
+  accelaPlan: (...args) => accelaPlan(...args),
+  acceptAccela: (...args) => acceptAccela(...args),
+  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
+  confirmDatabaseCase: (...args) => confirmDatabaseCase(...args),
+  findDatabaseCase: (...args) => findDatabaseCase(...args),
+  openImportWorkspace: (...args) => openImportWorkspace(...args),
+  pickAccelaFile: (...args) => pickAccelaFile(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  readAccelaFile: (...args) => readAccelaFile(...args),
+  render: (...args) => render(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  selectImportInspection: (...args) => selectImportInspection(...args),
+});
+const reinspectionEvents = createReinspectionEvents({
+  advanceWalk: (...args) => advanceWalk(...args),
+  changeVisitDate: (...args) => changeVisitDate(...args),
+  clearWalk: (...args) => clearWalk(...args),
+  discardWorksheet: (...args) => discardWorksheet(...args),
+  docFromReinspection: (...args) => docFromReinspection(...args),
+  ensureWalkContext: (...args) => ensureWalkContext(...args),
+  focusWalkItem: (...args) => focusWalkItem(...args),
+  nextWalkItem: (...args) => nextWalkItem(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  previousWalk: (...args) => previousWalk(...args),
+  recordReinspection: (...args) => recordReinspection(...args),
+  recordReinspectionOutcome: (...args) => recordReinspectionOutcome(...args),
+  render: (...args) => render(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  returnWalkDetails: (...args) => returnWalkDetails(...args),
+  saveCaseFile: (...args) => saveCaseFile(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  skipWalkDetails: (...args) => skipWalkDetails(...args),
+  startReinspection: (...args) => startReinspection(...args),
+  toast: (...args) => toast(...args),
+  undoWalkOutcome: (...args) => undoWalkOutcome(...args),
+  walkIdentity: (...args) => walkIdentity(...args),
+});
+const editorEvents = createEditorEvents({
+  MINDUE: (...args) => MINDUE(...args),
+  blockers: (...args) => blockers(...args),
+  captureWork: (...args) => captureWork(...args),
+  fillBlank: (...args) => fillBlank(...args),
+  grantCaseFolder: (...args) => grantCaseFolder(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  issueCorrection: (...args) => issueCorrection(...args),
+  moveItem: (...args) => moveItem(...args),
+  newDoc: (...args) => newDoc(...args),
+  get newDocuments() {
+    return newDocuments;
+  },
+  openIssuedCopy: (...args) => openIssuedCopy(...args),
+  parseDate: (...args) => parseDate(...args),
+  parseTime: (...args) => parseTime(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  printJob: (...args) => printJob(...args),
+  printNotice: (...args) => printNotice(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  refreshSheet: (...args) => refreshSheet(...args),
+  render: (...args) => render(...args),
+  renumber: (...args) => renumber(...args),
+  runFinalize: (...args) => runFinalize(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  splitOwner: (...args) => splitOwner(...args),
+  structEditable: (...args) => structEditable(...args),
+  syncChip: (...args) => syncChip(...args),
+  toast: (...args) => toast(...args),
+  toastUndo: (...args) => toastUndo(...args),
+  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
+  updateDueIndicators: (...args) => updateDueIndicators(...args),
+  get catalogEvents() {
+    return catalogEvents;
+  },
+  get citationEvents() {
+    return citationEvents;
+  },
+  get contactEvents() {
+    return contactEvents;
+  },
+  get correctionEvents() {
+    return correctionEvents;
+  },
+  get importEvents() {
+    return importEvents;
+  },
+  get reinspectionEvents() {
+    return reinspectionEvents;
+  },
+  get workspaceEvents() {
+    return workspaceEvents;
+  },
+});
+const specialDocumentEvents = createSpecialDocumentEvents({
+  get newDocuments() {
+    return newDocuments;
+  },
+});
+const correctionEvents = createCorrectionEvents({
+  addRecordNote: (...args) => addRecordNote(...args),
+  commitAmendment: (...args) => commitAmendment(...args),
+  correctionChanges: (...args) => correctionChanges(...args),
+  correctionTypeAllowed: (...args) => correctionTypeAllowed(...args),
+  docBody: (...args) => docBody(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  isLocked: (...args) => isLocked(...args),
+  issueCorrection: (...args) => issueCorrection(...args),
+  itemHistory: (...args) => itemHistory(...args),
+  itemInspectionHistory: (...args) => itemInspectionHistory(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  reconcileDocument: (...args) => reconcileDocument(...args),
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  startCorrection: (...args) => startCorrection(...args),
+  toast: (...args) => toast(...args),
+  voidDocument: (...args) => voidDocument(...args),
+});
+const contactEvents = createContactEvents({
+  addCC: (...args) => addCC(...args),
+  addEmail: (...args) => addEmail(...args),
+  emailDocument: (...args) => emailDocument(...args),
+  recipientPreview: (...args) => recipientPreview(...args),
+  refreshOverlay: (...args) => refreshOverlay(...args),
+  removeCC: (...args) => removeCC(...args),
+  removeEmail: (...args) => removeEmail(...args),
+  render: (...args) => render(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+});
+utilityEvents.registerHelpClicks();
+utilityEvents.registerHelpKeys();
+utilityEvents.registerHelpClose();
 const $testFixtures = __TEST_BUILD__ ? initTestFixtures() : null;
 
 /* R35: an initial-inspection citation (authoring 11+) is the only mailed document; its paired Official Notice
@@ -339,47 +691,9 @@ export const fmtDateEd = __TEST_BUILD__ ? $testFixtures.fmtDateEd : undefined;
 
 WriterState.undoFn = null;
 
-document.addEventListener("click", (e) => {
-  const el = e.target.closest(".blank-edit");
-  if (el) {
-    e.preventDefault();
-    fillBlank(el);
-  }
-});
-document.addEventListener("keydown", (e) => {
-  if (e.target.matches(".blank-edit") && ["Enter", " "].includes(e.key)) {
-    e.preventDefault();
-    fillBlank(e.target);
-  }
-});
-document.addEventListener("keydown", (e) => {
-  if (
-    WriterState.state.screen !== "reinspect" ||
-    !WriterState.state.riWalk ||
-    !ensureWalkContext() ||
-    e.defaultPrevented ||
-    e.repeat ||
-    e.altKey ||
-    e.ctrlKey ||
-    e.metaKey
-  )
-    return;
-  const target = e.target,
-    tag = target && target.tagName;
-  if (target && (target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(tag || ""))) return;
-  const key = String(e.key || "").toLowerCase();
-  if (target && /^(BUTTON|A)$/.test(tag || "") && !target.closest("[data-ri-walk-current]") && !(key === "u" && target.closest("[data-riwalk-undo]")))
-    return;
-  if (key === "u" && WriterState.state.riWalkUndo) {
-    e.preventDefault();
-    undoWalkOutcome();
-    return;
-  }
-  const outcome = { 1: "corrected", 2: "progress", 3: "none", 4: "noaccess" }[key];
-  if (!outcome || !WriterState.state.riWalkItem) return;
-  e.preventDefault();
-  recordReinspectionOutcome(WriterState.state.riWalkItem, outcome);
-});
+editorEvents.registerBlankClicks();
+editorEvents.registerBlankKeys();
+reinspectionEvents.registerWalkKeys();
 
 export const docBody = (d) =>
   snow.is(d) && d.authoringVersion >= 9
@@ -691,133 +1005,9 @@ export const ENTRY_IDS = ["lookup-number"];
 export const recordFormKey = () => WriterState.state.docId + ":" + WriterState.state.modal;
 
 // These handlers own working forms even before a case/document identity exists.
-document.addEventListener(
-  "input",
-  (e) => {
-    const el = e.target;
-    if (ENTRY_IDS.includes(el.id)) {
-      WriterState.WORK.entry[el.id] = el.value;
-      scheduleDraftSave();
-      return;
-    }
-    if (["record-action-text", "record-action-external", "record-action-inspector"].includes(el.id)) {
-      const key = recordFormKey(),
-        field = { "record-action-text": "text", "record-action-external": "external", "record-action-inspector": "actor" }[el.id];
-      WriterState.WORK.recordForms[key] = { ...(WriterState.WORK.recordForms[key] || {}), [field]: el.value };
-      scheduleDraftSave();
-      return;
-    }
-    if (el.id === "fin-mailed") {
-      const d = doc(WriterState.state.docId);
-      if (d && !isLocked(d)) {
-        initialCitations.mailed(d, el.value);
-        scheduleDraftSave();
-      }
-      return;
-    }
-  },
-  true,
-);
-document.addEventListener(
-  "change",
-  (e) => {
-    if (ENTRY_IDS.includes(e.target.id)) {
-      WriterState.WORK.entry[e.target.id] = e.target.value;
-      scheduleDraftSave();
-    }
-  },
-  true,
-);
-document.addEventListener(
-  "click",
-  (e) => {
-    const button = e.target.closest(
-      "#btn-savework,#btn-workbackup,[data-workbackup],#btn-workrestore,#btn-re" +
-        "trypublish,#btn-editvisit,#btn-previousdraft,#btn-exportprevious,#btn-re" +
-        "tryfiling,#btn-continuecitation,[data-worknote]",
-    );
-    if (!button) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    captureWork();
-    if (button.id === "btn-savework") {
-      saveAndContinue();
-      return;
-    }
-    if (button.id === "btn-workbackup" || button.hasAttribute("data-workbackup")) {
-      downloadWorkspace();
-      return;
-    }
-    if (button.id === "btn-workrestore") {
-      document.getElementById("utility-dialog")?.close();
-      restoreWorkspaceFile();
-      return;
-    }
-    if (button.dataset.worknote) {
-      const key = button.dataset.worknote,
-        cut = key.lastIndexOf(":"),
-        d = doc(key.slice(0, cut));
-      if (d && WriterState.WORK.recordForms[key]) {
-        WriterState.state.docId = d.id;
-        WriterState.state.screen = "write";
-        WriterState.state.modal = key.slice(cut + 1);
-        render();
-      }
-      return;
-    }
-    if (button.id === "btn-retryfiling") {
-      const d = doc(WriterState.state.docId);
-      if (d && !d.draft) {
-        button.disabled = true;
-        // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
-        let job;
-        try {
-          job = printJob(d);
-        } catch (error) {
-          toast(error.message);
-          render();
-          return;
-        }
-        filePdf(d, job).finally(() => render());
-      }
-      return;
-    }
-    if (button.id === "btn-continuecitation") {
-      const d = doc(WriterState.state.docId);
-      if (needsInitialCitation(d)) {
-        const next = citationFromNotice(d.id);
-        if (next) {
-          WriterState.state.docId = next.id;
-          WriterState.state.screen = "write";
-          render();
-        }
-      }
-      return;
-    }
-    if (button.id === "btn-retrypublish") {
-      publishDocument(doc(WriterState.state.docId));
-      return;
-    }
-    if (button.id === "btn-editvisit") {
-      returnToWorksheet(doc(WriterState.state.docId));
-      return;
-    }
-    const r = reinsp(WriterState.state.reinspId);
-    if (button.id === "btn-previousdraft") {
-      restorePreviousDraft(r);
-      return;
-    }
-    if (button.id === "btn-exportprevious") {
-      if (r && r.previousDraft)
-        downloadFile(
-          "Previous-document-draft-" + r.id + ".json",
-          JSON.stringify({ format: "madison-draft-reference", draft: r.previousDraft, inspection: r.previousWorksheet }, null, 2),
-        );
-      return;
-    }
-  },
-  true,
-);
+recoveryEvents.registerWorkingInput();
+recoveryEvents.registerWorkingChange();
+recoveryEvents.registerWorkingActions();
 
 /* Local-helper draft recovery. Backups are independent of IndexedDB and of
    official case files. A restore stages and validates all records first. */
@@ -834,51 +1024,8 @@ WriterState.RECOVERY_SELECT_SEQ = 0;
 WriterState.RECOVERY_NEXT = null;
 WriterState.RECOVERY_BUSY = false;
 
-document.addEventListener("click", (e) => {
-  const t = e.target.closest?.("[data-recovery-row],[data-recovery-restore],[data-recovery-export],[data-recovery-shared],#btn-recovery");
-  if (!t) return;
-  if (t.id === "btn-recovery") {
-    document.getElementById("utility-dialog")?.close();
-    listRecovery();
-    return;
-  }
-  if (t.dataset.recoveryRow !== undefined) {
-    selectRecovery(WriterState.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
-      WriterState.RECOVERY.error = err.message;
-      render();
-    });
-    return;
-  }
-  if (t.hasAttribute("data-recovery-restore")) {
-    restoreRecovery();
-    return;
-  }
-  if (t.hasAttribute("data-recovery-export")) {
-    downloadFile("Madison-recovery-" + WriterState.RECOVERY.selected.number + ".json", JSON.stringify(WriterState.RECOVERY.selected, null, 2));
-    return;
-  }
-  if (t.hasAttribute("data-recovery-shared")) {
-    const k = WriterState.RECOVERY.selected?.bundle?.cases?.[0];
-    WriterState.state.modal = null;
-    if (k)
-      helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))
-        .then((x) => loadCaseFile(JSON.stringify(x.file)))
-        .catch((err) => toast("Shared case unavailable: " + err.message));
-  }
-});
-document.addEventListener("change", async (e) => {
-  if (e.target.id !== "recovery-import") return;
-  try {
-    const b = JSON.parse(await e.target.files[0].text());
-    const row = { workspace: b.workspace, case: b.case, number: b.number, name: "Imported file", imported: b };
-    validateRecovery(b, row);
-    WriterState.RECOVERY.list.unshift(row);
-    await selectRecovery(row);
-  } catch (err) {
-    WriterState.RECOVERY.error = "Import rejected: " + err.message;
-    render();
-  }
-});
+recoveryEvents.registerRecoveryActions();
+recoveryEvents.registerRecoveryImport();
 
 /* Catalog review events live on the share. Bundled wording stays immutable;
    a review is applied only to a newly selected item, never issued history. */
@@ -902,167 +1049,18 @@ try {
   /* Cached review metadata is optional; fresh helper review verification still governs issuance. */
 }
 
-document.addEventListener(
-  "toggle",
-  (e) => {
-    const details = e.target.closest?.(".lib-guidance");
-    if (!details) return;
-    const key = details.querySelector("[data-catalog-key]")?.dataset.catalogKey;
-    if (!key) return;
-    WriterState.CATALOG_FORMS[key] = { ...catalogForm(key, catalogItem(key), catalogReview(key)), open: details.open };
-    keepCatalogForms();
-    if (details.open) {
-      const selector = details.querySelector('[data-catalog-field="replaces"]');
-      if (selector)
-        selector.innerHTML = catalogReplacementOptions(key, WriterState.CATALOG_FORMS[key].replaces, WriterState.CATALOG_FORMS[key].replacementQuery);
-    }
-  },
-  true,
-);
-document.addEventListener("input", (e) => {
-  const el = e.target.closest?.("[data-catalog-field]");
-  if (!el) return;
-  const key = el.dataset.catalogKey;
-  WriterState.CATALOG_FORMS[key] = {
-    ...catalogForm(key, catalogItem(key), catalogReview(key)),
-    ...WriterState.CATALOG_FORMS[key],
-    [el.dataset.catalogField]: el.value,
-    open: true,
-  };
-  keepCatalogForms();
-});
-document.addEventListener("input", (e) => {
-  const el = e.target.closest?.("[data-catalog-replacement-query]");
-  if (!el) return;
-  const key = el.dataset.catalogReplacementQuery;
-  WriterState.CATALOG_FORMS[key] = {
-    ...catalogForm(key, catalogItem(key), catalogReview(key)),
-    ...WriterState.CATALOG_FORMS[key],
-    replacementQuery: el.value,
-    open: true,
-  };
-  keepCatalogForms();
-  const selector = el.closest("details")?.querySelector('[data-catalog-field="replaces"]');
-  if (selector) selector.innerHTML = catalogReplacementOptions(key, WriterState.CATALOG_FORMS[key].replaces, el.value);
-});
-document.addEventListener("change", (e) => {
-  if (e.target.matches?.("[data-catalog-field]")) e.target.dispatchEvent(new Event("input", { bubbles: true }));
-});
-document.addEventListener("click", async (e) => {
-  const rebase = e.target.closest?.("[data-catalog-rebase]");
-  if (rebase) {
-    const key = rebase.dataset.catalogRebase,
-      r = catalogReview(key),
-      form = WriterState.CATALOG_FORMS[key];
-    if (!r || !form) return;
-    if (
-      confirm(
-        "Use reviewed v" + r.version + " as the basis for this new review? Your unsubmitted values are kept. Compare both versions before recording.",
-      )
-    ) {
-      form.baseVersion = r.version;
-      form.error = "Review basis updated to v" + r.version + ". Confirm your entered wording and ordinance before recording.";
-      keepCatalogForms();
-      render();
-    }
-    return;
-  }
-  const t = e.target.closest?.("[data-catalog-save]");
-  if (!t) return;
-  const key = t.dataset.catalogSave,
-    i = catalogItem(key);
-  if (!i) return;
-  const host = t.closest("details"),
-    field = (name) => host.querySelector('[data-catalog-field="' + name + '"]')?.value.trim() || "";
-  const status = t.dataset.catalogStatus,
-    form = WriterState.CATALOG_FORMS[key] || catalogForm(key, i, catalogReview(key));
-  const data = {
-    key,
-    status,
-    reviewer: field("reviewer"),
-    wording: field("wording"),
-    ordinances: field("ordinances")
-      .split(";")
-      .map((x) => x.trim())
-      .filter(Boolean),
-    source: field("source"),
-    replaces: field("replaces"),
-    expectedVersion: form.baseVersion,
-  };
-  const fields = ["reviewer", "wording", "ordinances", "source", "replaces"],
-    submitted = Object.fromEntries(fields.map((n) => [n, field(n)]));
-  const fail = (message) => {
-    WriterState.CATALOG_FORMS[key] = { ...form, ...submitted, ...WriterState.CATALOG_FORMS[key], open: true, error: message };
-    keepCatalogForms();
-    if (WriterState.state.screen === "library") render();
-    else toast(message, { severity: "warning" });
-  };
-  if (!data.reviewer) {
-    fail("Reviewer is required.");
-    return;
-  }
-  if (!data.source) {
-    fail("Source or authority is required.");
-    return;
-  }
-  if (status === "approved" && (!data.wording || !data.ordinances.length)) {
-    fail("Approved wording and ordinance references are required.");
-    return;
-  }
-  if (data.replaces && (!catalogItem(data.replaces) || data.replaces === key)) {
-    fail("Choose a different catalog entry.");
-    return;
-  }
-  if (!confirm("Record " + status + " review for " + i.t + " by " + data.reviewer + "? This adds a permanent catalog version.")) return;
-  t.disabled = true;
-  try {
-    const response = await helperJSON("/catalog/review", data);
-    const known = new Set(WriterState.CATALOG_EVENTS.map((event) => event.id)),
-      incoming = new Set(response.events.map((event) => event.id));
-    if (!(WriterState.CATALOG_EVENTS.some((event) => !incoming.has(event.id)) && response.events.every((event) => known.has(event.id))))
-      WriterState.CATALOG_EVENTS = response.events;
-    WriterState.CATALOG_VERIFIED = true;
-    WriterState.CATALOG_FROM_CACHE = false;
-    WriterState.CATALOG_AT = nowISO();
-    WriterState.CATALOG_ERROR = "";
-    try {
-      localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: WriterState.CATALOG_AT, events: WriterState.CATALOG_EVENTS }));
-    } catch (error) {
-      WriterState.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
-    }
-    const later = WriterState.CATALOG_FORMS[key],
-      changed = later && fields.some((n) => String(later[n] || "").trim() !== submitted[n]);
-    if (changed)
-      WriterState.CATALOG_FORMS[key] = {
-        ...later,
-        open: true,
-        error:
-          "Review v" +
-          response.event.version +
-          " was recorded. Your later edits are retained; compare and update the review basis before recording again.",
-      };
-    else delete WriterState.CATALOG_FORMS[key];
-    keepCatalogForms();
-    if (WriterState.state.screen === "library") render();
-    toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");
-  } catch (err) {
-    t.disabled = false;
-    fail("Review save was not confirmed: " + err.message + ". Your form is retained. Refresh review status before retrying.");
-  }
-});
+catalogEvents.registerGuidanceToggle();
+catalogEvents.registerReviewInput();
+catalogEvents.registerReplacementQuery();
+catalogEvents.registerReviewChange();
+catalogEvents.registerReviewActions();
 
 /* Early reconciliation is advisory; publication still uses the locked gate. */
 WriterState.PREFLIGHT_SEQ = 0;
 WriterState.PREFLIGHT_CONFLICT = null;
 WriterState.PREFLIGHT_NOTICE = "";
 
-document.addEventListener("click", (e) => {
-  const t = e.target.closest?.("[data-shared-export],[data-shared-current],[data-shared-local]");
-  if (!t) return;
-  if (t.hasAttribute("data-shared-export")) downloadWorkspace();
-  else if (t.hasAttribute("data-shared-local")) keepChangedLocal();
-  else openChangedShared();
-});
+recoveryEvents.registerSharedConflictActions();
 
 /* Plain-language safety centre; no automatic lock release. */
 WriterState.SAFETY_HEALTH = null;
@@ -1070,147 +1068,8 @@ WriterState.SAFETY_LOCK = null;
 WriterState.RESOLUTION_BUSY = false;
 WriterState.WORK_PATCH = null;
 
-document.addEventListener("submit", async (e) => {
-  if (e.target.id !== "lock-release-form") return;
-  e.preventDefault();
-  const form = e.target;
-  form.querySelector("button").disabled = true;
-  try {
-    const data = new FormData(form);
-    await helperJSON("/locks/release", {
-      number: WriterState.SAFETY_LOCK.number,
-      resource: WriterState.SAFETY_LOCK.resource,
-      token: WriterState.SAFETY_LOCK.token,
-      administrator: data.get("administrator"),
-      reason: data.get("reason"),
-      confirmed: data.get("confirmed") === "on",
-    });
-    WriterState.SAFETY_LOCK.present = false;
-    showLock();
-    toast("Released verified lock; audit note saved", { severity: "success" });
-  } catch (error) {
-    form.querySelector("button").disabled = false;
-    toast(error.message, { severity: "error" });
-  }
-});
-document.addEventListener("click", async (e) => {
-  const t = e.target.closest?.(
-    "[data-sync-safety],[data-setup-health],[data-health-probe],[data-diagnos" +
-      "tics-copy],[data-lock-inspect],[data-safety-case],[data-safety-backup],[" +
-      "data-safety-catalog],[data-safety-outbox],[data-safety-pending],[data-co" +
-      "nflict-apply],[data-safety-local]",
-  );
-  if (!t) return;
-  try {
-    if (t.hasAttribute("data-safety-local")) {
-      await saveDrafts();
-      await showSafety();
-    } else if (t.hasAttribute("data-sync-safety")) await showSafety(t.dataset.syncSafety || "");
-    else if (t.hasAttribute("data-setup-health")) await showHealth();
-    else if (t.hasAttribute("data-health-probe")) await showHealth(true);
-    else if (t.hasAttribute("data-diagnostics-copy")) {
-      const el = document.getElementById("it-diagnostics");
-      el.select();
-      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(el.value);
-      else document.execCommand("copy");
-      toast("Copied IT diagnostics", { severity: "success" });
-    } else if (t.hasAttribute("data-lock-inspect")) await inspectLock();
-    else if (t.hasAttribute("data-conflict-apply")) await applyConflict();
-    else if (t.hasAttribute("data-safety-backup")) {
-      await backupUnfinished(recoveryJobs());
-      await showSafety();
-    } else if (t.hasAttribute("data-safety-catalog")) {
-      await refreshCatalog();
-      await showSafety();
-    } else if (t.hasAttribute("data-safety-outbox")) {
-      await showOutbox();
-    } else if (t.hasAttribute("data-safety-pending")) {
-      document.getElementById("utility-dialog")?.close();
-      if (!WriterState.CASEDIR || WriterState.NEEDGRANT) {
-        WriterState.state.modal = "storage";
-        render();
-      } else {
-        await flushPending();
-        render();
-        await showSafety();
-      }
-    } else {
-      document.getElementById("utility-dialog")?.close();
-      const cid = t.dataset.safetyCase,
-        st = caseState(kase(cid));
-      if (t.dataset.safetyAction === "integrity") {
-        const proof = recordIntegrity.status(kase(cid));
-        A11Y.utility(
-          "Record verification details",
-          "<p>" +
-            `${esc(kase(cid).number)}` +
-            " · " +
-            `${esc(proof.label)}` +
-            "</p><p>Keep this case read-only and ask an administrator to review the r" +
-            "etained evidence. No automatic repair is performed.</p><details><summary" +
-            ">Technical evidence</summary><p>Event: " +
-            `${esc(proof.eventId || "Unavailable")}` +
-            " · expected: " +
-            `${esc(proof.expected || "Unavailable")}` +
-            " · actual: " +
-            `${esc(proof.actual || "Unavailable")}` +
-            " · last good commit: " +
-            `${esc(proof.lastGoodCommitTime || "Unavailable")}` +
-            "</p></details>",
-        );
-      } else if (t.dataset.safetyAction === "conflict") {
-        WriterState.state.modal = "shared-change";
-        render();
-      } else if (t.dataset.safetyAction === "pending") {
-        if (st.pendingDoc) {
-          WriterState.state.docId = st.pendingDoc.id;
-          WriterState.state.screen = "write";
-          render();
-        } else {
-          const holder = WriterState.RECORD_ATTEMPTS[st.pendingRecord.recordKey];
-          if (holder) commitAmendment(holder.cid, holder.pendingAmendment, holder);
-        }
-      } else if (t.dataset.safetyAction === "document") {
-        const d = docsFor(cid).find((x) => x.draft) || st.current;
-        if (d) {
-          await preflightCase(cid, "draft", () => {
-            WriterState.state.docId = d.id;
-            WriterState.state.screen = "write";
-            render();
-          });
-        } else if (st.visit) {
-          await preflightCase(cid, "inspection", () => startReinspection(cid));
-        }
-      } else if (t.dataset.safetyAction === "pdf") {
-        const d = docsFor(cid).find(
-          (x) =>
-            !x.draft &&
-            !x.void &&
-            !x.superseded &&
-            !deliveredByCitation(x) &&
-            (!x.filedAt || !["shared", "local outbox"].includes(pdfTransferState(x))),
-        );
-        if (d) {
-          WriterState.state.docId = d.id;
-          WriterState.state.screen = "write";
-          render();
-        }
-      } else if (t.dataset.safetyAction === "outbox") {
-        await showOutbox();
-      } else if (t.dataset.safetyAction === "storage") {
-        WriterState.state.modal = "storage";
-        render();
-      } else if (t.dataset.safetyAction === "save") await saveCaseFile(cid);
-      else
-        await preflightCase(cid, "safety check", () => {
-          render();
-          showSafety();
-        });
-    }
-  } catch (error) {
-    toast(error.message, { severity: "error" });
-  }
-});
+safetyEvents.registerLockRelease();
+safetyEvents.registerSafetyActions();
 
 /* Browser-profile preferences and optional inspector workflow aids. */
 export const WORKFLOW_PREFS_KEY = "madison-workspace-preferences-v1";
@@ -1244,148 +1103,10 @@ WriterState.TIMELINE_FILTER = "all";
 
 WriterState.OUTBOX_FILES = [];
 
-document.addEventListener("submit", async (e) => {
-  const form = e.target;
-  if (!["global-search-form", "reminder-settings", "reminder-email", "batch-due-form", "outbox-form"].includes(form.id)) return;
-  e.preventDefault();
-  const submit = form.querySelector("button[type=submit]");
-  submit.disabled = true;
-  try {
-    const data = new FormData(form);
-    if (form.id === "global-search-form") {
-      const result = await helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
-      if (!form.isConnected) return;
-      document.getElementById("global-search-results").innerHTML =
-        "<p>" +
-        `${result.hits.length}` +
-        " matching cases. " +
-        `${result.unreadable}` +
-        " unreadable files. " +
-        `${result.partial ? "Results limited; refine your search." : ""}` +
-        "</p><ul>" +
-        "".concat(
-          result.hits
-            .map(
-              (hit) =>
-                "<li>" +
-                `${esc(hit.number)}` +
-                " · " +
-                `${esc(hit.address)}` +
-                " · " +
-                `${esc(hit.owner)}` +
-                " " +
-                "".concat(
-                  hit.duplicate
-                    ? "Duplicate identity; administrator review needed"
-                    : `<button class="btn" data-global-open="${esc(hit.number)}">Open current case</button>`,
-                ) +
-                "</li>",
-            )
-            .join(""),
-        ) +
-        "</ul>";
-    } else if (form.id === "reminder-settings") {
-      const prefs = WriterState.WORKFLOW_PREFS.reminders;
-      prefs.enabled = data.get("enabled") === "on";
-      prefs.days = Math.min(30, Math.max(1, Number(data.get("days")) || 7));
-      prefs.plans = {};
-      for (const [key, value] of data.entries()) if (key.startsWith("plan:") && validISO(value)) prefs.plans[key.slice(5)] = value;
-      saveWorkflowPrefs();
-      document.getElementById("utility-dialog")?.close();
-      render();
-    } else if (form.id === "reminder-email") {
-      await helperJSON("/email/reminder", { to: data.get("to"), subject: data.get("subject"), body: data.get("body") });
-      toast("Opened Outlook reminder draft", { severity: "success" });
-    } else if (form.id === "batch-due-form") {
-      const changes = [...form.querySelectorAll("[data-batch-item]:checked")].map((el) => ({
-        docId: el.dataset.batchDoc,
-        itemId: el.dataset.batchItem,
-      }));
-      const copies = planBulkDue(changes, data.get("due"));
-      await persistWorkspacePatch(
-        (staged) => {
-          staged.docs = staged.docs.map((d) => copies.get(d.id) || d);
-          return staged;
-        },
-        () => {
-          WriterState.DOCS = WriterState.DOCS.map((d) => copies.get(d.id) || d);
-        },
-      );
-      document.getElementById("utility-dialog")?.close();
-      render();
-      toast("Saved selected draft deadlines", { severity: "success" });
-    } else {
-      const result = await helperJSON("/outbox/batch-sync", { items: selectedOutbox() });
-      await refreshArtifactLocations();
-      await showOutbox();
-      toast(result.result.moved + " PDF(s) filed; " + result.result.conflicts.length + " conflict(s) retained", {
-        severity: result.result.conflicts.length ? "warning" : "success",
-      });
-    }
-  } catch (error) {
-    toast(error.message, { severity: "error" });
-  } finally {
-    if (submit.isConnected) submit.disabled = false;
-  }
-});
-document.addEventListener("click", async (e) => {
-  const t = e.target.closest?.(
-    "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-" +
-      "draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data" +
-      "-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
-  );
-  if (!t) return;
-  try {
-    // The no-results offer opens the same shared search with the workspace query prefilled.
-    if (t.hasAttribute("data-global-search") || t.hasAttribute("data-shared-offer")) await globalSearch();
-    else if (t.dataset.globalOpen) {
-      await writerOpenReportedCase({ number: t.dataset.globalOpen });
-      document.getElementById("utility-dialog")?.close();
-    } else if (t.hasAttribute("data-reminders")) showReminders();
-    else if (t.dataset.reminderDraft) showReminderDraft(t.dataset.reminderDraft);
-    else if (t.dataset.reminderDismiss) {
-      WriterState.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);
-      WriterState.WORKFLOW_PREFS.reminders.dismissed = WriterState.WORKFLOW_PREFS.reminders.dismissed.slice(-200);
-      saveWorkflowPrefs();
-      render();
-    } else if (t.dataset.timeline) showTimeline(t.dataset.timeline, "all");
-    else if (t.hasAttribute("data-timeline-csv"))
-      downloadText(
-        "case-timeline.csv",
-        csvText([
-          ["Event ID", "UTC time", "Category", "Type", "Recorded by"],
-          ...timelineRows().map((e) => [e.id, e.at, timelineCategory(e.type), e.type, e.by || ""]),
-        ]),
-        "text/csv",
-      );
-    else if (t.hasAttribute("data-timeline-json"))
-      downloadFile(
-        "case-event-log.json",
-        JSON.stringify(
-          {
-            format: "madison-event-log-export",
-            version: 1,
-            caseNumber: kase(WriterState.TIMELINE_CASE).number,
-            events: eventsFor(WriterState.TIMELINE_CASE),
-          },
-          null,
-          2,
-        ),
-      );
-    else if (t.hasAttribute("data-batch-due")) showBulkDue();
-    else if (t.hasAttribute("data-outbox")) await showOutbox();
-    else if (t.hasAttribute("data-outbox-print")) await printOutbox();
-  } catch (error) {
-    toast(error.message, { severity: "error" });
-  }
-});
-document.addEventListener("change", (e) => {
-  if (e.target.id === "timeline-filter") showTimeline(WriterState.TIMELINE_CASE, e.target.value);
-  if (["case-filter", "case-inspector"].includes(e.target.id)) queueMicrotask(saveWorkflowPrefs);
-});
-document.addEventListener("input", (e) => {
-  if (e.target.id === "case-search") queueMicrotask(saveWorkflowPrefs);
-});
+workflowEvents.registerToolForms();
+workflowEvents.registerToolActions();
+workflowEvents.registerTimelineFilter();
+workflowEvents.registerSearchPreferences();
 
 /* Workspace task counts are built from the same records used by the task list.
    Artifact location is checked by the helper against approved outbox paths. */
@@ -1394,45 +1115,8 @@ WriterState.ARTIFACT_VERIFY = {};
 WriterState.ARTIFACT_SEQ = 0;
 WriterState.ARTIFACT_IDENTITY = {};
 
-document.addEventListener("click", (e) => {
-  const t = e.target.closest?.("[data-queue-view],[data-queue-reset]");
-  if (!t) return;
-  WriterState.state.metric = "";
-  if (t.hasAttribute("data-queue-reset")) {
-    WriterState.state.caseQ = "";
-    WriterState.state.caseInspector = "";
-  } else {
-    // Switching views keeps the workspace search and inspector filter; only the reset clears them.
-    WriterState.state.caseFilter = t.dataset.queueView;
-  }
-  render();
-  saveWorkflowPrefs();
-  document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : '[data-queue-view="' + t.dataset.queueView + '"]')?.focus();
-});
-document.addEventListener("click", (e) => {
-  const t = e.target.closest?.("[data-case-task]");
-  if (!t) return;
-  const cid = t.dataset.caseTask,
-    st = caseState(kase(cid));
-  if (st.draft) {
-    preflightCase(cid, "draft", () => {
-      WriterState.state.docId = st.draft.id;
-      WriterState.state.screen = "write";
-      render();
-    });
-    return;
-  }
-  if (st.visit || (st.current && !st.closed)) {
-    preflightCase(cid, "inspection", () => startReinspection(cid));
-    return;
-  }
-  if (st.current)
-    preflightCase(cid, "case", () => {
-      WriterState.state.docId = st.current.id;
-      WriterState.state.screen = "write";
-      render();
-    });
-});
+workspaceEvents.registerQueueViews();
+workspaceEvents.registerCaseTasks();
 
 /* Reports sends only a case number. Writer resolves it through the validated
    shared-case route and preserves its single-tab Web Lock. */
@@ -1454,118 +1138,11 @@ export const WRITER_READY_WAIT = new Promise((resolve) => {
   WriterState.releaseWriterReady = resolve;
 });
 
-document.addEventListener("click", async (e) => {
-  if (!e.target.closest?.("[data-report-return]")) return;
-  await navigation.leave((sequence) => {
-    const request = rnd12();
-    WriterState.RETURN_ACK = "";
-    if (WriterState.WRITER_CHANNEL) WriterState.WRITER_CHANNEL.postMessage({ kind: "return", request });
-    setTimeout(() => {
-      if (navigation.current(sequence) && WriterState.RETURN_ACK !== request) location.href = "madison-reports.html?return=1";
-    }, 700);
-  });
-});
+workspaceEvents.registerReportReturn();
 
-document.addEventListener("input", (e) => {
-  const el = e.target,
-    ds = el.dataset || {};
-  if (el.id === "bulk-due") {
-    const { target } = activeDueTarget();
-    if (target) {
-      target.dueWork = target.dueWork || {};
-      target.dueWork.date = el.value;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    return;
-  }
-  if (ds.reviewCit) {
-    const d = doc(WriterState.state.docId);
-    if (!d || isLocked(d)) return;
-    const [id, f] = ds.reviewCit.split("|");
-    editCitation(d, id, f, el.value, "input");
-    WriterState.DIRTY = true;
-    scheduleDraftSave();
-    syncChip();
-    initialCitations.refresh(d);
-  }
-});
-document.addEventListener("change", (e) => {
-  const ds = e.target.dataset || {};
-  if (ds.reviewCit) {
-    const d = doc(WriterState.state.docId);
-    if (d && !isLocked(d)) {
-      const [id, field] = ds.reviewCit.split("|");
-      editCitation(d, id, field, e.target.value);
-      WriterState.DIRTY = true;
-      saveDrafts();
-      refreshSheet();
-      initialCitations.refresh(d);
-      // R59: a charge that now needs its deposit basis keeps focus on that charge's completion form.
-      if ((field === "ord" || field === "ordOther") && d.depositRequests?.[id]) depositStep.open(d, id);
-    }
-    return;
-  }
-  if (ds.dueSelect) {
-    const { target, visit } = activeDueTarget();
-    if (!target || (!visit && isLocked(target))) return;
-    target.dueWork = target.dueWork || {};
-    const selected = new Set(target.dueWork.selected || []);
-    if (e.target.checked) selected.add(ds.dueSelect);
-    else selected.delete(ds.dueSelect);
-    target.dueWork.selected = [...selected];
-    // Notice rows select in the items table; keep the compact bar's count current without a repaint.
-    const count = document.querySelector("[data-due-selected]");
-    if (count) count.textContent = dueSelectedText(dueContext(target, visit), selected);
-    WriterState.DIRTY = true;
-    saveDrafts();
-  }
-});
-document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-due-all],#btn-bulkdue");
-  if (!el) return;
-  const { target, visit } = activeDueTarget();
-  if (!target || (!visit && isLocked(target)) || (visit && (!target.draft || target.docId))) return;
-  target.dueWork = target.dueWork || {};
-  if (el.dataset.dueAll !== undefined) {
-    target.dueWork.selected = el.dataset.dueAll === "1" ? dueContext(target, visit).map((i) => i.id) : [];
-  } else {
-    const before = Object.fromEntries(dueContext(target, visit).map((i) => [i.id, i.due || ""]));
-    // An item that has since been corrected, withdrawn or carried has no checkbox any more; drop it from the
-    // selection rather than refusing a choice the inspector can no longer see.
-    target.dueWork.selected = (target.dueWork.selected || []).filter((id) => Object.hasOwn(before, id));
-    const fault = assignDue(target, visit, target.dueWork.date, target.dueWork.selected);
-    if (fault) {
-      toast(fault);
-      return;
-    }
-    const applied = Object.fromEntries(dueContext(target, visit).map((i) => [i.id, i.due || ""]));
-    toastUndo("Due date applied to selected items.", () => {
-      const active = activeDueTarget();
-      const current = dueContext(target, visit);
-      if (
-        active.target !== target ||
-        active.visit !== visit ||
-        (visit ? !target.draft || target.docId : isLocked(target)) ||
-        current.length !== Object.keys(before).length ||
-        current.some((i) => !Object.hasOwn(before, i.id) || i.due !== applied[i.id])
-      ) {
-        toast("This draft changed. Reopen its dates to make a new adjustment.");
-        return;
-      }
-      for (const [id, due] of Object.entries(before)) {
-        if (visit) target.results[id].due = due;
-        else target.items.find((x) => x.id === id).due = due;
-      }
-      WriterState.DIRTY = true;
-      saveDrafts();
-      render();
-    });
-  }
-  WriterState.DIRTY = true;
-  saveDrafts();
-  render();
-});
+citationEvents.registerReviewInput();
+citationEvents.registerReviewChange();
+dueDateEvents.registerBulkAssignment();
 
 /* Imported inspection identity excludes mutable status, owner and inspector names.
    The fixed source query has no inspection ID: date/type/time are the available key.
@@ -1579,63 +1156,15 @@ WriterState.LOOKUP_SERIAL = 0;
 // R59: bumps on every inspection-candidate change so a check started for an earlier selection is ignored.
 WriterState.ACC_SELECTION_SERIAL = 0;
 
-document.addEventListener("submit", (e) => {
-  if (e.target.id === "lookup-form") {
-    e.preventDefault();
-    findDatabaseCase();
-  }
-});
-document.addEventListener(
-  "click",
-  (e) => {
-    const button = e.target.closest("button");
-    if (!button) return;
-    if (button.dataset.importWorkspace) {
-      openImportWorkspace(button.dataset.importWorkspace);
-      return;
-    }
-    if (button.id === "lookup-cancel") {
-      cancelCaseLookup();
-      WriterState.LOOKUP_ERROR = "Lookup canceled. Your existing work has been kept.";
-      render();
-      return;
-    }
-    if (button.id === "lookup-recheck") {
-      confirmDatabaseCase();
-      return;
-    }
-    if (button.matches("[data-nav],#acc-pick,#acc-cancel,#btn-savework")) cancelCaseLookup();
-    if (button.id === "acc-go") {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      confirmDatabaseCase();
-    }
-  },
-  true,
-);
+importEvents.registerLookupSubmit();
+importEvents.registerLookupClicks();
 
-document.addEventListener(
-  "drop",
-  (e) => {
-    if (e.target.closest?.("#acc-drop")) cancelCaseLookup();
-  },
-  true,
-);
+importEvents.registerLookupDrop();
 
-document.addEventListener("click", (e) => {
-  const b = e.target.closest("[data-check-index]");
-  if (!b) return;
-  const list = b.dataset.checkWorksheet ? worksheetChecks(reinsp(WriterState.state.reinspId)) : checks(doc(WriterState.state.docId));
-  const c = list[+b.dataset.checkIndex],
-    target = c?.targets?.[+b.dataset.checkTarget];
-  if (target) {
-    e.preventDefault();
-    focusCheckTarget(target, c.t);
-  }
-});
+utilityEvents.registerCheckLinks();
 // Run after editing handlers, without replacing the active input or losing its caret.
-document.addEventListener("input", () => queueMicrotask(highlightOpenChecks));
-document.addEventListener("change", () => queueMicrotask(highlightOpenChecks));
+utilityEvents.registerInputChecks();
+utilityEvents.registerChangeChecks();
 
 // empty box / checked box
 
@@ -1648,60 +1177,12 @@ document.addEventListener("change", () => queueMicrotask(highlightOpenChecks));
    thumb. Rows move live; the item array is rewritten and renumbered on drop. */
 WriterState.dragging = null;
 
-document.addEventListener("pointerdown", (e) => {
-  const g = e.target.closest && e.target.closest("[data-grip]");
-  if (!g) return;
-  const tr = g.closest("tr");
-  if (!tr) return;
-  e.preventDefault();
-  WriterState.dragging = { tr: tr, body: tr.parentNode };
-  tr.classList.add("dragging");
-  try {
-    g.setPointerCapture(e.pointerId);
-  } catch (err) {
-    /* Pointer capture is optional; ordinary pointer movement still supports this interaction. */
-  }
-});
-document.addEventListener("pointermove", (e) => {
-  if (!WriterState.dragging) return;
-  const rows = Array.prototype.slice.call(WriterState.dragging.body.querySelectorAll("tr[data-row]"));
-  for (let n = 0; n < rows.length; n++) {
-    const r = rows[n];
-    if (r === WriterState.dragging.tr) continue;
-    const b = r.getBoundingClientRect();
-    if (e.clientY >= b.top && e.clientY <= b.bottom) {
-      WriterState.dragging.body.insertBefore(WriterState.dragging.tr, e.clientY < b.top + b.height / 2 ? r : r.nextSibling);
-      break;
-    }
-  }
-});
-document.addEventListener("pointerup", () => {
-  if (!WriterState.dragging) return;
-  const body = WriterState.dragging.body;
-  WriterState.dragging.tr.classList.remove("dragging");
-  WriterState.dragging = null;
-  const d = doc(WriterState.state.docId);
-  if (!d || !structEditable(d)) return;
-  const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
-  d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-  renumber(d);
-  WriterState.DIRTY = true;
-  refreshSheet();
-});
-document.addEventListener("pointercancel", () => {
-  if (WriterState.dragging) {
-    WriterState.dragging.tr.classList.remove("dragging");
-    WriterState.dragging = null;
-    refreshSheet();
-  }
-});
+editorEvents.registerPointerStart();
+editorEvents.registerPointerMove();
+editorEvents.registerPointerEnd();
+editorEvents.registerPointerCancel();
 
-document.addEventListener("keydown", (e) => {
-  const grip = e.target.closest?.("[data-grip]");
-  if (!grip || !["ArrowUp", "ArrowDown"].includes(e.key) || e.altKey || e.ctrlKey || e.metaKey) return;
-  e.preventDefault();
-  moveItem(grip.dataset.grip, e.key === "ArrowUp" ? "up" : "down", true);
-});
+editorEvents.registerReorderKeys();
 // structural changes only — never while someone is typing
 
 /* A follow-up is a derivative of the notice, not a fresh document. Only the
@@ -1715,1332 +1196,51 @@ document.addEventListener("keydown", (e) => {
    carries the letterhead and the envelope window. */
 export const PAGE_PX = 11 * 96;
 
-document.addEventListener("keydown", (e) => {
-  const box = document.querySelector('[role="dialog"]');
-  if (e.key === "Tab" && box) {
-    const nodes = Array.from(
-      box.querySelectorAll(
-        "button:not([disabled]),input:not([disabled]),select:not([disabled]),text" + 'area:not([disabled]),a[href],[tabindex="0"]',
-      ),
-    ).filter((el) => !el.hidden && el.style.display !== "none");
-    const first = nodes[0],
-      last = nodes[nodes.length - 1];
-    if (!first) {
-      e.preventDefault();
-      box.focus();
-    } else if (e.shiftKey && (document.activeElement === first || document.activeElement === box)) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-    e.preventDefault();
-    saveDrafts().then((ok) => toast(ok ? "Saved on this device" : "Could not save — keep this tab open"));
-  }
-});
-document.addEventListener("click", (e) => newDocuments.clickEvent(e));
-document.addEventListener("input", (e) => {
-  if (e.target.matches("[data-special],[data-special-due],[data-service-field]")) newDocuments.editEvent(e);
-});
-document.addEventListener("change", (e) => {
-  if (
-    e.target.matches(
-      "[data-case-action-group],[data-case-action-type],[data-service-field],[d" +
-        "ata-action-group],[data-action-type],[data-special],[data-special-item]," +
-        "[data-special-due],[data-administrative-type],[dat" +
-        'a-special="administrativeType"]',
-    )
-  )
-    newDocuments.editEvent(e);
-});
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && IDB_OK) saveDrafts();
-});
+utilityEvents.registerDialogKeys();
+specialDocumentEvents.registerActionClicks();
+specialDocumentEvents.registerActionInput();
+specialDocumentEvents.registerActionChange();
+recoveryEvents.registerVisibilitySave();
 /* ---------- events ---------- */
 WriterState.groupOld = null;
 
-document.addEventListener("focusin", (e) => {
-  if (e.target.dataset && e.target.dataset.field === "group") WriterState.groupOld = e.target.innerText.trim();
-});
+editorEvents.registerGroupFocus();
 // paste into the document as plain text so the notice keeps its own formatting
 /* The field is small by design, so the whole of it opens the picker rather
    than the few pixels of the calendar icon. */
-document.addEventListener("click", (e) => {
-  const el = e.target.closest && e.target.closest(".hdr-in");
-  if (!el || el.disabled) return;
-  if (typeof el.showPicker === "function") {
-    try {
-      el.showPicker();
-    } catch (err) {
-      /* The browser can refuse its optional picker; typed dates remain available. */
-    }
-  }
-});
+editorEvents.registerDatePicker();
 
-document.addEventListener("paste", (e) => {
-  const el = e.target.closest && e.target.closest("[contenteditable]");
-  if (!el) return;
-  e.preventDefault();
-  document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain"));
-});
+editorEvents.registerPlainPaste();
 
-document.addEventListener("click", (e) => {
-  const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]");
-  if (!button) return;
-  e.preventDefault();
-  captureWork();
-  if (button.hasAttribute("data-mobile-primary")) {
-    // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
-    const primary = document.querySelector(".topbar .editor-primary");
-    if (primary && !primary.disabled) primary.click();
-    return;
-  }
-  if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
-    // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
-    if (!doc(WriterState.state.docId)) return;
-    WriterState.state.picker = false;
-    WriterState.state.modal = "review";
-    render();
-    return;
-  }
-  const target = document.getElementById(button.dataset.editorCommand);
-  if (target && !target.disabled) {
-    button.disabled = true;
-    target.click();
-  }
-});
+editorEvents.registerReviewCommands();
 
-document.addEventListener("click", async (e) => {
-  const t = e.target.closest(
-    "[data-nav],[data-open],[data-new],[data-pick],[data-grp],[data-libcl],[d" +
-      "ata-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[da" +
-      "ta-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo]" +
-      ",[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk" +
-      "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-to" +
-      "p,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#" +
-      "btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-ex" +
-      "portcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-acti" +
-      "on-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#bt" +
-      "n-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf" +
-      ",#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc" +
-      ",#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notec" +
-      "ite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-disca" +
-      "rdri],[data-discard],[data-openfolder],#btn-print,#btn-final" +
-      ",#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-pick,#acc-go,#acc-cance" +
-      "l,[data-acccase],[data-accsel]",
-  );
-  if (!t) return;
-  captureWork();
-  if (t.id === "case-showall") {
-    WriterState.state.metric = "";
-    WriterState.state.caseFilter = "all";
-    WriterState.state.caseQ = "";
-    WriterState.state.caseInspector = "";
-    render();
-    saveWorkflowPrefs();
-    return;
-  }
-  if (t.dataset.nav) {
-    await navigation.navigate(t.dataset.nav);
-    return;
-  }
-
-  if (t.id === "t-undo") {
-    const f = WriterState.undoFn;
-    WriterState.undoFn = null;
-    document.getElementById("toast").innerHTML = "";
-    if (f) f();
-    return;
-  }
-  if (t.dataset.exportcase) {
-    if (!caseNumberAllowed(kase(t.dataset.exportcase))) {
-      toast("Case number needs correction before export");
-      return;
-    }
-    downloadFile(caseFileName(kase(t.dataset.exportcase)), JSON.stringify(caseFile(t.dataset.exportcase), null, 2));
-    toast("Case record downloaded. Unfinished drafts stay on this device.");
-    return;
-  }
-  if (t.id === "btn-openfile" || t.hasAttribute("data-openfile")) {
-    if (storageMode() === "folder") {
-      listCaseFolder().then((fs) => {
-        WriterState.state.folder = fs;
-        WriterState.state.modal = "folder";
-        render();
-      });
-      return;
-    }
-    pickCaseFile();
-    return;
-  }
-  if (t.id === "btn-linkdir") {
-    linkCaseFolder();
-    return;
-  }
-  if (t.id === "btn-grantdir") {
-    grantCaseFolder();
-    return;
-  }
-  if (t.id === "btn-browse") {
-    listCaseFolder().then((fs) => {
-      WriterState.state.folder = fs;
-      WriterState.state.modal = "folder";
-      render();
-    });
-    return;
-  }
-  if (t.dataset.openfolder) {
-    WriterState.state.modal = null;
-    openFromFolder(t.dataset.openfolder);
-    return;
-  }
-  if (t.dataset.discardri) {
-    if (!confirm("Discard this reinspection? Nothing has been recorded on the case yet.")) return;
-    if (discardWorksheet(t.dataset.discardri)) toast("Reinspection discarded");
-    return;
-  }
-  if (t.dataset.discard) {
-    const dd = doc(t.dataset.discard);
-    if (dd && !confirm("Discard this draft? It has not been issued, so nothing on the shared record changes.")) return;
-    discardDraft(t.dataset.discard).then((ok) => {
-      if (ok !== false) toast("Draft discarded");
-    });
-    return;
-  }
-  if (t.id === "btn-flush") {
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
-      grantCaseFolder(true)
-        .then(() => flushPending())
-        .then(() => render());
-      return;
-    }
-    flushPending().then(() => render());
-    return;
-  }
-  if (t.dataset.caseSync) {
-    if (!WriterState.CASEDIR) {
-      WriterState.state.modal = "storage";
-      render();
-      return;
-    }
-    if (WriterState.NEEDGRANT) {
-      grantCaseFolder(true).then((ok) => (ok ? flushPending() : render()));
-      return;
-    }
-    flushPending().then(() => render());
-    return;
-  }
-  if (t.id === "btn-storage") {
-    document.getElementById("utility-dialog")?.close();
-    WriterState.state.modal = "storage";
-    render();
-    return;
-  }
-  if (t.id === "btn-clear") {
-    WriterState.state.modal = "clear";
-    render();
-    return;
-  }
-  if (t.id === "btn-cc") {
-    WriterState.state.ccProblem = null;
-    WriterState.state.modal = "cc";
-    render();
-    return;
-  }
-  if (t.id === "btn-addcc") {
-    WriterState.state.ccProblem = null;
-    addCC(doc(WriterState.state.docId).caseId);
-    return;
-  }
-  if (t.id === "btn-addem") {
-    WriterState.state.ccProblem = null;
-    addEmail(doc(WriterState.state.docId).caseId);
-    return;
-  }
-  if (t.dataset.rmcc !== undefined && t.hasAttribute("data-rmcc")) {
-    WriterState.state.ccProblem = null;
-    removeCC(doc(WriterState.state.docId).caseId, +t.dataset.rmcc);
-    return;
-  }
-  if (t.dataset.rmem !== undefined && t.hasAttribute("data-rmem")) {
-    WriterState.state.ccProblem = null;
-    removeEmail(doc(WriterState.state.docId).caseId, +t.dataset.rmem);
-    return;
-  }
-  if (t.dataset.clearcases) {
-    clearCases(t.dataset.clearcases);
-    return;
-  }
-  if (t.dataset.rmcase) {
-    const k = kase(t.dataset.rmcase),
-      risky = caseUnsaved(k);
-    if (
-      risky &&
-      !confirm(
-        k.number +
-          " has " +
-          risky +
-          ". Removing it from this workspace loses that work. The shared case record is not deleted. Remove it from this workspace anyway?",
-      )
-    )
-      return;
-    if (removeCase(k.id) === false) return;
-    WriterState.state.screen = "cases";
-    render();
-    toast(k.number + " removed from this workspace. The shared case record is not deleted.");
-    return;
-  }
-  if (t.id === "btn-email") {
-    const dd = doc(WriterState.state.docId);
-    if (dd) emailDocument(dd);
-    return;
-  }
-  if (t.id === "btn-sendgo" || t.id === "btn-sendnone") {
-    const dd = doc(WriterState.state.sendDoc) || doc(WriterState.state.docId);
-    const k = dd ? kase(dd.caseId) : null;
-    const list = k ? emailList(k).filter((e) => String(e.addr || "").trim()) : [];
-    const picked =
-      t.id === "btn-sendnone"
-        ? []
-        : list.filter((_, ix) => {
-            const box = document.querySelector('[data-sendto="' + ix + '"]');
-            return box && box.checked;
-          });
-    const job = WriterState.state.sendJob,
-      reuse = WriterState.state.sendReuse;
-    WriterState.state.modal = null;
-    WriterState.state.sendDoc = null;
-    WriterState.state.sendJob = null;
-    WriterState.state.sendReuse = undefined;
-    render();
-    if (dd) emailDocument(dd, picked.length ? picked : [{ addr: "", kind: "" }], reuse, job);
-    return;
-  }
-  if (t.id === "btn-savecase") {
-    const dd = doc(WriterState.state.docId);
-    if (!dd) return;
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
-      grantCaseFolder(true).then(() => saveCaseFile(dd.caseId));
-      return;
-    }
-    saveCaseFile(dd.caseId);
-    return;
-  }
-  if (t.id === "btn-testwrite") {
-    testWrite();
-    return;
-  }
-  if (t.id === "btn-reindex") {
-    rebuildIndex();
-    return;
-  }
-  if (t.id === "btn-syncpdf") {
-    t.disabled = true;
-    helperJSON("/outbox/sync", {})
-      .then(async (result) => {
-        await checkHelper();
-        await refreshArtifactLocations();
-        render();
-        toast(result.moved + " PDF(s) moved to the share");
-      })
-      .catch((error) => {
-        toast(error.message);
-        t.disabled = false;
-      });
-    return;
-  }
-  if (t.id === "btn-risave") {
-    saveAndContinue();
-    return;
-  }
-  if (t.id === "btn-recordri") {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) {
-      recordReinspection(r);
-      clearWalk();
-      WriterState.WORK.walk = null;
-      WriterState.state.screen = "cases";
-      WriterState.state.reinspId = null;
-      saveCaseFile(r.caseId);
-      render();
-    }
-    return;
-  }
-
-  /* reinspection worksheet */
-  if (t.dataset.reinsp) {
-    const cid = t.dataset.reinsp;
-    preflightCase(cid, "reinspection", () => startReinspection(cid));
-    return;
-  }
-  if (t.dataset.riwalk !== undefined) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (!r || !r.draft || r.docId) return;
-    // The two review modes are a pressed-button pair; choosing the current mode changes nothing.
-    if ((t.dataset.riwalk === "on") === !!WriterState.state.riWalk) return;
-    if (t.dataset.riwalk === "on") {
-      clearWalk();
-      WriterState.state.riWalk = true;
-      WriterState.state.riWalkContext = walkIdentity(r);
-      WriterState.state.riFilter = "";
-      const next = nextWalkItem(r);
-      WriterState.state.riWalkItem = (next && next.id) || null;
-      WriterState.state.riWalkUndo = null;
-      WriterState.state.riWalkStage = "outcome";
-      scheduleDraftSave();
-      render();
-      focusWalkItem();
-    } else {
-      clearWalk();
-      WriterState.WORK.walk = null;
-      scheduleDraftSave();
-      render();
-    }
-    return;
-  }
-  if (t.hasAttribute("data-riwalk-next")) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) advanceWalk(r);
-    return;
-  }
-  if (t.hasAttribute("data-riwalk-skip")) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) skipWalkDetails(r);
-    return;
-  }
-  if (t.hasAttribute("data-riwalk-return")) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) returnWalkDetails(r);
-    return;
-  }
-  if (t.hasAttribute("data-riwalk-prev")) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) previousWalk(r);
-    return;
-  }
-  if (t.hasAttribute("data-riwalk-undo")) {
-    undoWalkOutcome();
-    return;
-  }
-  if (t.dataset.rifilter !== undefined && t.hasAttribute("data-rifilter")) {
-    if (WriterState.state.riWalk) return;
-    WriterState.state.riFilter = WriterState.state.riFilter === t.dataset.rifilter ? "" : t.dataset.rifilter;
-    renderKeep();
-    return;
-  }
-  if (t.dataset.setoc !== undefined && t.dataset.item) {
-    recordReinspectionOutcome(t.dataset.item, t.dataset.setoc);
-    return;
-  }
-  if (t.dataset.makedoc) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r) docFromReinspection(r, t.dataset.makedoc);
-    return;
-  }
-  if (t.id === "picker-bg" && e.target.id === "picker-bg") {
-    WriterState.state.picker = false;
-    render();
-    return;
-  }
-  if (t.dataset.close === "picker") {
-    WriterState.state.picker = false;
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (t.dataset.close === "modal") {
-    if (WriterState.state.modal === "cc") {
-      const d = doc(WriterState.state.docId),
-        k = d && docCase(d),
-        problem = k && validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k));
-      if (problem) {
-        WriterState.state.ccProblem = problem;
-        refreshOverlay();
-        const field = document.querySelector(problem.selector);
-        if (field) field.focus();
-        return;
-      }
-      WriterState.state.ccProblem = null;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    WriterState.state.modal = null;
-    render();
-    return;
-  }
-  if (t.dataset.libcl) {
-    WriterState.state.libCl = +t.dataset.libcl;
-    render();
-    return;
-  }
-  if (t.dataset.open) {
-    const id = t.dataset.open,
-      d = doc(id);
-    if (!d) return;
-    preflightCase(d.caseId, "document", () => {
-      WriterState.state.docId = id;
-      WriterState.state.screen = "write";
-      render();
-      window.scrollTo(0, 0);
-    });
-    return;
-  }
-  if (t.dataset.new) {
-    const dd = draftDocFor(t.dataset.new);
-    if (dd) {
-      preflightCase(dd.caseId, "document draft", () => {
-        WriterState.state.docId = dd.id;
-        WriterState.state.screen = "write";
-        render();
-      });
-      return;
-    }
-    if (docsFor(t.dataset.new).length) {
-      toast("This case already has an official notice");
-      return;
-    }
-    const cid = t.dataset.new;
-    preflightCase(cid, "new notice", () => newDoc(cid, "notice"));
-    return;
-  }
-  if (t.dataset.grp) {
-    const [ci, gi] = t.dataset.grp.split(":").map(Number);
-    WriterState.state.cl = ci;
-    WriterState.state.grp = gi;
-    WriterState.state.q = "";
-    refreshOverlay();
-    return;
-  }
-
-  const d = doc(WriterState.state.docId);
-  if (t.dataset.adoptCatalog) {
-    const it = d?.items.find((x) => x.id === t.dataset.adoptCatalog);
-    if (adoptCatalogReview(d, it)) toast("Reviewed catalog version applied to this draft item.");
-    return;
-  }
-  if (t.dataset.resumerecord) {
-    const holder = WriterState.RECORD_ATTEMPTS[t.dataset.resumerecord];
-    if (holder) commitAmendment(holder.cid, holder.pendingAmendment, holder);
-    return;
-  }
-
-  if (t.dataset.pick) {
-    if (!d || !structEditable(d)) return;
-    const selectionContext = { docId: WriterState.state.docId, screen: WriterState.state.screen };
-    await refreshCatalog();
-    if (
-      !WriterState.state.picker ||
-      WriterState.state.screen !== selectionContext.screen ||
-      WriterState.state.docId !== selectionContext.docId ||
-      doc(WriterState.state.docId) !== d ||
-      !structEditable(d)
-    )
-      return;
-    const [ci, gi, o] = t.dataset.pick.split(":").map(Number);
-    const raw = LIBRARY[ci]?.groups[gi]?.items.find((x) => x.o === o);
-    if (!raw) return;
-    const indexed = { ...raw, ci, gi },
-      status = catalogStatus(indexed);
-    if (
-      ["review", "incomplete", "retired", "superseded", "unknown"].includes(status.code) &&
-      !d.items.some((it) => itemLibraryKey(it) === catalogKey(indexed))
-    ) {
-      toast(status.label + "; division review is needed.");
-      return;
-    }
-    const src = catalogSelection(indexed);
-    if (
-      !d.items.some((i) => itemLibraryKey(i) === JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o])) &&
-      !snow.canAdd(d, JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o]))
-    )
-      return;
-    const added = toggleLibraryItem(d, ci, gi, src);
-    renumber(d);
-    WriterState.DIRTY = true;
-    saveDrafts();
-    if (WriterState.state.keepAdding || !added) {
-      refreshOverlay();
-      toast((added ? "Added: " : "Removed: ") + src.t);
-      return;
-    }
-    WriterState.state.picker = false;
-    render();
-    // drop the cursor straight into the new corrective action
-    const cells = document.querySelectorAll('[data-field="text"]');
-    const last = cells[cells.length - 1];
-    if (last) {
-      last.focus();
-      const r = document.createRange();
-      r.selectNodeContents(last);
-      r.collapse(true);
-      const s = getSelection();
-      s.removeAllRanges();
-      s.addRange(r);
-      last.scrollIntoView({ block: "center" });
-    }
-    toast("Added: " + src.t);
-    return;
-  }
-  if (t.id === "btn-add-top") {
-    if (!structEditable(d)) return;
-    if (WriterState.state.pickerDoc !== d.id) {
-      WriterState.state.pickerStatus = "approved";
-      WriterState.state.cl = -1;
-      WriterState.state.grp = 0;
-      WriterState.state.pickerDoc = d.id;
-    }
-    WriterState.state.picker = true;
-    WriterState.state.q = "";
-    render();
-    return;
-  }
-  if (t.dataset.del) {
-    if (!structEditable(d)) {
-      toast("This notice has been issued — its items are fixed");
-      return;
-    }
-    const ix = d.items.findIndex((i) => i.id === t.dataset.del);
-    if (ix < 0) return;
-    const gone = d.items.splice(ix, 1)[0];
-    if (itemLibraryKey(gone)) {
-      d.selectionCache = d.selectionCache || {};
-      d.selectionCache[itemLibraryKey(gone)] = clone(gone);
-    }
-    renumber(d);
-    WriterState.DIRTY = true;
-    refreshSheet();
-    toastUndo("Removed item — " + (gone.title || "untitled"), () => {
-      if (!itemLibraryKey(gone) || !d.items.some((i) => itemLibraryKey(i) === itemLibraryKey(gone))) {
-        d.items.splice(ix, 0, gone);
-        renumber(d);
-        WriterState.DIRTY = true;
-        saveDrafts();
-        refreshSheet();
-      }
-    });
-    return;
-  }
-  if (t.dataset.move) {
-    moveItem(t.dataset.move, t.dataset.direction);
-    return;
-  }
-  if (t.dataset.grpbtn) {
-    if (!structEditable(d)) return;
-    const it = d.items.find((i) => i.id === t.dataset.grpbtn);
-    if (!it) return;
-    it.group = it.group ? "" : "GENERAL EXTERIOR";
-    refreshSheet();
-    if (it.group) {
-      const h = document.querySelector('[data-field="group"][data-id="' + it.id + '"]');
-      if (h) {
-        h.focus();
-        const r = document.createRange();
-        r.selectNodeContents(h);
-        const s = getSelection();
-        s.removeAllRanges();
-        s.addRange(r);
-      }
-    }
-    return;
-  }
-  if (t.dataset.notecite) {
-    if (!structEditable(d)) return;
-    const it = d.items.find((i) => i.id === t.dataset.notecite);
-    // A mark that is no longer permitted can still be removed; a new one needs a Citation import.
-    if (it && (it.cite || citeAllowed(d))) {
-      it.cite = !it.cite;
-      if (!it.cite) {
-        delete d.depositRequests?.[it.id];
-        delete d.cits?.[it.id];
-      }
-      initialCitations.prepare(d);
-      WriterState.DIRTY = true;
-      render();
-      if (it.cite) depositStep.openNext(d);
-    }
-    return;
-  }
-  if (t.dataset.abate) {
-    if (isLocked(d) || d.type !== "notice") return;
-    const it = d.items.find((i) => i.id === t.dataset.abate);
-    if (!it || it.done) return;
-    it.abate = !it.abate;
-    t.dataset.on = it.abate ? 1 : 0;
-    t.textContent = it.abate ? "Y" : "N";
-    WriterState.DIRTY = true;
-    scheduleDraftSave();
-    return;
-  }
-  if (t.id === "btn-correct" || t.id === "btn-reissue") {
-    const id = d.id;
-    preflightCase(d.caseId, "correction", () => startCorrection(id));
-    return;
-  }
-  if (t.id === "btn-exportcorrection") {
-    if (d && d.correction)
-      downloadFile(
-        kase(d.caseId).number + " - correction draft - " + d.id + ".json",
-        JSON.stringify(
-          {
-            format: "madison-correction-draft-review",
-            exported: nowISO(),
-            caseNumber: kase(d.caseId).number,
-            source: correctionSource(d),
-            draft: clone(d),
-            changes: correctionChanges(d),
-          },
-          null,
-          2,
-        ),
-      );
-    return;
-  }
-  if (t.id === "btn-retrycorrection") {
-    issueCorrection(d);
-    return;
-  }
-  if (
-    t.id === "btn-recordnote" &&
-    WriterState.state.publicationBusy &&
-    doc(WriterState.state.publicationBusy)?.caseId === doc(WriterState.state.docId)?.caseId
-  ) {
-    toast("Finishing document save…");
-    return;
-  }
-  if (t.id === "btn-void" || t.id === "btn-recordnote" || t.id === "btn-reconcile") {
-    WriterState.state.amendmentError = "";
-    WriterState.state.modal = t.id === "btn-void" ? "void" : t.id === "btn-recordnote" ? "recordnote" : "reconcile";
-    render();
-    return;
-  }
-  if (t.id === "record-action-go") {
-    const value = (document.getElementById("record-action-text") || {}).value || "",
-      external = (document.getElementById("record-action-external") || {}).value || "";
-    const mode = WriterState.state.modal,
-      actor = (document.getElementById("record-action-inspector") || {}).value || "";
-    t.disabled = true;
-    const action =
-      mode === "void"
-        ? voidDocument(d.id, value, external, actor)
-        : mode === "reconcile"
-          ? reconcileDocument(d.id, value, actor)
-          : addRecordNote(d.id, value, actor);
-    Promise.resolve(action).finally(() => {
-      const field = document.getElementById("record-action-text");
-      if (field) field.value = value;
-      const button = document.getElementById("record-action-go");
-      if (button) button.disabled = false;
-      const ref = document.getElementById("record-action-external");
-      if (ref) ref.value = external;
-    });
-    return;
-  }
-  if (t.id === "btn-original") {
-    openIssuedCopy(d);
-    return;
-  }
-  if (t.dataset.withdraw) {
-    if (!d.correction || isLocked(d)) return;
-    const it = d.items.find((x) => x.id === t.dataset.withdraw);
-    if (!it) return;
-    if (it.withdrawn) {
-      const base = correctionSource(d).items.find((x) => x.id === it.id);
-      if (base.withdrawn) {
-        toast("This item was withdrawn in a prior revision. A newly observed violation needs a new case or notice.");
-        return;
-      }
-      delete it.withdrawn;
-      delete it.withdrawalReason;
-    } else {
-      const reason = prompt("Why was item " + it.no + " entered in error? This is not a finding of compliance.");
-      if (reason === null) return;
-      if (reason.trim().length < 10) {
-        toast("Provide a specific withdrawal reason of at least 10 characters.");
-        return;
-      }
-      it.withdrawn = true;
-      it.withdrawalReason = reason.trim();
-    }
-    d.correction.reviewed = false;
-    WriterState.DIRTY = true;
-    saveDrafts();
-    render();
-    return;
-  }
-  if (t.id === "btn-save") {
-    saveAndContinue();
-    return;
-  }
-  if (t.id === "btn-print") {
-    if (d.pendingAmendment) {
-      toast("Confirm the pending save before distributing this document.");
-      return;
-    }
-    if (!d.draft) openIssuedCopy(d);
-    else printNotice(printJob(d));
-    return;
-  }
-  if (t.id === "btn-final" || t.id === "btn-reviewcorrection") {
-    if (isLocked(d)) {
-      toast("This document has already been issued");
-      return;
-    }
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) grantCaseFolder(true); // reconnect while the click still counts
-    WriterState.state.picker = false;
-    WriterState.state.modal = "final";
-    render();
-    refreshCatalog();
-    return;
-  }
-  if (t.id === "fin-go") {
-    // a document with an open check never gets issued, whatever the click path
-    if (!d || !d.draft || t.disabled || WriterState.AMENDMENT_BUSY || WriterState.state.publicationBusy) return;
-    const mailedEl = document.getElementById("fin-mailed");
-    if (mailedEl) initialCitations.mailed(d, mailedEl.value);
-    if (d.correction) {
-      d.correction.reviewed = !!(document.getElementById("correction-reviewed") || {}).checked;
-      if (!d.correction.reviewed) {
-        toast("Review and confirm the listed changes.");
-        return;
-      }
-    }
-    if (blockers(d).length) {
-      toast("Clear the outstanding checks before finalizing");
-      return;
-    }
-    if (d.correction) {
-      const list = emailList(docCase(d)).filter((e) => String(e.addr || "").trim());
-      const picked = list.filter((_, ix) => {
-        const b = document.querySelector('[data-finsend="' + ix + '"]');
-        return b && b.checked;
-      });
-      d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
-      issueCorrection(d);
-      return;
-    }
-    // ask for folder permission here, on the click itself, while the browser
-    // still counts it as one; asking later gets refused without explanation
-    // record who it goes to before it is frozen, so the filed copy, the
-    // attachment and the record all say the same thing
-    const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
-    const picked = list.filter((_, ix) => {
-      const b = document.querySelector('[data-finsend="' + ix + '"]');
-      return b && b.checked;
-    });
-    WriterState.state.emailOnIssue = picked.length > 0;
-    d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
-    // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
-    t.disabled = true;
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
-      grantCaseFolder(true).then(() => runFinalize(d));
-      return;
-    }
-    runFinalize(d);
-    return;
-  }
-
-  if (t.id === "acc-pick") {
-    pickAccelaFile();
-    return;
-  }
-  if (t.id === "acc-cancel") {
-    WriterState.state.acc = null;
-    WriterState.WORK.acc = null;
-    delete WriterState.WORK.entry["lookup-number"];
-    WriterState.LOOKUP_ERROR = "";
-    render();
-    saveDrafts();
-    return;
-  }
-  if (t.id === "acc-go") {
-    const plan = accelaPlan(WriterState.state.acc),
-      existing = plan.existing;
-    if (existing) preflightCase(existing.id, "import update", () => acceptAccela());
-    else acceptAccela();
-    return;
-  }
-  if (t.dataset.acccase !== undefined && WriterState.state.acc) {
-    const ix = +t.dataset.acccase;
-    if (WriterState.state.acc.cases[ix] && !WriterState.LOOKUP_BUSY) {
-      cancelCaseLookup();
-      const acc = WriterState.state.acc,
-        serial = WriterState.LOOKUP_SERIAL;
-      WriterState.state.acc.caseIx = ix;
-      WriterState.state.acc.sel = WriterState.state.acc.cases[ix].sel;
-      WriterState.ACC_SELECTION_SERIAL++;
-      WriterState.state.acc.manualDate = "";
-      WriterState.state.acc.manualTime = "";
-      accelaFromShare().then(() => {
-        if (serial !== WriterState.LOOKUP_SERIAL || WriterState.state.screen !== "import" || WriterState.state.acc !== acc) return;
-        const active = document.activeElement,
-          id = active?.id,
-          sel = active?.dataset.accsel,
-          cix = active?.dataset.acccase;
-        scheduleDraftSave();
-        renderKeep();
-        const focus = id
-          ? document.getElementById(id)
-          : sel !== undefined
-            ? document.querySelector('[data-accsel="' + Number(sel) + '"]')
-            : cix !== undefined
-              ? document.querySelector('[data-acccase="' + Number(cix) + '"]')
-              : null;
-        focus?.focus({ preventScroll: true });
-      });
-    }
-    return;
-  }
-  if (t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY) {
-    const selected = +t.dataset.accsel;
-    if (!selectImportInspection(selected)) return;
-    scheduleDraftSave();
-    renderKeep();
-    document.querySelector('[data-accsel="' + selected + '"]')?.focus({ preventScroll: true });
-    return;
-  }
-});
+workspaceEvents.registerWorkspaceClicks();
 
 /* the Accela report can be dropped on the import card */
-document.addEventListener("dragover", (e) => {
-  const z = e.target.closest && e.target.closest("#acc-drop");
-  if (!z) return;
-  e.preventDefault();
-  z.classList.add("over");
-});
-document.addEventListener("dragleave", (e) => {
-  const z = e.target.closest && e.target.closest("#acc-drop");
-  if (z) z.classList.remove("over");
-});
-document.addEventListener("drop", (e) => {
-  const z = e.target.closest && e.target.closest("#acc-drop");
-  if (!z) return;
-  e.preventDefault();
-  z.classList.remove("over");
-  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (f) readAccelaFile(f);
-});
+importEvents.registerDragOver();
+importEvents.registerDragLeave();
+importEvents.registerFileDrop();
 
 /* Durable workspace recovery starts before the application becomes editable. */
 if (document.documentElement) document.documentElement.lang = "en";
 if (typeof bootStorage === "function") bootStorage();
-window.addEventListener("beforeunload", (e) => {
-  if (WriterState.DIRTY) {
-    e.preventDefault();
-    e.returnValue = "";
-  }
-});
+recoveryEvents.registerUnloadWarning();
 
 /* typing on the document writes straight to state — no re-render, no lost cursor */
-document.addEventListener("input", (e) => {
-  const el = e.target;
-  if (el.id === "correction-action-date") {
-    const d = doc(WriterState.state.docId);
-    if (d && d.correction && !d.pendingAmendment) {
-      d.correction.actionDate = el.value;
-      d.correction.reviewed = false;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    return;
-  }
-  if (el.id === "correction-reason" || el.id === "correction-external") {
-    const d = doc(WriterState.state.docId);
-    if (d && d.correction && !d.pendingAmendment) {
-      d.correction[el.id === "correction-reason" ? "reason" : "externalReference"] = el.value;
-      d.correction.reviewed = false;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    return;
-  }
-  if (el.id === "case-search" || el.id === "folder-search") {
-    const cursor = el.selectionStart,
-      key = el.id === "case-search" ? "caseQ" : "folderQ",
-      id = el.id;
-    WriterState.state[key] = el.value;
-    if (id === "case-search") {
-      WriterState.state.metric = "";
-      render();
-    } else refreshOverlay();
-    const next = document.getElementById(id);
-    if (next) {
-      next.focus();
-      if (next.setSelectionRange)
-        try {
-          next.setSelectionRange(cursor, cursor);
-        } catch (err) {
-          /* Some controls cannot restore a selection range; their values and focus remain intact. */
-        }
-    }
-    return;
-  }
-  if (el.id === "pk-q") {
-    WriterState.state.q = el.value;
-    refreshOverlay();
-    return;
-  }
-  // notes must not redraw on every keystroke or the caret jumps
-  if (el.dataset && (el.dataset.cc || el.dataset.em || el.dataset.agent)) {
-    const dd = doc(WriterState.state.docId);
-    if (!dd) return;
-    const k = docCase(dd);
-    if (el.dataset.cc) {
-      const p = el.dataset.cc.split("|");
-      k.ccList = ccList(k);
-      if (k.ccList[+p[0]]) k.ccList[+p[0]][p[1]] = el.value;
-    } else if (el.dataset.em) {
-      const p = el.dataset.em.split("|");
-      k.emails = emailList(k);
-      if (k.emails[+p[0]]) k.emails[+p[0]][p[1]] = el.value;
-    } else {
-      k.agent = k.agent || {};
-      k.agent[el.dataset.agent] = el.value;
-    }
-    if (el.dataset.cc || el.dataset.agent) {
-      const hadProblem = !!WriterState.state.ccProblem;
-      WriterState.state.ccProblem = hadProblem ? validateAndStandardizeAddresses(k, dd.type === "citation" && isLLC(k), false) : null;
-      const message = document.getElementById("cc-address-error");
-      if (message) {
-        if (WriterState.state.ccProblem)
-          message.querySelector("div").innerHTML = "<strong>Check this address:</strong> " + esc(WriterState.state.ccProblem.message);
-        else message.remove();
-      }
-      document.querySelectorAll('[aria-describedby="cc-address-error"]').forEach((field) => {
-        field.removeAttribute("aria-invalid");
-        field.removeAttribute("aria-describedby");
-      });
-      if (WriterState.state.ccProblem) {
-        const field = document.querySelector(WriterState.state.ccProblem.selector);
-        field?.setAttribute("aria-invalid", "true");
-        field?.setAttribute("aria-describedby", "cc-address-error");
-      }
-      const key = el.dataset.cc ? "copy|" + el.dataset.cc.split("|")[0] : "agent|0";
-      const preview = document.querySelector('[data-recipient-preview="' + key + '"]');
-      if (preview) preview.textContent = recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent);
-    }
-    WriterState.DIRTY = true;
-    scheduleDraftSave();
-    return;
-  }
-  if (el.dataset && el.dataset.rinote) {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r && r.draft && !r.docId && r.results[el.dataset.rinote]) {
-      r.results[el.dataset.rinote].note = el.value;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    return;
-  }
-  if (el.id === "lib-filter") {
-    const p = el.selectionStart;
-    WriterState.state.libFilter = el.value;
-    render();
-    const f = document.getElementById("lib-filter");
-    if (f) {
-      f.focus();
-      f.setSelectionRange(p, p);
-    }
-    return;
-  }
+editorEvents.registerDocumentInput();
 
-  const d = doc(WriterState.state.docId);
-  if (!d || isLocked(d)) return;
-  if (d.correction && el.id !== "correction-reviewed") {
-    d.correction.reviewed = false;
-    const reviewed = document.getElementById("correction-reviewed");
-    if (reviewed) reviewed.checked = false;
-  }
-  WriterState.DIRTY = true;
-  scheduleDraftSave();
-  const val = el.dataset.case === "number" ? el.textContent.trim() : el.isContentEditable ? el.innerText : el.value;
+editorEvents.registerDocumentChange();
 
-  if (el.dataset.case) {
-    const k = docCase(d),
-      f = el.dataset.case;
-    if (f === "number" && !validCaseNumber(el.textContent.trim())) {
-      el.setAttribute("aria-invalid", "true");
-      el.title = "Case number must use 3–80 letters, numbers or hyphens";
-      toast(el.title);
-      return;
-    }
-    if (f === "number") {
-      el.removeAttribute("aria-invalid");
-      el.removeAttribute("title");
-    }
-    if (f === "number" && eventsFor(d.caseId).length) {
-      el.textContent = k.number;
-      toast("The case number is fixed after the record starts");
-      return;
-    }
-    if (f === "ownerBlock") {
-      const o = splitOwner(val);
-      k.owner = o.owner;
-      k.ownerAddr = o.addr;
-      syncChip();
-    } else if (el.dataset.fmt === "date") {
-      k[f] = parseDate(val) || String(val || "").trim();
-    } else if (el.dataset.fmt === "time") {
-      k[f] = parseTime(val) || String(val || "").trim();
-    } else k[f] = val;
-    if (f === "number")
-      document.querySelectorAll(".document-workspace .n-foot .mono,.document-workspace .n-cont .r").forEach((foot) => (foot.textContent = val));
-    syncChip();
-    return;
-  }
-  if (el.dataset.doc) {
-    if (el.dataset.fmt === "date") {
-      d[el.dataset.doc] = parseDate(val) || String(val || "").trim();
-    } else d[el.dataset.doc] = val;
-    syncChip();
-    return;
-  }
-  if (el.dataset.cit) {
-    const parts = String(el.dataset.cit).split("|");
-    d.cits = d.cits || {};
-    d.cits[parts[0]] = d.cits[parts[0]] || {};
-    editCitation(d, parts[0], parts[1], val, "input");
-    syncChip();
-    return;
-  }
-
-  const f = el.dataset.field;
-  if (!f) return;
-  const it = d.items.find((i) => i.id === el.dataset.id);
-  if (!it) return;
-  if (alignedExtension(d)) newDocuments.invalidateItemReview(d);
-
-  if (f === "due") {
-    if (alignedExtension(d)) {
-      newDocuments.setSpecialDue(d, it, val);
-      return;
-    }
-    const m = MINDUE();
-    it.due = val;
-    updateDueIndicators(d);
-    if (val && val < m && !unchangedCorrectionValue(d, it.id, "due")) toast("Check this past due date before issuing. Your entry has been kept.");
-    syncChip();
-    return;
-  }
-  if (f === "sections") {
-    if (!it.libraryKey) it.libraryKey = itemLibraryKey(it);
-    it.sections = val
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    delete it.lib;
-    syncChip();
-    return;
-  }
-  if (f === "group") {
-    // rename only the contiguous run that shared the old heading, never
-    // every ungrouped item just because the old value was blank
-    const old = WriterState.groupOld,
-      ix = d.items.indexOf(it);
-    it.group = val;
-    if (old) {
-      for (let n = ix + 1; n < d.items.length && d.items[n].group === old; n++) d.items[n].group = val;
-      for (let n = ix - 1; n >= 0 && d.items[n].group === old; n--) d.items[n].group = val;
-    }
-    WriterState.groupOld = val;
-    return;
-  }
-  if (f === "text") {
-    it.text = val;
-    const b = countBlanks(val),
-      badge = document.querySelector('[data-blanks="' + it.id + '"]');
-    if (badge) {
-      badge.style.display = b ? "" : "none";
-      badge.textContent = b + " blank" + (b === 1 ? "" : "s");
-    }
-    syncChip();
-    return;
-  }
-  it[f] = val;
-  syncChip();
-});
-
-document.addEventListener("change", (e) => {
-  if (e.target.id === "ri-walk-mode") {
-    WriterState.state.riWalkMode = e.target.value === "details" ? "details" : "quick";
-    scheduleDraftSave();
-    render();
-    document.getElementById("ri-walk-mode")?.focus();
-    return;
-  }
-  if (e.target.id === "ri-followup-intent") {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r && r.draft && !r.docId) {
-      r.followupIntent = e.target.value;
-      scheduleDraftSave();
-      renderKeep();
-    }
-    return;
-  }
-  if (e.target.id === "lib-status" || e.target.id === "pk-status") {
-    WriterState.state[e.target.id === "lib-status" ? "libStatus" : "pickerStatus"] = e.target.value;
-    if (e.target.id === "lib-status") render();
-    else refreshOverlay();
-    return;
-  }
-  if (e.target.id === "correction-type" || (e.target.dataset || {}).correctionOutcome) {
-    const d = doc(WriterState.state.docId);
-    if (!d || !d.correction || d.pendingAmendment) return;
-    if (e.target.id === "correction-type") {
-      const src = correctionSource(d);
-      if (!correctionTypeAllowed(src, e.target.value)) return;
-      d.type = e.target.value;
-      d.correction.body = d.type === src.type ? docBody(src) : DOCBODY[d.type] || DOCBODY.notice;
-      d.items.forEach((it) => {
-        if (isHistoryDoc(d)) it.hist = d.authoringVersion >= 14 ? it.hist || itemInspectionHistory(d, it) : itemHistory(d.caseId, it.no);
-      });
-    } else {
-      const it = d.items.find((x) => x.id === e.target.dataset.correctionOutcome);
-      if (it) {
-        d.correction.outcomes = d.correction.outcomes || {};
-        d.correction.outcomes[it.id] = e.target.value;
-        it.done = e.target.value === "corrected";
-        it.doneOn = it.done ? it.doneOn || d.inspDate || recordDay(today) : "";
-      }
-    }
-    d.correction.reviewed = false;
-    WriterState.DIRTY = true;
-    saveDrafts();
-    render();
-    return;
-  }
-  if (e.target.id === "keep-adding") {
-    WriterState.state.keepAdding = e.target.checked;
-    return;
-  }
-  if (e.target.id === "case-filter" || e.target.id === "case-inspector") {
-    WriterState.state.metric = "";
-    // Returning More views to its placeholder restores the default Needs attention view.
-    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
-      e.target.id === "case-filter" ? e.target.value || "attention" : e.target.value;
-    render();
-    if (e.target.id === "case-filter") document.querySelector("#case-filter")?.focus();
-    return;
-  }
-  if ((e.target.id === "acc-date" || e.target.id === "acc-time") && WriterState.state.acc) {
-    WriterState.state.acc[e.target.id === "acc-date" ? "manualDate" : "manualTime"] = e.target.value;
-    scheduleDraftSave();
-    renderKeep();
-    return;
-  }
-  if (e.target.dataset && e.target.dataset.em) {
-    const dd = doc(WriterState.state.docId);
-    if (dd) {
-      const k = docCase(dd),
-        p = e.target.dataset.em.split("|");
-      k.emails = emailList(k);
-      if (k.emails[+p[0]]) k.emails[+p[0]][p[1]] = e.target.value;
-      WriterState.DIRTY = true;
-      render();
-    }
-    return;
-  }
-  const rr = reinsp(WriterState.state.reinspId),
-    ds = e.target.dataset || {};
-  if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked)))) {
-    const id = ds.ridate || ds.ridue || ds.ricite,
-      res = rr.results[id];
-    if (res) {
-      if (ds.ridate) {
-        res.on = e.target.value;
-        res.manualDate = true;
-      } else if (ds.ridue) res.due = e.target.value;
-      else res.cite = e.target.checked;
-      WriterState.DIRTY = true;
-      renderKeep();
-    }
-    return;
-  }
-  if (e.target.id === "ri-date") {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r && r.draft && !r.docId) {
-      changeVisitDate(r, e.target.value);
-      WriterState.DIRTY = true;
-      renderKeep();
-    }
-    return;
-  }
-  if (e.target.id === "ri-time") {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r && r.draft && !r.docId) {
-      r.time = e.target.value;
-      WriterState.DIRTY = true;
-      saveDrafts();
-    }
-    return;
-  }
-  if (e.target.id === "ri-insp") {
-    const r = reinsp(WriterState.state.reinspId);
-    if (r && r.draft && !r.docId) {
-      r.inspectorId = e.target.value;
-      WriterState.DIRTY = true;
-      scheduleDraftSave();
-    }
-    return;
-  }
-  if (e.target.id === "pk-grp") {
-    const [ci, gi] = e.target.value.split(":").map(Number);
-    WriterState.state.cl = ci;
-    WriterState.state.grp = gi;
-    WriterState.state.q = "";
-    refreshOverlay();
-    return;
-  }
-  const d = doc(WriterState.state.docId);
-  if (!d) return;
-  if (e.target.dataset && e.target.dataset.doc === "inspectorId" && !isLocked(d)) {
-    d.inspectorId = e.target.value;
-    Object.values(d.cits || {}).forEach((c) => (c.deptId = docInsp(d).badge || ""));
-    WriterState.DIRTY = true;
-    refreshSheet();
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (
-    e.key === "Escape" &&
-    (WriterState.state.picker || WriterState.state.modal) &&
-    !WriterState.AMENDMENT_BUSY &&
-    !WriterState.LOOKUP_BUSY &&
-    !WriterState.RESOLUTION_BUSY
-  ) {
-    WriterState.state.picker = false;
-    WriterState.state.modal = null;
-    render();
-  }
-});
+utilityEvents.registerDismissKey();
 
 render();
 
 // Preserve the legacy audit constant only in the fixture build.
 if (__TEST_BUILD__) globalThis.SUMMARY_VERSION = SUMMARY_VERSION;
 
-document.addEventListener("click", (e) => languageClick(e));
-document.addEventListener("input", (e) => {
-  if (e.target.id === "catalog-filter") {
-    WriterState.state.catalogAdminQ = e.target.value;
-    render();
-  }
-});
-document.addEventListener("change", (e) => {
-  if (e.target.id === "catalog-status") {
-    WriterState.state.catalogAdminStatus = e.target.value;
-    render();
-    document.getElementById("catalog-status")?.focus();
-  }
-  if (e.target.id === "lib-checklist") {
-    WriterState.state.libCl = Number(e.target.value);
-    render();
-    document.getElementById("lib-checklist")?.focus();
-  }
-});
+catalogEvents.registerLanguageActions();
+catalogEvents.registerFilterInput();
+catalogEvents.registerFilterChange();
 
 export function citationPricingDate(c, d) {
   return policyCitationPricingDate(c, d, inspAt(d).date);
