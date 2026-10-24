@@ -133,7 +133,7 @@ def version():
         ("summaryVersion", "app/assets/shared.js", r"const\s+SUMMARY_VERSION\s*=\s*(\d+)"),
         ("caseSchema", "app/modules/app_core.js", r"const\s+SCHEMA\s*=\s*(\d+)"),
         ("backupVersion", "app/modules/draft_recovery.js", r'format\s*:\s*[\'"]madison-workspace-backup[\'"]\s*,\s*version\s*:\s*(\d+)'),
-        ("authoringVersion", "app/modules/inspection_import.js", r"authoringVersion\s*:\s*(\d+)"),
+        ("authoringVersion", "app/modules/editor_screens.js", r"authoringVersion\s*:\s*(\d+)"),
     ]
     for key, name, pattern in consumers:
         found = re.search(pattern, (ROOT / name).read_text(encoding="utf-8"))

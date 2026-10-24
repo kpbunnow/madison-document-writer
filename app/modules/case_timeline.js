@@ -13,10 +13,10 @@ import {
   validISO,
 } from "./court_and_deposits.js";
 import { caseFileFault, helperJSON, loadCaseFile, sourceDocFor, stableJSON } from "./workspace_shell.js";
-import { caseState } from "./reinspection_walkthrough.js";
+import { caseState, render } from "./app_screens.js";
 import { hasSetupWork } from "./issuance_and_corrections.js";
 import { preflightCase } from "./language_catalog.js";
-import { render } from "./inspection_import.js";
+
 import {
   A11Y,
   CITFEES,

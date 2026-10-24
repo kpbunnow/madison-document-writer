@@ -72,7 +72,7 @@ class RepositoryContract(unittest.TestCase):
             "app/assets/shared.js",
             "app/modules/app_core.js",
             "app/modules/draft_recovery.js",
-            "app/modules/inspection_import.js",
+            "app/modules/editor_screens.js",
         ]
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

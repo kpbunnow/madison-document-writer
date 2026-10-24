@@ -4,7 +4,7 @@ import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
 import { flushPending, helperFolder, saveDrafts, writeToFolder } from "./case_files.js";
 import { correctionHistoryFault } from "./issuance_and_corrections.js";
 import { refreshArtifactLocations } from "./case_timeline.js";
-import { render } from "./inspection_import.js";
+import { render } from "./app_screens.js";
 import {
   CASEDIR_EXPECT,
   DOC_TYPES,

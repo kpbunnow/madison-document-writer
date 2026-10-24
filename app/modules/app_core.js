@@ -54,22 +54,34 @@ import {
   validateAndStandardizeAddresses,
 } from "./case_files.js";
 import {
-  accelaFromShare,
   advanceWalk,
-  caseState,
   clearWalk,
   ensureWalkContext,
   focusWalkItem,
   nextWalkItem,
-  pickAccelaFile,
   previousWalk,
-  readAccelaFile,
   recordReinspectionOutcome,
   returnWalkDetails,
   skipWalkDetails,
   undoWalkOutcome,
   walkIdentity,
-} from "./reinspection_walkthrough.js";
+  focusCheckTarget,
+  highlightOpenChecks,
+  worksheetChecks,
+} from "./reinspection.js";
+import { caseState, renderKeep, render } from "./app_screens.js";
+import {
+  accelaFromShare,
+  pickAccelaFile,
+  readAccelaFile,
+  accelaPlan,
+  acceptAccela,
+  cancelCaseLookup,
+  confirmDatabaseCase,
+  findDatabaseCase,
+  openImportWorkspace,
+  selectImportInspection,
+} from "./accela_import.js";
 import {
   addRecordNote,
   captureWork,
@@ -151,25 +163,8 @@ import {
   updateDueIndicators,
   writerOpenReportedCase,
 } from "./case_timeline.js";
-import {
-  accelaPlan,
-  acceptAccela,
-  cancelCaseLookup,
-  confirmDatabaseCase,
-  findDatabaseCase,
-  focusCheckTarget,
-  highlightOpenChecks,
-  moveItem,
-  newDoc,
-  openImportWorkspace,
-  render,
-  renderKeep,
-  renumber,
-  selectImportInspection,
-  worksheetChecks,
-} from "./inspection_import.js";
+import { moveItem, newDoc, renumber } from "./editor_screens.js";
 import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./document_pagination.js";
-
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
 // Approved wording lives in app/assets/approved_language.json (acceptance item L5).
@@ -186,13 +181,10 @@ import { initRecordIntegrity } from "./record_integrity.js";
 import { initNavigation } from "./navigation.js";
 import { createAccessibility } from "./accessibility.js";
 import { LIBRARY } from "./data/library.js";
-
-import { CITATION_POLICY } from "./citation_policy.js";
-import { citationPricingDate as policyCitationPricingDate } from "./citation_policy.js";
+import { CITATION_POLICY, citationPricingDate as policyCitationPricingDate } from "./citation_policy.js";
 import { initDepositStep } from "./deposit_step.js";
 import { initCitationPricing } from "./citation_pricing.js";
 import { INSPECTORS } from "./data/inspectors.js";
-
 import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.js";
 
 export const snow = initSnow();
@@ -978,160 +970,12 @@ export const unchecked = (r) => {
 /* ---------- documents ---------- */
 /* ---------- cases ---------- */
 
-/* ---------- import ---------- */
-/* ---------- Accela report import ----------
-   The SSRS report exports one .xlsx per case, one row per inspection, with
-   the case columns repeated on every row. It is read here in the browser with
-   no library: the ZIP is walked by hand, entries are inflated with the
-   browser's own DecompressionStream, and the sheet is parsed with DOMParser.
-   The table is found by its header text, never by position — adding the
-   Inspector Name column moved every later column. An Excel re-save turns the
-   report's inline strings into shared strings and may turn dates into text,
-   so both forms read the same. The Detailed Description and Zoning District
-   columns are recognised and never read (division, 09/18/2026). */
-export const ACC_MAX = 5 * 1024 * 1024;
-export const ACC_EXPANDED_MAX = 32 * 1024 * 1024;
-export const ACC_COLS = {
-  number: "case number",
-  inspector: "inspector name",
-  address: "site address",
-  zoning: "zoning district",
-  historic: "historic district",
-  landmark: "landmark",
-  parcel: "parcel number",
-  description: "case description",
-  detail: "detailed description",
-  owner: "owner name",
-  ownerAddr: "owner address",
-  type: "inspection type",
-  date: "inspection date",
-  status: "inspection status",
-  time: "inspection time",
-  caseType: "case type",
-  recordCategory: "record category",
-};
-export const ACC_REQUIRED = ["number", "inspector", "address", "owner", "ownerAddr", "type", "date", "status"];
-export const ACC_LABEL = (k) => ACC_COLS[k].replace(/\b\w/g, (m) => m.toUpperCase());
-/* R53: the imported inspection's type and status decide the document (division rules and decisions, 10/19/2026).
-   Snow cases follow the same table: Initial Inspection/Citation starts the season case and Reinspection/Citation
-   records each later snow event. "Completed" has no rule and is not importable. */
-export const inspectionKind = (type) => {
-  const t = accNorm(type);
-  return /^initial inspection$/.test(t)
-    ? "initial"
-    : /^re-?inspection$/.test(t)
-      ? "reinspection"
-      : /^ca re-?inspection$/.test(t)
-        ? "caReinspection"
-        : null;
-};
-const statusKey = (s) =>
-  accNorm(s)
-    .replace(/[\u2010-\u2015]/g, "-")
-    .replace(/\s*-\s*/g, "-");
-const RULE = {
-  notice: { doc: "notice", label: "Official Notice" },
-  initialCitation: { doc: "notice", cite: true, label: "Citation" },
-  noOccupancy: { doc: "noOccupancy", label: "No Occupancy" },
-  summary: { doc: "summaryAbatement", label: "Summary Abatement" },
-  nonSummary: { doc: "nonSummaryAbatement", label: "Non-Summary Abatement" },
-  referral: { doc: "referral", label: "Referral for Prosecution", firstReferral: true },
-  compliance: { doc: "compliance", allCorrected: true, label: "Compliance Letter" },
-  citation: { doc: "citation", cite: true, label: "Citation" },
-  extension: { choose: ["extension", "bestInterestExtension", "vacancyExtension"], label: "Extension, Best Interest Extension or Vacancy Extension" },
-  referralUpdate: { doc: "referralUpdate", label: "Update for Case Referral", needsReferral: true },
-};
-const STATUS_RULES = {
-  initial: {
-    "official notice": RULE.notice,
-    citation: RULE.initialCitation,
-    "no occupancy": RULE.noOccupancy,
-    "abatement summary": RULE.summary,
-    "abatement non-summary": RULE.nonSummary,
-    "abatement non summary": RULE.nonSummary,
-  },
-  reinspection: {
-    "ca referral": RULE.referral,
-    "city attorney referral": RULE.referral,
-    compliance: RULE.compliance,
-    citation: RULE.citation,
-    "extension processing": RULE.extension,
-    "no fee extension processing": RULE.extension,
-    "no occupancy": RULE.noOccupancy,
-    "no fee no occupancy": RULE.noOccupancy,
-  },
-  caReinspection: {
-    compliance: { ...RULE.compliance, needsReferral: true },
-    "non compliance": RULE.referralUpdate,
-    "non-compliance": RULE.referralUpdate,
-  },
-};
-export function statusRule(type, status) {
-  const kind = inspectionKind(type);
-  if (!kind) return { kind: null, error: 'Inspection type "' + (accStr(type) || "not supplied") + '" has no document rule' };
-  // Own properties only: a status such as "constructor" or "__proto__" must not resolve to an inherited value.
-  const rules = STATUS_RULES[kind],
-    key = statusKey(status),
-    rule = Object.hasOwn(rules, key) ? rules[key] : null;
-  if (!rule)
-    return {
-      kind,
-      error: accStr(type) + ' status "' + (accStr(status) || "not supplied") + '" has no document rule',
-    };
-  return { kind, status: accStr(status), ...rule };
-}
-/* R62: rows that never appear among import candidates (owner, Development 3). Statuses apply to every inspection
-   type; No Entry is hidden only on an Initial Inspection and is otherwise a listed pair without a rule. */
-const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation", "reinspection", "no fee reinspection"]);
-export function hiddenImportRow(type, status) {
-  if (/^assist$/.test(accNorm(type))) return "assist";
-  const key = statusKey(status);
-  if (HIDDEN_STATUSES.has(key)) return key === "scheduled" ? "scheduled" : "notDone";
-  if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
-  return "";
-}
-export const accStatusEligible = (status, type) => !statusRule(type, status).error;
-export const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];
-
 /* ZIP central directory -> {name: text} for the entries asked for */
 
-export const accXml = (t) => {
-  const x = new DOMParser().parseFromString(t, "application/xml");
-  if (x.getElementsByTagName("parsererror").length) throw new Error("the workbook is damaged");
-  return x;
-};
-export const accAll = (n, tag) => Array.prototype.slice.call(n.getElementsByTagNameNS("*", tag));
-export const accKids = (n, tag) => Array.prototype.filter.call(n.childNodes, (c) => c.localName === tag);
-/* text of a string item: every run's <t>, not the phonetic guide */
-export const accText = (n) =>
-  accAll(n, "t")
-    .filter((t) => !(t.parentNode && t.parentNode.localName === "rPh"))
-    .map((t) => t.textContent)
-    .join("");
-export const accColIx = (ref) => {
-  const m = /^([A-Z]+)/i.exec(ref || "");
-  if (!m) return -1;
-  let n = 0;
-  for (const ch of m[1].toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
-  return n - 1;
-};
 /* the first worksheet of an .xlsx, as rows of cell values */
 
-export const accStr = (v) => (v === undefined || v === null ? "" : String(v).replace(/\r\n?/g, "\n").trim());
-export const accNorm = (v) => accStr(v).replace(/\s+/g, " ").toLowerCase();
 /* an Excel serial to a local date and a whole minute. 11:39:59.999 is 11:40:
    floating point, not a different time, so round rather than truncate. */
-
-const accHM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-export const accTime = (v) => {
-  if (typeof v === "number" && v >= 0 && v < 1) return accHM(Math.round(v * 1440) % 1440);
-  return parseTime(accStr(v));
-};
-
-export const accInspector = (name) => {
-  const n = accNorm(name).toUpperCase();
-  return n ? INSPECTORS.find((i) => accNorm(i.name).toUpperCase() === n) || null : null;
-};
 
 /* the report's rows, found by header, grouped by case */
 
@@ -2176,27 +2020,6 @@ WriterState.LOOKUP_CONTROLLER = null;
 WriterState.LOOKUP_SERIAL = 0;
 // R59: bumps on every inspection-candidate change so a check started for an earlier selection is ignored.
 WriterState.ACC_SELECTION_SERIAL = 0;
-
-export const LOOKUP_READY = new WeakSet();
-export const SQL_COLUMNS = {
-  caseType: "CaseType",
-  number: "CaseNumber",
-  inspector: "InspectorName",
-  address: "SiteAddress",
-  zoning: "ZoningDistrict",
-  historic: "HistoricDistrictName",
-  landmark: "Landmark",
-  parcel: "ParcelNumber",
-  description: "CaseDescription",
-  detail: "DetailedDescription",
-  owner: "OwnerName",
-  ownerAddr: "OwnerAddress",
-  type: "InspectionType",
-  date: "InspectionDate",
-  status: "InspectionStatus",
-  time: "InspectionTime",
-  recordCategory: "RecordCategory",
-};
 
 document.addEventListener("submit", (e) => {
   if (e.target.id === "lookup-form") {

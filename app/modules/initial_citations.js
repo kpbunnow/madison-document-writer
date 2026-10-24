@@ -2,7 +2,7 @@ import { applyDeposit, checks as dep_checks, citationNumber, fmtDate, freezeSour
 import { evid } from "./workspace_shell.js";
 import { citationTier } from "./issuance_and_corrections.js";
 import { citationReview } from "./case_timeline.js";
-import { editorSync } from "./inspection_import.js";
+import { editorSync } from "./editor_screens.js";
 import { citationFaces } from "./document_render.js";
 import { checkTarget, citSelector, citationPricing, clone, courtTime, docInsp, docsFor, libraryReview, uid } from "./app_core.js";
 import { canonicalOrdinance } from "./citation_policy.js";

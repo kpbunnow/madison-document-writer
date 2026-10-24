@@ -1,808 +1,233 @@
-import { recordDay } from "../assets/shared.js";
-import { fmtDate, fmtTime, inspAt, parseDate, parseTime, toast, validISO } from "./court_and_deposits.js";
-import { caseFileName, caseNumberAllowed, loadCaseFile, shell, sourceDocFor, stableJSON } from "./workspace_shell.js";
-import { listCaseFolder, saveDrafts, scheduleDraftSave, startReinspection } from "./case_files.js";
-import { importResumePanel, workingNotesPanel } from "./issuance_and_corrections.js";
-import { recoveryStatusHTML, unissuedVisitFor } from "./draft_recovery.js";
-import { caseSearchText, saveWorkflowPrefs } from "./language_catalog.js";
+/* Accela inspection import: report columns, type/status rules, XLSX reading, report parsing, import candidates,
+   the review plan and panel, the direct database lookup and acceptance. */
+
+/* ---------- import ---------- */
+/* ---------- Accela report import ----------
+   The SSRS report exports one .xlsx per case, one row per inspection, with
+   the case columns repeated on every row. It is read here in the browser with
+   no library: the ZIP is walked by hand, entries are inflated with the
+   browser's own DecompressionStream, and the sheet is parsed with DOMParser.
+   The table is found by its header text, never by position — adding the
+   Inspector Name column moved every later column. An Excel re-save turns the
+   report's inline strings into shared strings and may turn dates into text,
+   so both forms read the same. The Detailed Description and Zoning District
+   columns are recognised and never read (division, 09/18/2026). */
+import { parseTime, parseDate, inspAt, fmtTime, toast, fmtDate, validISO } from "./court_and_deposits.js";
 import {
-  independentArtifact,
-  inspectionIdentity,
-  inspectionUsed,
-  sameInspection,
-  pdfTransferState,
-  remindersPanel,
-  workspaceTasks,
-} from "./case_timeline.js";
-import { accelaPlan, cancelCaseLookup, checkLookupShared, dueCheck, lookupCard, newDoc, render, renderKeep } from "./inspection_import.js";
-import {
-  clearProhibitedCitations,
-  ACC_CASEFIELDS,
-  ACC_COLS,
-  ACC_EXPANDED_MAX,
-  ACC_LABEL,
-  ACC_MAX,
-  ACC_REQUIRED,
-  REFERRED_ONLY,
-  DOC_TYPES,
-  OUTCOMES,
-  STATUS_OF,
-  accAll,
-  accColIx,
-  accInspector,
-  accKids,
-  accNorm,
-  accStatusEligible,
-  hiddenImportRow,
-  inspectionKind,
-  statusRule,
-  accStr,
-  accText,
-  accTime,
-  accXml,
-  addDays,
-  citationPricing,
-  clone,
-  daysBetween,
-  doc,
-  docCase,
-  docsFor,
-  doneItems,
   draftDocFor,
   draftReinspFor,
-  effectiveFiled,
-  esc,
-  insp,
-  isHistoryDoc,
-  isReferredCase,
-  iso,
-  kase,
-  nowISO,
-  ocOf,
-  originalNotice,
-  reinsp,
   snow,
+  originalNotice,
+  isReferredCase,
+  REFERRED_ONLY,
+  insp,
+  docsFor,
+  clearProhibitedCitations,
+  clone,
+  nowISO,
   uid,
-  unchecked,
+  doc,
+  citationPricing,
+  kase,
+  COMMITTED,
+  summaryName,
+  reinspFor,
+  eventsFor,
+  iso,
+  esc,
 } from "./app_core.js";
-import { app_languagediscoveryContext, app_workspacequeueContext } from "./app_view_contexts.js";
-import { INSPECTORS } from "./data/inspectors.js";
-import { activeRestrictions } from "./new_documents.js";
+import { sameInspection, inspectionIdentity, inspectionUsed } from "./case_timeline.js";
 import { WriterState } from "./state.js";
-import { languageScreen } from "./language_discovery.js";
-import { workspaceQueue, queueMatches } from "./workspace_queue.js";
-/* app functions; direct dependencies use explicit shared state. */
+import { sourceDocFor, loadCaseFile, helperJSON, stableJSON, caseDetails, shell } from "./workspace_shell.js";
+import { unissuedVisitFor } from "./draft_recovery.js";
+import { caseState, render } from "./app_screens.js";
+import { scheduleDraftSave, listCaseFolder, saveDrafts, startReinspection } from "./case_files.js";
+import { newDoc } from "./editor_screens.js";
+import { captureWork } from "./issuance_and_corrections.js";
+import { preflightCase } from "./language_catalog.js";
+import { authFetch } from "./helper_transport.js";
+import { INSPECTORS } from "./data/inspectors.js";
+import { recordDay, validCaseNumber } from "../assets/shared.js";
 
-function walkIdentity(r) {
-  return r && r.caseId + "|" + r.id + "|" + r.sourceDocId;
+export const ACC_MAX = 5 * 1024 * 1024;
+
+export const ACC_EXPANDED_MAX = 32 * 1024 * 1024;
+
+export const ACC_COLS = {
+  number: "case number",
+  inspector: "inspector name",
+  address: "site address",
+  zoning: "zoning district",
+  historic: "historic district",
+  landmark: "landmark",
+  parcel: "parcel number",
+  description: "case description",
+  detail: "detailed description",
+  owner: "owner name",
+  ownerAddr: "owner address",
+  type: "inspection type",
+  date: "inspection date",
+  status: "inspection status",
+  time: "inspection time",
+  caseType: "case type",
+  recordCategory: "record category",
+};
+
+export const ACC_REQUIRED = ["number", "inspector", "address", "owner", "ownerAddr", "type", "date", "status"];
+
+export const ACC_LABEL = (k) => ACC_COLS[k].replace(/\b\w/g, (m) => m.toUpperCase());
+
+/* R53: the imported inspection's type and status decide the document (division rules and decisions, 10/19/2026).
+   Snow cases follow the same table: Initial Inspection/Citation starts the season case and Reinspection/Citation
+   records each later snow event. "Completed" has no rule and is not importable. */
+export const inspectionKind = (type) => {
+  const t = accNorm(type);
+  return /^initial inspection$/.test(t)
+    ? "initial"
+    : /^re-?inspection$/.test(t)
+      ? "reinspection"
+      : /^ca re-?inspection$/.test(t)
+        ? "caReinspection"
+        : null;
+};
+
+const statusKey = (s) =>
+  accNorm(s)
+    .replace(/[\u2010-\u2015]/g, "-")
+    .replace(/\s*-\s*/g, "-");
+
+const RULE = {
+  notice: { doc: "notice", label: "Official Notice" },
+  initialCitation: { doc: "notice", cite: true, label: "Citation" },
+  noOccupancy: { doc: "noOccupancy", label: "No Occupancy" },
+  summary: { doc: "summaryAbatement", label: "Summary Abatement" },
+  nonSummary: { doc: "nonSummaryAbatement", label: "Non-Summary Abatement" },
+  referral: { doc: "referral", label: "Referral for Prosecution", firstReferral: true },
+  compliance: { doc: "compliance", allCorrected: true, label: "Compliance Letter" },
+  citation: { doc: "citation", cite: true, label: "Citation" },
+  extension: { choose: ["extension", "bestInterestExtension", "vacancyExtension"], label: "Extension, Best Interest Extension or Vacancy Extension" },
+  referralUpdate: { doc: "referralUpdate", label: "Update for Case Referral", needsReferral: true },
+};
+
+const STATUS_RULES = {
+  initial: {
+    "official notice": RULE.notice,
+    citation: RULE.initialCitation,
+    "no occupancy": RULE.noOccupancy,
+    "abatement summary": RULE.summary,
+    "abatement non-summary": RULE.nonSummary,
+    "abatement non summary": RULE.nonSummary,
+  },
+  reinspection: {
+    "ca referral": RULE.referral,
+    "city attorney referral": RULE.referral,
+    compliance: RULE.compliance,
+    citation: RULE.citation,
+    "extension processing": RULE.extension,
+    "no fee extension processing": RULE.extension,
+    "no occupancy": RULE.noOccupancy,
+    "no fee no occupancy": RULE.noOccupancy,
+  },
+  caReinspection: {
+    compliance: { ...RULE.compliance, needsReferral: true },
+    "non compliance": RULE.referralUpdate,
+    "non-compliance": RULE.referralUpdate,
+  },
+};
+
+export function statusRule(type, status) {
+  const kind = inspectionKind(type);
+  if (!kind) return { kind: null, error: 'Inspection type "' + (accStr(type) || "not supplied") + '" has no document rule' };
+  // Own properties only: a status such as "constructor" or "__proto__" must not resolve to an inherited value.
+  const rules = STATUS_RULES[kind],
+    key = statusKey(status),
+    rule = Object.hasOwn(rules, key) ? rules[key] : null;
+  if (!rule)
+    return {
+      kind,
+      error: accStr(type) + ' status "' + (accStr(status) || "not supplied") + '" has no document rule',
+    };
+  return { kind, status: accStr(status), ...rule };
 }
 
-function clearWalk() {
-  WriterState.state.riWalk = false;
-  WriterState.state.riWalkContext = null;
-  WriterState.state.riWalkItem = null;
-  WriterState.state.riWalkUndo = null;
-  WriterState.state.riWalkSkipped = [];
-  WriterState.state.riWalkStage = "outcome";
+/* R62: rows that never appear among import candidates (owner, Development 3). Statuses apply to every inspection
+   type; No Entry is hidden only on an Initial Inspection and is otherwise a listed pair without a rule. */
+const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation", "reinspection", "no fee reinspection"]);
+
+export function hiddenImportRow(type, status) {
+  if (/^assist$/.test(accNorm(type))) return "assist";
+  const key = statusKey(status);
+  if (HIDDEN_STATUSES.has(key)) return key === "scheduled" ? "scheduled" : "notDone";
+  if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
+  return "";
 }
 
-function restoreWalkFor(r) {
-  const saved = WriterState.WORK.walk;
-  if (saved?.context !== walkIdentity(r)) {
-    WriterState.WORK.walk = null;
-    return;
-  }
-  WriterState.state.riWalk = true;
-  WriterState.state.riWalkContext = saved.context;
-  WriterState.state.riWalkItem = saved.item;
-  WriterState.state.riWalkUndo = saved.undo || null;
-  WriterState.state.riWalkMode = saved.mode === "details" ? "details" : "quick";
-  WriterState.state.riWalkSkipped = Array.isArray(saved.skipped) ? saved.skipped : [];
-  WriterState.state.riWalkStage = saved.stage === "details" ? "details" : "outcome";
-  if (!ensureWalkContext()) WriterState.WORK.walk = null;
-}
+export const accStatusEligible = (status, type) => !statusRule(type, status).error;
 
-function ensureWalkContext() {
-  const r = WriterState.state.screen === "reinspect" && reinsp(WriterState.state.reinspId);
-  if (!r || !r.draft || r.docId || WriterState.state.riWalkContext !== walkIdentity(r)) {
-    clearWalk();
-    return false;
-  }
-  const src = doc(r.sourceDocId);
-  if (!src || src.caseId !== r.caseId) {
-    clearWalk();
-    return false;
-  }
-  if (
-    WriterState.state.riWalkItem &&
-    !src.items.some((it) => it.id === WriterState.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)
-  ) {
-    clearWalk();
-    return false;
-  }
-  if (WriterState.state.riWalkUndo && !src.items.some((it) => it.id === WriterState.state.riWalkUndo.itemId && !it.withdrawn))
-    WriterState.state.riWalkUndo = null;
-  WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((id) =>
-    src.items.some((it) => it.id === id && !it.withdrawn && !(r.results[id] || {}).carried),
-  );
-  return true;
-}
+export const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];
 
-function nextWalkItem(r) {
-  const src = r && doc(r.sourceDocId);
-  return (src && src.items.find((it) => !it.withdrawn && !(r.results[it.id] || {}).carried && !ocOf(r, it.id))) || null;
-}
+export const accXml = (t) => {
+  const x = new DOMParser().parseFromString(t, "application/xml");
+  if (x.getElementsByTagName("parsererror").length) throw new Error("the workbook is damaged");
+  return x;
+};
 
-function focusWalkItem() {
-  const current = document.querySelector('[data-ri-walk-current="true"]');
-  if (!current) {
-    document.querySelector('[data-riwalk="off"]')?.focus();
-    return;
-  }
-  const action = current.querySelector("[data-setoc]:not([disabled])");
-  if (action) action.focus();
-  else current.focus();
-  if (current.scrollIntoView) current.scrollIntoView({ block: "center", behavior: "smooth" });
-}
+export const accAll = (n, tag) => Array.prototype.slice.call(n.getElementsByTagNameNS("*", tag));
 
-function focusWalkDetails() {
-  const current = document.querySelector('[data-ri-walk-current="true"]');
-  const el = current?.querySelector("[data-rinote], [data-ridate]");
-  if (el) {
-    el.focus();
-    el.scrollIntoView?.({ block: "center" });
-  } else focusWalkItem();
-}
+export const accKids = (n, tag) => Array.prototype.filter.call(n.childNodes, (c) => c.localName === tag);
 
-function walkItemReady(r, id) {
-  if (!editableWalkItem(r, id)) return false;
-  const result = r.results[id] || {},
-    intent = r.followupIntent || "undecided";
-  const source = doc(r.sourceDocId),
-    on = result.manualDate ? result.on : result.on || r.date;
-  if (!result.oc || !validISO(on) || on < docCase(source).date || on > r.date) return false;
-  if (result.oc === "corrected") return true;
-  return !["extension", "bestInterestExtension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
-}
-
-function advanceWalk(r) {
-  if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
-  if (
-    WriterState.state.riWalkStage === "details" &&
-    WriterState.state.riWalkItem &&
-    !walkItemReady(r, WriterState.state.riWalkItem) &&
-    !WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)
-  ) {
-    toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
-    focusWalkDetails();
-    return false;
-  }
-  const next = nextWalkItem(r);
-  WriterState.state.riWalkItem = next?.id || null;
-  WriterState.state.riWalkStage = "outcome";
-  scheduleDraftSave();
-  render();
-  focusWalkItem();
-  return true;
-}
-
-function skipWalkDetails(r) {
-  if (!WriterState.state.riWalk || !ensureWalkContext() || WriterState.state.riWalkStage !== "details") return false;
-  if (!WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)) WriterState.state.riWalkSkipped.push(WriterState.state.riWalkItem);
-  scheduleDraftSave();
-  return advanceWalk(r);
-}
-
-function returnWalkDetails(r) {
-  if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
-  const src = doc(r.sourceDocId),
-    item = src.items.find((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)));
-  if (!item) return false;
-  WriterState.state.riWalkItem = item.id;
-  WriterState.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
-  WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((id) => id !== item.id);
-  scheduleDraftSave();
-  render();
-  WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-  return true;
-}
-
-function previousWalk(r) {
-  if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
-  const src = doc(r.sourceDocId),
-    eligible = src.items.filter((i) => editableWalkItem(r, i.id));
-  const ix = eligible.findIndex((i) => i.id === WriterState.state.riWalkItem),
-    prior = eligible[ix < 0 ? eligible.length - 1 : ix - 1];
-  if (!prior) return false;
-  WriterState.state.riWalkItem = prior.id;
-  WriterState.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
-  scheduleDraftSave();
-  render();
-  WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-  return true;
-}
-
-function editableWalkItem(r, id) {
-  const src = r && doc(r.sourceDocId),
-    it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
-  return !!(
-    WriterState.state.screen === "reinspect" &&
-    r &&
-    r.id === WriterState.state.reinspId &&
-    r.draft &&
-    !r.docId &&
-    it &&
-    !it.withdrawn &&
-    !(r.results[id] || {}).carried
-  );
-}
-
-function recordReinspectionOutcome(id, outcome) {
-  const r = reinsp(WriterState.state.reinspId);
-  if (!editableWalkItem(r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
-  if (WriterState.state.riWalk && (!ensureWalkContext() || !WriterState.state.riWalk)) return false;
-  const cur = r.results[id] || {};
-  if (cur.oc === outcome) return false;
-  const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
-  const result = {
-    oc: outcome,
-    on: cur.on || r.date,
-    manualDate: !!cur.manualDate,
-    due: outcome === "corrected" ? "" : cur.due || "",
-    note: cur.note || "",
-    cite: outcome === "corrected" ? false : !!cur.cite,
-  };
-  if (WriterState.state.riWalk) WriterState.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
-  else WriterState.state.riWalkUndo = null;
-  r.results[id] = result;
-  WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((x) => x !== id);
-  if (WriterState.state.riWalk) {
-    if (WriterState.state.riWalkMode === "details") {
-      WriterState.state.riWalkItem = id;
-      WriterState.state.riWalkStage = "details";
-    } else {
-      const next = nextWalkItem(r);
-      WriterState.state.riWalkItem = (next && next.id) || null;
-      WriterState.state.riWalkStage = "outcome";
-    }
-  }
-  WriterState.DIRTY = true;
-  scheduleDraftSave();
-  if (WriterState.state.riWalk) {
-    render();
-    WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-  } else renderKeep();
-  return true;
-}
-
-function undoWalkOutcome() {
-  const r = reinsp(WriterState.state.reinspId),
-    undo = WriterState.state.riWalkUndo;
-  if (!WriterState.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId))
-    return false;
-  const current = r.results[undo.itemId];
-  if (!current || current.oc !== undo.after.oc) {
-    toast("The outcome changed since Undo was recorded. Review the item before changing it.");
-    return false;
-  }
-  if (stableJSON(current) === stableJSON(undo.after)) {
-    if (undo.before) r.results[undo.itemId] = clone(undo.before);
-    else delete r.results[undo.itemId];
-  } else {
-    r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
-    toast("Outcome undone; later note, date and due details were kept on this item.");
-  }
-  WriterState.state.riWalkUndo = null;
-  WriterState.state.riWalkItem = undo.itemId;
-  WriterState.state.riWalkStage = "outcome";
-  WriterState.DIRTY = true;
-  scheduleDraftSave();
-  render();
-  focusWalkItem();
-  return true;
-}
-
-function narrativeFor(r, it) {
-  const k = kase(r.caseId),
-    src = doc(r.sourceDocId),
-    oc = ocOf(r, it.id),
-    res = r.results[it.id] || {};
-  const first = originalNotice(r.caseId),
-    firstDate = (first && k.date) || k.date || (first || {}).created;
-  const what = String(it.title || "the violation").replace(/\.$/, "");
-  const label = (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
-  const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
-  return (
-    "Initial inspection on " +
-    fmtDate(firstDate) +
-    " documented the following violation: " +
-    what +
-    ". " +
-    art +
-    label.toLowerCase() +
-    " was issued with a compliance date of " +
-    fmtDate(it.due) +
-    ". " +
-    "Re-inspection on " +
-    fmtDate(res.on || r.date) +
-    " found " +
-    ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
-    "." +
-    (res.note ? " " + String(res.note).trim().replace(/\s+/g, " ") : "")
-  );
-}
-
-function uiIcon(name) {
-  const paths = {
-    tools: "M9 3h6l1 4 4 1v6l-4 1-1 4H9l-1-4-4-1V8l4-1z M9 11a3 3 0 1 0 6 0a3 3 0 1 0-6 0",
-    search: "M10 3a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M15 15l6 6",
-    calendar: "M4 5h16v16H4z M4 10h16 M8 3v4 M16 3v4",
-    files: "M5 3h9l5 5v13H5z M14 3v6h5 M8 13h8 M8 17h8",
-    recover: "M4 11a8 8 0 1 1 2 7 M4 4v7h7 M12 8v5l3 2",
-    sync: "M4 7h14l-4-4 M20 17H6l4 4 M18 7l-4 4 M6 17l4-4",
-    cases: "M3 6h7l2 2h9v12H3z M3 6V4h7l2 2",
-    import: "M12 3v12m-5-5 5 5 5-5 M4 16v5h16v-5",
-    library: "M4 3h12a3 3 0 0 1 3 3v15H7a3 3 0 0 1-3-3z M4 17h15 M8 7h7 M8 11h7",
-    reports: "M4 21V3 M4 21h17 M8 17v-5 M13 17V7 M18 17V4",
-  };
-  return (
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="curr' +
-    'entColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="rou' +
-    'nd" aria-hidden="true"><path d="' +
-    `${paths[name] || paths.cases}` +
-    '"/></svg>'
-  );
-}
-
-function caseState(k) {
-  const current = sourceDocFor(k.id),
-    draft = draftDocFor(k.id),
-    visit = draftReinspFor(k.id) || unissuedVisitFor(k.id),
-    last = docsFor(k.id).find((d) => !d.draft && !d.superseded);
-  const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
-  const withdrawn = !!current && current.items.length > 0 && current.items.every((i) => i.withdrawn);
-  const restrictions = activeRestrictions(live),
-    vacancy = live.find((d) => d.type === "vacancyExtension"),
-    reviewDue = vacancy?.special?.reviewDate || "";
-  const closed = snow.isCase(k)
-    ? !!current && !!current.filedAt && current.frozen?.snowCloseOnFiling !== false
-    : !restrictions.length && (withdrawn || (!!current && current.type === "compliance") || (!current && !!last && !!last.void));
-  const dates =
-    current && !isHistoryDoc(current)
-      ? (current.items || [])
-          .filter((i) => !i.done && !i.withdrawn && validISO(i.due))
-          .map((i) => i.due)
-          .sort()
-      : [];
-  const due = dates[0] || "",
-    days = due ? daysBetween(recordDay(today), due) : null;
-  const late = !closed && !!due && due < recordDay(today),
-    soon = !closed && !!due && !late && days >= 0 && days <= 7;
-  const pendingRecord = Object.values(WriterState.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
-  const pendingDoc = docsFor(k.id).find((d) => d.pendingAmendment) || null;
-  const pendingSync = WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
-  const filingDoc = live.find((d) => independentArtifact(d) && !effectiveFiled(d)) || null;
-  const artifactIssue = live.find((d) => ["artifact conflict", "missing or unavailable"].includes(pdfTransferState(d))) || null;
-  const numberIssue = !caseNumberAllowed(k);
-  const attention = !!(
-    restrictions.length ||
-    (reviewDue && reviewDue <= addDays(recordDay(today), 7)) ||
-    numberIssue ||
-    draft ||
-    visit ||
-    late ||
-    soon ||
-    pendingRecord ||
-    pendingDoc ||
-    pendingSync ||
-    filingDoc ||
-    artifactIssue
-  );
-  return {
-    restrictions,
-    reviewDue,
-    current: current || last,
-    draft,
-    visit,
-    closed,
-    due,
-    days,
-    late,
-    soon,
-    pendingRecord,
-    pendingDoc,
-    pendingSync,
-    filingDoc,
-    artifactIssue,
-    attention,
-    label:
-      snow.isCase(k) && current
-        ? "Cited – snow"
-        : restrictions.length
-          ? "Occupancy restricted"
-          : numberIssue
-            ? "Case number needs correction"
-            : draft
-              ? draft.correction
-                ? "Correction draft"
-                : "Document draft"
-              : visit
-                ? visit.draft
-                  ? "Reinspection draft"
-                  : "Visit needs document"
-                : withdrawn || (!current && last && last.void)
-                  ? "Withdrawn"
-                  : closed
-                    ? "Closed"
-                    : current
-                      ? STATUS_OF[current.type] || "Issued"
-                      : last?.special?.mode === "release"
-                        ? "Restriction released"
-                        : last
-                          ? STATUS_OF[last.type] || "Issued"
-                          : "Ready to start",
-  };
-}
-
-/* R59: after an issuance Workspace opens on a view that lists the case. The current view, search and inspector
-   filter are kept when they already show it; only a filter that would hide it is relaxed (view to All cases,
-   search or inspector cleared). The row stays highlighted until the next navigation away from Workspace. */
-function revealIssuedCase(cid) {
-  const s = WriterState.state,
-    rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
-    row = workspaceQueue(rows, workspaceTasks(rows), app_workspacequeueContext()).find((r) => r.k.id === cid);
-  if (!row) return false;
-  const before = [s.caseFilter, s.caseQ, s.caseInspector].join("|"),
-    query = String(s.caseQ || "")
-      .toLowerCase()
-      .trim();
-  if (!queueMatches(row, s.caseFilter)) s.caseFilter = "all";
-  if (query && !caseSearchText(row.k).includes(query)) s.caseQ = "";
-  if (s.caseInspector && row.k.inspectorId !== s.caseInspector) s.caseInspector = "";
-  s.metric = "";
-  s.modal = null;
-  s.picker = false;
-  s.screen = "cases";
-  s.issuedCase = cid;
-  if ([s.caseFilter, s.caseQ, s.caseInspector].join("|") !== before) saveWorkflowPrefs();
-  return true;
-}
-
-function focusIssuedCase(cid) {
-  const row = [...document.querySelectorAll("tr[data-issued-highlight]")].find((el) => el.dataset.queueCase === cid);
-  if (!row) return;
-  row.scrollIntoView?.({ block: "center" });
-  row.focus({ preventScroll: true });
-}
-
-function screenCases() {
-  const rows = WriterState.CASES.map((k) => ({ k, st: caseState(k) })),
-    tasks = workspaceTasks(rows);
-  // Retire legacy metric selection into the workspace views.
-  if (WriterState.state.metric) {
-    WriterState.state.caseFilter =
-      { drafts: "continue", overdue: "overdue", soon: "soon", open: "open", imports: "all" }[WriterState.state.metric] || "resolution";
-    WriterState.state.metric = "";
-  }
-  const queue = workspaceQueue(rows, tasks, app_workspacequeueContext()),
-    query = String(WriterState.state.caseQ || "")
-      .toLowerCase()
-      .trim();
-  // Quick views are the primary filter; More views holds the additional states.
-  const quickViews = [
-      ["attention", "Needs attention"],
-      ["continue", "Continue work"],
-      ["deadlines", "Deadlines"],
-      ["resolution", "Needs resolution"],
-      ["all", "All cases"],
-    ],
-    moreViews = [
-      ["soon", "Due within 7 days"],
-      ["overdue", "Past due"],
-      ["open", "Open"],
-      ["closed", "Closed"],
-    ],
-    views = [...quickViews, ...moreViews];
-  if (WriterState.state.caseFilter === "drafts") WriterState.state.caseFilter = "continue";
-  if (!views.some(([key]) => key === WriterState.state.caseFilter)) WriterState.state.caseFilter = "attention";
-  const count = (filter) => queue.filter((row) => queueMatches(row, filter)).length;
-  const filtered = queue.filter(
-    (row) =>
-      queueMatches(row, WriterState.state.caseFilter) &&
-      (!query || caseSearchText(row.k).includes(query)) &&
-      (!WriterState.state.caseInspector || row.k.inspectorId === WriterState.state.caseInspector),
-  );
-  const table = filtered
-    .map((row) => {
-      const { k, st, proof } = row,
-        documents = docsFor(k.id);
-      const secondary = row.facts.filter((t) => !["open", "drafts"].includes(t.key));
-      const detailActions = secondary
-        .map(
-          (t) =>
-            '<div class="queue-detail-task"><span>' +
-            `${esc(t.label)}` +
-            '</span><button class="btn btn-sm" ' +
-            `${t.action}` +
-            ">Review</button></div>",
-        )
-        .join("");
-      const issued = WriterState.state.issuedCase === k.id;
-      return (
-        '<tr data-queue-case="' +
-        `${esc(k.id)}` +
-        '"' +
-        (issued ? ' data-issued-highlight aria-current="true" class="check-focus" tabindex="-1"' : "") +
-        '><td><div class="addr">' +
-        `${esc(k.address)}` +
-        '</div><div class="mono">' +
-        `${esc(k.number)}` +
-        '</div>\n      <details class="queue-details"><summary>Case details &amp; ' +
-        "history" +
-        `${secondary.length ? " · " + secondary.length + " task" + (secondary.length === 1 ? "" : "s") : ""}` +
-        '</summary><div class="doclinks"><p>' +
-        `${esc(k.owner)}` +
-        "</p>" +
-        `${detailActions}` +
-        "\n      " +
-        "".concat(
-          !caseNumberAllowed(k) ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "",
-        ) +
-        "\n      <p>Record verification: " +
-        `${esc(proof.label)}` +
-        "</p>" +
-        "".concat(
-          proof.valid === false
-            ? "<p>" +
-                `${esc(proof.eventId || "")}` +
-                " · " +
-                `${esc(proof.lastGoodCommitTime || "Last good commit unavailable")}` +
-                '</p><button class="btn btn-sm" data-sync-safety>Review record problem</b' +
-                "utton>"
-            : "",
-        ) +
-        "\n      " +
-        "".concat(
-          documents
-            .map(
-              (d) =>
-                '<button data-open="' +
-                `${esc(d.id)}` +
-                '" class="' +
-                `${d.void ? "voidlink" : d.draft ? "" : "fin"}` +
-                '">' +
-                `${d.void ? "VOID · " : d.superseded ? "REPLACED · " : d.revision ? "REV " + d.revision.number + " · " : ""}` +
-                "" +
-                `${esc((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type)}` +
-                " <span>" +
-                `${fmtDate(d.mailed || d.created)}` +
-                "" +
-                `${d.draft ? " · Draft" : ""}` +
-                "</span></button>",
-            )
-            .join(""),
-        ) +
-        '\n      <button data-exportcase="' +
-        `${esc(k.id)}` +
-        '">Download case record</button><button data-timeline="' +
-        `${esc(k.id)}` +
-        '">Case timeline</button>\n      ' +
-        "".concat(
-          st.visit?.draft
-            ? `<button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`
-            : st.draft
-              ? `<button data-discard="${esc(st.draft.id)}">Discard document draft</button>`
-              : "",
-        ) +
-        '\n      <button data-rmcase="' +
-        `${esc(k.id)}` +
-        '">Remove from this workspace</button></div></details></td>\n      <td><span class="pil' +
-        "l " +
-        `${row.resolution ? "late" : st.closed ? "closed" : row.continuing ? "draft" : "open"}` +
-        '">' +
-        `${esc(row.resolution && !row.continuing ? "Needs resolution" : st.label)}` +
-        '</span><p class="queue-reason">' +
-        `${esc(row.reason)}` +
-        "</p>" +
-        "".concat(row.continuing && row.resolution ? '<span class="queue-secondary">Also needs resolution · see case details</span>' : "") +
-        "" +
-        "".concat(
-          st.visit
-            ? '<span class="muted">' + `${doneItems(st.visit).length}` + " corrected, " + `${unchecked(st.visit).length}` + " still to result</span>"
-            : "",
-        ) +
-        "</td>\n      <td>" +
-        "".concat(
-          st.due && !st.closed
-            ? '<span class="' +
-                `${st.late ? "pill late" : st.soon ? "case-date-soon" : "mono"}` +
-                '">' +
-                `${fmtDate(st.due)}` +
-                "</span>" +
-                "".concat(
-                  st.late
-                    ? '<div class="muted">Past due</div>'
-                    : st.soon
-                      ? '<div class="muted">' +
-                        (st.days === 0 ? "Due today" : st.days === 1 ? "Due tomorrow" : "Due in " + st.days + " days") +
-                        "</div>"
-                      : "",
-                ) +
-                ""
-            : '<span class="muted">—</span>',
-        ) +
-        "</td>\n      <td>" +
-        `${esc(insp(k.inspectorId).name)}` +
-        '</td><td><div class="case-next"><button class="btn btn-sm btn-primary qu' +
-        'eue-primary" ' +
-        `${row.action}` +
-        ">" +
-        `${esc(row.label)}` +
-        "</button></div></td></tr>"
-      );
-    })
+/* text of a string item: every run's <t>, not the phonetic guide */
+export const accText = (n) =>
+  accAll(n, "t")
+    .filter((t) => !(t.parentNode && t.parentNode.localName === "rPh"))
+    .map((t) => t.textContent)
     .join("");
-  const importCount = tasks.find((t) => t.key === "imports").count;
-  // Pending operations without a loaded case must remain reachable.
-  const orphan = WriterState.PENDING.filter((p) => !WriterState.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));
-  const activeLabel = views.find(([key]) => key === WriterState.state.caseFilter)[1];
-  return shell(
-    "Your workspace",
-    "Building Inspection",
-    "",
-    '<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start or find case work</h2></div><div class="card-b grid g2">' +
-      '<div><button class="btn btn-primary" data-nav="import">' +
-      uiIcon("import") +
-      ' Import inspection</button><p class="hint">Start new work from an unused Accela inspection.</p></div>' +
-      '<div><button class="btn" data-global-search>' +
-      uiIcon("search") +
-      ' Search shared case records</button><p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>' +
-      `${importResumePanel()}` +
-      "" +
-      "".concat(WriterState.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(WriterState.PREFLIGHT_NOTICE)}</div>` : "") +
-      '\n     <div class="workspace-lead"><div><h2>' +
-      `${WriterState.CASES.length ? activeLabel : "Start with a case"}` +
-      "</h2><p>" +
-      "".concat(
-        WriterState.CASES.length
-          ? "One next action per case. Open case details for other tasks and history."
-          : "Import an Accela report or open a saved case to begin.",
-      ) +
-      "</p></div></div>\n     " +
-      "".concat(
-        WriterState.CASES.length
-          ? '<div class="queue-summary" role="group" aria-label="Filter workspace cas' +
-              'es">' +
-              "".concat(
-                quickViews
-                  .map(
-                    ([key, label]) =>
-                      '<button class="btn queue-summary-button" data-queue-view="' +
-                      `${key}` +
-                      '" aria-pressed="' +
-                      `${WriterState.state.caseFilter === key}` +
-                      '"' +
-                      `${key === "resolution" ? ' aria-describedby="queue-resolution-desc" title="Unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers"' : ""}` +
-                      "><span>" +
-                      `${label}` +
-                      "</span><strong>" +
-                      `${count(key)}` +
-                      "</strong></button>",
-                  )
-                  .join(""),
-              ) +
-              '</div><p class="hint queue-view-note"><span id="queue-resolution-desc">Needs resolution lists cases with unconfirmed or queued saves, PDF ' +
-              "filing and transfers, record problems and other blockers.</span> Device save and connection problems appear in the Saved work &amp; " +
-              "connection banner.</p>"
-          : "",
-      ) +
-      "\n     " +
-      "".concat(
-        orphan.length
-          ? '<div class="banner warn">' +
-              `${orphan.length}` +
-              " queued case file" +
-              `${orphan.length === 1 ? "" : "s"}` +
-              ' outside the loaded cases. <button class="btn btn-sm" data-sync-safety>R' +
-              "eview queued saves</button></div>"
-          : "",
-      ) +
-      '\n     <div class="card">' +
-      "".concat(
-        !WriterState.CASES.length
-          ? '<div class="empty-state"><div class="empty-icon">' +
-              `${uiIcon("cases")}` +
-              "</div><h2>A clear desk. A clear next step.</h2><p>Bring in the case deta" +
-              "ils, choose the violations, then review and issue. Your unfinished work " +
-              'is saved on this device. Use the actions above to start or find case work.</p><button class="btn" data-openfil' +
-              "e>Open saved case</button></div>"
-          : '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
-              'ce</span><input type="search" id="case-search" value="' +
-              `${esc(WriterState.state.caseQ)}` +
-              '" placeholder="Search this workspace…"></label>\n      <label class="case' +
-              '-view"><span class="sr-only">More views</span><select id="case-filter" aria-label="More views"' +
-              ">" +
-              `<option value="" ${moreViews.some(([key]) => key === WriterState.state.caseFilter) ? "" : "selected"}>More views…</option>` +
-              "".concat(
-                moreViews
-                  .map(
-                    ([key, label]) =>
-                      `<option value="${key}" ${WriterState.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`,
-                  )
-                  .join(""),
-              ) +
-              '</select></label>\n      <select id="case-inspector" aria-label="Filter b' +
-              'y inspector"><option value="">All inspectors</option>' +
-              "".concat(
-                INSPECTORS.filter((i) => WriterState.CASES.some((k) => k.inspectorId === i.id))
-                  .map(
-                    (i) =>
-                      '<option value="' +
-                      `${esc(i.id)}` +
-                      '" ' +
-                      `${WriterState.state.caseInspector === i.id ? "selected" : ""}` +
-                      ">" +
-                      `${esc(i.name)}` +
-                      "</option>",
-                  )
-                  .join(""),
-              ) +
-              '</select></div>\n      <p class="queue-filter-note">' +
-              `${filtered.length}` +
-              " of " +
-              `${count(WriterState.state.caseFilter)}` +
-              " cases in " +
-              `${activeLabel}` +
-              "" +
-              `${query ? " · workspace search applied" : ""}` +
-              "" +
-              `${WriterState.state.caseInspector ? " · inspector filter applied" : ""}` +
-              ". Counts include all loaded cases; a case can belong to more than one vi" +
-              "ew." +
-              "".concat(query || WriterState.state.caseInspector ? ' <button class="lnk" data-queue-reset>Clear search and inspector</button>' : "") +
-              '</p>\n      <div class="case-table-wrap"><table class="list case-table"><' +
-              'caption class="sr-only">' +
-              `${esc(activeLabel)}` +
-              " · workspace cases and recommended actions</caption><thead><tr><th scope" +
-              '="col">Property / case</th><th scope="col">Status / next step</th><th sc' +
-              'ope="col">Next due</th><th scope="col">Inspector</th><th scope="col">Nex' +
-              "t action</th></tr></thead><tbody>" +
-              "".concat(
-                table ||
-                  '<tr><td colspan="5"><div class="empty">' +
-                    `${query || WriterState.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
-                    ' <button class="lnk" data-queue-reset>Clear search and inspector</button' +
-                    '> <button class="lnk" id="case-showall">View all cases</button>' +
-                    // The shared search opens with this workspace query prefilled; it is not submitted automatically.
-                    "".concat(
-                      query
-                        ? ' <button class="btn btn-sm" data-shared-offer>Search shared case records for “' +
-                            esc(String(WriterState.state.caseQ || "").trim()) +
-                            "”</button>"
-                        : "",
-                    ) +
-                    "</div></td></tr>",
-              ) +
-              '</tbody></table></div><div class="case-count">' +
-              `${WriterState.CASES.length}` +
-              " cases on this device. Use Search shared case records for records outsid" +
-              "e this workspace." +
-              `${importCount ? " An import is waiting for review above." : ""}` +
-              "</div>",
-      ) +
-      '</div>\n     <div class="queue-support"><button class="btn btn-sm" data-s' +
-      'ync-safety>Saved work &amp; connection</button><div id="recovery-status"' +
-      ' class="hint" aria-live="polite">' +
-      `${recoveryStatusHTML()}` +
-      "</div>" +
-      `${WriterState.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : ""}` +
-      "</div>\n     " +
-      `${remindersPanel()}` +
-      "" +
-      `${workingNotesPanel()}` +
-      "",
-  );
-}
+
+export const accColIx = (ref) => {
+  const m = /^([A-Z]+)/i.exec(ref || "");
+  if (!m) return -1;
+  let n = 0;
+  for (const ch of m[1].toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
+  return n - 1;
+};
+
+export const accStr = (v) => (v === undefined || v === null ? "" : String(v).replace(/\r\n?/g, "\n").trim());
+
+export const accNorm = (v) => accStr(v).replace(/\s+/g, " ").toLowerCase();
+
+const accHM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+
+export const accTime = (v) => {
+  if (typeof v === "number" && v >= 0 && v < 1) return accHM(Math.round(v * 1440) % 1440);
+  return parseTime(accStr(v));
+};
+
+export const accInspector = (name) => {
+  const n = accNorm(name).toUpperCase();
+  return n ? INSPECTORS.find((i) => accNorm(i.name).toUpperCase() === n) || null : null;
+};
+
+export const LOOKUP_READY = new WeakSet();
+
+export const SQL_COLUMNS = {
+  caseType: "CaseType",
+  number: "CaseNumber",
+  inspector: "InspectorName",
+  address: "SiteAddress",
+  zoning: "ZoningDistrict",
+  historic: "HistoricDistrictName",
+  landmark: "Landmark",
+  parcel: "ParcelNumber",
+  description: "CaseDescription",
+  detail: "DetailedDescription",
+  owner: "OwnerName",
+  ownerAddr: "OwnerAddress",
+  type: "InspectionType",
+  date: "InspectionDate",
+  status: "InspectionStatus",
+  time: "InspectionTime",
+  recordCategory: "RecordCategory",
+};
 
 async function accInflate(bytes, limit = ACC_EXPANDED_MAX) {
   const ds = new DecompressionStream("deflate-raw");
@@ -974,6 +399,7 @@ const HIDDEN_ROW_TEXT = {
   assist: "Assist rows",
   noDate: "rows without an inspection date",
 };
+
 function hiddenRowsMessage(excluded, used = 0) {
   const parts = Object.keys(HIDDEN_ROW_TEXT)
     .filter((k) => excluded?.[k])
@@ -1106,6 +532,7 @@ function importCandidates(c, k) {
 }
 
 const INITIAL_EXISTS = "An Initial Inspection result can only start a new case, and this case already exists.";
+
 const NO_CASE = "No case exists for this inspection. Import its Initial Inspection first.";
 
 function baseLookupPlan(acc) {
@@ -1821,46 +1248,339 @@ function screenImport() {
   );
 }
 
-function screenLibrary() {
-  return languageScreen(app_languagediscoveryContext());
+function openImportWorkspace(cid) {
+  const k = kase(cid);
+  if (!k) return;
+  cancelCaseLookup();
+  captureWork();
+  preflightCase(cid, "continue existing case", () => {
+    const draft = draftDocFor(cid),
+      visit = draftReinspFor(cid) || unissuedVisitFor(cid),
+      current = sourceDocFor(cid);
+    WriterState.state.modal = null;
+    WriterState.state.picker = false;
+    if (draft) {
+      WriterState.state.docId = draft.id;
+      WriterState.state.screen = "write";
+    } else if (visit) {
+      WriterState.state.reinspId = visit.id;
+      WriterState.state.screen = "reinspect";
+    } else if (current) {
+      WriterState.state.docId = current.id;
+      WriterState.state.screen = "write";
+    } else {
+      WriterState.state.screen = "cases";
+      WriterState.state.caseQ = k.number;
+      WriterState.state.caseFilter = "all";
+      WriterState.state.caseInspector = "";
+    }
+    saveDrafts();
+    render();
+  });
 }
 
-function priorCitations(caseId, no) {
-  let n = 0;
-  const now = new Date(recordDay(today) + "T12:00:00"),
-    cutoff = iso(
-      new Date(now.getFullYear() - 1, now.getMonth(), Math.min(now.getDate(), new Date(now.getFullYear() - 1, now.getMonth() + 1, 0).getDate()), 12),
+function lookupCard() {
+  return (
+    '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
+    'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
+    "er the case number to retrieve its property, owner and inspection detail" +
+    's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
+    `${WriterState.LOOKUP_BUSY}` +
+    '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
+    'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
+    'holder="CB2026-000-00000" value="' +
+    `${esc(WriterState.WORK.entry["lookup-number"] || "")}` +
+    '" ' +
+    `${WriterState.LOOKUP_BUSY ? "readonly" : ""}` +
+    '></label>\n    <button class="btn btn-primary" type="submit" ' +
+    `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+    ">" +
+    `${WriterState.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
+    "</button>\n    " +
+    "".concat(
+      WriterState.LOOKUP_BUSY
+        ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
+        : !WriterState.state.acc
+          ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
+          : "",
+    ) +
+    '\n  </form>\n  <p class="hint">Uses your Windows account. A single eligibl' +
+    "e initial inspection opens a draft notice when all checks pass. Multiple" +
+    " or later results open for review. Your search and review can be saved f" +
+    'or later.</p>\n  <div role="status" aria-live="polite">' +
+    "".concat(WriterState.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(WriterState.LOOKUP_ERROR)}</div></div>` : "") +
+    "</div>\n  </div></div>"
+  );
+}
+
+function cancelCaseLookup() {
+  ++WriterState.LOOKUP_SERIAL;
+  if (WriterState.LOOKUP_CONTROLLER) WriterState.LOOKUP_CONTROLLER.abort();
+  WriterState.LOOKUP_CONTROLLER = null;
+  WriterState.LOOKUP_BUSY = false;
+}
+
+function sqlReport(result, number) {
+  if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || result.source?.kind !== "sql")
+    throw new Error("Unexpected case response. Nothing was imported.");
+  if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
+  const keys = Object.keys(ACC_COLS);
+  const grid = [keys.map((k) => ACC_LABEL(k))];
+  const warnings = [];
+  result.rows.forEach((row) => {
+    if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
+    if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
+      throw new Error(
+        "The database marks this property as an individual landmark but supplies " + "no landmark name. Correct the source record before importing.",
+      );
+    if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
+      throw new Error("The database marks this property as historic but supplies no district na" + "me. Correct the source record before importing.");
+    grid.push(
+      keys.map((k) =>
+        k === "number"
+          ? number
+          : k === "detail" || k === "zoning"
+            ? ""
+            : k === "date" && /T00:00:00$/.test(row.InspectionDate || "")
+              ? row.InspectionDate.slice(0, 10)
+              : (row[SQL_COLUMNS[k]] ?? ""),
+      ),
     );
-  docsFor(caseId).forEach((x) => {
-    if (x.draft || x.void || x.superseded || x.type !== "citation") return;
-    const date = (x.revision && (x.revision.actionDate || x.revision.originalIssued)) || x.mailed || recordDay(x.issuedAt);
-    if (!validISO(date) || date < cutoff || date > recordDay(today)) return;
-    if (x.items.some((i) => String(i.no) === String(no) && i.cite && !i.withdrawn)) n++;
   });
-  return n;
+  const table = accelaTable(grid);
+  if (table.errors.length) throw new Error(table.errors.join(" "));
+  if (table.cases.length !== 1) throw new Error("More than one case was returned. Nothing was imported.");
+  const c = table.cases[0],
+    eligible = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
+  // No arbitrary choice when several completed inspections are available.
+  const sel = eligible.length === 1 ? eligible[0].i : null;
+  if (eligible.length > 1) warnings.push("Several completed inspections are available. Select the inspection you are documenting.");
+  return {
+    fileName: "Case lookup · " + number,
+    source: clone(result.source),
+    errors: [],
+    notes: table.notes.concat(warnings),
+    cases: table.cases,
+    caseIx: 0,
+    sel,
+    manualDate: "",
+    manualTime: "",
+  };
+}
+
+async function checkLookupShared(acc, isCurrent = () => true) {
+  const number = accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
+  const listing = await helperJSON("/cases/list");
+  if (!isCurrent()) return false;
+  if (!Array.isArray(listing.files)) throw new Error("The shared case list could not be checked. Retry when the shared folder is available.");
+  const tail = (" - " + number + ".json").toLowerCase();
+  const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
+  if (hits.length > 1)
+    throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
+  const locals = WriterState.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
+  if (locals.length > 1 || locals.some((k) => k.number !== number))
+    throw new Error("The local workspace has duplicate or differently capitalized case number" + "s. Resolve the existing record before importing.");
+  if (hits.length) {
+    const result = await helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
+    if (!isCurrent()) return false;
+    if (accStr(result.file?.case?.number).toUpperCase() !== number)
+      throw new Error("The shared filename and case number disagree. The existing record has been kept.");
+    const keep = { screen: WriterState.state.screen, docId: WriterState.state.docId, dirty: WriterState.DIRTY };
+    let loaded;
+    try {
+      loaded = loadCaseFile(JSON.stringify(result.file));
+    } finally {
+      WriterState.state.screen = keep.screen;
+      WriterState.state.docId = keep.docId;
+      WriterState.DIRTY = keep.dirty;
+    }
+    if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
+    COMMITTED.set(summaryName(result.file.case), result);
+  }
+  acc.shareError = "";
+  return true;
+}
+
+function lookupPlanSignature(acc) {
+  const p = accelaPlan(acc);
+  return stableJSON({
+    caseNumber: p.c?.number,
+    documents: p.existing ? docsFor(p.existing.id) : [],
+    visits: p.existing ? reinspFor(p.existing.id) : [],
+    sel: acc.sel,
+    date: p.date,
+    time: p.time,
+    next: p.next,
+    existing: p.existing ? caseDetails(p.existing) : null,
+    diff: p.diff,
+    blockers: p.blockers,
+    warnings: p.warnings,
+    head: p.existing ? eventsFor(p.existing.id) : [],
+  });
+}
+
+function lookupCanOpen(acc) {
+  const p = accelaPlan(acc),
+    c = acc.cases[0];
+  // R37: a Record Category of "Snow Removal" advances a new case directly to the 10.28 snow citation draft.
+  return (
+    !p.existing &&
+    (p.next === "notice" || (p.next === "snow" && snow.matchesImport(p.row))) &&
+    !p.blockers.length &&
+    !p.warnings.length &&
+    c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type)).length === 1 &&
+    p.row?.typeKey === "initial" &&
+    accStatusEligible(p.row.status, p.row.type)
+  );
+}
+
+async function findDatabaseCase() {
+  if (WriterState.LOOKUP_BUSY) return;
+  captureWork();
+  const number = accStr(WriterState.WORK.entry["lookup-number"]).toUpperCase();
+  WriterState.WORK.entry["lookup-number"] = number;
+  if (!validCaseNumber(number)) {
+    WriterState.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
+    render();
+    return;
+  }
+  WriterState.LOOKUP_ERROR = "";
+  WriterState.LOOKUP_BUSY = true;
+  const serial = ++WriterState.LOOKUP_SERIAL;
+  const controller = new AbortController();
+  WriterState.LOOKUP_CONTROLLER = controller;
+  const active = () => serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import";
+  render();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  try {
+    if (!(await saveDrafts()))
+      throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
+    if (!active()) return;
+    const response = await authFetch("/case-lookup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ caseNumber: number }),
+      signal: controller.signal,
+    });
+    const result = await response.json();
+    if (!active()) return;
+    if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
+    const acc = sqlReport(result, number);
+    try {
+      if (!(await checkLookupShared(acc, active))) return;
+    } catch (e) {
+      acc.shareError = e.message;
+    }
+    if (!active()) return;
+    WriterState.state.acc = acc;
+    WriterState.WORK.acc = clone(acc);
+    if (!(await saveDrafts()))
+      throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
+    if (active() && !acc.shareError && lookupCanOpen(acc)) {
+      LOOKUP_READY.add(acc);
+      try {
+        acceptAccela();
+      } finally {
+        LOOKUP_READY.delete(acc);
+      }
+    } else if (active()) toast("Case retrieved — review the inspection and details");
+  } catch (error) {
+    if (active())
+      WriterState.LOOKUP_ERROR =
+        error.name === "AbortError"
+          ? "The lookup timed out. Your work is kept; retry when the network is available."
+          : error.message || "The lookup failed. Your work is kept.";
+  } finally {
+    clearTimeout(timer);
+    if (serial === WriterState.LOOKUP_SERIAL) {
+      WriterState.LOOKUP_BUSY = false;
+      WriterState.LOOKUP_CONTROLLER = null;
+      await saveDrafts();
+      render();
+    }
+  }
+}
+
+/* R59: any eligible listed candidate of the current case can be chosen. R62: an inspection already used on the
+   case is not listed, so it cannot be chosen. Each change bumps the selection token. */
+function selectImportInspection(index) {
+  const acc = WriterState.state.acc,
+    c = acc?.cases?.[acc.caseIx || 0];
+  if (!c || !(accelaPlan(acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
+  acc.sel = index;
+  WriterState.ACC_SELECTION_SERIAL++;
+  return true;
+}
+
+async function confirmDatabaseCase() {
+  const acc = WriterState.state.acc;
+  if (WriterState.LOOKUP_BUSY || !acc) return;
+  WriterState.LOOKUP_ERROR = "";
+  acc.shareError = "";
+  const before = lookupPlanSignature(acc);
+  WriterState.LOOKUP_BUSY = true;
+  const serial = ++WriterState.LOOKUP_SERIAL,
+    selection = WriterState.ACC_SELECTION_SERIAL,
+    selected = acc.sel;
+  // A shared-record result started for an earlier selection never confirms the current one.
+  const sameSelection = () => selection === WriterState.ACC_SELECTION_SERIAL && acc.sel === selected;
+  const active = () =>
+    serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc && sameSelection();
+  render();
+  try {
+    if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
+      if (!(await checkLookupShared(acc, active)) || !active()) return;
+    } else {
+      await accelaFromShare(active);
+      if (!active()) return;
+    }
+    if (before !== lookupPlanSignature(acc)) {
+      toast("The shared record changed. Review the refreshed details and confirm again.");
+      return;
+    }
+    LOOKUP_READY.add(acc);
+    try {
+      acceptAccela();
+    } finally {
+      LOOKUP_READY.delete(acc);
+    }
+  } catch (e) {
+    if (active()) acc.shareError = e.message;
+  } finally {
+    if (serial === WriterState.LOOKUP_SERIAL) {
+      WriterState.LOOKUP_BUSY = false;
+      if (!sameSelection() && WriterState.state.acc === acc) toast("The selected inspection changed. Review it and confirm again.");
+      await saveDrafts();
+      render();
+    }
+  }
+}
+
+function accelaPlan(acc) {
+  const p = baseLookupPlan(acc);
+  if (acc) {
+    if (acc.shareError) p.blockers.push(acc.shareError);
+    if (p.existing && docsFor(p.existing.id).some((d) => d.pendingIssue || d.pendingAmendment))
+      p.blockers.push("Confirm the pending document save on this case before importing new details.");
+  }
+  return p;
+}
+
+function acceptAccela() {
+  if ((WriterState.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !LOOKUP_READY.has(WriterState.state.acc)) {
+    toast("Check the shared record before confirming this lookup.");
+    return null;
+  }
+  const direct = WriterState.state.acc?.source?.kind === "sql";
+  const result = baseLookupAccept();
+  if (result && direct) {
+    delete WriterState.WORK.entry["lookup-number"];
+    scheduleDraftSave();
+  }
+  return result;
 }
 
 export {
-  walkIdentity,
-  clearWalk,
-  restoreWalkFor,
-  ensureWalkContext,
-  nextWalkItem,
-  focusWalkItem,
-  walkItemReady,
-  advanceWalk,
-  skipWalkDetails,
-  returnWalkDetails,
-  previousWalk,
-  editableWalkItem,
-  recordReinspectionOutcome,
-  undoWalkOutcome,
-  narrativeFor,
-  uiIcon,
-  caseState,
-  screenCases,
-  revealIssuedCase,
-  focusIssuedCase,
   accelaTable,
   baseLookupPlan,
   readAccelaFile,
@@ -1868,6 +1588,13 @@ export {
   baseLookupAccept,
   pickAccelaFile,
   screenImport,
-  screenLibrary,
-  priorCitations,
+  openImportWorkspace,
+  lookupCard,
+  cancelCaseLookup,
+  checkLookupShared,
+  findDatabaseCase,
+  selectImportInspection,
+  confirmDatabaseCase,
+  accelaPlan,
+  acceptAccela,
 };

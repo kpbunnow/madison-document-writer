@@ -1,7 +1,7 @@
 import { allItems as ctx_app_allItems } from "./court_and_deposits.js";
 import { caseFileName as ctx_app_caseFileName, caseNumberAllowed as ctx_app_caseNumberAllowed, shell as ctx_app_shell } from "./workspace_shell.js";
 import { caseUnsaved as ctx_app_caseUnsaved } from "./case_files.js";
-import { caseState as ctx_app_caseState } from "./reinspection_walkthrough.js";
+import { caseState as ctx_app_caseState } from "./app_screens.js";
 import { catalogKey as ctx_app_catalogKey, recoveryStatusHTML as ctx_app_recoveryStatusHTML } from "./draft_recovery.js";
 import {
   catalogItem as ctx_app_catalogItem,
