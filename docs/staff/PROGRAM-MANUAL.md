@@ -515,10 +515,10 @@ Each issued document keeps the authoring version it was issued with. Its reprint
 | 11 and earlier | Historical narrative layout, also for their corrections | Historical layout; compliance letters list dates only |
 | 12 | Regular Extension layout; affected items listed in the details; a Vacancy Extension may be conditional (“Conditional — see conditions above”) and keeps its stored repair dates | Historical layout |
 | 13 | Every affected item has a later due date in the items table; Vacancy Extensions are always dated. New Vacancy Extensions kept this format until authoring 16 | Historical layout |
-| 14 | Not used for extensions | Referrals show item-specific inspection history and Days Outstanding; compliance letters list dates only |
+| 14 | New Best Interest and Vacancy Extensions kept authoring 13 | Referrals show item-specific inspection history and Days Outstanding; compliance letters list dates only |
 | 15 | Best Interest: Reasons with the explicit safety-exclusion confirmation and no signer | Item history with notes in the history column; compliance letters add item history and Abate Yes/No |
 | 16 (current) | Every uncorrected item, no selection or safety confirmation and no signer; Best Interest takes the worksheet's Next due dates; Vacancy prints no due date and needs a review inspection | Notes print under the violation, corrected items included |
 
-Authoring-15 and earlier Vacancy Extensions and authoring-14 and earlier Best Interest Extensions print their supervisory signer after the table. The authoring-11 initial citation packet may have six pages. Retain the original PDF for any document issued under a format an earlier release cannot render.
+In the aligned table layout, authoring-12–15 Vacancy Extensions and authoring-12–14 Best Interest Extensions print their supervisory signer after the table; authoring-11 and earlier use their historical narrative layout. Ordinary Extensions keep their own stored authoring version; the special-extension column above describes only Best Interest and Vacancy Extensions. The authoring-11 initial citation packet may have six pages. Retain the original PDF for any document issued under a format an earlier release cannot render.
 
 The release package records technical verification and remaining City acceptance. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md) to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this manual.
