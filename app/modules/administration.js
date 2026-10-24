@@ -1,5 +1,6 @@
 import { toast } from "./court_and_deposits.js";
-import { helperJSON, stableJSON } from "./workspace_shell.js";
+import { helperJSON } from "./workspace_shell.js";
+import { stableJSON } from "./record_values.js";
 import { saveDrafts } from "./case_files.js";
 import { render } from "./app_screens.js";
 import { A11Y, citationPricing, isLocked, snow } from "./app_core.js";

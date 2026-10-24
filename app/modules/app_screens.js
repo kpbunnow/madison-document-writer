@@ -1,6 +1,7 @@
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
-import { sourceDocFor, caseNumberAllowed, caseFileName, storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { sourceDocFor, caseNumberAllowed, storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { caseFileName } from "./case_file_rules.js";
 import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
 import { snow, blockers, initialCitations, CASEDIR_EXPECT, isLocked, navigation, newDocuments, A11Y, IDB_OK } from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";

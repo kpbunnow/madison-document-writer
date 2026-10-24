@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Record rules separated from UI/storage (development)
+
+- Extract deterministic legacy migration, record shape/identity/correction-history checks, case merge/name rules, event replay, item carry-forward and summary derivation into four independent record owners. Callers import the defining owners directly; live loading, rollback, integrity verification, workspace mutation and I/O remain in their adapters.
+- Summaries receive explicit roster/library/case facts and cache metadata. Shared source resolution preserves frozen/correction precedence and legacy snow fallback; the existing direct classifier API retains its static catalog default. Historical authoring, correction rules, record IDs, report fields and browser schema-4/helper schema-5 migration boundaries are unchanged.
+- Standalone tests exercise the calculations with clock/randomness disabled and frozen inputs; import/lint guards prevent new UI/storage coupling. The independent helper projection, full corpus/captured-flow parity, event registration checkpoints and frozen print references are retained. Ownership docs and cleanup status are updated; R63/build-64 identity and acceptance holds are unchanged.
+
 ## Unreleased — Feature-owned event handlers (development)
 
 - Move the 60 core document/window handlers into 14 feature event owners, preserving explicit registration positions, capture phases, original condition order and document snapshots. Cross-feature action bodies have scoped interfaces; construction does not access later service/state declarations. Synchronous permission and other user-action calls remain synchronous.

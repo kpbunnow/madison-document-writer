@@ -1,6 +1,8 @@
 import { caseNumberKey } from "../assets/shared.js";
 import { allItems, toast } from "./court_and_deposits.js";
-import { caseDetails, caseFileFault, caseFileName, helperJSON, idbSet, loadCaseFile, project, rememberSaved, stableJSON } from "./workspace_shell.js";
+import { caseDetails, stableJSON, clone } from "./record_values.js";
+import { caseFileFault, caseFileName } from "./case_file_rules.js";
+import { helperJSON, idbSet, loadCaseFile, project, rememberSaved } from "./workspace_shell.js";
 import { caseUnsaved, draftBundle, saveCaseFile, saveDrafts } from "./case_files.js";
 import { clearWalk } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
@@ -9,7 +11,7 @@ import { render } from "./app_screens.js";
 import { refreshSheet } from "./document_pagination.js";
 import { A11Y, RECOVERY_WORKSPACE, WORKFLOW_PREFS_KEY, navigation, recordIntegrity } from "./app_core.js";
 import { doc, docsFor, eventsFor, kase } from "./writer_queries.js";
-import { clone } from "./record_values.js";
+
 import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";
 import { app_savedworkContext } from "./app_view_contexts.js";

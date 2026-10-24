@@ -1,5 +1,6 @@
 """Reporting projection of a verified case file: mirrors summarize() in
-app/modules/workspace_shell.js exactly, so the helper can prove a cached
+the pure app/modules/case_projection.js calculation used by the
+workspace_shell.js adapter, so the helper can prove a cached
 Reporting Index summary represents the case revision it names.
 
 The case file is the authority. A cached summary is usable only when its
@@ -324,7 +325,7 @@ def resource_policy():
     return _POLICY
 
 
-# ---- event replay (workspace_shell.js replayEvents) ----
+# ---- event replay (app/modules/case_projection.js replayEvents) ----
 
 
 def replay_events(events):

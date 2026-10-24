@@ -20,7 +20,7 @@ Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/
 - Never skip integrity/history/publication checks, regenerate genesis, overwrite protected anchors or publish a migration registry ahead of a recoverable case write.
 - Never infer orphaned-lock ownership from age. Recovery requires the inspected token, verified stopped ownership, named administrator and reason.
 - Never claim a pending browser write is saved, treat unknown outbox/health as zero, silently overwrite a conflict or replace current typed work with a delayed response.
-- summarize() in workspace_shell.js and helper/case_projection.py are one projection in two languages. Change them together, with the mirrored tables; audit_case_projection compares them over generated and captured real cases. Never accept a cached summary field the projection of the verified case does not reproduce, and never repair a summary by editing the case. Compare summary values as canonical JSON (case_projection.same_json, RFC 8785), never with Python ==, which treats false as 0 and true as 1 where Reports does not.
+- summarizeRecord() in case_projection.js (called by the workspace_shell.js summarize adapter) and helper/case_projection.py are one projection in two languages. Change them together, with the mirrored tables; audit_case_projection compares them over generated and captured real cases. Never accept a cached summary field the projection of the verified case does not reproduce, and never repair a summary by editing the case. Compare summary values as canonical JSON (case_projection.same_json, RFC 8785), never with Python ==, which treats false as 0 and true as 1 where Reports does not.
 
 ## PDFs and filing
 

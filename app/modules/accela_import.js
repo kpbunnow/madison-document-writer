@@ -14,15 +14,17 @@
    columns are recognised and never read (division, 09/18/2026). */
 import { parseTime, parseDate, inspAt, fmtTime, toast, fmtDate, validISO } from "./court_and_deposits.js";
 import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
-import { clone } from "./record_values.js";
-import { snow, uid, citationPricing, COMMITTED, summaryName } from "./app_core.js";
+import { clone, stableJSON, caseDetails } from "./record_values.js";
+import { snow, uid, citationPricing, COMMITTED } from "./app_core.js";
+import { summaryName } from "./case_file_rules.js";
 import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
 import { nowISO, iso } from "./calendar.js";
 import { esc } from "./presentation_format.js";
 import { sameInspection, inspectionIdentity, inspectionUsed } from "./case_timeline.js";
 import { WriterState } from "./state.js";
-import { sourceDocFor, loadCaseFile, helperJSON, stableJSON, caseDetails, shell } from "./workspace_shell.js";
+import { sourceDocFor, loadCaseFile, helperJSON, shell } from "./workspace_shell.js";
+
 import { unissuedVisitFor } from "./draft_recovery.js";
 import { caseState, render } from "./app_screens.js";
 import { scheduleDraftSave, listCaseFolder, saveDrafts, startReinspection } from "./case_files.js";

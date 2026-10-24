@@ -16,7 +16,22 @@ const allowed = {
   "calendar.js": ["../assets/shared.js"],
   "document_types.js": ["./data/approved_language.js", "./citation_policy.js"],
   "document_rules.js": ["./document_types.js"],
-  "writer_queries.js": ["./state.js", "./data/inspectors.js", "./document_rules.js"],
+  "writer_queries.js": ["./state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
+  "record_sources.js": ["./document_rules.js", "./document_types.js"],
+  "case_migrations.js": ["./document_types.js", "./record_values.js"],
+  "case_file_rules.js": ["../assets/shared.js", "./record_values.js", "./document_rules.js"],
+  "case_projection.js": [
+    "./data/library.js",
+    "../assets/shared.js",
+    "./document_types.js",
+    "./document_rules.js",
+    "./calendar.js",
+    "./record_values.js",
+    "./presentation_format.js",
+    "./citation_policy.js",
+    "./record_sources.js",
+    "./case_file_rules.js",
+  ],
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 for (const [name, dependencies] of Object.entries(allowed)) {

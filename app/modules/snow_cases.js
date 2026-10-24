@@ -1,6 +1,9 @@
+import { SNOW_TYPE, courtTime } from "./document_types.js";
+import { isSnowCase, itemLibraryKey } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
 import { citationNumber, fmtDate, nextCourtDate, toast, validISO } from "./court_and_deposits.js";
-import { helperJSON, stableJSON } from "./workspace_shell.js";
+import { helperJSON } from "./workspace_shell.js";
+import { stableJSON, clone } from "./record_values.js";
 import { saveDrafts, scheduleDraftSave } from "./case_files.js";
 
 import { renderKeep, render } from "./app_screens.js";
@@ -9,22 +12,19 @@ import { addDays } from "./calendar.js";
 import { checkTarget, esc } from "./presentation_format.js";
 import { citationPricing, initialCitations, isLocked, uid } from "./app_core.js";
 import { correctionSource, doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
-import { clone } from "./record_values.js";
-import { courtTime } from "./document_types.js";
-import { itemLibraryKey } from "./document_rules.js";
+
 import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
-const SNOW_TYPE = "snow-10.28",
-  SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
+const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
 export function initSnow() {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),
     letterLoaded = false,
     loading = null;
   const mixed = "Snow removal cases cite only MGO 10.28. Create a separate case for other violations.";
   const WARNING = "There are no warnings given for this Ordinance violation.";
-  const isCase = (k) => k?.caseType === SNOW_TYPE;
+  const isCase = (k) => isSnowCase(k);
   const is = (d) => !!d && (d.caseType === SNOW_TYPE || isCase(docCase(d)));
   const season = (day) => {
     const start = CITATION_POLICY.snowSeasonStartMonthDay || "07-01",

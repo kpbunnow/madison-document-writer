@@ -1,3 +1,5 @@
+import { caseFileName, summaryName } from "./case_file_rules.js";
+import { recordCorrectionTypeAllowed, deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
 import { cents, canonicalOrdinance } from "./citation_policy.js";
 import { recordDay } from "../assets/shared.js";
 import {
@@ -13,20 +15,9 @@ import {
   toast,
   validISO,
 } from "./court_and_deposits.js";
-import {
-  appendEvent,
-  caseDetails,
-  caseFile,
-  caseFileName,
-  evid,
-  helperJSON,
-  idbSet,
-  mergeCaseEvents,
-  project,
-  rememberSaved,
-  sourceDocFor,
-  stableJSON,
-} from "./workspace_shell.js";
+import { appendEvent, caseFile, evid, helperJSON, idbSet, mergeCaseEvents, project, rememberSaved, sourceDocFor } from "./workspace_shell.js";
+import { caseDetails, stableJSON, clone } from "./record_values.js";
+
 import { saveDrafts, validateAndStandardizeAddresses, writeSummary } from "./case_files.js";
 import { ensureWalkContext } from "./reinspection.js";
 import { priorCitations, render } from "./app_screens.js";
@@ -34,19 +25,8 @@ import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.
 import { commitCitationEdits } from "./case_timeline.js";
 
 import { CASE_CORRECTION_FIELDS, DOC_TYPES, FIELD_NAMES, OUTCOMES, courtTime } from "./document_types.js";
-import {
-  COMMITTED,
-  ENTRY_IDS,
-  blockers,
-  citationPricing,
-  depositStep,
-  docBlocks,
-  docBody,
-  recordFormKey,
-  recordIntegrity,
-  summaryName,
-  uid,
-} from "./app_core.js";
+import { COMMITTED, ENTRY_IDS, blockers, citationPricing, depositStep, docBlocks, docBody, recordFormKey, recordIntegrity, uid } from "./app_core.js";
+
 import {
   correctionSource,
   doc,
@@ -63,8 +43,7 @@ import {
   reinsp,
   reinspFor,
 } from "./writer_queries.js";
-import { byTime, clone } from "./record_values.js";
-import { deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
+
 import { emailList, isLLC } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";
@@ -476,31 +455,6 @@ function correctionChecks(d) {
       t: "Start the current local helper and connect the shared case folder before saving a correction",
     },
   ];
-}
-
-function correctionHistoryFault(events) {
-  const docs = new Map(),
-    changed = new Set();
-  for (const ev of events.slice().sort(byTime)) {
-    const p = ev.payload || {};
-    if (/\.issued$/.test(ev.type) && p.snapshot) {
-      if (docs.has(p.snapshot.id)) return "Two issued records share a document identity";
-      if (ev.type === "correction.issued") {
-        const old = docs.get(p.replaces);
-        if (!old || old.eventId !== p.baseEventId || changed.has(p.replaces))
-          return "Conflicting corrections: keep both drafts for review and reopen the current shared case";
-        if (!String(p.reason || "").trim() || !p.snapshot.revision) return "A correction is missing its reason or revision link";
-        if (
-          !correctionTypeAllowed(old, p.snapshot.type, true) ||
-          stableJSON(old.items.map((i) => [i.id, i.no])) !== stableJSON(p.snapshot.items.map((i) => [i.id, i.no]))
-        )
-          return "A correction changed the document type or item identities";
-        changed.add(p.replaces);
-      }
-      docs.set(p.snapshot.id, Object.assign({}, p.snapshot, { eventId: ev.id }));
-    }
-  }
-  return "";
 }
 
 function makeCorrectionAttempt(d) {
@@ -1051,10 +1005,8 @@ function recordActionModal() {
 }
 
 function correctionTypeAllowed(src, type, historyOnly = false) {
-  if (type === src.type) return true;
-  if (specialType(src.type)) return false;
-  if (!src.fromReinspId || src.type === "citation" || !["extension", "referral", "referralUpdate", "compliance"].includes(type)) return false;
-  if (historyOnly) return true;
+  if (!recordCorrectionTypeAllowed(src, type)) return false;
+  if (type === src.type || historyOnly) return true;
   // Not isReferredCase: a correction's own source document does not count as the earlier referral.
   const priorReferral = docsFor(src.caseId).some((x) => isEffective(x) && x.id !== src.id && isHistoryDoc(x));
   return !priorReferral || ["referralUpdate", "compliance"].includes(type);
@@ -1416,7 +1368,6 @@ export {
   correctionEligibility,
   startCorrection,
   correctionChecks,
-  correctionHistoryFault,
   commitAmendment,
   issueCorrection,
   voidDocument,

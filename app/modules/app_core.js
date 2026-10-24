@@ -15,7 +15,7 @@ import { createContactEvents } from "./contact_events.js";
 import { BLOCKS, DOCBODY } from "./document_types.js";
 import { frozenOf, specialType } from "./document_rules.js";
 import { kase, doc, docsFor, reinspFor, correctionSource } from "./writer_queries.js";
-import { clone, byTime } from "./record_values.js";
+import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { addDays } from "./calendar.js";
 
@@ -37,18 +37,9 @@ import {
   toastUndo,
   validISO,
 } from "./court_and_deposits.js";
-import {
-  caseFile,
-  caseFileName,
-  caseNumberAllowed,
-  grantCaseFolder,
-  helperJSON,
-  linkCaseFolder,
-  loadCaseFile,
-  printNotice,
-  stableJSON,
-  testWrite,
-} from "./workspace_shell.js";
+import { caseFile, caseNumberAllowed, grantCaseFolder, helperJSON, linkCaseFolder, loadCaseFile, printNotice, testWrite } from "./workspace_shell.js";
+import { caseFileName } from "./case_file_rules.js";
+
 import {
   addCC,
   addEmail,
@@ -194,7 +185,7 @@ import { languageClick } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
-import { SUMMARY_VERSION, caseNumberKey, recordDay } from "../assets/shared.js";
+import { SUMMARY_VERSION, recordDay } from "../assets/shared.js";
 
 import { initNewDocuments } from "./new_documents.js";
 import { initInitialCitations } from "./initial_citations.js";
@@ -760,108 +751,8 @@ WriterState.SAVE_CHECKPOINTS = {};
 WriterState.WRITER_ACCESS = true;
 WriterState.releaseWorkspaceLock = null;
 
-/* ---------- reporting summaries ----------
-   One flat summary per case, written beside the case file into
-   Reporting Index. Reporting reads these and never the case files, and
-   never writes the record. Everything here is pure: a case file in, a
-   summary out. */
-export const summaryName = (k) => caseNumberKey(k.number) + ".json";
-
-export const libType = (e, how) => ({
-  key: e.cl.code + "/" + e.g.code + "/" + e.it.o,
-  label: e.cl.name + " \u203a " + e.g.name + " \u203a " + e.it.t,
-  how: how,
-});
-
-/* ---------- migration ----------
-   A file written today has to open years from now, after the app has moved
-   on. Every load runs through here; each step upgrades one version. */
-/* A migrated event must carry the same id every time the same legacy file
-   is opened, or loading it twice appends the whole history again. The
-   ordinal preserves the order the file was written in: same-day documents
-   all migrate to noon, and a tie on the timestamp is broken on the id. */
-const migId = (cid, n, kind, ref) =>
-  "mig1_" +
-  String(cid || "").replace(/[^A-Za-z0-9]/g, "") +
-  "_" +
-  String(n).padStart(4, "0") +
-  "_" +
-  kind +
-  "_" +
-  String(ref || "").replace(/[^A-Za-z0-9_-]/g, "");
-export const MIGRATIONS = {
-  3: function (f) {
-    return Object.assign({}, f, { schema: 4 });
-  },
-  2: function (f) {
-    return Object.assign({}, f, { schema: 3 });
-  },
-  1: function (f) {
-    // v1 stored current state; v2 stores the events that produced it
-    const evs = [];
-    const cno = (f["case"] || {}).number || "";
-    let mn = 0;
-    (f.documents || [])
-      .slice()
-      .reverse()
-      .forEach((d) => {
-        const type =
-          (d.type === "notice" ? "notice" : d.type === "extension" ? "extension" : d.type === "citation" ? "citation" : "notice") + ".issued";
-        const snap = clone(d);
-        snap.draft = false;
-        evs.push({
-          id: migId(cno, mn++, "doc", d.id),
-          at: (d.mailed || d.created || "1970-01-01") + "T12:00:00.000Z",
-          by: d.inspectorId || (f["case"] || {}).inspectorId || "",
-          type: type,
-          payload: { docId: d.id, snapshot: snap, fromReinspId: d.fromReinspId || "", fromDocId: d.fromDocId || "" },
-        });
-      });
-    (f.reinspections || []).forEach((r) => {
-      evs.push({
-        id: migId(cno, mn++, "rein", r.id),
-        at: (r.date || "1970-01-01") + "T12:00:00.000Z",
-        by: r.inspectorId || "",
-        type: "reinspection.recorded",
-        payload: { reinspId: r.id, reinspection: clone(r) },
-      });
-    });
-    return {
-      format: f.format,
-      schema: 2,
-      exported: f.exported,
-      exportedBy: f.exportedBy,
-      case: f["case"],
-      inspectors: f.inspectors || [],
-      events: evs.sort(byTime),
-    };
-  },
-};
-
 /* ids are preserved on load — reinspection results are keyed by item id, so
    they must survive the round trip. Push the counter past anything incoming. */
-
-/* Identifiers from a file are written straight into HTML attributes and into
-   selectors, so anything that is not a plain identifier is refused at the
-   door rather than escaped at each of the places it is used. */
-export const ID_FIELDS = [
-  "id",
-  "docId",
-  "caseId",
-  "reinspId",
-  "sourceDocId",
-  "fromDocId",
-  "fromReinspId",
-  "srcItemId",
-  "inspectorId",
-  "replaces",
-  "eventId",
-  "itemId",
-  "targetId",
-  "rootId",
-  "baseEventId",
-];
-export const ID_OK = /^[A-Za-z0-9_-]{1,64}$/;
 
 /* Loading merges rather than replaces: events already held are kept, new ones
    are added, and anything present in both is deduplicated by event id. */
