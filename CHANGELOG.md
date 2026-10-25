@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Screen-shell/CSS cleanup (development)
+
+- Complete owner-authorized consolidation Phase 8: establish a current Writer/Reports screen-shell reference from verified source, recording provenance and replacing historical per-release CSS reversal bookkeeping. Preserve every historical print/document reference and approved print stylesheet.
+- Remove 31 unused screen class families and the obsolete toast spinner animation. Retain live case-view/queue-primary styles missed by the old split-literal text scan; preserve surviving selector/declaration/cascade contracts and add runtime class checks.
+- Add synthetic DOM capture and before/after style, geometry and pixel comparison, including forced colors; update review/reference guidance and test/source indexes. No intentional visual redesign, release/format bump, authority change, packaging or deployment.
+
 ## Unreleased — Document editor service (development)
 
 - Compose editor rendering/actions through named lazy UI/peer dependencies. Preserve original function/listener bodies, markup, first-service copy-listener order, synchronous routing, focus and save scheduling; core exports actual instance functions and retains existing disclosure-test mutability.

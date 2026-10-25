@@ -309,12 +309,7 @@ a {
 .areas label:hover {
   background: var(--civic-tint);
 }
-.chips {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-}
+
 .chip {
   display: inline-flex;
   gap: 6px;

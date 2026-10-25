@@ -87,3 +87,7 @@ Exit Document Writer (Tools & settings) is the only stop path: an authenticated 
 ## Source layout and build
 
 The maintained layout is the only source tree. Tools resolve source assets directly and generate derived modules and identity under build/. The deploy manifest resolves maintained paths to stable installed filenames. The trusted installed launcher authenticates the candidate share using installed verification code and the candidate file manifest, with deployment-folder permissions protecting against deliberate replacement; the shared bootstrap performs only a standard-library handoff when a verified installation exists.
+
+## Current screen-shell reference
+
+Owner-authorized Phase 8 uses a complete current shell reference instead of reversing historical release-specific CSS additions. Its provenance and CSS decision record are separate from frozen print/document references. Runtime observations and before/after computed-style, geometry and pixel comparison supplement the full browser/print gate; SCREEN-SHELL.md describes the contract. Screen cleanup does not change the remaining module-cleanup roadmap or grant rollout/native acceptance.

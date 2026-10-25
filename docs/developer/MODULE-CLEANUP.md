@@ -1,6 +1,6 @@
 # Broader module cleanup
 
-Owner authorization: October 24, 2026, after PRs #43 and #44. This is a behavior-preserving module cleanup, separate from the still-deferred screen-shell/CSS baseline work in consolidation Phase 8. Current release and format identities stay unchanged until separately assigned.
+Owner authorization: October 24, 2026, after PRs #43 and #44. This is a behavior-preserving module cleanup, separate from the screen-shell/CSS work in consolidation Phase 8, subsequently authorized on October 25, 2026 (see SCREEN-SHELL.md). Current release and format identities stay unchanged until separately assigned.
 
 ## First increment: shared foundations (merged in PR #46)
 

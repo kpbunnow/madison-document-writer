@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "approval": "Owner-authorized Phase 8, 2026-10-25",
+  "removedClasses": [
+    "acc-h",
+    "acc-off",
+    "acc-on",
+    "acc-other",
+    "acc-scroll",
+    "chipstrip",
+    "cnt",
+    "docpanel",
+    "doctab",
+    "doctabs",
+    "draftlist",
+    "draftrow",
+    "fin-email",
+    "gitem-head",
+    "gitem-ord",
+    "r26-reason",
+    "spin",
+    "voidtag",
+    "edsel",
+    "map-controls",
+    "map-legend",
+    "storage-row",
+    "walk-card",
+    "chips",
+    "metric-grid",
+    "case-flag",
+    "case-flags",
+    "case-extra",
+    "editor-preview-frame",
+    "editor-initial-options",
+    "spacer"
+  ],
+  "retainedClasses": [
+    "case-view",
+    "queue-primary"
+  ],
+  "files": {
+    "writer.css": {
+      "beforeSha256": "3afe2a3508525dd85dee074604b3bd773066f03a72ae6c5634cf44abb0e3332e",
+      "afterSha256": "f5b135695512f7c7672ef9ecda1a1e0515ae900f0ec4686328251c897d547957",
+      "beforeBytes": 70008,
+      "afterBytes": 66302,
+      "retainedRulesSha256": "69d718a2526e7d07b1ebbd1612c5e9d61f1462270e21726260cce687815293ba"
+    },
+    "reports.css": {
+      "beforeSha256": "fb46f14e014ee8aa8928676c72280faf6022eb0d79132e51dd1a00d5323953d4",
+      "afterSha256": "37f8fab30c138f4e77f46d7969575d677979cdc37bb28038a8c02d60059205e7",
+      "beforeBytes": 14848,
+      "afterBytes": 14767,
+      "retainedRulesSha256": "d8b84a0cb1e94e8d65e7a54b72209b2753c2dd4cb31a719ff1252e368a3a0b26"
+    },
+    "accessibility.css": {
+      "beforeSha256": "d38a2229869d35537291cf7eb940bebaa279eb17348842c405375f888be9f69d",
+      "afterSha256": "4e8e4439c57e03c81aa8d3c344bd3d352512df7cff36c03d49a5e72f7b2194db",
+      "beforeBytes": 16775,
+      "afterBytes": 16015,
+      "retainedRulesSha256": "4a0810505409ccf1229b9ba99c51918b0143ef8f3e58bf36a10d96a99851f420"
+    },
+    "ui-refresh.css": {
+      "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
+      "afterSha256": "aee7103aad8e93158553610b88e878c2008f48643d71794a9fb7ced609a513b8",
+      "beforeBytes": 48561,
+      "afterBytes": 47088,
+      "retainedRulesSha256": "bde1fa116b4951df73b8755e30bc618ad67d42002a4c7a28d6dde03fa4f1b76c"
+    }
+  },
+  "selectorChanges": [
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".rail-item .cnt"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "34553f680d6ff183d031d447a283f4a0c9c4142894318e440115f25b811b4487"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctabs"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "286ff7a4506aaddd0d95ba681d03ad5d040ebd3d59436d91bec9bb12b6016bc9"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctab"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "45bc8c0ec50d4f8452061483bb6b9d24c70a079d5f5641a5751aac3ccd812490"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctab[aria-pressed=\"true\"]"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "edd051db70ea6f4f968d4eaadc236857f84acde975cc521eeae8784af75d1ed5"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctab:disabled"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "71e3d22c0c441ef58f5955cd07b5fd813229bf9d70256e911c2747e26b6df0ec"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctab .soon"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "1e413f47bef3976a32904a3ffbd899d74dc434d8b3a6cec78397f3e7d02c7726"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".docpanel"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "664f8d96c623638d8af8187c17ff3a792888754a2809c8d35f34324cf66f0ca9"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-ord"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "a6cde37b021da3de566236957c1fbe865135862ddc338e36d1a291f05cea23cf"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-ord .cite-sec"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "b302f72b166e4e416f7fb413813299ea3ebe0883493158ca62af70717e44f95d"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-ord .cite-sec.none"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "af15dd1be3e8d5d337a0139c139eb1fc23469aa53c5e4e7960b74c9b636910d5"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-head"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "4775d9c59a527aae601e3f1d803a4612e4ae1cf3ecdabe9c9ef33361df6f3980"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-head .cite-sec"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "eb8fc6ce08d2789facec7b904a33bf96ca1a98d859b68f925fee7b54ec8d5d51"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".toast .spin"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "3bca3709667b43330a48f7680c5424375d7179b9fc3017dd5ca6eeb3d1e92eae"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".toast .spin"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "c7c40951b55059fbc0550a02c38197713770ea1c8658265e283e1fc402c5059d"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".draftlist"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "0f675ade8fc12733c64a76117f20f69fafbf0935d08883bda9ea49843ae74946"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".draftrow"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "28e9879a852595cb08b4e754651af75fd4cbf309dcd940f2850a18bd84cfb53d"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".draftrow .lnk"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "b83a78fd4f92d0a1043cec841828d3c5a84f847f3a5751323e66905d5fd8ab8c"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".draftrow .muted"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "2c772650f996647f89dd958339e7d7bbe271a3af0b2f1a2e5b01d5a04d5eda30"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".draftrow .btn"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "0148e9ab5e357bdc85f327167fb7e83952a594e6ee9665aae01850ad60ff5705"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".fin-email"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "9c96e455258840ad1a5fb4fdb88a124e8d3b7267df282da29a93851f820c4161"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".fin-email input"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "29e933d64d6f86d8bc52c4c9580dbf2a4ae643523cdb86538cd9b8e2b14a51b7"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".fin-email span"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "a68dfb6f7eb3eaeb68461b96a22c06d17a963e93e75973f7de9ef64e9f14cf7d"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".acc-h"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "632e829914c0a7a8908ece4f16282721e3a9792a91ea5603b064fe5b08f3b31a"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".acc-scroll"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "4088c0f89c7e851ce153049ead4557b0728ed987f2949ff693aa06e8ad2838d8"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".acc tr.acc-off td"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "110e34da01b392adaf51db7498c6fbb3438858086212a928aed269965ab7baa2"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".acc tr.acc-on td"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "68cc65387638d3298301a64a4e417252c2afee64a8a9f87d41192c6582486e51"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".acc-other"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "e49e0f865f13224c9778b390d1c5afc2773e7950caf3d0967c124435ac1bf510"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doclinks .voidtag"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "94a0762fc176c73f753621bf4d24ca5bdee9e926b4420c0e163363bd89efc44a"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".chipstrip .muted"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "d5ad6d2b98804174199df6707d7e0341b9b1269022f2a274bfc5ba7511457b47"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".docpanel"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "c7b0e00a90324288529873768c38fed53508d8d074c555ff8666ae6f74714a50"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctabs"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "3f480f03bcd5df0ff96d0b0b79e582d2adc9b63fe0a71c8e16e3d78fb9b51f22"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctab"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "5baaed840707a77a5bae2984d1d0d02c0382ce5c9bc3c58a9ce7862508c0110e"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-ord"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "72202ecf80fc29ae5d7de2cdc1169109c3815808844a85ec81276dbeecb46bba"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-ord .cite-sec"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "1ad78acb037bec5138b449f8b2df57e5c17d4498dacfd85f524fa610c4c736ba"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".gitem-head"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "dc16cbf46af4c0fb89d60cc4cd8f8f05fcf8a123d7a045fa5bfae5999d792924"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".doctabs"
+      ],
+      "retainedSelectors": [
+        ".rail",
+        ".topbar",
+        ".no-print",
+        ".pane-h"
+      ],
+      "declarationsSha256": "27c1367e6e04c5fb4d881bd193e67639642d1d9cd5cb1a531e23f9591e4cbfcb"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".docpanel"
+      ],
+      "retainedSelectors": [
+        ".app",
+        ".main",
+        ".content",
+        ".desk"
+      ],
+      "declarationsSha256": "8bf8f18406a9cc033a8faca623d13abbfebcf9d3478de01ca01c88433b621458"
+    },
+    {
+      "file": "writer.css",
+      "removedSelectors": [
+        ".r26-reason"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "de8258801f4d626764dd42086a6cd8f3d74b0bd80d9fb9ba335a720a0210d4a5"
+    },
+    {
+      "file": "writer.css",
+      "removedKeyframes": "spin",
+      "sha256": "97b0faf8f0e13ec5a6540deb6ab50295350638a3620ffa596ed1d7870bbc54a5"
+    },
+    {
+      "file": "reports.css",
+      "removedSelectors": [
+        ".chips"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "e4a373413f52bae441f851787e63706acdf3e2d68cc97f501814a83a8eb215bd"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"dark\"] .docpanel"
+      ],
+      "retainedSelectors": [
+        "[data-theme=\"dark\"] .card",
+        "[data-theme=\"dark\"] .panel",
+        "[data-theme=\"dark\"] .modal-box",
+        "[data-theme=\"dark\"] .topbar",
+        "[data-theme=\"dark\"] .filters",
+        "[data-theme=\"dark\"] .utility-dialog"
+      ],
+      "declarationsSha256": "651f53b8e3fbaa8126459d2ae721e3241074d23177c2984d909373b46665d202"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"system\"] .docpanel"
+      ],
+      "retainedSelectors": [
+        "[data-theme=\"system\"] .card",
+        "[data-theme=\"system\"] .panel",
+        "[data-theme=\"system\"] .modal-box",
+        "[data-theme=\"system\"] .topbar",
+        "[data-theme=\"system\"] .filters",
+        "[data-theme=\"system\"] .utility-dialog"
+      ],
+      "declarationsSha256": "f516ebdf37cfad621ce6bd03c0e4d8883804cbdbb458507997f94a5374e633c5"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"dark\"] .walk-card",
+        "[data-theme=\"dark\"] .storage-row"
+      ],
+      "retainedSelectors": [
+        "[data-theme=\"dark\"] .metric",
+        "[data-theme=\"dark\"] .banner",
+        "[data-theme=\"dark\"] .case-tools"
+      ],
+      "declarationsSha256": "28ac40198277da36ea6eecaa110ed50cc50ae3b45e7b2ad7a94536a826517b87"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"system\"] .walk-card",
+        "[data-theme=\"system\"] .storage-row"
+      ],
+      "retainedSelectors": [
+        "[data-theme=\"system\"] .metric",
+        "[data-theme=\"system\"] .banner",
+        "[data-theme=\"system\"] .case-tools"
+      ],
+      "declarationsSha256": "20fd5c89ed5148a01bcc54793737324da4f12bc74cb58c46dea6166f1ea89a77"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        ".main .edsel"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "05c75ee86487be4765642863d7aa40039c1fe205355293388416dc04bed7a59c"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        ".map-controls",
+        ".map-legend"
+      ],
+      "retainedSelectors": [
+        ".rail",
+        ".filters",
+        ".topbar-actions",
+        ".fresh",
+        ".seg",
+        "#map",
+        ".skip-link"
+      ],
+      "declarationsSha256": "27c1367e6e04c5fb4d881bd193e67639642d1d9cd5cb1a531e23f9591e4cbfcb"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"dark\"] .doctab"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "28ac40198277da36ea6eecaa110ed50cc50ae3b45e7b2ad7a94536a826517b87"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"dark\"] .doctab[aria-selected=\"true\"]",
+        "[data-theme=\"dark\"] .doctab.active"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "e0ed6babedae338f68ec06d8f6a2bae9f7d326b4a260dc28539e0d733182e083"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"system\"] .doctab"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "20fd5c89ed5148a01bcc54793737324da4f12bc74cb58c46dea6166f1ea89a77"
+    },
+    {
+      "file": "accessibility.css",
+      "removedSelectors": [
+        "[data-theme=\"system\"] .doctab[aria-selected=\"true\"]",
+        "[data-theme=\"system\"] .doctab.active"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "d02550b3aa8551e1d05d8ce35f2291b40625dd99aac16a4ec171ff6be56953c3"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".docpanel"
+      ],
+      "retainedSelectors": [
+        ".card",
+        ".panel"
+      ],
+      "declarationsSha256": "7b281d1c1ac5d90ca741720d9e1518543461f73f4abbbdd8852128c5ae1841c3"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".metric-grid"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "7d6e819ed291810fddc2c83a5cd24c4c00e2e6656c9729a7c385830344af16ec"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-tools .spacer"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "ed9e26f9a4a0789933db1b323e46aecb2c399dc8858e04d26d7d9ad80b70fa2d"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".docpanel"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "54fedfe0a82f2a08eed55520a468d01b8b9e16793b51dcb257261fe0f0c6493f"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".metric-grid"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "870d227670000f57603f56fb9ce6c5268a2ac8283ab1fe9ece5e9c646dd20a4d"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".rail-item .cnt"
+      ],
+      "retainedSelectors": [
+        ".rail-foot"
+      ],
+      "declarationsSha256": "2afc64e7c23e47a64d6b681a5d4b698fe26455f7c52a85ff069e6d456d3b84bf"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".metric-grid"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "a3ddecb7a0fda70a26178ee6321339b2ae8161de5c815e5de461b2498afb1709"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-tools .spacer"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "2afc64e7c23e47a64d6b681a5d4b698fe26455f7c52a85ff069e6d456d3b84bf"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flags"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "8853d9711141ba30db225385259e5ba3a1b14dfe6cfae41414ceb9e59227164b"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flag"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "a79a7054c82d36e48abd87f039d7eaf1013ad30a9260fdb65a6c92a82bd7a659"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flag.late"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "d4c2e012076a65935c0fa57a58ccc23cfad5e5aa1b5337c587fde54e25769117"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flag.soon"
+      ],
+      "retainedSelectors": [
+        ".pill.soon"
+      ],
+      "declarationsSha256": "79e598f97585285cb41c905ca0da63b80d0124a8b9e023e7cdecbfe5a9ac3b23"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flag.sync",
+        ".case-flag.pending"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "c2dc5be1d4727475ca8511833dea70a6ac78d7d57d0bd63827649da7fe75a57a"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-flag.filing"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "1ac86b2554620778f99f0640ba382221b472622dbd1ce10efdf33e4be50df2fc"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-extra"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "35e2e9a0217783665e2c64618feb183a05da362190aced3a2bbbf41cd1c4146b"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".case-extra .lnk"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "adc0d86992827730a1371cdf541369dd1093a1ba410dddc35d8e166db18dd1bd"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-preview-frame"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "f64c9ea1aa14bbccadbc9267fa661892ab9acf38fe035e29c22a3e78ef4c160c"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-initial-options"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "e4ad02e5108101f7bbbf93faf3684613c5a13ad5baaa96bc127302a0900dd7d1"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-initial-options > summary"
+      ],
+      "retainedSelectors": [
+        ".case-check-fields > summary"
+      ],
+      "declarationsSha256": "699ca43e2642875352e7a5dec5fd26844b931367e5a078e9e5b8fc3b9a06deb1"
+    },
+    {
+      "file": "ui-refresh.css",
+      "removedSelectors": [
+        ".editor-initial-options[open] > summary"
+      ],
+      "retainedSelectors": [],
+      "declarationsSha256": "8f6d507015dbb1ebb5d3c6a18994858802d2c61e8a25235297a6574e54bb6bcf"
+    }
+  ]
+}

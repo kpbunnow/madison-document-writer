@@ -68,7 +68,7 @@ version.json is authoritative. `tools/version_schema.py` validates actual dates,
 
 R63 with helper build 64 is the current assigned release (the development label R62, build 63, was never published). New ordinary documents use authoring 16; scoped orders retain 13. Constants such as historical authoring 12/13/14/15/16 are capabilities, not values to globally replace during a release bump. The independently pinned per-family test expectations remain separate from application implementation.
 
-The owner authorized development under `2026-10-23 R62` until a deploy package was requested, then assigned `2026-10-24 R63` (helper 2026.10.24.64, build 64) for the authorized release package, published against the R61 deployment manifest. Assigning and packaging a release does not approve legal wording, deploy it or close City acceptance. Phase 8 screen-shell cleanup remains declined.
+The owner authorized development under `2026-10-23 R62` until a deploy package was requested, then assigned `2026-10-24 R63` (helper 2026.10.24.64, build 64) for the authorized release package, published against the R61 deployment manifest. Assigning and packaging a release does not approve legal wording, deploy it or close City acceptance. The owner subsequently authorized Phase 8 screen-shell/CSS cleanup on October 25, 2026. SCREEN-SHELL.md defines its current-reference contract; approved print styles, historical document references and release trust remain excluded.
 
 ## Publication and package structure
 

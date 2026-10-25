@@ -1,6 +1,6 @@
 # Document Writer — Consolidation and Code-Health Development Prompt
 
-> Completed record: phases 1–7 are merged (PRs #35, #36, #37/#38, #39, #40, #41 and #42). Phase 8 remains declined. Original phase instructions and owner decisions below are retained for provenance; use DEVELOPMENT-STANDARD.md for subsequent work.
+> Completed record: phases 1–7 are merged (PRs #35, #36, #37/#38, #39, #40, #41 and #42). Phase 8 was subsequently authorized by the owner on October 25, 2026; see SCREEN-SHELL.md for the implemented current contract. Original phase instructions and owner decisions below are retained for provenance; use DEVELOPMENT-STANDARD.md for subsequent work.
 
 Prepared October 23, 2026.
 
@@ -679,7 +679,7 @@ Do not claim City, native, legal or accessibility acceptance from automated chec
 
 ## Phase 8 — Optional Screen-Shell Baseline Cleanup
 
-Requires explicit owner approval. (Declined for now; see Recorded owner decisions.)
+Requires explicit owner approval. The original deferral below was superseded by the owner’s October 25, 2026 instruction to complete screen-shell/CSS development; see SCREEN-SHELL.md.
 
 ### Scope
 
