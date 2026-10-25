@@ -1,9 +1,5 @@
-/* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
-
-import { sourceDocFor, caseNumberAllowed, storageReport, reindexReport, shell } from "./workspace_shell.js";
-import { caseFileName } from "./case_file_rules.js";
-import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
 import {
+  remindersPanel,
   snow,
   blockers,
   initialCitations,
@@ -30,6 +26,12 @@ import {
   screenReinspect,
   highlightOpenChecks,
 } from "./app_core.js";
+/* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
+
+import { sourceDocFor, caseNumberAllowed, storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { caseFileName } from "./case_file_rules.js";
+import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
+
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
 import { STATUS_OF, DOC_TYPES } from "./document_types.js";
@@ -38,7 +40,7 @@ import { checkAttr, esc } from "./presentation_format.js";
 import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
 
 import { WriterState } from "./state.js";
-import { independentArtifact, pdfTransferState, workspaceTasks, remindersPanel } from "./case_timeline.js";
+import { independentArtifact, pdfTransferState, workspaceTasks } from "./case_timeline.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";

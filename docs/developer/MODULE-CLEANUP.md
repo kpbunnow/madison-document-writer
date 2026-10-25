@@ -155,13 +155,21 @@ The original declarations and function bodies/order are unchanged apart from dep
 
 Core exports actual mutable instance functions. Consumers use those instances; no forwarding barrel or universal registry is introduced. Existing private diagnostics stay in the existing test-build reference hook. The Writer cycle drops from ten to nine modules and its guard is narrowed; Reports remains acyclic. audit_catalog_service checks independent lazy construction, exact interface/composition order, stale/malformed refreshes, acknowledgement retention, durable patch serialization/failure cleanup, integrity refusal and offline preflight. Existing language/reconciliation, functional, event, security and historical output assertions remain authoritative.
 
-## Thirteenth increment: reinspection service boundary
+## Thirteenth increment: reinspection service boundary (merged in PR #59)
 
 reinspection now exports createReinspection and imports only foundations, live queries/state, static inspector data and citation policy. Core supplies 30 named lazy UI/peer operations, constructing it after address parsing and before catalog/import composition. Construction reads no live state or service values and registers no listeners; existing service, listener and startup checkpoints remain.
 
 All original declarations and function bodies/order remain apart from dependency access. The owner retains live worksheet/walkthrough identity, carried/withdrawn-item refusals, outcome and later-edit-preserving undo, focus/save ordering, deadline/readiness checks, historical item observations and follow-up creation. Storage, pricing and publication authority remain with their existing owners. Core exports actual mutable instance functions; existing private diagnostics remain in the existing test-build reference hook.
 
 The Writer cycle drops from nine to eight modules; Reports stays acyclic. The independent suite checks inert construction, exact named interface/order, live array replacement, outcome/undo refusals and save/render/focus sequencing. Existing R46's 256 outcome combinations, reconciliation and disclosure tests retain their assertions. MAINTAINABILITY-ASSESSMENT.md describes the remaining coupling and priorities; removing a graph edge alone does not complete maintainability work.
+
+## Fourteenth increment: cohesive case activity responsibilities
+
+Personal reminders and the read-only event timeline move from case_timeline to case_activity. timelineCategory remains a pure direct export; createCaseActivity supplies the six other functions through six named lazy dependencies: date, case status, source document, formatting, navigation and accessibility. Core composes it after import services and before document rendering. Construction reads no services/state and registers no listeners. No existing startup or listener checkpoint moves.
+
+The seven original function bodies and the remaining timeline declarations/order are unchanged except explicit dependency access. Reminder windows/IDs/dismissal, closed/missing-source exclusions, manual draft preparation, read-only event sorting/filtering, full-log preservation and HTML escaping remain. The current-date getter delegates to the existing live clock. Workflow events retain preference writes, CSV/full JSON exports and the requested email-draft helper call. No publication, outbox, handoff, deadline-editing or pricing authority moves.
+
+case_timeline shrinks from 1,575 to 1,394 lines. The graph has 72 maintained modules, with the same eight-module Writer component and acyclic Reports. This increment improves cohesion/testability rather than pretending to eliminate another cycle member. Independent tests enforce the bounded interface, live date/state, reminder/escaping and read-only ordering contracts; existing workflow, event and historical assertions remain. The assessment now prioritizes shared inspection facts and the remaining timeline subfeatures.
 
 ## Following increments
 
