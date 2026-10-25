@@ -1,37 +1,249 @@
+import { createReportsServices } from "./reports_services.js";
+import { createReportsScreens } from "./reports_screens.js";
+import { createReportsViewContext } from "./reports_view_contexts.js";
 import { listenForStop, showStopped } from "./helper_stopped.js";
-import {
-  applyReportView,
-  areaKey,
-  areaSort,
-  caseOk,
-  daysBetween,
-  deleteReportView,
-  exportReportCSV,
-  groupBy,
-  loadAll,
-  median,
-  noticeAt,
-  openInWriter,
-  ordSort,
-  printReport,
-  relativeDates,
-  reportOrdinance,
-  render,
-  saveReportView,
-  shareReportView,
-  showSharedViews,
-  statusAt,
-  versionAt,
-  violOpenAt,
-  violationAt,
-} from "./reports_services.js";
-import { exportWorkbook, openCase, propertyHits, reportActions, toggleArea } from "./reports_screens.js";
+
 import { ReportsState } from "./state.js";
 import { reportSort } from "./contracts.js";
 import { initDepositSchedule } from "./deposit_schedule.js";
 import { installLeaflet } from "./vendor/leaflet_runtime.js";
 import { recordDay } from "../assets/shared.js";
 import { createAccessibility } from "./accessibility.js";
+
+const reportsServices = createReportsServices({
+  get render() {
+    return render;
+  },
+  get drawMap() {
+    return drawMap;
+  },
+  get shell() {
+    return shell;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  get REPORT_CHANNEL() {
+    return REPORT_CHANNEL;
+  },
+  get REPORT_VIEWS_KEY() {
+    return REPORT_VIEWS_KEY;
+  },
+  get STREET_WORDS() {
+    return STREET_WORDS;
+  },
+  get TODAY() {
+    return TODAY;
+  },
+  get areaIdOf() {
+    return areaIdOf;
+  },
+  get esc() {
+    return esc;
+  },
+  get iso() {
+    return iso;
+  },
+  get plural() {
+    return plural;
+  },
+  get reportById() {
+    return reportById;
+  },
+  get restoreReportReturn() {
+    return restoreReportReturn;
+  },
+  get uniq() {
+    return uniq;
+  },
+  get validISO() {
+    return validISO;
+  },
+  get violOk() {
+    return violOk;
+  },
+});
+export let {
+  exportReportCSV,
+  humanCorrectionValue,
+  shareReportView,
+  showSharedViews,
+  printReport,
+  daysBetween,
+  median,
+  normStreet,
+  relativeDates,
+  saveReportView,
+  applyReportView,
+  reportOrdinance,
+  deleteReportView,
+  openInWriter,
+  loadAll,
+  ordSort,
+  areaKey,
+  areaSort,
+  caseOk,
+  versionAt,
+  noticeAt,
+  statusAt,
+  violationAt,
+  violOpenAt,
+  groupBy,
+  render,
+} = reportsServices;
+const reportsScreens = createReportsScreens({
+  get areaKey() {
+    return areaKey;
+  },
+  get areaSort() {
+    return areaSort;
+  },
+  get caseOk() {
+    return caseOk;
+  },
+  get daysBetween() {
+    return daysBetween;
+  },
+  get groupBy() {
+    return groupBy;
+  },
+  get humanCorrectionValue() {
+    return humanCorrectionValue;
+  },
+  get normStreet() {
+    return normStreet;
+  },
+  get render() {
+    return render;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  get CRC_T() {
+    return CRC_T;
+  },
+  get D() {
+    return D;
+  },
+  get DEFINITIONS() {
+    return DEFINITIONS;
+  },
+  get EXPORT_SCOPE() {
+    return EXPORT_SCOPE;
+  },
+  get REPORTS() {
+    return REPORTS;
+  },
+  get STATUSES() {
+    return STATUSES;
+  },
+  get STATUS_COL() {
+    return STATUS_COL;
+  },
+  get STYLES() {
+    return STYLES;
+  },
+  get TILE() {
+    return TILE;
+  },
+  get actions() {
+    return actions;
+  },
+  get activeFilters() {
+    return activeFilters;
+  },
+  get areaIdOf() {
+    return areaIdOf;
+  },
+  get areaLabel() {
+    return areaLabel;
+  },
+  get depositSchedule() {
+    return depositSchedule;
+  },
+  get esc() {
+    return esc;
+  },
+  get excelDate() {
+    return excelDate;
+  },
+  get fmtDate() {
+    return fmtDate;
+  },
+  get fmtDays() {
+    return fmtDays;
+  },
+  get fmtMoney() {
+    return fmtMoney;
+  },
+  get fmtNum() {
+    return fmtNum;
+  },
+  get inPeriod() {
+    return inPeriod;
+  },
+  get iso() {
+    return iso;
+  },
+  get numOr() {
+    return numOr;
+  },
+  get ownerKeyLabel() {
+    return ownerKeyLabel;
+  },
+  get plural() {
+    return plural;
+  },
+  get reportById() {
+    return reportById;
+  },
+  get uniq() {
+    return uniq;
+  },
+  get validISO() {
+    return validISO;
+  },
+  get violOk() {
+    return violOk;
+  },
+  get xesc() {
+    return xesc;
+  },
+  get reports_reportpresentationContext() {
+    return reports_reportpresentationContext;
+  },
+});
+export let { reportActions, shell, drawMap, propertyHits, openCase, exportWorkbook, toggleArea } = reportsScreens;
+const reportsViewContext = createReportsViewContext({
+  get ctx_reports_areaKey() {
+    return areaKey;
+  },
+  get ctx_reports_REPORTS() {
+    return REPORTS;
+  },
+  get ctx_reports_areaLabel() {
+    return areaLabel;
+  },
+  get ctx_reports_esc() {
+    return esc;
+  },
+  get ctx_reports_fmtDate() {
+    return fmtDate;
+  },
+  get ctx_reports_fmtNum() {
+    return fmtNum;
+  },
+  get ctx_reports_ownerKeyLabel() {
+    return ownerKeyLabel;
+  },
+  get ctx_reports_plural() {
+    return plural;
+  },
+  get ctx_reports_reportById() {
+    return reportById;
+  },
+});
+export let { reports_reportpresentationContext } = reportsViewContext;
 
 installLeaflet();
 
@@ -51,7 +263,7 @@ document.addEventListener("click", async (e) => {
 });
 
 export const A11Y = createAccessibility();
-export const depositSchedule = initDepositSchedule();
+export const depositSchedule = initDepositSchedule({ render: (...args) => render(...args), esc: (...args) => esc(...args) });
 
 /* =====================================================================
    Building Inspection — Reports

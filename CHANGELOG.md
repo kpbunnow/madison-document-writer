@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Reports boundaries and visual review (development)
+
+- Eliminate the five-module Reports dependency cycle through scoped, lazy service/screen/context constructors and explicit deposit adapters. Preserve verified data, function bodies, startup/listener order, cancellation, views, exports, maps and print behavior. Writer retains its ten-module cycle cap.
+- Add independent boundary checks and keep existing report assertions through scoped private-diagnostic loaders. Narrow cycle/import guards and update ownership, test and source indexes.
+- Review the documented PNG differences and preserve media-specific failure artifacts; exact image comparison remains strict and native/staff acceptance remains separate. No print/style/reference, release identity, packaging or deployment changes.
+
 ## Unreleased — Writer import-service boundary (development)
 
 - Compose the complete Accela import workflow through named lazy UI/peer dependencies. Preserve parser/status rules, workbook/SQL paths, shared-record confirmation, stale-result and selection guards, cancellation, save/state order and original function bodies.

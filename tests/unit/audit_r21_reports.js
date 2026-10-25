@@ -1,6 +1,7 @@
 /* Saved date semantics and read-only report-to-Writer transport. */
 const { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const html = builtPage("reports"),
   payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', { url: "http://127.0.0.1:8777/madison-reports.html" });

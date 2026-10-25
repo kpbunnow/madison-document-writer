@@ -162,7 +162,9 @@ const sha = (v) => crypto.createHash("sha256").update(v).digest("hex");
         });
         const after = await inspect(),
           afterImage = await page.screenshot({ animations: "disabled" });
+        const artifactPrefix = file + "." + forcedColors;
         const row = {
+          artifactPrefix,
           screen: snapshot.screen,
           kind: snapshot.kind,
           viewport: snapshot.viewport,
@@ -177,10 +179,10 @@ const sha = (v) => crypto.createHash("sha256").update(v).digest("hex");
         };
         checks.push(row);
         if (!row.stylesAndGeometry || !row.pixels) {
-          fs.writeFileSync(path.join(options.output, file + ".before.json"), before);
-          fs.writeFileSync(path.join(options.output, file + ".after.json"), after);
-          fs.writeFileSync(path.join(options.output, file + ".before.png"), beforeImage);
-          fs.writeFileSync(path.join(options.output, file + ".after.png"), afterImage);
+          fs.writeFileSync(path.join(options.output, artifactPrefix + ".before.json"), before);
+          fs.writeFileSync(path.join(options.output, artifactPrefix + ".after.json"), after);
+          fs.writeFileSync(path.join(options.output, artifactPrefix + ".before.png"), beforeImage);
+          fs.writeFileSync(path.join(options.output, artifactPrefix + ".after.png"), afterImage);
         }
         fs.writeFileSync(
           path.join(options.output, "comparison.json"),

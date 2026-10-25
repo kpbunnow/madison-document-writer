@@ -7,10 +7,11 @@ const assert = require("assert/strict"),
   { JSDOM } = require("jsdom"),
   { spawnSync } = require("child_process");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource } = require("../fixtures/reports_bundle.cjs");
 
 if (process.argv[2] === "reports") {
   // Reports runs in its own process: its bundle and globals are separate from Writer's.
-  const payload = bundleSource(builtPage("reports"));
+  const payload = reportsBundleSource(builtPage("reports"));
   const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', { url: "http://127.0.0.1:8777/madison-reports.html" });
   const w = dom.window;
   w.__NO_AUTOLOAD__ = true;

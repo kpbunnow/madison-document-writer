@@ -35,6 +35,10 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "reports_services.js": ["./helper_stopped.js", "../assets/shared.js", "./state.js", "./helper_transport.js", "./report_presentation.js"],
+  "reports_screens.js": ["../assets/shared.js", "./data/build_identity.js", "./state.js", "./report_presentation.js"],
+  "reports_view_contexts.js": ["./state.js"],
+  "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [
     "./writer_queries.js",
     "./record_values.js",
@@ -139,9 +143,9 @@ for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedService
   for (const dependency of graph.imports[name]) assert.ok(dependencies.includes(dependency), `${name} must not depend on ${dependency}`);
   assert.ok(!graph.cycles.some((cycle) => cycle.includes(name)), `${name} must stay outside UI cycles`);
 }
-assert.ok(graph.cycles.length <= 2, "do not introduce another cyclic component");
+assert.ok(graph.cycles.length <= 1, "do not introduce another cyclic component");
 for (const cycle of graph.cycles) {
-  const cap = cycle.includes("app_core.js") ? 10 : cycle.includes("reports_core.js") ? 5 : 0;
+  const cap = cycle.includes("app_core.js") ? 10 : 0;
   assert.ok(cycle.length <= cap, "do not grow the retained Writer/Reports cycles or introduce an unrelated cycle");
 }
 // Re-exports, static and dynamic imports all contribute to the graph; source is never evaluated.

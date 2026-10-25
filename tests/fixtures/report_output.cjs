@@ -3,7 +3,8 @@
    Writes JSON: report rows, counted cases, coverage text, workbook sheets and the rendered/printed page. */
 const fs = require("fs"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("./built_bundle.cjs");
+const { builtPage } = require("./built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("./reports_bundle.cjs");
 const [indexPath, screen, outputPath] = process.argv.slice(2);
 const payload = bundleSource(builtPage("reports"));
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {

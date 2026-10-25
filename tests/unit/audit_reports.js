@@ -8,7 +8,8 @@ const fs = require("fs"),
 const { JSDOM } = require("jsdom");
 cp.execFileSync("node", ["tests/fixtures/mk_summaries.js"], { cwd: require("path").resolve(__dirname, "../.."), stdio: "ignore" });
 const REAL = JSON.parse(fs.readFileSync("/tmp/real_summaries.json", "utf8"));
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const html = builtPage("reports"),
   src = bundleSource(html);
 const CSS = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
