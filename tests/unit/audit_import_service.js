@@ -20,6 +20,9 @@ walk(parse("accela_import"), (node) => {
     required.add(node.property.name);
   }
 });
+assert.equal(required.size, 21, "import keeps only its UI/peer adapters");
+for (const name of ["parseTime", "parseDate", "validISO", "inspAt", "sameInspection", "inspectionIdentity", "inspectionUsed"])
+  assert.equal(required.has(name), false, "shared facts must not be wired back through core");
 const declarations = parse("app_core").body.flatMap((node) => (node.declaration || node).declarations || []),
   construction = declarations.find((d) => d.id.name === "accelaImport");
 assert.equal(construction.init.callee.name, "createAccelaImport");

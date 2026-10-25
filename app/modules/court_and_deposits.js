@@ -1,7 +1,8 @@
+import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
-import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, hasOwnInsp, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
+import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import {
@@ -30,7 +31,7 @@ import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_C
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
 import { correctionSource, doc, docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
 import { clone } from "./record_values.js";
-import { daysBetween, iso, nowISO } from "./calendar.js";
+import { validISO, parseTime, daysBetween, iso, nowISO } from "./calendar.js";
 import { emailList, isLLC, ownerLines } from "./mailing_rules.js";
 
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
@@ -281,40 +282,6 @@ function fmtDate(s) {
   return String(d.getUTCMonth() + 1).padStart(2, "0") + "/" + String(d.getUTCDate()).padStart(2, "0") + "/" + d.getUTCFullYear();
 }
 
-function validISO(s) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ""));
-  if (!m) return false;
-  const d = new Date(s + "T12:00:00Z");
-  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() + 1 === +m[2] && d.getUTCDate() === +m[3];
-}
-
-function parseDate(v) {
-  const s = String(v || "").trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return validISO(s) ? s : null;
-  const m = /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/.exec(s);
-  if (!m) return null;
-  let y = +m[3];
-  if (y < 100) y += 2000;
-  const mo = +m[1],
-    da = +m[2];
-  if (mo < 1 || mo > 12 || da < 1 || da > 31 || y < 1900 || y > 2200) return null;
-  const out = y + "-" + String(mo).padStart(2, "0") + "-" + String(da).padStart(2, "0");
-  return validISO(out) ? out : null;
-}
-
-function parseTime(v) {
-  const m = /^(\d{1,2}):(\d{2})(?::([0-5]\d)(?:\.\d+)?)?\s*([AaPp](?:[Mm])?)?$/.exec(String(v || "").trim());
-  if (!m) return null;
-  let h = +m[1];
-  const mi = +m[2],
-    ap = (m[4] || "").slice(0, 1).toLowerCase();
-  if (ap && (h < 1 || h > 12)) return null;
-  if (ap === "p" && h < 12) h += 12;
-  if (ap === "a" && h === 12) h = 0;
-  if (h > 23 || mi > 59) return null;
-  return String(h).padStart(2, "0") + ":" + String(mi).padStart(2, "0");
-}
-
 function splitOwner(text) {
   const ls = String(text || "")
     .split("\n")
@@ -428,12 +395,6 @@ function activeBlocks(d) {
   if (k.historic && exterior) set.add("LANDMARKS");
   if (String(k.landmark || "").trim() && exterior && String((BLOCKS.LANDMARK || {}).text || "").trim()) set.add("LANDMARK");
   return [...set];
-}
-
-function inspAt(d) {
-  if (hasOwnInsp(d)) return { date: d.inspDate || "", time: d.inspTime || "", own: true };
-  const k = docCase(d);
-  return { date: k.date || "", time: k.time || "", own: false };
 }
 
 function freezeSources(d) {
@@ -1112,9 +1073,6 @@ export {
   lookupForf,
   rnd12,
   fmtDate,
-  validISO,
-  parseDate,
-  parseTime,
   splitOwner,
   longDate,
   fmtTime,
@@ -1123,7 +1081,6 @@ export {
   fillBlank,
   allItems,
   activeBlocks,
-  inspAt,
   freezeSources,
   checks,
   checkHelper,

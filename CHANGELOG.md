@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Shared inspection facts (development)
+
+- Move existing date/time parsing to calendar and inspection identity, date-source and reuse queries to an independent inspection_facts owner. Preserve all seven function bodies, frozen/correction precedence, blank times/dates and retained reuse evidence.
+- Import the defining owners directly and narrow the Accela import interface from 28 to 21 UI/peer adapters. No forwarding barrel, new service factory, record or authority change; Writer retains its eight-module cycle and Reports remains acyclic.
+- Add independent historical/live-state tests and dependency guards; update ownership, assessment and test/source indexes. Keep R63/build-64 and all stored/format identities unchanged; no packaging or deployment.
+
 ## Unreleased — Cohesive case activity service (development)
 
 - Extract personal reminders and read-only case timeline presentation into a six-dependency activity owner. Preserve all seven function bodies, live date/state behavior, reminder IDs/filtering/dismissal, event ordering, export arrays and manual email-draft behavior.

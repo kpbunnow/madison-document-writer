@@ -1,3 +1,5 @@
+import { inspAt } from "./inspection_facts.js";
+import { validISO } from "./calendar.js";
 import { caseFileName, summaryName } from "./case_file_rules.js";
 import { recordCorrectionTypeAllowed, deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
 import { cents, canonicalOrdinance } from "./citation_policy.js";
@@ -9,11 +11,9 @@ import {
   filePdf,
   fmtDate,
   freezeSources,
-  inspAt,
   nextCourtDate,
   printJob,
   toast,
-  validISO,
 } from "./court_and_deposits.js";
 import { appendEvent, caseFile, evid, helperJSON, idbSet, mergeCaseEvents, project, rememberSaved, sourceDocFor } from "./workspace_shell.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";

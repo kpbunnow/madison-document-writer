@@ -33,7 +33,7 @@ import { caseFileName } from "./case_file_rules.js";
 import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
 
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
-import { addDays, daysBetween, iso } from "./calendar.js";
+import { validISO, addDays, daysBetween, iso } from "./calendar.js";
 import { STATUS_OF, DOC_TYPES } from "./document_types.js";
 import { emailList, ccList, isLLC, EMAIL_KINDS } from "./mailing_rules.js";
 import { checkAttr, esc } from "./presentation_format.js";
@@ -46,7 +46,7 @@ import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
-import { checks, validISO, fmtDate } from "./court_and_deposits.js";
+import { checks, fmtDate } from "./court_and_deposits.js";
 import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
 
 import { helperStop } from "./helper_stopped.js";
