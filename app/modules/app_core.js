@@ -1,3 +1,4 @@
+import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
 import { createDocumentPagination } from "./document_pagination.js";
 import { createUtilityEvents } from "./utility_events.js";
@@ -160,13 +161,8 @@ import {
   dueSelectedText,
   editCitation,
   initialCitationBody,
-  pdfTransferState,
   planBulkDue,
-  printOutbox,
-  refreshArtifactLocations,
-  selectedOutbox,
   showBulkDue,
-  showOutbox,
   toggleLibraryItem,
   updateDueIndicators,
   writerOpenReportedCase,
@@ -641,6 +637,19 @@ const caseActivity = createCaseActivity({
 });
 export let { remindersPanel, showReminders, showReminderDraft, timelineRows, showTimeline } = caseActivity;
 const { remindersDue } = caseActivity;
+
+const pdfArtifacts = createPdfArtifacts({
+  get navigation() {
+    return navigation;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  helperJSON: (...args) => helperJSON(...args),
+  toast: (...args) => toast(...args),
+  render: (...args) => render(...args),
+});
+export let { showOutbox, selectedOutbox, printOutbox, refreshArtifactLocations } = pdfArtifacts;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

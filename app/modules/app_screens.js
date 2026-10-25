@@ -1,3 +1,4 @@
+import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import {
   remindersPanel,
   snow,
@@ -40,7 +41,7 @@ import { checkAttr, esc } from "./presentation_format.js";
 import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
 
 import { WriterState } from "./state.js";
-import { independentArtifact, pdfTransferState, workspaceTasks } from "./case_timeline.js";
+import { workspaceTasks } from "./case_timeline.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";
