@@ -78,13 +78,13 @@ export default [
     },
   },
   {
-    files: ["app/modules/document_pagination.js"],
+    files: ["app/modules/document_pagination.js", "app/modules/editor_screens.js"],
     rules: {
       "no-restricted-globals": ["error", "fetch", "indexedDB", "localStorage", "sessionStorage", "XMLHttpRequest", "WebSocket", "BroadcastChannel"],
       "no-restricted-properties": [
         "error",
-        { object: "Date", property: "now", message: "Pagination uses supplied document facts." },
-        { object: "Math", property: "random", message: "Pagination preserves record identities." },
+        { object: "Date", property: "now", message: "Use the supplied feature/document facts." },
+        { object: "Math", property: "random", message: "Preserve supplied record identities." },
       ],
     },
   },

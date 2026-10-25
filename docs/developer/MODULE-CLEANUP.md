@@ -111,7 +111,7 @@ Factory construction is inert: it reads neither service getters nor workspace st
 
 The Writer cycle drops from 14 to 13 modules; Reports stays 5. The view-context owner imports only foundations/static library/state and remains outside UI cycles, with no direct DOM/storage/network access. audit_writer_view_contexts checks independent loading, exact per-view lazy composition, callback identities, retained field order, replaced workspace/cache/state/service references, saved-work text and integrity/shared-conflict queue priority. Existing saved-work, exit, language discovery, service, event, print and browser tests remain authoritative. Storage readiness, exit authorization and catalog decisions remain in their established owners.
 
-## Eighth increment: pagination and feature ownership
+## Eighth increment: pagination and feature ownership (merged in PR #53)
 
 Physical layout is now isolated in createDocumentPagination in document_pagination. Its supplied interface contains only PAGE_PX, snow and hasItemInspectionHistory; foundations retain call-time document lookup and frozen case resolution. Construction is inert and reads no DOM, state or service values. Core composes the instance after other services/context builders and exports its actual paginate function. The original mutable function binding is retained for the unchanged disclosure audit. The existing private contHead diagnostic stays in the existing test-only reference hook; no new global hook is introduced.
 
@@ -119,11 +119,21 @@ The module no longer creates follow-up documents or manages editor/dialog UI. do
 
 The Writer cycle drops from 13 to 12 modules; Reports remains 5. Import guards keep pagination outside the cycle and lint disallows direct storage/network and clock/randomness use. audit_document_pagination checks independent lazy construction, historical page limits, retained continuation order/footers, snow covers, mobile flow and default document lookup with a controlled height model. Real geometry, clipping, history continuations and court-copy content remain covered by the full Chromium/print suites; the model does not claim native layout acceptance.
 
+## Ninth increment: document editor service
+
+editor_screens now exports createEditorScreens and imports only foundations, state, saved-work presentation and language-focus utilities. Core supplies named lazy UI/peer operations and exports the actual editor instance functions. Public bindings keep their existing mutability for the disclosure audit; no forwarding barrel or universal registry is added.
+
+The editor is the first service constructed in core. Its one existing copy-click listener is still registered synchronously before the other feature-service listeners, with the same bubble phase. Construction reads no supplied service/state values, but requires a DOM registration target; it is not side-effect free and does not introduce idempotent construction. All original functions/listener bodies, markup, readiness ordering, move/new-document guards, sheet/overlay focus behavior and save scheduling are unchanged apart from dependency access.
+
+Private readiness diagnostic bindings remain in the existing test-only reference hook. The production browser R42 harness reads editorScreens.editorReadiness through the composed service rather than relying on a former top-level private function; its assertions are unchanged. No new global hook or production fixture is introduced.
+
+The Writer cycle drops from 12 to 11 modules; Reports stays 5. Import guards keep editor_screens outside the cycle and lint rejects direct storage/network access. audit_editor_service checks independent loading, exact lazy composition, first-service/one-listener registration, readiness ordering, synchronous four-copy toggles, focus retention, refresh/layout/check/save ordering, item movement and integrity/dialog guards. Existing editor flow, disclosure, event, historical print and browser tests remain authoritative.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 12-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 11-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

@@ -406,6 +406,7 @@
     "tests/unit/audit_document_pagination.js",
     "tests/unit/audit_document_renderer.js",
     "tests/unit/audit_e2e.js",
+    "tests/unit/audit_editor_service.js",
     "tests/unit/audit_event_registration.js",
     "tests/unit/audit_events.js",
     "tests/unit/audit_feature_accela_import.js",

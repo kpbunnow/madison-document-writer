@@ -9,7 +9,7 @@ import { captureWork } from "./issuance_and_corrections.js";
 import { catalogKey, recoveryCaseKey, recoverySnapshot, scheduleRecoveryBackup } from "./draft_recovery.js";
 import { render } from "./app_screens.js";
 
-import { A11Y, RECOVERY_WORKSPACE, WORKFLOW_PREFS_KEY, navigation, recordIntegrity, app_savedworkContext } from "./app_core.js";
+import { A11Y, RECOVERY_WORKSPACE, WORKFLOW_PREFS_KEY, navigation, recordIntegrity, app_savedworkContext, refreshSheet } from "./app_core.js";
 import { doc, docsFor, eventsFor, kase } from "./writer_queries.js";
 
 import { esc } from "./presentation_format.js";
@@ -923,5 +923,3 @@ export {
   caseSearchText,
   globalSearch,
 };
-
-import { refreshSheet } from "./editor_screens.js";

@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Document editor service (development)
+
+- Compose editor rendering/actions through named lazy UI/peer dependencies. Preserve original function/listener bodies, markup, first-service copy-listener order, synchronous routing, focus and save scheduling; core exports actual instance functions and retains existing disclosure-test mutability.
+- Reduce the retained Writer cycle from 12 to 11 modules and narrow dependency guards; Reports remains 5. Add independent editor checks and adapt the browser’s private readiness lookup without changing assertions. Existing diagnostic hooks, editor/disclosure/event tests and historical print references are retained.
+- Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, helper authorization, integrity/publication rules and acceptance holds remain unchanged.
+
 ## Unreleased — Pagination and feature ownership (development)
 
 - Isolate physical pagination behind page-size, snow and history services. Move follow-up document creation to reinspection and sheet/overlay/dialog refresh to editor_screens, with direct imports from their defining owners. Preserve all nine function bodies, focus/save order, historical print allowance and layout behavior.
