@@ -14,6 +14,7 @@ const allowed = {
   "state.js": [],
   "record_values.js": [],
   "calendar.js": ["../assets/shared.js"],
+  "inspection_facts.js": ["./calendar.js", "./document_rules.js", "./writer_queries.js"],
   "document_types.js": ["./data/approved_language.js", "./citation_policy.js"],
   "document_rules.js": ["./document_types.js"],
   "writer_queries.js": ["./state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
@@ -72,6 +73,7 @@ const scopedServices = {
   "reports_view_contexts.js": ["./state.js"],
   "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [
+    "./inspection_facts.js",
     "./writer_queries.js",
     "./record_values.js",
     "./case_file_rules.js",

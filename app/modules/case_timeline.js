@@ -1,17 +1,6 @@
+import { inspAt } from "./inspection_facts.js";
 import { caseNumberKey, recordDay } from "../assets/shared.js";
-import {
-  applyDeposit,
-  changeCharge,
-  chargeChoices,
-  choosesCharge,
-  feeLines,
-  fmtDate,
-  inspAt,
-  parseDate,
-  parseTime,
-  toast,
-  validISO,
-} from "./court_and_deposits.js";
+import { applyDeposit, changeCharge, chargeChoices, choosesCharge, feeLines, fmtDate, toast } from "./court_and_deposits.js";
 import { caseFileFault } from "./case_file_rules.js";
 import { helperJSON, loadCaseFile } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
@@ -38,9 +27,9 @@ import {
 } from "./app_core.js";
 
 import { CITFEES, DOCBODY, DOC_TYPES } from "./document_types.js";
-import { daysBetween } from "./calendar.js";
+import { parseDate, parseTime, validISO, daysBetween } from "./calendar.js";
 import { checkAttr, checkTarget, citSelector, countBlanks, esc as dep_esc, itemSelector, money, validMoney } from "./presentation_format.js";
-import { correctionSource, doc, docCase, docsFor, effectiveFiled, kase, reinsp, reinspFor } from "./writer_queries.js";
+import { correctionSource, doc, docCase, docsFor, effectiveFiled, kase, reinsp } from "./writer_queries.js";
 
 import { deliveredByCitation, distinctDues, dueItems, itemLibraryKey, libraryKey } from "./document_rules.js";
 import {
@@ -1340,26 +1329,6 @@ function activeDueTarget() {
   return { target, visit };
 }
 
-function inspectionIdentity(row) {
-  return { type: row.typeKey, date: row.date, time: parseTime(row.time || "") || "" };
-}
-
-function sameInspection(a, b) {
-  return !!a && !!b && a.date === b.date && a.type === b.type && (!a.time || !b.time || a.time === b.time);
-}
-
-function inspectionUsed(k, row) {
-  const key = inspectionIdentity(row),
-    documents = docsFor(k.id);
-  // Retain evidence even after correction or withdrawal; never recycle an inspection.
-  if (documents.some((d) => sameInspection(d.importInspection, key))) return true;
-  if (key.type === "initial" && documents.some((d) => d.type === "notice")) return true;
-  if (reinspFor(k.id).some((r) => sameInspection(r.importInspection || { type: "reinspection", date: r.date, time: r.time || "" }, key))) return true;
-  return documents.some(
-    (d) => d.type !== "notice" && d.fromReinspId && sameInspection({ type: "reinspection", date: inspAt(d).date, time: inspAt(d).time || "" }, key),
-  );
-}
-
 export {
   independentArtifact,
   planBulkDue,
@@ -1388,7 +1357,4 @@ export {
   authoringChecks,
   citationReview,
   activeDueTarget,
-  inspectionIdentity,
-  sameInspection,
-  inspectionUsed,
 };

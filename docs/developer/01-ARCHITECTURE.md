@@ -30,6 +30,8 @@ The complete Accela import workflow is also composed through named lazy dependen
 
 ## Inspection import
 
+Shared date/time parsing belongs to calendar; inspection_facts owns inspection identity, document inspection-date selection and call-time reuse queries. It loads without Writer startup or UI dependencies, reads current workspace arrays through writer_queries and preserves the existing frozen/correction source precedence. It does not decide import eligibility or publication authority. Accela import consumes these facts directly, narrowing its lazy interface from 28 to 21 UI/peer adapters; the other service interfaces remain unchanged.
+
 Import candidates come from the fixed SQL query or the division's SSRS workbook and pass through one type/status table (accela_import.js; rules in 03-DOMAIN-RULES.md). Status/type categories that are never importable are hidden at parse time; inspections already used on the case are hidden at plan time, after the shared record is merged, and the plan clears a selection that becomes hidden. Rule tables and case grouping read only their own entries.
 
 ## Documents and authoring versions

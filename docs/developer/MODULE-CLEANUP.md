@@ -163,13 +163,21 @@ All original declarations and function bodies/order remain apart from dependency
 
 The Writer cycle drops from nine to eight modules; Reports stays acyclic. The independent suite checks inert construction, exact named interface/order, live array replacement, outcome/undo refusals and save/render/focus sequencing. Existing R46's 256 outcome combinations, reconciliation and disclosure tests retain their assertions. MAINTAINABILITY-ASSESSMENT.md describes the remaining coupling and priorities; removing a graph edge alone does not complete maintainability work.
 
-## Fourteenth increment: cohesive case activity responsibilities
+## Fourteenth increment: cohesive case activity responsibilities (merged in PR #60)
 
 Personal reminders and the read-only event timeline move from case_timeline to case_activity. timelineCategory remains a pure direct export; createCaseActivity supplies the six other functions through six named lazy dependencies: date, case status, source document, formatting, navigation and accessibility. Core composes it after import services and before document rendering. Construction reads no services/state and registers no listeners. No existing startup or listener checkpoint moves.
 
 The seven original function bodies and the remaining timeline declarations/order are unchanged except explicit dependency access. Reminder windows/IDs/dismissal, closed/missing-source exclusions, manual draft preparation, read-only event sorting/filtering, full-log preservation and HTML escaping remain. The current-date getter delegates to the existing live clock. Workflow events retain preference writes, CSV/full JSON exports and the requested email-draft helper call. No publication, outbox, handoff, deadline-editing or pricing authority moves.
 
 case_timeline shrinks from 1,575 to 1,394 lines. The graph has 72 maintained modules, with the same eight-module Writer component and acyclic Reports. This increment improves cohesion/testability rather than pretending to eliminate another cycle member. Independent tests enforce the bounded interface, live date/state, reminder/escaping and read-only ordering contracts; existing workflow, event and historical assertions remain. The assessment now prioritizes shared inspection facts and the remaining timeline subfeatures.
+
+## Fifteenth increment: shared inspection facts
+
+The existing validISO/parseDate/parseTime functions move from court_and_deposits to calendar. inspAt and inspectionIdentity/sameInspection/inspectionUsed move from court/timeline orchestration to inspection_facts. All seven bodies are unchanged. The new owner imports only calendar, document rules and live workspace queries; loading does not initialize Writer or access services/DOM/storage/network. Identity calculations remain pure, while date-source and reuse queries observe current workspace arrays without rewriting them.
+
+Every consumer imports the actual defining owner, without re-exports through the old modules. Accela import directly consumes these seven facts, reducing its scoped UI/peer interface from 28 to 21 fields. Existing service construction, listeners, startup checkpoints and operation bodies remain; other service interfaces do not change. Frozen/correction precedence, explicit blank inspection dates, missing-time matching and reuse evidence after correction/withdrawal remain intact. Import eligibility and helper/publication authority stay in their existing owners.
+
+case_timeline is now 1,360 lines and court_and_deposits 1,091. The graph has 73 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent behavior tests and restricted imports/globals enforce the facts boundary. This completes the shared-inspection-facts candidate; next inspect the bounded outbox/artifact-location responsibilities before further handoff or publication work.
 
 ## Following increments
 

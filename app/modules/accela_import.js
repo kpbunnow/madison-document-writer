@@ -1,9 +1,10 @@
+import { inspAt, sameInspection, inspectionIdentity, inspectionUsed } from "./inspection_facts.js";
 import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
 import { clone, stableJSON, caseDetails } from "./record_values.js";
 import { summaryName } from "./case_file_rules.js";
 import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
-import { nowISO, iso } from "./calendar.js";
+import { parseTime, parseDate, validISO, nowISO, iso } from "./calendar.js";
 import { esc } from "./presentation_format.js";
 import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
@@ -180,7 +181,7 @@ export function createAccelaImport(services) {
 
   const accTime = (v) => {
     if (typeof v === "number" && v >= 0 && v < 1) return accHM(Math.round(v * 1440) % 1440);
-    return services.parseTime(accStr(v));
+    return parseTime(accStr(v));
   };
 
   const accInspector = (name) => {
@@ -360,7 +361,7 @@ export function createAccelaImport(services) {
     // R36: the Inspection Time column is authoritative. Any time carried in the date column is ignored, with no comparison warning.
     const s = accSerial(dv);
     if (s) date = s.date;
-    else if (accStr(dv)) date = services.parseDate(accStr(dv).split(/[\sT]+/)[0]);
+    else if (accStr(dv)) date = parseDate(accStr(dv).split(/[\sT]+/)[0]);
     const textTime = accStr(tv) || typeof tv === "number" ? accTime(tv) : null;
     return { date: date, time: textTime || "", warn: "" };
   }
@@ -499,7 +500,7 @@ export function createAccelaImport(services) {
       !pending.correction &&
       !pending.pendingAmendment &&
       pending.importInspection &&
-      services.sameInspection(pending.importInspection, services.inspectionIdentity(row))
+      sameInspection(pending.importInspection, inspectionIdentity(row))
       ? pending
       : null;
   }
@@ -508,7 +509,7 @@ export function createAccelaImport(services) {
     if (!k) return c.rows;
     return c.rows.filter((row) => {
       if (refreshImportPending(k, row)) return true;
-      return !services.inspectionUsed(k, row);
+      return !inspectionUsed(k, row);
     });
   }
 
@@ -630,14 +631,14 @@ export function createAccelaImport(services) {
     } else if (p.initial) {
       p.date = p.initial.date;
       p.time = p.initial.time;
-    } else if (k && services.validISO(k.date)) {
+    } else if (k && validISO(k.date)) {
       p.date = k.date;
       p.time = k.time || "";
       p.warnings.push("The report has no Initial Inspection row — the case keeps its initial inspection of " + services.fmtDate(k.date));
     } else {
       p.needDate = true;
-      p.date = services.validISO(acc.manualDate) ? acc.manualDate : "";
-      p.time = services.parseTime(acc.manualTime || "") || "";
+      p.date = validISO(acc.manualDate) ? acc.manualDate : "";
+      p.time = parseTime(acc.manualTime || "") || "";
       if (!p.date) p.blockers.push("The report has no Initial Inspection row — enter the initial inspection date below");
     }
     const src = k ? services.sourceDocFor(k.id) : null;
@@ -654,7 +655,7 @@ export function createAccelaImport(services) {
         p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
       else if (row) {
         if (row.typeKey === "initial") p.blockers.push(INITIAL_EXISTS);
-        const at = services.inspAt(src);
+        const at = inspAt(src);
         if (row.date < at.date || (row.date === at.date && row.time && at.time && row.time < at.time))
           p.blockers.push("Select a reinspection on or after the latest issued document’s inspection.");
       }
@@ -920,7 +921,7 @@ export function createAccelaImport(services) {
       const d = doc(WriterState.state.docId);
       d.inspDate = row.date;
       d.inspTime = row.time;
-      d.importInspection = services.inspectionIdentity(row);
+      d.importInspection = inspectionIdentity(row);
       services.snow.prepare(d);
       services.citationPricing.refresh(d);
       services.saveDrafts();
@@ -957,7 +958,7 @@ export function createAccelaImport(services) {
       services.newDoc(k.id, "notice");
       const created = doc(WriterState.state.docId);
       if (created) {
-        created.importInspection = services.inspectionIdentity(row);
+        created.importInspection = inspectionIdentity(row);
         if (importRule) applyImportRule(created, importRule);
         services.saveDrafts();
       }

@@ -1,3 +1,4 @@
+import { inspectionIdentity } from "./inspection_facts.js";
 import { SUMMARY_DIR, recordDay } from "../assets/shared.js";
 import { checkHelper, toast } from "./court_and_deposits.js";
 import { caseDetails, stableJSON, byTime, clone } from "./record_values.js";
@@ -35,7 +36,7 @@ import {
 import { captureWork } from "./issuance_and_corrections.js";
 import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 
-import { initWriterHandoff, inspectionIdentity, markWriterReady, markWriterFailed, refreshArtifactLocations } from "./case_timeline.js";
+import { initWriterHandoff, markWriterReady, markWriterFailed, refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import { clearProhibitedCitations } from "./document_rules.js";
 

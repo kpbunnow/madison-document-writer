@@ -24,6 +24,7 @@ export default [
       "app/modules/reports_view_contexts.js",
       "app/modules/presentation_format.js",
       "app/modules/calendar.js",
+      "app/modules/inspection_facts.js",
       "app/modules/mailing_rules.js",
       "app/modules/record_values.js",
       "app/modules/case_migrations.js",
@@ -50,6 +51,8 @@ export default [
   },
   {
     files: [
+      "app/modules/inspection_facts.js",
+      "app/modules/calendar.js",
       "app/modules/case_migrations.js",
       "app/modules/case_file_rules.js",
       "app/modules/case_projection.js",

@@ -19,6 +19,7 @@ covers, or a new suite under its feature.
 | --- | --- |
 | `audit_feature_accela_import.js` | Feature suite: workbook parsing and columns, type/status routing and case rules, candidate selection, stale state and repaint (former `audit_import`, `audit_r45_import`, `audit_r50_import`, `audit_r50_import_repaint`, `audit_r53_status_rules`, `audit_r62_import_rules`, `audit_status_own_property`) |
 | `audit_import_r13.js`, `audit_import_r13.py` | Case routing, retained inspection identity, reuse refused at the store |
+| `audit_inspection_facts.js` | Independent date/time parsing and inspection queries, historical/blank-source precedence, retained reuse evidence, case scoping and live workspace replacement |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |

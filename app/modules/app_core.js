@@ -1,3 +1,4 @@
+import { inspAt } from "./inspection_facts.js";
 import { createDocumentPagination } from "./document_pagination.js";
 import { createUtilityEvents } from "./utility_events.js";
 import { createRecoveryEvents } from "./recovery_events.js";
@@ -18,7 +19,7 @@ import { frozenOf, specialType } from "./document_rules.js";
 import { kase, doc, docsFor, reinspFor, correctionSource, docCase, docInsp, eventsFor } from "./writer_queries.js";
 import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
-import { addDays } from "./calendar.js";
+import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
 import {
   citationNumber,
@@ -37,16 +38,12 @@ import {
   emailDocument,
   filePdf,
   fillBlank,
-  inspAt,
   openIssuedCopy,
-  parseDate,
-  parseTime,
   printJob,
   rnd12,
   splitOwner,
   toast,
   toastUndo,
-  validISO,
   fmtTime,
   longDate,
   allItems,
@@ -157,9 +154,6 @@ import { createCaseActivity, timelineCategory } from "./case_activity.js";
 import {
   citationDepositFault,
   citationReview,
-  sameInspection,
-  inspectionIdentity,
-  inspectionUsed,
   activeDueTarget,
   assignDue,
   dueContext,
@@ -561,13 +555,9 @@ export let {
 const { catalogReplacement, readSharedCase, localCaseWork, resolvedCaseFields, friendlyField, conflictControls } = languageCatalog;
 
 const accelaImport = createAccelaImport({
-  parseTime: (...args) => parseTime(...args),
-  parseDate: (...args) => parseDate(...args),
-  inspAt: (...args) => inspAt(...args),
   fmtTime: (...args) => fmtTime(...args),
   toast: (...args) => toast(...args),
   fmtDate: (...args) => fmtDate(...args),
-  validISO: (...args) => validISO(...args),
   get snow() {
     return snow;
   },
@@ -579,9 +569,6 @@ const accelaImport = createAccelaImport({
     return COMMITTED;
   },
   newDoc: (...args) => newDoc(...args),
-  sameInspection: (...args) => sameInspection(...args),
-  inspectionIdentity: (...args) => inspectionIdentity(...args),
-  inspectionUsed: (...args) => inspectionUsed(...args),
   sourceDocFor: (...args) => sourceDocFor(...args),
   loadCaseFile: (...args) => loadCaseFile(...args),
   helperJSON: (...args) => helperJSON(...args),
