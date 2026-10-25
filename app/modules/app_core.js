@@ -48,6 +48,7 @@ import {
   validISO,
   fmtTime,
   longDate,
+  allItems,
 } from "./court_and_deposits.js";
 import {
   shell,
@@ -161,6 +162,7 @@ import {
   selectRecovery,
   validateRecovery,
   worksheetFaults,
+  recoveryStatusHTML,
 } from "./draft_recovery.js";
 import {
   adoptCatalogReview,
@@ -184,6 +186,9 @@ import {
   showLock,
   showSafety,
   catalogDraftNotice,
+  catalogReviewPanel,
+  catalogVisible,
+  effectiveCatalog,
 } from "./language_catalog.js";
 import {
   citationDepositFault,
@@ -236,6 +241,8 @@ import { initCitationPricing } from "./citation_pricing.js";
 import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.js";
 
 import { createDocumentRenderer } from "./document_render.js";
+
+import { createSavedWorkContext, createWorkspaceQueueContext, createLanguageDiscoveryContext } from "./app_view_contexts.js";
 
 export const snow = initSnow({
   citationNumber: (...args) => citationNumber(...args),
@@ -430,6 +437,76 @@ const documentRenderer = createDocumentRenderer({
 });
 export const { documentHTML, citationFaces } = documentRenderer;
 const { noticeHTML, citAmount, referralHistoryHTML } = documentRenderer;
+
+export const app_savedworkContext = createSavedWorkContext({
+  get caseUnsaved() {
+    return caseUnsaved;
+  },
+  get caseState() {
+    return caseState;
+  },
+  get recoveryStatusHTML() {
+    return recoveryStatusHTML;
+  },
+  get pdfTransferState() {
+    return pdfTransferState;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  get CASEDIR_EXPECT() {
+    return CASEDIR_EXPECT;
+  },
+  get COMMITTED() {
+    return COMMITTED;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  get storageMode() {
+    return storageMode;
+  },
+});
+export const app_workspacequeueContext = createWorkspaceQueueContext({
+  get caseNumberAllowed() {
+    return caseNumberAllowed;
+  },
+  get pdfTransferState() {
+    return pdfTransferState;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  get snow() {
+    return snow;
+  },
+});
+export const app_languagediscoveryContext = createLanguageDiscoveryContext({
+  get allItems() {
+    return allItems;
+  },
+  get shell() {
+    return shell;
+  },
+  get catalogKey() {
+    return catalogKey;
+  },
+  get catalogItem() {
+    return catalogItem;
+  },
+  get catalogReviewPanel() {
+    return catalogReviewPanel;
+  },
+  get catalogStatus() {
+    return catalogStatus;
+  },
+  get catalogVisible() {
+    return catalogVisible;
+  },
+  get effectiveCatalog() {
+    return effectiveCatalog;
+  },
+});
 
 /* Feature interfaces are lazy: no service or later state is read during construction. */
 const utilityEvents = createUtilityEvents({

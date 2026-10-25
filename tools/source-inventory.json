@@ -564,6 +564,7 @@
     "tests/unit/audit_workspace_queue.js",
     "tests/unit/audit_writer_feature_boundaries.js",
     "tests/unit/audit_writer_services.js",
+    "tests/unit/audit_writer_view_contexts.js",
     "tools/browser_suite.cjs",
     "tools/build.py",
     "tools/build_icon.py",

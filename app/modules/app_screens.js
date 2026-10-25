@@ -3,7 +3,19 @@
 import { sourceDocFor, caseNumberAllowed, storageReport, reindexReport, shell } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
-import { snow, blockers, initialCitations, CASEDIR_EXPECT, isLocked, navigation, newDocuments, A11Y, IDB_OK } from "./app_core.js";
+import {
+  snow,
+  blockers,
+  initialCitations,
+  CASEDIR_EXPECT,
+  isLocked,
+  navigation,
+  newDocuments,
+  A11Y,
+  IDB_OK,
+  app_workspacequeueContext,
+  app_languagediscoveryContext,
+} from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
 import { STATUS_OF, DOC_TYPES } from "./document_types.js";
@@ -14,7 +26,7 @@ import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControl
 import { WriterState } from "./state.js";
 import { independentArtifact, pdfTransferState, workspaceTasks, remindersPanel } from "./case_timeline.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
-import { app_workspacequeueContext, app_languagediscoveryContext } from "./app_view_contexts.js";
+
 import { caseSearchText, saveWorkflowPrefs, sharedChangeModal } from "./language_catalog.js";
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";

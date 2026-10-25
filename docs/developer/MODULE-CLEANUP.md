@@ -93,7 +93,7 @@ The test-only fixture factory also receives explicit callbacks while staying beh
 
 The Writer cycle drops from 19 to 15 modules; Reports stays 5. The import allowlists now cover nine production feature services and the test-only factory, and the cycle guard is narrowed to 15/5. audit_writer_feature_boundaries checks independent loading, exact lazy interfaces and composition order, test-only gating, retained click registrations, stale address previews, explicit acceptance, changed-receipt refusal, historical selection and live visit replacement. Existing service/registration tests and historical print assertions remain authoritative.
 
-## Sixth increment: document renderer boundary
+## Sixth increment: document renderer boundary (merged in PR #51)
 
 createDocumentRenderer in document_render now receives named formatting, source/history, lock/editability, mailing and feature services from app_core. It imports only metadata, static data, formatting, mailing facts and citation policy; it has no UI orchestration, live query, DOM, storage or transport imports. Construction is inert and does not read supplied dependencies. Rendering still calls the same source/history/query adapters at render time; this refactor does not redefine their legacy fallback behavior or make every supplied adapter immutable.
 
@@ -103,11 +103,19 @@ The seven renderer function bodies and authored markup are unchanged apart from 
 
 The Writer cycle drops from 15 to 14 modules; Reports remains 5. Import/global guards keep the renderer outside the UI cycle and block direct browser storage/network/DOM and ambient clock/randomness access. audit_document_renderer checks independent loading and lazy composition, frozen input rendering, four distinct locked copies, deposit/mandatory-appearance refusals, draft service refresh and correction-day calculations. Existing property, source/history, functional, exact-print and browser checks remain authoritative.
 
+## Seventh increment: scoped Writer view contexts
+
+app_view_contexts now exports three independent constructors: createSavedWorkContext, createWorkspaceQueueContext and createLanguageDiscoveryContext. Each receives only the UI operations/service values its view requires. Core composes the three builders after feature/renderer composition and before startup use, and exports their actual app_*Context instance functions. Consumers import those instances from core; no forwarding barrel or universal registry is added.
+
+Factory construction is inert: it reads neither service getters nor workspace state, renders nothing and registers no listeners. Lazy getters preserve the actual callback/service identities. Each context call retains its existing field names/order, reads current WriterState references, and reads only that view's supplied dependencies. Previously created contexts retain their original reference values; callback queries still resolve current live arrays. This is the existing reference-snapshot behavior, not a new deep-copy contract.
+
+The Writer cycle drops from 14 to 13 modules; Reports stays 5. The view-context owner imports only foundations/static library/state and remains outside UI cycles, with no direct DOM/storage/network access. audit_writer_view_contexts checks independent loading, exact per-view lazy composition, callback identities, retained field order, replaced workspace/cache/state/service references, saved-work text and integrity/shared-conflict queue priority. Existing saved-work, exit, language discovery, service, event, print and browser tests remain authoritative. Storage readiness, exit authorization and catalog decisions remain in their established owners.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 14-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 13-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

@@ -12,7 +12,7 @@ import { flushPending, helperFolder, saveDrafts, writeToFolder } from "./case_fi
 
 import { refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
-import { CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode } from "./app_core.js";
+import { CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode, app_savedworkContext } from "./app_core.js";
 
 import { EVENT_TYPES, SCHEMA } from "./document_types.js";
 import { nowISO } from "./calendar.js";
@@ -20,7 +20,6 @@ import { doc, docCase, docsFor, eventsFor, insp, kase } from "./writer_queries.j
 
 import { esc } from "./presentation_format.js";
 import { supplemental } from "./document_rules.js";
-import { app_savedworkContext } from "./app_view_contexts.js";
 
 import { BUILD, LOGO } from "./data/build_identity.js";
 import { INSPECTORS } from "./data/inspectors.js";
