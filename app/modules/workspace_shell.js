@@ -10,9 +10,17 @@ import { SUMMARY_DIR, caseNumberKey, validCaseNumber } from "../assets/shared.js
 import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
 import { flushPending, helperFolder, saveDrafts, writeToFolder } from "./case_files.js";
 
-import { refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
-import { CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode, app_savedworkContext } from "./app_core.js";
+import {
+  refreshArtifactLocations,
+  CASEDIR_EXPECT,
+  FS_OK,
+  IDB_OK,
+  navigation,
+  recordIntegrity,
+  storageMode,
+  app_savedworkContext,
+} from "./app_core.js";
 
 import { EVENT_TYPES, SCHEMA } from "./document_types.js";
 import { nowISO } from "./calendar.js";

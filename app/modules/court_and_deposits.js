@@ -6,6 +6,7 @@ import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistory
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
 import {
+  refreshArtifactLocations,
   catalogDraftBlocked,
   A11Y,
   citationPricing,
@@ -24,7 +25,7 @@ import {
   paginate,
   attachCheckTargets,
 } from "./app_core.js";
-import { authoringChecks, citationDepositFault, refreshArtifactLocations } from "./case_timeline.js";
+import { authoringChecks, citationDepositFault } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 
 import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, DOC_TYPES, EXTERIOR_WORK } from "./document_types.js";

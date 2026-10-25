@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Retained PDF artifact boundary (development)
+
+- Separate outbox listing/selection/printing and artifact-location refresh into a five-dependency PDF artifact service, with direct artifact-status/independence queries. Preserve all six function bodies apart from explicit dependency access.
+- Retain synchronous popup creation, authenticated original-byte reads, selection capture, stale/context/identity guards, partial-failure reporting, verification batches and object-URL lifetimes. Transfer and publication authority remain in their existing owners.
+- Reduce case_timeline from 1,360 to 1,178 lines, keep Writer's eight-module cycle and acyclic Reports, and add independent tests/import guards plus updated ownership, roadmap and indexes. Keep R63/build-64 and stored/format identities unchanged; no packaging or deployment.
+
 ## Unreleased — Shared inspection facts (development)
 
 - Move existing date/time parsing to calendar and inspection identity, date-source and reuse queries to an independent inspection_facts owner. Preserve all seven function bodies, frozen/correction precedence, blank times/dates and retained reuse evidence.

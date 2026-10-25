@@ -171,13 +171,21 @@ The seven original function bodies and the remaining timeline declarations/order
 
 case_timeline shrinks from 1,575 to 1,394 lines. The graph has 72 maintained modules, with the same eight-module Writer component and acyclic Reports. This increment improves cohesion/testability rather than pretending to eliminate another cycle member. Independent tests enforce the bounded interface, live date/state, reminder/escaping and read-only ordering contracts; existing workflow, event and historical assertions remain. The assessment now prioritizes shared inspection facts and the remaining timeline subfeatures.
 
-## Fifteenth increment: shared inspection facts
+## Fifteenth increment: shared inspection facts (merged in PR #61)
 
 The existing validISO/parseDate/parseTime functions move from court_and_deposits to calendar. inspAt and inspectionIdentity/sameInspection/inspectionUsed move from court/timeline orchestration to inspection_facts. All seven bodies are unchanged. The new owner imports only calendar, document rules and live workspace queries; loading does not initialize Writer or access services/DOM/storage/network. Identity calculations remain pure, while date-source and reuse queries observe current workspace arrays without rewriting them.
 
 Every consumer imports the actual defining owner, without re-exports through the old modules. Accela import directly consumes these seven facts, reducing its scoped UI/peer interface from 28 to 21 fields. Existing service construction, listeners, startup checkpoints and operation bodies remain; other service interfaces do not change. Frozen/correction precedence, explicit blank inspection dates, missing-time matching and reuse evidence after correction/withdrawal remain intact. Import eligibility and helper/publication authority stay in their existing owners.
 
 case_timeline is now 1,360 lines and court_and_deposits 1,091. The graph has 73 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent behavior tests and restricted imports/globals enforce the facts boundary. This completes the shared-inspection-facts candidate; next inspect the bounded outbox/artifact-location responsibilities before further handoff or publication work.
+
+## Sixteenth increment: retained PDF artifact responsibilities
+
+pdf_artifacts owns the outbox list/selection/retained-byte printing and artifact-location refresh through createPdfArtifacts, plus direct pdfTransferState/independentArtifact queries. Its five named lazy dependencies are navigation, accessibility, helper JSON, notifications and rendering. Core composes it after case activity and before document rendering; construction reads no services/state/browser objects and registers no listeners. Consumers use actual mutable composed operation bindings or direct query exports, without a forwarding barrel.
+
+All six moved bodies and all remaining timeline declarations/order are preserved apart from explicit dependency access. Keep utility context, synchronous popup creation before awaits, captured name/hash selection, authenticated retained-byte reads, load/URL timers, refresh sequence/current identity guards, bounded batches and recursive invalid-identity isolation. Failed refreshes retain last-known locations with their warning status. workflow_events retains transfer/notification ordering; helper/file/publication authority does not move.
+
+case_timeline shrinks from 1,360 to 1,178 lines. There are 74 maintained modules, the same eight-module Writer component and no Reports cycle; workspace_shell no longer imports case_timeline for artifact refresh. Independent tests cover the bounded interface and failure/race contracts alongside unchanged existing regressions. The assessment next prioritizes Writer/Reports handoff and the remaining deadline/citation actions, with publication/recovery and persistence coordination still separate work.
 
 ## Following increments
 
