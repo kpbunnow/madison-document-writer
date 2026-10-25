@@ -4,12 +4,8 @@ import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from ".
 import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, hasOwnInsp, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
 import { lifecycleChecks } from "./draft_recovery.js";
-import { catalogDraftBlocked } from "./language_catalog.js";
-import { authoringChecks, citationDepositFault, refreshArtifactLocations } from "./case_timeline.js";
-import { render } from "./app_screens.js";
-import { attachCheckTargets } from "./reinspection.js";
-
 import {
+  catalogDraftBlocked,
   A11Y,
   citationPricing,
   citationPricingDate,
@@ -26,6 +22,10 @@ import {
   documentHTML,
   paginate,
 } from "./app_core.js";
+import { authoringChecks, citationDepositFault, refreshArtifactLocations } from "./case_timeline.js";
+import { render } from "./app_screens.js";
+import { attachCheckTargets } from "./reinspection.js";
+
 import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, DOC_TYPES, EXTERIOR_WORK } from "./document_types.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
 import { correctionSource, doc, docCase, docInsp, eventsFor, kase } from "./writer_queries.js";

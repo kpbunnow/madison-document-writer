@@ -21,11 +21,21 @@ import { migrate } from "./case_migrations.js";
 import { clearWalk, restoreWalkFor } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
-import { refreshCatalog } from "./language_catalog.js";
+import {
+  refreshCatalog,
+  CASEDIR_EXPECT,
+  COMMITTED,
+  IDB_OK,
+  addressParser,
+  newDocuments,
+  recordIntegrity,
+  snow,
+  uid,
+  app_savedworkContext,
+} from "./app_core.js";
 import { initWriterHandoff, inspectionIdentity, markWriterReady, markWriterFailed, refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import { clearProhibitedCitations } from "./document_rules.js";
-import { CASEDIR_EXPECT, COMMITTED, IDB_OK, addressParser, newDocuments, recordIntegrity, snow, uid, app_savedworkContext } from "./app_core.js";
 
 import { STATE_NAMES, US_STATES, ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, docsFor, draftDocFor, draftReinspFor, eventsFor, kase, recordHead, reinsp } from "./writer_queries.js";

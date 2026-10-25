@@ -17,9 +17,8 @@ import { helperJSON, loadCaseFile, sourceDocFor } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
 import { caseState, render } from "./app_screens.js";
 import { hasSetupWork } from "./issuance_and_corrections.js";
-import { preflightCase } from "./language_catalog.js";
-
 import {
+  preflightCase,
   A11Y,
   HANDOFF_CHANNEL,
   MINDUE,
@@ -37,6 +36,7 @@ import {
   uid,
   unchangedCorrectionValue,
 } from "./app_core.js";
+
 import { CITFEES, DOCBODY, DOC_TYPES } from "./document_types.js";
 import { addDays, daysBetween } from "./calendar.js";
 import { checkAttr, checkTarget, citSelector, countBlanks, esc as dep_esc, itemSelector, money, validMoney } from "./presentation_format.js";

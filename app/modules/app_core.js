@@ -65,6 +65,8 @@ import {
   sourceDocFor,
   appendEvent,
   project,
+  idbSet,
+  rememberSaved,
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
@@ -92,6 +94,7 @@ import {
   standardStreetAddress,
   startReinspection,
   validateAndStandardizeAddresses,
+  draftBundle,
 } from "./case_files.js";
 import {
   advanceWalk,
@@ -162,33 +165,11 @@ import {
   worksheetFaults,
   recoveryStatusHTML,
   publicationPanel,
+  recoveryCaseKey,
+  recoverySnapshot,
+  scheduleRecoveryBackup,
 } from "./draft_recovery.js";
-import {
-  adoptCatalogReview,
-  applyConflict,
-  catalogForm,
-  catalogItem,
-  catalogReplacementOptions,
-  catalogReview,
-  catalogSelection,
-  catalogStatus,
-  globalSearch,
-  inspectLock,
-  keepChangedLocal,
-  openChangedShared,
-  persistWorkspacePatch,
-  preflightCase,
-  refreshCatalog,
-  safetyCaseStatus,
-  saveWorkflowPrefs,
-  showHealth,
-  showLock,
-  showSafety,
-  catalogDraftNotice,
-  catalogReviewPanel,
-  catalogVisible,
-  effectiveCatalog,
-} from "./language_catalog.js";
+import { createLanguageCatalog } from "./language_catalog.js";
 import {
   citationDepositFault,
   citationReview,
@@ -467,6 +448,75 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const languageCatalog = createLanguageCatalog({
+  allItems: (...args) => allItems(...args),
+  toast: (...args) => toast(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  idbSet: (...args) => idbSet(...args),
+  loadCaseFile: (...args) => loadCaseFile(...args),
+  project: (...args) => project(...args),
+  rememberSaved: (...args) => rememberSaved(...args),
+  caseUnsaved: (...args) => caseUnsaved(...args),
+  draftBundle: (...args) => draftBundle(...args),
+  saveCaseFile: (...args) => saveCaseFile(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  clearWalk: (...args) => clearWalk(...args),
+  captureWork: (...args) => captureWork(...args),
+  catalogKey: (...args) => catalogKey(...args),
+  recoveryCaseKey: (...args) => recoveryCaseKey(...args),
+  recoverySnapshot: (...args) => recoverySnapshot(...args),
+  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
+  render: (...args) => render(...args),
+  get A11Y() {
+    return A11Y;
+  },
+  get RECOVERY_WORKSPACE() {
+    return RECOVERY_WORKSPACE;
+  },
+  get WORKFLOW_PREFS_KEY() {
+    return WORKFLOW_PREFS_KEY;
+  },
+  get navigation() {
+    return navigation;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  app_savedworkContext: (...args) => app_savedworkContext(...args),
+  refreshSheet: (...args) => refreshSheet(...args),
+});
+export let {
+  catalogReview,
+  catalogStatus,
+  effectiveCatalog,
+  catalogItem,
+  catalogDraftBlocked,
+  catalogDraftNotice,
+  adoptCatalogReview,
+  catalogSelection,
+  catalogVisible,
+  refreshCatalog,
+  catalogForm,
+  catalogReplacementOptions,
+  catalogReviewPanel,
+  compareSharedCase,
+  preflightCase,
+  sharedChangeModal,
+  keepChangedLocal,
+  openChangedShared,
+  persistWorkspacePatch,
+  applyConflict,
+  safetyCaseStatus,
+  showSafety,
+  showHealth,
+  inspectLock,
+  showLock,
+  saveWorkflowPrefs,
+  caseSearchText,
+  globalSearch,
+} = languageCatalog;
+const { catalogReplacement, readSharedCase, localCaseWork, resolvedCaseFields, friendlyField, conflictControls } = languageCatalog;
+
 const accelaImport = createAccelaImport({
   parseTime: (...args) => parseTime(...args),
   parseDate: (...args) => parseDate(...args),
@@ -1599,6 +1649,12 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    catalogReplacement,
+    readSharedCase,
+    localCaseWork,
+    resolvedCaseFields,
+    friendlyField,
+    conflictControls,
     ACC_MAX,
     ACC_EXPANDED_MAX,
     ACC_COLS,
