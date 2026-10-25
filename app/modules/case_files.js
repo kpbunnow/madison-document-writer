@@ -18,10 +18,9 @@ import {
 } from "./workspace_shell.js";
 import { caseFileFault, caseFileName, summaryName } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
-import { clearWalk, restoreWalkFor } from "./reinspection.js";
-import { captureWork } from "./issuance_and_corrections.js";
-import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 import {
+  clearWalk,
+  restoreWalkFor,
   refreshCatalog,
   CASEDIR_EXPECT,
   COMMITTED,
@@ -33,6 +32,9 @@ import {
   uid,
   app_savedworkContext,
 } from "./app_core.js";
+import { captureWork } from "./issuance_and_corrections.js";
+import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
+
 import { initWriterHandoff, inspectionIdentity, markWriterReady, markWriterFailed, refreshArtifactLocations } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import { clearProhibitedCitations } from "./document_rules.js";

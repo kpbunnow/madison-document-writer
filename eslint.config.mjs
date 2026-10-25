@@ -79,7 +79,7 @@ export default [
     },
   },
   {
-    files: ["app/modules/document_pagination.js", "app/modules/editor_screens.js", "app/modules/accela_import.js"],
+    files: ["app/modules/document_pagination.js", "app/modules/editor_screens.js", "app/modules/accela_import.js", "app/modules/reinspection.js"],
     rules: {
       "no-restricted-globals": ["error", "fetch", "indexedDB", "localStorage", "sessionStorage", "XMLHttpRequest", "WebSocket", "BroadcastChannel"],
       "no-restricted-properties": [

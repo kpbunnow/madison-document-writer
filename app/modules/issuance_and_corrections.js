@@ -19,13 +19,24 @@ import { appendEvent, caseFile, evid, helperJSON, idbSet, mergeCaseEvents, proje
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 
 import { saveDrafts, validateAndStandardizeAddresses, writeSummary } from "./case_files.js";
-import { ensureWalkContext } from "./reinspection.js";
+import {
+  ensureWalkContext,
+  COMMITTED,
+  ENTRY_IDS,
+  blockers,
+  citationPricing,
+  depositStep,
+  docBlocks,
+  docBody,
+  recordFormKey,
+  recordIntegrity,
+  uid,
+} from "./app_core.js";
 import { priorCitations, render } from "./app_screens.js";
 import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.js";
 import { commitCitationEdits } from "./case_timeline.js";
 
 import { CASE_CORRECTION_FIELDS, DOC_TYPES, FIELD_NAMES, OUTCOMES, courtTime } from "./document_types.js";
-import { COMMITTED, ENTRY_IDS, blockers, citationPricing, depositStep, docBlocks, docBody, recordFormKey, recordIntegrity, uid } from "./app_core.js";
 
 import {
   correctionSource,
