@@ -3,7 +3,8 @@
    before the About and note text changed. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const payload = bundleSource(builtPage("reports"));
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {
     url: "http://127.0.0.1:8777/madison-reports.html",

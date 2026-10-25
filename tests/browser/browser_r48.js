@@ -85,10 +85,11 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     assert.equal(await page.locator("#f-status").inputValue(), "");
     await page.locator('[data-report-sort="0"]').click();
     await page.locator('[data-report-sort="0"]').click();
-    const expected = await page.evaluate(() => currentReportRows());
+    const expected = await page.evaluate(() => reportsServices.currentReportRows());
     assert.ok(expected.length > 3);
     const normalized = await page.evaluate(() =>
-      exportSheets()
+      reportsScreens
+        .exportSheets()
         .find((s) => s.name === ReportsState.S.rep.r.n + " " + ReportsState.S.rep.r.label)
         .rows.map((r) => r.map((x) => (x && typeof x === "object" ? (x.f ?? x.m ?? x.d ?? "") : (x ?? "")))),
     );

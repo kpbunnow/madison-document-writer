@@ -189,6 +189,7 @@ covers, or a new suite under its feature.
 | `audit_document_pagination.js` | Independent lazy pagination, historical limits, retained page/row/footer ordering, snow/mobile handling and call-time document lookup |
 | `audit_editor_service.js` | Independent lazy editor, listener order, synchronous copy toggles, readiness/focus, refresh/save sequencing and item/record/dialog guards |
 | `audit_import_service.js` | Independent import-service loading, lazy composition, shared-read/cancellation/confirmation guards and retained live state |
+| `audit_reports_boundaries.js` | Independent Reports factories, exact lazy interfaces, live presentation context and retained deposit listener order |
 | `audit_document_renderer.js` | Independent lazy renderer, four distinct locked copies, immutable supplied facts, retained refusals, draft refresh and correction-day calculations |
 | `audit_writer_view_contexts.js` | Three independent scoped view contexts; lazy identity-preserving composition, restored references, field order and presentation guards |
 | `audit_writer_services.js` | Six independent scoped service owners; lazy exact interfaces, retained initialization/listener order, readiness/save/stale-navigation races and citation guards |

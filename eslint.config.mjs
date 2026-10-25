@@ -21,6 +21,7 @@ export default [
       "app/modules/document_rules.js",
       "app/modules/writer_queries.js",
       "app/modules/app_view_contexts.js",
+      "app/modules/reports_view_contexts.js",
       "app/modules/presentation_format.js",
       "app/modules/calendar.js",
       "app/modules/mailing_rules.js",

@@ -1,7 +1,8 @@
 /* R49 saved-view truth and exact singular/plural coverage wording. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const html = builtPage("reports"),
   payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {

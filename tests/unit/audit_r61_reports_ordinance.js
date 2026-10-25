@@ -2,7 +2,8 @@
    27.05(2)(g)2. — Reports lists, filters and counts both as one ordinance. Stored summaries are unchanged. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const payload = bundleSource(builtPage("reports"));
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {
     url: "http://127.0.0.1:8777/madison-reports.html",

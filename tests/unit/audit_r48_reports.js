@@ -1,7 +1,8 @@
 /* R48 filtering, stable output ordering, coverage, saved preferences and overlapping reads. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
+const { builtPage } = require("../fixtures/built_bundle.cjs");
+const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
 const html = builtPage("reports"),
   payload = bundleSource(html);
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {
@@ -125,20 +126,23 @@ const test = async () => {
   assert.deepEqual(currentReportRows(), []);
   ReportsState.S.F.from = "2026-01-01";
   ReportsState.S.F.to = TODAY;
-  const original = getJSON;
+  const original = authFetch;
   let release,
     request = 0;
-  getJSON = async (url) => {
-    if (url === "/reporting/index") {
-      const n = ++request;
-      if (n === 1)
-        return new Promise(
-          (r) => (release = () => r({ ok: true, readAt: "old", summaries: [summary("OLD-RESPONSE")], missing: [], stale: [], unreadable: [] })),
-        );
-      return { ok: true, readAt: "new", summaries: [summary("NEW-RESPONSE")], missing: [], stale: [], unreadable: [] };
-    }
-    return url === "/reporting/parcels" ? { parcels: {}, missing: [] } : { ok: true };
-  };
+  authFetch = async (url) => ({
+    ok: true,
+    json: async () => {
+      if (url === "/reporting/index") {
+        const n = ++request;
+        if (n === 1)
+          return new Promise(
+            (r) => (release = () => r({ ok: true, readAt: "old", summaries: [summary("OLD-RESPONSE")], missing: [], stale: [], unreadable: [] })),
+          );
+        return { ok: true, readAt: "new", summaries: [summary("NEW-RESPONSE")], missing: [], stale: [], unreadable: [] };
+      }
+      return url === "/reporting/parcels" ? { parcels: {}, missing: [] } : { ok: true };
+    },
+  });
   const old = loadAll(false);
   await loadAll(false);
   release();
@@ -146,7 +150,7 @@ const test = async () => {
   assert.equal(ReportsState.S.raw.readAt, "new");
   assert.ok(ReportsState.S.M.byNo["NEW-RESPONSE"]);
   assert.equal(ReportsState.S.M.byNo["OLD-RESPONSE"], undefined);
-  getJSON = original;
+  authFetch = original;
   ReportsState.S.screen = "deposit";
   render();
   const rows = [...document.querySelectorAll("tbody tr")];

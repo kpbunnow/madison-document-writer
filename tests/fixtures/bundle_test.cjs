@@ -15,7 +15,7 @@ module.exports = function (code, stem = "app") {
     getSelection: () => dom.window.getSelection(),
   });
   dom.window.scrollTo = () => {};
-  const payload = bundleSource(builtPage(stem));
+  const payload = stem === "reports" ? require("./reports_bundle.cjs").reportsBundleSource(builtPage(stem)) : bundleSource(builtPage(stem));
   eval(
     payload +
       "\n(async()=>{await new Promise(r=>setTimeout(r,40));" +
