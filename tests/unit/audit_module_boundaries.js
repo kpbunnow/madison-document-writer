@@ -35,6 +35,19 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "reinspection.js": [
+    "../assets/shared.js",
+    "./record_values.js",
+    "./document_types.js",
+    "./writer_queries.js",
+    "./calendar.js",
+    "./presentation_format.js",
+    "./document_rules.js",
+    "./mailing_rules.js",
+    "./data/inspectors.js",
+    "./state.js",
+    "./citation_policy.js",
+  ],
   "language_catalog.js": [
     "../assets/shared.js",
     "./record_values.js",
@@ -156,7 +169,7 @@ for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedService
 }
 assert.ok(graph.cycles.length <= 1, "do not introduce another cyclic component");
 for (const cycle of graph.cycles) {
-  const cap = cycle.includes("app_core.js") ? 9 : 0;
+  const cap = cycle.includes("app_core.js") ? 8 : 0;
   assert.ok(cycle.length <= cap, "do not grow the retained Writer/Reports cycles or introduce an unrelated cycle");
 }
 // Re-exports, static and dynamic imports all contribute to the graph; source is never evaluated.

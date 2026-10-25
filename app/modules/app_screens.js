@@ -24,6 +24,11 @@ import {
   caseSearchText,
   saveWorkflowPrefs,
   sharedChangeModal,
+  checkRowHTML,
+  walkIdentity,
+  ensureWalkContext,
+  screenReinspect,
+  highlightOpenChecks,
 } from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
@@ -41,7 +46,7 @@ import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageF
 
 import { checks, validISO, fmtDate } from "./court_and_deposits.js";
 import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
-import { checkRowHTML, walkIdentity, ensureWalkContext, screenReinspect, highlightOpenChecks } from "./reinspection.js";
+
 import { helperStop } from "./helper_stopped.js";
 
 import { recordDay, mailingMaxDay } from "../assets/shared.js";

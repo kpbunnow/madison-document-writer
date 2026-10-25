@@ -4,10 +4,10 @@ import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
 import { evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
-import { clearWalk, walkIdentity, dueCheck } from "./reinspection.js";
-import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
-import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
 import {
+  clearWalk,
+  walkIdentity,
+  dueCheck,
   compareSharedCase,
   refreshCatalog,
   cancelCaseLookup,
@@ -25,6 +25,9 @@ import {
   recordIntegrity,
   snow,
 } from "./app_core.js";
+import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
+import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
+
 import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
 
 import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";

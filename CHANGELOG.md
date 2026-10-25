@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Reinspection service boundary (development)
+
+- Compose worksheet/walkthrough and follow-up creation through named lazy dependencies. Preserve function bodies, live context/item guards, outcome/undo behavior, focus/save order, deadlines and historical observations.
+- Reduce the Writer dependency cycle from nine to eight modules; keep Reports acyclic. Add independent boundary checks and retain all existing assertions and historical references.
+- Update ownership, roadmap, test/source indexes and a remaining-maintainability assessment. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
+
 ## Unreleased — Catalog and shared-case preflight boundary (development)
 
 - Compose catalog review, shared-case preflight/conflict actions and guarded workspace updates through named lazy adapters. Preserve original function bodies, stale/acknowledgement guards, explicit wording adoption, storage/integrity authority and durable save/rollback order.

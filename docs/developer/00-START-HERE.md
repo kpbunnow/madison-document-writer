@@ -8,6 +8,7 @@ Madison Building Inspection Document Writer is an offline Windows browser applic
 | --- | --- |
 | [01-ARCHITECTURE.md](01-ARCHITECTURE.md) | Runtime, modules, import, documents and authoring versions, helper storage, PDFs, security, installation and build |
 | [02-CODE-MAP.md](02-CODE-MAP.md) | Which module owns what |
+| [MAINTAINABILITY-ASSESSMENT.md](MAINTAINABILITY-ASSESSMENT.md) | Remaining coupling, improvement priorities and completion criteria |
 | [MODULE-CLEANUP.md](MODULE-CLEANUP.md) | Authorized broader module cleanup, dependency boundaries and following increments |
 | [03-DOMAIN-RULES.md](03-DOMAIN-RULES.md) | Rules the program enforces, by feature, including owner-confirmed rules |
 | [04-PITFALLS.md](04-PITFALLS.md) | Mistakes to avoid, by area |

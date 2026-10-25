@@ -96,24 +96,7 @@ import {
   validateAndStandardizeAddresses,
   draftBundle,
 } from "./case_files.js";
-import {
-  advanceWalk,
-  clearWalk,
-  ensureWalkContext,
-  focusWalkItem,
-  nextWalkItem,
-  previousWalk,
-  recordReinspectionOutcome,
-  returnWalkDetails,
-  skipWalkDetails,
-  undoWalkOutcome,
-  walkIdentity,
-  focusCheckTarget,
-  highlightOpenChecks,
-  worksheetChecks,
-  docFromReinspection,
-  checkRowHTML,
-} from "./reinspection.js";
+import { createReinspection } from "./reinspection.js";
 import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
 import {
@@ -198,6 +181,7 @@ import {
   updateDueIndicators,
   writerOpenReportedCase,
   duePanel,
+  dueDateSpacingConflicts,
 } from "./case_timeline.js";
 import { createEditorScreens } from "./editor_screens.js";
 
@@ -448,6 +432,69 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const reinspection = createReinspection({
+  fmtDate: (...args) => fmtDate(...args),
+  inspAt: (...args) => inspAt(...args),
+  parseTime: (...args) => parseTime(...args),
+  toast: (...args) => toast(...args),
+  validISO: (...args) => validISO(...args),
+  checks: (...args) => checks(...args),
+  applyDeposit: (...args) => applyDeposit(...args),
+  citationNumber: (...args) => citationNumber(...args),
+  nextCourtDate: (...args) => nextCourtDate(...args),
+  shell: (...args) => shell(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  captureWork: (...args) => captureWork(...args),
+  itemHistory: (...args) => itemHistory(...args),
+  itemInspectionHistory: (...args) => itemInspectionHistory(...args),
+  worksheetFaults: (...args) => worksheetFaults(...args),
+  returnToWorksheet: (...args) => returnToWorksheet(...args),
+  dueContext: (...args) => dueContext(...args),
+  dueDateSpacingConflicts: (...args) => dueDateSpacingConflicts(...args),
+  duePanel: (...args) => duePanel(...args),
+  renderKeep: (...args) => renderKeep(...args),
+  screenCases: (...args) => screenCases(...args),
+  render: (...args) => render(...args),
+  isLocked: (...args) => isLocked(...args),
+  get newDocuments() {
+    return newDocuments;
+  },
+  MINDUE: (...args) => MINDUE(...args),
+  get depositStep() {
+    return depositStep;
+  },
+  uid: (...args) => uid(...args),
+  openImportWorkspace: (...args) => openImportWorkspace(...args),
+});
+export let {
+  walkIdentity,
+  clearWalk,
+  restoreWalkFor,
+  ensureWalkContext,
+  nextWalkItem,
+  focusWalkItem,
+  walkItemReady,
+  advanceWalk,
+  skipWalkDetails,
+  returnWalkDetails,
+  previousWalk,
+  editableWalkItem,
+  recordReinspectionOutcome,
+  undoWalkOutcome,
+  narrativeFor,
+  attachCheckTargets,
+  worksheetChecks,
+  highlightOpenChecks,
+  focusCheckTarget,
+  dueCheck,
+  checkRowHTML,
+  screenReinspect,
+  docFromReinspection,
+} = reinspection;
+const { focusWalkDetails, worksheetCheckPanel } = reinspection;
+
 const languageCatalog = createLanguageCatalog({
   allItems: (...args) => allItems(...args),
   toast: (...args) => toast(...args),
@@ -1649,6 +1696,8 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    focusWalkDetails,
+    worksheetCheckPanel,
     catalogReplacement,
     readSharedCase,
     localCaseWork,
