@@ -24,7 +24,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
   async function importedStatus(type) {
     const status = { summaryAbatement: "Abatement Summary", nonSummaryAbatement: "Abatement Non-Summary", noOccupancy: "No Occupancy" }[type];
     await page.evaluate((status) => {
-      applyImportRule(doc(WriterState.state.docId), { ...statusRule("Initial Inspection", status), status });
+      accelaImport.applyImportRule(doc(WriterState.state.docId), { ...accelaImport.statusRule("Initial Inspection", status), status });
       render();
     }, status);
     assert.equal(await page.evaluate(() => doc(WriterState.state.docId).type), type);

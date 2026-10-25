@@ -158,7 +158,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
           date: stamp,
           time: "12:16",
           status: "Citation",
-          rule: statusRule("Reinspection", "Citation"),
+          rule: accelaImport.statusRule("Reinspection", "Citation"),
           inspectorName: insp(k.inspectorId).name,
           inspectorId: k.inspectorId,
           selectable: true,
@@ -184,10 +184,10 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
         caseIx: 0,
         sel: 0,
       };
-      const p = baseLookupPlan(acc);
+      const p = accelaImport.baseLookupPlan(acc);
       if (p.blockers.length) throw new Error(p.blockers.join("; "));
       WriterState.state.acc = acc;
-      baseLookupAccept();
+      accelaImport.baseLookupAccept();
       const d = doc(WriterState.state.docId),
         result = { next: p.next, type: d.type, date: d.inspDate, time: d.inspTime, hasVisit: !!d.fromReinspId };
       await discardDraft(d.id);

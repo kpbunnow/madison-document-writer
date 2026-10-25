@@ -20,6 +20,7 @@ import {
   screenWrite,
   editorEnhance,
   enhanceDialog,
+  screenImport,
 } from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
@@ -40,7 +41,6 @@ import { checks, validISO, fmtDate } from "./court_and_deposits.js";
 import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
 import { checkRowHTML, walkIdentity, ensureWalkContext, screenReinspect, highlightOpenChecks } from "./reinspection.js";
 import { helperStop } from "./helper_stopped.js";
-import { screenImport } from "./accela_import.js";
 
 import { recordDay, mailingMaxDay } from "../assets/shared.js";
 import { INSPECTORS } from "./data/inspectors.js";

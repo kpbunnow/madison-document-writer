@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Writer import-service boundary (development)
+
+- Compose the complete Accela import workflow through named lazy UI/peer dependencies. Preserve parser/status rules, workbook/SQL paths, shared-record confirmation, stale-result and selection guards, cancellation, save/state order and original function bodies.
+- Reduce the retained Writer cycle from 11 to 10 modules; Reports remains 5. Add independent import boundary checks, narrow dependency/lint guards and retain existing import assertions and historical references. Production browser diagnostics use the composed service.
+- Update ownership, cleanup roadmap, test index and source inventory. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
+
 ## Unreleased — Screen-shell/CSS cleanup (development)
 
 - Complete owner-authorized consolidation Phase 8: establish a current Writer/Reports screen-shell reference from verified source, recording provenance and replacing historical per-release CSS reversal bookkeeping. Preserve every historical print/document reference and approved print stylesheet.
