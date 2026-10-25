@@ -129,7 +129,7 @@ Private readiness diagnostic bindings remain in the existing test-only reference
 
 The Writer cycle drops from 12 to 11 modules; Reports stays 5. Import guards keep editor_screens outside the cycle and lint rejects direct storage/network access. audit_editor_service checks independent loading, exact lazy composition, first-service/one-listener registration, readiness ordering, synchronous four-copy toggles, focus retention, refresh/layout/check/save ordering, item movement and integrity/dialog guards. Existing editor flow, disclosure, event, historical print and browser tests remain authoritative.
 
-## Tenth increment: Writer import-service boundary
+## Tenth increment: Writer import-service boundary (merged in PR #56)
 
 accela_import now exports createAccelaImport and imports only foundations, live queries/state, static inspector data and its existing authenticated transport. Core supplies the 28 named UI/peer operations and service/cache getters lazily. It constructs the import instance after address parsing and before document rendering, without moving any existing listener registration or startup/state checkpoint. Construction reads no supplied service or live state and registers no listeners.
 
@@ -139,12 +139,20 @@ Core exports actual instance functions; there is no forwarding barrel or univers
 
 The Writer cycle drops from 11 to 10 modules; Reports stays 5. The import allowlist keeps accela_import outside UI cycles and lint forbids direct browser storage/network globals; authenticated transport stays explicit. audit_import_service checks independent inert construction, exact lazy composition, live committed-cache replacement, stale/duplicate/refused shared reads, retained state, cancellation and SQL confirmation refusal. Existing full import, event, historical screen/print and production browser assertions remain authoritative.
 
+## Eleventh increment: Reports dependency boundaries and visual review
+
+Reports services, screens and the presentation-context builder now have named lazy factory interfaces composed by reports_core. Construction performs no live-state/service reads and installs no listeners. Core retains the original Leaflet installation, initial report-action listener, accessibility initialization, deposit initialization and subsequent listener/startup order. Deposit schedule retains its three listeners and date/search/page state, receiving only render/escape operations.
+
+The five-module Reports cycle is eliminated. Writer remains capped at ten modules; any Reports or unrelated cycle now fails the boundary guard. Original function bodies, report definitions, verified-summary handling, cancellation, maps, handoff, saved views and table/CSV/workbook/print order remain. Core exports actual mutable instance bindings; the render delegate retains existing test overrides. Private eval diagnostics use a scoped test loader, and the stale-load test mocks the transport instead of a copied closure-local function. Assertions, deadlines and frozen references remain unchanged.
+
+The independent Reports suite checks inert construction, scoped interfaces, context identity/live references and deposit listener ordering. SCREEN-VISUAL-REVIEW.md records the technical PNG review; it does not supply City/native/staff acceptance or claim exact pixel parity.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
 1. Continue reducing the remaining 10-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
-2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
+2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
 

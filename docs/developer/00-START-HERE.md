@@ -17,6 +17,7 @@ Madison Building Inspection Document Writer is an offline Windows browser applic
 | [CLOUD-DEVELOPMENT.md](CLOUD-DEVELOPMENT.md), [DESKTOP-LAUNCH.md](DESKTOP-LAUNCH.md) | Cloud setup and validation; the desktop launch and exit design |
 | [ACCEPTANCE-RECORD.md](ACCEPTANCE-RECORD.md), [PRODUCTION-READINESS.md](PRODUCTION-READINESS.md) | Living acceptance and readiness records (see Release documents) |
 | [R63-REVIEW.md](R63-REVIEW.md), [R62-REVIEW.md](R62-REVIEW.md), [R61-REVIEW.md](R61-REVIEW.md), [R60-REVIEW.md](R60-REVIEW.md), [R59-REVIEW.md](R59-REVIEW.md) | The current and recent release reviews; older reviews are in [../history/](../history/README.md) |
+| [SCREEN-VISUAL-REVIEW.md](SCREEN-VISUAL-REVIEW.md) | Technical PNG difference review, evidence limits and native acceptance status |
 | [SCREEN-SHELL.md](SCREEN-SHELL.md) | Current screen-shell reference, reviewed CSS decisions and visual comparison workflow |
 | [CONSOLIDATION-PROMPT.md](CONSOLIDATION-PROMPT.md), [CSS-CANDIDATES.md](CSS-CANDIDATES.md) | The consolidation plan and its unused-CSS inventory |
 
