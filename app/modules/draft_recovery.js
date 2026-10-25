@@ -10,9 +10,8 @@ import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from
 import { compareSharedCase, refreshCatalog } from "./language_catalog.js";
 import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
 
-import { cancelCaseLookup } from "./accela_import.js";
-import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 import {
+  cancelCaseLookup,
   ENTRY_IDS,
   IDB_OK,
   RECOVERY_CASE_KEYS,
@@ -27,6 +26,7 @@ import {
   recordIntegrity,
   snow,
 } from "./app_core.js";
+import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 
 import {
   doc,

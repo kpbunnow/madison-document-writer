@@ -14,7 +14,7 @@ Writer modules are organized by feature: accela_import.js holds the whole Accela
 
 Workspace owns the prominent import/shared-search entry area; import stays a guarded internal route. Reinspection deadline assignment reuses duePanel/assignDue and the existing draft result store, outside collapsed Inspection checks. Corrective-action placeholders use the shared accessible utility dialog with context validation. Citation editors can expand all four copies; final printJob remains a separate complete packet. A screen-only rule flows the editor's mailing address below an expanding header; printableHTML keeps the approved fixed envelope positioning.
 
-Nine feature services (navigation, language actions, citation pricing, deposit completion, initial citations, snow cases, administrator tools, address parsing and new-document actions) receive their UI/peer dependencies from core through named lazy interfaces. They import no UI orchestration modules. Existing initialization/listener order and readiness/save guards remain; construction still registers the original snow/pricing/deposit listeners. The Writer cycle is capped at 11 modules and Reports at 5; this is an incremental boundary reduction, not cycle elimination.
+Nine feature services (navigation, language actions, citation pricing, deposit completion, initial citations, snow cases, administrator tools, address parsing and new-document actions) receive their UI/peer dependencies from core through named lazy interfaces. They import no UI orchestration modules. Existing initialization/listener order and readiness/save guards remain; construction still registers the original snow/pricing/deposit listeners. The Writer cycle is capped at 10 modules and Reports at 5; this is an incremental boundary reduction, not cycle elimination.
 
 The test-only fixture factory uses explicit callbacks under its existing build flag. The renderer obtains the historical affected-item predicate through the composed new-document service; stored authoring cutoffs and selection rules are unchanged. Administrator/address constructors retain their original click listeners.
 
@@ -25,6 +25,8 @@ The three Writer view-context builders are independently constructed with per-vi
 Physical pagination is independently composed through its page-size, snow and history services. Reinspection follow-up creation belongs to reinspection; sheet/overlay/dialog refresh belongs to editor_screens. Their existing operation order and the pagination algorithms remain unchanged.
 
 The document editor is composed first through named lazy UI/peer services. Its original copy-click listener still registers before other feature-service listeners. Core exports the actual editor functions; editor_screens keeps readiness, rendering, refresh, focus and item/new-document actions together without importing UI orchestration.
+
+The complete Accela import workflow is also composed through named lazy dependencies. Its constructor reads no UI/state/services and registers no listeners. Core constructs it after address parsing and before document rendering; callers use its actual instance functions. Parsing, eligibility, cancellation, shared-record merging and confirmation remain in accela_import, while helper/file/persistence authority remains in the supplied adapters.
 
 ## Inspection import
 

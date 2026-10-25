@@ -142,7 +142,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen, axeThem
             InspectorName: INSPECTORS[0].name,
           };
         WriterState.state.screen = "import";
-        WriterState.state.acc = sqlReport(
+        WriterState.state.acc = accelaImport.sqlReport(
           {
             ok: true,
             rows: [row, { ...row, InspectionDate: "2026-09-12", InspectionTime: "10:00" }],

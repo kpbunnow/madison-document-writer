@@ -119,7 +119,7 @@ The module no longer creates follow-up documents or manages editor/dialog UI. do
 
 The Writer cycle drops from 13 to 12 modules; Reports remains 5. Import guards keep pagination outside the cycle and lint disallows direct storage/network and clock/randomness use. audit_document_pagination checks independent lazy construction, historical page limits, retained continuation order/footers, snow covers, mobile flow and default document lookup with a controlled height model. Real geometry, clipping, history continuations and court-copy content remain covered by the full Chromium/print suites; the model does not claim native layout acceptance.
 
-## Ninth increment: document editor service
+## Ninth increment: document editor service (merged in PR #54)
 
 editor_screens now exports createEditorScreens and imports only foundations, state, saved-work presentation and language-focus utilities. Core supplies named lazy UI/peer operations and exports the actual editor instance functions. Public bindings keep their existing mutability for the disclosure audit; no forwarding barrel or universal registry is added.
 
@@ -129,11 +129,21 @@ Private readiness diagnostic bindings remain in the existing test-only reference
 
 The Writer cycle drops from 12 to 11 modules; Reports stays 5. Import guards keep editor_screens outside the cycle and lint rejects direct storage/network access. audit_editor_service checks independent loading, exact lazy composition, first-service/one-listener registration, readiness ordering, synchronous four-copy toggles, focus retention, refresh/layout/check/save ordering, item movement and integrity/dialog guards. Existing editor flow, disclosure, event, historical print and browser tests remain authoritative.
 
+## Tenth increment: Writer import-service boundary
+
+accela_import now exports createAccelaImport and imports only foundations, live queries/state, static inspector data and its existing authenticated transport. Core supplies the 28 named UI/peer operations and service/cache getters lazily. It constructs the import instance after address parsing and before document rendering, without moving any existing listener registration or startup/state checkpoint. Construction reads no supplied service or live state and registers no listeners.
+
+The entire parser, eligibility table, review/acceptance and SQL/workbook paths remain together. All original declarations and function bodies retain their order and content apart from explicit dependency access. Stale selection/read guards, cancellation, duplicate/merge refusals, shared confirmation, save ordering, retained UI/dirty state, SQL query and stored identities are unchanged. Helper and persistence adapters retain validation and storage authority.
+
+Core exports actual instance functions; there is no forwarding barrel or universal registry. Existing bundle-eval diagnostics retain their original bindings through the existing test-build reference hook. Four production browser suites read private import diagnostics through the composed service, without changing assertions or adding a production global hook.
+
+The Writer cycle drops from 11 to 10 modules; Reports stays 5. The import allowlist keeps accela_import outside UI cycles and lint forbids direct browser storage/network globals; authenticated transport stays explicit. audit_import_service checks independent inert construction, exact lazy composition, live committed-cache replacement, stale/duplicate/refused shared reads, retained state, cancellation and SQL confirmation refusal. Existing full import, event, historical screen/print and production browser assertions remain authoritative.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 11-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 10-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Address the Reports cycle independently, preserving verified projection inputs and table/export/print ordering. Remove proven-dead names only after checking test-build eval access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

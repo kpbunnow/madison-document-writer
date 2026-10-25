@@ -427,6 +427,7 @@
     "tests/unit/audit_helper.py",
     "tests/unit/audit_import_r13.js",
     "tests/unit/audit_import_r13.py",
+    "tests/unit/audit_import_service.js",
     "tests/unit/audit_lifecycle.js",
     "tests/unit/audit_logging.py",
     "tests/unit/audit_lookup.js",

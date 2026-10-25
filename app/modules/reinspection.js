@@ -27,11 +27,11 @@ import {
 import { daysBetween } from "./calendar.js";
 import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
 import { ocOf, dueItems, distinctDues, itemLibraryKey, isEffective, supplemental } from "./document_rules.js";
-import { isLocked, newDocuments, MINDUE, depositStep, uid } from "./app_core.js";
+import { isLocked, newDocuments, MINDUE, depositStep, uid, openImportWorkspace } from "./app_core.js";
 import { isLLC } from "./mailing_rules.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
-import { openImportWorkspace } from "./accela_import.js";
+
 /* app functions; direct dependencies use explicit shared state. */
 
 function walkIdentity(r) {
