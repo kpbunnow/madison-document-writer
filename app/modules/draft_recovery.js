@@ -7,10 +7,9 @@ import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files
 import { clearWalk, walkIdentity, dueCheck } from "./reinspection.js";
 import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
 import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
-import { compareSharedCase, refreshCatalog } from "./language_catalog.js";
-import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
-
 import {
+  compareSharedCase,
+  refreshCatalog,
   cancelCaseLookup,
   ENTRY_IDS,
   IDB_OK,
@@ -26,6 +25,8 @@ import {
   recordIntegrity,
   snow,
 } from "./app_core.js";
+import { commitCitationEdits, dueContext, dueDateSpacingConflicts, refreshArtifactLocations } from "./case_timeline.js";
+
 import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 
 import {

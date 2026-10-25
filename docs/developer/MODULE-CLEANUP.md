@@ -139,7 +139,7 @@ Core exports actual instance functions; there is no forwarding barrel or univers
 
 The Writer cycle drops from 11 to 10 modules; Reports stays 5. The import allowlist keeps accela_import outside UI cycles and lint forbids direct browser storage/network globals; authenticated transport stays explicit. audit_import_service checks independent inert construction, exact lazy composition, live committed-cache replacement, stale/duplicate/refused shared reads, retained state, cancellation and SQL confirmation refusal. Existing full import, event, historical screen/print and production browser assertions remain authoritative.
 
-## Eleventh increment: Reports dependency boundaries and visual review
+## Eleventh increment: Reports dependency boundaries and visual review (merged in PR #57)
 
 Reports services, screens and the presentation-context builder now have named lazy factory interfaces composed by reports_core. Construction performs no live-state/service reads and installs no listeners. Core retains the original Leaflet installation, initial report-action listener, accessibility initialization, deposit initialization and subsequent listener/startup order. Deposit schedule retains its three listeners and date/search/page state, receiving only render/escape operations.
 
@@ -147,11 +147,19 @@ The five-module Reports cycle is eliminated. Writer remains capped at ten module
 
 The independent Reports suite checks inert construction, scoped interfaces, context identity/live references and deposit listener ordering. SCREEN-VISUAL-REVIEW.md records the technical PNG review; it does not supply City/native/staff acceptance or claim exact pixel parity.
 
+## Twelfth increment: catalog and shared-case preflight boundary
+
+language_catalog now exports createLanguageCatalog and imports only foundation rules/values, live queries/state, build identity and saved-work presentation. Core supplies 25 named lazy adapters/getters and constructs the owner after address parsing and before the import service. No existing listener, service, restoration or startup checkpoint moves; construction reads neither supplied services nor live state and registers no listeners.
+
+The original declarations and function bodies/order are unchanged apart from dependency access. Catalog read sequencing and acknowledgement guards, explicit wording adoption, frozen issued wording, shared-case comparisons, preflight continuation/context guards, conflict resolution, serialized workspace patches, durable-write-before-commit and failure cleanup remain. Helper/integrity/storage authority stays in existing adapters; browser preflight still defers final authority to publication.
+
+Core exports actual mutable instance functions. Consumers use those instances; no forwarding barrel or universal registry is introduced. Existing private diagnostics stay in the existing test-build reference hook. The Writer cycle drops from ten to nine modules and its guard is narrowed; Reports remains acyclic. audit_catalog_service checks independent lazy construction, exact interface/composition order, stale/malformed refreshes, acknowledgement retention, durable patch serialization/failure cleanup, integrity refusal and offline preflight. Existing language/reconciliation, functional, event, security and historical output assertions remain authoritative.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 10-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 9-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

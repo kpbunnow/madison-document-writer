@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Catalog and shared-case preflight boundary (development)
+
+- Compose catalog review, shared-case preflight/conflict actions and guarded workspace updates through named lazy adapters. Preserve original function bodies, stale/acknowledgement guards, explicit wording adoption, storage/integrity authority and durable save/rollback order.
+- Reduce the Writer dependency cycle from ten to nine modules; keep Reports acyclic. Add independent service checks and narrow dependency guards while retaining all existing assertions and historical references.
+- Update ownership, roadmap, test and source indexes. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
+
 ## Unreleased — Reports boundaries and visual review (development)
 
 - Eliminate the five-module Reports dependency cycle through scoped, lazy service/screen/context constructors and explicit deposit adapters. Preserve verified data, function bodies, startup/listener order, cancellation, views, exports, maps and print behavior. Writer retains its ten-module cycle cap.

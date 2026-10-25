@@ -402,6 +402,7 @@
     "tests/unit/audit_authoring.js",
     "tests/unit/audit_authoring.py",
     "tests/unit/audit_case_projection.py",
+    "tests/unit/audit_catalog_service.js",
     "tests/unit/audit_contracts.js",
     "tests/unit/audit_corrections.js",
     "tests/unit/audit_data.js",

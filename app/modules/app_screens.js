@@ -21,6 +21,9 @@ import {
   editorEnhance,
   enhanceDialog,
   screenImport,
+  caseSearchText,
+  saveWorkflowPrefs,
+  sharedChangeModal,
 } from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
@@ -33,7 +36,6 @@ import { WriterState } from "./state.js";
 import { independentArtifact, pdfTransferState, workspaceTasks, remindersPanel } from "./case_timeline.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 
-import { caseSearchText, saveWorkflowPrefs, sharedChangeModal } from "./language_catalog.js";
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
