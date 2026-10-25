@@ -77,4 +77,15 @@ export default [
       ],
     },
   },
+  {
+    files: ["app/modules/document_pagination.js"],
+    rules: {
+      "no-restricted-globals": ["error", "fetch", "indexedDB", "localStorage", "sessionStorage", "XMLHttpRequest", "WebSocket", "BroadcastChannel"],
+      "no-restricted-properties": [
+        "error",
+        { object: "Date", property: "now", message: "Pagination uses supplied document facts." },
+        { object: "Math", property: "random", message: "Pagination preserves record identities." },
+      ],
+    },
+  },
 ];

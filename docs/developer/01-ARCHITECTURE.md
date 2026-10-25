@@ -14,13 +14,15 @@ Writer modules are organized by feature: accela_import.js holds the whole Accela
 
 Workspace owns the prominent import/shared-search entry area; import stays a guarded internal route. Reinspection deadline assignment reuses duePanel/assignDue and the existing draft result store, outside collapsed Inspection checks. Corrective-action placeholders use the shared accessible utility dialog with context validation. Citation editors can expand all four copies; final printJob remains a separate complete packet. A screen-only rule flows the editor's mailing address below an expanding header; printableHTML keeps the approved fixed envelope positioning.
 
-Nine feature services (navigation, language actions, citation pricing, deposit completion, initial citations, snow cases, administrator tools, address parsing and new-document actions) receive their UI/peer dependencies from core through named lazy interfaces. They import no UI orchestration modules. Existing initialization/listener order and readiness/save guards remain; construction still registers the original snow/pricing/deposit listeners. The Writer cycle is capped at 13 modules and Reports at 5; this is an incremental boundary reduction, not cycle elimination.
+Nine feature services (navigation, language actions, citation pricing, deposit completion, initial citations, snow cases, administrator tools, address parsing and new-document actions) receive their UI/peer dependencies from core through named lazy interfaces. They import no UI orchestration modules. Existing initialization/listener order and readiness/save guards remain; construction still registers the original snow/pricing/deposit listeners. The Writer cycle is capped at 12 modules and Reports at 5; this is an incremental boundary reduction, not cycle elimination.
 
 The test-only fixture factory uses explicit callbacks under its existing build flag. The renderer obtains the historical affected-item predicate through the composed new-document service; stored authoring cutoffs and selection rules are unchanged. Administrator/address constructors retain their original click listeners.
 
 The document renderer is also composed through named lazy dependencies. document_render exports its constructor, and core exports the actual documentHTML/citationFaces instance functions. The renderer imports no UI orchestration or live workspace queries; source/history adapters and fallback semantics are unchanged. Fixed printable HTML, pagination and publication remain in their existing owners.
 
 The three Writer view-context builders are independently constructed with per-view lazy UI dependencies. Each call reads current workspace references and preserves callback identities; existing contexts retain their reference snapshots. Core exports the actual instance builders, while saved-work, queue and language presentation retain their own behavior.
+
+Physical pagination is independently composed through its page-size, snow and history services. Reinspection follow-up creation belongs to reinspection; sheet/overlay/dialog refresh belongs to editor_screens. Their existing operation order and the pagination algorithms remain unchanged.
 
 ## Inspection import
 

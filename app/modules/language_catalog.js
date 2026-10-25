@@ -8,7 +8,7 @@ import { clearWalk } from "./reinspection.js";
 import { captureWork } from "./issuance_and_corrections.js";
 import { catalogKey, recoveryCaseKey, recoverySnapshot, scheduleRecoveryBackup } from "./draft_recovery.js";
 import { render } from "./app_screens.js";
-import { refreshSheet } from "./document_pagination.js";
+
 import { A11Y, RECOVERY_WORKSPACE, WORKFLOW_PREFS_KEY, navigation, recordIntegrity, app_savedworkContext } from "./app_core.js";
 import { doc, docsFor, eventsFor, kase } from "./writer_queries.js";
 
@@ -923,3 +923,5 @@ export {
   caseSearchText,
   globalSearch,
 };
+
+import { refreshSheet } from "./editor_screens.js";

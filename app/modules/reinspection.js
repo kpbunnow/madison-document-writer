@@ -1,20 +1,33 @@
 import { recordDay, validCaseNumber } from "../assets/shared.js";
-import { fmtDate, inspAt, parseTime, toast, validISO, checks } from "./court_and_deposits.js";
+import { fmtDate, inspAt, parseTime, toast, validISO, checks, applyDeposit, citationNumber, nextCourtDate } from "./court_and_deposits.js";
 import { shell } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
-import { scheduleDraftSave, validateAndStandardizeAddresses } from "./case_files.js";
-import { captureWork } from "./issuance_and_corrections.js";
+import { scheduleDraftSave, validateAndStandardizeAddresses, saveDrafts } from "./case_files.js";
+import { captureWork, itemHistory, itemInspectionHistory } from "./issuance_and_corrections.js";
 import { worksheetFaults, returnToWorksheet } from "./draft_recovery.js";
 import { dueContext, dueDateSpacingConflicts, duePanel } from "./case_timeline.js";
 
 import { renderKeep, screenCases, render } from "./app_screens.js";
-import { DOC_TYPES, OUTCOMES } from "./document_types.js";
-import { doc, docCase, doneItems, insp, isReferredCase, kase, originalNotice, reinsp, unchecked, openItems, reinspFor } from "./writer_queries.js";
+import { DOC_TYPES, OUTCOMES, REFERRED_ONLY, courtTime } from "./document_types.js";
+import {
+  doc,
+  docCase,
+  doneItems,
+  insp,
+  isReferredCase,
+  kase,
+  originalNotice,
+  reinsp,
+  unchecked,
+  openItems,
+  reinspFor,
+  recordHead,
+} from "./writer_queries.js";
 
 import { daysBetween } from "./calendar.js";
 import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
-import { ocOf, dueItems, distinctDues, itemLibraryKey } from "./document_rules.js";
-import { isLocked, newDocuments, MINDUE } from "./app_core.js";
+import { ocOf, dueItems, distinctDues, itemLibraryKey, isEffective, supplemental } from "./document_rules.js";
+import { isLocked, newDocuments, MINDUE, depositStep, uid } from "./app_core.js";
 import { isLLC } from "./mailing_rules.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { WriterState } from "./state.js";
@@ -1107,3 +1120,157 @@ export {
   checkRowHTML,
   screenReinspect,
 };
+
+function docFromReinspection(r, type) {
+  // only an existing document closes the worksheet; a discarded one leaves
+  // it open to write the follow-up again
+  if (r.docId && !doc(r.docId)) r.docId = null;
+  if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
+    WriterState.state.docId = r.docId;
+    WriterState.state.screen = "write";
+    render();
+    return;
+  }
+  const src = doc(r.sourceDocId),
+    carry = openItems(r);
+  if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
+    toast("Open a current reinspection worksheet first");
+    return;
+  }
+  if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
+    toast("Choose an available follow-up type.");
+    return;
+  }
+  const unavailable = newDocuments.eligibility?.(r, type);
+  if (unavailable) {
+    toast(unavailable);
+    return;
+  }
+  const faults = worksheetFaults(r, type);
+  if (faults.length) {
+    toast(faults[0]);
+    return;
+  }
+  if (unchecked(r).length) {
+    toast("Choose an outcome for every item first");
+    return;
+  }
+  if (!validISO(r.date) || r.date > recordDay(today)) {
+    toast("Enter a valid inspection date");
+    return;
+  }
+  if (type !== "compliance" && !carry.length) {
+    toast("Nothing outstanding to carry forward");
+    return;
+  }
+  if (type === "compliance" && carry.length) {
+    toast("Items are still outstanding — a compliance letter closes every item");
+    return;
+  }
+  const pos = new Map(src.items.map((it, i) => [it.id, i]));
+  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
+  const nd = {
+    id: uid("d"),
+    caseId: r.caseId,
+    type: type,
+    created: recordDay(today),
+    status: "Draft",
+    draft: true,
+    mailed: recordDay(today),
+    cc: "",
+    cits: {},
+    ...(hasHistory || type === "citation" ? { authoringVersion: 16 } : {}),
+    fromReinspId: r.id,
+    fromDocId: src.id,
+    expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
+    replaces: r.replaces || "",
+    ...(r.importInspection ? { importInspection: clone(r.importInspection) } : {}),
+    inspectorId: r.inspectorId || kase(r.caseId).inspectorId,
+    inspDate: r.date || "",
+    inspTime: r.time || "",
+    items: src.items.map((it) => {
+      const res = r.results[it.id] || {},
+        cleared = res.oc === "corrected";
+      return {
+        ...it,
+        id: uid("x"),
+        no: it.no || String((pos.get(it.id) || 0) + 1),
+        due: (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
+        done: cleared,
+        doneOn: cleared ? res.on || r.date : "",
+        note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
+        noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
+        hist: hasHistory ? itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
+        cite: type === "citation" && !cleared && !!res.cite,
+        srcItemId: it.id,
+      };
+    }),
+  };
+  // a citation is filed per ordinance, so each ticked item gets its own form
+  // register the document before its citations are numbered, so each number is
+  // checked against the ones already issued on this document too
+  if (hasHistory) nd.items.forEach((it) => (it.hist = itemInspectionHistory(nd, it)));
+  WriterState.DOCS.unshift(nd);
+  if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
+    WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
+    toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
+    return;
+  }
+  if (type === "citation") {
+    if (!nd.items.some((i) => i.cite)) {
+      WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
+      toast("Select the items to cite on the inspection worksheet.");
+      return;
+    }
+    nd.items
+      .filter((i) => i.cite)
+      .forEach((i) => {
+        const sections = (i.sections || []).map(canonicalOrdinance),
+          ord = sections.length === 1 ? sections[0] : "";
+        nd.cits[i.id] = {
+          deptId: insp(nd.inspectorId).badge || "",
+          num: citationNumber(),
+          courtTime: courtTime(),
+          comment: narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
+          ord,
+          preparedSections: sections,
+          autoFilledCharge: !!ord,
+          desc: String(i.title || "").toUpperCase(),
+          issued: recordDay(today),
+          courtDate: nextCourtDate(recordDay(today)),
+          depositMode: "schedule",
+        };
+        applyDeposit(nd, i.id, ord);
+      });
+  }
+  r.docId = nd.id;
+  WriterState.state.docId = nd.id;
+  WriterState.state.screen = "write";
+  WriterState.DIRTY = true;
+  saveDrafts();
+  render();
+  if (type === "citation") depositStep.openNext(nd);
+  const n = nd.items.filter((i) => i.cite).length,
+    cl = nd.items.filter((i) => i.done).length;
+  toast(
+    type === "compliance"
+      ? "Compliance letter drafted — review and issue it to close the case"
+      : type === "referral" || type === "referralUpdate"
+        ? (DOC_TYPES.find((t) => t.id === type) || {}).label +
+          " started \u2014 " +
+          carry.length +
+          " item" +
+          (carry.length === 1 ? "" : "s") +
+          " still outstanding"
+        : ((DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
+          " started \u2014 " +
+          carry.length +
+          " outstanding" +
+          (cl ? ", " + cl + " shown as corrected" : "") +
+          (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : ""),
+  );
+}
+
+import { canonicalOrdinance } from "./citation_policy.js";
+
+export { docFromReinspection };

@@ -9,7 +9,6 @@ import { authoringChecks, citationDepositFault, refreshArtifactLocations } from 
 import { render } from "./app_screens.js";
 import { attachCheckTargets } from "./reinspection.js";
 
-import { paginate } from "./document_pagination.js";
 import {
   A11Y,
   citationPricing,
@@ -25,6 +24,7 @@ import {
   unchangedCorrectionValue,
   unchangedCourtDate,
   documentHTML,
+  paginate,
 } from "./app_core.js";
 import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, DOC_TYPES, EXTERIOR_WORK } from "./document_types.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";

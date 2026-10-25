@@ -15,6 +15,7 @@ import {
   IDB_OK,
   app_workspacequeueContext,
   app_languagediscoveryContext,
+  paginate,
 } from "./app_core.js";
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { addDays, daysBetween, iso } from "./calendar.js";
@@ -30,13 +31,13 @@ import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { caseSearchText, saveWorkflowPrefs, sharedChangeModal } from "./language_catalog.js";
 import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiffHTML } from "./issuance_and_corrections.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
-import { reviewModalHTML, screenWrite, editorEnhance } from "./editor_screens.js";
+import { reviewModalHTML, screenWrite, editorEnhance, enhanceDialog } from "./editor_screens.js";
 import { checks, validISO, fmtDate } from "./court_and_deposits.js";
 import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
 import { checkRowHTML, walkIdentity, ensureWalkContext, screenReinspect, highlightOpenChecks } from "./reinspection.js";
 import { helperStop } from "./helper_stopped.js";
 import { screenImport } from "./accela_import.js";
-import { enhanceDialog, paginate } from "./document_pagination.js";
+
 import { recordDay, mailingMaxDay } from "../assets/shared.js";
 import { INSPECTORS } from "./data/inspectors.js";
 
