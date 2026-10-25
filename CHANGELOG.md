@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Cohesive case activity service (development)
+
+- Extract personal reminders and read-only case timeline presentation into a six-dependency activity owner. Preserve all seven function bodies, live date/state behavior, reminder IDs/filtering/dismissal, event ordering, export arrays and manual email-draft behavior.
+- Reduce case_timeline from 1,575 to 1,394 lines while keeping outbox/handoff/deadline/pricing responsibilities in place. Writer retains its eight-module cycle cap and Reports remains acyclic; no graph reduction is claimed for this cohesion increment.
+- Add independent behavior/interface guards and update ownership, assessment, roadmap, tests and source inventory. Preserve R63/build-64, stored/format identities, historical references and all existing assertions; no packaging or deployment.
+
 ## Unreleased — Reinspection service boundary (development)
 
 - Compose worksheet/walkthrough and follow-up creation through named lazy dependencies. Preserve function bodies, live context/item guards, outcome/undo behavior, focus/save order, deadlines and historical observations.

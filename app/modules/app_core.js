@@ -153,6 +153,7 @@ import {
   scheduleRecoveryBackup,
 } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
+import { createCaseActivity, timelineCategory } from "./case_activity.js";
 import {
   citationDepositFault,
   citationReview,
@@ -172,11 +173,6 @@ import {
   selectedOutbox,
   showBulkDue,
   showOutbox,
-  showReminderDraft,
-  showReminders,
-  showTimeline,
-  timelineCategory,
-  timelineRows,
   toggleLibraryItem,
   updateDueIndicators,
   writerOpenReportedCase,
@@ -641,6 +637,23 @@ export const {
 } = accelaImport;
 const { accHM, accInflate, readXlsx, accSerial, accWhen, accParcel, applyImportRule, accelaPanel, sqlReport, lookupPlanSignature, lookupCanOpen } =
   accelaImport;
+
+const caseActivity = createCaseActivity({
+  caseState: (...args) => caseState(...args),
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  get navigation() {
+    return navigation;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  get today() {
+    return today;
+  },
+});
+export let { remindersPanel, showReminders, showReminderDraft, timelineRows, showTimeline } = caseActivity;
+const { remindersDue } = caseActivity;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -1696,6 +1709,7 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    remindersDue,
     focusWalkDetails,
     worksheetCheckPanel,
     catalogReplacement,
