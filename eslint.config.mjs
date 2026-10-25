@@ -7,6 +7,17 @@ const rules = {
 };
 export default [
   {
+    files: ["app/modules/writer_handoff.js"],
+    rules: {
+      "no-restricted-globals": ["error", "document", "fetch", "indexedDB", "localStorage", "sessionStorage", "XMLHttpRequest", "WebSocket", "today"],
+      "no-restricted-properties": [
+        "error",
+        { object: "Date", property: "now", message: "Handoff consumes supplied readiness and case facts." },
+        { object: "Math", property: "random", message: "Keep supplied request and case identities." },
+      ],
+    },
+  },
+  {
     files: ["app/modules/**/*.js", "app/assets/shared.js"],
     languageOptions: {
       ecmaVersion: 2022,

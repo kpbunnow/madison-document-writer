@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Writer handoff and readiness boundary (development)
+
+- Separate Writer readiness markers, Reports case opening and channel/URL handoff into a six-dependency owner. Preserve all four function bodies apart from explicit dependency access, including startup waits, local reconciliation, latest-request checks and channel reply guards.
+- Keep locking/restoration, preflight, helper validation and file loading in their existing owners; channel initialization and readiness settlement remain at the original startup positions. No new constructor side effects or channel protocol changes.
+- Reduce case_timeline from 1,178 to 1,073 lines and remove its workspace/screen imports plus case_files' timeline import. Writer still has an eight-module cyclic component; Reports stays acyclic. Add independent tests/guards and update ownership, assessment and indexes; keep R63/build-64 and all stored/format identities unchanged.
+
 ## Unreleased — Retained PDF artifact boundary (development)
 
 - Separate outbox listing/selection/printing and artifact-location refresh into a five-dependency PDF artifact service, with direct artifact-status/independence queries. Preserve all six function bodies apart from explicit dependency access.

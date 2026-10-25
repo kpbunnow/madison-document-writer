@@ -20,6 +20,9 @@ import {
 import { caseFileFault, caseFileName, summaryName } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
 import {
+  initWriterHandoff,
+  markWriterReady,
+  markWriterFailed,
   refreshArtifactLocations,
   clearWalk,
   restoreWalkFor,
@@ -37,7 +40,6 @@ import {
 import { captureWork } from "./issuance_and_corrections.js";
 import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 
-import { initWriterHandoff, markWriterReady, markWriterFailed } from "./case_timeline.js";
 import { render } from "./app_screens.js";
 import { clearProhibitedCitations } from "./document_rules.js";
 

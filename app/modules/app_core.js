@@ -1,3 +1,4 @@
+import { createWriterHandoff } from "./writer_handoff.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
 import { createDocumentPagination } from "./document_pagination.js";
@@ -165,7 +166,6 @@ import {
   showBulkDue,
   toggleLibraryItem,
   updateDueIndicators,
-  writerOpenReportedCase,
   duePanel,
   dueDateSpacingConflicts,
 } from "./case_timeline.js";
@@ -650,6 +650,20 @@ const pdfArtifacts = createPdfArtifacts({
   render: (...args) => render(...args),
 });
 export let { showOutbox, selectedOutbox, printOutbox, refreshArtifactLocations } = pdfArtifacts;
+
+const writerHandoff = createWriterHandoff({
+  render: (...args) => render(...args),
+  preflightCase: (...args) => preflightCase(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  loadCaseFile: (...args) => loadCaseFile(...args),
+  get WRITER_READY_WAIT() {
+    return WRITER_READY_WAIT;
+  },
+  get HANDOFF_CHANNEL() {
+    return HANDOFF_CHANNEL;
+  },
+});
+export let { markWriterReady, markWriterFailed, writerOpenReportedCase, initWriterHandoff } = writerHandoff;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
