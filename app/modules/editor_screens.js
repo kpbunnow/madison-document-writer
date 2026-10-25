@@ -1,13 +1,13 @@
 import { recordDay } from "../assets/shared.js";
 import { checks, fmtDate, toast } from "./court_and_deposits.js";
 import { shell } from "./workspace_shell.js";
-import { saveDrafts } from "./case_files.js";
-import { checkRowHTML } from "./reinspection.js";
-import { screenCases, render } from "./app_screens.js";
+import { saveDrafts, scheduleDraftSave } from "./case_files.js";
+import { checkRowHTML, highlightOpenChecks } from "./reinspection.js";
+import { screenCases, render, overlayHTML } from "./app_screens.js";
 import { citationRecoveryPanel, correctionEligibility, correctionPanel, filingPanel, recordHistoryHTML } from "./issuance_and_corrections.js";
 import { publicationPanel } from "./draft_recovery.js";
 import { citationReview, duePanel } from "./case_timeline.js";
-import { refreshSheet } from "./document_pagination.js";
+
 import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
 import { checkAttr, esc } from "./presentation_format.js";
 import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
@@ -23,6 +23,9 @@ import {
   documentHTML,
   citationFaces,
   app_savedworkContext,
+  A11Y,
+  app_languagediscoveryContext,
+  paginate,
 } from "./app_core.js";
 
 import { WriterState } from "./state.js";
@@ -503,3 +506,60 @@ function newDoc(caseId, type) {
 }
 
 export { editorSync, renumber, moveItem, newDoc, reviewModalHTML, screenWrite, editorEnhance };
+
+function refreshSheet() {
+  const d = doc(WriterState.state.docId),
+    desk = document.querySelector(".desk");
+  if (d && desk) {
+    desk.innerHTML = documentHTML(d);
+    paginate();
+    syncChip();
+    scheduleDraftSave();
+  }
+}
+
+function syncChip() {
+  editorSync();
+  highlightOpenChecks();
+}
+
+function refreshOverlay() {
+  const languageFocus = rememberLanguageFocus(app_languagediscoveryContext());
+  A11Y.rememberFocus();
+  document.getElementById("overlay").innerHTML = overlayHTML();
+  enhanceDialog();
+  A11Y.enhance();
+  const q = document.getElementById("pk-q");
+  if (q) {
+    q.focus();
+    q.setSelectionRange(q.value.length, q.value.length);
+  }
+  restoreLanguageFocus(app_languagediscoveryContext(), languageFocus);
+}
+
+function enhanceDialog() {
+  const box = document.querySelector('[role="dialog"]');
+  const app = document.getElementById("app");
+  if (app) app.inert = !!box;
+  if (!box) return;
+  const heading = box.querySelector("h2");
+  if (heading) {
+    heading.id = "dialog-title";
+    box.setAttribute("aria-labelledby", "dialog-title");
+  }
+  box.tabIndex = -1;
+  if (WriterState.state.modal === "final" || WriterState.state.modal === "review") {
+    box.focus({ preventScroll: true });
+    const body = box.querySelector(".modal-b");
+    if (body) body.scrollTop = 0;
+    return;
+  }
+  if (!box.contains(document.activeElement)) {
+    const target = box.querySelector("#pk-q,button:not([disabled]),input:not([disabled])");
+    (target || box).focus();
+  }
+}
+
+import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
+
+export { refreshSheet, syncChip, refreshOverlay, enhanceDialog };

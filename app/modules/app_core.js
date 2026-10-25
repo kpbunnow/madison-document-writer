@@ -1,3 +1,4 @@
+import { createDocumentPagination } from "./document_pagination.js";
 import { createUtilityEvents } from "./utility_events.js";
 import { createRecoveryEvents } from "./recovery_events.js";
 import { createCatalogEvents } from "./catalog_events.js";
@@ -107,6 +108,7 @@ import {
   focusCheckTarget,
   highlightOpenChecks,
   worksheetChecks,
+  docFromReinspection,
 } from "./reinspection.js";
 import { uiIcon, caseState, renderKeep, render, screenCases } from "./app_screens.js";
 import {
@@ -215,8 +217,8 @@ import {
   updateDueIndicators,
   writerOpenReportedCase,
 } from "./case_timeline.js";
-import { editorSync, moveItem, newDoc, renumber } from "./editor_screens.js";
-import { docFromReinspection, refreshOverlay, refreshSheet, syncChip } from "./document_pagination.js";
+import { editorSync, moveItem, newDoc, renumber, refreshOverlay, refreshSheet, syncChip } from "./editor_screens.js";
+
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
 // Approved wording lives in app/assets/approved_language.json (acceptance item L5).
@@ -507,6 +509,19 @@ export const app_languagediscoveryContext = createLanguageDiscoveryContext({
     return effectiveCatalog;
   },
 });
+
+const documentPagination = createDocumentPagination({
+  get PAGE_PX() {
+    return PAGE_PX;
+  },
+  get snow() {
+    return snow;
+  },
+  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
+});
+// Retain the original mutable function binding used by the existing disclosure audit.
+export let { paginate } = documentPagination;
+const { contHead } = documentPagination;
 
 /* Feature interfaces are lazy: no service or later state is read during construction. */
 const utilityEvents = createUtilityEvents({
@@ -1442,4 +1457,5 @@ export function citationPricingDate(c, d) {
   return policyCitationPricingDate(c, d, inspAt(d).date);
 }
 
-if (__TEST_BUILD__) globalThis.__DW_TEST_REFERENCES = { deposits: DEPOSITS, safety: safetyCaseStatus, noticeHTML, citAmount, referralHistoryHTML };
+if (__TEST_BUILD__)
+  globalThis.__DW_TEST_REFERENCES = { deposits: DEPOSITS, safety: safetyCaseStatus, noticeHTML, citAmount, referralHistoryHTML, contHead };

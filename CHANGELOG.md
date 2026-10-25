@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Pagination and feature ownership (development)
+
+- Isolate physical pagination behind page-size, snow and history services. Move follow-up document creation to reinspection and sheet/overlay/dialog refresh to editor_screens, with direct imports from their defining owners. Preserve all nine function bodies, focus/save order, historical print allowance and layout behavior.
+- Reduce the retained Writer cycle from 13 to 12 modules and narrow dependency guards; Reports remains 5. Add independent controlled-layout tests and retain the disclosure audit’s mutable pagination binding, existing private diagnostic hook and every historical/functional/print assertion.
+- Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, helper authorization, integrity/publication rules and acceptance holds remain unchanged.
+
 ## Unreleased — Scoped Writer view contexts (development)
 
 - Construct saved-work, Workspace queue and language-discovery contexts through separate named lazy interfaces. Core exports their actual instance builders; preserve context field order, callback identities and call-time workspace references without a universal registry.
