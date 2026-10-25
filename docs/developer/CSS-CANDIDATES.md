@@ -1,23 +1,21 @@
-# Unused screen CSS candidates
+# Screen CSS cleanup decisions
 
-Consolidation Phase 3 (D5) inventory, October 23, 2026. **Candidates only; nothing was deleted.** The stylesheets are embedded in the HTML shell, whose bytes `audit_r51_layout.py` protects, and the optional Phase 8 screen-shell cleanup that could remove them was declined. `approved-print-style.css` is frozen and was not scanned.
+The owner authorized Phase 8 on October 25, 2026. The current cleanup removes 31 unused screen class families and 6,020 stylesheet bytes. Approved print CSS and historical print/document references remain unchanged. See [SCREEN-SHELL.md](SCREEN-SHELL.md) for provenance, validation and the future reference-review workflow.
 
-## Method
+## Removed classes
 
-Every class selector in the three screen stylesheets (comments and `url()` removed) was searched for as a whole word in `app/` (the stylesheets themselves excluded), `helper/`, `tools/` and `policy/`, after joining adjacent split string literals (`"n-headmai" + "n"`), which the source uses for long strings. Names matching only under `tests/` are listed as candidates: tests and frozen references are not application consumers. Runtime and library families (`st-*`, `message-*`, `leaflet-*`) were skipped, and stems were checked for string-built names (`"acc-" + x`, `` `acc-${x}` ``).
+`acc-h`, `acc-off`, `acc-on`, `acc-other`, `acc-scroll`, `chipstrip`, `cnt`, `docpanel`, `doctab`, `doctabs`, `draftlist`, `draftrow`, `fin-email`, `gitem-head`, `gitem-ord`, `r26-reason`, `spin`, `voidtag`, `edsel`, `map-controls`, `map-legend`, `storage-row`, `walk-card`, `chips`, `metric-grid`, `case-flag`, `case-flags`, `case-extra`, `editor-preview-frame`, `editor-initial-options`, `spacer`.
 
-A whole-word miss does not prove a class is dead: a name can still be assembled from parts the scan cannot see. Before Phase 8 deletes any of these, confirm each in the running screens.
+The four affected files are writer.css, reports.css, accessibility.css and ui-refresh.css. Mixed selector lists retain their active branches and declaration order. Empty media groups and the obsolete toast spinner keyframes are removed. The machine-readable per-file decisions and hashes are in `tests/fixtures/screen_shell_css.json`.
 
-## Candidates
+## Retained classes and inventory correction
 
-| Stylesheet | Classes scanned | Candidates (all referenced only under `tests/`) |
-| --- | --- | --- |
-| `app/assets/writer.css` | 289 | `acc-h`, `acc-off`, `acc-on`, `acc-other`, `acc-scroll`, `chipstrip`, `cnt`, `docpanel`, `doctab`, `doctabs`, `draftlist`, `draftrow`, `fin-email`, `gitem-head`, `gitem-ord`, `r26-reason`, `spin`, `voidtag` |
-| `app/assets/accessibility.css` | 73 | `docpanel`, `doctab`, `edsel`, `map-controls`, `map-legend`, `storage-row`, `walk-card` |
-| `app/assets/reports.css` | 71 | `chips` |
+`case-view` and `queue-primary` are active Workspace classes. The previous text inventory incorrectly marked them unused because their names span adjacent literals following dynamic expressions. Both source reconstruction and runtime observation confirm their use; their rules remain. The new source scanner has regression cases for this pattern.
 
-Joining split literals cleared four names a plain search would have flagged: `n-headmain`, `cit-idbar`, `picker-search` and `more-filters` are in use.
+Runtime/library families (`st-*`, `message-*`, `leaflet-*`) and uncertain dynamic stems remain outside the removal decision. Rules in approved-print-style.css remain untouched even when they share a removed screen class name.
 
-## Frozen stylesheets (not in scope)
+## Evidence and future changes
 
-The October 23 code review also named `metric-grid`, `case-flag`, `case-flags`, `case-view`, `case-extra`, `editor-preview-frame`, `editor-initial-options`, `queue-primary` and `spacer`. They have no application reference, but they are defined only in `approved-print-style.css` and `ui-refresh.css`, which feed the frozen print and shell parity references. They remain unchanged. Any future owner-approved screen-shell baseline may cover screen-only rules; Phase 8 does not authorize edits to `approved-print-style.css` or frozen print references. Print-style changes require a separate output-change proposal.
+The before source passed the full gate and the legacy screen-shell assertion. The complete browser workflow captured 288 synthetic UI checkpoints; none used the 31 removed classes. The surviving CSS rule contract is unchanged, preserving group, selector and declaration order. Current-shell and source/runtime class guards now protect the decision. Before/after comparison and the final full gate are documented in the development PR; pixel differences must be reported rather than hidden by tolerance or reference updates.
+
+A source search alone does not prove that CSS is unused. Before a future removal, reconstruct split literals, inspect dynamic stems, observe the running screens and compare surviving rules and rendering. Keep active or uncertain rules. Screen reference changes require an explained review; print changes require a separate output-change proposal.

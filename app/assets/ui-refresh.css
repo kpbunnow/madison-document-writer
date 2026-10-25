@@ -140,8 +140,7 @@
     outline-offset: 3px;
   }
   .card,
-  .panel,
-  .docpanel {
+  .panel {
     border-color: var(--rule);
     border-radius: 12px;
     box-shadow: 0 2px 5px #18324a04;
@@ -187,12 +186,7 @@
     font-size: 19px;
     font-weight: 650;
   }
-  .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 22px;
-  }
+
   .metric {
     padding: 17px 19px;
     background: #fff;
@@ -346,9 +340,7 @@
     flex-wrap: wrap;
     margin-bottom: 15px;
   }
-  .editor-tools .spacer {
-    flex: 1;
-  }
+
   .editor-tools label {
     font-size: 12px;
     color: var(--ink-2);
@@ -367,9 +359,7 @@
     border-radius: 12px;
     padding: 24px 16px;
   }
-  .docpanel {
-    padding: 14px 17px !important;
-  }
+
   .cchip {
     font-size: 11px !important;
   }
@@ -518,9 +508,7 @@
     .topbar {
       padding: 20px 18px;
     }
-    .metric-grid {
-      gap: 8px;
-    }
+
     .metric {
       padding: 14px;
     }
@@ -565,7 +553,6 @@
       font-size: 12px;
       padding: 9px;
     }
-    .rail-item .cnt,
     .rail-foot {
       display: none;
     }
@@ -578,9 +565,7 @@
     .topbar-actions {
       margin-top: 15px;
     }
-    .metric-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+
     .case-tools input,
     .case-tools select {
       width: 100%;
@@ -611,9 +596,7 @@
     .topbar .lede {
       font-size: 13px;
     }
-    .editor-tools .spacer {
-      display: none;
-    }
+
     .picker-footer {
       flex-wrap: wrap;
     }
@@ -1185,54 +1168,15 @@
     color: var(--ink);
     font: inherit;
   }
-  .case-flags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 6px;
-  }
-  .case-flag {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 7px;
-    border-radius: 999px;
-    background: #f1f4f7;
-    color: #405568;
-    font-size: 10px;
-    font-weight: 650;
-    line-height: 1.3;
-  }
-  .case-flag.late {
-    background: #fff1dc;
-    color: #82500d;
-  }
-  .case-flag.soon,
+
   .pill.soon {
     background: #fff8e8;
     color: #84590e;
   }
-  .case-flag.sync,
-  .case-flag.pending {
-    background: #fff4df;
-    color: #764f17;
-  }
-  .case-flag.filing {
-    background: #edf4fc;
-    color: #245880;
-  }
+
   .case-date-soon {
     color: #84590e;
     font-weight: 650;
-  }
-  .case-extra {
-    display: flex;
-    justify-content: flex-end;
-    gap: 9px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-  .case-extra .lnk {
-    font-size: 11px;
   }
 }
 @media screen and (max-width: 760px) {
@@ -1564,13 +1508,7 @@
     display: grid;
     gap: 8px;
   }
-  .editor-preview-frame {
-    border: 1px solid var(--rule);
-    background: #fff;
-    width: 100%;
-    height: 65vh;
-    min-height: 300px;
-  }
+
   .document-workspace #checkbox-panel {
     margin-top: 14px;
   }
@@ -1630,10 +1568,6 @@
 }
 
 @media screen {
-  .editor-initial-options {
-    margin: 12px 0;
-  }
-  .editor-initial-options > summary,
   .case-check-fields > summary {
     padding: 8px 12px;
     min-height: 40px;
@@ -1641,9 +1575,6 @@
     font-size: 13px;
     color: var(--civic);
     box-sizing: border-box;
-  }
-  .editor-initial-options[open] > summary {
-    margin-bottom: 10px;
   }
 }
 

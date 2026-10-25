@@ -201,7 +201,9 @@ covers, or a new suite under its feature.
 | Suite | Covers |
 | --- | --- |
 | `audit_architecture_guards.py` | Removed designs stay removed (copied source, registry, signing) |
-| `audit_r50_repository.py`, `audit_r51_layout.py` | Version consistency, deploy inventory, shell parity, release documents, staff-doc file names |
+| `audit_screen_shell.py` | Strict current screen-shell normalization, verified provenance and frozen print-style boundary |
+| `audit_screen_css.js` | Split-literal CSS consumer scan, removed/retained classes and surviving declaration/cascade contracts |
+| `audit_r50_repository.py`, `audit_r51_layout.py` | Version consistency, deploy inventory, current screen-shell reference, release documents, staff-doc file names |
 | `audit_r40_build.py`, `audit_r45_evidence.py` | Runtime inventory; release evidence detects drift |
 | `fixtures/tagcheck.js` | Built pages are well-formed standards-mode HTML |
 | `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |

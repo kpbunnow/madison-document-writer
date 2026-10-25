@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "approval": {
+    "date": "2026-10-25",
+    "scope": "Phase 8 screen-shell/CSS cleanup",
+    "request": "Complete the screen-shell/CSS development"
+  },
+  "normalization": [
+    "embedded application payload",
+    "current release label, when present outside the payload"
+  ],
+  "baseline": {
+    "sourceCommit": "0343b4f0c36f7c43dc64704713325f74fc0676b9",
+    "sourceClean": true,
+    "verifiedInputsSha256": "3d7be93b03ab057d6972d077387a622c1b9de0d4583555b84e0158764df0e922",
+    "toolchain": {
+      "python": "3.12.14",
+      "node": "v24.19.0",
+      "chromium": "145.0.7632.6"
+    },
+    "suiteCount": 178,
+    "axeScreens": 288,
+    "mergedMainCommit": "8ba102a14797263160437408d2d14c307845b1e8",
+    "legacyScreenCheckPassed": true,
+    "approvedPrintSha256": "1a9e0332012557542799b8acd54edefb56780c314df4d75f91c4b8ed8a8de8e8"
+  },
+  "files": {
+    "madison-document-writer.html": {
+      "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
+      "normalizedShellSha256": "44ee2ffc11017b39da4bb70ab3153841884554642947bd71cc1ed533e87fc8b8"
+    },
+    "madison-reports.html": {
+      "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
+      "normalizedShellSha256": "4e3772d199d58f41d60b216d11d9e6cc1a7b1bb24d98956bcc67d9d35f6bf08e"
+    }
+  }
+}

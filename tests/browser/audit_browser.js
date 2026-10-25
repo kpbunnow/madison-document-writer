@@ -19,6 +19,7 @@ let server, browser, auditPage, coreTimer;
 const coreStarted = performance.now();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const axeResults = [];
+const { inspectScreenCSS } = require("./screen_css.cjs");
 // These citation artifacts include an Official Notice cover. Assert the full required paragraphs in the PDF,
 // not just their headings or the HTML source: an incomplete capture must fail verification.
 function assertCitationCoverPDF(filename) {
@@ -48,6 +49,7 @@ async function axeScreen(page, screen) {
     passes: result.passes.length,
     incomplete: result.incomplete.map((v) => v.id),
   };
+  await inspectScreenCSS(page, screen, OUT);
   axeResults.push(report);
   fs.writeFileSync(
     path.join(OUT, "axe-results.json"),

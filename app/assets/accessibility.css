@@ -159,7 +159,6 @@
   [data-theme="dark"] .card,
   [data-theme="dark"] .panel,
   [data-theme="dark"] .modal-box,
-  [data-theme="dark"] .docpanel,
   [data-theme="dark"] .topbar,
   [data-theme="dark"] .filters,
   [data-theme="dark"] .utility-dialog {
@@ -230,7 +229,6 @@
     [data-theme="system"] .card,
     [data-theme="system"] .panel,
     [data-theme="system"] .modal-box,
-    [data-theme="system"] .docpanel,
     [data-theme="system"] .topbar,
     [data-theme="system"] .filters,
     [data-theme="system"] .utility-dialog {
@@ -287,8 +285,6 @@
   }
   [data-theme="dark"] .metric,
   [data-theme="dark"] .banner,
-  [data-theme="dark"] .walk-card,
-  [data-theme="dark"] .storage-row,
   [data-theme="dark"] .case-tools {
     background: #213c53;
     color: #edf6ff;
@@ -317,8 +313,6 @@
     }
     [data-theme="system"] .metric,
     [data-theme="system"] .banner,
-    [data-theme="system"] .walk-card,
-    [data-theme="system"] .storage-row,
     [data-theme="system"] .case-tools {
       background: #213c53;
       color: #edf6ff;
@@ -369,9 +363,6 @@
     min-height: 24px !important;
     min-width: 24px !important;
   }
-  .main .edsel {
-    height: auto !important;
-  }
 }
 
 @media screen {
@@ -408,8 +399,6 @@
   .fresh,
   .seg,
   #map,
-  .map-controls,
-  .map-legend,
   .skip-link {
     display: none !important;
   }
@@ -476,15 +465,7 @@
     --referred: #d9c3ff;
     --civic-bar: #3b607b;
   }
-  [data-theme="dark"] .doctab {
-    background: #213c53;
-    color: #edf6ff;
-  }
-  [data-theme="dark"] .doctab[aria-selected="true"],
-  [data-theme="dark"] .doctab.active {
-    background: #31536d;
-    color: #fff;
-  }
+
   [data-theme="dark"] .soon {
     color: #c9dbea;
     opacity: 1;
@@ -518,15 +499,7 @@
       --referred: #d9c3ff;
       --civic-bar: #3b607b;
     }
-    [data-theme="system"] .doctab {
-      background: #213c53;
-      color: #edf6ff;
-    }
-    [data-theme="system"] .doctab[aria-selected="true"],
-    [data-theme="system"] .doctab.active {
-      background: #31536d;
-      color: #fff;
-    }
+
     [data-theme="system"] .soon {
       color: #c9dbea;
       opacity: 1;
