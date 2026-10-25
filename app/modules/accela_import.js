@@ -15,7 +15,7 @@
 import { parseTime, parseDate, inspAt, fmtTime, toast, fmtDate, validISO } from "./court_and_deposits.js";
 import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
 import { clone, stableJSON, caseDetails } from "./record_values.js";
-import { snow, uid, citationPricing, COMMITTED } from "./app_core.js";
+import { snow, uid, citationPricing, COMMITTED, newDoc } from "./app_core.js";
 import { summaryName } from "./case_file_rules.js";
 import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
@@ -28,7 +28,7 @@ import { sourceDocFor, loadCaseFile, helperJSON, shell } from "./workspace_shell
 import { unissuedVisitFor } from "./draft_recovery.js";
 import { caseState, render } from "./app_screens.js";
 import { scheduleDraftSave, listCaseFolder, saveDrafts, startReinspection } from "./case_files.js";
-import { newDoc } from "./editor_screens.js";
+
 import { captureWork } from "./issuance_and_corrections.js";
 import { preflightCase } from "./language_catalog.js";
 import { authFetch } from "./helper_transport.js";

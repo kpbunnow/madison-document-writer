@@ -109,8 +109,9 @@ import {
   highlightOpenChecks,
   worksheetChecks,
   docFromReinspection,
+  checkRowHTML,
 } from "./reinspection.js";
-import { uiIcon, caseState, renderKeep, render, screenCases } from "./app_screens.js";
+import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML } from "./app_screens.js";
 import {
   accelaFromShare,
   pickAccelaFile,
@@ -144,6 +145,11 @@ import {
   documentItemHistory,
   revisionPrintNote,
   hasItemInspectionHistory,
+  citationRecoveryPanel,
+  correctionEligibility,
+  correctionPanel,
+  filingPanel,
+  recordHistoryHTML,
 } from "./issuance_and_corrections.js";
 import {
   backupUnfinished,
@@ -165,6 +171,7 @@ import {
   validateRecovery,
   worksheetFaults,
   recoveryStatusHTML,
+  publicationPanel,
 } from "./draft_recovery.js";
 import {
   adoptCatalogReview,
@@ -216,8 +223,9 @@ import {
   toggleLibraryItem,
   updateDueIndicators,
   writerOpenReportedCase,
+  duePanel,
 } from "./case_timeline.js";
-import { editorSync, moveItem, newDoc, renumber, refreshOverlay, refreshSheet, syncChip } from "./editor_screens.js";
+import { createEditorScreens } from "./editor_screens.js";
 
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
@@ -245,6 +253,66 @@ import { initTestFixtures, TEST_CASES as TEST_CASE_DATA } from "./test_fixtures.
 import { createDocumentRenderer } from "./document_render.js";
 
 import { createSavedWorkContext, createWorkspaceQueueContext, createLanguageDiscoveryContext } from "./app_view_contexts.js";
+
+/* Editor copy-click registration precedes the existing feature-service registrations. Dependencies stay lazy. */
+const editorScreens = createEditorScreens({
+  checks: (...args) => checks(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  toast: (...args) => toast(...args),
+  shell: (...args) => shell(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  checkRowHTML: (...args) => checkRowHTML(...args),
+  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
+  screenCases: (...args) => screenCases(...args),
+  render: (...args) => render(...args),
+  overlayHTML: (...args) => overlayHTML(...args),
+  citationRecoveryPanel: (...args) => citationRecoveryPanel(...args),
+  correctionEligibility: (...args) => correctionEligibility(...args),
+  correctionPanel: (...args) => correctionPanel(...args),
+  filingPanel: (...args) => filingPanel(...args),
+  recordHistoryHTML: (...args) => recordHistoryHTML(...args),
+  publicationPanel: (...args) => publicationPanel(...args),
+  citationReview: (...args) => citationReview(...args),
+  duePanel: (...args) => duePanel(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  isLocked: (...args) => isLocked(...args),
+  get newDocuments() {
+    return newDocuments;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  get snow() {
+    return snow;
+  },
+  structEditable: (...args) => structEditable(...args),
+  uid: (...args) => uid(...args),
+  documentHTML: (...args) => documentHTML(...args),
+  citationFaces: (...args) => citationFaces(...args),
+  app_savedworkContext: (...args) => app_savedworkContext(...args),
+  get A11Y() {
+    return A11Y;
+  },
+  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
+  paginate: (...args) => paginate(...args),
+});
+export let {
+  editorSync,
+  renumber,
+  moveItem,
+  newDoc,
+  reviewModalHTML,
+  screenWrite,
+  editorEnhance,
+  refreshSheet,
+  syncChip,
+  refreshOverlay,
+  enhanceDialog,
+} = editorScreens;
+const { editorReadiness, readinessText, readinessFirst, reviewConcernsHTML } = editorScreens;
 
 export const snow = initSnow({
   citationNumber: (...args) => citationNumber(...args),
@@ -1458,4 +1526,15 @@ export function citationPricingDate(c, d) {
 }
 
 if (__TEST_BUILD__)
-  globalThis.__DW_TEST_REFERENCES = { deposits: DEPOSITS, safety: safetyCaseStatus, noticeHTML, citAmount, referralHistoryHTML, contHead };
+  globalThis.__DW_TEST_REFERENCES = {
+    deposits: DEPOSITS,
+    safety: safetyCaseStatus,
+    noticeHTML,
+    citAmount,
+    referralHistoryHTML,
+    contHead,
+    editorReadiness,
+    readinessText,
+    readinessFirst,
+    reviewConcernsHTML,
+  };

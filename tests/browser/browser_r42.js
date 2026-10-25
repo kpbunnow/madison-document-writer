@@ -194,7 +194,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await bar.getByRole("button", { name: "Next required field", exact: true }).click();
     assert.equal(
       await page.evaluate(() => {
-        const ready = editorReadiness(doc(WriterState.state.docId)),
+        const ready = editorScreens.editorReadiness(doc(WriterState.state.docId)),
           first = ready.list.find((c) => !c.ok && !c.soft && c.targets?.length);
         return document.activeElement === document.querySelector(first.targets[0].selector);
       }),
@@ -317,7 +317,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).click();
     assert.equal(
       await page.evaluate(() => {
-        const ready = editorReadiness(doc(WriterState.state.docId)),
+        const ready = editorScreens.editorReadiness(doc(WriterState.state.docId)),
           first = ready.list.find((c) => !c.ok && !c.soft && c.targets?.length);
         return document.activeElement === document.querySelector(first.targets[0].selector);
       }),
