@@ -22,9 +22,10 @@ import {
   recordFormKey,
   uid,
   saveDrafts,
+  unissuedVisitFor,
 } from "./app_core.js";
 import { priorCitations, render } from "./app_screens.js";
-import { cleanVisit, unissuedVisitFor } from "./draft_recovery.js";
+import { cleanVisit } from "./worksheet_workflow.js";
 
 import { DOC_TYPES, OUTCOMES, courtTime } from "./document_types.js";
 

@@ -28,6 +28,7 @@ import {
   ensureWalkContext,
   screenReinspect,
   highlightOpenChecks,
+  unissuedVisitFor,
 } from "./app_core.js";
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
@@ -40,7 +41,7 @@ import { validISO, addDays, daysBetween, iso } from "./calendar.js";
 import { STATUS_OF, DOC_TYPES } from "./document_types.js";
 import { emailList, ccList, isLLC, EMAIL_KINDS } from "./mailing_rules.js";
 import { checkAttr, esc } from "./presentation_format.js";
-import { unissuedVisitFor, recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
+import { recoveryStatusHTML, recoveryModal, restoreWorkControls } from "./draft_recovery.js";
 
 import { WriterState } from "./state.js";
 

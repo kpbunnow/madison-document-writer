@@ -28,9 +28,8 @@ import {
   flushPending,
   loadCaseFile,
   scheduleRecoveryBackup,
+  unissuedVisitFor,
 } from "./app_core.js";
-
-import { unissuedVisitFor } from "./draft_recovery.js";
 
 import { render } from "./app_screens.js";
 
