@@ -1,3 +1,6 @@
+import { createDocumentPrinting } from "./document_printing.js";
+import { createDocumentDelivery } from "./document_delivery.js";
+import { authFetch } from "./helper_transport.js";
 import { createCitationDrafts } from "./citation_drafts.js";
 import { createVisitRecording } from "./visit_recording.js";
 import { createWorkingPapers, hasSetupWork, filingPanel } from "./working_papers.js";
@@ -65,22 +68,29 @@ import {
   freezeSources,
   lookupForf,
   activeBlocks,
-  checkHelper,
   checks,
-  emailDocument,
-  filePdf,
   fillBlank,
-  openIssuedCopy,
-  printJob,
   rnd12,
   splitOwner,
   toast,
+  toastHold,
   toastUndo,
   fmtTime,
   longDate,
   allItems,
 } from "./court_and_deposits.js";
-import { shell, evid, grantCaseFolder, helperJSON, linkCaseFolder, printNotice, testWrite, sourceDocFor, appendEvent } from "./workspace_shell.js";
+import {
+  shell,
+  evid,
+  grantCaseFolder,
+  helperJSON,
+  linkCaseFolder,
+  printNotice,
+  printableHTML,
+  testWrite,
+  sourceDocFor,
+  appendEvent,
+} from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import {
@@ -1045,6 +1055,60 @@ const visitRecording = createVisitRecording({
   render: (...args) => render(...args),
 });
 export let { recordReinspection } = visitRecording;
+
+const documentPrinting = createDocumentPrinting({
+  fmtDate: (...args) => fmtDate(...args),
+  get today() {
+    return today;
+  },
+  get document() {
+    return document;
+  },
+  citationDepositFault: (...args) => citationDepositFault(...args),
+  documentHTML: (...args) => documentHTML(...args),
+  get snow() {
+    return snow;
+  },
+  printableHTML: (...args) => printableHTML(...args),
+  paginate: (...args) => paginate(...args),
+});
+export let { printJob } = documentPrinting;
+const { documentFileName } = documentPrinting;
+const documentDelivery = createDocumentDelivery({
+  authFetch: (...args) => authFetch(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  get today() {
+    return today;
+  },
+  toast: (...args) => toast(...args),
+  toastHold: (...args) => toastHold(...args),
+  render: (...args) => render(...args),
+  documentFileName: (...args) => documentFileName(...args),
+  printJob: (...args) => printJob(...args),
+  get document() {
+    return document;
+  },
+  get window() {
+    return window;
+  },
+  get URL() {
+    return URL;
+  },
+  get Blob() {
+    return Blob;
+  },
+  atob: (...args) => atob(...args),
+  setTimeout: (...args) => setTimeout(...args),
+  confirm: (...args) => confirm(...args),
+  printNotice: (...args) => printNotice(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  appendEvent: (...args) => appendEvent(...args),
+  saveCaseFile: (...args) => saveCaseFile(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+});
+export let { checkHelper, emailDocument, openIssuedCopy, filePdf } = documentDelivery;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -2100,6 +2164,7 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    documentFileName,
     correctionValueText,
     recoveryIncluded,
     recoverySharedState,
