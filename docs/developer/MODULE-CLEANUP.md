@@ -295,13 +295,21 @@ Preserve frozen/source/date/outcome/withdrawn/carried compliance/deadline rules,
 
 There are 94 maintained modules and 44 independent scoped owners. draft_recovery shrinks from 366 to 210 lines; case_files loses its direct recovery import. Writer retains its seven-module component and Reports stays acyclic. Next separate remaining recovery presentation/work controls and record/history responsibilities before court/delivery/core-screen direction, preserving bounded interfaces and original startup/listener order.
 
-## Thirty-first increment: recovery presentation/work controls and document-history presentation
+## Thirty-first increment: recovery presentation/work controls and document-history presentation (merged in PR #77)
 
 recovery_ui owns six control/navigation/picker/status/modal operations through 11 lazy adapters. catalog_forms directly defines catalogKey and composes keepCatalogForms through one storage getter. record_history presents recordHistoryHTML/revisionPrintNote through one date-format input. Core composes the owners after worksheetWorkflow and before documentRenderer, exporting actual mutable operations and importing the defining catalogKey. Constructors perform no reads, I/O or registration. draft_recovery is retired without a forwarding module.
 
 All ten moved and every remaining issuance function retain logic/markup apart from dependency access. Preserve enabled/disabled work restoration, cancellation/capture/timer/navigation callback order, picker/restore failures, catalog keys/storage errors, escaped recovery conflict/status fields, version-chain/request/annotation/reconciliation ordering, case-scoped busy disabling and revision-print wording. This is presentation/work-control separation, not new persistence/publication authority or completion of all record actions/history calculations.
 
 There are 96 maintained modules and 47 independent scoped owners. Writer narrows to six cyclic modules (core, screens, case files, court/deposits, issuance/corrections and shell); the boundary test now caps it at six, and Reports stays acyclic. Issuance shrinks from 916 to 796 lines. Earlier increment counts above are retained as provenance; the current inventory is here and in MAINTAINABILITY-ASSESSMENT.md. Next inspect remaining record actions/correction and inspection-history responsibilities, then court/delivery and shell/case/core-screen direction.
+
+## Thirty-second increment: inspection history, correction UI and record actions
+
+inspection_history directly defines live legacy/item-lineage history and the capability predicate, composing documentItemHistory through one patch adapter. correction_ui composes correction/record-action presentation through three inputs; record_actions composes withdrawal/note/follow-through and retained-attempt confirmation through five. Core composes them after recordHistory and before documentRenderer, importing direct definitions and exporting actual operations. Construction performs no reads, I/O or registration; private formatter diagnostics remain test-build-only.
+
+All 13 moved function bodies, the history predicate and remaining issuance functions preserve logic apart from service access. Preserve legacy versus item-ID history semantics, cutoffs and retained overlays; dollar/cent presentation and markup; pending/saved form locking; event/head/actor/record-key fields, exact original holder/request on retries and confirmation-before-modal/render/message order. No new concurrent-click guarantee, helper trust or issuance authority is introduced.
+
+There are 99 maintained modules and 50 independent scoped owners. Issuance shrinks from 796 to 291 lines; Writer retains six cyclic modules and Reports stays acyclic. Next inspect remaining citation preparation, visit recording and working-paper/workspace presentation before court/deposit/delivery and shell/case/core-screen direction. Historical increment counts above remain provenance; current metrics are in MAINTAINABILITY-ASSESSMENT.md.
 
 ## Following increments
 

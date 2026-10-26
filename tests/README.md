@@ -197,6 +197,7 @@ covers, or a new suite under its feature.
 | `audit_writer_handoff.js` | Six-input readiness/Reports handoff owner, restoration waits/failures, restored local work, stale shared requests, file validation and channel/URL behavior |
 | `audit_deadline_assignment.js` | Seven-input deadline owner, atomic batch/assignment refusals, spacing/count and live selection/worksheet guards, escaped presentation and indicators |
 | `audit_workspace_tasks.js` | Three-input read-only task owner, group/count agreement, delegated policy, artifact truth, action escaping, frozen inputs and live workspace replacement |
+| `audit_record_workflows.js` | Independent inspection history/correction UI/record actions; retained request retries, validation/locking/escaping, item lineage, legacy cutoffs and immutable history overlays |
 | `audit_recovery_history.js` | Independent recovery UI/catalog forms/document-history owners; lazy interfaces, control/navigation/picker failures, escaped status/history, catalog persistence and revision-print semantics |
 | `audit_worksheet_workflow.js` | Independent eight-input worksheet owner; outcome/date/deadline/carried/withdrawn rules, date/copy cleanup, unissued visits, reversible retained drafts and discard refusals |
 | `audit_case_recovery.js` | Independent 18-input case recovery owner; selection/shared/validation refusals, backup-before-confirmation, storage completion/error/abort, fallback rollback and unrelated/import work retention |
