@@ -1,3 +1,6 @@
+import { createCitationDrafts } from "./citation_drafts.js";
+import { createVisitRecording } from "./visit_recording.js";
+import { createWorkingPapers, hasSetupWork, filingPanel } from "./working_papers.js";
 import { createInspectionHistory, itemHistory, itemInspectionHistory, hasItemInspectionHistory } from "./inspection_history.js";
 import { createCorrectionUI } from "./correction_ui.js";
 import { createRecordActions } from "./record_actions.js";
@@ -105,19 +108,9 @@ import {
   validateAndStandardizeAddresses,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
-import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
+import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
-import {
-  hasSetupWork,
-  citationTier,
-  captureWork,
-  citationFromNotice,
-  needsInitialCitation,
-  recordReinspection,
-  runFinalize,
-  citationRecoveryPanel,
-  filingPanel,
-} from "./issuance_and_corrections.js";
+
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
 
@@ -1005,13 +998,53 @@ const correctionUI = createCorrectionUI({
 export let { correctionDiffHTML, correctionPanel, recordActionModal } = correctionUI;
 const { correctionValueText } = correctionUI;
 const recordActions = createRecordActions({
+  issueCorrection: (...args) => issueCorrection(...args),
+  publishDocument: (...args) => publishDocument(...args),
   correctionEligibility: (...args) => correctionEligibility(...args),
   toast: (...args) => toast(...args),
   evid: (...args) => evid(...args),
   render: (...args) => render(...args),
   commitAmendment: (...args) => commitAmendment(...args),
 });
-export let { voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt } = recordActions;
+export let { runFinalize, voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt } = recordActions;
+
+const workingPapers = createWorkingPapers({
+  ensureWalkContext: (...args) => ensureWalkContext(...args),
+  get ENTRY_IDS() {
+    return ENTRY_IDS;
+  },
+  get document() {
+    return document;
+  },
+  recordFormKey: (...args) => recordFormKey(...args),
+});
+export let { captureWork } = workingPapers;
+const citationDrafts = createCitationDrafts({
+  priorCitations: (...args) => priorCitations(...args),
+  uid: (...args) => uid(...args),
+  get today() {
+    return today;
+  },
+  citationNumber: (...args) => citationNumber(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  nextCourtDate: (...args) => nextCourtDate(...args),
+  applyDeposit: (...args) => applyDeposit(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  get depositStep() {
+    return depositStep;
+  },
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
+});
+export let { citationTier, citationFromNotice, needsInitialCitation, citationRecoveryPanel } = citationDrafts;
+const visitRecording = createVisitRecording({
+  appendEvent: (...args) => appendEvent(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  toast: (...args) => toast(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  render: (...args) => render(...args),
+});
+export let { recordReinspection } = visitRecording;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

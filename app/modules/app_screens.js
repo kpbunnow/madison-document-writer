@@ -51,7 +51,7 @@ import { WriterState } from "./state.js";
 
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 
-import { importResumePanel, workingNotesPanel } from "./issuance_and_corrections.js";
+import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
 import { checks, fmtDate } from "./court_and_deposits.js";

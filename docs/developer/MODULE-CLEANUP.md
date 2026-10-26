@@ -303,7 +303,7 @@ All ten moved and every remaining issuance function retain logic/markup apart fr
 
 There are 96 maintained modules and 47 independent scoped owners. Writer narrows to six cyclic modules (core, screens, case files, court/deposits, issuance/corrections and shell); the boundary test now caps it at six, and Reports stays acyclic. Issuance shrinks from 916 to 796 lines. Earlier increment counts above are retained as provenance; the current inventory is here and in MAINTAINABILITY-ASSESSMENT.md. Next inspect remaining record actions/correction and inspection-history responsibilities, then court/delivery and shell/case/core-screen direction.
 
-## Thirty-second increment: inspection history, correction UI and record actions
+## Thirty-second increment: inspection history, correction UI and record actions (merged in PR #78)
 
 inspection_history directly defines live legacy/item-lineage history and the capability predicate, composing documentItemHistory through one patch adapter. correction_ui composes correction/record-action presentation through three inputs; record_actions composes withdrawal/note/follow-through and retained-attempt confirmation through five. Core composes them after recordHistory and before documentRenderer, importing direct definitions and exporting actual operations. Construction performs no reads, I/O or registration; private formatter diagnostics remain test-build-only.
 
@@ -311,11 +311,19 @@ All 13 moved function bodies, the history predicate and remaining issuance funct
 
 There are 99 maintained modules and 50 independent scoped owners. Issuance shrinks from 796 to 291 lines; Writer retains six cyclic modules and Reports stays acyclic. Next inspect remaining citation preparation, visit recording and working-paper/workspace presentation before court/deposit/delivery and shell/case/core-screen direction. Historical increment counts above remain provenance; current metrics are in MAINTAINABILITY-ASSESSMENT.md.
 
+## Thirty-third increment: citation drafts, visit recording and working papers
+
+citation_drafts composes tier/draft preparation/recovery guards through 11 inputs; visit_recording composes recordReinspection through five; working_papers directly defines unfinished-work/filing facts/presentation and composes captureWork through four browser/walk/form inputs. runFinalize joins record_actions through the original correction/publication delegates (seven total action inputs). Core composes the new owners after recordActions and before documentRenderer. Constructors perform no reads, I/O or registration. issuance_and_corrections is retired without forwarding exports.
+
+All eleven moved and four retained action bodies preserve logic apart from scoped service access. Preserve citation reuse/identity/head/source/inspection/charge/court data and deposit/save/open order; cleaned visit event identity, append/remove/project/save/quiet ordering; typed/explicit clear/walk/import/recipient capture and escaped read-only work/filing panels. No new concurrent, atomic rollback, durable-save or publication guarantee is asserted.
+
+There are 101 maintained modules and 53 independent scoped owners. Writer narrows to five cyclic modules (core, screens, case files, court/deposits and shell); the boundary test caps it at five, and Reports stays acyclic. Historical increment counts remain provenance. Next inspect court/deposit/delivery boundaries, then shell/case-file UI/startup and core/screen dependency direction.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 6-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 5-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
