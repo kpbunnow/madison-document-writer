@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Worksheet workflow boundary (development)
+
+- Separate worksheet source/readiness queries and reopen/restore/discard transitions through eight lazy source/date/continuing-item/deadline/save/UI inputs. Define date-change and cleaned-visit operations directly in the same owner. Keep original carried/withdrawn/outcome/date/deadline rules and retained previous-draft semantics.
+- Preserve all seven moved and remaining recovery function bodies apart from dependency access, including save/render/message order. This does not change save acknowledgement or publication/helper authority.
+- Add independent worksheet/date/clone/transition/refusal tests and guards; update ownership, source/test indexes and roadmap. Recovery is 156 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Individual-case recovery boundary (development)
 
 - Separate backup listing/selection, shared comparison, validation and individual-case/import restoration through 18 lazy UI/shared/storage/recovery inputs. Define the shared-conflict predicate directly for recovery UI. Keep original stale-selection checkpoints, pre-replacement backup/confirmation, storage acknowledgement and restoration order.

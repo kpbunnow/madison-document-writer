@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the individual-case recovery increment based on merged PR #74, main `59d63c1cb652100250e69e0b50a1d0ee09f5453f`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe the reviewed source layout, not quality/performance thresholds.
+Snapshot: the worksheet-workflow increment based on merged PR #75, main `44284d94d65069615e1970623eb67f6f28b27a50`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe the reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Individual-case backup listing/selection/shared comparison/validation/restore now has an independent 18-input owner; the shared-conflict predicate has a direct definition. All seven original bodies retain logic, selection checkpoints, validation/refusals, pre-replacement backup/confirmation, storage acknowledgement/fallback rollback and live replacement order. Module loading/construction performs no work. Modal/status/file-picker and worksheet/work controls remain in recovery UI. This is not an expanded all-stage asynchronous transaction or trust guarantee. draft_recovery is 277 lines smaller. Writer still has a seven-module cycle and Reports stays acyclic; PNG/native acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Worksheet source/readiness queries and reopen/restore/discard now have an independent eight-input owner; date-change and clean-visit helpers have direct definitions. All seven original bodies retain rules, snapshot/identity/previous-draft semantics and refusal/state/walk/save/render order. Module loading/construction performs no work. Synchronous save dispatch is not a new durable acknowledgement or publication guarantee. draft_recovery is 156 lines smaller and retains work controls/save-and-continue, modal/status/file-picker and catalog form UI. Writer still has a seven-module cycle and Reports stays acyclic; PNG/native acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,19 +12,19 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2093 | 72 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1239 | 19 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 648 | 15 | 5 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
+| `app_core.js` | 2096 | 73 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1240 | 19 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `case_files.js` | 647 | 14 | 4 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
 | `court_and_deposits.js` | 1096 | 16 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `draft_recovery.js` | 366 | 16 | 6 | Worksheet/work controls, modal/status/file-picker and catalog-form UI remain coupled |
-| `issuance_and_corrections.js` | 915 | 15 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |
+| `draft_recovery.js` | 210 | 9 | 5 | Work controls/save-and-continue, modal/status/file-picker and catalog-form UI remain coupled |
+| `issuance_and_corrections.js` | 916 | 15 | 4 | Record actions/history, citation creation and saved-work UI remain coupled |
 | `workspace_shell.js` | 469 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Finish remaining recovery and record/history boundaries.** Device/local-draft persistence, shared writes/retries, case saving, case record/loading operations, whole-workspace backups, automatic recovery backups and individual-case recovery now have independent owners. Next separate worksheet/record-history responsibilities and remaining recovery UI where responsibilities still mix. Preserve retained attempts, restoration barriers, integrity validation, correction/inspection lineage and failure/rollback order; do not replace them with a broad callback registry.
+1. **Finish remaining recovery and record/history boundaries.** Device/local-draft persistence, shared writes/retries, case saving, case record/loading operations, whole-workspace backups, automatic recovery backups, individual-case recovery and worksheet workflows now have independent owners. Next separate remaining recovery presentation/work controls and record/history responsibilities where responsibilities still mix. Preserve retained attempts, restoration barriers, integrity validation, correction/inspection lineage and failure/rollback order; do not replace them with a broad callback registry.
 2. **Review remaining court/deposit/delivery and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
@@ -33,7 +33,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 72 maintained-module dependencies in this graph and 45 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 73 maintained-module dependencies in this graph and 46 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |

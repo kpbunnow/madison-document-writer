@@ -279,13 +279,21 @@ All seven moved and every remaining recovery function body retain logic apart fr
 
 There are 92 maintained modules and 42 independent scoped owners. draft_recovery shrinks from 811 to 643 lines. Writer remains a seven-module component and Reports stays acyclic. Next isolate individual-case recovery selection/validation/restore, then worksheet/record-history responsibilities before court/delivery and core/screen direction.
 
-## Twenty-ninth increment: individual-case recovery boundary
+## Twenty-ninth increment: individual-case recovery boundary (merged in PR #75)
 
 case_recovery composes backup list/selection/shared comparison/validation/restore through 18 lazy adapters; recoverySharedConflict is a direct defining export used by UI. Core composes it after automaticRecovery and before documentRenderer and exports actual operations. Construction performs no reads, I/O or registration; private shared-state/storage diagnostics remain in the existing test-build hook only.
 
 All seven moved and every remaining recovery function body preserve logic apart from dependency access. Preserve original selection/shared checkpoints, case/history/worksheet/form/walk/pending validation, local-history refusal, pre-replacement backup before confirmation, native pending/draft single-transaction acknowledgement and fallback rollback warnings, unrelated work retention and projection/render/artifact order. These checkpoints are not an expanded all-stage asynchronous transaction or replacement for helper trust/readiness authority. Recovery retains modal/status/file-picker, worksheet/work controls and catalog-form UI.
 
 There are 93 maintained modules and 43 independent scoped owners. draft_recovery shrinks from 643 to 366 lines; Writer retains its seven-module component and Reports stays acyclic. Next inspect worksheet responsibilities and record/history presentation before remaining recovery UI and court/delivery/core-screen direction. Keep dependency interfaces bounded and original startup/listener order intact.
+
+## Thirtieth increment: worksheet workflow boundary
+
+worksheet_workflow directly defines changeVisitDate/cleanVisit and composes source-matching unissued visits, readiness and reopen/restore/discard through eight lazy source/date/continuing/deadline/save/UI adapters. Core composes it after caseRecovery and before documentRenderer, exports actual workflow functions and imports direct helpers from their defining owner. Construction performs no reads, I/O or registration. All seven moved and every remaining recovery function retain logic apart from service access.
+
+Preserve frozen/source/date/outcome/withdrawn/carried compliance/deadline rules, clean-clone/transient-field/date-fill behavior, source/visit/draft identity, previous-draft/worksheet retention, refusal/state/walk and synchronous save/render/message order. Existing save dispatch is not a new durable acknowledgement; publication/helper authority does not move. Recovery retains work controls/save-and-continue, file selection, modal/status and catalog form UI.
+
+There are 94 maintained modules and 44 independent scoped owners. draft_recovery shrinks from 366 to 210 lines; case_files loses its direct recovery import. Writer retains its seven-module component and Reports stays acyclic. Next separate remaining recovery presentation/work controls and record/history responsibilities before court/delivery/core-screen direction, preserving bounded interfaces and original startup/listener order.
 
 ## Following increments
 

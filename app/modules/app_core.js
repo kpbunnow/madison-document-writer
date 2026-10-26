@@ -1,3 +1,4 @@
+import { createWorksheetWorkflow, cleanVisit, changeVisitDate } from "./worksheet_workflow.js";
 import { createCaseRecovery } from "./case_recovery.js";
 import { createAutomaticRecovery } from "./automatic_recovery.js";
 import { createWorkspaceBackup } from "./workspace_backup.js";
@@ -122,21 +123,7 @@ import {
   filingPanel,
   recordHistoryHTML,
 } from "./issuance_and_corrections.js";
-import {
-  catalogKey,
-  cleanVisit,
-  changeVisitDate,
-  discardWorksheet,
-  keepCatalogForms,
-  restorePreviousDraft,
-  restoreWorkspaceFile,
-  returnToWorksheet,
-  saveAndContinue,
-  unissuedVisitFor,
-  worksheetFaults,
-  recoveryStatusHTML,
-  renderRecoveryStatus,
-} from "./draft_recovery.js";
+import { catalogKey, keepCatalogForms, restoreWorkspaceFile, saveAndContinue, recoveryStatusHTML, renderRecoveryStatus } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
 
@@ -966,6 +953,22 @@ const caseRecovery = createCaseRecovery({
 });
 export let { listRecovery, selectRecovery, validateRecovery, restoreRecovery } = caseRecovery;
 const { recoverySharedState, persistRecoveryState } = caseRecovery;
+
+const worksheetWorkflow = createWorksheetWorkflow({
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  get today() {
+    return today;
+  },
+  get newDocuments() {
+    return newDocuments;
+  },
+  dueCheck: (...args) => dueCheck(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  toast: (...args) => toast(...args),
+  clearWalk: (...args) => clearWalk(...args),
+});
+export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
