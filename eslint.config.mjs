@@ -46,6 +46,7 @@ export default [
       "app/modules/workspace_tasks.js",
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
+      "app/modules/record_commit.js",
       "app/modules/record_sources.js",
     ],
     rules: {
@@ -75,6 +76,7 @@ export default [
       "app/modules/workspace_tasks.js",
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
+      "app/modules/record_commit.js",
       "app/modules/record_sources.js",
     ],
     rules: {

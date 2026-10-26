@@ -1,6 +1,5 @@
 import { inspAt } from "./inspection_facts.js";
 import { validISO } from "./calendar.js";
-import { caseFileName, summaryName } from "./case_file_rules.js";
 import { recordCorrectionTypeAllowed, deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
 import { cents, canonicalOrdinance } from "./citation_policy.js";
 import { recordDay } from "../assets/shared.js";
@@ -15,14 +14,14 @@ import {
   printJob,
   toast,
 } from "./court_and_deposits.js";
-import { appendEvent, caseFile, evid, helperJSON, idbSet, mergeCaseEvents, project, rememberSaved, sourceDocFor } from "./workspace_shell.js";
+import { appendEvent, evid, project, sourceDocFor } from "./workspace_shell.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 
-import { saveDrafts, validateAndStandardizeAddresses, writeSummary } from "./case_files.js";
+import { saveDrafts, validateAndStandardizeAddresses } from "./case_files.js";
 import {
   commitCitationEdits,
   ensureWalkContext,
-  COMMITTED,
+  commitAmendment,
   ENTRY_IDS,
   blockers,
   citationPricing,
@@ -57,7 +56,6 @@ import {
 
 import { emailList, isLLC } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
-import { nowISO } from "./calendar.js";
 import { INSPECTORS } from "./data/inspectors.js";
 
 import { WriterState } from "./state.js";
@@ -520,94 +518,6 @@ function makeCorrectionAttempt(d) {
       reviewedAt: at,
     },
   };
-}
-
-async function commitAmendment(cid, attempt, draft) {
-  if (WriterState.AMENDMENT_BUSY) return false;
-  if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
-    toast("Start the current local helper to save this record change safely.");
-    return false;
-  }
-  WriterState.AMENDMENT_BUSY = true;
-  try {
-    // The attempt is durable before any request. If its response is lost, the
-    // same event identity is retried, never a second revision.
-    if (draft) {
-      draft.pendingAmendment = attempt;
-      if (!(await saveDrafts())) throw new Error("The pending action could not be saved on this device. Keep this tab open and retry.");
-    }
-    const localBefore = caseDetails(kase(cid));
-    const candidate = caseFile(cid),
-      key = summaryName(candidate.case),
-      base = COMMITTED.get(key),
-      checkpoint = WriterState.SAVE_CHECKPOINTS[cid];
-    const existing = candidate.events.find((e) => e.id === attempt.id);
-    for (const event of (draft && draft.publicationEvents) || [])
-      if (!candidate.events.some((e) => e.id === event.id)) candidate.events.push(clone(event));
-    if (!existing) candidate.events.push(clone(attempt));
-    for (const event of (draft && draft.publicationEvents) || [])
-      if (!candidate.inspectors.some((i) => i.id === event.by) && insp(event.by).name) candidate.inspectors.push(clone(insp(event.by)));
-    if (!candidate.inspectors.some((i) => i.id === attempt.by) && insp(attempt.by).name) candidate.inspectors.push(clone(insp(attempt.by)));
-    Object.entries(attempt.payload.caseChanges || {}).forEach(([k, v]) => {
-      if (v.after === null) delete candidate.case[k];
-      else candidate.case[k] = clone(v.after);
-    });
-    const result = await helperJSON("/cases/save", {
-      name: base ? base.name : caseFileName(candidate.case),
-      file: candidate,
-      baseRevision: (base && base.revision) || "",
-      baseCase: checkpoint ? checkpoint.case : null,
-      idempotencyEvent: attempt.id,
-    });
-    COMMITTED.set(key, result);
-    const k = kase(cid),
-      savedCase = Object.assign({}, caseDetails(result.file.case), { id: cid });
-    new Set(Object.keys(localBefore).concat(Object.keys(savedCase))).forEach((key) => {
-      if (key === "id") return;
-      if (stableJSON(k[key]) === stableJSON(localBefore[key])) {
-        if (savedCase[key] === undefined) delete k[key];
-        else k[key] = clone(savedCase[key]);
-      }
-    });
-    mergeCaseEvents(k, clone(result.file));
-    if (draft) {
-      WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== draft.id);
-      if (draft.publicationEvents) WriterState.REINSP = WriterState.REINSP.filter((r) => !(r.draft && r.id === attempt.payload.fromReinspId));
-      if (draft.recordKey) delete WriterState.RECORD_ATTEMPTS[draft.recordKey];
-    }
-    const formModes = { "document.annotated": "recordnote", "document.reconciled": "reconcile", "document.voided": "void" };
-    if (formModes[attempt.type]) {
-      delete WriterState.WORK.recordForms[attempt.payload.docId + ":" + formModes[attempt.type]];
-      if (WriterState.state.docId === attempt.payload.docId && WriterState.state.modal === formModes[attempt.type]) WriterState.state.modal = null;
-    }
-    project();
-    rememberSaved(k, result.file);
-    WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO() };
-    const savedIds = new Set(result.file.events.map((e) => e.id));
-    if (eventsFor(cid).every((e) => savedIds.has(e.id)) && stableJSON(caseDetails(k)) === stableJSON(savedCase))
-      WriterState.PENDING = WriterState.PENDING.filter((p) => p.cid !== cid);
-    await idbSet("pending", WriterState.PENDING);
-    await writeSummary(cid, result.file);
-    await saveDrafts();
-    return true;
-  } catch (error) {
-    // Validation/conflict rejections are definitive. Network and server errors
-    // may follow a committed write; retain the exact attempt for confirmation.
-    if (draft && error.name === "StorageError" && error.definitive !== false) {
-      delete draft.pendingAmendment;
-      delete draft.publicationEvents;
-      if (draft.recordKey) delete WriterState.RECORD_ATTEMPTS[draft.recordKey];
-    }
-    if (draft) await saveDrafts();
-    WriterState.state.amendmentError = /failed to fetch|networkerror|network request failed/i.test(error.message)
-      ? "The shared save could not be confirmed. Your exact request is retained. " + "Reconnect and use Confirm save or Retry save."
-      : error.message;
-    toast(WriterState.state.amendmentError);
-    return false;
-  } finally {
-    WriterState.AMENDMENT_BUSY = false;
-    render();
-  }
 }
 
 async function issueCorrection(d) {
@@ -1379,7 +1289,6 @@ export {
   correctionEligibility,
   startCorrection,
   correctionChecks,
-  commitAmendment,
   issueCorrection,
   voidDocument,
   addRecordNote,

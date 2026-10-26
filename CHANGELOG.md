@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Record save confirmation boundary (development)
+
+- Isolate commitAmendment behind 11 lazy persistence/helper/projection/UI adapters, preserving its exact request, confirmation, failure and cleanup ordering. Publication, correction and recovery callers share the composed operation.
+- Retain durable pending attempts before helper requests, idempotent lost-response retry, definitive rejection handling, later local edits and shared group/correction identity. Helper validation and immutable PDF authority are unchanged.
+- Add independent failure/order/interface tests and import guards; update ownership, inventory and assessment. Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Citation workflow and item-selection boundaries (development)
 
 - Compose citation editing/readiness/review through 16 lazy inputs and item selection through two. Preserve all eight function bodies, private declaration order, messages and markup apart from explicit dependency access.

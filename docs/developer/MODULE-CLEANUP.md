@@ -211,13 +211,19 @@ The task body and remaining timeline functions/order are unchanged apart from ex
 
 case_timeline shrinks from 856 to 738 lines and loses its issuance import; app_screens loses its timeline import. There are 77 maintained modules, the same eight-module Writer component and acyclic Reports. Independent tests exercise truthful read-only tasks and replacement state, alongside unchanged queue/usability/citation/browser assertions. Next inspect the remaining citation editing/readiness and item-selection boundary, followed by publication/recovery and persistence coordination.
 
-## Twentieth increment: citation workflow and item-selection boundaries
+## Twentieth increment: citation workflow and item-selection boundaries (merged in PR #66)
 
 citation_workflow owns the seven citation/deposit/edit/check/review functions through createCitationWorkflow, with 16 named lazy pricing/authority/format/date inputs. item_selection separately owns toggleLibraryItem through snow and identity inputs. Core constructs both after deadline assignment and before workspace task presentation, exporting actual mutable functions; peer consumers import the composed instances. Construction reads no services/state/DOM and installs no listeners. No forwarding barrel or universal registry is introduced.
 
 All eight original function bodies and the private scheduled-offense predicate retain their content/order within the two owners apart from explicit dependency access; messages and markup are unchanged. Preserve input/commit order, original correction prices, explicit ordinance/row selection, manual/scheduled/mandatory rules, pending/issued caller guards, current-day access, initial-citation behavior and private item wording/cache/IDs. Existing pricing, administration, deposit, event, persistence and publication owners retain authority.
 
 The emptied case_timeline module is removed. There are 78 maintained modules; the Writer cyclic component narrows from eight to seven and the guard is reduced accordingly. Reports stays acyclic. Independent behavior/interface tests and literal-aware source comparison supplement unchanged historical/charge/deposit/browser suites. Next inspect publication/correction/recovery orchestration, then persistence/workspace coordination and remaining core/screen direction.
+
+## Twenty-first increment: record save confirmation
+
+record_commit.createRecordCommit owns the shared commitAmendment request/confirmation operation through 11 named lazy adapters: toast, saveDrafts, caseFile, COMMITTED, helperJSON, mergeCaseEvents, project, rememberSaved, idbSet, writeSummary and render. Core composes it after workspace task presentation and before document rendering, exporting the actual mutable function. Publication/correction/recovery callers use that instance. Construction performs no service/state/DOM reads or I/O and installs no listeners. The original function body is preserved apart from dependency access, including durable pending-save-before-request ordering, exact idempotency/group/correction events, definitive versus uncertain failures, later-edit preservation, projection/summary/pending cleanup and busy-state release. Helper validation, storage, projection, PDF receipts and publication eligibility retain their existing authority. This is an adapter boundary, not a pure calculation or a new transaction guarantee.
+
+There are 79 maintained modules, the same seven-module Writer component and acyclic Reports. The isolated confirmation owner is intentionally a first step, not completion of publication/correction/recovery separation. issuance_and_corrections shrinks from 1,403 to 1,312 lines and loses its case-file-rules import; existing peers still share other responsibilities. Next separate publication preparation/continuation from recovery UI, followed by correction orchestration and persistence/workspace coordination. Preserve immutable receipts, helper validation, lost-response recovery, correction lineage and all existing event/save order before removing further cycle edges.
 
 ## Following increments
 
