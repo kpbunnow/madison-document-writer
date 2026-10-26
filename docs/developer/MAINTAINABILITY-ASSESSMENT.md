@@ -4,7 +4,7 @@ Snapshot: the device database/local-draft increment based on merged PR #69, main
 
 ## What this increment completes
 
-Device database connection/read/write access now has a two-input owner; draft snapshot/save/debounce/restore coordination has a ten-input owner. All seven original bodies retain their logic apart from dependency access, including required reads, transaction completion, isolated queued snapshots, stale/latest save decisions, backup timing and retained integrity/history restoration. Constructors are inert. Startup locks/readiness/sequencing, status UI, folder/shared-file writes, helper authority and recovery transactions stay in existing owners. case_files loses its direct issuance/history dependency. Writer still has a seven-module cycle and Reports remains acyclic. PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+Device database connection/read/write access now has a two-input owner; draft snapshot/save/restore coordination has a ten-input owner. All six original bodies retain their logic apart from dependency access, including required reads, transaction completion, isolated queued snapshots, stale/latest save decisions, backup timing and retained integrity/history restoration. Constructors are inert. Startup locks/readiness/sequencing, status UI, folder/shared-file writes, helper authority and recovery transactions stay in existing owners. case_files loses its direct issuance/history dependency. Writer still has a seven-module cycle and Reports remains acyclic. PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,9 +12,9 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 1977 | 64 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1239 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 948 | 15 | 5 | Shared/pending case-file writes, startup sequencing and workspace actions remain coupled |
+| `app_core.js` | 1978 | 64 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1238 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `case_files.js` | 964 | 15 | 5 | Shared/pending case-file writes, startup sequencing and workspace actions remain coupled |
 | `court_and_deposits.js` | 1094 | 15 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
 | `draft_recovery.js` | 919 | 16 | 6 | Backup/restore UI, worksheet operations and workspace coordination remain coupled |
 | `issuance_and_corrections.js` | 914 | 14 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |

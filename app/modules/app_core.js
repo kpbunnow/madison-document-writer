@@ -83,6 +83,7 @@ import { caseFileName } from "./case_file_rules.js";
 
 import {
   updateSaveStatus,
+  scheduleDraftSave,
   addCC,
   addEmail,
   bootStorage,
@@ -852,7 +853,7 @@ const draftPersistence = createDraftPersistence({
   render: (...args) => render(...args),
   toast: (...args) => toast(...args),
 });
-export let { draftBundle, saveDrafts, scheduleDraftSave, restoreDrafts } = draftPersistence;
+export let { draftBundle, saveDrafts, restoreDrafts } = draftPersistence;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

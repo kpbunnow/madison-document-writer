@@ -497,6 +497,21 @@ function updateSaveStatus() {
   updateLocalPresentation(app_savedworkContext());
 }
 
+function scheduleDraftSave() {
+  WriterState.DIRTY = true;
+  ++WriterState.LOCAL_CHANGED;
+  if (!IDB_OK) {
+    WriterState.LOCAL_SAVE.ok = false;
+    updateSaveStatus();
+    return;
+  }
+  if (WriterState.draftTimer) clearTimeout(WriterState.draftTimer);
+  WriterState.draftTimer = setTimeout(() => {
+    WriterState.draftTimer = null;
+    saveDrafts();
+  }, 1500);
+}
+
 async function discardDraft(id) {
   const d = doc(id);
   if (d && d.pendingAmendment) {
@@ -929,6 +944,7 @@ export {
   flushPending,
   saveCaseFile,
   updateSaveStatus,
+  scheduleDraftSave,
   discardDraft,
   bootStorage,
   pickCaseFile,

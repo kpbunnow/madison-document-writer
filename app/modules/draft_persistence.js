@@ -47,21 +47,6 @@ export function createDraftPersistence(services) {
     return kept;
   }
 
-  function scheduleDraftSave() {
-    WriterState.DIRTY = true;
-    ++WriterState.LOCAL_CHANGED;
-    if (!services.IDB_OK) {
-      WriterState.LOCAL_SAVE.ok = false;
-      services.updateSaveStatus();
-      return;
-    }
-    if (WriterState.draftTimer) clearTimeout(WriterState.draftTimer);
-    WriterState.draftTimer = setTimeout(() => {
-      WriterState.draftTimer = null;
-      saveDrafts();
-    }, 1500);
-  }
-
   async function restoreDrafts() {
     const b = await services.idbGet("drafts", services.IDB_OK);
     if (b && b.work) {
@@ -104,5 +89,5 @@ export function createDraftPersistence(services) {
     const n = (b.docs || []).length + (b.reinsp || []).length;
     if (n) services.toast(n + " unfinished draft" + (n === 1 ? "" : "s") + " restored from this machine");
   }
-  return { draftBundle, saveDrafts, scheduleDraftSave, restoreDrafts };
+  return { draftBundle, saveDrafts, restoreDrafts };
 }

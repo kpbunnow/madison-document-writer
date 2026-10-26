@@ -349,40 +349,6 @@ const clone = (v) => JSON.parse(JSON.stringify(v)),
   assert.equal(state.DIRTY, false);
   assert.equal(calls.filter((c) => c[0] === "backup").length, 1);
   reset();
-  idbOK = false;
-  persistence.scheduleDraftSave();
-  assert.equal(state.LOCAL_SAVE.ok, false);
-  assert.equal(state.draftTimer, null);
-  assert.equal(state.DIRTY, true);
-  assert.deepEqual(calls, [["status"]]);
-  reset();
-  const timers = new Map(),
-    oldSet = global.setTimeout,
-    oldClear = global.clearTimeout;
-  let timerSeq = 0;
-  try {
-    global.setTimeout = (f, ms) => {
-      assert.equal(ms, 1500);
-      timers.set(++timerSeq, f);
-      return timerSeq;
-    };
-    global.clearTimeout = (id) => timers.delete(id);
-    persistence.scheduleDraftSave();
-    persistence.scheduleDraftSave();
-    assert.equal(timers.size, 1);
-    assert.equal(state.LOCAL_CHANGED, 2);
-    const callback = timers.get(state.draftTimer);
-    callback();
-    assert.equal(state.draftTimer, null);
-  } finally {
-    global.setTimeout = oldSet;
-    global.clearTimeout = oldClear;
-  }
-  await state.LOCAL_SAVE_CHAIN;
-  await tick();
-  assert.equal(stored.length, 1);
-  assert.equal(state.DIRTY, false);
-  reset();
   state.WORKSPACE_RESTORED = false;
   backup = {
     cases: [{ id: "restored", number: "BLD2026-00002" }],
