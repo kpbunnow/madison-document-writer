@@ -311,13 +311,21 @@ All 13 moved function bodies, the history predicate and remaining issuance funct
 
 There are 99 maintained modules and 50 independent scoped owners. Issuance shrinks from 796 to 291 lines; Writer retains six cyclic modules and Reports stays acyclic. Next inspect remaining citation preparation, visit recording and working-paper/workspace presentation before court/deposit/delivery and shell/case/core-screen direction. Historical increment counts above remain provenance; current metrics are in MAINTAINABILITY-ASSESSMENT.md.
 
-## Thirty-third increment: citation drafts, visit recording and working papers
+## Thirty-third increment: citation drafts, visit recording and working papers (merged in PR #79)
 
 citation_drafts composes tier/draft preparation/recovery guards through 11 inputs; visit_recording composes recordReinspection through five; working_papers directly defines unfinished-work/filing facts/presentation and composes captureWork through four browser/walk/form inputs. runFinalize joins record_actions through the original correction/publication delegates (seven total action inputs). Core composes the new owners after recordActions and before documentRenderer. Constructors perform no reads, I/O or registration. issuance_and_corrections is retired without forwarding exports.
 
 All eleven moved and four retained action bodies preserve logic apart from scoped service access. Preserve citation reuse/identity/head/source/inspection/charge/court data and deposit/save/open order; cleaned visit event identity, append/remove/project/save/quiet ordering; typed/explicit clear/walk/import/recipient capture and escaped read-only work/filing panels. No new concurrent, atomic rollback, durable-save or publication guarantee is asserted.
 
 There are 101 maintained modules and 53 independent scoped owners. Writer narrows to five cyclic modules (core, screens, case files, court/deposits and shell); the boundary test caps it at five, and Reports stays acyclic. Historical increment counts remain provenance. Next inspect court/deposit/delivery boundaries, then shell/case-file UI/startup and core/screen dependency direction.
+
+## Thirty-fourth increment: document printing and delivery
+
+document_printing composes naming/fixed-frame print jobs through eight lazy inputs; document_delivery composes helper status, archived originals, email and PDF filing through 20 explicit native/UI/receipt/storage adapters. Core composes them after visitRecording and before documentRenderer, exporting actual operations and supplying the defining filename internally. Notification progress stays in its original owner. Constructors perform no reads, I/O or registration.
+
+All nine moved and remaining court function bodies retain logic apart from service access. Preserve fixed sizing/four-copy/deposit/mandatory holds, frame cleanup and print order; archived hash/name/doc identity and exact-byte reuse; selection/popups/downloads/reconstruction confirmation and labels; snapshot-bound helper operation, receipt/outbox/counter/projection/save/refresh behavior. Helper trust and immutable original authority do not move; no stronger acknowledgement or native acceptance is asserted.
+
+There are 103 maintained modules and 55 independent scoped owners. Court/deposits shrinks from 1,096 to 768 lines and loses direct screen/shell imports. Writer retains five cyclic modules and Reports stays acyclic. Next inspect remaining court/deposit calculations/readiness and notification/source-freezing responsibilities, then shell/case-file and core/screen direction. The delivery interface has 20 explicit inputs, including native adapters; keep it scoped and review further sub-boundaries only where responsibilities warrant them.
 
 ## Following increments
 

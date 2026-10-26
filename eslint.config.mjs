@@ -64,6 +64,8 @@ export default [
       "app/modules/citation_drafts.js",
       "app/modules/visit_recording.js",
       "app/modules/working_papers.js",
+      "app/modules/document_printing.js",
+      "app/modules/document_delivery.js",
       "app/modules/pending_case_saves.js",
       "app/modules/case_save_workflow.js",
       "app/modules/workspace_database.js",

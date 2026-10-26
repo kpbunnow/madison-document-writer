@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Document printing and delivery boundaries (development)
+
+- Separate fixed-frame print-job/filename preparation through eight lazy inputs and helper/archive/PDF/email coordination through 20 explicit native/UI/receipt/storage inputs. Keep original four-copy/deposit/mandatory-appearance checks, fixed print sizing and frame cleanup.
+- Preserve all nine moved and remaining court function bodies apart from dependency access: archived-byte identity/reuse, labeled reconstruction confirmation, snapshot-bound filing, receipt deduplication, local outbox and counter/save/refresh ordering. Helper trust and immutable original authority remain unchanged.
+- Add independent packet/frame/archive/email/filing/failure tests and guards; update ownership, source/test indexes and roadmap. Court/deposits is 328 lines smaller and loses direct screen/shell imports; Writer retains five cyclic modules and Reports acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Citation drafts, visit recording and working papers (development)
 
 - Finish separating issuance: citation_drafts owns preparation/recovery guards through 11 lazy inputs, visit_recording owns visit append/projection through five, and working_papers owns capture through four with direct unfinished-work/filing presentation. Move finalization dispatch into record_actions through its unchanged correction/publication delegates. Retire issuance_and_corrections without forwarding exports.

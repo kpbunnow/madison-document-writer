@@ -1,7 +1,7 @@
-import { caseNumberAllowed, project } from "./case_records.js";
+import { caseNumberAllowed } from "./case_records.js";
 import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
-import { appendEvent, printNotice, printableHTML } from "./workspace_shell.js";
+
 import { addressProblem, validateAndStandardizeAddresses } from "./case_files.js";
 import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import {
@@ -9,7 +9,6 @@ import {
   lifecycleChecks,
   authoringChecks,
   citationDepositFault,
-  refreshArtifactLocations,
   catalogDraftBlocked,
   A11Y,
   citationPricing,
@@ -20,29 +19,23 @@ import {
   initialOrderCitation,
   isLocked,
   newDocuments,
-  recordIntegrity,
   snow,
   unchangedCorrectionValue,
   unchangedCourtDate,
-  documentHTML,
-  paginate,
   attachCheckTargets,
-  saveCaseFile,
 } from "./app_core.js";
 
-import { render } from "./app_screens.js";
-
-import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, DOC_TYPES, EXTERIOR_WORK } from "./document_types.js";
+import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
-import { correctionSource, doc, docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
+import { correctionSource, doc, docCase, docInsp, kase } from "./writer_queries.js";
 import { clone } from "./record_values.js";
 import { validISO, parseTime, daysBetween, iso, nowISO } from "./calendar.js";
-import { emailList, isLLC, ownerLines } from "./mailing_rules.js";
+import { isLLC, ownerLines } from "./mailing_rules.js";
 
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
-import { authFetch } from "./helper_transport.js";
+
 /* app functions; direct dependencies use explicit shared state. */
 
 function nthWeekday(y, m, wd, n) {
@@ -749,323 +742,6 @@ function checks(d) {
     .map((c) => attachCheckTargets(d, c));
 }
 
-function documentFileName(d) {
-  const k = docCase(d),
-    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
-  const tag = String(d.id || "")
-    .replace(/[^A-Za-z0-9]/g, "")
-    .slice(-8);
-  const name = [k.address || "PROPERTY", k.number || "CASE", ty, fmtDate(d.mailed || recordDay(today)).replace(/\//g, "-")]
-    .concat(tag ? [tag] : [])
-    .join(" - ")
-    .replace(/[\\/:*?"<>|]/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-  return (d.void ? "VOID - " : "") + name;
-}
-
-async function checkHelper() {
-  try {
-    const r = await authFetch("/dw-status", { cache: "no-store" });
-    if (!r.ok) throw 0;
-    WriterState.HELPER = await r.json();
-  } catch (e) {
-    WriterState.HELPER = null;
-  }
-  return WriterState.HELPER;
-}
-
-function emailSubject(d) {
-  const k = docCase(d),
-    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
-  return "City of Madison Building Inspection — " + ty + " — " + (k.address || "") + " — " + (k.number || "");
-}
-
-function emailBody(d) {
-  const k = docCase(d),
-    i = docInsp(d),
-    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
-  return [
-    "Attached is a " + ty.toLowerCase() + " for " + (k.address || "the property above") + ".",
-    "",
-    "Case number: " + (k.number || ""),
-    "Property: " + (k.address || ""),
-    "Date mailed: " + fmtDate(d.mailed || recordDay(today)),
-    "",
-    "Please contact the inspector below with any questions.",
-    "",
-    i.name || "",
-    i.title || "",
-    i.phone || "",
-    i.email || "",
-  ].join("\r\n");
-}
-
-async function emailDocument(d, picked, reuse, job) {
-  if (!d || d.draft || d.pendingAmendment) {
-    toast("Issue and confirm the document before preparing an email.");
-    return false;
-  }
-  const k = kase(d.caseId),
-    list = emailList(k).filter((e) => String(e.addr || "").trim());
-  // An issued document has already been filed. The email attaches that same
-  // file; the page travels with the request only as a fallback for when it
-  // is not there, so a second render can never replace what was filed.
-  const artifact = issuedArtifact(d);
-  if (!artifact) {
-    toast(
-      "This issued version has no verified archived PDF. It cannot be attached " +
-        "as an exact original. Re-file it only after reviewing the record.",
-    );
-    return false;
-  }
-  const jb = job && job.docId === d.id ? job : { docId: d.id, name: artifact.filename, html: "" };
-  const useFiled = true;
-  if (!picked && list.length) {
-    WriterState.state.modal = "sendto";
-    WriterState.state.sendDoc = d.id;
-    WriterState.state.sendJob = jb;
-    WriterState.state.sendReuse = useFiled;
-    render();
-    return false;
-  }
-  const to = (picked || []).filter((e) => String(e.addr || "").trim());
-  if (!WriterState.HELPER) {
-    toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
-    return false;
-  }
-
-  toastHold("Preparing the email — this takes a few seconds");
-  WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
-  try {
-    const r = await authFetch("/email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: (jb && jb.name) || documentFileName(d) + ".pdf",
-        html: "",
-        reuse: useFiled,
-        sha256: artifact.sha256,
-        docId: d.id,
-        to: to.map((e) => e.addr).join("; "),
-        subject: emailSubject(d),
-        body: emailBody(d),
-      }),
-    });
-    const j = await r.json();
-    if (j && j.ok) {
-      // Opening a compose window is not confirmation of delivery.
-      // Do not alter an issued snapshot or its filed PDF here.
-      toast(
-        j.via === "outlook"
-          ? "Outlook is opening with " + j.name + " attached"
-          : "Outlook was not found — your mail program is opening without the attachment",
-      );
-      return true;
-    }
-    toast("Could not open the email — " + ((j && j.error) || "unknown reason"));
-    return false;
-  } catch (e) {
-    toast("Could not reach the local helper to send the email");
-    return false;
-  } finally {
-    WriterState.FILING_ACTIVE -= 1;
-  }
-}
-
-function issuedArtifact(d) {
-  if (!d || d.draft) return null;
-  const events = eventsFor(d.caseId).filter((ev) => ev.type === "document.filed" && (ev.payload || {}).docId === d.id);
-  const p = (events.at(-1) || {}).payload || {};
-  return p.sha256 && p.filename ? { filename: p.filename, sha256: p.sha256, docId: d.id } : null;
-}
-
-async function openIssuedCopy(d) {
-  if (!d || d.draft) return false;
-  const artifact = issuedArtifact(d);
-  if (artifact && WriterState.HELPER) {
-    try {
-      const response = await authFetch("/artifact/read", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(artifact),
-      });
-      const reply = await response.json();
-      if (reply.ok) {
-        const bytes = Uint8Array.from(atob(reply.pdf), (c) => c.charCodeAt(0));
-        const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
-        const windowCopy = window.open(url, "_blank");
-        if (windowCopy) {
-          toast("Opened the verified archived PDF. Print it from the PDF viewer.");
-          setTimeout(() => URL.revokeObjectURL(url), 300000);
-          return true;
-        }
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = artifact.filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        toast("Pop-up blocked — downloaded the verified archived PDF.");
-        setTimeout(() => URL.revokeObjectURL(url), 300000);
-        return true;
-      }
-      toast("Exact issued PDF unavailable: " + (reply.error || "verification failed"));
-    } catch (e) {
-      toast("Exact issued PDF unavailable: the local helper or archive could not be reached.");
-    }
-  } else
-    toast(
-      artifact
-        ? "Exact issued PDF unavailable: start the local helper."
-        : "This historical version has no recorded PDF checksum, so its original bytes cannot be verified.",
-    );
-  if (confirm("The exact issued PDF could not be verified. Open a clearly labeled RECONSTRUCTED copy from saved data instead?")) {
-    const job = printJob(d);
-    if (job) {
-      job.html = job.html.replace(
-        "<body>",
-        '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px sol' +
-          'id #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
-      );
-      printNotice(job);
-    }
-  }
-  return false;
-}
-
-function printJob(d) {
-  if (!d) return null;
-  if (d.type === "citation" && d.draft && Object.values(d.cits || {}).some((c) => c.mandatoryAppearance))
-    throw new Error("Mandatory-appearance citations need division-approved defendant instructions. Your draft is retained.");
-  if (
-    d.type === "citation" &&
-    (Object.keys(d.depositRequests || {}).length || d.items.some((i) => i.cite && !i.withdrawn && citationDepositFault(d.cits?.[i.id] || {}, d, i)))
-  )
-    throw new Error("Complete and confirm every citation deposit before printing or filing.");
-  // A separate, fixed-width frame prevents a narrow viewport or old scroll
-  // geometry from changing the filed document. Everything comes from d.
-  const frame = document.createElement("iframe");
-  frame.setAttribute("aria-hidden", "true");
-  frame.tabIndex = -1;
-  frame.style.cssText = "position:absolute;left:-20000px;top:0;width:1400px;height:1200px;border:0;pointer-events:none";
-  document.body.appendChild(frame);
-  try {
-    const fd = frame.contentDocument;
-    if (fd && fd.open) {
-      fd.open();
-      fd.write(
-        '<!doctype html><html lang="en"><head><meta charset="utf-8"><style>' +
-          ((document.querySelector("style") || {}).textContent || "") +
-          '</style></head><body><div class="desk">' +
-          documentHTML(d) +
-          "</div></body></html>",
-      );
-      fd.close();
-      const stage = fd.querySelector(".desk");
-      // Refuse an incomplete new packet instead of filing a successful-looking
-      // PDF with missing copies. Historical retained PDFs are never rewritten.
-      if (d.type === "citation" && (d.draft || d.authoringVersion >= 15)) {
-        const faces = [...stage.querySelectorAll(".cit")],
-          cited = d.items.filter((it) => it.cite && !it.withdrawn),
-          // The rendered faces use the document's frozen copies; compare with those, not today's labels.
-          labels = ((frozenOf(d) || {}).courtCopies || CIT_COPIES).map((copy) => copy.label);
-        if (
-          labels.length !== 4 ||
-          faces.length !== cited.length * 4 ||
-          faces.some(
-            (face, index) =>
-              face.querySelector(".cit-foot span:last-child")?.textContent !== labels[index % 4] ||
-              face.querySelector(".cit-no")?.textContent.trim() !== String(d.cits?.[cited[Math.floor(index / 4)]?.id]?.num || "").trim(),
-          )
-        )
-          throw new Error(
-            "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Nothing was filed; " +
-              (d.draft ? "your draft is retained." : "the issued record is unchanged and its PDF still needs filing."),
-          );
-      }
-      if (snow.is(d) && d.authoringVersion >= 9) {
-        // Measure the same locked print styles and value spans that will be filed.
-        const html = printableHTML(d, stage);
-        fd.open();
-        fd.write(html);
-        fd.close();
-        paginate(fd.querySelector(".desk"), d);
-        return { docId: d.id, name: documentFileName(d) + ".pdf", html: "<!doctype html>" + fd.documentElement.outerHTML };
-      }
-      // Row selection controls (affected-item and shared-due-date checkboxes) are screen-only and sit in the
-      // due-date cell; printableHTML drops them, so drop them before measuring page breaks as well. Page
-      // breaks then match the non-editable rendering of the same facts.
-      stage.querySelectorAll(".affected-pick,.due-pick").forEach((n) => n.remove());
-      paginate(stage, d);
-      return { docId: d.id, name: documentFileName(d) + ".pdf", html: printableHTML(d, stage) };
-    }
-    if (WriterState.state.docId !== d.id) return null;
-    return { docId: d.id, name: documentFileName(d) + ".pdf", html: printableHTML() };
-  } finally {
-    frame.remove();
-  }
-}
-
-async function filePdf(d, job) {
-  if (!d) return false;
-  if (!WriterState.HELPER || !WriterState.HELPER.chrome) return false;
-  // named jb: the JSON reply inside the try block is already called j
-  const jb = job && job.docId === d.id ? job : printJob(d);
-  if (!jb || !jb.html) return false;
-  const snapshot = eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === d.id)?.payload.snapshot;
-  if (!snapshot) throw new Error("Save the issued document before filing its PDF.");
-  const operation = {
-    caseId: snapshot.caseId || d.caseId,
-    caseNumber: snapshot.frozen?.case?.number || kase(d.caseId).number,
-    docId: d.id,
-    version: await recordIntegrity.sourceHash(snapshot),
-  };
-  toastHold("Filing " + jb.name + " — this takes a few seconds");
-  WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
-  try {
-    const r = await authFetch("/save-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: jb.name, html: jb.html, operation }),
-    });
-    const j = await r.json();
-    if (j && j.ok) {
-      if (j.local) {
-        WriterState.HELPER.outbox = (WriterState.HELPER.outbox || 0) + 1;
-        toast("PDF filing needed. Original saved in the local outbox. Open Saved work & connection to transfer it.");
-      } else toast("Filed " + j.name);
-      if (
-        !d.draft &&
-        !d.void &&
-        !d.superseded &&
-        !eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
-      ) {
-        appendEvent(d.caseId, "document.filed", {
-          docId: d.id,
-          reference: j.path || j.name,
-          filename: j.name,
-          sha256: j.sha256 || "",
-          local: !!j.local,
-        });
-        project();
-      }
-      if (!d.draft && !d.void && !d.superseded) {
-        await saveCaseFile(d.caseId);
-        await refreshArtifactLocations();
-      }
-      return true;
-    }
-    toast("Could not write the PDF — " + ((j && j.error) || "unknown reason"));
-    return false;
-  } catch (e) {
-    toast("PDF filing needed. The helper response is uncertain. Use File issued PDF to retry the same original.");
-    return false;
-  } finally {
-    WriterState.FILING_ACTIVE -= 1;
-  }
-}
-
 export {
   CHARGE_DERIVED,
   changeCharge,
@@ -1082,15 +758,11 @@ export {
   longDate,
   fmtTime,
   toast,
+  toastHold,
   toastUndo,
   fillBlank,
   allItems,
   activeBlocks,
   freezeSources,
   checks,
-  checkHelper,
-  emailDocument,
-  openIssuedCopy,
-  printJob,
-  filePdf,
 };
