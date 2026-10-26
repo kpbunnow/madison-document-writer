@@ -225,13 +225,21 @@ record_commit.createRecordCommit owns the shared commitAmendment request/confirm
 
 There are 79 maintained modules, the same seven-module Writer component and acyclic Reports. The isolated confirmation owner is intentionally a first step, not completion of publication/correction/recovery separation. issuance_and_corrections shrinks from 1,403 to 1,312 lines and loses its case-file-rules import; existing peers still share other responsibilities. Next separate publication preparation/continuation from recovery UI, followed by correction orchestration and persistence/workspace coordination. Preserve immutable receipts, helper validation, lost-response recovery, correction lineage and all existing event/save order before removing further cycle edges.
 
-## Twenty-second increment: publication preparation and continuation
+## Twenty-second increment: publication preparation and continuation (merged in PR #68)
 
 publication_preparation separates lifecycleChecks/makePublication through nine named lazy inputs; publication_workflow separates publishDocument/private publishOnce/publicationPanel through 17 adapters. Core constructs them in that order after recordCommit and before documentRenderer, exports actual mutable public operations and supplies the actual preparation operation to continuation. Neither constructor reads services/state/DOM or registers listeners. PUBLISHING retains its original per-draft behavior within the single core-composed continuation instance; no cross-instance guarantee is introduced.
 
 All five moved bodies and the guard declaration retain their ASTs apart from explicit dependency access. Preserve source/head/lifecycle/date/citation checks, sequential event identities/expected heads, frozen snapshot fields, grouped initial citations, exact pending retries without fresh pricing/catalog/preparation, pre-render-before-commit, file/email-after-confirmation, per-document filing failure recovery, legacy/later navigation and final render/focus order. record_commit and helper validation/immutable receipt authority remain unchanged. Backup/restore UI and worksheet functions remain in draft_recovery, whose remaining function bodies are unchanged.
 
 There are 81 maintained modules and 31 isolated scoped services; Writer remains a seven-module component and Reports stays acyclic. draft_recovery shrinks from 1,214 to 914 lines; court_and_deposits loses its direct recovery import. This completes the planned publication/recovery-UI boundary, not the whole cycle cleanup. Next inspect correction preparation/issuance orchestration, then persistence/workspace coordination and remaining core/screen direction.
+
+## Twenty-third increment: correction preparation and workflow
+
+correction_preparation owns comparisons, eligibility/type rules, readiness checks, visit patches/checks and snapshot preparation through six lazy inputs; correction_workflow owns opening/issuing through 18 adapters. Core composes them in that order after publicationWorkflow and before documentRenderer, exporting actual mutable operations and supplying the actual preparation operation to workflow. Construction reads no services/state/DOM, performs no I/O and registers no listeners. Preparation retains the original event clock and live workspace queries; it is not a pure calculation.
+
+All nine moved function bodies and remaining issuance/history functions retain their logic apart from explicit dependency access and the supplied scrollTo adapter. Preserve source/item/head identity, special/referral/type limits, case/visit conflicts, substantive/review/date guards, historical authoring and revision lineage, recipient reconciliation, exact pending event retries, shared confirmation before filing/email, PDF failure recovery and save/render/scroll order. Helper/storage validation and immutable receipt authority remain unchanged; no new concurrency guarantee is claimed.
+
+There are 83 maintained modules, 33 isolated scoped services, the same seven-module Writer component and acyclic Reports. issuance_and_corrections shrinks from 1,313 to 914 lines; court_and_deposits loses its direct import of that mixed owner. Next inspect persistence adapters versus workspace coordination, preserving startup barriers, save/rollback ordering and helper/projection contracts; record/history presentation and remaining core/screen direction still need review.
 
 ## Following increments
 

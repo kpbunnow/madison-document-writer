@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Correction preparation and workflow boundaries (development)
+
+- Separate correction comparisons, eligibility/type rules, checks, visit patches and retained snapshots through six lazy inputs; separate opening/issuing corrections through 18 scoped adapters. Preserve all nine original bodies apart from dependency/scroll adapter access.
+- Retain item/case/revision lineage, historical authoring, recipient selection, stale-head/conflict and review guards, exact pending retry, shared confirmation before PDF/email and filing recovery. Helper/immutable receipt authority is unchanged.
+- Remove court/deposit checks’ direct issuance/history import; add independent tests/import guards and update ownership, assessment and indexes. Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Publication preparation and continuation boundaries (development)
 
 - Separate lifecycle checks and publication snapshots through nine lazy inputs, and issuance/confirmation/PDF continuation through 17 inputs. Recovery backup/restore UI no longer owns publication.
