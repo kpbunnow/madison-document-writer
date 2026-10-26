@@ -4,8 +4,8 @@ import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } f
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
 import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import { correctionChecks } from "./issuance_and_corrections.js";
-import { lifecycleChecks } from "./draft_recovery.js";
 import {
+  lifecycleChecks,
   authoringChecks,
   citationDepositFault,
   refreshArtifactLocations,

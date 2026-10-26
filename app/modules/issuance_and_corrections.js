@@ -22,6 +22,7 @@ import {
   commitCitationEdits,
   ensureWalkContext,
   commitAmendment,
+  publishDocument,
   ENTRY_IDS,
   blockers,
   citationPricing,
@@ -33,7 +34,7 @@ import {
   uid,
 } from "./app_core.js";
 import { priorCitations, render } from "./app_screens.js";
-import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.js";
+import { cleanVisit, unissuedVisitFor } from "./draft_recovery.js";
 
 import { CASE_CORRECTION_FIELDS, DOC_TYPES, FIELD_NAMES, OUTCOMES, courtTime } from "./document_types.js";
 

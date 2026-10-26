@@ -1,58 +1,36 @@
 import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { inspAt } from "./inspection_facts.js";
-import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.js";
-import { emailDocument, filePdf, freezeSources, printJob, rnd12, toast } from "./court_and_deposits.js";
+import { recordDay } from "../assets/shared.js";
+import { rnd12, toast } from "./court_and_deposits.js";
 import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
-import { evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./workspace_shell.js";
+import { helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
 import {
-  commitAmendment,
-  commitCitationEdits,
   refreshArtifactLocations,
   clearWalk,
   walkIdentity,
   dueCheck,
   compareSharedCase,
-  refreshCatalog,
   cancelCaseLookup,
   ENTRY_IDS,
   IDB_OK,
   RECOVERY_CASE_KEYS,
   RECOVERY_WORKSPACE,
   RECOVERY_WORKSPACE_KEY,
-  blockers,
-  citationPricing,
-  initialCitations,
   navigation,
   newDocuments,
   recordFormKey,
   recordIntegrity,
-  snow,
 } from "./app_core.js";
-import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
-import { captureWork, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
+import { render } from "./app_screens.js";
+import { captureWork, hasSetupWork } from "./issuance_and_corrections.js";
 
-import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
+import { OUTCOMES, SCHEMA } from "./document_types.js";
 
-import {
-  doc,
-  docCase,
-  docInsp,
-  docsFor,
-  eventsFor,
-  insp,
-  isReferredCase,
-  kase,
-  originalNotice,
-  recordHead,
-  recordNow,
-  reinsp,
-  reinspFor,
-  unchecked,
-} from "./writer_queries.js";
+import { doc, docCase, docsFor, eventsFor, insp, kase, reinsp, reinspFor, unchecked } from "./writer_queries.js";
 
-import { deliveredByCitation, distinctDues, isEffective, libraryKey, specialType } from "./document_rules.js";
+import { distinctDues, libraryKey } from "./document_rules.js";
 import { esc } from "./presentation_format.js";
 import { parseTime, validISO, nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
@@ -348,281 +326,6 @@ function discardWorksheet(id) {
   saveDrafts();
   render();
   return true;
-}
-
-function lifecycleChecks(d) {
-  if (d && d.initialPreview) return [];
-  if (!d || !d.draft || d.correction) return [];
-  if (snow.is(d)) return snow.lifecycle(d);
-  if (specialType(d.type)) return newDocuments.specialLifecycle(d);
-  const faults = [],
-    src = d.fromDocId ? doc(d.fromDocId) : null,
-    r = d.fromReinspId ? reinsp(d.fromReinspId) : null;
-  const first = originalNotice(d.caseId),
-    current = sourceDocFor(d.caseId),
-    baseline = d.expectedHead;
-  if (Array.isArray(baseline) && stableJSON(baseline) !== stableJSON(recordHead(d.caseId)))
-    faults.push("The case record changed after this draft began. Reopen the current case and review the draft before issuing.");
-  if (d.type === "notice" && first) faults.push("A case can have only one original notice. Use its correction history.");
-  if (d.type !== "notice" && (!src || !isEffective(src) || !current || current.id !== src.id))
-    faults.push("The follow-up must use the current issued document.");
-  if (src && (src.type === "compliance" || src.items.every((i) => i.withdrawn)))
-    faults.push("This case is completed; start a new case for new observations.");
-  if (d.type !== "notice" && !r && !(d.type === "citation" && src && src.type === "notice"))
-    faults.push("This follow-up needs its recorded inspection.");
-  if (r) {
-    faults.push(...worksheetFaults(r, d.type));
-    if (r.sourceDocId !== d.fromDocId) faults.push("The document and inspection have different source documents.");
-    if (d.inspDate !== r.date || (d.inspTime || "") !== (r.time || ""))
-      faults.push("Review the inspection: its date/time differs from this document.");
-  }
-  if (src && stableJSON(src.items.map((i) => String(i.no))) !== stableJSON(d.items.map((i) => String(i.no))))
-    faults.push("Every issued item must retain its number and order through the follow-up.");
-  if (d.type !== "notice" && REFERRED_ONLY.indexOf(d.type) < 0 && isReferredCase(d.caseId))
-    faults.push("A referred case permits only referral updates or compliance.");
-  if (d.type === "referralUpdate" && !isReferredCase(d.caseId)) faults.push("Issue the initial referral before a referral update.");
-  if (d.type === "citation") {
-    const numbers = d.items
-      .filter((i) => i.cite && !i.withdrawn)
-      .map((i) => ((d.cits || {})[i.id] || {}).num)
-      .filter(Boolean);
-    if (
-      new Set(numbers).size !== numbers.length ||
-      docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
-    )
-      faults.push("Each new citation needs a unique citation number. Corrections retain their existing number.");
-    d.items
-      .filter((i) => i.cite && !i.withdrawn)
-      .forEach((i) => {
-        const c = d.cits[i.id] || {};
-        if (!validISO(c.issued) || c.issued < inspAt(d).date || c.issued > recordDay(today))
-          faults.push("Citation issue dates must be between the inspection and today.");
-      });
-  }
-  if (validISO(d.mailed) && (d.mailed < inspAt(d).date || d.mailed > mailingMaxDay(d.type))) faults.push(mailingDateMessage(d.type));
-  return [...new Set(faults)].map((t) => ({ ok: false, t }));
-}
-
-function makePublication(d) {
-  const r = d.fromReinspId ? reinsp(d.fromReinspId) : null;
-  const base = recordHead(d.caseId),
-    events = [];
-  let at = Date.parse(recordNow(d.caseId));
-  if (r && r.draft) {
-    const snapshot = cleanVisit(r);
-    snapshot.docId = d.id;
-    events.push({
-      id: evid(),
-      at: new Date(at++).toISOString(),
-      by: r.inspectorId,
-      type: "reinspection.recorded",
-      payload: { reinspId: r.id, reinspection: snapshot, sourceDocId: r.sourceDocId, expectedHead: base, lifecycle: 1 },
-    });
-  }
-  const release = newDocuments.releaseVisit(d);
-  if (release)
-    events.push({
-      id: evid(),
-      at: new Date(at++).toISOString(),
-      by: release.inspectorId,
-      type: "reinspection.recorded",
-      payload: {
-        reinspId: release.id,
-        reinspection: release,
-        sourceDocId: release.sourceDocId,
-        expectedHead: base.concat(events.map((e) => e.id)).sort(),
-        lifecycle: 1,
-      },
-    });
-  const snap = clone(d);
-  ["draft", "pendingAmendment", "publicationEvents", "expectedHead", "publicationError", "emailSelection"].forEach((k) => delete snap[k]);
-  snap.status = "Final";
-  snap.authoringVersion = Math.max(11, snap.authoringVersion || 0);
-  delete snap.dueWork;
-  delete snap.selectionCache;
-  snap.frozen = freezeSources(d);
-  if (d.type === "notice") {
-    snap.cits = {};
-    delete snap.initialCitationId;
-  }
-  const attempt = {
-    id: evid(),
-    at: new Date(at).toISOString(),
-    by: docInsp(d).id,
-    type: ISSUE_EVENT[d.type],
-    payload: {
-      docId: d.id,
-      snapshot: snap,
-      fromReinspId: d.fromReinspId || "",
-      fromDocId: d.fromDocId || "",
-      expectedHead: base.concat(events.map((e) => e.id)).sort(),
-      lifecycle: 1,
-    },
-  };
-  d.publicationEvents = events;
-  return initialCitations.enabled(d) ? initialCitations.group(d, attempt) : attempt;
-}
-
-// R59: one issuance per draft at a time. A second click or a Confirm save during an issuance is ignored, so a
-// double submission can never prepare a second publication event.
-const PUBLISHING = new Set();
-
-async function publishDocument(d) {
-  if (!d || PUBLISHING.has(d.id)) return false;
-  PUBLISHING.add(d.id);
-  try {
-    return await publishOnce(d);
-  } finally {
-    PUBLISHING.delete(d.id);
-  }
-}
-
-async function publishOnce(d) {
-  if (d && recordIntegrity.blocked(d.caseId)) {
-    toast("This record was changed outside the program. Open read-only and refer it for review.");
-    return false;
-  }
-  if (!d || !d.draft || d.correction || WriterState.AMENDMENT_BUSY) return false;
-  if (!d.pendingAmendment) commitCitationEdits(d);
-  if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
-    WriterState.state.amendmentError = "Connect the current local helper and shared case folder. The document remains a draft.";
-    await saveDrafts();
-    WriterState.state.modal = null;
-    render();
-    return false;
-  }
-  if (!d.pendingAmendment && d.type === "notice" && !(await refreshCatalog())) {
-    WriterState.state.amendmentError = "Current catalog review status could not be checked. Draft retained; reconnect before issuing.";
-    await saveDrafts();
-    WriterState.state.modal = null;
-    render();
-    return false;
-  }
-  if (!d.pendingAmendment && (d.type === "citation" || initialCitations.enabled(d))) {
-    initialCitations.prepare(d);
-    citationPricing.refresh(d);
-    const before = citationPricing.signature(d);
-    if (!(await citationPricing.loadShared(d, true))) {
-      WriterState.state.amendmentError = "Shared citation history could not be checked. Reconnect before issuing.";
-      await saveDrafts();
-      render();
-      return false;
-    }
-    if (before !== citationPricing.signature(d)) {
-      WriterState.state.amendmentError = "Citation history changed the deposit or tier. Review the updated charges before issuing.";
-      await saveDrafts();
-      WriterState.state.modal = null;
-      render();
-      return false;
-    }
-  }
-  if (!d.pendingAmendment && blockers(d).length) {
-    toast("Resolve the document and inspection checks before issuing.");
-    render(); // the final confirmation lists the new blockers and keeps its Issue button disabled
-    return false;
-  }
-  const cid = d.caseId,
-    id = d.id,
-    wanted = initialCitations.enabled(d),
-    sendEmail = !!d.emailedTo && d.emailedTo.length > 0;
-  const attempt = d.pendingAmendment || makePublication(d);
-  WriterState.state.modal = null;
-  const preparedJobs = new Map();
-  if (wanted && !d.pendingAmendment) {
-    try {
-      for (const event of (d.publicationEvents || []).concat(attempt)) {
-        const snapshot = event.payload?.snapshot;
-        if (!snapshot || deliveredByCitation(snapshot)) continue;
-        const job = printJob(snapshot);
-        if (!job || !String(job.html || "").trim()) throw new Error("An initial document could not be rendered.");
-        preparedJobs.set(snapshot.id, job);
-      }
-      const expected = (d.publicationEvents || [])
-        .concat(attempt)
-        .filter((e) => e.payload?.snapshot && !deliveredByCitation(e.payload.snapshot)).length;
-      if (preparedJobs.size !== expected || !expected) throw new Error("The initial documents must be prepared.");
-    } catch (e) {
-      WriterState.state.amendmentError = "The initial citation could not be prepared. Draft retained; no issuance was sent. " + e.message;
-      await saveDrafts();
-      render();
-      return false;
-    }
-  }
-  WriterState.state.publicationBusy = id;
-  if (!(await commitAmendment(cid, attempt, d))) {
-    WriterState.state.publicationBusy = null;
-    WriterState.state.modal = null;
-    render();
-    return false;
-  }
-  delete WriterState.WORK.recordForms[id + ":final"];
-  WriterState.state.amendmentError = "";
-  WriterState.state.docId = id;
-  WriterState.state.screen = "write";
-  render();
-  const issuedDocs = [doc(id)].filter((x) => !deliveredByCitation(x));
-  if (wanted) {
-    const citation = doc(attempt.payload.snapshot.id);
-    if (citation && citation.type === "citation") {
-      issuedDocs.push(citation);
-      WriterState.state.docId = citation.id;
-    }
-  }
-  // Both official snapshots are committed before either PDF is filed. Each filing
-  // is independent and recoverable; a lost save response retries the same pair.
-  let filed = true,
-    workspace = false;
-  try {
-    for (const issued of issuedDocs) {
-      try {
-        const job = preparedJobs.get(issued.id) || printJob(issued);
-        if (!(await filePdf(issued, job))) {
-          filed = false;
-          toast("Document issued. Use File issued PDF to produce its copy.");
-        } else if (sendEmail) await emailDocument(issued, clone(issued.emailedTo), true, job);
-      } catch (e) {
-        filed = false;
-        toast("Document issued; its PDF needs a retry. Use File issued PDF.");
-      }
-    }
-    await saveDrafts();
-    // R59: once the shared save is confirmed and filing and email were attempted, return to Workspace with the
-    // issued case highlighted. A legacy notice still waiting for its separate initial citation stays open, and
-    // an inspector who has already moved on (another screen, document or dialog) is not pulled back.
-    const stillHere =
-      WriterState.state.screen === "write" && !WriterState.state.modal && [id, ...issuedDocs.map((x) => x.id)].includes(WriterState.state.docId);
-    if (stillHere && !needsInitialCitation(doc(id))) {
-      workspace = revealIssuedCase(cid);
-      if (workspace && filed) {
-        const labels = [...new Set(issuedDocs.map((x) => (DOC_TYPES.find((t) => t.id === x.type) || {}).label || "Document"))];
-        toast((labels.join(" and ") || "Document") + " issued for " + (kase(cid)?.number || "this case") + ".", { severity: "success" });
-      }
-    }
-    return true;
-  } finally {
-    WriterState.state.publicationBusy = null;
-    render();
-    if (workspace) focusIssuedCase(cid);
-  }
-}
-
-function publicationPanel(d) {
-  if (!d || !d.draft || d.correction) return "";
-  const waiting = !!d.pendingAmendment;
-  return (
-    "" +
-    "".concat(
-      waiting
-        ? '<div class="banner warn"><div><strong>Save confirmation needed.</strong>' +
-            " Keep this draft. Retry the exact save before editing, printing or start" +
-            'ing another action. <button class="btn" id="btn-retrypublish">Confirm sa' +
-            "ve</button></div></div>"
-        : "",
-    ) +
-    "" +
-    "".concat(WriterState.state.amendmentError ? '<div class="banner alert" role="alert">' + esc(WriterState.state.amendmentError) + "</div>" : "") +
-    ""
-  );
 }
 
 function recoveryWorkspace() {
@@ -1194,9 +897,6 @@ export {
   returnToWorksheet,
   restorePreviousDraft,
   discardWorksheet,
-  lifecycleChecks,
-  publishDocument,
-  publicationPanel,
   recoveryWorkspace,
   recoveryCaseKey,
   recoverySnapshot,

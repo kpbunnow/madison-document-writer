@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Publication preparation and continuation boundaries (development)
+
+- Separate lifecycle checks and publication snapshots through nine lazy inputs, and issuance/confirmation/PDF continuation through 17 inputs. Recovery backup/restore UI no longer owns publication.
+- Preserve all five moved bodies and issuance guard behavior, original event/group/snapshot identity, pending retries without repreparation, pre-render-before-commit and file-after-confirmation order, partial PDF failures and navigation/focus behavior. Shared confirmation/helper/immutable receipt authority is unchanged.
+- Add independent service/behavior tests and import guards; update ownership, assessment, inventory and indexes. Writer remains a seven-module cycle and Reports stays acyclic; retain R63/build 64 and stored formats.
+
 ## Unreleased — Record save confirmation boundary (development)
 
 - Isolate commitAmendment behind 11 lazy persistence/helper/projection/UI adapters, preserving its exact request, confirmation, failure and cleanup ordering. Publication, correction and recovery callers share the composed operation.
