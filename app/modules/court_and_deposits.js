@@ -3,7 +3,7 @@ import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
 
 import { addressProblem, validateAndStandardizeAddresses } from "./case_files.js";
-import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
+import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc } from "./document_rules.js";
 import {
   correctionChecks,
   lifecycleChecks,
@@ -11,8 +11,6 @@ import {
   citationDepositFault,
   catalogDraftBlocked,
   A11Y,
-  citationPricing,
-  citationPricingDate,
   docBlocks,
   docBody,
   initialCitations,
@@ -25,247 +23,33 @@ import {
   attachCheckTargets,
 } from "./app_core.js";
 
-import { BLOCKS, CITEPOCH, CITFEES, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
+import { BLOCKS, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
-import { correctionSource, doc, docCase, docInsp, kase } from "./writer_queries.js";
+import { doc, docCase, docInsp, kase } from "./writer_queries.js";
 import { clone } from "./record_values.js";
-import { validISO, parseTime, daysBetween, iso, nowISO } from "./calendar.js";
+import { validISO, parseTime, daysBetween, nowISO } from "./calendar.js";
 import { isLLC, ownerLines } from "./mailing_rules.js";
 
-import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, resolveCitationAmount, resolveOrdinance } from "./citation_policy.js";
+import { CITATION_POLICY } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { WriterState } from "./state.js";
 
 /* app functions; direct dependencies use explicit shared state. */
 
-function nthWeekday(y, m, wd, n) {
-  // n-th weekday of a month, 1-based
-  const d = new Date(Date.UTC(y, m, 1, 12));
-  d.setUTCDate(1 + ((wd - d.getUTCDay() + 7) % 7) + (n - 1) * 7);
-  return d;
-}
-
-function lastWeekday(y, m, wd) {
-  const d = new Date(Date.UTC(y, m + 1, 0, 12));
-  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() - wd + 7) % 7));
-  return d;
-}
-
-function courtHolidays(y) {
-  const f = [
-    [0, 1],
-    [5, 19],
-    [6, 4],
-    [10, 11],
-    [11, 24],
-    [11, 25],
-    [11, 31],
-  ]; // fixed dates
-  const out = f.map((p) => new Date(Date.UTC(y, p[0], p[1], 12)));
-  out.push(nthWeekday(y, 0, 1, 3)); // Martin Luther King Jr. Day
-  out.push(lastWeekday(y, 4, 1)); // Memorial Day
-  out.push(nthWeekday(y, 8, 1, 1)); // Labor Day
-  const tg = nthWeekday(y, 10, 4, 4); // Thanksgiving and the day after
-  out.push(tg);
-  out.push(new Date(Date.UTC(y, 10, tg.getUTCDate() + 1, 12)));
-  return out.map((d) => iso(d));
-}
-
-function isCourtHoliday(d) {
-  const s = typeof d === "string" ? d : iso(d);
-  return courtHolidays(+s.slice(0, 4)).indexOf(s) >= 0;
-}
-
-function nextCourtDate(from) {
-  const p = String(from || recordDay(today)).split("-");
-  const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
-  d.setUTCDate(d.getUTCDate() + 42); // six weeks out
-  d.setUTCDate(d.getUTCDate() + ((3 - d.getUTCDay() + 7) % 7)); // then on to a Wednesday
-  let guard = 0;
-  while (isCourtHoliday(d) && guard++ < 12) d.setUTCDate(d.getUTCDate() + 7);
-  return iso(d);
-}
-
-function citationNumber() {
-  const used = {};
-  WriterState.DOCS.forEach((d) =>
-    Object.keys(d.cits || {}).forEach((x) => {
-      const v = (d.cits[x] || {}).num;
-      if (v) used[v] = 1;
-    }),
-  );
-  const base = Math.floor((Date.now() - CITEPOCH) / 1000);
-  for (let bump = 0; bump < 120; bump++) {
-    const secs = String(base + bump)
-      .padStart(9, "0")
-      .slice(-9);
-    const start = Math.floor(Math.random() * 100);
-    for (let i = 0; i < 100; i++) {
-      const c = "B" + secs + String((start + i) % 100).padStart(2, "0");
-      if (!used[c]) return c;
-    }
-  }
-  return "B" + String(base).padStart(9, "0").slice(-9) + String(Math.floor(Math.random() * 100)).padStart(2, "0");
-}
-
 /* R59: an item with several sections charges one of them, chosen explicitly. Options keep each section as
    stored for display and use its canonical ordinance as the charged value. */
-function chargeChoices(i) {
-  const seen = new Set();
-  return (i?.sections || [])
-    .map((s) => ({ value: canonicalOrdinance(s) || String(s || "").trim(), label: String(s || "").trim() }))
-    .filter((x) => x.value && !seen.has(x.value) && seen.add(x.value));
-}
-const choosesCharge = (i) => (i?.sections || []).length > 1;
 
 /* R59: every value derived from, priced for or approved for the previous charge. A new charge is priced
    afresh; an administrator override, tier override and manual deposit basis are tied to the old charge. */
-const CHARGE_DERIVED = [
-  "scheduleEntryId",
-  "pricedEntryId",
-  "base",
-  "cc",
-  "amount",
-  "assessments",
-  "resolvedVia",
-  "depositSource",
-  "depositReason",
-  "differentChargeSource",
-  "reconfirmDeposit",
-  "depositEditInvalid",
-  "depositApproved",
-  "measurements",
-  "measurementFields",
-  "rowDescription",
-  "rowSelectionNotice",
-  "mandatoryAppearance",
-  "pricedOn",
-  "policyVersionHash",
-  "overrideBasis",
-  "tierOverride",
-  "tierOverrideSource",
-  "historicalDeposit",
-  "countedOffenses",
-  "computedTier",
-  "pricingWarning",
-  "siteMatch",
-  "chargeStale",
-  "reason",
-];
+
 /* The schedule row, measurements and authorizations of the previous charge. A single-section (or free-text)
    charge edit clears only these and keeps the R31 contract: an earlier amount stays only as a blocked
    proposal (reconfirmDeposit) until its source and amount are confirmed again or the new charge is priced. */
-const CHARGE_IDENTITY = [
-  "scheduleEntryId",
-  "pricedEntryId",
-  "rowDescription",
-  "rowSelectionNotice",
-  "measurements",
-  "measurementFields",
-  "mandatoryAppearance",
-  "overrideBasis",
-  "tierOverride",
-  "tierOverrideSource",
-  "depositApproved",
-  "depositEditInvalid",
-  "historicalDeposit",
-  "chargeStale",
-  "differentChargeSource",
-];
-function clearChargeBasis(c, i) {
-  // An explicit choice among several sections starts from nothing: every derived and approved value goes.
-  const full = choosesCharge(i);
-  for (const key of full ? CHARGE_DERIVED : CHARGE_IDENTITY) delete c[key];
-  if (full) c.depositMode = "schedule";
-  c.autoFilledCharge = false;
-}
-
-const chargeValue = (v) => canonicalOrdinance(v) || String(v || "").trim();
 
 /* R59: one path for every charge edit (charge card, deposit step, initial citations). A drafted citation or a
    required-completion request takes the new ordinance without the old charge's basis (clearChargeBasis), then the ordinary pricing
    runs: a scheduled amount completes the charge; otherwise the request shows that charge's own reason. An
    unchanged-correction charge returns to its original's retained basis. Returns false when nothing changed. */
-function changeCharge(d, iid, value) {
-  const i = (d.items || []).find((x) => x.id === iid),
-    c = d.cits?.[iid] || d.depositRequests?.[iid];
-  if (!c) return false;
-  const ord = chargeValue(value);
-  if (ord === chargeValue(c.ord)) {
-    c.ord = ord;
-    return false;
-  }
-  c.ord = ord;
-  clearChargeBasis(c, i);
-  const original = d.correction && correctionSource(d)?.cits?.[iid];
-  if (original && chargeValue(original.ord) === ord) {
-    // Returning to the unchanged original restores its complete retained basis, including absent fields.
-    // Do not run applyDeposit: it resets the method and approvals before refresh recognizes a correction.
-    for (const key of [...CHARGE_DERIVED, "depositMode", "tier"]) {
-      if (Object.hasOwn(original, key)) c[key] = clone(original[key]);
-      else delete c[key];
-    }
-    d.cits = d.cits || {};
-    d.cits[iid] = c;
-    delete d.depositRequests?.[iid];
-    citationPricing.refresh(d);
-    return true;
-  }
-  if (d.cits?.[iid] === c) {
-    applyDeposit(d, iid, ord);
-    return true;
-  }
-  citationPricing.refresh(d);
-  if (d.depositRequests?.[iid] === c) {
-    const price = resolveCitationAmount({
-      ordinance: c.ord,
-      libraryItem: itemLibraryKey(i),
-      entryId: c.scheduleEntryId,
-      tier: c.tier || 1,
-      date: citationPricingDate(c, d),
-      measurements: c.measurements || {},
-    });
-    c.reason = price.reason || "Choose an approved deposit basis.";
-    c.measurementFields = price.fields || [];
-  }
-  return true;
-}
-
-function applyDeposit(d, iid, ord) {
-  const c = (d.cits || {})[iid];
-  if (!c) return;
-  d.authoringVersion = Math.max(11, d.authoringVersion || 0);
-  c.depositMode = "schedule";
-  delete c.depositApproved;
-  delete c.tierOverrideSource;
-  c.ord = canonicalOrdinance(ord) || String(ord || "");
-  citationPricing.refresh(d);
-  const el = document.querySelector('[data-cit="' + iid + '|amount"]');
-  if (el) el.textContent = c.amount;
-  return c.amount;
-}
-
-function feeLines(base, cc, date) {
-  const b = cents(base) ?? 0,
-    c = cc === "" || cc == null ? CITFEES.courtCosts * 100 : (cents(cc) ?? 0),
-    v = assessmentCents(b, c, date);
-  return {
-    cents: v,
-    rows: [
-      { k: "Base cash deposit", v: v.base / 100, note: "MGO 1.08(3)(a)–(b)" },
-      { k: "Penalty assessment", v: v.penalty / 100, note: "Wis. Stat. 757.05" },
-      { k: "Jail assessment", v: v.jail / 100, note: "Greater of 1% or $10, Wis. Stat. 302.46(1)" },
-      { k: "Crime lab assessment", v: v.crimeLab / 100, note: "Wis. Stat. 165.755" },
-      { k: "Court costs", v: v.court / 100, note: "Wis. Stat. 814.65" },
-    ],
-    total: v.total / 100,
-  };
-}
-
-function lookupForf(sections, libraryKey = "", entryId = "", date) {
-  if ((sections || []).length !== 1) return null;
-  return resolveOrdinance(sections[0], libraryKey, entryId, date);
-}
 
 function rnd12() {
   const b = new Uint8Array(8);
@@ -742,27 +526,4 @@ function checks(d) {
     .map((c) => attachCheckTargets(d, c));
 }
 
-export {
-  CHARGE_DERIVED,
-  changeCharge,
-  chargeChoices,
-  choosesCharge,
-  nextCourtDate,
-  citationNumber,
-  applyDeposit,
-  feeLines,
-  lookupForf,
-  rnd12,
-  fmtDate,
-  splitOwner,
-  longDate,
-  fmtTime,
-  toast,
-  toastHold,
-  toastUndo,
-  fillBlank,
-  allItems,
-  activeBlocks,
-  freezeSources,
-  checks,
-};
+export { rnd12, fmtDate, splitOwner, longDate, fmtTime, toast, toastHold, toastUndo, fillBlank, allItems, activeBlocks, freezeSources, checks };
