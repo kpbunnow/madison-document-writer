@@ -1,3 +1,4 @@
+import { createRecordCommit } from "./record_commit.js";
 import { createCitationWorkflow } from "./citation_workflow.js";
 import { createItemSelection } from "./item_selection.js";
 import { createWorkspaceTasks } from "./workspace_tasks.js";
@@ -71,6 +72,7 @@ import {
   project,
   idbSet,
   rememberSaved,
+  mergeCaseEvents,
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
@@ -93,6 +95,7 @@ import {
   removeEmail,
   saveCaseFile,
   saveDrafts,
+  writeSummary,
   scheduleDraftSave,
   standardCityStateZip,
   standardStreetAddress,
@@ -109,7 +112,6 @@ import {
   addRecordNote,
   captureWork,
   citationFromNotice,
-  commitAmendment,
   correctionChanges,
   correctionTypeAllowed,
   issueCorrection,
@@ -719,6 +721,23 @@ const workspaceTaskPresentation = createWorkspaceTasks({
   depositComplete: (...args) => depositComplete(...args),
 });
 export let { workspaceTasks } = workspaceTaskPresentation;
+
+const recordCommit = createRecordCommit({
+  toast: (...args) => toast(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  caseFile: (...args) => caseFile(...args),
+  get COMMITTED() {
+    return COMMITTED;
+  },
+  helperJSON: (...args) => helperJSON(...args),
+  mergeCaseEvents: (...args) => mergeCaseEvents(...args),
+  project: (...args) => project(...args),
+  rememberSaved: (...args) => rememberSaved(...args),
+  idbSet: (...args) => idbSet(...args),
+  writeSummary: (...args) => writeSummary(...args),
+  render: (...args) => render(...args),
+});
+export let { commitAmendment } = recordCommit;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

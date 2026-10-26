@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the citation/item-selection increment based on merged PR #65, main `6a6c2909f20cca88637585ff24e9c15b0d638490`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
+Snapshot: the record-save confirmation increment based on merged PR #66, main `eb06a5946bb743e984e9b5c661d4a1d89d69d1f1`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
 
 ## What this increment completes
 
-Citation editing/readiness/review now has a 16-input owner, while library item selection has a separate two-input owner. All eight original function bodies and the private scheduled-offense declaration are preserved apart from dependency access, including literal messages/markup. Typed charge phases, retained correction prices, authority/wording holds and private wording/cache/IDs remain. The emptied case_timeline module is removed without a forwarding layer, reducing Writer's cyclic component from eight to seven modules and narrowing its guard. Earlier boundaries remain independent, Reports stays acyclic, and technical PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+The shared commitAmendment request/confirmation operation now has an independent 11-input lazy owner. The original function body remains unchanged apart from adapter access, preserving durable pending requests, lost-response identity/group retry, definitive rejection handling, correction payloads, later-edit protection and cleanup/save order. Core exports the actual composed operation to publication/correction/recovery callers. Construction is inert and helper validation, storage/projection and immutable PDF authority remain outside the boundary. This first step does not complete publication/correction/recovery separation or reduce the seven-module Writer cycle. Reports remains acyclic; technical PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,19 +12,19 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 1843 | 57 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_core.js` | 1862 | 58 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1238 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
 | `case_files.js` | 1049 | 17 | 6 | Draft persistence, restoration and case-file/workspace actions remain coupled |
 | `court_and_deposits.js` | 1094 | 17 | 6 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `draft_recovery.js` | 1213 | 16 | 6 | Recovery, publication continuation and workspace UI depend on one another |
-| `issuance_and_corrections.js` | 1403 | 17 | 6 | Issuance/correction orchestration, history and UI presentation remain intertwined |
+| `draft_recovery.js` | 1214 | 16 | 6 | Recovery, publication continuation and workspace UI depend on one another |
+| `issuance_and_corrections.js` | 1312 | 16 | 6 | Issuance/correction orchestration, history and UI presentation remain intertwined |
 | `workspace_shell.js` | 728 | 17 | 4 | Workspace mutation/merge, storage adapters, helper requests and shell/print integration remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Separate publication/correction/recovery orchestration.** Define explicit request/confirmation/retained-result operations between issuance_and_corrections and draft_recovery. Keep helper validation and immutable PDF receipt authority unchanged. Test lost acknowledgements, pending publication, correction lineage, failed saves and recovery before removing the relevant cycle edges.
+1. **Separate publication/correction/recovery orchestration.** The shared request/confirmation operation is now isolated; next separate publication preparation/continuation from recovery UI, then correction orchestration. Keep helper validation and immutable PDF receipt authority unchanged. Test lost acknowledgements, pending publication, correction lineage, failed saves and recovery before removing the relevant cycle edges.
 2. **Separate persistence adapters from workspace coordination.** case_files and workspace_shell should expose bounded persistence/merge/restore capabilities rather than UI callbacks everywhere. Preserve startup restoration barriers, save-chain ordering, rollback, folder permissions, integrity verification and the frontend/helper projection contract. Keep native platform calls behind their established adapters.
 3. **Finish core/screen direction after the service boundaries are clearer.** Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
@@ -34,7 +34,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 57 maintained-module dependencies in this graph and 40 named factory calls with object interfaces. The largest reviewed interfaces are:
+Core currently has 58 maintained-module dependencies in this graph and 41 named factory calls with object interfaces. The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
@@ -63,7 +63,7 @@ Retain the current source inventory, ownership map, test index, exact-source ful
 
 The planned architecture cleanup is complete when the Writer module graph has no cyclic component, Reports stays acyclic, major features load independently, and ownership remains explicit without a replacement registry/barrel. Review interface breadth and core startup clarity as well as the graph. Preserve all historical output, trust boundaries, stored/installed names, live-state and failure-ordering contracts, with the full gate passing on final reviewed source.
 
-After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 78 maintained modules or eliminating every legitimate cross-feature action.
+After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 79 maintained modules or eliminating every legitimate cross-feature action.
 
 ## Outside this development work
 
