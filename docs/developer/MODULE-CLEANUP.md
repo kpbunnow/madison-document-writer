@@ -195,13 +195,21 @@ All four bodies, remaining timeline declarations/order and case_files functions 
 
 case_timeline shrinks from 1,178 to 1,073 lines and loses workspace_shell/app_screens imports; case_files loses its case_timeline import. There are 75 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests exercise readiness, local/shared failures/races and channel/URL behavior, alongside unchanged storage/navigation/startup workflows. Next inspect bulk/selected deadlines and workspace task presentation before the remaining citation and publication/recovery boundaries.
 
-## Eighteenth increment: deadline planning and assignment
+## Eighteenth increment: deadline planning and assignment (merged in PR #64)
 
 deadline_assignment owns planBulkDue/showBulkDue/updateDueIndicators/duePanel/assignDue through createDeadlineAssignment, plus direct dueDateSpacingConflicts/dueSelectedText and live dueContext/activeDueTarget exports. Core supplies seven named lazy dependencies: MINDUE, structEditable, isLocked, fmtDate, navigation, A11Y and snow. Construction reads no services/state/DOM and registers no listeners; core composes it after Writer handoff and before document rendering and exports actual mutable operations. Consumers import direct queries from the defining owner, with no forwarding barrel.
 
 All nine moved bodies and remaining timeline declarations/order are preserved apart from explicit dependency access. Keep current outstanding-item selection, notice/worksheet eligibility, intent/carried guards, minimum-date checks, three-date/seven-day limits, clone-only all-or-nothing batch planning, text/HTML and DOM indicator behavior. due_date_events retains action/undo/save sequencing; workflow_events retains durable patch-before-commit behavior. No new persistence or publication authority is introduced.
 
 case_timeline shrinks from 1,073 to 856 lines and retains workspace tasks and citation/pricing operations. There are 76 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests cover atomicity, live contexts and guards alongside unchanged authoring/workflow/worksheet/usability assertions. Next inspect workspace task presentation, then citation editing/readiness before publication/recovery and persistence coordination.
+
+## Nineteenth increment: workspace task presentation
+
+workspace_tasks owns read-only workspaceTasks through createWorkspaceTasks and three lazy inputs: date formatting, saved-import detection and deposit completion. Core composes it after deadline assignment and before document rendering and exports the actual mutable function; app_screens consumes that instance. Construction reads no services/state/DOM and registers no listeners. depositComplete remains unchanged in the citation owner and is exported for composition, avoiding copied readiness/pricing rules.
+
+The task body and remaining timeline functions/order are unchanged apart from explicit dependency access. Preserve task group/count/list order, input row/status snapshots, live document/attempt/queue/artifact references, citation-included/superseded/void exclusions, stale/conflict warnings, historical label fallback and escaped action attributes. Task actions, record mutation, storage and publication remain in existing owners.
+
+case_timeline shrinks from 856 to 738 lines and loses its issuance import; app_screens loses its timeline import. There are 77 maintained modules, the same eight-module Writer component and acyclic Reports. Independent tests exercise truthful read-only tasks and replacement state, alongside unchanged queue/usability/citation/browser assertions. Next inspect the remaining citation editing/readiness and item-selection boundary, followed by publication/recovery and persistence coordination.
 
 ## Following increments
 

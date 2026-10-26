@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the deadline-assignment increment based on merged PR #63, main `51fd798edeb6d04d3468b36a202f13524e5daa1c`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
+Snapshot: the workspace-task increment based on merged PR #64, main `5fa5af0cbc3694dd9b778804812eefcf592da5f1`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
 
 ## What this increment completes
 
-Deadline batch planning, assignment and presentation now have a seven-dependency owner, with direct spacing/selected-text helpers and live selection/context queries. Nine original bodies are preserved apart from dependency access, retaining atomic batch clones, selection/eligibility and deadline limits. Event/undo/save ordering and durable patching stay in their existing owners. case_timeline shrinks from 1,073 to 856 lines and now retains workspace tasks and citation/pricing responsibilities. The eight-module cyclic component remains. Earlier boundaries remain independent, Reports stays acyclic, and technical PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+Workspace task generation now has a three-dependency presentation owner. Its original body and all remaining citation/timeline functions are preserved apart from dependency access. Counts, artifact truth, action links and live queries remain read-only; deposit completion stays in the citation owner and is delegated instead of copied. case_timeline shrinks from 856 to 738 lines and loses its issuance import; app_screens loses its timeline import. The eight-module cyclic component remains, with two fewer edges between members. Earlier boundaries remain independent, Reports stays acyclic, and technical PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,10 +12,10 @@ The graph still contains one eight-module Writer component. These are eight coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 1791 | 55 | 7 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1237 | 19 | 7 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `app_core.js` | 1800 | 56 | 7 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1238 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
 | `case_files.js` | 1049 | 17 | 6 | Draft persistence, restoration and case-file/workspace actions remain coupled |
-| `case_timeline.js` | 856 | 14 | 3 | Workspace tasks and citation editing still share one owner; deadline assignment, handoff/readiness, PDF artifacts, reminders/timeline and inspection facts have separate owners |
+| `case_timeline.js` | 738 | 11 | 2 | Citation editing/readiness, pricing adapters and item selection remain; task presentation and earlier responsibilities have separate owners |
 | `court_and_deposits.js` | 1092 | 18 | 7 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
 | `draft_recovery.js` | 1214 | 17 | 7 | Recovery, publication continuation and workspace UI depend on one another |
 | `issuance_and_corrections.js` | 1403 | 18 | 7 | Issuance/correction orchestration, history and UI presentation remain intertwined |
@@ -25,7 +25,7 @@ Counts come from `node tools/module_graph.cjs` and maintained source line counts
 
 ## Recommended priority and scope
 
-1. **Finish the remaining timeline responsibilities.** Deadline planning/assignment, shared inspection facts, reminders/timeline, PDF artifacts and Writer handoff/readiness are now separated. Next inspect workspace task presentation, then citation editing/readiness and item-selection responsibilities still in case_timeline. Preserve truthful task counts and artifact status, pending/issued guards, historical charge/deposit basis, explicit selection, save ordering and helper/publication authority. Choose bounded responsibilities by actual callers instead of wrapping the entire module.
+1. **Finish the remaining citation/timeline boundary.** Workspace tasks, deadline planning/assignment, inspection facts, reminders/timeline, PDF artifacts and Writer handoff/readiness are now separated. Inspect the remaining citation editing/readiness, pricing adapters and item-selection functions as a coherent boundary. Preserve pending/issued guards, historical charge/deposit basis, explicit section selection, private wording/cache behavior, save ordering and helper/publication authority. Do not duplicate deposit checks into presentation or hide all coupling in an undifferentiated context.
 2. **Separate publication/correction/recovery orchestration.** Define explicit request/confirmation/retained-result operations between issuance_and_corrections and draft_recovery. Keep helper validation and immutable PDF receipt authority unchanged. Test lost acknowledgements, pending publication, correction lineage, failed saves and recovery before removing the relevant cycle edges.
 3. **Separate persistence adapters from workspace coordination.** case_files and workspace_shell should expose bounded persistence/merge/restore capabilities rather than UI callbacks everywhere. Preserve startup restoration barriers, save-chain ordering, rollback, folder permissions, integrity verification and the frontend/helper projection contract. Keep native platform calls behind their established adapters.
 4. **Finish core/screen direction after the service boundaries are clearer.** Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
@@ -36,7 +36,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 55 maintained-module dependencies in this graph and 37 named factory calls with object interfaces. The largest reviewed interfaces are:
+Core currently has 56 maintained-module dependencies in this graph and 38 named factory calls with object interfaces. The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
@@ -65,7 +65,7 @@ Retain the current source inventory, ownership map, test index, exact-source ful
 
 The planned architecture cleanup is complete when the Writer module graph has no cyclic component, Reports stays acyclic, major features load independently, and ownership remains explicit without a replacement registry/barrel. Review interface breadth and core startup clarity as well as the graph. Preserve all historical output, trust boundaries, stored/installed names, live-state and failure-ordering contracts, with the full gate passing on final reviewed source.
 
-After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 76 maintained modules or eliminating every legitimate cross-feature action.
+After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 77 maintained modules or eliminating every legitimate cross-feature action.
 
 ## Outside this development work
 

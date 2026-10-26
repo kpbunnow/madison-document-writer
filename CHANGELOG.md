@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Workspace task presentation boundary (development)
+
+- Separate workspace task generation through three lazy dependencies, preserving group order, count/list agreement, action links and existing record/artifact warnings. Delegate deposit completion to its unchanged citation calculation.
+- Keep task generation read-only and observe replacement workspace references. Remove case_timeline's issuance dependency and app_screens' timeline dependency; Writer retains its eight-module component and Reports stays acyclic.
+- Reduce case_timeline from 856 to 738 lines. Add independent tests/import guards and update ownership, assessment and indexes; retain R63/build-64, stored formats, existing assertions and publication authority.
+
 ## Unreleased — Deadline planning and assignment boundary (development)
 
 - Separate batch deadline planning, assignment and presentation into a seven-dependency owner, with direct spacing/selection and live-context queries. Preserve all nine bodies apart from explicit dependency access, including draft/selection guards, atomic planning and deadline limits.
