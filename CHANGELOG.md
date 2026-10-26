@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Recovery UI and document-history presentation (development)
+
+- Complete the recovery split: recovery_ui owns working controls, save-and-continue, backup file selection and status/modal presentation through 11 lazy inputs. Move catalog-form persistence to its one-input owner and define catalog keys there directly; retire draft_recovery without forwarding exports.
+- Move read-only document history and revision-print notes from issuance into record_history through one date-format input. Preserve all ten moved functions, markup, error/guard/dispatch order and stored identities; record actions and inspection-history calculations keep their existing authority.
+- Add independent control/picker/navigation/catalog/history/escaping tests and stricter import/cycle guards. Writer narrows from seven cyclic modules to six; Reports stays acyclic. Update current ownership, source/test indexes and roadmap; retain R63/build 64 and stored formats.
+
 ## Unreleased — Worksheet workflow boundary (development)
 
 - Separate worksheet source/readiness queries and reopen/restore/discard transitions through eight lazy source/date/continuing-item/deadline/save/UI inputs. Define date-change and cleaned-visit operations directly in the same owner. Keep original carried/withdrawn/outcome/date/deadline rules and retained previous-draft semantics.

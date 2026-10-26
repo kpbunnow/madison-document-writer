@@ -287,7 +287,7 @@ All seven moved and every remaining recovery function body preserve logic apart 
 
 There are 93 maintained modules and 43 independent scoped owners. draft_recovery shrinks from 643 to 366 lines; Writer retains its seven-module component and Reports stays acyclic. Next inspect worksheet responsibilities and record/history presentation before remaining recovery UI and court/delivery/core-screen direction. Keep dependency interfaces bounded and original startup/listener order intact.
 
-## Thirtieth increment: worksheet workflow boundary
+## Thirtieth increment: worksheet workflow boundary (merged in PR #76)
 
 worksheet_workflow directly defines changeVisitDate/cleanVisit and composes source-matching unissued visits, readiness and reopen/restore/discard through eight lazy source/date/continuing/deadline/save/UI adapters. Core composes it after caseRecovery and before documentRenderer, exports actual workflow functions and imports direct helpers from their defining owner. Construction performs no reads, I/O or registration. All seven moved and every remaining recovery function retain logic apart from service access.
 
@@ -295,11 +295,19 @@ Preserve frozen/source/date/outcome/withdrawn/carried compliance/deadline rules,
 
 There are 94 maintained modules and 44 independent scoped owners. draft_recovery shrinks from 366 to 210 lines; case_files loses its direct recovery import. Writer retains its seven-module component and Reports stays acyclic. Next separate remaining recovery presentation/work controls and record/history responsibilities before court/delivery/core-screen direction, preserving bounded interfaces and original startup/listener order.
 
+## Thirty-first increment: recovery presentation/work controls and document-history presentation
+
+recovery_ui owns six control/navigation/picker/status/modal operations through 11 lazy adapters. catalog_forms directly defines catalogKey and composes keepCatalogForms through one storage getter. record_history presents recordHistoryHTML/revisionPrintNote through one date-format input. Core composes the owners after worksheetWorkflow and before documentRenderer, exporting actual mutable operations and importing the defining catalogKey. Constructors perform no reads, I/O or registration. draft_recovery is retired without a forwarding module.
+
+All ten moved and every remaining issuance function retain logic/markup apart from dependency access. Preserve enabled/disabled work restoration, cancellation/capture/timer/navigation callback order, picker/restore failures, catalog keys/storage errors, escaped recovery conflict/status fields, version-chain/request/annotation/reconciliation ordering, case-scoped busy disabling and revision-print wording. This is presentation/work-control separation, not new persistence/publication authority or completion of all record actions/history calculations.
+
+There are 96 maintained modules and 47 independent scoped owners. Writer narrows to six cyclic modules (core, screens, case files, court/deposits, issuance/corrections and shell); the boundary test now caps it at six, and Reports stays acyclic. Issuance shrinks from 916 to 796 lines. Earlier increment counts above are retained as provenance; the current inventory is here and in MAINTAINABILITY-ASSESSMENT.md. Next inspect remaining record actions/correction and inspection-history responsibilities, then court/delivery and shell/case/core-screen direction.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 7-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 6-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
