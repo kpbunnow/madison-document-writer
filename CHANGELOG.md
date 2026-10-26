@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Automatic recovery backup boundary (development)
+
+- Separate recovery workspace/case identities, case/import snapshots, helper writes and latest-state backup scheduling through ten lazy storage/identity/snapshot/helper/status/timer inputs. Keep original startup identity initialization, keys, 700 ms debounce, signatures, retry and serialized latest-state behavior.
+- Preserve all seven moved and remaining recovery function bodies apart from dependency access. Recovery status/dialogs and individual-case restore remain UI-owned; no new deep-clone, concurrent-direct-call or durable-queue guarantee is introduced.
+- Add independent storage/snapshot/retry/scheduling tests and guards; update ownership, source/test indexes and roadmap. Recovery is 168 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and all stored formats.
+
 ## Unreleased — Workspace backup coordination (development)
 
 - Separate whole-workspace backup download/restore through 11 lazy capture, date, integrity, storage and UI inputs. Keep the native file picker in recovery UI and preserve backup versions 1/2, validation, retained work/attempt/checkpoint/pending data and storage/integrity/projection/save order.

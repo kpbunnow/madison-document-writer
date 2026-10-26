@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the workspace-backup increment based on merged PR #72, main `67df8fdc05bea3392801321c360dbbfe87bea681`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe the reviewed source layout, not quality/performance thresholds.
+Snapshot: the automatic-recovery increment based on merged PR #73, main `54efb7ee551860869b1620c3cdf2f31423c46a48`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe the reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Whole-workspace backup download/restore now has an independent 11-input owner, with the file picker retained in recovery UI. Both original bodies retain validation, retained work/attempt/checkpoint/pending data, sequence high-water and original persistence/integrity/live replacement/projection/save order. Module loading and construction perform no work. The original restore ordering is not a new atomic transaction: persisted drafts can precede an integrity failure. Version checking follows the new defining owner with unchanged mismatch refusal. draft_recovery is 109 lines smaller. Writer still has a seven-module cycle and Reports stays acyclic; PNG/native acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Recovery identity storage, case/import snapshot assembly, helper backup writes and automatic scheduling now have an independent ten-input owner. All seven moved bodies retain original key/startup order, scoping/clone semantics, signature acknowledgement/retry and 700 ms latest-state scheduled drain. Module loading/construction performs no work. Status rendering and individual-case restore stay in recovery UI; this is not a new durable queue, deep-clone or general concurrent-call guarantee. draft_recovery is 168 lines smaller. Writer still has a seven-module cycle and Reports stays acyclic; PNG/native acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,11 +12,11 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2047 | 70 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_core.js` | 2067 | 71 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1239 | 19 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 647 | 15 | 5 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
+| `case_files.js` | 648 | 15 | 5 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
 | `court_and_deposits.js` | 1096 | 16 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `draft_recovery.js` | 811 | 17 | 6 | Automatic/individual-case recovery, worksheet UI and workspace coordination remain coupled |
+| `draft_recovery.js` | 643 | 17 | 6 | Individual-case recovery, worksheet UI and workspace coordination remain coupled |
 | `issuance_and_corrections.js` | 915 | 15 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |
 | `workspace_shell.js` | 469 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
@@ -24,7 +24,7 @@ Counts come from `node tools/module_graph.cjs` and maintained source line counts
 
 ## Recommended priority and scope
 
-1. **Finish remaining recovery and record/history boundaries.** Device/local-draft persistence, shared writes/retries, case saving case record/loading operations and whole-workspace backups now have independent owners. Next separate automatic and individual-case recovery orchestration and worksheet/record-history presentation where responsibilities still mix. Preserve retained attempts, restoration barriers, integrity validation, correction/inspection lineage and failure/rollback order; do not replace them with a broad callback registry.
+1. **Finish remaining recovery and record/history boundaries.** Device/local-draft persistence, shared writes/retries, case saving case record/loading operations, whole-workspace backups and automatic recovery backups now have independent owners. Next separate individual-case recovery orchestration and worksheet/record-history presentation where responsibilities still mix. Preserve retained attempts, restoration barriers, integrity validation, correction/inspection lineage and failure/rollback order; do not replace them with a broad callback registry.
 2. **Review remaining court/deposit/delivery and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
@@ -33,7 +33,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 70 maintained-module dependencies in this graph and 43 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 71 maintained-module dependencies in this graph and 44 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
