@@ -1,3 +1,6 @@
+import { createSharedCaseStorage } from "./shared_case_storage.js";
+import { createPendingCaseSaves } from "./pending_case_saves.js";
+import { createCaseSaveWorkflow } from "./case_save_workflow.js";
 import { createWorkspaceDatabase } from "./workspace_database.js";
 import { createDraftPersistence } from "./draft_persistence.js";
 import { createCorrectionPreparation } from "./correction_preparation.js";
@@ -82,6 +85,7 @@ import {
 import { caseFileName } from "./case_file_rules.js";
 
 import {
+  mergeSharedFile,
   updateSaveStatus,
   scheduleDraftSave,
   addCC,
@@ -91,7 +95,6 @@ import {
   clearCases,
   discardDraft,
   downloadFile,
-  flushPending,
   listCaseFolder,
   openFromFolder,
   pickCaseFile,
@@ -100,7 +103,6 @@ import {
   removeCC,
   removeCase,
   removeEmail,
-  saveCaseFile,
   writeSummary,
   standardCityStateZip,
   standardStreetAddress,
@@ -854,6 +856,58 @@ const draftPersistence = createDraftPersistence({
   toast: (...args) => toast(...args),
 });
 export let { draftBundle, saveDrafts, restoreDrafts } = draftPersistence;
+
+const sharedCaseStorage = createSharedCaseStorage({
+  get CASEDIR_EXPECT() {
+    return CASEDIR_EXPECT;
+  },
+  helperJSON: (...args) => helperJSON(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  get COMMITTED() {
+    return COMMITTED;
+  },
+  mergeCaseEvents: (...args) => mergeCaseEvents(...args),
+  project: (...args) => project(...args),
+});
+export let { helperFolder, writeToFolder, writeIndexFile } = sharedCaseStorage;
+
+const pendingCaseSaves = createPendingCaseSaves({
+  idbSet: (...args) => idbSet(...args),
+  toast: (...args) => toast(...args),
+  idbGet: (...args) => idbGet(...args),
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  render: (...args) => render(...args),
+  loadCaseFile: (...args) => loadCaseFile(...args),
+  mergeSharedFile: (...args) => mergeSharedFile(...args),
+  caseFile: (...args) => caseFile(...args),
+  writeToFolder: (...args) => writeToFolder(...args),
+  rememberSaved: (...args) => rememberSaved(...args),
+  writeSummary: (...args) => writeSummary(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+});
+export let { queuePending, restorePending, flushPending } = pendingCaseSaves;
+
+const caseSaveWorkflow = createCaseSaveWorkflow({
+  caseNumberAllowed: (...args) => caseNumberAllowed(...args),
+  caseFile: (...args) => caseFile(...args),
+  downloadWorkspace: (...args) => downloadWorkspace(...args),
+  rememberSaved: (...args) => rememberSaved(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  toast: (...args) => toast(...args),
+  render: (...args) => render(...args),
+  grantCaseFolder: (...args) => grantCaseFolder(...args),
+  mergeSharedFile: (...args) => mergeSharedFile(...args),
+  queuePending: (...args) => queuePending(...args),
+  writeToFolder: (...args) => writeToFolder(...args),
+  idbSet: (...args) => idbSet(...args),
+  writeSummary: (...args) => writeSummary(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+});
+export let { saveCaseFile } = caseSaveWorkflow;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

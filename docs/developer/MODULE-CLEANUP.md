@@ -241,13 +241,21 @@ All nine moved function bodies and remaining issuance/history functions retain t
 
 There are 83 maintained modules, 33 isolated scoped services, the same seven-module Writer component and acyclic Reports. issuance_and_corrections shrinks from 1,313 to 914 lines; court_and_deposits loses its direct import of that mixed owner. Next inspect persistence adapters versus workspace coordination, preserving startup barriers, save/rollback ordering and helper/projection contracts; record/history presentation and remaining core/screen direction still need review.
 
-## Twenty-fourth increment: device database and draft persistence
+## Twenty-fourth increment: device database and draft persistence (merged in PR #70)
 
 workspace_database separates idb/idbGet/idbSet through two lazy capability/browser getters; draft_persistence separates draftBundle/saveDrafts/restoreDrafts through ten integrity/capture/UI/backup/capability/database/projection inputs. Core composes database then draft persistence after correctionWorkflow and before documentRenderer, exporting actual mutable operations. Constructors read no services/state/DOM, perform no storage/timer work and register no listeners. There are no forwarding exports.
 
 All six moved function bodies and remaining shell/file functions are preserved apart from dependency access. Retain database/version/store/key identity, shared connection and failure/reset semantics, transaction-completion acknowledgment, required/optional read distinction, clone-before-queue snapshots, save-chain/generation and dirty/status/backup ordering, work-patch waits. The original 1,500 ms debounce remains in case_files and calls the current composed save operation, preserving late-bound dispatch. Restoration retains work/attempt/checkpoint/case/event/integrity/draft/projection order. bootStorage remains in case_files with lock/readiness/original init/settle order; status UI, folder/shared-file writes and recovery's own restore transaction remain in established owners. Do not infer new connection-race or atomic-restore guarantees.
 
 There are 85 maintained modules and 35 isolated scoped services; Writer retains its seven-module component and Reports stays acyclic. case_files shrinks from 1,049 to 964 lines and loses its direct issuance/history import; workspace_shell shrinks from 728 to 666 lines. This completes the device/local-draft boundary, not all persistence/workspace separation. Next inspect shared-folder/helper writes, pending saves and case merge/load/rollback coordination before remaining record/history and core/screen direction.
+
+## Twenty-fifth increment: shared writes and case-save coordination
+
+shared_case_storage owns helperFolder/writeToFolder/writeIndexFile through six lazy inputs; pending_case_saves owns queuePending/restorePending/flushPending through 12 inputs; case_save_workflow owns saveCaseFile through 14 adapters. Core composes them in that order after draftPersistence and before documentRenderer and exports actual mutable operations. Constructors read no services/state/DOM, perform no I/O and register no listeners. Existing summary/merge/UI operations remain supplied by their defining owners, without forwarding exports or a universal context.
+
+All seven moved bodies and every remaining case-file function retain their logic apart from service access. Preserve helper schema/revision/checkpoint verification and confirmed response application without overwriting later edits, summary revision binding, native schema-5 and permission refusals, write/close acknowledgment, required pending restoration reads, current-record retry and original retained serialization fallback, failed/new queued object retention and serialization/permission/summary/local-save/status order. Helper validation, record identity and immutable receipt authority are unchanged; no new concurrency/durability guarantees are claimed.
+
+There are 88 maintained modules, 38 isolated scoped services, the same seven-module Writer component and acyclic Reports. case_files shrinks from 964 to 686 lines; workspace_shell loses its direct case_files import. Summary generation, folder UI, mergeSharedFile validation and startup/debounce stay in case_files. Next isolate case merge/load/rollback coordination and review remaining recovery, record/history, court/delivery and core/screen direction.
 
 ## Following increments
 

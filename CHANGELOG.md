@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Shared writes and case-save coordination boundaries (development)
+
+- Separate folder/helper write access through six lazy inputs, held-save retry through 12 inputs and case-save orchestration through 14 inputs. Keep helper verification/revision authority, native permission/write/close ordering and reporting summaries unchanged.
+- Preserve all seven moved bodies, current-record retries, failed/new queue retention, serialization refusals, permission retries, verified response/later-edit handling and local save/summary order. Summary generation, merge/load validation and folder UI remain in their established owners.
+- Add independent failure/order/interface tests and import guards; update ownership, development rules and indexes. case_files is 278 lines smaller; Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Device database and draft persistence boundaries (development)
 
 - Separate IndexedDB connection/read/write access through two lazy inputs and draft snapshot/save/restore coordination through ten inputs. Keep the database/store names, transaction completion, required-read failures and connection retirement behavior.

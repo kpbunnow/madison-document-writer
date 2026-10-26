@@ -1,7 +1,7 @@
 import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
-import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
+import { addressProblem, validateAndStandardizeAddresses } from "./case_files.js";
 import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
 import {
   correctionChecks,
@@ -26,6 +26,7 @@ import {
   documentHTML,
   paginate,
   attachCheckTargets,
+  saveCaseFile,
 } from "./app_core.js";
 
 import { render } from "./app_screens.js";
