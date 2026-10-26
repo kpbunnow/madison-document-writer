@@ -1,3 +1,6 @@
+import { createRecoveryUI } from "./recovery_ui.js";
+import { createCatalogForms, catalogKey } from "./catalog_forms.js";
+import { createRecordHistory } from "./record_history.js";
 import { createWorksheetWorkflow, cleanVisit, changeVisitDate } from "./worksheet_workflow.js";
 import { createCaseRecovery } from "./case_recovery.js";
 import { createAutomaticRecovery } from "./automatic_recovery.js";
@@ -116,14 +119,11 @@ import {
   voidDocument,
   commitRecordAttempt,
   documentItemHistory,
-  revisionPrintNote,
   hasItemInspectionHistory,
   citationRecoveryPanel,
   correctionPanel,
   filingPanel,
-  recordHistoryHTML,
 } from "./issuance_and_corrections.js";
-import { catalogKey, keepCatalogForms, restoreWorkspaceFile, saveAndContinue, recoveryStatusHTML, renderRecoveryStatus } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
 
@@ -969,6 +969,35 @@ const worksheetWorkflow = createWorksheetWorkflow({
   clearWalk: (...args) => clearWalk(...args),
 });
 export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;
+
+const recoveryUI = createRecoveryUI({
+  get document() {
+    return document;
+  },
+  get ENTRY_IDS() {
+    return ENTRY_IDS;
+  },
+  recordFormKey: (...args) => recordFormKey(...args),
+  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
+  captureWork: (...args) => captureWork(...args),
+  clearTimeout: (...args) => clearTimeout(...args),
+  get navigation() {
+    return navigation;
+  },
+  render: (...args) => render(...args),
+  toast: (...args) => toast(...args),
+  restoreWorkspaceBackup: (...args) => restoreWorkspaceBackup(...args),
+  caseUnsaved: (...args) => caseUnsaved(...args),
+});
+export let { restoreWorkControls, saveAndContinue, restoreWorkspaceFile, renderRecoveryStatus, recoveryStatusHTML, recoveryModal } = recoveryUI;
+const catalogForms = createCatalogForms({
+  get localStorage() {
+    return localStorage;
+  },
+});
+export let { keepCatalogForms } = catalogForms;
+const recordHistory = createRecordHistory({ fmtDate: (...args) => fmtDate(...args) });
+export let { recordHistoryHTML, revisionPrintNote } = recordHistory;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
