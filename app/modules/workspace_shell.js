@@ -1,17 +1,11 @@
-import { caseFileFault, mergeCaseDetails, correctionHistoryFault } from "./case_file_rules.js";
-
-import { migrate } from "./case_migrations.js";
-import { replayEvents, summarizeRecord } from "./case_projection.js";
-
-import { caseDetails, stableJSON, byTime, clone } from "./record_values.js";
+import { summarizeRecord } from "./case_projection.js";
 
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
-import { SUMMARY_DIR, caseNumberKey, validCaseNumber } from "../assets/shared.js";
+import { SUMMARY_DIR } from "../assets/shared.js";
 import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
 
 import { render } from "./app_screens.js";
 import {
-  refreshArtifactLocations,
   CASEDIR_EXPECT,
   FS_OK,
   IDB_OK,
@@ -19,7 +13,6 @@ import {
   recordIntegrity,
   storageMode,
   app_savedworkContext,
-  saveDrafts,
   idbGet,
   idbSet,
   flushPending,
@@ -27,9 +20,9 @@ import {
   writeToFolder,
 } from "./app_core.js";
 
-import { EVENT_TYPES, SCHEMA } from "./document_types.js";
+import { EVENT_TYPES } from "./document_types.js";
 import { nowISO } from "./calendar.js";
-import { doc, docCase, docsFor, eventsFor, insp, kase } from "./writer_queries.js";
+import { doc, docCase, docsFor, eventsFor, kase } from "./writer_queries.js";
 
 import { esc } from "./presentation_format.js";
 import { supplemental } from "./document_rules.js";
@@ -367,192 +360,6 @@ function appendEvent(cid, type, payload, at, by) {
   return ev;
 }
 
-function replay(cid) {
-  return replayEvents(eventsFor(cid));
-}
-
-function project() {
-  WriterState.DOCS = WriterState.DOCS.filter((d) => d.draft);
-  WriterState.REINSP = WriterState.REINSP.filter((r) => r.draft);
-  WriterState.CASES.forEach((k) => {
-    const st = replay(k.id);
-    st.documents.forEach((d) => WriterState.DOCS.push(d));
-    st.reinspections.forEach((r) => WriterState.REINSP.push(r));
-  });
-  WriterState.DOCS.sort((a, b) => {
-    const at = a.draft ? "9999" : a.issuedAt || "",
-      bt = b.draft ? "9999" : b.issuedAt || "";
-    return at === bt ? 0 : at < bt ? 1 : -1;
-  });
-}
-
-function rememberSaved(k, file) {
-  const details = caseDetails(file.case);
-  details.id = k.id;
-  WriterState.SAVE_CHECKPOINTS[k.id] = { case: details, events: (file.events || []).map((e) => e.id) };
-  k.savedAt = nowISO();
-}
-
-function caseFile(cid) {
-  const k = kase(cid),
-    evs = eventsFor(cid).slice().sort(byTime);
-  const used = {};
-  evs.forEach((e) => {
-    if (e.by) used[e.by] = 1;
-  });
-  used[k.inspectorId] = 1;
-  return {
-    format: "madison-case-file",
-    schema: SCHEMA,
-    exported: nowISO(),
-    exportedBy: insp(k.inspectorId).name || "",
-    case: caseDetails(k),
-    inspectors: INSPECTORS.filter((i) => used[i.id]),
-    events: clone(evs),
-  };
-}
-
-function caseNumberAllowed(k) {
-  return (
-    !!k && (validCaseNumber(k.number) || (!!caseNumberKey(k.number) && !!(k.savedAt || WriterState.SAVE_CHECKPOINTS[k.id] || eventsFor(k.id).length)))
-  );
-}
-
-function bumpSeq(o) {
-  const scan = (v) => {
-    if (typeof v === "string") {
-      const m = /^[a-z](\d+)$/.exec(v);
-      if (m) WriterState.seq = Math.max(WriterState.seq, +m[1]);
-    } else if (v && typeof v === "object") Object.keys(v).forEach((kk) => scan(v[kk]));
-  };
-  scan(o);
-}
-
-function mergeCaseEvents(k, f) {
-  const inc = f["case"];
-  if (k.id !== inc.id) {
-    (f.events || []).forEach((e) => {
-      const p = e.payload || {};
-      if (p.snapshot && p.snapshot.caseId === inc.id) p.snapshot.caseId = k.id;
-      if (p.reinspection && p.reinspection.caseId === inc.id) p.reinspection.caseId = k.id;
-      if (p.caseId === inc.id) p.caseId = k.id;
-    });
-  }
-  const combined = new Map(eventsFor(k.id).map((e) => [e.id, e]));
-  (f.events || []).forEach((e) => {
-    const old = combined.get(e.id);
-    if (old && stableJSON(old) !== stableJSON(e)) throw new Error("Conflicting content for an existing event");
-    combined.set(e.id, e);
-  });
-  const fault = correctionHistoryFault(Array.from(combined.values()));
-  if (fault) throw new Error(fault);
-  const have = {};
-  eventsFor(k.id).forEach((e) => {
-    have[e.id] = 1;
-  });
-  let added = 0;
-  (f.events || []).forEach((e) => {
-    if (!have[e.id]) {
-      eventsFor(k.id).push(e);
-      added++;
-    }
-  });
-  if (added) eventsFor(k.id).sort(byTime);
-  return added;
-}
-
-function loadCaseFile(text, isSaved = true) {
-  let f;
-  try {
-    f = JSON.parse(text);
-  } catch (err) {
-    toast("That file is not readable JSON");
-    return null;
-  }
-  if (!f || f.format !== "madison-case-file" || !f["case"]) {
-    toast("Not a Madison case file");
-    return null;
-  }
-  if (f.schema >= 5 && !recordIntegrity.hasProof(f)) {
-    void recordIntegrity.verify(f).then(() => {
-      loadCaseFile(JSON.stringify(f), isSaved);
-    });
-    return null;
-  }
-  try {
-    f = migrate(f);
-  } catch (err) {
-    toast(err.message);
-    return null;
-  }
-  const fault = caseFileFault(f);
-  if (fault) {
-    toast("That case file was not loaded — " + fault);
-    return null;
-  }
-  // nothing is touched until the whole file has been accepted and replayed
-  const undo = {
-    events: clone(WriterState.EVENTS),
-    cases: clone(WriterState.CASES),
-    inspectors: INSPECTORS.length,
-    docs: WriterState.DOCS.slice(),
-    reinsp: WriterState.REINSP.slice(),
-  };
-  let k = null,
-    added = 0;
-  try {
-    bumpSeq(f);
-    (f.inspectors || []).forEach((i) => {
-      if (!INSPECTORS.some((x) => x.id === i.id || x.name === i.name)) INSPECTORS.push(i);
-    });
-    const inc = f["case"];
-    k = WriterState.CASES.find((c) => c.number === inc.number);
-    if (!k) {
-      k = clone(inc);
-      WriterState.CASES.push(k);
-    } else if (isSaved) {
-      const combined = mergeCaseDetails(k, inc, WriterState.SAVE_CHECKPOINTS[k.id] && WriterState.SAVE_CHECKPOINTS[k.id].case);
-      Object.keys(k).forEach((key) => delete k[key]);
-      Object.assign(k, combined);
-    }
-    added = mergeCaseEvents(k, f);
-    project();
-    if (WriterState.DOCS.some((x) => !x || !Array.isArray(x.items))) throw new Error("a document did not replay");
-  } catch (err) {
-    WriterState.EVENTS = undo.events;
-    WriterState.CASES = undo.cases;
-    INSPECTORS.length = undo.inspectors;
-    WriterState.DOCS = undo.docs;
-    WriterState.REINSP = undo.reinsp;
-    project();
-    render();
-    toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
-    return null;
-  }
-  const inc = f["case"];
-  WriterState.state.screen = "cases";
-  WriterState.DIRTY = false;
-  render();
-  const st = replay(k.id);
-  if (isSaved) rememberSaved(k, f);
-  saveDrafts();
-  refreshArtifactLocations();
-  toast(
-    "Loaded " +
-      inc.number +
-      " — " +
-      st.documents.length +
-      " document" +
-      (st.documents.length === 1 ? "" : "s") +
-      ", " +
-      st.reinspections.length +
-      " reinspection" +
-      (st.reinspections.length === 1 ? "" : "s") +
-      (added ? "" : " (nothing new)"),
-  );
-  return k;
-}
-
 async function linkCaseFolder() {
   if (WriterState.HELPER && WriterState.HELPER.caseStore) {
     await restoreCaseFolder();
@@ -635,7 +442,6 @@ async function helperJSON(url, body) {
 }
 
 export {
-  caseNumberAllowed,
   printableHTML,
   printNotice,
   storageReport,
@@ -645,11 +451,6 @@ export {
   sourceDocFor,
   evid,
   appendEvent,
-  project,
-  rememberSaved,
-  caseFile,
-  mergeCaseEvents,
-  loadCaseFile,
   linkCaseFolder,
   restoreCaseFolder,
   grantCaseFolder,

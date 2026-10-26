@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Case records and load/rollback boundary (development)
+
+- Separate seven live replay/projection/checkpoint/export/merge operations into case_records with direct defining exports; compose case-file load and shared merge through five lazy integrity/UI/save adapters. Module loading and construction perform no startup or storage work.
+- Preserve all nine original bodies, identity remapping, event/correction conflicts, proof-before-load, case-detail reconciliation, rollback and original sequence high-water behavior, projection and refresh/save ordering. Helper integrity authority is unchanged.
+- Add independent failure/rollback tests and import guards; update ownership, development rules and indexes. Workspace shell is 199 lines smaller; Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Shared writes and case-save coordination boundaries (development)
 
 - Separate folder/helper write access through six lazy inputs, held-save retry through 12 inputs and case-save orchestration through 14 inputs. Keep helper verification/revision authority, native permission/write/close ordering and reporting summaries unchanged.

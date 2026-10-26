@@ -249,13 +249,21 @@ All six moved function bodies and remaining shell/file functions are preserved a
 
 There are 85 maintained modules and 35 isolated scoped services; Writer retains its seven-module component and Reports stays acyclic. case_files shrinks from 1,049 to 964 lines and loses its direct issuance/history import; workspace_shell shrinks from 728 to 666 lines. This completes the device/local-draft boundary, not all persistence/workspace separation. Next inspect shared-folder/helper writes, pending saves and case merge/load/rollback coordination before remaining record/history and core/screen direction.
 
-## Twenty-fifth increment: shared writes and case-save coordination
+## Twenty-fifth increment: shared writes and case-save coordination (merged in PR #71)
 
 shared_case_storage owns helperFolder/writeToFolder/writeIndexFile through six lazy inputs; pending_case_saves owns queuePending/restorePending/flushPending through 12 inputs; case_save_workflow owns saveCaseFile through 14 adapters. Core composes them in that order after draftPersistence and before documentRenderer and exports actual mutable operations. Constructors read no services/state/DOM, perform no I/O and register no listeners. Existing summary/merge/UI operations remain supplied by their defining owners, without forwarding exports or a universal context.
 
 All seven moved bodies and every remaining case-file function retain their logic apart from service access. Preserve helper schema/revision/checkpoint verification and confirmed response application without overwriting later edits, summary revision binding, native schema-5 and permission refusals, write/close acknowledgment, required pending restoration reads, current-record retry and original retained serialization fallback, failed/new queued object retention and serialization/permission/summary/local-save/status order. Helper validation, record identity and immutable receipt authority are unchanged; no new concurrency/durability guarantees are claimed.
 
 There are 88 maintained modules, 38 isolated scoped services, the same seven-module Writer component and acyclic Reports. case_files shrinks from 964 to 686 lines; workspace_shell loses its direct case_files import. Summary generation, folder UI, mergeSharedFile validation and startup/debounce stay in case_files. Next isolate case merge/load/rollback coordination and review remaining recovery, record/history, court/delivery and core/screen direction.
+
+## Twenty-sixth increment: live records and case load/rollback
+
+case_records directly defines replay/project/rememberSaved/caseFile/caseNumberAllowed/bumpSeq/mergeCaseEvents without a factory or forwarding exports. These operations read/mutate current workspace state and retain original metadata time, but perform no UI/storage/trust/startup work. case_loading composes loadCaseFile/mergeSharedFile through five lazy integrity/UI/save/refresh inputs and direct record/rule/migration operations. Core constructs it after caseSaveWorkflow and before documentRenderer and exports its actual mutable functions. Construction performs no reads, I/O or listener registration.
+
+All nine moved bodies and every remaining shell/file function retain their logic apart from explicit loader service access. Preserve schema-5 proof-before-load, shared integrity refusal, legacy migration/shape rules, case and event identity remapping, duplicate/conflicting history handling, case-detail reconciliation, held-import semantics and original rollback/project/checkpoint/save/refresh order. Rollback preserves the original ID sequence high-water behavior; no new atomicity or asynchronous stale-load guarantee is asserted. Helper validation and immutable receipts keep their existing authority.
+
+There are 90 maintained modules and 40 independent scoped owners; Writer remains a seven-module component and Reports stays acyclic. workspace_shell shrinks from 668 to 469 lines, and case_files from 686 to 647. Case record/merge/load ownership is now separate from shell UI. Next inspect remaining recovery and record/history boundaries, then court/deposit/delivery and screen/core direction, keeping interfaces bounded and startup/listener order unchanged.
 
 ## Following increments
 

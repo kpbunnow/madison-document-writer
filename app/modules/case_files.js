@@ -1,18 +1,9 @@
+import { caseFile, caseNumberAllowed } from "./case_records.js";
 import { inspectionIdentity } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { checkHelper, toast } from "./court_and_deposits.js";
 import { caseDetails, stableJSON } from "./record_values.js";
-import {
-  caseFile,
-  caseNumberAllowed,
-  grantCaseFolder,
-  loadCaseFile,
-  mergeCaseEvents,
-  project,
-  restoreCaseFolder,
-  sourceDocFor,
-  summarize,
-} from "./workspace_shell.js";
+import { grantCaseFolder, restoreCaseFolder, sourceDocFor, summarize } from "./workspace_shell.js";
 import { caseFileFault, caseFileName, summaryName } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
 import {
@@ -35,6 +26,7 @@ import {
   writeIndexFile,
   restorePending,
   flushPending,
+  loadCaseFile,
 } from "./app_core.js";
 
 import { scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
@@ -181,36 +173,6 @@ function downloadFile(name, body) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
-}
-
-async function mergeSharedFile(cid, name) {
-  if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return 0;
-  const k = kase(cid);
-  if (!k.id) return 0;
-  let text = null;
-  try {
-    const fh = await WriterState.CASEDIR.getFileHandle(name); // absent is the normal first save
-    text = await (await fh.getFile()).text();
-  } catch (err) {
-    if (err && (err.name === "NotFoundError" || err.message === "missing")) return 0;
-    throw new Error("The existing case file could not be read; it has not been overwritten");
-  }
-  let f;
-  try {
-    f = migrate(JSON.parse(text));
-  } catch (err) {
-    throw new Error("The existing case file is unreadable; it has not been overwritten");
-  }
-  const fault = caseFileFault(f);
-  if (fault) throw new Error("The existing case file is invalid: " + fault);
-  if (String((f["case"] || {}).number || "") !== String(k.number || "")) throw new Error("The existing file belongs to another case");
-  if (f.schema >= 5) {
-    const status = await recordIntegrity.verify(f);
-    if (!status.valid) throw new Error("This record was changed outside the program. Open read-only.");
-  }
-  const added = mergeCaseEvents(k, f);
-  if (added) project();
-  return added;
 }
 
 function updateSaveStatus() {
@@ -660,7 +622,6 @@ function startReinspection(cid, importedRow) {
 
 export {
   writeSummary,
-  mergeSharedFile,
   rebuildIndex,
   listCaseFolder,
   openFromFolder,

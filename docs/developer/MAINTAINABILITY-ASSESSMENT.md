@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the shared-write/case-save increment based on merged PR #70, main `d2b8b6de13df3ebbc052a3522eb10d93da5be5ff`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
+Snapshot: the case-record/load/rollback increment based on merged PR #71, main `66edb886cc7d64d22ee441827ad07c70624f6b94`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
 
 ## What this increment completes
 
-Shared folder/helper write access now has a six-input owner; held-save retry has a 12-input owner; case-save orchestration has a 14-input owner. All seven original bodies retain their logic apart from dependency access, including revision/integrity/permission checks, later-edit-preserving responses, required pending reads, current-record retries and original fallback, failed/new queue entries and serialization/save/summary ordering. Constructors are inert. Summary generation, merge/load validation, folder UI and startup/debounce remain in established owners; helper and immutable receipt authority is unchanged. case_files is 278 lines smaller and workspace_shell loses its direct case_files dependency. Writer still has a seven-module cycle and Reports stays acyclic. PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+Live record replay/projection/checkpoint/assembly/eligibility/sequence/event-merge operations now have an independent direct owner. Loading/shared merge/rollback have a five-input owner. All nine original bodies retain their logic apart from loader dependency access, including identity/conflict/history checks, proof gating, case-detail reconciliation, held imports and original rollback/sequence/save/render order. Module loading and constructor invocation start no UI/storage work. Helper validation, integrity and immutable receipt authority is unchanged. workspace_shell is 199 lines smaller and case_files 39 lines smaller. Writer still has a seven-module cycle and Reports stays acyclic; PNG/native acceptance status remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,20 +12,20 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2032 | 67 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1238 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 686 | 14 | 5 | Merge validation, summaries, folder/address/workspace UI and startup sequencing remain coupled |
-| `court_and_deposits.js` | 1095 | 15 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `draft_recovery.js` | 919 | 16 | 6 | Backup/restore UI, worksheet operations and workspace coordination remain coupled |
-| `issuance_and_corrections.js` | 914 | 14 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |
-| `workspace_shell.js` | 668 | 16 | 3 | Workspace mutation/merge, storage adapters, helper requests and shell/print integration remain coupled |
+| `app_core.js` | 2028 | 69 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1239 | 19 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `case_files.js` | 647 | 15 | 5 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
+| `court_and_deposits.js` | 1096 | 16 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
+| `draft_recovery.js` | 920 | 17 | 6 | Backup/restore UI, worksheet operations and workspace coordination remain coupled |
+| `issuance_and_corrections.js` | 915 | 15 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |
+| `workspace_shell.js` | 469 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Separate case merge/load/rollback coordination.** Device/local-draft persistence, shared-folder/helper writes, pending-save retry and case-save orchestration are now independently composed. Next isolate the remaining record merge/load/rollback operations from shell/UI coordination. Preserve startup restoration barriers, save-chain ordering, rollback, folder permissions, integrity verification and the frontend/helper projection contract. Keep native platform calls behind their established adapters.
-2. **Review remaining record/history presentation and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
+1. **Finish remaining recovery and record/history boundaries.** Device/local-draft persistence, shared writes/retries, case saving and case record/loading operations now have independent owners. Next separate backup/restore orchestration and worksheet/record-history presentation where responsibilities still mix. Preserve retained attempts, restoration barriers, integrity validation, correction/inspection lineage and failure/rollback order; do not replace them with a broad callback registry.
+2. **Review remaining court/deposit/delivery and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
 
@@ -33,7 +33,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 67 maintained-module dependencies in this graph and 50 named factory calls with object interfaces. The largest reviewed interfaces are:
+Core currently has 69 maintained-module dependencies in this graph and 51 named factory calls with object interfaces. The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
@@ -62,7 +62,7 @@ Retain the current source inventory, ownership map, test index, exact-source ful
 
 The planned architecture cleanup is complete when the Writer module graph has no cyclic component, Reports stays acyclic, major features load independently, and ownership remains explicit without a replacement registry/barrel. Review interface breadth and core startup clarity as well as the graph. Preserve all historical output, trust boundaries, stored/installed names, live-state and failure-ordering contracts, with the full gate passing on final reviewed source.
 
-After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 88 maintained modules or eliminating every legitimate cross-feature action.
+After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 90 maintained modules or eliminating every legitimate cross-feature action.
 
 ## Outside this development work
 
