@@ -195,6 +195,7 @@ covers, or a new suite under its feature.
 | `audit_case_activity.js` | Six-input reminder/timeline service, live date/state, scope/escaping and read-only event ordering |
 | `audit_pdf_artifacts.js` | Five-input retained PDF owner, stale/context/identity guards, partial failures, synchronous popup timing, authenticated captured original-byte reads and download fallback |
 | `audit_writer_handoff.js` | Six-input readiness/Reports handoff owner, restoration waits/failures, restored local work, stale shared requests, file validation and channel/URL behavior |
+| `audit_deadline_assignment.js` | Seven-input deadline owner, atomic batch/assignment refusals, spacing/count and live selection/worksheet guards, escaped presentation and indicators |
 | `audit_reports_boundaries.js` | Independent Reports factories, exact lazy interfaces, live presentation context and retained deposit listener order |
 | `audit_document_renderer.js` | Independent lazy renderer, four distinct locked copies, immutable supplied facts, retained refusals, draft refresh and correction-day calculations |
 | `audit_writer_view_contexts.js` | Three independent scoped view contexts; lazy identity-preserving composition, restored references, field order and presentation guards |

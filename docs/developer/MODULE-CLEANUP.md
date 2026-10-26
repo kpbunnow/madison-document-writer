@@ -187,13 +187,21 @@ All six moved bodies and all remaining timeline declarations/order are preserved
 
 case_timeline shrinks from 1,360 to 1,178 lines. There are 74 maintained modules, the same eight-module Writer component and no Reports cycle; workspace_shell no longer imports case_timeline for artifact refresh. Independent tests cover the bounded interface and failure/race contracts alongside unchanged existing regressions. The assessment next prioritizes Writer/Reports handoff and the remaining deadline/citation actions, with publication/recovery and persistence coordination still separate work.
 
-## Seventeenth increment: Writer handoff and readiness
+## Seventeenth increment: Writer handoff and readiness (merged in PR #63)
 
 writer_handoff owns markWriterReady/markWriterFailed/writerOpenReportedCase/initWriterHandoff through createWriterHandoff. Core supplies only render, preflightCase, helperJSON, loadCaseFile, WRITER_READY_WAIT and HANDOFF_CHANNEL through named lazy adapters/getters. Construction reads no state/services/browser objects and opens no channel; core composes it after PDF artifacts and before document rendering and exports the actual mutable functions. There is no forwarding barrel or universal registry.
 
 All four bodies, remaining timeline declarations/order and case_files functions are unchanged apart from explicit dependency access. Workspace Web Lock ownership, restoration order and initWriterHandoff/markWriterReady/markWriterFailed calls stay in case_files. Core retains readiness-promise/channel-name initialization. Preserve local preflight/reconciliation, post-wait restored-state lookup, latest shared-request checks, case-number/shape refusal, storage-versus-missing errors, accepted/result/return-ack messages and inactive/non-owning reply guards. The original initialization does not gain an idempotence promise or new authority over helper/file operations.
 
 case_timeline shrinks from 1,178 to 1,073 lines and loses workspace_shell/app_screens imports; case_files loses its case_timeline import. There are 75 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests exercise readiness, local/shared failures/races and channel/URL behavior, alongside unchanged storage/navigation/startup workflows. Next inspect bulk/selected deadlines and workspace task presentation before the remaining citation and publication/recovery boundaries.
+
+## Eighteenth increment: deadline planning and assignment
+
+deadline_assignment owns planBulkDue/showBulkDue/updateDueIndicators/duePanel/assignDue through createDeadlineAssignment, plus direct dueDateSpacingConflicts/dueSelectedText and live dueContext/activeDueTarget exports. Core supplies seven named lazy dependencies: MINDUE, structEditable, isLocked, fmtDate, navigation, A11Y and snow. Construction reads no services/state/DOM and registers no listeners; core composes it after Writer handoff and before document rendering and exports actual mutable operations. Consumers import direct queries from the defining owner, with no forwarding barrel.
+
+All nine moved bodies and remaining timeline declarations/order are preserved apart from explicit dependency access. Keep current outstanding-item selection, notice/worksheet eligibility, intent/carried guards, minimum-date checks, three-date/seven-day limits, clone-only all-or-nothing batch planning, text/HTML and DOM indicator behavior. due_date_events retains action/undo/save sequencing; workflow_events retains durable patch-before-commit behavior. No new persistence or publication authority is introduced.
+
+case_timeline shrinks from 1,073 to 856 lines and retains workspace tasks and citation/pricing operations. There are 76 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests cover atomicity, live contexts and guards alongside unchanged authoring/workflow/worksheet/usability assertions. Next inspect workspace task presentation, then citation editing/readiness before publication/recovery and persistence coordination.
 
 ## Following increments
 
