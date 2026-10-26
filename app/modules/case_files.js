@@ -1,16 +1,14 @@
 import { inspectionIdentity } from "./inspection_facts.js";
-import { SUMMARY_DIR, recordDay } from "../assets/shared.js";
+import { recordDay } from "../assets/shared.js";
 import { checkHelper, toast } from "./court_and_deposits.js";
-import { caseDetails, stableJSON, clone } from "./record_values.js";
+import { caseDetails, stableJSON } from "./record_values.js";
 import {
   caseFile,
   caseNumberAllowed,
   grantCaseFolder,
-  helperJSON,
   loadCaseFile,
   mergeCaseEvents,
   project,
-  rememberSaved,
   restoreCaseFolder,
   sourceDocFor,
   summarize,
@@ -25,8 +23,6 @@ import {
   clearWalk,
   restoreWalkFor,
   refreshCatalog,
-  CASEDIR_EXPECT,
-  COMMITTED,
   IDB_OK,
   addressParser,
   newDocuments,
@@ -34,13 +30,14 @@ import {
   snow,
   uid,
   app_savedworkContext,
-  idbGet,
-  idbSet,
   saveDrafts,
   restoreDrafts,
+  writeIndexFile,
+  restorePending,
+  flushPending,
 } from "./app_core.js";
 
-import { downloadWorkspace, scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
+import { scheduleRecoveryBackup, unissuedVisitFor } from "./draft_recovery.js";
 
 import { render } from "./app_screens.js";
 
@@ -51,127 +48,8 @@ import { nowISO } from "./calendar.js";
 
 import { WriterState } from "./state.js";
 import { localSaveText, updateLocalPresentation } from "./saved_work.js";
-import { caseStoreRequest } from "./contracts.js";
+
 /* app functions; direct dependencies use explicit shared state. */
-
-function helperFolder() {
-  return {
-    name: CASEDIR_EXPECT,
-    kind: "directory",
-    helper: true,
-    queryPermission: async () => "granted",
-    requestPermission: async () => "granted",
-    async getFileHandle(name) {
-      return {
-        kind: "file",
-        name,
-        async getFile() {
-          const result = await helperJSON("/cases/open?name=" + encodeURIComponent(name));
-          if (result.file.schema >= 5) await recordIntegrity.verify(result.file, result.integrity);
-          COMMITTED.set(summaryName(result.file.case), result);
-          const body = JSON.stringify(result.file);
-          return { size: body.length, lastModified: Date.now(), text: async () => body };
-        },
-      };
-    },
-    async *entries() {
-      const result = await helperJSON("/cases/list");
-      for (const f of result.files) yield [f.name, { kind: "file", getFile: async () => ({ size: f.size, lastModified: f.mod }) }];
-    },
-  };
-}
-
-async function writeToFolder(name, body) {
-  if (recordIntegrity.status(JSON.parse(body).case).valid === false)
-    return { ok: false, why: "This record was changed outside the program. Read-only." };
-  if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
-    try {
-      const file = JSON.parse(body),
-        base = COMMITTED.get(summaryName(file.case));
-      const local = WriterState.CASES.find((k) => k.number === file.case.number),
-        checkpoint = local && WriterState.SAVE_CHECKPOINTS[local.id];
-      const result = await helperJSON(
-        "/cases/save",
-        caseStoreRequest({ name: name, file: file, baseRevision: (base && base.revision) || "", baseCase: checkpoint ? checkpoint.case : null }),
-      );
-      if (result.file.schema >= 5) await recordIntegrity.verify(result.file, result.integrity);
-      COMMITTED.set(summaryName(result.file.case), result);
-      const current = WriterState.CASES.find((k) => k.number === result.file.case.number);
-      if (current) {
-        const saved = caseDetails(result.file.case),
-          submitted = caseDetails(file.case);
-        new Set(Object.keys(submitted).concat(Object.keys(saved))).forEach((key) => {
-          if (key === "id") return;
-          if (stableJSON(current[key]) === stableJSON(submitted[key])) {
-            if (saved[key] === undefined) delete current[key];
-            else current[key] = clone(saved[key]);
-          }
-        });
-        mergeCaseEvents(current, clone(result.file));
-        project();
-      }
-      WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
-      return { ok: true, file: result.file, name: result.name };
-    } catch (error) {
-      WriterState.LASTWRITE = { name: name, ok: false, why: error.message, at: nowISO() };
-      return { ok: false, why: error.message };
-    }
-  }
-  if (JSON.parse(body).schema >= 5) {
-    const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-    WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
-    return { ok: false, why };
-  }
-  if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
-  if (WriterState.NEEDGRANT) return { ok: false, why: "permission", needGrant: true };
-  try {
-    const fh = await WriterState.CASEDIR.getFileHandle(name, { create: true });
-    const ws = await fh.createWritable();
-    await ws.write(body);
-    await ws.close();
-    WriterState.LASTWRITE = { name: name, ok: true, why: "", at: nowISO(), bytes: body.length };
-    return { ok: true };
-  } catch (err) {
-    const n = (err && err.name) || "";
-    const why = n === "NotAllowedError" || n === "SecurityError" ? "permission" : (err && err.message) || n || "the folder refused the write";
-    WriterState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
-    if (why === "permission") {
-      WriterState.NEEDGRANT = true;
-      return { ok: false, why: "permission", needGrant: true };
-    }
-    return { ok: false, why: why };
-  }
-}
-
-async function writeIndexFile(name, body) {
-  if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
-    const committed = COMMITTED.get(name);
-    if (!committed) return { ok: false, why: "The case has not been read or saved yet" };
-    try {
-      await helperJSON("/cases/summary", { name: committed.name, revision: committed.revision, summary: JSON.parse(body) });
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, why: error.message };
-    }
-  }
-  if (JSON.parse(body).schema >= 5) {
-    const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-    WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
-    return { ok: false, why };
-  }
-  if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
-  if (WriterState.NEEDGRANT) return { ok: false, why: "permission" };
-  try {
-    const dir = await WriterState.CASEDIR.getDirectoryHandle(SUMMARY_DIR, { create: true });
-    const fh = await dir.getFileHandle(name, { create: true });
-    const ws = await fh.createWritable();
-    await ws.write(body);
-    await ws.close();
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, why: (err && (err.message || err.name)) || "the folder refused the write" };
-  }
-}
 
 async function writeSummary(cid, saved) {
   const k = kase(cid);
@@ -305,71 +183,6 @@ function downloadFile(name, body) {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-async function queuePending(name, body, cid) {
-  WriterState.PENDING = WriterState.PENDING.filter((p) => p.name !== name);
-  WriterState.PENDING.push({ name: name, body: body, cid: cid || "", at: nowISO() });
-  const kept = await idbSet("pending", WriterState.PENDING);
-  if (!kept) toast("This machine would not store the held file — keep the program open until the folder is back");
-  return kept;
-}
-
-async function restorePending() {
-  const p = await idbGet("pending", IDB_OK);
-  if (Array.isArray(p) && p.length) {
-    WriterState.PENDING = p;
-    render();
-  }
-}
-
-async function flushPending() {
-  if (!WriterState.CASEDIR || WriterState.NEEDGRANT || !WriterState.PENDING.length) return 0;
-  const still = [];
-  let done = 0;
-  const batch = WriterState.PENDING.slice();
-  for (let n = 0; n < batch.length; n++) {
-    const p = batch[n];
-    if (!p.cid || !WriterState.CASES.some((k) => k.id === p.cid)) {
-      const loaded = loadCaseFile(p.body, false);
-      if (!loaded) {
-        still.push(p);
-        continue;
-      }
-      p.cid = loaded.id;
-    }
-    // write the case as it stands now, not the body that failed earlier
-    let body = p.body;
-    if (p.cid && WriterState.CASES.some((k) => k.id === p.cid)) {
-      try {
-        await mergeSharedFile(p.cid, p.name);
-      } catch (err) {
-        still.push(p);
-        continue;
-      }
-      try {
-        body = JSON.stringify(caseFile(p.cid), null, 2);
-      } catch (err) {
-        body = p.body;
-      }
-    }
-    const r = await writeToFolder(p.name, body);
-    if (r.ok) {
-      done++;
-      if (p.cid && WriterState.CASES.some((k) => k.id === p.cid)) {
-        rememberSaved(kase(p.cid), r.file || JSON.parse(body));
-        await writeSummary(p.cid, r.file || JSON.parse(body));
-      }
-    } else still.push(p);
-  }
-  WriterState.PENDING = still.concat(WriterState.PENDING.filter((p) => batch.indexOf(p) < 0));
-  await idbSet("pending", WriterState.PENDING);
-  await saveDrafts();
-  if (done) {
-    toast(done + " held case file" + (done === 1 ? "" : "s") + " written to the share");
-    render();
-  }
-  return done;
-}
-
 async function mergeSharedFile(cid, name) {
   if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return 0;
   const k = kase(cid);
@@ -398,94 +211,6 @@ async function mergeSharedFile(cid, name) {
   const added = mergeCaseEvents(k, f);
   if (added) project();
   return added;
-}
-
-async function saveCaseFile(cid) {
-  if (!caseNumberAllowed(kase(cid))) {
-    toast("Case number must use 3–80 letters, numbers or hyphens");
-    return false;
-  }
-  const k = kase(cid),
-    name = caseFileName(k);
-  let body;
-  try {
-    body = JSON.stringify(caseFile(cid), null, 2);
-    if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
-  } catch (err) {
-    toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
-    return false;
-  }
-
-  if (!WriterState.CASEDIR) {
-    if (JSON.parse(body).schema >= 5) {
-      downloadWorkspace();
-      toast("Workspace backup downloaded. Connect the current helper to save a verified case record.");
-      return false;
-    }
-    WriterState.LASTWRITE = { name: name, ok: true, why: "downloads folder (no case folder linked)", at: nowISO(), bytes: body.length };
-    rememberSaved(k, JSON.parse(body));
-    downloadFile(name, body);
-    WriterState.DIRTY = false;
-    toast("Saved to your downloads — " + name + " (the case folder is not linked)");
-    render();
-    return true;
-  }
-  // Chrome asks to confirm the folder once a session. Finalizing is a click, so
-  // ask now rather than queueing the file behind a message nobody reads.
-  if (WriterState.NEEDGRANT) await grantCaseFolder(true);
-
-  let merged = 0;
-  try {
-    merged = await mergeSharedFile(cid, name);
-  } catch (err) {
-    await queuePending(name, body, cid);
-    toast(err.message);
-    render();
-    return false;
-  }
-  try {
-    body = JSON.stringify(caseFile(cid), null, 2);
-    if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
-  } catch (err) {
-    toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
-    return false;
-  }
-
-  let r = await writeToFolder(name, body);
-  if (!r.ok && r.needGrant) {
-    await grantCaseFolder(true);
-    r = await writeToFolder(name, body);
-  }
-  if (r.ok) {
-    // a held copy of this same file is now out of date and must not be
-    // written over the newer one when the queue next flushes
-    if (WriterState.PENDING.some((p) => p.name === name)) {
-      WriterState.PENDING = WriterState.PENDING.filter((p) => p.name !== name);
-      await idbSet("pending", WriterState.PENDING);
-    }
-    WriterState.DIRTY = false;
-    rememberSaved(k, r.file || JSON.parse(body));
-    await writeSummary(cid, r.file || JSON.parse(body));
-    await saveDrafts();
-    toast(
-      "Saved to " +
-        WriterState.DIRNAME +
-        " \u2014 " +
-        name +
-        (merged ? " (merged " + merged + " event" + (merged === 1 ? "" : "s") + " another inspector had written)" : ""),
-    );
-    render();
-    return true;
-  }
-
-  await queuePending(name, body, cid);
-  toast(
-    r.needGrant
-      ? "The browser is still waiting for permission on " + WriterState.DIRNAME + " — the file is held and will write once you reconnect"
-      : "Could not write to " + WriterState.DIRNAME + " (" + r.why + ") — the file is held and will write when the folder is reachable",
-  );
-  render();
-  return false;
 }
 
 function updateSaveStatus() {
@@ -934,15 +659,12 @@ function startReinspection(cid, importedRow) {
 }
 
 export {
-  helperFolder,
-  writeToFolder,
   writeSummary,
+  mergeSharedFile,
   rebuildIndex,
   listCaseFolder,
   openFromFolder,
   downloadFile,
-  flushPending,
-  saveCaseFile,
   updateSaveStatus,
   scheduleDraftSave,
   discardDraft,

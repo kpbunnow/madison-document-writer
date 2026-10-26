@@ -8,7 +8,6 @@ import { caseDetails, stableJSON, byTime, clone } from "./record_values.js";
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
 import { SUMMARY_DIR, caseNumberKey, validCaseNumber } from "../assets/shared.js";
 import { fmtDate, fmtTime, toast } from "./court_and_deposits.js";
-import { flushPending, helperFolder, writeToFolder } from "./case_files.js";
 
 import { render } from "./app_screens.js";
 import {
@@ -23,6 +22,9 @@ import {
   saveDrafts,
   idbGet,
   idbSet,
+  flushPending,
+  helperFolder,
+  writeToFolder,
 } from "./app_core.js";
 
 import { EVENT_TYPES, SCHEMA } from "./document_types.js";
