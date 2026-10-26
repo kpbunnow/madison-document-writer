@@ -134,7 +134,7 @@ def version():
     consumers = [
         ("summaryVersion", "app/assets/shared.js", r"const\s+SUMMARY_VERSION\s*=\s*(\d+)"),
         ("caseSchema", "app/modules/document_types.js", r"const\s+SCHEMA\s*=\s*(\d+)"),
-        ("backupVersion", "app/modules/draft_recovery.js", r'format\s*:\s*[\'"]madison-workspace-backup[\'"]\s*,\s*version\s*:\s*(\d+)'),
+        ("backupVersion", "app/modules/workspace_backup.js", r'format\s*:\s*[\'"]madison-workspace-backup[\'"]\s*,\s*version\s*:\s*(\d+)'),
         ("authoringVersion", "app/modules/editor_screens.js", r"authoringVersion\s*:\s*(\d+)"),
     ]
     for key, name, pattern in consumers:

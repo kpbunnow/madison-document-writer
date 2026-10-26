@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Workspace backup coordination (development)
+
+- Separate whole-workspace backup download/restore through 11 lazy capture, date, integrity, storage and UI inputs. Keep the native file picker in recovery UI and preserve backup versions 1/2, validation, retained work/attempt/checkpoint/pending data and storage/integrity/projection/save order.
+- Add independent refusal and persistence-order coverage; update version-consumer validation to its defining owner without changing format identity. Module loading/construction performs no work. This is not a new atomic restore guarantee.
+- Update ownership, source/test indexes and roadmap. Recovery is 109 lines smaller; Writer retains its seven-module component and Reports stays acyclic. R63/build 64 and stored formats remain unchanged.
+
 ## Unreleased — Case records and load/rollback boundary (development)
 
 - Separate seven live replay/projection/checkpoint/export/merge operations into case_records with direct defining exports; compose case-file load and shared merge through five lazy integrity/UI/save adapters. Module loading and construction perform no startup or storage work.

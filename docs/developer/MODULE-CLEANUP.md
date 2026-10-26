@@ -257,13 +257,19 @@ All seven moved bodies and every remaining case-file function retain their logic
 
 There are 88 maintained modules, 38 isolated scoped services, the same seven-module Writer component and acyclic Reports. case_files shrinks from 964 to 686 lines; workspace_shell loses its direct case_files import. Summary generation, folder UI, mergeSharedFile validation and startup/debounce stay in case_files. Next isolate case merge/load/rollback coordination and review remaining recovery, record/history, court/delivery and core/screen direction.
 
-## Twenty-sixth increment: live records and case load/rollback
+## Twenty-sixth increment: live records and case load/rollback (merged in PR #72)
 
 case_records directly defines replay/project/rememberSaved/caseFile/caseNumberAllowed/bumpSeq/mergeCaseEvents without a factory or forwarding exports. These operations read/mutate current workspace state and retain original metadata time, but perform no UI/storage/trust/startup work. case_loading composes loadCaseFile/mergeSharedFile through five lazy integrity/UI/save/refresh inputs and direct record/rule/migration operations. Core constructs it after caseSaveWorkflow and before documentRenderer and exports its actual mutable functions. Construction performs no reads, I/O or listener registration.
 
 All nine moved bodies and every remaining shell/file function retain their logic apart from explicit loader service access. Preserve schema-5 proof-before-load, shared integrity refusal, legacy migration/shape rules, case and event identity remapping, duplicate/conflicting history handling, case-detail reconciliation, held-import semantics and original rollback/project/checkpoint/save/refresh order. Rollback preserves the original ID sequence high-water behavior; no new atomicity or asynchronous stale-load guarantee is asserted. Helper validation and immutable receipts keep their existing authority.
 
 There are 90 maintained modules and 40 independent scoped owners; Writer remains a seven-module component and Reports stays acyclic. workspace_shell shrinks from 668 to 469 lines, and case_files from 686 to 647. Case record/merge/load ownership is now separate from shell UI. Next inspect remaining recovery and record/history boundaries, then court/deposit/delivery and screen/core direction, keeping interfaces bounded and startup/listener order unchanged.
+
+## Twenty-seventh increment: whole-workspace backup coordination
+
+workspace_backup separates downloadWorkspace/restoreWorkspaceBackup through 11 named lazy capture/date/storage/integrity/UI adapters. Core composes it after caseLoading and before documentRenderer, exporting actual mutable operations. The file picker stays in draft_recovery; construction performs no reads, I/O or registration. Both moved bodies and every remaining recovery function preserve logic apart from dependency access. Keep backup versions 1/2, original empty-workspace/identity/history/draft/pending/action checks, retained work/checkpoints/attempts, draft persistence before integrity/live replacement and pending/projection/render/save/artifact order. Do not claim stronger atomicity: integrity failure can follow persisted drafts, and pending snapshots retain their original fallback. Version-consumer validation follows the new defining owner with unchanged drift refusal.
+
+There are 91 maintained modules and 41 independent scoped owners. Writer retains its seven-module component and Reports stays acyclic. draft_recovery shrinks from 920 to 811 lines. This completes whole-workspace backup coordination; automatic backup scheduling, individual-case selection/restoration and worksheet UI remain in recovery. Next inspect those responsibilities and record/history presentation before court/delivery and core/screen direction. Keep interfaces bounded and startup/listener order unchanged.
 
 ## Following increments
 

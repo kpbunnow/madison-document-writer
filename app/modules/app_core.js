@@ -1,3 +1,4 @@
+import { createWorkspaceBackup } from "./workspace_backup.js";
 import { createCaseLoading } from "./case_loading.js";
 import { caseFile, caseNumberAllowed, project, rememberSaved, mergeCaseEvents } from "./case_records.js";
 import { createSharedCaseStorage } from "./shared_case_storage.js";
@@ -125,7 +126,6 @@ import {
   cleanVisit,
   changeVisitDate,
   discardWorksheet,
-  downloadWorkspace,
   keepCatalogForms,
   listRecovery,
   recoveryJobs,
@@ -904,6 +904,25 @@ const caseLoading = createCaseLoading({
   refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
 });
 export let { loadCaseFile, mergeSharedFile } = caseLoading;
+
+const workspaceBackup = createWorkspaceBackup({
+  captureWork: (...args) => captureWork(...args),
+  draftBundle: (...args) => draftBundle(...args),
+  downloadFile: (...args) => downloadFile(...args),
+  toast: (...args) => toast(...args),
+  hasSetupWork: (...args) => hasSetupWork(...args),
+  idbSet: (...args) => idbSet(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+  get today() {
+    return today;
+  },
+});
+export let { downloadWorkspace, restoreWorkspaceBackup } = workspaceBackup;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

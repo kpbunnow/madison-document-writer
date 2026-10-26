@@ -73,7 +73,7 @@ class RepositoryContract(unittest.TestCase):
             "package-lock.json",
             "app/assets/shared.js",
             "app/modules/document_types.js",
-            "app/modules/draft_recovery.js",
+            "app/modules/workspace_backup.js",
             "app/modules/editor_screens.js",
         ]
         with tempfile.TemporaryDirectory() as folder:
