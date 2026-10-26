@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Citation drafts, visit recording and working papers (development)
+
+- Finish separating issuance: citation_drafts owns preparation/recovery guards through 11 lazy inputs, visit_recording owns visit append/projection through five, and working_papers owns capture through four with direct unfinished-work/filing presentation. Move finalization dispatch into record_actions through its unchanged correction/publication delegates. Retire issuance_and_corrections without forwarding exports.
+- Preserve all eleven moved and four retained action bodies, citation/visit identity, source/inspection/charge metadata, dispatch/save/deposit order and typed/cleared/walk/recipient capture semantics. Preparation and visit recording do not gain helper/publication authority or stronger persistence acknowledgement.
+- Add independent draft/capture/visit/dispatch tests and stricter dependency guards. Writer narrows from six cyclic modules to five; Reports stays acyclic. Update ownership, source/test indexes and roadmap; retain R63/build 64 and stored formats.
+
 ## Unreleased — Inspection history, correction UI and record actions (development)
 
 - Separate live legacy/item-lineage history and historical capability predicates, with correction-history overlays through one lazy patch input. Separate correction/record-action presentation through three lazy inputs and retained record-action requests through five.

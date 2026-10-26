@@ -17,7 +17,11 @@ function walk(n, f) {
 const defs = {
   inspectionHistory: ["inspection_history", "createInspectionHistory", ["correctionVisitPatch"]],
   correctionUI: ["correction_ui", "createCorrectionUI", ["correctionChanges", "today", "correctionTypeAllowed"]],
-  recordActions: ["record_actions", "createRecordActions", ["correctionEligibility", "toast", "evid", "render", "commitAmendment"]],
+  recordActions: [
+    "record_actions",
+    "createRecordActions",
+    ["correctionEligibility", "toast", "evid", "render", "commitAmendment", "issueCorrection", "publishDocument"],
+  ],
 };
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []);
 let prev = entries.findIndex((n) => n.id.name === "recordHistory");
@@ -325,7 +329,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
       passed: true,
       historyInputs: 1,
       correctionInputs: 3,
-      actionInputs: 5,
+      actionInputs: 7,
       inertConstruction: true,
       retainedRetryIdentity: true,
       correctionLockAndEscaping: true,

@@ -3,6 +3,10 @@ import { doc, kase, recordHead, recordNow } from "./writer_queries.js";
 import { WriterState } from "./state.js";
 
 export function createRecordActions(services) {
+  function runFinalize(d) {
+    if (!d || !d.draft) return;
+    return d.correction ? services.issueCorrection(d) : services.publishDocument(d);
+  }
   async function voidDocument(docId, reason, externalReference = "", actor = "") {
     const d = doc(docId),
       fault = services.correctionEligibility(d);
@@ -74,5 +78,5 @@ export function createRecordActions(services) {
     WriterState.RECORD_ATTEMPTS[key] = holder;
     return services.commitAmendment(cid, holder.pendingAmendment, holder);
   }
-  return { voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt };
+  return { runFinalize, voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt };
 }
