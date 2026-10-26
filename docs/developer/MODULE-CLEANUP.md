@@ -179,13 +179,21 @@ Every consumer imports the actual defining owner, without re-exports through the
 
 case_timeline is now 1,360 lines and court_and_deposits 1,091. The graph has 73 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent behavior tests and restricted imports/globals enforce the facts boundary. This completes the shared-inspection-facts candidate; next inspect the bounded outbox/artifact-location responsibilities before further handoff or publication work.
 
-## Sixteenth increment: retained PDF artifact responsibilities
+## Sixteenth increment: retained PDF artifact responsibilities (merged in PR #62)
 
 pdf_artifacts owns the outbox list/selection/retained-byte printing and artifact-location refresh through createPdfArtifacts, plus direct pdfTransferState/independentArtifact queries. Its five named lazy dependencies are navigation, accessibility, helper JSON, notifications and rendering. Core composes it after case activity and before document rendering; construction reads no services/state/browser objects and registers no listeners. Consumers use actual mutable composed operation bindings or direct query exports, without a forwarding barrel.
 
 All six moved bodies and all remaining timeline declarations/order are preserved apart from explicit dependency access. Keep utility context, synchronous popup creation before awaits, captured name/hash selection, authenticated retained-byte reads, load/URL timers, refresh sequence/current identity guards, bounded batches and recursive invalid-identity isolation. Failed refreshes retain last-known locations with their warning status. workflow_events retains transfer/notification ordering; helper/file/publication authority does not move.
 
 case_timeline shrinks from 1,360 to 1,178 lines. There are 74 maintained modules, the same eight-module Writer component and no Reports cycle; workspace_shell no longer imports case_timeline for artifact refresh. Independent tests cover the bounded interface and failure/race contracts alongside unchanged existing regressions. The assessment next prioritizes Writer/Reports handoff and the remaining deadline/citation actions, with publication/recovery and persistence coordination still separate work.
+
+## Seventeenth increment: Writer handoff and readiness
+
+writer_handoff owns markWriterReady/markWriterFailed/writerOpenReportedCase/initWriterHandoff through createWriterHandoff. Core supplies only render, preflightCase, helperJSON, loadCaseFile, WRITER_READY_WAIT and HANDOFF_CHANNEL through named lazy adapters/getters. Construction reads no state/services/browser objects and opens no channel; core composes it after PDF artifacts and before document rendering and exports the actual mutable functions. There is no forwarding barrel or universal registry.
+
+All four bodies, remaining timeline declarations/order and case_files functions are unchanged apart from explicit dependency access. Workspace Web Lock ownership, restoration order and initWriterHandoff/markWriterReady/markWriterFailed calls stay in case_files. Core retains readiness-promise/channel-name initialization. Preserve local preflight/reconciliation, post-wait restored-state lookup, latest shared-request checks, case-number/shape refusal, storage-versus-missing errors, accepted/result/return-ack messages and inactive/non-owning reply guards. The original initialization does not gain an idempotence promise or new authority over helper/file operations.
+
+case_timeline shrinks from 1,178 to 1,073 lines and loses workspace_shell/app_screens imports; case_files loses its case_timeline import. There are 75 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests exercise readiness, local/shared failures/races and channel/URL behavior, alongside unchanged storage/navigation/startup workflows. Next inspect bulk/selected deadlines and workspace task presentation before the remaining citation and publication/recovery boundaries.
 
 ## Following increments
 
