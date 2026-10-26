@@ -1,3 +1,5 @@
+import { createWorkspaceDatabase } from "./workspace_database.js";
+import { createDraftPersistence } from "./draft_persistence.js";
 import { createCorrectionPreparation } from "./correction_preparation.js";
 import { createCorrectionWorkflow } from "./correction_workflow.js";
 import { createPublicationPreparation } from "./publication_preparation.js";
@@ -74,13 +76,13 @@ import {
   sourceDocFor,
   appendEvent,
   project,
-  idbSet,
   rememberSaved,
   mergeCaseEvents,
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import {
+  updateSaveStatus,
   addCC,
   addEmail,
   bootStorage,
@@ -98,14 +100,11 @@ import {
   removeCase,
   removeEmail,
   saveCaseFile,
-  saveDrafts,
   writeSummary,
-  scheduleDraftSave,
   standardCityStateZip,
   standardStreetAddress,
   startReinspection,
   validateAndStandardizeAddresses,
-  draftBundle,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
 import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
@@ -826,6 +825,34 @@ const correctionWorkflow = createCorrectionWorkflow({
   scrollTo: (...args) => window.scrollTo(...args),
 });
 export let { startCorrection, issueCorrection } = correctionWorkflow;
+
+const workspaceDatabase = createWorkspaceDatabase({
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  get indexedDB() {
+    return indexedDB;
+  },
+});
+export let { idb, idbGet, idbSet } = workspaceDatabase;
+
+const draftPersistence = createDraftPersistence({
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  captureWork: (...args) => captureWork(...args),
+  updateSaveStatus: (...args) => updateSaveStatus(...args),
+  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  idbGet: (...args) => idbGet(...args),
+  idbSet: (...args) => idbSet(...args),
+  project: (...args) => project(...args),
+  render: (...args) => render(...args),
+  toast: (...args) => toast(...args),
+});
+export let { draftBundle, saveDrafts, scheduleDraftSave, restoreDrafts } = draftPersistence;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

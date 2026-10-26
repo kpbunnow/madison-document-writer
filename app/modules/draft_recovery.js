@@ -3,9 +3,9 @@ import { inspAt } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { rnd12, toast } from "./court_and_deposits.js";
 import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
-import { helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./workspace_shell.js";
+import { helperJSON, project, sourceDocFor } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
-import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
+import { caseUnsaved, downloadFile } from "./case_files.js";
 import {
   refreshArtifactLocations,
   clearWalk,
@@ -22,6 +22,11 @@ import {
   newDocuments,
   recordFormKey,
   recordIntegrity,
+  idb,
+  idbGet,
+  idbSet,
+  draftBundle,
+  saveDrafts,
 } from "./app_core.js";
 import { render } from "./app_screens.js";
 import { captureWork, hasSetupWork } from "./issuance_and_corrections.js";

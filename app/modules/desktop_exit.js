@@ -1,10 +1,10 @@
 /* Exit Document Writer: save this device's drafts, review unresolved work, then ask the helper to stop.
    The helper refuses (409) while it is doing work it knows about; this review adds what only this window
    knows. Queued items stay queued on this device; they are never described as being in the shared folder. */
-import { saveDrafts } from "./case_files.js";
+
 import { captureWork } from "./issuance_and_corrections.js";
 import { backupUnfinished, recoveryJobs } from "./draft_recovery.js";
-import { app_savedworkContext } from "./app_core.js";
+import { app_savedworkContext, saveDrafts } from "./app_core.js";
 import { savedCaseState } from "./saved_work.js";
 import { authFetch } from "./helper_transport.js";
 import { announceStop, helperStop, listenForStop, showStopped } from "./helper_stopped.js";

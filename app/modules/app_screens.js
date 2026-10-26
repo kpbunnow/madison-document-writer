@@ -27,6 +27,7 @@ import {
   ensureWalkContext,
   screenReinspect,
   highlightOpenChecks,
+  scheduleDraftSave,
 } from "./app_core.js";
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
@@ -49,7 +50,7 @@ import { importResumePanel, workingNotesPanel, recordActionModal, correctionDiff
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
 import { checks, fmtDate } from "./court_and_deposits.js";
-import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
+import { recipientPreview, caseUnsaved, updateSaveStatus } from "./case_files.js";
 
 import { helperStop } from "./helper_stopped.js";
 

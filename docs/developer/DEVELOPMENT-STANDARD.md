@@ -27,7 +27,7 @@ Persisted document/report IDs, JSON keys, event names, operational folders and i
 Ownership for new work:
 
 - Navigation/screens express intent and render facts; no private-storage replacement before startup restoration completes.
-- case_files owns workspace persistence and its save chain; lock ownership and readiness to edit are separate states. Internal recovery may save only after retained workspace data has been read.
+- workspace_database owns device IndexedDB access; draft_persistence owns local draft snapshots, restore and the autosave chain. case_files retains startup lock/readiness sequencing and shared case-file coordination. Lock ownership and readiness to edit are separate states; internal recovery may save only after retained workspace data has been read.
 - The helper owns validation, authority, integrity, atomic publication and immutable original PDF retention. UI validation does not replace it.
 - Rendering/pagination consumes explicit facts and frozen issued versions; it does not own persistence or query later live history for reprints.
 - Reports consumes verified projections and remains read-only against case history.
