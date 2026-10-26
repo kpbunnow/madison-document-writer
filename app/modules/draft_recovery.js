@@ -7,6 +7,7 @@ import { evid, helperJSON, idb, idbGet, idbSet, project, sourceDocFor } from "./
 import { stableJSON, clone } from "./record_values.js";
 import { caseUnsaved, downloadFile, draftBundle, saveDrafts } from "./case_files.js";
 import {
+  commitCitationEdits,
   refreshArtifactLocations,
   clearWalk,
   walkIdentity,
@@ -30,8 +31,6 @@ import {
 } from "./app_core.js";
 import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
 import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
-
-import { commitCitationEdits } from "./case_timeline.js";
 
 import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 

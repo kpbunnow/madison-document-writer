@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Citation workflow and item-selection boundaries (development)
+
+- Compose citation editing/readiness/review through 16 lazy inputs and item selection through two. Preserve all eight function bodies, private declaration order, messages and markup apart from explicit dependency access.
+- Retain typed/committed charge phases, original correction deposits, manual/scheduled authority, mandatory-appearance hold, private wording/cache and item identities. Existing pricing, events, storage, publication and historical rendering keep their authority.
+- Retire the emptied case_timeline module without a forwarding barrel and narrow the Writer cycle guard from eight to seven modules; Reports stays acyclic. Add independent boundary/behavior tests and update current ownership, assessment and indexes. Retain R63/build-64 and all stored/format identities; no packaging or deployment.
+
 ## Unreleased — Workspace task presentation boundary (development)
 
 - Separate workspace task generation through three lazy dependencies, preserving group order, count/list agreement, action links and existing record/artifact warnings. Delegate deposit completion to its unchanged citation calculation.
