@@ -1,3 +1,4 @@
+import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { inspAt } from "./inspection_facts.js";
 import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.js";
 import { emailDocument, filePdf, freezeSources, printJob, rnd12, toast } from "./court_and_deposits.js";
@@ -30,7 +31,7 @@ import {
 import { focusIssuedCase, revealIssuedCase, render } from "./app_screens.js";
 import { captureWork, commitAmendment, hasSetupWork, needsInitialCitation } from "./issuance_and_corrections.js";
 
-import { commitCitationEdits, dueContext, dueDateSpacingConflicts } from "./case_timeline.js";
+import { commitCitationEdits } from "./case_timeline.js";
 
 import { DOC_TYPES, ISSUE_EVENT, OUTCOMES, REFERRED_ONLY, SCHEMA } from "./document_types.js";
 

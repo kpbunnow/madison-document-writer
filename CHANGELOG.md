@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Deadline planning and assignment boundary (development)
+
+- Separate batch deadline planning, assignment and presentation into a seven-dependency owner, with direct spacing/selection and live-context queries. Preserve all nine bodies apart from explicit dependency access, including draft/selection guards, atomic planning and deadline limits.
+- Keep event registration, later-edit-safe undo and durable workspace/save ordering in existing owners. No persistence, publication, historical format or rule changes.
+- Reduce case_timeline from 1,073 to 856 lines; Writer retains its eight-module component and Reports stays acyclic. Add independent tests/import guards and update ownership, assessment and indexes; retain R63/build-64 and all stored identities.
+
 ## Unreleased — Writer handoff and readiness boundary (development)
 
 - Separate Writer readiness markers, Reports case opening and channel/URL handoff into a six-dependency owner. Preserve all four function bodies apart from explicit dependency access, including startup waits, local reconciliation, latest-request checks and channel reply guards.

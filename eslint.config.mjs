@@ -101,6 +101,7 @@ export default [
       "app/modules/accela_import.js",
       "app/modules/reinspection.js",
       "app/modules/pdf_artifacts.js",
+      "app/modules/deadline_assignment.js",
     ],
     rules: {
       "no-restricted-globals": ["error", "fetch", "indexedDB", "localStorage", "sessionStorage", "XMLHttpRequest", "WebSocket", "BroadcastChannel"],

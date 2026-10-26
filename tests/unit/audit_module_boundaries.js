@@ -36,6 +36,14 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "deadline_assignment.js": [
+    "./calendar.js",
+    "./record_values.js",
+    "./document_rules.js",
+    "./writer_queries.js",
+    "./presentation_format.js",
+    "./state.js",
+  ],
   "writer_handoff.js": ["../assets/shared.js", "./case_file_rules.js", "./state.js"],
   "pdf_artifacts.js": ["./document_rules.js", "./writer_queries.js", "./presentation_format.js", "./state.js", "./helper_transport.js"],
   "case_activity.js": [

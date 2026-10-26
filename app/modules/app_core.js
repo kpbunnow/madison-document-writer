@@ -1,3 +1,4 @@
+import { createDeadlineAssignment, activeDueTarget, dueContext, dueSelectedText, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { createWriterHandoff } from "./writer_handoff.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
@@ -153,22 +154,7 @@ import {
 } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
-import {
-  citationDepositFault,
-  citationReview,
-  activeDueTarget,
-  assignDue,
-  dueContext,
-  dueSelectedText,
-  editCitation,
-  initialCitationBody,
-  planBulkDue,
-  showBulkDue,
-  toggleLibraryItem,
-  updateDueIndicators,
-  duePanel,
-  dueDateSpacingConflicts,
-} from "./case_timeline.js";
+import { citationDepositFault, citationReview, editCitation, initialCitationBody, toggleLibraryItem } from "./case_timeline.js";
 import { createEditorScreens } from "./editor_screens.js";
 
 import { DEPOSITS } from "./data/deposits.js";
@@ -664,6 +650,23 @@ const writerHandoff = createWriterHandoff({
   },
 });
 export let { markWriterReady, markWriterFailed, writerOpenReportedCase, initWriterHandoff } = writerHandoff;
+
+const deadlineAssignment = createDeadlineAssignment({
+  MINDUE: (...args) => MINDUE(...args),
+  structEditable: (...args) => structEditable(...args),
+  isLocked: (...args) => isLocked(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  get navigation() {
+    return navigation;
+  },
+  get A11Y() {
+    return A11Y;
+  },
+  get snow() {
+    return snow;
+  },
+});
+export let { planBulkDue, showBulkDue, updateDueIndicators, duePanel, assignDue } = deadlineAssignment;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
