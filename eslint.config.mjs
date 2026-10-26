@@ -43,6 +43,7 @@ export default [
       "app/modules/case_projection.js",
       "app/modules/document_render.js",
       "app/modules/case_activity.js",
+      "app/modules/workspace_tasks.js",
       "app/modules/record_sources.js",
     ],
     rules: {
@@ -69,6 +70,7 @@ export default [
       "app/modules/case_projection.js",
       "app/modules/document_render.js",
       "app/modules/case_activity.js",
+      "app/modules/workspace_tasks.js",
       "app/modules/record_sources.js",
     ],
     rules: {

@@ -1,3 +1,4 @@
+import { createWorkspaceTasks } from "./workspace_tasks.js";
 import { createDeadlineAssignment, activeDueTarget, dueContext, dueSelectedText, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { createWriterHandoff } from "./writer_handoff.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
@@ -100,6 +101,7 @@ import { createReinspection } from "./reinspection.js";
 import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
 import {
+  hasSetupWork,
   citationTier,
   addRecordNote,
   captureWork,
@@ -154,7 +156,7 @@ import {
 } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
-import { citationDepositFault, citationReview, editCitation, initialCitationBody, toggleLibraryItem } from "./case_timeline.js";
+import { depositComplete, citationDepositFault, citationReview, editCitation, initialCitationBody, toggleLibraryItem } from "./case_timeline.js";
 import { createEditorScreens } from "./editor_screens.js";
 
 import { DEPOSITS } from "./data/deposits.js";
@@ -667,6 +669,13 @@ const deadlineAssignment = createDeadlineAssignment({
   },
 });
 export let { planBulkDue, showBulkDue, updateDueIndicators, duePanel, assignDue } = deadlineAssignment;
+
+const workspaceTaskPresentation = createWorkspaceTasks({
+  fmtDate: (...args) => fmtDate(...args),
+  hasSetupWork: (...args) => hasSetupWork(...args),
+  depositComplete: (...args) => depositComplete(...args),
+});
+export let { workspaceTasks } = workspaceTaskPresentation;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

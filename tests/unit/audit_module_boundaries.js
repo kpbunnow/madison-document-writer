@@ -36,6 +36,7 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "workspace_tasks.js": ["./document_types.js", "./writer_queries.js", "./pdf_artifacts.js", "./presentation_format.js", "./state.js"],
   "deadline_assignment.js": [
     "./calendar.js",
     "./record_values.js",
