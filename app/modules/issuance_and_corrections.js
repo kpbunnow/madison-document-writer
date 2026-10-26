@@ -7,7 +7,6 @@ import { applyDeposit, citationNumber, fmtDate, nextCourtDate, toast } from "./c
 import { appendEvent, evid, project, sourceDocFor } from "./workspace_shell.js";
 import { clone } from "./record_values.js";
 
-import { saveDrafts } from "./case_files.js";
 import {
   ensureWalkContext,
   commitAmendment,
@@ -21,6 +20,7 @@ import {
   depositStep,
   recordFormKey,
   uid,
+  saveDrafts,
 } from "./app_core.js";
 import { priorCitations, render } from "./app_screens.js";
 import { cleanVisit, unissuedVisitFor } from "./draft_recovery.js";

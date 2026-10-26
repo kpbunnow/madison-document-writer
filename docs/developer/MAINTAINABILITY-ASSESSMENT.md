@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: the correction preparation/workflow increment based on merged PR #68, main `43c57ff8504fa4c8f22c981c41110b3e6622a276`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
+Snapshot: the device database/local-draft increment based on merged PR #69, main `f5fa0e407b0b467503864d74fca9b4b5376850e2`. This is a maintenance assessment, not a claim that all bugs are absent or a release approval. Counts describe this reviewed source layout; they are not quality/performance thresholds.
 
 ## What this increment completes
 
-Correction comparisons, eligibility/type rules, checks, visit patches and snapshot preparation now have a six-input owner; opening/issuing corrections have a separate 18-input owner. All nine original bodies retain their logic apart from dependency/scroll adapter access. Item/case/revision lineage, historical authoring, recipient reconciliation, stale/conflict/review guards, exact pending retries and confirmation/filing/render order remain. Constructors are inert; helper/record-confirmation/immutable PDF authority is unchanged. Court/deposit checks lose their direct issuance/history dependency, and the mixed owner is 399 lines smaller. Writer still has a seven-module cycle and Reports remains acyclic. PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+Device database connection/read/write access now has a two-input owner; draft snapshot/save/restore coordination has a ten-input owner. All six original bodies retain their logic apart from dependency access, including required reads, transaction completion, isolated queued snapshots, stale/latest save decisions, backup timing and retained integrity/history restoration. Constructors are inert. Startup locks/readiness/sequencing, status UI, folder/shared-file writes, helper authority and recovery transactions stay in existing owners. case_files loses its direct issuance/history dependency. Writer still has a seven-module cycle and Reports remains acyclic. PNG/native acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,19 +12,19 @@ The graph still contains one seven-module Writer component. These are seven coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 1950 | 62 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_core.js` | 1978 | 64 | 6 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1238 | 18 | 6 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 1049 | 17 | 6 | Draft persistence, restoration and case-file/workspace actions remain coupled |
+| `case_files.js` | 964 | 15 | 5 | Shared/pending case-file writes, startup sequencing and workspace actions remain coupled |
 | `court_and_deposits.js` | 1094 | 15 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `draft_recovery.js` | 914 | 16 | 6 | Backup/restore UI, worksheet operations and workspace coordination remain coupled |
-| `issuance_and_corrections.js` | 914 | 15 | 6 | Record actions/history, citation creation and saved-work UI remain coupled |
-| `workspace_shell.js` | 728 | 17 | 4 | Workspace mutation/merge, storage adapters, helper requests and shell/print integration remain coupled |
+| `draft_recovery.js` | 919 | 16 | 6 | Backup/restore UI, worksheet operations and workspace coordination remain coupled |
+| `issuance_and_corrections.js` | 914 | 14 | 5 | Record actions/history, citation creation and saved-work UI remain coupled |
+| `workspace_shell.js` | 666 | 17 | 4 | Workspace mutation/merge, storage adapters, helper requests and shell/print integration remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Separate persistence adapters from workspace coordination.** case_files and workspace_shell should expose bounded persistence/merge/restore capabilities rather than UI callbacks everywhere. Preserve startup restoration barriers, save-chain ordering, rollback, folder permissions, integrity verification and the frontend/helper projection contract. Keep native platform calls behind their established adapters.
+1. **Continue shared persistence and workspace separation.** Device IndexedDB and local draft persistence are now independent. Next inspect shared-folder/helper writes and pending-save coordination, then case merge/load/rollback capabilities rather than UI callbacks everywhere. Preserve startup restoration barriers, save-chain ordering, rollback, folder permissions, integrity verification and the frontend/helper projection contract. Keep native platform calls behind their established adapters.
 2. **Review remaining record/history presentation and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
@@ -33,7 +33,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 62 maintained-module dependencies in this graph and 45 named factory calls with object interfaces. The largest reviewed interfaces are:
+Core currently has 64 maintained-module dependencies in this graph and 47 named factory calls with object interfaces. The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
@@ -62,7 +62,7 @@ Retain the current source inventory, ownership map, test index, exact-source ful
 
 The planned architecture cleanup is complete when the Writer module graph has no cyclic component, Reports stays acyclic, major features load independently, and ownership remains explicit without a replacement registry/barrel. Review interface breadth and core startup clarity as well as the graph. Preserve all historical output, trust boundaries, stored/installed names, live-state and failure-ordering contracts, with the full gate passing on final reviewed source.
 
-After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 83 maintained modules or eliminating every legitimate cross-feature action.
+After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 85 maintained modules or eliminating every legitimate cross-feature action.
 
 ## Outside this development work
 

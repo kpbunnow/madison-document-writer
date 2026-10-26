@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Device database and draft persistence boundaries (development)
+
+- Separate IndexedDB connection/read/write access through two lazy inputs and draft snapshot/save/restore coordination through ten inputs. Keep the database/store names, transaction completion, required-read failures and connection retirement behavior.
+- Preserve all six moved bodies, startup restoration/lock ordering, generation-aware save chain, isolated write snapshots, backup timing and retained workspace/history/integrity restoration. Keep debounce/status presentation, folder/shared writes and helper validation in their existing owners.
+- Add independent failure/concurrency tests and import guards; update ownership, development rules, inventory and indexes. Writer remains a seven-module cycle and Reports stays acyclic; retain R63/build 64 and stored formats.
+
 ## Unreleased — Correction preparation and workflow boundaries (development)
 
 - Separate correction comparisons, eligibility/type rules, checks, visit patches and retained snapshots through six lazy inputs; separate opening/issuing corrections through 18 scoped adapters. Preserve all nine original bodies apart from dependency/scroll adapter access.

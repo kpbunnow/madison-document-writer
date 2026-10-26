@@ -233,13 +233,21 @@ All five moved bodies and the guard declaration retain their ASTs apart from exp
 
 There are 81 maintained modules and 31 isolated scoped services; Writer remains a seven-module component and Reports stays acyclic. draft_recovery shrinks from 1,214 to 914 lines; court_and_deposits loses its direct recovery import. This completes the planned publication/recovery-UI boundary, not the whole cycle cleanup. Next inspect correction preparation/issuance orchestration, then persistence/workspace coordination and remaining core/screen direction.
 
-## Twenty-third increment: correction preparation and workflow
+## Twenty-third increment: correction preparation and workflow (merged in PR #69)
 
 correction_preparation owns comparisons, eligibility/type rules, readiness checks, visit patches/checks and snapshot preparation through six lazy inputs; correction_workflow owns opening/issuing through 18 adapters. Core composes them in that order after publicationWorkflow and before documentRenderer, exporting actual mutable operations and supplying the actual preparation operation to workflow. Construction reads no services/state/DOM, performs no I/O and registers no listeners. Preparation retains the original event clock and live workspace queries; it is not a pure calculation.
 
 All nine moved function bodies and remaining issuance/history functions retain their logic apart from explicit dependency access and the supplied scrollTo adapter. Preserve source/item/head identity, special/referral/type limits, case/visit conflicts, substantive/review/date guards, historical authoring and revision lineage, recipient reconciliation, exact pending event retries, shared confirmation before filing/email, PDF failure recovery and save/render/scroll order. Helper/storage validation and immutable receipt authority remain unchanged; no new concurrency guarantee is claimed.
 
 There are 83 maintained modules, 33 isolated scoped services, the same seven-module Writer component and acyclic Reports. issuance_and_corrections shrinks from 1,313 to 914 lines; court_and_deposits loses its direct import of that mixed owner. Next inspect persistence adapters versus workspace coordination, preserving startup barriers, save/rollback ordering and helper/projection contracts; record/history presentation and remaining core/screen direction still need review.
+
+## Twenty-fourth increment: device database and draft persistence
+
+workspace_database separates idb/idbGet/idbSet through two lazy capability/browser getters; draft_persistence separates draftBundle/saveDrafts/restoreDrafts through ten integrity/capture/UI/backup/capability/database/projection inputs. Core composes database then draft persistence after correctionWorkflow and before documentRenderer, exporting actual mutable operations. Constructors read no services/state/DOM, perform no storage/timer work and register no listeners. There are no forwarding exports.
+
+All six moved function bodies and remaining shell/file functions are preserved apart from dependency access. Retain database/version/store/key identity, shared connection and failure/reset semantics, transaction-completion acknowledgment, required/optional read distinction, clone-before-queue snapshots, save-chain/generation and dirty/status/backup ordering, work-patch waits. The original 1,500 ms debounce remains in case_files and calls the current composed save operation, preserving late-bound dispatch. Restoration retains work/attempt/checkpoint/case/event/integrity/draft/projection order. bootStorage remains in case_files with lock/readiness/original init/settle order; status UI, folder/shared-file writes and recovery's own restore transaction remain in established owners. Do not infer new connection-race or atomic-restore guarantees.
+
+There are 85 maintained modules and 35 isolated scoped services; Writer retains its seven-module component and Reports stays acyclic. case_files shrinks from 1,049 to 964 lines and loses its direct issuance/history import; workspace_shell shrinks from 728 to 666 lines. This completes the device/local-draft boundary, not all persistence/workspace separation. Next inspect shared-folder/helper writes, pending saves and case merge/load/rollback coordination before remaining record/history and core/screen direction.
 
 ## Following increments
 
