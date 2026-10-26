@@ -1,3 +1,4 @@
+import { caseNumberAllowed } from "./case_records.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import {
   workspaceTasks,
@@ -30,7 +31,7 @@ import {
 } from "./app_core.js";
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
-import { sourceDocFor, caseNumberAllowed, storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { sourceDocFor, storageReport, reindexReport, shell } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
 

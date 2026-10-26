@@ -1,9 +1,10 @@
+import { project } from "./case_records.js";
 import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { inspAt } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { rnd12, toast } from "./court_and_deposits.js";
 import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
-import { helperJSON, project, sourceDocFor } from "./workspace_shell.js";
+import { helperJSON, sourceDocFor } from "./workspace_shell.js";
 import { stableJSON, clone } from "./record_values.js";
 import { caseUnsaved, downloadFile } from "./case_files.js";
 import {

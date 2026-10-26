@@ -1,3 +1,5 @@
+import { createCaseLoading } from "./case_loading.js";
+import { caseFile, caseNumberAllowed, project, rememberSaved, mergeCaseEvents } from "./case_records.js";
 import { createSharedCaseStorage } from "./shared_case_storage.js";
 import { createPendingCaseSaves } from "./pending_case_saves.js";
 import { createCaseSaveWorkflow } from "./case_save_workflow.js";
@@ -65,27 +67,10 @@ import {
   longDate,
   allItems,
 } from "./court_and_deposits.js";
-import {
-  shell,
-  evid,
-  caseFile,
-  caseNumberAllowed,
-  grantCaseFolder,
-  helperJSON,
-  linkCaseFolder,
-  loadCaseFile,
-  printNotice,
-  testWrite,
-  sourceDocFor,
-  appendEvent,
-  project,
-  rememberSaved,
-  mergeCaseEvents,
-} from "./workspace_shell.js";
+import { shell, evid, grantCaseFolder, helperJSON, linkCaseFolder, printNotice, testWrite, sourceDocFor, appendEvent } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import {
-  mergeSharedFile,
   updateSaveStatus,
   scheduleDraftSave,
   addCC,
@@ -908,6 +893,17 @@ const caseSaveWorkflow = createCaseSaveWorkflow({
   saveDrafts: (...args) => saveDrafts(...args),
 });
 export let { saveCaseFile } = caseSaveWorkflow;
+
+const caseLoading = createCaseLoading({
+  toast: (...args) => toast(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  render: (...args) => render(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+});
+export let { loadCaseFile, mergeSharedFile } = caseLoading;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),

@@ -1,10 +1,11 @@
+import { project } from "./case_records.js";
 import { inspAt } from "./inspection_facts.js";
 
 import { deliveredByCitation, isEffective, isHistoryDoc, specialType } from "./document_rules.js";
 import { cents, canonicalOrdinance } from "./citation_policy.js";
 import { recordDay } from "../assets/shared.js";
 import { applyDeposit, citationNumber, fmtDate, nextCourtDate, toast } from "./court_and_deposits.js";
-import { appendEvent, evid, project, sourceDocFor } from "./workspace_shell.js";
+import { appendEvent, evid, sourceDocFor } from "./workspace_shell.js";
 import { clone } from "./record_values.js";
 
 import {
