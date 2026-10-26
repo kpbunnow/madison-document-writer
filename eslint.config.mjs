@@ -28,6 +28,7 @@ export default [
   },
   {
     files: [
+      "app/modules/correction_preparation.js",
       "app/modules/document_types.js",
       "app/modules/document_rules.js",
       "app/modules/writer_queries.js",
@@ -47,6 +48,7 @@ export default [
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
       "app/modules/record_commit.js",
+      "app/modules/correction_workflow.js",
       "app/modules/publication_preparation.js",
       "app/modules/publication_workflow.js",
       "app/modules/record_sources.js",
@@ -79,6 +81,7 @@ export default [
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
       "app/modules/record_commit.js",
+      "app/modules/correction_workflow.js",
       "app/modules/publication_preparation.js",
       "app/modules/publication_workflow.js",
       "app/modules/record_sources.js",

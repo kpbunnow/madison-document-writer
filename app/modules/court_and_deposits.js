@@ -3,8 +3,8 @@ import { normParcel, recordDay } from "../assets/shared.js";
 import { appendEvent, caseNumberAllowed, printNotice, printableHTML, project } from "./workspace_shell.js";
 import { addressProblem, saveCaseFile, validateAndStandardizeAddresses } from "./case_files.js";
 import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc, itemLibraryKey } from "./document_rules.js";
-import { correctionChecks } from "./issuance_and_corrections.js";
 import {
+  correctionChecks,
   lifecycleChecks,
   authoringChecks,
   citationDepositFault,

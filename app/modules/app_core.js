@@ -1,3 +1,5 @@
+import { createCorrectionPreparation } from "./correction_preparation.js";
+import { createCorrectionWorkflow } from "./correction_workflow.js";
 import { createPublicationPreparation } from "./publication_preparation.js";
 import { createPublicationWorkflow } from "./publication_workflow.js";
 import { createRecordCommit } from "./record_commit.js";
@@ -114,23 +116,18 @@ import {
   addRecordNote,
   captureWork,
   citationFromNotice,
-  correctionChanges,
-  correctionTypeAllowed,
-  issueCorrection,
   itemHistory,
   itemInspectionHistory,
   needsInitialCitation,
   reconcileDocument,
   recordReinspection,
   runFinalize,
-  startCorrection,
   voidDocument,
   commitRecordAttempt,
   documentItemHistory,
   revisionPrintNote,
   hasItemInspectionHistory,
   citationRecoveryPanel,
-  correctionEligibility,
   correctionPanel,
   filingPanel,
   recordHistoryHTML,
@@ -788,6 +785,47 @@ const publicationWorkflow = createPublicationWorkflow({
   focusIssuedCase: (...args) => focusIssuedCase(...args),
 });
 export let { publishDocument, publicationPanel } = publicationWorkflow;
+
+const correctionPreparation = createCorrectionPreparation({
+  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+  freezeSources: (...args) => freezeSources(...args),
+  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
+  documentItemHistory: (...args) => documentItemHistory(...args),
+  evid: (...args) => evid(...args),
+  get today() {
+    return today;
+  },
+});
+export let { correctionChanges, correctionEligibility, correctionChecks, correctionTypeAllowed, correctionVisitPatch } = correctionPreparation;
+const { makeCorrectionAttempt } = correctionPreparation;
+
+const correctionWorkflow = createCorrectionWorkflow({
+  correctionEligibility: (...args) => correctionEligibility(...args),
+  uid: (...args) => uid(...args),
+  get today() {
+    return today;
+  },
+  docBody: (...args) => docBody(...args),
+  docBlocks: (...args) => docBlocks(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  toast: (...args) => toast(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  commitCitationEdits: (...args) => commitCitationEdits(...args),
+  get citationPricing() {
+    return citationPricing;
+  },
+  blockers: (...args) => blockers(...args),
+  makeCorrectionAttempt: (...args) => makeCorrectionAttempt(...args),
+  commitAmendment: (...args) => commitAmendment(...args),
+  printJob: (...args) => printJob(...args),
+  filePdf: (...args) => filePdf(...args),
+  emailDocument: (...args) => emailDocument(...args),
+  scrollTo: (...args) => window.scrollTo(...args),
+});
+export let { startCorrection, issueCorrection } = correctionWorkflow;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
