@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Inspection history, correction UI and record actions (development)
+
+- Separate live legacy/item-lineage history and historical capability predicates, with correction-history overlays through one lazy patch input. Separate correction/record-action presentation through three lazy inputs and retained record-action requests through five.
+- Preserve all 13 moved function bodies and the capability predicate, historical cutoffs, currency units/markup, record identity, exact retained-request retries and original confirmation/render/message order. Helper confirmation and immutable receipt authority remain unchanged.
+- Add independent retained-retry, refusal, UI locking/escaping and lineage/history tests and guards; update ownership, source/test indexes and roadmap. Issuance is 505 lines smaller; Writer remains six cyclic modules and Reports acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Recovery UI and document-history presentation (development)
 
 - Complete the recovery split: recovery_ui owns working controls, save-and-continue, backup file selection and status/modal presentation through 11 lazy inputs. Move catalog-form persistence to its one-input owner and define catalog keys there directly; retire draft_recovery without forwarding exports.

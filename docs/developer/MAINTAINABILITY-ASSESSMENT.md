@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: recovery presentation/work-control and document-history separation based on merged PR #76, main `bfa31701115c65d02ae59c46a4c4d4dcd93edbc4`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: inspection-history/correction-UI/record-action separation based on merged PR #77, main `54613583edbc5ef71313cab62bb1170a49bfe1d1`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Recovery presentation/work controls now have an 11-input owner; catalog forms/keys and read-only document revision/history/print notes have their own bounded owners. All ten moved functions retain logic, markup and dispatch/error order. Constructors perform no work. The former draft_recovery module is retired without forwarding exports. Issuance is 120 lines smaller. Writer narrows to six cyclic modules; Reports remains acyclic. Record actions, correction UI and inspection-history calculations remain separate future work. Print/native/PNG acceptance status is unchanged (SCREEN-VISUAL-REVIEW.md).
+Live legacy/item-lineage history and historical capability predicates now have a direct owner with a one-input correction overlay. Correction/record-action presentation has a three-input owner, and retained record actions a five-input owner. All 13 moved functions and the predicate preserve logic, markup, historical units/cutoffs and exact original request/holder retries. Constructors perform no work; helper/record_commit authority is unchanged. Issuance is 505 lines smaller. Writer remains six cyclic modules; Reports stays acyclic. Citation preparation, visit recording, working-paper capture and workspace/filing presentation remain coupled there. Print/native/PNG acceptance status remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,18 +12,18 @@ The graph still contains one six-module Writer component. These are six coupled 
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2125 | 75 | 5 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1242 | 18 | 5 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `app_core.js` | 2140 | 78 | 5 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1244 | 18 | 5 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
 | `case_files.js` | 647 | 14 | 4 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
 | `court_and_deposits.js` | 1096 | 16 | 4 | Money/charge checks, notifications, rendering and PDF/Outlook delivery share one owner; date/time parsing and inspection facts are independent |
-| `issuance_and_corrections.js` | 796 | 15 | 4 | Record actions/history, citation creation and saved-work UI remain coupled |
+| `issuance_and_corrections.js` | 291 | 15 | 4 | Citation preparation, visit recording, work capture and workspace/filing UI remain coupled |
 | `workspace_shell.js` | 469 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Finish remaining record/history boundaries.** Device/local-draft/shared/case persistence, recovery backups/restoration/presentation, worksheet transitions and read-only document history now have independent owners. Next inspect record actions, correction UI and item/inspection-history calculations for distinct responsibilities. Preserve retained attempts, correction/inspection lineage, historical rendering and failure order; do not replace explicit dependencies with a broad callback registry.
+1. **Finish remaining working-paper/citation boundaries.** Persistence, recovery, worksheet transitions, document/inspection history, correction presentation and retained record actions now have independent owners. Next inspect remaining citation preparation, visit recording, working-paper capture and workspace/filing presentation. Preserve record/visit/citation identity, retained work and original save/dispatch order; avoid a broad callback registry.
 2. **Review remaining court/deposit/delivery and core/screen direction.** Shared confirmation, publication preparation/continuation and correction preparation/issuance are now independently composed. Keep core as an explicit composition root, startup and registration coordinator. Screen renderers should consume scoped facts and actions. Avoid moving all coupling into another universal context or re-export module. Split bootstrap/composition only if it can preserve the established initialization/listener order.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
@@ -32,7 +32,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 75 maintained-module dependencies in this graph and 49 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 78 maintained-module dependencies in this graph and 52 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |

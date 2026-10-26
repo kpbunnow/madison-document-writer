@@ -1,3 +1,6 @@
+import { createInspectionHistory, itemHistory, itemInspectionHistory, hasItemInspectionHistory } from "./inspection_history.js";
+import { createCorrectionUI } from "./correction_ui.js";
+import { createRecordActions } from "./record_actions.js";
 import { createRecoveryUI } from "./recovery_ui.js";
 import { createCatalogForms, catalogKey } from "./catalog_forms.js";
 import { createRecordHistory } from "./record_history.js";
@@ -107,21 +110,12 @@ import { createAccelaImport } from "./accela_import.js";
 import {
   hasSetupWork,
   citationTier,
-  addRecordNote,
   captureWork,
   citationFromNotice,
-  itemHistory,
-  itemInspectionHistory,
   needsInitialCitation,
-  reconcileDocument,
   recordReinspection,
   runFinalize,
-  voidDocument,
-  commitRecordAttempt,
-  documentItemHistory,
-  hasItemInspectionHistory,
   citationRecoveryPanel,
-  correctionPanel,
   filingPanel,
 } from "./issuance_and_corrections.js";
 import { createLanguageCatalog } from "./language_catalog.js";
@@ -998,6 +992,26 @@ const catalogForms = createCatalogForms({
 export let { keepCatalogForms } = catalogForms;
 const recordHistory = createRecordHistory({ fmtDate: (...args) => fmtDate(...args) });
 export let { recordHistoryHTML, revisionPrintNote } = recordHistory;
+
+const inspectionHistory = createInspectionHistory({ correctionVisitPatch: (...args) => correctionVisitPatch(...args) });
+export let { documentItemHistory } = inspectionHistory;
+const correctionUI = createCorrectionUI({
+  correctionChanges: (...args) => correctionChanges(...args),
+  get today() {
+    return today;
+  },
+  correctionTypeAllowed: (...args) => correctionTypeAllowed(...args),
+});
+export let { correctionDiffHTML, correctionPanel, recordActionModal } = correctionUI;
+const { correctionValueText } = correctionUI;
+const recordActions = createRecordActions({
+  correctionEligibility: (...args) => correctionEligibility(...args),
+  toast: (...args) => toast(...args),
+  evid: (...args) => evid(...args),
+  render: (...args) => render(...args),
+  commitAmendment: (...args) => commitAmendment(...args),
+});
+export let { voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt } = recordActions;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -2053,6 +2067,7 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    correctionValueText,
     recoveryIncluded,
     recoverySharedState,
     persistRecoveryState,
