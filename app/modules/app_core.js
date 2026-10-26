@@ -1,3 +1,4 @@
+import { createAutomaticRecovery } from "./automatic_recovery.js";
 import { createWorkspaceBackup } from "./workspace_backup.js";
 import { createCaseLoading } from "./case_loading.js";
 import { caseFile, caseNumberAllowed, project, rememberSaved, mergeCaseEvents } from "./case_records.js";
@@ -121,15 +122,12 @@ import {
   recordHistoryHTML,
 } from "./issuance_and_corrections.js";
 import {
-  backupUnfinished,
   catalogKey,
   cleanVisit,
   changeVisitDate,
   discardWorksheet,
   keepCatalogForms,
   listRecovery,
-  recoveryJobs,
-  recoveryWorkspace,
   restorePreviousDraft,
   restoreRecovery,
   restoreWorkspaceFile,
@@ -140,9 +138,7 @@ import {
   unissuedVisitFor,
   worksheetFaults,
   recoveryStatusHTML,
-  recoveryCaseKey,
-  recoverySnapshot,
-  scheduleRecoveryBackup,
+  renderRecoveryStatus,
 } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
@@ -923,6 +919,29 @@ const workspaceBackup = createWorkspaceBackup({
   },
 });
 export let { downloadWorkspace, restoreWorkspaceBackup } = workspaceBackup;
+
+const automaticRecovery = createAutomaticRecovery({
+  get localStorage() {
+    return localStorage;
+  },
+  get RECOVERY_WORKSPACE_KEY() {
+    return RECOVERY_WORKSPACE_KEY;
+  },
+  get RECOVERY_CASE_KEYS() {
+    return RECOVERY_CASE_KEYS;
+  },
+  get RECOVERY_WORKSPACE() {
+    return RECOVERY_WORKSPACE;
+  },
+  rnd12: (...args) => rnd12(...args),
+  draftBundle: (...args) => draftBundle(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  renderRecoveryStatus: (...args) => renderRecoveryStatus(...args),
+  setTimeout: (...args) => setTimeout(...args),
+  clearTimeout: (...args) => clearTimeout(...args),
+});
+export let { recoveryWorkspace, recoveryCaseKey, recoverySnapshot, recoveryJobs, backupUnfinished, scheduleRecoveryBackup } = automaticRecovery;
+const { recoveryIncluded } = automaticRecovery;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -1978,6 +1997,7 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    recoveryIncluded,
     remindersDue,
     focusWalkDetails,
     worksheetCheckPanel,

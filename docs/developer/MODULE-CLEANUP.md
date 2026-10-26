@@ -265,11 +265,19 @@ All nine moved bodies and every remaining shell/file function retain their logic
 
 There are 90 maintained modules and 40 independent scoped owners; Writer remains a seven-module component and Reports stays acyclic. workspace_shell shrinks from 668 to 469 lines, and case_files from 686 to 647. Case record/merge/load ownership is now separate from shell UI. Next inspect remaining recovery and record/history boundaries, then court/deposit/delivery and screen/core direction, keeping interfaces bounded and startup/listener order unchanged.
 
-## Twenty-seventh increment: whole-workspace backup coordination
+## Twenty-seventh increment: whole-workspace backup coordination (merged in PR #73)
 
 workspace_backup separates downloadWorkspace/restoreWorkspaceBackup through 11 named lazy capture/date/storage/integrity/UI adapters. Core composes it after caseLoading and before documentRenderer, exporting actual mutable operations. The file picker stays in draft_recovery; construction performs no reads, I/O or registration. Both moved bodies and every remaining recovery function preserve logic apart from dependency access. Keep backup versions 1/2, original empty-workspace/identity/history/draft/pending/action checks, retained work/checkpoints/attempts, draft persistence before integrity/live replacement and pending/projection/render/save/artifact order. Do not claim stronger atomicity: integrity failure can follow persisted drafts, and pending snapshots retain their original fallback. Version-consumer validation follows the new defining owner with unchanged drift refusal.
 
 There are 91 maintained modules and 41 independent scoped owners. Writer retains its seven-module component and Reports stays acyclic. draft_recovery shrinks from 920 to 811 lines. This completes whole-workspace backup coordination; automatic backup scheduling, individual-case selection/restoration and worksheet UI remain in recovery. Next inspect those responsibilities and record/history presentation before court/delivery and core/screen direction. Keep interfaces bounded and startup/listener order unchanged.
+
+## Twenty-eighth increment: automatic recovery backup boundary
+
+automatic_recovery composes workspace/case identity storage, snapshot/jobs and helper-write scheduling through ten lazy inputs. Core composes it after workspaceBackup and before documentRenderer, exports actual mutable operations and initializes workspace identity at its original startup site. Construction performs no reads, storage, timer or registration work. The original private inclusion diagnostic is retained through the existing test-build hook only; there is no production diagnostic export.
+
+All seven moved and every remaining recovery function body retain logic apart from dependency access. Preserve keys/IDs/import sentinel, case-specific history/draft/worksheet/attempt/checkpoint/integrity/form/walk/pending data, clone/reference semantics, helper-acknowledged signatures, retry eligibility, original 700 ms debounce and serialized latest queued snapshots. Scheduled draining does not promise general direct-call concurrency protection or durable queuing. Status/dialog rendering, case validation/restore and worksheet UI stay in recovery; helper trust/storage/readiness authority is unchanged.
+
+There are 92 maintained modules and 42 independent scoped owners. draft_recovery shrinks from 811 to 643 lines. Writer remains a seven-module component and Reports stays acyclic. Next isolate individual-case recovery selection/validation/restore, then worksheet/record-history responsibilities before court/delivery and core/screen direction.
 
 ## Following increments
 
