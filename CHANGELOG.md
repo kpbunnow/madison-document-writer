@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Individual-case recovery boundary (development)
+
+- Separate backup listing/selection, shared comparison, validation and individual-case/import restoration through 18 lazy UI/shared/storage/recovery inputs. Define the shared-conflict predicate directly for recovery UI. Keep original stale-selection checkpoints, pre-replacement backup/confirmation, storage acknowledgement and restoration order.
+- Preserve all seven moved and remaining recovery function bodies apart from dependency access. Retain native single-transaction pending/draft writes and fallback rollback/refusal semantics; no broader asynchronous atomicity or trust guarantee is introduced.
+- Add independent validation/conflict/stale-selection/storage/rollback tests and guards; update ownership, source/test indexes and roadmap. Recovery is 277 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and stored formats.
+
 ## Unreleased — Automatic recovery backup boundary (development)
 
 - Separate recovery workspace/case identities, case/import snapshots, helper writes and latest-state backup scheduling through ten lazy storage/identity/snapshot/helper/status/timer inputs. Keep original startup identity initialization, keys, 700 ms debounce, signatures, retry and serialized latest-state behavior.

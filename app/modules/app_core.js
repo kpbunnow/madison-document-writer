@@ -1,3 +1,4 @@
+import { createCaseRecovery } from "./case_recovery.js";
 import { createAutomaticRecovery } from "./automatic_recovery.js";
 import { createWorkspaceBackup } from "./workspace_backup.js";
 import { createCaseLoading } from "./case_loading.js";
@@ -127,14 +128,10 @@ import {
   changeVisitDate,
   discardWorksheet,
   keepCatalogForms,
-  listRecovery,
   restorePreviousDraft,
-  restoreRecovery,
   restoreWorkspaceFile,
   returnToWorksheet,
   saveAndContinue,
-  selectRecovery,
-  validateRecovery,
   unissuedVisitFor,
   worksheetFaults,
   recoveryStatusHTML,
@@ -942,6 +939,33 @@ const automaticRecovery = createAutomaticRecovery({
 });
 export let { recoveryWorkspace, recoveryCaseKey, recoverySnapshot, recoveryJobs, backupUnfinished, scheduleRecoveryBackup } = automaticRecovery;
 const { recoveryIncluded } = automaticRecovery;
+
+const caseRecovery = createCaseRecovery({
+  render: (...args) => render(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  compareSharedCase: (...args) => compareSharedCase(...args),
+  walkIdentity: (...args) => walkIdentity(...args),
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  idb: (...args) => idb(...args),
+  idbGet: (...args) => idbGet(...args),
+  idbSet: (...args) => idbSet(...args),
+  draftBundle: (...args) => draftBundle(...args),
+  toast: (...args) => toast(...args),
+  hasSetupWork: (...args) => hasSetupWork(...args),
+  caseUnsaved: (...args) => caseUnsaved(...args),
+  recoverySnapshot: (...args) => recoverySnapshot(...args),
+  recoveryCaseKey: (...args) => recoveryCaseKey(...args),
+  get RECOVERY_WORKSPACE() {
+    return RECOVERY_WORKSPACE;
+  },
+  confirm: (...args) => confirm(...args),
+  clearWalk: (...args) => clearWalk(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+});
+export let { listRecovery, selectRecovery, validateRecovery, restoreRecovery } = caseRecovery;
+const { recoverySharedState, persistRecoveryState } = caseRecovery;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -1998,6 +2022,8 @@ if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
     recoveryIncluded,
+    recoverySharedState,
+    persistRecoveryState,
     remindersDue,
     focusWalkDetails,
     worksheetCheckPanel,
