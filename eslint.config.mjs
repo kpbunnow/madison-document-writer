@@ -47,6 +47,8 @@ export default [
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
       "app/modules/record_commit.js",
+      "app/modules/publication_preparation.js",
+      "app/modules/publication_workflow.js",
       "app/modules/record_sources.js",
     ],
     rules: {
@@ -77,6 +79,8 @@ export default [
       "app/modules/citation_workflow.js",
       "app/modules/item_selection.js",
       "app/modules/record_commit.js",
+      "app/modules/publication_preparation.js",
+      "app/modules/publication_workflow.js",
       "app/modules/record_sources.js",
     ],
     rules: {

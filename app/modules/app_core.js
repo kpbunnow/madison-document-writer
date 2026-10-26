@@ -1,3 +1,5 @@
+import { createPublicationPreparation } from "./publication_preparation.js";
+import { createPublicationWorkflow } from "./publication_workflow.js";
 import { createRecordCommit } from "./record_commit.js";
 import { createCitationWorkflow } from "./citation_workflow.js";
 import { createItemSelection } from "./item_selection.js";
@@ -104,7 +106,7 @@ import {
   draftBundle,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
-import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML } from "./app_screens.js";
+import { uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
 import {
   hasSetupWork,
@@ -136,12 +138,12 @@ import {
 import {
   backupUnfinished,
   catalogKey,
+  cleanVisit,
   changeVisitDate,
   discardWorksheet,
   downloadWorkspace,
   keepCatalogForms,
   listRecovery,
-  publishDocument,
   recoveryJobs,
   recoveryWorkspace,
   restorePreviousDraft,
@@ -154,7 +156,6 @@ import {
   unissuedVisitFor,
   worksheetFaults,
   recoveryStatusHTML,
-  publicationPanel,
   recoveryCaseKey,
   recoverySnapshot,
   scheduleRecoveryBackup,
@@ -738,6 +739,55 @@ const recordCommit = createRecordCommit({
   render: (...args) => render(...args),
 });
 export let { commitAmendment } = recordCommit;
+
+const publicationPreparation = createPublicationPreparation({
+  get snow() {
+    return snow;
+  },
+  get newDocuments() {
+    return newDocuments;
+  },
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  worksheetFaults: (...args) => worksheetFaults(...args),
+  get today() {
+    return today;
+  },
+  cleanVisit: (...args) => cleanVisit(...args),
+  evid: (...args) => evid(...args),
+  freezeSources: (...args) => freezeSources(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+});
+export let { lifecycleChecks } = publicationPreparation;
+const { makePublication } = publicationPreparation;
+
+const publicationWorkflow = createPublicationWorkflow({
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  toast: (...args) => toast(...args),
+  commitCitationEdits: (...args) => commitCitationEdits(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  get citationPricing() {
+    return citationPricing;
+  },
+  blockers: (...args) => blockers(...args),
+  makePublication: (...args) => makePublication(...args),
+  commitAmendment: (...args) => commitAmendment(...args),
+  printJob: (...args) => printJob(...args),
+  filePdf: (...args) => filePdf(...args),
+  emailDocument: (...args) => emailDocument(...args),
+  needsInitialCitation: (...args) => needsInitialCitation(...args),
+  revealIssuedCase: (...args) => revealIssuedCase(...args),
+  focusIssuedCase: (...args) => focusIssuedCase(...args),
+});
+export let { publishDocument, publicationPanel } = publicationWorkflow;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
