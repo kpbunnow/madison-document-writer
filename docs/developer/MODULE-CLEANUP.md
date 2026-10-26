@@ -203,7 +203,7 @@ All nine moved bodies and remaining timeline declarations/order are preserved ap
 
 case_timeline shrinks from 1,073 to 856 lines and retains workspace tasks and citation/pricing operations. There are 76 maintained modules and the same eight-module Writer component; Reports stays acyclic. Independent tests cover atomicity, live contexts and guards alongside unchanged authoring/workflow/worksheet/usability assertions. Next inspect workspace task presentation, then citation editing/readiness before publication/recovery and persistence coordination.
 
-## Nineteenth increment: workspace task presentation
+## Nineteenth increment: workspace task presentation (merged in PR #65)
 
 workspace_tasks owns read-only workspaceTasks through createWorkspaceTasks and three lazy inputs: date formatting, saved-import detection and deposit completion. Core composes it after deadline assignment and before document rendering and exports the actual mutable function; app_screens consumes that instance. Construction reads no services/state/DOM and registers no listeners. depositComplete remains unchanged in the citation owner and is exported for composition, avoiding copied readiness/pricing rules.
 
@@ -211,11 +211,19 @@ The task body and remaining timeline functions/order are unchanged apart from ex
 
 case_timeline shrinks from 856 to 738 lines and loses its issuance import; app_screens loses its timeline import. There are 77 maintained modules, the same eight-module Writer component and acyclic Reports. Independent tests exercise truthful read-only tasks and replacement state, alongside unchanged queue/usability/citation/browser assertions. Next inspect the remaining citation editing/readiness and item-selection boundary, followed by publication/recovery and persistence coordination.
 
+## Twentieth increment: citation workflow and item-selection boundaries
+
+citation_workflow owns the seven citation/deposit/edit/check/review functions through createCitationWorkflow, with 16 named lazy pricing/authority/format/date inputs. item_selection separately owns toggleLibraryItem through snow and identity inputs. Core constructs both after deadline assignment and before workspace task presentation, exporting actual mutable functions; peer consumers import the composed instances. Construction reads no services/state/DOM and installs no listeners. No forwarding barrel or universal registry is introduced.
+
+All eight original function bodies and the private scheduled-offense predicate retain their content/order within the two owners apart from explicit dependency access; messages and markup are unchanged. Preserve input/commit order, original correction prices, explicit ordinance/row selection, manual/scheduled/mandatory rules, pending/issued caller guards, current-day access, initial-citation behavior and private item wording/cache/IDs. Existing pricing, administration, deposit, event, persistence and publication owners retain authority.
+
+The emptied case_timeline module is removed. There are 78 maintained modules; the Writer cyclic component narrows from eight to seven and the guard is reduced accordingly. Reports stays acyclic. Independent behavior/interface tests and literal-aware source comparison supplement unchanged historical/charge/deposit/browser suites. Next inspect publication/correction/recovery orchestration, then persistence/workspace coordination and remaining core/screen direction.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 8-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 7-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

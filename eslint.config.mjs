@@ -44,6 +44,8 @@ export default [
       "app/modules/document_render.js",
       "app/modules/case_activity.js",
       "app/modules/workspace_tasks.js",
+      "app/modules/citation_workflow.js",
+      "app/modules/item_selection.js",
       "app/modules/record_sources.js",
     ],
     rules: {
@@ -71,6 +73,8 @@ export default [
       "app/modules/document_render.js",
       "app/modules/case_activity.js",
       "app/modules/workspace_tasks.js",
+      "app/modules/citation_workflow.js",
+      "app/modules/item_selection.js",
       "app/modules/record_sources.js",
     ],
     rules: {

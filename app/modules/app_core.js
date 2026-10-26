@@ -1,3 +1,5 @@
+import { createCitationWorkflow } from "./citation_workflow.js";
+import { createItemSelection } from "./item_selection.js";
 import { createWorkspaceTasks } from "./workspace_tasks.js";
 import { createDeadlineAssignment, activeDueTarget, dueContext, dueSelectedText, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { createWriterHandoff } from "./writer_handoff.js";
@@ -26,6 +28,7 @@ import { esc } from "./presentation_format.js";
 import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
 import {
+  feeLines,
   citationNumber,
   fmtDate,
   nextCourtDate,
@@ -156,7 +159,7 @@ import {
 } from "./draft_recovery.js";
 import { createLanguageCatalog } from "./language_catalog.js";
 import { createCaseActivity, timelineCategory } from "./case_activity.js";
-import { depositComplete, citationDepositFault, citationReview, editCitation, initialCitationBody, toggleLibraryItem } from "./case_timeline.js";
+
 import { createEditorScreens } from "./editor_screens.js";
 
 import { DEPOSITS } from "./data/deposits.js";
@@ -669,6 +672,46 @@ const deadlineAssignment = createDeadlineAssignment({
   },
 });
 export let { planBulkDue, showBulkDue, updateDueIndicators, duePanel, assignDue } = deadlineAssignment;
+
+const itemSelection = createItemSelection({
+  uid: (...args) => uid(...args),
+  get snow() {
+    return snow;
+  },
+});
+export let { toggleLibraryItem } = itemSelection;
+const citationWorkflow = createCitationWorkflow({
+  get administration() {
+    return administration;
+  },
+  get citationPricing() {
+    return citationPricing;
+  },
+  citationPricingDate: (...args) => citationPricingDate(...args),
+  get depositStep() {
+    return depositStep;
+  },
+  get initialCitations() {
+    return initialCitations;
+  },
+  initialOrderCitation: (...args) => initialOrderCitation(...args),
+  isLocked: (...args) => isLocked(...args),
+  get snow() {
+    return snow;
+  },
+  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
+  applyDeposit: (...args) => applyDeposit(...args),
+  changeCharge: (...args) => changeChargeBasis(...args),
+  chargeChoices: (...args) => chargeChoices(...args),
+  choosesCharge: (...args) => choosesCharge(...args),
+  feeLines: (...args) => feeLines(...args),
+  fmtDate: (...args) => fmtDate(...args),
+  get today() {
+    return today;
+  },
+});
+export let { depositComplete, initialCitationBody, citationDepositFault, editCitation, commitCitationEdits, authoringChecks, citationReview } =
+  citationWorkflow;
 
 const workspaceTaskPresentation = createWorkspaceTasks({
   fmtDate: (...args) => fmtDate(...args),

@@ -20,6 +20,7 @@ import { caseDetails, stableJSON, clone } from "./record_values.js";
 
 import { saveDrafts, validateAndStandardizeAddresses, writeSummary } from "./case_files.js";
 import {
+  commitCitationEdits,
   ensureWalkContext,
   COMMITTED,
   ENTRY_IDS,
@@ -34,7 +35,6 @@ import {
 } from "./app_core.js";
 import { priorCitations, render } from "./app_screens.js";
 import { cleanVisit, publishDocument, unissuedVisitFor } from "./draft_recovery.js";
-import { commitCitationEdits } from "./case_timeline.js";
 
 import { CASE_CORRECTION_FIELDS, DOC_TYPES, FIELD_NAMES, OUTCOMES, courtTime } from "./document_types.js";
 
