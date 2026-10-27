@@ -1806,61 +1806,67 @@ const reinspectionEvents = createReinspectionEvents({
   walkIdentity: (...args) => walkIdentity(...args),
 });
 const editorEvents = createEditorEvents({
-  MINDUE: (...args) => MINDUE(...args),
-  blockers: (...args) => blockers(...args),
-  captureWork: (...args) => captureWork(...args),
-  fillBlank: (...args) => fillBlank(...args),
-  grantCaseFolder: (...args) => grantCaseFolder(...args),
-  get initialCitations() {
-    return initialCitations;
+  ui: {
+    fillBlank: (...args) => fillBlank(...args),
+    refreshSheet: (...args) => refreshSheet(...args),
+    render: (...args) => render(...args),
+    syncChip: (...args) => syncChip(...args),
+    toast: (...args) => toast(...args),
+    toastUndo: (...args) => toastUndo(...args),
   },
-  isLocked: (...args) => isLocked(...args),
-  issueCorrection: (...args) => issueCorrection(...args),
-  moveItem: (...args) => moveItem(...args),
-  newDoc: (...args) => newDoc(...args),
-  get newDocuments() {
-    return newDocuments;
+  events: {
+    get catalogEvents() {
+      return catalogEvents;
+    },
+    get citationEvents() {
+      return citationEvents;
+    },
+    get contactEvents() {
+      return contactEvents;
+    },
+    get correctionEvents() {
+      return correctionEvents;
+    },
+    get importEvents() {
+      return importEvents;
+    },
+    get reinspectionEvents() {
+      return reinspectionEvents;
+    },
+    get workspaceEvents() {
+      return workspaceEvents;
+    },
   },
-  openIssuedCopy: (...args) => openIssuedCopy(...args),
-  parseDate: (...args) => parseDate(...args),
-  parseTime: (...args) => parseTime(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  printJob: (...args) => printJob(...args),
-  printNotice: (...args) => printNotice(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  refreshSheet: (...args) => refreshSheet(...args),
-  render: (...args) => render(...args),
-  renumber: (...args) => renumber(...args),
-  runFinalize: (...args) => runFinalize(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  splitOwner: (...args) => splitOwner(...args),
-  structEditable: (...args) => structEditable(...args),
-  syncChip: (...args) => syncChip(...args),
-  toast: (...args) => toast(...args),
-  toastUndo: (...args) => toastUndo(...args),
-  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
-  updateDueIndicators: (...args) => updateDueIndicators(...args),
-  get catalogEvents() {
-    return catalogEvents;
-  },
-  get citationEvents() {
-    return citationEvents;
-  },
-  get contactEvents() {
-    return contactEvents;
-  },
-  get correctionEvents() {
-    return correctionEvents;
-  },
-  get importEvents() {
-    return importEvents;
-  },
-  get reinspectionEvents() {
-    return reinspectionEvents;
-  },
-  get workspaceEvents() {
-    return workspaceEvents;
+  actions: {
+    MINDUE: (...args) => MINDUE(...args),
+    blockers: (...args) => blockers(...args),
+    captureWork: (...args) => captureWork(...args),
+    grantCaseFolder: (...args) => grantCaseFolder(...args),
+    get initialCitations() {
+      return initialCitations;
+    },
+    isLocked: (...args) => isLocked(...args),
+    issueCorrection: (...args) => issueCorrection(...args),
+    moveItem: (...args) => moveItem(...args),
+    newDoc: (...args) => newDoc(...args),
+    get newDocuments() {
+      return newDocuments;
+    },
+    openIssuedCopy: (...args) => openIssuedCopy(...args),
+    parseDate: (...args) => parseDate(...args),
+    parseTime: (...args) => parseTime(...args),
+    preflightCase: (...args) => preflightCase(...args),
+    printJob: (...args) => printJob(...args),
+    printNotice: (...args) => printNotice(...args),
+    refreshCatalog: (...args) => refreshCatalog(...args),
+    renumber: (...args) => renumber(...args),
+    runFinalize: (...args) => runFinalize(...args),
+    saveDrafts: (...args) => saveDrafts(...args),
+    scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+    splitOwner: (...args) => splitOwner(...args),
+    structEditable: (...args) => structEditable(...args),
+    unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
+    updateDueIndicators: (...args) => updateDueIndicators(...args),
   },
 });
 const specialDocumentEvents = createSpecialDocumentEvents({
