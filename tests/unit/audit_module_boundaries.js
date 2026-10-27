@@ -44,6 +44,17 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "editor_events.js": [
+    "../assets/shared.js",
+    "./document_rules.js",
+    "./editor_state.js",
+    "./event_registration.js",
+    "./mailing_rules.js",
+    "./presentation_format.js",
+    "./record_values.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
   "reinspection_events.js": ["./editor_state.js", "./event_registration.js", "./state.js", "./writer_queries.js"],
   "correction_events.js": [
     "../assets/shared.js",
@@ -309,6 +320,7 @@ const scopedServices = {
     "./calendar.js",
   ],
   "publication_workflow.js": [
+    "./editor_state.js",
     "./record_values.js",
     "./document_types.js",
     "./writer_queries.js",
@@ -316,7 +328,7 @@ const scopedServices = {
     "./presentation_format.js",
     "./state.js",
   ],
-  "record_commit.js": ["./case_file_rules.js", "./record_values.js", "./writer_queries.js", "./calendar.js", "./state.js"],
+  "record_commit.js": ["./editor_state.js", "./case_file_rules.js", "./record_values.js", "./writer_queries.js", "./calendar.js", "./state.js"],
   "citation_workflow.js": [
     "./deadline_assignment.js",
     "./inspection_facts.js",
@@ -432,6 +444,7 @@ const scopedServices = {
   ],
   "address_parser.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
   "new_documents.js": [
+    "./editor_state.js",
     "../assets/shared.js",
     "./calendar.js",
     "./case_projection.js",
@@ -473,6 +486,7 @@ const scopedServices = {
   ],
   "document_pagination.js": ["./document_rules.js", "./document_types.js", "./presentation_format.js", "./editor_state.js", "./writer_queries.js"],
   "editor_screens.js": [
+    "./editor_state.js",
     "../assets/shared.js",
     "./document_rules.js",
     "./document_types.js",

@@ -357,3 +357,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Reinspection workflow, entry and events now resolve their editor view/work fields through the existing editor boundary. No new surface or initializer is added. All 1,026 exact HTML snapshots and independent reinspection service, walkthrough and R46 reinspection assertions pass unchanged. Explicit view captures and live work-buffer access keep their prior timing. The mixed owners still import workspace fields directly; direct root importers remain 71 and cycles remain zero.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 editor workflow state callers
+
+Editor screens/events, new-document rules, publication and record commit use the existing editor state boundary for view/work and interaction fields. Independent editor, publication and record-commit tests pass, as do 5,000 differential special-rule cases, original editor screen scenarios and R59 editor flow assertions. No state keys, interface services, print layout or initialization checkpoints change. Mixed workspace fields remain for their own migration; direct root importers remain 71 and cycles remain zero.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
