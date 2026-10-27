@@ -7,38 +7,13 @@ const assert = require("assert/strict"),
 const root = path.resolve(__dirname, "../.."),
   directory = path.join(root, "app/modules");
 const parse = (n) => acorn.parse(fs.readFileSync(path.join(directory, n + ".js"), "utf8"), { ecmaVersion: 2022, sourceType: "module" });
-function walk(n, visit) {
-  if (!n || typeof n !== "object") return;
-  if (Array.isArray(n)) return n.forEach((c) => walk(c, visit));
-  visit(n);
-  Object.values(n).forEach((c) => walk(c, visit));
-}
-const required = new Set();
-walk(parse("reinspection"), (n) => {
-  if (n.type === "MemberExpression" && n.object.name === "services") {
-    assert.equal(n.computed, false);
-    required.add(n.property.name);
-  }
-});
 const declarations = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = declarations.find((d) => d.id.name === "reinspection");
 assert.equal(entry.init.callee.name, "createReinspection");
 assert.ok(declarations.indexOf(entry) > declarations.findIndex((d) => d.id.name === "addressParser"));
 assert.ok(declarations.indexOf(entry) < declarations.findIndex((d) => d.id.name === "languageCatalog"));
 assert.equal(entry.init.arguments.length, 1);
-const props = entry.init.arguments[0].properties;
-assert.deepEqual(new Set(props.map((p) => p.key.name)), required);
-for (const p of props) {
-  assert.equal(p.type, "Property");
-  if (p.kind === "get") {
-    assert.equal(p.value.body.body.length, 1);
-    assert.equal(p.value.body.body[0].argument.name, p.key.name);
-  } else {
-    assert.equal(p.value.type, "ArrowFunctionExpression");
-    assert.equal(p.value.body.type, "CallExpression");
-    assert.equal(p.value.body.callee.name, p.key.name);
-  }
-}
+require("../fixtures/scoped_service_contract.cjs").assertScopedServices(parse("reinspection"), entry.init.arguments[0], "reinspection");
 (async () => {
   const built = await esbuild.build({
     stdin: { contents: "export {createReinspection} from './reinspection.js'; export {WriterState} from './state.js';", resolveDir: directory },
@@ -71,10 +46,8 @@ for (const p of props) {
   assert.deepEqual(state, {}, "construction does not initialize Writer, read services/state or require a DOM");
   let calls = [];
   const api = createReinspection({
-    scheduleDraftSave: () => calls.push("save"),
-    render: () => calls.push("render"),
-    renderKeep: () => calls.push("renderKeep"),
-    toast: (m) => calls.push(m),
+    ui: { render: () => calls.push("render"), renderKeep: () => calls.push("renderKeep"), toast: (m) => calls.push(m) },
+    authoring: { scheduleDraftSave: () => calls.push("save") },
   });
   const source = {
       id: "src",

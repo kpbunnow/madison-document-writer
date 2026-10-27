@@ -625,40 +625,46 @@ const recipientWorkflow = createRecipientWorkflow({
 export let { validateAndStandardizeAddresses, recipientPreview, addCC, removeCC, addEmail, removeEmail } = recipientWorkflow;
 
 const reinspection = createReinspection({
-  fmtDate: (...args) => fmtDate(...args),
-  inspAt: (...args) => inspAt(...args),
-  parseTime: (...args) => parseTime(...args),
-  toast: (...args) => toast(...args),
-  validISO: (...args) => validISO(...args),
-  checks: (...args) => checks(...args),
-  applyDeposit: (...args) => applyDeposit(...args),
-  citationNumber: (...args) => citationNumber(...args),
-  nextCourtDate: (...args) => nextCourtDate(...args),
-  shell: (...args) => shell(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  captureWork: (...args) => captureWork(...args),
-  itemHistory: (...args) => itemHistory(...args),
-  itemInspectionHistory: (...args) => itemInspectionHistory(...args),
-  worksheetFaults: (...args) => worksheetFaults(...args),
-  returnToWorksheet: (...args) => returnToWorksheet(...args),
-  dueContext: (...args) => dueContext(...args),
-  dueDateSpacingConflicts: (...args) => dueDateSpacingConflicts(...args),
-  duePanel: (...args) => duePanel(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  screenCases: (...args) => screenCases(...args),
-  render: (...args) => render(...args),
-  isLocked: (...args) => isLocked(...args),
-  get newDocuments() {
-    return newDocuments;
+  ui: {
+    toast: (...args) => toast(...args),
+    shell: (...args) => shell(...args),
+    renderKeep: (...args) => renderKeep(...args),
+    screenCases: (...args) => screenCases(...args),
+    render: (...args) => render(...args),
   },
-  MINDUE: (...args) => MINDUE(...args),
-  get depositStep() {
-    return depositStep;
+  inspection: {
+    fmtDate: (...args) => fmtDate(...args),
+    inspAt: (...args) => inspAt(...args),
+    parseTime: (...args) => parseTime(...args),
+    validISO: (...args) => validISO(...args),
+    checks: (...args) => checks(...args),
+    captureWork: (...args) => captureWork(...args),
+    itemHistory: (...args) => itemHistory(...args),
+    itemInspectionHistory: (...args) => itemInspectionHistory(...args),
+    worksheetFaults: (...args) => worksheetFaults(...args),
+    returnToWorksheet: (...args) => returnToWorksheet(...args),
+    dueContext: (...args) => dueContext(...args),
+    dueDateSpacingConflicts: (...args) => dueDateSpacingConflicts(...args),
+    duePanel: (...args) => duePanel(...args),
+    isLocked: (...args) => isLocked(...args),
+    uid: (...args) => uid(...args),
+    openImportWorkspace: (...args) => openImportWorkspace(...args),
   },
-  uid: (...args) => uid(...args),
-  openImportWorkspace: (...args) => openImportWorkspace(...args),
+  authoring: {
+    applyDeposit: (...args) => applyDeposit(...args),
+    citationNumber: (...args) => citationNumber(...args),
+    nextCourtDate: (...args) => nextCourtDate(...args),
+    scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+    validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+    saveDrafts: (...args) => saveDrafts(...args),
+    get newDocuments() {
+      return newDocuments;
+    },
+    MINDUE: (...args) => MINDUE(...args),
+    get depositStep() {
+      return depositStep;
+    },
+  },
 });
 export let {
   walkIdentity,
