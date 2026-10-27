@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseFileName, summaryName } from "./case_file_rules.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { kase, insp, eventsFor } from "./writer_queries.js";
@@ -8,12 +9,12 @@ import { WriterState } from "./state.js";
 // Persistence, helper validation and projection authority stay in supplied adapters.
 export function createRecordCommit(services) {
   async function commitAmendment(cid, attempt, draft) {
-    if (WriterState.AMENDMENT_BUSY) return false;
+    if (editor.AMENDMENT_BUSY) return false;
     if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
       services.toast("Start the current local helper to save this record change safely.");
       return false;
     }
-    WriterState.AMENDMENT_BUSY = true;
+    editor.AMENDMENT_BUSY = true;
     try {
       // The attempt is durable before any request. If its response is lost, the
       // same event identity is retried, never a second revision.
@@ -58,12 +59,12 @@ export function createRecordCommit(services) {
       if (draft) {
         WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== draft.id);
         if (draft.publicationEvents) WriterState.REINSP = WriterState.REINSP.filter((r) => !(r.draft && r.id === attempt.payload.fromReinspId));
-        if (draft.recordKey) delete WriterState.RECORD_ATTEMPTS[draft.recordKey];
+        if (draft.recordKey) delete editor.RECORD_ATTEMPTS[draft.recordKey];
       }
       const formModes = { "document.annotated": "recordnote", "document.reconciled": "reconcile", "document.voided": "void" };
       if (formModes[attempt.type]) {
-        delete WriterState.WORK.recordForms[attempt.payload.docId + ":" + formModes[attempt.type]];
-        if (WriterState.state.docId === attempt.payload.docId && WriterState.state.modal === formModes[attempt.type]) WriterState.state.modal = null;
+        delete editor.WORK.recordForms[attempt.payload.docId + ":" + formModes[attempt.type]];
+        if (editor.state.docId === attempt.payload.docId && editor.state.modal === formModes[attempt.type]) editor.state.modal = null;
       }
       services.project();
       services.rememberSaved(k, result.file);
@@ -81,16 +82,16 @@ export function createRecordCommit(services) {
       if (draft && error.name === "StorageError" && error.definitive !== false) {
         delete draft.pendingAmendment;
         delete draft.publicationEvents;
-        if (draft.recordKey) delete WriterState.RECORD_ATTEMPTS[draft.recordKey];
+        if (draft.recordKey) delete editor.RECORD_ATTEMPTS[draft.recordKey];
       }
       if (draft) await services.saveDrafts();
-      WriterState.state.amendmentError = /failed to fetch|networkerror|network request failed/i.test(error.message)
+      editor.state.amendmentError = /failed to fetch|networkerror|network request failed/i.test(error.message)
         ? "The shared save could not be confirmed. Your exact request is retained. " + "Reconnect and use Confirm save or Retry save."
         : error.message;
-      services.toast(WriterState.state.amendmentError);
+      services.toast(editor.state.amendmentError);
       return false;
     } finally {
-      WriterState.AMENDMENT_BUSY = false;
+      editor.AMENDMENT_BUSY = false;
       services.render();
     }
   }

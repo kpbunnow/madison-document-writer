@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Editor event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -34,7 +35,7 @@ export function createEditorEvents(services) {
       const tr = g.closest("tr");
       if (!tr) return;
       e.preventDefault();
-      WriterState.dragging = { tr: tr, body: tr.parentNode };
+      editor.dragging = { tr: tr, body: tr.parentNode };
       tr.classList.add("dragging");
       try {
         g.setPointerCapture(e.pointerId);
@@ -46,14 +47,14 @@ export function createEditorEvents(services) {
 
   function registerPointerMove(target = document) {
     return registerEventOnce(target, "editor.registerPointerMove", "pointermove", (e) => {
-      if (!WriterState.dragging) return;
-      const rows = Array.prototype.slice.call(WriterState.dragging.body.querySelectorAll("tr[data-row]"));
+      if (!editor.dragging) return;
+      const rows = Array.prototype.slice.call(editor.dragging.body.querySelectorAll("tr[data-row]"));
       for (let n = 0; n < rows.length; n++) {
         const r = rows[n];
-        if (r === WriterState.dragging.tr) continue;
+        if (r === editor.dragging.tr) continue;
         const b = r.getBoundingClientRect();
         if (e.clientY >= b.top && e.clientY <= b.bottom) {
-          WriterState.dragging.body.insertBefore(WriterState.dragging.tr, e.clientY < b.top + b.height / 2 ? r : r.nextSibling);
+          editor.dragging.body.insertBefore(editor.dragging.tr, e.clientY < b.top + b.height / 2 ? r : r.nextSibling);
           break;
         }
       }
@@ -62,11 +63,11 @@ export function createEditorEvents(services) {
 
   function registerPointerEnd(target = document) {
     return registerEventOnce(target, "editor.registerPointerEnd", "pointerup", () => {
-      if (!WriterState.dragging) return;
-      const body = WriterState.dragging.body;
-      WriterState.dragging.tr.classList.remove("dragging");
-      WriterState.dragging = null;
-      const d = doc(WriterState.state.docId);
+      if (!editor.dragging) return;
+      const body = editor.dragging.body;
+      editor.dragging.tr.classList.remove("dragging");
+      editor.dragging = null;
+      const d = doc(editor.state.docId);
       if (!d || !services.structEditable(d)) return;
       const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
       d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
@@ -78,9 +79,9 @@ export function createEditorEvents(services) {
 
   function registerPointerCancel(target = document) {
     return registerEventOnce(target, "editor.registerPointerCancel", "pointercancel", () => {
-      if (WriterState.dragging) {
-        WriterState.dragging.tr.classList.remove("dragging");
-        WriterState.dragging = null;
+      if (editor.dragging) {
+        editor.dragging.tr.classList.remove("dragging");
+        editor.dragging = null;
         services.refreshSheet();
       }
     });
@@ -97,7 +98,7 @@ export function createEditorEvents(services) {
 
   function registerGroupFocus(target = document) {
     return registerEventOnce(target, "editor.registerGroupFocus", "focusin", (e) => {
-      if (e.target.dataset && e.target.dataset.field === "group") WriterState.groupOld = e.target.innerText.trim();
+      if (e.target.dataset && e.target.dataset.field === "group") editor.groupOld = e.target.innerText.trim();
     });
   }
 
@@ -138,9 +139,9 @@ export function createEditorEvents(services) {
       }
       if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
         // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
-        if (!doc(WriterState.state.docId)) return;
-        WriterState.state.picker = false;
-        WriterState.state.modal = "review";
+        if (!doc(editor.state.docId)) return;
+        editor.state.picker = false;
+        editor.state.modal = "review";
         services.render();
         return;
       }
@@ -157,8 +158,8 @@ export function createEditorEvents(services) {
       d = doc(id);
     if (!d) return;
     services.preflightCase(d.caseId, "document", () => {
-      WriterState.state.docId = id;
-      WriterState.state.screen = "write";
+      editor.state.docId = id;
+      editor.state.screen = "write";
       services.render();
       window.scrollTo(0, 0);
     });
@@ -169,8 +170,8 @@ export function createEditorEvents(services) {
     const dd = draftDocFor(t.dataset.new);
     if (dd) {
       services.preflightCase(dd.caseId, "document draft", () => {
-        WriterState.state.docId = dd.id;
-        WriterState.state.screen = "write";
+        editor.state.docId = dd.id;
+        editor.state.screen = "write";
         services.render();
       });
       return;
@@ -269,8 +270,8 @@ export function createEditorEvents(services) {
       return;
     }
     if (WriterState.CASEDIR && WriterState.NEEDGRANT) services.grantCaseFolder(true); // reconnect while the click still counts
-    WriterState.state.picker = false;
-    WriterState.state.modal = "final";
+    editor.state.picker = false;
+    editor.state.modal = "final";
     services.render();
     services.refreshCatalog();
     return;
@@ -278,7 +279,7 @@ export function createEditorEvents(services) {
 
   const finalizeDocument = (d, t) => {
     // a document with an open check never gets issued, whatever the click path
-    if (!d || !d.draft || t.disabled || WriterState.AMENDMENT_BUSY || WriterState.state.publicationBusy) return;
+    if (!d || !d.draft || t.disabled || editor.AMENDMENT_BUSY || editor.state.publicationBusy) return;
     const mailedEl = document.getElementById("fin-mailed");
     if (mailedEl) services.initialCitations.mailed(d, mailedEl.value);
     if (d.correction) {
@@ -311,7 +312,7 @@ export function createEditorEvents(services) {
       const b = document.querySelector('[data-finsend="' + ix + '"]');
       return b && b.checked;
     });
-    WriterState.state.emailOnIssue = picked.length > 0;
+    editor.state.emailOnIssue = picked.length > 0;
     d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
     // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
     t.disabled = true;
@@ -349,7 +350,7 @@ export function createEditorEvents(services) {
         return services.catalogEvents.editLibrarySearch(el);
       }
 
-      const d = doc(WriterState.state.docId);
+      const d = doc(editor.state.docId);
       if (!d || services.isLocked(d)) return;
       if (d.correction && el.id !== "correction-reviewed") {
         d.correction.reviewed = false;
@@ -436,14 +437,14 @@ export function createEditorEvents(services) {
       if (f === "group") {
         // rename only the contiguous run that shared the old heading, never
         // every ungrouped item just because the old value was blank
-        const old = WriterState.groupOld,
+        const old = editor.groupOld,
           ix = d.items.indexOf(it);
         it.group = val;
         if (old) {
           for (let n = ix + 1; n < d.items.length && d.items[n].group === old; n++) d.items[n].group = val;
           for (let n = ix - 1; n >= 0 && d.items[n].group === old; n--) d.items[n].group = val;
         }
-        WriterState.groupOld = val;
+        editor.groupOld = val;
         return;
       }
       if (f === "text") {
@@ -482,13 +483,13 @@ export function createEditorEvents(services) {
       if (e.target.id === "case-filter" || e.target.id === "case-inspector") {
         return services.workspaceEvents.changeCaseFilter(e);
       }
-      if ((e.target.id === "acc-date" || e.target.id === "acc-time") && WriterState.state.acc) {
+      if ((e.target.id === "acc-date" || e.target.id === "acc-time") && editor.state.acc) {
         return services.importEvents.changeInspectionDateTime(e);
       }
       if (e.target.dataset && e.target.dataset.em) {
         return services.contactEvents.changeEmail(e);
       }
-      const rr = reinsp(WriterState.state.reinspId),
+      const rr = reinsp(editor.state.reinspId),
         ds = e.target.dataset || {};
       if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked)))) {
         return services.reinspectionEvents.changeOutcomeDetails(ds, rr, e);
@@ -505,7 +506,7 @@ export function createEditorEvents(services) {
       if (e.target.id === "pk-grp") {
         return services.catalogEvents.changePickerGroup(e);
       }
-      const d = doc(WriterState.state.docId);
+      const d = doc(editor.state.docId);
       if (!d) return;
       if (e.target.dataset && e.target.dataset.doc === "inspectorId" && !services.isLocked(d)) {
         d.inspectorId = e.target.value;
