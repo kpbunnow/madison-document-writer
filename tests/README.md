@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_recovery_event_export.js` | Synchronous recovery export names, bytes and identity |
 | `audit_scoped_services.js` | Exact scoped dependencies, lazy leaves, static access, no spreads and per-interface width |
 | `audit_editor_state.js` | Live editor state and retained captured-view pointers |
 | `audit_recovery_state.js` | Live recovery queue, progress and selection state |

@@ -1562,42 +1562,48 @@ const utilityEvents = createUtilityEvents({
   worksheetChecks: (...args) => worksheetChecks(...args),
 });
 const recoveryEvents = createRecoveryEvents({
-  get ENTRY_IDS() {
-    return ENTRY_IDS;
+  ui: {
+    captureWork: (...args) => captureWork(...args),
+    render: (...args) => render(...args),
+    scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+    toast: (...args) => toast(...args),
   },
-  get IDB_OK() {
-    return IDB_OK;
+  recovery: {
+    get ENTRY_IDS() {
+      return ENTRY_IDS;
+    },
+    get IDB_OK() {
+      return IDB_OK;
+    },
+    discardDraft: (...args) => discardDraft(...args),
+    downloadWorkspace: (...args) => downloadWorkspace(...args),
+    helperJSON: (...args) => helperJSON(...args),
+    keepChangedLocal: (...args) => keepChangedLocal(...args),
+    listRecovery: (...args) => listRecovery(...args),
+    loadCaseFile: (...args) => loadCaseFile(...args),
+    openChangedShared: (...args) => openChangedShared(...args),
+    recordFormKey: (...args) => recordFormKey(...args),
+    restorePreviousDraft: (...args) => restorePreviousDraft(...args),
+    restoreRecovery: (...args) => restoreRecovery(...args),
+    restoreWorkspaceFile: (...args) => restoreWorkspaceFile(...args),
+    returnToWorksheet: (...args) => returnToWorksheet(...args),
+    saveAndContinue: (...args) => saveAndContinue(...args),
+    saveDrafts: (...args) => saveDrafts(...args),
+    selectRecovery: (...args) => selectRecovery(...args),
+    validateRecovery: (...args) => validateRecovery(...args),
   },
-  captureWork: (...args) => captureWork(...args),
-  citationFromNotice: (...args) => citationFromNotice(...args),
-  discardDraft: (...args) => discardDraft(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  downloadWorkspace: (...args) => downloadWorkspace(...args),
-  filePdf: (...args) => filePdf(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  get initialCitations() {
-    return initialCitations;
+  publication: {
+    citationFromNotice: (...args) => citationFromNotice(...args),
+    downloadFile: (...args) => downloadFile(...args),
+    filePdf: (...args) => filePdf(...args),
+    get initialCitations() {
+      return initialCitations;
+    },
+    isLocked: (...args) => isLocked(...args),
+    needsInitialCitation: (...args) => needsInitialCitation(...args),
+    printJob: (...args) => printJob(...args),
+    publishDocument: (...args) => publishDocument(...args),
   },
-  isLocked: (...args) => isLocked(...args),
-  keepChangedLocal: (...args) => keepChangedLocal(...args),
-  listRecovery: (...args) => listRecovery(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-  needsInitialCitation: (...args) => needsInitialCitation(...args),
-  openChangedShared: (...args) => openChangedShared(...args),
-  printJob: (...args) => printJob(...args),
-  publishDocument: (...args) => publishDocument(...args),
-  recordFormKey: (...args) => recordFormKey(...args),
-  render: (...args) => render(...args),
-  restorePreviousDraft: (...args) => restorePreviousDraft(...args),
-  restoreRecovery: (...args) => restoreRecovery(...args),
-  restoreWorkspaceFile: (...args) => restoreWorkspaceFile(...args),
-  returnToWorksheet: (...args) => returnToWorksheet(...args),
-  saveAndContinue: (...args) => saveAndContinue(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  selectRecovery: (...args) => selectRecovery(...args),
-  toast: (...args) => toast(...args),
-  validateRecovery: (...args) => validateRecovery(...args),
 });
 const catalogEvents = createCatalogEvents({
   adoptCatalogReview: (...args) => adoptCatalogReview(...args),

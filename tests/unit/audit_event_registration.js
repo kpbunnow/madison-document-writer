@@ -210,7 +210,9 @@ class Target {
     calls.length = 0;
     api.WriterState.WORK = { entry: {} };
     api.WriterState.DOCS = [];
-    api.createRecoveryEvents({ ENTRY_IDS: ["lookup-number"], scheduleDraftSave: () => calls.push("save") }).registerWorkingInput(document);
+    api
+      .createRecoveryEvents({ ui: { scheduleDraftSave: () => calls.push("save") }, recovery: { ENTRY_IDS: ["lookup-number"] } })
+      .registerWorkingInput(document);
     api.createEditorEvents({}).registerDocumentInput(document);
     const input = document.getElementById("lookup-number");
     input.value = "QA-123";
