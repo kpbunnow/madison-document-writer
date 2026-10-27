@@ -261,3 +261,9 @@ Measured counts: {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 12
 The inventory distinguishes whole-application evaluation, independent owner/VM construction and production browser evaluation. Textual hook candidates are explicitly not treated as proof of unused hooks. The initial migration baseline has 91 bundle evaluators and 74 retained core hook fields. No existing assertion or production hook is removed by this increment.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 Reports error seam
+
+Old access: getJSON and orderedRows names injected into the Reports application bundle by bundle_test. New access: createReportsServices(...).getJSON plus direct report_presentation.orderedRows, evaluated as independent owners with explicit synthetic transport services. The original 502/unreadable, default row order and warning assertions are unchanged. No Writer/Reports startup is run. Whole-application evaluator files fall 91 → 90; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
