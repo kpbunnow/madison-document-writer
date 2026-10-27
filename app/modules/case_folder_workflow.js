@@ -1,0 +1,129 @@
+import { caseFile, caseNumberAllowed } from "./case_records.js";
+import { caseFileFault, summaryName } from "./case_file_rules.js";
+import { migrate } from "./case_migrations.js";
+import { kase } from "./writer_queries.js";
+import { nowISO } from "./calendar.js";
+import { WriterState } from "./state.js";
+
+export function createCaseFolderWorkflow(services) {
+  async function writeSummary(cid, saved) {
+    const k = kase(cid);
+    if (!caseNumberAllowed(k)) {
+      services.toast("Case number needs correction before reporting");
+      return false;
+    }
+    const name = summaryName(k);
+    let body;
+    try {
+      body = JSON.stringify(services.summarize(saved || caseFile(cid)));
+    } catch (err) {
+      WriterState.LASTINDEX = { name: name, ok: false, why: "could not be assembled: " + ((err && err.message) || err), at: nowISO() };
+      return false;
+    }
+    const r = await services.writeIndexFile(name, body);
+    WriterState.LASTINDEX = { name: name, ok: r.ok, why: r.why || "", at: nowISO() };
+    return r.ok;
+  }
+
+  async function rebuildIndex() {
+    if (!WriterState.CASEDIR) {
+      services.toast("Link the case folder first");
+      return null;
+    }
+    if (WriterState.NEEDGRANT) await services.grantCaseFolder(true);
+    if (WriterState.NEEDGRANT) {
+      services.toast("The browser did not grant access to " + WriterState.DIRNAME + " — the index was not rebuilt");
+      return null;
+    }
+    const files = (await listCaseFolder()).filter((x) => x.name.charAt(0) !== "_");
+    const out = { written: 0, refused: [], failed: [], total: files.length, at: nowISO() };
+    WriterState.state.reindex = { running: true, done: 0, total: files.length };
+    services.render();
+    for (let n = 0; n < files.length; n++) {
+      const nm = files[n].name;
+      let f;
+      try {
+        const fh = await WriterState.CASEDIR.getFileHandle(nm);
+        f = migrate(JSON.parse(await (await fh.getFile()).text()));
+      } catch (err) {
+        out.refused.push(nm + " \u2014 " + ((err && err.message) || "not readable"));
+        continue;
+      }
+      const fault = caseFileFault(f);
+      if (fault) {
+        out.refused.push(nm + " \u2014 " + fault);
+        continue;
+      }
+      let body;
+      try {
+        body = JSON.stringify(services.summarize(f));
+      } catch (err) {
+        out.refused.push(nm + " \u2014 could not be summarized: " + ((err && err.message) || err));
+        continue;
+      }
+      const r = await services.writeIndexFile(summaryName(f["case"]), body);
+      if (r.ok) out.written++;
+      else out.failed.push(nm + " \u2014 " + r.why);
+      WriterState.state.reindex.done = n + 1;
+    }
+    WriterState.state.reindex = out;
+    WriterState.LASTINDEX = {
+      name: out.written + " of " + out.total + " case files",
+      ok: !out.failed.length,
+      why: out.failed.length ? out.failed.length + " could not be written" : "",
+      at: out.at,
+    };
+    services.render();
+    services.toast(
+      "Reporting index rebuilt \u2014 " +
+        out.written +
+        " of " +
+        out.total +
+        " case file" +
+        (out.total === 1 ? "" : "s") +
+        (out.refused.length ? ", " + out.refused.length + " refused" : "") +
+        (out.failed.length ? ", " + out.failed.length + " not written" : ""),
+    );
+    return out;
+  }
+
+  async function listCaseFolder() {
+    if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return [];
+    const out = [];
+    try {
+      for await (const [name, h] of WriterState.CASEDIR.entries()) {
+        if (h.kind === "file" && /\.json$/i.test(name)) {
+          let size = 0,
+            mod = 0;
+          try {
+            const f = await h.getFile();
+            size = f.size;
+            mod = f.lastModified;
+          } catch (e) {
+            /* Unreadable optional directory metadata stays unknown; opening and saving still validate actual bytes. */
+          }
+          out.push({ name: name, size: size, mod: mod });
+        }
+      }
+    } catch (e) {
+      services.toast("Could not read the case folder — " + (e.message || e));
+      WriterState.state.folderError = e.message || String(e);
+    }
+    return out.sort((a, b) => b.mod - a.mod);
+  }
+
+  async function openFromFolder(name) {
+    if (!WriterState.CASEDIR) return;
+    try {
+      const fh = await WriterState.CASEDIR.getFileHandle(name);
+      const f = await fh.getFile();
+      const raw = await f.text(),
+        record = JSON.parse(raw);
+      if (record.schema >= 5) await services.recordIntegrity.verify(record);
+      services.loadCaseFile(raw);
+    } catch (e) {
+      services.toast("Could not open " + name);
+    }
+  }
+  return { writeSummary, rebuildIndex, listCaseFolder, openFromFolder };
+}

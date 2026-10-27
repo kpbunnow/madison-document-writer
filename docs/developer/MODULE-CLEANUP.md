@@ -357,13 +357,21 @@ Move fmtDate/longDate/fmtTime into presentation_format and splitOwner into maili
 
 There are 109 maintained modules and 62 independent scoped owners. Writer remains four cyclic modules, with its cap unchanged; Reports stays acyclic. The former mixed court/deposit owner is fully dismantled into cohesive owners. Next inspect shell/case-file folder/address/save-status and startup responsibilities, then core/screen direction, retaining initialization, permission/save and publication guards. Historical counts and prior owner descriptions above remain provenance.
 
-## Thirty-ninth increment: address and recipient responsibilities
+## Thirty-ninth increment: address and recipient responsibilities (merged in PR #85)
 
 address_format defines the existing four postal functions (private postalTitle plus three public formatting/field-check operations). recipient_workflow composes validation/normalization, previews and copy/email add/remove through two lazy addressParser/render inputs. Core composes it immediately after addressParser and before reinspection, exports actual operations and screens consume the composed preview. Constructors perform no reads, I/O or registration.
 
 All ten moved and remaining case-file function bodies retain logic apart from explicit dependency access. Preserve postal parsing/messages, parser fault/accepted-line evidence, validation-before-normalization, blank/agent behavior, correction/live-case scope, dirty-before-render and existing edit/save guards. Existing address-parser/helper/publication authority remains unchanged.
 
 There are 111 maintained modules, 15 isolated foundations and 63 independent scoped owners. Case files shrinks from 648 to 446 lines; Writer remains four cyclic modules and Reports stays acyclic. Next inspect folder/summary/save-status/local-file responsibilities and startup sequencing, then core/screen direction. Earlier ownership/count descriptions remain provenance.
+
+## Fortieth increment: case-folder and reporting-index workflow
+
+case_folder_workflow composes writeSummary/rebuildIndex/listCaseFolder/openFromFolder through seven lazy notification/permission/projection/write/render/integrity/load inputs. Core constructs it after addressParser and before recipientWorkflow, exporting actual mutable operations. Construction performs no reads, I/O or registration; the owner imports only record/migration/shape/query/calendar/state definitions.
+
+All four moved and remaining case-file functions retain logic apart from dependency access. Preserve permission/live folder reads, optional metadata/partial sorted listings, raw-byte verification-before-load dispatch, summary source/name/failure status, migration/shape/delegated projection/index write order and distinct refusal/write failure counts. Existing helper/projection/storage authority and startup guards remain; no stronger atomic rebuild or loader acknowledgement is asserted.
+
+There are 112 maintained modules, 15 isolated foundations and 64 independent scoped owners. Case files shrinks from 446 to 317 lines; Writer remains four cyclic modules and Reports acyclic. Next separate save-status/local-file presentation and case actions before startup coordination, then inspect remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 

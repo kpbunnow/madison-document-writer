@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Case-folder and index workflow boundary (development)
+
+- Compose folder listing/opening and summary/index rebuilding through seven explicit lazy notification/permission/projection/write/render/integrity/load inputs. Preserve original metadata fallbacks, permission checks, verify-before-load dispatch and summary/rebuild failure handling.
+- Keep migration/shape rules, summary projection, helper verification/storage and startup in their existing owners. All four moved and remaining case-file function bodies preserve logic apart from dependency access.
+- Add independent tests/guards and update source/test indexes, ownership and roadmap. Case files is 129 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Address and recipient boundaries (development)
 
 - Define existing street/city/state/ZIP formatting and field validation in address_format, with private postal capitalization. Preserve every parsing rule and message.
