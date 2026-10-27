@@ -222,3 +222,18 @@ all outcomes, carried results, walk stages, date/filter states, retained drafts,
 closed inspections and missing-source redirects. Every snapshot renders and
 retains state and service lookup order. Complexity violations 79 → 77; length
 reports 129 → 127. Other workflow functions in the same owner are unchanged.
+
+## M3 pagination nesting
+
+History-row continuation, note fitting, observation fitting and continuation
+cleanup are named phases. Snow table handling uses an early continue rather than
+a nested else. Page creation, binary-search/word-boundary rules, furniture and
+measurement order are unchanged. No pagination function nests beyond four levels.
+
+The existing pagination audit and eight native-Chromium differential layouts
+compare exact page HTML and every overflow/limit measurement, including long
+Unicode notes, observation continuations, snow tables, mobile flow and historical
+page limits. All note characters are retained. The unchanged 69 authored print
+variants and their overflow/clipping/missing-copy mutation checks pass locally.
+JS complexity findings 77 → 76; nesting reports 13 → 3; length reports 127 → 125.
+The full GitHub gate remains required before this increment merges.
