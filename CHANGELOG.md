@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Folder connection boundary (development)
+
+- Compose folder linking/restoration/permission grants through nine lazy native/capability/handle-store/helper/notification/render inputs. Preserve synchronous picker invocation, helper priority, handle assignment/persistence/flush order, quiet grant semantics and existing partial failure state.
+- Core exports actual operations; the shell probe consumes the composed grant. Existing IndexedDB/helper/pending-write authority remains unchanged. All three moved and remaining shell bodies preserve logic apart from dependency access.
+- Add independent tests/guards and update ownership, source/test indexes and roadmap. Shell is 93 lines smaller; Writer remains three cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Writer startup boundary (development)
 
 - Compose original bootStorage through fifteen explicit native/restore/readiness inputs. Preserve workspace lock lifetime/refusal UI, helper branches, exact restoration sequence/barrier and failure handling.

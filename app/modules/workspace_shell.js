@@ -5,21 +5,7 @@ import { SUMMARY_DIR } from "../assets/shared.js";
 import { fmtDate, fmtTime } from "./presentation_format.js";
 
 import { render } from "./app_screens.js";
-import {
-  toast,
-  CASEDIR_EXPECT,
-  FS_OK,
-  IDB_OK,
-  navigation,
-  recordIntegrity,
-  storageMode,
-  app_savedworkContext,
-  idbGet,
-  idbSet,
-  flushPending,
-  helperFolder,
-  writeToFolder,
-} from "./app_core.js";
+import { toast, CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode, app_savedworkContext, writeToFolder } from "./app_core.js";
 
 import { EVENT_TYPES } from "./document_types.js";
 import { nowISO } from "./calendar.js";
@@ -361,71 +347,6 @@ function appendEvent(cid, type, payload, at, by) {
   return ev;
 }
 
-async function linkCaseFolder() {
-  if (WriterState.HELPER && WriterState.HELPER.caseStore) {
-    await restoreCaseFolder();
-    await flushPending();
-    toast("Using " + WriterState.HELPER.caseDir);
-    return true;
-  }
-  if (!FS_OK) {
-    toast("Direct folder access needs the program opened from the localhost address");
-    return false;
-  }
-  try {
-    const h = await window.showDirectoryPicker({ id: "madison-cases", mode: "readwrite" });
-    const was = WriterState.DIRNAME;
-    WriterState.CASEDIR = h;
-    WriterState.DIRNAME = h.name;
-    WriterState.NEEDGRANT = false;
-    await idbSet("casedir", h);
-    await flushPending();
-    toast(was && was !== h.name ? "Now writing to " + h.name + " instead of " + was : "Linked to " + h.name + " — case files will be written there");
-    render();
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
-async function restoreCaseFolder() {
-  if (WriterState.HELPER && WriterState.HELPER.caseStore) {
-    WriterState.CASEDIR = helperFolder();
-    WriterState.DIRNAME = CASEDIR_EXPECT;
-    WriterState.NEEDGRANT = false;
-    render();
-    return;
-  }
-  if (!FS_OK) return;
-  const h = await idbGet("casedir");
-  if (!h) return;
-  WriterState.CASEDIR = h;
-  WriterState.DIRNAME = h.name || "case folder";
-  try {
-    const p = await h.queryPermission({ mode: "readwrite" });
-    WriterState.NEEDGRANT = p !== "granted";
-  } catch (e) {
-    WriterState.NEEDGRANT = true;
-  }
-  render();
-}
-
-async function grantCaseFolder(quiet) {
-  if (!WriterState.CASEDIR) return false;
-  try {
-    const p = await WriterState.CASEDIR.requestPermission({ mode: "readwrite" });
-    WriterState.NEEDGRANT = p !== "granted";
-    if (!WriterState.NEEDGRANT && !quiet) {
-      toast("Reconnected to " + WriterState.DIRNAME);
-      await flushPending();
-    }
-    if (!quiet) render();
-    return !WriterState.NEEDGRANT;
-  } catch (e) {
-    return false;
-  }
-}
-
 async function helperJSON(url, body) {
   const response = await authFetch(
     url,
@@ -442,21 +363,7 @@ async function helperJSON(url, body) {
   return data;
 }
 
-export {
-  printableHTML,
-  printNotice,
-  storageReport,
-  reindexReport,
-  testWrite,
-  shell,
-  sourceDocFor,
-  evid,
-  appendEvent,
-  linkCaseFolder,
-  restoreCaseFolder,
-  grantCaseFolder,
-  helperJSON,
-};
+export { printableHTML, printNotice, storageReport, reindexReport, testWrite, shell, sourceDocFor, evid, appendEvent, helperJSON };
 
 export function summarize(f) {
   return summarizeRecord(f, {
