@@ -20,6 +20,7 @@ covers, or a new suite under its feature.
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
+| `audit_import_plan_rules.js` | Differential Accela plans, selection mutations/serial and exact service-call ordering across generated reports |
 | `audit_special_rules.js` | Differential special-format checks, affected-item mutations, targets, refusal/exception and service-call precedence |
 | `audit_readiness_rules.js` | Differential readiness rows, actionable targets and exact lazy-getter/effect order across seeded document states |
 | `audit_deposit_rules.js` | Differential ordered-deposit rules over generated policy rows and malformed combinations, preserving refusal text and service call order |

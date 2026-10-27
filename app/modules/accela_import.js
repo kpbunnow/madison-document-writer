@@ -12,6 +12,316 @@ import { INSPECTORS } from "./data/inspectors.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 
 /* Lazy dependencies preserve the complete import workflow without starting Writer. */
+function importedCaseFields({ c, accParcel, p }) {
+  const r = c.raw,
+    par = accParcel(r.parcel),
+    cut = r.address.indexOf(",");
+  const hist = r.historic && !/^no$/i.test(r.historic),
+    lm = r.landmark && !/^no$/i.test(r.landmark) ? r.landmark : "";
+  p.f = {
+    address: (cut < 0 ? r.address : r.address.slice(0, cut)).trim().toUpperCase(),
+    siteCity:
+      cut < 0
+        ? ""
+        : r.address
+            .slice(cut + 1)
+            .trim()
+            .toUpperCase(),
+    parcel: par.v,
+    historic: !!hist,
+    historicDistrict: hist ? r.historic : "",
+    landmark: lm,
+    description: r.description,
+    owner: r.owner,
+    ownerAddr: r.ownerAddr
+      .split("\n")
+      .map((x) => x.trim())
+      .filter(Boolean),
+  };
+  return par;
+}
+
+function importedSourceWarnings({ c, p, ACC_LABEL, par, services }) {
+  c.conflicts.forEach((x) =>
+    p.blockers.push("The report gives two different values for " + ACC_LABEL(x.f) + ' on this case: "' + x.a + '" and "' + x.b + '"'),
+  );
+  if (!p.f.address) p.blockers.push("The report has no site address for this case");
+  if (!/^CB\d{4}-\d{3}-\d{5}$/.test(c.number)) p.warnings.push("Case number " + c.number + " does not follow the usual CB2026-000-00000 pattern");
+  if (par.warn) p.warnings.push(par.warn);
+  const inits = c.rows.filter((x) => x.typeKey === "initial" && x.date);
+  p.initial = inits[0] || null;
+  if (inits.length > 1)
+    p.warnings.push("The report lists " + inits.length + " initial inspections — the earliest, " + services.fmtDate(inits[0].date) + ", is used");
+}
+
+function selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, acc }) {
+  const visible = importCandidates(c, k),
+    eligible = visible.filter((x) => x.selectable && accStatusEligible(x.status, x.type));
+  p.candidates = visible;
+  p.usedHidden = c.rows.length - visible.length;
+  const current = eligible.some((x) => x.i === acc.sel) ? acc.sel : eligible.length === 1 ? eligible[0].i : null;
+  if (current !== (acc.sel ?? null)) {
+    acc.sel = current;
+    WriterState.ACC_SELECTION_SERIAL++;
+  }
+  const row = eligible.find((x) => x.i === acc.sel) || null;
+  p.row = row;
+  return { visible, eligible, row };
+}
+
+function missingImportCandidate({ p, eligible, visible, hiddenRowsMessage, accStatusEligible }) {
+  p.blockers.push(
+    eligible.length
+      ? "Choose the inspection result you are documenting."
+      : !visible.length
+        ? hiddenRowsMessage(null, p.usedHidden)
+        : "No eligible inspection result is available: " +
+          [
+            ...new Set(
+              visible.map(
+                (x) =>
+                  x.why || (accStatusEligible(x.status, x.type) ? "Missing required inspection fields" : "status " + (x.status || "not supplied")),
+              ),
+            ),
+          ].join("; ") +
+          ". Correct the source in Accela and retrieve it again.",
+  );
+}
+
+function selectedImportWarnings({ row, p }) {
+  if (!row.selectable) p.blockers.push("That inspection cannot be written from — " + row.why);
+  else if (row.rule?.error) p.blockers.push(row.rule.error + ". Set the specific result in Accela and retrieve it again.");
+  if (row.date && row.date > recordDay(today)) p.blockers.push("The selected inspection date is in the future.");
+  if (!row.inspectorId)
+    p.blockers.push(
+      row.inspectorName
+        ? 'Inspector "' + row.inspectorName + '" is not on the roster — nothing can be signed in that name'
+        : "The report names no inspector for that inspection",
+    );
+  row.warn.forEach((w) => p.warnings.push(w));
+}
+
+function importCandidateWarnings({ row, p, eligible, visible, hiddenRowsMessage, accStatusEligible }) {
+  if (!row) {
+    missingImportCandidate({ p, eligible, visible, hiddenRowsMessage, accStatusEligible });
+  } else {
+    selectedImportWarnings({ row, p });
+  }
+}
+
+function snowInspectionDate({ p, k, row }) {
+  p.date = k?.date || row.date;
+  p.time = k?.time || row.time;
+}
+
+function issuedInspectionDate({ p, k }) {
+  p.date = k.date;
+  p.time = k.time || "";
+  if (p.initial && (p.initial.date !== k.date || p.initial.time !== (k.time || "")))
+    p.warnings.push(
+      "The issued case keeps its initial inspection date/time. Correct a record" +
+        "ing error through document correction so reporting retains its audit tra" +
+        "il.",
+    );
+}
+
+function initialInspectionDate({ p }) {
+  p.date = p.initial.date;
+  p.time = p.initial.time;
+}
+
+function retainedInspectionDate({ p, k, services }) {
+  p.date = k.date;
+  p.time = k.time || "";
+  p.warnings.push("The report has no Initial Inspection row — the case keeps its initial inspection of " + services.fmtDate(k.date));
+}
+
+function manualInspectionDate({ p, acc }) {
+  p.needDate = true;
+  p.date = validISO(acc.manualDate) ? acc.manualDate : "";
+  p.time = parseTime(acc.manualTime || "") || "";
+  if (!p.date) p.blockers.push("The report has no Initial Inspection row — enter the initial inspection date below");
+}
+
+const importDateRules = [
+  { id: "snowInspectionDate", applies: ({ snowCase, row }) => snowCase && row, apply: (context) => snowInspectionDate(context) },
+  { id: "issuedInspectionDate", applies: ({ k }) => k && originalNotice(k.id), apply: (context) => issuedInspectionDate(context) },
+  { id: "initialInspectionDate", applies: ({ p }) => p.initial, apply: (context) => initialInspectionDate(context) },
+  { id: "retainedInspectionDate", applies: ({ k }) => k && validISO(k.date), apply: (context) => retainedInspectionDate(context) },
+  { id: "manualInspectionDate", applies: () => true, apply: (context) => manualInspectionDate(context) },
+];
+
+function selectImportDate({ p, k, row, snowCase, acc, services }) {
+  for (const rule of importDateRules) {
+    if (rule.applies({ p, k, row, snowCase, acc, services })) {
+      rule.apply({ p, k, row, snowCase, acc, services });
+      return;
+    }
+  }
+}
+
+function issuedInspectionChronology({ row, p, INITIAL_EXISTS, src }) {
+  if (row.typeKey === "initial") p.blockers.push(INITIAL_EXISTS);
+  const at = inspAt(src);
+  if (row.date < at.date || (row.date === at.date && row.time && at.time && row.time < at.time))
+    p.blockers.push("Select a reinspection on or after the latest issued document’s inspection.");
+}
+
+function existingImportWork({ k, services, p, src, row, INITIAL_EXISTS }) {
+  // A used inspection is never a candidate (importCandidates), so it cannot be the selected row here.
+  const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id);
+  if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
+  else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
+  else if (services.caseState(k).closed)
+    p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
+  else if (row) {
+    issuedInspectionChronology({ row, p, INITIAL_EXISTS, src });
+  }
+}
+
+function importWorkReadiness({ k, p, services, src, row, INITIAL_EXISTS, NO_CASE }) {
+  if (k && !p.refresh) {
+    existingImportWork({ k, services, p, src, row, INITIAL_EXISTS });
+  } else if (row && row.typeKey !== "initial") p.blockers.push(NO_CASE);
+}
+
+function importReferralRules({ k, row, p }) {
+  const referred = isReferredCase(k.id);
+  if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
+  // R62: a referred case allows only an Update for Case Referral or a Compliance Letter.
+  else if (referred && !(row.rule.choose || [row.rule.doc]).some((t) => REFERRED_ONLY.includes(t)))
+    p.blockers.push(
+      "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written; the Accela status " +
+        row.rule.status +
+        " calls for " +
+        row.rule.label +
+        ".",
+    );
+  if (row.rule.needsReferral && !referred)
+    p.blockers.push("This case has not been referred to the City Attorney. Use a Reinspection with status CA Referral for the first referral.");
+}
+
+function importReferralReadiness({ k, p, row }) {
+  if (k && !p.refresh && row?.rule && !row.rule.error) {
+    importReferralRules({ k, row, p });
+  }
+}
+
+function importInitialReadiness({ k, p, row, INITIAL_EXISTS }) {
+  if (k && !p.refresh && row?.typeKey === "initial" && !p.blockers.includes(INITIAL_EXISTS)) p.blockers.push(INITIAL_EXISTS);
+}
+
+function snowImportOrigin({ k, src, services, p }) {
+  if (k && src && !services.snow.is(src)) p.blockers.push("Snow removal cases cite only MGO 10.28. Create a separate case for other violations.");
+  else
+    p.blockers = p.blockers.filter(
+      (t) =>
+        !t.startsWith("This case is completed.") &&
+        !t.startsWith("This case already exists.") &&
+        !t.startsWith("The initial inspection belongs") &&
+        !t.startsWith("No existing case was found."),
+    );
+}
+
+function snowImportStatus({ row, p }) {
+  if (row?.rule && !row.rule.error && !row.rule.cite)
+    p.blockers.push("Snow removal inspections are imported with status Citation (" + row.type + " status " + row.status + " has no snow rule).");
+}
+
+function snowImportDate({ row, p, k }) {
+  if (row) {
+    p.date = k?.date || row.date;
+    p.time = k?.time || row.time;
+  }
+}
+
+function snowImportReadiness({ snowCase, p, k, src, services, row }) {
+  if (snowCase) {
+    p.next = "snow";
+    snowImportOrigin({ k, src, services, p });
+    snowImportStatus({ row, p });
+    snowImportDate({ row, p, k });
+  }
+}
+
+function importInspectionDifferences({ p, k, services, row }) {
+  if (p.date && (k.date !== p.date || (k.time || "") !== p.time))
+    p.diff.push({
+      l: "Initial inspection",
+      was: services.fmtDate(k.date) + " " + services.fmtTime(k.time || ""),
+      now: services.fmtDate(p.date) + " " + services.fmtTime(p.time),
+    });
+  importInspectorDifference({ row, k, p });
+}
+
+function importInspectorDifference({ row, k, p }) {
+  if (row && row.inspectorId && row.inspectorId !== k.inspectorId)
+    p.diff.push({ l: "Case inspector", was: insp(k.inspectorId).name || "", now: insp(row.inspectorId).name || "" });
+}
+
+function existingImportDifferences({ k, p, services, row, c, accNorm }) {
+  if (k.address !== p.f.address)
+    p.warnings.push(
+      "The case is on file as " +
+        k.address +
+        "; the report reads " +
+        p.f.address +
+        ". The address on file is kept so the case keeps writing to its own case file.",
+    );
+  const show = (v) => (Array.isArray(v) ? v.join(" / ") : typeof v === "boolean" ? (v ? "Yes" : "No") : String(v || ""));
+  const cmp = [
+    ["siteCity", "City, state, ZIP"],
+    ["parcel", "Parcel"],
+    ["description", "Case description"],
+    ["owner", "Owner"],
+    ["ownerAddr", "Owner mailing address"],
+    ["historic", "Historic district"],
+    ["historicDistrict", "District name"],
+    ["landmark", "Landmark"],
+  ];
+  cmp.forEach(([f, l]) => {
+    if (show(k[f]) !== show(p.f[f])) p.diff.push({ l: l, was: show(k[f]), now: show(p.f[f]) });
+  });
+
+  // where Accela and the record disagree
+  importInspectionDifferences({ p, k, services, row });
+  const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
+  [
+    ["citation", "Citation", "citation"],
+    ["official notice", "Official Notice", "notice"],
+  ].forEach(([s, label, ty]) => {
+    const a = c.rows.filter((x) => accNorm(x.status) === s).length,
+      m = live.filter((d) => d.type === ty).length;
+    if (a > m) p.warnings.push("Accela shows " + a + " " + label + (a === 1 ? "" : "s") + " on this case; the case file has " + m);
+  });
+}
+
+function importCaseDifferences({ k, p, services, row, c, accNorm }) {
+  if (k) {
+    existingImportDifferences({ k, p, services, row, c, accNorm });
+  }
+}
+
+function newImportPlan(acc) {
+  return { blockers: [], warnings: [], diff: [], notes: (acc && acc.notes) || [] };
+}
+function importPlanCase(acc, p) {
+  if (!acc) {
+    p.blockers.push("No report loaded");
+    return null;
+  }
+  if (acc.errors && acc.errors.length) {
+    p.blockers = acc.errors.slice();
+    return null;
+  }
+  const c = acc.cases[acc.caseIx || 0];
+  if (!c) {
+    p.blockers.push("Choose a case");
+    return null;
+  }
+  return c;
+}
+
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, XLSX reading, report parsing, import candidates,
    the review plan and panel, the direct database lookup and acceptance. */
@@ -518,226 +828,29 @@ export function createAccelaImport(services) {
   const NO_CASE = "No case exists for this inspection. Import its Initial Inspection first.";
 
   function baseLookupPlan(acc) {
-    const p = { blockers: [], warnings: [], diff: [], notes: (acc && acc.notes) || [] };
-    if (!acc) {
-      p.blockers.push("No report loaded");
-      return p;
-    }
-    if (acc.errors && acc.errors.length) {
-      p.blockers = acc.errors.slice();
-      return p;
-    }
-    const c = acc.cases[acc.caseIx || 0];
-    if (!c) {
-      p.blockers.push("Choose a case");
-      return p;
-    }
+    const p = newImportPlan(acc);
+    const c = importPlanCase(acc, p);
+    if (!c) return p;
     p.c = c;
-    const r = c.raw,
-      par = accParcel(r.parcel),
-      cut = r.address.indexOf(",");
-    const hist = r.historic && !/^no$/i.test(r.historic),
-      lm = r.landmark && !/^no$/i.test(r.landmark) ? r.landmark : "";
-    p.f = {
-      address: (cut < 0 ? r.address : r.address.slice(0, cut)).trim().toUpperCase(),
-      siteCity:
-        cut < 0
-          ? ""
-          : r.address
-              .slice(cut + 1)
-              .trim()
-              .toUpperCase(),
-      parcel: par.v,
-      historic: !!hist,
-      historicDistrict: hist ? r.historic : "",
-      landmark: lm,
-      description: r.description,
-      owner: r.owner,
-      ownerAddr: r.ownerAddr
-        .split("\n")
-        .map((x) => x.trim())
-        .filter(Boolean),
-    };
-    c.conflicts.forEach((x) =>
-      p.blockers.push("The report gives two different values for " + ACC_LABEL(x.f) + ' on this case: "' + x.a + '" and "' + x.b + '"'),
-    );
-    if (!p.f.address) p.blockers.push("The report has no site address for this case");
-    if (!/^CB\d{4}-\d{3}-\d{5}$/.test(c.number)) p.warnings.push("Case number " + c.number + " does not follow the usual CB2026-000-00000 pattern");
-    if (par.warn) p.warnings.push(par.warn);
-    const inits = c.rows.filter((x) => x.typeKey === "initial" && x.date);
-    p.initial = inits[0] || null;
-    if (inits.length > 1)
-      p.warnings.push("The report lists " + inits.length + " initial inspections — the earliest, " + services.fmtDate(inits[0].date) + ", is used");
+    const par = importedCaseFields({ c, accParcel, p });
+    importedSourceWarnings({ c, p, ACC_LABEL, par, services });
     const k = WriterState.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
     p.existing = k;
-    // R62: an inspection already used on this case is hidden. The shared record can arrive after selection,
-    // so a selection that became hidden is cleared; when exactly one eligible result remains it is the selection,
-    // as when the report lists only one (it is shown as the selected result, with nothing to choose).
-    const visible = importCandidates(c, k),
-      eligible = visible.filter((x) => x.selectable && accStatusEligible(x.status, x.type));
-    p.candidates = visible;
-    p.usedHidden = c.rows.length - visible.length;
-    const current = eligible.some((x) => x.i === acc.sel) ? acc.sel : eligible.length === 1 ? eligible[0].i : null;
-    if (current !== (acc.sel ?? null)) {
-      acc.sel = current;
-      WriterState.ACC_SELECTION_SERIAL++;
-    }
-    const row = eligible.find((x) => x.i === acc.sel) || null;
-    p.row = row;
+    const { visible, eligible, row } = selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, acc });
     const snowCase = services.snow.isCase(k) || services.snow.matchesImport(row);
-    if (!row)
-      p.blockers.push(
-        eligible.length
-          ? "Choose the inspection result you are documenting."
-          : !visible.length
-            ? hiddenRowsMessage(null, p.usedHidden)
-            : "No eligible inspection result is available: " +
-              [
-                ...new Set(
-                  visible.map(
-                    (x) =>
-                      x.why ||
-                      (accStatusEligible(x.status, x.type) ? "Missing required inspection fields" : "status " + (x.status || "not supplied")),
-                  ),
-                ),
-              ].join("; ") +
-              ". Correct the source in Accela and retrieve it again.",
-      );
-    else {
-      if (!row.selectable) p.blockers.push("That inspection cannot be written from — " + row.why);
-      else if (row.rule?.error) p.blockers.push(row.rule.error + ". Set the specific result in Accela and retrieve it again.");
-      if (row.date && row.date > recordDay(today)) p.blockers.push("The selected inspection date is in the future.");
-      if (!row.inspectorId)
-        p.blockers.push(
-          row.inspectorName
-            ? 'Inspector "' + row.inspectorName + '" is not on the roster — nothing can be signed in that name'
-            : "The report names no inspector for that inspection",
-        );
-      row.warn.forEach((w) => p.warnings.push(w));
-    }
-    // the case keeps the initial inspection; a follow-up carries its own
-    if (snowCase && row) {
-      p.date = k?.date || row.date;
-      p.time = k?.time || row.time;
-    } else if (k && originalNotice(k.id)) {
-      p.date = k.date;
-      p.time = k.time || "";
-      if (p.initial && (p.initial.date !== k.date || p.initial.time !== (k.time || "")))
-        p.warnings.push(
-          "The issued case keeps its initial inspection date/time. Correct a record" +
-            "ing error through document correction so reporting retains its audit tra" +
-            "il.",
-        );
-    } else if (p.initial) {
-      p.date = p.initial.date;
-      p.time = p.initial.time;
-    } else if (k && validISO(k.date)) {
-      p.date = k.date;
-      p.time = k.time || "";
-      p.warnings.push("The report has no Initial Inspection row — the case keeps its initial inspection of " + services.fmtDate(k.date));
-    } else {
-      p.needDate = true;
-      p.date = validISO(acc.manualDate) ? acc.manualDate : "";
-      p.time = parseTime(acc.manualTime || "") || "";
-      if (!p.date) p.blockers.push("The report has no Initial Inspection row — enter the initial inspection date below");
-    }
+    importCandidateWarnings({ row, p, eligible, visible, hiddenRowsMessage, accStatusEligible });
+    selectImportDate({ p, k, row, snowCase, acc, services });
     const src = k ? services.sourceDocFor(k.id) : null;
     p.next = k && src ? "reinspect" : "notice";
     // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
     // updates the stored Accela status instead of being refused as already used.
     p.refresh = refreshImportPending(k, row);
-    if (k && !p.refresh) {
-      // A used inspection is never a candidate (importCandidates), so it cannot be the selected row here.
-      const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id);
-      if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
-      else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
-      else if (services.caseState(k).closed)
-        p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
-      else if (row) {
-        if (row.typeKey === "initial") p.blockers.push(INITIAL_EXISTS);
-        const at = inspAt(src);
-        if (row.date < at.date || (row.date === at.date && row.time && at.time && row.time < at.time))
-          p.blockers.push("Select a reinspection on or after the latest issued document’s inspection.");
-      }
-    } else if (row && row.typeKey !== "initial") p.blockers.push(NO_CASE);
-    // R53 referral rules: Reinspection/CA Referral is the case's first referral; CA Reinspection requires one.
-    if (k && !p.refresh && row?.rule && !row.rule.error) {
-      const referred = isReferredCase(k.id);
-      if (row.rule.firstReferral && referred) p.blockers.push("This case is already with the City Attorney. Use a CA Reinspection.");
-      // R62: a referred case allows only an Update for Case Referral or a Compliance Letter.
-      else if (referred && !(row.rule.choose || [row.rule.doc]).some((t) => REFERRED_ONLY.includes(t)))
-        p.blockers.push(
-          "This case is with the City Attorney. Only an Update for Case Referral or a Compliance Letter can be written; the Accela status " +
-            row.rule.status +
-            " calls for " +
-            row.rule.label +
-            ".",
-        );
-      if (row.rule.needsReferral && !referred)
-        p.blockers.push("This case has not been referred to the City Attorney. Use a Reinspection with status CA Referral for the first referral.");
-    }
-    if (k && !p.refresh && row?.typeKey === "initial" && !p.blockers.includes(INITIAL_EXISTS)) p.blockers.push(INITIAL_EXISTS);
+    importWorkReadiness({ k, p, services, src, row, INITIAL_EXISTS, NO_CASE });
+    importReferralReadiness({ k, p, row });
+    importInitialReadiness({ k, p, row, INITIAL_EXISTS });
     p.rule = row?.rule || null;
-    if (snowCase) {
-      p.next = "snow";
-      if (k && src && !services.snow.is(src)) p.blockers.push("Snow removal cases cite only MGO 10.28. Create a separate case for other violations.");
-      else
-        p.blockers = p.blockers.filter(
-          (t) =>
-            !t.startsWith("This case is completed.") &&
-            !t.startsWith("This case already exists.") &&
-            !t.startsWith("The initial inspection belongs") &&
-            !t.startsWith("No existing case was found."),
-        );
-      if (row?.rule && !row.rule.error && !row.rule.cite)
-        p.blockers.push("Snow removal inspections are imported with status Citation (" + row.type + " status " + row.status + " has no snow rule).");
-      if (row) {
-        p.date = k?.date || row.date;
-        p.time = k?.time || row.time;
-      }
-    }
-    if (k) {
-      if (k.address !== p.f.address)
-        p.warnings.push(
-          "The case is on file as " +
-            k.address +
-            "; the report reads " +
-            p.f.address +
-            ". The address on file is kept so the case keeps writing to its own case file.",
-        );
-      const show = (v) => (Array.isArray(v) ? v.join(" / ") : typeof v === "boolean" ? (v ? "Yes" : "No") : String(v || ""));
-      const cmp = [
-        ["siteCity", "City, state, ZIP"],
-        ["parcel", "Parcel"],
-        ["description", "Case description"],
-        ["owner", "Owner"],
-        ["ownerAddr", "Owner mailing address"],
-        ["historic", "Historic district"],
-        ["historicDistrict", "District name"],
-        ["landmark", "Landmark"],
-      ];
-      cmp.forEach(([f, l]) => {
-        if (show(k[f]) !== show(p.f[f])) p.diff.push({ l: l, was: show(k[f]), now: show(p.f[f]) });
-      });
-      if (p.date && (k.date !== p.date || (k.time || "") !== p.time))
-        p.diff.push({
-          l: "Initial inspection",
-          was: services.fmtDate(k.date) + " " + services.fmtTime(k.time || ""),
-          now: services.fmtDate(p.date) + " " + services.fmtTime(p.time),
-        });
-      if (row && row.inspectorId && row.inspectorId !== k.inspectorId)
-        p.diff.push({ l: "Case inspector", was: insp(k.inspectorId).name || "", now: insp(row.inspectorId).name || "" });
-      // where Accela and the record disagree
-      const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
-      [
-        ["citation", "Citation", "citation"],
-        ["official notice", "Official Notice", "notice"],
-      ].forEach(([s, label, ty]) => {
-        const a = c.rows.filter((x) => accNorm(x.status) === s).length,
-          m = live.filter((d) => d.type === ty).length;
-        if (a > m) p.warnings.push("Accela shows " + a + " " + label + (a === 1 ? "" : "s") + " on this case; the case file has " + m);
-      });
-    }
+    snowImportReadiness({ snowCase, p, k, src, services, row });
+    importCaseDifferences({ k, p, services, row, c, accNorm });
     return p;
   }
 
