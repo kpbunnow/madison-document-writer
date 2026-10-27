@@ -4,7 +4,7 @@
 
 - Compose case-status facts, rolling citation history, Workspace presentation, language views, overlays and repaint orchestration through scoped lazy inputs. Define icons directly in ui_icons. Preserve all twelve original function bodies apart from dependency access.
 - Keep startup/listener positions, refusal barriers, live state, routing, disclosure/focus/caret and paint/enhancement order. Existing storage/helper/publication authority and frozen output remain unchanged.
-- Add independent screen-owner behavior/wiring checks and require an acyclic Writer and Reports graph. Update ownership and source/test indexes. R63/build 64 and all formats remain unchanged.
+- Add independent screen-owner behavior/wiring checks and require an acyclic Writer and Reports graph. Complete the interface/startup architecture audit and reconcile current ownership, roadmap and source/test indexes. R63/build 64 and all formats remain unchanged.
 
 ## Unreleased — Development verification policy
 

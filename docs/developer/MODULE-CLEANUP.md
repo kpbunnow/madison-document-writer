@@ -429,14 +429,11 @@ All twelve original bodies retain their logic/literals apart from scoped access.
 
 There are 129 maintained modules, 16 isolated foundations and 83 scoped owners. Both Writer and Reports are now acyclic; the guard rejects every module cycle. Next complete the architecture audit: review interface breadth and startup clarity, independently loadable owners and documentation consistency. Earlier counts/ownership remain provenance.
 
-## Following increments
+## Architecture audit and stopping point
 
-Continue through focused, separately reviewable changes:
+The planned refactor reaches its stopping point when the final screen-dependency PR's current-head GitHub Full gate passes: Writer and Reports are acyclic, scoped owners load independently, broad interfaces and startup clarity have been reviewed, and ownership/testing/source guidance is reconciled. MAINTAINABILITY-ASSESSMENT.md records the interface decisions and current counts. Existing construction, startup/event and behavioral audits preserve original ordering and authority without a universal registry.
 
-1. Complete the architecture audit now that Writer is acyclic: review interface breadth, independent owner loading, core startup/listener clarity and current documentation. Keep service composition explicit; never replace imports with a universal registry.
-2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
-
-Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
+Further decomposition or dead-name removal should address a concrete defect, feature, platform requirement or recurring development difficulty. Do not continue splitting coherent transactions solely to reduce module size or input counts. Preserve verified projection inputs, export/print ordering, diagnostic coverage, public exports and stored/installed identities. Every future change follows the current development/merge policy.
 
 ## Verification and merge
 

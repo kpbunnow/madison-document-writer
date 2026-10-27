@@ -1,67 +1,58 @@
-# Remaining maintainability assessment
+# Architecture cleanup completion audit
 
-Snapshot: record/helper adapters based on merged PR #90, main `354570b6e932351e2b52c470ff94bd781f7c0923`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: screen dependency direction following PR #92 and the verification-policy update. This records the planned cleanup's stopping criteria; it is not release, native acceptance or a claim that every bug is absent. The final screen-dependency PR's current-head GitHub Full gate supplies final verification evidence.
 
-## What this increment completes
+## Dependency direction and ownership
 
-Helper JSON and summary context now have one-input integrity adapters; source-document selection and event generation/append have defining live record/query owners. All five moved and remaining shell function bodies preserve logic apart from adapter access. Shell is 57 lines smaller; actual transport/helper/projection authority, original clocks and payload/state semantics remain. Writer remains three cyclic modules and Reports acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+The maintained browser graph contains 129 modules and no cyclic component in either Writer or Reports. `audit_module_boundaries.js` now rejects every cycle and restricts imports for 16 foundation modules and 83 scoped owners. Generated/vendor modules are outside this graph. Source inventory, code map and test index retain ordinary direct imports; there is no replacement universal registry or forwarding barrel.
 
-## Main unfinished work: Writer dependency ownership
+Core remains the explicit composition/state/startup/registration root. The screen split removes its final import cycle: app_screens receives only readiness, routing, native focus and enhancement operations; Workspace presentation, live case status, citation history, language adapters and overlays have separate owners. Domain services, helper validation, record integrity, persistence and publication keep authority. Pure facts and live state operations remain explicitly distinguished.
 
-The graph still contains one three-module Writer component. These are three coupled owners, not three identified bugs or a promise of three more PRs. The modules have different responsibilities and should not simply be wrapped into ever-larger dependency objects.
+| Owner | Source lines | Direct graph imports | Responsibility retained |
+| --- | ---: | ---: | --- |
+| app_core.js | 2581 | 112 | Explicit composition, state/bootstrap and registration order |
+| app_screens.js | 244 | 5 | Startup/refusal barriers and ordered repaint/focus restoration |
+| workspace_screen.js | 376 | 10 | Workspace list, issuance reveal/filter relaxation and row focus |
+| screen_overlays.js | 458 | 7 | Shared modal/picker dispatch and presentation |
+| workspace_shell.js | 44 | 3 | Screen frame and connection banner |
 
-| Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
-| --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2417 | 101 | 2 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1257 | 16 | 2 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `workspace_shell.js` | 331 | 7 | 2 | Shell/print/status presentation and storage probe remain coupled |
+Counts include comments/blank lines and describe the audited layout, not quality thresholds. Reproduce the dependency graph with `node tools/module_graph.cjs`.
 
-Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
+## Interface breadth review
 
-## Recommended priority and scope
+Core has 92 imported constructor calls with explicit object inputs (82 create-prefixed and 10 init-prefixed, including conditional test fixtures). No constructor input spreads the entire core or state. The largest interfaces were reviewed by responsibility and actual property use:
 
-1. **Separate shell and case-file responsibilities.** Startup and former case-file responsibilities are separated. Folder connections and record/helper/projection adapters are separated. Next inspect shell/status/print/probe while preserving original behavior and authority. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
-2. **Review core/screen direction.** Screen routing, shared dialogs/overlays and case-list rendering still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions and preserve initialization/listener order. Avoid universal contexts or forwarding barrels; split bootstrap only when behavior can be verified.
+| Constructor | Named inputs | Review decision |
+| --- | ---: | --- |
+| createEditorEvents | 38 | Retain ordered editor field/item/picker/command routing; independent event tests cover first-match and synchronous dispatch |
+| createWorkspaceEvents | 36 | Retain ordered workspace/folder/Reports actions; cross-feature actions delegate to their owners |
+| createEditorScreens | 32 | Retain coherent document readiness/render/refresh actions and original listener position |
+| createReinspection / createRecoveryEvents | 30 each | Retain worksheet/walkthrough coordination and recovery event routing; effects remain delegated |
+| createLanguageCatalog | 25 | Retain review/preflight and guarded tools; helper/storage/integrity authority stays supplied |
+| createAppScreens | 24 | Retain one repaint transaction: route, native focus/disclosures, readiness and ordered enhancements |
+| createDocumentRenderer / createReinspectionEvents | 23 each | Retain frozen render facts and feature-specific dispatch |
+| createSafetyEvents | 22 | Retain feature-specific safety/lock routing through explicit adapters |
+| initNewDocuments / createAccelaImport / createWorkflowEvents | 21 each | Retain feature ownership and established creation/import/workflow ordering |
+| createDocumentDelivery | 20 | Retain archive/email/filing coordination through existing receipt/helper/native owners |
 
-The 14-input readiness and 20-input delivery interfaces remain explicit; split only if responsibilities and evidence warrant another cohesive boundary.
+All named inputs in these reviewed interfaces are consumed. Field count alone does not justify splitting a coherent transaction or hiding names inside a broad callback bag. Keep call-time getters where initialization or restoration replaces values. Future narrowing should address an identified responsibility, defect or recurring development difficulty, with targeted behavior evidence.
 
-These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
+The new case-status/citation-history/Workspace/language/overlay/repaint factories use 3/1/9/1/16/24 inputs. Independent construction tests verify no reads, I/O or registration at construction; focused tests exercise live replacements and operation order. The proof service retains its existing explicit store adapter; test-only reference hooks are not runtime service registries.
 
-## Improvements beyond the cycle count
+## Startup and failure-order review
 
-### Keep dependency interfaces bounded
+Core still constructs the original editor and feature listeners at their documented positions, initializes state explicitly, constructs/invokes writer_startup at the original checkpoint and registers the remaining listeners in their original order. `audit_event_registration.js` verifies all 60 feature registrations and capture phases; `audit_writer_startup.js` verifies lock lifetime, restoration/readiness and failure sequencing. The screen split preserves all twelve original function bodies apart from scoped access, including stopped/locked/restoring/failed barriers, current workspace/day reads, modal priority, paint/enhancement order and focus/caret/disclosure/scroll restoration.
 
-Core currently has 101 maintained-module dependencies in this graph and 72 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+A separate bootstrap rewrite is not required to finish this roadmap: startup already has an independent owner, its wiring is explicit and tested, and further movement without a concrete problem would add review risk. Keep existing helper, permission, durable-write, held-publication and immutable-PDF authority unchanged.
 
-| Factory | Named input fields |
-| --- | ---: |
-| `createEditorEvents` | 38 |
-| `createWorkspaceEvents` | 36 |
-| `createEditorScreens` | 32 |
-| `createReinspection` | 30 |
-| `createRecoveryEvents` | 30 |
-| `createAccelaImport` | 21 |
+## Completion and validation
 
-These are indicators for review, not automatic failures. Narrow an interface when its fields reveal separate responsibilities; retain call-time getters where restoration replaces state. Do not introduce a universal registry, spread the entire core/state into constructors, or trade a visible import cycle for an opaque callback container.
+The planned architecture refactor is complete once the current-head GitHub Full gate passes for the final screen-dependency PR. Writer/Reports are acyclic, major feature owners have independent scoped construction tests, broad interfaces and startup clarity have been reviewed, and current ownership/roadmap/testing guidance is reconciled. Historical intermediate descriptions in architecture and cleanup records remain provenance; the latest ownership sections and code map describe the completed layout.
 
-### Continue extracting true record calculations
+Use targeted local checks before development PR submission and require GitHub Full gate and PR format on the current head before merge. Automatic main verification may continue asynchronously; report pending status/run links and investigate failures when reported. Preserve historical assertions, frozen print/screen references, source inventory and source-bound evidence. Packaging still requires an assigned release and exact-source full-gate evidence.
 
-Pure migration, projection, formatting and record-source owners already exist. Shared inspection/date facts are now independent as well; live queries remain explicitly distinguished from pure calculations. Further extract charge-readiness calculations only when their inputs and authority are explicit. Keep UI prompts, file/network I/O, current workspace state and publication decisions in adapters/orchestrators. Preserve historical authoring cutoffs. The independent JavaScript/Python projection mirror is intentional and has parity tests; it is not redundant code to delete casually.
+After this stopping point, make further maintainability changes only for a concrete defect, feature, platform requirement or recurring development difficulty. Zero cycles does not require decomposing every large module or eliminating legitimate cross-feature actions.
 
-### Improve tests alongside each boundary
+## Outside this refactor
 
-Independent service construction and focused behavioral tests should become the easiest way to test new work. Keep existing bundle-eval diagnostics, browser workflows and historical output assertions while that transition occurs. Migrate private test access deliberately; do not delete coverage or widen production APIs solely for tests. Add lightweight JSDoc/checked interfaces when they prevent actual wiring/data-shape mistakes; a wholesale TypeScript conversion or broad test renaming is not required by this roadmap.
-
-### Keep regression/review evidence usable
-
-Retain the current source inventory, ownership map, test index, exact-source full gate, serial measured browser work and PR/release naming standard. Keep visual comparison artifacts separate by media mode and disclose capture variability. No new packaging framework, dependency replacement or automated deployment is needed for this cleanup.
-
-## Stopping criteria
-
-The planned architecture cleanup is complete when the Writer module graph has no cyclic component, Reports stays acyclic, major features load independently, and ownership remains explicit without a replacement registry/barrel. Review interface breadth and core startup clarity as well as the graph. Preserve all historical output, trust boundaries, stored/installed names, live-state and failure-ordering contracts, with the full gate passing on final reviewed source.
-
-After that, continue maintainability changes only where a concrete defect, feature, platform requirement or recurring development difficulty justifies them. Zero cycles does not require rewriting all 90 maintained modules or eliminating every legitimate cross-feature action.
-
-## Outside this development work
-
-City Windows/network-drive/Outlook/native-print, manual accessibility, staff and legal acceptance require their actual owners' evidence and confirmation. They may uncover fixes for development, but cannot be closed by these refactors or automated gates. Preparing a later release package is a separately authorized publication task.
+R63/helper build 64 and independently versioned formats stay unchanged. City Windows/network-drive/Outlook/native printing, manual accessibility, staff/legal and exact PNG-parity acceptance retain their existing holds and need their actual owners' evidence. No release assignment, packaging, deployment or acceptance approval is part of this development work.

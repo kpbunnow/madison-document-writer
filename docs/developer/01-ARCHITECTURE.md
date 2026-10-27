@@ -1,6 +1,6 @@
 # R63 current architecture
 
-This describes the program as it stands. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
+The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the final architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 
 ## Runtime overview
 
@@ -60,7 +60,7 @@ The regular Extension output is unchanged at every authoring version.
 
 Workspace lock ownership is separate from restoration readiness. While persistent workspace data is being restored, Writer shows a startup screen and does not expose editable routes. saveDrafts refuses storage replacement until retained drafts are read; internal held-write recovery can save only after that read. A failed required storage read shows a reload/retry screen and leaves user saves blocked. Reports handoffs and queued navigation stop on failure. No private draft is treated as absent merely because its IndexedDB read failed.
 
-writer_handoff owns the ready/failed markers and Reports case-opening/channel/URL operations through six lazy inputs: render, preflightCase, helperJSON, loadCaseFile, WRITER_READY_WAIT and HANDOFF_CHANNEL. Core composes it after PDF artifacts and before document rendering, exporting the actual mutable operations. Construction reads no services/state/browser objects and opens no channel. case_files retains workspace locking, startup restoration sequencing and the original init/settle order; core retains readiness-promise and channel-name initialization. Local preflight/reconciliation, latest shared request checks, file-shape/number refusal and channel reply ownership remain unchanged. Helper validation and file loading keep their existing authority.
+writer_handoff owns the ready/failed markers and Reports case-opening/channel/URL operations through six lazy inputs: render, preflightCase, helperJSON, loadCaseFile, WRITER_READY_WAIT and HANDOFF_CHANNEL. Core composes it after PDF artifacts and before document rendering, exporting the actual mutable operations. Construction reads no services/state/browser objects and opens no channel. writer_startup owns workspace locking, startup restoration sequencing and the original init/settle order; core retains readiness-promise and channel-name initialization. Local preflight/reconciliation, latest shared request checks, file-shape/number refusal and channel reply ownership remain unchanged. Helper validation and file loading keep their existing authority.
 
 ## Record rules and adapters
 
