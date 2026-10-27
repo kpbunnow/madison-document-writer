@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 83,
+    "complexity": 82,
     "max-depth": 13,
-    "max-lines-per-function": 136,
+    "max-lines-per-function": 134,
     "python": 30
   },
   "violations": {
@@ -215,10 +215,7 @@
     "app/modules/workspace_backup.js:createWorkspaceBackup#1:max-lines-per-function": 108,
     "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1:complexity": 41,
     "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1:max-lines-per-function": 92,
-    "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 418,
-    "app/modules/workspace_events.js:createWorkspaceEvents#1/registerWorkspaceClicks#1:max-lines-per-function": 332,
-    "app/modules/workspace_events.js:createWorkspaceEvents#1/registerWorkspaceClicks#1/anonymous#1:complexity": 107,
-    "app/modules/workspace_events.js:createWorkspaceEvents#1/registerWorkspaceClicks#1/anonymous#1:max-lines-per-function": 330,
+    "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 128,
     "app/modules/workspace_queue.js:workspaceQueue#1:max-lines-per-function": 135,
     "app/modules/workspace_queue.js:workspaceQueue#1/anonymous#2:complexity": 49,
     "app/modules/workspace_queue.js:workspaceQueue#1/anonymous#2:max-lines-per-function": 123,
