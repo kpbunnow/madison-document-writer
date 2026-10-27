@@ -285,3 +285,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Old access: render and mutable screen/enhancement globals in the application eval. New access: createAppScreens with explicit render/enhancement adapters and a real DOM. Every original same-document/open-pricing, absent initial-options and changed-document reset assertion is retained. Whole-application evaluator files fall 88 → 87; no production hook is retired yet.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 record form seam
+
+Old access: application startup, newDoc, render and internal record-form globals. New access: createRecoveryEvents.registerWorkingInput and createCorrectionUI.recordActionModal with a real DOM and explicit live form-key/save adapters. The capture-phase replacement listener stays before the actual input owner. Both original typed-value and repaint assertions remain unchanged. Whole-application evaluator files fall 87 → 86; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
