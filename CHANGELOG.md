@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Shell presentation, print and storage boundaries (development)
+
+- Compose the screen frame through three lazy navigation/integrity/saved-work inputs, browser printing through six native/notification inputs, storage status through five capability/location/mode inputs and the write probe through five existing permission/helper/write/UI inputs. Constructors perform no work.
+- Preserve printable clone cleanup, field values, frozen CSS, popup/download/timer behavior, escaped live diagnostics and original probe grant/request/error/render order. Core exports actual operations; existing publication, storage and helper authority remains unchanged.
+- Add independent boundary tests and guards; update ownership and source/test indexes. Writer narrows from three cyclic modules to core/screens only, capped at two; Reports remains acyclic. R63/build 64 and all formats remain unchanged.
+
 ## Unreleased — Record and helper adapters (development)
 
 - Compose authenticated helper JSON requests and case-summary context through separate one-input integrity adapters. Preserve actual transport, GET/POST/error/verification order, projection facts and original write time.
