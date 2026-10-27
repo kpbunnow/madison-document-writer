@@ -453,3 +453,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 A stateless per-owner adapter generates deferred callbacks/getters from explicit ordered resolver declarations. It stores no global registry and reads no dependency during construction. The first editor screen composition replaces 27 handwritten forwarders and five getters; scoped widths remain 8/5/19. Independent tests pin original property order/descriptors, callback name/arity, per-instance identity, live rebinding, synchronous error and Promise identity, and no early access to uninitialized bindings. Static contracts accept only named synchronous zero-argument resolvers and explicit value names; eager calls, spreads, unknown adapters and malformed metadata fail. Existing editor/architecture/dependency checks, five screen scenarios and R59 flow pass. The inventory still measures 113 interfaces at a maximum of 25 fields; no startup checkpoint changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared event composition
+
+Four grouped event/worksheet compositions replace 110 handwritten forwarders and 24 getters with explicit ordered declarations. The existing adapter preserves live target lookup, callback/value identities and descriptor order; feature construction remains inert. All sixty listener registrations, independent editor/reinspection contracts, architecture widths, 1,078 dispatch and 1,026 worksheet comparisons, R59 editor flow, walkthrough and replaced-DOM form continuity pass. No new asynchronous boundary, startup checkpoint or state field is introduced. Further flat core compositions remain to migrate.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
