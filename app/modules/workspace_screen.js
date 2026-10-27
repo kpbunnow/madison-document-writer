@@ -57,63 +57,38 @@ function renderWorkspaceRow(row) {
   const { k, st, proof } = row,
     documents = docsFor(k.id);
   const secondary = row.facts.filter((t) => !["open", "drafts"].includes(t.key));
+  // Attribute fragments are produced by the workspace task owner, which escapes their values.
   const detailActions = secondary
-    .map(
-      (t) =>
-        '<div class="queue-detail-task"><span>' + `${esc(t.label)}` + '</span><button class="btn btn-sm" ' + `${t.action}` + ">Review</button></div>",
-    )
+    .map((t) => html`<div class="queue-detail-task"><span>${t.label}</span><button class="btn btn-sm" ${raw(t.action)}>Review</button></div>`)
     .join("");
   const issued = editor.state.issuedCase === k.id;
   return (
     workspaceRowHeadingHTML({ k, issued, secondary, detailActions }) +
-    "".concat(
-      !caseNumberAllowed(k) ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "",
-    ) +
-    "\n      <p>Record verification: " +
-    `${esc(proof.label)}` +
-    "</p>" +
+    (!caseNumberAllowed(k) ? html`<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>` : "") +
+    html`
+      <p>Record verification: ${proof.label}</p>` +
     workspaceRecordProblemHTML({ proof }) +
     "\n      " +
     workspaceDocumentLinksHTML({ documents }) +
-    '\n      <button data-exportcase="' +
-    `${esc(k.id)}` +
-    '">Download case record</button><button data-timeline="' +
-    `${esc(k.id)}` +
-    '">Case timeline</button>\n      ' +
-    "".concat(
-      st.visit?.draft
-        ? `<button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`
-        : st.draft
-          ? `<button data-discard="${esc(st.draft.id)}">Discard document draft</button>`
-          : "",
-    ) +
-    '\n      <button data-rmcase="' +
-    `${esc(k.id)}` +
-    '">Remove from this workspace</button></div></details></td>\n      <td><span class="pil' +
-    "l " +
-    `${row.resolution ? "late" : st.closed ? "closed" : row.continuing ? "draft" : "open"}` +
-    '">' +
-    `${esc(row.resolution && !row.continuing ? "Needs resolution" : st.label)}` +
-    '</span><p class="queue-reason">' +
-    `${esc(row.reason)}` +
-    "</p>" +
-    "".concat(row.continuing && row.resolution ? '<span class="queue-secondary">Also needs resolution · see case details</span>' : "") +
-    "" +
-    "".concat(
-      st.visit
-        ? '<span class="muted">' + `${doneItems(st.visit).length}` + " corrected, " + `${unchecked(st.visit).length}` + " still to result</span>"
-        : "",
-    ) +
+    html`
+      <button data-exportcase="${k.id}">Download case record</button><button data-timeline="${k.id}">Case timeline</button>
+      ` +
+    (st.visit?.draft
+      ? html`<button data-discardri="${st.visit.id}">Discard reinspection draft</button>`
+      : st.draft
+        ? html`<button data-discard="${st.draft.id}">Discard document draft</button>`
+        : "") +
+    html`
+      <button data-rmcase="${k.id}">Remove from this workspace</button></div></details></td>
+      <td><span class="pill ${row.resolution ? "late" : st.closed ? "closed" : row.continuing ? "draft" : "open"}">` +
+    html`${row.resolution && !row.continuing ? "Needs resolution" : st.label}</span><p class="queue-reason">${row.reason}</p>` +
+    (row.continuing && row.resolution ? html`<span class="queue-secondary">Also needs resolution · see case details</span>` : "") +
+    (st.visit ? html`<span class="muted">${doneItems(st.visit).length} corrected, ${unchecked(st.visit).length} still to result</span>` : "") +
     "</td>\n      <td>" +
     workspaceDueHTML({ st }) +
-    "</td>\n      <td>" +
-    `${esc(insp(k.inspectorId).name)}` +
-    '</td><td><div class="case-next"><button class="btn btn-sm btn-primary qu' +
-    'eue-primary" ' +
-    `${row.action}` +
-    ">" +
-    `${esc(row.label)}` +
-    "</button></div></td></tr>"
+    html`</td>
+      <td>${insp(k.inspectorId).name}</td><td><div class="case-next">` +
+    html`<button class="btn btn-sm btn-primary queue-primary" ${raw(row.action)}>${row.label}</button></div></td></tr>`
   );
 }
 
