@@ -351,3 +351,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Eleven editor/record owners use a sixteen-field editor boundary. Direct state reads follow the current view object, while an explicit local capture retains the original pointer; tests pin both behaviors. Existing correction-service, deadline and correction-feature checks pass, as do all eight native pagination scenarios with exact page HTML and measurements. The initial browser invocation omitted DW_BROWSER; the documented Chromium fallback rerun passed. Direct root-state importers fall 74 to 71; no state is initialized during import and cycles remain zero. Remaining callers migrate in bounded batches.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 reinspection editor-state callers
+
+Reinspection workflow, entry and events now resolve their editor view/work fields through the existing editor boundary. No new surface or initializer is added. All 1,026 exact HTML snapshots and independent reinspection service, walkthrough and R46 reinspection assertions pass unchanged. Explicit view captures and live work-buffer access keep their prior timing. The mixed owners still import workspace fields directly; direct root importers remain 71 and cycles remain zero.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
