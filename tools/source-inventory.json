@@ -667,6 +667,7 @@
     "tests/unit/audit_review_r12.py",
     "tests/unit/audit_safety.js",
     "tests/unit/audit_safety.py",
+    "tests/unit/audit_safety_pending.js",
     "tests/unit/audit_scenario_harness.js",
     "tests/unit/audit_screen_css.js",
     "tests/unit/audit_screen_dependencies.js",
