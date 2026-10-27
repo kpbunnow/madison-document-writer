@@ -38,9 +38,22 @@ import {
 } from "./app_core.js";
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
-import { sourceDocFor, storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { storageReport, reindexReport, shell } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
-import { draftDocFor, draftReinspFor, docsFor, effectiveFiled, doneItems, unchecked, insp, doc, kase, docCase, reinsp } from "./writer_queries.js";
+import {
+  sourceDocFor,
+  draftDocFor,
+  draftReinspFor,
+  docsFor,
+  effectiveFiled,
+  doneItems,
+  unchecked,
+  insp,
+  doc,
+  kase,
+  docCase,
+  reinsp,
+} from "./writer_queries.js";
 
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { validISO, addDays, daysBetween, iso } from "./calendar.js";

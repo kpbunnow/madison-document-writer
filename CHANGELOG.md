@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Record and helper adapters (development)
+
+- Compose authenticated helper JSON requests and case-summary context through separate one-input integrity adapters. Preserve actual transport, GET/POST/error/verification order, projection facts and original write time.
+- Define sourceDocFor in live writer_queries and evid/appendEvent in record_event_log without UI imports. Preserve source precedence, original clock/random IDs, chronological fallback, explicit dates/actors and payload/state behavior; no stronger identity or trust guarantee.
+- Add independent tests/guards and update ownership, source/test indexes and roadmap. Shell is 57 lines smaller; Writer remains three cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Folder connection boundary (development)
 
 - Compose folder linking/restoration/permission grants through nine lazy native/capability/handle-store/helper/notification/render inputs. Preserve synchronous picker invocation, helper priority, handle assignment/persistence/flush order, quiet grant semantics and existing partial failure state.

@@ -2,7 +2,7 @@ import { recordCase } from "./record_sources.js";
 /* Live workspace queries, not startup: never capture array references or initialize shared state here. */
 import { WriterState } from "./state.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { deliveredByCitation, frozenOf, isEffective, isHistoryDoc, ocOf } from "./document_rules.js";
+import { deliveredByCitation, frozenOf, isEffective, isHistoryDoc, ocOf, supplemental } from "./document_rules.js";
 export const effectiveFiled = (d) => (deliveredByCitation(d) ? !!doc(d.issuanceGroup.citationId)?.filedAt : !!d?.filedAt);
 
 export const kase = (id) => WriterState.CASES.find((k) => k.id === id) || {};
@@ -95,3 +95,10 @@ export const recordHead = (cid) =>
 export const correctionSource = (d) => (d && d.correction ? doc(d.correction.targetId) : null);
 
 export const recordNow = (cid) => new Date(Math.max(Date.now(), ...eventsFor(cid).map((e) => Date.parse(e.at) + 1))).toISOString();
+
+export function sourceDocFor(cid) {
+  // Only a document that has actually been issued can be reinspected: it is
+  // the numbered list the owner received. DOCS is newest first.
+  const w = docsFor(cid).filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
+  return w.find((d) => !supplemental(d)) || w[0] || null;
+}

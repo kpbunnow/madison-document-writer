@@ -397,13 +397,21 @@ Preserve acquisition/held-lock promise lifetime, lock refusal/reload UI and read
 
 There are 116 maintained modules, 15 isolated foundations and 69 independent scoped owners. The emptied case_files module is removed. Writer narrows from four to three cyclic modules (core, screens and shell); tighten the guard to three. Reports stays acyclic. Next separate remaining shell/folder responsibilities, then core/screen direction while preserving startup/event order. Earlier counts/ownership remain provenance.
 
-## Forty-fourth increment: folder connections
+## Forty-fourth increment: folder connections (merged in PR #90)
 
 folder_connections composes linkCaseFolder/restoreCaseFolder/grantCaseFolder through nine lazy native/capability/handle-store/helper/UI inputs, importing only state. Core constructs it after addressParser and before caseFolderWorkflow and exports actual mutable operations. The shell probe uses the composed grant. Construction performs no reads, I/O or registration.
 
 All three moved and remaining shell bodies preserve logic except dependency access. Keep helper priority, synchronous picker/options, live handle/name/permission then persistence/flush order, restoration query/default/error behavior, quiet versus interactive grants and original partial state/catch boundaries. Existing IndexedDB/helper/pending-write owners retain authority; no atomic connection switch or pinned-folder guarantee is added.
 
 There are 117 maintained modules, 15 isolated foundations and 70 independent scoped owners. Shell shrinks from 470 to 388 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/probe and remaining record/projection/helper request adapters, then core/screen direction. Earlier counts/ownership remain provenance.
+
+## Forty-fifth increment: record and helper adapters
+
+helper_requests composes actual authenticated helper JSON response/error/verification through one lazy integrity input; case_summary_adapter composes the existing live summary context through one lazy integrity input. Core constructs both after addressParser and before folderConnections, exports actual operations and shell probe consumes composed helperJSON. Constructors perform no reads, I/O or registration. writer_queries defines sourceDocFor and record_event_log directly defines evid/appendEvent without UI imports.
+
+All five moved and remaining shell functions preserve logic apart from dependency access. Preserve request shapes/error/verification order and summary projection facts/time; source preference/fallback; original clock/random ID generation, latest+1 versus explicit chronology/actor, payload references and append/dirty semantics. Existing transport/helper/integrity/projection authority remains; no stronger pure/cryptographic/unique identity claim is made.
+
+There are 120 maintained modules, 15 isolated foundations and 73 independent scoped owners. Shell shrinks from 388 to 331 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/status/probe, then core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 
