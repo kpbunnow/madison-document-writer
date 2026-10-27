@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { DOC_TYPES } from "./document_types.js";
 import { docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
@@ -64,10 +65,10 @@ export function createDocumentDelivery(services) {
     const jb = job && job.docId === d.id ? job : { docId: d.id, name: artifact.filename, html: "" };
     const useFiled = true;
     if (!picked && list.length) {
-      WriterState.state.modal = "sendto";
-      WriterState.state.sendDoc = d.id;
-      WriterState.state.sendJob = jb;
-      WriterState.state.sendReuse = useFiled;
+      editor.state.modal = "sendto";
+      editor.state.sendDoc = d.id;
+      editor.state.sendJob = jb;
+      editor.state.sendReuse = useFiled;
       services.render();
       return false;
     }
@@ -78,7 +79,7 @@ export function createDocumentDelivery(services) {
     }
 
     services.toastHold("Preparing the email — this takes a few seconds");
-    WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
+    editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
     try {
       const r = await services.authFetch("/email", {
         method: "POST",
@@ -111,7 +112,7 @@ export function createDocumentDelivery(services) {
       services.toast("Could not reach the local helper to send the email");
       return false;
     } finally {
-      WriterState.FILING_ACTIVE -= 1;
+      editor.FILING_ACTIVE -= 1;
     }
   }
 
@@ -191,7 +192,7 @@ export function createDocumentDelivery(services) {
       version: await services.recordIntegrity.sourceHash(snapshot),
     };
     services.toastHold("Filing " + jb.name + " — this takes a few seconds");
-    WriterState.FILING_ACTIVE = (WriterState.FILING_ACTIVE || 0) + 1;
+    editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
     try {
       const r = await services.authFetch("/save-pdf", {
         method: "POST",
@@ -231,7 +232,7 @@ export function createDocumentDelivery(services) {
       services.toast("PDF filing needed. The helper response is uncertain. Use File issued PDF to retry the same original.");
       return false;
     } finally {
-      WriterState.FILING_ACTIVE -= 1;
+      editor.FILING_ACTIVE -= 1;
     }
   }
   return { checkHelper, emailDocument, openIssuedCopy, filePdf };

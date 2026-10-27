@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 import { recordDay } from "../assets/shared.js";
 
@@ -100,7 +101,7 @@ export function initTestFixtures(services) {
     services.saveDrafts();
     const live = doc(d.id);
     if (live) {
-      WriterState.state.docId = live.id;
+      editor.state.docId = live.id;
     }
     services.render();
     return ev;

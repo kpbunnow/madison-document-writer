@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import { caseFileName } from "./case_file_rules.js";
@@ -33,7 +34,7 @@ export function createCaseStatus(services) {
       days = due ? daysBetween(recordDay(services.today), due) : null;
     const late = !closed && !!due && due < recordDay(services.today),
       soon = !closed && !!due && !late && days >= 0 && days <= 7;
-    const pendingRecord = Object.values(WriterState.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
+    const pendingRecord = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
     const pendingDoc = docsFor(k.id).find((d) => d.pendingAmendment) || null;
     const pendingSync = WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
     const filingDoc = live.find((d) => independentArtifact(d) && !effectiveFiled(d)) || null;

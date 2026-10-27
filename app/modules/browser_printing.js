@@ -1,11 +1,11 @@
+import { editorState as editor } from "./editor_state.js";
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
 import { esc, fmtDate, fmtTime } from "./presentation_format.js";
 import { doc, docCase, kase } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function createBrowserPrinting(services) {
   function printableHTML(documentOverride, sheetOverride) {
-    const d = documentOverride || doc(WriterState.state.docId);
+    const d = documentOverride || doc(editor.state.docId);
     if (!d) return "";
     const k = docCase(d);
     const sheet = sheetOverride || services.document.querySelector(".desk");
@@ -107,7 +107,7 @@ export function createBrowserPrinting(services) {
   }
 
   function printNotice(job) {
-    const d = (job && doc(job.docId)) || doc(WriterState.state.docId);
+    const d = (job && doc(job.docId)) || doc(editor.state.docId);
     if (!d) return;
     const k = kase(d.caseId);
     const html = (job && job.html) || printableHTML();

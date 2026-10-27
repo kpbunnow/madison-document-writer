@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
 import { iso } from "./calendar.js";
 import { DOC_TYPES } from "./document_types.js";
@@ -7,7 +8,7 @@ import { WriterState } from "./state.js";
 import { recordDay, mailingMaxDay } from "../assets/shared.js";
 
 function sendRecipientModal() {
-  const d = doc(WriterState.state.sendDoc) || doc(WriterState.state.docId);
+  const d = doc(editor.state.sendDoc) || doc(editor.state.docId);
   if (!d) return "";
   const k = kase(d.caseId),
     list = emailList(k).filter((e) => String(e.addr || "").trim());
@@ -116,13 +117,13 @@ function recipientEmailHTML({ em }) {
 }
 
 function recipientModal({ services }) {
-  const d = doc(WriterState.state.docId);
+  const d = doc(editor.state.docId);
   if (!d) return "";
   const k = docCase(d),
     cc = ccList(k),
     em = emailList(k),
     needAgent = d.type === "citation" && isLLC(k),
-    problem = WriterState.state.ccProblem;
+    problem = editor.state.ccProblem;
   const invalid = (scope, index, field) =>
     problem && problem.scope === scope && problem.index === index && problem.field === field
       ? ' aria-invalid="true" aria-describedby="cc-address-error"'
@@ -296,7 +297,7 @@ function storageModal({ services }) {
     "".concat(
       WriterState.CASEDIR
         ? '<button class="btn" id="btn-reindex" ' +
-            `${WriterState.state.reindex && WriterState.state.reindex.running ? "disabled" : ""}` +
+            `${editor.state.reindex && editor.state.reindex.running ? "disabled" : ""}` +
             ">Rebuild reporting index</button>" +
             "".concat(
               WriterState.CASEDIR.helper
@@ -313,15 +314,15 @@ function storageModal({ services }) {
 }
 
 function folderModal() {
-  const fs = (WriterState.state.folder || []).filter((f) => f.name.toLowerCase().includes((WriterState.state.folderQ || "").toLowerCase()));
+  const fs = (editor.state.folder || []).filter((f) => f.name.toLowerCase().includes((editor.state.folderQ || "").toLowerCase()));
   return (
     '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
     '">\n      <div class="modal-h"><h2>Open a saved case</h2></div><div class' +
     '="modal-b"><label class="f"><span>Search saved cases</span><input type="' +
     'search" id="folder-search" value="' +
-    `${esc(WriterState.state.folderQ || "")}` +
+    `${esc(editor.state.folderQ || "")}` +
     '" placeholder="Address or case number…"></label>' +
-    "".concat(WriterState.state.folderError ? `<div class="banner warn">${esc(WriterState.state.folderError)}</div>` : "") +
+    "".concat(editor.state.folderError ? `<div class="banner warn">${esc(editor.state.folderError)}</div>` : "") +
     "\n      " +
     "".concat(
       fs.length
@@ -388,7 +389,7 @@ function finalRecipientsHTML({ d }) {
 }
 
 function finalDocumentModal({ services }) {
-  const d = doc(WriterState.state.docId),
+  const d = doc(editor.state.docId),
     ch = services.checks(d),
     bad = services.blockers(d);
   const notes = ch.filter((c) => !c.ok && c.soft);
@@ -446,7 +447,7 @@ function finalDocumentModal({ services }) {
     `${bad.length ? "Back to the document" : "Cancel"}` +
     '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
     '</button>\n      <button class="btn btn-primary" id="fin-go" ' +
-    `${bad.length ? 'disabled title="Clear the outstanding checks first"' : WriterState.AMENDMENT_BUSY || WriterState.state.publicationBusy ? 'disabled title="The save is in progress"' : ""}` +
+    `${bad.length ? 'disabled title="Clear the outstanding checks first"' : editor.AMENDMENT_BUSY || editor.state.publicationBusy ? 'disabled title="The save is in progress"' : ""}` +
     ">" +
     "".concat(d.correction ? "Save &amp; issue correction" : services.initialCitations.enabled(d) ? "Issue citation" : "Issue document") +
     "</button></div></div></div>"
@@ -455,21 +456,21 @@ function finalDocumentModal({ services }) {
 
 export function createScreenOverlays(services) {
   function modalHTML() {
-    if (WriterState.state.modal === "shared-change") return services.sharedChangeModal();
-    if (WriterState.state.modal === "review") return services.reviewModalHTML();
-    if (WriterState.state.modal === "recovery") return services.recoveryModal();
-    if (["void", "recordnote", "reconcile"].includes(WriterState.state.modal)) return services.recordActionModal();
-    if (WriterState.state.modal === "sendto") return sendRecipientModal();
-    if (WriterState.state.modal === "cc") return recipientModal({ services });
-    if (WriterState.state.modal === "clear") return clearWorkspaceModal({ services });
-    if (WriterState.state.modal === "storage") return storageModal({ services });
-    if (WriterState.state.modal === "folder") return folderModal();
-    if (WriterState.state.modal !== "final") return "";
+    if (editor.state.modal === "shared-change") return services.sharedChangeModal();
+    if (editor.state.modal === "review") return services.reviewModalHTML();
+    if (editor.state.modal === "recovery") return services.recoveryModal();
+    if (["void", "recordnote", "reconcile"].includes(editor.state.modal)) return services.recordActionModal();
+    if (editor.state.modal === "sendto") return sendRecipientModal();
+    if (editor.state.modal === "cc") return recipientModal({ services });
+    if (editor.state.modal === "clear") return clearWorkspaceModal({ services });
+    if (editor.state.modal === "storage") return storageModal({ services });
+    if (editor.state.modal === "folder") return folderModal();
+    if (editor.state.modal !== "final") return "";
     return finalDocumentModal({ services });
   }
 
   function overlayHTML() {
-    return WriterState.state.modal ? modalHTML() : WriterState.state.picker ? services.pickerHTML() : "";
+    return editor.state.modal ? modalHTML() : editor.state.picker ? services.pickerHTML() : "";
   }
   return { overlayHTML };
 }
