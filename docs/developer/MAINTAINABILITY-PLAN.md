@@ -375,3 +375,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Screen repaint, recovery, handoff, navigation, device persistence and exit owners use the existing editor state boundary. Automatic/case recovery, handoff, screen dependency and desktop exit assertions pass unchanged, including deferred work, rollback retention and original startup barriers. No view pointer is copied or initialized. Direct root importers remain 69 because mixed workspace/helper fields are still direct; cycles remain zero.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 remaining editor-state callers
+
+Remaining workspace, storage, record, worksheet and delivery owners use the existing editor boundary. Exact Workspace/overlay HTML and workspace dispatch comparisons pass across 3,137 cases; worksheet, workspace queue, backup, delivery and safety tests pass unchanged. AST inspection found no shadowed cohort aliases. This completes editor-root caller migration outside core; explicit captured view pointers remain unchanged. Direct root-state importers fall 69 to 64, with zero cycles. Other root cohorts still require migration.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

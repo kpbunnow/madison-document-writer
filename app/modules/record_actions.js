@@ -1,6 +1,6 @@
+import { editorState as editor } from "./editor_state.js";
 import { isHistoryDoc, specialType } from "./document_rules.js";
 import { doc, kase, recordHead, recordNow } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function createRecordActions(services) {
   function runFinalize(d) {
@@ -26,7 +26,7 @@ export function createRecordActions(services) {
       payload: { docId, reason: reason.trim(), externalReference, expectedHead: recordHead(d.caseId) },
     };
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     services.render();
     services.toast("Document withdrawn. Its original and reason remain in the case history.");
     return true;
@@ -46,7 +46,7 @@ export function createRecordActions(services) {
       payload: { docId, text: text.trim() },
     };
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     services.render();
     services.toast("Record note saved. The issued document is unchanged.");
     return true;
@@ -66,7 +66,7 @@ export function createRecordActions(services) {
       payload: { docId, reference: reference.trim() },
     };
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     services.render();
     services.toast("Follow-through recorded.");
     return true;
@@ -74,8 +74,8 @@ export function createRecordActions(services) {
 
   async function commitRecordAttempt(cid, attempt) {
     const key = cid + "_" + attempt.payload.docId + "_" + attempt.type.replace(/[^a-z]/gi, "");
-    const holder = WriterState.RECORD_ATTEMPTS[key] || { id: null, cid, recordKey: key, pendingAmendment: attempt };
-    WriterState.RECORD_ATTEMPTS[key] = holder;
+    const holder = editor.RECORD_ATTEMPTS[key] || { id: null, cid, recordKey: key, pendingAmendment: attempt };
+    editor.RECORD_ATTEMPTS[key] = holder;
     return services.commitAmendment(cid, holder.pendingAmendment, holder);
   }
   return { runFinalize, voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt };

@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { caseFileName } from "./case_file_rules.js";
 import { docsFor, doneItems, unchecked, insp } from "./writer_queries.js";
@@ -96,7 +97,7 @@ function renderWorkspaceRow(row) {
         '<div class="queue-detail-task"><span>' + `${esc(t.label)}` + '</span><button class="btn btn-sm" ' + `${t.action}` + ">Review</button></div>",
     )
     .join("");
-  const issued = WriterState.state.issuedCase === k.id;
+  const issued = editor.state.issuedCase === k.id;
   return (
     workspaceRowHeadingHTML({ k, issued, secondary, detailActions }) +
     "".concat(
@@ -162,7 +163,7 @@ function workspaceQuickViewsHTML({ quickViews, count }) {
                   '<button class="btn queue-summary-button" data-queue-view="' +
                   `${key}` +
                   '" aria-pressed="' +
-                  `${WriterState.state.caseFilter === key}` +
+                  `${editor.state.caseFilter === key}` +
                   '"' +
                   `${key === "resolution" ? ' aria-describedby="queue-resolution-desc" title="Unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers"' : ""}` +
                   "><span>" +
@@ -184,14 +185,14 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
   return (
     '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
     'ce</span><input type="search" id="case-search" value="' +
-    `${esc(WriterState.state.caseQ)}` +
+    `${esc(editor.state.caseQ)}` +
     '" placeholder="Search this workspace…"></label>\n      <label class="case' +
     '-view"><span class="sr-only">More views</span><select id="case-filter" aria-label="More views"' +
     ">" +
-    `<option value="" ${moreViews.some(([key]) => key === WriterState.state.caseFilter) ? "" : "selected"}>More views…</option>` +
+    `<option value="" ${moreViews.some(([key]) => key === editor.state.caseFilter) ? "" : "selected"}>More views…</option>` +
     "".concat(
       moreViews
-        .map(([key, label]) => `<option value="${key}" ${WriterState.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`)
+        .map(([key, label]) => `<option value="${key}" ${editor.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`)
         .join(""),
     ) +
     '</select></label>\n      <select id="case-inspector" aria-label="Filter b' +
@@ -203,7 +204,7 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
             '<option value="' +
             `${esc(i.id)}` +
             '" ' +
-            `${WriterState.state.caseInspector === i.id ? "selected" : ""}` +
+            `${editor.state.caseInspector === i.id ? "selected" : ""}` +
             ">" +
             `${esc(i.name)}` +
             "</option>",
@@ -213,16 +214,16 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
     '</select></div>\n      <p class="queue-filter-note">' +
     `${filtered.length}` +
     " of " +
-    `${count(WriterState.state.caseFilter)}` +
+    `${count(editor.state.caseFilter)}` +
     " cases in " +
     `${activeLabel}` +
     "" +
     `${query ? " · workspace search applied" : ""}` +
     "" +
-    `${WriterState.state.caseInspector ? " · inspector filter applied" : ""}` +
+    `${editor.state.caseInspector ? " · inspector filter applied" : ""}` +
     ". Counts include all loaded cases; a case can belong to more than one vi" +
     "ew." +
-    "".concat(query || WriterState.state.caseInspector ? ' <button class="lnk" data-queue-reset>Clear search and inspector</button>' : "") +
+    "".concat(query || editor.state.caseInspector ? ' <button class="lnk" data-queue-reset>Clear search and inspector</button>' : "") +
     '</p>\n      <div class="case-table-wrap"><table class="list case-table"><' +
     'caption class="sr-only">' +
     `${esc(activeLabel)}` +
@@ -233,14 +234,14 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
     "".concat(
       table ||
         '<tr><td colspan="5"><div class="empty">' +
-          `${query || WriterState.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
+          `${query || editor.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
           ' <button class="lnk" data-queue-reset>Clear search and inspector</button' +
           '> <button class="lnk" id="case-showall">View all cases</button>' +
           // The shared search opens with this workspace query prefilled; it is not submitted automatically.
           "".concat(
             query
               ? ' <button class="btn btn-sm" data-shared-offer>Search shared case records for “' +
-                  esc(String(WriterState.state.caseQ || "").trim()) +
+                  esc(String(editor.state.caseQ || "").trim()) +
                   "”</button>"
               : "",
           ) +
@@ -315,7 +316,7 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
 
 export function createWorkspaceScreen(services) {
   function revealIssuedCase(cid) {
-    const s = WriterState.state,
+    const s = editor.state,
       rows = WriterState.CASES.map((k) => ({ k, st: services.caseState(k) })),
       row = workspaceQueue(rows, services.workspaceTasks(rows), services.app_workspacequeueContext()).find((r) => r.k.id === cid);
     if (!row) return false;
@@ -346,13 +347,13 @@ export function createWorkspaceScreen(services) {
     const rows = WriterState.CASES.map((k) => ({ k, st: services.caseState(k) })),
       tasks = services.workspaceTasks(rows);
     // Retire legacy metric selection into the workspace views.
-    if (WriterState.state.metric) {
-      WriterState.state.caseFilter =
-        { drafts: "continue", overdue: "overdue", soon: "soon", open: "open", imports: "all" }[WriterState.state.metric] || "resolution";
-      WriterState.state.metric = "";
+    if (editor.state.metric) {
+      editor.state.caseFilter =
+        { drafts: "continue", overdue: "overdue", soon: "soon", open: "open", imports: "all" }[editor.state.metric] || "resolution";
+      editor.state.metric = "";
     }
     const queue = workspaceQueue(rows, tasks, services.app_workspacequeueContext()),
-      query = String(WriterState.state.caseQ || "")
+      query = String(editor.state.caseQ || "")
         .toLowerCase()
         .trim();
     // Quick views are the primary filter; More views holds the additional states.
@@ -370,20 +371,20 @@ export function createWorkspaceScreen(services) {
         ["closed", "Closed"],
       ],
       views = [...quickViews, ...moreViews];
-    if (WriterState.state.caseFilter === "drafts") WriterState.state.caseFilter = "continue";
-    if (!views.some(([key]) => key === WriterState.state.caseFilter)) WriterState.state.caseFilter = "attention";
+    if (editor.state.caseFilter === "drafts") editor.state.caseFilter = "continue";
+    if (!views.some(([key]) => key === editor.state.caseFilter)) editor.state.caseFilter = "attention";
     const count = (filter) => queue.filter((row) => queueMatches(row, filter)).length;
     const filtered = queue.filter(
       (row) =>
-        queueMatches(row, WriterState.state.caseFilter) &&
+        queueMatches(row, editor.state.caseFilter) &&
         (!query || services.caseSearchText(row.k).includes(query)) &&
-        (!WriterState.state.caseInspector || row.k.inspectorId === WriterState.state.caseInspector),
+        (!editor.state.caseInspector || row.k.inspectorId === editor.state.caseInspector),
     );
     const table = filtered.map((row) => renderWorkspaceRow(row)).join("");
     const importCount = tasks.find((t) => t.key === "imports").count;
     // Pending operations without a loaded case must remain reachable.
     const orphan = WriterState.PENDING.filter((p) => !WriterState.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));
-    const activeLabel = views.find(([key]) => key === WriterState.state.caseFilter)[1];
+    const activeLabel = views.find(([key]) => key === editor.state.caseFilter)[1];
     return services.shell(
       "Your workspace",
       "Building Inspection",

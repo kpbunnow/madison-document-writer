@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Workspace event ownership. Construction is inert; core registers at the original startup positions. */
@@ -9,8 +10,8 @@ const workspaceActions = [
     id: "t-undo",
     matches: (t, e) => t.id === "t-undo",
     run: (services, t, e, d) => {
-      const f = WriterState.undoFn;
-      WriterState.undoFn = null;
+      const f = editor.undoFn;
+      editor.undoFn = null;
       document.getElementById("toast").innerHTML = "";
       if (f) f();
       return;
@@ -35,8 +36,8 @@ const workspaceActions = [
     run: (services, t, e, d) => {
       if (services.storageMode() === "folder") {
         services.listCaseFolder().then((fs) => {
-          WriterState.state.folder = fs;
-          WriterState.state.modal = "folder";
+          editor.state.folder = fs;
+          editor.state.modal = "folder";
           services.render();
         });
         return;
@@ -66,8 +67,8 @@ const workspaceActions = [
     matches: (t, e) => t.id === "btn-browse",
     run: (services, t, e, d) => {
       services.listCaseFolder().then((fs) => {
-        WriterState.state.folder = fs;
-        WriterState.state.modal = "folder";
+        editor.state.folder = fs;
+        editor.state.modal = "folder";
         services.render();
       });
       return;
@@ -77,7 +78,7 @@ const workspaceActions = [
     id: "openfolder",
     matches: (t, e) => t.dataset.openfolder,
     run: (services, t, e, d) => {
-      WriterState.state.modal = null;
+      editor.state.modal = null;
       services.openFromFolder(t.dataset.openfolder);
       return;
     },
@@ -116,7 +117,7 @@ const workspaceActions = [
     matches: (t, e) => t.dataset.caseSync,
     run: (services, t, e, d) => {
       if (!WriterState.CASEDIR) {
-        WriterState.state.modal = "storage";
+        editor.state.modal = "storage";
         services.render();
         return;
       }
@@ -133,7 +134,7 @@ const workspaceActions = [
     matches: (t, e) => t.id === "btn-storage",
     run: (services, t, e, d) => {
       document.getElementById("utility-dialog")?.close();
-      WriterState.state.modal = "storage";
+      editor.state.modal = "storage";
       services.render();
       return;
     },
@@ -142,7 +143,7 @@ const workspaceActions = [
     id: "btn-clear",
     matches: (t, e) => t.id === "btn-clear",
     run: (services, t, e, d) => {
-      WriterState.state.modal = "clear";
+      editor.state.modal = "clear";
       services.render();
       return;
     },
@@ -207,7 +208,7 @@ const workspaceActions = [
       )
         return;
       if (services.removeCase(k.id) === false) return;
-      WriterState.state.screen = "cases";
+      editor.state.screen = "cases";
       services.render();
       services.toast(k.number + " removed from this workspace. The shared case record is not deleted.");
       return;
@@ -231,7 +232,7 @@ const workspaceActions = [
     id: "btn-savecase",
     matches: (t, e) => t.id === "btn-savecase",
     run: (services, t, e, d) => {
-      const dd = doc(WriterState.state.docId);
+      const dd = doc(editor.state.docId);
       if (!dd) return;
       if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
         services.grantCaseFolder(true).then(() => services.saveCaseFile(dd.caseId));
@@ -486,9 +487,7 @@ const documentActions = [
   {
     id: "btn-recordnote",
     matches: (t, e) =>
-      t.id === "btn-recordnote" &&
-      WriterState.state.publicationBusy &&
-      doc(WriterState.state.publicationBusy)?.caseId === doc(WriterState.state.docId)?.caseId,
+      t.id === "btn-recordnote" && editor.state.publicationBusy && doc(editor.state.publicationBusy)?.caseId === doc(editor.state.docId)?.caseId,
     run: (services, t, e, d) => {
       return services.correctionEvents.refuseBusyNote();
     },
@@ -572,14 +571,14 @@ const documentActions = [
   },
   {
     id: "acccase",
-    matches: (t, e) => t.dataset.acccase !== undefined && WriterState.state.acc,
+    matches: (t, e) => t.dataset.acccase !== undefined && editor.state.acc,
     run: (services, t, e, d) => {
       return services.importEvents.selectCase(t);
     },
   },
   {
     id: "accsel",
-    matches: (t, e) => t.dataset.accsel !== undefined && WriterState.state.acc && !imports.LOOKUP_BUSY,
+    matches: (t, e) => t.dataset.accsel !== undefined && editor.state.acc && !imports.LOOKUP_BUSY,
     run: (services, t, e, d) => {
       return services.importEvents.selectInspection(t);
     },
@@ -591,13 +590,13 @@ export function createWorkspaceEvents(services) {
     return registerEventOnce(target, "workspace.registerQueueViews", "click", (e) => {
       const t = e.target.closest?.("[data-queue-view],[data-queue-reset]");
       if (!t) return;
-      WriterState.state.metric = "";
+      editor.state.metric = "";
       if (t.hasAttribute("data-queue-reset")) {
-        WriterState.state.caseQ = "";
-        WriterState.state.caseInspector = "";
+        editor.state.caseQ = "";
+        editor.state.caseInspector = "";
       } else {
         // Switching views keeps the workspace search and inspector filter; only the reset clears them.
-        WriterState.state.caseFilter = t.dataset.queueView;
+        editor.state.caseFilter = t.dataset.queueView;
       }
       services.render();
       services.saveWorkflowPrefs();
@@ -613,8 +612,8 @@ export function createWorkspaceEvents(services) {
         st = services.caseState(kase(cid));
       if (st.draft) {
         services.preflightCase(cid, "draft", () => {
-          WriterState.state.docId = st.draft.id;
-          WriterState.state.screen = "write";
+          editor.state.docId = st.draft.id;
+          editor.state.screen = "write";
           services.render();
         });
         return;
@@ -625,8 +624,8 @@ export function createWorkspaceEvents(services) {
       }
       if (st.current)
         services.preflightCase(cid, "case", () => {
-          WriterState.state.docId = st.current.id;
-          WriterState.state.screen = "write";
+          editor.state.docId = st.current.id;
+          editor.state.screen = "write";
           services.render();
         });
     });
@@ -669,10 +668,10 @@ export function createWorkspaceEvents(services) {
       if (!t) return;
       services.captureWork();
       if (t.id === "case-showall") {
-        WriterState.state.metric = "";
-        WriterState.state.caseFilter = "all";
-        WriterState.state.caseQ = "";
-        WriterState.state.caseInspector = "";
+        editor.state.metric = "";
+        editor.state.caseFilter = "all";
+        editor.state.caseQ = "";
+        editor.state.caseInspector = "";
         services.render();
         services.saveWorkflowPrefs();
         return;
@@ -683,7 +682,7 @@ export function createWorkspaceEvents(services) {
       }
       const action = workspaceActions.find((action) => action.matches(t, e));
       if (action) return action.run(services, t, e);
-      const d = doc(WriterState.state.docId);
+      const d = doc(editor.state.docId);
       const documentAction = documentActions.find((action) => action.matches(t, e));
       if (documentAction) return documentAction.run(services, t, e, d);
     });
@@ -693,9 +692,9 @@ export function createWorkspaceEvents(services) {
     const cursor = el.selectionStart,
       key = el.id === "case-search" ? "caseQ" : "folderQ",
       id = el.id;
-    WriterState.state[key] = el.value;
+    editor.state[key] = el.value;
     if (id === "case-search") {
-      WriterState.state.metric = "";
+      editor.state.metric = "";
       services.render();
     } else services.refreshOverlay();
     const next = document.getElementById(id);
@@ -712,9 +711,9 @@ export function createWorkspaceEvents(services) {
   };
 
   const changeCaseFilter = (e) => {
-    WriterState.state.metric = "";
+    editor.state.metric = "";
     // Returning More views to its placeholder restores the default Needs attention view.
-    WriterState.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
+    editor.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
       e.target.id === "case-filter" ? e.target.value || "attention" : e.target.value;
     services.render();
     if (e.target.id === "case-filter") document.querySelector("#case-filter")?.focus();

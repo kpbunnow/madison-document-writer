@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { SNOW_TYPE, courtTime } from "./document_types.js";
 import { isSnowCase, itemLibraryKey } from "./document_rules.js";
@@ -87,7 +88,7 @@ export function initSnow(services) {
     if (!d?.draft || !is(d) || d.pendingAmendment) return;
     if (WriterState.HELPER?.ok && !letterLoaded && !loading)
       void loadLetter().then((ok) => {
-        if (ok && WriterState.state.docId === d.id) services.renderKeep();
+        if (ok && editor.state.docId === d.id) services.renderKeep();
       });
     d.authoringVersion = 11;
     d.caseType = SNOW_TYPE;
@@ -335,7 +336,7 @@ export function initSnow(services) {
       type = String(row?.caseType || row?.CaseType || row?.CaseTypeName || "").trim(),
       category = String(row?.recordCategory || row?.RecordCategory || "").trim();
     return (
-      WriterState.WORK.entry?.["new-case-type"] === SNOW_TYPE ||
+      editor.WORK.entry?.["new-case-type"] === SNOW_TYPE ||
       /^snow removal$/i.test(category) ||
       configured.some((x) => String(x).toLowerCase() === type.toLowerCase())
     );
@@ -347,7 +348,7 @@ export function initSnow(services) {
     const el = e.target,
       key = el.dataset?.snow;
     if (!key) return;
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d?.draft || services.isLocked(d) || d.pendingAmendment) return;
     d.snow = d.snow || {};
     d.snow[key] = el.type === "checkbox" ? el.checked : key === "inches" ? (el.value === "" ? "" : Number(el.value)) : el.value;
@@ -367,7 +368,7 @@ export function initSnow(services) {
       return;
     }
     if (!e.target.closest?.("[data-remove-snow]")) return;
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d?.draft || d.correction || d.pendingAmendment) return;
     d.items = [];
     d.cits = {};
@@ -378,8 +379,8 @@ export function initSnow(services) {
   });
   document.addEventListener("change", (e) => {
     if (e.target.id === "new-case-type") {
-      WriterState.WORK.entry = WriterState.WORK.entry || {};
-      WriterState.WORK.entry["new-case-type"] = e.target.value;
+      editor.WORK.entry = editor.WORK.entry || {};
+      editor.WORK.entry["new-case-type"] = e.target.value;
       services.saveDrafts();
       services.renderKeep();
     }

@@ -1,16 +1,16 @@
+import { editorState as editor } from "./editor_state.js";
 import { deliveredByCitation } from "./document_rules.js";
 import { doc, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 import { clone } from "./record_values.js";
-import { WriterState } from "./state.js";
 
 export function hasSetupWork() {
-  return !!WriterState.state.acc || !!String(WriterState.WORK.entry?.["lookup-number"] || "").trim();
+  return !!editor.state.acc || !!String(editor.WORK.entry?.["lookup-number"] || "").trim();
 }
 
 export function importResumePanel() {
-  const acc = WriterState.state.acc || WriterState.WORK.acc;
+  const acc = editor.state.acc || editor.WORK.acc;
   if (acc) {
     const c = acc.cases && acc.cases[acc.caseIx || 0],
       number = c && c.number,
@@ -28,7 +28,7 @@ export function importResumePanel() {
       "port</button></section>"
     );
   }
-  const number = String(WriterState.WORK.entry?.["lookup-number"] || "").trim();
+  const number = String(editor.WORK.entry?.["lookup-number"] || "").trim();
   return number
     ? '<section class="attention-import" aria-label="Import in progress"><div c' +
         'lass="attention-import-copy"><span class="attention-eyebrow">Import in p' +
@@ -41,7 +41,7 @@ export function importResumePanel() {
 }
 
 export function workingNotesPanel() {
-  const forms = Object.entries(WriterState.WORK.recordForms || {}).filter(
+  const forms = Object.entries(editor.WORK.recordForms || {}).filter(
     ([key, v]) => doc(key.slice(0, key.lastIndexOf(":"))) && String(v.text || v.external || "").trim(),
   );
   if (!forms.length) return "";
@@ -86,24 +86,24 @@ export function filingPanel(d) {
 
 export function createWorkingPapers(services) {
   function captureWork() {
-    if (WriterState.state.screen === "reinspect" && WriterState.state.riWalk && services.ensureWalkContext())
-      WriterState.WORK.walk = {
-        context: WriterState.state.riWalkContext,
-        item: WriterState.state.riWalkItem,
-        undo: clone(WriterState.state.riWalkUndo),
-        skipped: clone(WriterState.state.riWalkSkipped),
-        mode: WriterState.state.riWalkMode,
-        stage: WriterState.state.riWalkStage,
+    if (editor.state.screen === "reinspect" && editor.state.riWalk && services.ensureWalkContext())
+      editor.WORK.walk = {
+        context: editor.state.riWalkContext,
+        item: editor.state.riWalkItem,
+        undo: clone(editor.state.riWalkUndo),
+        skipped: clone(editor.state.riWalkSkipped),
+        mode: editor.state.riWalkMode,
+        stage: editor.state.riWalkStage,
       };
     // Input/change listeners own every edit, including an explicit clear. A finishing save must not capture a transient empty control over typed work.
-    if (WriterState.state.screen === "import")
+    if (editor.state.screen === "import")
       services.ENTRY_IDS.forEach((id) => {
         const el = services.document.getElementById(id);
-        if (el && WriterState.WORK.entry[id] === undefined) WriterState.WORK.entry[id] = el.value;
+        if (el && editor.WORK.entry[id] === undefined) editor.WORK.entry[id] = el.value;
       });
-    WriterState.WORK.acc = WriterState.state.acc ? clone(WriterState.state.acc) : null;
-    if (WriterState.state.modal === "final") {
-      const d = doc(WriterState.state.docId),
+    editor.WORK.acc = editor.state.acc ? clone(editor.state.acc) : null;
+    if (editor.state.modal === "final") {
+      const d = doc(editor.state.docId),
         boxes = [...services.document.querySelectorAll("[data-finsend]")];
       if (d && d.draft && !d.pendingAmendment && boxes.length) {
         const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
@@ -114,19 +114,19 @@ export function createWorkingPapers(services) {
           .map((e) => e.addr + "|" + (e.kind || "Other"));
       }
     }
-    if (["void", "recordnote", "reconcile"].includes(WriterState.state.modal)) {
+    if (["void", "recordnote", "reconcile"].includes(editor.state.modal)) {
       const text = services.document.getElementById("record-action-text");
       /* R35: the input listener records every user edit (including clearing a field). A re-rendered dialog can briefly
        show empty fields, and saves call captureWork, so the DOM fills only fields never recorded; it never overwrites typed text. */
       if (text) {
         const key = services.recordFormKey(),
-          prev = WriterState.WORK.recordForms[key] || {},
+          prev = editor.WORK.recordForms[key] || {},
           dom = {
             text: text.value,
             external: (services.document.getElementById("record-action-external") || {}).value || "",
             actor: (services.document.getElementById("record-action-inspector") || {}).value || "",
           };
-        WriterState.WORK.recordForms[key] = Object.fromEntries(Object.keys(dom).map((f) => [f, prev[f] !== undefined ? prev[f] : dom[f]]));
+        editor.WORK.recordForms[key] = Object.fromEntries(Object.keys(dom).map((f) => [f, prev[f] !== undefined ? prev[f] : dom[f]]));
       }
     }
   }

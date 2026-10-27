@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseDetails, stableJSON } from "./record_values.js";
 import { caseFileName } from "./case_file_rules.js";
 import { doc, docsFor, eventsFor, reinsp } from "./writer_queries.js";
@@ -12,9 +13,9 @@ export function createCaseWorkspaceActions(services) {
     }
     WriterState.DOCS = WriterState.DOCS.filter((d) => !(d.draft && d.id === id));
     WriterState.REINSP = WriterState.REINSP.filter((r) => !(r.draft && r.id === id));
-    if (WriterState.state.reinspId === id) {
+    if (editor.state.reinspId === id) {
       services.clearWalk();
-      WriterState.WORK.walk = null;
+      editor.WORK.walk = null;
     }
     // a worksheet still pointing at the discarded follow-up reads as finished
     // and will not write another one
@@ -26,7 +27,7 @@ export function createCaseWorkspaceActions(services) {
   }
 
   function caseUnsaved(k) {
-    if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === k.id)) return "record change awaiting save confirmation";
+    if (Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === k.id)) return "record change awaiting save confirmation";
     if (WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k))))
       return "case file waiting to reach the share";
     const evs = eventsFor(k.id);
@@ -50,19 +51,19 @@ export function createCaseWorkspaceActions(services) {
   }
 
   function removeCase(cid) {
-    if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === cid) || docsFor(cid).some((x) => x.pendingAmendment)) {
+    if (Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) || docsFor(cid).some((x) => x.pendingAmendment)) {
       services.toast("Confirm pending record saves before removing this case from this workspace.");
       return false;
     }
     WriterState.CASES = WriterState.CASES.filter((c) => c.id !== cid);
     WriterState.DOCS = WriterState.DOCS.filter((d) => d.caseId !== cid);
     WriterState.REINSP = WriterState.REINSP.filter((r) => r.caseId !== cid);
-    if (reinsp(WriterState.state.reinspId)?.caseId === cid) {
+    if (reinsp(editor.state.reinspId)?.caseId === cid) {
       services.clearWalk();
-      WriterState.WORK.walk = null;
+      editor.WORK.walk = null;
     }
     delete WriterState.EVENTS[cid];
-    if (WriterState.state.docId && !doc(WriterState.state.docId)) WriterState.state.docId = null;
+    if (editor.state.docId && !doc(editor.state.docId)) editor.state.docId = null;
     services.saveDrafts();
   }
 
@@ -73,8 +74,8 @@ export function createCaseWorkspaceActions(services) {
       if (which === "safe" && risky) return;
       if (removeCase(k.id) !== false) gone.push(k.number);
     });
-    WriterState.state.modal = null;
-    WriterState.state.screen = "cases";
+    editor.state.modal = null;
+    editor.state.screen = "cases";
     services.render();
     services.toast(
       gone.length
