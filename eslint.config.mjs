@@ -66,6 +66,8 @@ export default [
       "app/modules/working_papers.js",
       "app/modules/document_printing.js",
       "app/modules/document_delivery.js",
+      "app/modules/document_feedback.js",
+      "app/modules/document_sources.js",
       "app/modules/court_scheduling.js",
       "app/modules/citation_charges.js",
       "app/modules/pending_case_saves.js",

@@ -3,19 +3,14 @@ import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
 
 import { addressProblem, validateAndStandardizeAddresses } from "./case_files.js";
-import { simpleVacancy, simplifiedBestInterest, specialType, frozenOf, isHistoryDoc } from "./document_rules.js";
+import { specialType, isHistoryDoc } from "./document_rules.js";
 import {
   correctionChecks,
   lifecycleChecks,
   authoringChecks,
   citationDepositFault,
   catalogDraftBlocked,
-  A11Y,
-  docBlocks,
-  docBody,
   initialCitations,
-  initialOrderCitation,
-  isLocked,
   newDocuments,
   snow,
   unchangedCorrectionValue,
@@ -23,33 +18,14 @@ import {
   attachCheckTargets,
 } from "./app_core.js";
 
-import { BLOCKS, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
-import { doc, docCase, docInsp, kase } from "./writer_queries.js";
-import { clone } from "./record_values.js";
-import { validISO, parseTime, daysBetween, nowISO } from "./calendar.js";
+import { docCase, docInsp } from "./writer_queries.js";
+import { validISO, parseTime, daysBetween } from "./calendar.js";
 import { isLLC, ownerLines } from "./mailing_rules.js";
 
-import { CITATION_POLICY } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
-import { WriterState } from "./state.js";
 
 /* app functions; direct dependencies use explicit shared state. */
-
-/* R59: an item with several sections charges one of them, chosen explicitly. Options keep each section as
-   stored for display and use its canonical ordinance as the charged value. */
-
-/* R59: every value derived from, priced for or approved for the previous charge. A new charge is priced
-   afresh; an administrator override, tier override and manual deposit basis are tied to the old charge. */
-
-/* The schedule row, measurements and authorizations of the previous charge. A single-section (or free-text)
-   charge edit clears only these and keeps the R31 contract: an earlier amount stays only as a blocked
-   proposal (reconfirmDeposit) until its source and amount are confirmed again or the new charge is priced. */
-
-/* R59: one path for every charge edit (charge card, deposit step, initial citations). A drafted citation or a
-   required-completion request takes the new ordinance without the old charge's basis (clearChargeBasis), then the ordinary pricing
-   runs: a scheduled amount completes the charge; otherwise the request shows that charge's own reason. An
-   unchanged-correction charge returns to its original's retained basis. Returns false when nothing changed. */
 
 function rnd12() {
   const b = new Uint8Array(8);
@@ -88,121 +64,10 @@ function fmtTime(t) {
   return (h % 12 === 0 ? 12 : h % 12) + ":" + String(m).padStart(2, "0") + " " + (h >= 12 ? "PM" : "AM");
 }
 
-function toast(m, options) {
-  WriterState.undoFn = null;
-  A11Y.notify(m, options);
-}
-
-function toastHold(m) {
-  WriterState.undoFn = null;
-  A11Y.notify(m, { severity: "progress" });
-}
-
-function toastUndo(m, fn) {
-  WriterState.undoFn = fn;
-  A11Y.notify(m, {
-    severity: "success",
-    undo: () => {
-      WriterState.undoFn = null;
-      fn();
-    },
-  });
-}
-
-function fillBlank(el) {
-  const field = el.closest('[data-field="text"]'),
-    d = doc(WriterState.state.docId);
-  if (!field || !d || isLocked(d)) return;
-  const itemId = field.dataset.id,
-    documentId = d.id;
-  A11Y.utility(
-    "Add corrective-action detail",
-    '<form id="corrective-detail-form"><label class="f" for="corrective-detail"><span>Enter the missing corrective-action detail</span><textarea id="corrective-detail" rows="4" required></textarea></label><p class="hint" id="corrective-detail-error" role="alert"></p><button type="submit" class="btn btn-primary">Save</button></form>',
-  );
-  const dialog = document.getElementById("utility-dialog"),
-    form = dialog.querySelector("form");
-  dialog.querySelector("[data-utility-close]").textContent = "Cancel";
-  dialog.querySelector("textarea").focus();
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const value = dialog.querySelector("textarea").value.trim();
-    if (!value) {
-      dialog.querySelector("#corrective-detail-error").textContent = "Enter text, or choose Cancel to leave this item unchanged.";
-      return;
-    }
-    const current = doc(documentId),
-      item = current?.items.find((it) => it.id === itemId);
-    if (
-      WriterState.state.screen !== "write" ||
-      WriterState.state.docId !== documentId ||
-      !current ||
-      isLocked(current) ||
-      !item ||
-      item.withdrawn ||
-      (item.done && !current.correction) ||
-      !field.isConnected ||
-      !field.contains(el)
-    ) {
-      dialog.querySelector("#corrective-detail-error").textContent = "This item is no longer editable. Cancel and reopen the current document.";
-      return;
-    }
-    el.replaceWith(document.createTextNode(value));
-    field.dispatchEvent(new Event("input", { bubbles: true }));
-    // The browser delivers "close" asynchronously and the utility dialog's own handler then restores focus to
-    // the replaced blank, which no longer exists. Return focus to the item text after that handler runs.
-    dialog.addEventListener("close", () => field.isConnected && field.focus(), { once: true });
-    dialog.close();
-    field.focus();
-  });
-}
-
 function allItems() {
   const out = [];
   LIBRARY.forEach((c, ci) => c.groups.forEach((g, gi) => g.items.forEach((i) => out.push({ ...i, ci, gi, cl: c.name, grp: g.name }))));
   return out;
-}
-
-function activeBlocks(d) {
-  if (snow.is(d) && d.authoringVersion >= 9) return ["LANGUAGE"];
-  // the division's follow-up documents carry none of these
-  if (d.type !== "notice" && !initialOrderCitation(d)) return [];
-  const k = kase(d.caseId),
-    set = new Set();
-  Object.keys(BLOCKS).forEach((b) => {
-    if (BLOCKS[b].always) set.add(b);
-  });
-  if (d.items.some((i) => /permit|repair|replace/i.test(i.text))) set.add("PERMIT_500");
-  // Preserve Historic District wording; omit unsupplied optional Landmark wording.
-  const exterior = d.items.some((i) => EXTERIOR_WORK.test(i.text));
-  if (k.historic && exterior) set.add("LANDMARKS");
-  if (String(k.landmark || "").trim() && exterior && String((BLOCKS.LANDMARK || {}).text || "").trim()) set.add("LANDMARK");
-  return [...set];
-}
-
-function freezeSources(d) {
-  return {
-    ...(snow.is(d) ? snow.freeze(d) : {}),
-    case: clone(docCase(d)),
-    inspector: clone(docInsp(d)),
-    body: docBody(d),
-    // Authoring-15+ Best Interest and authoring-16 Vacancy Extensions have no signer or division review.
-    ...(d.special && !simplifiedBestInterest(d) && !simpleVacancy(d)
-      ? {
-          documentPolicyVersion: 26,
-          authorizedSigner: { name: d.special.signerName, title: d.special.signerTitle, delegation: d.special.delegation },
-          divisionReview: { by: d.special.reviewer, at: d.special.reviewDateLegal, reference: d.special.reviewRef },
-        }
-      : {}),
-    blocks: clone(docBlocks(d)),
-    court: {
-      ...clone((frozenOf(d) || {}).court || COURT),
-      ...(d.authoringVersion >= 9 ? { room: "RM#203,", caseNumberLabel: CITATION_POLICY.mc2000CaseNumberLabel } : {}),
-    },
-    courtCopies: clone((frozenOf(d) || {}).courtCopies || CIT_COPIES),
-    courtInstructions: (frozenOf(d) || {}).courtInstructions || CIT_INSTRUCTIONS,
-    courtContact: clone((frozenOf(d) || {}).courtContact || COURT_CONTACT),
-    at: nowISO(),
-  };
 }
 
 /* R53: an initial-inspection draft must match its Accela status. There is no override: correct the
@@ -526,4 +391,4 @@ function checks(d) {
     .map((c) => attachCheckTargets(d, c));
 }
 
-export { rnd12, fmtDate, splitOwner, longDate, fmtTime, toast, toastHold, toastUndo, fillBlank, allItems, activeBlocks, freezeSources, checks };
+export { rnd12, fmtDate, splitOwner, longDate, fmtTime, allItems, checks };
