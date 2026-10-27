@@ -18,7 +18,13 @@ for (const statement of tree.body) {
       constructors.set(d.id.name, d.init.callee.name);
       // Scoped interfaces must stay lazy: capturing a later declaration here would change startup.
       assert.equal(d.init.arguments.length, 1);
-      for (const property of d.init.arguments[0].properties) {
+      const grouped = d.init.arguments[0].properties.some((property) => property.value?.type === "ObjectExpression");
+      if (grouped) {
+        const owner = d.id.name.replace(/Events$/, "").replace(/[A-Z]/g, (c) => "_" + c.toLowerCase()) + "_events.js";
+        const syntax = acorn.parse(fs.readFileSync(path.join(directory, owner), "utf8"), { ecmaVersion: 2022, sourceType: "module" });
+        require("../fixtures/scoped_service_contract.cjs").assertScopedServices(syntax, d.init.arguments[0], owner);
+      }
+      for (const property of grouped ? [] : d.init.arguments[0].properties) {
         assert.equal(property.type, "Property");
         if (property.kind === "get") {
           assert.equal(property.value.body.body.length, 1);

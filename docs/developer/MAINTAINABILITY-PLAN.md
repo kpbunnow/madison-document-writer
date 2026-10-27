@@ -411,3 +411,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The editor screen interface is split from 32 fields into explicit UI/edit/record groups of 8/5/19 fields. Core keeps each original lazy forwarder and getter and the original construction/copy-registration checkpoint. The contract audit recursively verifies exact used dependencies, no spreads, deferred leaf reads and a 25-field cap at every interface. Existing independent editor behavior assertions remain unchanged. A long carried-item hint is named as screen copy without changing its bytes. Five original editor screen scenarios and R59 editor-flow checks also pass on the committed source. Negative composition fixtures reject eager leaves, spreads, undeclared/computed accesses, unused fields and widths above 25. Further event/workflow interfaces and core forwarder reduction remain open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 editor event service groups
+
+The 38-field editor event interface becomes explicit UI/event-routing/action groups of 6/7/25 fields. Core retains the same lazy leaves; construction still reads no services, all sixty listener registrations and synchronous user actions remain in their original positions, and duplicate registration is still refused. The recursive contract guard now applies to grouped event composition. R59 editor flow, all five original screen scenarios and replaced-DOM record-note continuity pass unchanged. Other large interfaces and core forwarder reduction remain open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
