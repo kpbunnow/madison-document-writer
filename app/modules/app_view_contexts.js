@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 /* View-scoped dependencies are supplied by core; each call reads current workspace facts. */
 
@@ -19,7 +20,7 @@ export function createSavedWorkContext(services) {
       COMMITTED: services.COMMITTED,
       DIRNAME: WriterState.DIRNAME,
       HELPER: WriterState.HELPER,
-      LOCAL_SAVE: WriterState.LOCAL_SAVE,
+      LOCAL_SAVE: editor.LOCAL_SAVE,
       NEEDGRANT: WriterState.NEEDGRANT,
       PENDING: WriterState.PENDING,
       PREFLIGHT_CONFLICT: WriterState.PREFLIGHT_CONFLICT,
@@ -28,7 +29,7 @@ export function createSavedWorkContext(services) {
       caseUnsaved: services.caseUnsaved,
       deliveredByCitation: ctx_app_deliveredByCitation,
       docsFor: ctx_app_docsFor,
-      draftTimer: WriterState.draftTimer,
+      draftTimer: editor.draftTimer,
       esc: ctx_app_esc,
       kase: ctx_app_kase,
       pdfTransferState: services.pdfTransferState,
@@ -79,7 +80,7 @@ export function createLanguageDiscoveryContext(services) {
       itemLibraryKey: ctx_app_itemLibraryKey,
       markBlanks: ctx_app_markBlanks,
       shell: services.shell,
-      state: WriterState.state,
+      state: editor.state,
     };
   }
   return app_languagediscoveryContext;
