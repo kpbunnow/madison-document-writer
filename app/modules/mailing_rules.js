@@ -54,3 +54,11 @@ export const STATE_NAMES = Object.fromEntries(
 /* Wisconsin requires a registered agent for service on a limited liability
    company, so a citation against one cannot go out without it. */
 export const isLLC = (k) => /\b(LLC|L\.L\.C|LLP|L\.L\.P|INC|INCORPORATED|CORP|CORPORATION|LTD)\b/i.test(String((k && k.owner) || ""));
+
+export function splitOwner(text) {
+  const ls = String(text || "")
+    .split("\n")
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return { owner: ls[0] || "", addr: ls.slice(1) };
+}

@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Writer utility ownership (development)
+
+- Move fmtDate/longDate/fmtTime to presentation_format and splitOwner to mailing_rules; define rnd12 in record_ids and allItems in catalog_queries. Callers import defining owners directly; remove the emptied court_and_deposits module. All six function bodies remain unchanged.
+- Preserve UTC display/date/time output, owner-line trimming, native eight-byte random suffix and fallback/error behavior, catalog order/metadata and original shallow-copy semantics. No new numbering, randomness or uniqueness guarantee is introduced.
+- Add independent utility/boundary tests; update source/test indexes, ownership and remaining-work assessment. Writer remains four cyclic modules and Reports acyclic; R63/build 64 and stored formats remain unchanged.
+
 ## Unreleased — Document readiness boundary (development)
 
 - Compose document readiness through 14 explicit lazy day/address/feature-rule inputs. Preserve initial-citation preparation, every check/message/target and rule concatenation order; existing service/helper authority remains unchanged.

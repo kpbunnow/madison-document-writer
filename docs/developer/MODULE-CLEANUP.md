@@ -343,13 +343,19 @@ All six moved and remaining court function bodies preserve logic apart from expl
 
 There are 107 maintained modules and 59 independent scoped owners. Court/deposits shrinks from 529 to 394 lines. Writer retains five cyclic modules and Reports stays acyclic. Next separate readiness and remaining format/identity/catalog utilities, then shell/case-file and core/screen direction. Historical counts above remain provenance.
 
-## Thirty-seventh increment: document readiness
+## Thirty-seventh increment: document readiness (merged in PR #83)
 
 document_readiness owns checks and private importStatusChecks through 14 lazy day/address/feature-rule inputs. Core composes it after documentDelivery and before documentFeedback, exports the actual mutable checks operation and retains the original dep_checks alias for initial citations. Screens use the composed operation. Construction performs no reads, I/O or registration.
 
 Both moved and all six remaining court function bodies preserve logic except explicit dependency access. Initial-citation preparation, live-day/source/address rules, all messages and actionable targets, family/correction exceptions, delegate concatenation and final target mapping retain their original order. The owner is effectful orchestration; feature/helper/publication authority is unchanged.
 
 There are 108 maintained modules and 60 independent scoped owners. Court/deposits shrinks from 394 to 48 lines and loses UI/core/case-file imports. Writer narrows from five to four cyclic modules (core, screens, case files and shell); the guard tightens to four. Reports stays acyclic. Next give remaining format/identity/catalog utilities descriptive owners, then inspect shell/case-file and core/screen direction. Historical counts above remain provenance.
+
+## Thirty-eighth increment: remaining Writer utility ownership
+
+Move fmtDate/longDate/fmtTime into presentation_format and splitOwner into mailing_rules. record_ids directly defines rnd12; catalog_queries directly defines allItems. All six function bodies remain unchanged. Consumers import defining owners directly; remove the emptied court_and_deposits module without a forwarding barrel or new factory. Existing function names, stored/installed identities, formatting, native random/fallback/error semantics and catalog traversal/metadata/shallow-copy behavior remain unchanged. No native randomness is read during module loading, and no new cryptographic/uniqueness guarantee is asserted.
+
+There are 109 maintained modules and 62 independent scoped owners. Writer remains four cyclic modules, with its cap unchanged; Reports stays acyclic. The former mixed court/deposit owner is fully dismantled into cohesive owners. Next inspect shell/case-file folder/address/save-status and startup responsibilities, then core/screen direction, retaining initialization, permission/save and publication guards. Historical counts and prior owner descriptions above remain provenance.
 
 ## Following increments
 

@@ -58,3 +58,25 @@ export const citSelector = (id, field) => '[data-review-cit="' + checkAttr(id) +
    before this is used to produce a filed citation. */
 export const BOXY = "&#9744;",
   BOXN = "&#9746;";
+
+export function fmtDate(s) {
+  if (!s) return "—";
+  const d = new Date(s + "T12:00:00Z");
+  return String(d.getUTCMonth() + 1).padStart(2, "0") + "/" + String(d.getUTCDate()).padStart(2, "0") + "/" + d.getUTCFullYear();
+}
+
+export function longDate(v) {
+  if (!v) return "";
+  const p = String(v).split("-");
+  if (p.length < 3) return fmtDate(v);
+  const dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
+  const D = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const M = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return D[dt.getUTCDay()] + ", " + M[dt.getUTCMonth()] + " " + dt.getUTCDate() + ", " + dt.getUTCFullYear();
+}
+
+export function fmtTime(t) {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  return (h % 12 === 0 ? 12 : h % 12) + ":" + String(m).padStart(2, "0") + " " + (h >= 12 ? "PM" : "AM");
+}

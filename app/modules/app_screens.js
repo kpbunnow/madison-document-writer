@@ -55,7 +55,7 @@ import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
-import { fmtDate } from "./court_and_deposits.js";
+import { fmtDate } from "./presentation_format.js";
 import { recipientPreview, caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
 
 import { helperStop } from "./helper_stopped.js";
