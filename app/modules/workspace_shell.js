@@ -5,7 +5,18 @@ import { SUMMARY_DIR } from "../assets/shared.js";
 import { fmtDate, fmtTime } from "./presentation_format.js";
 
 import { render } from "./app_screens.js";
-import { toast, CASEDIR_EXPECT, FS_OK, IDB_OK, navigation, recordIntegrity, storageMode, app_savedworkContext, writeToFolder } from "./app_core.js";
+import {
+  toast,
+  grantCaseFolder,
+  CASEDIR_EXPECT,
+  FS_OK,
+  IDB_OK,
+  navigation,
+  recordIntegrity,
+  storageMode,
+  app_savedworkContext,
+  writeToFolder,
+} from "./app_core.js";
 
 import { EVENT_TYPES } from "./document_types.js";
 import { nowISO } from "./calendar.js";

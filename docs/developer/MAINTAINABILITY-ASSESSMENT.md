@@ -4,7 +4,7 @@ Snapshot: folder connections based on merged PR #89, main `dd771a8c36506ac8d1304
 
 ## What this increment completes
 
-Folder linking/restoration/grants now have a nine-input owner importing only state. All three moved and remaining shell function bodies preserve logic except dependency access, including helper priority, synchronous picker and partial failure state. Shell is 93 lines smaller; existing handle-store/helper/pending-write authority remains. Writer remains three cyclic modules and Reports acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Folder linking/restoration/grants now have a nine-input owner importing only state. All three moved and remaining shell function bodies preserve logic except dependency access, including helper priority, synchronous picker and partial failure state. Shell is 82 lines smaller; existing handle-store/helper/pending-write authority remains. Writer remains three cyclic modules and Reports acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -14,7 +14,7 @@ The graph still contains one three-module Writer component. These are three coup
 | --- | ---: | ---: | ---: | --- |
 | `app_core.js` | 2400 | 98 | 2 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1244 | 16 | 2 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `workspace_shell.js` | 377 | 12 | 2 | Shell/print/storage UI, probe, event/projection and helper requests remain coupled |
+| `workspace_shell.js` | 388 | 12 | 2 | Shell/print/storage UI, probe, event/projection and helper requests remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 

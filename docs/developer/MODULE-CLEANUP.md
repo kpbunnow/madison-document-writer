@@ -403,7 +403,7 @@ folder_connections composes linkCaseFolder/restoreCaseFolder/grantCaseFolder thr
 
 All three moved and remaining shell bodies preserve logic except dependency access. Keep helper priority, synchronous picker/options, live handle/name/permission then persistence/flush order, restoration query/default/error behavior, quiet versus interactive grants and original partial state/catch boundaries. Existing IndexedDB/helper/pending-write owners retain authority; no atomic connection switch or pinned-folder guarantee is added.
 
-There are 117 maintained modules, 15 isolated foundations and 70 independent scoped owners. Shell shrinks from 470 to 377 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/probe and remaining record/projection/helper request adapters, then core/screen direction. Earlier counts/ownership remain provenance.
+There are 117 maintained modules, 15 isolated foundations and 70 independent scoped owners. Shell shrinks from 470 to 388 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/probe and remaining record/projection/helper request adapters, then core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 
