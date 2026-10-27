@@ -984,180 +984,181 @@ const correctionWorkflow = createCorrectionWorkflow({
 });
 export let { startCorrection, issueCorrection } = correctionWorkflow;
 
-const workspaceDatabase = createWorkspaceDatabase({
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  get indexedDB() {
-    return indexedDB;
-  },
-});
+const workspaceDatabase = createWorkspaceDatabase(deferredServices({ IDB_OK: () => IDB_OK, indexedDB: () => indexedDB }, ["IDB_OK", "indexedDB"]));
 export let { idb, idbGet, idbSet } = workspaceDatabase;
 
-const draftPersistence = createDraftPersistence({
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  captureWork: (...args) => captureWork(...args),
-  updateSaveStatus: (...args) => updateSaveStatus(...args),
-  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  idbGet: (...args) => idbGet(...args),
-  idbSet: (...args) => idbSet(...args),
-  project: (...args) => project(...args),
-  render: (...args) => render(...args),
-  toast: (...args) => toast(...args),
-});
+const draftPersistence = createDraftPersistence(
+  deferredServices(
+    {
+      recordIntegrity: () => recordIntegrity,
+      captureWork: () => captureWork,
+      updateSaveStatus: () => updateSaveStatus,
+      scheduleRecoveryBackup: () => scheduleRecoveryBackup,
+      IDB_OK: () => IDB_OK,
+      idbGet: () => idbGet,
+      idbSet: () => idbSet,
+      project: () => project,
+      render: () => render,
+      toast: () => toast,
+    },
+    ["recordIntegrity", "IDB_OK"],
+  ),
+);
 export let { draftBundle, saveDrafts, restoreDrafts } = draftPersistence;
 
-const sharedCaseStorage = createSharedCaseStorage({
-  get CASEDIR_EXPECT() {
-    return CASEDIR_EXPECT;
-  },
-  helperJSON: (...args) => helperJSON(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  get COMMITTED() {
-    return COMMITTED;
-  },
-  mergeCaseEvents: (...args) => mergeCaseEvents(...args),
-  project: (...args) => project(...args),
-});
+const sharedCaseStorage = createSharedCaseStorage(
+  deferredServices(
+    {
+      CASEDIR_EXPECT: () => CASEDIR_EXPECT,
+      helperJSON: () => helperJSON,
+      recordIntegrity: () => recordIntegrity,
+      COMMITTED: () => COMMITTED,
+      mergeCaseEvents: () => mergeCaseEvents,
+      project: () => project,
+    },
+    ["CASEDIR_EXPECT", "recordIntegrity", "COMMITTED"],
+  ),
+);
 export let { helperFolder, writeToFolder, writeIndexFile } = sharedCaseStorage;
 
-const pendingCaseSaves = createPendingCaseSaves({
-  idbSet: (...args) => idbSet(...args),
-  toast: (...args) => toast(...args),
-  idbGet: (...args) => idbGet(...args),
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  render: (...args) => render(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-  mergeSharedFile: (...args) => mergeSharedFile(...args),
-  caseFile: (...args) => caseFile(...args),
-  writeToFolder: (...args) => writeToFolder(...args),
-  rememberSaved: (...args) => rememberSaved(...args),
-  writeSummary: (...args) => writeSummary(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-});
+const pendingCaseSaves = createPendingCaseSaves(
+  deferredServices(
+    {
+      idbSet: () => idbSet,
+      toast: () => toast,
+      idbGet: () => idbGet,
+      IDB_OK: () => IDB_OK,
+      render: () => render,
+      loadCaseFile: () => loadCaseFile,
+      mergeSharedFile: () => mergeSharedFile,
+      caseFile: () => caseFile,
+      writeToFolder: () => writeToFolder,
+      rememberSaved: () => rememberSaved,
+      writeSummary: () => writeSummary,
+      saveDrafts: () => saveDrafts,
+    },
+    ["IDB_OK"],
+  ),
+);
 export let { queuePending, restorePending, flushPending } = pendingCaseSaves;
 
-const caseSaveWorkflow = createCaseSaveWorkflow({
-  caseNumberAllowed: (...args) => caseNumberAllowed(...args),
-  caseFile: (...args) => caseFile(...args),
-  downloadWorkspace: (...args) => downloadWorkspace(...args),
-  rememberSaved: (...args) => rememberSaved(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  toast: (...args) => toast(...args),
-  render: (...args) => render(...args),
-  grantCaseFolder: (...args) => grantCaseFolder(...args),
-  mergeSharedFile: (...args) => mergeSharedFile(...args),
-  queuePending: (...args) => queuePending(...args),
-  writeToFolder: (...args) => writeToFolder(...args),
-  idbSet: (...args) => idbSet(...args),
-  writeSummary: (...args) => writeSummary(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-});
+const caseSaveWorkflow = createCaseSaveWorkflow(
+  deferredServices({
+    caseNumberAllowed: () => caseNumberAllowed,
+    caseFile: () => caseFile,
+    downloadWorkspace: () => downloadWorkspace,
+    rememberSaved: () => rememberSaved,
+    downloadFile: () => downloadFile,
+    toast: () => toast,
+    render: () => render,
+    grantCaseFolder: () => grantCaseFolder,
+    mergeSharedFile: () => mergeSharedFile,
+    queuePending: () => queuePending,
+    writeToFolder: () => writeToFolder,
+    idbSet: () => idbSet,
+    writeSummary: () => writeSummary,
+    saveDrafts: () => saveDrafts,
+  }),
+);
 export let { saveCaseFile } = caseSaveWorkflow;
 
-const caseLoading = createCaseLoading({
-  toast: (...args) => toast(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-});
+const caseLoading = createCaseLoading(
+  deferredServices(
+    {
+      toast: () => toast,
+      recordIntegrity: () => recordIntegrity,
+      render: () => render,
+      saveDrafts: () => saveDrafts,
+      refreshArtifactLocations: () => refreshArtifactLocations,
+    },
+    ["recordIntegrity"],
+  ),
+);
 export let { loadCaseFile, mergeSharedFile } = caseLoading;
 
-const workspaceBackup = createWorkspaceBackup({
-  captureWork: (...args) => captureWork(...args),
-  draftBundle: (...args) => draftBundle(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  toast: (...args) => toast(...args),
-  hasSetupWork: (...args) => hasSetupWork(...args),
-  idbSet: (...args) => idbSet(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-  get today() {
-    return today;
-  },
-});
+const workspaceBackup = createWorkspaceBackup(
+  deferredServices(
+    {
+      captureWork: () => captureWork,
+      draftBundle: () => draftBundle,
+      downloadFile: () => downloadFile,
+      toast: () => toast,
+      hasSetupWork: () => hasSetupWork,
+      idbSet: () => idbSet,
+      recordIntegrity: () => recordIntegrity,
+      render: () => render,
+      saveDrafts: () => saveDrafts,
+      refreshArtifactLocations: () => refreshArtifactLocations,
+      today: () => today,
+    },
+    ["recordIntegrity", "today"],
+  ),
+);
 export let { downloadWorkspace, restoreWorkspaceBackup } = workspaceBackup;
 
-const automaticRecovery = createAutomaticRecovery({
-  get localStorage() {
-    return localStorage;
-  },
-  get RECOVERY_WORKSPACE_KEY() {
-    return RECOVERY_WORKSPACE_KEY;
-  },
-  get RECOVERY_CASE_KEYS() {
-    return RECOVERY_CASE_KEYS;
-  },
-  get RECOVERY_WORKSPACE() {
-    return RECOVERY_WORKSPACE;
-  },
-  rnd12: (...args) => rnd12(...args),
-  draftBundle: (...args) => draftBundle(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  renderRecoveryStatus: (...args) => renderRecoveryStatus(...args),
-  setTimeout: (...args) => setTimeout(...args),
-  clearTimeout: (...args) => clearTimeout(...args),
-});
+const automaticRecovery = createAutomaticRecovery(
+  deferredServices(
+    {
+      localStorage: () => localStorage,
+      RECOVERY_WORKSPACE_KEY: () => RECOVERY_WORKSPACE_KEY,
+      RECOVERY_CASE_KEYS: () => RECOVERY_CASE_KEYS,
+      RECOVERY_WORKSPACE: () => RECOVERY_WORKSPACE,
+      rnd12: () => rnd12,
+      draftBundle: () => draftBundle,
+      helperJSON: () => helperJSON,
+      renderRecoveryStatus: () => renderRecoveryStatus,
+      setTimeout: () => setTimeout,
+      clearTimeout: () => clearTimeout,
+    },
+    ["localStorage", "RECOVERY_WORKSPACE_KEY", "RECOVERY_CASE_KEYS", "RECOVERY_WORKSPACE"],
+  ),
+);
 export let { recoveryWorkspace, recoveryCaseKey, recoverySnapshot, recoveryJobs, backupUnfinished, scheduleRecoveryBackup } = automaticRecovery;
 const { recoveryIncluded } = automaticRecovery;
 
-const caseRecovery = createCaseRecovery({
-  render: (...args) => render(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  compareSharedCase: (...args) => compareSharedCase(...args),
-  walkIdentity: (...args) => walkIdentity(...args),
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  idb: (...args) => idb(...args),
-  idbGet: (...args) => idbGet(...args),
-  idbSet: (...args) => idbSet(...args),
-  draftBundle: (...args) => draftBundle(...args),
-  toast: (...args) => toast(...args),
-  hasSetupWork: (...args) => hasSetupWork(...args),
-  caseUnsaved: (...args) => caseUnsaved(...args),
-  recoverySnapshot: (...args) => recoverySnapshot(...args),
-  recoveryCaseKey: (...args) => recoveryCaseKey(...args),
-  get RECOVERY_WORKSPACE() {
-    return RECOVERY_WORKSPACE;
-  },
-  confirm: (...args) => confirm(...args),
-  clearWalk: (...args) => clearWalk(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-});
+const caseRecovery = createCaseRecovery(
+  deferredServices(
+    {
+      render: () => render,
+      helperJSON: () => helperJSON,
+      compareSharedCase: () => compareSharedCase,
+      walkIdentity: () => walkIdentity,
+      IDB_OK: () => IDB_OK,
+      idb: () => idb,
+      idbGet: () => idbGet,
+      idbSet: () => idbSet,
+      draftBundle: () => draftBundle,
+      toast: () => toast,
+      hasSetupWork: () => hasSetupWork,
+      caseUnsaved: () => caseUnsaved,
+      recoverySnapshot: () => recoverySnapshot,
+      recoveryCaseKey: () => recoveryCaseKey,
+      RECOVERY_WORKSPACE: () => RECOVERY_WORKSPACE,
+      confirm: () => confirm,
+      clearWalk: () => clearWalk,
+      refreshArtifactLocations: () => refreshArtifactLocations,
+    },
+    ["IDB_OK", "RECOVERY_WORKSPACE"],
+  ),
+);
 export let { listRecovery, selectRecovery, validateRecovery, restoreRecovery } = caseRecovery;
 const { recoverySharedState, persistRecoveryState } = caseRecovery;
 
-const worksheetWorkflow = createWorksheetWorkflow({
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  get today() {
-    return today;
-  },
-  get newDocuments() {
-    return newDocuments;
-  },
-  dueCheck: (...args) => dueCheck(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-  toast: (...args) => toast(...args),
-  clearWalk: (...args) => clearWalk(...args),
-});
+const worksheetWorkflow = createWorksheetWorkflow(
+  deferredServices(
+    {
+      sourceDocFor: () => sourceDocFor,
+      today: () => today,
+      newDocuments: () => newDocuments,
+      dueCheck: () => dueCheck,
+      saveDrafts: () => saveDrafts,
+      render: () => render,
+      toast: () => toast,
+      clearWalk: () => clearWalk,
+    },
+    ["today", "newDocuments"],
+  ),
+);
 export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;
 
 const recoveryUI = createRecoveryUI({
