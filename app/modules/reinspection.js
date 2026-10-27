@@ -42,7 +42,7 @@ function worksheetNextDueHTML({ open, r, it, res, services, lock, dc }) {
           '" value="' +
           `${esc(res.due || "")}` +
           '" min="' +
-          `${services.MINDUE()}` +
+          `${services.authoring.MINDUE()}` +
           '" ' +
           `${lock ? "disabled" : ""}` +
           '>\n          <span class="hint ' +
@@ -206,7 +206,7 @@ function worksheetPriorVisitsHTML({ prior, services }) {
               .map(
                 (x) =>
                   "<li><strong>" +
-                  `${services.fmtDate(x.date)}` +
+                  `${services.inspection.fmtDate(x.date)}` +
                   "</strong> — " +
                   `${doneItems(x).length}` +
                   " corrected, " +
@@ -229,7 +229,7 @@ function worksheetVisitHeaderHTML({ walkIdentity, r, srcLabel, services, src, re
     '"><p class="ri-source">Inspecting against the ' +
     `${esc(srcLabel.toLowerCase())}` +
     " issued " +
-    `${services.fmtDate(src.mailed || src.created)}` +
+    `${services.inspection.fmtDate(src.mailed || src.created)}` +
     ". Original item numbers and wording stay with the issued document.</p>\n " +
     '    <div class="card ri-visit" style="margin-bottom:16px"><div class="ca' +
     'rd-b">\n       <div class="grid g2">\n         <label class="f"><span>Actu' +
@@ -367,7 +367,7 @@ function worksheetBodyHTML({
         : "",
     ) +
     "\n     " +
-    `${!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? services.duePanel(r, true) : ""}` +
+    `${!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? services.inspection.duePanel(r, true) : ""}` +
     `${rows}` +
     "\n\n     " +
     "".concat(
@@ -382,7 +382,7 @@ function worksheetBodyHTML({
     "\n     " +
     `${verdict}` +
     "\n     " +
-    "".concat(!closed ? services.newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
+    "".concat(!closed ? services.authoring.newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
     '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>'
   );
 }
@@ -485,7 +485,7 @@ function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
     '\n        <span class="ri-due ' +
     `${late ? "over" : ""}` +
     '">Was due ' +
-    `${services.fmtDate(it.due)}` +
+    `${services.inspection.fmtDate(it.due)}` +
     '</span>\n      </div>\n      <div class="ri-body">' +
     `${markBlanks(it.text || "")}` +
     '</div>\n      <div class="seg" role="group" aria-label="Result for item ' +
@@ -514,7 +514,7 @@ function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
             "".concat(
               oc === "withdrawn"
                 ? "Withdrawn as entered in error; excluded from compliance counts."
-                : "Cleared on " + esc(services.fmtDate(res.on)) + " and carried forward.",
+                : "Cleared on " + esc(services.inspection.fmtDate(res.on)) + " and carried forward.",
             ) +
             "</p>"
         : "",
@@ -573,6 +573,15 @@ function worksheetFollowupExplanation({ referred, r }) {
           "discretion for any item past its due date — tick the items you are citin" +
           "g.",
   );
+}
+
+function worksheetCheckPanelHTML(list, checkRowHTML) {
+  return list.length
+    ? '<section class="card no-print"><div class="card-h"><h2>Inspection checks' +
+        '</h2></div><div class="card-b">' +
+        `${list.map((c, ix) => checkRowHTML(c, ix, true)).join("")}` +
+        "</div></section>"
+    : "";
 }
 
 export function createReinspection(services) {
@@ -661,7 +670,7 @@ export function createReinspection(services) {
       intent = r.followupIntent || "undecided";
     const source = doc(r.sourceDocId),
       on = result.manualDate ? result.on : result.on || r.date;
-    if (!result.oc || !services.validISO(on) || on < docCase(source).date || on > r.date) return false;
+    if (!result.oc || !services.inspection.validISO(on) || on < docCase(source).date || on > r.date) return false;
     if (result.oc === "corrected") return true;
     return !["extension", "bestInterestExtension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
   }
@@ -674,15 +683,15 @@ export function createReinspection(services) {
       !walkItemReady(r, editor.state.riWalkItem) &&
       !editor.state.riWalkSkipped.includes(editor.state.riWalkItem)
     ) {
-      services.toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
+      services.ui.toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
       focusWalkDetails();
       return false;
     }
     const next = nextWalkItem(r);
     editor.state.riWalkItem = next?.id || null;
     editor.state.riWalkStage = "outcome";
-    services.scheduleDraftSave();
-    services.render();
+    services.authoring.scheduleDraftSave();
+    services.ui.render();
     focusWalkItem();
     return true;
   }
@@ -690,7 +699,7 @@ export function createReinspection(services) {
   function skipWalkDetails(r) {
     if (!editor.state.riWalk || !ensureWalkContext() || editor.state.riWalkStage !== "details") return false;
     if (!editor.state.riWalkSkipped.includes(editor.state.riWalkItem)) editor.state.riWalkSkipped.push(editor.state.riWalkItem);
-    services.scheduleDraftSave();
+    services.authoring.scheduleDraftSave();
     return advanceWalk(r);
   }
 
@@ -702,8 +711,8 @@ export function createReinspection(services) {
     editor.state.riWalkItem = item.id;
     editor.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
     editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) => id !== item.id);
-    services.scheduleDraftSave();
-    services.render();
+    services.authoring.scheduleDraftSave();
+    services.ui.render();
     editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
     return true;
   }
@@ -717,8 +726,8 @@ export function createReinspection(services) {
     if (!prior) return false;
     editor.state.riWalkItem = prior.id;
     editor.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
-    services.scheduleDraftSave();
-    services.render();
+    services.authoring.scheduleDraftSave();
+    services.ui.render();
     editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
     return true;
   }
@@ -768,11 +777,11 @@ export function createReinspection(services) {
       }
     }
     workspace.DIRTY = true;
-    services.scheduleDraftSave();
+    services.authoring.scheduleDraftSave();
     if (editor.state.riWalk) {
-      services.render();
+      services.ui.render();
       editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-    } else services.renderKeep();
+    } else services.ui.renderKeep();
     return true;
   }
 
@@ -782,7 +791,7 @@ export function createReinspection(services) {
     if (!editor.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId)) return false;
     const current = r.results[undo.itemId];
     if (!current || current.oc !== undo.after.oc) {
-      services.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
+      services.ui.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
       return false;
     }
     if (stableJSON(current) === stableJSON(undo.after)) {
@@ -790,14 +799,14 @@ export function createReinspection(services) {
       else delete r.results[undo.itemId];
     } else {
       r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
-      services.toast("Outcome undone; later note, date and due details were kept on this item.");
+      services.ui.toast("Outcome undone; later note, date and due details were kept on this item.");
     }
     editor.state.riWalkUndo = null;
     editor.state.riWalkItem = undo.itemId;
     editor.state.riWalkStage = "outcome";
     workspace.DIRTY = true;
-    services.scheduleDraftSave();
-    services.render();
+    services.authoring.scheduleDraftSave();
+    services.ui.render();
     focusWalkItem();
     return true;
   }
@@ -814,17 +823,17 @@ export function createReinspection(services) {
     const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
     return (
       "Initial inspection on " +
-      services.fmtDate(firstDate) +
+      services.inspection.fmtDate(firstDate) +
       " documented the following violation: " +
       what +
       ". " +
       art +
       label.toLowerCase() +
       " was issued with a compliance date of " +
-      services.fmtDate(it.due) +
+      services.inspection.fmtDate(it.due) +
       ". " +
       "Re-inspection on " +
-      services.fmtDate(res.on || r.date) +
+      services.inspection.fmtDate(res.on || r.date) +
       " found " +
       ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
       "." +
@@ -884,7 +893,9 @@ export function createReinspection(services) {
         .forEach((i) => add('[data-withdraw="' + checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
     else if (/compliance dates/.test(t))
       d.items
-        .filter((i) => i.done && !i.withdrawn && (!services.validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < docCase(d).date))
+        .filter(
+          (i) => i.done && !i.withdrawn && (!services.inspection.validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < docCase(d).date),
+        )
         .forEach((i) => add(itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
     // Record conflicts have no editable field. Direct the inspector to the existing case.
     if (!targets.length) add('[data-nav="cases"]', "Open case in Workspace", "workspace");
@@ -938,10 +949,10 @@ export function createReinspection(services) {
     const dueRelevant =
       !r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
     const initial = docCase(src).date || "",
-      earliest = services.inspAt(src).date || initial;
-    if (!services.validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
+      earliest = services.inspection.inspAt(src).date || initial;
+    if (!services.inspection.validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
       add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
-    if (!services.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
+    if (!services.inspection.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
     if (!insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
     src.items.forEach((i) => {
       const res = r.results[i.id] || {},
@@ -950,7 +961,7 @@ export function createReinspection(services) {
       if (!OUTCOMES.some((o) => o.id === res.oc))
         add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
       else {
-        if (!services.validISO(on) || on < initial || on > r.date)
+        if (!services.inspection.validISO(on) || on < initial || on > r.date)
           add(
             "Item " + i.no + ": result date must be between the initial inspection and this visit.",
             '[data-ridate="' + checkAttr(i.id) + '"]',
@@ -965,13 +976,15 @@ export function createReinspection(services) {
           });
       }
     });
-    if (dueRelevant && distinctDues(services.dueContext(r, true)).length > 3)
+    if (dueRelevant && distinctDues(services.inspection.dueContext(r, true)).length > 3)
       out.push({
         ok: false,
         t: "Use no more than three distinct due dates for an extension or citation.",
-        targets: services.dueContext(r, true).map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
+        targets: services.inspection
+          .dueContext(r, true)
+          .map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
       });
-    const spacing = services.dueDateSpacingConflicts(services.dueContext(r, true));
+    const spacing = services.inspection.dueDateSpacingConflicts(services.inspection.dueContext(r, true));
     if (dueRelevant && spacing.length) {
       const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
       out.push({
@@ -980,20 +993,14 @@ export function createReinspection(services) {
         targets: items.map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
       });
     }
-    for (const t of services.worksheetFaults(r))
+    for (const t of services.inspection.worksheetFaults(r))
       if (!out.some((c) => c.t === t) && !/outcome|Result dates/.test(t))
         out.push({ ok: false, t, targets: [checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
     return out;
   }
 
   function worksheetCheckPanel(r) {
-    const list = worksheetChecks(r);
-    return list.length
-      ? '<section class="card no-print"><div class="card-h"><h2>Inspection checks' +
-          '</h2></div><div class="card-b">' +
-          `${list.map((c, ix) => checkRowHTML(c, ix, true)).join("")}` +
-          "</div></section>"
-      : "";
+    return worksheetCheckPanelHTML(worksheetChecks(r), checkRowHTML);
   }
 
   function highlightOpenChecks() {
@@ -1009,8 +1016,8 @@ export function createReinspection(services) {
     const d = doc(editor.state.docId),
       r = reinsp(editor.state.reinspId);
     const list =
-      editor.state.screen === "write" && d && !services.isLocked(d)
-        ? services.checks(d)
+      editor.state.screen === "write" && d && !services.inspection.isLocked(d)
+        ? services.inspection.checks(d)
         : editor.state.screen === "reinspect" && r && r.draft && !r.docId
           ? worksheetChecks(r)
           : [];
@@ -1039,11 +1046,11 @@ export function createReinspection(services) {
 
   function focusCheckTarget(target, message) {
     const d = doc(editor.state.docId);
-    services.captureWork();
+    services.inspection.captureWork();
     editor.state.modal = null;
     editor.state.picker = false;
     if (target.action === "workspace") {
-      services.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
+      services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
       return;
     }
     if (target.action === "catalog") {
@@ -1052,15 +1059,15 @@ export function createReinspection(services) {
       editor.state.catalogAdminStatus = "review";
       const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
       if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
-      services.render();
+      services.ui.render();
       return;
     }
     if (target.action?.startsWith("recipient:")) {
       const k = d && docCase(d);
       if (!k) return;
-      editor.state.ccProblem = services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
+      editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
       editor.state.modal = "cc";
-      services.render();
+      services.ui.render();
       const parts = target.action.split(":");
       const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
       const field = document.querySelector(editor.state.ccProblem?.selector || exact);
@@ -1069,15 +1076,15 @@ export function createReinspection(services) {
       return;
     }
     if (target.action === "visit") {
-      if (!d || !services.returnToWorksheet(d)) {
-        services.toast("Open the existing case in Workspace to review its recorded inspection.");
+      if (!d || !services.inspection.returnToWorksheet(d)) {
+        services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
         return;
       }
       const r = reinsp(editor.state.reinspId);
       editor.state.riFilter = "";
       clearWalk();
       editor.WORK.walk = null;
-      services.render();
+      services.ui.render();
       const check = worksheetChecks(r).find((c) => !c.soft) || worksheetChecks(r)[0];
       target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
     } else {
@@ -1087,15 +1094,15 @@ export function createReinspection(services) {
         editor.WORK.walk = null;
       }
       if (target.action === "contacts") editor.state.modal = "cc";
-      services.render();
+      services.ui.render();
     }
     if (target.action === "guidance") {
-      services.toast(message);
+      services.ui.toast(message);
       return;
     }
     const el = document.querySelector(target.selector);
     if (!el) {
-      services.toast(message + " Open the existing case to review the retained record.");
+      services.ui.toast(message + " Open the existing case to review the retained record.");
       return;
     }
     for (let parent = el.parentElement; parent; parent = parent.parentElement) if (parent.tagName === "DETAILS") parent.open = true;
@@ -1108,7 +1115,8 @@ export function createReinspection(services) {
 
   function dueCheck(due, from) {
     if (!due) return { ok: false, msg: "Needs a new due date" };
-    if (!services.validISO(due) || !services.validISO(from || recordDay(today))) return { ok: false, msg: "Enter a real calendar date" };
+    if (!services.inspection.validISO(due) || !services.inspection.validISO(from || recordDay(today)))
+      return { ok: false, msg: "Enter a real calendar date" };
     const n = daysBetween(from || recordDay(today), due);
     if (n < 1) return { ok: false, msg: "Must be a future date" };
     if (n < 7) return { ok: true, warn: true, msg: n + " day" + (n === 1 ? "" : "s") + " — unusually short" };
@@ -1120,13 +1128,13 @@ export function createReinspection(services) {
     const r = reinsp(editor.state.reinspId);
     if (!r) {
       editor.state.screen = "cases";
-      return services.screenCases();
+      return services.ui.screenCases();
     }
     const k = kase(r.caseId),
       src = doc(r.sourceDocId);
     if (!src) {
       editor.state.screen = "cases";
-      return services.screenCases();
+      return services.ui.screenCases();
     }
     const srcLabel = (DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
     const closed = !!r.docId,
@@ -1151,7 +1159,7 @@ export function createReinspection(services) {
     const walkPanel = worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, walkItemReady });
     const verdict = worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred });
 
-    return services.shell(
+    return services.ui.shell(
       k.address,
       `${k.number} · Reinspection · working off the ${srcLabel.toLowerCase()}`,
       '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
@@ -1183,49 +1191,49 @@ export function createReinspection(services) {
     if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
       editor.state.docId = r.docId;
       editor.state.screen = "write";
-      services.render();
+      services.ui.render();
       return;
     }
     const src = doc(r.sourceDocId),
       carry = openItems(r);
     if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
-      services.toast("Open a current reinspection worksheet first");
+      services.ui.toast("Open a current reinspection worksheet first");
       return;
     }
     if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
-      services.toast("Choose an available follow-up type.");
+      services.ui.toast("Choose an available follow-up type.");
       return;
     }
-    const unavailable = services.newDocuments.eligibility?.(r, type);
+    const unavailable = services.authoring.newDocuments.eligibility?.(r, type);
     if (unavailable) {
-      services.toast(unavailable);
+      services.ui.toast(unavailable);
       return;
     }
-    const faults = services.worksheetFaults(r, type);
+    const faults = services.inspection.worksheetFaults(r, type);
     if (faults.length) {
-      services.toast(faults[0]);
+      services.ui.toast(faults[0]);
       return;
     }
     if (unchecked(r).length) {
-      services.toast("Choose an outcome for every item first");
+      services.ui.toast("Choose an outcome for every item first");
       return;
     }
-    if (!services.validISO(r.date) || r.date > recordDay(today)) {
-      services.toast("Enter a valid inspection date");
+    if (!services.inspection.validISO(r.date) || r.date > recordDay(today)) {
+      services.ui.toast("Enter a valid inspection date");
       return;
     }
     if (type !== "compliance" && !carry.length) {
-      services.toast("Nothing outstanding to carry forward");
+      services.ui.toast("Nothing outstanding to carry forward");
       return;
     }
     if (type === "compliance" && carry.length) {
-      services.toast("Items are still outstanding — a compliance letter closes every item");
+      services.ui.toast("Items are still outstanding — a compliance letter closes every item");
       return;
     }
     const pos = new Map(src.items.map((it, i) => [it.id, i]));
     const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
     const nd = {
-      id: services.uid("d"),
+      id: services.inspection.uid("d"),
       caseId: r.caseId,
       type: type,
       created: recordDay(today),
@@ -1248,14 +1256,14 @@ export function createReinspection(services) {
           cleared = res.oc === "corrected";
         return {
           ...it,
-          id: services.uid("x"),
+          id: services.inspection.uid("x"),
           no: it.no || String((pos.get(it.id) || 0) + 1),
           due: (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
           done: cleared,
           doneOn: cleared ? res.on || r.date : "",
           note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
           noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
-          hist: hasHistory ? services.itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
+          hist: hasHistory ? services.inspection.itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
           cite: type === "citation" && !cleared && !!res.cite,
           srcItemId: it.id,
         };
@@ -1264,17 +1272,17 @@ export function createReinspection(services) {
     // a citation is filed per ordinance, so each ticked item gets its own form
     // register the document before its citations are numbered, so each number is
     // checked against the ones already issued on this document too
-    if (hasHistory) nd.items.forEach((it) => (it.hist = services.itemInspectionHistory(nd, it)));
+    if (hasHistory) nd.items.forEach((it) => (it.hist = services.inspection.itemInspectionHistory(nd, it)));
     workspace.DOCS.unshift(nd);
     if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
       workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
-      services.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
+      services.ui.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
       return;
     }
     if (type === "citation") {
       if (!nd.items.some((i) => i.cite)) {
         workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
-        services.toast("Select the items to cite on the inspection worksheet.");
+        services.ui.toast("Select the items to cite on the inspection worksheet.");
         return;
       }
       nd.items
@@ -1284,7 +1292,7 @@ export function createReinspection(services) {
             ord = sections.length === 1 ? sections[0] : "";
           nd.cits[i.id] = {
             deptId: insp(nd.inspectorId).badge || "",
-            num: services.citationNumber(),
+            num: services.authoring.citationNumber(),
             courtTime: courtTime(),
             comment: narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
             ord,
@@ -1292,22 +1300,22 @@ export function createReinspection(services) {
             autoFilledCharge: !!ord,
             desc: String(i.title || "").toUpperCase(),
             issued: recordDay(today),
-            courtDate: services.nextCourtDate(recordDay(today)),
+            courtDate: services.authoring.nextCourtDate(recordDay(today)),
             depositMode: "schedule",
           };
-          services.applyDeposit(nd, i.id, ord);
+          services.authoring.applyDeposit(nd, i.id, ord);
         });
     }
     r.docId = nd.id;
     editor.state.docId = nd.id;
     editor.state.screen = "write";
     workspace.DIRTY = true;
-    services.saveDrafts();
-    services.render();
-    if (type === "citation") services.depositStep.openNext(nd);
+    services.authoring.saveDrafts();
+    services.ui.render();
+    if (type === "citation") services.authoring.depositStep.openNext(nd);
     const n = nd.items.filter((i) => i.cite).length,
       cl = nd.items.filter((i) => i.done).length;
-    services.toast(
+    services.ui.toast(
       type === "compliance"
         ? "Compliance letter drafted — review and issue it to close the case"
         : type === "referral" || type === "referralUpdate"
