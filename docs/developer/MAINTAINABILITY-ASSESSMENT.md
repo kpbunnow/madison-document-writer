@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: document-readiness separation based on merged PR #82, main `98eb2030583eb25c5da119cb278328ccadb5f244`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: Writer utility separation based on merged PR #83, main `de5cbad9328c584ce3987560c79f4b219381b5d9`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Readiness now has a 14-input day/address/feature-rule owner with unchanged preparation, rule/message/target ordering and original effects. Both moved and all six remaining court functions preserve logic apart from dependency access; construction performs no work. Court/deposits loses all UI imports and is 346 lines smaller. Writer narrows to four cyclic modules and Reports remains acyclic. The remaining 48-line court file contains only format/identity/catalog utilities, which should receive descriptive owners in a later focused change. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+The remaining six court/deposit utilities now have defining owners: date/time display in presentation_format, owner parsing in mailing_rules, rnd12 in record_ids and allItems in catalog_queries. All six function bodies remain unchanged. The emptied court_and_deposits module is removed; no forwarding barrel or factory was introduced. Existing random/fallback/error and catalog shallow-copy semantics remain. Writer still has four cyclic modules and Reports is acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,17 +12,19 @@ The graph still contains one four-module Writer component. These are four couple
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2293 | 88 | 3 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1245 | 18 | 3 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `app_core.js` | 2296 | 90 | 3 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1245 | 17 | 3 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
 | `case_files.js` | 648 | 13 | 3 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
-| `workspace_shell.js` | 470 | 13 | 2 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
+| `workspace_shell.js` | 470 | 12 | 2 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Finish the legacy utility layout.** Readiness, notification/source capture, printing/delivery and scheduling/charge editing now have bounded owners. Give the remaining format, ID generation and catalog-query definitions descriptive owners, preserving algorithms, diagnostics, initialization and callers. The 14-input readiness and 20-input delivery interfaces remain explicit; split only if responsibilities/evidence warrant another cohesive boundary.
-2. **Review shell/case-file and core/screen direction.** Folder/permission UI, summaries, startup coordination and screen routing still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions, and preserve original initialization/listener order. Avoid universal contexts or re-export modules; split bootstrap only when behavior can be verified.
+1. **Separate shell and case-file responsibilities.** Inspect folder/permission, address/recipient and save-status UI before startup coordination. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
+2. **Review core/screen direction.** Screen routing, shared dialogs/overlays and case-list rendering still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions and preserve initialization/listener order. Avoid universal contexts or forwarding barrels; split bootstrap only when behavior can be verified.
+
+The 14-input readiness and 20-input delivery interfaces remain explicit; split only if responsibilities and evidence warrant another cohesive boundary.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
 
@@ -30,7 +32,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 88 maintained-module dependencies in this graph and 62 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 90 maintained-module dependencies in this graph and 62 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |

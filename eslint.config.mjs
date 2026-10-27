@@ -67,6 +67,8 @@ export default [
       "app/modules/document_printing.js",
       "app/modules/document_delivery.js",
       "app/modules/document_readiness.js",
+      "app/modules/record_ids.js",
+      "app/modules/catalog_queries.js",
       "app/modules/document_feedback.js",
       "app/modules/document_sources.js",
       "app/modules/court_scheduling.js",

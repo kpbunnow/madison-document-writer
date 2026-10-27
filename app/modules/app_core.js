@@ -60,7 +60,10 @@ import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
-import { fmtDate, rnd12, splitOwner, fmtTime, longDate, allItems } from "./court_and_deposits.js";
+import { fmtDate, longDate, fmtTime } from "./presentation_format.js";
+import { splitOwner } from "./mailing_rules.js";
+import { rnd12 } from "./record_ids.js";
+import { allItems } from "./catalog_queries.js";
 import {
   shell,
   evid,

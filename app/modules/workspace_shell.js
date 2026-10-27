@@ -2,7 +2,7 @@ import { summarizeRecord } from "./case_projection.js";
 
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
-import { fmtDate, fmtTime } from "./court_and_deposits.js";
+import { fmtDate, fmtTime } from "./presentation_format.js";
 
 import { render } from "./app_screens.js";
 import {
