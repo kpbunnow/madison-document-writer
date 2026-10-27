@@ -99,3 +99,16 @@ The independent import-service audit and a 3,003-case generated-report corpus
 preserve full plans, source mutation, selection serial and service-call order.
 Every extracted decision helper and baseLookupPlan stay below complexity 10.
 Complexity violations 84 → 83; length reports 137 → 136.
+
+## M2 Python special facts
+
+The helper's special-field validator now delegates named scope/family/date
+checks through explicit keyword-only inputs. Checks remain sequential rather
+than eagerly constructing arguments for later phases: a malformed later field
+must not preempt an earlier refusal. Every extracted function and coordinator
+has McCabe complexity below 10. Helper authority and review evidence semantics
+are unchanged.
+
+The existing R26 storage tests and 3,000 seeded historical snapshots pass. The
+new comparison retains exact exception type/message, calendar/time query order
+and input mutation. Python C901 findings fall 35 → 34.
