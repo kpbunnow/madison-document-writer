@@ -92,34 +92,21 @@ function renderWorkspaceRow(row) {
   );
 }
 
+const RESOLUTION_VIEW_ATTRIBUTES =
+  ' aria-describedby="queue-resolution-desc" title="Unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers"';
+
 function workspaceQuickViewsHTML({ quickViews, count }) {
-  return "".concat(
-    workspace.CASES.length
-      ? '<div class="queue-summary" role="group" aria-label="Filter workspace cas' +
-          'es">' +
-          "".concat(
-            quickViews
-              .map(
-                ([key, label]) =>
-                  '<button class="btn queue-summary-button" data-queue-view="' +
-                  `${key}` +
-                  '" aria-pressed="' +
-                  `${editor.state.caseFilter === key}` +
-                  '"' +
-                  `${key === "resolution" ? ' aria-describedby="queue-resolution-desc" title="Unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers"' : ""}` +
-                  "><span>" +
-                  `${label}` +
-                  "</span><strong>" +
-                  `${count(key)}` +
-                  "</strong></button>",
-              )
-              .join(""),
-          ) +
-          '</div><p class="hint queue-view-note"><span id="queue-resolution-desc">Needs resolution lists cases with unconfirmed or queued saves, PDF ' +
-          "filing and transfers, record problems and other blockers.</span> Device save and connection problems appear in the Saved work &amp; " +
-          "connection banner.</p>"
-      : "",
-  );
+  return workspace.CASES.length
+    ? html`<div class="queue-summary" role="group" aria-label="Filter workspace cases">` +
+        quickViews
+          .map(
+            ([key, label]) =>
+              html`<button class="btn queue-summary-button" data-queue-view="${key}" aria-pressed="${editor.state.caseFilter === key}"` +
+              html`${raw(key === "resolution" ? RESOLUTION_VIEW_ATTRIBUTES : "")}><span>${label}</span><strong>${count(key)}</strong></button>`,
+          )
+          .join("") +
+        html`</div><p class="hint queue-view-note"><span id="queue-resolution-desc">Needs resolution lists cases with unconfirmed or queued saves, PDF filing and transfers, record problems and other blockers.</span> Device save and connection problems appear in the Saved work &amp; connection banner.</p>`
+    : "";
 }
 
 function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query, table, importCount }) {
