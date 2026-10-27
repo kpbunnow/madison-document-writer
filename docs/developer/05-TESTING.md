@@ -1,12 +1,14 @@
 # Verification and release process
 
-From a fresh source copy, run:
+For a full local verification or release-evidence run from a fresh source copy:
 
     npm ci
     python3 -m pip install --require-hashes -r requirements-dev.txt
     npx playwright install chromium
     python3 tools/build.py
     python3 tools/verify_release.py
+
+For development PRs, run targeted local checks for the changed behavior before submission; a local full-gate or baseline run is optional. GitHub's Full gate and PR format must pass on the current PR head before merge. The automatic merged-main gate may continue asynchronously; report pending status and investigate failures when reported. Release packaging still requires current passing full-gate evidence for the exact source/runtime. See DEVELOPMENT-STANDARD.md for the merge policy.
 
 Playwright is pinned in package-lock.json. On an offline development machine, set `DW_BROWSER` to an independently installed compatible Chromium executable instead of downloading a browser. The runner launches the selected browser before any suite. A missing or unusable browser produces one message naming both setup options. A browser download failure is not a passing check; use the documented alternative only if a usable browser is actually available.
 
@@ -18,7 +20,7 @@ The gate includes ESLint on app/modules and shared.js, TypeScript contracts, Ruf
 
     DW_FAST=1 python3 tools/verify_release.py
 
-It runs the same formatting, static, regression and browser stages except that it skips the measured performance suites (audit_r48_performance.py, audit_r49_performance.py) and audit_case_projection.py compares one generated-corpus seed (2,000 cases, fast-only threshold of 1,500 comparisons) instead of three (threshold 5,000). Its evidence is labelled `"mode": "fast"` (regression evidence.json, browser-results.json) and it writes only build/verification/latest/fast-verification.json, never verification.json or repository.json. Every run first deletes the previous run's evidence, so an aborted or failed run never leaves earlier results in place. Packaging refuses fast or unlabelled evidence. The full gate (without DW_FAST) is mandatory before proposing any PR and before packaging.
+It runs the same formatting, static, regression and browser stages except that it skips the measured performance suites (audit_r48_performance.py, audit_r49_performance.py) and audit_case_projection.py compares one generated-corpus seed (2,000 cases, fast-only threshold of 1,500 comparisons) instead of three (threshold 5,000). Its evidence is labelled `"mode": "fast"` (regression evidence.json, browser-results.json) and it writes only build/verification/latest/fast-verification.json, never verification.json or repository.json. Every run first deletes the previous run's evidence, so an aborted or failed run never leaves earlier results in place. Packaging refuses fast or unlabelled evidence. The full GitHub gate (without DW_FAST) is mandatory on the current PR head before merge; targeted local checks suffice for PR submission. Packaging still requires current passing full-gate evidence for the exact source/runtime.
 
 **Test teardown and projection captures.** JavaScript suites whose completed work leaves only the application's long UI timers pending (15-second warnings and errors, 7-second progress, the Reports handoff notice) pass their completion to tests/fixtures/settle_ui_timers.cjs. After completion settles, ordinary pending work runs normally; then the remaining timers of a second or longer run one at a time instead of being waited for. Every callback still runs and its errors still fail the suite; production durations are unchanged. In the gate, tools/run_tests.py captures the seven Writer flows that audit_case_projection.py compares while they run in the pool (a fresh build/test-results/projection/ directory, each capture bound to the run, suite and source fingerprint and published atomically), and runs the projection check afterwards; a missing, failed, stale or malformed capture fails explicitly. Run on its own, audit_case_projection.py runs those flows itself.
 

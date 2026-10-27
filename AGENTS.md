@@ -19,6 +19,12 @@ outcomes and remaining blockers; a checkpoint is not release approval. Never com
 operational records, credentials, private keys, dependency installations or caches.
 Keep local operational data outside the checkout. Do not merge automatically.
 
+Before submitting a development PR, run targeted local checks for the changed
+behavior and record their actual results. A local full gate is optional; GitHub's
+Full gate and PR format must pass on the current PR head before merge. The automatic
+post-merge main gate may continue asynchronously; report it as pending and investigate
+failures when reported, fixing forward through a new PR. See DEVELOPMENT-STANDARD.md.
+
 Run the existing full gate before proposing a release. Keep measured browser runs
 serial. Packaging requires current passing evidence for the exact source and runtime;
 use the existing packaging script and manifest verifier. Do not package a failed
