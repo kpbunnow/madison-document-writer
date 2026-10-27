@@ -3,7 +3,10 @@ globalThis.MADISON_TEST_DATA = true;
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const src = bundleSource(builtPage());
+// Expose only this private diagnostic inside the test's evaluated bundle; production stays unchanged.
+const original = bundleSource(builtPage());
+const src = original.replace(/return \{ shell: (\w+) \};/, "return { shell: $1, storageBar };");
+assert.ok(src !== original, "the shell diagnostic must be attached to its actual factory");
 const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,
@@ -57,7 +60,7 @@ const test = async () => {
   WriterState.LOCAL_SAVE.ok = false;
   render();
   assert.match(document.querySelector("[data-document-device-save]").textContent, /Not saved/);
-  assert.ok(!storageBar().includes("Nothing has been lost"));
+  assert.ok(!workspaceShell.storageBar().includes("Nothing has been lost"));
   // Real device-save failure keeps all edits and subsequently clears the resolved navigation alert.
   const originalSet = idbSet;
   idbSet = async () => false;

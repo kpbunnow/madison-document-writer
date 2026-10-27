@@ -413,11 +413,19 @@ All five moved and remaining shell functions preserve logic apart from dependenc
 
 There are 120 maintained modules, 15 isolated foundations and 73 independent scoped owners. Shell shrinks from 388 to 331 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/status/probe, then core/screen direction. Earlier counts/ownership remain provenance.
 
+## Forty-sixth increment: shell presentation, printing, status and probe
+
+workspace_shell now composes only shell and its private storageBar through three lazy navigation/recordIntegrity/app_savedworkContext inputs. browser_printing composes printableHTML/printNotice through six lazy document/window/URL/Blob/setTimeout/toast inputs. storage_status composes storageReport/reindexReport through five lazy window/FS_OK/IDB_OK/CASEDIR_EXPECT/storageMode inputs; storage_probe composes testWrite through five lazy toast/grantCaseFolder/helperJSON/writeToFolder/render inputs. Core constructs all four after caseSummaryAdapter and before folderConnections, exporting actual operations for its callbacks and screens. Construction performs no service/state/native reads, I/O or registration.
+
+All seven original function bodies retain their logic and literals apart from scoped dependency access. Preserve clone-only printable cleanup and field conversions, approved CSS and fixed envelope geometry; popup/load/timer one-shot printing, download fallback and URL lifetime; escaped live diagnostic rows and rebuild refusal/failure order; awaited quiet grant, helper probe catch versus propagated native write rejection, current folder reads and original notification/render order. This adds no publication, durable-save, pinned-folder or native print authority.
+
+There are 123 maintained modules, 15 isolated foundations and 77 independent scoped owners. Shell shrinks from 331 to 44 lines. Writer narrows from three cyclic modules to core/screens only; tighten the cap to two. Reports stays acyclic. Next inspect core/screen dependency direction while preserving original startup/event order and existing UI/feature authority. Earlier counts/ownership remain provenance.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 3-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 2-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

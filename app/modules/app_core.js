@@ -76,7 +76,10 @@ import { fmtDate, longDate, fmtTime } from "./presentation_format.js";
 import { splitOwner } from "./mailing_rules.js";
 import { rnd12 } from "./record_ids.js";
 import { allItems } from "./catalog_queries.js";
-import { shell, printNotice, printableHTML, testWrite } from "./workspace_shell.js";
+import { createWorkspaceShell } from "./workspace_shell.js";
+import { createBrowserPrinting } from "./browser_printing.js";
+import { createStorageStatus } from "./storage_status.js";
+import { createStorageProbe } from "./storage_probe.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import { createWriterStartup } from "./writer_startup.js";
@@ -348,6 +351,58 @@ const caseSummaryAdapter = createCaseSummaryAdapter({
   },
 });
 export let { summarize } = caseSummaryAdapter;
+
+const workspaceShell = createWorkspaceShell({
+  get navigation() {
+    return navigation;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  app_savedworkContext: (...args) => app_savedworkContext(...args),
+});
+export let { shell } = workspaceShell;
+const browserPrinting = createBrowserPrinting({
+  get document() {
+    return document;
+  },
+  get window() {
+    return window;
+  },
+  get URL() {
+    return URL;
+  },
+  get Blob() {
+    return Blob;
+  },
+  setTimeout: (...args) => setTimeout(...args),
+  toast: (...args) => toast(...args),
+});
+export let { printableHTML, printNotice } = browserPrinting;
+const storageStatus = createStorageStatus({
+  get window() {
+    return typeof window !== "undefined" ? window : undefined;
+  },
+  get FS_OK() {
+    return FS_OK;
+  },
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  get CASEDIR_EXPECT() {
+    return CASEDIR_EXPECT;
+  },
+  storageMode: (...args) => storageMode(...args),
+});
+export let { storageReport, reindexReport } = storageStatus;
+const storageProbe = createStorageProbe({
+  toast: (...args) => toast(...args),
+  grantCaseFolder: (...args) => grantCaseFolder(...args),
+  helperJSON: (...args) => helperJSON(...args),
+  writeToFolder: (...args) => writeToFolder(...args),
+  render: (...args) => render(...args),
+});
+export let { testWrite } = storageProbe;
 
 const folderConnections = createFolderConnections({
   get FS_OK() {

@@ -38,7 +38,7 @@ import {
 } from "./app_core.js";
 /* Writer screen dispatcher (render), the shared picker, modal and overlay HTML, and the case list. */
 
-import { storageReport, reindexReport, shell } from "./workspace_shell.js";
+import { storageReport, reindexReport, shell } from "./app_core.js";
 import { caseFileName } from "./case_file_rules.js";
 import {
   sourceDocFor,
