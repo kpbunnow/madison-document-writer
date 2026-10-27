@@ -1,9 +1,11 @@
 /* Inspect explicit composition without executing it or reading a service getter. */
 const assert = require("node:assert/strict");
+const { serviceComposition } = require("./deferred_service_syntax.cjs");
 function assertScopedServices(owner, composition, label) {
   const leaves = [],
     used = new Set();
   function inspect(object, prefix = []) {
+    object = serviceComposition(object);
     assert.equal(object.type, "ObjectExpression", label + ": explicit service object");
     assert.ok(object.properties.length <= 25, label + ": each interface has at most 25 fields");
     for (const property of object.properties) {
@@ -11,7 +13,10 @@ function assertScopedServices(owner, composition, label) {
       assert.equal(property.computed, false);
       const key = property.key.name,
         path = [...prefix, key];
-      if (property.value.type === "ObjectExpression") {
+      if (
+        property.value.type === "ObjectExpression" ||
+        (property.value.type === "CallExpression" && property.value.callee.name === "deferredServices")
+      ) {
         assert.equal(property.kind, "init");
         inspect(property.value, path);
       } else {
