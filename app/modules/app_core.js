@@ -1,3 +1,7 @@
+import { createHelperRequests } from "./helper_requests.js";
+import { createCaseSummaryAdapter } from "./case_summary_adapter.js";
+import { evid, appendEvent } from "./record_event_log.js";
+import { sourceDocFor } from "./writer_queries.js";
 import { createFolderConnections } from "./folder_connections.js";
 import { createReinspectionEntry } from "./reinspection_entry.js";
 import { createCaseWorkspaceActions } from "./case_workspace_actions.js";
@@ -72,7 +76,7 @@ import { fmtDate, longDate, fmtTime } from "./presentation_format.js";
 import { splitOwner } from "./mailing_rules.js";
 import { rnd12 } from "./record_ids.js";
 import { allItems } from "./catalog_queries.js";
-import { shell, summarize, evid, helperJSON, printNotice, printableHTML, testWrite, sourceDocFor, appendEvent } from "./workspace_shell.js";
+import { shell, printNotice, printableHTML, testWrite } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import { createWriterStartup } from "./writer_startup.js";
@@ -332,6 +336,19 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const helperRequests = createHelperRequests({
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+});
+export let { helperJSON } = helperRequests;
+const caseSummaryAdapter = createCaseSummaryAdapter({
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+});
+export let { summarize } = caseSummaryAdapter;
+
 const folderConnections = createFolderConnections({
   get FS_OK() {
     return FS_OK;

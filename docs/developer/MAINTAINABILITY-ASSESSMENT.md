@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: folder connections based on merged PR #89, main `dd771a8c36506ac8d130426b8d11edc768e34abb`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: record/helper adapters based on merged PR #90, main `354570b6e932351e2b52c470ff94bd781f7c0923`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Folder linking/restoration/grants now have a nine-input owner importing only state. All three moved and remaining shell function bodies preserve logic except dependency access, including helper priority, synchronous picker and partial failure state. Shell is 82 lines smaller; existing handle-store/helper/pending-write authority remains. Writer remains three cyclic modules and Reports acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Helper JSON and summary context now have one-input integrity adapters; source-document selection and event generation/append have defining live record/query owners. All five moved and remaining shell function bodies preserve logic apart from adapter access. Shell is 57 lines smaller; actual transport/helper/projection authority, original clocks and payload/state semantics remain. Writer remains three cyclic modules and Reports acyclic. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,15 +12,15 @@ The graph still contains one three-module Writer component. These are three coup
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2400 | 98 | 2 | Composition, state/bootstrap and feature dispatch remain centralized |
-| `app_screens.js` | 1244 | 16 | 2 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `workspace_shell.js` | 388 | 12 | 2 | Shell/print/storage UI, probe, event/projection and helper requests remain coupled |
+| `app_core.js` | 2417 | 101 | 2 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_screens.js` | 1257 | 16 | 2 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
+| `workspace_shell.js` | 331 | 7 | 2 | Shell/print/status presentation and storage probe remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Separate shell and case-file responsibilities.** Startup and former case-file responsibilities are separated. Folder/permission operations are separated. Next inspect shell/status/print/probe and record-event/projection/helper request adapters while preserving original behavior and authority. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
+1. **Separate shell and case-file responsibilities.** Startup and former case-file responsibilities are separated. Folder connections and record/helper/projection adapters are separated. Next inspect shell/status/print/probe while preserving original behavior and authority. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
 2. **Review core/screen direction.** Screen routing, shared dialogs/overlays and case-list rendering still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions and preserve initialization/listener order. Avoid universal contexts or forwarding barrels; split bootstrap only when behavior can be verified.
 
 The 14-input readiness and 20-input delivery interfaces remain explicit; split only if responsibilities and evidence warrant another cohesive boundary.
@@ -31,7 +31,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 98 maintained-module dependencies in this graph and 70 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 101 maintained-module dependencies in this graph and 72 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |

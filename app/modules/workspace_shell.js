@@ -1,5 +1,3 @@
-import { summarizeRecord } from "./case_projection.js";
-
 import { APPROVED_PRINT_STYLE } from "./data/approved_print_style.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
 import { fmtDate, fmtTime } from "./presentation_format.js";
@@ -8,6 +6,7 @@ import { render } from "./app_screens.js";
 import {
   toast,
   grantCaseFolder,
+  helperJSON,
   CASEDIR_EXPECT,
   FS_OK,
   IDB_OK,
@@ -18,21 +17,15 @@ import {
   writeToFolder,
 } from "./app_core.js";
 
-import { EVENT_TYPES } from "./document_types.js";
 import { nowISO } from "./calendar.js";
-import { doc, docCase, docsFor, eventsFor, kase } from "./writer_queries.js";
+import { doc, docCase, kase } from "./writer_queries.js";
 
 import { esc } from "./presentation_format.js";
-import { supplemental } from "./document_rules.js";
 
 import { BUILD, LOGO } from "./data/build_identity.js";
-import { INSPECTORS } from "./data/inspectors.js";
-import { LIBRARY } from "./data/library.js";
 
 import { WriterState } from "./state.js";
-import { authFetch } from "./helper_transport.js";
 import { connectionBanner } from "./saved_work.js";
-import { makeEvent } from "./contracts.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 function printableHTML(documentOverride, sheetOverride) {
@@ -335,54 +328,4 @@ function shell(title, crumb, actions, body) {
   );
 }
 
-function sourceDocFor(cid) {
-  // Only a document that has actually been issued can be reinspected: it is
-  // the numbered list the owner received. DOCS is newest first.
-  const w = docsFor(cid).filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
-  return w.find((d) => !supplemental(d)) || w[0] || null;
-}
-
-function evid() {
-  const r = () => Math.random().toString(36).slice(2, 10);
-  return "ev_" + Date.now().toString(36) + "_" + r() + r().slice(0, 4);
-}
-
-function appendEvent(cid, type, payload, at, by) {
-  if (EVENT_TYPES.indexOf(type) < 0) throw new Error("unknown event type " + type);
-  const latest = eventsFor(cid).reduce((n, e) => Math.max(n, Date.parse(e.at) || 0), 0);
-  const recorded = nowISO();
-  const ordered = new Date(Math.max(Date.parse(recorded), latest + 1)).toISOString();
-  const ev = makeEvent(evid(), at || ordered, by || kase(cid).inspectorId || "", type, payload || {});
-  eventsFor(cid).push(ev);
-  WriterState.DIRTY = true;
-  return ev;
-}
-
-async function helperJSON(url, body) {
-  const response = await authFetch(
-    url,
-    body === undefined ? { cache: "no-store" } : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) },
-  );
-  const data = await response.json();
-  if (!response.ok || !data.ok) {
-    const error = new Error(data.error || "The local helper could not complete that action");
-    error.name = data.missing ? "NotFoundError" : "StorageError";
-    error.definitive = response.status >= 400 && response.status < 500;
-    throw error;
-  }
-  if (data.file) await recordIntegrity.verify(data.file, data.integrity);
-  return data;
-}
-
-export { printableHTML, printNotice, storageReport, reindexReport, testWrite, shell, sourceDocFor, evid, appendEvent, helperJSON };
-
-export function summarize(f) {
-  return summarizeRecord(f, {
-    inspectors: INSPECTORS,
-    library: LIBRARY,
-    cases: WriterState.CASES,
-    integrity: recordIntegrity.status(f["case"] || {}),
-    build: BUILD,
-    written: nowISO(),
-  });
-}
+export { printableHTML, printNotice, storageReport, reindexReport, testWrite, shell };
