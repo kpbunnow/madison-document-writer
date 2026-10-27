@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Writer startup boundary (development)
+
+- Compose original bootStorage through fifteen explicit native/restore/readiness inputs. Preserve workspace lock lifetime/refusal UI, helper branches, exact restoration sequence/barrier and failure handling.
+- Keep invocation at the original registration checkpoint; remove the emptied case_files module. Startup construction performs no work. Writer cycle narrows from four modules to three; Reports remains acyclic.
+- Add independent lock/barrier/failure tests and tighten dependency guards; update ownership, source/test indexes and roadmap. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Workspace case actions and reinspection entry (development)
 
 - Compose draft discard, unsaved-case classification and workspace case removal through four lazy notification/walk/save/render inputs. Preserve pending-save refusals, checkpoint comparisons, filtering/lookup and await/dispatch order.
