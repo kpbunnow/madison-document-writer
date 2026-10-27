@@ -60,3 +60,16 @@ comparison over all generated policy rows, format versions, modes and 3,000 seed
 malformed combinations (11,685 cases total), including service-call precedence.
 Production exports, factory inputs and stored charge fields are unchanged.
 Complexity violations 87 → 86; length reports 141 → 140.
+
+## M2 document readiness
+
+Readiness facts retain their original eager evaluation order, followed by ordered
+mailing/item/compliance/citation/inspection rule tables and the existing delegated
+checks. Targets are built at their original phase, including the intentionally
+different deposit calls in counts versus target selection. No validation is
+reclassified as pure: preparation and delegated effects remain in place.
+
+The original factory test and 3,002 differential generated documents preserve
+exact rows, targets, lazy service reads and effect order. Every extracted rule
+and coordinator stays below complexity 10. Complexity violations 86 → 85;
+length reports 140 → 138. Historical assertions and output references remain.
