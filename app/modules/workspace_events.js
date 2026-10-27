@@ -1,3 +1,4 @@
+import { importsState as imports } from "./imports_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Workspace event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
@@ -578,7 +579,7 @@ const documentActions = [
   },
   {
     id: "accsel",
-    matches: (t, e) => t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY,
+    matches: (t, e) => t.dataset.accsel !== undefined && WriterState.state.acc && !imports.LOOKUP_BUSY,
     run: (services, t, e, d) => {
       return services.importEvents.selectInspection(t);
     },
