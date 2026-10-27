@@ -1161,197 +1161,166 @@ const worksheetWorkflow = createWorksheetWorkflow(
 );
 export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;
 
-const recoveryUI = createRecoveryUI({
-  get document() {
-    return document;
-  },
-  get ENTRY_IDS() {
-    return ENTRY_IDS;
-  },
-  recordFormKey: (...args) => recordFormKey(...args),
-  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
-  captureWork: (...args) => captureWork(...args),
-  clearTimeout: (...args) => clearTimeout(...args),
-  get navigation() {
-    return navigation;
-  },
-  render: (...args) => render(...args),
-  toast: (...args) => toast(...args),
-  restoreWorkspaceBackup: (...args) => restoreWorkspaceBackup(...args),
-  caseUnsaved: (...args) => caseUnsaved(...args),
-});
+const recoveryUI = createRecoveryUI(
+  deferredServices(
+    {
+      document: () => document,
+      ENTRY_IDS: () => ENTRY_IDS,
+      recordFormKey: () => recordFormKey,
+      cancelCaseLookup: () => cancelCaseLookup,
+      captureWork: () => captureWork,
+      clearTimeout: () => clearTimeout,
+      navigation: () => navigation,
+      render: () => render,
+      toast: () => toast,
+      restoreWorkspaceBackup: () => restoreWorkspaceBackup,
+      caseUnsaved: () => caseUnsaved,
+    },
+    ["document", "ENTRY_IDS", "navigation"],
+  ),
+);
 export let { restoreWorkControls, saveAndContinue, restoreWorkspaceFile, renderRecoveryStatus, recoveryStatusHTML, recoveryModal } = recoveryUI;
-const catalogForms = createCatalogForms({
-  get localStorage() {
-    return localStorage;
-  },
-});
+const catalogForms = createCatalogForms(deferredServices({ localStorage: () => localStorage }, ["localStorage"]));
 export let { keepCatalogForms } = catalogForms;
-const recordHistory = createRecordHistory({ fmtDate: (...args) => fmtDate(...args) });
+const recordHistory = createRecordHistory(deferredServices({ fmtDate: () => fmtDate }));
 export let { recordHistoryHTML, revisionPrintNote } = recordHistory;
 
-const inspectionHistory = createInspectionHistory({ correctionVisitPatch: (...args) => correctionVisitPatch(...args) });
+const inspectionHistory = createInspectionHistory(deferredServices({ correctionVisitPatch: () => correctionVisitPatch }));
 export let { documentItemHistory } = inspectionHistory;
-const correctionUI = createCorrectionUI({
-  correctionChanges: (...args) => correctionChanges(...args),
-  get today() {
-    return today;
-  },
-  correctionTypeAllowed: (...args) => correctionTypeAllowed(...args),
-});
+const correctionUI = createCorrectionUI(
+  deferredServices({ correctionChanges: () => correctionChanges, today: () => today, correctionTypeAllowed: () => correctionTypeAllowed }, ["today"]),
+);
 export let { correctionDiffHTML, correctionPanel, recordActionModal } = correctionUI;
 const { correctionValueText } = correctionUI;
-const recordActions = createRecordActions({
-  issueCorrection: (...args) => issueCorrection(...args),
-  publishDocument: (...args) => publishDocument(...args),
-  correctionEligibility: (...args) => correctionEligibility(...args),
-  toast: (...args) => toast(...args),
-  evid: (...args) => evid(...args),
-  render: (...args) => render(...args),
-  commitAmendment: (...args) => commitAmendment(...args),
-});
+const recordActions = createRecordActions(
+  deferredServices({
+    issueCorrection: () => issueCorrection,
+    publishDocument: () => publishDocument,
+    correctionEligibility: () => correctionEligibility,
+    toast: () => toast,
+    evid: () => evid,
+    render: () => render,
+    commitAmendment: () => commitAmendment,
+  }),
+);
 export let { runFinalize, voidDocument, addRecordNote, reconcileDocument, commitRecordAttempt } = recordActions;
 
-const workingPapers = createWorkingPapers({
-  ensureWalkContext: (...args) => ensureWalkContext(...args),
-  get ENTRY_IDS() {
-    return ENTRY_IDS;
-  },
-  get document() {
-    return document;
-  },
-  recordFormKey: (...args) => recordFormKey(...args),
-});
+const workingPapers = createWorkingPapers(
+  deferredServices(
+    { ensureWalkContext: () => ensureWalkContext, ENTRY_IDS: () => ENTRY_IDS, document: () => document, recordFormKey: () => recordFormKey },
+    ["ENTRY_IDS", "document"],
+  ),
+);
 export let { captureWork } = workingPapers;
-const citationDrafts = createCitationDrafts({
-  priorCitations: (...args) => priorCitations(...args),
-  uid: (...args) => uid(...args),
-  get today() {
-    return today;
-  },
-  citationNumber: (...args) => citationNumber(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  nextCourtDate: (...args) => nextCourtDate(...args),
-  applyDeposit: (...args) => applyDeposit(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  get depositStep() {
-    return depositStep;
-  },
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
-});
+const citationDrafts = createCitationDrafts(
+  deferredServices(
+    {
+      priorCitations: () => priorCitations,
+      uid: () => uid,
+      today: () => today,
+      citationNumber: () => citationNumber,
+      fmtDate: () => fmtDate,
+      nextCourtDate: () => nextCourtDate,
+      applyDeposit: () => applyDeposit,
+      saveDrafts: () => saveDrafts,
+      depositStep: () => depositStep,
+      sourceDocFor: () => sourceDocFor,
+      unissuedVisitFor: () => unissuedVisitFor,
+    },
+    ["today", "depositStep"],
+  ),
+);
 export let { citationTier, citationFromNotice, needsInitialCitation, citationRecoveryPanel } = citationDrafts;
-const visitRecording = createVisitRecording({
-  appendEvent: (...args) => appendEvent(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  toast: (...args) => toast(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  render: (...args) => render(...args),
-});
+const visitRecording = createVisitRecording(
+  deferredServices({
+    appendEvent: () => appendEvent,
+    saveDrafts: () => saveDrafts,
+    toast: () => toast,
+    fmtDate: () => fmtDate,
+    render: () => render,
+  }),
+);
 export let { recordReinspection } = visitRecording;
 
-const documentPrinting = createDocumentPrinting({
-  fmtDate: (...args) => fmtDate(...args),
-  get today() {
-    return today;
-  },
-  get document() {
-    return document;
-  },
-  citationDepositFault: (...args) => citationDepositFault(...args),
-  documentHTML: (...args) => documentHTML(...args),
-  get snow() {
-    return snow;
-  },
-  printableHTML: (...args) => printableHTML(...args),
-  paginate: (...args) => paginate(...args),
-});
+const documentPrinting = createDocumentPrinting(
+  deferredServices(
+    {
+      fmtDate: () => fmtDate,
+      today: () => today,
+      document: () => document,
+      citationDepositFault: () => citationDepositFault,
+      documentHTML: () => documentHTML,
+      snow: () => snow,
+      printableHTML: () => printableHTML,
+      paginate: () => paginate,
+    },
+    ["today", "document", "snow"],
+  ),
+);
 export let { printJob } = documentPrinting;
 const { documentFileName } = documentPrinting;
-const documentDelivery = createDocumentDelivery({
-  authFetch: (...args) => authFetch(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  get today() {
-    return today;
-  },
-  toast: (...args) => toast(...args),
-  toastHold: (...args) => toastHold(...args),
-  render: (...args) => render(...args),
-  documentFileName: (...args) => documentFileName(...args),
-  printJob: (...args) => printJob(...args),
-  get document() {
-    return document;
-  },
-  get window() {
-    return window;
-  },
-  get URL() {
-    return URL;
-  },
-  get Blob() {
-    return Blob;
-  },
-  atob: (...args) => atob(...args),
-  setTimeout: (...args) => setTimeout(...args),
-  confirm: (...args) => confirm(...args),
-  printNotice: (...args) => printNotice(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  appendEvent: (...args) => appendEvent(...args),
-  saveCaseFile: (...args) => saveCaseFile(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-});
+const documentDelivery = createDocumentDelivery(
+  deferredServices(
+    {
+      authFetch: () => authFetch,
+      fmtDate: () => fmtDate,
+      today: () => today,
+      toast: () => toast,
+      toastHold: () => toastHold,
+      render: () => render,
+      documentFileName: () => documentFileName,
+      printJob: () => printJob,
+      document: () => document,
+      window: () => window,
+      URL: () => URL,
+      Blob: () => Blob,
+      atob: () => atob,
+      setTimeout: () => setTimeout,
+      confirm: () => confirm,
+      printNotice: () => printNotice,
+      recordIntegrity: () => recordIntegrity,
+      appendEvent: () => appendEvent,
+      saveCaseFile: () => saveCaseFile,
+      refreshArtifactLocations: () => refreshArtifactLocations,
+    },
+    ["today", "document", "window", "URL", "Blob", "recordIntegrity"],
+  ),
+);
 export let { checkHelper, emailDocument, openIssuedCopy, filePdf } = documentDelivery;
 
-const documentReadiness = createDocumentReadiness({
-  addressProblem: (...args) => addressProblem(...args),
-  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
-  correctionChecks: (...args) => correctionChecks(...args),
-  lifecycleChecks: (...args) => lifecycleChecks(...args),
-  authoringChecks: (...args) => authoringChecks(...args),
-  citationDepositFault: (...args) => citationDepositFault(...args),
-  catalogDraftBlocked: (...args) => catalogDraftBlocked(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-  get newDocuments() {
-    return newDocuments;
-  },
-  get snow() {
-    return snow;
-  },
-  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
-  unchangedCourtDate: (...args) => unchangedCourtDate(...args),
-  attachCheckTargets: (...args) => attachCheckTargets(...args),
-  get today() {
-    return today;
-  },
-});
+const documentReadiness = createDocumentReadiness(
+  deferredServices(
+    {
+      addressProblem: () => addressProblem,
+      validateAndStandardizeAddresses: () => validateAndStandardizeAddresses,
+      correctionChecks: () => correctionChecks,
+      lifecycleChecks: () => lifecycleChecks,
+      authoringChecks: () => authoringChecks,
+      citationDepositFault: () => citationDepositFault,
+      catalogDraftBlocked: () => catalogDraftBlocked,
+      initialCitations: () => initialCitations,
+      newDocuments: () => newDocuments,
+      snow: () => snow,
+      unchangedCorrectionValue: () => unchangedCorrectionValue,
+      unchangedCourtDate: () => unchangedCourtDate,
+      attachCheckTargets: () => attachCheckTargets,
+      today: () => today,
+    },
+    ["initialCitations", "newDocuments", "snow", "today"],
+  ),
+);
 export let { checks } = documentReadiness;
 const dep_checks = checks;
 
-const documentFeedback = createDocumentFeedback({
-  get A11Y() {
-    return A11Y;
-  },
-  isLocked: (...args) => isLocked(...args),
-  get document() {
-    return document;
-  },
-  get Event() {
-    return Event;
-  },
-});
+const documentFeedback = createDocumentFeedback(
+  deferredServices({ A11Y: () => A11Y, isLocked: () => isLocked, document: () => document, Event: () => Event }, ["A11Y", "document", "Event"]),
+);
 export let { toast, toastHold, toastUndo, fillBlank } = documentFeedback;
-const documentSources = createDocumentSources({
-  get snow() {
-    return snow;
-  },
-  initialOrderCitation: (...args) => initialOrderCitation(...args),
-  docBody: (...args) => docBody(...args),
-  docBlocks: (...args) => docBlocks(...args),
-});
+const documentSources = createDocumentSources(
+  deferredServices({ snow: () => snow, initialOrderCitation: () => initialOrderCitation, docBody: () => docBody, docBlocks: () => docBlocks }, [
+    "snow",
+  ]),
+);
 export let { activeBlocks, freezeSources } = documentSources;
 
 const courtScheduling = createCourtScheduling({
@@ -1362,15 +1331,12 @@ const courtScheduling = createCourtScheduling({
   random: () => Math.random(),
 });
 export let { nextCourtDate, citationNumber } = courtScheduling;
-const citationCharges = createCitationCharges({
-  get citationPricing() {
-    return citationPricing;
-  },
-  citationPricingDate: (...args) => citationPricingDate(...args),
-  get document() {
-    return document;
-  },
-});
+const citationCharges = createCitationCharges(
+  deferredServices({ citationPricing: () => citationPricing, citationPricingDate: () => citationPricingDate, document: () => document }, [
+    "citationPricing",
+    "document",
+  ]),
+);
 export let { changeCharge: changeChargeBasis, applyDeposit } = citationCharges;
 const { changeCharge } = citationCharges;
 

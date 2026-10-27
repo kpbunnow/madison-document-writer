@@ -489,3 +489,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Ten persistence/recovery/worksheet compositions use explicit ordered declarations. Existing database/transaction failure, snapshot/restore barrier, shared-save exact retry, backup validation/write order, queue serialization, recovery rollback and worksheet assertions pass unchanged. Serialization failure still writes no stale/empty bytes and desktop exit still saves/reviews before stopping. No lock, retry, local storage, backup, helper trust or startup timing changes; interfaces remain bounded and acyclic.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared document composition
+
+Fifteen document, delivery and recovery compositions use explicit ordered declarations. Existing recovery/history, record/visit, working-paper, printing/delivery, readiness, source and charge contracts pass unchanged, including snapshot-bound filing, receipt deduplication, guard-before-mutation and retained retry semantics. Original citation packet scenarios pass on the new bundle. The native clock/random adapter remains explicit. No document bytes, wording, protocol, source authority or initialization order changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
