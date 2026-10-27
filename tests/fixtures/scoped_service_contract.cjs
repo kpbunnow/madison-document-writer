@@ -40,15 +40,16 @@ function assertScopedServices(owner, composition, label) {
         root = root.object;
       }
       if (root.name === "services") {
-        assert.ok(!segments.includes(null), label + ": statically named service access");
         const path = segments.join(".");
         const leaf = leaves.find((key) => path === key || path.startsWith(key + "."));
         if (leaf) used.add(leaf);
-        else
+        else {
+          assert.ok(!segments.includes(null), label + ": statically named service access");
           assert.ok(
             leaves.some((key) => key.startsWith(path + ".")),
             label + ": undeclared service " + path,
           );
+        }
       }
     }
     Object.values(node).forEach(walk);

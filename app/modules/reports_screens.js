@@ -4,6 +4,17 @@ import { ReportsState } from "./state.js";
 import { orderedRows, validSort, reportNavigation, reportActions as compactActions, appliedFilters, coverage } from "./report_presentation.js";
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
+function spreadsheetColumnName(i) {
+  let s = "";
+  i++;
+  while (i) {
+    const m = (i - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    i = Math.floor((i - 1) / 26);
+  }
+  return s;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -108,7 +119,7 @@ export function createReportsScreens(services) {
   function filtersBar(dateMode) {
     const F = ReportsState.S.F,
       M = ReportsState.S.M;
-    const allAreas = services.uniq(M.counted.map((c) => services.areaKey(c, F))).sort(services.areaSort);
+    const allAreas = services.facts.uniq(M.counted.map((c) => services.facts.areaKey(c, F))).sort(services.facts.areaSort);
     const dates =
       dateMode === "asOf"
         ? `<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${services.esc(F.asOf)}"></label>`
@@ -139,7 +150,7 @@ export function createReportsScreens(services) {
       '\n    <div class="f"><span>Areas</span><details class="areas" ' +
       `${ReportsState.S.areasOpen ? "open" : ""}` +
       ' id="f-areas"><summary>' +
-      `${F.areas.length ? services.esc(F.areas.map((a) => services.areaLabel(a)).join(", ")) : "All areas"}` +
+      `${F.areas.length ? services.esc(F.areas.map((a) => services.facts.areaLabel(a)).join(", ")) : "All areas"}` +
       '</summary>\n      <div class="pop">' +
       "".concat(
         allAreas
@@ -150,7 +161,7 @@ export function createReportsScreens(services) {
               '" ' +
               `${F.areas.indexOf(a) >= 0 ? "checked" : ""}` +
               ">" +
-              `${services.esc(services.areaLabel(a))}` +
+              `${services.esc(services.facts.areaLabel(a))}` +
               "</label>",
           )
           .join("") || '<div class="small">No areas yet</div>',
@@ -255,12 +266,12 @@ export function createReportsScreens(services) {
   function filterSummary() {
     const F = ReportsState.S.F,
       p = [];
-    if (F.areas.length) p.push(F.areas.map((a) => services.areaLabel(a)).join(", "));
+    if (F.areas.length) p.push(F.areas.map((a) => services.facts.areaLabel(a)).join(", "));
     if (F.inspector) p.push(F.inspector);
     if (F.vtype) p.push((ReportsState.S.M.types.find((t) => t.key === F.vtype) || {}).label || F.vtype);
     if (F.ord) p.push(F.ord);
     if (F.status) p.push(F.status === "open" ? "open cases" : F.status);
-    if (F.owner) p.push(services.ownerKeyLabel(F.owner));
+    if (F.owner) p.push(services.facts.ownerKeyLabel(F.owner));
     if (F.areaType === "district" && F.boundary === "atOpen") p.push("districts as they were when each case opened");
     return p.length ? ". Filtered to " + p.join("; ") : "";
   }
@@ -416,7 +427,7 @@ export function createReportsScreens(services) {
               '">Open case in Writer</button></td><td>' +
               `${services.esc(c.address)}` +
               "</td>\n      <td>" +
-              `${services.esc(services.areaLabel(services.areaKey(c)))}` +
+              `${services.esc(services.facts.areaLabel(services.facts.areaKey(c)))}` +
               '</td><td><span class="st st-' +
               `${services.esc(c.status)}` +
               '">' +
@@ -507,7 +518,7 @@ export function createReportsScreens(services) {
         );
         LF.geoJSON(fc, {
           style: (f) => {
-            const id = services.areaIdOf(f, field),
+            const id = services.facts.areaIdOf(f, field),
               n = res.area[id] || 0,
               picked = F.areas.indexOf(id) >= 0;
             return {
@@ -518,8 +529,8 @@ export function createReportsScreens(services) {
             };
           },
           onEachFeature: (f, l) => {
-            const id = services.areaIdOf(f, field);
-            l.bindTooltip(services.esc(services.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
+            const id = services.facts.areaIdOf(f, field);
+            l.bindTooltip(services.esc(services.facts.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
             l.on("click", () => {
               toggleArea(id);
             });
@@ -723,7 +734,7 @@ export function createReportsScreens(services) {
 
   function ownerView() {
     const o = ReportsState.S.own,
-      g = services.groupBy(
+      g = services.facts.groupBy(
         ReportsState.S.M.cases.filter((c) => c.ownerKey),
         (c) => c.ownerKey,
       );
@@ -731,7 +742,9 @@ export function createReportsScreens(services) {
       .trim()
       .toUpperCase();
     const matches = q
-      ? Array.from(g.keys()).filter((k) => k.indexOf(services.normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0))
+      ? Array.from(g.keys()).filter(
+          (k) => k.indexOf(services.facts.normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0),
+        )
       : [];
     const sel = o.key && g.get(o.key);
     return (
@@ -754,9 +767,9 @@ export function createReportsScreens(services) {
                       '<tr><td><button class="linkish" data-owner="' +
                       `${services.esc(k)}` +
                       '">' +
-                      `${services.esc(services.ownerKeyLabel(k))}` +
+                      `${services.esc(services.facts.ownerKeyLabel(k))}` +
                       "</button></td><td>" +
-                      `${services.esc(services.uniq(g.get(k).map((c) => c.owner)).join("; "))}` +
+                      `${services.esc(services.facts.uniq(g.get(k).map((c) => c.owner)).join("; "))}` +
                       '</td><td class="n">' +
                       `${services.fmtNum(g.get(k).length)}` +
                       "</td></tr>",
@@ -771,13 +784,13 @@ export function createReportsScreens(services) {
       "".concat(
         sel
           ? '<div class="panel"><div class="panel-h"><div><h2>' +
-              `${services.esc(services.ownerKeyLabel(o.key))}` +
+              `${services.esc(services.facts.ownerKeyLabel(o.key))}` +
               '</h2>\n        <div class="sub">' +
               `${services.plural(sel.length, "case")}` +
               " at " +
-              `${services.plural(services.uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties")}` +
+              `${services.plural(services.facts.uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties")}` +
               ". Owner names seen: " +
-              `${services.esc(services.uniq(sel.map((c) => c.owner)).join("; "))}` +
+              `${services.esc(services.facts.uniq(sel.map((c) => c.owner)).join("; "))}` +
               '</div></div>\n        <button class="btn" data-act="useOwner">Filter the ' +
               "reports to this owner</button></div>\n      " +
               `${caseTable(sel)}` +
@@ -895,7 +908,7 @@ export function createReportsScreens(services) {
 
   function crc32(u) {
     let c = 0xffffffff;
-    for (let i = 0; i < u.length; i++) c = services.CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
+    for (let i = 0; i < u.length; i++) c = services.exports.CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
     return (c ^ 0xffffffff) >>> 0;
   }
 
@@ -955,14 +968,7 @@ export function createReportsScreens(services) {
   }
 
   function colName(i) {
-    let s = "";
-    i++;
-    while (i) {
-      const m = (i - 1) % 26;
-      s = String.fromCharCode(65 + m) + s;
-      i = Math.floor((i - 1) / 26);
-    }
-    return s;
+    return spreadsheetColumnName(i);
   }
 
   function sheetXml(rows, opt) {
@@ -984,13 +990,13 @@ export function createReportsScreens(services) {
                 if (v == null || v === "") return "";
                 if (typeof v === "number") return isFinite(v) ? `<c r="${r}"><v>${v}</v></c>` : "";
                 if (typeof v === "object") {
-                  if (v.d) return services.validISO(v.d) ? `<c r="${r}" s="1"><v>${services.excelDate(v.d)}</v></c>` : "";
+                  if (v.d) return services.facts.validISO(v.d) ? `<c r="${r}" s="1"><v>${services.exports.excelDate(v.d)}</v></c>` : "";
                   if (v.m != null) return isFinite(v.m) ? `<c r="${r}" s="3"><v>${v.m}</v></c>` : "";
                   if (v.f != null) return isFinite(v.f) ? `<c r="${r}" s="4"><v>${Math.round(v.f * 10) / 10}</v></c>` : "";
                   return "";
                 }
                 const bold = (opt.header && ri === 0) || (opt.boldRows && opt.boldRows.indexOf(ri) >= 0);
-                return `<c r="${r}" t="inlineStr"${bold ? ' s="2"' : ""}><is><t xml:space="preserve">${services.xesc(v)}</t></is></c>`;
+                return `<c r="${r}" t="inlineStr"${bold ? ' s="2"' : ""}><is><t xml:space="preserve">${services.exports.xesc(v)}</t></is></c>`;
               })
               .join(""),
           ) +
@@ -1071,7 +1077,7 @@ export function createReportsScreens(services) {
           ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
             'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
             'ionships"><sheets>') +
-          named.map((s, i) => `<sheet name="${services.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
+          named.map((s, i) => `<sheet name="${services.exports.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
           "</sheets></workbook>",
       },
       {
@@ -1095,7 +1101,7 @@ export function createReportsScreens(services) {
             '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
             'ips/styles" Target="styles.xml"/></Relationships>'),
       },
-      { name: "xl/styles.xml", data: services.STYLES },
+      { name: "xl/styles.xml", data: services.exports.STYLES },
     ].concat(named.map((s, i) => ({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: sheetXml(s.rows, s.opt) })));
     return { bytes: zipStore(files), names: named.map((s) => s.name) };
   }
@@ -1103,8 +1109,8 @@ export function createReportsScreens(services) {
   function exportSheets() {
     const M = ReportsState.S.M,
       F = ReportsState.S.F;
-    const cases = M.counted.filter((c) => services.caseOk(c, F) && services.inPeriod(c.opened, F));
-    const A = (c) => services.areaLabel(services.areaKey(c));
+    const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
+    const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
     const casesRows = [
       [
         "Case number",
@@ -1145,7 +1151,7 @@ export function createReportsScreens(services) {
         services.D(c.closedOn),
         c.owner,
         c.ownerAddr.join(", "),
-        services.ownerKeyLabel(c.ownerKey),
+        services.facts.ownerKeyLabel(c.ownerKey),
         c.violations.filter((v) => !v.withdrawn).length,
         c.violations.filter((v) => !v.done && !v.withdrawn).length,
         c.citations.length,
@@ -1178,7 +1184,7 @@ export function createReportsScreens(services) {
     ];
     cases.forEach((c) =>
       c.violations
-        .filter((v) => services.violOk(v, F))
+        .filter((v) => services.facts.violOk(v, F))
         .forEach((v) =>
           vRows.push([
             c.number,
@@ -1193,12 +1199,12 @@ export function createReportsScreens(services) {
             services.D(v.due),
             v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
             services.D(v.doneOn),
-            c.caseType !== "snow-10.28" && v.done ? services.daysBetween(c.opened, v.doneOn) : null,
+            c.caseType !== "snow-10.28" && v.done ? services.facts.daysBetween(c.opened, v.doneOn) : null,
             v.lastOutcome,
             v.visits,
             v.cited,
             c.inspector,
-            services.ownerKeyLabel(c.ownerKey),
+            services.facts.ownerKeyLabel(c.ownerKey),
           ]),
         ),
     );
@@ -1230,10 +1236,10 @@ export function createReportsScreens(services) {
       ],
     ];
     M.counted
-      .filter((c) => services.caseOk(c, F, { noViol: true, noInspector: true }))
+      .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
       .forEach((c) =>
         c.citations.forEach((x) => {
-          if (!services.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
+          if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
           citRows.push([
             x.num,
             c.number,
@@ -1257,10 +1263,10 @@ export function createReportsScreens(services) {
       );
     const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
     M.counted
-      .filter((c) => services.caseOk(c, F, { noInspector: true }))
+      .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
       .forEach((c) =>
         c.referrals.forEach((r) => {
-          if (!services.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
+          if (!services.facts.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
           refRows.push([
             c.number,
             c.address,
@@ -1269,7 +1275,7 @@ export function createReportsScreens(services) {
             r.by,
             r.owner,
             (r.ownerAddr || []).join(", "),
-            services.ownerKeyLabel(r.ownerKey),
+            services.facts.ownerKeyLabel(r.ownerKey),
           ]);
         }),
       );
@@ -1297,7 +1303,7 @@ export function createReportsScreens(services) {
       // Describes the selections below exactly; it does not change them.
       ["Sheet scope"],
     ]
-      .concat(services.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
+      .concat(services.exports.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
       .concat(
         [[], ["Definitions"]],
         services.DEFINITIONS.map((d) => [d[0], d[1]]),
@@ -1306,10 +1312,10 @@ export function createReportsScreens(services) {
       ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
     ];
     M.cases
-      .filter((c) => services.caseOk(c, F))
+      .filter((c) => services.facts.caseOk(c, F))
       .forEach((c) =>
         (c.summary.corrections || [])
-          .filter((r) => services.inPeriod(recordDay(r.at), F))
+          .filter((r) => services.facts.inPeriod(recordDay(r.at), F))
           .forEach((r) =>
             (r.changes || []).forEach((x) =>
               correctionRows.push([

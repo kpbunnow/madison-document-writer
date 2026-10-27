@@ -92,26 +92,8 @@ export let {
   render,
 } = reportsServices;
 const reportsScreens = createReportsScreens({
-  get areaKey() {
-    return areaKey;
-  },
-  get areaSort() {
-    return areaSort;
-  },
-  get caseOk() {
-    return caseOk;
-  },
-  get daysBetween() {
-    return daysBetween;
-  },
-  get groupBy() {
-    return groupBy;
-  },
   get humanCorrectionValue() {
     return humanCorrectionValue;
-  },
-  get normStreet() {
-    return normStreet;
   },
   get render() {
     return render;
@@ -119,17 +101,11 @@ const reportsScreens = createReportsScreens({
   get A11Y() {
     return A11Y;
   },
-  get CRC_T() {
-    return CRC_T;
-  },
   get D() {
     return D;
   },
   get DEFINITIONS() {
     return DEFINITIONS;
-  },
-  get EXPORT_SCOPE() {
-    return EXPORT_SCOPE;
   },
   get REPORTS() {
     return REPORTS;
@@ -140,9 +116,6 @@ const reportsScreens = createReportsScreens({
   get STATUS_COL() {
     return STATUS_COL;
   },
-  get STYLES() {
-    return STYLES;
-  },
   get TILE() {
     return TILE;
   },
@@ -152,20 +125,11 @@ const reportsScreens = createReportsScreens({
   get activeFilters() {
     return activeFilters;
   },
-  get areaIdOf() {
-    return areaIdOf;
-  },
-  get areaLabel() {
-    return areaLabel;
-  },
   get depositSchedule() {
     return depositSchedule;
   },
   get esc() {
     return esc;
-  },
-  get excelDate() {
-    return excelDate;
   },
   get fmtDate() {
     return fmtDate;
@@ -179,17 +143,11 @@ const reportsScreens = createReportsScreens({
   get fmtNum() {
     return fmtNum;
   },
-  get inPeriod() {
-    return inPeriod;
-  },
   get iso() {
     return iso;
   },
   get numOr() {
     return numOr;
-  },
-  get ownerKeyLabel() {
-    return ownerKeyLabel;
   },
   get plural() {
     return plural;
@@ -197,20 +155,66 @@ const reportsScreens = createReportsScreens({
   get reportById() {
     return reportById;
   },
-  get uniq() {
-    return uniq;
-  },
-  get validISO() {
-    return validISO;
-  },
-  get violOk() {
-    return violOk;
-  },
-  get xesc() {
-    return xesc;
-  },
   get reports_reportpresentationContext() {
     return reports_reportpresentationContext;
+  },
+  facts: {
+    get areaKey() {
+      return areaKey;
+    },
+    get areaSort() {
+      return areaSort;
+    },
+    get caseOk() {
+      return caseOk;
+    },
+    get daysBetween() {
+      return daysBetween;
+    },
+    get groupBy() {
+      return groupBy;
+    },
+    get normStreet() {
+      return normStreet;
+    },
+    get areaIdOf() {
+      return areaIdOf;
+    },
+    get areaLabel() {
+      return areaLabel;
+    },
+    get inPeriod() {
+      return inPeriod;
+    },
+    get ownerKeyLabel() {
+      return ownerKeyLabel;
+    },
+    get uniq() {
+      return uniq;
+    },
+    get validISO() {
+      return validISO;
+    },
+    get violOk() {
+      return violOk;
+    },
+  },
+  exports: {
+    get CRC_T() {
+      return CRC_T;
+    },
+    get EXPORT_SCOPE() {
+      return EXPORT_SCOPE;
+    },
+    get STYLES() {
+      return STYLES;
+    },
+    get excelDate() {
+      return excelDate;
+    },
+    get xesc() {
+      return xesc;
+    },
   },
 });
 export let { reportActions, shell, drawMap, propertyHits, openCase, exportWorkbook, toggleArea } = reportsScreens;
