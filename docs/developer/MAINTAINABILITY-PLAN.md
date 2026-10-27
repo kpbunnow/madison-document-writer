@@ -447,3 +447,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 A read-only inventory now inspects 113 statically declared Writer/Reports injection interfaces, including nested groups: the largest has 25 fields and no spreads/computed interface keys. An architecture regression guard pins eleven state.js importers, six bounded owners covering exactly seventy disjoint root fields, and zero cycles. Existing grouped service, event, editor, reinspection and Reports contract tests pass. Namespace internals and behavioral coupling are explicitly outside this field-width measurement. Core forwarder reduction remains open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared editor composition
+
+A stateless per-owner adapter generates deferred callbacks/getters from explicit ordered resolver declarations. It stores no global registry and reads no dependency during construction. The first editor screen composition replaces 27 handwritten forwarders and five getters; scoped widths remain 8/5/19. Independent tests pin original property order/descriptors, callback name/arity, per-instance identity, live rebinding, synchronous error and Promise identity, and no early access to uninitialized bindings. Static contracts accept only named synchronous zero-argument resolvers and explicit value names; eager calls, spreads, unknown adapters and malformed metadata fail. Existing editor/architecture/dependency checks, five screen scenarios and R59 flow pass. The inventory still measures 113 interfaces at a maximum of 25 fields; no startup checkpoint changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

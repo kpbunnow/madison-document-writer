@@ -1,3 +1,4 @@
+import { deferredServices } from "./deferred_services.js";
 import { createHelperRequests } from "./helper_requests.js";
 import { createCaseSummaryAdapter } from "./case_summary_adapter.js";
 import { evid, appendEvent } from "./record_event_log.js";
@@ -127,54 +128,50 @@ import { createSavedWorkContext, createWorkspaceQueueContext, createLanguageDisc
 
 /* Editor copy-click registration precedes the existing feature-service registrations. Dependencies stay lazy. */
 const editorScreens = createEditorScreens({
-  ui: {
-    toast: (...args) => toast(...args),
-    shell: (...args) => shell(...args),
-    highlightOpenChecks: (...args) => highlightOpenChecks(...args),
-    screenCases: (...args) => screenCases(...args),
-    render: (...args) => render(...args),
-    overlayHTML: (...args) => overlayHTML(...args),
-    get A11Y() {
-      return A11Y;
+  ui: deferredServices(
+    {
+      toast: () => toast,
+      shell: () => shell,
+      highlightOpenChecks: () => highlightOpenChecks,
+      screenCases: () => screenCases,
+      render: () => render,
+      overlayHTML: () => overlayHTML,
+      A11Y: () => A11Y,
+      paginate: () => paginate,
     },
-    paginate: (...args) => paginate(...args),
-  },
-  edit: {
-    saveDrafts: (...args) => saveDrafts(...args),
-    scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-    isLocked: (...args) => isLocked(...args),
-    structEditable: (...args) => structEditable(...args),
-    uid: (...args) => uid(...args),
-  },
-  record: {
-    checks: (...args) => checks(...args),
-    fmtDate: (...args) => fmtDate(...args),
-    checkRowHTML: (...args) => checkRowHTML(...args),
-    citationRecoveryPanel: (...args) => citationRecoveryPanel(...args),
-    correctionEligibility: (...args) => correctionEligibility(...args),
-    correctionPanel: (...args) => correctionPanel(...args),
-    filingPanel: (...args) => filingPanel(...args),
-    recordHistoryHTML: (...args) => recordHistoryHTML(...args),
-    publicationPanel: (...args) => publicationPanel(...args),
-    citationReview: (...args) => citationReview(...args),
-    duePanel: (...args) => duePanel(...args),
-    get initialCitations() {
-      return initialCitations;
+    ["A11Y"],
+  ),
+  edit: deferredServices({
+    saveDrafts: () => saveDrafts,
+    scheduleDraftSave: () => scheduleDraftSave,
+    isLocked: () => isLocked,
+    structEditable: () => structEditable,
+    uid: () => uid,
+  }),
+  record: deferredServices(
+    {
+      checks: () => checks,
+      fmtDate: () => fmtDate,
+      checkRowHTML: () => checkRowHTML,
+      citationRecoveryPanel: () => citationRecoveryPanel,
+      correctionEligibility: () => correctionEligibility,
+      correctionPanel: () => correctionPanel,
+      filingPanel: () => filingPanel,
+      recordHistoryHTML: () => recordHistoryHTML,
+      publicationPanel: () => publicationPanel,
+      citationReview: () => citationReview,
+      duePanel: () => duePanel,
+      initialCitations: () => initialCitations,
+      newDocuments: () => newDocuments,
+      recordIntegrity: () => recordIntegrity,
+      snow: () => snow,
+      documentHTML: () => documentHTML,
+      citationFaces: () => citationFaces,
+      app_savedworkContext: () => app_savedworkContext,
+      app_languagediscoveryContext: () => app_languagediscoveryContext,
     },
-    get newDocuments() {
-      return newDocuments;
-    },
-    get recordIntegrity() {
-      return recordIntegrity;
-    },
-    get snow() {
-      return snow;
-    },
-    documentHTML: (...args) => documentHTML(...args),
-    citationFaces: (...args) => citationFaces(...args),
-    app_savedworkContext: (...args) => app_savedworkContext(...args),
-    app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
-  },
+    ["initialCitations", "newDocuments", "recordIntegrity", "snow"],
+  ),
 });
 export let {
   editorSync,

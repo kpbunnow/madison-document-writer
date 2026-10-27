@@ -4,10 +4,14 @@ const fs = require("node:fs"),
   path = require("node:path"),
   acorn = require("acorn");
 function objectInterfaces(node, label, out) {
+  if (node.type === "CallExpression" && node.callee.name === "deferredServices") node = node.arguments[0];
   const opaque = node.properties.filter((p) => p.type !== "Property" || p.computed).map((p) => p.type);
   out.push({ scope: label, fields: node.properties.length, opaque });
   for (const property of node.properties) {
-    if (property.type === "Property" && property.value.type === "ObjectExpression")
+    if (
+      property.type === "Property" &&
+      (property.value.type === "ObjectExpression" || (property.value.type === "CallExpression" && property.value.callee.name === "deferredServices"))
+    )
       objectInterfaces(property.value, label + "." + property.key.name, out);
   }
 }
@@ -17,7 +21,11 @@ function sourceInterfaces(source, file) {
   function visit(node) {
     if (!node || typeof node !== "object") return;
     if (Array.isArray(node)) return node.forEach(visit);
-    if (node.type === "CallExpression" && /^(create|init)[A-Z]/.test(node.callee.name || "") && node.arguments[0]?.type === "ObjectExpression")
+    if (
+      node.type === "CallExpression" &&
+      /^(create|init)[A-Z]/.test(node.callee.name || "") &&
+      (node.arguments[0]?.type === "ObjectExpression" || node.arguments[0]?.callee?.name === "deferredServices")
+    )
       objectInterfaces(node.arguments[0], file + ":" + node.callee.name, out);
     Object.values(node).forEach(visit);
   }
