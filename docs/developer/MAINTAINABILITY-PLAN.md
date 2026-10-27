@@ -124,3 +124,16 @@ checks and the coordinator remain below McCabe complexity 10.
 The original nine authoring storage tests and 3,000 seeded historical citations
 compare exact outcomes, calendar query order and mutations. Python C901 findings
 fall 34 → 33. Decimal arithmetic and policy/time cutoffs remain unchanged.
+
+## M2 Python publication
+
+Identity/signer/date, snow, notice, follow-up source/visit/outcome and new-citation
+number checks now have named boundaries. Snow and scoped-action terminal paths
+still skip ordinary follow-up checks; current-source lookup remains before the
+notice branch. The original inspection/mailing/referral refusal order is retained.
+Every extracted function and the coordinator remain below McCabe complexity 10.
+
+Fourteen original lifecycle/storage tests and 3,000 fixture-derived/generated
+publication contexts pass, preserving exact exceptions and calendar calls.
+Python C901 findings fall 33 → 32. Publication locks, integrity and actual writes
+are outside this change.
