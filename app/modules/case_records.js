@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { replayEvents } from "./case_projection.js";
 import { caseDetails, stableJSON, byTime, clone } from "./record_values.js";
 import { caseNumberKey, validCaseNumber } from "../assets/shared.js";
@@ -6,7 +7,6 @@ import { SCHEMA } from "./document_types.js";
 import { nowISO } from "./calendar.js";
 import { eventsFor, kase, insp } from "./writer_queries.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { WriterState } from "./state.js";
 
 // Live record operations, not pure calculations or startup: no UI, storage or trust decisions.
 export function replay(cid) {
@@ -14,14 +14,14 @@ export function replay(cid) {
 }
 
 export function project() {
-  WriterState.DOCS = WriterState.DOCS.filter((d) => d.draft);
-  WriterState.REINSP = WriterState.REINSP.filter((r) => r.draft);
-  WriterState.CASES.forEach((k) => {
+  workspace.DOCS = workspace.DOCS.filter((d) => d.draft);
+  workspace.REINSP = workspace.REINSP.filter((r) => r.draft);
+  workspace.CASES.forEach((k) => {
     const st = replay(k.id);
-    st.documents.forEach((d) => WriterState.DOCS.push(d));
-    st.reinspections.forEach((r) => WriterState.REINSP.push(r));
+    st.documents.forEach((d) => workspace.DOCS.push(d));
+    st.reinspections.forEach((r) => workspace.REINSP.push(r));
   });
-  WriterState.DOCS.sort((a, b) => {
+  workspace.DOCS.sort((a, b) => {
     const at = a.draft ? "9999" : a.issuedAt || "",
       bt = b.draft ? "9999" : b.issuedAt || "";
     return at === bt ? 0 : at < bt ? 1 : -1;
@@ -31,7 +31,7 @@ export function project() {
 export function rememberSaved(k, file) {
   const details = caseDetails(file.case);
   details.id = k.id;
-  WriterState.SAVE_CHECKPOINTS[k.id] = { case: details, events: (file.events || []).map((e) => e.id) };
+  workspace.SAVE_CHECKPOINTS[k.id] = { case: details, events: (file.events || []).map((e) => e.id) };
   k.savedAt = nowISO();
 }
 
@@ -56,7 +56,7 @@ export function caseFile(cid) {
 
 export function caseNumberAllowed(k) {
   return (
-    !!k && (validCaseNumber(k.number) || (!!caseNumberKey(k.number) && !!(k.savedAt || WriterState.SAVE_CHECKPOINTS[k.id] || eventsFor(k.id).length)))
+    !!k && (validCaseNumber(k.number) || (!!caseNumberKey(k.number) && !!(k.savedAt || workspace.SAVE_CHECKPOINTS[k.id] || eventsFor(k.id).length)))
   );
 }
 
@@ -64,7 +64,7 @@ export function bumpSeq(o) {
   const scan = (v) => {
     if (typeof v === "string") {
       const m = /^[a-z](\d+)$/.exec(v);
-      if (m) WriterState.seq = Math.max(WriterState.seq, +m[1]);
+      if (m) workspace.seq = Math.max(workspace.seq, +m[1]);
     } else if (v && typeof v === "object") Object.keys(v).forEach((kk) => scan(v[kk]));
   };
   scan(o);

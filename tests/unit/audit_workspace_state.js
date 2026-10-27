@@ -16,7 +16,7 @@ const esbuild = require("esbuild");
   new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
   const { WriterState, workspaceState } = box.exports;
   const keys =
-    "CASES DOCS REINSP EVENTS PENDING DIRTY CASEDIR DIRNAME NEEDGRANT LASTINDEX LASTWRITE WORKFLOW_PREFS SAVE_CHECKPOINTS PREFLIGHT_CONFLICT PREFLIGHT_NOTICE PREFLIGHT_SEQ".split(
+    "CASES DOCS REINSP EVENTS PENDING DIRTY CASEDIR DIRNAME NEEDGRANT LASTINDEX LASTWRITE WORKFLOW_PREFS SAVE_CHECKPOINTS PREFLIGHT_CONFLICT PREFLIGHT_NOTICE PREFLIGHT_SEQ seq IDBCONN TIMELINE_CASE TIMELINE_FILTER ARTIFACT_IDENTITY ARTIFACT_LOCATIONS ARTIFACT_SEQ ARTIFACT_VERIFY OUTBOX_FILES".split(
       " ",
     );
   assert.deepEqual(WriterState, {}, "importing a state boundary must not initialize or read workspace fields");
@@ -56,7 +56,7 @@ const esbuild = require("esbuild");
     delete WriterState[key];
   }
   assert.deepEqual(WriterState, {});
-  console.log("PASS 16-field live workspace boundary, replacement identity, absent values and accessor timing");
+  console.log("PASS 25-field live workspace boundary, replacement identity, absent values and accessor timing");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

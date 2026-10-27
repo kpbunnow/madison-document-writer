@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseFile, caseNumberAllowed } from "./case_records.js";
 import { caseFileFault, summaryName } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
 import { kase } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
-import { WriterState } from "./state.js";
 
 export function createCaseFolderWorkflow(services) {
   async function writeSummary(cid, saved) {
@@ -18,22 +18,22 @@ export function createCaseFolderWorkflow(services) {
     try {
       body = JSON.stringify(services.summarize(saved || caseFile(cid)));
     } catch (err) {
-      WriterState.LASTINDEX = { name: name, ok: false, why: "could not be assembled: " + ((err && err.message) || err), at: nowISO() };
+      workspace.LASTINDEX = { name: name, ok: false, why: "could not be assembled: " + ((err && err.message) || err), at: nowISO() };
       return false;
     }
     const r = await services.writeIndexFile(name, body);
-    WriterState.LASTINDEX = { name: name, ok: r.ok, why: r.why || "", at: nowISO() };
+    workspace.LASTINDEX = { name: name, ok: r.ok, why: r.why || "", at: nowISO() };
     return r.ok;
   }
 
   async function rebuildIndex() {
-    if (!WriterState.CASEDIR) {
+    if (!workspace.CASEDIR) {
       services.toast("Link the case folder first");
       return null;
     }
-    if (WriterState.NEEDGRANT) await services.grantCaseFolder(true);
-    if (WriterState.NEEDGRANT) {
-      services.toast("The browser did not grant access to " + WriterState.DIRNAME + " — the index was not rebuilt");
+    if (workspace.NEEDGRANT) await services.grantCaseFolder(true);
+    if (workspace.NEEDGRANT) {
+      services.toast("The browser did not grant access to " + workspace.DIRNAME + " — the index was not rebuilt");
       return null;
     }
     const files = (await listCaseFolder()).filter((x) => x.name.charAt(0) !== "_");
@@ -44,7 +44,7 @@ export function createCaseFolderWorkflow(services) {
       const nm = files[n].name;
       let f;
       try {
-        const fh = await WriterState.CASEDIR.getFileHandle(nm);
+        const fh = await workspace.CASEDIR.getFileHandle(nm);
         f = migrate(JSON.parse(await (await fh.getFile()).text()));
       } catch (err) {
         out.refused.push(nm + " \u2014 " + ((err && err.message) || "not readable"));
@@ -68,7 +68,7 @@ export function createCaseFolderWorkflow(services) {
       editor.state.reindex.done = n + 1;
     }
     editor.state.reindex = out;
-    WriterState.LASTINDEX = {
+    workspace.LASTINDEX = {
       name: out.written + " of " + out.total + " case files",
       ok: !out.failed.length,
       why: out.failed.length ? out.failed.length + " could not be written" : "",
@@ -89,10 +89,10 @@ export function createCaseFolderWorkflow(services) {
   }
 
   async function listCaseFolder() {
-    if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return [];
+    if (!workspace.CASEDIR || workspace.NEEDGRANT) return [];
     const out = [];
     try {
-      for await (const [name, h] of WriterState.CASEDIR.entries()) {
+      for await (const [name, h] of workspace.CASEDIR.entries()) {
         if (h.kind === "file" && /\.json$/i.test(name)) {
           let size = 0,
             mod = 0;
@@ -114,9 +114,9 @@ export function createCaseFolderWorkflow(services) {
   }
 
   async function openFromFolder(name) {
-    if (!WriterState.CASEDIR) return;
+    if (!workspace.CASEDIR) return;
     try {
-      const fh = await WriterState.CASEDIR.getFileHandle(name);
+      const fh = await workspace.CASEDIR.getFileHandle(name);
       const f = await fh.getFile();
       const raw = await f.text(),
         record = JSON.parse(raw);

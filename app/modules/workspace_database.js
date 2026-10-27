@@ -1,10 +1,10 @@
-import { WriterState } from "./state.js";
+import { workspaceState as workspace } from "./workspace_state.js";
 
 // Device database access only; workspace readiness, save queues and restoration remain callers’ responsibilities.
 export function createWorkspaceDatabase(services) {
   function idb() {
-    if (WriterState.IDBCONN) return WriterState.IDBCONN;
-    WriterState.IDBCONN = new Promise((res, rej) => {
+    if (workspace.IDBCONN) return workspace.IDBCONN;
+    workspace.IDBCONN = new Promise((res, rej) => {
       if (!services.IDB_OK) return rej(new Error("no indexeddb"));
       const rq = services.indexedDB.open("madison-doc-writer", 1);
       rq.onupgradeneeded = () => {
@@ -18,19 +18,19 @@ export function createWorkspaceDatabase(services) {
           } catch (e) {
             /* The connection is already being retired; clear its reference even when close reports an error. */
           }
-          WriterState.IDBCONN = null;
+          workspace.IDBCONN = null;
         };
         db.onclose = () => {
-          WriterState.IDBCONN = null;
+          workspace.IDBCONN = null;
         };
         res(db);
       };
       rq.onerror = () => rej(rq.error);
     });
-    WriterState.IDBCONN.catch(() => {
-      WriterState.IDBCONN = null;
+    workspace.IDBCONN.catch(() => {
+      workspace.IDBCONN = null;
     });
-    return WriterState.IDBCONN;
+    return workspace.IDBCONN;
   }
 
   async function idbGet(key, required = false) {
@@ -42,7 +42,7 @@ export function createWorkspaceDatabase(services) {
         rq.onerror = () => rej(rq.error);
       });
     } catch (e) {
-      WriterState.IDBCONN = null;
+      workspace.IDBCONN = null;
       if (required) throw e;
       return undefined;
     }
@@ -59,7 +59,7 @@ export function createWorkspaceDatabase(services) {
         tx.onabort = () => rej(tx.error);
       });
     } catch (e) {
-      WriterState.IDBCONN = null;
+      workspace.IDBCONN = null;
       return false;
     }
   }

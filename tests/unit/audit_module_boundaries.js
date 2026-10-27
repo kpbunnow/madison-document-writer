@@ -171,7 +171,7 @@ const scopedServices = {
   "record_event_log.js": ["./document_types.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js", "./contracts.js"],
   "folder_connections.js": ["./state.js"],
   "writer_startup.js": ["./startup_state.js", "./state.js"],
-  "case_workspace_actions.js": ["./editor_state.js", "./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./state.js"],
+  "case_workspace_actions.js": ["./editor_state.js", "./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./workspace_state.js"],
   "reinspection_entry.js": ["./editor_state.js", "./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./state.js"],
   "local_case_files.js": [],
   "draft_save_controls.js": ["./editor_state.js", "./state.js", "./saved_work.js"],
@@ -182,7 +182,7 @@ const scopedServices = {
     "./case_migrations.js",
     "./writer_queries.js",
     "./calendar.js",
-    "./state.js",
+    "./workspace_state.js",
   ],
   "recipient_workflow.js": ["./editor_state.js", "./address_format.js", "./mailing_rules.js", "./writer_queries.js", "./state.js"],
   "record_ids.js": [],
@@ -283,6 +283,7 @@ const scopedServices = {
     "./state.js",
   ],
   "workspace_backup.js": [
+    "./workspace_state.js",
     "./editor_state.js",
     "../assets/shared.js",
     "./case_file_rules.js",
@@ -291,9 +292,10 @@ const scopedServices = {
     "./document_types.js",
     "./calendar.js",
     "./data/build_identity.js",
-    "./state.js",
+    "./workspace_state.js",
   ],
   "case_records.js": [
+    "./workspace_state.js",
     "./case_projection.js",
     "./record_values.js",
     "../assets/shared.js",
@@ -302,7 +304,7 @@ const scopedServices = {
     "./calendar.js",
     "./writer_queries.js",
     "./data/inspectors.js",
-    "./state.js",
+    "./workspace_state.js",
   ],
   "case_loading.js": [
     "./editor_state.js",
@@ -312,7 +314,7 @@ const scopedServices = {
     "./case_records.js",
     "./writer_queries.js",
     "./data/inspectors.js",
-    "./state.js",
+    "./workspace_state.js",
   ],
   "shared_case_storage.js": [
     "../assets/shared.js",
@@ -324,7 +326,7 @@ const scopedServices = {
   ],
   "pending_case_saves.js": ["./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "case_save_workflow.js": ["./case_file_rules.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js"],
-  "workspace_database.js": ["./state.js"],
+  "workspace_database.js": ["./workspace_state.js", "./workspace_state.js"],
   "draft_persistence.js": [
     "./editor_state.js",
     "./startup_state.js",
@@ -397,6 +399,7 @@ const scopedServices = {
   ],
   "writer_handoff.js": ["./editor_state.js", "./startup_state.js", "../assets/shared.js", "./case_file_rules.js", "./state.js"],
   "pdf_artifacts.js": [
+    "./workspace_state.js",
     "./editor_state.js",
     "./document_rules.js",
     "./writer_queries.js",
@@ -405,12 +408,13 @@ const scopedServices = {
     "./helper_transport.js",
   ],
   "case_activity.js": [
+    "./workspace_state.js",
     "../assets/shared.js",
     "./calendar.js",
     "./document_rules.js",
     "./presentation_format.js",
     "./writer_queries.js",
-    "./state.js",
+    "./workspace_state.js",
   ],
   "reinspection.js": [
     "./editor_state.js",

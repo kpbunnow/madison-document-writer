@@ -99,4 +99,58 @@ export const workspaceState = Object.freeze({
   set PREFLIGHT_SEQ(value) {
     WriterState.PREFLIGHT_SEQ = value;
   },
+  get seq() {
+    return WriterState.seq;
+  },
+  set seq(value) {
+    WriterState.seq = value;
+  },
+  get IDBCONN() {
+    return WriterState.IDBCONN;
+  },
+  set IDBCONN(value) {
+    WriterState.IDBCONN = value;
+  },
+  get TIMELINE_CASE() {
+    return WriterState.TIMELINE_CASE;
+  },
+  set TIMELINE_CASE(value) {
+    WriterState.TIMELINE_CASE = value;
+  },
+  get TIMELINE_FILTER() {
+    return WriterState.TIMELINE_FILTER;
+  },
+  set TIMELINE_FILTER(value) {
+    WriterState.TIMELINE_FILTER = value;
+  },
+  get ARTIFACT_IDENTITY() {
+    return WriterState.ARTIFACT_IDENTITY;
+  },
+  set ARTIFACT_IDENTITY(value) {
+    WriterState.ARTIFACT_IDENTITY = value;
+  },
+  get ARTIFACT_LOCATIONS() {
+    return WriterState.ARTIFACT_LOCATIONS;
+  },
+  set ARTIFACT_LOCATIONS(value) {
+    WriterState.ARTIFACT_LOCATIONS = value;
+  },
+  get ARTIFACT_SEQ() {
+    return WriterState.ARTIFACT_SEQ;
+  },
+  set ARTIFACT_SEQ(value) {
+    WriterState.ARTIFACT_SEQ = value;
+  },
+  get ARTIFACT_VERIFY() {
+    return WriterState.ARTIFACT_VERIFY;
+  },
+  set ARTIFACT_VERIFY(value) {
+    WriterState.ARTIFACT_VERIFY = value;
+  },
+  get OUTBOX_FILES() {
+    return WriterState.OUTBOX_FILES;
+  },
+  set OUTBOX_FILES(value) {
+    WriterState.OUTBOX_FILES = value;
+  },
 });
