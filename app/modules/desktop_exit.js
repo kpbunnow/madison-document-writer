@@ -1,3 +1,4 @@
+import { recoveryState as recovery } from "./recovery_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Exit Document Writer: save this device's drafts, review unresolved work, then ask the helper to stop.
    The helper refuses (409) while it is doing work it knows about; this review adds what only this window
@@ -129,9 +130,9 @@ async function flushDrafts() {
 
 /* The recovery copy normally follows a device save after a short delay; write it now, then nothing else starts. */
 async function settleRecoveryCopy() {
-  clearTimeout(WriterState.RECOVERY_TIMER);
-  for (let n = 0; WriterState.RECOVERY_BUSY && n < 150; n++) await new Promise((resolve) => setTimeout(resolve, 100));
-  if (!WriterState.HELPER || WriterState.RECOVERY_BUSY) return;
+  clearTimeout(recovery.RECOVERY_TIMER);
+  for (let n = 0; recovery.RECOVERY_BUSY && n < 150; n++) await new Promise((resolve) => setTimeout(resolve, 100));
+  if (!WriterState.HELPER || recovery.RECOVERY_BUSY) return;
   try {
     await backupUnfinished(recoveryJobs());
   } catch (error) {
@@ -168,7 +169,7 @@ function releaseStoppedWorkspace() {
 function stopped() {
   const details = stoppedDetails();
   helperStop.stopped = true;
-  clearTimeout(WriterState.RECOVERY_TIMER);
+  clearTimeout(recovery.RECOVERY_TIMER);
   WriterState.HELPER = null;
   releaseStoppedWorkspace();
   announceStop();
@@ -277,7 +278,7 @@ async function stoppedElsewhere() {
   if (startup.WRITER_ACCESS) await flushDrafts();
   helperStop.stopped = true;
   WriterState.HELPER = null;
-  clearTimeout(WriterState.RECOVERY_TIMER);
+  clearTimeout(recovery.RECOVERY_TIMER);
   releaseStoppedWorkspace();
   showStopped(["Exit Document Writer was used in another Writer window.", "Drafts saved on this device stay on this device."]);
 }
