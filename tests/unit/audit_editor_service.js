@@ -3,17 +3,6 @@ const assert = require("assert/strict");
 const fs = require("fs");
 const path = require("path");
 const acorn = require("acorn");
-const walk = {
-  simple(node, visitors) {
-    if (!node || typeof node !== "object") return;
-    if (Array.isArray(node)) {
-      node.forEach((child) => walk.simple(child, visitors));
-      return;
-    }
-    visitors[node.type]?.(node);
-    Object.values(node).forEach((child) => walk.simple(child, visitors));
-  },
-};
 const esbuild = require("esbuild");
 const { JSDOM } = require("jsdom");
 const root = path.resolve(__dirname, "../..");
@@ -30,30 +19,9 @@ for (const statement of core.body) {
 }
 assert.deepEqual([...composition.keys()], Object.values(owners), "preserve service initialization order");
 for (const [owner, factory] of Object.entries(owners)) {
-  const required = new Set();
-  walk.simple(parse(owner), {
-    MemberExpression(n) {
-      if (n.object.name === "services") {
-        assert.equal(n.computed, false, "service dependencies are statically named");
-        required.add(n.property.name);
-      }
-    },
-  });
   const call = composition.get(factory);
   assert.equal(call.arguments.length, 1);
-  const properties = call.arguments[0].properties;
-  assert.deepEqual(new Set(properties.map((p) => p.key.name)), required, owner + " has exactly its required interface");
-  for (const p of properties) {
-    assert.equal(p.type, "Property", "no spread registry");
-    if (p.kind === "get") {
-      assert.equal(p.value.body.body.length, 1);
-      assert.equal(p.value.body.body[0].argument.name, p.key.name);
-    } else {
-      assert.equal(p.value.type, "ArrowFunctionExpression", "do not capture dependencies during construction");
-      assert.equal(p.value.body.type, "CallExpression");
-      assert.equal(p.value.body.callee.name, p.key.name);
-    }
-  }
+  require("../fixtures/scoped_service_contract.cjs").assertScopedServices(parse(owner), call.arguments[0], owner);
 }
 (async () => {
   const declarations = core.body.filter((s) => s.type !== "ImportDeclaration");
@@ -124,27 +92,29 @@ for (const [owner, factory] of Object.entries(owners)) {
     renderCount = 0,
     editor;
   editor = createEditorScreens({
-    checks: () => {
-      trace.push("checks");
-      return checks;
+    ui: {
+      render: () => {
+        renderCount++;
+        editor.editorEnhance();
+      },
+      toast: () => trace.push("toast"),
+      paginate: () => trace.push("paginate"),
+      highlightOpenChecks: () => trace.push("highlight"),
     },
-    isLocked: () => !editable,
-    checkRowHTML: (c) => "<p>" + c.t + "</p>",
-    recordIntegrity: { status: () => ({ valid: true }), blocked: () => blocked },
-    structEditable: () => editable,
-    snow: { isCase: () => false },
-    render: () => {
-      renderCount++;
-      editor.editorEnhance();
+    edit: { isLocked: () => !editable, structEditable: () => editable, scheduleDraftSave: () => trace.push("schedule") },
+    record: {
+      checks: () => {
+        trace.push("checks");
+        return checks;
+      },
+      checkRowHTML: (c) => "<p>" + c.t + "</p>",
+      recordIntegrity: { status: () => ({ valid: true }), blocked: () => blocked },
+      snow: { isCase: () => false },
+      documentHTML: () => {
+        trace.push("document");
+        return '<button data-grip="one">One</button><button data-grip="two">Two</button>';
+      },
     },
-    toast: () => trace.push("toast"),
-    documentHTML: () => {
-      trace.push("document");
-      return '<button data-grip="one">One</button><button data-grip="two">Two</button>';
-    },
-    paginate: () => trace.push("paginate"),
-    highlightOpenChecks: () => trace.push("highlight"),
-    scheduleDraftSave: () => trace.push("schedule"),
   });
   const ready = editor.editorReadiness(d);
   assert.equal(ready.required.length, 1);

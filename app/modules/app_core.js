@@ -127,48 +127,54 @@ import { createSavedWorkContext, createWorkspaceQueueContext, createLanguageDisc
 
 /* Editor copy-click registration precedes the existing feature-service registrations. Dependencies stay lazy. */
 const editorScreens = createEditorScreens({
-  checks: (...args) => checks(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  toast: (...args) => toast(...args),
-  shell: (...args) => shell(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  checkRowHTML: (...args) => checkRowHTML(...args),
-  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
-  screenCases: (...args) => screenCases(...args),
-  render: (...args) => render(...args),
-  overlayHTML: (...args) => overlayHTML(...args),
-  citationRecoveryPanel: (...args) => citationRecoveryPanel(...args),
-  correctionEligibility: (...args) => correctionEligibility(...args),
-  correctionPanel: (...args) => correctionPanel(...args),
-  filingPanel: (...args) => filingPanel(...args),
-  recordHistoryHTML: (...args) => recordHistoryHTML(...args),
-  publicationPanel: (...args) => publicationPanel(...args),
-  citationReview: (...args) => citationReview(...args),
-  duePanel: (...args) => duePanel(...args),
-  get initialCitations() {
-    return initialCitations;
+  ui: {
+    toast: (...args) => toast(...args),
+    shell: (...args) => shell(...args),
+    highlightOpenChecks: (...args) => highlightOpenChecks(...args),
+    screenCases: (...args) => screenCases(...args),
+    render: (...args) => render(...args),
+    overlayHTML: (...args) => overlayHTML(...args),
+    get A11Y() {
+      return A11Y;
+    },
+    paginate: (...args) => paginate(...args),
   },
-  isLocked: (...args) => isLocked(...args),
-  get newDocuments() {
-    return newDocuments;
+  edit: {
+    saveDrafts: (...args) => saveDrafts(...args),
+    scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+    isLocked: (...args) => isLocked(...args),
+    structEditable: (...args) => structEditable(...args),
+    uid: (...args) => uid(...args),
   },
-  get recordIntegrity() {
-    return recordIntegrity;
+  record: {
+    checks: (...args) => checks(...args),
+    fmtDate: (...args) => fmtDate(...args),
+    checkRowHTML: (...args) => checkRowHTML(...args),
+    citationRecoveryPanel: (...args) => citationRecoveryPanel(...args),
+    correctionEligibility: (...args) => correctionEligibility(...args),
+    correctionPanel: (...args) => correctionPanel(...args),
+    filingPanel: (...args) => filingPanel(...args),
+    recordHistoryHTML: (...args) => recordHistoryHTML(...args),
+    publicationPanel: (...args) => publicationPanel(...args),
+    citationReview: (...args) => citationReview(...args),
+    duePanel: (...args) => duePanel(...args),
+    get initialCitations() {
+      return initialCitations;
+    },
+    get newDocuments() {
+      return newDocuments;
+    },
+    get recordIntegrity() {
+      return recordIntegrity;
+    },
+    get snow() {
+      return snow;
+    },
+    documentHTML: (...args) => documentHTML(...args),
+    citationFaces: (...args) => citationFaces(...args),
+    app_savedworkContext: (...args) => app_savedworkContext(...args),
+    app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
   },
-  get snow() {
-    return snow;
-  },
-  structEditable: (...args) => structEditable(...args),
-  uid: (...args) => uid(...args),
-  documentHTML: (...args) => documentHTML(...args),
-  citationFaces: (...args) => citationFaces(...args),
-  app_savedworkContext: (...args) => app_savedworkContext(...args),
-  get A11Y() {
-    return A11Y;
-  },
-  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
-  paginate: (...args) => paginate(...args),
 });
 export let {
   editorSync,

@@ -405,3 +405,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The startup boundary now covers twelve existing startup, session and handoff fields. The remaining sixteen mixed owners migrate their helper/handoff access. All independent startup, handoff, folder, recovery, artifact and delivery assertions pass, alongside exact overlay, import-plan and dispatch comparisons and original desktop exit tests. Core retains every initialization checkpoint. Direct state.js importers fall 27 to 11: six Writer boundaries, Writer core and four Reports owners. No feature owner accesses WriterState directly. Boundaries are 25/16/12/6/6/5 fields with zero cycles. Interface narrowing and explicit composition remain open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 editor screen service groups
+
+The editor screen interface is split from 32 fields into explicit UI/edit/record groups of 8/5/19 fields. Core keeps each original lazy forwarder and getter and the original construction/copy-registration checkpoint. The contract audit recursively verifies exact used dependencies, no spreads, deferred leaf reads and a 25-field cap at every interface. Existing independent editor behavior assertions remain unchanged. A long carried-item hint is named as screen copy without changing its bytes. Five original editor screen scenarios and R59 editor-flow checks also pass on the committed source. Negative composition fixtures reject eager leaves, spreads, undeclared/computed accesses, unused fields and widths above 25. Further event/workflow interfaces and core forwarder reduction remain open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
