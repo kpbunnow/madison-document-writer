@@ -2,7 +2,6 @@ import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
-import { WriterState } from "./state.js";
 
 /* Main destinations and infrequent tools share safe, saved navigation. */
 export function initNavigation(services) {
@@ -111,7 +110,7 @@ export function initNavigation(services) {
           "</span></button>",
       )
       .join("");
-    const reports = WriterState.REPORT_RETURN
+    const reports = startup.REPORT_RETURN
       ? `<button class="rail-item" data-report-return>${services.uiIcon("reports")}<span>Back to Reports</span></button>`
       : '<a class="rail-item" href="madison-reports.html" target="_blank" rel="no' +
         'opener" aria-label="Open Reports (opens in a new tab)">' +

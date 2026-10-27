@@ -1,5 +1,4 @@
 import { startupState as startup } from "./startup_state.js";
-import { WriterState } from "./state.js";
 
 export function createWriterStartup(services) {
   async function bootStorage() {
@@ -36,7 +35,7 @@ export function createWriterStartup(services) {
       startup.WRITER_ACCESS = true;
       services.initWriterHandoff();
       await services.checkHelper();
-      if (WriterState.HELPER) await services.refreshCatalog();
+      if (startup.HELPER) await services.refreshCatalog();
       await services.restoreCaseFolder();
       await services.restorePending();
       await services.restoreDrafts();
@@ -46,7 +45,7 @@ export function createWriterStartup(services) {
       await services.refreshArtifactLocations();
       await services.flushPending();
       services.markWriterReady();
-      if (WriterState.HELPER) services.scheduleRecoveryBackup();
+      if (startup.HELPER) services.scheduleRecoveryBackup();
     } catch (error) {
       services.markWriterFailed(error);
     }

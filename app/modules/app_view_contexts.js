@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
@@ -9,7 +10,6 @@ import { checkAttr as ctx_app_checkAttr, esc as ctx_app_esc, markBlanks as ctx_a
 import { deliveredByCitation as ctx_app_deliveredByCitation, itemLibraryKey as ctx_app_itemLibraryKey } from "./document_rules.js";
 import { doc as ctx_app_doc, docsFor as ctx_app_docsFor, kase as ctx_app_kase } from "./writer_queries.js";
 import { LIBRARY as ctx_app_LIBRARY } from "./data/library.js";
-import { WriterState } from "./state.js";
 export function createSavedWorkContext(services) {
   function app_savedworkContext() {
     return {
@@ -20,7 +20,7 @@ export function createSavedWorkContext(services) {
       CATALOG_AT: catalog.CATALOG_AT,
       COMMITTED: services.COMMITTED,
       DIRNAME: workspace.DIRNAME,
-      HELPER: WriterState.HELPER,
+      HELPER: startup.HELPER,
       LOCAL_SAVE: editor.LOCAL_SAVE,
       NEEDGRANT: workspace.NEEDGRANT,
       PENDING: workspace.PENDING,

@@ -50,4 +50,28 @@ export const startupState = Object.freeze({
   set WORKSPACE_RESTORED(value) {
     WriterState.WORKSPACE_RESTORED = value;
   },
+  get HELPER() {
+    return WriterState.HELPER;
+  },
+  set HELPER(value) {
+    WriterState.HELPER = value;
+  },
+  get HANDOFF_SEQ() {
+    return WriterState.HANDOFF_SEQ;
+  },
+  set HANDOFF_SEQ(value) {
+    WriterState.HANDOFF_SEQ = value;
+  },
+  get RETURN_ACK() {
+    return WriterState.RETURN_ACK;
+  },
+  set RETURN_ACK(value) {
+    WriterState.RETURN_ACK = value;
+  },
+  get REPORT_RETURN() {
+    return WriterState.REPORT_RETURN;
+  },
+  set REPORT_RETURN(value) {
+    WriterState.REPORT_RETURN = value;
+  },
 });

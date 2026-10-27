@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 
@@ -7,7 +8,6 @@ import { docCase } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
-import { WriterState } from "./state.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
 export function initAdministration(services) {
   const esc = (value) => dep_esc(value);
@@ -54,7 +54,7 @@ export function initAdministration(services) {
     'l><input type="checkbox" name="confirmed" required> I confirm this admin' +
     "istrative decision and its source.</label>";
   async function openOverride() {
-    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) {
+    if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper) {
       services.toast("Connect the local helper and case folder first.");
       return;
     }
@@ -132,7 +132,7 @@ export function initAdministration(services) {
     };
   }
   async function openLetter() {
-    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) {
+    if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper) {
       services.toast("Connect the local helper and case folder first.");
       return;
     }

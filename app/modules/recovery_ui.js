@@ -1,9 +1,9 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { recoverySharedConflict } from "./case_recovery.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
 export function createRecoveryUI(services) {
@@ -65,7 +65,7 @@ export function createRecoveryUI(services) {
   }
 
   function recoveryStatusHTML() {
-    return !WriterState.HELPER
+    return !startup.HELPER
       ? '<span class="save-error" role="status">Automatic backup unavailable. Sta' +
           'rt the local helper; device autosave is separate. <button class="lnk" da' +
           "ta-setup-health>Check connection</button></span>"

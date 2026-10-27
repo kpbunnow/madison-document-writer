@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
@@ -18,7 +19,6 @@ import {
   tierOrdinal,
   withinWindow,
 } from "./citation_policy.js";
-import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 /* Mutable drafts only. Frozen documents and pending save identities are untouched. */
 export function initCitationPricing(services) {
@@ -224,7 +224,7 @@ export function initCitationPricing(services) {
       : "Choose a charge from the item’s current sections, or confirm a different charge with its approved source.";
   }
   async function loadShared(d, force = false) {
-    if (!d || d.pendingAmendment || !WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) return true;
+    if (!d || d.pendingAmendment || !startup.HELPER?.ok || !workspace.CASEDIR?.helper) return true;
     refresh(d);
     if (!force && Date.now() - loadedAt < 15000) {
       refresh(d);
@@ -254,7 +254,7 @@ export function initCitationPricing(services) {
     return ok;
   }
   function ensureShared(d) {
-    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
+    if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
     const old = loadedAt;
     void loadShared(d).then((ok) => {
       if (ok && loadedAt !== old && editor.state.docId === d.id && d.draft && !d.pendingAmendment) services.renderKeep();
@@ -262,7 +262,7 @@ export function initCitationPricing(services) {
   }
   const signature = (d) => JSON.stringify(Object.entries(d.cits || {}).map(([id, c]) => [id, c.tier, c.base, c.cc, c.amount, c.countedOffenses]));
   const historyFault = (d) =>
-    WriterState.HELPER?.ok &&
+    startup.HELPER?.ok &&
     workspace.CASEDIR?.helper &&
     !loadedAt &&
     d?.items.some((i) => i.cite && (d.cits?.[i.id]?.depositMode || "schedule") === "schedule")

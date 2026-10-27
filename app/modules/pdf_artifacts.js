@@ -1,10 +1,10 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Retained PDF outbox and location verification; helper adapters retain file authority. */
 import { deliveredByCitation } from "./document_rules.js";
 import { effectiveFiled } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 
 export function pdfTransferState(d) {
@@ -35,7 +35,7 @@ export function createPdfArtifacts(services) {
       result = await services.helperJSON("/outbox/list");
     if (!services.navigation.utilityCurrent(context)) return false;
     workspace.OUTBOX_FILES = result.files;
-    if (WriterState.HELPER) WriterState.HELPER.outbox = result.files.length;
+    if (startup.HELPER) startup.HELPER.outbox = result.files.length;
     services.A11Y.utility(
       "PDF outbox",
       "<p>Select existing PDFs to file or open for printing. Conflicting shared" +
@@ -133,7 +133,7 @@ export function createPdfArtifacts(services) {
     for (const id of Object.keys(workspace.ARTIFACT_LOCATIONS))
       if (ids[id] !== workspace.ARTIFACT_IDENTITY[id]) delete workspace.ARTIFACT_LOCATIONS[id];
     workspace.ARTIFACT_IDENTITY = ids;
-    if (!WriterState.HELPER) {
+    if (!startup.HELPER) {
       for (const x of items) workspace.ARTIFACT_VERIFY[x.docId] = "unavailable";
       if (editor.state.screen === "cases") services.render();
       return;
