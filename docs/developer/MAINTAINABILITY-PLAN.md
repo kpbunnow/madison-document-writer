@@ -507,3 +507,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The final eligible listener/startup and test-fixture compositions replace 127 transparent handwritten forwarders and eight getters with explicit ordered declarations. Sixty listener checkpoints, all startup stage/lock/restore tests, native fixture-free production, real-browser repaint, seven import scenarios and R59 editor flow pass. Test-fixture construction remains behind the unchanged build-time branch. Only four small compositions with deliberate custom store/platform/scroll/clock behavior remain handwritten; they retain their original semantics rather than being forced through a transparent adapter. No registry, eager service read, release change or deployment is introduced.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 composition census and ratchet
+
+The final Writer composition census records 19 transparent handwritten rest-argument forwarders and eight getters, down from the measured pre-M4 763 and 209. Only the four deliberate custom store/platform/scroll/clock compositions remain handwritten. A regression guard prevents increases without review and distinguishes native receiver/custom argument adapters from transparent forwarding. The six disjoint state boundaries still cover seventy fields, state.js has eleven importers, all 113 statically declared interfaces are at most 25 fields, and cycles remain zero. The census measures structure; it does not prove behavioral coupling or native City acceptance.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
