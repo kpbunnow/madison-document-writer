@@ -18,8 +18,19 @@ function classify(source) {
     functionConstructors: 0,
     browserEvaluations: 0,
     vmEvaluations: 0,
+    harnessCalls: 0,
+    requires: [],
   };
   walk(acorn.parse(source, { ecmaVersion: 2022, sourceType: "script", allowReturnOutsideFunction: true }), (node) => {
+    const isRequire = node.type === "CallExpression" && node.callee.name === "require" && typeof node.arguments[0]?.value === "string";
+    if (isRequire && node.arguments[0].value.startsWith(".")) result.requires.push(node.arguments[0].value);
+    if (
+      node.type === "CallExpression" &&
+      node.callee.type === "CallExpression" &&
+      node.callee.callee.name === "require" &&
+      /(?:^|\/)bundle_test\.cjs$/.test(node.callee.arguments[0]?.value || "")
+    )
+      result.harnessCalls++;
     if (
       node.type === "CallExpression" &&
       ((node.callee.type === "Identifier" && node.callee.name === "eval") ||
@@ -61,10 +72,24 @@ function inventory() {
       const hookBindings = hook.filter(({ binding }) => new RegExp("\\b" + binding + "\\b").test(source)).map(({ key }) => key);
       return { file: path.relative(ROOT, file).split(path.sep).join("/"), ...record, hookBindings };
     });
+  const byFile = new Map(records.map((record) => [record.file, record]));
+  function inheritedEvaluation(record, seen = new Set()) {
+    if (seen.has(record.file)) return false;
+    seen.add(record.file);
+    if (record.bundleRead && (record.evalCalls || record.functionConstructors || record.vmEvaluations)) return true;
+    return record.requires.some((request) => {
+      const relative = path
+        .relative(ROOT, path.resolve(ROOT, path.dirname(record.file), request))
+        .split(path.sep)
+        .join("/");
+      const dependency = byFile.get(relative) || byFile.get(relative + ".js") || byFile.get(relative + ".cjs");
+      return dependency && inheritedEvaluation(dependency, seen);
+    });
+  }
   const legacy = Object.fromEntries(
     records
-      .filter((r) => r.bundleRead && (r.evalCalls || r.functionConstructors || r.vmEvaluations))
-      .map((r) => [r.file, r.evalCalls + r.functionConstructors + r.vmEvaluations]),
+      .filter((record) => inheritedEvaluation(record))
+      .map((record) => [record.file, Math.max(1, record.evalCalls + record.functionConstructors + record.vmEvaluations + record.harnessCalls)]),
   );
   return {
     hook,
