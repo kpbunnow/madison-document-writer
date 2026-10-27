@@ -68,10 +68,11 @@ const scopedServices = {
   ],
   "contact_events.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
   "citation_events.js": ["./document_rules.js", "./editor_state.js", "./event_registration.js", "./state.js", "./writer_queries.js"],
-  "recovery_events.js": ["./event_registration.js", "./recovery_state.js", "./state.js", "./writer_queries.js"],
+  "recovery_events.js": ["./editor_state.js", "./event_registration.js", "./recovery_state.js", "./state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./state.js", "./writer_queries.js"],
   "import_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js"],
   "desktop_exit.js": [
+    "./editor_state.js",
     "./recovery_state.js",
     "./app_core.js",
     "./helper_stopped.js",
@@ -127,6 +128,7 @@ const scopedServices = {
     "./writer_queries.js",
   ],
   "app_screens.js": [
+    "./editor_state.js",
     "./startup_state.js",
     "./helper_stopped.js",
     "./language_discovery.js",
@@ -226,7 +228,7 @@ const scopedServices = {
     "./editor_state.js",
   ],
   "record_actions.js": ["./document_rules.js", "./writer_queries.js", "./state.js"],
-  "recovery_ui.js": ["./recovery_state.js", "./case_recovery.js", "./presentation_format.js", "./state.js"],
+  "recovery_ui.js": ["./editor_state.js", "./recovery_state.js", "./case_recovery.js", "./presentation_format.js", "./state.js"],
   "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./state.js"],
   "worksheet_workflow.js": [
@@ -241,6 +243,7 @@ const scopedServices = {
     "./state.js",
   ],
   "case_recovery.js": [
+    "./editor_state.js",
     "./recovery_state.js",
     "./case_file_rules.js",
     "./document_types.js",
@@ -250,6 +253,7 @@ const scopedServices = {
     "./state.js",
   ],
   "automatic_recovery.js": [
+    "./editor_state.js",
     "./recovery_state.js",
     "./record_values.js",
     "./writer_queries.js",
@@ -298,7 +302,15 @@ const scopedServices = {
   "pending_case_saves.js": ["./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "case_save_workflow.js": ["./case_file_rules.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "workspace_database.js": ["./state.js"],
-  "draft_persistence.js": ["./startup_state.js", "./state.js", "./record_values.js", "./writer_queries.js", "./document_rules.js", "./calendar.js"],
+  "draft_persistence.js": [
+    "./editor_state.js",
+    "./startup_state.js",
+    "./state.js",
+    "./record_values.js",
+    "./writer_queries.js",
+    "./document_rules.js",
+    "./calendar.js",
+  ],
   "correction_preparation.js": [
     "./inspection_facts.js",
     "./calendar.js",
@@ -353,7 +365,7 @@ const scopedServices = {
     "./presentation_format.js",
     "./state.js",
   ],
-  "writer_handoff.js": ["./startup_state.js", "../assets/shared.js", "./case_file_rules.js", "./state.js"],
+  "writer_handoff.js": ["./editor_state.js", "./startup_state.js", "../assets/shared.js", "./case_file_rules.js", "./state.js"],
   "pdf_artifacts.js": ["./document_rules.js", "./writer_queries.js", "./presentation_format.js", "./state.js", "./helper_transport.js"],
   "case_activity.js": [
     "../assets/shared.js",
@@ -410,7 +422,7 @@ const scopedServices = {
     "./data/inspectors.js",
     "../assets/shared.js",
   ],
-  "navigation.js": ["./startup_state.js", "./data/build_identity.js", "./state.js"],
+  "navigation.js": ["./editor_state.js", "./startup_state.js", "./data/build_identity.js", "./state.js"],
   "snow_cases.js": [
     "../assets/shared.js",
     "./calendar.js",

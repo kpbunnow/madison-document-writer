@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { badIds, caseFileFault } from "./case_file_rules.js";
 import { SCHEMA } from "./document_types.js";
@@ -14,7 +15,7 @@ export function recoverySharedConflict(value) {
 export function createCaseRecovery(services) {
   async function listRecovery() {
     recovery.RECOVERY.loading = true;
-    WriterState.state.modal = "recovery";
+    editor.state.modal = "recovery";
     services.render();
     try {
       recovery.RECOVERY.list = (await services.helperJSON("/draft-backups/list")).backups;
@@ -35,11 +36,11 @@ export function createCaseRecovery(services) {
     const result = row.imported
       ? { backup: row.imported }
       : await services.helperJSON("/draft-backups/read", { workspace: row.workspace, case: row.case, name: row.name });
-    if (WriterState.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
+    if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     const backup = result.backup;
     validateRecovery(backup, row);
     const shared = await recoverySharedState(backup);
-    if (WriterState.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
+    if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     recovery.RECOVERY.selected = backup;
     recovery.RECOVERY.shared = shared;
     services.render();
@@ -175,7 +176,7 @@ export function createCaseRecovery(services) {
     try {
       validateRecovery(b, row);
       const currentShared = await recoverySharedState(b);
-      if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
+      if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || editor.state.modal !== "recovery") return;
       recovery.RECOVERY.shared = currentShared;
       if (recoverySharedConflict(currentShared))
         throw new Error("Review the changed shared record before restoring this draft. Export the backup first.");
@@ -184,10 +185,10 @@ export function createCaseRecovery(services) {
         if (services.hasSetupWork()) throw new Error("Import recovery needs an empty import form.");
         const staged = { ...services.draftBundle(), work: clone(b.bundle.work) };
         if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the imported work.");
-        WriterState.WORK = staged.work;
-        WriterState.state.acc = WriterState.WORK.acc || null;
-        WriterState.state.modal = null;
-        WriterState.state.screen = "import";
+        editor.WORK = staged.work;
+        editor.state.acc = editor.WORK.acc || null;
+        editor.state.modal = null;
+        editor.state.screen = "import";
         services.render();
         return;
       }
@@ -204,16 +205,14 @@ export function createCaseRecovery(services) {
           stableJSON(WriterState.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
           stableJSON(WriterState.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
           stableJSON(WriterState.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
-          stableJSON(
-            Object.fromEntries(Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id)),
-          ) === stableJSON(b.bundle.work.recordForms) &&
-          stableJSON(WriterState.WORK.walk?.context?.startsWith(k.id + "|") ? WriterState.WORK.walk : null) ===
-            stableJSON(b.bundle.work.walk || null);
+          stableJSON(Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id))) ===
+            stableJSON(b.bundle.work.recordForms) &&
+          stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null);
         if (!same) {
           const copy = services.recoverySnapshot(k.id, services.recoveryCaseKey(k.id));
           copy.preReplacement = true;
           await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: copy.case, backup: copy });
-          if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
+          if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || editor.state.modal !== "recovery") return;
           if (
             !services.confirm(
               "Local work differs (" +
@@ -233,20 +232,16 @@ export function createCaseRecovery(services) {
         reinsp: WriterState.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
         events: { ...WriterState.EVENTS, [k.id]: clone(b.bundle.events[k.id] || []) },
         recordAttempts: {
-          ...Object.fromEntries(Object.entries(WriterState.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
+          ...Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
           ...clone(b.bundle.recordAttempts || {}),
         },
         checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: clone(b.bundle.checkpoints?.[k.id] || null) },
         seq: Math.max(WriterState.seq, b.bundle.seq || 0),
         work: {
-          ...clone(WriterState.WORK),
-          walk: b.bundle.work.walk
-            ? clone(b.bundle.work.walk)
-            : WriterState.WORK.walk?.context?.startsWith(k.id + "|")
-              ? null
-              : WriterState.WORK.walk,
+          ...clone(editor.WORK),
+          walk: b.bundle.work.walk ? clone(b.bundle.work.walk) : editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
           recordForms: {
-            ...Object.fromEntries(Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
+            ...Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
             ...clone(b.bundle.work.recordForms),
           },
         },
@@ -258,15 +253,15 @@ export function createCaseRecovery(services) {
       WriterState.DOCS = staged.docs;
       WriterState.REINSP = staged.reinsp;
       WriterState.EVENTS = staged.events;
-      WriterState.RECORD_ATTEMPTS = staged.recordAttempts;
+      editor.RECORD_ATTEMPTS = staged.recordAttempts;
       WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
       WriterState.PENDING = pending;
-      WriterState.WORK = staged.work;
+      editor.WORK = staged.work;
       WriterState.seq = staged.seq;
       services.clearWalk();
       project();
-      WriterState.state.modal = null;
-      WriterState.state.screen = "cases";
+      editor.state.modal = null;
+      editor.state.screen = "cases";
       services.render();
       await services.refreshArtifactLocations();
       services.toast("Recovered " + k.number + " as unfinished work. No document was issued.");
