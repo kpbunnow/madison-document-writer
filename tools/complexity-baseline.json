@@ -1,7 +1,7 @@
 {
   "counts": {
     "complexity": 76,
-    "max-depth": 3,
+    "max-depth": 2,
     "max-lines-per-function": 125,
     "python": 30
   },
@@ -120,7 +120,6 @@
     "app/modules/language_catalog.js:createLanguageCatalog#1/showSafety#1:complexity": 22,
     "app/modules/language_discovery.js:languagePicker#1:max-lines-per-function": 154,
     "app/modules/language_discovery.js:languageScreen#1:max-lines-per-function": 142,
-    "app/modules/language_discovery.js:rememberLanguageFocus#1:max-depth": 5,
     "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 245,
     "app/modules/navigation.js:initNavigation#1/screen#1:max-lines-per-function": 114,
     "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 1361,
