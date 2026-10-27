@@ -1,6 +1,6 @@
+import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
-import { WriterState } from "./state.js";
 export function createLanguageActions(services) {
   async function languageClick(event) {
     const button = event.target.closest?.(
@@ -10,10 +10,10 @@ export function createLanguageActions(services) {
     if (!button) return;
     if (button.dataset.languageMode) {
       await services.navigation.leave(() => {
-        WriterState.state.screen = "library";
-        WriterState.state.picker = false;
-        WriterState.state.modal = null;
-        WriterState.state.languageMode = button.dataset.languageMode === "admin" ? "admin" : "browse";
+        editor.state.screen = "library";
+        editor.state.picker = false;
+        editor.state.modal = null;
+        editor.state.languageMode = button.dataset.languageMode === "admin" ? "admin" : "browse";
         services.render();
         window.scrollTo(0, 0);
         const h = document.querySelector(".main h1");
@@ -26,10 +26,10 @@ export function createLanguageActions(services) {
     }
     if (button.dataset.catalogOpen) {
       const i = services.catalogItem(button.dataset.catalogOpen);
-      if (!i || WriterState.state.screen !== "library" || WriterState.state.languageMode !== "admin") return;
-      WriterState.state.catalogAdminKey = services.catalogKey(i);
-      catalog.CATALOG_FORMS[WriterState.state.catalogAdminKey] = {
-        ...services.catalogForm(WriterState.state.catalogAdminKey, i, services.catalogReview(WriterState.state.catalogAdminKey)),
+      if (!i || editor.state.screen !== "library" || editor.state.languageMode !== "admin") return;
+      editor.state.catalogAdminKey = services.catalogKey(i);
+      catalog.CATALOG_FORMS[editor.state.catalogAdminKey] = {
+        ...services.catalogForm(editor.state.catalogAdminKey, i, services.catalogReview(editor.state.catalogAdminKey)),
         open: true,
       };
       services.keepCatalogForms();
@@ -53,20 +53,20 @@ export function createLanguageActions(services) {
       const i = services.catalogItem(button.dataset.languageReplacement);
       if (!i) return;
       if (picker) {
-        WriterState.state.q = i.t;
-        WriterState.state.pickerStatus = "approved";
-        WriterState.state.cl = -1;
+        editor.state.q = i.t;
+        editor.state.pickerStatus = "approved";
+        editor.state.cl = -1;
       } else {
-        WriterState.state.libFilter = i.t;
-        WriterState.state.libStatus = "approved";
-        WriterState.state.libCl = -1;
+        editor.state.libFilter = i.t;
+        editor.state.libStatus = "approved";
+        editor.state.libCl = -1;
       }
     } else if (button.hasAttribute("data-language-standard")) {
-      if (picker) WriterState.state.pickerStatus = "usable";
-      else WriterState.state.libStatus = "usable";
+      if (picker) editor.state.pickerStatus = "usable";
+      else editor.state.libStatus = "usable";
     } else if (button.hasAttribute("data-language-all")) {
-      WriterState.state.cl = -1;
-      WriterState.state.q = "";
+      editor.state.cl = -1;
+      editor.state.q = "";
     }
     if (picker) services.refreshOverlay();
     else services.render();

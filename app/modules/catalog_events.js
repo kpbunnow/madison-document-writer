@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 /* Catalog event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
@@ -120,7 +121,7 @@ export function createCatalogEvents(services) {
       const fail = (message) => {
         catalog.CATALOG_FORMS[key] = { ...form, ...submitted, ...catalog.CATALOG_FORMS[key], open: true, error: message };
         services.keepCatalogForms();
-        if (WriterState.state.screen === "library") services.render();
+        if (editor.state.screen === "library") services.render();
         else services.toast(message, { severity: "warning" });
       };
       if (!data.reviewer) {
@@ -169,7 +170,7 @@ export function createCatalogEvents(services) {
           };
         else delete catalog.CATALOG_FORMS[key];
         services.keepCatalogForms();
-        if (WriterState.state.screen === "library") services.render();
+        if (editor.state.screen === "library") services.render();
         services.toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");
       } catch (err) {
         t.disabled = false;
@@ -179,29 +180,29 @@ export function createCatalogEvents(services) {
   }
 
   const closePickerBackground = () => {
-    WriterState.state.picker = false;
+    editor.state.picker = false;
     services.render();
     return;
   };
 
   const closePicker = () => {
-    WriterState.state.picker = false;
+    editor.state.picker = false;
     services.render();
     window.scrollTo(0, 0);
     return;
   };
 
   const selectChecklist = (t) => {
-    WriterState.state.libCl = +t.dataset.libcl;
+    editor.state.libCl = +t.dataset.libcl;
     services.render();
     return;
   };
 
   const selectGroup = (t) => {
     const [ci, gi] = t.dataset.grp.split(":").map(Number);
-    WriterState.state.cl = ci;
-    WriterState.state.grp = gi;
-    WriterState.state.q = "";
+    editor.state.cl = ci;
+    editor.state.grp = gi;
+    editor.state.q = "";
     services.refreshOverlay();
     return;
   };
@@ -214,13 +215,13 @@ export function createCatalogEvents(services) {
 
   const pickItem = async (d, t) => {
     if (!d || !services.structEditable(d)) return;
-    const selectionContext = { docId: WriterState.state.docId, screen: WriterState.state.screen };
+    const selectionContext = { docId: editor.state.docId, screen: editor.state.screen };
     await services.refreshCatalog();
     if (
-      !WriterState.state.picker ||
-      WriterState.state.screen !== selectionContext.screen ||
-      WriterState.state.docId !== selectionContext.docId ||
-      doc(WriterState.state.docId) !== d ||
+      !editor.state.picker ||
+      editor.state.screen !== selectionContext.screen ||
+      editor.state.docId !== selectionContext.docId ||
+      doc(editor.state.docId) !== d ||
       !services.structEditable(d)
     )
       return;
@@ -246,12 +247,12 @@ export function createCatalogEvents(services) {
     services.renumber(d);
     WriterState.DIRTY = true;
     services.saveDrafts();
-    if (WriterState.state.keepAdding || !added) {
+    if (editor.state.keepAdding || !added) {
       services.refreshOverlay();
       services.toast((added ? "Added: " : "Removed: ") + src.t);
       return;
     }
-    WriterState.state.picker = false;
+    editor.state.picker = false;
     services.render();
     // drop the cursor straight into the new corrective action
     const cells = document.querySelectorAll('[data-field="text"]');
@@ -272,27 +273,27 @@ export function createCatalogEvents(services) {
 
   const openPicker = (d) => {
     if (!services.structEditable(d)) return;
-    if (WriterState.state.pickerDoc !== d.id) {
-      WriterState.state.pickerStatus = "approved";
-      WriterState.state.cl = -1;
-      WriterState.state.grp = 0;
-      WriterState.state.pickerDoc = d.id;
+    if (editor.state.pickerDoc !== d.id) {
+      editor.state.pickerStatus = "approved";
+      editor.state.cl = -1;
+      editor.state.grp = 0;
+      editor.state.pickerDoc = d.id;
     }
-    WriterState.state.picker = true;
-    WriterState.state.q = "";
+    editor.state.picker = true;
+    editor.state.q = "";
     services.render();
     return;
   };
 
   const editPickerSearch = (el) => {
-    WriterState.state.q = el.value;
+    editor.state.q = el.value;
     services.refreshOverlay();
     return;
   };
 
   const editLibrarySearch = (el) => {
     const p = el.selectionStart;
-    WriterState.state.libFilter = el.value;
+    editor.state.libFilter = el.value;
     services.render();
     const f = document.getElementById("lib-filter");
     if (f) {
@@ -303,22 +304,22 @@ export function createCatalogEvents(services) {
   };
 
   const changeLibraryStatus = (e) => {
-    WriterState.state[e.target.id === "lib-status" ? "libStatus" : "pickerStatus"] = e.target.value;
+    editor.state[e.target.id === "lib-status" ? "libStatus" : "pickerStatus"] = e.target.value;
     if (e.target.id === "lib-status") services.render();
     else services.refreshOverlay();
     return;
   };
 
   const changeKeepAdding = (e) => {
-    WriterState.state.keepAdding = e.target.checked;
+    editor.state.keepAdding = e.target.checked;
     return;
   };
 
   const changePickerGroup = (e) => {
     const [ci, gi] = e.target.value.split(":").map(Number);
-    WriterState.state.cl = ci;
-    WriterState.state.grp = gi;
-    WriterState.state.q = "";
+    editor.state.cl = ci;
+    editor.state.grp = gi;
+    editor.state.q = "";
     services.refreshOverlay();
     return;
   };
@@ -330,7 +331,7 @@ export function createCatalogEvents(services) {
   function registerFilterInput(target = document) {
     return registerEventOnce(target, "catalog.registerFilterInput", "input", (e) => {
       if (e.target.id === "catalog-filter") {
-        WriterState.state.catalogAdminQ = e.target.value;
+        editor.state.catalogAdminQ = e.target.value;
         services.render();
       }
     });
@@ -339,12 +340,12 @@ export function createCatalogEvents(services) {
   function registerFilterChange(target = document) {
     return registerEventOnce(target, "catalog.registerFilterChange", "change", (e) => {
       if (e.target.id === "catalog-status") {
-        WriterState.state.catalogAdminStatus = e.target.value;
+        editor.state.catalogAdminStatus = e.target.value;
         services.render();
         document.getElementById("catalog-status")?.focus();
       }
       if (e.target.id === "lib-checklist") {
-        WriterState.state.libCl = Number(e.target.value);
+        editor.state.libCl = Number(e.target.value);
         services.render();
         document.getElementById("lib-checklist")?.focus();
       }

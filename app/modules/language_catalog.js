@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 import { caseNumberKey } from "../assets/shared.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
@@ -156,7 +157,7 @@ export function createLanguageCatalog(services) {
       if (!current()) return false;
       catalog.CATALOG_ERROR = "Review refresh unavailable: " + e.message + ". Last verified: " + (catalog.CATALOG_AT || "none") + ".";
     }
-    if (WriterState.state.screen === "library" || WriterState.state.picker) services.render();
+    if (editor.state.screen === "library" || editor.state.picker) services.render();
     return catalog.CATALOG_VERIFIED && !/Review refresh unavailable/.test(catalog.CATALOG_ERROR);
   }
 
@@ -316,7 +317,7 @@ export function createLanguageCatalog(services) {
       WriterState.DOCS.some((d) => d.draft && d.caseId === cid) ||
       WriterState.REINSP.some((r) => r.draft && r.caseId === cid) ||
       WriterState.PENDING.some((p) => p.cid === cid) ||
-      Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === cid) ||
+      Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) ||
       WriterState.DOCS.some((d) => d.caseId === cid && d.pendingAmendment)
     );
   }
@@ -398,9 +399,9 @@ export function createLanguageCatalog(services) {
       return true;
     }
     const token = ++WriterState.PREFLIGHT_SEQ,
-      wasScreen = WriterState.state.screen,
-      wasDoc = WriterState.state.docId,
-      wasVisit = WriterState.state.reinspId;
+      wasScreen = editor.state.screen,
+      wasDoc = editor.state.docId,
+      wasVisit = editor.state.reinspId;
     let file, comparison;
     try {
       file = await readSharedCase(k);
@@ -411,9 +412,9 @@ export function createLanguageCatalog(services) {
     if (
       token !== WriterState.PREFLIGHT_SEQ ||
       !WriterState.CASES.some((x) => x.id === cid) ||
-      WriterState.state.screen !== wasScreen ||
-      WriterState.state.docId !== wasDoc ||
-      WriterState.state.reinspId !== wasVisit
+      editor.state.screen !== wasScreen ||
+      editor.state.docId !== wasDoc ||
+      editor.state.reinspId !== wasVisit
     )
       return false;
     if (
@@ -422,7 +423,7 @@ export function createLanguageCatalog(services) {
       (comparison.kind === "shared-only" && !WriterState.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
     ) {
       WriterState.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
-      WriterState.state.modal = "shared-change";
+      editor.state.modal = "shared-change";
       services.render();
       return false;
     }
@@ -444,15 +445,15 @@ export function createLanguageCatalog(services) {
           continuation,
           token,
         };
-        WriterState.state.modal = "shared-change";
+        editor.state.modal = "shared-change";
         services.render();
         return false;
       }
       if (
         token !== WriterState.PREFLIGHT_SEQ ||
-        WriterState.state.screen !== wasScreen ||
-        WriterState.state.docId !== wasDoc ||
-        WriterState.state.reinspId !== wasVisit
+        editor.state.screen !== wasScreen ||
+        editor.state.docId !== wasDoc ||
+        editor.state.reinspId !== wasVisit
       )
         return false;
     } else if (comparison.kind === "shared-history") {
@@ -465,7 +466,7 @@ export function createLanguageCatalog(services) {
           continuation,
           token,
         };
-        WriterState.state.modal = "shared-change";
+        editor.state.modal = "shared-change";
         services.render();
         return false;
       }
@@ -520,7 +521,7 @@ export function createLanguageCatalog(services) {
     const c = WriterState.PREFLIGHT_CONFLICT;
     if (!c) return;
     WriterState.PREFLIGHT_CONFLICT = null;
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     WriterState.PREFLIGHT_NOTICE = "Local work retained. Resolve shared differences before publication.";
     c.continuation();
   }
@@ -535,7 +536,7 @@ export function createLanguageCatalog(services) {
       if (
         WriterState.PENDING.some((p) => p.cid === k.id) ||
         WriterState.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
-        Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
+        Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
       )
         throw new Error("Confirm pending save identities before replacing this case.");
       if (caseFileFault(c.file) || c.file.case.id !== k.id) throw new Error("Shared case is invalid or has a different identity.");
@@ -553,14 +554,12 @@ export function createLanguageCatalog(services) {
         docs: WriterState.DOCS.filter((d) => d.caseId !== k.id),
         reinsp: WriterState.REINSP.filter((r) => r.caseId !== k.id),
         events: { ...WriterState.EVENTS, [k.id]: clone(fresh.events) },
-        recordAttempts: Object.fromEntries(Object.entries(WriterState.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
+        recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
         checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
         work: {
-          ...clone(WriterState.WORK),
-          walk: WriterState.WORK.walk?.context?.startsWith(k.id + "|") ? null : WriterState.WORK.walk,
-          recordForms: Object.fromEntries(
-            Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id),
-          ),
+          ...clone(editor.WORK),
+          walk: editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
+          recordForms: Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
         },
       };
       if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
@@ -568,14 +567,14 @@ export function createLanguageCatalog(services) {
       WriterState.DOCS = staged.docs;
       WriterState.REINSP = staged.reinsp;
       WriterState.EVENTS = staged.events;
-      WriterState.RECORD_ATTEMPTS = staged.recordAttempts;
+      editor.RECORD_ATTEMPTS = staged.recordAttempts;
       WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
-      WriterState.WORK = staged.work;
+      editor.WORK = staged.work;
       services.clearWalk();
       services.project();
       WriterState.PREFLIGHT_CONFLICT = null;
-      WriterState.state.modal = null;
-      WriterState.state.screen = "cases";
+      editor.state.modal = null;
+      editor.state.screen = "cases";
       services.render();
     } catch (e) {
       services.toast("Local work kept: " + e.message);
@@ -583,25 +582,25 @@ export function createLanguageCatalog(services) {
   }
 
   async function persistWorkspacePatch(prepare, commit) {
-    if (WriterState.WORK_PATCH) throw new Error("Another workspace change is saving");
+    if (editor.WORK_PATCH) throw new Error("Another workspace change is saving");
     let unlock;
-    WriterState.WORK_PATCH = new Promise((resolve) => {
+    editor.WORK_PATCH = new Promise((resolve) => {
       unlock = resolve;
     });
     try {
-      await WriterState.LOCAL_SAVE_CHAIN;
+      await editor.LOCAL_SAVE_CHAIN;
       services.captureWork();
       const staged = prepare(clone(services.draftBundle()));
       if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the change. Local work was kept.");
       commit(staged);
-      WriterState.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
-      ++WriterState.LOCAL_CHANGED;
+      editor.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
+      ++editor.LOCAL_CHANGED;
       WriterState.DIRTY = false;
       services.scheduleRecoveryBackup();
       return true;
     } finally {
       unlock();
-      WriterState.WORK_PATCH = null;
+      editor.WORK_PATCH = null;
     }
   }
 
@@ -670,12 +669,12 @@ export function createLanguageCatalog(services) {
 
   async function applyConflict() {
     const c = WriterState.PREFLIGHT_CONFLICT;
-    if (!c || WriterState.RESOLUTION_BUSY) return;
+    if (!c || editor.RESOLUTION_BUSY) return;
     try {
       if (
         WriterState.PENDING.some((p) => p.cid === c.cid && p.idempotencyEvent) ||
         WriterState.DOCS.some((d) => d.caseId === c.cid && d.pendingAmendment) ||
-        Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === c.cid)
+        Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === c.cid)
       )
         throw new Error("Confirm the pending official save before merging case details");
       if (c.comparison.added && localCaseWork(c.cid))
@@ -691,7 +690,7 @@ export function createLanguageCatalog(services) {
         choices[f.field] = { kind: el.value, value };
       });
       const merged = resolvedCaseFields(kase(c.cid), c.file.case, c.comparison, choices);
-      WriterState.RESOLUTION_BUSY = true;
+      editor.RESOLUTION_BUSY = true;
       document.querySelectorAll("#overlay button,#overlay input,#overlay select,#overlay textarea").forEach((el) => (el.disabled = true));
       const fresh = await readSharedCase(kase(c.cid));
       if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
@@ -713,13 +712,13 @@ export function createLanguageCatalog(services) {
         },
       );
       WriterState.PREFLIGHT_CONFLICT = null;
-      WriterState.state.modal = null;
+      editor.state.modal = null;
       WriterState.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
-      WriterState.RESOLUTION_BUSY = false;
+      editor.RESOLUTION_BUSY = false;
       await services.saveCaseFile(c.cid);
       services.render();
     } catch (error) {
-      WriterState.RESOLUTION_BUSY = false;
+      editor.RESOLUTION_BUSY = false;
       services.toast(error.message, { severity: "error" });
       services.render();
     }
@@ -735,8 +734,8 @@ export function createLanguageCatalog(services) {
     let health;
     // The panel opens immediately; slow connection checks must not hide device recovery.
     services.captureWork();
-    if (WriterState.state.modal) {
-      WriterState.state.modal = null;
+    if (editor.state.modal) {
+      editor.state.modal = null;
       services.render();
     }
     services.A11Y.utility("Saved work & connection", savedWorkHTML(services.app_savedworkContext(), cid, { checking: true }));
@@ -746,7 +745,7 @@ export function createLanguageCatalog(services) {
       health = { error: error.message };
     }
     if (!services.navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
-    WriterState.SAFETY_HEALTH = health;
+    editor.SAFETY_HEALTH = health;
     // Keep focus and disclosures during the late health response.
     const dialog = document.getElementById("utility-dialog"),
       panel = dialog.querySelector("[data-saved-work-panel]");
@@ -779,8 +778,8 @@ export function createLanguageCatalog(services) {
       health = { error: error.message };
     }
     if (!services.navigation.utilityCurrent(context)) return false;
-    WriterState.SAFETY_HEALTH = health;
-    const h = WriterState.SAFETY_HEALTH,
+    editor.SAFETY_HEALTH = health;
+    const h = editor.SAFETY_HEALTH,
       check = (x) => (x === true ? "Available" : x === false ? "Unavailable" : "Not tested");
     const fields = [
       ["External integrity anchor", h.integrityAnchor || "Not configured"],
@@ -815,7 +814,7 @@ export function createLanguageCatalog(services) {
     const number = prompt("Case number whose lock should be inspected");
     if (!number) return;
     try {
-      WriterState.SAFETY_LOCK = { number, ...(await services.helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
+      editor.SAFETY_LOCK = { number, ...(await services.helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
       showLock();
     } catch (error) {
       services.toast(error.message, { severity: "error" });
@@ -823,7 +822,7 @@ export function createLanguageCatalog(services) {
   }
 
   function showLock() {
-    const lock = WriterState.SAFETY_LOCK;
+    const lock = editor.SAFETY_LOCK;
     if (!lock) return;
     services.A11Y.utility(
       "Shared lock assistant",
@@ -854,9 +853,9 @@ export function createLanguageCatalog(services) {
   }
 
   function saveWorkflowPrefs() {
-    WriterState.WORKFLOW_PREFS.filter = WriterState.state.caseFilter;
-    WriterState.WORKFLOW_PREFS.query = WriterState.state.caseQ;
-    WriterState.WORKFLOW_PREFS.inspector = WriterState.state.caseInspector;
+    WriterState.WORKFLOW_PREFS.filter = editor.state.caseFilter;
+    WriterState.WORKFLOW_PREFS.query = editor.state.caseQ;
+    WriterState.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
     try {
       localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(WriterState.WORKFLOW_PREFS));
     } catch (error) {
@@ -885,7 +884,7 @@ export function createLanguageCatalog(services) {
       '<form id="global-search-form"><label>Case, address, owner or citation nu' +
         'mber <input type="search" name="query" required minlength="2" maxlength=' +
         '"200" value="' +
-        `${esc(WriterState.state.caseQ)}` +
+        `${esc(editor.state.caseQ)}` +
         '"></label><button class="btn" type="submit">Search shared case records</button>' +
         '</form><div id="global-search-results" aria-live="polite"></div>',
     );

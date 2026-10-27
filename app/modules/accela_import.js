@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 import { inspAt, sameInspection, inspectionIdentity, inspectionUsed } from "./inspection_facts.js";
 import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
@@ -856,10 +857,10 @@ export function createAccelaImport(services) {
   }
 
   async function readAccelaFile(file) {
-    if (!file || WriterState.state.screen !== "import") return;
+    if (!file || editor.state.screen !== "import") return;
     cancelCaseLookup();
     const serial = imports.LOOKUP_SERIAL;
-    const active = () => serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import";
+    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import";
     imports.LOOKUP_ERROR = "";
     imports.LOOKUP_BUSY = true;
     services.render();
@@ -878,14 +879,14 @@ export function createAccelaImport(services) {
         manualDate: "",
         manualTime: "",
       };
-      WriterState.state.acc = acc;
+      editor.state.acc = acc;
       await accelaFromShare(active);
       if (!active()) return;
       services.scheduleDraftSave();
       services.toast(t.errors.length ? "The report could not be imported" : "Report read — review the inspection");
     } catch (err) {
       if (active()) {
-        WriterState.state.acc = {
+        editor.state.acc = {
           fileName: file.name,
           errors: ["That file could not be read — " + (err.message || "it is not an Excel .xlsx file") + ". Nothing was imported."],
           cases: [],
@@ -895,22 +896,18 @@ export function createAccelaImport(services) {
     } finally {
       if (serial === imports.LOOKUP_SERIAL) {
         imports.LOOKUP_BUSY = false;
-        if (WriterState.state.screen === "import") services.render();
+        if (editor.state.screen === "import") services.render();
       }
     }
   }
 
   async function accelaFromShare(isCurrent = () => true) {
-    const acc = WriterState.state.acc;
+    const acc = editor.state.acc;
     if (!acc || !acc.cases || !acc.cases.length) return;
     const caseIx = acc.caseIx || 0,
       serial = imports.LOOKUP_SERIAL;
     const active = () =>
-      isCurrent() &&
-      serial === imports.LOOKUP_SERIAL &&
-      WriterState.state.screen === "import" &&
-      WriterState.state.acc === acc &&
-      (acc.caseIx || 0) === caseIx;
+      isCurrent() && serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && (acc.caseIx || 0) === caseIx;
     if (WriterState.CASEDIR?.helper) {
       try {
         await checkLookupShared(acc, active);
@@ -939,14 +936,14 @@ export function createAccelaImport(services) {
       const f = await (await WriterState.CASEDIR.getFileHandle(hit.name)).getFile();
       const text = await f.text();
       if (!active()) return;
-      const keep = { screen: WriterState.state.screen, dirty: WriterState.DIRTY, docId: WriterState.state.docId };
+      const keep = { screen: editor.state.screen, dirty: WriterState.DIRTY, docId: editor.state.docId };
       try {
         if (!services.loadCaseFile(text))
           acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
       } finally {
-        WriterState.state.screen = keep.screen;
+        editor.state.screen = keep.screen;
         WriterState.DIRTY = keep.dirty;
-        WriterState.state.docId = keep.docId;
+        editor.state.docId = keep.docId;
       }
     } catch (err) {
       if (active()) {
@@ -977,7 +974,7 @@ export function createAccelaImport(services) {
   }
 
   function baseLookupAccept() {
-    const acc = WriterState.state.acc,
+    const acc = editor.state.acc,
       p = accelaPlan(acc);
     // the guard is here, not only on the button
     if (p.blockers.length) {
@@ -1017,8 +1014,8 @@ export function createAccelaImport(services) {
     services.snow.imported(k, row);
     const importRule = row.rule && !row.rule.error ? clone(row.rule) : null;
     if (p.refresh && importRule) {
-      WriterState.state.acc = null;
-      WriterState.WORK.acc = null;
+      editor.state.acc = null;
+      editor.WORK.acc = null;
       applyImportRule(p.refresh, importRule);
       WriterState.DIRTY = true;
       services.saveDrafts();
@@ -1026,13 +1023,13 @@ export function createAccelaImport(services) {
       services.toast("Accela status refreshed: " + importRule.status + " \u2192 " + importRule.label);
       return k;
     }
-    WriterState.state.acc = null;
-    WriterState.WORK.acc = null;
+    editor.state.acc = null;
+    editor.WORK.acc = null;
     WriterState.DIRTY = true;
     if (p.next === "snow") {
       k.caseType = "snow-10.28";
       services.newDoc(k.id, "citation");
-      const d = doc(WriterState.state.docId);
+      const d = doc(editor.state.docId);
       d.inspDate = row.date;
       d.inspTime = row.time;
       d.importInspection = inspectionIdentity(row);
@@ -1062,15 +1059,15 @@ export function createAccelaImport(services) {
     if (p.next === "notice") {
       const dd = draftDocFor(k.id);
       if (dd) {
-        WriterState.state.docId = dd.id;
-        WriterState.state.screen = "write";
+        editor.state.docId = dd.id;
+        editor.state.screen = "write";
         services.saveDrafts();
         services.render();
         services.toast("Case updated — its draft is on screen");
         return k;
       }
       services.newDoc(k.id, "notice");
-      const created = doc(WriterState.state.docId);
+      const created = doc(editor.state.docId);
       if (created) {
         created.importInspection = inspectionIdentity(row);
         if (importRule) applyImportRule(created, importRule);
@@ -1078,7 +1075,7 @@ export function createAccelaImport(services) {
       }
       return k;
     }
-    WriterState.state.screen = "cases";
+    editor.state.screen = "cases";
     services.saveDrafts();
     services.render();
     services.toast("Case " + k.number + " updated from the Accela report");
@@ -1086,7 +1083,7 @@ export function createAccelaImport(services) {
   }
 
   function accelaPanel() {
-    const acc = WriterState.state.acc,
+    const acc = editor.state.acc,
       p = accelaPlan(acc);
     const cancel = '<button class="btn" id="acc-cancel">Clear import</button>';
     if (acc.errors?.length)
@@ -1325,7 +1322,7 @@ export function createAccelaImport(services) {
       '<label class="f no-print"><span>Case workflow for a new case</span><sele' +
       'ct id="new-case-type"><option value="">Standard code violation</option><' +
       'option value="snow-10.28" ' +
-      (WriterState.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "") +
+      (editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "") +
       ">Snow removal (MGO 10.28)</option></select></label>";
     return services.shell(
       "Import inspection",
@@ -1334,7 +1331,7 @@ export function createAccelaImport(services) {
       '<div style="max-width:980px">\n      ' +
         `${lookupCard()}` +
         "\n      " +
-        `${WriterState.state.acc ? accelaPanel() : ""}` +
+        `${editor.state.acc ? accelaPanel() : ""}` +
         '\n      <details class="card import-alternative"><summary>Import an SSRS ' +
         'Excel report instead</summary><div class="card-b"><div class="acc-drop" ' +
         'id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.<' +
@@ -1358,22 +1355,22 @@ export function createAccelaImport(services) {
       const draft = draftDocFor(cid),
         visit = draftReinspFor(cid) || services.unissuedVisitFor(cid),
         current = services.sourceDocFor(cid);
-      WriterState.state.modal = null;
-      WriterState.state.picker = false;
+      editor.state.modal = null;
+      editor.state.picker = false;
       if (draft) {
-        WriterState.state.docId = draft.id;
-        WriterState.state.screen = "write";
+        editor.state.docId = draft.id;
+        editor.state.screen = "write";
       } else if (visit) {
-        WriterState.state.reinspId = visit.id;
-        WriterState.state.screen = "reinspect";
+        editor.state.reinspId = visit.id;
+        editor.state.screen = "reinspect";
       } else if (current) {
-        WriterState.state.docId = current.id;
-        WriterState.state.screen = "write";
+        editor.state.docId = current.id;
+        editor.state.screen = "write";
       } else {
-        WriterState.state.screen = "cases";
-        WriterState.state.caseQ = k.number;
-        WriterState.state.caseFilter = "all";
-        WriterState.state.caseInspector = "";
+        editor.state.screen = "cases";
+        editor.state.caseQ = k.number;
+        editor.state.caseFilter = "all";
+        editor.state.caseInspector = "";
       }
       services.saveDrafts();
       services.render();
@@ -1390,7 +1387,7 @@ export function createAccelaImport(services) {
       '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
       'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
       'holder="CB2026-000-00000" value="' +
-      `${esc(WriterState.WORK.entry["lookup-number"] || "")}` +
+      `${esc(editor.WORK.entry["lookup-number"] || "")}` +
       '" ' +
       `${imports.LOOKUP_BUSY ? "readonly" : ""}` +
       '></label>\n    <button class="btn btn-primary" type="submit" ' +
@@ -1401,7 +1398,7 @@ export function createAccelaImport(services) {
       "".concat(
         imports.LOOKUP_BUSY
           ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
-          : !WriterState.state.acc
+          : !editor.state.acc
             ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
             : "",
       ) +
@@ -1491,13 +1488,13 @@ export function createAccelaImport(services) {
       if (!isCurrent()) return false;
       if (accStr(result.file?.case?.number).toUpperCase() !== number)
         throw new Error("The shared filename and case number disagree. The existing record has been kept.");
-      const keep = { screen: WriterState.state.screen, docId: WriterState.state.docId, dirty: WriterState.DIRTY };
+      const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: WriterState.DIRTY };
       let loaded;
       try {
         loaded = services.loadCaseFile(JSON.stringify(result.file));
       } finally {
-        WriterState.state.screen = keep.screen;
-        WriterState.state.docId = keep.docId;
+        editor.state.screen = keep.screen;
+        editor.state.docId = keep.docId;
         WriterState.DIRTY = keep.dirty;
       }
       if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
@@ -1543,8 +1540,8 @@ export function createAccelaImport(services) {
   async function findDatabaseCase() {
     if (imports.LOOKUP_BUSY) return;
     services.captureWork();
-    const number = accStr(WriterState.WORK.entry["lookup-number"]).toUpperCase();
-    WriterState.WORK.entry["lookup-number"] = number;
+    const number = accStr(editor.WORK.entry["lookup-number"]).toUpperCase();
+    editor.WORK.entry["lookup-number"] = number;
     if (!validCaseNumber(number)) {
       imports.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
       services.render();
@@ -1555,7 +1552,7 @@ export function createAccelaImport(services) {
     const serial = ++imports.LOOKUP_SERIAL;
     const controller = new AbortController();
     imports.LOOKUP_CONTROLLER = controller;
-    const active = () => serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import";
+    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import";
     services.render();
     const timer = setTimeout(() => controller.abort(), 45000);
     try {
@@ -1578,8 +1575,8 @@ export function createAccelaImport(services) {
         acc.shareError = e.message;
       }
       if (!active()) return;
-      WriterState.state.acc = acc;
-      WriterState.WORK.acc = clone(acc);
+      editor.state.acc = acc;
+      editor.WORK.acc = clone(acc);
       if (!(await services.saveDrafts()))
         throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
       if (active() && !acc.shareError && lookupCanOpen(acc)) {
@@ -1610,7 +1607,7 @@ export function createAccelaImport(services) {
   /* R59: any eligible listed candidate of the current case can be chosen. R62: an inspection already used on the
    case is not listed, so it cannot be chosen. Each change bumps the selection token. */
   function selectImportInspection(index) {
-    const acc = WriterState.state.acc,
+    const acc = editor.state.acc,
       c = acc?.cases?.[acc.caseIx || 0];
     if (!c || !(accelaPlan(acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
     acc.sel = index;
@@ -1619,7 +1616,7 @@ export function createAccelaImport(services) {
   }
 
   async function confirmDatabaseCase() {
-    const acc = WriterState.state.acc;
+    const acc = editor.state.acc;
     if (imports.LOOKUP_BUSY || !acc) return;
     imports.LOOKUP_ERROR = "";
     acc.shareError = "";
@@ -1630,8 +1627,7 @@ export function createAccelaImport(services) {
       selected = acc.sel;
     // A shared-record result started for an earlier selection never confirms the current one.
     const sameSelection = () => selection === imports.ACC_SELECTION_SERIAL && acc.sel === selected;
-    const active = () =>
-      serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc && sameSelection();
+    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
     services.render();
     try {
       if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
@@ -1655,7 +1651,7 @@ export function createAccelaImport(services) {
     } finally {
       if (serial === imports.LOOKUP_SERIAL) {
         imports.LOOKUP_BUSY = false;
-        if (!sameSelection() && WriterState.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
+        if (!sameSelection() && editor.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
         await services.saveDrafts();
         services.render();
       }
@@ -1673,14 +1669,14 @@ export function createAccelaImport(services) {
   }
 
   function acceptAccela() {
-    if ((WriterState.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !LOOKUP_READY.has(WriterState.state.acc)) {
+    if ((editor.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
       services.toast("Check the shared record before confirming this lookup.");
       return null;
     }
-    const direct = WriterState.state.acc?.source?.kind === "sql";
+    const direct = editor.state.acc?.source?.kind === "sql";
     const result = baseLookupAccept();
     if (result && direct) {
-      delete WriterState.WORK.entry["lookup-number"];
+      delete editor.WORK.entry["lookup-number"];
       services.scheduleDraftSave();
     }
     return result;
