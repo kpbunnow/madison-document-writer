@@ -1,0 +1,186 @@
+def validate_special_fields(snap, at=None, check_date_window=True):
+    """Mirror R26 variant requirements; supplied review evidence is not role authentication."""
+    kind, s = snap["type"], snap.get("special", {})
+    simple_best = kind == "bestInterestExtension" and snap.get("authoringVersion", 0) >= 15
+    # R62 (authoring 16): every uncorrected item is covered; Vacancy keeps only Scope and the review date.
+    all_items = extension_format(snap) == "all-items"
+    simple_vacancy = all_items and kind == "vacancyExtension"
+    if not isinstance(s, dict):
+        raise ValueError("Document-specific facts must be an object")
+
+    def require(*keys):
+        if any(not isinstance(s.get(k), str) or not s[k].strip() or re.search(r"◯|\(\s{0,8}\)", s[k]) for k in keys):
+            raise ValueError("Complete the required document facts: " + ", ".join(keys))
+
+    def assert_fact(condition, message):
+        if not condition:
+            raise ValueError(message)
+
+    if re.search(r"◯|\(\s{0,8}\)|class=[\"\']blank[\"\']", str(snap.get("frozen", {}).get("body", ""))):
+        raise ValueError("Fill all printed narrative placeholders before issuance")
+    if simple_vacancy:
+        assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
+        if s["scope"] == "unit":
+            require("unit")
+    elif not simple_best:
+        require("reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation")
+        assert_fact(
+            s.get("reviewed") is True
+            and calendar_date(s.get("reviewDateLegal"))
+            and (not check_date_window or s["reviewDateLegal"] <= city_day(at).isoformat()),
+            "Current ordinance, wording, procedure and signer authority need recorded division review",
+        )
+        assert_fact(s.get("scope") in ("building", "unit"), "Choose an explicit scope")
+        if s["scope"] == "unit":
+            require("unit")
+    inspected = snap.get("inspDate") or snap.get("frozen", {}).get("case", {}).get("date", "")
+    mailed = snap.get("mailed", "")
+    if kind in ("summaryAbatement", "nonSummaryAbatement"):
+        variants = ("junk", "sidewalk", "tree", "secure", "custom") if kind == "summaryAbatement" else ("junk", "sidewalk", "tree", "custom")
+        assert_fact(s.get("variant") in variants, "Choose a supported reviewed nuisance variant")
+        require("findings", "work")
+        if kind == "summaryAbatement":
+            require("summaryBasis")
+        else:
+            require("servicePlan")
+            assert_fact(
+                calendar_date(s.get("orderDue")) and s["orderDue"] > mailed and s.get("remedyReviewed") is True,
+                "Non-summary orders need an approved future compliance date and reviewed Circuit Court remedy",
+            )
+        if s["variant"] == "custom":
+            require("customReviewRef")
+        if s["variant"] == "tree":
+            require("forestryRef")
+        if s["variant"] == "secure":
+            require("securingConditions")
+            if s.get("boarding"):
+                require("boardingRef")
+    elif kind == "noOccupancy":
+        assert_fact(s.get("mode") in ("restrict", "release"), "Choose restriction or documented release")
+        initial = snap.get("frozen", {}).get("case", {}).get("date", "")
+        assert_fact(
+            calendar_date(s.get("effective"))
+            and initial <= s["effective"] <= mailed
+            and (not check_date_window or s["effective"] <= city_day(at).isoformat()),
+            "Invalid effective restriction / release date",
+        )
+        if s["mode"] == "release":
+            require("releases", "releaseFacts", "releaseFormRef", "releaseVisitId")
+            if s["releaseVisitId"] == "external":
+                require("releaseInspectionRef", "releaseInspectorId")
+            assert_fact(
+                calendar_date(s.get("releaseInspection"))
+                and s["releaseInspection"] <= s["effective"]
+                and (not check_date_window or s["releaseInspection"] <= city_day(at).isoformat()),
+                "Record the actual release reinspection",
+            )
+            assert_fact(
+                s.get("placardRemoved") is True
+                and calendar_date(s.get("removalDate"))
+                and s["removalDate"] <= s["effective"]
+                and (not check_date_window or s["removalDate"] <= city_day(at).isoformat()),
+                "Record actual placard removal before written permission",
+            )
+        else:
+            require("findings", "releaseConditions")
+            assert_fact(s.get("posting") in ("posted", "pending"), "Record truthful posting status")
+            if s["posting"] == "posted":
+                assert_fact(
+                    calendar_date(s.get("postedDate"))
+                    and s["postedDate"] <= mailed
+                    and (not check_date_window or s["postedDate"] <= city_day(at).isoformat()),
+                    "Posting must be an actual past event",
+                )
+            else:
+                require("prePostingRef")
+    elif all_items:
+        outstanding = [i for i in snap["items"] if not i.get("done") and not i.get("withdrawn")]
+        affected = s.get("affected", [])
+        assert_fact(
+            isinstance(affected, list) and outstanding and sorted(map(str, affected)) == sorted(str(i.get("no")) for i in outstanding),
+            "The extension covers every uncorrected item",
+        )
+        originals = s.get("originalDues", {})
+        assert_fact(isinstance(originals, dict), "Retain source deadlines")
+        assert_fact(
+            all(i.get("due", "") == originals.get(str(i.get("no")), i.get("due", "")) for i in snap["items"] if i not in outstanding),
+            "Corrected item dates cannot change",
+        )
+        if kind == "bestInterestExtension":
+            require("reason")
+            assert_fact(all(calendar_date(i.get("due")) and i["due"] > mailed for i in outstanding), "Each uncorrected item needs a future due date")
+            dates = sorted({i["due"] for i in outstanding})
+            assert_fact(
+                len(dates) <= 3
+                and all((datetime.date.fromisoformat(b) - datetime.date.fromisoformat(a)).days >= 7 for a, b in zip(dates, dates[1:])),
+                "Use at most three outstanding dates, seven days apart",
+            )
+        else:
+            assert_fact(
+                calendar_date(s.get("reviewDate"))
+                and calendar_date(mailed)
+                and (datetime.date.fromisoformat(s["reviewDate"]) - datetime.date.fromisoformat(mailed)).days >= 7,
+                "Record a review inspection at least seven days after mailing",
+            )
+            assert_fact(all(not i.get("due") for i in outstanding), "Uncorrected Vacancy Extension items have no due date")
+    else:
+        affected = s.get("affected", [])
+        assert_fact(isinstance(affected, list) and affected and len(set(affected)) == len(affected), "Choose affected outstanding item numbers")
+        selected = [i for i in snap["items"] if str(i.get("no")) in affected and not i.get("done") and not i.get("withdrawn")]
+        assert_fact(len(selected) == len(affected), "Affected items must be outstanding source items")
+        assert_fact(s.get("noSafety") is True, "Extensions must exclude reviewed safety and urgent obligations")
+        if not simple_best:
+            require("safetyBasis")
+        originals = s.get("originalDues", {})
+        assert_fact(isinstance(originals, dict), "Retain source deadlines")
+        assert_fact(
+            all(i.get("due", "") == originals.get(str(i.get("no")), i.get("due", "")) for i in snap["items"] if str(i.get("no")) not in affected),
+            "Unselected item deadlines cannot change",
+        )
+        if simple_best:
+            require("reason")
+        elif kind == "bestInterestExtension":
+            require("noticeRef", "reason", "intentions", "supervisor")
+            assert_fact(s.get("stage") in ("administrative", "supervisory"), "Record the actual internal review stage")
+            if s["stage"] == "supervisory":
+                assert_fact(
+                    all(calendar_date(originals.get(str(i.get("no")))) and originals[str(i["no"])] < mailed for i in selected),
+                    "Supervisory prosecution review requires passed deadlines",
+                )
+        else:
+            require("vacancyFacts", "requestRef", "conditions", "expiryPolicyRef", "transferClause")
+            assert_fact(
+                calendar_date(s.get("reviewDate")) and s["reviewDate"] > mailed, "Record a future review appointment separately from repair deadlines"
+            )
+            contact_by = (datetime.date.fromisoformat(s["reviewDate"]) - datetime.timedelta(days=7)).isoformat()
+            if contact_by < mailed:
+                require("shortNoticeRef")
+            assert_fact(
+                s.get("expiryMode") in ("fixed", "review") and s.get("deadlineMode") in ("dated", "conditional"),
+                "Choose the reviewed expiration and deadline models",
+            )
+            if s["expiryMode"] == "fixed":
+                assert_fact(calendar_date(s.get("expiryDate")) and s["expiryDate"] > mailed, "Record a separate future expiration")
+            # Authoring 13 (R56): extended items always carry new repair dates; conditional remains for older reprints.
+            if snap.get("authoringVersion", 0) >= 13:
+                assert_fact(s["deadlineMode"] == "dated", "Vacancy Extensions require a new due date for each affected item")
+        if kind == "bestInterestExtension" or s.get("deadlineMode") == "dated":
+            assert_fact(
+                all(calendar_date(i.get("due")) and i["due"] > max(mailed, originals.get(str(i["no"]), "")) for i in selected),
+                "Affected items need later future deadlines",
+            )
+            dates = sorted({i["due"] for i in snap["items"] if not i.get("done") and not i.get("withdrawn") and i.get("due")})
+            assert_fact(
+                len(dates) <= 3
+                and all((datetime.date.fromisoformat(b) - datetime.date.fromisoformat(a)).days >= 7 for a, b in zip(dates, dates[1:])),
+                "Use at most three outstanding dates, seven days apart",
+            )
+        elif s.get("deadlineMode") == "conditional":
+            assert_fact(
+                all(i.get("due", "") == originals.get(str(i.get("no")), "") for i in selected),
+                "Conditional extensions retain the original repair dates; do not invent a replacement date",
+            )
+    if snap.get("initialAction") and kind not in SUPPLEMENTAL_TYPES:
+        raise ValueError("Initial emergency actions must be scoped orders")
+    if not calendar_date(inspected):
+        raise ValueError("The document needs its actual factual inspection date")
