@@ -1,19 +1,17 @@
 {
   "counts": {
-    "complexity": 84,
+    "complexity": 83,
     "max-depth": 13,
-    "max-lines-per-function": 137,
+    "max-lines-per-function": 136,
     "python": 35
   },
   "violations": {
-    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1503,
+    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1314,
     "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:complexity": 35,
     "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:max-lines-per-function": 221,
     "app/modules/accela_import.js:createAccelaImport#1/accelaTable#1:max-lines-per-function": 93,
     "app/modules/accela_import.js:createAccelaImport#1/accUnzip#1:complexity": 21,
     "app/modules/accela_import.js:createAccelaImport#1/baseLookupAccept#1:max-lines-per-function": 106,
-    "app/modules/accela_import.js:createAccelaImport#1/baseLookupPlan#1:complexity": 120,
-    "app/modules/accela_import.js:createAccelaImport#1/baseLookupPlan#1:max-lines-per-function": 213,
     "app/modules/accela_import.js:createAccelaImport#1/findDatabaseCase#1:complexity": 22,
     "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 465,
     "app/modules/accessibility.js:createAccessibility#1/enhance#1:max-lines-per-function": 95,

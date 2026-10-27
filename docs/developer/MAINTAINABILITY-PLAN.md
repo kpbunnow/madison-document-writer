@@ -86,3 +86,16 @@ A 5,000-case seeded historical corpus compares exact rows/targets, mutation and
 service-call order against the original function. Malformed legacy date inputs
 also compare the same exception and partial effects; no behavior fix is folded
 into extraction. Complexity violations 85 → 84; length reports 138 → 137.
+
+## M2 Accela decision plan
+
+The decision core separates source facts/warnings, candidate selection, ordered
+inspection-date rules, existing-work/referral refusals, snow handling and record
+differences. The date rule list keeps first-match behavior. Candidate selection
+mutates the original selection and serial at the original checkpoint. Historical
+source lookups and live state remain call-time operations.
+
+The independent import-service audit and a 3,003-case generated-report corpus
+preserve full plans, source mutation, selection serial and service-call order.
+Every extracted decision helper and baseLookupPlan stay below complexity 10.
+Complexity violations 84 → 83; length reports 137 → 136.
