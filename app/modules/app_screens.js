@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { doc, reinsp } from "./writer_queries.js";
 import { checkAttr } from "./presentation_format.js";
 import { WriterState } from "./state.js";
@@ -9,8 +10,8 @@ import { helperStop } from "./helper_stopped.js";
 /** @typedef {{previous: HTMLElement|null, actions: HTMLDetailsElement|null, active: HTMLElement|null}} RepaintContext */
 
 function renderStartup(services) {
-  if (!WriterState.WRITER_READY && (services.IDB_OK || WriterState.STARTUP_STATUS === "failed")) {
-    const failed = WriterState.STARTUP_STATUS === "failed";
+  if (!startup.WRITER_READY && (services.IDB_OK || startup.STARTUP_STATUS === "failed")) {
+    const failed = startup.STARTUP_STATUS === "failed";
     services.document.getElementById("app").innerHTML =
       '<main id="main-content" tabindex="-1" style="max-width:640px;margin:12vh auto;padding:28px"><h1>' +
       (failed ? "Saved workspace could not be restored" : "Restoring saved workspace") +
@@ -284,7 +285,7 @@ function repaintContext(services) {
 export function createAppScreens(services) {
   function render() {
     if (helperStop.stopped) return; // Exit Document Writer owns the stopped page.
-    if (WriterState.STARTUP_STATUS === "locked") return;
+    if (startup.STARTUP_STATUS === "locked") return;
     if (renderStartup(services)) return;
     if (WriterState.state.screen !== "cases") WriterState.state.issuedCase = "";
     const appRoot = services.document.getElementById("app"),

@@ -327,3 +327,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Catalog forms, events, language actions, views and review services use an explicit six-field catalog boundary. Existing cached-status, independent service, catalog feature and 27 language-review assertions pass unchanged. Initialization stays in core and no approval or review authority is inferred. Getter/setter tests pin absent values, live replacement identity and access timing. Direct root-state importers remain 71: the new boundary offsets the migrated catalog-forms importer. The graph remains acyclic. Other state cohorts and interface narrowing remain open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 startup coordination state boundary
+
+Seven lifecycle and screen/event owners use the eight-field startup coordination boundary. Core still initializes promises, channel and lock state in the original order. Existing startup tests pass all stages, helper branches, lock refusals and restore barriers; handoff latest-request and channel tests and screen repaint/startup tests pass. The boundary reads no fields at construction and preserves live promise/function identities. Direct root-state importers are 72, including the new boundary: these mixed lifecycle owners retain other root fields until their cohorts migrate. The aggregate remains below the initial 83 and cycles remain zero. No service construction reads are introduced.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
