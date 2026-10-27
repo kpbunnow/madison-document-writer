@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 77,
-    "max-depth": 13,
-    "max-lines-per-function": 127,
+    "complexity": 76,
+    "max-depth": 3,
+    "max-lines-per-function": 125,
     "python": 30
   },
   "violations": {
@@ -84,14 +84,9 @@
     "app/modules/desktop_exit.js:requestExit#1:complexity": 24,
     "app/modules/document_delivery.js:createDocumentDelivery#1:max-lines-per-function": 218,
     "app/modules/document_delivery.js:createDocumentDelivery#1/filePdf#1:complexity": 31,
-    "app/modules/document_pagination.js:createDocumentPagination#1:max-lines-per-function": 308,
+    "app/modules/document_pagination.js:createDocumentPagination#1:max-lines-per-function": 223,
     "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:complexity": 23,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:max-lines-per-function": 204,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1/anonymous#3:complexity": 52,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1/anonymous#3:max-depth": 6,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1/anonymous#3:max-lines-per-function": 98,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginateSnow#1:max-depth": 5,
-    "app/modules/document_pagination.js:createDocumentPagination#1/paginateSnow#1:max-lines-per-function": 82,
+    "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:max-lines-per-function": 125,
     "app/modules/document_printing.js:createDocumentPrinting#1:max-lines-per-function": 81,
     "app/modules/document_printing.js:createDocumentPrinting#1/printJob#1:complexity": 26,
     "app/modules/document_render.js:createDocumentRenderer#1:max-lines-per-function": 811,
