@@ -127,6 +127,7 @@ const scopedServices = {
   ],
   "citation_history.js": ["../assets/shared.js", "./calendar.js", "./writer_queries.js"],
   "workspace_screen.js": [
+    "./screen_html.js",
     "./editor_state.js",
     "./case_file_rules.js",
     "./case_records.js",
