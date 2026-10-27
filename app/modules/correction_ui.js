@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { isHistoryDoc, specialType } from "./document_rules.js";
 import { cents } from "./citation_policy.js";
@@ -5,7 +6,6 @@ import { correctionSource, doc, kase, reinsp } from "./writer_queries.js";
 import { DOC_TYPES, OUTCOMES } from "./document_types.js";
 import { esc } from "./presentation_format.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { WriterState } from "./state.js";
 
 export function createCorrectionUI(services) {
   function changeText(v) {
@@ -96,7 +96,7 @@ export function createCorrectionUI(services) {
           : "",
       ) +
       "\n    " +
-      "".concat(WriterState.state.amendmentError ? `<div class="banner alert" role="alert">${esc(WriterState.state.amendmentError)}</div>` : "") +
+      "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
       '\n    <label class="f"><span>What was wrong, and why is this correction n' +
       'eeded?</span><textarea id="correction-reason" rows="2" maxlength="1000" ' +
       `${locked ? "disabled" : ""}` +
@@ -158,15 +158,15 @@ export function createCorrectionUI(services) {
   }
 
   function recordActionModal() {
-    const mode = WriterState.state.modal,
-      d = doc(WriterState.state.docId);
+    const mode = editor.state.modal,
+      d = doc(editor.state.docId);
     if (!d || !["void", "recordnote", "reconcile"].includes(mode)) return "";
     const kinds = { void: "document.voided", recordnote: "document.annotated", reconcile: "document.reconciled" };
-    const held = Object.values(WriterState.RECORD_ATTEMPTS).find(
+    const held = Object.values(editor.RECORD_ATTEMPTS).find(
       (x) => x.cid === d.caseId && x.pendingAmendment.payload.docId === d.id && x.pendingAmendment.type === kinds[mode],
     );
     const heldPayload = held ? held.pendingAmendment.payload : null;
-    const savedForm = WriterState.WORK.recordForms[d.id + ":" + mode] || {};
+    const savedForm = editor.WORK.recordForms[d.id + ":" + mode] || {};
     const titles = { void: "Withdraw this document", recordnote: "Add a record note", reconcile: "Record follow-through" };
     const texts = {
       void:
@@ -190,7 +190,7 @@ export function createCorrectionUI(services) {
       '</h2></div><div class="modal-b"><p>' +
       "".concat(held ? "The previous save is awaiting confirmation. Retry its retained request before entering another change." : texts[mode]) +
       "</p>" +
-      "".concat(WriterState.state.amendmentError ? `<div class="banner alert" role="alert">${esc(WriterState.state.amendmentError)}</div>` : "") +
+      "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
       '<label class="f"><span>Inspector making this record change</span><select' +
       ' id="record-action-inspector" ' +
       `${held ? "disabled" : ""}` +

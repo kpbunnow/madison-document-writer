@@ -345,3 +345,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Five recovery/exit owners use the six-field recovery boundary. Existing independent automatic recovery and case recovery tests pass, including serialized latest-state, retry/deduplication, selection guards, backup-before-confirmation and rollback retention. Recovery history and desktop exit assertions pass unchanged. Import construction remains inert and queue identities remain live. The root importer count is temporarily 74 as mixed owners retain editor/workspace fields; cycles remain zero. This cohort introduces no new state keys or persisted formats.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 editor view and local state boundary
+
+Eleven editor/record owners use a sixteen-field editor boundary. Direct state reads follow the current view object, while an explicit local capture retains the original pointer; tests pin both behaviors. Existing correction-service, deadline and correction-feature checks pass, as do all eight native pagination scenarios with exact page HTML and measurements. The initial browser invocation omitted DW_BROWSER; the documented Chromium fallback rerun passed. Direct root-state importers fall 74 to 71; no state is initialized during import and cycles remain zero. Remaining callers migrate in bounded batches.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

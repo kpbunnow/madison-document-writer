@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { caseDetails, clone } from "./record_values.js";
 import { doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
@@ -8,8 +9,8 @@ export function createCorrectionWorkflow(services) {
   function startCorrection(docId) {
     const existing = docsFor((doc(docId) || {}).caseId).find((x) => x.draft && x.correction && x.correction.targetId === docId);
     if (existing) {
-      WriterState.state.docId = existing.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = existing.id;
+      editor.state.screen = "write";
       services.render();
       return existing;
     }
@@ -82,8 +83,8 @@ export function createCorrectionWorkflow(services) {
     d.correction.case.emails = emailRows;
     d.emailSelection = emailRows.filter((e) => e.on !== false).map((e) => e.addr + "|" + (e.kind || "Other"));
     WriterState.DOCS.unshift(d);
-    WriterState.state.docId = d.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
@@ -99,7 +100,7 @@ export function createCorrectionWorkflow(services) {
     if (!d || !d.correction) return false;
     if (!d.pendingAmendment) services.commitCitationEdits(d);
     if (!d.pendingAmendment && d.type === "citation" && !(await services.citationPricing.loadShared(d, true))) {
-      WriterState.state.amendmentError = "Shared citation history could not be checked. Reconnect before correcting the citation.";
+      editor.state.amendmentError = "Shared citation history could not be checked. Reconnect before correcting the citation.";
       await services.saveDrafts();
       services.render();
       return false;
@@ -110,14 +111,14 @@ export function createCorrectionWorkflow(services) {
     }
     const attempt = d.pendingAmendment || services.makeCorrectionAttempt(d);
     if (!(await services.commitAmendment(d.caseId, attempt, d))) {
-      WriterState.state.modal = null;
+      editor.state.modal = null;
       services.render();
       return false;
     }
-    WriterState.state.modal = null;
-    WriterState.state.amendmentError = "";
-    WriterState.state.docId = d.id;
-    WriterState.state.screen = "write";
+    editor.state.modal = null;
+    editor.state.amendmentError = "";
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
     services.render();
     services.scrollTo(0, 0);
     const issued = doc(d.id),

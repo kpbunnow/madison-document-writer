@@ -1,8 +1,8 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { DOC_TYPES, CIT_COPIES } from "./document_types.js";
 import { frozenOf } from "./document_rules.js";
 import { docCase } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function createDocumentPrinting(services) {
   function documentFileName(d) {
@@ -87,7 +87,7 @@ export function createDocumentPrinting(services) {
         services.paginate(stage, d);
         return { docId: d.id, name: documentFileName(d) + ".pdf", html: services.printableHTML(d, stage) };
       }
-      if (WriterState.state.docId !== d.id) return null;
+      if (editor.state.docId !== d.id) return null;
       return { docId: d.id, name: documentFileName(d) + ".pdf", html: services.printableHTML() };
     } finally {
       frame.remove();

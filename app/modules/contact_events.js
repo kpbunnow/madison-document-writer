@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Contact event ownership. Construction is inert; core registers at the original startup positions. */
 import { WriterState } from "./state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
@@ -5,44 +6,44 @@ import { emailList, isLLC, ccList } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 export function createContactEvents(services) {
   const openRecipients = () => {
-    WriterState.state.ccProblem = null;
-    WriterState.state.modal = "cc";
+    editor.state.ccProblem = null;
+    editor.state.modal = "cc";
     services.render();
     return;
   };
 
   const addCopy = () => {
-    WriterState.state.ccProblem = null;
-    services.addCC(doc(WriterState.state.docId).caseId);
+    editor.state.ccProblem = null;
+    services.addCC(doc(editor.state.docId).caseId);
     return;
   };
 
   const addRecipient = () => {
-    WriterState.state.ccProblem = null;
-    services.addEmail(doc(WriterState.state.docId).caseId);
+    editor.state.ccProblem = null;
+    services.addEmail(doc(editor.state.docId).caseId);
     return;
   };
 
   const removeCopy = (t) => {
-    WriterState.state.ccProblem = null;
-    services.removeCC(doc(WriterState.state.docId).caseId, +t.dataset.rmcc);
+    editor.state.ccProblem = null;
+    services.removeCC(doc(editor.state.docId).caseId, +t.dataset.rmcc);
     return;
   };
 
   const removeRecipient = (t) => {
-    WriterState.state.ccProblem = null;
-    services.removeEmail(doc(WriterState.state.docId).caseId, +t.dataset.rmem);
+    editor.state.ccProblem = null;
+    services.removeEmail(doc(editor.state.docId).caseId, +t.dataset.rmem);
     return;
   };
 
   const emailDocument = () => {
-    const dd = doc(WriterState.state.docId);
+    const dd = doc(editor.state.docId);
     if (dd) services.emailDocument(dd);
     return;
   };
 
   const sendDocument = (t) => {
-    const dd = doc(WriterState.state.sendDoc) || doc(WriterState.state.docId);
+    const dd = doc(editor.state.sendDoc) || doc(editor.state.docId);
     const k = dd ? kase(dd.caseId) : null;
     const list = k ? emailList(k).filter((e) => String(e.addr || "").trim()) : [];
     const picked =
@@ -52,40 +53,40 @@ export function createContactEvents(services) {
             const box = document.querySelector('[data-sendto="' + ix + '"]');
             return box && box.checked;
           });
-    const job = WriterState.state.sendJob,
-      reuse = WriterState.state.sendReuse;
-    WriterState.state.modal = null;
-    WriterState.state.sendDoc = null;
-    WriterState.state.sendJob = null;
-    WriterState.state.sendReuse = undefined;
+    const job = editor.state.sendJob,
+      reuse = editor.state.sendReuse;
+    editor.state.modal = null;
+    editor.state.sendDoc = null;
+    editor.state.sendJob = null;
+    editor.state.sendReuse = undefined;
     services.render();
     if (dd) services.emailDocument(dd, picked.length ? picked : [{ addr: "", kind: "" }], reuse, job);
     return;
   };
 
   const closeModal = () => {
-    if (WriterState.state.modal === "cc") {
-      const d = doc(WriterState.state.docId),
+    if (editor.state.modal === "cc") {
+      const d = doc(editor.state.docId),
         k = d && docCase(d),
         problem = k && services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k));
       if (problem) {
-        WriterState.state.ccProblem = problem;
+        editor.state.ccProblem = problem;
         services.refreshOverlay();
         const field = document.querySelector(problem.selector);
         if (field) field.focus();
         return;
       }
-      WriterState.state.ccProblem = null;
+      editor.state.ccProblem = null;
       WriterState.DIRTY = true;
       services.scheduleDraftSave();
     }
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     services.render();
     return;
   };
 
   const editRecipient = (el) => {
-    const dd = doc(WriterState.state.docId);
+    const dd = doc(editor.state.docId);
     if (!dd) return;
     const k = docCase(dd);
     if (el.dataset.cc) {
@@ -101,20 +102,20 @@ export function createContactEvents(services) {
       k.agent[el.dataset.agent] = el.value;
     }
     if (el.dataset.cc || el.dataset.agent) {
-      const hadProblem = !!WriterState.state.ccProblem;
-      WriterState.state.ccProblem = hadProblem ? services.validateAndStandardizeAddresses(k, dd.type === "citation" && isLLC(k), false) : null;
+      const hadProblem = !!editor.state.ccProblem;
+      editor.state.ccProblem = hadProblem ? services.validateAndStandardizeAddresses(k, dd.type === "citation" && isLLC(k), false) : null;
       const message = document.getElementById("cc-address-error");
       if (message) {
-        if (WriterState.state.ccProblem)
-          message.querySelector("div").innerHTML = "<strong>Check this address:</strong> " + esc(WriterState.state.ccProblem.message);
+        if (editor.state.ccProblem)
+          message.querySelector("div").innerHTML = "<strong>Check this address:</strong> " + esc(editor.state.ccProblem.message);
         else message.remove();
       }
       document.querySelectorAll('[aria-describedby="cc-address-error"]').forEach((field) => {
         field.removeAttribute("aria-invalid");
         field.removeAttribute("aria-describedby");
       });
-      if (WriterState.state.ccProblem) {
-        const field = document.querySelector(WriterState.state.ccProblem.selector);
+      if (editor.state.ccProblem) {
+        const field = document.querySelector(editor.state.ccProblem.selector);
         field?.setAttribute("aria-invalid", "true");
         field?.setAttribute("aria-describedby", "cc-address-error");
       }
@@ -128,7 +129,7 @@ export function createContactEvents(services) {
   };
 
   const changeEmail = (e) => {
-    const dd = doc(WriterState.state.docId);
+    const dd = doc(editor.state.docId);
     if (dd) {
       const k = docCase(dd),
         p = e.target.dataset.em.split("|");
