@@ -327,13 +327,21 @@ All nine moved and remaining court function bodies retain logic apart from servi
 
 There are 103 maintained modules and 55 independent scoped owners. Court/deposits shrinks from 1,096 to 768 lines and loses direct screen/shell imports. Writer retains five cyclic modules and Reports stays acyclic. Next inspect remaining court/deposit calculations/readiness and notification/source-freezing responsibilities, then shell/case-file and core/screen direction. The delivery interface has 20 explicit inputs, including native adapters; keep it scoped and review further sub-boundaries only where responsibilities warrant them.
 
-## Thirty-fifth increment: court scheduling and citation charges
+## Thirty-fifth increment: court scheduling and citation charges (merged in PR #81)
 
 court_scheduling composes nextCourtDate/citationNumber through three lazy day/clock/random inputs and retains original UTC calendar/holiday helpers. citation_charges directly defines options/basis metadata and fee/ordinance calculations; its three-input owner coordinates changeCharge/applyDeposit through original pricing/date/DOM adapters. Core composes them after documentDelivery and before documentRenderer, imports direct definitions and exports actual operations. Constructors perform no reads, I/O or registration.
 
 All twelve moved function bodies, four declarations and remaining court functions preserve logic apart from scoped/native clock/random access. Preserve six-week/Wednesday/holiday rules, used-number/fallback behavior, canonical/raw section-count semantics, full/limited charge basis clearing, retained correction restoration, units/policy defaults and pricing/date/DOM order. No new numbering uniqueness, policy or pricing authority is asserted.
 
 There are 105 maintained modules and 57 independent scoped owners. Court/deposits shrinks from 768 to 529 lines. Writer retains five cyclic modules; Reports stays acyclic. Next separate readiness and notification/placeholder/source-freezing/format responsibilities, then shell/case-file and core/screen direction. Historical increment counts above remain provenance.
+
+## Thirty-sixth increment: document feedback and approved sources
+
+document_feedback composes notifications/undo and corrective-detail editing through four lazy accessibility/lock/DOM/Event inputs. document_sources composes active approved blocks and frozen source snapshots through four lazy snow/initial-citation/body/block inputs. Core constructs both after documentDelivery and before scheduling/rendering, exporting actual mutable operations. Shell/case files consume the composed notification directly. Both constructors perform no reads, I/O or registration.
+
+All six moved and remaining court function bodies preserve logic apart from explicit dependency access. Preserve undo/options, contextual stale-edit guards and text/input/close/focus order; approved block order and case rules; frozen/correction/live precedence and clone semantics; snow, special-format signer/review cutoffs, court/copy/instruction/contact defaults and original capture clock. Existing helper/publication/language authority and acceptance holds remain. Removed orphan charge comments referred to code already moved in PR #81.
+
+There are 107 maintained modules and 59 independent scoped owners. Court/deposits shrinks from 529 to 394 lines. Writer retains five cyclic modules and Reports stays acyclic. Next separate readiness and remaining format/identity/catalog utilities, then shell/case-file and core/screen direction. Historical counts above remain provenance.
 
 ## Following increments
 

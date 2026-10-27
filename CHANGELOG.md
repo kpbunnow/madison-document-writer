@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Document feedback and approved-source boundaries (development)
+
+- Compose notifications/undo and contextual corrective-detail editing through four lazy accessibility/lock/DOM/Event inputs. Preserve stale-document/item guards, text-node insertion, input event and close/focus order.
+- Compose approved block selection and frozen document sources through four lazy snow/initial-citation/body/block inputs. Preserve live/correction/frozen precedence, cloning, special-format signer cutoffs, court/copy defaults and existing capture time.
+- Add independent UI/source tests and boundary guards; update ownership, test/source indexes and roadmap. Court/deposits is 135 lines smaller. Writer retains five cyclic modules and Reports stays acyclic; R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Court scheduling and citation charge boundaries (development)
 
 - Separate next-court-date and citation-number operations through three lazy day/clock/random inputs, with unchanged calendar helpers and number-collision scan. Native Date.now/Math.random remain supplied at call time; no new numbering policy or uniqueness guarantee is introduced.

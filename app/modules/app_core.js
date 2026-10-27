@@ -1,3 +1,5 @@
+import { createDocumentSources } from "./document_sources.js";
+import { createDocumentFeedback } from "./document_feedback.js";
 import { createCourtScheduling } from "./court_scheduling.js";
 import { createCitationCharges, chargeChoices, choosesCharge, feeLines, lookupForf, CHARGE_DERIVED } from "./citation_charges.js";
 import { createDocumentPrinting } from "./document_printing.js";
@@ -57,22 +59,7 @@ import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
-import {
-  fmtDate,
-  checks as dep_checks,
-  freezeSources,
-  activeBlocks,
-  checks,
-  fillBlank,
-  rnd12,
-  splitOwner,
-  toast,
-  toastHold,
-  toastUndo,
-  fmtTime,
-  longDate,
-  allItems,
-} from "./court_and_deposits.js";
+import { fmtDate, checks as dep_checks, checks, rnd12, splitOwner, fmtTime, longDate, allItems } from "./court_and_deposits.js";
 import {
   shell,
   evid,
@@ -1103,6 +1090,29 @@ const documentDelivery = createDocumentDelivery({
   refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
 });
 export let { checkHelper, emailDocument, openIssuedCopy, filePdf } = documentDelivery;
+
+const documentFeedback = createDocumentFeedback({
+  get A11Y() {
+    return A11Y;
+  },
+  isLocked: (...args) => isLocked(...args),
+  get document() {
+    return document;
+  },
+  get Event() {
+    return Event;
+  },
+});
+export let { toast, toastHold, toastUndo, fillBlank } = documentFeedback;
+const documentSources = createDocumentSources({
+  get snow() {
+    return snow;
+  },
+  initialOrderCitation: (...args) => initialOrderCitation(...args),
+  docBody: (...args) => docBody(...args),
+  docBlocks: (...args) => docBlocks(...args),
+});
+export let { activeBlocks, freezeSources } = documentSources;
 
 const courtScheduling = createCourtScheduling({
   get today() {

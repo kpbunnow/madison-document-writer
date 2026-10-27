@@ -1,10 +1,10 @@
 # Remaining maintainability assessment
 
-Snapshot: court-scheduling/citation-charge separation based on merged PR #80, main `c788a1cffd89f68dc25f9acdd908c95cc03c38f6`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: document-feedback/source separation based on merged PR #81, main `76979cd9c87f97da0510d34671499d43a394bdc4`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Court dates/numbering now have a three-input day/clock/random owner with unchanged UTC helpers. Charge options/basis/fee facts have direct definitions, and charge/deposit editing has three pricing/date/DOM inputs. All twelve moved functions, four declarations and remaining court bodies retain logic, units/policy/numbering and metadata/reset/restore order; constructors perform no work. Court/deposits is 239 lines smaller. Writer remains five cyclic modules and Reports acyclic. Readiness, notifications/placeholders, format/identity utilities and source freezing remain there. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Notifications/undo and corrective-detail editing now have a four-input accessibility/lock/DOM/Event owner; approved block selection and frozen source capture have a four-input snow/initial-citation/body/block owner. All six moved and remaining court bodies retain logic, source/authoring rules and UI order; constructors perform no work. Court/deposits is 135 lines smaller. Writer remains five cyclic modules and Reports acyclic. Readiness and format/identity/catalog utilities remain there. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
@@ -12,17 +12,17 @@ The graph still contains one five-module Writer component. These are five couple
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2254 | 85 | 4 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_core.js` | 2264 | 87 | 4 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1244 | 18 | 4 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 648 | 14 | 4 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
-| `court_and_deposits.js` | 529 | 13 | 2 | Readiness, notifications/placeholders, format/identity utilities, catalog queries and source freezing remain coupled |
-| `workspace_shell.js` | 469 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
+| `case_files.js` | 648 | 13 | 3 | Summaries, folder/address/workspace UI and startup sequencing remain coupled |
+| `court_and_deposits.js` | 394 | 9 | 2 | Readiness and format/identity/catalog utilities remain coupled |
+| `workspace_shell.js` | 470 | 13 | 3 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Finish readiness and notification/source responsibilities.** Printing/delivery, court dates/numbering and charge/deposit editing now have bounded owners. Next distinguish readiness, notifications/placeholders, format/identity utilities and source freezing while preserving authority, historical sources and UI order. The 20-input delivery interface remains explicit; split native viewer versus filing/email only if evidence warrants another cohesive boundary.
+1. **Finish readiness and remaining utility responsibilities.** Printing/delivery, scheduling/charge editing and notifications/source freezing now have bounded owners. Next distinguish readiness from format/identity/catalog utilities while preserving all validation/target ordering, publication authority and historical sources. The 20-input delivery interface remains explicit; split native viewer versus filing/email only if evidence warrants another cohesive boundary.
 2. **Review shell/case-file and core/screen direction.** Folder/permission UI, summaries, startup coordination and screen routing still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions, and preserve original initialization/listener order. Avoid universal contexts or re-export modules; split bootstrap only when behavior can be verified.
 
 These priorities may need several focused PRs. A graph reduction is useful, but it is not sufficient if callers still receive a broad undifferentiated interface.
@@ -31,7 +31,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 85 maintained-module dependencies in this graph and 59 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 87 maintained-module dependencies in this graph and 61 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |
