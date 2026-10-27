@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 79,
+    "complexity": 77,
     "max-depth": 13,
-    "max-lines-per-function": 129,
+    "max-lines-per-function": 127,
     "python": 30
   },
   "violations": {
@@ -163,17 +163,13 @@
     "app/modules/reinspection_entry.js:createReinspectionEntry#1/startReinspection#1:complexity": 23,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 211,
     "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1:complexity": 25,
-    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 1211,
+    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 749,
     "app/modules/reinspection.js:createReinspection#1/attachCheckTargets#1:complexity": 26,
     "app/modules/reinspection.js:createReinspection#1/docFromReinspection#1:complexity": 49,
     "app/modules/reinspection.js:createReinspection#1/docFromReinspection#1:max-lines-per-function": 144,
     "app/modules/reinspection.js:createReinspection#1/docFromReinspection#1/anonymous#3:complexity": 23,
     "app/modules/reinspection.js:createReinspection#1/focusCheckTarget#1:complexity": 33,
     "app/modules/reinspection.js:createReinspection#1/recordReinspectionOutcome#1:complexity": 21,
-    "app/modules/reinspection.js:createReinspection#1/screenReinspect#1:complexity": 83,
-    "app/modules/reinspection.js:createReinspection#1/screenReinspect#1:max-lines-per-function": 520,
-    "app/modules/reinspection.js:createReinspection#1/screenReinspect#1/anonymous#2:complexity": 46,
-    "app/modules/reinspection.js:createReinspection#1/screenReinspect#1/anonymous#2:max-lines-per-function": 134,
     "app/modules/reports_core.js:anonymous#5:complexity": 46,
     "app/modules/reports_core.js:anonymous#5:max-lines-per-function": 173,
     "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 1392,

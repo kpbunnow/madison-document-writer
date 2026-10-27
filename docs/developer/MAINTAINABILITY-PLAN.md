@@ -207,3 +207,18 @@ including recipient errors, company agents, corrections, busy finalization,
 folder filters and storage modes. Every snapshot renders and retains state and
 lazy service lookup order. Complexity violations 80 → 79; length 131 → 129.
 Frozen print renderers and screen-shell references are untouched.
+
+## M3 reinspection sections
+
+Worksheet rendering now separates item facts/result fields, walk mode, visit
+header/progress/filters, prior visits, body and verdict. Only string-valued top-
+level markup operands are regrouped at section boundaries; their evaluation order
+and exact bytes remain protected by comparison to the original renderer. Missing
+worksheet/source redirects still happen before presentation. All new renderers
+and screenReinspect stay within complexity 20 and 80 nonblank/noncomment lines.
+
+The independent reinspection audit and 1,026 exact HTML snapshots pass, including
+all outcomes, carried results, walk stages, date/filter states, retained drafts,
+closed inspections and missing-source redirects. Every snapshot renders and
+retains state and service lookup order. Complexity violations 79 → 77; length
+reports 129 → 127. Other workflow functions in the same owner are unchanged.
