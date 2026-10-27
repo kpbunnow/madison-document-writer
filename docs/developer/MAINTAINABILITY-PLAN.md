@@ -291,3 +291,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Old access: application startup, newDoc, render and internal record-form globals. New access: createRecoveryEvents.registerWorkingInput and createCorrectionUI.recordActionModal with a real DOM and explicit live form-key/save adapters. The capture-phase replacement listener stays before the actual input owner. Both original typed-value and repaint assertions remain unchanged. Whole-application evaluator files fall 87 → 86; no production hook is retired yet.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 date boundary seam
+
+Old access: date and court-policy names retained inside the application eval after startup. New access: shared calendar, calendar owner, citation policy and createCourtScheduling with the explicit test day. All original assertions across UTC/Los Angeles/New York and both Chicago midnight sides remain, including helper day parity, mailing limits, fees, court dates and rolling windows. Whole-application evaluator files fall 86 → 85; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
