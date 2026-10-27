@@ -1,3 +1,4 @@
+import { createCaseFolderWorkflow } from "./case_folder_workflow.js";
 import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
 import { createRecipientWorkflow } from "./recipient_workflow.js";
 import { createDocumentReadiness } from "./document_readiness.js";
@@ -68,6 +69,7 @@ import { rnd12 } from "./record_ids.js";
 import { allItems } from "./catalog_queries.js";
 import {
   shell,
+  summarize,
   evid,
   grantCaseFolder,
   helperJSON,
@@ -88,12 +90,8 @@ import {
   clearCases,
   discardDraft,
   downloadFile,
-  listCaseFolder,
-  openFromFolder,
   pickCaseFile,
-  rebuildIndex,
   removeCase,
-  writeSummary,
   startReinspection,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
@@ -352,6 +350,19 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const caseFolderWorkflow = createCaseFolderWorkflow({
+  toast: (...args) => toast(...args),
+  grantCaseFolder: (...args) => grantCaseFolder(...args),
+  summarize: (...args) => summarize(...args),
+  writeIndexFile: (...args) => writeIndexFile(...args),
+  render: (...args) => render(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  loadCaseFile: (...args) => loadCaseFile(...args),
+});
+export let { writeSummary, rebuildIndex, listCaseFolder, openFromFolder } = caseFolderWorkflow;
+
 const recipientWorkflow = createRecipientWorkflow({
   get addressParser() {
     return addressParser;
