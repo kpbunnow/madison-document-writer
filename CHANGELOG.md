@@ -1,5 +1,9 @@
 # Release changelog
 
+## Unreleased — CI actions on Node 24 (development)
+
+- Move the full-gate workflow's pinned actions off the deprecated Node 20 runtime: checkout v7.0.1, setup-node v7.1.0, setup-python v7.1.0 and upload-artifact v7.0.2, each still pinned to a full commit SHA. Their workflow inputs, the pinned Node/Python/Chromium toolchain and the gate itself are unchanged. CI only; no program, identity or format change.
+
 ## Unreleased — Screen dependency direction (development)
 
 - Compose case-status facts, rolling citation history, Workspace presentation, language views, overlays and repaint orchestration through scoped lazy inputs. Define icons directly in ui_icons. Preserve all twelve original function bodies apart from dependency access.
