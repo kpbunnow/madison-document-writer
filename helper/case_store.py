@@ -1506,13 +1506,12 @@ def validate_publication(record, event, documents, superseded, voided, visits, c
             raise ValueError("A new citation must use distinct citation numbers; corrections retain existing numbers")
 
 
-def validate_authoring(snap, at=None, check_date_window=True, original=None):
-    """New R4 writes only; historical records retain their original evidence."""
+def _validate_authoring_document(*, snap, check_date_window, at):
     items = snap["items"]
-    live = [i for i in items if not i.get("done") and not i.get("withdrawn")]
+    live = [i for i in items if not i.get("done") and (not i.get("withdrawn"))]
     if snap.get("type") in ("notice", "extension", "citation") and len({i.get("due") for i in live if i.get("due")}) > 3:
         raise ValueError("A notice may have no more than three distinct outstanding due dates")
-    if snap.get("type") == "notice" and not snap.get("revision"):
+    if snap.get("type") == "notice" and (not snap.get("revision")):
         keys = [
             i.get("libraryKey") or (json.dumps([i["lib"].get(k) for k in ("c", "g", "o")], separators=(",", ":")) if i.get("lib") else "")
             for i in items
@@ -1524,10 +1523,10 @@ def validate_authoring(snap, at=None, check_date_window=True, original=None):
         "mailed"
     ] <= (mailing_max_day(snap.get("type"), at) if check_date_window else "9999-12-31"):
         raise ValueError(mailing_message(snap.get("type")))
-    if snap.get("type") in SPECIAL_TYPES:
-        validate_special_fields(snap, at, check_date_window)
-    if snap.get("type") != "citation":
-        return
+    return items
+
+
+def _validate_citation_court(*, check_date_window, snap):
     if check_date_window and snap.get("authoringVersion", 0) >= 9:
         court = snap.get("frozen", {}).get("court", {})
         if court.get("room") != "RM#203," or court.get("caseNumberLabel") != citation_pricing.policy().get(
@@ -1535,65 +1534,70 @@ def validate_authoring(snap, at=None, check_date_window=True, original=None):
         ):
             raise ValueError("New citations must use the configured R33 court room and case-number label")
 
-    def amount(value):
-        if isinstance(value, bool) or not re.fullmatch(r"(?:0|[1-9]\d*)(?:\.\d{1,2})?", str(value)):
-            raise ValueError("Citation money values must be nonnegative amounts with at most two decimal places")
-        return Decimal(str(value))
 
-    numbers = []
-    initial = snap.get("frozen", {}).get("case", {}).get("date", "")
-    inspected = snap.get("inspDate") or initial
-    visit_time = snap.get("inspTime") or snap.get("frozen", {}).get("case", {}).get("time", "")
-    for item in items:
-        if not item.get("cite") or item.get("withdrawn"):
-            continue
-        if item.get("done"):
-            raise ValueError("Corrected violations cannot be cited")
-        c = snap.get("cits", {}).get(item["id"], {})
-        if any(not str(c.get(k, "")).strip() for k in ("num", "ord", "desc", "deptId")):
-            raise ValueError("Complete the citation number, ordinance, description and officer ID")
-        if snap.get("authoringVersion", 0) >= 5:
-            if not (
-                citation_pricing.canonical_ordinance(c["ord"])
-                if snap.get("authoringVersion", 0) >= 6
-                else re.fullmatch(r"(?:\d+\.\d+|SPS ?\d+\.\d+)(?:\([A-Za-z0-9]+\))*", str(c["ord"]))
-            ):
-                raise ValueError("Enter one complete citation ordinance, not a list of sections")
-            if any(re.search(r"\(\s*\)", str(c.get(k, ""))) for k in ("desc", "comment", "statute", "deptId")):
-                raise ValueError("Complete the placeholder details in each citation")
-        if not re.fullmatch(r"[A-Za-z0-9-]+", c["num"]):
-            raise ValueError("The citation number has invalid characters")
-        numbers.append(c["num"])
-        issued, court = c.get("issued"), c.get("courtDate")
-        observed = c.get("violDate") or inspected
-        if (
-            not all(calendar_date(x) for x in (issued, court, observed))
-            or issued != (snap.get("revision", {}).get("actionDate") or snap.get("mailed"))
-            or not initial <= observed <= issued < court
-            or check_date_window
-            and issued > city_day(at).isoformat()
+def _citation_amount(value):
+    if isinstance(value, bool) or not re.fullmatch("(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?", str(value)):
+        raise ValueError("Citation money values must be nonnegative amounts with at most two decimal places")
+    return Decimal(str(value))
+
+
+def _validate_citation_identity(*, item, snap, numbers):
+    if item.get("done"):
+        raise ValueError("Corrected violations cannot be cited")
+    c = snap.get("cits", {}).get(item["id"], {})
+    if any((not str(c.get(k, "")).strip() for k in ("num", "ord", "desc", "deptId"))):
+        raise ValueError("Complete the citation number, ordinance, description and officer ID")
+    if snap.get("authoringVersion", 0) >= 5:
+        if not (
+            citation_pricing.canonical_ordinance(c["ord"])
+            if snap.get("authoringVersion", 0) >= 6
+            else re.fullmatch("(?:\\d+\\.\\d+|SPS ?\\d+\\.\\d+)(?:\\([A-Za-z0-9]+\\))*", str(c["ord"]))
         ):
-            raise ValueError("Citation violation, issue, mailing and court dates are inconsistent")
-        if any(not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", str(t or "")) for t in (c.get("courtTime"), c.get("violTime") or visit_time)):
-            raise ValueError("A citation needs valid court and violation times")
-        if (
-            snap.get("authoringVersion", 0) >= 6
-            and citation_pricing.canonical_ordinance(c["ord"]) == "27.05(2)(s)"
-            and re.search(r"noxious\s+weeds", c["desc"], re.I)
-        ):
-            raise ValueError("The stale weeds description cannot be charged under Removal of Debris, 27.05(2)(s)")
-        if c.get("reconfirmDeposit") or c.get("depositEditInvalid"):
-            raise ValueError("Re-confirm deposit before issuance")
-        mode = c.get("depositMode", "schedule")
-        if mode not in ("schedule", "base", "total"):
-            raise ValueError("Invalid deposit method")
-        if mode != "schedule" and len(str(c.get("depositSource", "")).strip()) < 10:
-            raise ValueError("A manual deposit requires its approved source or reason")
-        retained = (original or {}).get("cits", {}).get(item["id"])
-        if (
-            retained
-            and citation_pricing.canonical_ordinance(retained["ord"]) == citation_pricing.canonical_ordinance(c["ord"])
-            and all(
+            raise ValueError("Enter one complete citation ordinance, not a list of sections")
+        if any((re.search("\\(\\s*\\)", str(c.get(k, ""))) for k in ("desc", "comment", "statute", "deptId"))):
+            raise ValueError("Complete the placeholder details in each citation")
+    if not re.fullmatch("[A-Za-z0-9-]+", c["num"]):
+        raise ValueError("The citation number has invalid characters")
+    numbers.append(c["num"])
+    return c
+
+
+def _validate_citation_calendar(*, issued, court, observed, snap, initial, check_date_window, at, c, visit_time):
+    if (
+        not all((calendar_date(x) for x in (issued, court, observed)))
+        or issued != (snap.get("revision", {}).get("actionDate") or snap.get("mailed"))
+        or (not initial <= observed <= issued < court)
+        or (check_date_window and issued > city_day(at).isoformat())
+    ):
+        raise ValueError("Citation violation, issue, mailing and court dates are inconsistent")
+    if any((not re.fullmatch("(?:[01]\\d|2[0-3]):[0-5]\\d", str(t or "")) for t in (c.get("courtTime"), c.get("violTime") or visit_time))):
+        raise ValueError("A citation needs valid court and violation times")
+    if (
+        snap.get("authoringVersion", 0) >= 6
+        and citation_pricing.canonical_ordinance(c["ord"]) == "27.05(2)(s)"
+        and re.search("noxious\\s+weeds", c["desc"], re.I)
+    ):
+        raise ValueError("The stale weeds description cannot be charged under Removal of Debris, 27.05(2)(s)")
+
+
+def _validate_citation_method(*, c):
+    if c.get("reconfirmDeposit") or c.get("depositEditInvalid"):
+        raise ValueError("Re-confirm deposit before issuance")
+    mode = c.get("depositMode", "schedule")
+    if mode not in ("schedule", "base", "total"):
+        raise ValueError("Invalid deposit method")
+    if mode != "schedule" and len(str(c.get("depositSource", "")).strip()) < 10:
+        raise ValueError("A manual deposit requires its approved source or reason")
+    return mode
+
+
+def _retains_citation_deposit(*, original, item, c):
+    retained = (original or {}).get("cits", {}).get(item["id"])
+    return (
+        retained
+        and citation_pricing.canonical_ordinance(retained["ord"]) == citation_pricing.canonical_ordinance(c["ord"])
+        and all(
+            (
                 retained.get(k) == c.get(k)
                 for k in (
                     "base",
@@ -1611,67 +1615,111 @@ def validate_authoring(snap, at=None, check_date_window=True, original=None):
                     "overrideBasis",
                 )
             )
+        )
+    )
+
+
+def _validate_citation_policy(*, observed, issued, snap, c, check_date_window, mode):
+    expected_priced_on = observed if citation_pricing.policy().get("pricingDateBasis") == "violation" else issued
+    if snap.get("authoringVersion", 0) >= 7 and (
+        c.get("pricedOn") != expected_priced_on
+        or not calendar_date(c.get("pricedOn"))
+        or (not re.fullmatch("[0-9a-f]{64}", str(c.get("policyVersionHash", ""))))
+        or (check_date_window and c.get("policyVersionHash") != citation_pricing.policy()["versionHash"])
+    ):
+        raise ValueError("Citation pricing date and policy version must be recorded and current")
+    if snap.get("authoringVersion", 0) >= 6 and mode == "total" and (c.get("assessments") is not None):
+        raise ValueError("An approved total must not retain a calculated assessment breakdown")
+
+
+def _validate_mandatory_citation(*, c, item, issued):
+    entry = citation_pricing.resolve(c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued)
+    if not entry or (entry.get("rule") or {}).get("kind") != "mandatory" or c.get("amount") not in ("", None):
+        raise ValueError("Mandatory appearance permits no deposit")
+
+
+def _validate_cash_citation(*, amount, c, mode, check_date_window, snap, issued, item):
+    total = amount(c.get("amount"))
+    if total <= 0:
+        raise ValueError("A cash deposit must be positive")
+    if mode != "total" and (check_date_window or snap.get("authoringVersion", 0) < 6):
+        base, costs = (amount(c.get("base")), amount(c.get("cc")))
+        if snap.get("authoringVersion", 0) >= 8 and base == 0 and (not citation_pricing.policy().get("allowZeroBaseDeposits", False)):
+            raise ValueError("A zero forfeiture needs City Attorney approval")
+        if snap.get("authoringVersion", 0) >= 6:
+            lines = citation_pricing.assessment_cents(int(base * 100), int(costs * 100), at=c.get("pricedOn") or issued)
+            expected = Decimal(lines["total"]) / 100
+            if c.get("assessments") is not None and c["assessments"] != lines:
+                raise ValueError("The recorded jail/assessment figures do not match the shared policy")
+        else:
+            expected = Decimal(citation_pricing.assessment_cents(int(base * 100), int(costs * 100), legacy=True)["total"]) / 100
+        if (
+            not Decimal(15) <= costs <= Decimal(citation_pricing.policy_at(c.get("pricedOn") or issued)["fees"]["ccMaxCents"]) / 100
+            or total != expected
         ):
-            continue
-        expected_priced_on = observed if citation_pricing.policy().get("pricingDateBasis") == "violation" else issued
-        if snap.get("authoringVersion", 0) >= 7 and (
-            c.get("pricedOn") != expected_priced_on
-            or not calendar_date(c.get("pricedOn"))
-            or not re.fullmatch(r"[0-9a-f]{64}", str(c.get("policyVersionHash", "")))
-            or check_date_window
-            and c.get("policyVersionHash") != citation_pricing.policy()["versionHash"]
-        ):
-            raise ValueError("Citation pricing date and policy version must be recorded and current")
-        if snap.get("authoringVersion", 0) >= 6 and mode == "total" and c.get("assessments") is not None:
-            raise ValueError("An approved total must not retain a calculated assessment breakdown")
-        if snap.get("authoringVersion", 0) >= 8 and c.get("mandatoryAppearance"):
-            entry = citation_pricing.resolve(c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued)
-            if not entry or (entry.get("rule") or {}).get("kind") != "mandatory" or c.get("amount") not in ("", None):
-                raise ValueError("Mandatory appearance permits no deposit")
-            continue
-        total = amount(c.get("amount"))
-        if total <= 0:
-            raise ValueError("A cash deposit must be positive")
-        if mode != "total" and (check_date_window or snap.get("authoringVersion", 0) < 6):
-            base, costs = amount(c.get("base")), amount(c.get("cc"))
-            if snap.get("authoringVersion", 0) >= 8 and base == 0 and not citation_pricing.policy().get("allowZeroBaseDeposits", False):
-                raise ValueError("A zero forfeiture needs City Attorney approval")
-            if snap.get("authoringVersion", 0) >= 6:
-                lines = citation_pricing.assessment_cents(int(base * 100), int(costs * 100), at=c.get("pricedOn") or issued)
-                expected = Decimal(lines["total"]) / 100
-                if c.get("assessments") is not None and c["assessments"] != lines:
-                    raise ValueError("The recorded jail/assessment figures do not match the shared policy")
-            else:
-                expected = Decimal(citation_pricing.assessment_cents(int(base * 100), int(costs * 100), legacy=True)["total"]) / 100
-            if (
-                not Decimal(15) <= costs <= Decimal(citation_pricing.policy_at(c.get("pricedOn") or issued)["fees"]["ccMaxCents"]) / 100
-                or total != expected
-            ):
-                raise ValueError("The citation deposit does not match its base and assessments")
-            if mode == "schedule" and snap.get("authoringVersion", 0) >= 5 and check_date_window:
-                current_policy = snap.get("authoringVersion", 0) >= 6
-                expected_base = (
-                    (
-                        None
-                        if (
-                            b := citation_pricing.base_cents(
-                                citation_pricing.resolve(
-                                    c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued
-                                ),
-                                c.get("tier", "1st"),
-                                c.get("measurements"),
-                            )
+            raise ValueError("The citation deposit does not match its base and assessments")
+        if mode == "schedule" and snap.get("authoringVersion", 0) >= 5 and check_date_window:
+            current_policy = snap.get("authoringVersion", 0) >= 6
+            expected_base = (
+                (
+                    None
+                    if (
+                        b := citation_pricing.base_cents(
+                            citation_pricing.resolve(
+                                c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued
+                            ),
+                            c.get("tier", "1st"),
+                            c.get("measurements"),
                         )
-                        is None
-                        else Decimal(b) / 100
                     )
-                    if current_policy
-                    else legacy_scheduled_citation_base(c["ord"], c.get("tier", "1st"))
+                    is None
+                    else Decimal(b) / 100
                 )
-                expected_costs = Decimal(citation_pricing.court_cents(c.get("pricedOn") or issued)) / 100 if current_policy else Decimal(48)
-                if expected_base is None or base != expected_base or costs != expected_costs:
-                    raise ValueError(
-                        ("Scheduled deposit does not match the selected ordinance and tier; use an approved base or total with its source")
-                    )
-    if len(numbers) != len(set(numbers)) or not numbers and any(not i.get("withdrawn") for i in items):
+                if current_policy
+                else legacy_scheduled_citation_base(c["ord"], c.get("tier", "1st"))
+            )
+            expected_costs = Decimal(citation_pricing.court_cents(c.get("pricedOn") or issued)) / 100 if current_policy else Decimal(48)
+            if expected_base is None or base != expected_base or costs != expected_costs:
+                raise ValueError("Scheduled deposit does not match the selected ordinance and tier; use an approved base or total with its source")
+
+
+def validate_authoring(snap, at=None, check_date_window=True, original=None):
+    """New R4 writes only; historical records retain their original evidence."""
+    items = _validate_authoring_document(snap=snap, check_date_window=check_date_window, at=at)
+    if snap.get("type") in SPECIAL_TYPES:
+        validate_special_fields(snap, at, check_date_window)
+    if snap.get("type") != "citation":
+        return
+    _validate_citation_court(check_date_window=check_date_window, snap=snap)
+    amount = _citation_amount
+    numbers = []
+    initial = snap.get("frozen", {}).get("case", {}).get("date", "")
+    inspected = snap.get("inspDate") or initial
+    visit_time = snap.get("inspTime") or snap.get("frozen", {}).get("case", {}).get("time", "")
+    for item in items:
+        if not item.get("cite") or item.get("withdrawn"):
+            continue
+        c = _validate_citation_identity(item=item, snap=snap, numbers=numbers)
+        issued, court = (c.get("issued"), c.get("courtDate"))
+        observed = c.get("violDate") or inspected
+        _validate_citation_calendar(
+            issued=issued,
+            court=court,
+            observed=observed,
+            snap=snap,
+            initial=initial,
+            check_date_window=check_date_window,
+            at=at,
+            c=c,
+            visit_time=visit_time,
+        )
+        mode = _validate_citation_method(c=c)
+        if _retains_citation_deposit(original=original, item=item, c=c):
+            continue
+        _validate_citation_policy(observed=observed, issued=issued, snap=snap, c=c, check_date_window=check_date_window, mode=mode)
+        if snap.get("authoringVersion", 0) >= 8 and c.get("mandatoryAppearance"):
+            _validate_mandatory_citation(c=c, item=item, issued=issued)
+            continue
+        _validate_cash_citation(amount=amount, c=c, mode=mode, check_date_window=check_date_window, snap=snap, issued=issued, item=item)
+    if len(numbers) != len(set(numbers)) or (not numbers and any((not i.get("withdrawn") for i in items))):
         raise ValueError("Select citations with distinct citation numbers")

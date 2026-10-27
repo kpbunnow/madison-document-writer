@@ -112,3 +112,15 @@ are unchanged.
 The existing R26 storage tests and 3,000 seeded historical snapshots pass. The
 new comparison retains exact exception type/message, calendar/time query order
 and input mutation. Python C901 findings fall 35 → 34.
+
+## M2 Python authoring
+
+Document/date rules and per-citation identity, calendar, method, retained-basis,
+policy, mandatory-appearance and cash-deposit checks now have explicit owners.
+The item loop still appends a validated citation number at its original point,
+and retained/mandatory success still skips later pricing checks. All extracted
+checks and the coordinator remain below McCabe complexity 10.
+
+The original nine authoring storage tests and 3,000 seeded historical citations
+compare exact outcomes, calendar query order and mutations. Python C901 findings
+fall 34 → 33. Decimal arithmetic and policy/time cutoffs remain unchanged.
