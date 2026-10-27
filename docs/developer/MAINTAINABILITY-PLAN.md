@@ -38,3 +38,15 @@ code is not added to development debt to fit that number.
 
 No standardized cognitive-complexity score is claimed. Count reductions and full
 gate evidence measure progress; a review score remains a reasoned assessment.
+
+## M1 repaint phases
+
+Private capture/restore keepers preserve the original capture and enhancement
+order. Live text swaps happen before enhancement; its focus/caret restore happens
+last. Routing reads current state after walk context and again after renderer
+redirects. The public 24-input lazy factory interface remains unchanged.
+
+The new real-Chromium owner test passed against the original implementation before
+extraction and passes after it. Existing screen dependency assertions also pass.
+JS complexity violations fall 88 → 87 and length reports 143 → 141. No function
+in app_screens exceeds complexity 20 or 80 nonblank/noncomment lines.

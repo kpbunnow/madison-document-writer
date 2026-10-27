@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 88,
+    "complexity": 87,
     "max-depth": 13,
-    "max-lines-per-function": 143,
+    "max-lines-per-function": 141,
     "python": 35
   },
   "violations": {
@@ -22,9 +22,6 @@
     "app/modules/administration.js:initAdministration#1:max-lines-per-function": 211,
     "app/modules/administration.js:initAdministration#1/openLetter#1:max-lines-per-function": 83,
     "app/modules/administration.js:initAdministration#1/overrideFault#1:complexity": 34,
-    "app/modules/app_screens.js:createAppScreens#1:max-lines-per-function": 226,
-    "app/modules/app_screens.js:createAppScreens#1/render#1:complexity": 136,
-    "app/modules/app_screens.js:createAppScreens#1/render#1:max-lines-per-function": 217,
     "app/modules/automatic_recovery.js:createAutomaticRecovery#1:max-lines-per-function": 166,
     "app/modules/browser_printing.js:createBrowserPrinting#1:max-lines-per-function": 142,
     "app/modules/browser_printing.js:createBrowserPrinting#1/printableHTML#1:max-lines-per-function": 95,
