@@ -543,3 +543,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The filter/table renderer uses escaped templates instead of split-literal concat chains. Search text, names, labels and counts are escaped by default; only the existing row renderer/fallback HTML is explicitly marked raw. Filter option/selection reads, empty-result offers and row/inspector ordering retain their prior checkpoints. All 1,033 exact historical HTML/state/effect comparisons, retained-class/style guards and independent screen dependencies pass without changing wording, output whitespace, CSS or print owners.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 Workspace content template
+
+Workspace composition now uses escaped templates for lead, import/empty states, queue notices and support. Repeated live-state reads and renderer/service order remain unchanged. Removing the incidental production esc import exposed a frozen-reference scope dependency; test-only historical bindings now explicitly provide its original esc and WriterState without changing reference bytes or assertions. All eight rule/HTML/dispatch comparisons (26,853 cases), native pagination, class/style, screen dependency and escaping/print-exclusion checks pass. This completes Workspace markup conversion without CSS, approved wording, print layout, release or stored-format changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
