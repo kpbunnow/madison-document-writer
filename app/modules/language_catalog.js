@@ -1,3 +1,4 @@
+import { catalogState as catalog } from "./catalog_state.js";
 import { caseNumberKey } from "../assets/shared.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { caseFileFault, caseFileName } from "./case_file_rules.js";
@@ -13,13 +14,12 @@ export function createLanguageCatalog(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
   function catalogReview(key) {
-    return WriterState.CATALOG_EVENTS.filter((e) => e.key === key).slice(-1)[0] || null;
+    return catalog.CATALOG_EVENTS.filter((e) => e.key === key).slice(-1)[0] || null;
   }
 
   function catalogReplacement(key) {
     return (
-      WriterState.CATALOG_EVENTS.filter((e) => e.status === "approved" && e.replaces === key && catalogReview(e.key)?.id === e.id).slice(-1)[0] ||
-      null
+      catalog.CATALOG_EVENTS.filter((e) => e.status === "approved" && e.replaces === key && catalogReview(e.key)?.id === e.id).slice(-1)[0] || null
     );
   }
 
@@ -31,7 +31,7 @@ export function createLanguageCatalog(services) {
     if (replacement) return { code: "superseded", label: "Replaced by " + replacement.key, review, replacement };
     if (review?.status === "approved")
       return { code: "ready", label: "Reviewed v" + review.version + " · " + review.reviewer + " · " + review.at.slice(0, 10), review };
-    if (!WriterState.CATALOG_VERIFIED) return { code: "unknown", label: "Review status unavailable · selection paused" };
+    if (!catalog.CATALOG_VERIFIED) return { code: "unknown", label: "Review status unavailable · selection paused" };
     if (!i.s.length) return { code: "incomplete", label: "Missing ordinance · division review required" };
     if (i.p === "draft") return { code: "review", label: "Draft · division review required" };
     return { code: "legacy", label: "Legacy selection · formal review not recorded" };
@@ -136,33 +136,33 @@ export function createLanguageCatalog(services) {
   let catalogReadSequence = 0;
   async function refreshCatalog() {
     const sequence = ++catalogReadSequence,
-      previous = WriterState.CATALOG_EVENTS;
-    const current = () => sequence === catalogReadSequence && previous === WriterState.CATALOG_EVENTS;
+      previous = catalog.CATALOG_EVENTS;
+    const current = () => sequence === catalogReadSequence && previous === catalog.CATALOG_EVENTS;
     try {
       const events = (await services.helperJSON("/catalog/reviews")).events;
       if (!Array.isArray(events)) throw new Error("Invalid review history");
       if (!current()) return false;
-      WriterState.CATALOG_EVENTS = events;
-      WriterState.CATALOG_ERROR = "";
-      WriterState.CATALOG_VERIFIED = true;
-      WriterState.CATALOG_FROM_CACHE = false;
-      WriterState.CATALOG_AT = nowISO();
+      catalog.CATALOG_EVENTS = events;
+      catalog.CATALOG_ERROR = "";
+      catalog.CATALOG_VERIFIED = true;
+      catalog.CATALOG_FROM_CACHE = false;
+      catalog.CATALOG_AT = nowISO();
       try {
-        localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: WriterState.CATALOG_AT, events }));
+        localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events }));
       } catch (e) {
-        WriterState.CATALOG_ERROR = "Current reviews verified, but this browser could not cache them for later outages.";
+        catalog.CATALOG_ERROR = "Current reviews verified, but this browser could not cache them for later outages.";
       }
     } catch (e) {
       if (!current()) return false;
-      WriterState.CATALOG_ERROR = "Review refresh unavailable: " + e.message + ". Last verified: " + (WriterState.CATALOG_AT || "none") + ".";
+      catalog.CATALOG_ERROR = "Review refresh unavailable: " + e.message + ". Last verified: " + (catalog.CATALOG_AT || "none") + ".";
     }
     if (WriterState.state.screen === "library" || WriterState.state.picker) services.render();
-    return WriterState.CATALOG_VERIFIED && !/Review refresh unavailable/.test(WriterState.CATALOG_ERROR);
+    return catalog.CATALOG_VERIFIED && !/Review refresh unavailable/.test(catalog.CATALOG_ERROR);
   }
 
   function catalogForm(key, i, r) {
     return (
-      WriterState.CATALOG_FORMS[key] || {
+      catalog.CATALOG_FORMS[key] || {
         reviewer: "",
         wording: r?.wording || i.a,
         ordinances: (r?.ordinances || i.s).join("; "),
@@ -198,7 +198,7 @@ export function createLanguageCatalog(services) {
     const f = catalogForm(key, i, r);
     return (
       '<details class="lib-guidance" ' +
-      `${WriterState.CATALOG_FORMS[key]?.open ? "open" : ""}` +
+      `${catalog.CATALOG_FORMS[key]?.open ? "open" : ""}` +
       "><summary>Division review administration · " +
       `${esc(s.label)}` +
       "</summary>\n    <p>Source: " +
@@ -245,10 +245,10 @@ export function createLanguageCatalog(services) {
           : "",
       ) +
       "\n    " +
-      "".concat(WriterState.CATALOG_FORMS[key]?.error ? `<p class="save-error" role="alert">${esc(WriterState.CATALOG_FORMS[key].error)}</p>` : "") +
+      "".concat(catalog.CATALOG_FORMS[key]?.error ? `<p class="save-error" role="alert">${esc(catalog.CATALOG_FORMS[key].error)}</p>` : "") +
       "\n    " +
       "".concat(
-        WriterState.CATALOG_FORMS[key] && f.baseVersion !== (r?.version || 0)
+        catalog.CATALOG_FORMS[key] && f.baseVersion !== (r?.version || 0)
           ? '<button class="btn btn-sm" data-catalog-rebase="' +
               `${esc(key)}` +
               '">Use current v' +
@@ -287,7 +287,7 @@ export function createLanguageCatalog(services) {
       `${esc(key)}` +
       '">' +
       "".concat(
-        WriterState.CATALOG_FORMS[key]?.open
+        catalog.CATALOG_FORMS[key]?.open
           ? catalogReplacementOptions(key, f.replaces, f.replacementQuery)
           : '<option value="' + esc(f.replaces) + '">Open to browse entries</option>',
       ) +

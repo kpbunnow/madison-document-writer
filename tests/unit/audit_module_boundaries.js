@@ -14,6 +14,7 @@ const allowed = {
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
+  "catalog_state.js": ["./state.js"],
   "workspace_state.js": ["./state.js"],
   "record_values.js": [],
   "calendar.js": ["../assets/shared.js"],
@@ -39,6 +40,15 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "catalog_events.js": [
+    "./calendar.js",
+    "./catalog_state.js",
+    "./data/library.js",
+    "./document_rules.js",
+    "./event_registration.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
   "due_date_events.js": ["./event_registration.js", "./workspace_state.js"],
   "case_status.js": [
     "../assets/shared.js",
@@ -168,7 +178,7 @@ const scopedServices = {
   ],
   "record_actions.js": ["./document_rules.js", "./writer_queries.js", "./state.js"],
   "recovery_ui.js": ["./case_recovery.js", "./presentation_format.js", "./state.js"],
-  "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./state.js"],
+  "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./state.js"],
   "worksheet_workflow.js": [
     "./deadline_assignment.js",
@@ -301,6 +311,7 @@ const scopedServices = {
     "./citation_policy.js",
   ],
   "language_catalog.js": [
+    "./catalog_state.js",
     "../assets/shared.js",
     "./record_values.js",
     "./case_file_rules.js",
@@ -354,7 +365,7 @@ const scopedServices = {
   ],
   "deposit_step.js": ["./citation_policy.js", "./document_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
   "initial_citations.js": ["./citation_policy.js", "./document_types.js", "./presentation_format.js", "./record_values.js", "./writer_queries.js"],
-  "language_actions.js": ["./state.js"],
+  "language_actions.js": ["./catalog_state.js", "./state.js"],
 
   "administration.js": [
     "./citation_policy.js",
@@ -397,6 +408,7 @@ const scopedServices = {
     "./presentation_format.js",
   ],
   "app_view_contexts.js": [
+    "./catalog_state.js",
     "./case_file_rules.js",
     "./data/library.js",
     "./document_rules.js",

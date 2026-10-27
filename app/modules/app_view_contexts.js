@@ -1,3 +1,4 @@
+import { catalogState as catalog } from "./catalog_state.js";
 /* View-scoped dependencies are supplied by core; each call reads current workspace facts. */
 
 import { caseFileName as ctx_app_caseFileName, summaryName as ctx_app_summaryName } from "./case_file_rules.js";
@@ -14,7 +15,7 @@ export function createSavedWorkContext(services) {
       CASEDIR: WriterState.CASEDIR,
       CASEDIR_EXPECT: services.CASEDIR_EXPECT,
       CASES: WriterState.CASES,
-      CATALOG_AT: WriterState.CATALOG_AT,
+      CATALOG_AT: catalog.CATALOG_AT,
       COMMITTED: services.COMMITTED,
       DIRNAME: WriterState.DIRNAME,
       HELPER: WriterState.HELPER,
@@ -61,9 +62,9 @@ export function createWorkspaceQueueContext(services) {
 export function createLanguageDiscoveryContext(services) {
   function app_languagediscoveryContext() {
     return {
-      CATALOG_AT: WriterState.CATALOG_AT,
-      CATALOG_ERROR: WriterState.CATALOG_ERROR,
-      CATALOG_FROM_CACHE: WriterState.CATALOG_FROM_CACHE,
+      CATALOG_AT: catalog.CATALOG_AT,
+      CATALOG_ERROR: catalog.CATALOG_ERROR,
+      CATALOG_FROM_CACHE: catalog.CATALOG_FROM_CACHE,
       LIBRARY: ctx_app_LIBRARY,
       allItems: services.allItems,
       catalogItem: services.catalogItem,

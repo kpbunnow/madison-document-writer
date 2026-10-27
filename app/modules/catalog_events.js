@@ -1,3 +1,4 @@
+import { catalogState as catalog } from "./catalog_state.js";
 /* Catalog event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -16,15 +17,15 @@ export function createCatalogEvents(services) {
         if (!details) return;
         const key = details.querySelector("[data-catalog-key]")?.dataset.catalogKey;
         if (!key) return;
-        WriterState.CATALOG_FORMS[key] = { ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)), open: details.open };
+        catalog.CATALOG_FORMS[key] = { ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)), open: details.open };
         services.keepCatalogForms();
         if (details.open) {
           const selector = details.querySelector('[data-catalog-field="replaces"]');
           if (selector)
             selector.innerHTML = services.catalogReplacementOptions(
               key,
-              WriterState.CATALOG_FORMS[key].replaces,
-              WriterState.CATALOG_FORMS[key].replacementQuery,
+              catalog.CATALOG_FORMS[key].replaces,
+              catalog.CATALOG_FORMS[key].replacementQuery,
             );
         }
       },
@@ -37,9 +38,9 @@ export function createCatalogEvents(services) {
       const el = e.target.closest?.("[data-catalog-field]");
       if (!el) return;
       const key = el.dataset.catalogKey;
-      WriterState.CATALOG_FORMS[key] = {
+      catalog.CATALOG_FORMS[key] = {
         ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
-        ...WriterState.CATALOG_FORMS[key],
+        ...catalog.CATALOG_FORMS[key],
         [el.dataset.catalogField]: el.value,
         open: true,
       };
@@ -52,15 +53,15 @@ export function createCatalogEvents(services) {
       const el = e.target.closest?.("[data-catalog-replacement-query]");
       if (!el) return;
       const key = el.dataset.catalogReplacementQuery;
-      WriterState.CATALOG_FORMS[key] = {
+      catalog.CATALOG_FORMS[key] = {
         ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
-        ...WriterState.CATALOG_FORMS[key],
+        ...catalog.CATALOG_FORMS[key],
         replacementQuery: el.value,
         open: true,
       };
       services.keepCatalogForms();
       const selector = el.closest("details")?.querySelector('[data-catalog-field="replaces"]');
-      if (selector) selector.innerHTML = services.catalogReplacementOptions(key, WriterState.CATALOG_FORMS[key].replaces, el.value);
+      if (selector) selector.innerHTML = services.catalogReplacementOptions(key, catalog.CATALOG_FORMS[key].replaces, el.value);
     });
   }
 
@@ -76,7 +77,7 @@ export function createCatalogEvents(services) {
       if (rebase) {
         const key = rebase.dataset.catalogRebase,
           r = services.catalogReview(key),
-          form = WriterState.CATALOG_FORMS[key];
+          form = catalog.CATALOG_FORMS[key];
         if (!r || !form) return;
         if (
           confirm(
@@ -100,7 +101,7 @@ export function createCatalogEvents(services) {
       const host = t.closest("details"),
         field = (name) => host.querySelector('[data-catalog-field="' + name + '"]')?.value.trim() || "";
       const status = t.dataset.catalogStatus,
-        form = WriterState.CATALOG_FORMS[key] || services.catalogForm(key, i, services.catalogReview(key));
+        form = catalog.CATALOG_FORMS[key] || services.catalogForm(key, i, services.catalogReview(key));
       const data = {
         key,
         status,
@@ -117,7 +118,7 @@ export function createCatalogEvents(services) {
       const fields = ["reviewer", "wording", "ordinances", "source", "replaces"],
         submitted = Object.fromEntries(fields.map((n) => [n, field(n)]));
       const fail = (message) => {
-        WriterState.CATALOG_FORMS[key] = { ...form, ...submitted, ...WriterState.CATALOG_FORMS[key], open: true, error: message };
+        catalog.CATALOG_FORMS[key] = { ...form, ...submitted, ...catalog.CATALOG_FORMS[key], open: true, error: message };
         services.keepCatalogForms();
         if (WriterState.state.screen === "library") services.render();
         else services.toast(message, { severity: "warning" });
@@ -142,23 +143,23 @@ export function createCatalogEvents(services) {
       t.disabled = true;
       try {
         const response = await services.helperJSON("/catalog/review", data);
-        const known = new Set(WriterState.CATALOG_EVENTS.map((event) => event.id)),
+        const known = new Set(catalog.CATALOG_EVENTS.map((event) => event.id)),
           incoming = new Set(response.events.map((event) => event.id));
-        if (!(WriterState.CATALOG_EVENTS.some((event) => !incoming.has(event.id)) && response.events.every((event) => known.has(event.id))))
-          WriterState.CATALOG_EVENTS = response.events;
-        WriterState.CATALOG_VERIFIED = true;
-        WriterState.CATALOG_FROM_CACHE = false;
-        WriterState.CATALOG_AT = nowISO();
-        WriterState.CATALOG_ERROR = "";
+        if (!(catalog.CATALOG_EVENTS.some((event) => !incoming.has(event.id)) && response.events.every((event) => known.has(event.id))))
+          catalog.CATALOG_EVENTS = response.events;
+        catalog.CATALOG_VERIFIED = true;
+        catalog.CATALOG_FROM_CACHE = false;
+        catalog.CATALOG_AT = nowISO();
+        catalog.CATALOG_ERROR = "";
         try {
-          localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: WriterState.CATALOG_AT, events: WriterState.CATALOG_EVENTS }));
+          localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events: catalog.CATALOG_EVENTS }));
         } catch (error) {
-          WriterState.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
+          catalog.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
         }
-        const later = WriterState.CATALOG_FORMS[key],
+        const later = catalog.CATALOG_FORMS[key],
           changed = later && fields.some((n) => String(later[n] || "").trim() !== submitted[n]);
         if (changed)
-          WriterState.CATALOG_FORMS[key] = {
+          catalog.CATALOG_FORMS[key] = {
             ...later,
             open: true,
             error:
@@ -166,7 +167,7 @@ export function createCatalogEvents(services) {
               response.event.version +
               " was recorded. Your later edits are retained; compare and update the review basis before recording again.",
           };
-        else delete WriterState.CATALOG_FORMS[key];
+        else delete catalog.CATALOG_FORMS[key];
         services.keepCatalogForms();
         if (WriterState.state.screen === "library") services.render();
         services.toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");

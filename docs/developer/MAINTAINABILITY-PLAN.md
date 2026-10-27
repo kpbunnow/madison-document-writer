@@ -321,3 +321,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Thirteen record/save owners now use a 16-field workspace boundary. Accessors resolve the current existing root store on every read/write; construction performs no reads and initializes nothing. Tests pin absent values, replacement identity and getter/setter timing. Existing dependency, serialization, import and 19,687 differential rule cases pass, as do all six day-boundary runs. The first day-boundary invocation lacked PYTHONPATH; rerunning with the documented environment passed. Direct root-state importers fall 83 to 71, with zero cycles. View-pointer capture and remaining state cohorts are deferred to separate increments; M4 is not complete.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 catalog state boundary
+
+Catalog forms, events, language actions, views and review services use an explicit six-field catalog boundary. Existing cached-status, independent service, catalog feature and 27 language-review assertions pass unchanged. Initialization stays in core and no approval or review authority is inferred. Getter/setter tests pin absent values, live replacement identity and access timing. Direct root-state importers remain 71: the new boundary offsets the migrated catalog-forms importer. The graph remains acyclic. Other state cohorts and interface narrowing remain open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
