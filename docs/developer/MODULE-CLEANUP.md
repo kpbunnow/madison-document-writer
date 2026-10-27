@@ -427,7 +427,7 @@ case_status composes caseState through three lazy snow/today/unissuedVisitFor in
 
 All twelve original bodies retain their logic/literals apart from scoped access. Preserve live facts and rolling citation-date boundaries, Workspace reveal/filter/preference behavior, escaped views and modal priority, startup stopped/locked/restore guards, original paint/enhancement sequence, input node/caret/focus and disclosure restoration, dirty-save dispatch and scroll order. The retained R13 audit calls the public overlay operation with the same final-modal state and unchanged assertions. Startup and feature registration remain at their original checkpoints. This adds no publication/save/helper/native authority.
 
-There are 129 maintained modules, 16 isolated foundations and 83 scoped owners. Both Writer and Reports are now acyclic; the guard rejects every module cycle. Next complete the architecture audit: review interface breadth and startup clarity, independently loadable owners and documentation consistency. Earlier counts/ownership remain provenance.
+There are 129 maintained modules, 16 isolated foundations and 83 scoped owners. Both Writer and Reports are now acyclic; the guard rejects every module cycle. The accompanying final architecture audit reviews interface breadth and startup clarity, independently loadable owners and documentation consistency. Earlier counts/ownership remain provenance.
 
 ## Architecture audit and stopping point
 
