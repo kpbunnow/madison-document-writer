@@ -21,6 +21,186 @@ import {
   tierLabel,
   tierOrdinal,
 } from "./citation_policy.js";
+const retainedDepositFields = [
+  "amount",
+  "base",
+  "cc",
+  "depositMode",
+  "tier",
+  "scheduleEntryId",
+  "assessments",
+  "pricedOn",
+  "policyVersionHash",
+  "depositSource",
+  "measurements",
+  "mandatoryAppearance",
+  "overrideBasis",
+];
+function depositAmountContext({ c, i }, tier = c.tier || 1) {
+  return {
+    ordinance: c.ord,
+    libraryItem: i ? itemLibraryKey(i) : "",
+    entryId: c.scheduleEntryId,
+    tier,
+    date: c.pricedOn || c.issued,
+    measurements: c.measurements || {},
+  };
+}
+function matchingSchedule(ctx) {
+  const { c, f, ordinal, pick } = ctx;
+  if (f?.rule) {
+    const result = resolveCitationAmount(depositAmountContext(ctx, ordinal));
+    if (result.kind !== "priced" || money(result.base) !== money(c.base)) return false;
+  } else if (!pick || money(pick.a) !== money(c.base)) return false;
+  return cents(c.cc) === courtCents(c.pricedOn || c.issued);
+}
+// Rules are ordered refusal precedence. A terminal success deliberately skips later rules.
+const depositRules = [
+  { id: "ordinance", ok: ({ c }) => !!canonicalOrdinance(c.ord), message: () => "Choose one complete citation ordinance." },
+  { id: "issue-date", ok: ({ c }) => !c.issued || validISO(c.issued), message: () => "Enter a valid citation issue date." },
+  { id: "pricing-date-shape", ok: ({ c }) => !c.pricedOn || validISO(c.pricedOn), message: () => "Enter a valid pricing date." },
+  { id: "edited-deposit", ok: ({ c }) => !c.depositEditInvalid, message: () => "Correct the deposit field before confirming." },
+  { id: "reconfirmation", ok: ({ c }) => !c.reconfirmDeposit, message: () => "Re-confirm deposit after the charge or basis changed." },
+  {
+    id: "stale-weeds",
+    ok: ({ c }) => !(canonicalOrdinance(c.ord) === "27.05(2)(s)" && /noxious\s+weeds/i.test(c.desc || "")),
+    message: () => "27.05(2)(s) is Removal of Debris; it cannot print the stale weeds description.",
+  },
+  {
+    id: "method",
+    ok: (ctx) => {
+      ctx.mode = ctx.c.depositMode || "schedule";
+      return ["schedule", "base", "total"].includes(ctx.mode);
+    },
+    message: () => "Choose a deposit method.",
+  },
+  {
+    id: "manual-source",
+    ok: ({ c, mode }) => mode === "schedule" || String(c.depositSource || "").trim().length >= 10,
+    message: () => "Record the approved schedule, court instruction or other authority (at least 10 characters).",
+  },
+  {
+    id: "mandatory",
+    applies: ({ c, d }) => c.mandatoryAppearance && d?.authoringVersion >= 8,
+    terminal: true,
+    ok: ({ c, i }) => {
+      const f = resolveOrdinance(c.ord, i ? itemLibraryKey(i) : "", c.scheduleEntryId, c.pricedOn || c.issued);
+      return f?.rule?.kind === "mandatory" && !c.amount;
+    },
+    message: () => "Mandatory appearance permits no deposit.",
+  },
+  {
+    id: "positive-amount",
+    ok: ({ c }) => validMoney(c.amount) && +c.amount > 0,
+    message: () => "Enter a positive cash deposit with at most two decimal places.",
+  },
+  {
+    id: "retained-correction",
+    applies: (ctx) => {
+      const { c, d, i, services } = ctx;
+      ctx.original = d && i && services.citationPricing.unchangedCorrection(d, i, c);
+      return !!ctx.original;
+    },
+    terminal: true,
+    ok: ({ c, original }) => retainedDepositFields.every((key) => stableJSON(original[key]) === stableJSON(c[key])),
+    message: () => "An unchanged charge retains its original deposit and pricing basis.",
+  },
+  {
+    id: "override",
+    applies: ({ c, d }) => d?.authoringVersion >= 9 && c.overrideBasis,
+    ok: (ctx) => {
+      const { services } = ctx;
+      ctx.overrideFault = services.administration.overrideFault(ctx.c, ctx.d);
+      return !ctx.overrideFault;
+    },
+    message: (ctx) => ctx.overrideFault,
+  },
+  {
+    id: "calculated-method",
+    applies: ({ c, d, mode }) => d?.authoringVersion >= 8 && mode !== "schedule" && !c.overrideBasis,
+    ok: (ctx) => resolveCitationAmount(depositAmountContext(ctx)).kind !== "priced",
+    message: () => "This charge has a calculated deposit. Use Scheduled deposit.",
+  },
+  {
+    id: "required-pricing-date",
+    applies: ({ d }) => d?.authoringVersion >= 7,
+    ok: ({ c }) => validISO(c.pricedOn),
+    message: () => "Enter a valid pricing date.",
+  },
+  { id: "effective-pricing-date", ok: ({ c }) => validISO(c.pricedOn || c.issued), message: () => "Enter a valid pricing date." },
+  {
+    id: "zero-base",
+    ok: ({ c, d, mode }) => !(d?.authoringVersion >= 8 && mode !== "total" && cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits),
+    message: () => "A zero forfeiture needs City Attorney approval",
+  },
+  {
+    id: "approved-total",
+    applies: ({ mode }) => mode === "total",
+    terminal: true,
+    ok: ({ c }) => !c.assessments,
+    message: () => "An approved total must not retain a calculated assessment breakdown. Choose the deposit method again.",
+  },
+  {
+    id: "base-and-costs",
+    ok: ({ c }) =>
+      validMoney(c.base) && validMoney(c.cc) && +c.cc >= CITFEES.ccMin && +c.cc <= policyAt(c.pricedOn || c.issued).fees.ccMaxCents / 100,
+    message: () => "Enter a valid base deposit and court costs between $15 and $48.",
+  },
+  {
+    id: "assessment-total",
+    ok: ({ c, services }) => money(services.feeLines(c.base, c.cc, c.pricedOn || c.issued).total) === money(c.amount),
+    message: () => "The deposit does not match its recorded base and assessments.",
+  },
+  {
+    id: "tier-integer",
+    applies: ({ mode }) => mode === "schedule",
+    ok: ({ c }) => !(c.tierOverrideSource && String(c.tierOverrideSource).trim().length >= 10 && !/^[1-9]\d*$/.test(String(c.tierOverride || ""))),
+    message: () => "An approved offense tier must be a positive whole number.",
+  },
+  {
+    id: "tier-source",
+    applies: ({ mode }) => mode === "schedule",
+    ok: ({ c }) =>
+      !((c.tierOverride && !String(c.tierOverrideSource || "").trim()) || (c.tierOverrideSource && String(c.tierOverrideSource).trim().length < 10)),
+    message: () => "An approved tier override requires its recorded source (at least 10 characters).",
+  },
+  {
+    id: "respondent",
+    applies: ({ mode }) => mode === "schedule",
+    ok: (ctx) => {
+      const { c, d, i } = ctx;
+      ctx.f = resolveOrdinance(c.ord, i ? itemLibraryKey(i) : "", c.scheduleEntryId, c.pricedOn || c.issued);
+      ctx.ordinal = tierOrdinal(c.tier);
+      ctx.pick = ctx.f?.tiers?.[Math.min(ctx.ordinal, ctx.f.tiers.length) - 1];
+      return scheduleRespondent(d, ctx.f);
+    },
+    message: () => "Scheduled pricing needs the respondent name and mailing address, or an approved manual basis.",
+  },
+  {
+    id: "scheduled-match",
+    applies: ({ mode }) => mode === "schedule",
+    ok: matchingSchedule,
+    message: () => "No matching scheduled deposit. Correct the ordinance or enter an approved deposit and source.",
+  },
+  {
+    id: "computed-tier",
+    applies: ({ mode }) => mode === "schedule",
+    ok: ({ c, ordinal }) => !(c.computedTier && ordinal !== c.computedTier && !c.tierOverrideSource),
+    message: ({ c }) => "Expected tier " + tierLabel(c.computedTier) + ". Review the counted citations.",
+  },
+];
+function scheduleRespondent(d, f) {
+  return !(d && f && f.window !== "site" && f.window?.kind !== "site-season" && !respondentKey(docCase(d)));
+}
+function depositRuleFault(context) {
+  for (const rule of depositRules) {
+    if (rule.applies && !rule.applies(context)) continue;
+    if (!rule.ok(context)) return rule.message(context);
+    if (rule.terminal) return "";
+  }
+  return "";
+}
+
 /* Construction is inert; dependencies and the live date are read at operation time. */
 export function createCitationWorkflow(services) {
   function depositComplete(d) {
@@ -48,103 +228,7 @@ export function createCitationWorkflow(services) {
   }
 
   function citationDepositFault(c, d = null, i = null) {
-    if (!canonicalOrdinance(c.ord)) return "Choose one complete citation ordinance.";
-    if (c.issued && !validISO(c.issued)) return "Enter a valid citation issue date.";
-    if (c.pricedOn && !validISO(c.pricedOn)) return "Enter a valid pricing date.";
-    if (c.depositEditInvalid) return "Correct the deposit field before confirming.";
-    if (c.reconfirmDeposit) return "Re-confirm deposit after the charge or basis changed.";
-    if (canonicalOrdinance(c.ord) === "27.05(2)(s)" && /noxious\s+weeds/i.test(c.desc || ""))
-      return "27.05(2)(s) is Removal of Debris; it cannot print the stale weeds description.";
-    const mode = c.depositMode || "schedule";
-    if (!["schedule", "base", "total"].includes(mode)) return "Choose a deposit method.";
-    if (mode !== "schedule" && String(c.depositSource || "").trim().length < 10)
-      return "Record the approved schedule, court instruction or other authority (at least 10 characters).";
-    if (c.mandatoryAppearance && d?.authoringVersion >= 8) {
-      const f = resolveOrdinance(c.ord, i ? itemLibraryKey(i) : "", c.scheduleEntryId, c.pricedOn || c.issued);
-      return f?.rule?.kind === "mandatory" && !c.amount ? "" : "Mandatory appearance permits no deposit.";
-    }
-    if (!validMoney(c.amount) || +c.amount <= 0) return "Enter a positive cash deposit with at most two decimal places.";
-    const original = d && i && services.citationPricing.unchangedCorrection(d, i, c);
-    if (original) {
-      if (
-        [
-          "amount",
-          "base",
-          "cc",
-          "depositMode",
-          "tier",
-          "scheduleEntryId",
-          "assessments",
-          "pricedOn",
-          "policyVersionHash",
-          "depositSource",
-          "measurements",
-          "mandatoryAppearance",
-          "overrideBasis",
-        ].every((k) => stableJSON(original[k]) === stableJSON(c[k]))
-      )
-        return "";
-      return "An unchanged charge retains its original deposit and pricing basis.";
-    }
-    if (d?.authoringVersion >= 9 && c.overrideBasis) {
-      const fault = services.administration.overrideFault(c, d);
-      if (fault) return fault;
-    }
-    if (
-      d?.authoringVersion >= 8 &&
-      mode !== "schedule" &&
-      !c.overrideBasis &&
-      resolveCitationAmount({
-        ordinance: c.ord,
-        libraryItem: i ? itemLibraryKey(i) : "",
-        entryId: c.scheduleEntryId,
-        tier: c.tier || 1,
-        date: c.pricedOn || c.issued,
-        measurements: c.measurements || {},
-      }).kind === "priced"
-    )
-      return "This charge has a calculated deposit. Use Scheduled deposit.";
-    if (d?.authoringVersion >= 7 && !validISO(c.pricedOn)) return "Enter a valid pricing date.";
-    if (!validISO(c.pricedOn || c.issued)) return "Enter a valid pricing date.";
-    if (d?.authoringVersion >= 8 && mode !== "total" && cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits)
-      return "A zero forfeiture needs City Attorney approval";
-    if (mode === "total")
-      return c.assessments ? "An approved total must not retain a calculated assessment breakdown. Choose the deposit method again." : "";
-    if (!validMoney(c.base) || !validMoney(c.cc) || +c.cc < CITFEES.ccMin || +c.cc > policyAt(c.pricedOn || c.issued).fees.ccMaxCents / 100)
-      return "Enter a valid base deposit and court costs between $15 and $48.";
-    if (money(services.feeLines(c.base, c.cc, c.pricedOn || c.issued).total) !== money(c.amount))
-      return "The deposit does not match its recorded base and assessments.";
-    if (mode === "schedule") {
-      if (c.tierOverrideSource && String(c.tierOverrideSource).trim().length >= 10 && !/^[1-9]\d*$/.test(String(c.tierOverride || "")))
-        return "An approved offense tier must be a positive whole number.";
-      if ((c.tierOverride && !String(c.tierOverrideSource || "").trim()) || (c.tierOverrideSource && String(c.tierOverrideSource).trim().length < 10))
-        return "An approved tier override requires its recorded source (at least 10 characters).";
-      const f = resolveOrdinance(c.ord, i ? itemLibraryKey(i) : "", c.scheduleEntryId, c.pricedOn || c.issued),
-        ordinal = tierOrdinal(c.tier),
-        pick = f?.tiers?.[Math.min(ordinal, f.tiers.length) - 1];
-      if (d && f && f.window !== "site" && f.window?.kind !== "site-season" && !respondentKey(docCase(d)))
-        return "Scheduled pricing needs the respondent name and mailing address, or an approved manual basis.";
-      if (
-        (f?.rule
-          ? (() => {
-              const r = resolveCitationAmount({
-                ordinance: c.ord,
-                libraryItem: i ? itemLibraryKey(i) : "",
-                entryId: c.scheduleEntryId,
-                tier: ordinal,
-                date: c.pricedOn || c.issued,
-                measurements: c.measurements || {},
-              });
-              return r.kind !== "priced" || money(r.base) !== money(c.base);
-            })()
-          : !pick || money(pick.a) !== money(c.base)) ||
-        cents(c.cc) !== courtCents(c.pricedOn || c.issued)
-      )
-        return "No matching scheduled deposit. Correct the ordinance or enter an approved deposit and source.";
-      if (c.computedTier && ordinal !== c.computedTier && !c.tierOverrideSource)
-        return "Expected tier " + tierLabel(c.computedTier) + ". Review the counted citations.";
-    }
-    return "";
+    return depositRuleFault({ c, d, i, services });
   }
 
   const scheduledOffenseNeeded = (c) =>

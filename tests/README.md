@@ -20,6 +20,8 @@ covers, or a new suite under its feature.
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
+| `audit_deposit_rules.js` | Differential ordered-deposit rules over generated policy rows and malformed combinations, preserving refusal text and service call order |
+
 ## Inspection import and case lookup
 
 | Suite | Covers |
