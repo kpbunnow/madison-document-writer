@@ -20,6 +20,8 @@ assert.throws(() => inspect("services.ui.render()", "{ui:{get render(){return re
 assert.throws(() => inspect("services.ui[key]()", "{ui:{render:(...args)=>render(...args)}}"), /statically named/);
 assert.throws(() => inspect("services.ui.missing()", "{ui:{render:(...args)=>render(...args)}}"), /undeclared/);
 assert.throws(() => inspect("services.ui.render()", "{ui:{render:(...args)=>render(...args),unused:(...args)=>unused(...args)}}"), /exactly/);
+assert.deepEqual(inspect("services.ui.policy[key]", "{ui:{get policy(){return policy;}}}"), ["ui.policy"]);
+assert.throws(() => inspect("services[key].policy", "{ui:{get policy(){return policy;}}}"), /statically named/);
 const broad = "{" + Array.from({ length: 26 }, (_, i) => "field" + i + ":(...args)=>field" + i + "(...args)").join(",") + "}";
 assert.throws(() => inspect("", broad), /25/);
 assert.throws(() => inspect("", "{ui:" + broad + "}"), /25/);
