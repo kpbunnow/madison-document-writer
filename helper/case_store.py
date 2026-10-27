@@ -731,6 +731,116 @@ def save_case(folder, name, incoming, base_revision="", base_case=None, idempote
         return _save_case(folder, name, incoming, base_revision, base_case, idempotency_event, catalog_file, manifest_file)
 
 
+def _resolve_case_save_target(*, folder, name, number_key, number):
+    target = folder / name
+    matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
+    if len(matches) > 1:
+        raise ValueError("Multiple shared files have this case number. Resolve the duplicate files before saving")
+    if matches:
+        target = matches[0]
+    elif case_file_key(name) != number_key:
+        raise ValueError("Case filename must end with the case number")
+    if case_integrity.reconcile_publication(folder, number):
+        matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
+        if len(matches) != 1:
+            raise ValueError("Pending transaction case identity is ambiguous")
+        target = matches[0]
+    return target
+
+
+def _merge_case_details(*, current, incoming, base_case):
+    clean = lambda k: {a: b for a, b in k.items() if a not in ("savedAt", "id")}
+    remote, local = (clean(current["case"]), clean(incoming["case"]))
+    local["number"] = remote["number"]
+    baseline = clean(base_case) if isinstance(base_case, dict) else None
+    merged = dict(remote)
+    absent = object()
+    for key in remote.keys() | local.keys():
+        old, new = (remote.get(key, absent), local.get(key, absent))
+        if old == new:
+            continue
+        if baseline is None:
+            raise ValueError("Case details differ from the shared record. Reopen the shared case before changing its details")
+        before = baseline.get(key, absent)
+        if new == before:
+            continue
+        if old != before:
+            raise ValueError("Both copies changed %s. Keep the local case and review the shared copy before saving" % key)
+        if new is absent:
+            merged.pop(key, None)
+        else:
+            merged[key] = new
+    return merged
+
+
+def _merge_case_events(*, current, output, incoming):
+    cid = current["case"]["id"]
+    output["case"]["id"] = cid
+    by_id = {event["id"]: event for event in current["events"]}
+    for event in incoming["events"]:
+        event = remap(event, incoming["case"]["id"], cid)
+        old = by_id.get(event["id"])
+        if old is not None and encoded(old) != encoded(event):
+            raise ValueError("Conflicting content for an existing event; neither version was discarded")
+        by_id[event["id"]] = event
+    output["events"] = sorted(by_id.values(), key=event_order)
+    inspectors = {i["id"]: i for i in current.get("inspectors", [])}
+    inspectors.update({i["id"]: i for i in incoming.get("inspectors", [])})
+    output["inspectors"] = list(inspectors.values())
+
+
+def _merge_existing_case_save(*, previous, folder, incoming, number_key, base_revision, idempotency_event, target, output, base_case):
+    current = json.loads(previous)
+    case_integrity.require_valid(current, folder)
+    if current.get("schema", 1) > incoming.get("schema", 1):
+        raise ValueError("A newer schema wrote this case; reopen it with the current writer before saving")
+    if current.get("format") != "madison-case-file" or case_number_key(current.get("case", {}).get("number")) != number_key:
+        raise ValueError("The existing file is not this case; it was not overwritten")
+    if current.get("schema", current.get("version", 1)) not in (2, 3, 4, 5):
+        if current.get("schema", current.get("version", 1)) > 5:
+            raise ValueError("A newer program wrote this case. It was not overwritten")
+        if not base_revision or digest(previous) != base_revision:
+            raise ValueError("Reopen this legacy case before saving its upgraded record")
+    else:
+        validate_case(current, legacy=True)
+        if idempotency_event:
+            prior = next((e for e in current["events"] if e["id"] == idempotency_event), None)
+            if prior:
+                submitted = next((e for e in incoming["events"] if e["id"] == idempotency_event), None)
+                if submitted is None or encoded(prior) != encoded(remap(submitted, incoming["case"]["id"], current["case"]["id"])):
+                    raise ValueError("Conflicting content for an existing event; the saved record was preserved")
+                case_integrity.anchor_after_save(folder)
+                return (current, {"ok": True, "file": current, "revision": digest(previous), "name": target.name, "alreadyCommitted": True})
+        output["case"] = _merge_case_details(current=current, incoming=incoming, base_case=base_case)
+        _merge_case_events(current=current, output=output, incoming=incoming)
+    validate_record_changes(current, incoming, output)
+    recovery = folder / "_recovery"
+    recovery.mkdir(exist_ok=True)
+    atomic_write(recovery / (target.name + ".bak"), previous)
+    return (current, None)
+
+
+def _publish_validated_case(*, catalog_file, manifest_file, previous, current, output, folder, target):
+    if catalog_file is not None:
+        if manifest_file is None:
+            raise ValueError("Catalog manifest is required")
+        Path(catalog_file).parent.mkdir(parents=True, exist_ok=True)
+        with file_lock(Path(catalog_file).parent, "catalog-review"):
+            validate_catalog_publication(current if previous is not None else None, output, catalog_file, manifest_file)
+            raw = encoded(output)
+            if output.get("schema", 1) >= 5:
+                case_integrity.publish_record(folder, target, output, previous)
+            else:
+                atomic_write(target, raw)
+    else:
+        raw = encoded(output)
+        if output.get("schema", 1) >= 5:
+            case_integrity.publish_record(folder, target, output, previous)
+        else:
+            atomic_write(target, raw)
+    return raw
+
+
 def _save_case(folder, name, incoming, base_revision="", base_case=None, idempotency_event="", catalog_file=None, manifest_file=None):
     folder = Path(folder)
     if not folder.is_dir():
@@ -741,117 +851,45 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
         raise ValueError("Integrity record removed from a migrated case")
     number = incoming["case"]["number"]
     number_key = case_number_key(number)
-    # The lock uses the case number, not the address, which can be corrected.
+    # Keep the case-number lock around every resolve/merge/validate/publish phase.
     with file_lock(folder, "case:" + number_key):
-        target = folder / name
-        matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
-        if len(matches) > 1:
-            raise ValueError("Multiple shared files have this case number. Resolve the duplicate files before saving")
-        if matches:
-            target = matches[0]
-        elif case_file_key(name) != number_key:
-            raise ValueError("Case filename must end with the case number")
-        if case_integrity.reconcile_publication(folder, number):
-            matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
-            if len(matches) != 1:
-                raise ValueError("Pending transaction case identity is ambiguous")
-            target = matches[0]
+        target = _resolve_case_save_target(folder=folder, name=name, number_key=number_key, number=number)
         output = json.loads(json.dumps(incoming))
         previous = target.read_bytes() if target.exists() else None
-        if previous is None and not incoming.get("events"):
+        current = None
+        if previous is None and (not incoming.get("events")):
             case_number_key(number, strict=True)
         if previous is not None:
-            current = json.loads(previous)  # unreadable existing files are never replaced
-            case_integrity.require_valid(current, folder)
-            if current.get("schema", 1) > incoming.get("schema", 1):
-                raise ValueError("A newer schema wrote this case; reopen it with the current writer before saving")
-            if current.get("format") != "madison-case-file" or case_number_key(current.get("case", {}).get("number")) != number_key:
-                raise ValueError("The existing file is not this case; it was not overwritten")
-            if current.get("schema", current.get("version", 1)) not in (2, 3, 4, 5):
-                if current.get("schema", current.get("version", 1)) > 5:
-                    raise ValueError("A newer program wrote this case. It was not overwritten")
-                if not base_revision or digest(previous) != base_revision:
-                    raise ValueError("Reopen this legacy case before saving its upgraded record")
-            else:
-                validate_case(current, legacy=True)
-                if idempotency_event:
-                    prior = next((e for e in current["events"] if e["id"] == idempotency_event), None)
-                    if prior:
-                        submitted = next((e for e in incoming["events"] if e["id"] == idempotency_event), None)
-                        if submitted is None or encoded(prior) != encoded(remap(submitted, incoming["case"]["id"], current["case"]["id"])):
-                            raise ValueError("Conflicting content for an existing event; the saved record was preserved")
-                        # The action already committed. Do not reapply stale case
-                        # metadata over changes made after its response was lost.
-                        case_integrity.anchor_after_save(folder)
-                        return {"ok": True, "file": current, "revision": digest(previous), "name": target.name, "alreadyCommitted": True}
-                clean = lambda k: {a: b for a, b in k.items() if a not in ("savedAt", "id")}
-                remote, local = clean(current["case"]), clean(incoming["case"])
-                local["number"] = remote["number"]
-                baseline = clean(base_case) if isinstance(base_case, dict) else None
-                merged = dict(remote)
-                absent = object()
-                for key in remote.keys() | local.keys():
-                    old, new = remote.get(key, absent), local.get(key, absent)
-                    if old == new:
-                        continue
-                    if baseline is None:
-                        raise ValueError("Case details differ from the shared record. Reopen the shared case before changing its details")
-                    before = baseline.get(key, absent)
-                    if new == before:
-                        continue
-                    if old != before:
-                        raise ValueError("Both copies changed %s. Keep the local case and review the shared copy before saving" % key)
-                    if new is absent:
-                        merged.pop(key, None)
-                    else:
-                        merged[key] = new
-                output["case"] = merged
-                cid = current["case"]["id"]
-                output["case"]["id"] = cid
-                by_id = {event["id"]: event for event in current["events"]}
-                for event in incoming["events"]:
-                    event = remap(event, incoming["case"]["id"], cid)
-                    old = by_id.get(event["id"])
-                    if old is not None and encoded(old) != encoded(event):
-                        raise ValueError("Conflicting content for an existing event; neither version was discarded")
-                    by_id[event["id"]] = event
-                output["events"] = sorted(by_id.values(), key=event_order)
-                inspectors = {i["id"]: i for i in current.get("inspectors", [])}
-                inspectors.update({i["id"]: i for i in incoming.get("inspectors", [])})
-                output["inspectors"] = list(inspectors.values())
-            validate_record_changes(current, incoming, output)
-            recovery = folder / "_recovery"
-            recovery.mkdir(exist_ok=True)
-            atomic_write(recovery / (target.name + ".bak"), previous)
+            current, already_committed = _merge_existing_case_save(
+                previous=previous,
+                folder=folder,
+                incoming=incoming,
+                number_key=number_key,
+                base_revision=base_revision,
+                idempotency_event=idempotency_event,
+                target=target,
+                output=output,
+                base_case=base_case,
+            )
+            if already_committed is not None:
+                return already_committed
         cross_case = (
             citation_history(folder, number_key)["history"]
             if any(
-                e.get("payload", {}).get("snapshot", {}).get("authoringVersion", 0) >= 6
-                and e.get("payload", {}).get("snapshot", {}).get("type") == "citation"
-                for e in output.get("events", [])
+                (
+                    e.get("payload", {}).get("snapshot", {}).get("authoringVersion", 0) >= 6
+                    and e.get("payload", {}).get("snapshot", {}).get("type") == "citation"
+                    for e in output.get("events", [])
+                )
             )
             else []
         )
         validate_history(output, {e["id"] for e in current.get("events", [])} if previous is not None else set(), cross_case, folder)
         if output.get("schema", 1) >= 5:
             output = case_integrity.commit_record(current if previous is not None else None, output)
-        if catalog_file is not None:
-            if manifest_file is None:
-                raise ValueError("Catalog manifest is required")
-            Path(catalog_file).parent.mkdir(parents=True, exist_ok=True)
-            with file_lock(Path(catalog_file).parent, "catalog-review"):
-                validate_catalog_publication(current if previous is not None else None, output, catalog_file, manifest_file)
-                raw = encoded(output)
-                if output.get("schema", 1) >= 5:
-                    case_integrity.publish_record(folder, target, output, previous)
-                else:
-                    atomic_write(target, raw)
-        else:
-            raw = encoded(output)
-            if output.get("schema", 1) >= 5:
-                case_integrity.publish_record(folder, target, output, previous)
-            else:
-                atomic_write(target, raw)
+        raw = _publish_validated_case(
+            catalog_file=catalog_file, manifest_file=manifest_file, previous=previous, current=current, output=output, folder=folder, target=target
+        )
         case_integrity.anchor_after_save(folder)
         return {"ok": True, "file": output, "revision": digest(raw), "name": target.name}
 

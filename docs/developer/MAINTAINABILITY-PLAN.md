@@ -151,3 +151,18 @@ The existing 24 helper tests, 14 lifecycle tests and 3,000 seeded fixture-derive
 histories preserve exact refusals, delegated-call order and partial mutations.
 Python C901 findings fall 32 → 31. Locks, authority and stored event semantics
 are unchanged.
+
+## M2 Python case saving
+
+Case-number locking still encloses target resolution, reconciliation, read/merge,
+recovery backup, validation, integrity commit and publication. Metadata and event
+merge phases are named; an acknowledged idempotent retry still anchors and returns
+before stale metadata, recovery or a fresh publication can be applied. Catalog
+review retains its nested lock and validation-before-write order. Every extracted
+function and _save_case stay below McCabe complexity 10.
+
+The original 24 helper tests pass. A 101-request old/new real-filesystem sequence
+compares outcomes, input mutations, lock/write order and exact case/recovery bytes.
+Its synthetic anchor clock is fixed so independently timed status records are
+comparable; initial differences were clock-only and no assertion was relaxed.
+Python C901 findings fall 31 → 30. No stronger save acknowledgement is claimed.
