@@ -69,6 +69,8 @@ export default [
       "app/modules/address_format.js",
       "app/modules/recipient_workflow.js",
       "app/modules/case_folder_workflow.js",
+      "app/modules/local_case_files.js",
+      "app/modules/draft_save_controls.js",
       "app/modules/document_readiness.js",
       "app/modules/record_ids.js",
       "app/modules/catalog_queries.js",
