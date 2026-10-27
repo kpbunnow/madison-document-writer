@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_scoped_services.js` | Exact scoped dependencies, lazy leaves, static access, no spreads and per-interface width |
 | `audit_editor_state.js` | Live editor state and retained captured-view pointers |
 | `audit_recovery_state.js` | Live recovery queue, progress and selection state |
 | `audit_imports_state.js` | Live Accela selection and request coordination state |
