@@ -267,3 +267,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Old access: getJSON and orderedRows names injected into the Reports application bundle by bundle_test. New access: createReportsServices(...).getJSON plus direct report_presentation.orderedRows, evaluated as independent owners with explicit synthetic transport services. The original 502/unreadable, default row order and warning assertions are unchanged. No Writer/Reports startup is run. Whole-application evaluator files fall 91 → 90; no production hook is retired yet.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 save serialization seam
+
+Old access: saveCaseFile plus mutable kase/caseFileName/caseFile/transport names inside the application eval. New access: createCaseSaveWorkflow services and live synthetic WriterState cases; the real filename/query owners are used. Every original false/no-write/export-error assertion remains, with an added check that initial serialization failure never reaches merge. Whole-application evaluator files fall 90 → 89; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
