@@ -243,3 +243,9 @@ The full GitHub gate remains required before this increment merges.
 The ordered control-attribute search is a named helper. Search caret and disclosure restoration stay unchanged; catalog-field identity still includes its catalog key. The independent DOM focus test passes. No selection/approval, markup or persistence policy changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 3, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30}.
+
+## M3 report loading nesting
+
+Parcel-result merging is a synchronous helper called after the same awaited request. No await or cancellation checkpoint is added. The independent actual-transport test passes for chunk boundaries, partial results, token propagation and superseded reads; Reports stays read-only.
+
+Measured counts: {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 125, 'python': 30}.
