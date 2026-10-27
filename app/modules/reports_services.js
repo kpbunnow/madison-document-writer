@@ -5,6 +5,12 @@ import { authFetch } from "./helper_transport.js";
 import { orderedRows, validSort, rememberUI, restoreUI } from "./report_presentation.js";
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
+function mergeParcelLookup(services, lk) {
+  Object.assign(ReportsState.S.parcels, lk.parcels || {});
+  ReportsState.S.parcelMissing = services.uniq(ReportsState.S.parcelMissing.filter((k) => !(lk.parcels || {})[k]).concat(lk.missing || []));
+  if (!lk.ok) ReportsState.S.parcelNote = lk.error || "the parcel lookup did not complete";
+}
+
 export function createReportsServices(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -409,9 +415,7 @@ export function createReportsServices(services) {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
             });
-            Object.assign(ReportsState.S.parcels, lk.parcels || {});
-            ReportsState.S.parcelMissing = services.uniq(ReportsState.S.parcelMissing.filter((k) => !(lk.parcels || {})[k]).concat(lk.missing || []));
-            if (!lk.ok) ReportsState.S.parcelNote = lk.error || "the parcel lookup did not complete";
+            mergeParcelLookup(services, lk);
           }
         } catch (e) {
           if (sequence !== loadSequence) return;

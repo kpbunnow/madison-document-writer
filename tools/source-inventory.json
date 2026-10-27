@@ -656,6 +656,7 @@
     "tests/unit/audit_release_inputs.py",
     "tests/unit/audit_repaint_keepers.js",
     "tests/unit/audit_report_export_scope.js",
+    "tests/unit/audit_report_loading.js",
     "tests/unit/audit_report_metadata.py",
     "tests/unit/audit_report_mismatch.js",
     "tests/unit/audit_report_projection.py",
