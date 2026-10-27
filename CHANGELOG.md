@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Screen dependency direction (development)
+
+- Compose case-status facts, rolling citation history, Workspace presentation, language views, overlays and repaint orchestration through scoped lazy inputs. Define icons directly in ui_icons. Preserve all twelve original function bodies apart from dependency access.
+- Keep startup/listener positions, refusal barriers, live state, routing, disclosure/focus/caret and paint/enhancement order. Existing storage/helper/publication authority and frozen output remain unchanged.
+- Add independent screen-owner behavior/wiring checks and require an acyclic Writer and Reports graph. Complete the interface/startup architecture audit and reconcile current ownership, roadmap and source/test indexes. R63/build 64 and all formats remain unchanged.
+
 ## Unreleased — Development verification policy
 
 - Use targeted local checks before development PR submission; local full-gate and baseline runs are optional. Require the full GitHub gate and PR format on the current PR head before merge.

@@ -421,14 +421,19 @@ All seven original function bodies retain their logic and literals apart from sc
 
 There are 123 maintained modules, 15 isolated foundations and 77 independent scoped owners. Shell shrinks from 331 to 44 lines. Writer narrows from three cyclic modules to core/screens only; tighten the cap to two. Reports stays acyclic. Next inspect core/screen dependency direction while preserving original startup/event order and existing UI/feature authority. Earlier counts/ownership remain provenance.
 
-## Following increments
+## Forty-seventh increment: screen dependency direction
 
-Continue through focused, separately reviewable changes:
+case_status composes caseState through three lazy snow/today/unissuedVisitFor inputs; citation_history composes priorCitations through the call-time day. workspace_screen composes screenCases/revealIssuedCase/focusIssuedCase through nine scoped fact/task/context/search/preference/notification/frame/native inputs. ui_icons directly defines uiIcon. language_views composes screenLibrary/pickerHTML through the existing language context. screen_overlays composes modalHTML/overlayHTML through sixteen review/recipient/storage/feature/day/picker inputs. app_screens composes render/renderKeep through twenty-four route/native/readiness/focus/enhancement inputs. Core composes the six factories after storageProbe and before folderConnections, exporting actual operations. Construction performs no reads, I/O or registration.
 
-1. Continue reducing the remaining 2-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
-2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
+All twelve original bodies retain their logic/literals apart from scoped access. Preserve live facts and rolling citation-date boundaries, Workspace reveal/filter/preference behavior, escaped views and modal priority, startup stopped/locked/restore guards, original paint/enhancement sequence, input node/caret/focus and disclosure restoration, dirty-save dispatch and scroll order. The retained R13 and HTML tag-check audits call the public overlay operation with the same final-modal state and unchanged assertions. Startup and feature registration remain at their original checkpoints. This adds no publication/save/helper/native authority.
 
-Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
+There are 129 maintained modules, 16 isolated foundations and 83 scoped owners. Both Writer and Reports are now acyclic; the guard rejects every module cycle. The accompanying final architecture audit reviews interface breadth and startup clarity, independently loadable owners and documentation consistency. Earlier counts/ownership remain provenance.
+
+## Architecture audit and stopping point
+
+The planned refactor reaches its stopping point when the final screen-dependency PR's current-head GitHub Full gate passes: Writer and Reports are acyclic, scoped owners load independently, broad interfaces and startup clarity have been reviewed, and ownership/testing/source guidance is reconciled. MAINTAINABILITY-ASSESSMENT.md records the interface decisions and current counts. Existing construction, startup/event and behavioral audits preserve original ordering and authority without a universal registry.
+
+Further decomposition or dead-name removal should address a concrete defect, feature, platform requirement or recurring development difficulty. Do not continue splitting coherent transactions solely to reduce module size or input counts. Preserve verified projection inputs, export/print ordering, diagnostic coverage, public exports and stored/installed identities. Every future change follows the current development/merge policy.
 
 ## Verification and merge
 

@@ -84,7 +84,13 @@ import { caseFileName } from "./case_file_rules.js";
 
 import { createWriterStartup } from "./writer_startup.js";
 import { createReinspection } from "./reinspection.js";
-import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
+import { uiIcon } from "./ui_icons.js";
+import { createCaseStatus } from "./case_status.js";
+import { createCitationHistory } from "./citation_history.js";
+import { createWorkspaceScreen } from "./workspace_screen.js";
+import { createLanguageViews } from "./language_views.js";
+import { createScreenOverlays } from "./screen_overlays.js";
+import { createAppScreens } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
 
 import { createLanguageCatalog } from "./language_catalog.js";
@@ -403,6 +409,109 @@ const storageProbe = createStorageProbe({
   render: (...args) => render(...args),
 });
 export let { testWrite } = storageProbe;
+
+const caseStatus = createCaseStatus({
+  get snow() {
+    return snow;
+  },
+  get today() {
+    return today;
+  },
+  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
+});
+export let { caseState } = caseStatus;
+const citationHistory = createCitationHistory({
+  get today() {
+    return today;
+  },
+});
+export let { priorCitations } = citationHistory;
+const workspaceScreen = createWorkspaceScreen({
+  app_workspacequeueContext: (...args) => app_workspacequeueContext(...args),
+  caseSearchText: (...args) => caseSearchText(...args),
+  caseState: (...args) => caseState(...args),
+  get document() {
+    return document;
+  },
+  recoveryStatusHTML: (...args) => recoveryStatusHTML(...args),
+  remindersPanel: (...args) => remindersPanel(...args),
+  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
+  shell: (...args) => shell(...args),
+  workspaceTasks: (...args) => workspaceTasks(...args),
+});
+export let { revealIssuedCase, focusIssuedCase, screenCases } = workspaceScreen;
+const languageViews = createLanguageViews({
+  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
+});
+export let { screenLibrary, pickerHTML } = languageViews;
+const screenOverlays = createScreenOverlays({
+  get CASEDIR_EXPECT() {
+    return CASEDIR_EXPECT;
+  },
+  get blockers() {
+    return blockers;
+  },
+  caseUnsaved: (...args) => caseUnsaved(...args),
+  checkRowHTML: (...args) => checkRowHTML(...args),
+  checks: (...args) => checks(...args),
+  correctionDiffHTML: (...args) => correctionDiffHTML(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  pickerHTML: (...args) => pickerHTML(...args),
+  recipientPreview: (...args) => recipientPreview(...args),
+  recordActionModal: (...args) => recordActionModal(...args),
+  recoveryModal: (...args) => recoveryModal(...args),
+  reindexReport: (...args) => reindexReport(...args),
+  reviewModalHTML: (...args) => reviewModalHTML(...args),
+  sharedChangeModal: (...args) => sharedChangeModal(...args),
+  storageReport: (...args) => storageReport(...args),
+  get today() {
+    return today;
+  },
+});
+export let { overlayHTML } = screenOverlays;
+const appScreens = createAppScreens({
+  get A11Y() {
+    return A11Y;
+  },
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
+  get document() {
+    return document;
+  },
+  editorEnhance: (...args) => editorEnhance(...args),
+  enhanceDialog: (...args) => enhanceDialog(...args),
+  ensureWalkContext: (...args) => ensureWalkContext(...args),
+  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
+  isLocked: (...args) => isLocked(...args),
+  get location() {
+    return location;
+  },
+  get navigation() {
+    return navigation;
+  },
+  get newDocuments() {
+    return newDocuments;
+  },
+  overlayHTML: (...args) => overlayHTML(...args),
+  paginate: (...args) => paginate(...args),
+  restoreWorkControls: (...args) => restoreWorkControls(...args),
+  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
+  screenCases: (...args) => screenCases(...args),
+  screenImport: (...args) => screenImport(...args),
+  screenLibrary: (...args) => screenLibrary(...args),
+  screenReinspect: (...args) => screenReinspect(...args),
+  screenWrite: (...args) => screenWrite(...args),
+  updateSaveStatus: (...args) => updateSaveStatus(...args),
+  walkIdentity: (...args) => walkIdentity(...args),
+  get window() {
+    return window;
+  },
+});
+export let { render, renderKeep } = appScreens;
 
 const folderConnections = createFolderConnections({
   get FS_OK() {

@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "../..");
 const directory = path.join(root, "app/modules");
 const graph = moduleGraph(directory);
 const allowed = {
+  "ui_icons.js": [],
   "address_format.js": ["./mailing_rules.js"],
   "presentation_format.js": [],
   "mailing_rules.js": [],
@@ -37,6 +38,42 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "case_status.js": [
+    "../assets/shared.js",
+    "./calendar.js",
+    "./case_file_rules.js",
+    "./case_records.js",
+    "./document_rules.js",
+    "./document_types.js",
+    "./pdf_artifacts.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
+  "citation_history.js": ["../assets/shared.js", "./calendar.js", "./writer_queries.js"],
+  "workspace_screen.js": [
+    "./case_file_rules.js",
+    "./case_records.js",
+    "./data/inspectors.js",
+    "./document_types.js",
+    "./presentation_format.js",
+    "./state.js",
+    "./ui_icons.js",
+    "./working_papers.js",
+    "./workspace_queue.js",
+    "./writer_queries.js",
+  ],
+  "language_views.js": ["./language_discovery.js"],
+  "screen_overlays.js": [
+    "../assets/shared.js",
+    "./calendar.js",
+    "./document_types.js",
+    "./mailing_rules.js",
+    "./presentation_format.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
+  "app_screens.js": ["./helper_stopped.js", "./language_discovery.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+
   "workspace_shell.js": ["./presentation_format.js", "./data/build_identity.js", "./saved_work.js"],
   "browser_printing.js": ["./data/approved_print_style.js", "./presentation_format.js", "./writer_queries.js", "./state.js"],
   "storage_status.js": ["../assets/shared.js", "./presentation_format.js", "./data/build_identity.js", "./state.js"],
@@ -374,11 +411,7 @@ for (const [name, dependencies] of Object.entries({ ...allowed, ...scopedService
   for (const dependency of graph.imports[name]) assert.ok(dependencies.includes(dependency), `${name} must not depend on ${dependency}`);
   assert.ok(!graph.cycles.some((cycle) => cycle.includes(name)), `${name} must stay outside UI cycles`);
 }
-assert.ok(graph.cycles.length <= 1, "do not introduce another cyclic component");
-for (const cycle of graph.cycles) {
-  const cap = cycle.includes("app_core.js") ? 2 : 0;
-  assert.ok(cycle.length <= cap, "do not grow the retained Writer/Reports cycles or introduce an unrelated cycle");
-}
+assert.deepEqual(graph.cycles, [], "Writer and Reports must remain acyclic");
 // Re-exports, static and dynamic imports all contribute to the graph; source is never evaluated.
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "module-graph-"));
 try {
@@ -472,7 +505,7 @@ try {
     JSON.stringify({
       passed: true,
       modules: Object.keys(graph.edges).length,
-      largestCycle: Math.max(...graph.cycles.map((c) => c.length)),
+      largestCycle: Math.max(0, ...graph.cycles.map((c) => c.length)),
       isolatedFoundations: Object.keys(allowed).length,
       isolatedServices: Object.keys(scopedServices).length,
     }),

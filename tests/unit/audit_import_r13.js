@@ -180,7 +180,7 @@ const tests = async function () {
     highlightOpenChecks();
   };
   WriterState.state.modal = "final";
-  document.getElementById("overlay").innerHTML = modalHTML();
+  document.getElementById("overlay").innerHTML = overlayHTML();
   const parcelLink = document.querySelector(".modal .check-link");
   ok(
     "Document check links are rendered as buttons, not worksheet links",

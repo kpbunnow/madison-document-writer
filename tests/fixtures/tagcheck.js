@@ -94,7 +94,7 @@ const T =
   "5',note:'',cite:false};\nOUT.reinspect_filled=screenReinspect();\ndocFromR" +
   "einspection(r,'citation');\nOUT.citation=screenWrite();\nOUT.cases=screenC" +
   "ases();OUT.documents=screenCases();OUT.library=screenLibrary();\nWriterSt" +
-  "ate.state.modal='final';OUT.modal=modalHTML();\n";
+  "ate.state.modal='final';OUT.modal=overlayHTML();\n";
 eval(src + "\n;;\n" + T);
 const VOID = new Set(["br", "hr", "img", "input", "meta", "link", "col", "source", "area", "base", "wbr", "embed"]);
 let bad = 0;
