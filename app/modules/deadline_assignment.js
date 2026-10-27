@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Deadline planning, assignment and presentation; events/persistence retain their existing authority. */
 import { validISO, daysBetween } from "./calendar.js";
@@ -5,7 +6,6 @@ import { clone } from "./record_values.js";
 import { dueItems, distinctDues } from "./document_rules.js";
 import { doc, kase, reinsp } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 
 export function dueDateSpacingConflicts(items) {
   const byDate = new Map();
@@ -87,7 +87,7 @@ export function createDeadlineAssignment(services) {
         `${services.MINDUE()}` +
         '" required></label>' +
         "".concat(
-          WriterState.DOCS.filter((d) => services.structEditable(d) && !d.pendingAmendment)
+          workspace.DOCS.filter((d) => services.structEditable(d) && !d.pendingAmendment)
             .map(
               (d) =>
                 "<fieldset><legend>" +

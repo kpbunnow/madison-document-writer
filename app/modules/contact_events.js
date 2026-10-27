@@ -1,6 +1,6 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Contact event ownership. Construction is inert; core registers at the original startup positions. */
-import { WriterState } from "./state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
 import { emailList, isLLC, ccList } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
@@ -77,7 +77,7 @@ export function createContactEvents(services) {
         return;
       }
       editor.state.ccProblem = null;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
     }
     editor.state.modal = null;
@@ -123,7 +123,7 @@ export function createContactEvents(services) {
       const preview = document.querySelector('[data-recipient-preview="' + key + '"]');
       if (preview) preview.textContent = services.recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent);
     }
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.scheduleDraftSave();
     return;
   };
@@ -135,7 +135,7 @@ export function createContactEvents(services) {
         p = e.target.dataset.em.split("|");
       k.emails = emailList(k);
       if (k.emails[+p[0]]) k.emails[+p[0]][p[1]] = e.target.value;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.render();
     }
     return;

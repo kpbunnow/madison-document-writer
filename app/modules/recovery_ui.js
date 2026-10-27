@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { recoverySharedConflict } from "./case_recovery.js";
@@ -37,7 +38,7 @@ export function createRecoveryUI(services) {
       editor.state.picker = false;
       editor.state.screen = "cases";
       editor.state.riFilter = "";
-      WriterState.DIRTY = false;
+      workspace.DIRTY = false;
       services.render();
       services.toast("Work saved on this device. Continue from your workspace when ready.");
     });
@@ -88,7 +89,7 @@ export function createRecoveryUI(services) {
   function recoveryModal() {
     const b = recovery.RECOVERY.selected,
       k = b?.bundle?.cases?.[0],
-      local = k && WriterState.CASES.find((c) => c.id === k.id || c.number === k.number);
+      local = k && workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
       '" aria-label="Recover unfinished work">\n    <div class="modal-h"><h2>Rec' +

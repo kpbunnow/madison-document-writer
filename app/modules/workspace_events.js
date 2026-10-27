@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 import { startupState as startup } from "./startup_state.js";
@@ -101,7 +102,7 @@ const workspaceActions = [
     id: "btn-flush",
     matches: (t, e) => t.id === "btn-flush",
     run: (services, t, e, d) => {
-      if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
+      if (workspace.CASEDIR && workspace.NEEDGRANT) {
         services
           .grantCaseFolder(true)
           .then(() => services.flushPending())
@@ -116,12 +117,12 @@ const workspaceActions = [
     id: "caseSync",
     matches: (t, e) => t.dataset.caseSync,
     run: (services, t, e, d) => {
-      if (!WriterState.CASEDIR) {
+      if (!workspace.CASEDIR) {
         editor.state.modal = "storage";
         services.render();
         return;
       }
-      if (WriterState.NEEDGRANT) {
+      if (workspace.NEEDGRANT) {
         services.grantCaseFolder(true).then((ok) => (ok ? services.flushPending() : services.render()));
         return;
       }
@@ -234,7 +235,7 @@ const workspaceActions = [
     run: (services, t, e, d) => {
       const dd = doc(editor.state.docId);
       if (!dd) return;
-      if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
+      if (workspace.CASEDIR && workspace.NEEDGRANT) {
         services.grantCaseFolder(true).then(() => services.saveCaseFile(dd.caseId));
         return;
       }

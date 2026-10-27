@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { normParcel } from "../assets/shared.js";
@@ -31,7 +32,7 @@ export function initCitationPricing(services) {
     const records = shared
         .filter((x) => x.case.number !== respondent.number)
         .concat(
-          WriterState.DOCS.filter((d) => !d.draft && !d.void && !d.superseded && d.type === "citation" && d.id !== excludeId).map((d) => ({
+          workspace.DOCS.filter((d) => !d.draft && !d.void && !d.superseded && d.type === "citation" && d.id !== excludeId).map((d) => ({
             case: docCase(d),
             document: d,
           })),
@@ -103,7 +104,7 @@ export function initCitationPricing(services) {
     if (!d || !d.draft || d.pendingAmendment || services.isLocked(d)) return;
     services.libraryReview.refresh(d);
     services.snow.prepare(d);
-    const current = JSON.stringify(WriterState.DOCS.filter((x) => !x.draft).map((x) => [x.id, x.void, x.superseded, x.eventId]));
+    const current = JSON.stringify(workspace.DOCS.filter((x) => !x.draft).map((x) => [x.id, x.void, x.superseded, x.eventId]));
     if (localHistorySignature && current !== localHistorySignature) loadedAt = 0;
     localHistorySignature = current;
     d.authoringVersion = Math.max(11, d.authoringVersion || 0);
@@ -223,7 +224,7 @@ export function initCitationPricing(services) {
       : "Choose a charge from the item’s current sections, or confirm a different charge with its approved source.";
   }
   async function loadShared(d, force = false) {
-    if (!d || d.pendingAmendment || !WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) return true;
+    if (!d || d.pendingAmendment || !WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) return true;
     refresh(d);
     if (!force && Date.now() - loadedAt < 15000) {
       refresh(d);
@@ -253,7 +254,7 @@ export function initCitationPricing(services) {
     return ok;
   }
   function ensureShared(d) {
-    if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
+    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
     const old = loadedAt;
     void loadShared(d).then((ok) => {
       if (ok && loadedAt !== old && editor.state.docId === d.id && d.draft && !d.pendingAmendment) services.renderKeep();
@@ -262,7 +263,7 @@ export function initCitationPricing(services) {
   const signature = (d) => JSON.stringify(Object.entries(d.cits || {}).map(([id, c]) => [id, c.tier, c.base, c.cc, c.amount, c.countedOffenses]));
   const historyFault = (d) =>
     WriterState.HELPER?.ok &&
-    WriterState.CASEDIR?.helper &&
+    workspace.CASEDIR?.helper &&
     !loadedAt &&
     d?.items.some((i) => i.cite && (d.cits?.[i.id]?.depositMode || "schedule") === "schedule")
       ? "Shared citation history must finish checking. Use Refresh citation history; reconnect if it is unavailable."

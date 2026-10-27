@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { startupState as startup } from "./startup_state.js";
@@ -144,7 +145,7 @@ async function settleRecoveryCopy() {
 function stoppedDetails() {
   const details = ["Drafts saved on this device stay on this device."];
   const queued = [];
-  if (WriterState.PENDING.length) queued.push(plural(WriterState.PENDING.length, "shared save"));
+  if (workspace.PENDING.length) queued.push(plural(workspace.PENDING.length, "shared save"));
   if (WriterState.HELPER?.outbox) queued.push(plural(WriterState.HELPER.outbox, "PDF transfer"));
   if (queued.length)
     details.push(

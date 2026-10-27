@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { SNOW_TYPE, courtTime } from "./document_types.js";
@@ -268,7 +269,7 @@ export function initSnow(services) {
     ...(d.authoringVersion >= 10 ? { snowCoverFormat: coverFormat(d) } : {}),
   });
   async function loadLetter(force = false) {
-    if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) return false;
+    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) return false;
     if (letterLoaded && !force) return true;
     if (!loading)
       loading = services
@@ -352,7 +353,7 @@ export function initSnow(services) {
     if (!d?.draft || services.isLocked(d) || d.pendingAmendment) return;
     d.snow = d.snow || {};
     d.snow[key] = el.type === "checkbox" ? el.checked : key === "inches" ? (el.value === "" ? "" : Number(el.value)) : el.value;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     prepare(d);
     services.citationPricing.refresh(d);
     services.scheduleDraftSave();
@@ -373,7 +374,7 @@ export function initSnow(services) {
     d.items = [];
     d.cits = {};
     removed(d);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
   });

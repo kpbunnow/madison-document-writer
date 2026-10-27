@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
 import { iso } from "./calendar.js";
@@ -190,8 +191,8 @@ function recipientModal({ services }) {
 }
 
 function clearWorkspaceModal({ services }) {
-  const risky = WriterState.CASES.filter((k) => services.caseUnsaved(k)),
-    safe = WriterState.CASES.filter((k) => !services.caseUnsaved(k));
+  const risky = workspace.CASES.filter((k) => services.caseUnsaved(k)),
+    safe = workspace.CASES.filter((k) => !services.caseUnsaved(k));
   return (
     '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
     '">\n      <div class="modal-h"><h2>Remove cases from this workspace</h2></div><di' +
@@ -259,7 +260,7 @@ function clearWorkspaceModal({ services }) {
     ) +
     "\n        " +
     "".concat(
-      risky.length ? `<button class="btn" data-clearcases="all">Remove all ${WriterState.CASES.length}, losing that unsaved work</button>` : "",
+      risky.length ? `<button class="btn" data-clearcases="all">Remove all ${workspace.CASES.length}, losing that unsaved work</button>` : "",
     ) +
     "\n      </div></div></div>"
   );
@@ -273,10 +274,10 @@ function storageModal({ services }) {
     `${services.storageReport()}` +
     "\n      " +
     "".concat(
-      WriterState.CASEDIR && WriterState.DIRNAME !== services.CASEDIR_EXPECT
+      workspace.CASEDIR && workspace.DIRNAME !== services.CASEDIR_EXPECT
         ? '<div class="banner warn" style="margin-top:14px"><div><strong>Case files' +
             " are going to a folder called &ldquo;" +
-            `${esc(WriterState.DIRNAME)}` +
+            `${esc(workspace.DIRNAME)}` +
             "&rdquo;, not &ldquo;" +
             `${esc(services.CASEDIR_EXPECT)}` +
             "&rdquo;.</strong>\n        If that is not where they belong, relink below" +
@@ -286,7 +287,7 @@ function storageModal({ services }) {
     ) +
     '\n      <p class="hint" style="margin-top:14px">' +
     "".concat(
-      WriterState.CASEDIR && WriterState.CASEDIR.helper
+      workspace.CASEDIR && workspace.CASEDIR.helper
         ? "Case files are saved through the local helper with a shared lock and a r" + "ecoverable previous copy. Drafts stay on this device."
         : "The browser only supplies the folder name. Write a test file to verify the destination.",
     ) +
@@ -295,12 +296,12 @@ function storageModal({ services }) {
     '<p><button class="btn" data-sync-safety>Back to saved work &amp; connect' +
     'ion</button></p>\n      </div><div class="modal-f">\n        ' +
     "".concat(
-      WriterState.CASEDIR
+      workspace.CASEDIR
         ? '<button class="btn" id="btn-reindex" ' +
             `${editor.state.reindex && editor.state.reindex.running ? "disabled" : ""}` +
             ">Rebuild reporting index</button>" +
             "".concat(
-              WriterState.CASEDIR.helper
+              workspace.CASEDIR.helper
                 ? ""
                 : '<button class="btn" id="btn-testwrite">Write a test file</button><button' +
                     ' class="btn" id="btn-linkdir">Link a different folder…</button>',

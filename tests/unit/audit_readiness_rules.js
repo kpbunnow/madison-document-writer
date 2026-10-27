@@ -1,3 +1,4 @@
+const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
 /* Readiness results and effect order must equal the original owner across generated documents. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -10,7 +11,11 @@ const assert = require("node:assert/strict"),
   const reference = require("../fixtures/readiness_reference.cjs");
   const built = await esbuild.build({
     stdin: {
-      contents: source + "\nexport function reference(services){" + reference + ';return checks;}export {WriterState} from "./state.js";',
+      contents:
+        withHistoricalState(source) +
+        "\nexport function reference(services){" +
+        reference +
+        ';return checks;}export {WriterState} from "./state.js";',
       resolveDir: dir,
     },
     bundle: true,
