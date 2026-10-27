@@ -1,3 +1,4 @@
+import { recoveryState as recovery } from "./recovery_state.js";
 /* Recovery event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -155,8 +156,8 @@ export function createRecoveryEvents(services) {
         return;
       }
       if (t.dataset.recoveryRow !== undefined) {
-        services.selectRecovery(WriterState.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
-          WriterState.RECOVERY.error = err.message;
+        services.selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
+          recovery.RECOVERY.error = err.message;
           services.render();
         });
         return;
@@ -166,14 +167,11 @@ export function createRecoveryEvents(services) {
         return;
       }
       if (t.hasAttribute("data-recovery-export")) {
-        services.downloadFile(
-          "Madison-recovery-" + WriterState.RECOVERY.selected.number + ".json",
-          JSON.stringify(WriterState.RECOVERY.selected, null, 2),
-        );
+        services.downloadFile("Madison-recovery-" + recovery.RECOVERY.selected.number + ".json", JSON.stringify(recovery.RECOVERY.selected, null, 2));
         return;
       }
       if (t.hasAttribute("data-recovery-shared")) {
-        const k = WriterState.RECOVERY.selected?.bundle?.cases?.[0];
+        const k = recovery.RECOVERY.selected?.bundle?.cases?.[0];
         WriterState.state.modal = null;
         if (k)
           services
@@ -191,10 +189,10 @@ export function createRecoveryEvents(services) {
         const b = JSON.parse(await e.target.files[0].text());
         const row = { workspace: b.workspace, case: b.case, number: b.number, name: "Imported file", imported: b };
         services.validateRecovery(b, row);
-        WriterState.RECOVERY.list.unshift(row);
+        recovery.RECOVERY.list.unshift(row);
         await services.selectRecovery(row);
       } catch (err) {
-        WriterState.RECOVERY.error = "Import rejected: " + err.message;
+        recovery.RECOVERY.error = "Import rejected: " + err.message;
         services.render();
       }
     });

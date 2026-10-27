@@ -14,6 +14,7 @@ const allowed = {
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
+  "recovery_state.js": ["./state.js"],
   "imports_state.js": ["./state.js"],
   "startup_state.js": ["./state.js"],
   "catalog_state.js": ["./state.js"],
@@ -42,9 +43,18 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "recovery_events.js": ["./event_registration.js", "./recovery_state.js", "./state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./state.js", "./writer_queries.js"],
   "import_events.js": ["./event_registration.js", "./imports_state.js", "./state.js"],
-  "desktop_exit.js": ["./app_core.js", "./helper_stopped.js", "./helper_transport.js", "./saved_work.js", "./startup_state.js", "./state.js"],
+  "desktop_exit.js": [
+    "./recovery_state.js",
+    "./app_core.js",
+    "./helper_stopped.js",
+    "./helper_transport.js",
+    "./saved_work.js",
+    "./startup_state.js",
+    "./state.js",
+  ],
   "workspace_events.js": ["./imports_state.js", "./event_registration.js", "./startup_state.js", "./state.js", "./writer_queries.js"],
   "catalog_events.js": [
     "./calendar.js",
@@ -190,7 +200,7 @@ const scopedServices = {
     "./state.js",
   ],
   "record_actions.js": ["./document_rules.js", "./writer_queries.js", "./state.js"],
-  "recovery_ui.js": ["./case_recovery.js", "./presentation_format.js", "./state.js"],
+  "recovery_ui.js": ["./recovery_state.js", "./case_recovery.js", "./presentation_format.js", "./state.js"],
   "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./state.js"],
   "worksheet_workflow.js": [
@@ -204,8 +214,23 @@ const scopedServices = {
     "./calendar.js",
     "./state.js",
   ],
-  "case_recovery.js": ["./case_file_rules.js", "./document_types.js", "./record_values.js", "./writer_queries.js", "./case_records.js", "./state.js"],
-  "automatic_recovery.js": ["./record_values.js", "./writer_queries.js", "./calendar.js", "./data/build_identity.js", "./state.js"],
+  "case_recovery.js": [
+    "./recovery_state.js",
+    "./case_file_rules.js",
+    "./document_types.js",
+    "./record_values.js",
+    "./writer_queries.js",
+    "./case_records.js",
+    "./state.js",
+  ],
+  "automatic_recovery.js": [
+    "./recovery_state.js",
+    "./record_values.js",
+    "./writer_queries.js",
+    "./calendar.js",
+    "./data/build_identity.js",
+    "./state.js",
+  ],
   "workspace_backup.js": [
     "../assets/shared.js",
     "./case_file_rules.js",

@@ -339,3 +339,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Four import and navigation event owners use the five-field import coordination boundary. Initialization, abort/controller identity, serial increments and pending-selection guards remain in their original checkpoints. Independent import service tests, seven original import feature scenarios and 23 selection assertions pass. The root importer count is temporarily 73 because these mixed owners retain workspace/editor state; this remains below baseline 83 and all cycles remain zero. Other cohorts and removal of the remaining mixed imports follow separately.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 recovery coordination state boundary
+
+Five recovery/exit owners use the six-field recovery boundary. Existing independent automatic recovery and case recovery tests pass, including serialized latest-state, retry/deduplication, selection guards, backup-before-confirmation and rollback retention. Recovery history and desktop exit assertions pass unchanged. Import construction remains inert and queue identities remain live. The root importer count is temporarily 74 as mixed owners retain editor/workspace fields; cycles remain zero. This cohort introduces no new state keys or persisted formats.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

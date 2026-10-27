@@ -147,7 +147,7 @@
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,
     "app/modules/record_integrity.js:verifyIntegrity#1:complexity": 27,
     "app/modules/record_integrity.js:verifyIntegrity#1:max-lines-per-function": 90,
-    "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 244,
+    "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 241,
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1:max-lines-per-function": 93,
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:complexity": 23,
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:max-lines-per-function": 85,

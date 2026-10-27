@@ -1,3 +1,4 @@
+import { recoveryState as recovery } from "./recovery_state.js";
 import { recoverySharedConflict } from "./case_recovery.js";
 import { esc } from "./presentation_format.js";
 import { WriterState } from "./state.js";
@@ -66,25 +67,25 @@ export function createRecoveryUI(services) {
       ? '<span class="save-error" role="status">Automatic backup unavailable. Sta' +
           'rt the local helper; device autosave is separate. <button class="lnk" da' +
           "ta-setup-health>Check connection</button></span>"
-      : WriterState.RECOVERY.error
+      : recovery.RECOVERY.error
         ? '<div class="save-error" role="alert">Automatic backup needs attention. D' +
           'evice autosave is separate. <button class="lnk" data-sync-safety>Review ' +
           'saved work</button><details data-saved-detail="automatic-backup"><summar' +
           "y>Backup details</summary>" +
-          `${esc(WriterState.RECOVERY.error)}` +
+          `${esc(recovery.RECOVERY.error)}` +
           " · Last successful backup: " +
-          `${esc(WriterState.RECOVERY.at || "none")}` +
+          `${esc(recovery.RECOVERY.at || "none")}` +
           "</details></div>"
-        : WriterState.RECOVERY.at
+        : recovery.RECOVERY.at
           ? '<div>Automatic recovery copy available. <details data-saved-detail="auto' +
             'matic-backup"><summary>Backup details</summary>' +
-            `${esc(WriterState.RECOVERY.at)}` +
+            `${esc(recovery.RECOVERY.at)}` +
             "</details></div>"
           : "<span>Automatic backup waiting for its first save. Device autosave is separate.</span>";
   }
 
   function recoveryModal() {
-    const b = WriterState.RECOVERY.selected,
+    const b = recovery.RECOVERY.selected,
       k = b?.bundle?.cases?.[0],
       local = k && WriterState.CASES.find((c) => c.id === k.id || c.number === k.number);
     return (
@@ -95,14 +96,14 @@ export function createRecoveryUI(services) {
       "ring recovery.</p>\n      <label>Import an exported individual recovery J" +
       'SON <input id="recovery-import" type="file" accept=".json,application/js' +
       'on"></label>\n      ' +
-      "".concat(WriterState.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(WriterState.RECOVERY.error)}</div>` : "") +
+      "".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : "") +
       "\n      " +
       "".concat(
-        WriterState.RECOVERY.loading
+        recovery.RECOVERY.loading
           ? "Reading backups…"
           : '<div class="folderlist">' +
               "".concat(
-                WriterState.RECOVERY.list
+                recovery.RECOVERY.list
                   .map(
                     (x, i) =>
                       '<button data-recovery-row="' +
@@ -135,14 +136,14 @@ export function createRecoveryUI(services) {
               ". Local: " +
               `${esc(local ? services.caseUnsaved(local) || "case present, no unfinished work" : "case absent")}` +
               ". Shared: " +
-              `${esc(WriterState.RECOVERY.shared?.detail || "Checking shared record…")}` +
+              `${esc(recovery.RECOVERY.shared?.detail || "Checking shared record…")}` +
               "</p>\n        " +
               "".concat(
-                WriterState.RECOVERY.shared?.fields?.length
+                recovery.RECOVERY.shared?.fields?.length
                   ? "<table><thead><tr><th>Field</th><th>Backup</th><th>Shared</th></tr></the" +
                       "ad><tbody>" +
                       "".concat(
-                        WriterState.RECOVERY.shared.fields
+                        recovery.RECOVERY.shared.fields
                           .map((f) =>
                             "".concat(
                               "<tr><td>",
@@ -166,7 +167,7 @@ export function createRecoveryUI(services) {
       "".concat(
         b
           ? '<button class="btn btn-primary" data-recovery-restore ' +
-              `${recoverySharedConflict(WriterState.RECOVERY.shared) ? "disabled" : ""}` +
+              `${recoverySharedConflict(recovery.RECOVERY.shared) ? "disabled" : ""}` +
               '>Restore selected case</button><button class="btn" data-recovery-export>' +
               "Export selected backup</button>" +
               `${k ? `<button class="btn" data-recovery-shared>Open current shared case</button>` : ""}` +
