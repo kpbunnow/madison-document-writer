@@ -20,6 +20,7 @@ covers, or a new suite under its feature.
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
+| `audit_workspace_html.js` | Exact pre-refactor Workspace HTML snapshots over 1,033 empty/queue/filter/proof/draft/deadline states, plus state/effect order |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |
 | `audit_case_save_phases.py` | Real-filesystem old/new save parity: merge/retry refusals, lock/write order, exact recovery and case bytes with controlled anchor clock |
 | `audit_history_rules.py` | Differential history replay: linked corrections/visits, exact refusals, delegate order and partial mutations |

@@ -179,3 +179,18 @@ their responsibilities and the 60 registrations keep their exact order/capture.
 The registration audit and 1,078 differential action/overlap cases compare results,
 state, full effect order and the synchronous call prefix. Complexity violations
 83 → 82; length reports 136 → 134.
+
+## M3 Workspace sections
+
+Workspace row headings, verification warnings, document links, dates, quick views,
+case table and surrounding content now have named section renderers. Expressions
+and their evaluation order remain unchanged; sections receive only their local
+facts and retain live state reads. No function in workspace_screen exceeds 80
+nonblank/noncomment lines or complexity 20.
+
+The original screen-owner audit and 1,033 exact HTML snapshots from the frozen
+pre-extraction function pass. Every snapshot renders successfully and compares
+state mutations and service lookup order as well as byte-identical markup. The
+corpus covers empty, queue/filter, proof, draft, deadline and import states; the
+full gate retains the separate production accessibility checkpoints. Complexity
+violations 82 → 80; length reports 134 → 131.
