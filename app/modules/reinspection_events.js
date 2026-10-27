@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Reinspection event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -6,8 +7,8 @@ export function createReinspectionEvents(services) {
   function registerWalkKeys(target = document) {
     return registerEventOnce(target, "reinspection.registerWalkKeys", "keydown", (e) => {
       if (
-        WriterState.state.screen !== "reinspect" ||
-        !WriterState.state.riWalk ||
+        editor.state.screen !== "reinspect" ||
+        !editor.state.riWalk ||
         !services.ensureWalkContext() ||
         e.defaultPrevented ||
         e.repeat ||
@@ -27,15 +28,15 @@ export function createReinspectionEvents(services) {
         !(key === "u" && target.closest("[data-riwalk-undo]"))
       )
         return;
-      if (key === "u" && WriterState.state.riWalkUndo) {
+      if (key === "u" && editor.state.riWalkUndo) {
         e.preventDefault();
         services.undoWalkOutcome();
         return;
       }
       const outcome = { 1: "corrected", 2: "progress", 3: "none", 4: "noaccess" }[key];
-      if (!outcome || !WriterState.state.riWalkItem) return;
+      if (!outcome || !editor.state.riWalkItem) return;
       e.preventDefault();
-      services.recordReinspectionOutcome(WriterState.state.riWalkItem, outcome);
+      services.recordReinspectionOutcome(editor.state.riWalkItem, outcome);
     });
   }
 
@@ -46,13 +47,13 @@ export function createReinspectionEvents(services) {
   };
 
   const recordVisit = () => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) {
       services.recordReinspection(r);
       services.clearWalk();
-      WriterState.WORK.walk = null;
-      WriterState.state.screen = "cases";
-      WriterState.state.reinspId = null;
+      editor.WORK.walk = null;
+      editor.state.screen = "cases";
+      editor.state.reinspId = null;
       services.saveCaseFile(r.caseId);
       services.render();
     }
@@ -66,25 +67,25 @@ export function createReinspectionEvents(services) {
   };
 
   const toggleWalk = (t) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (!r || !r.draft || r.docId) return;
     // The two review modes are a pressed-button pair; choosing the current mode changes nothing.
-    if ((t.dataset.riwalk === "on") === !!WriterState.state.riWalk) return;
+    if ((t.dataset.riwalk === "on") === !!editor.state.riWalk) return;
     if (t.dataset.riwalk === "on") {
       services.clearWalk();
-      WriterState.state.riWalk = true;
-      WriterState.state.riWalkContext = services.walkIdentity(r);
-      WriterState.state.riFilter = "";
+      editor.state.riWalk = true;
+      editor.state.riWalkContext = services.walkIdentity(r);
+      editor.state.riFilter = "";
       const next = services.nextWalkItem(r);
-      WriterState.state.riWalkItem = (next && next.id) || null;
-      WriterState.state.riWalkUndo = null;
-      WriterState.state.riWalkStage = "outcome";
+      editor.state.riWalkItem = (next && next.id) || null;
+      editor.state.riWalkUndo = null;
+      editor.state.riWalkStage = "outcome";
       services.scheduleDraftSave();
       services.render();
       services.focusWalkItem();
     } else {
       services.clearWalk();
-      WriterState.WORK.walk = null;
+      editor.WORK.walk = null;
       services.scheduleDraftSave();
       services.render();
     }
@@ -92,25 +93,25 @@ export function createReinspectionEvents(services) {
   };
 
   const nextItem = () => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) services.advanceWalk(r);
     return;
   };
 
   const skipDetails = () => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) services.skipWalkDetails(r);
     return;
   };
 
   const returnDetails = () => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) services.returnWalkDetails(r);
     return;
   };
 
   const previousItem = () => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) services.previousWalk(r);
     return;
   };
@@ -121,8 +122,8 @@ export function createReinspectionEvents(services) {
   };
 
   const filterItems = (t) => {
-    if (WriterState.state.riWalk) return;
-    WriterState.state.riFilter = WriterState.state.riFilter === t.dataset.rifilter ? "" : t.dataset.rifilter;
+    if (editor.state.riWalk) return;
+    editor.state.riFilter = editor.state.riFilter === t.dataset.rifilter ? "" : t.dataset.rifilter;
     services.renderKeep();
     return;
   };
@@ -133,13 +134,13 @@ export function createReinspectionEvents(services) {
   };
 
   const makeDocument = (t) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r) services.docFromReinspection(r, t.dataset.makedoc);
     return;
   };
 
   const editItemNote = (el) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId && r.results[el.dataset.rinote]) {
       r.results[el.dataset.rinote].note = el.value;
       WriterState.DIRTY = true;
@@ -149,7 +150,7 @@ export function createReinspectionEvents(services) {
   };
 
   const changeWalkMode = (e) => {
-    WriterState.state.riWalkMode = e.target.value === "details" ? "details" : "quick";
+    editor.state.riWalkMode = e.target.value === "details" ? "details" : "quick";
     services.scheduleDraftSave();
     services.render();
     document.getElementById("ri-walk-mode")?.focus();
@@ -157,7 +158,7 @@ export function createReinspectionEvents(services) {
   };
 
   const changeFollowup = (e) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       r.followupIntent = e.target.value;
       services.scheduleDraftSave();
@@ -182,7 +183,7 @@ export function createReinspectionEvents(services) {
   };
 
   const changeVisitDate = (e) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       services.changeVisitDate(r, e.target.value);
       WriterState.DIRTY = true;
@@ -192,7 +193,7 @@ export function createReinspectionEvents(services) {
   };
 
   const changeVisitTime = (e) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       r.time = e.target.value;
       WriterState.DIRTY = true;
@@ -202,7 +203,7 @@ export function createReinspectionEvents(services) {
   };
 
   const changeInspector = (e) => {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       r.inspectorId = e.target.value;
       WriterState.DIRTY = true;

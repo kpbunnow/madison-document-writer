@@ -44,6 +44,7 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "reinspection_events.js": ["./editor_state.js", "./event_registration.js", "./state.js", "./writer_queries.js"],
   "correction_events.js": [
     "../assets/shared.js",
     "./calendar.js",
@@ -139,7 +140,7 @@ const scopedServices = {
   "folder_connections.js": ["./state.js"],
   "writer_startup.js": ["./startup_state.js", "./state.js"],
   "case_workspace_actions.js": ["./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./state.js"],
-  "reinspection_entry.js": ["./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./state.js"],
+  "reinspection_entry.js": ["./editor_state.js", "./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./state.js"],
   "local_case_files.js": [],
   "draft_save_controls.js": ["./editor_state.js", "./state.js", "./saved_work.js"],
   "case_folder_workflow.js": [
@@ -350,6 +351,7 @@ const scopedServices = {
     "./state.js",
   ],
   "reinspection.js": [
+    "./editor_state.js",
     "../assets/shared.js",
     "./record_values.js",
     "./document_types.js",

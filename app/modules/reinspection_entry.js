@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { inspectionIdentity } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { draftDocFor, draftReinspFor, kase, recordHead } from "./writer_queries.js";
@@ -16,16 +17,16 @@ export function createReinspectionEntry(services) {
     services.clearWalk();
     const correction = draftDocFor(cid);
     if (correction && correction.correction) {
-      WriterState.state.docId = correction.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = correction.id;
+      editor.state.screen = "write";
       services.render();
       services.toast("Finish or discard the correction before starting another inspection");
       return;
     }
     const unfinished = draftDocFor(cid);
     if (unfinished) {
-      WriterState.state.docId = unfinished.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = unfinished.id;
+      editor.state.screen = "write";
       services.render();
       services.toast("Continue the unfinished document first.");
       return;
@@ -42,8 +43,8 @@ export function createReinspectionEntry(services) {
           if (!res.carried && !res.manualDate && (!res.on || res.on === oldDate)) res.on = open.date;
         });
       }
-      WriterState.state.reinspId = open.id;
-      WriterState.state.screen = "reinspect";
+      editor.state.reinspId = open.id;
+      editor.state.screen = "reinspect";
       services.restoreWalkFor(open);
       services.render();
       return;
@@ -75,10 +76,10 @@ export function createReinspectionEntry(services) {
       if (it.done || it.withdrawn)
         r.results[it.id] = { oc: it.withdrawn ? "withdrawn" : "corrected", on: it.doneOn || "", due: "", note: "", cite: false, carried: true };
     });
-    WriterState.WORK.walk = null;
+    editor.WORK.walk = null;
     WriterState.REINSP.push(r);
-    WriterState.state.reinspId = r.id;
-    WriterState.state.screen = "reinspect";
+    editor.state.reinspId = r.id;
+    editor.state.screen = "reinspect";
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
