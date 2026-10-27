@@ -335,7 +335,7 @@ All twelve moved function bodies, four declarations and remaining court function
 
 There are 105 maintained modules and 57 independent scoped owners. Court/deposits shrinks from 768 to 529 lines. Writer retains five cyclic modules; Reports stays acyclic. Next separate readiness and notification/placeholder/source-freezing/format responsibilities, then shell/case-file and core/screen direction. Historical increment counts above remain provenance.
 
-## Thirty-sixth increment: document feedback and approved sources
+## Thirty-sixth increment: document feedback and approved sources (merged in PR #82)
 
 document_feedback composes notifications/undo and corrective-detail editing through four lazy accessibility/lock/DOM/Event inputs. document_sources composes active approved blocks and frozen source snapshots through four lazy snow/initial-citation/body/block inputs. Core constructs both after documentDelivery and before scheduling/rendering, exporting actual mutable operations. Shell/case files consume the composed notification directly. Both constructors perform no reads, I/O or registration.
 
@@ -343,11 +343,19 @@ All six moved and remaining court function bodies preserve logic apart from expl
 
 There are 107 maintained modules and 59 independent scoped owners. Court/deposits shrinks from 529 to 394 lines. Writer retains five cyclic modules and Reports stays acyclic. Next separate readiness and remaining format/identity/catalog utilities, then shell/case-file and core/screen direction. Historical counts above remain provenance.
 
+## Thirty-seventh increment: document readiness
+
+document_readiness owns checks and private importStatusChecks through 14 lazy day/address/feature-rule inputs. Core composes it after documentDelivery and before documentFeedback, exports the actual mutable checks operation and retains the original dep_checks alias for initial citations. Screens use the composed operation. Construction performs no reads, I/O or registration.
+
+Both moved and all six remaining court function bodies preserve logic except explicit dependency access. Initial-citation preparation, live-day/source/address rules, all messages and actionable targets, family/correction exceptions, delegate concatenation and final target mapping retain their original order. The owner is effectful orchestration; feature/helper/publication authority is unchanged.
+
+There are 108 maintained modules and 60 independent scoped owners. Court/deposits shrinks from 394 to 48 lines and loses UI/core/case-file imports. Writer narrows from five to four cyclic modules (core, screens, case files and shell); the guard tightens to four. Reports stays acyclic. Next give remaining format/identity/catalog utilities descriptive owners, then inspect shell/case-file and core/screen direction. Historical counts above remain provenance.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 5-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 4-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.
