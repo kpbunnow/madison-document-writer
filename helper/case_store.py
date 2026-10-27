@@ -1049,9 +1049,328 @@ def citation_history(folder, exclude_number=""):
     return {"ok": True, "history": history}
 
 
+def _validate_correction_target(*, payload, documents, superseded, visits):
+    target = payload.get("replaces")
+    old = documents.get(target)
+    if not old or old[1] != payload.get("baseEventId") or target in superseded:
+        raise ValueError("The correction target has changed or was already replaced")
+    active_versions = [d for d in documents if d not in superseded]
+    if not active_versions or active_versions[-1] != target or any((r.get("sourceDocId") == target for r in visits)):
+        raise ValueError("Later work depends on this document. Correct the latest document or add a record note")
+    original = old[0]
+    return (target, original)
+
+
+def _validate_scoped_correction(*, original, snap):
+    if original.get("type") in SPECIAL_TYPES:
+        if len(str(snap.get("revision", {}).get("externalReference", "")).strip()) < 10:
+            raise ValueError("Scoped corrections require a reviewed division amendment reference")
+        for key in ("mode", "releases", "scope", "unit", "effective", "affected", "deadlineMode", "reviewDate", "expiryDate"):
+            if snap.get("special", {}).get(key) != original.get("special", {}).get(key):
+                raise ValueError("Use a newly reviewed action to change restriction, release, scope or conditional extension facts")
+
+
+def _validate_correction_items(*, original, snap, same_type, record):
+    allowed_type = (
+        original.get("fromReinspId")
+        and original.get("type") != "citation"
+        and (original.get("type") not in SPECIAL_TYPES)
+        and (snap.get("type") in ("extension", "referral", "referralUpdate", "compliance"))
+    )
+    if not (same_type or allowed_type) or [(i.get("id"), i.get("no")) for i in snap["items"]] != [
+        (i.get("id"), i.get("no")) for i in original["items"]
+    ]:
+        raise ValueError("A correction cannot change document type, item identity, order or numbering")
+    if snap.get("frozen", {}).get("case", {}).get("number") != original.get("frozen", {}).get("case", {}).get("number", record["case"]["number"]):
+        raise ValueError("A correction cannot change case number")
+    if original.get("type") == "citation":
+        if any(
+            (
+                snap.get("cits", {}).get(i["id"], {}).get("num") != original.get("cits", {}).get(i["id"], {}).get("num")
+                for i in original["items"]
+                if i.get("cite")
+            )
+        ):
+            raise ValueError("A citation correction must retain its original citation numbers")
+
+
+def _validate_correction_review(*, snap, target, original, payload, event):
+    revision = snap.get("revision", {})
+    if (
+        revision.get("targetId") != target
+        or revision.get("rootId") != original.get("revision", {}).get("rootId", target)
+        or revision.get("number") != original.get("revision", {}).get("number", 0) + 1
+    ):
+        raise ValueError("Invalid correction revision chain")
+    if len(str(payload.get("reason", "")).strip()) < 10 or not payload.get("changes") or (not payload.get("reviewedAt")) or (not event.get("by")):
+        raise ValueError("A correction needs a reason, change review and identified inspector")
+    if snap.get("type") in ("citation", "referral", "referralUpdate") and len(str(revision.get("externalReference", "")).strip()) < 10:
+        raise ValueError("Record the court or attorney amendment instructions or reference")
+    if any((i.get("withdrawn") and len(str(i.get("withdrawalReason", "")).strip()) < 10 for i in snap["items"])):
+        raise ValueError("A withdrawn item needs a specific reason")
+
+
+def _apply_visit_correction(*, visits, patch, original, snap):
+    visit = next((r for r in visits if r.get("id") == patch.get("id")), None)
+    if not visit or patch.get("id") != original.get("fromReinspId") or patch.get("baseEventId") != visit.get("_eventId"):
+        raise ValueError("The visit correction is not linked to the original recorded visit")
+    for key, result in patch.get("results", {}).items():
+        if (
+            key not in visit.get("results", {})
+            or visit["results"][key].get("carried")
+            or result.get("oc") not in ("none", "corrected", "progress", "noaccess")
+        ):
+            raise ValueError("The visit correction cannot change a carried or unrelated observation")
+    amended = copy.deepcopy(visit)
+    amended.update({k: patch[k] for k in ("date", "time") if k in patch})
+    amended["results"].update(patch.get("results", {}))
+    initial = snap.get("frozen", {}).get("case", {}).get("date", "")
+    if not calendar_date(amended.get("date")) or any(
+        (
+            not r.get("carried")
+            and (not calendar_date(r.get("on") or amended["date"]) or not initial <= (r.get("on") or amended["date"]) <= amended["date"])
+            for r in amended["results"].values()
+        )
+    ):
+        raise ValueError("The amended result dates must fall within their inspection")
+    visit.update(amended)
+
+
+def _validate_history_correction(*, payload, documents, superseded, visits, snap, record, event):
+    target, original = _validate_correction_target(payload=payload, documents=documents, superseded=superseded, visits=visits)
+    same_type = snap.get("type") == original.get("type")
+    _validate_scoped_correction(original=original, snap=snap)
+    _validate_correction_items(original=original, snap=snap, same_type=same_type, record=record)
+    _validate_correction_review(snap=snap, target=target, original=original, payload=payload, event=event)
+    patch = payload.get("visitCorrection")
+    if patch:
+        _apply_visit_correction(visits=visits, patch=patch, original=original, snap=snap)
+    superseded.add(target)
+
+
+def _validate_history_snapshot(*, payload, event, historical_ids):
+    snap = payload.get("snapshot")
+    if not isinstance(snap, dict) or not snap.get("id") or (not isinstance(snap.get("items"), list)):
+        raise ValueError("An issued document is missing its snapshot or item list")
+    check_window = event["id"] not in historical_ids
+    if check_window and snap.get("type") == "citation" and any((c.get("mandatoryAppearance") for c in snap.get("cits", {}).values())):
+        raise ValueError(
+            "Mandatory-appearance citations need division-approved defendant instructions. Your draft is retained; ask the division to approve the wording before issuance."
+        )
+    try:
+        parse_instant(event.get("at"))
+    except ValueError:
+        if event["id"] not in historical_ids:
+            raise
+        check_window = False
+    return (snap, check_window)
+
+
+def _validate_history_special(*, snap, kind, payload, event, check_window, historical_ids, documents):
+    if snap.get("authoringVersion", 0) < 4 or (kind != "correction.issued" and payload.get("lifecycle") != 1):
+        raise ValueError("R26 actions require current authoring and atomic lifecycle validation")
+    validate_special_fields(snap, event.get("at"), check_window)
+    if kind == "correction.issued" and event["id"] not in historical_ids:
+        validate_best_interest_correction(snap, documents.get(payload.get("replaces"), (None,))[0])
+
+
+def _validate_history_snow_and_overrides(*, snap, record, kind, override_folder):
+    import snow_rules
+
+    snow_item = any((citation_pricing.item_key(item) == snow_rules.ITEM_KEY for item in snap.get("items", [])))
+    if snow_item or snow_rules.is_snow(snap) or record["case"].get("caseType") == snow_rules.TYPE:
+        if (
+            snap.get("caseType") != snow_rules.TYPE
+            or snap.get("frozen", {}).get("case", {}).get("caseType") != snow_rules.TYPE
+            or record["case"].get("caseType") != snow_rules.TYPE
+        ):
+            raise ValueError(snow_rules.MIXED_MESSAGE)
+        snow_rules.validate_snapshot(snap, require_letter=True)
+        if snap.get("frozen", {}).get("body") != snow_rules.cover_html(snap, snap["frozen"]["snowLetter"]):
+            raise ValueError("Snow cover wording and amounts must match its frozen seasonal content")
+    if snow_rules.is_snow(snap) and kind != "correction.issued":
+        current_letter = snow_rules.read_letter(override_folder)
+        snow_rules.validate_letter(current_letter)
+        if snap.get("frozen", {}).get("snowLetter") != current_letter:
+            raise ValueError("Seasonal snow-letter content changed; refresh and review it before issuance")
+        if snap.get("frozen", {}).get("body") != snow_rules.cover_html(snap, current_letter):
+            raise ValueError("Snow cover wording and amounts must match the recorded pricing date and seasonal content")
+    import admin_rules
+
+    for citation in snap.get("cits", {}).values():
+        if citation.get("overrideBasis"):
+            admin_rules.verify_override(override_folder, snap, citation)
+
+
+def _validate_history_pricing(*, cross_case_history, documents, snap, original, superseded, voided, payload, record):
+    prior = list(cross_case_history) + [
+        {"case": d.get("frozen", {}).get("case", record["case"]), "document": d}
+        for did, (d, _) in documents.items()
+        if did not in superseded and did not in voided and (did != payload.get("replaces")) and (d.get("type") == "citation")
+    ]
+    citation_pricing.validate_pricing(snap, prior, original)
+
+
+def _validate_history_authoring(
+    *, snap, kind, documents, payload, check_window, record, override_folder, event, cross_case_history, superseded, voided
+):
+    if snap.get("authoringVersion", 0) >= 4:
+        original = documents.get(payload.get("replaces"), (None,))[0] if kind == "correction.issued" else None
+        if check_window and snap.get("authoringVersion", 0) >= 9:
+            _validate_history_snow_and_overrides(snap=snap, record=record, kind=kind, override_folder=override_folder)
+        validate_authoring(snap, event.get("at"), check_window, original)
+        if check_window and snap.get("authoringVersion", 0) >= 6 and (snap.get("type") == "citation"):
+            _validate_history_pricing(
+                cross_case_history=cross_case_history,
+                documents=documents,
+                snap=snap,
+                original=original,
+                superseded=superseded,
+                voided=voided,
+                payload=payload,
+                record=record,
+            )
+
+
+def _validate_history_publication(*, record, event, documents, superseded, voided, visits, check_window, historical_ids):
+    validate_publication(record, event, documents, superseded, voided, visits, check_window)
+    if event["id"] not in historical_ids:
+        validate_document_import(event, documents, visits)
+
+
+def _validate_history_issued(
+    *, payload, event, historical_ids, kind, documents, record, override_folder, cross_case_history, superseded, voided, visits
+):
+    snap, check_window = _validate_history_snapshot(payload=payload, event=event, historical_ids=historical_ids)
+    if snap.get("type") in SPECIAL_TYPES:
+        _validate_history_special(
+            snap=snap, kind=kind, payload=payload, event=event, check_window=check_window, historical_ids=historical_ids, documents=documents
+        )
+    _validate_history_authoring(
+        snap=snap,
+        kind=kind,
+        documents=documents,
+        payload=payload,
+        check_window=check_window,
+        record=record,
+        override_folder=override_folder,
+        event=event,
+        cross_case_history=cross_case_history,
+        superseded=superseded,
+        voided=voided,
+    )
+    if snap["id"] in documents:
+        raise ValueError("Two issued records share a document identity")
+    if payload.get("lifecycle"):
+        _validate_history_publication(
+            record=record,
+            event=event,
+            documents=documents,
+            superseded=superseded,
+            voided=voided,
+            visits=visits,
+            check_window=check_window,
+            historical_ids=historical_ids,
+        )
+    if kind == "correction.issued":
+        _validate_history_correction(
+            payload=payload, documents=documents, superseded=superseded, visits=visits, snap=snap, record=record, event=event
+        )
+    documents[snap["id"]] = (snap, event["id"])
+
+
+def _validate_history_visit(*, payload, record, documents, superseded, voided, visits, event, historical_ids):
+    if payload.get("lifecycle"):
+        validate_visit(
+            record, payload.get("reinspection", {}), documents, superseded, voided, visits, event.get("at"), event["id"] not in historical_ids
+        )
+    visits.append(dict(payload.get("reinspection", {}), _eventId=event["id"]))
+
+
+def _validate_history_void(*, payload, documents, voided, superseded, visits, event):
+    target = payload.get("docId")
+    if "expectedHead" in payload:
+        if target not in documents or target in voided or target in superseded:
+            raise ValueError("Only a current issued document can be withdrawn")
+        active_versions = [d for d in documents if d not in superseded]
+        if active_versions[-1] != target or any((r.get("sourceDocId") == target for r in visits)):
+            raise ValueError("Later work depends on this document; add a record note instead")
+        if len(str(payload.get("reason", "")).strip()) < 10 or not event.get("by"):
+            raise ValueError("Withdrawal needs a reason and identified inspector")
+    if documents.get(target, ({},))[0].get("type") in SPECIAL_TYPES and len(str(payload.get("externalReference", "")).strip()) < 10:
+        raise ValueError("Withdrawal of a scoped order requires reviewed division instructions / reference")
+    voided.add(target)
+
+
+def _validate_history_service(*, documents, payload, superseded, voided, event, events):
+    pair = documents.get(payload.get("docId"))
+    if not pair or pair[0].get("type") != "nonSummaryAbatement" or payload.get("docId") in superseded | voided or (not event.get("by")):
+        raise ValueError("Service evidence needs an effective non-summary order and identified recorder")
+    if (
+        payload.get("method") not in ("service", "publication")
+        or not calendar_date(payload.get("date"))
+        or (not pair[0]["mailed"] <= payload["date"] <= city_day(event["at"]).isoformat())
+        or (len(str(payload.get("reference", "")).strip()) < 10)
+    ):
+        raise ValueError("Record actual service/publication date and supporting evidence; planned service is not completed")
+    if payload.get("replacesService") and (
+        not any(
+            (
+                e["id"] == payload["replacesService"] and e["type"] == "document.served" and (e["payload"].get("docId") == payload["docId"])
+                for e in events[: events.index(event)]
+            )
+        )
+    ):
+        raise ValueError("A service correction must identify its earlier evidence record")
+    if payload.get("courtRestriction") and len(str(payload.get("courtReference", "")).strip()) < 10:
+        raise ValueError("Record the court restriction reference separately")
+
+
+def _validate_history_annotation(*, kind, payload, documents, event):
+    field = "text" if kind == "document.annotated" else "reference"
+    if payload.get("docId") not in documents or len(str(payload.get(field, "")).strip()) < 10 or (not event.get("by")):
+        raise ValueError("Record actions need a document, identified inspector and specific explanation")
+
+
+def _validate_history_event(
+    *, kind, payload, event, historical_ids, documents, record, override_folder, cross_case_history, superseded, voided, visits, events
+):
+    if kind.endswith(".issued"):
+        _validate_history_issued(
+            payload=payload,
+            event=event,
+            historical_ids=historical_ids,
+            kind=kind,
+            documents=documents,
+            record=record,
+            override_folder=override_folder,
+            cross_case_history=cross_case_history,
+            superseded=superseded,
+            voided=voided,
+            visits=visits,
+        )
+    elif kind == "reinspection.recorded":
+        _validate_history_visit(
+            payload=payload,
+            record=record,
+            documents=documents,
+            superseded=superseded,
+            voided=voided,
+            visits=visits,
+            event=event,
+            historical_ids=historical_ids,
+        )
+    elif kind == "document.voided":
+        _validate_history_void(payload=payload, documents=documents, voided=voided, superseded=superseded, visits=visits, event=event)
+    elif kind == "document.served":
+        _validate_history_service(documents=documents, payload=payload, superseded=superseded, voided=voided, event=event, events=events)
+    elif kind in ("document.annotated", "document.reconciled"):
+        _validate_history_annotation(kind=kind, payload=payload, documents=documents, event=event)
+
+
 def validate_history(record, historical_ids=frozenset(), cross_case_history=(), override_folder=None):
     """Protect links and identity even on import, migration, and an empty share."""
-    documents, superseded, voided, visits = {}, set(), set(), []
+    documents, superseded, voided, visits = ({}, set(), set(), [])
     head = set()
     validate_issuance_groups(record)
     events = sorted(record.get("events", []), key=event_order)
@@ -1062,194 +1381,20 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
             raise ValueError("This action does not include the complete reviewed case history")
         if record_event(event):
             head.add(event["id"])
-        if kind.endswith(".issued"):
-            snap = payload.get("snapshot")
-            if not isinstance(snap, dict) or not snap.get("id") or not isinstance(snap.get("items"), list):
-                raise ValueError("An issued document is missing its snapshot or item list")
-            check_window = event["id"] not in historical_ids
-            if check_window and snap.get("type") == "citation" and any(c.get("mandatoryAppearance") for c in snap.get("cits", {}).values()):
-                raise ValueError(
-                    (
-                        "Mandatory-appearance citations need division-approved defendant inst"
-                        "ructions. Your draft is retained; ask the division to approve the wo"
-                        "rding before issuance."
-                    )
-                )
-            try:
-                parse_instant(event.get("at"))
-            except ValueError:
-                if event["id"] not in historical_ids:
-                    raise
-                check_window = False
-            if snap.get("type") in SPECIAL_TYPES:
-                if snap.get("authoringVersion", 0) < 4 or kind != "correction.issued" and payload.get("lifecycle") != 1:
-                    raise ValueError("R26 actions require current authoring and atomic lifecycle validation")
-                validate_special_fields(snap, event.get("at"), check_window)
-                if kind == "correction.issued" and event["id"] not in historical_ids:
-                    validate_best_interest_correction(snap, documents.get(payload.get("replaces"), (None,))[0])
-            if snap.get("authoringVersion", 0) >= 4:
-                original = documents.get(payload.get("replaces"), (None,))[0] if kind == "correction.issued" else None
-                if check_window and snap.get("authoringVersion", 0) >= 9:
-                    import snow_rules
-
-                    snow_item = any(citation_pricing.item_key(item) == snow_rules.ITEM_KEY for item in snap.get("items", []))
-                    if snow_item or snow_rules.is_snow(snap) or record["case"].get("caseType") == snow_rules.TYPE:
-                        if (
-                            snap.get("caseType") != snow_rules.TYPE
-                            or snap.get("frozen", {}).get("case", {}).get("caseType") != snow_rules.TYPE
-                            or record["case"].get("caseType") != snow_rules.TYPE
-                        ):
-                            raise ValueError(snow_rules.MIXED_MESSAGE)
-                        snow_rules.validate_snapshot(snap, require_letter=True)
-                        if snap.get("frozen", {}).get("body") != snow_rules.cover_html(snap, snap["frozen"]["snowLetter"]):
-                            raise ValueError("Snow cover wording and amounts must match its frozen seasonal content")
-                    if snow_rules.is_snow(snap) and kind != "correction.issued":
-                        current_letter = snow_rules.read_letter(override_folder)
-                        snow_rules.validate_letter(current_letter)
-                        if snap.get("frozen", {}).get("snowLetter") != current_letter:
-                            raise ValueError("Seasonal snow-letter content changed; refresh and review it before issuance")
-                        if snap.get("frozen", {}).get("body") != snow_rules.cover_html(snap, current_letter):
-                            raise ValueError("Snow cover wording and amounts must match the recorded pricing date and seasonal content")
-                    import admin_rules
-
-                    for citation in snap.get("cits", {}).values():
-                        if citation.get("overrideBasis"):
-                            admin_rules.verify_override(override_folder, snap, citation)
-                validate_authoring(snap, event.get("at"), check_window, original)
-                if check_window and snap.get("authoringVersion", 0) >= 6 and snap.get("type") == "citation":
-                    prior = list(cross_case_history) + [
-                        {"case": d.get("frozen", {}).get("case", record["case"]), "document": d}
-                        for did, (d, _) in documents.items()
-                        if did not in superseded and did not in voided and did != payload.get("replaces") and d.get("type") == "citation"
-                    ]
-                    citation_pricing.validate_pricing(snap, prior, original)
-            if snap["id"] in documents:
-                raise ValueError("Two issued records share a document identity")
-            if payload.get("lifecycle"):
-                validate_publication(record, event, documents, superseded, voided, visits, check_window)
-                if event["id"] not in historical_ids:
-                    validate_document_import(event, documents, visits)
-            if kind == "correction.issued":
-                target = payload.get("replaces")
-                old = documents.get(target)
-                if not old or old[1] != payload.get("baseEventId") or target in superseded:
-                    raise ValueError("The correction target has changed or was already replaced")
-                active_versions = [d for d in documents if d not in superseded]
-                if not active_versions or active_versions[-1] != target or any(r.get("sourceDocId") == target for r in visits):
-                    raise ValueError("Later work depends on this document. Correct the latest document or add a record note")
-                original = old[0]
-                same_type = snap.get("type") == original.get("type")
-                if original.get("type") in SPECIAL_TYPES:
-                    if len(str(snap.get("revision", {}).get("externalReference", "")).strip()) < 10:
-                        raise ValueError("Scoped corrections require a reviewed division amendment reference")
-                    for key in ("mode", "releases", "scope", "unit", "effective", "affected", "deadlineMode", "reviewDate", "expiryDate"):
-                        if snap.get("special", {}).get(key) != original.get("special", {}).get(key):
-                            raise ValueError("Use a newly reviewed action to change restriction, release, scope or conditional extension facts")
-                allowed_type = (
-                    original.get("fromReinspId")
-                    and original.get("type") != "citation"
-                    and original.get("type") not in SPECIAL_TYPES
-                    and snap.get("type") in ("extension", "referral", "referralUpdate", "compliance")
-                )
-                if not (same_type or allowed_type) or [(i.get("id"), i.get("no")) for i in snap["items"]] != [
-                    (i.get("id"), i.get("no")) for i in original["items"]
-                ]:
-                    raise ValueError("A correction cannot change document type, item identity, order or numbering")
-                if snap.get("frozen", {}).get("case", {}).get("number") != original.get("frozen", {}).get("case", {}).get(
-                    "number", record["case"]["number"]
-                ):
-                    raise ValueError("A correction cannot change case number")
-                if original.get("type") == "citation":
-                    if any(
-                        snap.get("cits", {}).get(i["id"], {}).get("num") != original.get("cits", {}).get(i["id"], {}).get("num")
-                        for i in original["items"]
-                        if i.get("cite")
-                    ):
-                        raise ValueError("A citation correction must retain its original citation numbers")
-                revision = snap.get("revision", {})
-                if (
-                    revision.get("targetId") != target
-                    or revision.get("rootId") != original.get("revision", {}).get("rootId", target)
-                    or revision.get("number") != original.get("revision", {}).get("number", 0) + 1
-                ):
-                    raise ValueError("Invalid correction revision chain")
-                if (
-                    len(str(payload.get("reason", "")).strip()) < 10
-                    or not payload.get("changes")
-                    or not payload.get("reviewedAt")
-                    or not event.get("by")
-                ):
-                    raise ValueError("A correction needs a reason, change review and identified inspector")
-                if snap.get("type") in ("citation", "referral", "referralUpdate") and len(str(revision.get("externalReference", "")).strip()) < 10:
-                    raise ValueError("Record the court or attorney amendment instructions or reference")
-                if any(i.get("withdrawn") and len(str(i.get("withdrawalReason", "")).strip()) < 10 for i in snap["items"]):
-                    raise ValueError("A withdrawn item needs a specific reason")
-                patch = payload.get("visitCorrection")
-                if patch:
-                    visit = next((r for r in visits if r.get("id") == patch.get("id")), None)
-                    if not visit or patch.get("id") != original.get("fromReinspId") or patch.get("baseEventId") != visit.get("_eventId"):
-                        raise ValueError("The visit correction is not linked to the original recorded visit")
-                    for key, result in patch.get("results", {}).items():
-                        if (
-                            key not in visit.get("results", {})
-                            or visit["results"][key].get("carried")
-                            or result.get("oc") not in ("none", "corrected", "progress", "noaccess")
-                        ):
-                            raise ValueError("The visit correction cannot change a carried or unrelated observation")
-                    amended = copy.deepcopy(visit)
-                    amended.update({k: patch[k] for k in ("date", "time") if k in patch})
-                    amended["results"].update(patch.get("results", {}))
-                    initial = snap.get("frozen", {}).get("case", {}).get("date", "")
-                    if not calendar_date(amended.get("date")) or any(
-                        not r.get("carried")
-                        and (not calendar_date(r.get("on") or amended["date"]) or not initial <= (r.get("on") or amended["date"]) <= amended["date"])
-                        for r in amended["results"].values()
-                    ):
-                        raise ValueError("The amended result dates must fall within their inspection")
-                    visit.update(amended)
-                superseded.add(target)
-            documents[snap["id"]] = (snap, event["id"])
-        elif kind == "reinspection.recorded":
-            if payload.get("lifecycle"):
-                validate_visit(
-                    record, payload.get("reinspection", {}), documents, superseded, voided, visits, event.get("at"), event["id"] not in historical_ids
-                )
-            visits.append(dict(payload.get("reinspection", {}), _eventId=event["id"]))
-        elif kind == "document.voided":
-            target = payload.get("docId")
-            if "expectedHead" in payload:
-                if target not in documents or target in voided or target in superseded:
-                    raise ValueError("Only a current issued document can be withdrawn")
-                active_versions = [d for d in documents if d not in superseded]
-                if active_versions[-1] != target or any(r.get("sourceDocId") == target for r in visits):
-                    raise ValueError("Later work depends on this document; add a record note instead")
-                if len(str(payload.get("reason", "")).strip()) < 10 or not event.get("by"):
-                    raise ValueError("Withdrawal needs a reason and identified inspector")
-            if documents.get(target, ({},))[0].get("type") in SPECIAL_TYPES and len(str(payload.get("externalReference", "")).strip()) < 10:
-                raise ValueError("Withdrawal of a scoped order requires reviewed division instructions / reference")
-            voided.add(target)
-        elif kind == "document.served":
-            pair = documents.get(payload.get("docId"))
-            if not pair or pair[0].get("type") != "nonSummaryAbatement" or payload.get("docId") in superseded | voided or not event.get("by"):
-                raise ValueError("Service evidence needs an effective non-summary order and identified recorder")
-            if (
-                payload.get("method") not in ("service", "publication")
-                or not calendar_date(payload.get("date"))
-                or not pair[0]["mailed"] <= payload["date"] <= city_day(event["at"]).isoformat()
-                or len(str(payload.get("reference", "")).strip()) < 10
-            ):
-                raise ValueError("Record actual service/publication date and supporting evidence; planned service is not completed")
-            if payload.get("replacesService") and not any(
-                e["id"] == payload["replacesService"] and e["type"] == "document.served" and e["payload"].get("docId") == payload["docId"]
-                for e in events[: events.index(event)]
-            ):
-                raise ValueError("A service correction must identify its earlier evidence record")
-            if payload.get("courtRestriction") and len(str(payload.get("courtReference", "")).strip()) < 10:
-                raise ValueError("Record the court restriction reference separately")
-        elif kind in ("document.annotated", "document.reconciled"):
-            field = "text" if kind == "document.annotated" else "reference"
-            if payload.get("docId") not in documents or len(str(payload.get(field, "")).strip()) < 10 or not event.get("by"):
-                raise ValueError("Record actions need a document, identified inspector and specific explanation")
+        _validate_history_event(
+            kind=kind,
+            payload=payload,
+            event=event,
+            historical_ids=historical_ids,
+            documents=documents,
+            record=record,
+            override_folder=override_folder,
+            cross_case_history=cross_case_history,
+            superseded=superseded,
+            voided=voided,
+            visits=visits,
+            events=events,
+        )
 
 
 def calendar_date(value):
