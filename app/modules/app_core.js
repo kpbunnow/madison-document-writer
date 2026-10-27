@@ -1,3 +1,4 @@
+import { createDocumentReadiness } from "./document_readiness.js";
 import { createDocumentSources } from "./document_sources.js";
 import { createDocumentFeedback } from "./document_feedback.js";
 import { createCourtScheduling } from "./court_scheduling.js";
@@ -59,7 +60,7 @@ import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
 import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
-import { fmtDate, checks as dep_checks, checks, rnd12, splitOwner, fmtTime, longDate, allItems } from "./court_and_deposits.js";
+import { fmtDate, rnd12, splitOwner, fmtTime, longDate, allItems } from "./court_and_deposits.js";
 import {
   shell,
   evid,
@@ -96,6 +97,7 @@ import {
   standardCityStateZip,
   standardStreetAddress,
   startReinspection,
+  addressProblem,
   validateAndStandardizeAddresses,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
@@ -1090,6 +1092,33 @@ const documentDelivery = createDocumentDelivery({
   refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
 });
 export let { checkHelper, emailDocument, openIssuedCopy, filePdf } = documentDelivery;
+
+const documentReadiness = createDocumentReadiness({
+  addressProblem: (...args) => addressProblem(...args),
+  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
+  correctionChecks: (...args) => correctionChecks(...args),
+  lifecycleChecks: (...args) => lifecycleChecks(...args),
+  authoringChecks: (...args) => authoringChecks(...args),
+  citationDepositFault: (...args) => citationDepositFault(...args),
+  catalogDraftBlocked: (...args) => catalogDraftBlocked(...args),
+  get initialCitations() {
+    return initialCitations;
+  },
+  get newDocuments() {
+    return newDocuments;
+  },
+  get snow() {
+    return snow;
+  },
+  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
+  unchangedCourtDate: (...args) => unchangedCourtDate(...args),
+  attachCheckTargets: (...args) => attachCheckTargets(...args),
+  get today() {
+    return today;
+  },
+});
+export let { checks } = documentReadiness;
+const dep_checks = checks;
 
 const documentFeedback = createDocumentFeedback({
   get A11Y() {

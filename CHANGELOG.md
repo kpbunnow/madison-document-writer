@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Document readiness boundary (development)
+
+- Compose document readiness through 14 explicit lazy day/address/feature-rule inputs. Preserve initial-citation preparation, every check/message/target and rule concatenation order; existing service/helper authority remains unchanged.
+- Move checks and their private import-status predicate out of court/deposits; screens use the actual composed operation. Remaining format/identity/catalog utilities have no UI dependency. Writer cycle narrows from five modules to four; Reports remains acyclic.
+- Add independent readiness/rule-order/refusal tests and tighten dependency guards; update ownership, test/source indexes and roadmap. Retain R63/build 64 and stored formats; no acceptance or deployment decision is changed.
+
 ## Unreleased — Document feedback and approved-source boundaries (development)
 
 - Compose notifications/undo and contextual corrective-detail editing through four lazy accessibility/lock/DOM/Event inputs. Preserve stale-document/item guards, text-node insertion, input event and close/focus order.
