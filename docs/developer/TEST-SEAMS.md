@@ -12,7 +12,8 @@ tests and fixtures, excluding inert reference snapshots. Local require dependenc
 are followed so a suite calling bundle_test is included even without a direct eval.
 It records direct eval,
 Function constructors, VM evaluation, browser evaluation and the 74 fields retained
-by the current test-only core hook. Hook-binding text matches are candidate consumers,
+by the current test-only core hook. Constant string concatenations and String.raw payloads are folded before matching
+hook bindings, so formatter-split test code remains visible. Matches are candidate consumers,
 not proof of execution or proof that an unmentioned hook is dead.
 
 The initial inventory has 91 files that read an application bundle and evaluate
