@@ -258,6 +258,6 @@ Measured counts: {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 12
 
 ## M6 test seam inventory
 
-The inventory distinguishes whole-application evaluation, independent owner/VM construction and production browser evaluation. Textual hook candidates are explicitly not treated as proof of unused hooks. The initial migration baseline has 77 bundle evaluators and 74 retained core hook fields. No existing assertion or production hook is removed by this increment.
+The inventory distinguishes whole-application evaluation, independent owner/VM construction and production browser evaluation. Textual hook candidates are explicitly not treated as proof of unused hooks. The initial migration baseline has 91 bundle evaluators and 74 retained core hook fields. No existing assertion or production hook is removed by this increment.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

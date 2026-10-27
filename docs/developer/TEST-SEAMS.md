@@ -8,12 +8,14 @@ integration coverage.
 ## Inventory and guard
 
 `node tools/test_seams.cjs` prints a read-only JSON inventory of maintained JS/CJS
-tests and fixtures, excluding inert reference snapshots. It records direct eval,
+tests and fixtures, excluding inert reference snapshots. Local require dependencies
+are followed so a suite calling bundle_test is included even without a direct eval.
+It records direct eval,
 Function constructors, VM evaluation, browser evaluation and the 74 fields retained
 by the current test-only core hook. Hook-binding text matches are candidate consumers,
 not proof of execution or proof that an unmentioned hook is dead.
 
-The initial inventory has 77 files that read an application bundle and evaluate
+The initial inventory has 91 files that read an application bundle and evaluate
 code, 59 files with isolated owner/VM evaluation and 32 files with browser evaluate
 calls. These are source-file categories, not suite/coverage counts, and overlap.
 The complete per-file inventory is reproducible; the legacy evaluator baseline is
@@ -36,5 +38,5 @@ services is allowed. Existing production browser checks retain their own role.
 The new maintainability tests already construct focused screen, event, validation,
 pagination and Reports owners independently. Their frozen pre-refactor functions
 provide differential expectations without booting Writer or creating production
-hooks. The existing 77 application evaluators remain migration work; this inventory
+hooks. The existing 91 application evaluators remain migration work; this inventory
 does not claim M6 is complete.
