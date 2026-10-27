@@ -1,3 +1,4 @@
+import { importsState as imports } from "./imports_state.js";
 /* Utility event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { reinsp, doc } from "./writer_queries.js";
@@ -90,7 +91,7 @@ export function createUtilityEvents(services) {
         e.key === "Escape" &&
         (WriterState.state.picker || WriterState.state.modal) &&
         !WriterState.AMENDMENT_BUSY &&
-        !WriterState.LOOKUP_BUSY &&
+        !imports.LOOKUP_BUSY &&
         !WriterState.RESOLUTION_BUSY
       ) {
         WriterState.state.picker = false;

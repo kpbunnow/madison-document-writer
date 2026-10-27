@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_imports_state.js` | Live Accela selection and request coordination state |
 | `audit_startup_state.js` | Live startup promise, lock and readiness state without initialization |
 | `audit_catalog_state.js` | Live six-field catalog authority boundary |
 | `audit_workspace_state.js` | Live workspace state boundary without initialization or captured references |

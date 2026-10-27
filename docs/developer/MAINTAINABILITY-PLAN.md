@@ -333,3 +333,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Seven lifecycle and screen/event owners use the eight-field startup coordination boundary. Core still initializes promises, channel and lock state in the original order. Existing startup tests pass all stages, helper branches, lock refusals and restore barriers; handoff latest-request and channel tests and screen repaint/startup tests pass. The boundary reads no fields at construction and preserves live promise/function identities. Direct root-state importers are 72, including the new boundary: these mixed lifecycle owners retain other root fields until their cohorts migrate. The aggregate remains below the initial 83 and cycles remain zero. No service construction reads are introduced.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 import coordination state boundary
+
+Four import and navigation event owners use the five-field import coordination boundary. Initialization, abort/controller identity, serial increments and pending-selection guards remain in their original checkpoints. Independent import service tests, seven original import feature scenarios and 23 selection assertions pass. The root importer count is temporarily 73 because these mixed owners retain workspace/editor state; this remains below baseline 83 and all cycles remain zero. Other cohorts and removal of the remaining mixed imports follow separately.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

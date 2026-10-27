@@ -1,3 +1,4 @@
+import { importsState as imports } from "./imports_state.js";
 import { inspAt, sameInspection, inspectionIdentity, inspectionUsed } from "./inspection_facts.js";
 import { draftDocFor, draftReinspFor, originalNotice, isReferredCase, insp, docsFor, doc, kase, reinspFor, eventsFor } from "./writer_queries.js";
 import { clone, stableJSON, caseDetails } from "./record_values.js";
@@ -62,7 +63,7 @@ function selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, a
   const current = eligible.some((x) => x.i === acc.sel) ? acc.sel : eligible.length === 1 ? eligible[0].i : null;
   if (current !== (acc.sel ?? null)) {
     acc.sel = current;
-    WriterState.ACC_SELECTION_SERIAL++;
+    imports.ACC_SELECTION_SERIAL++;
   }
   const row = eligible.find((x) => x.i === acc.sel) || null;
   p.row = row;
@@ -857,10 +858,10 @@ export function createAccelaImport(services) {
   async function readAccelaFile(file) {
     if (!file || WriterState.state.screen !== "import") return;
     cancelCaseLookup();
-    const serial = WriterState.LOOKUP_SERIAL;
-    const active = () => serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import";
-    WriterState.LOOKUP_ERROR = "";
-    WriterState.LOOKUP_BUSY = true;
+    const serial = imports.LOOKUP_SERIAL;
+    const active = () => serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import";
+    imports.LOOKUP_ERROR = "";
+    imports.LOOKUP_BUSY = true;
     services.render();
     try {
       if (file.size > ACC_MAX) throw new Error("That file is " + Math.round(file.size / 1048576) + " MB — an Accela report is a few KB.");
@@ -892,8 +893,8 @@ export function createAccelaImport(services) {
         services.scheduleDraftSave();
       }
     } finally {
-      if (serial === WriterState.LOOKUP_SERIAL) {
-        WriterState.LOOKUP_BUSY = false;
+      if (serial === imports.LOOKUP_SERIAL) {
+        imports.LOOKUP_BUSY = false;
         if (WriterState.state.screen === "import") services.render();
       }
     }
@@ -903,10 +904,10 @@ export function createAccelaImport(services) {
     const acc = WriterState.state.acc;
     if (!acc || !acc.cases || !acc.cases.length) return;
     const caseIx = acc.caseIx || 0,
-      serial = WriterState.LOOKUP_SERIAL;
+      serial = imports.LOOKUP_SERIAL;
     const active = () =>
       isCurrent() &&
-      serial === WriterState.LOOKUP_SERIAL &&
+      serial === imports.LOOKUP_SERIAL &&
       WriterState.state.screen === "import" &&
       WriterState.state.acc === acc &&
       (acc.caseIx || 0) === caseIx;
@@ -1115,7 +1116,7 @@ export function createAccelaImport(services) {
                   '" aria-pressed="' +
                   `${ix === (acc.caseIx || 0)}` +
                   '" ' +
-                  `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+                  `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
                   ">" +
                   `${esc(x.number)}` +
                   "</button>",
@@ -1157,7 +1158,7 @@ export function createAccelaImport(services) {
                   '" ' +
                   `${x.i === acc.sel && visibleBlockers.length ? 'aria-describedby="' + blockerId + '"' : ""}` +
                   " " +
-                  `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+                  `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
                   ">" +
                   `${summary(x)}` +
                   "</button>",
@@ -1299,7 +1300,7 @@ export function createAccelaImport(services) {
       'ds.</p>\n    <div class="acc-go"><button class="btn ' +
       `${unfinished ? "" : "btn-primary"}` +
       '" id="acc-go" ' +
-      `${p.blockers.length || WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+      `${p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : ""}` +
       ">" +
       `${label}` +
       "</button>" +
@@ -1338,7 +1339,7 @@ export function createAccelaImport(services) {
         'Excel report instead</summary><div class="card-b"><div class="acc-drop" ' +
         'id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.<' +
         '/p><button class="btn" id="acc-pick" ' +
-        `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+        `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
         ">Load Accela report</button></div></div></details>\n      <details class=" +
         '"import-workflow"><summary>New-case workflow</summary>' +
         `${caseTypeChoice}` +
@@ -1385,20 +1386,20 @@ export function createAccelaImport(services) {
       'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
       "er the case number to retrieve its property, owner and inspection detail" +
       's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
-      `${WriterState.LOOKUP_BUSY}` +
+      `${imports.LOOKUP_BUSY}` +
       '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
       'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
       'holder="CB2026-000-00000" value="' +
       `${esc(WriterState.WORK.entry["lookup-number"] || "")}` +
       '" ' +
-      `${WriterState.LOOKUP_BUSY ? "readonly" : ""}` +
+      `${imports.LOOKUP_BUSY ? "readonly" : ""}` +
       '></label>\n    <button class="btn btn-primary" type="submit" ' +
-      `${WriterState.LOOKUP_BUSY ? "disabled" : ""}` +
+      `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
       ">" +
-      `${WriterState.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
+      `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
       "</button>\n    " +
       "".concat(
-        WriterState.LOOKUP_BUSY
+        imports.LOOKUP_BUSY
           ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
           : !WriterState.state.acc
             ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
@@ -1408,16 +1409,16 @@ export function createAccelaImport(services) {
       "e initial inspection opens a draft notice when all checks pass. Multiple" +
       " or later results open for review. Your search and review can be saved f" +
       'or later.</p>\n  <div role="status" aria-live="polite">' +
-      "".concat(WriterState.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(WriterState.LOOKUP_ERROR)}</div></div>` : "") +
+      "".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : "") +
       "</div>\n  </div></div>"
     );
   }
 
   function cancelCaseLookup() {
-    ++WriterState.LOOKUP_SERIAL;
-    if (WriterState.LOOKUP_CONTROLLER) WriterState.LOOKUP_CONTROLLER.abort();
-    WriterState.LOOKUP_CONTROLLER = null;
-    WriterState.LOOKUP_BUSY = false;
+    ++imports.LOOKUP_SERIAL;
+    if (imports.LOOKUP_CONTROLLER) imports.LOOKUP_CONTROLLER.abort();
+    imports.LOOKUP_CONTROLLER = null;
+    imports.LOOKUP_BUSY = false;
   }
 
   function sqlReport(result, number) {
@@ -1540,21 +1541,21 @@ export function createAccelaImport(services) {
   }
 
   async function findDatabaseCase() {
-    if (WriterState.LOOKUP_BUSY) return;
+    if (imports.LOOKUP_BUSY) return;
     services.captureWork();
     const number = accStr(WriterState.WORK.entry["lookup-number"]).toUpperCase();
     WriterState.WORK.entry["lookup-number"] = number;
     if (!validCaseNumber(number)) {
-      WriterState.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
+      imports.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
       services.render();
       return;
     }
-    WriterState.LOOKUP_ERROR = "";
-    WriterState.LOOKUP_BUSY = true;
-    const serial = ++WriterState.LOOKUP_SERIAL;
+    imports.LOOKUP_ERROR = "";
+    imports.LOOKUP_BUSY = true;
+    const serial = ++imports.LOOKUP_SERIAL;
     const controller = new AbortController();
-    WriterState.LOOKUP_CONTROLLER = controller;
-    const active = () => serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import";
+    imports.LOOKUP_CONTROLLER = controller;
+    const active = () => serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import";
     services.render();
     const timer = setTimeout(() => controller.abort(), 45000);
     try {
@@ -1591,15 +1592,15 @@ export function createAccelaImport(services) {
       } else if (active()) services.toast("Case retrieved — review the inspection and details");
     } catch (error) {
       if (active())
-        WriterState.LOOKUP_ERROR =
+        imports.LOOKUP_ERROR =
           error.name === "AbortError"
             ? "The lookup timed out. Your work is kept; retry when the network is available."
             : error.message || "The lookup failed. Your work is kept.";
     } finally {
       clearTimeout(timer);
-      if (serial === WriterState.LOOKUP_SERIAL) {
-        WriterState.LOOKUP_BUSY = false;
-        WriterState.LOOKUP_CONTROLLER = null;
+      if (serial === imports.LOOKUP_SERIAL) {
+        imports.LOOKUP_BUSY = false;
+        imports.LOOKUP_CONTROLLER = null;
         await services.saveDrafts();
         services.render();
       }
@@ -1613,24 +1614,24 @@ export function createAccelaImport(services) {
       c = acc?.cases?.[acc.caseIx || 0];
     if (!c || !(accelaPlan(acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
     acc.sel = index;
-    WriterState.ACC_SELECTION_SERIAL++;
+    imports.ACC_SELECTION_SERIAL++;
     return true;
   }
 
   async function confirmDatabaseCase() {
     const acc = WriterState.state.acc;
-    if (WriterState.LOOKUP_BUSY || !acc) return;
-    WriterState.LOOKUP_ERROR = "";
+    if (imports.LOOKUP_BUSY || !acc) return;
+    imports.LOOKUP_ERROR = "";
     acc.shareError = "";
     const before = lookupPlanSignature(acc);
-    WriterState.LOOKUP_BUSY = true;
-    const serial = ++WriterState.LOOKUP_SERIAL,
-      selection = WriterState.ACC_SELECTION_SERIAL,
+    imports.LOOKUP_BUSY = true;
+    const serial = ++imports.LOOKUP_SERIAL,
+      selection = imports.ACC_SELECTION_SERIAL,
       selected = acc.sel;
     // A shared-record result started for an earlier selection never confirms the current one.
-    const sameSelection = () => selection === WriterState.ACC_SELECTION_SERIAL && acc.sel === selected;
+    const sameSelection = () => selection === imports.ACC_SELECTION_SERIAL && acc.sel === selected;
     const active = () =>
-      serial === WriterState.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc && sameSelection();
+      serial === imports.LOOKUP_SERIAL && WriterState.state.screen === "import" && WriterState.state.acc === acc && sameSelection();
     services.render();
     try {
       if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
@@ -1652,8 +1653,8 @@ export function createAccelaImport(services) {
     } catch (e) {
       if (active()) acc.shareError = e.message;
     } finally {
-      if (serial === WriterState.LOOKUP_SERIAL) {
-        WriterState.LOOKUP_BUSY = false;
+      if (serial === imports.LOOKUP_SERIAL) {
+        imports.LOOKUP_BUSY = false;
         if (!sameSelection() && WriterState.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
         await services.saveDrafts();
         services.render();

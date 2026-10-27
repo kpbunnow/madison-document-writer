@@ -1,3 +1,4 @@
+import { importsState as imports } from "./imports_state.js";
 /* Import event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -25,7 +26,7 @@ export function createImportEvents(services) {
         }
         if (button.id === "lookup-cancel") {
           services.cancelCaseLookup();
-          WriterState.LOOKUP_ERROR = "Lookup canceled. Your existing work has been kept.";
+          imports.LOOKUP_ERROR = "Lookup canceled. Your existing work has been kept.";
           services.render();
           return;
         }
@@ -65,7 +66,7 @@ export function createImportEvents(services) {
     WriterState.state.acc = null;
     WriterState.WORK.acc = null;
     delete WriterState.WORK.entry["lookup-number"];
-    WriterState.LOOKUP_ERROR = "";
+    imports.LOOKUP_ERROR = "";
     services.render();
     services.saveDrafts();
     return;
@@ -81,17 +82,17 @@ export function createImportEvents(services) {
 
   const selectCase = (t) => {
     const ix = +t.dataset.acccase;
-    if (WriterState.state.acc.cases[ix] && !WriterState.LOOKUP_BUSY) {
+    if (WriterState.state.acc.cases[ix] && !imports.LOOKUP_BUSY) {
       services.cancelCaseLookup();
       const acc = WriterState.state.acc,
-        serial = WriterState.LOOKUP_SERIAL;
+        serial = imports.LOOKUP_SERIAL;
       WriterState.state.acc.caseIx = ix;
       WriterState.state.acc.sel = WriterState.state.acc.cases[ix].sel;
-      WriterState.ACC_SELECTION_SERIAL++;
+      imports.ACC_SELECTION_SERIAL++;
       WriterState.state.acc.manualDate = "";
       WriterState.state.acc.manualTime = "";
       services.accelaFromShare().then(() => {
-        if (serial !== WriterState.LOOKUP_SERIAL || WriterState.state.screen !== "import" || WriterState.state.acc !== acc) return;
+        if (serial !== imports.LOOKUP_SERIAL || WriterState.state.screen !== "import" || WriterState.state.acc !== acc) return;
         const active = document.activeElement,
           id = active?.id,
           sel = active?.dataset.accsel,
