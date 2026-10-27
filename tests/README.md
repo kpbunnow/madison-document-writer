@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_test_seams.js` | Read-only per-file seam/hook inventory; reject new application-bundle evaluation and lower migrated baselines |
 | `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |
 | `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
 | `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
