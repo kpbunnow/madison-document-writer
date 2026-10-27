@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Retained PDF operations preserve synchronous popups, stale-response and identity boundaries. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -28,7 +29,7 @@ assert.equal(construction.init.callee.name, "createPdfArtifacts");
 assert.ok(declarations.indexOf(construction) > declarations.findIndex((n) => n.id.name === "caseActivity"));
 assert.ok(declarations.indexOf(construction) < declarations.findIndex((n) => n.id.name === "documentRenderer"));
 assert.equal(construction.init.arguments.length, 1);
-const properties = construction.init.arguments[0].properties;
+const properties = serviceComposition(construction.init.arguments[0]).properties;
 assert.deepEqual(new Set(properties.map((p) => p.key.name)), required);
 for (const p of properties) {
   assert.equal(p.type, "Property", "no registry or shared-service spread");

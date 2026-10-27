@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* View contexts retain scoped identities and read replaced workspace data only when called. */
 const assert = require("assert/strict");
 const fs = require("fs");
@@ -43,10 +44,10 @@ for (const [factory, names] of Object.entries(scopes)) {
   const call = calls.get(factory);
   assert.equal(call.arguments.length, 1);
   assert.deepEqual(
-    call.arguments[0].properties.map((p) => p.key.name),
+    serviceComposition(call.arguments[0]).properties.map((p) => p.key.name),
     names,
   );
-  for (const property of call.arguments[0].properties) {
+  for (const property of serviceComposition(call.arguments[0]).properties) {
     assert.equal(property.type, "Property");
     assert.equal(property.kind, "get", "retain actual callback/service identities through lazy getters");
     assert.equal(property.value.body.body.length, 1);

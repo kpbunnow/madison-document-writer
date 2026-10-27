@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Shared publication/correction confirmation retains exact durable attempts and adapter ordering. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -37,10 +38,10 @@ assert.deepEqual([...used].sort(), fields.slice().sort());
 const declarations = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = declarations.find((n) => n.id.name === "recordCommit");
 assert.equal(entry.init.callee.name, "createRecordCommit");
-assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), used);
+assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), used);
 assert.ok(declarations.indexOf(entry) > declarations.findIndex((n) => n.id.name === "workspaceTaskPresentation"));
 assert.ok(declarations.indexOf(entry) < declarations.findIndex((n) => n.id.name === "documentRenderer"));
-for (const p of entry.init.arguments[0].properties) {
+for (const p of serviceComposition(entry.init.arguments[0]).properties) {
   if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
   else {
     assert.equal(p.value.type, "ArrowFunctionExpression");

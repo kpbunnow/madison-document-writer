@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Rendering must load without Writer, use only explicit services and preserve retained document facts. */
 const assert = require("assert/strict");
 const fs = require("fs");
@@ -41,7 +42,7 @@ for (const [owner, factory] of Object.entries(owners)) {
   });
   const call = composition.get(factory);
   assert.equal(call.arguments.length, 1);
-  const properties = call.arguments[0].properties;
+  const properties = serviceComposition(call.arguments[0]).properties;
   assert.deepEqual(new Set(properties.map((p) => p.key.name)), required, owner + " has exactly its required interface");
   for (const p of properties) {
     assert.equal(p.type, "Property", "no spread registry");
