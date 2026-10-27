@@ -94,7 +94,9 @@ const assert = require("node:assert/strict"),
     },
   );
   let actual;
-  createWorkspaceEvents(services).registerWorkspaceClicks({ addEventListener: (type, fn) => (actual = fn) });
+  createWorkspaceEvents({ ui: services, events: services, cases: services }).registerWorkspaceClicks({
+    addEventListener: (type, fn) => (actual = fn),
+  });
   const old = legacy(services);
   const reset = () => {
     for (const key of Object.keys(s)) delete s[key];
