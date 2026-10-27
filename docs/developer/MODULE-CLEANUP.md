@@ -351,11 +351,19 @@ Both moved and all six remaining court function bodies preserve logic except exp
 
 There are 108 maintained modules and 60 independent scoped owners. Court/deposits shrinks from 394 to 48 lines and loses UI/core/case-file imports. Writer narrows from five to four cyclic modules (core, screens, case files and shell); the guard tightens to four. Reports stays acyclic. Next give remaining format/identity/catalog utilities descriptive owners, then inspect shell/case-file and core/screen direction. Historical counts above remain provenance.
 
-## Thirty-eighth increment: remaining Writer utility ownership
+## Thirty-eighth increment: remaining Writer utility ownership (merged in PR #84)
 
 Move fmtDate/longDate/fmtTime into presentation_format and splitOwner into mailing_rules. record_ids directly defines rnd12; catalog_queries directly defines allItems. All six function bodies remain unchanged. Consumers import defining owners directly; remove the emptied court_and_deposits module without a forwarding barrel or new factory. Existing function names, stored/installed identities, formatting, native random/fallback/error semantics and catalog traversal/metadata/shallow-copy behavior remain unchanged. No native randomness is read during module loading, and no new cryptographic/uniqueness guarantee is asserted.
 
 There are 109 maintained modules and 62 independent scoped owners. Writer remains four cyclic modules, with its cap unchanged; Reports stays acyclic. The former mixed court/deposit owner is fully dismantled into cohesive owners. Next inspect shell/case-file folder/address/save-status and startup responsibilities, then core/screen direction, retaining initialization, permission/save and publication guards. Historical counts and prior owner descriptions above remain provenance.
+
+## Thirty-ninth increment: address and recipient responsibilities
+
+address_format defines the existing four postal functions (private postalTitle plus three public formatting/field-check operations). recipient_workflow composes validation/normalization, previews and copy/email add/remove through two lazy addressParser/render inputs. Core composes it immediately after addressParser and before reinspection, exports actual operations and screens consume the composed preview. Constructors perform no reads, I/O or registration.
+
+All ten moved and remaining case-file function bodies retain logic apart from explicit dependency access. Preserve postal parsing/messages, parser fault/accepted-line evidence, validation-before-normalization, blank/agent behavior, correction/live-case scope, dirty-before-render and existing edit/save guards. Existing address-parser/helper/publication authority remains unchanged.
+
+There are 111 maintained modules, 15 isolated foundations and 63 independent scoped owners. Case files shrinks from 648 to 446 lines; Writer remains four cyclic modules and Reports stays acyclic. Next inspect folder/summary/save-status/local-file responsibilities and startup sequencing, then core/screen direction. Earlier ownership/count descriptions remain provenance.
 
 ## Following increments
 

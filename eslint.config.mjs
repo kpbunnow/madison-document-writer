@@ -66,6 +66,8 @@ export default [
       "app/modules/working_papers.js",
       "app/modules/document_printing.js",
       "app/modules/document_delivery.js",
+      "app/modules/address_format.js",
+      "app/modules/recipient_workflow.js",
       "app/modules/document_readiness.js",
       "app/modules/record_ids.js",
       "app/modules/catalog_queries.js",

@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Address and recipient boundaries (development)
+
+- Define existing street/city/state/ZIP formatting and field validation in address_format, with private postal capitalization. Preserve every parsing rule and message.
+- Compose recipient validation/normalization, previews and copy/email edits through two lazy parser/render inputs. Preserve accepted mailing lines, validation-before-normalization, correction case scoping and dirty/render order; case_files retains folder/save/startup work.
+- Add independent tests and import/ambient guards; update ownership, source/test indexes and roadmap. Case files is 202 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Writer utility ownership (development)
 
 - Move fmtDate/longDate/fmtTime to presentation_format and splitOwner to mailing_rules; define rnd12 in record_ids and allItems in catalog_queries. Callers import defining owners directly; remove the emptied court_and_deposits module. All six function bodies remain unchanged.

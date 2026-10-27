@@ -1,3 +1,5 @@
+import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
+import { createRecipientWorkflow } from "./recipient_workflow.js";
 import { createDocumentReadiness } from "./document_readiness.js";
 import { createDocumentSources } from "./document_sources.js";
 import { createDocumentFeedback } from "./document_feedback.js";
@@ -81,8 +83,6 @@ import { caseFileName } from "./case_file_rules.js";
 import {
   updateSaveStatus,
   scheduleDraftSave,
-  addCC,
-  addEmail,
   bootStorage,
   caseUnsaved,
   clearCases,
@@ -92,16 +92,9 @@ import {
   openFromFolder,
   pickCaseFile,
   rebuildIndex,
-  recipientPreview,
-  removeCC,
   removeCase,
-  removeEmail,
   writeSummary,
-  standardCityStateZip,
-  standardStreetAddress,
   startReinspection,
-  addressProblem,
-  validateAndStandardizeAddresses,
 } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
 import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
@@ -359,6 +352,14 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const recipientWorkflow = createRecipientWorkflow({
+  get addressParser() {
+    return addressParser;
+  },
+  render: (...args) => render(...args),
+});
+export let { validateAndStandardizeAddresses, recipientPreview, addCC, removeCC, addEmail, removeEmail } = recipientWorkflow;
+
 const reinspection = createReinspection({
   fmtDate: (...args) => fmtDate(...args),
   inspAt: (...args) => inspAt(...args),

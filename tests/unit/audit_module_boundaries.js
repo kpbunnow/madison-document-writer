@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "../..");
 const directory = path.join(root, "app/modules");
 const graph = moduleGraph(directory);
 const allowed = {
+  "address_format.js": ["./mailing_rules.js"],
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
@@ -36,6 +37,7 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "recipient_workflow.js": ["./address_format.js", "./mailing_rules.js", "./writer_queries.js", "./state.js"],
   "record_ids.js": [],
   "catalog_queries.js": ["./data/library.js"],
   "document_readiness.js": [

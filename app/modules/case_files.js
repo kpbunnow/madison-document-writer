@@ -15,7 +15,6 @@ import {
   restoreWalkFor,
   refreshCatalog,
   IDB_OK,
-  addressParser,
   newDocuments,
   recordIntegrity,
   snow,
@@ -34,8 +33,7 @@ import {
 
 import { render } from "./app_screens.js";
 
-import { STATE_NAMES, US_STATES, ccList, emailList } from "./mailing_rules.js";
-import { doc, docCase, docsFor, draftDocFor, draftReinspFor, eventsFor, kase, recordHead, reinsp } from "./writer_queries.js";
+import { doc, docsFor, draftDocFor, draftReinspFor, eventsFor, kase, recordHead, reinsp } from "./writer_queries.js";
 
 import { nowISO } from "./calendar.js";
 
@@ -292,197 +290,6 @@ function pickCaseFile() {
   inp.click();
 }
 
-function postalTitle(word) {
-  if (/^[A-Z][a-z].*[A-Z]/.test(word)) return word; // keep intentional spelling such as McFarland
-  return word.toLowerCase().replace(/(^|[-'’])([a-z])/g, (_, edge, letter) => edge + letter.toUpperCase());
-}
-
-function standardStreetAddress(value) {
-  const raw = String(value || "")
-    .trim()
-    .replace(/\s+/g, " ");
-  const street = raw.replace(/,\s*(?=(?:apt|apartment|ste|suite|unit|fl|floor|rm|room)\b|#)/gi, " ");
-  const match = street.match(/^(\d+[A-Za-z]?(?:[-/]\d+[A-Za-z]?)?)\s+(.+)$/);
-  if (!match || street.includes(",") || !/[A-Za-z]/.test(match[2]) || /\bP\.?\s*O\.?\s+BOX\b/i.test(street)) return "";
-  const suffix = {
-    street: "St",
-    st: "St",
-    avenue: "Ave",
-    ave: "Ave",
-    boulevard: "Blvd",
-    blvd: "Blvd",
-    road: "Rd",
-    rd: "Rd",
-    drive: "Dr",
-    dr: "Dr",
-    lane: "Ln",
-    ln: "Ln",
-    court: "Ct",
-    ct: "Ct",
-    circle: "Cir",
-    cir: "Cir",
-    parkway: "Pkwy",
-    pkwy: "Pkwy",
-    place: "Pl",
-    pl: "Pl",
-    terrace: "Ter",
-    ter: "Ter",
-    highway: "Hwy",
-    hwy: "Hwy",
-    apartment: "Apt",
-    apt: "Apt",
-    suite: "Ste",
-    ste: "Ste",
-    floor: "Fl",
-    fl: "Fl",
-    room: "Rm",
-    rm: "Rm",
-    unit: "Unit",
-  };
-  const directionWords = { north: "N", south: "S", east: "E", west: "W", northeast: "NE", northwest: "NW", southeast: "SE", southwest: "SW" };
-  const directions = new Set(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]);
-  const parts = street.split(" ");
-  const formatted = parts
-    .map((part, index) => {
-      if (index === 0) return part.toUpperCase();
-      const bare = part.replace(/\.$/, "");
-      const key = bare.toLowerCase();
-      if (directionWords[key]) return directionWords[key];
-      if (directions.has(bare.toUpperCase())) return bare.toUpperCase();
-      return suffix[key] || postalTitle(bare);
-    })
-    .join(" ");
-  return formatted;
-}
-
-function standardCityStateZip(value) {
-  const raw = String(value || "")
-    .trim()
-    .replace(/\s+/g, " ");
-  const zipMatch = raw.match(/^(.*?)[,\s]+(\d{5}(?:-?\d{4})?)$/);
-  if (!zipMatch) return "";
-  const area = zipMatch[1].replace(/,\s*$/, "").trim(),
-    zip = zipMatch[2].replace(/^(\d{5})(\d{4})$/, "$1-$2");
-  // Prefer the longest complete state name; no partial suffix matches.
-  const states = Object.entries(STATE_NAMES)
-    .sort((a, b) => b[0].length - a[0].length)
-    .concat(Array.from(US_STATES, (x) => [x.toLowerCase(), x]));
-  let city = "",
-    state = "";
-  for (const [name, abbr] of states) {
-    const suffix = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const match = area.match(new RegExp("^(.+?)(?:,\\s*|\\s+)(" + suffix + ")$", "i"));
-    if (match) {
-      city = match[1].trim();
-      state = abbr;
-      break;
-    }
-  }
-  if (!state || !city || !/^[A-Za-z][A-Za-z .'-]*$/.test(city)) return "";
-  return (
-    city
-      .split(/(\s+|[-'])/)
-      .map((part) => (/^[A-Za-z]/.test(part) ? postalTitle(part) : part))
-      .join("") +
-    ", " +
-    state +
-    " " +
-    zip
-  );
-}
-
-function addressProblem(name, street, city) {
-  if (!String(name || "").trim()) return "Enter the recipient name.";
-  if (!standardStreetAddress(street)) return "Enter a street address with a street number and name (for example, 123 Main St).";
-  if (!standardCityStateZip(city))
-    return (
-      "Enter city, a complete state name or two-letter abbreviation, and ZIP (f" +
-      "or example, Madison, WI 53703). Check ambiguous or unsupported state tex" +
-      "t."
-    );
-  return "";
-}
-
-function validateAndStandardizeAddresses(k, requireAgent = false, normalize = true) {
-  const parsedFault = addressParser.fault(k);
-  if (parsedFault) return parsedFault;
-  const normalized = [];
-  for (let ix = 0; ix < ccList(k).length; ix++) {
-    const c = ccList(k)[ix];
-    if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) continue;
-    if (addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
-    const problem = addressProblem(c.name, c.addr, c.city);
-    if (problem) {
-      const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
-      return { message: "Copy " + (ix + 1) + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
-    }
-    normalized.push([c, String(c.name).trim(), standardStreetAddress(c.addr), standardCityStateZip(c.city)]);
-  }
-  const a = k.agent || {},
-    entered = [a.name, a.addr, a.city].some((v) => String(v || "").trim());
-  const acceptedAgent = addressParser.accepted(a.addressParsed, [a.addr || "", a.city || ""]) && String(a.name || "").trim();
-  if ((requireAgent || entered) && !acceptedAgent) {
-    const problem = addressProblem(a.name, a.addr, a.city);
-    if (problem) {
-      const field = !String(a.name || "").trim() ? "name" : !standardStreetAddress(a.addr) ? "addr" : "city";
-      return { message: "Registered agent: " + problem, scope: "agent", index: 0, field, selector: '[data-agent="' + field + '"]' };
-    }
-  }
-  if (normalize) {
-    normalized.forEach(([c, name, addr, city]) => {
-      c.name = name;
-      c.addr = addr;
-      c.city = city;
-    });
-    if (entered && !acceptedAgent) {
-      a.addr = standardStreetAddress(a.addr);
-      a.city = standardCityStateZip(a.city);
-      a.name = String(a.name).trim();
-      k.agent = a;
-    }
-  }
-  return null;
-}
-
-function recipientPreview(c) {
-  if (addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""])) return "Accepted mailing lines: " + [c.addr, c.city].join(" · ");
-  const street = standardStreetAddress(c.addr),
-    city = standardCityStateZip(c.city);
-  return street && city ? "Printed as: " + street + " · " + city : "";
-}
-
-function addCC(cid) {
-  const current = doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
-  k.ccList = ccList(k).concat([{ name: "", addr: "", city: "" }]);
-  WriterState.DIRTY = true;
-  render();
-}
-
-function removeCC(cid, ix) {
-  const current = doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
-  k.ccList = ccList(k).filter((_, n) => n !== ix);
-  WriterState.DIRTY = true;
-  render();
-}
-
-function addEmail(cid) {
-  const current = doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
-  k.emails = emailList(k).concat([{ addr: "", kind: "Property Owner" }]);
-  WriterState.DIRTY = true;
-  render();
-}
-
-function removeEmail(cid, ix) {
-  const current = doc(WriterState.state.docId),
-    k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
-  k.emails = emailList(k).filter((_, n) => n !== ix);
-  WriterState.DIRTY = true;
-  render();
-}
-
 function caseUnsaved(k) {
   if (Object.values(WriterState.RECORD_ATTEMPTS).some((x) => x.cid === k.id)) return "record change awaiting save confirmation";
   if (WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k))))
@@ -632,15 +439,6 @@ export {
   discardDraft,
   bootStorage,
   pickCaseFile,
-  standardStreetAddress,
-  standardCityStateZip,
-  addressProblem,
-  validateAndStandardizeAddresses,
-  recipientPreview,
-  addCC,
-  removeCC,
-  addEmail,
-  removeEmail,
   caseUnsaved,
   removeCase,
   clearCases,
