@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
@@ -5,7 +6,6 @@ import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor, kase } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
-import { WriterState } from "./state.js";
 
 // Automatic recovery identity/snapshots/write scheduling; browser storage, timers and helper/UI stay supplied.
 export function createAutomaticRecovery(services) {
@@ -137,7 +137,7 @@ export function createAutomaticRecovery(services) {
   }
 
   function scheduleRecoveryBackup() {
-    if (!WriterState.HELPER) return;
+    if (!startup.HELPER) return;
     services.clearTimeout(recovery.RECOVERY_TIMER);
     recovery.RECOVERY_TIMER = services.setTimeout(() => {
       let jobs;

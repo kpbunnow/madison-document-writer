@@ -1,12 +1,12 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
-import { WriterState } from "./state.js";
 
 export function createFolderConnections(services) {
   async function linkCaseFolder() {
-    if (WriterState.HELPER && WriterState.HELPER.caseStore) {
+    if (startup.HELPER && startup.HELPER.caseStore) {
       await restoreCaseFolder();
       await services.flushPending();
-      services.toast("Using " + WriterState.HELPER.caseDir);
+      services.toast("Using " + startup.HELPER.caseDir);
       return true;
     }
     if (!services.FS_OK) {
@@ -32,7 +32,7 @@ export function createFolderConnections(services) {
   }
 
   async function restoreCaseFolder() {
-    if (WriterState.HELPER && WriterState.HELPER.caseStore) {
+    if (startup.HELPER && startup.HELPER.caseStore) {
       workspace.CASEDIR = services.helperFolder();
       workspace.DIRNAME = services.CASEDIR_EXPECT;
       workspace.NEEDGRANT = false;

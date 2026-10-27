@@ -399,3 +399,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Remaining record, screen and event owners use the existing workspace boundary. Eight differential rule/HTML/dispatch suites retain exact assertions across 26,853 cases; native pagination retains exact page HTML and measurements. Removal of incidental production imports exposed a historical-test composition dependency: an explicit test-only import now supplies the unchanged frozen functions with their original WriterState binding. This fixes the reference scope without changing any reference bytes or assertions. Publication ordering and both state boundary tests pass. Direct root-state importers fall 53 to 27, with zero cycles; helper/session fields remain for the final startup cohort.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 helper session and handoff state
+
+The startup boundary now covers twelve existing startup, session and handoff fields. The remaining sixteen mixed owners migrate their helper/handoff access. All independent startup, handoff, folder, recovery, artifact and delivery assertions pass, alongside exact overlay, import-plan and dispatch comparisons and original desktop exit tests. Core retains every initialization checkpoint. Direct state.js importers fall 27 to 11: six Writer boundaries, Writer core and four Reports owners. No feature owner accesses WriterState directly. Boundaries are 25/16/12/6/6/5 fields with zero cycles. Interface narrowing and explicit composition remain open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

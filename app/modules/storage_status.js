@@ -1,9 +1,9 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
 import { esc, fmtDate } from "./presentation_format.js";
 import { BUILD } from "./data/build_identity.js";
-import { WriterState } from "./state.js";
 
 export function createStorageStatus(services) {
   function storageReport() {
@@ -21,8 +21,8 @@ export function createStorageStatus(services) {
       ["Local storage for drafts (IndexedDB)", services.IDB_OK ? "available" : "NOT AVAILABLE"],
       [
         "Case folder",
-        WriterState.HELPER && WriterState.HELPER.caseStore
-          ? WriterState.HELPER.caseDir
+        startup.HELPER && startup.HELPER.caseStore
+          ? startup.HELPER.caseDir
           : workspace.CASEDIR
             ? (workspace.DIRNAME || "linked") +
               (workspace.DIRNAME === services.CASEDIR_EXPECT ? "" : '   <-- expected "' + services.CASEDIR_EXPECT + '"')
@@ -36,14 +36,14 @@ export function createStorageStatus(services) {
       ],
       [
         "PDF helper",
-        WriterState.HELPER
-          ? WriterState.HELPER.chrome
+        startup.HELPER
+          ? startup.HELPER.chrome
             ? "running, Chrome found"
             : "running, but Chrome was NOT found"
           : "not running — documents will print instead",
       ],
-      ["PDF folder", WriterState.HELPER && WriterState.HELPER.out ? WriterState.HELPER.out : "—"],
-      ["Outlook", !WriterState.HELPER ? "—" : WriterState.HELPER.outlook ? "found" : "NOT found — email falls back to your default mail program"],
+      ["PDF folder", startup.HELPER && startup.HELPER.out ? startup.HELPER.out : "—"],
+      ["Outlook", !startup.HELPER ? "—" : startup.HELPER.outlook ? "found" : "NOT found — email falls back to your default mail program"],
       [
         "Last write",
         workspace.LASTWRITE
