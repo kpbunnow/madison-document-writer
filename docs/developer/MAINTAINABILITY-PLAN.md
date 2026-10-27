@@ -237,3 +237,9 @@ page limits. All note characters are retained. The unchanged 69 authored print
 variants and their overflow/clipping/missing-copy mutation checks pass locally.
 JS complexity findings 77 → 76; nesting reports 13 → 3; length reports 127 → 125.
 The full GitHub gate remains required before this increment merges.
+
+## M3 language focus nesting
+
+The ordered control-attribute search is a named helper. Search caret and disclosure restoration stay unchanged; catalog-field identity still includes its catalog key. The independent DOM focus test passes. No selection/approval, markup or persistence policy changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 3, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30}.

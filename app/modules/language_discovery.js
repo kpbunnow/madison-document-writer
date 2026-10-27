@@ -439,6 +439,26 @@ function currentContext(R, picker) {
         : "browse"
       : null;
 }
+function languageControlSelector(R, active) {
+  let selector = "";
+  for (const a of [
+    "data-pick",
+    "data-catalog-open",
+    "data-catalog-field",
+    "data-catalog-replacement-query",
+    "data-language-refresh",
+    "data-language-standard",
+    "data-language-replacement",
+    "data-language-all",
+  ])
+    if (active.hasAttribute(a)) {
+      selector = "[" + a + '="' + R.checkAttr(active.getAttribute(a)) + '"]';
+      if (a === "data-catalog-field") selector += '[data-catalog-key="' + R.checkAttr(active.dataset.catalogKey) + '"]';
+      break;
+    }
+  return selector;
+}
+
 export function rememberLanguageFocus(R) {
   const root = document.querySelector(".picker-box[data-language-context],.language-browser,.language-admin");
   if (!root) return null;
@@ -450,22 +470,7 @@ export function rememberLanguageFocus(R) {
   let selector = "";
   if (inside) {
     if (active.id) selector = "#" + active.id;
-    else
-      for (const a of [
-        "data-pick",
-        "data-catalog-open",
-        "data-catalog-field",
-        "data-catalog-replacement-query",
-        "data-language-refresh",
-        "data-language-standard",
-        "data-language-replacement",
-        "data-language-all",
-      ])
-        if (active.hasAttribute(a)) {
-          selector = "[" + a + '="' + R.checkAttr(active.getAttribute(a)) + '"]';
-          if (a === "data-catalog-field") selector += '[data-catalog-key="' + R.checkAttr(active.dataset.catalogKey) + '"]';
-          break;
-        }
+    else selector = languageControlSelector(R, active);
     if (!selector && active.matches(".language-details>summary")) {
       const key = active.closest("[data-language-key]")?.dataset.languageKey;
       if (key) selector = '[data-language-key="' + R.checkAttr(key) + '"] .language-details>summary';

@@ -526,6 +526,7 @@
     "tests/unit/audit_import_r13.py",
     "tests/unit/audit_import_service.js",
     "tests/unit/audit_inspection_facts.js",
+    "tests/unit/audit_language_focus.js",
     "tests/unit/audit_lifecycle.js",
     "tests/unit/audit_local_work_controls.js",
     "tests/unit/audit_logging.py",
