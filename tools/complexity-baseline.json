@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 80,
+    "complexity": 79,
     "max-depth": 13,
-    "max-lines-per-function": 131,
+    "max-lines-per-function": 129,
     "python": 30
   },
   "violations": {
@@ -198,9 +198,6 @@
     "app/modules/saved_work.js:savedCaseState#1:max-lines-per-function": 90,
     "app/modules/saved_work.js:savedWorkHTML#1:complexity": 24,
     "app/modules/saved_work.js:savedWorkHTML#1:max-lines-per-function": 119,
-    "app/modules/screen_overlays.js:createScreenOverlays#1:max-lines-per-function": 448,
-    "app/modules/screen_overlays.js:createScreenOverlays#1/modalHTML#1:complexity": 68,
-    "app/modules/screen_overlays.js:createScreenOverlays#1/modalHTML#1:max-lines-per-function": 442,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 119,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1/writeToFolder#1:complexity": 24,
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 393,
