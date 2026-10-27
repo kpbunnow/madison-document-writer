@@ -13,6 +13,12 @@ runs in its own process with a fresh bundle, DOM, state, storage and mocks
 appears under "Release-wide regressions". Add a new scenario to the feature suite it
 covers, or a new suite under its feature.
 
+## Maintainability
+
+| Suite | Covers |
+| --- | --- |
+| `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
+
 ## Inspection import and case lookup
 
 | Suite | Covers |
