@@ -58,7 +58,6 @@
   "tests/unit/audit_r47_language.js": 1,
   "tests/unit/audit_r48_reports.js": 1,
   "tests/unit/audit_r49_ui.js": 1,
-  "tests/unit/audit_r50_cached_reviews.js": 1,
   "tests/unit/audit_r50_disclosure.js": 1,
   "tests/unit/audit_r50_editor_repaint.js": 1,
   "tests/unit/audit_r53_workflow.js": 1,

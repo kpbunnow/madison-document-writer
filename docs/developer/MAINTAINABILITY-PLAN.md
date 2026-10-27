@@ -273,3 +273,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Old access: saveCaseFile plus mutable kase/caseFileName/caseFile/transport names inside the application eval. New access: createCaseSaveWorkflow services and live synthetic WriterState cases; the real filename/query owners are used. Every original false/no-write/export-error assertion remains, with an added check that initial serialization failure never reaches merge. Whole-application evaluator files fall 90 → 89; no production hook is retired yet.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 catalog cache seam
+
+Old access: screenLibrary/refreshCatalog plus mutable helper/render globals in the application eval. New access: real catalog queries/key, createLanguageCatalog, createLanguageDiscoveryContext and createLanguageViews with explicit transport/cache adapters. All original cached/current/offline caption and verification assertions remain unchanged. Whole-application evaluator files fall 89 → 88; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
