@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Workspace case actions and reinspection entry (development)
+
+- Compose draft discard, unsaved-case classification and workspace case removal through four lazy notification/walk/save/render inputs. Preserve pending-save refusals, checkpoint comparisons, filtering/lookup and await/dispatch order.
+- Compose reinspection entry through twelve lazy day/feature/source/save/UI inputs. Preserve snow/integrity refusals, correction/draft/worksheet routing, imported result-date rules, source/head/identity and carried findings.
+- Add independent tests/guards and update ownership, source/test indexes and roadmap. Case files shrinks to the original startup function; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Local file and draft-save control boundaries (development)
 
 - Compose JSON download/picker controls through seven explicit native/notification/load inputs. Preserve MIME/raw text, click/remove order, four-second URL cleanup, cancellation/error messages and original loader dispatch.

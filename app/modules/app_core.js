@@ -1,3 +1,5 @@
+import { createReinspectionEntry } from "./reinspection_entry.js";
+import { createCaseWorkspaceActions } from "./case_workspace_actions.js";
 import { createDraftSaveControls } from "./draft_save_controls.js";
 import { createLocalCaseFiles } from "./local_case_files.js";
 import { createCaseFolderWorkflow } from "./case_folder_workflow.js";
@@ -84,7 +86,7 @@ import {
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
-import { bootStorage, caseUnsaved, clearCases, discardDraft, removeCase, startReinspection } from "./case_files.js";
+import { bootStorage } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
 import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
@@ -386,6 +388,38 @@ const draftSaveControls = createDraftSaveControls({
   saveDrafts: (...args) => saveDrafts(...args),
 });
 export let { updateSaveStatus, scheduleDraftSave } = draftSaveControls;
+
+const caseWorkspaceActions = createCaseWorkspaceActions({
+  toast: (...args) => toast(...args),
+  clearWalk: (...args) => clearWalk(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+});
+export let { discardDraft, caseUnsaved, removeCase, clearCases } = caseWorkspaceActions;
+
+const reinspectionEntry = createReinspectionEntry({
+  get snow() {
+    return snow;
+  },
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  clearWalk: (...args) => clearWalk(...args),
+  restoreWalkFor: (...args) => restoreWalkFor(...args),
+  get newDocuments() {
+    return newDocuments;
+  },
+  uid: (...args) => uid(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+  render: (...args) => render(...args),
+  sourceDocFor: (...args) => sourceDocFor(...args),
+  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
+  get today() {
+    return today;
+  },
+  toast: (...args) => toast(...args),
+});
+export let { startReinspection } = reinspectionEntry;
 
 const recipientWorkflow = createRecipientWorkflow({
   get addressParser() {

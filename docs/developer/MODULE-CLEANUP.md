@@ -373,13 +373,21 @@ All four moved and remaining case-file functions retain logic apart from depende
 
 There are 112 maintained modules, 15 isolated foundations and 64 independent scoped owners. Case files shrinks from 446 to 317 lines; Writer remains four cyclic modules and Reports acyclic. Next separate save-status/local-file presentation and case actions before startup coordination, then inspect remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
-## Forty-first increment: local JSON and draft-save controls
+## Forty-first increment: local JSON and draft-save controls (merged in PR #87)
 
 local_case_files composes downloadFile/pickCaseFile through seven native/notification/load inputs; draft_save_controls composes updateSaveStatus/scheduleDraftSave through six DOM/context/storage/save/timer inputs. Core constructs them after caseFolderWorkflow and before recipientWorkflow, exports actual operations and screens consume status/scheduling. Construction performs no reads, I/O or registration.
 
 All four moved and remaining case-file functions preserve logic except scoped dependency access. Keep raw JSON/MIME, click/remove and delayed cleanup, picker cancellation/errors and loader dispatch; dirty/change counters, original unavailable-IDB path, exact debounce replacement/marker/save order and delegated presentation. Persistence/loader/startup owners retain authority; no stronger durable-save or native acceptance is asserted.
 
 There are 114 maintained modules, 15 isolated foundations and 66 independent scoped owners. Case files shrinks from 317 to 245 lines; Writer remains four cyclic modules and Reports acyclic. Next separate case/draft actions and reinspection entry before startup coordination, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
+
+## Forty-second increment: workspace case actions and reinspection entry
+
+case_workspace_actions composes discardDraft/caseUnsaved/removeCase/clearCases through four lazy notification/walk/save/render inputs. reinspection_entry composes startReinspection through twelve lazy day/feature/source/save/UI inputs. Core constructs both after draftSaveControls and before recipientWorkflow, exports actual operations and screens consume caseUnsaved. Construction performs no reads, I/O or registration.
+
+All five moved and original bootStorage function bodies preserve logic apart from scoped dependency access. Keep pending/risk/checkpoint guards, original filtering/current lookup order and draft unlinking, awaited discard versus dispatched case/reinspection save order; snow/integrity and correction/draft/open routing, imported date exceptions, source/completion/head/identity/carried finding behavior. Shared records are not deleted; persistence/helper/startup authority remains. No stronger removal atomicity, walk cleanup or durable-save guarantee is asserted.
+
+There are 116 maintained modules, 15 isolated foundations and 68 independent scoped owners. Case files shrinks from 245 to 67 lines, retaining only original startup. Writer remains four cyclic modules and Reports acyclic. Next isolate startup coordination with its exact lock/restore/failure order, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 
