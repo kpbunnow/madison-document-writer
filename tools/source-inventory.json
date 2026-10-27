@@ -467,6 +467,7 @@
     "tests/fixtures/special_checks_reference.cjs",
     "tests/fixtures/special_fields_reference.txt",
     "tests/fixtures/tagcheck.js",
+    "tests/fixtures/test-hook-baseline.json",
     "tests/fixtures/test-seam-baseline.json",
     "tests/fixtures/test_support.py",
     "tests/fixtures/vulture_whitelist.py",
