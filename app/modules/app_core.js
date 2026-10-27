@@ -1534,29 +1534,31 @@ const safetyEvents = createSafetyEvents(
     ["A11Y", "recordIntegrity"],
   ),
 );
-const workflowEvents = createWorkflowEvents({
-  checkHelper: (...args) => checkHelper(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  globalSearch: (...args) => globalSearch(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  persistWorkspacePatch: (...args) => persistWorkspacePatch(...args),
-  planBulkDue: (...args) => planBulkDue(...args),
-  printOutbox: (...args) => printOutbox(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-  render: (...args) => render(...args),
-  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
-  selectedOutbox: (...args) => selectedOutbox(...args),
-  showBulkDue: (...args) => showBulkDue(...args),
-  showOutbox: (...args) => showOutbox(...args),
-  showReminderDraft: (...args) => showReminderDraft(...args),
-  showReminders: (...args) => showReminders(...args),
-  showTimeline: (...args) => showTimeline(...args),
-  timelineCategory: (...args) => timelineCategory(...args),
-  timelineRows: (...args) => timelineRows(...args),
-  toast: (...args) => toast(...args),
-  validISO: (...args) => validISO(...args),
-  writerOpenReportedCase: (...args) => writerOpenReportedCase(...args),
-});
+const workflowEvents = createWorkflowEvents(
+  deferredServices({
+    checkHelper: () => checkHelper,
+    downloadFile: () => downloadFile,
+    globalSearch: () => globalSearch,
+    helperJSON: () => helperJSON,
+    persistWorkspacePatch: () => persistWorkspacePatch,
+    planBulkDue: () => planBulkDue,
+    printOutbox: () => printOutbox,
+    refreshArtifactLocations: () => refreshArtifactLocations,
+    render: () => render,
+    saveWorkflowPrefs: () => saveWorkflowPrefs,
+    selectedOutbox: () => selectedOutbox,
+    showBulkDue: () => showBulkDue,
+    showOutbox: () => showOutbox,
+    showReminderDraft: () => showReminderDraft,
+    showReminders: () => showReminders,
+    showTimeline: () => showTimeline,
+    timelineCategory: () => timelineCategory,
+    timelineRows: () => timelineRows,
+    toast: () => toast,
+    validISO: () => validISO,
+    writerOpenReportedCase: () => writerOpenReportedCase,
+  }),
+);
 const workspaceEvents = createWorkspaceEvents({
   ui: deferredServices(
     {
@@ -1617,79 +1619,84 @@ const workspaceEvents = createWorkspaceEvents({
     testWrite: () => testWrite,
   }),
 });
-const citationEvents = createCitationEvents({
-  get depositStep() {
-    return depositStep;
-  },
-  editCitation: (...args) => editCitation(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-  isLocked: (...args) => isLocked(...args),
-  refreshSheet: (...args) => refreshSheet(...args),
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  structEditable: (...args) => structEditable(...args),
-  syncChip: (...args) => syncChip(...args),
-  get dueDateEvents() {
-    return dueDateEvents;
-  },
-});
-const dueDateEvents = createDueDateEvents({
-  activeDueTarget: (...args) => activeDueTarget(...args),
-  assignDue: (...args) => assignDue(...args),
-  dueContext: (...args) => dueContext(...args),
-  dueSelectedText: (...args) => dueSelectedText(...args),
-  isLocked: (...args) => isLocked(...args),
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  toast: (...args) => toast(...args),
-  toastUndo: (...args) => toastUndo(...args),
-});
-const importEvents = createImportEvents({
-  accelaFromShare: (...args) => accelaFromShare(...args),
-  accelaPlan: (...args) => accelaPlan(...args),
-  acceptAccela: (...args) => acceptAccela(...args),
-  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
-  confirmDatabaseCase: (...args) => confirmDatabaseCase(...args),
-  findDatabaseCase: (...args) => findDatabaseCase(...args),
-  openImportWorkspace: (...args) => openImportWorkspace(...args),
-  pickAccelaFile: (...args) => pickAccelaFile(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  readAccelaFile: (...args) => readAccelaFile(...args),
-  render: (...args) => render(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  selectImportInspection: (...args) => selectImportInspection(...args),
-});
-const reinspectionEvents = createReinspectionEvents({
-  advanceWalk: (...args) => advanceWalk(...args),
-  changeVisitDate: (...args) => changeVisitDate(...args),
-  clearWalk: (...args) => clearWalk(...args),
-  discardWorksheet: (...args) => discardWorksheet(...args),
-  docFromReinspection: (...args) => docFromReinspection(...args),
-  ensureWalkContext: (...args) => ensureWalkContext(...args),
-  focusWalkItem: (...args) => focusWalkItem(...args),
-  nextWalkItem: (...args) => nextWalkItem(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  previousWalk: (...args) => previousWalk(...args),
-  recordReinspection: (...args) => recordReinspection(...args),
-  recordReinspectionOutcome: (...args) => recordReinspectionOutcome(...args),
-  render: (...args) => render(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  returnWalkDetails: (...args) => returnWalkDetails(...args),
-  saveCaseFile: (...args) => saveCaseFile(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  skipWalkDetails: (...args) => skipWalkDetails(...args),
-  startReinspection: (...args) => startReinspection(...args),
-  toast: (...args) => toast(...args),
-  undoWalkOutcome: (...args) => undoWalkOutcome(...args),
-  walkIdentity: (...args) => walkIdentity(...args),
-});
+const citationEvents = createCitationEvents(
+  deferredServices(
+    {
+      depositStep: () => depositStep,
+      editCitation: () => editCitation,
+      initialCitations: () => initialCitations,
+      isLocked: () => isLocked,
+      refreshSheet: () => refreshSheet,
+      render: () => render,
+      saveDrafts: () => saveDrafts,
+      scheduleDraftSave: () => scheduleDraftSave,
+      structEditable: () => structEditable,
+      syncChip: () => syncChip,
+      dueDateEvents: () => dueDateEvents,
+    },
+    ["depositStep", "initialCitations", "dueDateEvents"],
+  ),
+);
+const dueDateEvents = createDueDateEvents(
+  deferredServices({
+    activeDueTarget: () => activeDueTarget,
+    assignDue: () => assignDue,
+    dueContext: () => dueContext,
+    dueSelectedText: () => dueSelectedText,
+    isLocked: () => isLocked,
+    render: () => render,
+    saveDrafts: () => saveDrafts,
+    scheduleDraftSave: () => scheduleDraftSave,
+    toast: () => toast,
+    toastUndo: () => toastUndo,
+  }),
+);
+const importEvents = createImportEvents(
+  deferredServices({
+    accelaFromShare: () => accelaFromShare,
+    accelaPlan: () => accelaPlan,
+    acceptAccela: () => acceptAccela,
+    cancelCaseLookup: () => cancelCaseLookup,
+    confirmDatabaseCase: () => confirmDatabaseCase,
+    findDatabaseCase: () => findDatabaseCase,
+    openImportWorkspace: () => openImportWorkspace,
+    pickAccelaFile: () => pickAccelaFile,
+    preflightCase: () => preflightCase,
+    readAccelaFile: () => readAccelaFile,
+    render: () => render,
+    renderKeep: () => renderKeep,
+    saveDrafts: () => saveDrafts,
+    scheduleDraftSave: () => scheduleDraftSave,
+    selectImportInspection: () => selectImportInspection,
+  }),
+);
+const reinspectionEvents = createReinspectionEvents(
+  deferredServices({
+    advanceWalk: () => advanceWalk,
+    changeVisitDate: () => changeVisitDate,
+    clearWalk: () => clearWalk,
+    discardWorksheet: () => discardWorksheet,
+    docFromReinspection: () => docFromReinspection,
+    ensureWalkContext: () => ensureWalkContext,
+    focusWalkItem: () => focusWalkItem,
+    nextWalkItem: () => nextWalkItem,
+    preflightCase: () => preflightCase,
+    previousWalk: () => previousWalk,
+    recordReinspection: () => recordReinspection,
+    recordReinspectionOutcome: () => recordReinspectionOutcome,
+    render: () => render,
+    renderKeep: () => renderKeep,
+    returnWalkDetails: () => returnWalkDetails,
+    saveCaseFile: () => saveCaseFile,
+    saveDrafts: () => saveDrafts,
+    scheduleDraftSave: () => scheduleDraftSave,
+    skipWalkDetails: () => skipWalkDetails,
+    startReinspection: () => startReinspection,
+    toast: () => toast,
+    undoWalkOutcome: () => undoWalkOutcome,
+    walkIdentity: () => walkIdentity,
+  }),
+);
 const editorEvents = createEditorEvents({
   ui: deferredServices({
     fillBlank: () => fillBlank,
@@ -1742,60 +1749,62 @@ const editorEvents = createEditorEvents({
     ["initialCitations", "newDocuments"],
   ),
 });
-const specialDocumentEvents = createSpecialDocumentEvents({
-  get newDocuments() {
-    return newDocuments;
-  },
-});
-const correctionEvents = createCorrectionEvents({
-  addRecordNote: (...args) => addRecordNote(...args),
-  commitAmendment: (...args) => commitAmendment(...args),
-  correctionChanges: (...args) => correctionChanges(...args),
-  correctionTypeAllowed: (...args) => correctionTypeAllowed(...args),
-  docBody: (...args) => docBody(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  isLocked: (...args) => isLocked(...args),
-  issueCorrection: (...args) => issueCorrection(...args),
-  itemHistory: (...args) => itemHistory(...args),
-  itemInspectionHistory: (...args) => itemInspectionHistory(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  reconcileDocument: (...args) => reconcileDocument(...args),
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  startCorrection: (...args) => startCorrection(...args),
-  toast: (...args) => toast(...args),
-  voidDocument: (...args) => voidDocument(...args),
-});
-const contactEvents = createContactEvents({
-  addCC: (...args) => addCC(...args),
-  addEmail: (...args) => addEmail(...args),
-  emailDocument: (...args) => emailDocument(...args),
-  recipientPreview: (...args) => recipientPreview(...args),
-  refreshOverlay: (...args) => refreshOverlay(...args),
-  removeCC: (...args) => removeCC(...args),
-  removeEmail: (...args) => removeEmail(...args),
-  render: (...args) => render(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
-});
+const specialDocumentEvents = createSpecialDocumentEvents(deferredServices({ newDocuments: () => newDocuments }, ["newDocuments"]));
+const correctionEvents = createCorrectionEvents(
+  deferredServices({
+    addRecordNote: () => addRecordNote,
+    commitAmendment: () => commitAmendment,
+    correctionChanges: () => correctionChanges,
+    correctionTypeAllowed: () => correctionTypeAllowed,
+    docBody: () => docBody,
+    downloadFile: () => downloadFile,
+    isLocked: () => isLocked,
+    issueCorrection: () => issueCorrection,
+    itemHistory: () => itemHistory,
+    itemInspectionHistory: () => itemInspectionHistory,
+    preflightCase: () => preflightCase,
+    reconcileDocument: () => reconcileDocument,
+    render: () => render,
+    saveDrafts: () => saveDrafts,
+    scheduleDraftSave: () => scheduleDraftSave,
+    startCorrection: () => startCorrection,
+    toast: () => toast,
+    voidDocument: () => voidDocument,
+  }),
+);
+const contactEvents = createContactEvents(
+  deferredServices({
+    addCC: () => addCC,
+    addEmail: () => addEmail,
+    emailDocument: () => emailDocument,
+    recipientPreview: () => recipientPreview,
+    refreshOverlay: () => refreshOverlay,
+    removeCC: () => removeCC,
+    removeEmail: () => removeEmail,
+    render: () => render,
+    scheduleDraftSave: () => scheduleDraftSave,
+    validateAndStandardizeAddresses: () => validateAndStandardizeAddresses,
+  }),
+);
 utilityEvents.registerHelpClicks();
 utilityEvents.registerHelpKeys();
 utilityEvents.registerHelpClose();
 const $testFixtures = __TEST_BUILD__
-  ? initTestFixtures({
-      fmtDate: (...args) => fmtDate(...args),
-      freezeSources: (...args) => freezeSources(...args),
-      toast: (...args) => toast(...args),
-      appendEvent: (...args) => appendEvent(...args),
-      project: (...args) => project(...args),
-      saveDrafts: (...args) => saveDrafts(...args),
-      validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
-      recordReinspection: (...args) => recordReinspection(...args),
-      startCorrection: (...args) => startCorrection(...args),
-      render: (...args) => render(...args),
-      MINDUE: (...args) => MINDUE(...args),
-    })
+  ? initTestFixtures(
+      deferredServices({
+        fmtDate: () => fmtDate,
+        freezeSources: () => freezeSources,
+        toast: () => toast,
+        appendEvent: () => appendEvent,
+        project: () => project,
+        saveDrafts: () => saveDrafts,
+        validateAndStandardizeAddresses: () => validateAndStandardizeAddresses,
+        recordReinspection: () => recordReinspection,
+        startCorrection: () => startCorrection,
+        render: () => render,
+        MINDUE: () => MINDUE,
+      }),
+    )
   : null;
 
 /* R35: an initial-inspection citation (authoring 11+) is the only mailed document; its paired Official Notice
@@ -2338,31 +2347,28 @@ importEvents.registerFileDrop();
 
 /* Durable workspace recovery starts before the application becomes editable. */
 if (document.documentElement) document.documentElement.lang = "en";
-const writerStartup = createWriterStartup({
-  get navigator() {
-    return navigator;
-  },
-  get document() {
-    return document;
-  },
-  get location() {
-    return location;
-  },
-  restoreCaseFolder: (...args) => restoreCaseFolder(...args),
-  initWriterHandoff: (...args) => initWriterHandoff(...args),
-  markWriterReady: (...args) => markWriterReady(...args),
-  markWriterFailed: (...args) => markWriterFailed(...args),
-  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  restoreDrafts: (...args) => restoreDrafts(...args),
-  restorePending: (...args) => restorePending(...args),
-  flushPending: (...args) => flushPending(...args),
-  checkHelper: (...args) => checkHelper(...args),
-  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
-});
+const writerStartup = createWriterStartup(
+  deferredServices(
+    {
+      navigator: () => navigator,
+      document: () => document,
+      location: () => location,
+      restoreCaseFolder: () => restoreCaseFolder,
+      initWriterHandoff: () => initWriterHandoff,
+      markWriterReady: () => markWriterReady,
+      markWriterFailed: () => markWriterFailed,
+      refreshArtifactLocations: () => refreshArtifactLocations,
+      refreshCatalog: () => refreshCatalog,
+      recordIntegrity: () => recordIntegrity,
+      restoreDrafts: () => restoreDrafts,
+      restorePending: () => restorePending,
+      flushPending: () => flushPending,
+      checkHelper: () => checkHelper,
+      scheduleRecoveryBackup: () => scheduleRecoveryBackup,
+    },
+    ["navigator", "document", "location", "recordIntegrity"],
+  ),
+);
 export let { bootStorage } = writerStartup;
 if (typeof bootStorage === "function") bootStorage();
 recoveryEvents.registerUnloadWarning();
