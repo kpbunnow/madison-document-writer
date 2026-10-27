@@ -74,6 +74,296 @@ const REMEDY =
   "ce, or be forever barred. The court shall determine the reasonableness o" +
   "f the order for abatement of the nuisance.";
 
+function specialVacancyScope({ add, s, need }) {
+  add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
+  if (s.scope === "unit") need("unit", "the apartment / unit identifier");
+}
+
+function specialReviewedScope({ need, add, services, s, day }) {
+  ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
+    need(
+      k,
+      {
+        reviewer: "the division reviewer",
+        reviewRef: "the approved current ordinance and wording reference",
+        codeSource: "the verified current-code source URL / official source reference",
+        codeRevision: "the code revision / effective information and amendment review",
+        authority: "the verified authority",
+        signerName: "the authorized signer",
+        signerTitle: "the signer’s title",
+        delegation: "the signer’s authorization / delegation reference",
+      }[k],
+    ),
+  );
+  add(services.validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
+  add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
+  add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
+  if (s.scope === "unit") need("unit", "the apartment / unit identifier");
+}
+
+function specialScopeReadiness(context) {
+  const { d } = context;
+  if (simpleVacancy(d)) {
+    specialVacancyScope(context);
+  } else if (!simplifiedBestInterest(d)) {
+    specialReviewedScope(context);
+  }
+}
+
+function securingReadiness({ need, s }) {
+  need("securingConditions", "the reviewed securing / animal / material conditions");
+  if (s.boarding) need("boardingRef", "the prior written boarding approval");
+}
+
+function nuisanceReadiness({ add, s, d, need, services }) {
+  add(
+    NUISANCES.some((v) => v[0] === s.variant && (d.type === "summaryAbatement" || v[0] !== "secure")),
+    "Choose an approved nuisance preset.",
+    "variant",
+  );
+  need("findings", "the specific conditions and locations");
+  need("work", "the corrective work");
+  if (d.type === "summaryAbatement") need("summaryBasis", "the factual basis for immediate summary action");
+  else {
+    add(services.validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
+    need("servicePlan", "the approved service / publication plan");
+    add(s.remedyReviewed === true, "Confirm the distinct Circuit Court remedy against current code.", "remedyReviewed");
+  }
+  if (s.variant === "custom") need("customReviewRef", "the custom condition’s verified authority and approved wording reference");
+  if (s.variant === "tree") need("forestryRef", "the forestry report or reviewed factual tree assessment");
+  if (s.variant === "secure") {
+    securingReadiness({ need, s });
+  }
+}
+
+function externalReleaseReadiness({ need, add, s }) {
+  need("releaseInspectionRef", "the verified external reinspection record reference");
+  add(!!insp(s.releaseInspectorId).name, "Select the inspector who performed the release reinspection.", "releaseInspectorId");
+}
+
+function releaseScopeAndDate({ old, s, add, text, services, day }) {
+  add(
+    old && old.special.scope === s.scope && (s.scope !== "unit" || text(old.special.unit) === text(s.unit)),
+    "Select the active restriction for this exact scope.",
+    "releases",
+  );
+  add(
+    services.validISO(s.releaseInspection) &&
+      s.releaseInspection <= day() &&
+      s.releaseInspection <= s.effective &&
+      (!old || s.releaseInspection >= old.special.effective),
+    "Record the verified release reinspection date.",
+    "releaseInspection",
+  );
+}
+
+function releaseReadiness({ d, s, add, text, services, day, need }) {
+  const old = activeRestrictions(docsFor(d.caseId)).find((x) => x.id === s.releases);
+  releaseScopeAndDate({ old, s, add, text, services, day });
+  need("releaseFacts", "the confirmed corrections and reinspection record");
+  add(
+    s.placardRemoved && services.validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
+    "Record actual placard removal before permission to reoccupy.",
+    "removalDate",
+  );
+  need("releaseFormRef", "the division-approved written release form / procedure");
+  const visit = reinsp(s.releaseVisitId);
+  if (s.releaseVisitId === "external") {
+    externalReleaseReadiness({ need, add, s });
+  } else
+    add(
+      visit && visit.caseId === d.caseId && !visit.draft && visit.date === s.releaseInspection,
+      "Select the recorded visit confirming release, or record the verified external inspection.",
+      "releaseVisitId",
+    );
+}
+
+function restrictionReadiness({ need, add, s, services, day, d }) {
+  need("findings", "the restriction findings");
+  need("releaseConditions", "the conditions necessary for release");
+  add(["posted", "pending"].includes(s.posting), "Record posting status.", "posting");
+  if (s.posting === "posted")
+    add(services.validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
+  else need("prePostingRef", "the approved pre-posting order wording / procedure");
+}
+
+function occupancyReadiness({ add, services, s, d, day, text, need }) {
+  add(
+    services.validISO(s.effective) && s.effective >= docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
+    "Enter a valid effective order / release date.",
+    "effective",
+  );
+  add(["restrict", "release"].includes(s.mode), "Choose restriction or documented release.", "mode");
+  if (s.mode === "release") {
+    releaseReadiness({ d, s, add, text, services, day, need });
+  } else {
+    restrictionReadiness({ need, add, s, services, day, d });
+  }
+}
+
+function bestInterestDueReadiness({ need, selected, d, s, services, day, add }) {
+  need("reason", "the reasons for additional time");
+  // The same due-date rules as a normal Extension: a future date for each uncorrected item, at most three
+  // outstanding dates, at least seven days apart.
+  const missing = selected(d, s).filter((i) => !(services.validISO(i.due) && i.due > (d.mailed || day())));
+  add(
+    !missing.length,
+    "Enter a future due date in Violation items for each uncorrected item.",
+    "affected",
+    missing.map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date")),
+  );
+  const dates = [
+    ...new Set(
+      selected(d, s)
+        .map((i) => i.due)
+        .filter(Boolean),
+    ),
+  ].sort();
+  add(
+    dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
+    "Use at most three outstanding dates, at least seven days apart.",
+    "affected",
+  );
+}
+
+function vacancyDueReadiness({ add, services, s, d, day, selected }) {
+  add(
+    services.validISO(s.reviewDate) && daysBetween(d.mailed || day(), s.reviewDate) >= 7,
+    "Enter a next review inspection date at least seven days after the mailing date.",
+    "reviewDate",
+  );
+  add(
+    selected(d, s).every((i) => !i.due),
+    "Uncorrected items on a Vacancy Extension have no due date.",
+    "affected",
+  );
+}
+
+function allItemReadiness({ add, selected, d, s, need, services, day }) {
+  // R62: every uncorrected item is covered; there is no selection or safety confirmation.
+  add(selected(d, s).length > 0, "There are no uncorrected items to extend.", "affected");
+  if (d.type === "bestInterestExtension") {
+    bestInterestDueReadiness({ need, selected, d, s, services, day, add });
+  } else {
+    vacancyDueReadiness({ add, services, s, d, day, selected });
+  }
+  add(
+    d.items.filter((i) => i.done || i.withdrawn).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
+    "Corrected items keep their dates.",
+    "affected",
+  );
+}
+
+function legacyBestInterestReadiness({ need, add, s, selected, d }) {
+  need("noticeRef", "the prior Official Notice reference");
+  need("reason", "the reasons for additional time");
+  need("intentions", "the owner’s intended corrective work");
+  need("supervisor", "the supervisory reviewer");
+  add(["administrative", "supervisory"].includes(s.stage), "Record the actual internal review stage.", "stage");
+  if (s.stage === "supervisory")
+    add(
+      selected(d, s).every((i) => s.originalDues?.[i.no] && s.originalDues[i.no] < d.mailed),
+      "Supervisory prosecution-review language requires passed compliance dates.",
+      "stage",
+    );
+}
+
+function legacyVacancyReadiness({ need, add, services, s, d }) {
+  need("vacancyFacts", "the verified vacancy basis");
+  need("requestRef", "the extension request");
+  need("conditions", "the approved continuing conditions");
+  need("expiryPolicyRef", "the approved expiration / review policy");
+  need("transferClause", "the reviewed sale / transfer and applicable disclosure wording");
+  add(services.validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
+  if (s.reviewDate && addDays(s.reviewDate, -7) < d.mailed) need("shortNoticeRef", "the approved short-notice contact procedure");
+  add(["fixed", "review"].includes(s.expiryMode), "Choose the approved expiration / review model.", "expiryMode");
+  if (s.expiryMode === "fixed")
+    add(services.validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
+  add(["dated", "conditional"].includes(s.deadlineMode), "Choose the approved repair deadline model.", "deadlineMode");
+}
+
+function laterDueReadiness({ services, d, s, add, selected }) {
+  const laterDue = (i) => services.validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
+  // Authoring 13 enters these dates in Violation items; link each affected item's due-date field there.
+  add(
+    selected(d, s).every(laterDue),
+    datedExtension(d)
+      ? "Enter a later future due date in Violation items for each affected item."
+      : "Enter later future deadlines for all affected items.",
+    "affected",
+    datedExtension(d)
+      ? selected(d, s)
+          .filter((i) => !laterDue(i))
+          .map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date"))
+      : [],
+  );
+  const dates = [
+    ...new Set(
+      d.items
+        .filter((i) => !i.done && !i.withdrawn)
+        .map((i) => i.due)
+        .filter(Boolean),
+    ),
+  ].sort();
+  add(
+    dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
+    "Use at most three outstanding dates, at least seven days apart.",
+    "affected",
+  );
+}
+
+function selectedItemSafetyReadiness({ add, selected, d, s, text }) {
+  add(selected(d, s).length > 0, "Select at least one outstanding affected item.", "affected");
+  add(
+    s.noSafety === true && (simplifiedBestInterest(d) || text(s.safetyBasis)),
+    simplifiedBestInterest(d)
+      ? "Confirm affected items exclude safety, security and urgent obligations."
+      : "Confirm the reviewed factual basis excluding safety, security and urgent obligations.",
+    simplifiedBestInterest(d) ? "noSafety" : "safetyBasis",
+  );
+}
+
+function selectedExtensionReadiness({ add, selected, d, s, text, need, services }) {
+  selectedItemSafetyReadiness({ add, selected, d, s, text });
+  if (simplifiedBestInterest(d)) {
+    need("reason", "the reasons for additional time");
+  } else if (d.type === "bestInterestExtension") {
+    legacyBestInterestReadiness({ need, add, s, selected, d });
+  } else {
+    legacyVacancyReadiness({ need, add, services, s, d });
+  }
+  if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
+    laterDueReadiness({ services, d, s, add, selected });
+  }
+  if (d.type === "vacancyExtension" && s.deadlineMode === "conditional")
+    add(
+      selected(d, s).every((i) => i.due === s.originalDues?.[i.no]),
+      "Conditional extensions retain source repair dates; do not invent a replacement deadline.",
+      "deadlineMode",
+    );
+  add(
+    d.items.filter((i) => !(s.affected || []).includes(String(i.no))).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
+    "Unselected items must retain their deadlines.",
+    "affected",
+  );
+}
+
+const specialFamilyRules = [
+  { id: "nuisanceReadiness", applies: ({ d }) => ["summaryAbatement", "nonSummaryAbatement"].includes(d.type), run: nuisanceReadiness },
+  { id: "occupancyReadiness", applies: ({ d }) => d.type === "noOccupancy", run: occupancyReadiness },
+  { id: "allItemReadiness", applies: ({ d }) => allItemExtension(d), run: allItemReadiness },
+  { id: "selectedExtensionReadiness", applies: () => true, run: selectedExtensionReadiness },
+];
+
+function specialFamilyReadiness(context) {
+  for (const rule of specialFamilyRules) {
+    if (rule.applies(context)) {
+      rule.run(context);
+      return;
+    }
+  }
+}
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -362,220 +652,10 @@ export function initNewDocuments(services) {
           targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
         });
     const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
-    if (simpleVacancy(d)) {
-      add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
-      if (s.scope === "unit") need("unit", "the apartment / unit identifier");
-    } else if (!simplifiedBestInterest(d)) {
-      ["reviewer", "reviewRef", "codeSource", "codeRevision", "authority", "signerName", "signerTitle", "delegation"].forEach((k) =>
-        need(
-          k,
-          {
-            reviewer: "the division reviewer",
-            reviewRef: "the approved current ordinance and wording reference",
-            codeSource: "the verified current-code source URL / official source reference",
-            codeRevision: "the code revision / effective information and amendment review",
-            authority: "the verified authority",
-            signerName: "the authorized signer",
-            signerTitle: "the signer’s title",
-            delegation: "the signer’s authorization / delegation reference",
-          }[k],
-        ),
-      );
-      add(services.validISO(s.reviewDateLegal) && s.reviewDateLegal <= day(), "Record the current-code review date.", "reviewDateLegal");
-      add(s.reviewed === true, "Division review must confirm this variant, wording, procedure and authority.", "reviewed");
-      add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
-      if (s.scope === "unit") need("unit", "the apartment / unit identifier");
-    }
-    // R62 (owner, Development 3): a referred case allows only an Update for Case Referral or a Compliance Letter;
-    // the former emergency / occupancy exception is removed.
+    const context = { d, s, out, add, need, services, selected, day, text };
+    specialScopeReadiness(context);
     if (!d.correction && isReferredCase(d.caseId)) add(false, REFERRED_MESSAGE);
-    if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) {
-      add(
-        NUISANCES.some((v) => v[0] === s.variant && (d.type === "summaryAbatement" || v[0] !== "secure")),
-        "Choose an approved nuisance preset.",
-        "variant",
-      );
-      need("findings", "the specific conditions and locations");
-      need("work", "the corrective work");
-      if (d.type === "summaryAbatement") need("summaryBasis", "the factual basis for immediate summary action");
-      else {
-        add(services.validISO(s.orderDue) && s.orderDue > d.mailed, "Enter the approved future order compliance date.", "orderDue");
-        need("servicePlan", "the approved service / publication plan");
-        add(s.remedyReviewed === true, "Confirm the distinct Circuit Court remedy against current code.", "remedyReviewed");
-      }
-      if (s.variant === "custom") need("customReviewRef", "the custom condition’s verified authority and approved wording reference");
-      if (s.variant === "tree") need("forestryRef", "the forestry report or reviewed factual tree assessment");
-      if (s.variant === "secure") {
-        need("securingConditions", "the reviewed securing / animal / material conditions");
-        if (s.boarding) need("boardingRef", "the prior written boarding approval");
-      }
-    } else if (d.type === "noOccupancy") {
-      add(
-        services.validISO(s.effective) && s.effective >= docCase(d).date && s.effective <= d.mailed && s.effective <= day(),
-        "Enter a valid effective order / release date.",
-        "effective",
-      );
-      add(["restrict", "release"].includes(s.mode), "Choose restriction or documented release.", "mode");
-      if (s.mode === "release") {
-        const old = activeRestrictions(docsFor(d.caseId)).find((x) => x.id === s.releases);
-        add(
-          old && old.special.scope === s.scope && (s.scope !== "unit" || text(old.special.unit) === text(s.unit)),
-          "Select the active restriction for this exact scope.",
-          "releases",
-        );
-        add(
-          services.validISO(s.releaseInspection) &&
-            s.releaseInspection <= day() &&
-            s.releaseInspection <= s.effective &&
-            (!old || s.releaseInspection >= old.special.effective),
-          "Record the verified release reinspection date.",
-          "releaseInspection",
-        );
-        need("releaseFacts", "the confirmed corrections and reinspection record");
-        add(
-          s.placardRemoved && services.validISO(s.removalDate) && s.removalDate <= day() && s.removalDate <= s.effective,
-          "Record actual placard removal before permission to reoccupy.",
-          "removalDate",
-        );
-        need("releaseFormRef", "the division-approved written release form / procedure");
-        const visit = reinsp(s.releaseVisitId);
-        if (s.releaseVisitId === "external") {
-          need("releaseInspectionRef", "the verified external reinspection record reference");
-          add(!!insp(s.releaseInspectorId).name, "Select the inspector who performed the release reinspection.", "releaseInspectorId");
-        } else
-          add(
-            visit && visit.caseId === d.caseId && !visit.draft && visit.date === s.releaseInspection,
-            "Select the recorded visit confirming release, or record the verified external inspection.",
-            "releaseVisitId",
-          );
-      } else {
-        need("findings", "the restriction findings");
-        need("releaseConditions", "the conditions necessary for release");
-        add(["posted", "pending"].includes(s.posting), "Record posting status.", "posting");
-        if (s.posting === "posted")
-          add(services.validISO(s.postedDate) && s.postedDate <= day() && s.postedDate <= d.mailed, "Record the actual posting date.", "postedDate");
-        else need("prePostingRef", "the approved pre-posting order wording / procedure");
-      }
-    } else if (allItemExtension(d)) {
-      // R62: every uncorrected item is covered; there is no selection or safety confirmation.
-      add(selected(d, s).length > 0, "There are no uncorrected items to extend.", "affected");
-      if (d.type === "bestInterestExtension") {
-        need("reason", "the reasons for additional time");
-        // The same due-date rules as a normal Extension: a future date for each uncorrected item, at most three
-        // outstanding dates, at least seven days apart.
-        const missing = selected(d, s).filter((i) => !(services.validISO(i.due) && i.due > (d.mailed || day())));
-        add(
-          !missing.length,
-          "Enter a future due date in Violation items for each uncorrected item.",
-          "affected",
-          missing.map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date")),
-        );
-        const dates = [
-          ...new Set(
-            selected(d, s)
-              .map((i) => i.due)
-              .filter(Boolean),
-          ),
-        ].sort();
-        add(
-          dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
-          "Use at most three outstanding dates, at least seven days apart.",
-          "affected",
-        );
-      } else {
-        add(
-          services.validISO(s.reviewDate) && daysBetween(d.mailed || day(), s.reviewDate) >= 7,
-          "Enter a next review inspection date at least seven days after the mailing date.",
-          "reviewDate",
-        );
-        add(
-          selected(d, s).every((i) => !i.due),
-          "Uncorrected items on a Vacancy Extension have no due date.",
-          "affected",
-        );
-      }
-      add(
-        d.items.filter((i) => i.done || i.withdrawn).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
-        "Corrected items keep their dates.",
-        "affected",
-      );
-    } else {
-      add(selected(d, s).length > 0, "Select at least one outstanding affected item.", "affected");
-      add(
-        s.noSafety === true && (simplifiedBestInterest(d) || text(s.safetyBasis)),
-        simplifiedBestInterest(d)
-          ? "Confirm affected items exclude safety, security and urgent obligations."
-          : "Confirm the reviewed factual basis excluding safety, security and urgent obligations.",
-        simplifiedBestInterest(d) ? "noSafety" : "safetyBasis",
-      );
-      if (simplifiedBestInterest(d)) {
-        need("reason", "the reasons for additional time");
-      } else if (d.type === "bestInterestExtension") {
-        need("noticeRef", "the prior Official Notice reference");
-        need("reason", "the reasons for additional time");
-        need("intentions", "the owner’s intended corrective work");
-        need("supervisor", "the supervisory reviewer");
-        add(["administrative", "supervisory"].includes(s.stage), "Record the actual internal review stage.", "stage");
-        if (s.stage === "supervisory")
-          add(
-            selected(d, s).every((i) => s.originalDues?.[i.no] && s.originalDues[i.no] < d.mailed),
-            "Supervisory prosecution-review language requires passed compliance dates.",
-            "stage",
-          );
-      } else {
-        need("vacancyFacts", "the verified vacancy basis");
-        need("requestRef", "the extension request");
-        need("conditions", "the approved continuing conditions");
-        need("expiryPolicyRef", "the approved expiration / review policy");
-        need("transferClause", "the reviewed sale / transfer and applicable disclosure wording");
-        add(services.validISO(s.reviewDate) && s.reviewDate > d.mailed, "Enter the next scheduled review inspection date.", "reviewDate");
-        if (s.reviewDate && addDays(s.reviewDate, -7) < d.mailed) need("shortNoticeRef", "the approved short-notice contact procedure");
-        add(["fixed", "review"].includes(s.expiryMode), "Choose the approved expiration / review model.", "expiryMode");
-        if (s.expiryMode === "fixed")
-          add(services.validISO(s.expiryDate) && s.expiryDate > d.mailed, "Enter a separate future expiration date.", "expiryDate");
-        add(["dated", "conditional"].includes(s.deadlineMode), "Choose the approved repair deadline model.", "deadlineMode");
-      }
-      if (d.type === "bestInterestExtension" || s.deadlineMode === "dated") {
-        const laterDue = (i) => services.validISO(i.due) && i.due > d.mailed && i.due > (s.originalDues?.[i.no] || "");
-        // Authoring 13 enters these dates in Violation items; link each affected item's due-date field there.
-        add(
-          selected(d, s).every(laterDue),
-          datedExtension(d)
-            ? "Enter a later future due date in Violation items for each affected item."
-            : "Enter later future deadlines for all affected items.",
-          "affected",
-          datedExtension(d)
-            ? selected(d, s)
-                .filter((i) => !laterDue(i))
-                .map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " due date"))
-            : [],
-        );
-        const dates = [
-          ...new Set(
-            d.items
-              .filter((i) => !i.done && !i.withdrawn)
-              .map((i) => i.due)
-              .filter(Boolean),
-          ),
-        ].sort();
-        add(
-          dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),
-          "Use at most three outstanding dates, at least seven days apart.",
-          "affected",
-        );
-      }
-      if (d.type === "vacancyExtension" && s.deadlineMode === "conditional")
-        add(
-          selected(d, s).every((i) => i.due === s.originalDues?.[i.no]),
-          "Conditional extensions retain source repair dates; do not invent a replacement deadline.",
-          "deadlineMode",
-        );
-      add(
-        d.items.filter((i) => !(s.affected || []).includes(String(i.no))).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
-        "Unselected items must retain their deadlines.",
-        "affected",
-      );
-    }
+    specialFamilyReadiness(context);
     add(!/◯|\(\s{0,8}\)|class="blank"/.test(services.docBody(d)), "Fill every placeholder in the printed document before issuance.");
     return out;
   }

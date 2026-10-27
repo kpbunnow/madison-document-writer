@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 85,
+    "complexity": 84,
     "max-depth": 13,
-    "max-lines-per-function": 138,
+    "max-lines-per-function": 137,
     "python": 35
   },
   "violations": {
@@ -130,7 +130,7 @@
     "app/modules/language_discovery.js:rememberLanguageFocus#1:max-depth": 5,
     "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 245,
     "app/modules/navigation.js:initNavigation#1/screen#1:max-lines-per-function": 114,
-    "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 1565,
+    "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 1361,
     "app/modules/new_documents.js:initNewDocuments#1/chooser#1:max-lines-per-function": 91,
     "app/modules/new_documents.js:initNewDocuments#1/clickEvent#1:complexity": 25,
     "app/modules/new_documents.js:initNewDocuments#1/details#1:complexity": 35,
@@ -139,8 +139,6 @@
     "app/modules/new_documents.js:initNewDocuments#1/editEvent#1:max-lines-per-function": 117,
     "app/modules/new_documents.js:initNewDocuments#1/specialBody#1:complexity": 40,
     "app/modules/new_documents.js:initNewDocuments#1/specialBody#1:max-lines-per-function": 206,
-    "app/modules/new_documents.js:initNewDocuments#1/specialChecks#1:complexity": 68,
-    "app/modules/new_documents.js:initNewDocuments#1/specialChecks#1:max-lines-per-function": 231,
     "app/modules/new_documents.js:initNewDocuments#1/specialLifecycle#1:complexity": 29,
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 156,
     "app/modules/publication_preparation.js:createPublicationPreparation#1:max-lines-per-function": 114,

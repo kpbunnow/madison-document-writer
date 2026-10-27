@@ -73,3 +73,16 @@ The original factory test and 3,002 differential generated documents preserve
 exact rows, targets, lazy service reads and effect order. Every extracted rule
 and coordinator stays below complexity 10. Complexity violations 86 → 85;
 length reports 140 → 138. Historical assertions and output references remain.
+
+## M2 special-document checks
+
+Named historical-family stages retain the first-match scope/family selection and
+the existing affected-item synchronization. Shared review, nuisance, occupancy
+release, restriction, all-item and selected-extension checks are independently
+readable sections, each below complexity 10. The final printed-placeholder check
+still runs last. The printed renderer itself is unchanged.
+
+A 5,000-case seeded historical corpus compares exact rows/targets, mutation and
+service-call order against the original function. Malformed legacy date inputs
+also compare the same exception and partial effects; no behavior fix is folded
+into extraction. Complexity violations 85 → 84; length reports 138 → 137.
