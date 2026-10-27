@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_scoped_architecture.js` | Root-state ownership, zero cycles and static injection widths |
 | `audit_recovery_event_export.js` | Synchronous recovery export names, bytes and identity |
 | `audit_scoped_services.js` | Exact scoped dependencies, lazy leaves, static access, no spreads and per-interface width |
 | `audit_editor_state.js` | Live editor state and retained captured-view pointers |
