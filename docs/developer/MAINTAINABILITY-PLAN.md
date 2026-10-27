@@ -50,3 +50,13 @@ The new real-Chromium owner test passed against the original implementation befo
 extraction and passes after it. Existing screen dependency assertions also pass.
 JS complexity violations fall 88 → 87 and length reports 143 → 141. No function
 in app_screens exceeds complexity 20 or 80 nonblank/noncomment lines.
+
+## M2 first decision owner: citation deposits
+
+Ordered named rules retain early-success boundaries for mandatory appearances,
+unchanged corrections and approved totals. The coordinator and every rule stay
+below complexity 10. A frozen test-only pre-refactor function provides differential
+comparison over all generated policy rows, format versions, modes and 3,000 seeded
+malformed combinations (11,685 cases total), including service-call precedence.
+Production exports, factory inputs and stored charge fields are unchanged.
+Complexity violations 87 → 86; length reports 141 → 140.
