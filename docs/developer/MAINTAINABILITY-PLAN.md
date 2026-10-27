@@ -297,3 +297,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Old access: date and court-policy names retained inside the application eval after startup. New access: shared calendar, calendar owner, citation policy and createCourtScheduling with the explicit test day. All original assertions across UTC/Los Angeles/New York and both Chicago midnight sides remain, including helper day parity, mailing limits, fees, court dates and rolling windows. Whole-application evaluator files fall 86 → 85; no production hook is retired yet.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 production contract seam
+
+Old access: public contract functions plus application-bundle eval for fixture exclusion. New access: direct contract owner compilation and a native Chromium production entrypoint helper. All original exact event/request identity, source parse/fixture exclusion and runtime empty-case/undefined-fixture-function assertions remain; MADISON_TEST_DATA is set before native startup to prove production ignores it. Local Chromium and transitive serial-suite classification checks pass. Whole-application evaluator files fall 85 → 84; no production diagnostic hook is installed or retired.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

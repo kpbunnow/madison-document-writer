@@ -406,6 +406,7 @@
     "tests/fixtures/mk_summaries.js",
     "tests/fixtures/overlay_screen_reference.cjs",
     "tests/fixtures/pagination_reference.cjs",
+    "tests/fixtures/production_fixture_guard.cjs",
     "tests/fixtures/projection_capture.cjs",
     "tests/fixtures/projection_corpus.cjs",
     "tests/fixtures/publication_reference.txt",

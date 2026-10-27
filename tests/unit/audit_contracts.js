@@ -1,6 +1,5 @@
 const assert = require("assert/strict"),
   path = require("path"),
-  { JSDOM } = require("jsdom"),
   esbuild = require("esbuild");
 const code = esbuild.buildSync({
   entryPoints: [path.join(require("path").resolve(__dirname, "../.."), "app/modules/contracts.js")],
@@ -20,26 +19,11 @@ assert.deepEqual(eventFactory("id", "time", "inspector", "notice.issued", { a: 1
 });
 const request = { name: "case.json", file: {}, baseRevision: "r", baseCase: null };
 assert.equal(storeRequestFactory(request), request);
-const { productionPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = productionPage("app", process.env.DW_PRODUCTION_DIR),
-  payload = bundleSource(html);
-assert.ok(!payload.includes("function issueDocument("));
-require("acorn").parse(payload, { ecmaVersion: 2022, sourceType: "script" });
-const dom = new JSDOM(html, { url: "http://127.0.0.1:8777", pretendToBeVisual: true });
-global.window = dom.window;
-global.document = window.document;
-global.localStorage = window.localStorage;
-globalThis.MADISON_TEST_DATA = true;
-global.getSelection = () => window.getSelection();
-global.setTimeout = () => 1;
-global.clearTimeout = () => {};
-global.fetch = async () => ({ ok: true, json: async () => ({ ok: true }) });
-window.scrollTo = () => {};
-eval(
-  payload +
-    ("\nassert.equal(WriterState.CASES.length,0);assert.equal(typeof issueDocum" +
-      'ent,"undefined");assert.equal(typeof reissueDocument,"undefined");assert' +
-      '.equal(typeof futureDue,"undefined");'),
-);
-console.log("PASS exact event/store contracts and fixture-free production");
-process.exit(0);
+require("../fixtures/production_fixture_guard.cjs")()
+  .then(() => {
+    console.log("PASS exact event/store contracts and fixture-free production");
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
