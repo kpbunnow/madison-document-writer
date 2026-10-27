@@ -309,3 +309,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The read-only inventory folds constant string concatenations and String.raw payloads before identifying possible diagnostic consumers. Tests pin split-name detection and direct bundle-harness invocation. This closes an important gap in raw-text searches without claiming static matches prove execution or unused hooks. The 84 remaining application evaluator baseline is unchanged.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 import diagnostic retention
+
+Twenty import diagnostic retention entries have no folded JS/helper/browser consumers or Python test-text references. Public core exports and import service interfaces are preserved. The independent import audit, seven original Accela scenarios and 23 selection assertions pass. Both production HTML files are byte-identical before/after removing these test-only fields. A new retained-hook baseline guards explicit review. Fields fall 74 → 54; current-head full CI remains required before merge.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
