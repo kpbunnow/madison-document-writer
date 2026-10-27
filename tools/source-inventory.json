@@ -663,6 +663,7 @@
     "tests/unit/audit_record_helper_adapters.js",
     "tests/unit/audit_record_rules.js",
     "tests/unit/audit_record_workflows.js",
+    "tests/unit/audit_recovery_event_export.js",
     "tests/unit/audit_recovery_history.js",
     "tests/unit/audit_recovery_state.js",
     "tests/unit/audit_reinspection_html.js",

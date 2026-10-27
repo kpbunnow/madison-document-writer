@@ -4,6 +4,10 @@ import { recoveryState as recovery } from "./recovery_state.js";
 /* Recovery event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { doc, reinsp } from "./writer_queries.js";
+function recoveryExportName(number) {
+  return "Madison-recovery-" + number + ".json";
+}
+
 export function createRecoveryEvents(services) {
   function registerWorkingInput(target = document) {
     return registerEventOnce(
@@ -12,23 +16,23 @@ export function createRecoveryEvents(services) {
       "input",
       (e) => {
         const el = e.target;
-        if (services.ENTRY_IDS.includes(el.id)) {
+        if (services.recovery.ENTRY_IDS.includes(el.id)) {
           editor.WORK.entry[el.id] = el.value;
-          services.scheduleDraftSave();
+          services.ui.scheduleDraftSave();
           return;
         }
         if (["record-action-text", "record-action-external", "record-action-inspector"].includes(el.id)) {
-          const key = services.recordFormKey(),
+          const key = services.recovery.recordFormKey(),
             field = { "record-action-text": "text", "record-action-external": "external", "record-action-inspector": "actor" }[el.id];
           editor.WORK.recordForms[key] = { ...(editor.WORK.recordForms[key] || {}), [field]: el.value };
-          services.scheduleDraftSave();
+          services.ui.scheduleDraftSave();
           return;
         }
         if (el.id === "fin-mailed") {
           const d = doc(editor.state.docId);
-          if (d && !services.isLocked(d)) {
-            services.initialCitations.mailed(d, el.value);
-            services.scheduleDraftSave();
+          if (d && !services.publication.isLocked(d)) {
+            services.publication.initialCitations.mailed(d, el.value);
+            services.ui.scheduleDraftSave();
           }
           return;
         }
@@ -43,9 +47,9 @@ export function createRecoveryEvents(services) {
       "recovery.registerWorkingChange",
       "change",
       (e) => {
-        if (services.ENTRY_IDS.includes(e.target.id)) {
+        if (services.recovery.ENTRY_IDS.includes(e.target.id)) {
           editor.WORK.entry[e.target.id] = e.target.value;
-          services.scheduleDraftSave();
+          services.ui.scheduleDraftSave();
         }
       },
       true,
@@ -66,18 +70,18 @@ export function createRecoveryEvents(services) {
         if (!button) return;
         e.preventDefault();
         e.stopImmediatePropagation();
-        services.captureWork();
+        services.ui.captureWork();
         if (button.id === "btn-savework") {
-          services.saveAndContinue();
+          services.recovery.saveAndContinue();
           return;
         }
         if (button.id === "btn-workbackup" || button.hasAttribute("data-workbackup")) {
-          services.downloadWorkspace();
+          services.recovery.downloadWorkspace();
           return;
         }
         if (button.id === "btn-workrestore") {
           document.getElementById("utility-dialog")?.close();
-          services.restoreWorkspaceFile();
+          services.recovery.restoreWorkspaceFile();
           return;
         }
         if (button.dataset.worknote) {
@@ -88,7 +92,7 @@ export function createRecoveryEvents(services) {
             editor.state.docId = d.id;
             editor.state.screen = "write";
             editor.state.modal = key.slice(cut + 1);
-            services.render();
+            services.ui.render();
           }
           return;
         }
@@ -99,44 +103,44 @@ export function createRecoveryEvents(services) {
             // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
             let job;
             try {
-              job = services.printJob(d);
+              job = services.publication.printJob(d);
             } catch (error) {
-              services.toast(error.message);
-              services.render();
+              services.ui.toast(error.message);
+              services.ui.render();
               return;
             }
-            services.filePdf(d, job).finally(() => services.render());
+            services.publication.filePdf(d, job).finally(() => services.ui.render());
           }
           return;
         }
         if (button.id === "btn-continuecitation") {
           const d = doc(editor.state.docId);
-          if (services.needsInitialCitation(d)) {
-            const next = services.citationFromNotice(d.id);
+          if (services.publication.needsInitialCitation(d)) {
+            const next = services.publication.citationFromNotice(d.id);
             if (next) {
               editor.state.docId = next.id;
               editor.state.screen = "write";
-              services.render();
+              services.ui.render();
             }
           }
           return;
         }
         if (button.id === "btn-retrypublish") {
-          services.publishDocument(doc(editor.state.docId));
+          services.publication.publishDocument(doc(editor.state.docId));
           return;
         }
         if (button.id === "btn-editvisit") {
-          services.returnToWorksheet(doc(editor.state.docId));
+          services.recovery.returnToWorksheet(doc(editor.state.docId));
           return;
         }
         const r = reinsp(editor.state.reinspId);
         if (button.id === "btn-previousdraft") {
-          services.restorePreviousDraft(r);
+          services.recovery.restorePreviousDraft(r);
           return;
         }
         if (button.id === "btn-exportprevious") {
           if (r && r.previousDraft)
-            services.downloadFile(
+            services.publication.downloadFile(
               "Previous-document-draft-" + r.id + ".json",
               JSON.stringify({ format: "madison-draft-reference", draft: r.previousDraft, inspection: r.previousWorksheet }, null, 2),
             );
@@ -153,32 +157,32 @@ export function createRecoveryEvents(services) {
       if (!t) return;
       if (t.id === "btn-recovery") {
         document.getElementById("utility-dialog")?.close();
-        services.listRecovery();
+        services.recovery.listRecovery();
         return;
       }
       if (t.dataset.recoveryRow !== undefined) {
-        services.selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
+        services.recovery.selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
           recovery.RECOVERY.error = err.message;
-          services.render();
+          services.ui.render();
         });
         return;
       }
       if (t.hasAttribute("data-recovery-restore")) {
-        services.restoreRecovery();
+        services.recovery.restoreRecovery();
         return;
       }
       if (t.hasAttribute("data-recovery-export")) {
-        services.downloadFile("Madison-recovery-" + recovery.RECOVERY.selected.number + ".json", JSON.stringify(recovery.RECOVERY.selected, null, 2));
+        services.publication.downloadFile(recoveryExportName(recovery.RECOVERY.selected.number), JSON.stringify(recovery.RECOVERY.selected, null, 2));
         return;
       }
       if (t.hasAttribute("data-recovery-shared")) {
         const k = recovery.RECOVERY.selected?.bundle?.cases?.[0];
         editor.state.modal = null;
         if (k)
-          services
+          services.recovery
             .helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))
-            .then((x) => services.loadCaseFile(JSON.stringify(x.file)))
-            .catch((err) => services.toast("Shared case unavailable: " + err.message));
+            .then((x) => services.recovery.loadCaseFile(JSON.stringify(x.file)))
+            .catch((err) => services.ui.toast("Shared case unavailable: " + err.message));
       }
     });
   }
@@ -189,12 +193,12 @@ export function createRecoveryEvents(services) {
       try {
         const b = JSON.parse(await e.target.files[0].text());
         const row = { workspace: b.workspace, case: b.case, number: b.number, name: "Imported file", imported: b };
-        services.validateRecovery(b, row);
+        services.recovery.validateRecovery(b, row);
         recovery.RECOVERY.list.unshift(row);
-        await services.selectRecovery(row);
+        await services.recovery.selectRecovery(row);
       } catch (err) {
         recovery.RECOVERY.error = "Import rejected: " + err.message;
-        services.render();
+        services.ui.render();
       }
     });
   }
@@ -203,34 +207,34 @@ export function createRecoveryEvents(services) {
     return registerEventOnce(target, "recovery.registerSharedConflictActions", "click", (e) => {
       const t = e.target.closest?.("[data-shared-export],[data-shared-current],[data-shared-local]");
       if (!t) return;
-      if (t.hasAttribute("data-shared-export")) services.downloadWorkspace();
-      else if (t.hasAttribute("data-shared-local")) services.keepChangedLocal();
-      else services.openChangedShared();
+      if (t.hasAttribute("data-shared-export")) services.recovery.downloadWorkspace();
+      else if (t.hasAttribute("data-shared-local")) services.recovery.keepChangedLocal();
+      else services.recovery.openChangedShared();
     });
   }
 
   function registerVisibilitySave(target = document) {
     return registerEventOnce(target, "recovery.registerVisibilitySave", "visibilitychange", () => {
-      if (document.visibilityState === "hidden" && services.IDB_OK) services.saveDrafts();
+      if (document.visibilityState === "hidden" && services.recovery.IDB_OK) services.recovery.saveDrafts();
     });
   }
 
   const discardDocument = (t) => {
     const dd = doc(t.dataset.discard);
     if (dd && !confirm("Discard this draft? It has not been issued, so nothing on the shared record changes.")) return;
-    services.discardDraft(t.dataset.discard).then((ok) => {
-      if (ok !== false) services.toast("Draft discarded");
+    services.recovery.discardDraft(t.dataset.discard).then((ok) => {
+      if (ok !== false) services.ui.toast("Draft discarded");
     });
     return;
   };
 
   const saveVisit = () => {
-    services.saveAndContinue();
+    services.recovery.saveAndContinue();
     return;
   };
 
   const saveDocument = () => {
-    services.saveAndContinue();
+    services.recovery.saveAndContinue();
     return;
   };
 
