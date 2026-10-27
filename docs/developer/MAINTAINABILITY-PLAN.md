@@ -525,3 +525,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Four Workspace row/proof/document/deadline fragments now use escaped screen templates. Source history and class-guard inspection confirm these literal splits were retained source shape rather than approved wording boundaries. Data interpolations escape by default; raw is limited to the static issued-row attribute branch and the existing task renderer fragment. Adjacent tagged fragments keep logical HTML blocks readable without inserting output whitespace. All 1,033 historical exact HTML/state/effect comparisons, class/style guards and independent screen dependencies pass unchanged. No approved wording data, print renderer or CSS is modified.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 Workspace record row template
+
+The record-row coordinator and its task links use escaped templates for data and explicit trusted task-owner attribute fragments. Existing named row/proof/document/deadline renderers keep their original order, and all output whitespace, action attributes and displayed wording remain byte-equivalent. All 1,033 historical HTML/state/effect comparisons, retained-class/style guards and independent screen dependencies pass. No source rule, proof/status precedence, stored data, CSS or print owner changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
