@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { stableJSON, clone } from "./record_values.js";
@@ -35,12 +36,12 @@ export function createAutomaticRecovery(services) {
   }
 
   function recoveryIncluded(cid) {
-    const ds = WriterState.DOCS.filter((d) => d.draft && d.caseId === cid),
-      rs = WriterState.REINSP.filter((r) => r.draft && r.caseId === cid);
+    const ds = workspace.DOCS.filter((d) => d.draft && d.caseId === cid),
+      rs = workspace.REINSP.filter((r) => r.draft && r.caseId === cid);
     const acts = Object.values(editor.RECORD_ATTEMPTS).filter((x) => x.cid === cid);
-    const pending = WriterState.PENDING.filter((p) => p.cid === cid);
+    const pending = workspace.PENDING.filter((p) => p.cid === cid);
     const forms = Object.keys(editor.WORK.recordForms || {}).filter((id) =>
-      WriterState.DOCS.some((d) => d.id === id.split(":")[0] && d.caseId === cid),
+      workspace.DOCS.some((d) => d.id === id.split(":")[0] && d.caseId === cid),
     );
     return [
       ...(ds.length ? [ds.length + " document draft(s)"] : []),
@@ -70,7 +71,7 @@ export function createAutomaticRecovery(services) {
         reinsp: clone(b.reinsp.filter((r) => r.caseId === cid)),
         events: { [cid]: clone(eventsFor(cid)) },
         recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, v]) => v.cid === cid)),
-        checkpoints: { [cid]: clone(WriterState.SAVE_CHECKPOINTS[cid] || null) },
+        checkpoints: { [cid]: clone(workspace.SAVE_CHECKPOINTS[cid] || null) },
         seq: b.seq,
         work: {
           entry: {},
@@ -79,13 +80,13 @@ export function createAutomaticRecovery(services) {
           recordForms: Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === cid)),
         },
       },
-      pending: clone(WriterState.PENDING.filter((p) => p.cid === cid)),
+      pending: clone(workspace.PENDING.filter((p) => p.cid === cid)),
     };
   }
 
   function recoveryJobs() {
     if (!services.RECOVERY_WORKSPACE) throw new Error("Browser workspace identity cannot be stored");
-    const jobs = WriterState.CASES.filter((k) => recoveryIncluded(k.id).length).map((k) => ({ cid: k.id, key: recoveryCaseKey(k.id) }));
+    const jobs = workspace.CASES.filter((k) => recoveryIncluded(k.id).length).map((k) => ({ cid: k.id, key: recoveryCaseKey(k.id) }));
     if (editor.state.acc || editor.WORK.acc || String(editor.WORK.entry?.["lookup-number"] || "").trim())
       jobs.push({ cid: null, key: "00000000000000000000000000000000" });
     return jobs.map((job) => {
@@ -108,7 +109,7 @@ export function createAutomaticRecovery(services) {
               events: {},
               recordAttempts: {},
               checkpoints: {},
-              seq: WriterState.seq,
+              seq: workspace.seq,
               work: clone(editor.WORK),
             },
             pending: [],

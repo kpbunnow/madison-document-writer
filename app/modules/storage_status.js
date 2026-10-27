@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
 import { esc, fmtDate } from "./presentation_format.js";
@@ -22,16 +23,16 @@ export function createStorageStatus(services) {
         "Case folder",
         WriterState.HELPER && WriterState.HELPER.caseStore
           ? WriterState.HELPER.caseDir
-          : WriterState.CASEDIR
-            ? (WriterState.DIRNAME || "linked") +
-              (WriterState.DIRNAME === services.CASEDIR_EXPECT ? "" : '   <-- expected "' + services.CASEDIR_EXPECT + '"')
+          : workspace.CASEDIR
+            ? (workspace.DIRNAME || "linked") +
+              (workspace.DIRNAME === services.CASEDIR_EXPECT ? "" : '   <-- expected "' + services.CASEDIR_EXPECT + '"')
             : "not linked — files go to your downloads",
       ],
-      ["Folder permission", !WriterState.CASEDIR ? "—" : WriterState.NEEDGRANT ? "waiting for you to reconnect" : "granted"],
+      ["Folder permission", !workspace.CASEDIR ? "—" : workspace.NEEDGRANT ? "waiting for you to reconnect" : "granted"],
       ["Mode", services.storageMode()],
       [
         "Files waiting to write",
-        String(WriterState.PENDING.length) + (WriterState.PENDING.length ? " (" + WriterState.PENDING.map((p) => p.name).join(", ") + ")" : ""),
+        String(workspace.PENDING.length) + (workspace.PENDING.length ? " (" + workspace.PENDING.map((p) => p.name).join(", ") + ")" : ""),
       ],
       [
         "PDF helper",
@@ -45,25 +46,25 @@ export function createStorageStatus(services) {
       ["Outlook", !WriterState.HELPER ? "—" : WriterState.HELPER.outlook ? "found" : "NOT found — email falls back to your default mail program"],
       [
         "Last write",
-        WriterState.LASTWRITE
-          ? (WriterState.LASTWRITE.ok ? "OK — " : "FAILED — ") +
-            WriterState.LASTWRITE.name +
-            (WriterState.LASTWRITE.why ? " (" + WriterState.LASTWRITE.why + ")" : "") +
-            (WriterState.LASTWRITE.bytes ? " · " + WriterState.LASTWRITE.bytes + " bytes" : "") +
+        workspace.LASTWRITE
+          ? (workspace.LASTWRITE.ok ? "OK — " : "FAILED — ") +
+            workspace.LASTWRITE.name +
+            (workspace.LASTWRITE.why ? " (" + workspace.LASTWRITE.why + ")" : "") +
+            (workspace.LASTWRITE.bytes ? " · " + workspace.LASTWRITE.bytes + " bytes" : "") +
             " · " +
-            fmtDate(String(WriterState.LASTWRITE.at).slice(0, 10))
+            fmtDate(String(workspace.LASTWRITE.at).slice(0, 10))
           : "nothing written yet this session",
       ],
       [
         "Reporting index",
-        WriterState.LASTINDEX
-          ? (WriterState.LASTINDEX.ok ? "OK — " : "FAILED — ") +
+        workspace.LASTINDEX
+          ? (workspace.LASTINDEX.ok ? "OK — " : "FAILED — ") +
             SUMMARY_DIR +
             "\\" +
-            WriterState.LASTINDEX.name +
-            (WriterState.LASTINDEX.why ? " (" + WriterState.LASTINDEX.why + ")" : "") +
+            workspace.LASTINDEX.name +
+            (workspace.LASTINDEX.why ? " (" + workspace.LASTINDEX.why + ")" : "") +
             " · " +
-            fmtDate(String(WriterState.LASTINDEX.at).slice(0, 10))
+            fmtDate(String(workspace.LASTINDEX.at).slice(0, 10))
           : "no summary written yet this session",
       ],
     ];

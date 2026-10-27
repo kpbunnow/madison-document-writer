@@ -1,6 +1,6 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
-import { WriterState } from "./state.js";
 import { clone, byTime } from "./record_values.js";
 import { eventsFor } from "./writer_queries.js";
 import { clearProhibitedCitations } from "./document_rules.js";
@@ -9,22 +9,22 @@ import { nowISO } from "./calendar.js";
 // Local drafts coordinate snapshots, ordered writes and restoration; low-level database and UI access are supplied.
 export function createDraftPersistence(services) {
   function draftBundle() {
-    const cases = WriterState.CASES.slice();
+    const cases = workspace.CASES.slice();
     const events = {};
     cases.forEach((k) => {
       const evs = eventsFor(k.id);
       if (evs.length) events[k.id] = clone(evs);
     });
     return {
-      docs: WriterState.DOCS.filter((d) => d.draft),
-      reinsp: WriterState.REINSP.filter((r) => r.draft),
+      docs: workspace.DOCS.filter((d) => d.draft),
+      reinsp: workspace.REINSP.filter((r) => r.draft),
       cases: cases,
       events: events,
       work: clone(editor.WORK),
       recordAttempts: clone(editor.RECORD_ATTEMPTS),
       integrityRecords: services.recordIntegrity.snapshot(),
-      checkpoints: clone(WriterState.SAVE_CHECKPOINTS),
-      seq: WriterState.seq,
+      checkpoints: clone(workspace.SAVE_CHECKPOINTS),
+      seq: workspace.seq,
       at: nowISO(),
     };
   }
@@ -42,7 +42,7 @@ export function createDraftPersistence(services) {
     const kept = await task;
     if (generation === editor.LOCAL_CHANGED) {
       editor.LOCAL_SAVE = { ok: kept, at: kept ? nowISO() : editor.LOCAL_SAVE.at, saving: false };
-      if (kept && !editor.draftTimer) WriterState.DIRTY = false;
+      if (kept && !editor.draftTimer) workspace.DIRTY = false;
       services.updateSaveStatus();
     }
     if (kept && generation === editor.LOCAL_CHANGED) services.scheduleRecoveryBackup();
@@ -58,11 +58,11 @@ export function createDraftPersistence(services) {
       editor.state.acc = editor.WORK.acc || null;
     }
     if (b && b.recordAttempts) editor.RECORD_ATTEMPTS = b.recordAttempts;
-    if (b && b.checkpoints && typeof b.checkpoints === "object") WriterState.SAVE_CHECKPOINTS = b.checkpoints;
+    if (b && b.checkpoints && typeof b.checkpoints === "object") workspace.SAVE_CHECKPOINTS = b.checkpoints;
     if (!b || !Array.isArray(b.cases)) return;
-    if (typeof b.seq === "number") WriterState.seq = Math.max(WriterState.seq, b.seq);
+    if (typeof b.seq === "number") workspace.seq = Math.max(workspace.seq, b.seq);
     (b.cases || []).forEach((k) => {
-      if (!WriterState.CASES.some((c) => c.id === k.id || c.number === k.number)) WriterState.CASES.push(k);
+      if (!workspace.CASES.some((c) => c.id === k.id || c.number === k.number)) workspace.CASES.push(k);
     });
     // the history a draft depends on, restored before the draft is shown
     const evs = b.events || {};
@@ -80,11 +80,11 @@ export function createDraftPersistence(services) {
     // Drafts saved before their status prohibited citations are restored without the stale marks.
     (b.docs || []).forEach((d) => {
       clearProhibitedCitations(d);
-      if (!WriterState.DOCS.some((x) => x.id === d.id)) WriterState.DOCS.unshift(d);
+      if (!workspace.DOCS.some((x) => x.id === d.id)) workspace.DOCS.unshift(d);
     });
     (b.reinsp || []).forEach((r) => {
       clearProhibitedCitations(r);
-      if (!WriterState.REINSP.some((x) => x.id === r.id)) WriterState.REINSP.push(r);
+      if (!workspace.REINSP.some((x) => x.id === r.id)) workspace.REINSP.push(r);
     });
     services.project();
     services.render();
