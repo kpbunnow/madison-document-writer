@@ -1,4 +1,4 @@
-import { checks, recipientPreview } from "./app_core.js";
+import { checks, recipientPreview, updateSaveStatus, scheduleDraftSave } from "./app_core.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import {
@@ -56,7 +56,7 @@ import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { languageScreen, languagePicker, rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 
 import { fmtDate } from "./presentation_format.js";
-import { caseUnsaved, updateSaveStatus, scheduleDraftSave } from "./case_files.js";
+import { caseUnsaved } from "./case_files.js";
 
 import { helperStop } from "./helper_stopped.js";
 

@@ -365,13 +365,21 @@ All ten moved and remaining case-file function bodies retain logic apart from ex
 
 There are 111 maintained modules, 15 isolated foundations and 63 independent scoped owners. Case files shrinks from 648 to 446 lines; Writer remains four cyclic modules and Reports stays acyclic. Next inspect folder/summary/save-status/local-file responsibilities and startup sequencing, then core/screen direction. Earlier ownership/count descriptions remain provenance.
 
-## Fortieth increment: case-folder and reporting-index workflow
+## Fortieth increment: case-folder and reporting-index workflow (merged in PR #86)
 
 case_folder_workflow composes writeSummary/rebuildIndex/listCaseFolder/openFromFolder through seven lazy notification/permission/projection/write/render/integrity/load inputs. Core constructs it after addressParser and before recipientWorkflow, exporting actual mutable operations. Construction performs no reads, I/O or registration; the owner imports only record/migration/shape/query/calendar/state definitions.
 
 All four moved and remaining case-file functions retain logic apart from dependency access. Preserve permission/live folder reads, optional metadata/partial sorted listings, raw-byte verification-before-load dispatch, summary source/name/failure status, migration/shape/delegated projection/index write order and distinct refusal/write failure counts. Existing helper/projection/storage authority and startup guards remain; no stronger atomic rebuild or loader acknowledgement is asserted.
 
 There are 112 maintained modules, 15 isolated foundations and 64 independent scoped owners. Case files shrinks from 446 to 317 lines; Writer remains four cyclic modules and Reports acyclic. Next separate save-status/local-file presentation and case actions before startup coordination, then inspect remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
+
+## Forty-first increment: local JSON and draft-save controls
+
+local_case_files composes downloadFile/pickCaseFile through seven native/notification/load inputs; draft_save_controls composes updateSaveStatus/scheduleDraftSave through six DOM/context/storage/save/timer inputs. Core constructs them after caseFolderWorkflow and before recipientWorkflow, exports actual operations and screens consume status/scheduling. Construction performs no reads, I/O or registration.
+
+All four moved and remaining case-file functions preserve logic except scoped dependency access. Keep raw JSON/MIME, click/remove and delayed cleanup, picker cancellation/errors and loader dispatch; dirty/change counters, original unavailable-IDB path, exact debounce replacement/marker/save order and delegated presentation. Persistence/loader/startup owners retain authority; no stronger durable-save or native acceptance is asserted.
+
+There are 114 maintained modules, 15 isolated foundations and 66 independent scoped owners. Case files shrinks from 317 to 245 lines; Writer remains four cyclic modules and Reports acyclic. Next separate case/draft actions and reinspection entry before startup coordination, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 

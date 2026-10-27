@@ -1,3 +1,5 @@
+import { createDraftSaveControls } from "./draft_save_controls.js";
+import { createLocalCaseFiles } from "./local_case_files.js";
 import { createCaseFolderWorkflow } from "./case_folder_workflow.js";
 import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
 import { createRecipientWorkflow } from "./recipient_workflow.js";
@@ -82,18 +84,7 @@ import {
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
-import {
-  updateSaveStatus,
-  scheduleDraftSave,
-  bootStorage,
-  caseUnsaved,
-  clearCases,
-  discardDraft,
-  downloadFile,
-  pickCaseFile,
-  removeCase,
-  startReinspection,
-} from "./case_files.js";
+import { bootStorage, caseUnsaved, clearCases, discardDraft, removeCase, startReinspection } from "./case_files.js";
 import { createReinspection } from "./reinspection.js";
 import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
@@ -362,6 +353,39 @@ const caseFolderWorkflow = createCaseFolderWorkflow({
   loadCaseFile: (...args) => loadCaseFile(...args),
 });
 export let { writeSummary, rebuildIndex, listCaseFolder, openFromFolder } = caseFolderWorkflow;
+
+const localCaseFiles = createLocalCaseFiles({
+  get Blob() {
+    return Blob;
+  },
+  get URL() {
+    return URL;
+  },
+  get document() {
+    return document;
+  },
+  setTimeout: (...args) => setTimeout(...args),
+  get FileReader() {
+    return FileReader;
+  },
+  toast: (...args) => toast(...args),
+  loadCaseFile: (...args) => loadCaseFile(...args),
+});
+export let { downloadFile, pickCaseFile } = localCaseFiles;
+
+const draftSaveControls = createDraftSaveControls({
+  get document() {
+    return document;
+  },
+  app_savedworkContext: (...args) => app_savedworkContext(...args),
+  get IDB_OK() {
+    return IDB_OK;
+  },
+  setTimeout: (...args) => setTimeout(...args),
+  clearTimeout: (...args) => clearTimeout(...args),
+  saveDrafts: (...args) => saveDrafts(...args),
+});
+export let { updateSaveStatus, scheduleDraftSave } = draftSaveControls;
 
 const recipientWorkflow = createRecipientWorkflow({
   get addressParser() {

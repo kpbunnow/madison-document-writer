@@ -12,17 +12,14 @@ import {
   clearWalk,
   restoreWalkFor,
   refreshCatalog,
-  IDB_OK,
   newDocuments,
   recordIntegrity,
   snow,
   uid,
-  app_savedworkContext,
   saveDrafts,
   restoreDrafts,
   restorePending,
   flushPending,
-  loadCaseFile,
   checkHelper,
   scheduleRecoveryBackup,
   unissuedVisitFor,
@@ -33,45 +30,8 @@ import { render } from "./app_screens.js";
 import { doc, docsFor, draftDocFor, draftReinspFor, eventsFor, kase, recordHead, reinsp } from "./writer_queries.js";
 
 import { WriterState } from "./state.js";
-import { localSaveText, updateLocalPresentation } from "./saved_work.js";
 
 /* app functions; direct dependencies use explicit shared state. */
-
-function downloadFile(name, body) {
-  const blob = new Blob([body], { type: "application/json" });
-  const url = URL.createObjectURL(blob),
-    a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
-}
-
-function updateSaveStatus() {
-  const el = document.getElementById("save-status");
-  if (el) {
-    el.textContent = localSaveText(app_savedworkContext());
-    el.classList.toggle("save-error", !WriterState.LOCAL_SAVE.ok);
-  }
-  updateLocalPresentation(app_savedworkContext());
-}
-
-function scheduleDraftSave() {
-  WriterState.DIRTY = true;
-  ++WriterState.LOCAL_CHANGED;
-  if (!IDB_OK) {
-    WriterState.LOCAL_SAVE.ok = false;
-    updateSaveStatus();
-    return;
-  }
-  if (WriterState.draftTimer) clearTimeout(WriterState.draftTimer);
-  WriterState.draftTimer = setTimeout(() => {
-    WriterState.draftTimer = null;
-    saveDrafts();
-  }, 1500);
-}
 
 async function discardDraft(id) {
   const d = doc(id);
@@ -142,27 +102,6 @@ async function bootStorage() {
   } catch (error) {
     markWriterFailed(error);
   }
-}
-
-function pickCaseFile() {
-  const inp = document.createElement("input");
-  inp.type = "file";
-  inp.accept = ".json,application/json";
-  inp.onchange = () => {
-    const file = inp.files && inp.files[0];
-    if (!file) return;
-    const fr = new FileReader();
-    fr.onerror = () => toast("That file could not be read from this machine");
-    fr.onload = () => {
-      try {
-        loadCaseFile(String(fr.result));
-      } catch (err) {
-        toast("That case file was not loaded — " + ((err && err.message) || "it could not be read"));
-      }
-    };
-    fr.readAsText(file);
-  };
-  inp.click();
 }
 
 function caseUnsaved(k) {
@@ -303,15 +242,4 @@ function startReinspection(cid, importedRow) {
   render();
 }
 
-export {
-  downloadFile,
-  updateSaveStatus,
-  scheduleDraftSave,
-  discardDraft,
-  bootStorage,
-  pickCaseFile,
-  caseUnsaved,
-  removeCase,
-  clearCases,
-  startReinspection,
-};
+export { discardDraft, bootStorage, caseUnsaved, removeCase, clearCases, startReinspection };

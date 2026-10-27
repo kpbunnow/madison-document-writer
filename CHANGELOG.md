@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Local file and draft-save control boundaries (development)
+
+- Compose JSON download/picker controls through seven explicit native/notification/load inputs. Preserve MIME/raw text, click/remove order, four-second URL cleanup, cancellation/error messages and original loader dispatch.
+- Compose save-status/debounce controls through six lazy DOM/context/storage/save/timer inputs. Preserve dirty/change counters, 1.5-second replacement timer, unavailable-IDB path and original status presentation; actual persistence/startup guards remain in their owners.
+- Add independent tests/guards and update ownership, source/test indexes and roadmap. Case files is 72 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
+
 ## Unreleased — Case-folder and index workflow boundary (development)
 
 - Compose folder listing/opening and summary/index rebuilding through seven explicit lazy notification/permission/projection/write/render/integrity/load inputs. Preserve original metadata fallbacks, permission checks, verify-before-load dispatch and summary/rebuild failure handling.
