@@ -1,7 +1,7 @@
 {
   "counts": {
     "complexity": 76,
-    "max-depth": 1,
+    "max-depth": 0,
     "max-lines-per-function": 125,
     "python": 30
   },
@@ -178,11 +178,10 @@
     "app/modules/reports_services.js:createReportsServices#1/buildModel#1/anonymous#1:complexity": 51,
     "app/modules/reports_services.js:createReportsServices#1/caseOk#1:complexity": 36,
     "app/modules/reports_services.js:createReportsServices#1/loadAll#1:complexity": 21,
-    "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 148,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 120,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 40,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-depth": 5,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 118,
+    "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,
+    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,
+    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 38,
+    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 111,
     "app/modules/saved_work.js:savedCaseState#1:complexity": 28,
     "app/modules/saved_work.js:savedCaseState#1:max-lines-per-function": 90,
     "app/modules/saved_work.js:savedWorkHTML#1:complexity": 24,

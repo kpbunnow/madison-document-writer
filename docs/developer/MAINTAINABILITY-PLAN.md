@@ -249,3 +249,9 @@ Measured counts: {'complexity': 76, 'max-depth': 3, 'max-lines-per-function': 12
 Parcel-result merging is a synchronous helper called after the same awaited request. No await or cancellation checkpoint is added. The independent actual-transport test passes for chunk boundaries, partial results, token propagation and superseded reads; Reports stays read-only.
 
 Measured counts: {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 125, 'python': 30}.
+
+## M3 safety action nesting
+
+Pending safety actions delegate a synchronous scoped helper. The existing document branch, holder lookup, unawaited amendment dispatch and no-holder behavior are unchanged. The new independent seam and 60-listener registration audit pass. No authority or persistence guarantee changes. No maintained JS function now nests deeper than four levels.
+
+Measured counts: {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
