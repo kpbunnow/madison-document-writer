@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Writer readiness and Reports handoff; restoration and file authority stay in their adapters. */
 import { caseNumberKey } from "../assets/shared.js";
@@ -32,10 +33,10 @@ export function createWriterHandoff(services) {
     const existing = WriterState.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
     if (existing) {
       await services.preflightCase(existing.id, "report handoff", () => {
-        WriterState.state.metric = "";
-        WriterState.state.caseQ = number;
-        WriterState.state.caseFilter = "all";
-        WriterState.state.screen = "cases";
+        editor.state.metric = "";
+        editor.state.caseQ = number;
+        editor.state.caseFilter = "all";
+        editor.state.screen = "cases";
         services.render();
       });
       if (request !== WriterState.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
@@ -57,9 +58,9 @@ export function createWriterHandoff(services) {
       throw new Error("The current shared file is invalid or belongs to a different case");
     if (!services.loadCaseFile(JSON.stringify(file))) throw new Error("The shared case could not be loaded");
     WriterState.REPORT_RETURN = true;
-    WriterState.state.metric = "";
-    WriterState.state.caseQ = number;
-    WriterState.state.caseFilter = "all";
+    editor.state.metric = "";
+    editor.state.caseQ = number;
+    editor.state.caseFilter = "all";
     services.render();
     window.focus?.();
     const count = Number(message.eventCount);

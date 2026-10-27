@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 import { doc, reinsp } from "./writer_queries.js";
 import { checkAttr } from "./presentation_format.js";
@@ -66,7 +67,7 @@ function keepImportDisclosures(services, sameImport) {
 /** Capture now; restore after enhancement. @returns {RestoreRepaint} */
 function keepImportCaret(services, active) {
   const importFocus =
-    WriterState.state.screen === "import" && active?.id === "lookup-number" ? { start: active.selectionStart, end: active.selectionEnd } : null;
+    editor.state.screen === "import" && active?.id === "lookup-number" ? { start: active.selectionStart, end: active.selectionEnd } : null;
   return () => {
     if (importFocus) {
       const input = services.document.getElementById("lookup-number");
@@ -80,14 +81,14 @@ function keepImportCaret(services, active) {
 
 /** Capture now; restore after enhancement. @returns {RestoreRepaint} */
 function keepDocumentActions(services, previous, actions, active) {
-  const keepActions = WriterState.state.screen === "write" && previous?.dataset.editorDoc === WriterState.state.docId && actions?.open;
+  const keepActions = editor.state.screen === "write" && previous?.dataset.editorDoc === editor.state.docId && actions?.open;
   const actionFocus = keepActions && actions.contains(active) ? (active.tagName === "SUMMARY" ? "summary" : active.id) : "";
   return () => {
     if (keepActions) {
       const current = services.document.querySelector(".editor-more");
       if (current) {
         current.open = true;
-        if (actionFocus && !WriterState.state.modal && !WriterState.state.picker) {
+        if (actionFocus && !editor.state.modal && !editor.state.picker) {
           const target = actionFocus === "summary" ? current.querySelector("summary") : services.document.getElementById(actionFocus);
           if (target && current.contains(target)) target.focus({ preventScroll: true });
         }
@@ -131,7 +132,7 @@ function keepSnowFocus(services, sameDocument, previous, active) {
   return {
     selector: snowFocus,
     restore() {
-      if (snowFocus && !WriterState.state.modal && !WriterState.state.picker)
+      if (snowFocus && !editor.state.modal && !editor.state.picker)
         services.document.querySelector(".document-workspace " + snowFocus)?.focus({ preventScroll: true });
     },
   };
@@ -148,8 +149,8 @@ function keepFieldFocus(services, sameDocument, previous, active, editingDoc, sn
     previous.contains(active) &&
     active.id &&
     active.matches("input,textarea,select") &&
-    !WriterState.state.modal &&
-    !WriterState.state.picker &&
+    !editor.state.modal &&
+    !editor.state.picker &&
     !services.isLocked(editingDoc)
       ? {
           id: active.id,
@@ -159,7 +160,7 @@ function keepFieldFocus(services, sameDocument, previous, active, editingDoc, sn
         }
       : null;
   return () => {
-    if (fieldFocus && !WriterState.state.modal && !WriterState.state.picker) {
+    if (fieldFocus && !editor.state.modal && !editor.state.picker) {
       const field = services.document.getElementById(fieldFocus.id);
       if (field && field.closest(".document-workspace") && field.value === fieldFocus.value && services.document.activeElement !== field) {
         field.focus({ preventScroll: true });
@@ -179,8 +180,8 @@ function keepInspectionChecks(services, active) {
   const worksheet = services.document.querySelector("[data-worksheet-context]"),
     inspectionChecks = services.document.querySelector(".ri-checks");
   const keepInspectionChecks =
-    WriterState.state.screen === "reinspect" &&
-    worksheet?.dataset.worksheetContext === services.walkIdentity(reinsp(WriterState.state.reinspId)) &&
+    editor.state.screen === "reinspect" &&
+    worksheet?.dataset.worksheetContext === services.walkIdentity(reinsp(editor.state.reinspId)) &&
     inspectionChecks?.open;
   const inspectionCheckFocus =
     keepInspectionChecks && inspectionChecks.contains(active)
@@ -208,8 +209,8 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
   // New model text, locks, dialogs and navigation always use the newly rendered field.
   const keepEditing =
     editingItem &&
-    !WriterState.state.modal &&
-    !WriterState.state.picker &&
+    !editor.state.modal &&
+    !editor.state.picker &&
     active.isContentEditable &&
     previous.contains(active) &&
     !services.isLocked(editingDoc) &&
@@ -251,7 +252,7 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
 }
 
 function screenHTML(services) {
-  switch (WriterState.state.screen) {
+  switch (editor.state.screen) {
     case "cases":
       return services.screenCases();
     case "import":
@@ -287,16 +288,16 @@ export function createAppScreens(services) {
     if (helperStop.stopped) return; // Exit Document Writer owns the stopped page.
     if (startup.STARTUP_STATUS === "locked") return;
     if (renderStartup(services)) return;
-    if (WriterState.state.screen !== "cases") WriterState.state.issuedCase = "";
+    if (editor.state.screen !== "cases") editor.state.issuedCase = "";
     const appRoot = services.document.getElementById("app"),
-      sameImport = WriterState.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
+      sameImport = editor.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
     const importDisclosures = keepImportDisclosures(services, sameImport);
     const languageFocus = rememberLanguageFocus(services.app_languagediscoveryContext());
     const { previous, actions, active } = repaintContext(services);
     const importCaret = keepImportCaret(services, active);
     const documentActions = keepDocumentActions(services, previous, actions, active);
-    const sameDocument = WriterState.state.screen === "write" && previous?.dataset.editorDoc === WriterState.state.docId;
-    const editingDoc = sameDocument ? doc(WriterState.state.docId) : null;
+    const sameDocument = editor.state.screen === "write" && previous?.dataset.editorDoc === editor.state.docId;
+    const editingDoc = sameDocument ? doc(editor.state.docId) : null;
     const liveField = keepLiveField(services, editingDoc, previous, active, appRoot);
     const openDetails = keepOpenDetails(services, sameDocument, previous);
     const openPricing = keepOpenPricing(services, sameDocument, previous);
@@ -308,9 +309,9 @@ export function createAppScreens(services) {
     // Both walk context and a renderer may redirect. Read the route at each phase.
     services.document.getElementById("app").innerHTML = screenHTML(services);
     liveField.swap();
-    if (appRoot?.dataset) appRoot.dataset.renderScreen = WriterState.state.screen;
+    if (appRoot?.dataset) appRoot.dataset.renderScreen = editor.state.screen;
     services.document.getElementById("overlay").innerHTML = services.overlayHTML();
-    if (WriterState.state.screen === "write") {
+    if (editor.state.screen === "write") {
       services.paginate();
       services.editorEnhance();
     }

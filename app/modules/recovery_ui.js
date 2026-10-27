@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { recoverySharedConflict } from "./case_recovery.js";
 import { esc } from "./presentation_format.js";
@@ -6,12 +7,12 @@ import { WriterState } from "./state.js";
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
 export function createRecoveryUI(services) {
   function restoreWorkControls() {
-    if (WriterState.state.screen === "import")
+    if (editor.state.screen === "import")
       services.ENTRY_IDS.forEach((id) => {
         const el = services.document.getElementById(id);
-        if (el && WriterState.WORK.entry[id] !== undefined) el.value = WriterState.WORK.entry[id];
+        if (el && editor.WORK.entry[id] !== undefined) el.value = editor.WORK.entry[id];
       });
-    const form = WriterState.WORK.recordForms[services.recordFormKey()];
+    const form = editor.WORK.recordForms[services.recordFormKey()];
     if (form) {
       [
         ["record-action-text", "text"],
@@ -25,17 +26,17 @@ export function createRecoveryUI(services) {
   }
 
   async function saveAndContinue() {
-    if (WriterState.state.screen === "import") services.cancelCaseLookup();
+    if (editor.state.screen === "import") services.cancelCaseLookup();
     services.captureWork();
-    if (WriterState.draftTimer) {
-      services.clearTimeout(WriterState.draftTimer);
-      WriterState.draftTimer = null;
+    if (editor.draftTimer) {
+      services.clearTimeout(editor.draftTimer);
+      editor.draftTimer = null;
     }
     return services.navigation.leave(() => {
-      WriterState.state.modal = null;
-      WriterState.state.picker = false;
-      WriterState.state.screen = "cases";
-      WriterState.state.riFilter = "";
+      editor.state.modal = null;
+      editor.state.picker = false;
+      editor.state.screen = "cases";
+      editor.state.riFilter = "";
       WriterState.DIRTY = false;
       services.render();
       services.toast("Work saved on this device. Continue from your workspace when ready.");

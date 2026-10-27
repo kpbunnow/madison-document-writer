@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
@@ -15,14 +16,14 @@ export function initNavigation(services) {
     ++utilitySequence;
   };
   function utilityContext() {
-    return { sequence: ++utilitySequence, screen: WriterState.state.screen, docId: WriterState.state.docId, reinspId: WriterState.state.reinspId };
+    return { sequence: ++utilitySequence, screen: editor.state.screen, docId: editor.state.docId, reinspId: editor.state.reinspId };
   }
   function utilityCurrent(context) {
     return (
       context.sequence === utilitySequence &&
-      context.screen === WriterState.state.screen &&
-      context.docId === WriterState.state.docId &&
-      context.reinspId === WriterState.state.reinspId
+      context.screen === editor.state.screen &&
+      context.docId === editor.state.docId &&
+      context.reinspId === editor.state.reinspId
     );
   }
   function saveFailure() {
@@ -58,13 +59,13 @@ export function initNavigation(services) {
     services.captureWork();
     let saved = false;
     while (current(sequence)) {
-      const revision = WriterState.LOCAL_CHANGED;
+      const revision = editor.LOCAL_CHANGED;
       try {
         saved = await services.saveDrafts();
       } catch (error) {
         saved = false;
       }
-      if (!saved || WriterState.LOCAL_CHANGED <= revision + 1) break;
+      if (!saved || editor.LOCAL_CHANGED <= revision + 1) break;
     }
     if (!current(sequence)) return false;
     if (!saved) {
@@ -78,10 +79,10 @@ export function initNavigation(services) {
     if (!routes.has(route)) return false;
     return leave(() => {
       document.getElementById("utility-dialog")?.remove();
-      WriterState.state.modal = null;
-      WriterState.state.picker = false;
-      WriterState.state.screen = route;
-      if (route === "library") WriterState.state.languageMode = "browse";
+      editor.state.modal = null;
+      editor.state.picker = false;
+      editor.state.screen = route;
+      if (route === "library") editor.state.languageMode = "browse";
       services.render();
       window.scrollTo(0, 0);
       const heading = document.querySelector(".main h1");
@@ -102,9 +103,7 @@ export function initNavigation(services) {
           '<button class="rail-item" data-nav="' +
           `${route}` +
           '" ' +
-          "".concat(
-            WriterState.state.screen === route || (route === "cases" && caseScreens.has(WriterState.state.screen)) ? 'aria-current="page"' : "",
-          ) +
+          "".concat(editor.state.screen === route || (route === "cases" && caseScreens.has(editor.state.screen)) ? 'aria-current="page"' : "") +
           ">" +
           `${services.uiIcon(route)}` +
           "<span>" +
@@ -125,7 +124,7 @@ export function initNavigation(services) {
       "" +
       `${reports}` +
       '<button class="rail-item" data-nav="tools" ' +
-      `${WriterState.state.screen === "tools" ? 'aria-current="page"' : ""}` +
+      `${editor.state.screen === "tools" ? 'aria-current="page"' : ""}` +
       ">" +
       `${services.uiIcon("tools")}` +
       "<span>Tools &amp; settings</span></button>"

@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Exit Document Writer: save this device's drafts, review unresolved work, then ask the helper to stop.
@@ -80,8 +81,8 @@ export function exitReview(R, busy = {}) {
 
 function currentReview() {
   return exitReview(app_savedworkContext(), {
-    publication: !!(WriterState.state.publicationBusy || WriterState.AMENDMENT_BUSY),
-    filing: (WriterState.FILING_ACTIVE || 0) > 0,
+    publication: !!(editor.state.publicationBusy || editor.AMENDMENT_BUSY),
+    filing: (editor.FILING_ACTIVE || 0) > 0,
   });
 }
 
