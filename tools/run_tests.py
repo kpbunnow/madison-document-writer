@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / p) for p in ["helper", "tools", "policy", "tests/unit", "tests/fixtures", "build/generated"]]
 os.environ["DW_REPO_ROOT"] = str(ROOT)
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+os.environ["DW_PYTHON"] = sys.executable
 os.environ["PYTHONPATH"] = os.pathsep.join(sys.path[:6])
 # A read-only preflight supports diagnostics from inside the gate without invalidating its evidence.
 # Every actual test run, including one that fails preflight, invalidates earlier regression evidence first.

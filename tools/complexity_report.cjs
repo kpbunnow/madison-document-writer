@@ -79,12 +79,18 @@ async function report() {
         if (message.severity === 2) throw new Error(`${result.filePath}: ${message.message}`);
         continue;
       }
-      const candidates = owners.get(result.filePath).filter((f) => f.start.line <= message.line && f.end.line >= message.line);
+      const candidates = owners
+        .get(result.filePath)
+        .filter(
+          (f) =>
+            (f.start.line < message.line || (f.start.line === message.line && f.start.column < message.column)) &&
+            (f.end.line > message.line || (f.end.line === message.line && f.end.column >= message.column - 1)),
+        );
       const owner = candidates.sort((a, b) => b.start.line - a.start.line || b.start.column - a.start.column)[0];
       if (!owner) throw new Error(`No owner for ${JSON.stringify(message)}`);
       const value = Number(message.message.match(/(?:complexity of |maximum nesting depth of |nested too deeply \(|too many lines \()(\d+)/)?.[1]);
       if (!value) throw new Error(`Unrecognized metric: ${message.message}`);
-      const key = `${path.relative(ROOT, result.filePath)}:${owner.identity}:${message.ruleId}`;
+      const key = `${path.relative(ROOT, result.filePath).split(path.sep).join("/")}:${owner.identity}:${message.ruleId}`;
       violations[key] = Math.max(violations[key] || 0, value);
       counts[message.ruleId]++;
     }
@@ -98,7 +104,7 @@ async function report() {
   for (const finding of JSON.parse(python.stdout)) {
     const match = finding.message.match(/^`([^`]+)` is too complex \((\d+) > 10\)$/);
     if (!match) throw new Error(finding.message);
-    const key = `${path.relative(ROOT, finding.filename)}:${match[1]}:C901`;
+    const key = `${path.relative(ROOT, finding.filename).split(path.sep).join("/")}:${match[1]}:C901`;
     if (key in violations) throw new Error(`Ambiguous Python owner: ${key}`);
     violations[key] = Number(match[2]);
     counts.python++;
