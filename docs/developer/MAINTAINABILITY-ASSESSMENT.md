@@ -1,27 +1,26 @@
 # Remaining maintainability assessment
 
-Snapshot: workspace case actions/reinspection entry based on merged PR #87, main `d063a4fb01b7edec9d81fc2fe840e91200bc2dd0`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
+Snapshot: Writer startup boundary based on merged PR #88, main `d62063a7f4fdfaee08c46982a17cfc8738dbc5e6`. This is a maintenance assessment, not a claim that all bugs are absent or release approval. Counts describe this reviewed source layout, not quality/performance thresholds.
 
 ## What this increment completes
 
-Case/draft actions and reinspection entry now have four/twelve-input owners. All five moved and the original startup function retain logic apart from dependency access; pending-save, source/identity, route and save/render ordering remain. Case files is 178 lines smaller and retains only original bootStorage. Writer remains four cyclic modules and Reports acyclic. Existing local filtering/lookup and save dispatch semantics are preserved, without a stronger atomicity/cleanup claim. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
+Original bootStorage now has an independent fifteen-input startup owner, constructed/invoked at the original checkpoint. Its body and lock/restore/failure order are unchanged apart from dependency access. The emptied case_files module is removed; Writer narrows from four to three cyclic modules and Reports remains acyclic. Existing partial-effect/readiness and persistence/helper/handoff authority remain. Print/native/PNG acceptance remains unchanged (SCREEN-VISUAL-REVIEW.md).
 
 ## Main unfinished work: Writer dependency ownership
 
-The graph still contains one four-module Writer component. These are four coupled owners, not four identified bugs or a promise of four more PRs. The modules have different responsibilities and should not simply be wrapped into ever-larger dependency objects.
+The graph still contains one three-module Writer component. These are three coupled owners, not three identified bugs or a promise of three more PRs. The modules have different responsibilities and should not simply be wrapped into ever-larger dependency objects.
 
 | Owner | Source lines | Graph module dependencies | Dependencies inside this cycle | Main remaining concern |
 | --- | ---: | ---: | ---: | --- |
-| `app_core.js` | 2366 | 97 | 3 | Composition, state/bootstrap and feature dispatch remain centralized |
+| `app_core.js` | 2393 | 97 | 2 | Composition, state/bootstrap and feature dispatch remain centralized |
 | `app_screens.js` | 1244 | 16 | 2 | Routing, shared dialogs/overlays and case-list rendering still depend on peers |
-| `case_files.js` | 67 | 3 | 2 | Original lock/startup/restore sequencing still imports core and shell |
 | `workspace_shell.js` | 470 | 12 | 2 | Shell/print/storage UI, folder connections, event append and helper transport remain coupled |
 
 Counts come from `node tools/module_graph.cjs` and maintained source line counts, including comments/blank lines. Generated/vendor modules are outside that graph. Module size alone is not a defect; responsibility mixing and dependency direction determine the next boundary.
 
 ## Recommended priority and scope
 
-1. **Separate shell and case-file responsibilities.** Case/draft and reinspection-entry responsibilities are separated. Next isolate startup with exact lock/restore/failure order, then remaining shell folder/permission responsibilities. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
+1. **Separate shell and case-file responsibilities.** Startup and former case-file responsibilities are separated. Next inspect shell folder/permission, shell/status/print and record-event/projection adapters while preserving original behavior and authority. Preserve permission prompts, guard timing, save behavior and live workspace lookups. Existing loading/storage/projection/helper owners keep authority.
 2. **Review core/screen direction.** Screen routing, shared dialogs/overlays and case-list rendering still couple peers. Keep core as explicit composition/startup/registration coordinator, use scoped facts/actions and preserve initialization/listener order. Avoid universal contexts or forwarding barrels; split bootstrap only when behavior can be verified.
 
 The 14-input readiness and 20-input delivery interfaces remain explicit; split only if responsibilities and evidence warrant another cohesive boundary.
@@ -32,7 +31,7 @@ These priorities may need several focused PRs. A graph reduction is useful, but 
 
 ### Keep dependency interfaces bounded
 
-Core currently has 97 maintained-module dependencies in this graph and 68 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
+Core currently has 97 maintained-module dependencies in this graph and 69 create-prefixed factory calls with object interfaces (excluding init-prefixed constructors). The largest reviewed interfaces are:
 
 | Factory | Named input fields |
 | --- | ---: |

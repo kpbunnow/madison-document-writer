@@ -73,6 +73,7 @@ export default [
       "app/modules/draft_save_controls.js",
       "app/modules/case_workspace_actions.js",
       "app/modules/reinspection_entry.js",
+      "app/modules/writer_startup.js",
       "app/modules/document_readiness.js",
       "app/modules/record_ids.js",
       "app/modules/catalog_queries.js",

@@ -381,7 +381,7 @@ All four moved and remaining case-file functions preserve logic except scoped de
 
 There are 114 maintained modules, 15 isolated foundations and 66 independent scoped owners. Case files shrinks from 317 to 245 lines; Writer remains four cyclic modules and Reports acyclic. Next separate case/draft actions and reinspection entry before startup coordination, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
-## Forty-second increment: workspace case actions and reinspection entry
+## Forty-second increment: workspace case actions and reinspection entry (merged in PR #88)
 
 case_workspace_actions composes discardDraft/caseUnsaved/removeCase/clearCases through four lazy notification/walk/save/render inputs. reinspection_entry composes startReinspection through twelve lazy day/feature/source/save/UI inputs. Core constructs both after draftSaveControls and before recipientWorkflow, exports actual operations and screens consume caseUnsaved. Construction performs no reads, I/O or registration.
 
@@ -389,11 +389,19 @@ All five moved and original bootStorage function bodies preserve logic apart fro
 
 There are 116 maintained modules, 15 isolated foundations and 68 independent scoped owners. Case files shrinks from 245 to 67 lines, retaining only original startup. Writer remains four cyclic modules and Reports acyclic. Next isolate startup coordination with its exact lock/restore/failure order, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
+## Forty-third increment: Writer startup
+
+writer_startup composes original bootStorage through fifteen lazy native/restore/readiness inputs and imports only state. Core constructs it immediately before the unchanged invocation, after document-language assignment and before unload-warning registration. Constructor performs no reads, I/O or registration. Original bootStorage AST is unchanged apart from scoped access.
+
+Preserve acquisition/held-lock promise lifetime, lock refusal/reload UI and readiness settlement, helper/catalog branches, folder/pending/draft restoration, retained-draft barrier, integrity/artifact/flush/ready/backup and catch order. Partial earlier effects remain on later failure; this adds no atomic/idempotent startup guarantee or new persistence/helper authority.
+
+There are 116 maintained modules, 15 isolated foundations and 69 independent scoped owners. The emptied case_files module is removed. Writer narrows from four to three cyclic modules (core, screens and shell); tighten the guard to three. Reports stays acyclic. Next separate remaining shell/folder responsibilities, then core/screen direction while preserving startup/event order. Earlier counts/ownership remain provenance.
+
 ## Following increments
 
 Continue through focused, separately reviewable changes:
 
-1. Continue reducing the remaining 4-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
+1. Continue reducing the remaining 3-module Writer cycle through scoped service dependencies and lazy callbacks only where needed. Keep service composition explicit; never turn the former shared core into a new universal registry.
 2. Keep Reports acyclic. Consider further decomposition or dead-name removal only where it improves ownership, preserving verified projection inputs, export/print ordering, diagnostic access and public exports.
 
 Each increment updates the code map, source inventory, test index and this status. Narrow the graph guard as cycles are eliminated; never raise the cycle cap to accommodate accidental coupling. Existing filenames, stored keys/IDs, installed names and history remain compatibility contracts.

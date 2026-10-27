@@ -73,6 +73,7 @@ import { rnd12 } from "./record_ids.js";
 import { allItems } from "./catalog_queries.js";
 import {
   shell,
+  restoreCaseFolder,
   summarize,
   evid,
   grantCaseFolder,
@@ -86,7 +87,7 @@ import {
 } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
-import { bootStorage } from "./case_files.js";
+import { createWriterStartup } from "./writer_startup.js";
 import { createReinspection } from "./reinspection.js";
 import { priorCitations, uiIcon, caseState, renderKeep, render, screenCases, overlayHTML, revealIssuedCase, focusIssuedCase } from "./app_screens.js";
 import { createAccelaImport } from "./accela_import.js";
@@ -2264,6 +2265,32 @@ importEvents.registerFileDrop();
 
 /* Durable workspace recovery starts before the application becomes editable. */
 if (document.documentElement) document.documentElement.lang = "en";
+const writerStartup = createWriterStartup({
+  get navigator() {
+    return navigator;
+  },
+  get document() {
+    return document;
+  },
+  get location() {
+    return location;
+  },
+  restoreCaseFolder: (...args) => restoreCaseFolder(...args),
+  initWriterHandoff: (...args) => initWriterHandoff(...args),
+  markWriterReady: (...args) => markWriterReady(...args),
+  markWriterFailed: (...args) => markWriterFailed(...args),
+  refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
+  refreshCatalog: (...args) => refreshCatalog(...args),
+  get recordIntegrity() {
+    return recordIntegrity;
+  },
+  restoreDrafts: (...args) => restoreDrafts(...args),
+  restorePending: (...args) => restorePending(...args),
+  flushPending: (...args) => flushPending(...args),
+  checkHelper: (...args) => checkHelper(...args),
+  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
+});
+export let { bootStorage } = writerStartup;
 if (typeof bootStorage === "function") bootStorage();
 recoveryEvents.registerUnloadWarning();
 
