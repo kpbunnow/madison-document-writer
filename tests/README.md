@@ -197,6 +197,7 @@ covers, or a new suite under its feature.
 | `audit_writer_handoff.js` | Six-input readiness/Reports handoff owner, restoration waits/failures, restored local work, stale shared requests, file validation and channel/URL behavior |
 | `audit_deadline_assignment.js` | Seven-input deadline owner, atomic batch/assignment refusals, spacing/count and live selection/worksheet guards, escaped presentation and indicators |
 | `audit_workspace_tasks.js` | Three-input read-only task owner, group/count agreement, delegated policy, artifact truth, action escaping, frozen inputs and live workspace replacement |
+| `audit_folder_connections.js` | Independent folder linking/restoration/grants; synchronous picker, helper priority, persistence/flush order, quiet permission and partial failures |
 | `audit_writer_startup.js` | Independent startup owner; original invocation, lock lifetime/refusal UI, restore/readiness barriers, helper branches and every-stage failure order |
 | `audit_case_work_actions.js` | Independent case/draft actions and reinspection entry; pending/risk/save order, workspace removal, routing and imported/carried date/source identity |
 | `audit_local_work_controls.js` | Independent local JSON and draft-save controls; debounce/status/counter paths, file picker failures and download/URL cleanup ordering |

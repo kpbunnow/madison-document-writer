@@ -389,13 +389,21 @@ All five moved and original bootStorage function bodies preserve logic apart fro
 
 There are 116 maintained modules, 15 isolated foundations and 68 independent scoped owners. Case files shrinks from 245 to 67 lines, retaining only original startup. Writer remains four cyclic modules and Reports acyclic. Next isolate startup coordination with its exact lock/restore/failure order, then remaining shell/folder and core/screen direction. Earlier counts/ownership remain provenance.
 
-## Forty-third increment: Writer startup
+## Forty-third increment: Writer startup (merged in PR #89)
 
 writer_startup composes original bootStorage through fifteen lazy native/restore/readiness inputs and imports only state. Core constructs it immediately before the unchanged invocation, after document-language assignment and before unload-warning registration. Constructor performs no reads, I/O or registration. Original bootStorage AST is unchanged apart from scoped access.
 
 Preserve acquisition/held-lock promise lifetime, lock refusal/reload UI and readiness settlement, helper/catalog branches, folder/pending/draft restoration, retained-draft barrier, integrity/artifact/flush/ready/backup and catch order. Partial earlier effects remain on later failure; this adds no atomic/idempotent startup guarantee or new persistence/helper authority.
 
 There are 116 maintained modules, 15 isolated foundations and 69 independent scoped owners. The emptied case_files module is removed. Writer narrows from four to three cyclic modules (core, screens and shell); tighten the guard to three. Reports stays acyclic. Next separate remaining shell/folder responsibilities, then core/screen direction while preserving startup/event order. Earlier counts/ownership remain provenance.
+
+## Forty-fourth increment: folder connections
+
+folder_connections composes linkCaseFolder/restoreCaseFolder/grantCaseFolder through nine lazy native/capability/handle-store/helper/UI inputs, importing only state. Core constructs it after addressParser and before caseFolderWorkflow and exports actual mutable operations. The shell probe uses the composed grant. Construction performs no reads, I/O or registration.
+
+All three moved and remaining shell bodies preserve logic except dependency access. Keep helper priority, synchronous picker/options, live handle/name/permission then persistence/flush order, restoration query/default/error behavior, quiet versus interactive grants and original partial state/catch boundaries. Existing IndexedDB/helper/pending-write owners retain authority; no atomic connection switch or pinned-folder guarantee is added.
+
+There are 117 maintained modules, 15 isolated foundations and 70 independent scoped owners. Shell shrinks from 470 to 388 lines. Writer remains three cyclic modules and Reports acyclic. Next separate shell presentation/print/probe and remaining record/projection/helper request adapters, then core/screen direction. Earlier counts/ownership remain provenance.
 
 ## Following increments
 

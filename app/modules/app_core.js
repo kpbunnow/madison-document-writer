@@ -1,3 +1,4 @@
+import { createFolderConnections } from "./folder_connections.js";
 import { createReinspectionEntry } from "./reinspection_entry.js";
 import { createCaseWorkspaceActions } from "./case_workspace_actions.js";
 import { createDraftSaveControls } from "./draft_save_controls.js";
@@ -71,20 +72,7 @@ import { fmtDate, longDate, fmtTime } from "./presentation_format.js";
 import { splitOwner } from "./mailing_rules.js";
 import { rnd12 } from "./record_ids.js";
 import { allItems } from "./catalog_queries.js";
-import {
-  shell,
-  restoreCaseFolder,
-  summarize,
-  evid,
-  grantCaseFolder,
-  helperJSON,
-  linkCaseFolder,
-  printNotice,
-  printableHTML,
-  testWrite,
-  sourceDocFor,
-  appendEvent,
-} from "./workspace_shell.js";
+import { shell, summarize, evid, helperJSON, printNotice, printableHTML, testWrite, sourceDocFor, appendEvent } from "./workspace_shell.js";
 import { caseFileName } from "./case_file_rules.js";
 
 import { createWriterStartup } from "./writer_startup.js";
@@ -344,6 +332,25 @@ export const addressParser = initAddressParser({
   },
   uid: (...args) => uid(...args),
 });
+const folderConnections = createFolderConnections({
+  get FS_OK() {
+    return FS_OK;
+  },
+  get window() {
+    return window;
+  },
+  idbSet: (...args) => idbSet(...args),
+  flushPending: (...args) => flushPending(...args),
+  toast: (...args) => toast(...args),
+  render: (...args) => render(...args),
+  helperFolder: (...args) => helperFolder(...args),
+  get CASEDIR_EXPECT() {
+    return CASEDIR_EXPECT;
+  },
+  idbGet: (...args) => idbGet(...args),
+});
+export let { linkCaseFolder, restoreCaseFolder, grantCaseFolder } = folderConnections;
+
 const caseFolderWorkflow = createCaseFolderWorkflow({
   toast: (...args) => toast(...args),
   grantCaseFolder: (...args) => grantCaseFolder(...args),
