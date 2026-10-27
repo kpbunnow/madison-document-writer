@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { caseFileName } from "./case_file_rules.js";
 import { docsFor, doneItems, unchecked, insp } from "./writer_queries.js";
 import { DOC_TYPES } from "./document_types.js";
 import { esc, fmtDate } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { INSPECTORS } from "./data/inspectors.js";
@@ -153,7 +153,7 @@ function renderWorkspaceRow(row) {
 
 function workspaceQuickViewsHTML({ quickViews, count }) {
   return "".concat(
-    WriterState.CASES.length
+    workspace.CASES.length
       ? '<div class="queue-summary" role="group" aria-label="Filter workspace cas' +
           'es">' +
           "".concat(
@@ -198,7 +198,7 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
     '</select></label>\n      <select id="case-inspector" aria-label="Filter b' +
     'y inspector"><option value="">All inspectors</option>' +
     "".concat(
-      INSPECTORS.filter((i) => WriterState.CASES.some((k) => k.inspectorId === i.id))
+      INSPECTORS.filter((i) => workspace.CASES.some((k) => k.inspectorId === i.id))
         .map(
           (i) =>
             '<option value="' +
@@ -248,7 +248,7 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
           "</div></td></tr>",
     ) +
     '</tbody></table></div><div class="case-count">' +
-    `${WriterState.CASES.length}` +
+    `${workspace.CASES.length}` +
     " cases on this device. Use Search shared case records for records outsid" +
     "e this workspace." +
     `${importCount ? " An import is waiting for review above." : ""}` +
@@ -267,12 +267,12 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
     ' Search shared case records</button><p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>' +
     `${importResumePanel()}` +
     "" +
-    "".concat(WriterState.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(WriterState.PREFLIGHT_NOTICE)}</div>` : "") +
+    "".concat(workspace.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(workspace.PREFLIGHT_NOTICE)}</div>` : "") +
     '\n     <div class="workspace-lead"><div><h2>' +
-    `${WriterState.CASES.length ? activeLabel : "Start with a case"}` +
+    `${workspace.CASES.length ? activeLabel : "Start with a case"}` +
     "</h2><p>" +
     "".concat(
-      WriterState.CASES.length
+      workspace.CASES.length
         ? "One next action per case. Open case details for other tasks and history."
         : "Import an Accela report or open a saved case to begin.",
     ) +
@@ -291,7 +291,7 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
     ) +
     '\n     <div class="card">' +
     "".concat(
-      !WriterState.CASES.length
+      !workspace.CASES.length
         ? '<div class="empty-state"><div class="empty-icon">' +
             `${uiIcon("cases")}` +
             "</div><h2>A clear desk. A clear next step.</h2><p>Bring in the case deta" +
@@ -305,7 +305,7 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
     ' class="hint" aria-live="polite">' +
     `${services.recoveryStatusHTML()}` +
     "</div>" +
-    `${WriterState.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : ""}` +
+    `${workspace.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : ""}` +
     "</div>\n     " +
     `${services.remindersPanel()}` +
     "" +
@@ -317,7 +317,7 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
 export function createWorkspaceScreen(services) {
   function revealIssuedCase(cid) {
     const s = editor.state,
-      rows = WriterState.CASES.map((k) => ({ k, st: services.caseState(k) })),
+      rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k) })),
       row = workspaceQueue(rows, services.workspaceTasks(rows), services.app_workspacequeueContext()).find((r) => r.k.id === cid);
     if (!row) return false;
     const before = [s.caseFilter, s.caseQ, s.caseInspector].join("|"),
@@ -344,7 +344,7 @@ export function createWorkspaceScreen(services) {
   }
 
   function screenCases() {
-    const rows = WriterState.CASES.map((k) => ({ k, st: services.caseState(k) })),
+    const rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k) })),
       tasks = services.workspaceTasks(rows);
     // Retire legacy metric selection into the workspace views.
     if (editor.state.metric) {
@@ -383,7 +383,7 @@ export function createWorkspaceScreen(services) {
     const table = filtered.map((row) => renderWorkspaceRow(row)).join("");
     const importCount = tasks.find((t) => t.key === "imports").count;
     // Pending operations without a loaded case must remain reachable.
-    const orphan = WriterState.PENDING.filter((p) => !WriterState.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));
+    const orphan = workspace.PENDING.filter((p) => !workspace.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));
     const activeLabel = views.find(([key]) => key === editor.state.caseFilter)[1];
     return services.shell(
       "Your workspace",

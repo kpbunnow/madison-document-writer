@@ -393,3 +393,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Catalog/import, recovery, folder and status owners use the existing workspace boundary. Independent import/catalog, cached-review, synchronous folder picker, recovery, handoff and device-restore assertions pass unchanged. This preserves stale-selection guards, original permission checkpoints and live restored arrays. Direct root-state importers fall 57 to 53; mixed helper/session state follows separately, and cycles remain zero.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 remaining workspace-state callers
+
+Remaining record, screen and event owners use the existing workspace boundary. Eight differential rule/HTML/dispatch suites retain exact assertions across 26,853 cases; native pagination retains exact page HTML and measurements. Removal of incidental production imports exposed a historical-test composition dependency: an explicit test-only import now supplies the unchanged frozen functions with their original WriterState binding. This fixes the reference scope without changing any reference bytes or assertions. Publication ordering and both state boundary tests pass. Direct root-state importers fall 53 to 27, with zero cycles; helper/session fields remain for the final startup cohort.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

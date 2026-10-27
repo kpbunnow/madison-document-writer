@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { inspectionIdentity } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { draftDocFor, draftReinspFor, kase, recordHead } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function createReinspectionEntry(services) {
   function startReinspection(cid, importedRow) {
@@ -77,10 +77,10 @@ export function createReinspectionEntry(services) {
         r.results[it.id] = { oc: it.withdrawn ? "withdrawn" : "corrected", on: it.doneOn || "", due: "", note: "", cite: false, carried: true };
     });
     editor.WORK.walk = null;
-    WriterState.REINSP.push(r);
+    workspace.REINSP.push(r);
     editor.state.reinspId = r.id;
     editor.state.screen = "reinspect";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
   }

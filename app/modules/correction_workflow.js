@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { caseDetails, clone } from "./record_values.js";
 import { doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 // Opening and issuing corrections delegate preparation, confirmation and original PDF authority.
 export function createCorrectionWorkflow(services) {
@@ -82,10 +82,10 @@ export function createCorrectionWorkflow(services) {
     };
     d.correction.case.emails = emailRows;
     d.emailSelection = emailRows.filter((e) => e.on !== false).map((e) => e.addr + "|" + (e.kind || "Other"));
-    WriterState.DOCS.unshift(d);
+    workspace.DOCS.unshift(d);
     editor.state.docId = d.id;
     editor.state.screen = "write";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     services.toast("Correction draft opened. The issued record is unchanged until you review and save.");

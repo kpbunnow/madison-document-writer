@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 import { stableJSON, clone } from "./record_values.js";
@@ -21,7 +22,6 @@ import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } fr
 import { ocOf, dueItems, distinctDues, itemLibraryKey, isEffective, supplemental } from "./document_rules.js";
 import { isLLC } from "./mailing_rules.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { WriterState } from "./state.js";
 import { canonicalOrdinance } from "./citation_policy.js";
 
 /* Explicit lazy UI/peer adapters preserve worksheet and walkthrough state at call time. */
@@ -767,7 +767,7 @@ export function createReinspection(services) {
         editor.state.riWalkStage = "outcome";
       }
     }
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.scheduleDraftSave();
     if (editor.state.riWalk) {
       services.render();
@@ -795,7 +795,7 @@ export function createReinspection(services) {
     editor.state.riWalkUndo = null;
     editor.state.riWalkItem = undo.itemId;
     editor.state.riWalkStage = "outcome";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.scheduleDraftSave();
     services.render();
     focusWalkItem();
@@ -1265,15 +1265,15 @@ export function createReinspection(services) {
     // register the document before its citations are numbered, so each number is
     // checked against the ones already issued on this document too
     if (hasHistory) nd.items.forEach((it) => (it.hist = services.itemInspectionHistory(nd, it)));
-    WriterState.DOCS.unshift(nd);
+    workspace.DOCS.unshift(nd);
     if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
-      WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
+      workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
       services.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
       return;
     }
     if (type === "citation") {
       if (!nd.items.some((i) => i.cite)) {
-        WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== nd.id);
+        workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
         services.toast("Select the items to cite on the inspection worksheet.");
         return;
       }
@@ -1301,7 +1301,7 @@ export function createReinspection(services) {
     r.docId = nd.id;
     editor.state.docId = nd.id;
     editor.state.screen = "write";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     if (type === "citation") services.depositStep.openNext(nd);

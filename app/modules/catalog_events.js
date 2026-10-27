@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 /* Catalog event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 import { nowISO } from "./calendar.js";
 import { doc } from "./writer_queries.js";
 import { LIBRARY } from "./data/library.js";
@@ -245,7 +245,7 @@ export function createCatalogEvents(services) {
       return;
     const added = services.toggleLibraryItem(d, ci, gi, src);
     services.renumber(d);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     if (editor.state.keepAdding || !added) {
       services.refreshOverlay();

@@ -1,7 +1,7 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Reinspection event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 import { reinsp } from "./writer_queries.js";
 export function createReinspectionEvents(services) {
   function registerWalkKeys(target = document) {
@@ -143,7 +143,7 @@ export function createReinspectionEvents(services) {
     const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId && r.results[el.dataset.rinote]) {
       r.results[el.dataset.rinote].note = el.value;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
     }
     return;
@@ -176,7 +176,7 @@ export function createReinspectionEvents(services) {
         res.manualDate = true;
       } else if (ds.ridue) res.due = e.target.value;
       else res.cite = e.target.checked;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.renderKeep();
     }
     return;
@@ -186,7 +186,7 @@ export function createReinspectionEvents(services) {
     const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       services.changeVisitDate(r, e.target.value);
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.renderKeep();
     }
     return;
@@ -196,7 +196,7 @@ export function createReinspectionEvents(services) {
     const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       r.time = e.target.value;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.saveDrafts();
     }
     return;
@@ -206,7 +206,7 @@ export function createReinspectionEvents(services) {
     const r = reinsp(editor.state.reinspId);
     if (r && r.draft && !r.docId) {
       r.inspectorId = e.target.value;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
     }
     return;

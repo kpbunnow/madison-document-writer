@@ -1,16 +1,16 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseFileName, summaryName } from "./case_file_rules.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { kase, insp, eventsFor } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
-import { WriterState } from "./state.js";
 
 // Shared request/confirmation boundary. Construction performs no I/O or workspace reads.
 // Persistence, helper validation and projection authority stay in supplied adapters.
 export function createRecordCommit(services) {
   async function commitAmendment(cid, attempt, draft) {
     if (editor.AMENDMENT_BUSY) return false;
-    if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
+    if (!workspace.CASEDIR || !workspace.CASEDIR.helper) {
       services.toast("Start the current local helper to save this record change safely.");
       return false;
     }
@@ -26,7 +26,7 @@ export function createRecordCommit(services) {
       const candidate = services.caseFile(cid),
         key = summaryName(candidate.case),
         base = services.COMMITTED.get(key),
-        checkpoint = WriterState.SAVE_CHECKPOINTS[cid];
+        checkpoint = workspace.SAVE_CHECKPOINTS[cid];
       const existing = candidate.events.find((e) => e.id === attempt.id);
       for (const event of (draft && draft.publicationEvents) || [])
         if (!candidate.events.some((e) => e.id === event.id)) candidate.events.push(clone(event));
@@ -57,8 +57,8 @@ export function createRecordCommit(services) {
       });
       services.mergeCaseEvents(k, clone(result.file));
       if (draft) {
-        WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== draft.id);
-        if (draft.publicationEvents) WriterState.REINSP = WriterState.REINSP.filter((r) => !(r.draft && r.id === attempt.payload.fromReinspId));
+        workspace.DOCS = workspace.DOCS.filter((x) => x.id !== draft.id);
+        if (draft.publicationEvents) workspace.REINSP = workspace.REINSP.filter((r) => !(r.draft && r.id === attempt.payload.fromReinspId));
         if (draft.recordKey) delete editor.RECORD_ATTEMPTS[draft.recordKey];
       }
       const formModes = { "document.annotated": "recordnote", "document.reconciled": "reconcile", "document.voided": "void" };
@@ -68,11 +68,11 @@ export function createRecordCommit(services) {
       }
       services.project();
       services.rememberSaved(k, result.file);
-      WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO() };
+      workspace.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO() };
       const savedIds = new Set(result.file.events.map((e) => e.id));
       if (eventsFor(cid).every((e) => savedIds.has(e.id)) && stableJSON(caseDetails(k)) === stableJSON(savedCase))
-        WriterState.PENDING = WriterState.PENDING.filter((p) => p.cid !== cid);
-      await services.idbSet("pending", WriterState.PENDING);
+        workspace.PENDING = workspace.PENDING.filter((p) => p.cid !== cid);
+      await services.idbSet("pending", workspace.PENDING);
       await services.writeSummary(cid, result.file);
       await services.saveDrafts();
       return true;

@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 import { continuingItemsForVisits } from "./case_projection.js";
@@ -39,7 +40,6 @@ import {
 } from "./writer_queries.js";
 
 import { INSPECTORS } from "./data/inspectors.js";
-import { WriterState } from "./state.js";
 
 const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn).map((i) => String(i.no));
 /* The affected list is derived for authoring 16, so the stored record and helper checks still name the items. */
@@ -1200,7 +1200,7 @@ export function initNewDocuments(services) {
       }),
     };
     syncAffected(d);
-    WriterState.DOCS.unshift(d);
+    workspace.DOCS.unshift(d);
     if (r.draft) r.docId = d.id;
     editor.state.docId = d.id;
     editor.state.screen = "write";
@@ -1425,7 +1425,7 @@ export function initNewDocuments(services) {
       items: continuingItems(src).map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id, cite: false })),
     };
     if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
-    WriterState.DOCS.unshift(d);
+    workspace.DOCS.unshift(d);
     editor.state.docId = d.id;
     services.saveDrafts();
     services.render();

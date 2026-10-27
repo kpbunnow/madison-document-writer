@@ -1,6 +1,6 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Correction event ownership. Construction is inert; core registers at the original startup positions. */
-import { WriterState } from "./state.js";
 import { kase, correctionSource, doc } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
 import { clone } from "./record_values.js";
@@ -103,7 +103,7 @@ export function createCorrectionEvents(services) {
       it.withdrawalReason = reason.trim();
     }
     d.correction.reviewed = false;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     return;
@@ -114,7 +114,7 @@ export function createCorrectionEvents(services) {
     if (d && d.correction && !d.pendingAmendment) {
       d.correction.actionDate = el.value;
       d.correction.reviewed = false;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
     }
     return;
@@ -125,7 +125,7 @@ export function createCorrectionEvents(services) {
     if (d && d.correction && !d.pendingAmendment) {
       d.correction[el.id === "correction-reason" ? "reason" : "externalReference"] = el.value;
       d.correction.reviewed = false;
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
     }
     return;
@@ -153,7 +153,7 @@ export function createCorrectionEvents(services) {
       }
     }
     d.correction.reviewed = false;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     return;

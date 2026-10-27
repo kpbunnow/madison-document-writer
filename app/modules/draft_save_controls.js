@@ -1,5 +1,5 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
-import { WriterState } from "./state.js";
 import { localSaveText, updateLocalPresentation } from "./saved_work.js";
 
 export function createDraftSaveControls(services) {
@@ -13,7 +13,7 @@ export function createDraftSaveControls(services) {
   }
 
   function scheduleDraftSave() {
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     ++editor.LOCAL_CHANGED;
     if (!services.IDB_OK) {
       editor.LOCAL_SAVE.ok = false;

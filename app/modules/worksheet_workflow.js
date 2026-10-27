@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { inspAt } from "./inspection_facts.js";
@@ -7,7 +8,6 @@ import { OUTCOMES } from "./document_types.js";
 import { doc, docCase, docsFor, insp, reinsp, reinspFor, unchecked } from "./writer_queries.js";
 import { distinctDues } from "./document_rules.js";
 import { parseTime, validISO } from "./calendar.js";
-import { WriterState } from "./state.js";
 
 export function changeVisitDate(r, date) {
   const old = r.date;
@@ -93,11 +93,11 @@ export function createWorksheetWorkflow(services) {
     r.previousDraft = clone(d);
     r.previousWorksheet = cleanVisit(r);
     r.docId = null;
-    WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id);
+    workspace.DOCS = workspace.DOCS.filter((x) => x.id !== d.id);
     editor.state.reinspId = r.id;
     editor.state.screen = "reinspect";
     editor.state.modal = null;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     services.toast("Inspection reopened. A copy of the previous document draft is retained below.");
@@ -111,11 +111,11 @@ export function createWorksheetWorkflow(services) {
     Object.assign(r, snapshot, { draft: true });
     delete r.previousDraft;
     delete r.previousWorksheet;
-    WriterState.DOCS.unshift(d);
+    workspace.DOCS.unshift(d);
     r.docId = d.id;
     editor.state.docId = d.id;
     editor.state.screen = "write";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     return true;
@@ -136,7 +136,7 @@ export function createWorksheetWorkflow(services) {
       services.toast("This inspection has a document draft. Use Review inspection from that document before discarding the worksheet.");
       return false;
     }
-    WriterState.REINSP = WriterState.REINSP.filter((x) => x.id !== id);
+    workspace.REINSP = workspace.REINSP.filter((x) => x.id !== id);
     editor.state.reinspId = null;
     services.clearWalk();
     editor.WORK.walk = null;

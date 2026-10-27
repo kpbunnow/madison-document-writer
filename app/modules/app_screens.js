@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 import { doc, reinsp } from "./writer_queries.js";
 import { checkAttr } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 import { helperStop } from "./helper_stopped.js";
 
@@ -339,7 +339,7 @@ export function createAppScreens(services) {
 
   function renderKeep() {
     const y = services.window.scrollY;
-    if (WriterState.DIRTY) services.scheduleDraftSave();
+    if (workspace.DIRTY) services.scheduleDraftSave();
     render();
     services.window.scrollTo(0, y);
   }

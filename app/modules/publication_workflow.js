@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { clone } from "./record_values.js";
 import { DOC_TYPES } from "./document_types.js";
 import { doc, kase } from "./writer_queries.js";
 import { deliveredByCitation } from "./document_rules.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 
 // Continuation delegates preparation, confirmation and original PDF filing to their owners.
 export function createPublicationWorkflow(services) {
@@ -29,7 +29,7 @@ export function createPublicationWorkflow(services) {
     }
     if (!d || !d.draft || d.correction || editor.AMENDMENT_BUSY) return false;
     if (!d.pendingAmendment) services.commitCitationEdits(d);
-    if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
+    if (!workspace.CASEDIR || !workspace.CASEDIR.helper) {
       editor.state.amendmentError = "Connect the current local helper and shared case folder. The document remains a draft.";
       await services.saveDrafts();
       editor.state.modal = null;
@@ -116,7 +116,7 @@ export function createPublicationWorkflow(services) {
     // Both official snapshots are committed before either PDF is filed. Each filing
     // is independent and recoverable; a lost save response retries the same pair.
     let filed = true,
-      workspace = false;
+      returnedToWorkspace = false;
     try {
       for (const issued of issuedDocs) {
         try {
@@ -136,8 +136,8 @@ export function createPublicationWorkflow(services) {
       // an inspector who has already moved on (another screen, document or dialog) is not pulled back.
       const stillHere = editor.state.screen === "write" && !editor.state.modal && [id, ...issuedDocs.map((x) => x.id)].includes(editor.state.docId);
       if (stillHere && !services.needsInitialCitation(doc(id))) {
-        workspace = services.revealIssuedCase(cid);
-        if (workspace && filed) {
+        returnedToWorkspace = services.revealIssuedCase(cid);
+        if (returnedToWorkspace && filed) {
           const labels = [...new Set(issuedDocs.map((x) => (DOC_TYPES.find((t) => t.id === x.type) || {}).label || "Document"))];
           services.toast((labels.join(" and ") || "Document") + " issued for " + (kase(cid)?.number || "this case") + ".", { severity: "success" });
         }
@@ -146,7 +146,7 @@ export function createPublicationWorkflow(services) {
     } finally {
       editor.state.publicationBusy = null;
       services.render();
-      if (workspace) services.focusIssuedCase(cid);
+      if (returnedToWorkspace) services.focusIssuedCase(cid);
     }
   }
 
