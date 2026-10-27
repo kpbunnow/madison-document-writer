@@ -160,16 +160,18 @@ class Target {
   const calls = [];
   const target = new Target();
   const workspace = api.createWorkspaceEvents({
-    captureWork: () => calls.push("capture"),
-    render: () => calls.push("render"),
-    saveWorkflowPrefs: () => calls.push("preferences"),
-    navigation: {
-      navigate: () => {
-        calls.push("navigate");
-        return Promise.resolve();
+    ui: {
+      captureWork: () => calls.push("capture"),
+      render: () => calls.push("render"),
+      saveWorkflowPrefs: () => calls.push("preferences"),
+      navigation: {
+        navigate: () => {
+          calls.push("navigate");
+          return Promise.resolve();
+        },
       },
     },
-    linkCaseFolder: () => calls.push("permission"),
+    cases: { linkCaseFolder: () => calls.push("permission") },
   });
   workspace.registerWorkspaceClicks(target);
   const click = target.calls[0].listener;
