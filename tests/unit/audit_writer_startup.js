@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Startup lock, restore barriers and exact failure order without application/browser startup. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -44,11 +45,11 @@ const ast = acorn.parse(core, { ecmaVersion: 2022, sourceType: "module" }),
   entries = ast.body.flatMap((n) => (n.declaration || n).declarations || []),
   e = entries.find((n) => n.id.name === "writerStartup");
 assert.equal(e.init.callee.name, "createWriterStartup");
-assert.deepEqual(new Set(e.init.arguments[0].properties.map((p) => p.key.name)), used);
+assert.deepEqual(new Set(serviceComposition(e.init.arguments[0]).properties.map((p) => p.key.name)), used);
 assert.ok(core.indexOf('document.documentElement.lang = "en"') < e.start);
 assert.ok(e.end < core.indexOf('if (typeof bootStorage === "function") bootStorage();'));
 assert.ok(!fs.existsSync(path.join(dir, "case_files.js")));
-for (const p of e.init.arguments[0].properties)
+for (const p of serviceComposition(e.init.arguments[0]).properties)
   if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
   else assert.equal(p.value.body.callee.name, p.key.name);
 (async () => {

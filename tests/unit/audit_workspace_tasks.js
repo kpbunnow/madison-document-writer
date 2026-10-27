@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Workspace tasks are read-only presentation of live records and existing policy/artifact facts. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -27,8 +28,8 @@ assert.equal(entry.init.callee.name, "createWorkspaceTasks");
 assert.ok(declarations.indexOf(entry) > declarations.findIndex((n) => n.id.name === "deadlineAssignment"));
 assert.ok(declarations.indexOf(entry) < declarations.findIndex((n) => n.id.name === "documentRenderer"));
 assert.equal(entry.init.arguments.length, 1);
-assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), required);
-for (const p of entry.init.arguments[0].properties) {
+assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), required);
+for (const p of serviceComposition(entry.init.arguments[0]).properties) {
   assert.equal(p.type, "Property");
   assert.equal(p.value.type, "ArrowFunctionExpression");
   assert.equal(p.value.body.type, "CallExpression");

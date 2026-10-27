@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Reports owners load independently, preserve lazy state/context and retain deposit listener order. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -40,7 +41,7 @@ for (const [name, factory] of Object.entries(owners)) {
   });
   const call = constructors.get(factory);
   assert.equal(call.arguments.length, 1);
-  const props = call.arguments[0].properties;
+  const props = serviceComposition(call.arguments[0]).properties;
   assert.deepEqual(new Set(props.map((p) => p.key.name)), required, "exact scoped interface");
   for (const p of props) {
     assert.equal(p.kind, "get");

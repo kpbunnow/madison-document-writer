@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Independent review/preflight composition retains stale reads and durable workspace patch ordering. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -26,7 +27,7 @@ assert.equal(construction.init.callee.name, "createLanguageCatalog");
 assert.ok(decl.indexOf(construction) > decl.findIndex((d) => d.id.name === "addressParser"));
 assert.ok(decl.indexOf(construction) < decl.findIndex((d) => d.id.name === "accelaImport"));
 assert.equal(construction.init.arguments.length, 1);
-const props = construction.init.arguments[0].properties;
+const props = serviceComposition(construction.init.arguments[0]).properties;
 assert.deepEqual(new Set(props.map((p) => p.key.name)), required);
 for (const p of props) {
   assert.equal(p.type, "Property");

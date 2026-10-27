@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Small case activity owner preserves reminder scope, live dates and read-only event ordering. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -27,7 +28,7 @@ assert.equal(entry.init.callee.name, "createCaseActivity");
 assert.ok(decl.indexOf(entry) > decl.findIndex((n) => n.id.name === "accelaImport"));
 assert.ok(decl.indexOf(entry) < decl.findIndex((n) => n.id.name === "documentRenderer"));
 assert.equal(entry.init.arguments.length, 1);
-const props = entry.init.arguments[0].properties;
+const props = serviceComposition(entry.init.arguments[0]).properties;
 assert.deepEqual(new Set(props.map((p) => p.key.name)), required);
 for (const p of props) {
   assert.equal(p.type, "Property");

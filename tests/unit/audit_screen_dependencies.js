@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Independently loadable screen owners, live facts, scoped wiring and retained repaint ordering. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -103,8 +104,13 @@ for (const [file, { ctor, instance, inputs }] of Object.entries(specs)) {
   assert.deepEqual([...used].sort(), inputs);
   const entry = entries.find((n) => n.id.name === instance);
   assert.equal(entry.init.callee.name, ctor);
-  assert.deepEqual(entry.init.arguments[0].properties.map((p) => p.key.name).sort(), inputs);
-  for (const p of entry.init.arguments[0].properties)
+  assert.deepEqual(
+    serviceComposition(entry.init.arguments[0])
+      .properties.map((p) => p.key.name)
+      .sort(),
+    inputs,
+  );
+  for (const p of serviceComposition(entry.init.arguments[0]).properties)
     assert.ok(p.kind === "get" || p.value.type === "ArrowFunctionExpression", "lazy input " + p.key.name);
   assert.ok(entries.indexOf(entry) > entries.findIndex((n) => n.id.name === "storageProbe"));
   assert.ok(entries.indexOf(entry) < entries.findIndex((n) => n.id.name === "folderConnections"));
