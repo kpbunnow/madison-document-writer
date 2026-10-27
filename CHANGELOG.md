@@ -1,5 +1,11 @@
 # Release changelog
 
+## Unreleased — Court scheduling and citation charge boundaries (development)
+
+- Separate next-court-date and citation-number operations through three lazy day/clock/random inputs, with unchanged calendar helpers and number-collision scan. Native Date.now/Math.random remain supplied at call time; no new numbering policy or uniqueness guarantee is introduced.
+- Define charge choices/basis metadata and fee/ordinance calculations in citation_charges; compose charge/deposit edits through three lazy pricing/date/DOM inputs. Preserve multi-versus-single-section reset semantics, retained correction basis, dollar/cent units and pricing/UI order.
+- Add independent calendar/number/currency/basis/retention tests and guards; update ownership, source/test indexes and roadmap. Court/deposits is 239 lines smaller; readiness/notifications/source freezing remain there. Writer retains five cyclic modules and Reports acyclic; retain R63/build 64 and formats.
+
 ## Unreleased — Document printing and delivery boundaries (development)
 
 - Separate fixed-frame print-job/filename preparation through eight lazy inputs and helper/archive/PDF/email coordination through 20 explicit native/UI/receipt/storage inputs. Keep original four-copy/deposit/mandatory-appearance checks, fixed print sizing and frame cleanup.

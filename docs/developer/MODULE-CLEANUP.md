@@ -319,13 +319,21 @@ All eleven moved and four retained action bodies preserve logic apart from scope
 
 There are 101 maintained modules and 53 independent scoped owners. Writer narrows to five cyclic modules (core, screens, case files, court/deposits and shell); the boundary test caps it at five, and Reports stays acyclic. Historical increment counts remain provenance. Next inspect court/deposit/delivery boundaries, then shell/case-file UI/startup and core/screen dependency direction.
 
-## Thirty-fourth increment: document printing and delivery
+## Thirty-fourth increment: document printing and delivery (merged in PR #80)
 
 document_printing composes naming/fixed-frame print jobs through eight lazy inputs; document_delivery composes helper status, archived originals, email and PDF filing through 20 explicit native/UI/receipt/storage adapters. Core composes them after visitRecording and before documentRenderer, exporting actual operations and supplying the defining filename internally. Notification progress stays in its original owner. Constructors perform no reads, I/O or registration.
 
 All nine moved and remaining court function bodies retain logic apart from service access. Preserve fixed sizing/four-copy/deposit/mandatory holds, frame cleanup and print order; archived hash/name/doc identity and exact-byte reuse; selection/popups/downloads/reconstruction confirmation and labels; snapshot-bound helper operation, receipt/outbox/counter/projection/save/refresh behavior. Helper trust and immutable original authority do not move; no stronger acknowledgement or native acceptance is asserted.
 
 There are 103 maintained modules and 55 independent scoped owners. Court/deposits shrinks from 1,096 to 768 lines and loses direct screen/shell imports. Writer retains five cyclic modules and Reports stays acyclic. Next inspect remaining court/deposit calculations/readiness and notification/source-freezing responsibilities, then shell/case-file and core/screen direction. The delivery interface has 20 explicit inputs, including native adapters; keep it scoped and review further sub-boundaries only where responsibilities warrant them.
+
+## Thirty-fifth increment: court scheduling and citation charges
+
+court_scheduling composes nextCourtDate/citationNumber through three lazy day/clock/random inputs and retains original UTC calendar/holiday helpers. citation_charges directly defines options/basis metadata and fee/ordinance calculations; its three-input owner coordinates changeCharge/applyDeposit through original pricing/date/DOM adapters. Core composes them after documentDelivery and before documentRenderer, imports direct definitions and exports actual operations. Constructors perform no reads, I/O or registration.
+
+All twelve moved function bodies, four declarations and remaining court functions preserve logic apart from scoped/native clock/random access. Preserve six-week/Wednesday/holiday rules, used-number/fallback behavior, canonical/raw section-count semantics, full/limited charge basis clearing, retained correction restoration, units/policy defaults and pricing/date/DOM order. No new numbering uniqueness, policy or pricing authority is asserted.
+
+There are 105 maintained modules and 57 independent scoped owners. Court/deposits shrinks from 768 to 529 lines. Writer retains five cyclic modules; Reports stays acyclic. Next separate readiness and notification/placeholder/source-freezing/format responsibilities, then shell/case-file and core/screen direction. Historical increment counts above remain provenance.
 
 ## Following increments
 

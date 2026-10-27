@@ -1,3 +1,5 @@
+import { createCourtScheduling } from "./court_scheduling.js";
+import { createCitationCharges, chargeChoices, choosesCharge, feeLines, lookupForf, CHARGE_DERIVED } from "./citation_charges.js";
 import { createDocumentPrinting } from "./document_printing.js";
 import { createDocumentDelivery } from "./document_delivery.js";
 import { authFetch } from "./helper_transport.js";
@@ -56,17 +58,9 @@ import { esc } from "./presentation_format.js";
 import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
 
 import {
-  feeLines,
-  citationNumber,
   fmtDate,
-  nextCourtDate,
-  changeCharge as changeChargeBasis,
-  chargeChoices,
-  choosesCharge,
-  applyDeposit,
   checks as dep_checks,
   freezeSources,
-  lookupForf,
   activeBlocks,
   checks,
   fillBlank,
@@ -1109,6 +1103,26 @@ const documentDelivery = createDocumentDelivery({
   refreshArtifactLocations: (...args) => refreshArtifactLocations(...args),
 });
 export let { checkHelper, emailDocument, openIssuedCopy, filePdf } = documentDelivery;
+
+const courtScheduling = createCourtScheduling({
+  get today() {
+    return today;
+  },
+  nowMillis: () => Date.now(),
+  random: () => Math.random(),
+});
+export let { nextCourtDate, citationNumber } = courtScheduling;
+const citationCharges = createCitationCharges({
+  get citationPricing() {
+    return citationPricing;
+  },
+  citationPricingDate: (...args) => citationPricingDate(...args),
+  get document() {
+    return document;
+  },
+});
+export let { changeCharge: changeChargeBasis, applyDeposit } = citationCharges;
+const { changeCharge } = citationCharges;
 
 const documentRenderer = createDocumentRenderer({
   fmtDate: (...args) => fmtDate(...args),
@@ -2164,6 +2178,8 @@ export function citationPricingDate(c, d) {
 if (__TEST_BUILD__)
   globalThis.__DW_TEST_REFERENCES = {
     deposits: DEPOSITS,
+    CHARGE_DERIVED,
+    changeCharge,
     documentFileName,
     correctionValueText,
     recoveryIncluded,
