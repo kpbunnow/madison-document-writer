@@ -519,3 +519,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 A small screen-only html tag uses the existing esc implementation by default; raw explicitly marks trusted renderer fragments, with private unforgeable marker identity. Tests pin escaping, attributes, Unicode/null/primitive handling, cooked whitespace, explicit string coercion and print-owner exclusion. The class scanner is tested with tagged templates without changing any CSS hash or retained-class assertion. History inspection finds the concat/split-literal forms already in imported R53 source (fe389b3), retained through feature extraction (2cbc4ef/fa23029); the current formatter has a 150-column limit and does not generate those concat forms. No guard requires screen literal boundaries, while approved wording remains in its original data. No screen is converted in this foundation increment and no print owner imports the helper.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 Workspace row templates
+
+Four Workspace row/proof/document/deadline fragments now use escaped screen templates. Source history and class-guard inspection confirm these literal splits were retained source shape rather than approved wording boundaries. Data interpolations escape by default; raw is limited to the static issued-row attribute branch and the existing task renderer fragment. Adjacent tagged fragments keep logical HTML blocks readable without inserting output whitespace. All 1,033 historical exact HTML/state/effect comparisons, class/style guards and independent screen dependencies pass unchanged. No approved wording data, print renderer or CSS is modified.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
