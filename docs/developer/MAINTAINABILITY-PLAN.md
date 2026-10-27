@@ -137,3 +137,17 @@ Fourteen original lifecycle/storage tests and 3,000 fixture-derived/generated
 publication contexts pass, preserving exact exceptions and calendar calls.
 Python C901 findings fall 33 → 32. Publication locks, integrity and actual writes
 are outside this change.
+
+## M2 Python history replay
+
+History keeps head validation before dispatch, then explicit issued/visit/void/
+service/note owners. Issued records retain snapshot/time, special, authoring,
+publication and correction order. Correction target, scoped facts, item identity,
+review chain and visit amendment checks are separate, with superseding only after
+all checks. Snow/override validation and pricing keep their original checkpoints.
+Every extracted function and coordinator stays below McCabe complexity 10.
+
+The existing 24 helper tests, 14 lifecycle tests and 3,000 seeded fixture-derived
+histories preserve exact refusals, delegated-call order and partial mutations.
+Python C901 findings fall 32 → 31. Locks, authority and stored event semantics
+are unchanged.
