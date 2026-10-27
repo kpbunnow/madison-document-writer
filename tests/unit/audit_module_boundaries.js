@@ -14,6 +14,7 @@ const allowed = {
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
+  "startup_state.js": ["./state.js"],
   "catalog_state.js": ["./state.js"],
   "workspace_state.js": ["./state.js"],
   "record_values.js": [],
@@ -40,6 +41,8 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "desktop_exit.js": ["./app_core.js", "./helper_stopped.js", "./helper_transport.js", "./saved_work.js", "./startup_state.js", "./state.js"],
+  "workspace_events.js": ["./event_registration.js", "./startup_state.js", "./state.js", "./writer_queries.js"],
   "catalog_events.js": [
     "./calendar.js",
     "./catalog_state.js",
@@ -84,7 +87,14 @@ const scopedServices = {
     "./state.js",
     "./writer_queries.js",
   ],
-  "app_screens.js": ["./helper_stopped.js", "./language_discovery.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+  "app_screens.js": [
+    "./startup_state.js",
+    "./helper_stopped.js",
+    "./language_discovery.js",
+    "./presentation_format.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
 
   "workspace_shell.js": ["./presentation_format.js", "./data/build_identity.js", "./saved_work.js"],
   "browser_printing.js": ["./data/approved_print_style.js", "./presentation_format.js", "./writer_queries.js", "./state.js"],
@@ -101,7 +111,7 @@ const scopedServices = {
   ],
   "record_event_log.js": ["./document_types.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js", "./contracts.js"],
   "folder_connections.js": ["./state.js"],
-  "writer_startup.js": ["./state.js"],
+  "writer_startup.js": ["./startup_state.js", "./state.js"],
   "case_workspace_actions.js": ["./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./state.js"],
   "reinspection_entry.js": ["./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./state.js"],
   "local_case_files.js": [],
@@ -234,7 +244,7 @@ const scopedServices = {
   "pending_case_saves.js": ["./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "case_save_workflow.js": ["./case_file_rules.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "workspace_database.js": ["./state.js"],
-  "draft_persistence.js": ["./state.js", "./record_values.js", "./writer_queries.js", "./document_rules.js", "./calendar.js"],
+  "draft_persistence.js": ["./startup_state.js", "./state.js", "./record_values.js", "./writer_queries.js", "./document_rules.js", "./calendar.js"],
   "correction_preparation.js": [
     "./inspection_facts.js",
     "./calendar.js",
@@ -287,7 +297,7 @@ const scopedServices = {
     "./presentation_format.js",
     "./state.js",
   ],
-  "writer_handoff.js": ["../assets/shared.js", "./case_file_rules.js", "./state.js"],
+  "writer_handoff.js": ["./startup_state.js", "../assets/shared.js", "./case_file_rules.js", "./state.js"],
   "pdf_artifacts.js": ["./document_rules.js", "./writer_queries.js", "./presentation_format.js", "./state.js", "./helper_transport.js"],
   "case_activity.js": [
     "../assets/shared.js",
@@ -340,7 +350,7 @@ const scopedServices = {
     "./data/inspectors.js",
     "../assets/shared.js",
   ],
-  "navigation.js": ["./data/build_identity.js", "./state.js"],
+  "navigation.js": ["./startup_state.js", "./data/build_identity.js", "./state.js"],
   "snow_cases.js": [
     "../assets/shared.js",
     "./calendar.js",

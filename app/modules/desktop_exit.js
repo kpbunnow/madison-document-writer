@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 /* Exit Document Writer: save this device's drafts, review unresolved work, then ask the helper to stop.
    The helper refuses (409) while it is doing work it knows about; this review adds what only this window
    knows. Queued items stay queued on this device; they are never described as being in the shared folder. */
@@ -153,14 +154,14 @@ function stoppedDetails() {
 function releaseStoppedWorkspace() {
   // A stopped page cannot edit again. Keeping its lifetime Web Lock would block the next icon launch
   // until the old window is closed, and its Reports channel must not compete with the new Writer.
-  WriterState.WRITER_ACCESS = false;
-  WriterState.releaseWorkspaceLock?.();
-  WriterState.releaseWorkspaceLock = null;
+  startup.WRITER_ACCESS = false;
+  startup.releaseWorkspaceLock?.();
+  startup.releaseWorkspaceLock = null;
   WriterState.HANDOFF_SEQ++;
-  if (WriterState.WRITER_CHANNEL) {
-    WriterState.WRITER_CHANNEL.onmessage = null;
-    WriterState.WRITER_CHANNEL.close?.();
-    WriterState.WRITER_CHANNEL = null;
+  if (startup.WRITER_CHANNEL) {
+    startup.WRITER_CHANNEL.onmessage = null;
+    startup.WRITER_CHANNEL.close?.();
+    startup.WRITER_CHANNEL = null;
   }
 }
 
@@ -273,7 +274,7 @@ export async function openExit(save = true) {
 
 /* Exit from another window: keep this window's device drafts, then show the stopped state. */
 async function stoppedElsewhere() {
-  if (WriterState.WRITER_ACCESS) await flushDrafts();
+  if (startup.WRITER_ACCESS) await flushDrafts();
   helperStop.stopped = true;
   WriterState.HELPER = null;
   clearTimeout(WriterState.RECOVERY_TIMER);

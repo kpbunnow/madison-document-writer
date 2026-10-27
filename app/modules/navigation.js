@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
 import { WriterState } from "./state.js";
@@ -48,9 +49,9 @@ export function initNavigation(services) {
   }
   async function leave(action) {
     const sequence = ++navigationSequence;
-    if (!WriterState.WORKSPACE_RESTORED && !WriterState.WRITER_READY) {
+    if (!startup.WORKSPACE_RESTORED && !startup.WRITER_READY) {
       await services.WRITER_READY_WAIT;
-      if (!current(sequence) || !WriterState.WRITER_READY) return false;
+      if (!current(sequence) || !startup.WRITER_READY) return false;
     }
     ++utilitySequence;
     services.cancelCaseLookup();
