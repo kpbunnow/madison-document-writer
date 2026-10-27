@@ -483,3 +483,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Eleven record, worksheet and publication compositions use explicit ordered declarations. All targeted activity/artifact/handoff/deadline/citation/task/commit/publication/correction contracts pass, including exact retry payloads, verification-before-write, archived PDF reuse, outcome lineage and receipt ordering. Original correction feature and R59 editor-flow assertions pass on the new bundle. The custom correction scroll adapter remains explicit. No validation, trust, clock, stored format or release identity changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared persistence composition
+
+Ten persistence/recovery/worksheet compositions use explicit ordered declarations. Existing database/transaction failure, snapshot/restore barrier, shared-save exact retry, backup validation/write order, queue serialization, recovery rollback and worksheet assertions pass unchanged. Serialization failure still writes no stale/empty bytes and desktop exit still saves/reviews before stopping. No lock, retry, local storage, backup, helper trust or startup timing changes; interfaces remain bounded and acyclic.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
