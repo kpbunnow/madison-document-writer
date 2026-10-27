@@ -57,6 +57,7 @@ const graph = moduleGraph(directory);
 const allowed = new Set([
   "event_registration.js",
   "state.js",
+  "workspace_state.js",
   "document_types.js",
   "document_rules.js",
   "writer_queries.js",

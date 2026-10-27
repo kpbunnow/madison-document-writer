@@ -1,7 +1,7 @@
 import { EVENT_TYPES } from "./document_types.js";
 import { nowISO } from "./calendar.js";
 import { eventsFor, kase } from "./writer_queries.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 import { makeEvent } from "./contracts.js";
 
 export function evid() {
@@ -16,6 +16,6 @@ export function appendEvent(cid, type, payload, at, by) {
   const ordered = new Date(Math.max(Date.parse(recorded), latest + 1)).toISOString();
   const ev = makeEvent(evid(), at || ordered, by || kase(cid).inspectorId || "", type, payload || {});
   eventsFor(cid).push(ev);
-  WriterState.DIRTY = true;
+  workspaceState.DIRTY = true;
   return ev;
 }
