@@ -43,6 +43,10 @@ for the synthetic local baseline tests.
 
 ## Verification and checkpoints
 
+Before a development PR, run targeted local checks for the changed behavior and record actual outcomes. A local full-gate or baseline run is optional. GitHub's Full gate and PR format must pass on the current PR head before merge. Automatic main verification may continue asynchronously after merge; report pending status/run link and investigate failures when reported.
+
+For a full local verification or release-evidence run:
+
 ```sh
 node tools/check_browser.cjs
 python3 tools/build.py
@@ -52,7 +56,8 @@ python3 tools/verify_release.py
 For quicker iteration, `DW_FAST=1 python3 tools/verify_release.py` runs a reduced-coverage
 development check (no measured performance suites, one projection seed). It writes only
 `fast-verification.json`, is never release evidence and never replaces the full gate,
-which is required before proposing a PR and before packaging (see `05-TESTING.md`).
+which GitHub must pass on the current PR head before merge. Packaging still requires
+current passing full-gate evidence for the exact source/runtime (see `05-TESTING.md`).
 
 The gate runs formatting, static checks, regression suites and production Chromium,
 axe and print audits. It starts its own local services; no persistent service is
@@ -66,7 +71,8 @@ first verification result.
 Before each checkpoint, inspect `git status`, review the diff and staged paths,
 and keep unrelated work intact. Preserve release identity until separately
 authorized release development. Record failures honestly in the PR. Re-run the
-gate after source changes; evidence is bound to exact inputs. Keep case records,
+affected local checks after source changes and require fresh GitHub checks on the
+new PR head before merge; evidence is bound to exact inputs. Keep case records,
 generated PDFs, local settings, secrets and private keys outside the checkout.
 The committed `tests/fixtures/` and `helper/vendor/` are required source inputs,
 not disposable local data or dependency caches.

@@ -57,7 +57,9 @@ Ownership for new work:
 
 ## Verification and merge review
 
-Run the full `python3 tools/verify_release.py` on final reviewed source. Fast runs are iteration only. Keep Chromium/performance work serial and retain every historical assertion and frozen reference. Review fixes require fresh verification for changed inputs. Actual suite/screen/print counts belong in evidence; counts may legitimately increase.
+Before submitting a development PR, run targeted local checks appropriate to the change: formatting and documentation/workflow checks for guidance changes; relevant regression, build, static, boundary or browser checks for application changes. Record the exact commands and outcomes, including failed, skipped and unrun checks. A local full `python3 tools/verify_release.py` run is optional, including for the baseline; use it when diagnosis or the change warrants it.
+
+GitHub's Full gate and PR format must pass on the final current PR head before merge. Review fixes require affected local checks and fresh GitHub verification for the new head. Fast runs are iteration only and never replace the required GitHub gate or release evidence. Keep Chromium/performance work serial and retain every historical assertion and frozen reference. Report actual suite/screen/print counts only from completed runs. Release packaging still requires current passing full-gate evidence for the exact source and runtime.
 
 Record the reviewed SHA, actual outcomes, targeted before/after regression, toolchain/browser and evidence link in the PR. The gate records source commit/clean state when Git exists, a verified-input digest and actual toolchain versions. Extracted source ZIPs can still verify without Git, using content fingerprints; do not invent a source commit for them.
 
@@ -70,7 +72,7 @@ The repository is private on GitHub's free plan. GitHub does not enforce branch 
 1. Never push directly to main. Every change goes through a pull request from a `develop/...` branch.
 2. Merge only when **Full gate** and **PR format** have both passed on the pull request's current head commit, and the branch includes the current main (update it and wait for the checks again if main moved).
 3. Merge only with the owner's explicit approval, after review conversations are resolved. A merge is never automatic.
-4. After each merge, confirm the Full gate on the resulting main commit passed. If it failed, fix forward through a new pull request; do not rewrite main's history.
+4. The automatic Full gate on the resulting main commit may continue asynchronously after the merge task finishes. Report its link and pending status without claiming it passed. Investigate failures when reported and fix forward through a new pull request; do not rewrite main's history. Do not represent the merged commit as verified until its run passes.
 5. Do not force-push to or delete main. An emergency change still goes through a pull request with the full gate; record the reason in the pull request.
 
 If the repository later moves to a plan that enforces rules, configure main to require pull requests, resolved conversations, the **Full gate** and **PR format** checks and an up-to-date branch; prevent force pushes and deletion; dismiss stale approvals on new commits; and keep an explicit owner-review policy for a single maintainer instead of an impossible self-approval requirement. Then confirm the rules read back as enforced.

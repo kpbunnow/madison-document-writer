@@ -16,12 +16,15 @@
 ## Verification
 
 - Reviewed head: <!-- Full commit SHA; update after review fixes. -->
-- Full gate: <!-- Actual result and CI artifact/local evidence reference. -->
+- Targeted local checks: <!-- Commands and actual outcomes; include failures, skips and unrun checks. -->
+- GitHub full gate: <!-- Pending or actual result for this head, with run/artifact link; must pass before merge. Local full gate is optional. -->
 - Toolchain: <!-- Node, Python, Chromium and any supported fallback. -->
-- Coverage: <!-- Actual regression/accessibility/print counts; explain changes. -->
+- Coverage: <!-- Counts from completed runs only; explain changes. -->
 - Regression: <!-- What failed before and passes now; keep historical assertions. -->
 
 ## Acceptance and readiness
 
 <!-- Identify open City/native/staff/legal items and decisions required.
-     State ready or blocked, naming the actual blocker. Merge is not deployment. -->
+     State ready or blocked, naming the actual blocker. Post-merge main verification may
+     continue asynchronously; report its pending run link and investigate failures when reported.
+     Merge is not deployment. -->

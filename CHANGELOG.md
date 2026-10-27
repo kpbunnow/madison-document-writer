@@ -1,5 +1,10 @@
 # Release changelog
 
+## Unreleased — Development verification policy
+
+- Use targeted local checks before development PR submission; local full-gate and baseline runs are optional. Require the full GitHub gate and PR format on the current PR head before merge.
+- Let automatic merged-main verification continue asynchronously, report pending status/run links, and investigate failures when reported. Preserve exact-source full-gate evidence requirements for release packaging.
+
 ## Unreleased — Shell presentation, print and storage boundaries (development)
 
 - Compose the screen frame through three lazy navigation/integrity/saved-work inputs, browser printing through six native/notification inputs, storage status through five capability/location/mode inputs and the write probe through five existing permission/helper/write/UI inputs. Constructors perform no work.
