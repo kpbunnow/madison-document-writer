@@ -491,109 +491,98 @@ const appScreens = createAppScreens(
 );
 export let { render, renderKeep } = appScreens;
 
-const folderConnections = createFolderConnections({
-  get FS_OK() {
-    return FS_OK;
-  },
-  get window() {
-    return window;
-  },
-  idbSet: (...args) => idbSet(...args),
-  flushPending: (...args) => flushPending(...args),
-  toast: (...args) => toast(...args),
-  render: (...args) => render(...args),
-  helperFolder: (...args) => helperFolder(...args),
-  get CASEDIR_EXPECT() {
-    return CASEDIR_EXPECT;
-  },
-  idbGet: (...args) => idbGet(...args),
-});
+const folderConnections = createFolderConnections(
+  deferredServices(
+    {
+      FS_OK: () => FS_OK,
+      window: () => window,
+      idbSet: () => idbSet,
+      flushPending: () => flushPending,
+      toast: () => toast,
+      render: () => render,
+      helperFolder: () => helperFolder,
+      CASEDIR_EXPECT: () => CASEDIR_EXPECT,
+      idbGet: () => idbGet,
+    },
+    ["FS_OK", "window", "CASEDIR_EXPECT"],
+  ),
+);
 export let { linkCaseFolder, restoreCaseFolder, grantCaseFolder } = folderConnections;
 
-const caseFolderWorkflow = createCaseFolderWorkflow({
-  toast: (...args) => toast(...args),
-  grantCaseFolder: (...args) => grantCaseFolder(...args),
-  summarize: (...args) => summarize(...args),
-  writeIndexFile: (...args) => writeIndexFile(...args),
-  render: (...args) => render(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  loadCaseFile: (...args) => loadCaseFile(...args),
-});
+const caseFolderWorkflow = createCaseFolderWorkflow(
+  deferredServices(
+    {
+      toast: () => toast,
+      grantCaseFolder: () => grantCaseFolder,
+      summarize: () => summarize,
+      writeIndexFile: () => writeIndexFile,
+      render: () => render,
+      recordIntegrity: () => recordIntegrity,
+      loadCaseFile: () => loadCaseFile,
+    },
+    ["recordIntegrity"],
+  ),
+);
 export let { writeSummary, rebuildIndex, listCaseFolder, openFromFolder } = caseFolderWorkflow;
 
-const localCaseFiles = createLocalCaseFiles({
-  get Blob() {
-    return Blob;
-  },
-  get URL() {
-    return URL;
-  },
-  get document() {
-    return document;
-  },
-  setTimeout: (...args) => setTimeout(...args),
-  get FileReader() {
-    return FileReader;
-  },
-  toast: (...args) => toast(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-});
+const localCaseFiles = createLocalCaseFiles(
+  deferredServices(
+    {
+      Blob: () => Blob,
+      URL: () => URL,
+      document: () => document,
+      setTimeout: () => setTimeout,
+      FileReader: () => FileReader,
+      toast: () => toast,
+      loadCaseFile: () => loadCaseFile,
+    },
+    ["Blob", "URL", "document", "FileReader"],
+  ),
+);
 export let { downloadFile, pickCaseFile } = localCaseFiles;
 
-const draftSaveControls = createDraftSaveControls({
-  get document() {
-    return document;
-  },
-  app_savedworkContext: (...args) => app_savedworkContext(...args),
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  setTimeout: (...args) => setTimeout(...args),
-  clearTimeout: (...args) => clearTimeout(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-});
+const draftSaveControls = createDraftSaveControls(
+  deferredServices(
+    {
+      document: () => document,
+      app_savedworkContext: () => app_savedworkContext,
+      IDB_OK: () => IDB_OK,
+      setTimeout: () => setTimeout,
+      clearTimeout: () => clearTimeout,
+      saveDrafts: () => saveDrafts,
+    },
+    ["document", "IDB_OK"],
+  ),
+);
 export let { updateSaveStatus, scheduleDraftSave } = draftSaveControls;
 
-const caseWorkspaceActions = createCaseWorkspaceActions({
-  toast: (...args) => toast(...args),
-  clearWalk: (...args) => clearWalk(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-});
+const caseWorkspaceActions = createCaseWorkspaceActions(
+  deferredServices({ toast: () => toast, clearWalk: () => clearWalk, saveDrafts: () => saveDrafts, render: () => render }),
+);
 export let { discardDraft, caseUnsaved, removeCase, clearCases } = caseWorkspaceActions;
 
-const reinspectionEntry = createReinspectionEntry({
-  get snow() {
-    return snow;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  clearWalk: (...args) => clearWalk(...args),
-  restoreWalkFor: (...args) => restoreWalkFor(...args),
-  get newDocuments() {
-    return newDocuments;
-  },
-  uid: (...args) => uid(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
-  get today() {
-    return today;
-  },
-  toast: (...args) => toast(...args),
-});
+const reinspectionEntry = createReinspectionEntry(
+  deferredServices(
+    {
+      snow: () => snow,
+      recordIntegrity: () => recordIntegrity,
+      clearWalk: () => clearWalk,
+      restoreWalkFor: () => restoreWalkFor,
+      newDocuments: () => newDocuments,
+      uid: () => uid,
+      saveDrafts: () => saveDrafts,
+      render: () => render,
+      sourceDocFor: () => sourceDocFor,
+      unissuedVisitFor: () => unissuedVisitFor,
+      today: () => today,
+      toast: () => toast,
+    },
+    ["snow", "recordIntegrity", "newDocuments", "today"],
+  ),
+);
 export let { startReinspection } = reinspectionEntry;
 
-const recipientWorkflow = createRecipientWorkflow({
-  get addressParser() {
-    return addressParser;
-  },
-  render: (...args) => render(...args),
-});
+const recipientWorkflow = createRecipientWorkflow(deferredServices({ addressParser: () => addressParser, render: () => render }, ["addressParser"]));
 export let { validateAndStandardizeAddresses, recipientPreview, addCC, removeCC, addEmail, removeEmail } = recipientWorkflow;
 
 const reinspection = createReinspection({
@@ -664,43 +653,38 @@ export let {
 } = reinspection;
 const { focusWalkDetails, worksheetCheckPanel } = reinspection;
 
-const languageCatalog = createLanguageCatalog({
-  allItems: (...args) => allItems(...args),
-  toast: (...args) => toast(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  idbSet: (...args) => idbSet(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-  project: (...args) => project(...args),
-  rememberSaved: (...args) => rememberSaved(...args),
-  caseUnsaved: (...args) => caseUnsaved(...args),
-  draftBundle: (...args) => draftBundle(...args),
-  saveCaseFile: (...args) => saveCaseFile(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  clearWalk: (...args) => clearWalk(...args),
-  captureWork: (...args) => captureWork(...args),
-  catalogKey: (...args) => catalogKey(...args),
-  recoveryCaseKey: (...args) => recoveryCaseKey(...args),
-  recoverySnapshot: (...args) => recoverySnapshot(...args),
-  scheduleRecoveryBackup: (...args) => scheduleRecoveryBackup(...args),
-  render: (...args) => render(...args),
-  get A11Y() {
-    return A11Y;
-  },
-  get RECOVERY_WORKSPACE() {
-    return RECOVERY_WORKSPACE;
-  },
-  get WORKFLOW_PREFS_KEY() {
-    return WORKFLOW_PREFS_KEY;
-  },
-  get navigation() {
-    return navigation;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  app_savedworkContext: (...args) => app_savedworkContext(...args),
-  refreshSheet: (...args) => refreshSheet(...args),
-});
+const languageCatalog = createLanguageCatalog(
+  deferredServices(
+    {
+      allItems: () => allItems,
+      toast: () => toast,
+      helperJSON: () => helperJSON,
+      idbSet: () => idbSet,
+      loadCaseFile: () => loadCaseFile,
+      project: () => project,
+      rememberSaved: () => rememberSaved,
+      caseUnsaved: () => caseUnsaved,
+      draftBundle: () => draftBundle,
+      saveCaseFile: () => saveCaseFile,
+      saveDrafts: () => saveDrafts,
+      clearWalk: () => clearWalk,
+      captureWork: () => captureWork,
+      catalogKey: () => catalogKey,
+      recoveryCaseKey: () => recoveryCaseKey,
+      recoverySnapshot: () => recoverySnapshot,
+      scheduleRecoveryBackup: () => scheduleRecoveryBackup,
+      render: () => render,
+      A11Y: () => A11Y,
+      RECOVERY_WORKSPACE: () => RECOVERY_WORKSPACE,
+      WORKFLOW_PREFS_KEY: () => WORKFLOW_PREFS_KEY,
+      navigation: () => navigation,
+      recordIntegrity: () => recordIntegrity,
+      app_savedworkContext: () => app_savedworkContext,
+      refreshSheet: () => refreshSheet,
+    },
+    ["A11Y", "RECOVERY_WORKSPACE", "WORKFLOW_PREFS_KEY", "navigation", "recordIntegrity"],
+  ),
+);
 export let {
   catalogReview,
   catalogStatus,
@@ -733,35 +717,34 @@ export let {
 } = languageCatalog;
 const { catalogReplacement, readSharedCase, localCaseWork, resolvedCaseFields, friendlyField, conflictControls } = languageCatalog;
 
-const accelaImport = createAccelaImport({
-  fmtTime: (...args) => fmtTime(...args),
-  toast: (...args) => toast(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  get snow() {
-    return snow;
-  },
-  uid: (...args) => uid(...args),
-  get citationPricing() {
-    return citationPricing;
-  },
-  get COMMITTED() {
-    return COMMITTED;
-  },
-  newDoc: (...args) => newDoc(...args),
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  shell: (...args) => shell(...args),
-  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
-  caseState: (...args) => caseState(...args),
-  render: (...args) => render(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  listCaseFolder: (...args) => listCaseFolder(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  startReinspection: (...args) => startReinspection(...args),
-  captureWork: (...args) => captureWork(...args),
-  preflightCase: (...args) => preflightCase(...args),
-});
+const accelaImport = createAccelaImport(
+  deferredServices(
+    {
+      fmtTime: () => fmtTime,
+      toast: () => toast,
+      fmtDate: () => fmtDate,
+      snow: () => snow,
+      uid: () => uid,
+      citationPricing: () => citationPricing,
+      COMMITTED: () => COMMITTED,
+      newDoc: () => newDoc,
+      sourceDocFor: () => sourceDocFor,
+      loadCaseFile: () => loadCaseFile,
+      helperJSON: () => helperJSON,
+      shell: () => shell,
+      unissuedVisitFor: () => unissuedVisitFor,
+      caseState: () => caseState,
+      render: () => render,
+      scheduleDraftSave: () => scheduleDraftSave,
+      listCaseFolder: () => listCaseFolder,
+      saveDrafts: () => saveDrafts,
+      startReinspection: () => startReinspection,
+      captureWork: () => captureWork,
+      preflightCase: () => preflightCase,
+    },
+    ["snow", "citationPricing", "COMMITTED"],
+  ),
+);
 export const {
   ACC_MAX,
   ACC_EXPANDED_MAX,

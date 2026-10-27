@@ -471,3 +471,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Twelve shell, screen and helper compositions replace 52 handwritten forwarders and 25 getters with explicit ordered declarations. Existing screen, shell, helper and feature contracts pass, including popup timers, print-clone values, escaped status, frame/probe ordering and source projection parity. Native Chromium confirms fixture-free production and repaint keepers. Source inspection identified custom integrity-store, platform fallback, scroll and clock/random adapters; these remain explicit rather than being mechanically converted. State importers, scope widths and startup checkpoints remain unchanged.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared workspace composition
+
+Nine workspace/import compositions replace transparent handwritten callbacks/getters with explicit ordered declarations. Folder permission/picker, case loading, local controls, recipient, catalog and import contracts pass unchanged. Seven import scenarios and all 27 language-review assertions pass on the new bundle. Arrays and service objects remain live, the API field widths stay at or below 25, and no source, status, review-authority or storage-format rule changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
