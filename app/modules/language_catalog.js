@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 import { caseNumberKey } from "../assets/shared.js";
@@ -7,7 +8,6 @@ import { doc, docsFor, eventsFor, kase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
-import { WriterState } from "./state.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
 
 /* Named lazy adapters preserve review/preflight authority and live workspace references. */
@@ -108,7 +108,7 @@ export function createLanguageCatalog(services) {
     it.prov = "approved";
     it.catalogVersion = status.review.version;
     it.catalogReviewId = status.review.id;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.refreshSheet();
     return true;
@@ -304,9 +304,9 @@ export function createLanguageCatalog(services) {
   }
 
   async function readSharedCase(k) {
-    if (WriterState.CASEDIR?.helper) return (await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
-    if (WriterState.CASEDIR && !WriterState.NEEDGRANT) {
-      const fh = await WriterState.CASEDIR.getFileHandle(caseFileName(k));
+    if (workspace.CASEDIR?.helper) return (await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
+    if (workspace.CASEDIR && !workspace.NEEDGRANT) {
+      const fh = await workspace.CASEDIR.getFileHandle(caseFileName(k));
       return JSON.parse(await (await fh.getFile()).text());
     }
     throw new Error("Shared case storage is unavailable");
@@ -314,11 +314,11 @@ export function createLanguageCatalog(services) {
 
   function localCaseWork(cid) {
     return (
-      WriterState.DOCS.some((d) => d.draft && d.caseId === cid) ||
-      WriterState.REINSP.some((r) => r.draft && r.caseId === cid) ||
-      WriterState.PENDING.some((p) => p.cid === cid) ||
+      workspace.DOCS.some((d) => d.draft && d.caseId === cid) ||
+      workspace.REINSP.some((r) => r.draft && r.caseId === cid) ||
+      workspace.PENDING.some((p) => p.cid === cid) ||
       Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) ||
-      WriterState.DOCS.some((d) => d.caseId === cid && d.pendingAmendment)
+      workspace.DOCS.some((d) => d.caseId === cid && d.pendingAmendment)
     );
   }
 
@@ -393,25 +393,25 @@ export function createLanguageCatalog(services) {
   async function preflightCase(cid, action, continuation) {
     const k = kase(cid);
     if (!k.id) return false;
-    if (!WriterState.CASEDIR || WriterState.NEEDGRANT) {
-      WriterState.PREFLIGHT_NOTICE = "Shared case unavailable; final publication will recheck it.";
+    if (!workspace.CASEDIR || workspace.NEEDGRANT) {
+      workspace.PREFLIGHT_NOTICE = "Shared case unavailable; final publication will recheck it.";
       continuation();
       return true;
     }
-    const token = ++WriterState.PREFLIGHT_SEQ,
+    const token = ++workspace.PREFLIGHT_SEQ,
       wasScreen = editor.state.screen,
       wasDoc = editor.state.docId,
       wasVisit = editor.state.reinspId;
     let file, comparison;
     try {
       file = await readSharedCase(k);
-      comparison = compareSharedCase(k, eventsFor(cid), file, WriterState.SAVE_CHECKPOINTS[cid]);
+      comparison = compareSharedCase(k, eventsFor(cid), file, workspace.SAVE_CHECKPOINTS[cid]);
     } catch (e) {
       comparison = { kind: e.name === "NotFoundError" ? "missing" : "unavailable", detail: e.message, fields: [] };
     }
     if (
-      token !== WriterState.PREFLIGHT_SEQ ||
-      !WriterState.CASES.some((x) => x.id === cid) ||
+      token !== workspace.PREFLIGHT_SEQ ||
+      !workspace.CASES.some((x) => x.id === cid) ||
       editor.state.screen !== wasScreen ||
       editor.state.docId !== wasDoc ||
       editor.state.reinspId !== wasVisit
@@ -420,24 +420,24 @@ export function createLanguageCatalog(services) {
     if (
       ["invalid", "conflict", "history-conflict"].includes(comparison.kind) ||
       (comparison.kind === "shared-history" && (localCaseWork(cid) || services.caseUnsaved(k))) ||
-      (comparison.kind === "shared-only" && !WriterState.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
+      (comparison.kind === "shared-only" && !workspace.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
     ) {
-      WriterState.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
+      workspace.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
       editor.state.modal = "shared-change";
       services.render();
       return false;
     }
     if (["shared-only", "compatible"].includes(comparison.kind)) {
       const prior = clone(k),
-        checkpoint = clone(WriterState.SAVE_CHECKPOINTS[cid] || null);
+        checkpoint = clone(workspace.SAVE_CHECKPOINTS[cid] || null);
       Object.keys(k).forEach((key) => delete k[key]);
       Object.assign(k, comparison.merged);
       services.rememberSaved(k, file);
       if (!(await services.saveDrafts())) {
         Object.keys(k).forEach((key) => delete k[key]);
         Object.assign(k, prior);
-        WriterState.SAVE_CHECKPOINTS[cid] = checkpoint;
-        WriterState.PREFLIGHT_CONFLICT = {
+        workspace.SAVE_CHECKPOINTS[cid] = checkpoint;
+        workspace.PREFLIGHT_CONFLICT = {
           cid,
           action,
           file,
@@ -450,7 +450,7 @@ export function createLanguageCatalog(services) {
         return false;
       }
       if (
-        token !== WriterState.PREFLIGHT_SEQ ||
+        token !== workspace.PREFLIGHT_SEQ ||
         editor.state.screen !== wasScreen ||
         editor.state.docId !== wasDoc ||
         editor.state.reinspId !== wasVisit
@@ -458,7 +458,7 @@ export function createLanguageCatalog(services) {
         return false;
     } else if (comparison.kind === "shared-history") {
       if (!services.loadCaseFile(JSON.stringify(file))) {
-        WriterState.PREFLIGHT_CONFLICT = {
+        workspace.PREFLIGHT_CONFLICT = {
           cid,
           action,
           file,
@@ -471,7 +471,7 @@ export function createLanguageCatalog(services) {
         return false;
       }
     }
-    WriterState.PREFLIGHT_NOTICE =
+    workspace.PREFLIGHT_NOTICE =
       comparison.kind === "unavailable"
         ? "Shared case unavailable; final publication will recheck it."
         : comparison.kind === "missing"
@@ -484,7 +484,7 @@ export function createLanguageCatalog(services) {
   }
 
   function sharedChangeModal() {
-    const c = WriterState.PREFLIGHT_CONFLICT;
+    const c = workspace.PREFLIGHT_CONFLICT;
     if (!c) return "";
     const k = kase(c.cid),
       v = c.comparison;
@@ -518,24 +518,24 @@ export function createLanguageCatalog(services) {
   }
 
   function keepChangedLocal() {
-    const c = WriterState.PREFLIGHT_CONFLICT;
+    const c = workspace.PREFLIGHT_CONFLICT;
     if (!c) return;
-    WriterState.PREFLIGHT_CONFLICT = null;
+    workspace.PREFLIGHT_CONFLICT = null;
     editor.state.modal = null;
-    WriterState.PREFLIGHT_NOTICE = "Local work retained. Resolve shared differences before publication.";
+    workspace.PREFLIGHT_NOTICE = "Local work retained. Resolve shared differences before publication.";
     c.continuation();
   }
 
   async function openChangedShared() {
-    const c = WriterState.PREFLIGHT_CONFLICT,
+    const c = workspace.PREFLIGHT_CONFLICT,
       k = c && kase(c.cid);
     if (!k?.id || !c.file) return;
     try {
       const key = services.recoveryCaseKey(k.id);
       if (!services.RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
       if (
-        WriterState.PENDING.some((p) => p.cid === k.id) ||
-        WriterState.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
+        workspace.PENDING.some((p) => p.cid === k.id) ||
+        workspace.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
         Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
       )
         throw new Error("Confirm pending save identities before replacing this case.");
@@ -547,15 +547,15 @@ export function createLanguageCatalog(services) {
       const fresh = await readSharedCase(k);
       if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
         throw new Error("Shared case changed again. Review it before replacing local work.");
-      if (WriterState.PREFLIGHT_CONFLICT !== c) return;
+      if (workspace.PREFLIGHT_CONFLICT !== c) return;
       const staged = {
         ...services.draftBundle(),
-        cases: WriterState.CASES.filter((x) => x.id !== k.id).concat([clone(fresh.case)]),
-        docs: WriterState.DOCS.filter((d) => d.caseId !== k.id),
-        reinsp: WriterState.REINSP.filter((r) => r.caseId !== k.id),
-        events: { ...WriterState.EVENTS, [k.id]: clone(fresh.events) },
+        cases: workspace.CASES.filter((x) => x.id !== k.id).concat([clone(fresh.case)]),
+        docs: workspace.DOCS.filter((d) => d.caseId !== k.id),
+        reinsp: workspace.REINSP.filter((r) => r.caseId !== k.id),
+        events: { ...workspace.EVENTS, [k.id]: clone(fresh.events) },
         recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
-        checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
+        checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
         work: {
           ...clone(editor.WORK),
           walk: editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
@@ -563,16 +563,16 @@ export function createLanguageCatalog(services) {
         },
       };
       if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
-      WriterState.CASES = staged.cases;
-      WriterState.DOCS = staged.docs;
-      WriterState.REINSP = staged.reinsp;
-      WriterState.EVENTS = staged.events;
+      workspace.CASES = staged.cases;
+      workspace.DOCS = staged.docs;
+      workspace.REINSP = staged.reinsp;
+      workspace.EVENTS = staged.events;
       editor.RECORD_ATTEMPTS = staged.recordAttempts;
-      WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
+      workspace.SAVE_CHECKPOINTS = staged.checkpoints;
       editor.WORK = staged.work;
       services.clearWalk();
       services.project();
-      WriterState.PREFLIGHT_CONFLICT = null;
+      workspace.PREFLIGHT_CONFLICT = null;
       editor.state.modal = null;
       editor.state.screen = "cases";
       services.render();
@@ -595,7 +595,7 @@ export function createLanguageCatalog(services) {
       commit(staged);
       editor.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
       ++editor.LOCAL_CHANGED;
-      WriterState.DIRTY = false;
+      workspace.DIRTY = false;
       services.scheduleRecoveryBackup();
       return true;
     } finally {
@@ -668,12 +668,12 @@ export function createLanguageCatalog(services) {
   }
 
   async function applyConflict() {
-    const c = WriterState.PREFLIGHT_CONFLICT;
+    const c = workspace.PREFLIGHT_CONFLICT;
     if (!c || editor.RESOLUTION_BUSY) return;
     try {
       if (
-        WriterState.PENDING.some((p) => p.cid === c.cid && p.idempotencyEvent) ||
-        WriterState.DOCS.some((d) => d.caseId === c.cid && d.pendingAmendment) ||
+        workspace.PENDING.some((p) => p.cid === c.cid && p.idempotencyEvent) ||
+        workspace.DOCS.some((d) => d.caseId === c.cid && d.pendingAmendment) ||
         Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === c.cid)
       )
         throw new Error("Confirm the pending official save before merging case details");
@@ -707,13 +707,13 @@ export function createLanguageCatalog(services) {
           return staged;
         },
         (staged) => {
-          WriterState.CASES = staged.cases;
-          WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
+          workspace.CASES = staged.cases;
+          workspace.SAVE_CHECKPOINTS = staged.checkpoints;
         },
       );
-      WriterState.PREFLIGHT_CONFLICT = null;
+      workspace.PREFLIGHT_CONFLICT = null;
       editor.state.modal = null;
-      WriterState.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
+      workspace.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
       editor.RESOLUTION_BUSY = false;
       await services.saveCaseFile(c.cid);
       services.render();
@@ -853,11 +853,11 @@ export function createLanguageCatalog(services) {
   }
 
   function saveWorkflowPrefs() {
-    WriterState.WORKFLOW_PREFS.filter = editor.state.caseFilter;
-    WriterState.WORKFLOW_PREFS.query = editor.state.caseQ;
-    WriterState.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
+    workspace.WORKFLOW_PREFS.filter = editor.state.caseFilter;
+    workspace.WORKFLOW_PREFS.query = editor.state.caseQ;
+    workspace.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
     try {
-      localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(WriterState.WORKFLOW_PREFS));
+      localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(workspace.WORKFLOW_PREFS));
     } catch (error) {
       services.toast("Could not save workspace preferences", { severity: "error" });
     }

@@ -387,3 +387,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The workspace boundary now covers 25 existing record, connection, timeline and artifact fields, without new keys or initialization. Eight storage/record owners migrate their workspace fields. Existing artifact stale-identity/retained-PDF, activity/timeline, folder, database, backup and queue assertions pass; all 25 field accessors retain live identity and timing. Direct root-state importers fall 64 to 57 with zero cycles. An initial unformatted accessor list was missed by the local migration helper and caught by ESLint; the corrected migration passes. Remaining workspace callers follow in separate bounded batches.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 catalog and recovery workspace-state callers
+
+Catalog/import, recovery, folder and status owners use the existing workspace boundary. Independent import/catalog, cached-review, synchronous folder picker, recovery, handoff and device-restore assertions pass unchanged. This preserves stale-selection guards, original permission checkpoints and live restored arrays. Direct root-state importers fall 57 to 53; mixed helper/session state follows separately, and cycles remain zero.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

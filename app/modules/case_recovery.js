@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { badIds, caseFileFault } from "./case_file_rules.js";
@@ -5,7 +6,6 @@ import { SCHEMA } from "./document_types.js";
 import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor } from "./writer_queries.js";
 import { project } from "./case_records.js";
-import { WriterState } from "./state.js";
 
 export function recoverySharedConflict(value) {
   return ["invalid", "history-conflict", "conflict", "shared-history"].includes(value?.kind);
@@ -192,7 +192,7 @@ export function createCaseRecovery(services) {
         services.render();
         return;
       }
-      const current = WriterState.CASES.find((c) => c.id === k.id || c.number === k.number);
+      const current = workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
       if (current && (current.id !== k.id || current.number !== k.number)) throw new Error("The case number or identity conflicts with local work.");
       if (current) {
         const backed = new Map((b.bundle.events[k.id] || []).map((e) => [e.id, e]));
@@ -202,9 +202,9 @@ export function createCaseRecovery(services) {
       const local = current && services.caseUnsaved(current);
       if (current) {
         const same =
-          stableJSON(WriterState.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
-          stableJSON(WriterState.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
-          stableJSON(WriterState.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
+          stableJSON(workspace.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
+          stableJSON(workspace.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
+          stableJSON(workspace.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
           stableJSON(Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id))) ===
             stableJSON(b.bundle.work.recordForms) &&
           stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null);
@@ -227,16 +227,16 @@ export function createCaseRecovery(services) {
       }
       const staged = {
         ...services.draftBundle(),
-        cases: WriterState.CASES.filter((c) => c.id !== k.id).concat([clone(k)]),
-        docs: WriterState.DOCS.filter((d) => d.draft && d.caseId !== k.id).concat(clone(b.bundle.docs)),
-        reinsp: WriterState.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
-        events: { ...WriterState.EVENTS, [k.id]: clone(b.bundle.events[k.id] || []) },
+        cases: workspace.CASES.filter((c) => c.id !== k.id).concat([clone(k)]),
+        docs: workspace.DOCS.filter((d) => d.draft && d.caseId !== k.id).concat(clone(b.bundle.docs)),
+        reinsp: workspace.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
+        events: { ...workspace.EVENTS, [k.id]: clone(b.bundle.events[k.id] || []) },
         recordAttempts: {
           ...Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
           ...clone(b.bundle.recordAttempts || {}),
         },
-        checkpoints: { ...WriterState.SAVE_CHECKPOINTS, [k.id]: clone(b.bundle.checkpoints?.[k.id] || null) },
-        seq: Math.max(WriterState.seq, b.bundle.seq || 0),
+        checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: clone(b.bundle.checkpoints?.[k.id] || null) },
+        seq: Math.max(workspace.seq, b.bundle.seq || 0),
         work: {
           ...clone(editor.WORK),
           walk: b.bundle.work.walk ? clone(b.bundle.work.walk) : editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
@@ -246,18 +246,18 @@ export function createCaseRecovery(services) {
           },
         },
       };
-      const pending = WriterState.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
+      const pending = workspace.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
       if (!(await persistRecoveryState(staged, pending)))
         throw new Error("Browser storage could not commit the recovery; previous work was retained.");
-      WriterState.CASES = staged.cases;
-      WriterState.DOCS = staged.docs;
-      WriterState.REINSP = staged.reinsp;
-      WriterState.EVENTS = staged.events;
+      workspace.CASES = staged.cases;
+      workspace.DOCS = staged.docs;
+      workspace.REINSP = staged.reinsp;
+      workspace.EVENTS = staged.events;
       editor.RECORD_ATTEMPTS = staged.recordAttempts;
-      WriterState.SAVE_CHECKPOINTS = staged.checkpoints;
-      WriterState.PENDING = pending;
+      workspace.SAVE_CHECKPOINTS = staged.checkpoints;
+      workspace.PENDING = pending;
       editor.WORK = staged.work;
-      WriterState.seq = staged.seq;
+      workspace.seq = staged.seq;
       services.clearWalk();
       project();
       editor.state.modal = null;

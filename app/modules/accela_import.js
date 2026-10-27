@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 import { inspAt, sameInspection, inspectionIdentity, inspectionUsed } from "./inspection_facts.js";
@@ -8,7 +9,6 @@ import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
 import { parseTime, parseDate, validISO, nowISO, iso } from "./calendar.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
@@ -836,7 +836,7 @@ export function createAccelaImport(services) {
     p.c = c;
     const par = importedCaseFields({ c, accParcel, p });
     importedSourceWarnings({ c, p, ACC_LABEL, par, services });
-    const k = WriterState.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
+    const k = workspace.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
     p.existing = k;
     const { visible, eligible, row } = selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, acc });
     const snowCase = services.snow.isCase(k) || services.snow.matchesImport(row);
@@ -908,7 +908,7 @@ export function createAccelaImport(services) {
       serial = imports.LOOKUP_SERIAL;
     const active = () =>
       isCurrent() && serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && (acc.caseIx || 0) === caseIx;
-    if (WriterState.CASEDIR?.helper) {
+    if (workspace.CASEDIR?.helper) {
       try {
         await checkLookupShared(acc, active);
       } catch (e) {
@@ -916,8 +916,8 @@ export function createAccelaImport(services) {
       }
       return;
     }
-    if (!WriterState.CASEDIR) return;
-    if (WriterState.NEEDGRANT) {
+    if (!workspace.CASEDIR) return;
+    if (workspace.NEEDGRANT) {
       acc.shareError = "Reconnect the shared case folder before importing.";
       return;
     }
@@ -933,16 +933,16 @@ export function createAccelaImport(services) {
     const hit = hits[0];
     if (!hit) return;
     try {
-      const f = await (await WriterState.CASEDIR.getFileHandle(hit.name)).getFile();
+      const f = await (await workspace.CASEDIR.getFileHandle(hit.name)).getFile();
       const text = await f.text();
       if (!active()) return;
-      const keep = { screen: editor.state.screen, dirty: WriterState.DIRTY, docId: editor.state.docId };
+      const keep = { screen: editor.state.screen, dirty: workspace.DIRTY, docId: editor.state.docId };
       try {
         if (!services.loadCaseFile(text))
           acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
       } finally {
         editor.state.screen = keep.screen;
-        WriterState.DIRTY = keep.dirty;
+        workspace.DIRTY = keep.dirty;
         editor.state.docId = keep.docId;
       }
     } catch (err) {
@@ -1009,7 +1009,7 @@ export function createAccelaImport(services) {
     if (k) Object.assign(k, fields);
     else {
       k = { id: services.uid("k"), number: c.number, address: f.address, ...fields };
-      WriterState.CASES.push(k);
+      workspace.CASES.push(k);
     }
     services.snow.imported(k, row);
     const importRule = row.rule && !row.rule.error ? clone(row.rule) : null;
@@ -1017,7 +1017,7 @@ export function createAccelaImport(services) {
       editor.state.acc = null;
       editor.WORK.acc = null;
       applyImportRule(p.refresh, importRule);
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.saveDrafts();
       services.render();
       services.toast("Accela status refreshed: " + importRule.status + " \u2192 " + importRule.label);
@@ -1025,7 +1025,7 @@ export function createAccelaImport(services) {
     }
     editor.state.acc = null;
     editor.WORK.acc = null;
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     if (p.next === "snow") {
       k.caseType = "snow-10.28";
       services.newDoc(k.id, "citation");
@@ -1478,7 +1478,7 @@ export function createAccelaImport(services) {
     const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
     if (hits.length > 1)
       throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
-    const locals = WriterState.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
+    const locals = workspace.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
     if (locals.length > 1 || locals.some((k) => k.number !== number))
       throw new Error(
         "The local workspace has duplicate or differently capitalized case number" + "s. Resolve the existing record before importing.",
@@ -1488,14 +1488,14 @@ export function createAccelaImport(services) {
       if (!isCurrent()) return false;
       if (accStr(result.file?.case?.number).toUpperCase() !== number)
         throw new Error("The shared filename and case number disagree. The existing record has been kept.");
-      const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: WriterState.DIRTY };
+      const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: workspace.DIRTY };
       let loaded;
       try {
         loaded = services.loadCaseFile(JSON.stringify(result.file));
       } finally {
         editor.state.screen = keep.screen;
         editor.state.docId = keep.docId;
-        WriterState.DIRTY = keep.dirty;
+        workspace.DIRTY = keep.dirty;
       }
       if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
       services.COMMITTED.set(summaryName(result.file.case), result);
@@ -1630,7 +1630,7 @@ export function createAccelaImport(services) {
     const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
     services.render();
     try {
-      if (WriterState.CASEDIR?.helper || acc.source?.kind === "sql") {
+      if (workspace.CASEDIR?.helper || acc.source?.kind === "sql") {
         if (!(await checkLookupShared(acc, active)) || !active()) return;
       } else {
         await accelaFromShare(active);
@@ -1669,7 +1669,7 @@ export function createAccelaImport(services) {
   }
 
   function acceptAccela() {
-    if ((editor.state.acc?.source?.kind === "sql" || WriterState.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
+    if ((editor.state.acc?.source?.kind === "sql" || workspace.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
       services.toast("Check the shared record before confirming this lookup.");
       return null;
     }

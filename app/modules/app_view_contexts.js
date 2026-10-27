@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { catalogState as catalog } from "./catalog_state.js";
 /* View-scoped dependencies are supplied by core; each call reads current workspace facts. */
@@ -13,17 +14,17 @@ export function createSavedWorkContext(services) {
   function app_savedworkContext() {
     return {
       A11Y: services.A11Y,
-      CASEDIR: WriterState.CASEDIR,
+      CASEDIR: workspace.CASEDIR,
       CASEDIR_EXPECT: services.CASEDIR_EXPECT,
-      CASES: WriterState.CASES,
+      CASES: workspace.CASES,
       CATALOG_AT: catalog.CATALOG_AT,
       COMMITTED: services.COMMITTED,
-      DIRNAME: WriterState.DIRNAME,
+      DIRNAME: workspace.DIRNAME,
       HELPER: WriterState.HELPER,
       LOCAL_SAVE: editor.LOCAL_SAVE,
-      NEEDGRANT: WriterState.NEEDGRANT,
-      PENDING: WriterState.PENDING,
-      PREFLIGHT_CONFLICT: WriterState.PREFLIGHT_CONFLICT,
+      NEEDGRANT: workspace.NEEDGRANT,
+      PENDING: workspace.PENDING,
+      PREFLIGHT_CONFLICT: workspace.PREFLIGHT_CONFLICT,
       caseFileName: ctx_app_caseFileName,
       caseState: services.caseState,
       caseUnsaved: services.caseUnsaved,
@@ -45,10 +46,10 @@ export function createSavedWorkContext(services) {
 export function createWorkspaceQueueContext(services) {
   function app_workspacequeueContext() {
     return {
-      ARTIFACT_LOCATIONS: WriterState.ARTIFACT_LOCATIONS,
-      CASEDIR: WriterState.CASEDIR,
-      NEEDGRANT: WriterState.NEEDGRANT,
-      PREFLIGHT_CONFLICT: WriterState.PREFLIGHT_CONFLICT,
+      ARTIFACT_LOCATIONS: workspace.ARTIFACT_LOCATIONS,
+      CASEDIR: workspace.CASEDIR,
+      NEEDGRANT: workspace.NEEDGRANT,
+      PREFLIGHT_CONFLICT: workspace.PREFLIGHT_CONFLICT,
       caseNumberAllowed: services.caseNumberAllowed,
       docsFor: ctx_app_docsFor,
       esc: ctx_app_esc,
