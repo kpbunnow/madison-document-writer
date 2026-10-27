@@ -50,6 +50,34 @@ function classify(source) {
   });
   return result;
 }
+function hookCandidates(source, bindings) {
+  const values = [source],
+    memo = new WeakMap();
+  function value(node) {
+    if (memo.has(node)) return memo.get(node);
+    let result = null;
+    if (node.type === "Literal" && typeof node.value === "string") result = node.value;
+    else if (node.type === "BinaryExpression" && node.operator === "+") {
+      const left = value(node.left),
+        right = value(node.right);
+      if (left !== null && right !== null) result = left + right;
+    } else if (node.type === "TemplateLiteral" && !node.expressions.length) result = node.quasis[0].value.cooked ?? node.quasis[0].value.raw;
+    else if (
+      node.type === "TaggedTemplateExpression" &&
+      node.tag.object?.name === "String" &&
+      node.tag.property?.name === "raw" &&
+      !node.quasi.expressions.length
+    )
+      result = node.quasi.quasis[0].value.raw;
+    memo.set(node, result);
+    return result;
+  }
+  walk(acorn.parse(source, { ecmaVersion: 2022, sourceType: "script", allowReturnOutsideFunction: true }), (node) => {
+    const folded = value(node);
+    if (folded !== null) values.push(folded);
+  });
+  return bindings.filter((binding) => values.some((text) => new RegExp("\\b" + binding + "\\b").test(text)));
+}
 function files(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(directory, entry.name);
@@ -69,7 +97,13 @@ function inventory() {
     .map((file) => {
       const source = fs.readFileSync(file, "utf8"),
         record = classify(source);
-      const hookBindings = hook.filter(({ binding }) => new RegExp("\\b" + binding + "\\b").test(source)).map(({ key }) => key);
+      const candidates = new Set(
+        hookCandidates(
+          source,
+          hook.map(({ binding }) => binding),
+        ),
+      );
+      const hookBindings = hook.filter(({ binding }) => candidates.has(binding)).map(({ key }) => key);
       return { file: path.relative(ROOT, file).split(path.sep).join("/"), ...record, hookBindings };
     });
   const byFile = new Map(records.map((record) => [record.file, record]));
@@ -105,4 +139,4 @@ function inventory() {
   };
 }
 if (require.main === module) console.log(JSON.stringify(inventory(), null, 2));
-module.exports = { classify, inventory };
+module.exports = { classify, inventory, hookCandidates };
