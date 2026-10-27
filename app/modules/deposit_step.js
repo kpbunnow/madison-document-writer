@@ -4,7 +4,7 @@ import { citSelector, esc as dep_esc } from "./presentation_format.js";
 import { doc } from "./writer_queries.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 /* Required completion is stored as a request, never as a blank citation. */
 export function initDepositStep(services) {
   let active = null;
@@ -61,7 +61,7 @@ export function initDepositStep(services) {
     d.cits = d.cits || {};
     d.cits[id] = c;
     delete d.depositRequests[id];
-    WriterState.DIRTY = true;
+    workspaceState.DIRTY = true;
     return true;
   }
   function form(d, i, c) {
@@ -209,7 +209,7 @@ export function initDepositStep(services) {
   function context(el) {
     const node = el.closest?.("[data-deposit-form]");
     if (!node) return null;
-    const d = doc(node.dataset.depositDoc) || WriterState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
+    const d = doc(node.dataset.depositDoc) || workspaceState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
       id = node.dataset.depositForm;
     return d?.draft && !services.isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
   }
@@ -273,7 +273,7 @@ export function initDepositStep(services) {
     // (ordEditingFrom, as on the charge card) so a repaint never loses it and pricing waits for the commit.
     delete next.ord;
     Object.assign(c, next);
-    WriterState.DIRTY = true;
+    workspaceState.DIRTY = true;
     if (ordField && e.type === "input") {
       if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
       c.ord = String(typed || "");
@@ -358,7 +358,7 @@ export function initDepositStep(services) {
     const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
     if (!t) return;
     const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
-      d = doc(docId) || WriterState.DOCS.find((x) => x.initialCitationId === docId);
+      d = doc(docId) || workspaceState.DOCS.find((x) => x.initialCitationId === docId);
     if (!d || services.isLocked(d) || d.pendingAmendment) return;
     if (t.dataset.confirmDeposit) {
       const c = d.cits?.[id];

@@ -2,7 +2,7 @@ import { SUMMARY_DIR } from "../assets/shared.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { summaryName } from "./case_file_rules.js";
 import { nowISO } from "./calendar.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 import { caseStoreRequest } from "./contracts.js";
 // Folder/helper write access; validation, revision and projection authority remain supplied.
 
@@ -37,19 +37,19 @@ export function createSharedCaseStorage(services) {
   async function writeToFolder(name, body) {
     if (services.recordIntegrity.status(JSON.parse(body).case).valid === false)
       return { ok: false, why: "This record was changed outside the program. Read-only." };
-    if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
+    if (workspaceState.CASEDIR && workspaceState.CASEDIR.helper) {
       try {
         const file = JSON.parse(body),
           base = services.COMMITTED.get(summaryName(file.case));
-        const local = WriterState.CASES.find((k) => k.number === file.case.number),
-          checkpoint = local && WriterState.SAVE_CHECKPOINTS[local.id];
+        const local = workspaceState.CASES.find((k) => k.number === file.case.number),
+          checkpoint = local && workspaceState.SAVE_CHECKPOINTS[local.id];
         const result = await services.helperJSON(
           "/cases/save",
           caseStoreRequest({ name: name, file: file, baseRevision: (base && base.revision) || "", baseCase: checkpoint ? checkpoint.case : null }),
         );
         if (result.file.schema >= 5) await services.recordIntegrity.verify(result.file, result.integrity);
         services.COMMITTED.set(summaryName(result.file.case), result);
-        const current = WriterState.CASES.find((k) => k.number === result.file.case.number);
+        const current = workspaceState.CASES.find((k) => k.number === result.file.case.number);
         if (current) {
           const saved = caseDetails(result.file.case),
             submitted = caseDetails(file.case);
@@ -63,33 +63,33 @@ export function createSharedCaseStorage(services) {
           services.mergeCaseEvents(current, clone(result.file));
           services.project();
         }
-        WriterState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
+        workspaceState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
         return { ok: true, file: result.file, name: result.name };
       } catch (error) {
-        WriterState.LASTWRITE = { name: name, ok: false, why: error.message, at: nowISO() };
+        workspaceState.LASTWRITE = { name: name, ok: false, why: error.message, at: nowISO() };
         return { ok: false, why: error.message };
       }
     }
     if (JSON.parse(body).schema >= 5) {
       const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-      WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
+      workspaceState.LASTWRITE = { name, ok: false, why, at: nowISO() };
       return { ok: false, why };
     }
-    if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
-    if (WriterState.NEEDGRANT) return { ok: false, why: "permission", needGrant: true };
+    if (!workspaceState.CASEDIR) return { ok: false, why: "no folder linked" };
+    if (workspaceState.NEEDGRANT) return { ok: false, why: "permission", needGrant: true };
     try {
-      const fh = await WriterState.CASEDIR.getFileHandle(name, { create: true });
+      const fh = await workspaceState.CASEDIR.getFileHandle(name, { create: true });
       const ws = await fh.createWritable();
       await ws.write(body);
       await ws.close();
-      WriterState.LASTWRITE = { name: name, ok: true, why: "", at: nowISO(), bytes: body.length };
+      workspaceState.LASTWRITE = { name: name, ok: true, why: "", at: nowISO(), bytes: body.length };
       return { ok: true };
     } catch (err) {
       const n = (err && err.name) || "";
       const why = n === "NotAllowedError" || n === "SecurityError" ? "permission" : (err && err.message) || n || "the folder refused the write";
-      WriterState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
+      workspaceState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
       if (why === "permission") {
-        WriterState.NEEDGRANT = true;
+        workspaceState.NEEDGRANT = true;
         return { ok: false, why: "permission", needGrant: true };
       }
       return { ok: false, why: why };
@@ -97,7 +97,7 @@ export function createSharedCaseStorage(services) {
   }
 
   async function writeIndexFile(name, body) {
-    if (WriterState.CASEDIR && WriterState.CASEDIR.helper) {
+    if (workspaceState.CASEDIR && workspaceState.CASEDIR.helper) {
       const committed = services.COMMITTED.get(name);
       if (!committed) return { ok: false, why: "The case has not been read or saved yet" };
       try {
@@ -109,13 +109,13 @@ export function createSharedCaseStorage(services) {
     }
     if (JSON.parse(body).schema >= 5) {
       const why = "Schema 5 requires the local helper to maintain the integrity chain.";
-      WriterState.LASTWRITE = { name, ok: false, why, at: nowISO() };
+      workspaceState.LASTWRITE = { name, ok: false, why, at: nowISO() };
       return { ok: false, why };
     }
-    if (!WriterState.CASEDIR) return { ok: false, why: "no folder linked" };
-    if (WriterState.NEEDGRANT) return { ok: false, why: "permission" };
+    if (!workspaceState.CASEDIR) return { ok: false, why: "no folder linked" };
+    if (workspaceState.NEEDGRANT) return { ok: false, why: "permission" };
     try {
-      const dir = await WriterState.CASEDIR.getDirectoryHandle(SUMMARY_DIR, { create: true });
+      const dir = await workspaceState.CASEDIR.getDirectoryHandle(SUMMARY_DIR, { create: true });
       const fh = await dir.getFileHandle(name, { create: true });
       const ws = await fh.createWritable();
       await ws.write(body);

@@ -4,7 +4,7 @@ import { inspAt } from "./inspection_facts.js";
 import { isEffective } from "./document_rules.js";
 import { courtTime } from "./document_types.js";
 import { doc, docInsp, docsFor, draftDocFor, draftReinspFor, recordHead } from "./writer_queries.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 
 export function createCitationDrafts(services) {
   function citationTier(caseId, no) {
@@ -44,7 +44,7 @@ export function createCitationDrafts(services) {
         hist: null,
       })),
     };
-    WriterState.DOCS.unshift(nd);
+    workspaceState.DOCS.unshift(nd);
     nd.items
       .filter((i) => i.cite)
       .forEach((i) => {
@@ -72,7 +72,7 @@ export function createCitationDrafts(services) {
         };
         services.applyDeposit(nd, i.id, ord);
       });
-    WriterState.DIRTY = true;
+    workspaceState.DIRTY = true;
     services.saveDrafts();
     services.depositStep.openNext(nd);
     return nd;

@@ -1,6 +1,6 @@
 import { cleanVisit } from "./worksheet_workflow.js";
 import { project } from "./case_records.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 
 export function createVisitRecording(services) {
   function recordReinspection(r, quiet) {
@@ -13,7 +13,7 @@ export function createVisitRecording(services) {
       null,
       r.inspectorId,
     );
-    WriterState.REINSP = WriterState.REINSP.filter((x) => x.id !== r.id);
+    workspaceState.REINSP = workspaceState.REINSP.filter((x) => x.id !== r.id);
     project();
     services.saveDrafts();
     if (!quiet) {

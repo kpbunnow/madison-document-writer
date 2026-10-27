@@ -1,13 +1,13 @@
 /* DueDate event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 export function createDueDateEvents(services) {
   const editBulkDate = (el) => {
     const { target } = services.activeDueTarget();
     if (target) {
       target.dueWork = target.dueWork || {};
       target.dueWork.date = el.value;
-      WriterState.DIRTY = true;
+      workspaceState.DIRTY = true;
       services.scheduleDraftSave();
     }
     return;
@@ -24,7 +24,7 @@ export function createDueDateEvents(services) {
     // Notice rows select in the items table; keep the compact bar's count current without a repaint.
     const count = document.querySelector("[data-due-selected]");
     if (count) count.textContent = services.dueSelectedText(services.dueContext(target, visit), selected);
-    WriterState.DIRTY = true;
+    workspaceState.DIRTY = true;
     services.saveDrafts();
   };
 
@@ -65,12 +65,12 @@ export function createDueDateEvents(services) {
             if (visit) target.results[id].due = due;
             else target.items.find((x) => x.id === id).due = due;
           }
-          WriterState.DIRTY = true;
+          workspaceState.DIRTY = true;
           services.saveDrafts();
           services.render();
         });
       }
-      WriterState.DIRTY = true;
+      workspaceState.DIRTY = true;
       services.saveDrafts();
       services.render();
     });
