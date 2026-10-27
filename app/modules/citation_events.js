@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Citation event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { doc } from "./writer_queries.js";
@@ -12,7 +13,7 @@ export function createCitationEvents(services) {
         return services.dueDateEvents.editBulkDate(el);
       }
       if (ds.reviewCit) {
-        const d = doc(WriterState.state.docId);
+        const d = doc(editor.state.docId);
         if (!d || services.isLocked(d)) return;
         const [id, f] = ds.reviewCit.split("|");
         services.editCitation(d, id, f, el.value, "input");
@@ -28,7 +29,7 @@ export function createCitationEvents(services) {
     return registerEventOnce(target, "citation.registerReviewChange", "change", (e) => {
       const ds = e.target.dataset || {};
       if (ds.reviewCit) {
-        const d = doc(WriterState.state.docId);
+        const d = doc(editor.state.docId);
         if (d && !services.isLocked(d)) {
           const [id, field] = ds.reviewCit.split("|");
           services.editCitation(d, id, field, e.target.value);

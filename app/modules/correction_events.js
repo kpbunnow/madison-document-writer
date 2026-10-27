@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Correction event ownership. Construction is inert; core registers at the original startup positions. */
 import { WriterState } from "./state.js";
 import { kase, correctionSource, doc } from "./writer_queries.js";
@@ -8,7 +9,7 @@ import { isHistoryDoc } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
 export function createCorrectionEvents(services) {
   const resumeRecord = (t) => {
-    const holder = WriterState.RECORD_ATTEMPTS[t.dataset.resumerecord];
+    const holder = editor.RECORD_ATTEMPTS[t.dataset.resumerecord];
     if (holder) services.commitAmendment(holder.cid, holder.pendingAmendment, holder);
     return;
   };
@@ -50,8 +51,8 @@ export function createCorrectionEvents(services) {
   };
 
   const openRecordAction = (t) => {
-    WriterState.state.amendmentError = "";
-    WriterState.state.modal = t.id === "btn-void" ? "void" : t.id === "btn-recordnote" ? "recordnote" : "reconcile";
+    editor.state.amendmentError = "";
+    editor.state.modal = t.id === "btn-void" ? "void" : t.id === "btn-recordnote" ? "recordnote" : "reconcile";
     services.render();
     return;
   };
@@ -59,7 +60,7 @@ export function createCorrectionEvents(services) {
   const commitRecordAction = (t, d) => {
     const value = (document.getElementById("record-action-text") || {}).value || "",
       external = (document.getElementById("record-action-external") || {}).value || "";
-    const mode = WriterState.state.modal,
+    const mode = editor.state.modal,
       actor = (document.getElementById("record-action-inspector") || {}).value || "";
     t.disabled = true;
     const action =
@@ -109,7 +110,7 @@ export function createCorrectionEvents(services) {
   };
 
   const editActionDate = (el) => {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (d && d.correction && !d.pendingAmendment) {
       d.correction.actionDate = el.value;
       d.correction.reviewed = false;
@@ -120,7 +121,7 @@ export function createCorrectionEvents(services) {
   };
 
   const editCorrectionReason = (el) => {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (d && d.correction && !d.pendingAmendment) {
       d.correction[el.id === "correction-reason" ? "reason" : "externalReference"] = el.value;
       d.correction.reviewed = false;
@@ -131,7 +132,7 @@ export function createCorrectionEvents(services) {
   };
 
   const changeCorrection = (e) => {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d || !d.correction || d.pendingAmendment) return;
     if (e.target.id === "correction-type") {
       const src = correctionSource(d);
