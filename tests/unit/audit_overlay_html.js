@@ -1,4 +1,4 @@
-const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
+const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
 /* Exact modal HTML snapshots protect recipient, storage, workspace removal and finalization sections. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -20,7 +20,7 @@ const assert = require("node:assert/strict"),
     source.slice(ret.start).replace("return { overlayHTML }", "return { overlayHTML,actualModal:modalHTML,referenceModal }");
   source += '\nexport {WriterState} from "./state.js";';
   const compiled = await esbuild.build({
-    stdin: { contents: withHistoricalState(source), resolveDir: dir },
+    stdin: { contents: withHistoricalBindings(source), resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",

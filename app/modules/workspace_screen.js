@@ -5,7 +5,7 @@ import { caseNumberAllowed } from "./case_records.js";
 import { caseFileName } from "./case_file_rules.js";
 import { docsFor, doneItems, unchecked, insp } from "./writer_queries.js";
 import { DOC_TYPES } from "./document_types.js";
-import { esc, fmtDate } from "./presentation_format.js";
+import { fmtDate } from "./presentation_format.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { INSPECTORS } from "./data/inspectors.js";
@@ -147,59 +147,38 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
 
 function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreViews, filtered, query, table, importCount, services }) {
   return (
-    '<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start or find case work</h2></div><div class="card-b grid g2">' +
-    '<div><button class="btn btn-primary" data-nav="import">' +
-    uiIcon("import") +
-    ' Import inspection</button><p class="hint">Start new work from an unused Accela inspection.</p></div>' +
-    '<div><button class="btn" data-global-search>' +
-    uiIcon("search") +
-    ' Search shared case records</button><p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>' +
-    `${importResumePanel()}` +
-    "" +
-    "".concat(workspace.PREFLIGHT_NOTICE ? `<div class="banner info" role="status">${esc(workspace.PREFLIGHT_NOTICE)}</div>` : "") +
-    '\n     <div class="workspace-lead"><div><h2>' +
-    `${workspace.CASES.length ? activeLabel : "Start with a case"}` +
-    "</h2><p>" +
-    "".concat(
-      workspace.CASES.length
-        ? "One next action per case. Open case details for other tasks and history."
-        : "Import an Accela report or open a saved case to begin.",
-    ) +
+    html`<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start or find case work</h2></div><div class="card-b grid g2">` +
+    html`<div><button class="btn btn-primary" data-nav="import">${raw(uiIcon("import"))} Import inspection</button>` +
+    html`<p class="hint">Start new work from an unused Accela inspection.</p></div>` +
+    html`<div><button class="btn" data-global-search>${raw(uiIcon("search"))} Search shared case records</button>` +
+    html`<p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>` +
+    importResumePanel() +
+    (workspace.PREFLIGHT_NOTICE ? html`<div class="banner info" role="status">${workspace.PREFLIGHT_NOTICE}</div>` : "") +
+    html`
+     <div class="workspace-lead"><div><h2>${workspace.CASES.length ? activeLabel : "Start with a case"}</h2><p>` +
+    (workspace.CASES.length
+      ? html`One next action per case. Open case details for other tasks and history.`
+      : html`Import an Accela report or open a saved case to begin.`) +
     "</p></div></div>\n     " +
     workspaceQuickViewsHTML({ quickViews, count }) +
     "\n     " +
-    "".concat(
-      orphan.length
-        ? '<div class="banner warn">' +
-            `${orphan.length}` +
-            " queued case file" +
-            `${orphan.length === 1 ? "" : "s"}` +
-            ' outside the loaded cases. <button class="btn btn-sm" data-sync-safety>R' +
-            "eview queued saves</button></div>"
-        : "",
-    ) +
-    '\n     <div class="card">' +
-    "".concat(
-      !workspace.CASES.length
-        ? '<div class="empty-state"><div class="empty-icon">' +
-            `${uiIcon("cases")}` +
-            "</div><h2>A clear desk. A clear next step.</h2><p>Bring in the case deta" +
-            "ils, choose the violations, then review and issue. Your unfinished work " +
-            'is saved on this device. Use the actions above to start or find case work.</p><button class="btn" data-openfil' +
-            "e>Open saved case</button></div>"
-        : workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query, table, importCount }),
-    ) +
-    '</div>\n     <div class="queue-support"><button class="btn btn-sm" data-s' +
-    'ync-safety>Saved work &amp; connection</button><div id="recovery-status"' +
-    ' class="hint" aria-live="polite">' +
-    `${services.recoveryStatusHTML()}` +
-    "</div>" +
-    `${workspace.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : ""}` +
+    (orphan.length
+      ? html`<div class="banner warn">${orphan.length} queued case file${orphan.length === 1 ? "" : "s"} outside the loaded cases. <button class="btn btn-sm" data-sync-safety>Review queued saves</button></div>`
+      : "") +
+    html`
+     <div class="card">` +
+    (!workspace.CASES.length
+      ? html`<div class="empty-state"><div class="empty-icon">${raw(uiIcon("cases"))}</div><h2>A clear desk. A clear next step.</h2>` +
+        html`<p>Bring in the case details, choose the violations, then review and issue. Your unfinished work is saved on this device. Use the actions above to start or find case work.</p>` +
+        html`<button class="btn" data-openfile>Open saved case</button></div>`
+      : workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query, table, importCount })) +
+    html`</div>
+     <div class="queue-support"><button class="btn btn-sm" data-sync-safety>Saved work &amp; connection</button>` +
+    html`<div id="recovery-status" class="hint" aria-live="polite">${raw(services.recoveryStatusHTML())}</div>` +
+    (workspace.CASES.length ? html`<button class="lnk" id="btn-clear">Remove cases from this workspace</button>` : "") +
     "</div>\n     " +
-    `${services.remindersPanel()}` +
-    "" +
-    `${workingNotesPanel()}` +
-    ""
+    services.remindersPanel() +
+    workingNotesPanel()
   );
 }
 
