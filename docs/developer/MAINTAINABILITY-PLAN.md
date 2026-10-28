@@ -877,3 +877,9 @@ Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 11
 Separated the special-extension comparison phase from the correction change coordinator. Passed 4,120 retained-owner comparisons covering authoring cutoffs, optional special values, ordered case/item/citation/visit changes and property reads; existing correction lineage/retry/delivery checks pass. Module boundaries, test seams, ESLint and formatting pass. No wording, print, format or release identity changes.
 
 Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 55, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## message-paint-phases
+
+Separated message markup, focus restoration and timer/event binding into private phases, retaining their execution order. Passed 1,024 retained-owner DOM comparisons with controlled clock/timers, plus fresh test build and existing accessibility/R59 editor-flow suites. Initial local iterations caught factory growth and an incorrect markup return; both corrected without changing assertions or debt allowances. Final module boundaries, test seams, ESLint and formatting pass. No timer duration, print or release identity changes.
+
+Measured counts: {'complexity': 55, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.

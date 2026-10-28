@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_message_paint_rules.js` | Retained message markup, focus, dialog scope and timer/event ordering |
 | `audit_correction_change_rules.js` | Correction change parity across historical cutoffs, fields and lazy reads |
 | `audit_case_load_message.js` | Load notification parity through real projection and interrupted UI/save dispatch |
 | `audit_storage_status_rules.js` | Exact storage diagnostic HTML and lazy state/service read order |
