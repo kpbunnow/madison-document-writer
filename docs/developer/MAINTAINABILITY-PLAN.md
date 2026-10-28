@@ -847,3 +847,9 @@ Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 11
 Migrated the R21 saved-view and handoff audit from full Reports bundle eval to createReportsServices with explicit storage, clock formatting, catalog and window/channel services. Every existing assertion is retained; complete console output matches before/after. The test supplies its catalog fixture because report definitions and screen rendering are outside this preference/handoff owner; inert-import protection was added. Reports boundaries, seam inventory, ESLint and formatting pass. Legacy bundle-evaluator files fall 82 to 81; no diagnostic hook is retired while other consumers remain. Production code is unchanged.
 
 Measured counts: {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## language-action-phases
+
+Separated catalog opening and picker/library filtering into private named actions without changing navigation or asynchronous refresh boundaries. Passed 7,734 retained-owner comparisons, event registration (60 registrations/14 owners), module boundaries (137 modules/no cycles), test seams, ESLint and Prettier. Release identities and existing assertions unchanged.
+
+Measured counts: {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 58, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
