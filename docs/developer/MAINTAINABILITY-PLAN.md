@@ -693,3 +693,9 @@ Measured counts: {'complexity': 73, 'max-depth': 0, 'max-lines-per-function': 12
 Migrated the retained data diagnostics from eval of the full Writer bundle to explicit catalog/pricing/query/mailing/fixture exports. Preserved every diagnostic calculation and compared complete stdout before/after byte for byte. Added inert-import protection and explicit cloned seed cases. Removed unused DOM/browser stubs. ESLint, formatting and seam ratchet pass; legacy bundle evaluator files 84 to 83. No diagnostic hook is removed while another consumer remains.
 
 Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## projection-corpus-owner-seam
+
+Migrated the synthetic projection corpus from full Writer bundle eval to the public summary adapter and actual record-integrity owner with explicit cloned seed cases. All generated files/summary/error/table bytes match the previous composition for 2000 cases with a controlled comparison clock. The full standalone six-test projection audit passes across all three seeds and retained real-flow captures. ESLint, formatting and seam ratchet pass; legacy bundle evaluator files 83 to 82. Production projection algorithms, assertions and format identities are unchanged.
+
+Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
