@@ -537,3 +537,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Quick-view markup uses escaped templates and a named static resolution-attribute fragment. Labels/counts and pressed state remain in their original evaluation order, with identical source text and output whitespace. All 1,033 historical HTML/state/effect comparisons and retained-class/style checks pass. The static attribute fragment is the only raw interpolation; no case data or dynamic renderer result is granted implicit trust.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 Workspace table template
+
+The filter/table renderer uses escaped templates instead of split-literal concat chains. Search text, names, labels and counts are escaped by default; only the existing row renderer/fallback HTML is explicitly marked raw. Filter option/selection reads, empty-result offers and row/inspector ordering retain their prior checkpoints. All 1,033 exact historical HTML/state/effect comparisons, retained-class/style guards and independent screen dependencies pass without changing wording, output whitespace, CSS or print owners.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

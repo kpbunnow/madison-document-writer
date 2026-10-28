@@ -111,76 +111,37 @@ function workspaceQuickViewsHTML({ quickViews, count }) {
 
 function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query, table, importCount }) {
   return (
-    '<div class="case-tools"><label><span class="sr-only">Search this workspa' +
-    'ce</span><input type="search" id="case-search" value="' +
-    `${esc(editor.state.caseQ)}` +
-    '" placeholder="Search this workspace…"></label>\n      <label class="case' +
-    '-view"><span class="sr-only">More views</span><select id="case-filter" aria-label="More views"' +
-    ">" +
-    `<option value="" ${moreViews.some(([key]) => key === editor.state.caseFilter) ? "" : "selected"}>More views…</option>` +
-    "".concat(
-      moreViews
-        .map(([key, label]) => `<option value="${key}" ${editor.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`)
-        .join(""),
-    ) +
-    '</select></label>\n      <select id="case-inspector" aria-label="Filter b' +
-    'y inspector"><option value="">All inspectors</option>' +
-    "".concat(
-      INSPECTORS.filter((i) => workspace.CASES.some((k) => k.inspectorId === i.id))
-        .map(
-          (i) =>
-            '<option value="' +
-            `${esc(i.id)}` +
-            '" ' +
-            `${editor.state.caseInspector === i.id ? "selected" : ""}` +
-            ">" +
-            `${esc(i.name)}` +
-            "</option>",
-        )
-        .join(""),
-    ) +
-    '</select></div>\n      <p class="queue-filter-note">' +
-    `${filtered.length}` +
-    " of " +
-    `${count(editor.state.caseFilter)}` +
-    " cases in " +
-    `${activeLabel}` +
-    "" +
-    `${query ? " · workspace search applied" : ""}` +
-    "" +
-    `${editor.state.caseInspector ? " · inspector filter applied" : ""}` +
-    ". Counts include all loaded cases; a case can belong to more than one vi" +
-    "ew." +
-    "".concat(query || editor.state.caseInspector ? ' <button class="lnk" data-queue-reset>Clear search and inspector</button>' : "") +
-    '</p>\n      <div class="case-table-wrap"><table class="list case-table"><' +
-    'caption class="sr-only">' +
-    `${esc(activeLabel)}` +
-    " · workspace cases and recommended actions</caption><thead><tr><th scope" +
-    '="col">Property / case</th><th scope="col">Status / next step</th><th sc' +
-    'ope="col">Next due</th><th scope="col">Inspector</th><th scope="col">Nex' +
-    "t action</th></tr></thead><tbody>" +
-    "".concat(
+    html`<div class="case-tools"><label><span class="sr-only">Search this workspace</span><input type="search" id="case-search" value="${editor.state.caseQ}" placeholder="Search this workspace…"></label>
+      <label class="case-view"><span class="sr-only">More views</span><select id="case-filter" aria-label="More views">` +
+    html`<option value="" ${moreViews.some(([key]) => key === editor.state.caseFilter) ? "" : "selected"}>More views…</option>` +
+    moreViews
+      .map(([key, label]) => html`<option value="${key}" ${editor.state.caseFilter === key ? "selected" : ""}>${label} (${count(key)})</option>`)
+      .join("") +
+    html`</select></label>
+      <select id="case-inspector" aria-label="Filter by inspector"><option value="">All inspectors</option>` +
+    INSPECTORS.filter((i) => workspace.CASES.some((k) => k.inspectorId === i.id))
+      .map((i) => html`<option value="${i.id}" ${editor.state.caseInspector === i.id ? "selected" : ""}>${i.name}</option>`)
+      .join("") +
+    html`</select></div>
+      <p class="queue-filter-note">${filtered.length} of ${count(editor.state.caseFilter)} cases in ${activeLabel}` +
+    html`${query ? " · workspace search applied" : ""}${editor.state.caseInspector ? " · inspector filter applied" : ""}. Counts include all loaded cases; a case can belong to more than one view.` +
+    (query || editor.state.caseInspector ? html` <button class="lnk" data-queue-reset>Clear search and inspector</button>` : "") +
+    html`</p>
+      <div class="case-table-wrap"><table class="list case-table"><caption class="sr-only">${activeLabel} · workspace cases and recommended actions</caption>` +
+    html`<thead><tr><th scope="col">Property / case</th><th scope="col">Status / next step</th><th scope="col">Next due</th><th scope="col">Inspector</th><th scope="col">Next action</th></tr></thead><tbody>` +
+    // table is produced by renderWorkspaceRow; the fallback uses the same escaped screen templates.
+    html`${raw(
       table ||
-        '<tr><td colspan="5"><div class="empty">' +
-          `${query || editor.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
-          ' <button class="lnk" data-queue-reset>Clear search and inspector</button' +
-          '> <button class="lnk" id="case-showall">View all cases</button>' +
+        html`<tr><td colspan="5"><div class="empty">${query || editor.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
+          html` <button class="lnk" data-queue-reset>Clear search and inspector</button> <button class="lnk" id="case-showall">View all cases</button>` +
           // The shared search opens with this workspace query prefilled; it is not submitted automatically.
-          "".concat(
-            query
-              ? ' <button class="btn btn-sm" data-shared-offer>Search shared case records for “' +
-                  esc(String(editor.state.caseQ || "").trim()) +
-                  "”</button>"
-              : "",
-          ) +
+          (query
+            ? html` <button class="btn btn-sm" data-shared-offer>Search shared case records for “${String(editor.state.caseQ || "").trim()}”</button>`
+            : "") +
           "</div></td></tr>",
-    ) +
-    '</tbody></table></div><div class="case-count">' +
-    `${workspace.CASES.length}` +
-    " cases on this device. Use Search shared case records for records outsid" +
-    "e this workspace." +
-    `${importCount ? " An import is waiting for review above." : ""}` +
-    "</div>"
+    )}</tbody></table></div>` +
+    html`<div class="case-count">${workspace.CASES.length} cases on this device. Use Search shared case records for records outside this workspace.` +
+    html`${importCount ? " An import is waiting for review above." : ""}</div>`
   );
 }
 
