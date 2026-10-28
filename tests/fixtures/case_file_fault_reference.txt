@@ -1,0 +1,49 @@
+function caseFileFault(f) {
+  if (!f || typeof f !== "object") return "it is not a record";
+  if (f.format !== "madison-case-file") return "it is not a Madison case file";
+  const k = f["case"];
+  if (!k || typeof k !== "object") return "it carries no case";
+  if (!String(k.id || "").trim() || !String(k.number || "").trim()) return "the case has no number";
+  if (k.ownerAddr !== undefined && (!Array.isArray(k.ownerAddr) || k.ownerAddr.some((x) => typeof x !== "string")))
+    return "the owner address is not a list of text lines";
+  if (k.emails !== undefined && !Array.isArray(k.emails)) return "email recipients are not a list";
+  if (k.ccList !== undefined && !Array.isArray(k.ccList)) return "copy recipients are not a list";
+  if (f.inspectors !== undefined && !Array.isArray(f.inspectors)) return "the inspector list is not a list";
+  if ((f.inspectors || []).some((i) => !i || typeof i !== "object" || !String(i.id || "").trim())) return "an inspector record is incomplete";
+  if (f.events !== undefined && !Array.isArray(f.events)) return "the event list is not a list";
+  const seen = {};
+  const evs = f.events || [];
+  for (let n = 0; n < evs.length; n++) {
+    const e = evs[n],
+      at = " (event " + (n + 1) + " of " + evs.length + ")";
+    if (!e || typeof e !== "object") return "an event is not a record" + at;
+    if (!String(e.id || "").trim()) return "an event has no id" + at;
+    if (seen[e.id]) return "two events share an id" + at;
+    seen[e.id] = 1;
+    if (!String(e.at || "").trim() || isNaN(new Date(e.at).getTime())) return "an event has no usable date" + at;
+    if (!String(e.type || "").trim()) return "an event has no type" + at;
+    if (e.payload !== undefined && (!e.payload || typeof e.payload !== "object")) return "an event payload is not a record" + at;
+    const p = e.payload || {};
+    if (/\.issued$/.test(e.type)) {
+      if (!p.snapshot || typeof p.snapshot !== "object") return "an issued document carries no snapshot" + at;
+      if (!Array.isArray(p.snapshot.items)) return "an issued document has no item list" + at;
+      if (!p.snapshot.id || !p.snapshot.caseId) return "an issued document has no identity" + at;
+      if (
+        p.snapshot.items.some(
+          (it) => !it || typeof it !== "object" || !it.id || !Array.isArray(it.sections) || it.sections.some((x) => typeof x !== "string"),
+        )
+      )
+        return "an item has an invalid identity or ordinance list" + at;
+      if (
+        p.snapshot.frozen &&
+        p.snapshot.frozen.case &&
+        p.snapshot.frozen.case.ownerAddr !== undefined &&
+        !Array.isArray(p.snapshot.frozen.case.ownerAddr)
+      )
+        return "a frozen mailing address is invalid" + at;
+    }
+    if (e.type === "reinspection.recorded" && (!p.reinspection || typeof p.reinspection !== "object")) return "a reinspection carries no record" + at;
+  }
+  if (badIds(f)) return "it carries an identifier the program cannot use";
+  return correctionHistoryFault(f.events || []);
+}

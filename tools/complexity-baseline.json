@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 73,
+    "complexity": 72,
     "max-depth": 0,
     "max-lines-per-function": 121,
     "python": 15
@@ -24,7 +24,6 @@
     "app/modules/browser_printing.js:createBrowserPrinting#1:max-lines-per-function": 142,
     "app/modules/browser_printing.js:createBrowserPrinting#1/printableHTML#1:max-lines-per-function": 95,
     "app/modules/case_activity.js:createCaseActivity#1:max-lines-per-function": 160,
-    "app/modules/case_file_rules.js:caseFileFault#1:complexity": 55,
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
     "app/modules/case_loading.js:createCaseLoading#1:max-lines-per-function": 122,
     "app/modules/case_loading.js:createCaseLoading#1/loadCaseFile#1:complexity": 22,
