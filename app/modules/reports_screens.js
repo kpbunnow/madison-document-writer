@@ -510,6 +510,62 @@ function unlocatedReportCaseReason(c) {
         : "parcel " + c.parcel + " has not been looked up yet";
 }
 
+function reportCoverageRowsHTML(services, x, M, unlocated, li, why) {
+  return (
+    "<li><b>" +
+    `${services.plural(x.summaries.length, "case summary", "case summaries")}` +
+    "</b> from " +
+    `${services.esc(x.caseDir)}` +
+    "\\" +
+    `${services.esc(SUMMARY_DIR)}` +
+    ", read " +
+    `${services.esc(services.fmtDate(String(x.readAt).slice(0, 10)))}` +
+    " " +
+    `${services.esc(String(x.readAt).slice(11, 16))}` +
+    ".\n        " +
+    `${services.fmtNum(M.cases.length - M.counted.length)}` +
+    " of them have no issued notice yet and are not counted.</li>\n      <li><" +
+    "b>" +
+    `${services.plural(x.missing.length, "case file")}` +
+    " with no summary.</b> " +
+    `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
+    "" +
+    `${li(x.missing)}` +
+    "</li>\n      <li><b>" +
+    `${services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
+    ".</b> Different from the exact case revision, missing its revision, or w" +
+    "ritten in an earlier summary format. Excluded from current totals; rebui" +
+    "ld the reporting index in Writer." +
+    `${li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)")))}` +
+    "</li>\n      " +
+    "".concat(
+      x.unreadable.length
+        ? "<li><b>" +
+            `${services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` +
+            ".</b>" +
+            `${li(x.unreadable)}` +
+            "</li>"
+        : "",
+    ) +
+    "".concat(
+      (x.mismatched || []).length
+        ? "<li><b>" +
+            `${services.plural(x.mismatched.length, "summary", "summaries")}` +
+            " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
+            `${li(x.mismatched)}` +
+            "</li>"
+        : "",
+    ) +
+    "\n      <li><b>" +
+    `${services.plural(unlocated.length, "case")}` +
+    " not located on the map.</b>" +
+    `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
+    "</li>\n      " +
+    "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${services.esc(ReportsState.S.parcelNote)}</li>` : "") +
+    "\n      "
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1176,57 +1232,9 @@ export function createReportsScreens(services) {
       "ild reporting index. Resolve unreadable or integrity errors in the affec" +
       "ted case before rebuilding; rebuilding does not repair history. Refresh " +
       'Reports afterward.</p><details id="report-proof"><summary>Record proof a' +
-      'nd excluded files</summary>\n    <ul class="defs">\n      <li><b>' +
-      `${services.plural(x.summaries.length, "case summary", "case summaries")}` +
-      "</b> from " +
-      `${services.esc(x.caseDir)}` +
-      "\\" +
-      `${services.esc(SUMMARY_DIR)}` +
-      ", read " +
-      `${services.esc(services.fmtDate(String(x.readAt).slice(0, 10)))}` +
-      " " +
-      `${services.esc(String(x.readAt).slice(11, 16))}` +
-      ".\n        " +
-      `${services.fmtNum(M.cases.length - M.counted.length)}` +
-      " of them have no issued notice yet and are not counted.</li>\n      <li><" +
-      "b>" +
-      `${services.plural(x.missing.length, "case file")}` +
-      " with no summary.</b> " +
-      `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
-      "" +
-      `${li(x.missing)}` +
-      "</li>\n      <li><b>" +
-      `${services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
-      ".</b> Different from the exact case revision, missing its revision, or w" +
-      "ritten in an earlier summary format. Excluded from current totals; rebui" +
-      "ld the reporting index in Writer." +
-      `${li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)")))}` +
-      "</li>\n      " +
-      "".concat(
-        x.unreadable.length
-          ? "<li><b>" +
-              `${services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` +
-              ".</b>" +
-              `${li(x.unreadable)}` +
-              "</li>"
-          : "",
-      ) +
-      "".concat(
-        (x.mismatched || []).length
-          ? "<li><b>" +
-              `${services.plural(x.mismatched.length, "summary", "summaries")}` +
-              " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
-              `${li(x.mismatched)}` +
-              "</li>"
-          : "",
-      ) +
-      "\n      <li><b>" +
-      `${services.plural(unlocated.length, "case")}` +
-      " not located on the map.</b>" +
-      `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
-      "</li>\n      " +
-      "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${services.esc(ReportsState.S.parcelNote)}</li>` : "") +
-      "\n      <li><b>District outlines:</b> " +
+      'nd excluded files</summary>\n    <ul class="defs">\n      ' +
+      reportCoverageRowsHTML(services, x, M, unlocated, li, why) +
+      "<li><b>District outlines:</b> " +
       "".concat(
         a.districts
           ? M.distField
