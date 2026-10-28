@@ -883,3 +883,9 @@ Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 11
 Separated message markup, focus restoration and timer/event binding into private phases, retaining their execution order. Passed 1,024 retained-owner DOM comparisons with controlled clock/timers, plus fresh test build and existing accessibility/R59 editor-flow suites. Initial local iterations caught factory growth and an incorrect markup return; both corrected without changing assertions or debt allowances. Final module boundaries, test seams, ESLint and formatting pass. No timer duration, print or release identity changes.
 
 Measured counts: {'complexity': 55, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## worksheet-result-templates
+
+Converted result-date/note/citation controls and next-due-date screen markup to escaped templates; raw fragments contain only local renderer output. Passed 1,026 exact retained-screen comparisons, screen escaping/print-owner exclusion, fresh test build, screen CSS contracts, R46 reinspection, reinspection-service behavior, module boundaries, test seams, ESLint and formatting. Controls, whitespace, labels, disabled states and release identities retained. Calendar-generated minimum/maximum attributes now flow through the existing screen escape.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
