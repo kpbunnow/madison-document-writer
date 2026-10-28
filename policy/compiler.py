@@ -51,10 +51,7 @@ def unchanged(old, new):
     return old == new
 
 
-def validate_retained_sources(root):
-    root = Path(root)
-    grammar = read(root / "policy/sources/citation_policy_source.json")["grammar"]
-    library = json.loads((root / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
+def _validate_library_provisions(library, grammar):
     for category in library:
         for group in category["groups"]:
             for item in group["items"]:
@@ -67,14 +64,25 @@ def validate_retained_sources(root):
                         normalized += "."
                     if not re.fullmatch(grammar, normalized):
                         raise ValueError("Invalid library ordinance: " + key + " " + section)
+
+
+def _validate_retained_schedule_entry(entry, grammar):
+    if not re.fullmatch(grammar, entry["ordinance"]):
+        raise ValueError("Invalid schedule ordinance: " + entry["ordinance"])
+    if entry["status"] == "verified":
+        raw = [int(round(float(x.replace(",", "")) * 100)) for x in re.findall(r"\$([\d,]+(?:\.\d+)?)", entry["rawText"])]
+        if raw != [tier["amountCents"] for tier in entry["tiers"]] or not entry.get("review") or entry["stale"]:
+            raise ValueError("Verified schedule data disagrees with source/review: " + entry["id"])
+
+
+def validate_retained_sources(root):
+    root = Path(root)
+    grammar = read(root / "policy/sources/citation_policy_source.json")["grammar"]
+    library = json.loads((root / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
+    _validate_library_provisions(library, grammar)
     entries = json.loads((root / "app/assets/deposits.js").read_text(encoding="utf-8").split("const DEPOSITS=", 1)[1].rsplit(";", 1)[0])
     for entry in entries:
-        if not re.fullmatch(grammar, entry["ordinance"]):
-            raise ValueError("Invalid schedule ordinance: " + entry["ordinance"])
-        if entry["status"] == "verified":
-            raw = [int(round(float(x.replace(",", "")) * 100)) for x in re.findall(r"\$([\d,]+(?:\.\d+)?)", entry["rawText"])]
-            if raw != [tier["amountCents"] for tier in entry["tiers"]] or not entry.get("review") or entry["stale"]:
-                raise ValueError("Verified schedule data disagrees with source/review: " + entry["id"])
+        _validate_retained_schedule_entry(entry, grammar)
 
 
 def compile_policy(root):
