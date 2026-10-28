@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 51,
+    "complexity": 50,
     "max-depth": 0,
-    "max-lines-per-function": 115,
+    "max-lines-per-function": 114,
     "python": 15
   },
   "violations": {
@@ -150,8 +150,6 @@
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 38,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 111,
-    "app/modules/saved_work.js:savedWorkHTML#1:complexity": 24,
-    "app/modules/saved_work.js:savedWorkHTML#1:max-lines-per-function": 119,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 119,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1/writeToFolder#1:complexity": 24,
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 393,

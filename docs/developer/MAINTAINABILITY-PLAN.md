@@ -943,3 +943,9 @@ Measured counts: {'complexity': 52, 'max-depth': 0, 'max-lines-per-function': 11
 Migrated correction-value formatting coverage from whole Writer evaluation to createCorrectionUI with explicit fail-on-read services under its existing test-build interface. All nine original behavioral assertion ASTs remain unchanged and console output is byte-identical; added inert-import protection. Production code unchanged; existing test-only hooks retained. Test seams, module boundaries, ESLint and formatting pass; legacy bundle evaluators80→79.
 
 Measured counts: {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15} → {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15}.
+
+## saved-work-presentation-phases
+
+Separated connection status and PDF/recovery/diagnostic presentation from the saved-work coordinator without changing escaping, wording or renderer order. Passed 3,020 retained-function exact HTML and ordered context/escape/renderer comparisons, 5,108 saved-case comparisons, 1,033 Workspace snapshots, fresh test build and existing R44 saved-work suite. Module boundaries, test seams, ESLint and formatting pass. No storage, print, format or release identity changes.
+
+Measured counts: {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 114, 'python': 15}.
