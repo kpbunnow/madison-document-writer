@@ -3,7 +3,7 @@
     "complexity": 75,
     "max-depth": 0,
     "max-lines-per-function": 124,
-    "python": 22
+    "python": 21
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -225,7 +225,6 @@
     "helper/verified_update.py:stage_update:C901": 26,
     "policy/compiler.py:compile_policy:C901": 17,
     "policy/compiler.py:validate_retained_sources:C901": 12,
-    "policy/compiler.py:versions:C901": 11,
     "tools/deposit_interpreter.py:interpret:C901": 14
   }
 }
