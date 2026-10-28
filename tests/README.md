@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_followup_draft_rules.js` | Frozen drafting comparisons over guard precedence, partial failures, document registration and lazy service order. |
 | `audit_admin_override_rules.js` | Frozen override comparison for authorization, case/citation binding, history, input-read order and exceptions. |
 | `audit_scoped_edit_rules.js` | Frozen scoped-edit comparison for dispatch precedence, family caches, state mutation, DOM effects and lazy services. |
 | `audit_citation_resolution_rules.js` | Policy rows, measurement boundaries, invalid dates and observable input reads against frozen resolution. |

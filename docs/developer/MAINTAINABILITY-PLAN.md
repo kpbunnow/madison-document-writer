@@ -781,3 +781,9 @@ The initial worksheet-template gate failed. The local boundary checker identifie
 Converted worksheet count/filter controls to escaped templates, retaining repeated live walk/filter reads, pressed/disabled state, conditional offers and exact whitespace. No raw interpolation is needed in this section. All 1026 frozen worksheet comparisons, class/style and escaping/print-exclusion checks pass, as do ESLint and formatting. No filter behavior, CSS, printed renderer or approved wording changes.
 
 Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
+
+## followup-draft-equivalence
+
+Added an independent owner comparison before changing follow-up drafting. All 2605 cases pass, including all five successful draft families, 100 explicit service-interruption points and 2500 seeded refusal/history combinations. Positive assertions require actual draft registration, write routing, dirty state and retained citation aliases. ESLint, formatting and seam inventory pass. Production drafting code and debt allowances are unchanged.
+
+Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
