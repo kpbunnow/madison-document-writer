@@ -687,3 +687,9 @@ Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 12
 Separated recipient/list, event and issued-snapshot checks without changing refusal order or property-read timing. The new comparison passed against the unchanged validator before extraction and after it over 3468 scenarios, including interrupted getters and malformed records. Record-rule, module-boundary, seam, ESLint and formatting checks pass. Initial test composition missed generated data resolution; corrected its explicit build plugin before verification. Existing assertions and frozen references remain unchanged.
 
 Measured counts: {'complexity': 73, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## catalog-audit-owner-seam
+
+Migrated the retained data diagnostics from eval of the full Writer bundle to explicit catalog/pricing/query/mailing/fixture exports. Preserved every diagnostic calculation and compared complete stdout before/after byte for byte. Added inert-import protection and explicit cloned seed cases. Removed unused DOM/browser stubs. ESLint, formatting and seam ratchet pass; legacy bundle evaluator files 84 to 83. No diagnostic hook is removed while another consumer remains.
+
+Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
