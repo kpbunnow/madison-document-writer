@@ -1033,3 +1033,9 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Case timeline construction retains document/revision/void/note facts, visit order and stable date sorting. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15}.
+
+## report-case-metadata
+
+Case metadata retains parcel/district/owner/mail facts, fallbacks and exact HTML. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
