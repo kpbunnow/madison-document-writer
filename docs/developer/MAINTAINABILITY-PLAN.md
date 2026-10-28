@@ -477,3 +477,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Nine workspace/import compositions replace transparent handwritten callbacks/getters with explicit ordered declarations. Folder permission/picker, case loading, local controls, recipient, catalog and import contracts pass unchanged. Seven import scenarios and all 27 language-review assertions pass on the new bundle. Arrays and service objects remain live, the API field widths stay at or below 25, and no source, status, review-authority or storage-format rule changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared record composition
+
+Eleven record, worksheet and publication compositions use explicit ordered declarations. All targeted activity/artifact/handoff/deadline/citation/task/commit/publication/correction contracts pass, including exact retry payloads, verification-before-write, archived PDF reuse, outcome lineage and receipt ordering. Original correction feature and R59 editor-flow assertions pass on the new bundle. The custom correction scroll adapter remains explicit. No validation, trust, clock, stored format or release identity changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

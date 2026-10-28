@@ -787,190 +787,172 @@ export const {
 const { accHM, accInflate, readXlsx, accSerial, accWhen, accParcel, applyImportRule, accelaPanel, sqlReport, lookupPlanSignature, lookupCanOpen } =
   accelaImport;
 
-const caseActivity = createCaseActivity({
-  caseState: (...args) => caseState(...args),
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  get navigation() {
-    return navigation;
-  },
-  get A11Y() {
-    return A11Y;
-  },
-  get today() {
-    return today;
-  },
-});
+const caseActivity = createCaseActivity(
+  deferredServices(
+    {
+      caseState: () => caseState,
+      sourceDocFor: () => sourceDocFor,
+      fmtDate: () => fmtDate,
+      navigation: () => navigation,
+      A11Y: () => A11Y,
+      today: () => today,
+    },
+    ["navigation", "A11Y", "today"],
+  ),
+);
 export let { remindersPanel, showReminders, showReminderDraft, timelineRows, showTimeline } = caseActivity;
 const { remindersDue } = caseActivity;
 
-const pdfArtifacts = createPdfArtifacts({
-  get navigation() {
-    return navigation;
-  },
-  get A11Y() {
-    return A11Y;
-  },
-  helperJSON: (...args) => helperJSON(...args),
-  toast: (...args) => toast(...args),
-  render: (...args) => render(...args),
-});
+const pdfArtifacts = createPdfArtifacts(
+  deferredServices({ navigation: () => navigation, A11Y: () => A11Y, helperJSON: () => helperJSON, toast: () => toast, render: () => render }, [
+    "navigation",
+    "A11Y",
+  ]),
+);
 export let { showOutbox, selectedOutbox, printOutbox, refreshArtifactLocations } = pdfArtifacts;
 
-const writerHandoff = createWriterHandoff({
-  render: (...args) => render(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  loadCaseFile: (...args) => loadCaseFile(...args),
-  get WRITER_READY_WAIT() {
-    return WRITER_READY_WAIT;
-  },
-  get HANDOFF_CHANNEL() {
-    return HANDOFF_CHANNEL;
-  },
-});
+const writerHandoff = createWriterHandoff(
+  deferredServices(
+    {
+      render: () => render,
+      preflightCase: () => preflightCase,
+      helperJSON: () => helperJSON,
+      loadCaseFile: () => loadCaseFile,
+      WRITER_READY_WAIT: () => WRITER_READY_WAIT,
+      HANDOFF_CHANNEL: () => HANDOFF_CHANNEL,
+    },
+    ["WRITER_READY_WAIT", "HANDOFF_CHANNEL"],
+  ),
+);
 export let { markWriterReady, markWriterFailed, writerOpenReportedCase, initWriterHandoff } = writerHandoff;
 
-const deadlineAssignment = createDeadlineAssignment({
-  MINDUE: (...args) => MINDUE(...args),
-  structEditable: (...args) => structEditable(...args),
-  isLocked: (...args) => isLocked(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  get navigation() {
-    return navigation;
-  },
-  get A11Y() {
-    return A11Y;
-  },
-  get snow() {
-    return snow;
-  },
-});
+const deadlineAssignment = createDeadlineAssignment(
+  deferredServices(
+    {
+      MINDUE: () => MINDUE,
+      structEditable: () => structEditable,
+      isLocked: () => isLocked,
+      fmtDate: () => fmtDate,
+      navigation: () => navigation,
+      A11Y: () => A11Y,
+      snow: () => snow,
+    },
+    ["navigation", "A11Y", "snow"],
+  ),
+);
 export let { planBulkDue, showBulkDue, updateDueIndicators, duePanel, assignDue } = deadlineAssignment;
 
-const itemSelection = createItemSelection({
-  uid: (...args) => uid(...args),
-  get snow() {
-    return snow;
-  },
-});
+const itemSelection = createItemSelection(deferredServices({ uid: () => uid, snow: () => snow }, ["snow"]));
 export let { toggleLibraryItem } = itemSelection;
-const citationWorkflow = createCitationWorkflow({
-  get administration() {
-    return administration;
-  },
-  get citationPricing() {
-    return citationPricing;
-  },
-  citationPricingDate: (...args) => citationPricingDate(...args),
-  get depositStep() {
-    return depositStep;
-  },
-  get initialCitations() {
-    return initialCitations;
-  },
-  initialOrderCitation: (...args) => initialOrderCitation(...args),
-  isLocked: (...args) => isLocked(...args),
-  get snow() {
-    return snow;
-  },
-  unchangedCorrectionValue: (...args) => unchangedCorrectionValue(...args),
-  applyDeposit: (...args) => applyDeposit(...args),
-  changeCharge: (...args) => changeChargeBasis(...args),
-  chargeChoices: (...args) => chargeChoices(...args),
-  choosesCharge: (...args) => choosesCharge(...args),
-  feeLines: (...args) => feeLines(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  get today() {
-    return today;
-  },
-});
+const citationWorkflow = createCitationWorkflow(
+  deferredServices(
+    {
+      administration: () => administration,
+      citationPricing: () => citationPricing,
+      citationPricingDate: () => citationPricingDate,
+      depositStep: () => depositStep,
+      initialCitations: () => initialCitations,
+      initialOrderCitation: () => initialOrderCitation,
+      isLocked: () => isLocked,
+      snow: () => snow,
+      unchangedCorrectionValue: () => unchangedCorrectionValue,
+      applyDeposit: () => applyDeposit,
+      changeCharge: () => changeChargeBasis,
+      chargeChoices: () => chargeChoices,
+      choosesCharge: () => choosesCharge,
+      feeLines: () => feeLines,
+      fmtDate: () => fmtDate,
+      today: () => today,
+    },
+    ["administration", "citationPricing", "depositStep", "initialCitations", "snow", "today"],
+  ),
+);
 export let { depositComplete, initialCitationBody, citationDepositFault, editCitation, commitCitationEdits, authoringChecks, citationReview } =
   citationWorkflow;
 
-const workspaceTaskPresentation = createWorkspaceTasks({
-  fmtDate: (...args) => fmtDate(...args),
-  hasSetupWork: (...args) => hasSetupWork(...args),
-  depositComplete: (...args) => depositComplete(...args),
-});
+const workspaceTaskPresentation = createWorkspaceTasks(
+  deferredServices({ fmtDate: () => fmtDate, hasSetupWork: () => hasSetupWork, depositComplete: () => depositComplete }),
+);
 export let { workspaceTasks } = workspaceTaskPresentation;
 
-const recordCommit = createRecordCommit({
-  toast: (...args) => toast(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  caseFile: (...args) => caseFile(...args),
-  get COMMITTED() {
-    return COMMITTED;
-  },
-  helperJSON: (...args) => helperJSON(...args),
-  mergeCaseEvents: (...args) => mergeCaseEvents(...args),
-  project: (...args) => project(...args),
-  rememberSaved: (...args) => rememberSaved(...args),
-  idbSet: (...args) => idbSet(...args),
-  writeSummary: (...args) => writeSummary(...args),
-  render: (...args) => render(...args),
-});
+const recordCommit = createRecordCommit(
+  deferredServices(
+    {
+      toast: () => toast,
+      saveDrafts: () => saveDrafts,
+      caseFile: () => caseFile,
+      COMMITTED: () => COMMITTED,
+      helperJSON: () => helperJSON,
+      mergeCaseEvents: () => mergeCaseEvents,
+      project: () => project,
+      rememberSaved: () => rememberSaved,
+      idbSet: () => idbSet,
+      writeSummary: () => writeSummary,
+      render: () => render,
+    },
+    ["COMMITTED"],
+  ),
+);
 export let { commitAmendment } = recordCommit;
 
-const publicationPreparation = createPublicationPreparation({
-  get snow() {
-    return snow;
-  },
-  get newDocuments() {
-    return newDocuments;
-  },
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  worksheetFaults: (...args) => worksheetFaults(...args),
-  get today() {
-    return today;
-  },
-  cleanVisit: (...args) => cleanVisit(...args),
-  evid: (...args) => evid(...args),
-  freezeSources: (...args) => freezeSources(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-});
+const publicationPreparation = createPublicationPreparation(
+  deferredServices(
+    {
+      snow: () => snow,
+      newDocuments: () => newDocuments,
+      sourceDocFor: () => sourceDocFor,
+      worksheetFaults: () => worksheetFaults,
+      today: () => today,
+      cleanVisit: () => cleanVisit,
+      evid: () => evid,
+      freezeSources: () => freezeSources,
+      initialCitations: () => initialCitations,
+    },
+    ["snow", "newDocuments", "today", "initialCitations"],
+  ),
+);
 export let { lifecycleChecks } = publicationPreparation;
 const { makePublication } = publicationPreparation;
 
-const publicationWorkflow = createPublicationWorkflow({
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  toast: (...args) => toast(...args),
-  commitCitationEdits: (...args) => commitCitationEdits(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-  get citationPricing() {
-    return citationPricing;
-  },
-  blockers: (...args) => blockers(...args),
-  makePublication: (...args) => makePublication(...args),
-  commitAmendment: (...args) => commitAmendment(...args),
-  printJob: (...args) => printJob(...args),
-  filePdf: (...args) => filePdf(...args),
-  emailDocument: (...args) => emailDocument(...args),
-  needsInitialCitation: (...args) => needsInitialCitation(...args),
-  revealIssuedCase: (...args) => revealIssuedCase(...args),
-  focusIssuedCase: (...args) => focusIssuedCase(...args),
-});
+const publicationWorkflow = createPublicationWorkflow(
+  deferredServices(
+    {
+      recordIntegrity: () => recordIntegrity,
+      toast: () => toast,
+      commitCitationEdits: () => commitCitationEdits,
+      saveDrafts: () => saveDrafts,
+      render: () => render,
+      refreshCatalog: () => refreshCatalog,
+      initialCitations: () => initialCitations,
+      citationPricing: () => citationPricing,
+      blockers: () => blockers,
+      makePublication: () => makePublication,
+      commitAmendment: () => commitAmendment,
+      printJob: () => printJob,
+      filePdf: () => filePdf,
+      emailDocument: () => emailDocument,
+      needsInitialCitation: () => needsInitialCitation,
+      revealIssuedCase: () => revealIssuedCase,
+      focusIssuedCase: () => focusIssuedCase,
+    },
+    ["recordIntegrity", "initialCitations", "citationPricing"],
+  ),
+);
 export let { publishDocument, publicationPanel } = publicationWorkflow;
 
-const correctionPreparation = createCorrectionPreparation({
-  validateAndStandardizeAddresses: (...args) => validateAndStandardizeAddresses(...args),
-  freezeSources: (...args) => freezeSources(...args),
-  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
-  documentItemHistory: (...args) => documentItemHistory(...args),
-  evid: (...args) => evid(...args),
-  get today() {
-    return today;
-  },
-});
+const correctionPreparation = createCorrectionPreparation(
+  deferredServices(
+    {
+      validateAndStandardizeAddresses: () => validateAndStandardizeAddresses,
+      freezeSources: () => freezeSources,
+      hasItemInspectionHistory: () => hasItemInspectionHistory,
+      documentItemHistory: () => documentItemHistory,
+      evid: () => evid,
+      today: () => today,
+    },
+    ["today"],
+  ),
+);
 export let { correctionChanges, correctionEligibility, correctionChecks, correctionTypeAllowed, correctionVisitPatch } = correctionPreparation;
 const { makeCorrectionAttempt } = correctionPreparation;
 
