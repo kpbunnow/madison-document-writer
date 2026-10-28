@@ -501,3 +501,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Eight rendering/context/event compositions replace 67 handwritten forwarders and thirty getters with explicit ordered declarations. Renderer, view-context callback identity, pagination and sixty-listener contracts pass, with unchanged frozen facts, footer/read order, snow/mobile behavior and scope widths. Native Chromium passes all 69 exact authored variants and detects overflow/clipping/missing-copy mutations. Renderers and approved print wording/layout are untouched. An AST census at the pre-M4 checkpoint measured 763 transparent rest-argument forwarders (the earlier plan reported 761) and 209 getters; current measurements use the explicit AST definition rather than assuming the earlier raw count.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared startup and listener composition
+
+The final eligible listener/startup and test-fixture compositions replace 127 transparent handwritten forwarders and eight getters with explicit ordered declarations. Sixty listener checkpoints, all startup stage/lock/restore tests, native fixture-free production, real-browser repaint, seven import scenarios and R59 editor flow pass. Test-fixture construction remains behind the unchanged build-time branch. Only four small compositions with deliberate custom store/platform/scroll/clock behavior remain handwritten; they retain their original semantics rather than being forced through a transparent adapter. No registry, eager service read, release change or deployment is introduced.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
