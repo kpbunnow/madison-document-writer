@@ -741,3 +741,15 @@ Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 12
 Separated measurement eligibility from schedule rule arithmetic while retaining the tiers shortcut and original ordered field reads. Added an exact pre-change private-rule reference and 624 direct measurement boundary cases; all 8917 amount/input-read comparisons and 624 direct cases pass before/after extraction. R32 JavaScript/Python pricing parity and automatic draft workflow pass against a fresh build, plus module boundaries, seam inventory, ESLint and formatting. Private rule is exported only inside the isolated test compilation; production API is unchanged.
 
 Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## citation-row-selection
+
+Separated exact schedule row selection from mapping, ancestor, child and fallback resolution. Retained ambiguity refusal, equivalent-rule selection and explicit entry identity behavior. Added an exact pre-change ordinance reference and 1950 direct mapping/row selections. All 8917 resolution scenarios, 624 measurement cases and 1950 ordinance selections pass before/after extraction. R32 JavaScript/Python parity/draft workflow, citation refresh comparisons, fresh build, boundaries, seams, ESLint and formatting pass. Production API and lookup/refusal order are unchanged.
+
+Measured counts: {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## citation-row-selection-completion
+
+Completed row-selection separation by naming the ancestor/child/fallback phase. The first exact-row extraction lowered resolveOrdinance 27 to 22; this completion lowers it below 20 rather than claiming that the earlier commit had already removed the finding. All 8917 resolution, 624 measurement and 1950 ordinance comparisons pass; ESLint and formatting pass. JS findings now fall 69 to 68. Production exports remain unchanged.
+
+Measured counts: {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 68, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
