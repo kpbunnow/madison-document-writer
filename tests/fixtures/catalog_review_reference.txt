@@ -1,0 +1,56 @@
+def catalog_review(data):
+    if set(data) not in (
+        {"key", "status", "reviewer", "wording", "ordinances", "source", "replaces"},
+        {"key", "status", "reviewer", "wording", "ordinances", "source", "replaces", "expectedVersion"},
+    ):
+        raise ValueError("Invalid catalog review request")
+    key, status = data["key"], data["status"]
+    if not isinstance(key, str) or not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",\d+\]', key) or status not in ("approved", "retired"):
+        raise ValueError("Invalid catalog identity or status")
+    if data["replaces"] and (not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",\d+\]', data["replaces"]) or data["replaces"] == key):
+        raise ValueError("Invalid replacement relationship")
+    manifest = json.loads((resource("catalog_manifest.json")).read_text(encoding="utf-8"))
+    if (
+        manifest.get("format") != "madison-catalog-manifest"
+        or key not in manifest.get("items", {})
+        or data["replaces"]
+        and data["replaces"] not in manifest["items"]
+    ):
+        raise ValueError("Catalog key or replacement is not in the bundled catalog")
+    if not isinstance(data["ordinances"], list) or not all(isinstance(s, str) and 1 <= len(s.strip()) <= 100 for s in data["ordinances"]):
+        raise ValueError("Invalid ordinance references")
+    if any(not isinstance(data[n], str) or len(data[n].strip()) > 5000 for n in ("reviewer", "wording", "source", "replaces")):
+        raise ValueError("Invalid catalog review fields")
+    if not data["reviewer"].strip() or not data["source"].strip() or status == "approved" and (not data["wording"].strip() or not data["ordinances"]):
+        raise ValueError("Reviewer, source, approved wording and ordinance references are required")
+    path = catalog_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with file_lock(path.parent, "catalog-review"):
+        events = catalog_events()
+        version = 1 + max((e.get("version", 0) for e in events if e.get("key") == key), default=0)
+        if "expectedVersion" in data and data["expectedVersion"] != version - 1:
+            raise ValueError("Catalog entry changed since this review form opened; compare versions before saving")
+        if data["replaces"]:
+            current = {e["key"]: e for e in events}
+            chain = {x: e.get("replaces") for x, e in current.items() if e.get("status") == "approved"}
+            chain[key] = data["replaces"]
+            seen = {key}
+            node = data["replaces"]
+            while node:
+                if node in seen:
+                    raise ValueError("Catalog replacement relationship has a cycle")
+                seen.add(node)
+                node = chain.get(node)
+        event = {
+            "id": str(uuid.uuid4()),
+            "key": key,
+            "status": status,
+            "version": version,
+            "at": datetime.now(timezone.utc).isoformat(),
+            **{k: v for k, v in data.items() if k != "expectedVersion"},
+        }
+        events.append(event)
+        atomic_write(
+            path, json.dumps({"format": "madison-catalog-review", "version": 1, "events": events}, ensure_ascii=False, indent=2).encode("utf-8")
+        )
+    return {"ok": True, "event": event, "events": events}

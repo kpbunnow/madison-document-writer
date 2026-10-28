@@ -875,7 +875,7 @@ def catalog_events():
     return value["events"]
 
 
-def catalog_review(data):
+def _validated_catalog_review_request(data):
     if set(data) not in (
         {"key", "status", "reviewer", "wording", "ordinances", "source", "replaces"},
         {"key", "status", "reviewer", "wording", "ordinances", "source", "replaces", "expectedVersion"},
@@ -900,6 +900,11 @@ def catalog_review(data):
         raise ValueError("Invalid catalog review fields")
     if not data["reviewer"].strip() or not data["source"].strip() or status == "approved" and (not data["wording"].strip() or not data["ordinances"]):
         raise ValueError("Reviewer, source, approved wording and ordinance references are required")
+    return key, status
+
+
+def catalog_review(data):
+    key, status = _validated_catalog_review_request(data)
     path = catalog_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     with file_lock(path.parent, "catalog-review"):
