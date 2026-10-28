@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 62,
+    "complexity": 61,
     "max-depth": 0,
     "max-lines-per-function": 117,
     "python": 15
@@ -153,8 +153,7 @@
     "app/modules/reports_screens.js:createReportsScreens#1/filtersBar#1:max-lines-per-function": 86,
     "app/modules/reports_screens.js:createReportsScreens#1/sheetXml#1/anonymous#1/anonymous#1:complexity": 21,
     "app/modules/reports_screens.js:createReportsScreens#1/tablePanel#1:max-lines-per-function": 83,
-    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 611,
-    "app/modules/reports_services.js:createReportsServices#1/caseOk#1:complexity": 36,
+    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 595,
     "app/modules/reports_services.js:createReportsServices#1/loadAll#1:complexity": 21,
     "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,

@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_report_filter_rules.js` | Frozen Reports filter comparisons for notice/current-as-of status, historical violations and lazy input/service reads. |
 | `audit_report_model_rules.js` | Frozen Reports model comparisons for stale exclusions, parcel history, geography, object links and service effects. |
 | `audit_reinspection_entry_rules.js` | Frozen worksheet-entry comparisons for priority guards, imported visits, carried outcomes, state aliases and service effects. |
 | `audit_followup_draft_rules.js` | Frozen drafting comparisons over guard precedence, partial failures, document registration and lazy service order. |
