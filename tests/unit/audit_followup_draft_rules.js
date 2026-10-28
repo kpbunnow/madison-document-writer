@@ -173,7 +173,7 @@ const assert = require("node:assert/strict"),
       assert.ok(drafted.registered.every((d) => d.retained));
     }
     compare(x);
-    for (let failAt = 1; failAt <= 20; failAt++) compare(x, failAt);
+    for (let failAt = 1; failAt <= 35; failAt++) compare(x, failAt);
   }
   for (let n = 0; n < 2500; n++) {
     const x = fixture();

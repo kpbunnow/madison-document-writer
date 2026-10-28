@@ -505,6 +505,155 @@ function worksheetCheckPanelHTML(list, checkRowHTML) {
     : "";
 }
 
+function followupItemDue(it, res, type, hasHistory, cleared) {
+  return (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due;
+}
+
+function followupDraftItem(services, r, type, hasHistory, pos, it) {
+  const res = r.results[it.id] || {},
+    cleared = res.oc === "corrected";
+  return {
+    ...it,
+    id: services.inspection.uid("x"),
+    no: it.no || String((pos.get(it.id) || 0) + 1),
+    due: followupItemDue(it, res, type, hasHistory, cleared),
+    done: cleared,
+    doneOn: cleared ? res.on || r.date : "",
+    note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
+    noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
+    hist: hasHistory ? services.inspection.itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
+    cite: type === "citation" && !cleared && !!res.cite,
+    srcItemId: it.id,
+  };
+}
+
+function reopenFollowupDraft(services, r) {
+  // only an existing document closes the worksheet; a discarded one leaves
+  // it open to write the follow-up again
+  if (r.docId && !doc(r.docId)) r.docId = null;
+  if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
+    editor.state.docId = r.docId;
+    editor.state.screen = "write";
+    services.ui.render();
+    return true;
+  }
+  return false;
+}
+
+function followupDraftAllowed(services, r, type, src, carry) {
+  if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
+    services.ui.toast("Open a current reinspection worksheet first");
+    return false;
+  }
+  if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
+    services.ui.toast("Choose an available follow-up type.");
+    return false;
+  }
+  const unavailable = services.authoring.newDocuments.eligibility?.(r, type);
+  if (unavailable) {
+    services.ui.toast(unavailable);
+    return false;
+  }
+  const faults = services.inspection.worksheetFaults(r, type);
+  if (faults.length) {
+    services.ui.toast(faults[0]);
+    return false;
+  }
+  if (unchecked(r).length) {
+    services.ui.toast("Choose an outcome for every item first");
+    return false;
+  }
+  if (!services.inspection.validISO(r.date) || r.date > recordDay(today)) {
+    services.ui.toast("Enter a valid inspection date");
+    return false;
+  }
+  if (type !== "compliance" && !carry.length) {
+    services.ui.toast("Nothing outstanding to carry forward");
+    return false;
+  }
+  if (type === "compliance" && carry.length) {
+    services.ui.toast("Items are still outstanding — a compliance letter closes every item");
+    return false;
+  }
+  return true;
+}
+
+function buildFollowupDraft(services, r, type, src) {
+  const pos = new Map(src.items.map((it, i) => [it.id, i]));
+  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
+  const nd = {
+    id: services.inspection.uid("d"),
+    caseId: r.caseId,
+    type: type,
+    created: recordDay(today),
+    status: "Draft",
+    draft: true,
+    mailed: recordDay(today),
+    cc: "",
+    cits: {},
+    ...(hasHistory || type === "citation" ? { authoringVersion: 16 } : {}),
+    fromReinspId: r.id,
+    fromDocId: src.id,
+    expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
+    replaces: r.replaces || "",
+    ...(r.importInspection ? { importInspection: clone(r.importInspection) } : {}),
+    inspectorId: r.inspectorId || kase(r.caseId).inspectorId,
+    inspDate: r.date || "",
+    inspTime: r.time || "",
+    items: src.items.map((it) => followupDraftItem(services, r, type, hasHistory, pos, it)),
+  };
+  if (hasHistory) nd.items.forEach((it) => (it.hist = services.inspection.itemInspectionHistory(nd, it)));
+  return nd;
+}
+
+function prepareFollowupCitations(services, r, src, nd, narrativeFor) {
+  if (!nd.items.some((i) => i.cite)) {
+    workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
+    services.ui.toast("Select the items to cite on the inspection worksheet.");
+    return false;
+  }
+  nd.items
+    .filter((i) => i.cite)
+    .forEach((i) => {
+      const sections = (i.sections || []).map(canonicalOrdinance),
+        ord = sections.length === 1 ? sections[0] : "";
+      nd.cits[i.id] = {
+        deptId: insp(nd.inspectorId).badge || "",
+        num: services.authoring.citationNumber(),
+        courtTime: courtTime(),
+        comment: narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
+        ord,
+        preparedSections: sections,
+        autoFilledCharge: !!ord,
+        desc: String(i.title || "").toUpperCase(),
+        issued: recordDay(today),
+        courtDate: services.authoring.nextCourtDate(recordDay(today)),
+        depositMode: "schedule",
+      };
+      services.authoring.applyDeposit(nd, i.id, ord);
+    });
+
+  return true;
+}
+
+function followupDraftMessage(type, carry, n, cl) {
+  return type === "compliance"
+    ? "Compliance letter drafted — review and issue it to close the case"
+    : type === "referral" || type === "referralUpdate"
+      ? (DOC_TYPES.find((t) => t.id === type) || {}).label +
+        " started \u2014 " +
+        carry.length +
+        " item" +
+        (carry.length === 1 ? "" : "s") +
+        " still outstanding"
+      : ((DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
+        " started \u2014 " +
+        carry.length +
+        " outstanding" +
+        (cl ? ", " + cl + " shown as corrected" : "") +
+        (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : "");
+}
+
 export function createReinspection(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -1106,127 +1255,18 @@ export function createReinspection(services) {
   }
 
   function docFromReinspection(r, type) {
-    // only an existing document closes the worksheet; a discarded one leaves
-    // it open to write the follow-up again
-    if (r.docId && !doc(r.docId)) r.docId = null;
-    if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
-      editor.state.docId = r.docId;
-      editor.state.screen = "write";
-      services.ui.render();
-      return;
-    }
+    if (reopenFollowupDraft(services, r)) return;
     const src = doc(r.sourceDocId),
       carry = openItems(r);
-    if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
-      services.ui.toast("Open a current reinspection worksheet first");
-      return;
-    }
-    if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
-      services.ui.toast("Choose an available follow-up type.");
-      return;
-    }
-    const unavailable = services.authoring.newDocuments.eligibility?.(r, type);
-    if (unavailable) {
-      services.ui.toast(unavailable);
-      return;
-    }
-    const faults = services.inspection.worksheetFaults(r, type);
-    if (faults.length) {
-      services.ui.toast(faults[0]);
-      return;
-    }
-    if (unchecked(r).length) {
-      services.ui.toast("Choose an outcome for every item first");
-      return;
-    }
-    if (!services.inspection.validISO(r.date) || r.date > recordDay(today)) {
-      services.ui.toast("Enter a valid inspection date");
-      return;
-    }
-    if (type !== "compliance" && !carry.length) {
-      services.ui.toast("Nothing outstanding to carry forward");
-      return;
-    }
-    if (type === "compliance" && carry.length) {
-      services.ui.toast("Items are still outstanding — a compliance letter closes every item");
-      return;
-    }
-    const pos = new Map(src.items.map((it, i) => [it.id, i]));
-    const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
-    const nd = {
-      id: services.inspection.uid("d"),
-      caseId: r.caseId,
-      type: type,
-      created: recordDay(today),
-      status: "Draft",
-      draft: true,
-      mailed: recordDay(today),
-      cc: "",
-      cits: {},
-      ...(hasHistory || type === "citation" ? { authoringVersion: 16 } : {}),
-      fromReinspId: r.id,
-      fromDocId: src.id,
-      expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
-      replaces: r.replaces || "",
-      ...(r.importInspection ? { importInspection: clone(r.importInspection) } : {}),
-      inspectorId: r.inspectorId || kase(r.caseId).inspectorId,
-      inspDate: r.date || "",
-      inspTime: r.time || "",
-      items: src.items.map((it) => {
-        const res = r.results[it.id] || {},
-          cleared = res.oc === "corrected";
-        return {
-          ...it,
-          id: services.inspection.uid("x"),
-          no: it.no || String((pos.get(it.id) || 0) + 1),
-          due: (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due,
-          done: cleared,
-          doneOn: cleared ? res.on || r.date : "",
-          note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
-          noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
-          hist: hasHistory ? services.inspection.itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
-          cite: type === "citation" && !cleared && !!res.cite,
-          srcItemId: it.id,
-        };
-      }),
-    };
-    // a citation is filed per ordinance, so each ticked item gets its own form
-    // register the document before its citations are numbered, so each number is
-    // checked against the ones already issued on this document too
-    if (hasHistory) nd.items.forEach((it) => (it.hist = services.inspection.itemInspectionHistory(nd, it)));
+    if (!followupDraftAllowed(services, r, type, src, carry)) return;
+    const nd = buildFollowupDraft(services, r, type, src);
     workspace.DOCS.unshift(nd);
     if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
       workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
       services.ui.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
       return;
     }
-    if (type === "citation") {
-      if (!nd.items.some((i) => i.cite)) {
-        workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
-        services.ui.toast("Select the items to cite on the inspection worksheet.");
-        return;
-      }
-      nd.items
-        .filter((i) => i.cite)
-        .forEach((i) => {
-          const sections = (i.sections || []).map(canonicalOrdinance),
-            ord = sections.length === 1 ? sections[0] : "";
-          nd.cits[i.id] = {
-            deptId: insp(nd.inspectorId).badge || "",
-            num: services.authoring.citationNumber(),
-            courtTime: courtTime(),
-            comment: narrativeFor(r, src.items.find((x) => x.id === i.srcItemId) || i),
-            ord,
-            preparedSections: sections,
-            autoFilledCharge: !!ord,
-            desc: String(i.title || "").toUpperCase(),
-            issued: recordDay(today),
-            courtDate: services.authoring.nextCourtDate(recordDay(today)),
-            depositMode: "schedule",
-          };
-          services.authoring.applyDeposit(nd, i.id, ord);
-        });
-    }
+    if (type === "citation" && !prepareFollowupCitations(services, r, src, nd, narrativeFor)) return;
     r.docId = nd.id;
     editor.state.docId = nd.id;
     editor.state.screen = "write";
@@ -1236,23 +1276,7 @@ export function createReinspection(services) {
     if (type === "citation") services.authoring.depositStep.openNext(nd);
     const n = nd.items.filter((i) => i.cite).length,
       cl = nd.items.filter((i) => i.done).length;
-    services.ui.toast(
-      type === "compliance"
-        ? "Compliance letter drafted — review and issue it to close the case"
-        : type === "referral" || type === "referralUpdate"
-          ? (DOC_TYPES.find((t) => t.id === type) || {}).label +
-            " started \u2014 " +
-            carry.length +
-            " item" +
-            (carry.length === 1 ? "" : "s") +
-            " still outstanding"
-          : ((DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
-            " started \u2014 " +
-            carry.length +
-            " outstanding" +
-            (cl ? ", " + cl + " shown as corrected" : "") +
-            (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : ""),
-    );
+    services.ui.toast(followupDraftMessage(type, carry, n, cl));
   }
   return {
     walkIdentity,
