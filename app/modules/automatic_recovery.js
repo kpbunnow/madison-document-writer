@@ -1,3 +1,4 @@
+import { recoveryState as recovery } from "./recovery_state.js";
 import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor, kase } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
@@ -121,48 +122,48 @@ export function createAutomaticRecovery(services) {
     for (const job of jobs) {
       const signature = stableJSON({ bundle: job.backup.bundle, pending: job.backup.pending, included: job.backup.included });
       const key = job.workspace + "|" + job.case;
-      if (WriterState.RECOVERY_SIGNATURES[key] === signature) continue;
+      if (recovery.RECOVERY_SIGNATURES[key] === signature) continue;
       try {
         await services.helperJSON("/draft-backups/write", job);
-        WriterState.RECOVERY_SIGNATURES[key] = signature;
-        WriterState.RECOVERY.at = nowISO();
+        recovery.RECOVERY_SIGNATURES[key] = signature;
+        recovery.RECOVERY.at = nowISO();
       } catch (error) {
         errors.push((job.backup.number || job.case) + ": " + error.message);
       }
     }
-    WriterState.RECOVERY.error = errors.join("; ");
+    recovery.RECOVERY.error = errors.join("; ");
   }
 
   function scheduleRecoveryBackup() {
     if (!WriterState.HELPER) return;
-    services.clearTimeout(WriterState.RECOVERY_TIMER);
-    WriterState.RECOVERY_TIMER = services.setTimeout(() => {
+    services.clearTimeout(recovery.RECOVERY_TIMER);
+    recovery.RECOVERY_TIMER = services.setTimeout(() => {
       let jobs;
       try {
         jobs = recoveryJobs();
       } catch (e) {
-        WriterState.RECOVERY.error = e.message;
+        recovery.RECOVERY.error = e.message;
         services.renderRecoveryStatus();
         return;
       }
-      WriterState.RECOVERY_NEXT = jobs; // Keep only the latest successfully saved browser state.
-      if (WriterState.RECOVERY_BUSY) return;
-      WriterState.RECOVERY_BUSY = true;
+      recovery.RECOVERY_NEXT = jobs; // Keep only the latest successfully saved browser state.
+      if (recovery.RECOVERY_BUSY) return;
+      recovery.RECOVERY_BUSY = true;
       (async () => {
-        while (WriterState.RECOVERY_NEXT) {
-          const pending = WriterState.RECOVERY_NEXT;
-          WriterState.RECOVERY_NEXT = null;
+        while (recovery.RECOVERY_NEXT) {
+          const pending = recovery.RECOVERY_NEXT;
+          recovery.RECOVERY_NEXT = null;
           try {
             await backupUnfinished(pending);
           } catch (e) {
-            WriterState.RECOVERY.error = e.message || String(e);
+            recovery.RECOVERY.error = e.message || String(e);
           }
           services.renderRecoveryStatus();
         }
-        WriterState.RECOVERY_BUSY = false;
+        recovery.RECOVERY_BUSY = false;
       })().catch((e) => {
-        WriterState.RECOVERY_BUSY = false;
-        WriterState.RECOVERY.error = e.message;
+        recovery.RECOVERY_BUSY = false;
+        recovery.RECOVERY.error = e.message;
         services.renderRecoveryStatus();
       });
     }, 700);

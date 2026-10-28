@@ -34,6 +34,7 @@ export default [
       "app/modules/document_rules.js",
       "app/modules/writer_queries.js",
       "app/modules/workspace_state.js",
+      "app/modules/recovery_state.js",
       "app/modules/imports_state.js",
       "app/modules/startup_state.js",
       "app/modules/catalog_state.js",

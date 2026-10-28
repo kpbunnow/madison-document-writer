@@ -1,3 +1,4 @@
+import { recoveryState as recovery } from "./recovery_state.js";
 import { badIds, caseFileFault } from "./case_file_rules.js";
 import { SCHEMA } from "./document_types.js";
 import { stableJSON, clone } from "./record_values.js";
@@ -12,35 +13,35 @@ export function recoverySharedConflict(value) {
 // Individual-case recovery coordination; UI, helper/shared comparison and device storage stay supplied.
 export function createCaseRecovery(services) {
   async function listRecovery() {
-    WriterState.RECOVERY.loading = true;
+    recovery.RECOVERY.loading = true;
     WriterState.state.modal = "recovery";
     services.render();
     try {
-      WriterState.RECOVERY.list = (await services.helperJSON("/draft-backups/list")).backups;
-      WriterState.RECOVERY.error = "";
+      recovery.RECOVERY.list = (await services.helperJSON("/draft-backups/list")).backups;
+      recovery.RECOVERY.error = "";
     } catch (e) {
-      WriterState.RECOVERY.error = e.message;
-      WriterState.RECOVERY.list = [];
+      recovery.RECOVERY.error = e.message;
+      recovery.RECOVERY.list = [];
     }
-    WriterState.RECOVERY.loading = false;
+    recovery.RECOVERY.loading = false;
     services.render();
   }
 
   async function selectRecovery(row) {
-    const token = ++WriterState.RECOVERY_SELECT_SEQ;
-    WriterState.RECOVERY.selected = null;
-    WriterState.RECOVERY.shared = null;
+    const token = ++recovery.RECOVERY_SELECT_SEQ;
+    recovery.RECOVERY.selected = null;
+    recovery.RECOVERY.shared = null;
     services.render();
     const result = row.imported
       ? { backup: row.imported }
       : await services.helperJSON("/draft-backups/read", { workspace: row.workspace, case: row.case, name: row.name });
-    if (WriterState.state.modal !== "recovery" || WriterState.RECOVERY_SELECT_SEQ !== token) return;
+    if (WriterState.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     const backup = result.backup;
     validateRecovery(backup, row);
     const shared = await recoverySharedState(backup);
-    if (WriterState.state.modal !== "recovery" || WriterState.RECOVERY_SELECT_SEQ !== token) return;
-    WriterState.RECOVERY.selected = backup;
-    WriterState.RECOVERY.shared = shared;
+    if (WriterState.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
+    recovery.RECOVERY.selected = backup;
+    recovery.RECOVERY.shared = shared;
     services.render();
   }
 
@@ -163,10 +164,10 @@ export function createCaseRecovery(services) {
   }
 
   async function restoreRecovery() {
-    const b = WriterState.RECOVERY.selected;
+    const b = recovery.RECOVERY.selected;
     if (!b) return;
-    const selection = WriterState.RECOVERY_SELECT_SEQ;
-    const row = WriterState.RECOVERY.list.find((x) => x.workspace === b.workspace && x.case === b.case && x.number === b.number);
+    const selection = recovery.RECOVERY_SELECT_SEQ;
+    const row = recovery.RECOVERY.list.find((x) => x.workspace === b.workspace && x.case === b.case && x.number === b.number);
     if (!row) {
       services.toast("Select a backup again.");
       return;
@@ -174,8 +175,8 @@ export function createCaseRecovery(services) {
     try {
       validateRecovery(b, row);
       const currentShared = await recoverySharedState(b);
-      if (selection !== WriterState.RECOVERY_SELECT_SEQ || WriterState.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
-      WriterState.RECOVERY.shared = currentShared;
+      if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
+      recovery.RECOVERY.shared = currentShared;
       if (recoverySharedConflict(currentShared))
         throw new Error("Review the changed shared record before restoring this draft. Export the backup first.");
       const k = b.bundle.cases[0];
@@ -212,7 +213,7 @@ export function createCaseRecovery(services) {
           const copy = services.recoverySnapshot(k.id, services.recoveryCaseKey(k.id));
           copy.preReplacement = true;
           await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: copy.case, backup: copy });
-          if (selection !== WriterState.RECOVERY_SELECT_SEQ || WriterState.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
+          if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || WriterState.state.modal !== "recovery") return;
           if (
             !services.confirm(
               "Local work differs (" +
