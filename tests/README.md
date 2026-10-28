@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_language_action_rules.js` | Language action equivalence: refusal order, service reads, focus and refresh |
 | `audit_walk_shortcut_rules.js` | Frozen keyboard comparisons for listener ownership, interactive targets, context mutation, undo/outcomes and ordered effects. |
 | `audit_report_filter_rules.js` | Frozen Reports filter comparisons for notice/current-as-of status, historical violations and lazy input/service reads. |
 | `audit_report_model_rules.js` | Frozen Reports model comparisons for stale exclusions, parcel history, geography, object links and service effects. |

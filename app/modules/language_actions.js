@@ -25,16 +25,7 @@ export function createLanguageActions(services) {
       return;
     }
     if (button.dataset.catalogOpen) {
-      const i = services.catalogItem(button.dataset.catalogOpen);
-      if (!i || editor.state.screen !== "library" || editor.state.languageMode !== "admin") return;
-      editor.state.catalogAdminKey = services.catalogKey(i);
-      catalog.CATALOG_FORMS[editor.state.catalogAdminKey] = {
-        ...services.catalogForm(editor.state.catalogAdminKey, i, services.catalogReview(editor.state.catalogAdminKey)),
-        open: true,
-      };
-      services.keepCatalogForms();
-      services.render();
-      document.getElementById("catalog-entry-title")?.focus();
+      openCatalogEntry(button);
       return;
     }
     if (button.hasAttribute("data-language-refresh")) {
@@ -48,6 +39,23 @@ export function createLanguageActions(services) {
       }
       return;
     }
+    filterLanguage(button);
+  }
+
+  function openCatalogEntry(button) {
+    const i = services.catalogItem(button.dataset.catalogOpen);
+    if (!i || editor.state.screen !== "library" || editor.state.languageMode !== "admin") return;
+    editor.state.catalogAdminKey = services.catalogKey(i);
+    catalog.CATALOG_FORMS[editor.state.catalogAdminKey] = {
+      ...services.catalogForm(editor.state.catalogAdminKey, i, services.catalogReview(editor.state.catalogAdminKey)),
+      open: true,
+    };
+    services.keepCatalogForms();
+    services.render();
+    document.getElementById("catalog-entry-title")?.focus();
+  }
+
+  function filterLanguage(button) {
     const picker = !!button.closest(".picker-box");
     if (button.dataset.languageReplacement) {
       const i = services.catalogItem(button.dataset.languageReplacement);
