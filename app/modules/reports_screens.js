@@ -500,6 +500,16 @@ function reportCoverageListHTML(services, l) {
     : "";
 }
 
+function unlocatedReportCaseReason(c) {
+  return !c.parcel
+    ? "no parcel on the case"
+    : !c.parcelKey
+      ? "parcel " + c.parcel + " is not 12 digits"
+      : c.looked
+        ? "parcel " + c.parcel + " is not on the city parcel layer"
+        : "parcel " + c.parcel + " has not been looked up yet";
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1157,14 +1167,7 @@ export function createReportsScreens(services) {
       a = ReportsState.S.areas || {};
     const unlocated = M.counted.filter((c) => !c.located);
     const li = (l) => reportCoverageListHTML(services, l);
-    const why = (c) =>
-      !c.parcel
-        ? "no parcel on the case"
-        : !c.parcelKey
-          ? "parcel " + c.parcel + " is not 12 digits"
-          : c.looked
-            ? "parcel " + c.parcel + " is not on the city parcel layer"
-            : "parcel " + c.parcel + " has not been looked up yet";
+    const why = unlocatedReportCaseReason;
     return (
       '<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h' +
       '2></div><div class="panel-b"><p>For missing, stale or excluded summaries' +
