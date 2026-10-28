@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 64,
+    "complexity": 63,
     "max-depth": 0,
-    "max-lines-per-function": 119,
+    "max-lines-per-function": 118,
     "python": 15
   },
   "violations": {
@@ -138,8 +138,6 @@
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:max-lines-per-function": 85,
     "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 171,
     "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
-    "app/modules/reinspection_entry.js:createReinspectionEntry#1:max-lines-per-function": 82,
-    "app/modules/reinspection_entry.js:createReinspectionEntry#1/startReinspection#1:complexity": 23,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 211,
     "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1:complexity": 25,
     "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 623,
