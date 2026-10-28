@@ -194,3 +194,16 @@ state mutations and service lookup order as well as byte-identical markup. The
 corpus covers empty, queue/filter, proof, draft, deadline and import states; the
 full gate retains the separate production accessibility checkpoints. Complexity
 violations 82 → 80; length reports 134 → 131.
+
+## M3 modal sections
+
+Modal dispatch keeps its original precedence and delegates send, recipients,
+workspace removal, storage, folder and finalization to named renderers. Copies,
+email rows and final recipients have separate sections. Every function in
+screen_overlays is at most 80 nonblank/noncomment lines and complexity 20.
+
+The original screen-owner audit and 1,026 exact pre-refactor HTML snapshots pass,
+including recipient errors, company agents, corrections, busy finalization,
+folder filters and storage modes. Every snapshot renders and retains state and
+lazy service lookup order. Complexity violations 80 → 79; length 131 → 129.
+Frozen print renderers and screen-shell references are untouched.
