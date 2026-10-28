@@ -555,3 +555,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Before extracting the editor screen, an independent public-factory seam pins its current function as an immutable test reference. It compares complete HTML, state mutations and ordered service getter/call traces across 2,031 seeded and boundary cases covering drafts, retained/locked records, corrections, invalid proof, pending actions, initial citations, copies and missing documents. Attribute/text inputs include escaped characters. Every generated case must render successfully, so matching exceptions cannot mask missing coverage. The reference and assertions are test-only; no application hook or production function changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 editor named sections
+
+The editor screen now coordinates named action, metadata, inspection, work and workspace sections. Four helpers receive bounded data/services explicitly; the private workspace renderer retains its factory-owned readiness/section helpers. The shell getter remains before its body arguments, and no service object is captured early. All 2,031 pre-refactor HTML/state/getter/effect comparisons, independent editor/architecture contracts, five original screen scenarios, R59 flow and editor repaint assertions pass. JS complexity violations fall 76 to 75 and total long-function violations 125 to 124; the coordinator is below both thresholds. Printed renderers and wording are untouched.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 30}.
