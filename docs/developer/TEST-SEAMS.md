@@ -34,7 +34,7 @@ services is allowed. Existing production browser checks retain their own role.
   original checkpoints; do not silently replace them with captured namespaces.
 - Retire a test-only retained binding only after checking all direct, helper and
   browser consumers. Text search alone cannot establish that it is unused.
-- Keep the full gate and source-bound evidence on the final committed PR head.
+- Keep the full gate and source-bound evidence on the final committed direct or integration PR head merged into main (INTEGRATION-BATCHES.md).
 
 The new maintainability tests already construct focused screen, event, validation,
 pagination and Reports owners independently. Their frozen pre-refactor functions

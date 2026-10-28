@@ -12,6 +12,7 @@ Madison Building Inspection Document Writer is an offline Windows browser applic
 | [MODULE-CLEANUP.md](MODULE-CLEANUP.md) | Authorized cleanup increments, dependency boundaries and completion criteria |
 | [03-DOMAIN-RULES.md](03-DOMAIN-RULES.md) | Rules the program enforces, by feature, including owner-confirmed rules |
 | [04-PITFALLS.md](04-PITFALLS.md) | Mistakes to avoid, by area |
+| [INTEGRATION-BATCHES.md](INTEGRATION-BATCHES.md) | Approved review stacks, combined exact-head verification and guarded batch merges |
 | [DEVELOPMENT-STANDARD.md](DEVELOPMENT-STANDARD.md) | PR/branch naming, rule ownership, CI, independent version identities and publication safeguards |
 | [05-TESTING.md](05-TESTING.md) | The gate, feature suites, evidence and packaging |
 | [../../tests/README.md](../../tests/README.md) | Every suite by feature, with former suite names |
@@ -40,7 +41,7 @@ For offline development, DW_BROWSER selects a compatible Chromium executable. Re
 
 Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep four Writer rail destinations: Workspace, Order language, Reports and Tools & settings. Import inspection remains an internal route entered from Workspace (owner-approved; it superseded a former five-destination, import-first rule). Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice (items are selected beside their due dates; the Assign due dates bar applies the date), exceptional recovery in Tools, and manual links inside Tools. Specialist tools sit in the collapsed Administrator tools group in Tools; the grouping grants no authorization and each tool keeps its own administrator checks.
 
-Use direct module imports and state.js; never recreate the universal runtime registry. Edit maintained source only; generated files live under build/. version.json is the release identity source; check generated consumers. Source or policy changes require targeted local checks and a passing full GitHub gate on the current PR head before merge. Post-merge main verification may run asynchronously. Packaging is a separately authorized release task requiring exact-source full-gate evidence. Actual City approval is not supplied by an automated gate. No live rollout is performed by release packaging.
+Use direct module imports and state.js; never recreate the universal runtime registry. Edit maintained source only; generated files live under build/. version.json is the release identity source; check generated consumers. Source or policy changes require targeted local checks and a passing full GitHub gate on the exact direct or integration PR head merged into main (see INTEGRATION-BATCHES.md). Post-merge main verification may run asynchronously. Packaging is a separately authorized release task requiring exact-source full-gate evidence. Actual City approval is not supplied by an automated gate. No live rollout is performed by release packaging.
 
 ## Release documents
 
