@@ -3,20 +3,25 @@ import { editorState as editor } from "./editor_state.js";
 /* Reinspection event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { reinsp } from "./writer_queries.js";
+function walkShortcutAllowed(services, e) {
+  if (
+    editor.state.screen !== "reinspect" ||
+    !editor.state.riWalk ||
+    !services.ensureWalkContext() ||
+    e.defaultPrevented ||
+    e.repeat ||
+    e.altKey ||
+    e.ctrlKey ||
+    e.metaKey
+  )
+    return false;
+  return true;
+}
+
 export function createReinspectionEvents(services) {
   function registerWalkKeys(target = document) {
     return registerEventOnce(target, "reinspection.registerWalkKeys", "keydown", (e) => {
-      if (
-        editor.state.screen !== "reinspect" ||
-        !editor.state.riWalk ||
-        !services.ensureWalkContext() ||
-        e.defaultPrevented ||
-        e.repeat ||
-        e.altKey ||
-        e.ctrlKey ||
-        e.metaKey
-      )
-        return;
+      if (!walkShortcutAllowed(services, e)) return;
       const target = e.target,
         tag = target && target.tagName;
       if (target && (target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(tag || ""))) return;

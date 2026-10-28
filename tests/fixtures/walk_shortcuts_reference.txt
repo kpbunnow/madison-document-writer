@@ -1,0 +1,35 @@
+function registerWalkKeys(target = document) {
+    return registerEventOnce(target, "reinspection.registerWalkKeys", "keydown", (e) => {
+      if (
+        editor.state.screen !== "reinspect" ||
+        !editor.state.riWalk ||
+        !services.ensureWalkContext() ||
+        e.defaultPrevented ||
+        e.repeat ||
+        e.altKey ||
+        e.ctrlKey ||
+        e.metaKey
+      )
+        return;
+      const target = e.target,
+        tag = target && target.tagName;
+      if (target && (target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(tag || ""))) return;
+      const key = String(e.key || "").toLowerCase();
+      if (
+        target &&
+        /^(BUTTON|A)$/.test(tag || "") &&
+        !target.closest("[data-ri-walk-current]") &&
+        !(key === "u" && target.closest("[data-riwalk-undo]"))
+      )
+        return;
+      if (key === "u" && editor.state.riWalkUndo) {
+        e.preventDefault();
+        services.undoWalkOutcome();
+        return;
+      }
+      const outcome = { 1: "corrected", 2: "progress", 3: "none", 4: "noaccess" }[key];
+      if (!outcome || !editor.state.riWalkItem) return;
+      e.preventDefault();
+      services.recordReinspectionOutcome(editor.state.riWalkItem, outcome);
+    });
+  }
