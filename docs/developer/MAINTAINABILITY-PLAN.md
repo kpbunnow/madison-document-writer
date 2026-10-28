@@ -907,3 +907,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Converted worksheet body composition, filtered count, previous draft controls and closed-document action to an escaped template. Due panel, chooser, item rows and inspection checks retain their owners and evaluation order; only those renderer outputs use raw fragments. Passed 1,026 exact retained-screen comparisons, escaping/print exclusion, reinspection service, module boundaries, test seams, ESLint and formatting. Existing assertions, wording, structure and release identities unchanged.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## worksheet-item-template
+
+Converted worksheet item rows, outcome controls and carried-result copy to escaped templates. Existing item context/eligibility calculations stay unchanged; raw fragments contain only local renderer output, fixed attributes or escaped fill-in markup. Passed 1,026 exact frozen-screen comparisons, escaping/print exclusion, reinspection service, module boundaries, ESLint and formatting. Formatted due-date text now flows through screen escaping; valid-date display, controls, historical text and release identities retained.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
