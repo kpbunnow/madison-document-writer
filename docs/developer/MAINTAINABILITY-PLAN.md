@@ -597,3 +597,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Visit validation now distinguishes the terminal occupancy-release path from ordinary current-source, imported-identity and item-outcome checks. Source/duplicate identity still precedes import reuse and calendar/outcome validation. Coordinator McCabe complexity falls from 18 to 2; helpers are 3, 4, 4 and 9. The 3,000-context differential corpus, unchanged imported-inspection reuse assertions, all 16 R26 helper and 14 workflow tests, existing history/scoped-publication/publication comparisons and required Ruff F/format checks pass. Window/date reads, withdrawn/carried compliance and release inspection authority are unchanged; no format, print, identity or trust change.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 26} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 25}.
+
+## M2 atomic issuance group passes
+
+Atomic group validation retains the initial document index, then the complete notice pass, then the complete citation pass. Named checks keep their original short-circuit identity, selection and companion checks; neither merges, writes or repairs records. Coordinator McCabe complexity falls from 11 to 3; notice and citation checks are 6 and 4. The new 3,000-case differential corpus and reversed-event precedence assertion pass, along with original R28 atomic-store (8), authoring (9), workflow (14), history/publication comparisons, Ruff F and formatting. No partial issuance, stored format, signer/identity, trust, print or release change.
+
+Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 25} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 24}.

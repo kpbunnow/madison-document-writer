@@ -3,7 +3,7 @@
     "complexity": 75,
     "max-depth": 0,
     "max-lines-per-function": 124,
-    "python": 25
+    "python": 24
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -215,7 +215,6 @@
     "helper/case_projection.py:replay_events:C901": 29,
     "helper/case_store.py:citation_history:C901": 12,
     "helper/case_store.py:file_lock:C901": 13,
-    "helper/case_store.py:validate_issuance_groups:C901": 11,
     "helper/launch.py:main:C901": 24,
     "helper/operations_helper.py:health:C901": 11,
     "helper/server.py:_pdf:C901": 14,
