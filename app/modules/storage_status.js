@@ -6,6 +6,29 @@ import { esc, fmtDate } from "./presentation_format.js";
 import { BUILD } from "./data/build_identity.js";
 
 export function createStorageStatus(services) {
+  function lastWriteStatus() {
+    return workspace.LASTWRITE
+      ? (workspace.LASTWRITE.ok ? "OK — " : "FAILED — ") +
+          workspace.LASTWRITE.name +
+          (workspace.LASTWRITE.why ? " (" + workspace.LASTWRITE.why + ")" : "") +
+          (workspace.LASTWRITE.bytes ? " · " + workspace.LASTWRITE.bytes + " bytes" : "") +
+          " · " +
+          fmtDate(String(workspace.LASTWRITE.at).slice(0, 10))
+      : "nothing written yet this session";
+  }
+
+  function reportingIndexStatus() {
+    return workspace.LASTINDEX
+      ? (workspace.LASTINDEX.ok ? "OK — " : "FAILED — ") +
+          SUMMARY_DIR +
+          "\\" +
+          workspace.LASTINDEX.name +
+          (workspace.LASTINDEX.why ? " (" + workspace.LASTINDEX.why + ")" : "") +
+          " · " +
+          fmtDate(String(workspace.LASTINDEX.at).slice(0, 10))
+      : "no summary written yet this session";
+  }
+
   function storageReport() {
     const rows = [
       ["This build", BUILD],
@@ -44,29 +67,8 @@ export function createStorageStatus(services) {
       ],
       ["PDF folder", startup.HELPER && startup.HELPER.out ? startup.HELPER.out : "—"],
       ["Outlook", !startup.HELPER ? "—" : startup.HELPER.outlook ? "found" : "NOT found — email falls back to your default mail program"],
-      [
-        "Last write",
-        workspace.LASTWRITE
-          ? (workspace.LASTWRITE.ok ? "OK — " : "FAILED — ") +
-            workspace.LASTWRITE.name +
-            (workspace.LASTWRITE.why ? " (" + workspace.LASTWRITE.why + ")" : "") +
-            (workspace.LASTWRITE.bytes ? " · " + workspace.LASTWRITE.bytes + " bytes" : "") +
-            " · " +
-            fmtDate(String(workspace.LASTWRITE.at).slice(0, 10))
-          : "nothing written yet this session",
-      ],
-      [
-        "Reporting index",
-        workspace.LASTINDEX
-          ? (workspace.LASTINDEX.ok ? "OK — " : "FAILED — ") +
-            SUMMARY_DIR +
-            "\\" +
-            workspace.LASTINDEX.name +
-            (workspace.LASTINDEX.why ? " (" + workspace.LASTINDEX.why + ")" : "") +
-            " · " +
-            fmtDate(String(workspace.LASTINDEX.at).slice(0, 10))
-          : "no summary written yet this session",
-      ],
+      ["Last write", lastWriteStatus()],
+      ["Reporting index", reportingIndexStatus()],
     ];
     return `<table class="diag"><tbody>${rows.map((r) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table>`;
   }

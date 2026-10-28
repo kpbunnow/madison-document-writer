@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_storage_status_rules.js` | Exact storage diagnostic HTML and lazy state/service read order |
 | `audit_language_action_rules.js` | Language action equivalence: refusal order, service reads, focus and refresh |
 | `audit_walk_shortcut_rules.js` | Frozen keyboard comparisons for listener ownership, interactive targets, context mutation, undo/outcomes and ordered effects. |
 | `audit_report_filter_rules.js` | Frozen Reports filter comparisons for notice/current-as-of status, historical violations and lazy input/service reads. |
