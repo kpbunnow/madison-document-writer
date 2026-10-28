@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Deadline planning, assignment and presentation; events/persistence retain their existing authority. */
 import { validISO, daysBetween } from "./calendar.js";
 import { clone } from "./record_values.js";
@@ -47,8 +48,8 @@ export function dueSelectedText(items, selected) {
 }
 
 export function activeDueTarget() {
-  const visit = WriterState.state.screen === "reinspect",
-    target = visit ? reinsp(WriterState.state.reinspId) : doc(WriterState.state.docId);
+  const visit = editor.state.screen === "reinspect",
+    target = visit ? reinsp(editor.state.reinspId) : doc(editor.state.docId);
   return { target, visit };
 }
 

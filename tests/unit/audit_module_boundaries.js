@@ -14,6 +14,7 @@ const allowed = {
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
+  "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],
   "imports_state.js": ["./state.js"],
   "startup_state.js": ["./state.js"],
@@ -43,6 +44,18 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "correction_events.js": [
+    "../assets/shared.js",
+    "./calendar.js",
+    "./document_rules.js",
+    "./document_types.js",
+    "./editor_state.js",
+    "./record_values.js",
+    "./state.js",
+    "./writer_queries.js",
+  ],
+  "contact_events.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+  "citation_events.js": ["./document_rules.js", "./editor_state.js", "./event_registration.js", "./state.js", "./writer_queries.js"],
   "recovery_events.js": ["./event_registration.js", "./recovery_state.js", "./state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./state.js", "./writer_queries.js"],
   "import_events.js": ["./event_registration.js", "./imports_state.js", "./state.js"],
@@ -128,7 +141,7 @@ const scopedServices = {
   "case_workspace_actions.js": ["./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./state.js"],
   "reinspection_entry.js": ["./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./state.js"],
   "local_case_files.js": [],
-  "draft_save_controls.js": ["./state.js", "./saved_work.js"],
+  "draft_save_controls.js": ["./editor_state.js", "./state.js", "./saved_work.js"],
   "case_folder_workflow.js": [
     "./case_records.js",
     "./case_file_rules.js",
@@ -150,7 +163,7 @@ const scopedServices = {
     "./calendar.js",
     "./mailing_rules.js",
   ],
-  "document_feedback.js": ["./state.js", "./writer_queries.js"],
+  "document_feedback.js": ["./editor_state.js", "./writer_queries.js"],
   "document_sources.js": [
     "./writer_queries.js",
     "./document_rules.js",
@@ -161,7 +174,7 @@ const scopedServices = {
   ],
   "court_scheduling.js": ["../assets/shared.js", "./calendar.js", "./document_types.js", "./workspace_state.js"],
   "citation_charges.js": ["./citation_policy.js", "./document_types.js", "./writer_queries.js", "./record_values.js", "./document_rules.js"],
-  "document_printing.js": ["../assets/shared.js", "./document_types.js", "./document_rules.js", "./writer_queries.js", "./state.js"],
+  "document_printing.js": ["../assets/shared.js", "./document_types.js", "./document_rules.js", "./writer_queries.js", "./editor_state.js"],
   "document_delivery.js": [
     "../assets/shared.js",
     "./document_types.js",
@@ -197,7 +210,7 @@ const scopedServices = {
     "./document_types.js",
     "./presentation_format.js",
     "./data/inspectors.js",
-    "./state.js",
+    "./editor_state.js",
   ],
   "record_actions.js": ["./document_rules.js", "./writer_queries.js", "./state.js"],
   "recovery_ui.js": ["./recovery_state.js", "./case_recovery.js", "./presentation_format.js", "./state.js"],
@@ -284,7 +297,7 @@ const scopedServices = {
     "./mailing_rules.js",
     "./workspace_state.js",
   ],
-  "correction_workflow.js": ["../assets/shared.js", "./record_values.js", "./writer_queries.js", "./state.js"],
+  "correction_workflow.js": ["./editor_state.js", "../assets/shared.js", "./record_values.js", "./writer_queries.js", "./state.js"],
   "publication_preparation.js": [
     "./inspection_facts.js",
     "../assets/shared.js",
@@ -318,6 +331,7 @@ const scopedServices = {
   "item_selection.js": ["./record_values.js", "./document_rules.js", "./data/library.js"],
   "workspace_tasks.js": ["./document_types.js", "./writer_queries.js", "./pdf_artifacts.js", "./presentation_format.js", "./state.js"],
   "deadline_assignment.js": [
+    "./editor_state.js",
     "./calendar.js",
     "./record_values.js",
     "./document_rules.js",
@@ -414,7 +428,7 @@ const scopedServices = {
     "./state.js",
     "./writer_queries.js",
   ],
-  "address_parser.js": ["./mailing_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+  "address_parser.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
   "new_documents.js": [
     "../assets/shared.js",
     "./calendar.js",
@@ -455,7 +469,7 @@ const scopedServices = {
     "./state.js",
     "./writer_queries.js",
   ],
-  "document_pagination.js": ["./document_rules.js", "./document_types.js", "./presentation_format.js", "./state.js", "./writer_queries.js"],
+  "document_pagination.js": ["./document_rules.js", "./document_types.js", "./presentation_format.js", "./editor_state.js", "./writer_queries.js"],
   "editor_screens.js": [
     "../assets/shared.js",
     "./document_rules.js",

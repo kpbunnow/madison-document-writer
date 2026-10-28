@@ -1,9 +1,9 @@
+import { editorState as editor } from "./editor_state.js";
 /* Physical page layout only; feature workflows and editor/dialog actions retain their own owners. */
 import { DOC_TYPES } from "./document_types.js";
 import { doc, docCase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { alignedExtension } from "./document_rules.js";
-import { WriterState } from "./state.js";
 
 /* Authoring 10+ retains the original one-line print allowance; earlier formats keep their exact limit. */
 const PRINT_SAFETY_PX = 16;
@@ -224,7 +224,7 @@ export function createDocumentPagination(services) {
     if (!desk) return;
     const src = desk.querySelector(".sheet");
     if (!src) return;
-    const d = documentOverride || doc(WriterState.state.docId);
+    const d = documentOverride || doc(editor.state.docId);
     if (!d) return;
     // the fluid phone layout has no page geometry to divide
     if (desk.clientWidth && desk.clientWidth < 8.5 * 96) {

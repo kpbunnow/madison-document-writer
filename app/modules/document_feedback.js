@@ -1,23 +1,23 @@
-import { WriterState } from "./state.js";
+import { editorState as editor } from "./editor_state.js";
 import { doc } from "./writer_queries.js";
 
 export function createDocumentFeedback(services) {
   function toast(m, options) {
-    WriterState.undoFn = null;
+    editor.undoFn = null;
     services.A11Y.notify(m, options);
   }
 
   function toastHold(m) {
-    WriterState.undoFn = null;
+    editor.undoFn = null;
     services.A11Y.notify(m, { severity: "progress" });
   }
 
   function toastUndo(m, fn) {
-    WriterState.undoFn = fn;
+    editor.undoFn = fn;
     services.A11Y.notify(m, {
       severity: "success",
       undo: () => {
-        WriterState.undoFn = null;
+        editor.undoFn = null;
         fn();
       },
     });
@@ -25,7 +25,7 @@ export function createDocumentFeedback(services) {
 
   function fillBlank(el) {
     const field = el.closest('[data-field="text"]'),
-      d = doc(WriterState.state.docId);
+      d = doc(editor.state.docId);
     if (!field || !d || services.isLocked(d)) return;
     const itemId = field.dataset.id,
       documentId = d.id;
@@ -47,8 +47,8 @@ export function createDocumentFeedback(services) {
       const current = doc(documentId),
         item = current?.items.find((it) => it.id === itemId);
       if (
-        WriterState.state.screen !== "write" ||
-        WriterState.state.docId !== documentId ||
+        editor.state.screen !== "write" ||
+        editor.state.docId !== documentId ||
         !current ||
         services.isLocked(current) ||
         !item ||

@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 
 import { ccList } from "./mailing_rules.js";
@@ -8,8 +9,8 @@ import { WriterState } from "./state.js";
 export function initAddressParser(services) {
   const pending = new Map();
   function context(scope, index = 0) {
-    const d = doc(WriterState.state.docId),
-      k = d ? docCase(d) : kase(WriterState.state.caseId);
+    const d = doc(editor.state.docId),
+      k = d ? docCase(d) : kase(editor.state.caseId);
     if (!k) return null;
     const target = scope === "owner" ? k : scope === "agent" ? k.agent || {} : ccList(k)[index];
     if (!target) return null;
@@ -51,7 +52,7 @@ export function initAddressParser(services) {
       services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
-    if (context(scope, index)?.raw !== signature || WriterState.state.docId !== c.d?.id) return false;
+    if (context(scope, index)?.raw !== signature || editor.state.docId !== c.d?.id) return false;
     if (!result.available) {
       services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
