@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Retained PDF outbox and location verification; helper adapters retain file authority. */
 import { deliveredByCitation } from "./document_rules.js";
@@ -10,12 +11,12 @@ export function pdfTransferState(d) {
   if (deliveredByCitation(d)) return "included in citation PDF";
   if (!effectiveFiled(d)) return "unfiled";
   if (!d.filedArtifact) return "historical / location unverified";
-  if (WriterState.ARTIFACT_IDENTITY[d.id] && WriterState.ARTIFACT_IDENTITY[d.id] !== d.filedArtifact.filename + "|" + d.filedArtifact.sha256)
+  if (workspace.ARTIFACT_IDENTITY[d.id] && workspace.ARTIFACT_IDENTITY[d.id] !== d.filedArtifact.filename + "|" + d.filedArtifact.sha256)
     return "location unverified";
-  if (WriterState.ARTIFACT_VERIFY[d.id] === "invalid") return "invalid artifact identity";
-  if (WriterState.ARTIFACT_VERIFY[d.id] === "unavailable" || WriterState.ARTIFACT_VERIFY[d.id] === "incomplete")
-    return WriterState.ARTIFACT_LOCATIONS[d.id] ? "last verified location; refresh unavailable" : "location verification unavailable";
-  const places = WriterState.ARTIFACT_LOCATIONS[d.id];
+  if (workspace.ARTIFACT_VERIFY[d.id] === "invalid") return "invalid artifact identity";
+  if (workspace.ARTIFACT_VERIFY[d.id] === "unavailable" || workspace.ARTIFACT_VERIFY[d.id] === "incomplete")
+    return workspace.ARTIFACT_LOCATIONS[d.id] ? "last verified location; refresh unavailable" : "location verification unavailable";
+  const places = workspace.ARTIFACT_LOCATIONS[d.id];
   if (!places) return "location unverified";
   if (places.some((x) => x.includes("conflict"))) return "artifact conflict";
   if (places.includes("shared")) return "shared";
@@ -33,7 +34,7 @@ export function createPdfArtifacts(services) {
     const context = services.navigation.utilityContext(),
       result = await services.helperJSON("/outbox/list");
     if (!services.navigation.utilityCurrent(context)) return false;
-    WriterState.OUTBOX_FILES = result.files;
+    workspace.OUTBOX_FILES = result.files;
     if (WriterState.HELPER) WriterState.HELPER.outbox = result.files.length;
     services.A11Y.utility(
       "PDF outbox",
@@ -45,7 +46,7 @@ export function createPdfArtifacts(services) {
         'ion><thead><tr><th scope="col">Select</th><th scope="col">PDF</th><th sc' +
         'ope="col">Bytes</th></tr></thead><tbody>' +
         "".concat(
-          WriterState.OUTBOX_FILES.map(
+          workspace.OUTBOX_FILES.map(
             (file, n) =>
               '<tr><td><input type="checkbox" name="pdf" value="' +
               `${n}` +
@@ -67,7 +68,7 @@ export function createPdfArtifacts(services) {
   function selectedOutbox() {
     const form = document.getElementById("outbox-form");
     return [...form.querySelectorAll("[name=pdf]:checked")]
-      .map((el) => WriterState.OUTBOX_FILES[Number(el.value)])
+      .map((el) => workspace.OUTBOX_FILES[Number(el.value)])
       .filter(Boolean)
       .map(({ name, sha256 }) => ({ name, sha256 }));
   }
@@ -122,25 +123,25 @@ export function createPdfArtifacts(services) {
   }
 
   async function refreshArtifactLocations() {
-    const token = ++WriterState.ARTIFACT_SEQ;
-    const items = WriterState.DOCS.filter((d) => !d.draft && d.filedArtifact?.filename && d.filedArtifact?.sha256).map((d) => ({
+    const token = ++workspace.ARTIFACT_SEQ;
+    const items = workspace.DOCS.filter((d) => !d.draft && d.filedArtifact?.filename && d.filedArtifact?.sha256).map((d) => ({
       filename: d.filedArtifact.filename,
       sha256: d.filedArtifact.sha256,
       docId: d.id,
     }));
     const ids = Object.fromEntries(items.map((x) => [x.docId, x.filename + "|" + x.sha256]));
-    for (const id of Object.keys(WriterState.ARTIFACT_LOCATIONS))
-      if (ids[id] !== WriterState.ARTIFACT_IDENTITY[id]) delete WriterState.ARTIFACT_LOCATIONS[id];
-    WriterState.ARTIFACT_IDENTITY = ids;
+    for (const id of Object.keys(workspace.ARTIFACT_LOCATIONS))
+      if (ids[id] !== workspace.ARTIFACT_IDENTITY[id]) delete workspace.ARTIFACT_LOCATIONS[id];
+    workspace.ARTIFACT_IDENTITY = ids;
     if (!WriterState.HELPER) {
-      for (const x of items) WriterState.ARTIFACT_VERIFY[x.docId] = "unavailable";
+      for (const x of items) workspace.ARTIFACT_VERIFY[x.docId] = "unavailable";
       if (editor.state.screen === "cases") services.render();
       return;
     }
 
     const batches = [];
     for (let i = 0; i < items.length; i += 100) batches.push(items.slice(i, i + 100));
-    const next = { ...WriterState.ARTIFACT_LOCATIONS },
+    const next = { ...workspace.ARTIFACT_LOCATIONS },
       status = {};
     for (const id of Object.keys(next)) if (!ids[id]) delete next[id];
     async function check(group) {
@@ -173,17 +174,17 @@ export function createPdfArtifacts(services) {
         }
       }),
     );
-    if (token !== WriterState.ARTIFACT_SEQ) return;
+    if (token !== workspace.ARTIFACT_SEQ) return;
     for (const x of items) {
-      const current = WriterState.DOCS.find((d) => d.id === x.docId)?.filedArtifact;
+      const current = workspace.DOCS.find((d) => d.id === x.docId)?.filedArtifact;
       if (!current || current.filename + "|" + current.sha256 !== ids[x.docId]) {
         delete next[x.docId];
         status[x.docId] = "incomplete";
-        delete WriterState.ARTIFACT_IDENTITY[x.docId];
+        delete workspace.ARTIFACT_IDENTITY[x.docId];
       }
     }
-    WriterState.ARTIFACT_LOCATIONS = next;
-    WriterState.ARTIFACT_VERIFY = status;
+    workspace.ARTIFACT_LOCATIONS = next;
+    workspace.ARTIFACT_VERIFY = status;
     if (editor.state.screen === "cases") services.render();
   }
 

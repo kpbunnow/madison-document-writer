@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseFileFault, mergeCaseDetails } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
@@ -5,7 +6,6 @@ import { clone } from "./record_values.js";
 import { bumpSeq, mergeCaseEvents, project, replay, rememberSaved } from "./case_records.js";
 import { kase } from "./writer_queries.js";
 import { INSPECTORS } from "./data/inspectors.js";
-import { WriterState } from "./state.js";
 
 // Verification/load/rollback orchestration; helper trust and UI actions stay supplied.
 export function createCaseLoading(services) {
@@ -40,11 +40,11 @@ export function createCaseLoading(services) {
     }
     // nothing is touched until the whole file has been accepted and replayed
     const undo = {
-      events: clone(WriterState.EVENTS),
-      cases: clone(WriterState.CASES),
+      events: clone(workspace.EVENTS),
+      cases: clone(workspace.CASES),
       inspectors: INSPECTORS.length,
-      docs: WriterState.DOCS.slice(),
-      reinsp: WriterState.REINSP.slice(),
+      docs: workspace.DOCS.slice(),
+      reinsp: workspace.REINSP.slice(),
     };
     let k = null,
       added = 0;
@@ -54,24 +54,24 @@ export function createCaseLoading(services) {
         if (!INSPECTORS.some((x) => x.id === i.id || x.name === i.name)) INSPECTORS.push(i);
       });
       const inc = f["case"];
-      k = WriterState.CASES.find((c) => c.number === inc.number);
+      k = workspace.CASES.find((c) => c.number === inc.number);
       if (!k) {
         k = clone(inc);
-        WriterState.CASES.push(k);
+        workspace.CASES.push(k);
       } else if (isSaved) {
-        const combined = mergeCaseDetails(k, inc, WriterState.SAVE_CHECKPOINTS[k.id] && WriterState.SAVE_CHECKPOINTS[k.id].case);
+        const combined = mergeCaseDetails(k, inc, workspace.SAVE_CHECKPOINTS[k.id] && workspace.SAVE_CHECKPOINTS[k.id].case);
         Object.keys(k).forEach((key) => delete k[key]);
         Object.assign(k, combined);
       }
       added = mergeCaseEvents(k, f);
       project();
-      if (WriterState.DOCS.some((x) => !x || !Array.isArray(x.items))) throw new Error("a document did not replay");
+      if (workspace.DOCS.some((x) => !x || !Array.isArray(x.items))) throw new Error("a document did not replay");
     } catch (err) {
-      WriterState.EVENTS = undo.events;
-      WriterState.CASES = undo.cases;
+      workspace.EVENTS = undo.events;
+      workspace.CASES = undo.cases;
       INSPECTORS.length = undo.inspectors;
-      WriterState.DOCS = undo.docs;
-      WriterState.REINSP = undo.reinsp;
+      workspace.DOCS = undo.docs;
+      workspace.REINSP = undo.reinsp;
       project();
       services.render();
       services.toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
@@ -79,7 +79,7 @@ export function createCaseLoading(services) {
     }
     const inc = f["case"];
     editor.state.screen = "cases";
-    WriterState.DIRTY = false;
+    workspace.DIRTY = false;
     services.render();
     const st = replay(k.id);
     if (isSaved) rememberSaved(k, f);
@@ -102,12 +102,12 @@ export function createCaseLoading(services) {
   }
 
   async function mergeSharedFile(cid, name) {
-    if (!WriterState.CASEDIR || WriterState.NEEDGRANT) return 0;
+    if (!workspace.CASEDIR || workspace.NEEDGRANT) return 0;
     const k = kase(cid);
     if (!k.id) return 0;
     let text = null;
     try {
-      const fh = await WriterState.CASEDIR.getFileHandle(name); // absent is the normal first save
+      const fh = await workspace.CASEDIR.getFileHandle(name); // absent is the normal first save
       text = await (await fh.getFile()).text();
     } catch (err) {
       if (err && (err.name === "NotFoundError" || err.message === "missing")) return 0;

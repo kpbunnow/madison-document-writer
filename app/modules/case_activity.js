@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 /* Read-only case activity and personal reminders; explicit lazy presentation/query adapters. */
 import { recordDay } from "../assets/shared.js";
 import { addDays } from "./calendar.js";
 import { distinctDues, dueItems } from "./document_rules.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { kase, eventsFor } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function timelineCategory(type) {
   return type.endsWith(".issued")
@@ -22,12 +22,12 @@ export function timelineCategory(type) {
 
 export function createCaseActivity(services) {
   function remindersDue() {
-    const prefs = WriterState.WORKFLOW_PREFS.reminders,
+    const prefs = workspace.WORKFLOW_PREFS.reminders,
       day = recordDay(services.today),
       end = addDays(day, prefs.days);
     if (!prefs.enabled) return [];
     const rows = [];
-    for (const k of WriterState.CASES) {
+    for (const k of workspace.CASES) {
       const st = services.caseState(k);
       if (st.closed || !services.sourceDocFor(k.id)) continue;
       const dates = distinctDues(dueItems(services.sourceDocFor(k.id)));
@@ -68,7 +68,7 @@ export function createCaseActivity(services) {
 
   function showReminders() {
     services.navigation.utilityContext();
-    const prefs = WriterState.WORKFLOW_PREFS.reminders;
+    const prefs = workspace.WORKFLOW_PREFS.reminders;
     services.A11Y.utility(
       "Optional reminders",
       "<p>Reminders appear when you open this workspace. Email drafts open only" +
@@ -82,7 +82,7 @@ export function createCaseActivity(services) {
         'rowser profile</caption><thead><tr><th scope="col">Case</th><th scope="c' +
         'ol">Planned date</th></tr></thead><tbody>' +
         "".concat(
-          WriterState.CASES.filter((k) => !services.caseState(k).closed)
+          workspace.CASES.filter((k) => !services.caseState(k).closed)
             .map(
               (k) =>
                 '<tr><th scope="row">' +
@@ -137,16 +137,16 @@ export function createCaseActivity(services) {
   }
 
   function timelineRows() {
-    return eventsFor(WriterState.TIMELINE_CASE)
-      .filter((e) => WriterState.TIMELINE_FILTER === "all" || timelineCategory(e.type) === WriterState.TIMELINE_FILTER)
+    return eventsFor(workspace.TIMELINE_CASE)
+      .filter((e) => workspace.TIMELINE_FILTER === "all" || timelineCategory(e.type) === workspace.TIMELINE_FILTER)
       .slice()
       .sort((a, b) => String(a.at).localeCompare(String(b.at)) || a.id.localeCompare(b.id));
   }
 
-  function showTimeline(cid, filter = WriterState.TIMELINE_FILTER) {
+  function showTimeline(cid, filter = workspace.TIMELINE_FILTER) {
     services.navigation.utilityContext();
-    WriterState.TIMELINE_CASE = cid;
-    WriterState.TIMELINE_FILTER = filter;
+    workspace.TIMELINE_CASE = cid;
+    workspace.TIMELINE_FILTER = filter;
     const rows = timelineRows(),
       k = kase(cid);
     services.A11Y.utility(

@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { badIds, caseFileFault, ID_OK } from "./case_file_rules.js";
@@ -6,7 +7,6 @@ import { clone } from "./record_values.js";
 import { SCHEMA } from "./document_types.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
-import { WriterState } from "./state.js";
 
 // Whole-workspace backup coordination; the file picker and integrity/storage authority stay supplied.
 export function createWorkspaceBackup(services) {
@@ -16,7 +16,7 @@ export function createWorkspaceBackup(services) {
     services.downloadFile(
       "Madison-workspace-" + recordDay(services.today) + ".json",
       JSON.stringify(
-        { format: "madison-workspace-backup", version: 2, build: BUILD, exported: nowISO(), bundle, pending: clone(WriterState.PENDING) },
+        { format: "madison-workspace-backup", version: 2, build: BUILD, exported: nowISO(), bundle, pending: clone(workspace.PENDING) },
         null,
         2,
       ),
@@ -28,7 +28,7 @@ export function createWorkspaceBackup(services) {
     if (!value || value.format !== "madison-workspace-backup" || ![1, 2].includes(value.version) || !value.bundle)
       throw new Error("Choose a Madison workspace backup.");
     const b = value.bundle;
-    if (WriterState.CASES.length || services.hasSetupWork() || Object.values(editor.WORK.recordForms || {}).some((x) => x.text || x.external))
+    if (workspace.CASES.length || services.hasSetupWork() || Object.values(editor.WORK.recordForms || {}).some((x) => x.text || x.external))
       throw new Error("Restore in an empty workspace or browser profile. Existing work has been kept; download its backup first.");
     if (!Array.isArray(b.cases) || !Array.isArray(b.docs) || !Array.isArray(b.reinsp) || !b.events || badIds(b))
       throw new Error("The backup has invalid working records.");
@@ -38,7 +38,7 @@ export function createWorkspaceBackup(services) {
       if (numbers.has(k.number) || ids.has(k.id)) throw new Error("Duplicate cases in the backup.");
       numbers.add(k.number);
       ids.add(k.id);
-      if (WriterState.CASES.some((c) => c.id === k.id || c.number === k.number))
+      if (workspace.CASES.some((c) => c.id === k.id || c.number === k.number))
         throw new Error(
           "Case " +
             k.number +
@@ -82,32 +82,32 @@ export function createWorkspaceBackup(services) {
     }
     const merged = {
       ...services.draftBundle(),
-      cases: WriterState.CASES.concat(b.cases),
-      docs: WriterState.DOCS.filter((d) => d.draft).concat(b.docs),
-      reinsp: WriterState.REINSP.filter((r) => r.draft).concat(b.reinsp),
-      events: { ...WriterState.EVENTS, ...b.events },
+      cases: workspace.CASES.concat(b.cases),
+      docs: workspace.DOCS.filter((d) => d.draft).concat(b.docs),
+      reinsp: workspace.REINSP.filter((r) => r.draft).concat(b.reinsp),
+      events: { ...workspace.EVENTS, ...b.events },
       recordAttempts: { ...editor.RECORD_ATTEMPTS, ...(b.recordAttempts || {}) },
-      checkpoints: { ...WriterState.SAVE_CHECKPOINTS, ...(b.checkpoints || {}) },
+      checkpoints: { ...workspace.SAVE_CHECKPOINTS, ...(b.checkpoints || {}) },
       integrityRecords: b.integrityRecords || [],
-      seq: Math.max(WriterState.seq, b.seq || 0),
+      seq: Math.max(workspace.seq, b.seq || 0),
       work: clone(b.work || editor.WORK),
     };
     if (!(await services.idbSet("drafts", merged))) throw new Error("This device cannot save the restored workspace. Nothing has been changed.");
     await services.recordIntegrity.restore(merged.integrityRecords);
-    WriterState.CASES = merged.cases;
-    WriterState.EVENTS = merged.events;
-    WriterState.DOCS = merged.docs;
-    WriterState.REINSP = merged.reinsp;
+    workspace.CASES = merged.cases;
+    workspace.EVENTS = merged.events;
+    workspace.DOCS = merged.docs;
+    workspace.REINSP = merged.reinsp;
     editor.RECORD_ATTEMPTS = merged.recordAttempts;
-    WriterState.SAVE_CHECKPOINTS = merged.checkpoints;
+    workspace.SAVE_CHECKPOINTS = merged.checkpoints;
     editor.WORK = merged.work;
     editor.WORK.entry = editor.WORK.entry || {};
     editor.WORK.recordForms = editor.WORK.recordForms || {};
     editor.state.acc = editor.WORK.acc || null;
-    WriterState.seq = merged.seq;
+    workspace.seq = merged.seq;
     // Recoverable case snapshots remain in bundle.events even if queue storage fails.
-    WriterState.PENDING = WriterState.PENDING.concat((value.pending || []).filter((p) => ids.has(p.cid)));
-    await services.idbSet("pending", WriterState.PENDING);
+    workspace.PENDING = workspace.PENDING.concat((value.pending || []).filter((p) => ids.has(p.cid)));
+    await services.idbSet("pending", workspace.PENDING);
     project();
     editor.state.screen = "cases";
     editor.state.modal = null;
