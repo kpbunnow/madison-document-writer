@@ -586,6 +586,7 @@ const scopedServices = {
   ],
   "document_pagination.js": ["./document_rules.js", "./document_types.js", "./presentation_format.js", "./editor_state.js", "./writer_queries.js"],
   "editor_screens.js": [
+    "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",
     "./document_rules.js",
