@@ -66,40 +66,26 @@ function worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc })
 }
 
 function worksheetWalkCopyHTML({ walkOn, src, left, next }) {
-  return "".concat(
-    walkOn
-      ? editor.state.riWalkStage === "details"
-        ? "Complete item " +
-          `${esc(src.items.find((i) => i.id === editor.state.riWalkItem)?.no || "")}` +
-          " details, then choose Next item. " +
-          `${left}` +
-          " without outcomes."
-        : next
-          ? "Next: item " +
-            `${esc(next.no || String(src.items.indexOf(next) + 1))}` +
-            " of " +
-            `${src.items.length}` +
-            " · " +
-            `${left}` +
-            " left to result."
-          : "All items have a result. Review the dates, notes and due dates before creating a document."
-      : "Every item is shown. Choose One item at a time to bring the next unanswered item into focus.",
-  );
+  return walkOn
+    ? editor.state.riWalkStage === "details"
+      ? html`Complete item ${src.items.find((i) => i.id === editor.state.riWalkItem)?.no || ""} details, then choose Next item. ${left} without outcomes.`
+      : next
+        ? html`Next: item ${next.no || String(src.items.indexOf(next) + 1)} of ${src.items.length} · ${left} left to result.`
+        : "All items have a result. Review the dates, notes and due dates before creating a document."
+    : "Every item is shown. Choose One item at a time to bring the next unanswered item into focus.";
 }
 
 function worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }) {
-  return "".concat(
-    walkOn
-      ? '<ol class="ri-walk-steps" aria-label="One item at a time steps">' +
-          walkSteps
-            .map(
-              (label, ix) =>
-                '<li data-walk-step="' + (ix + 1) + '"' + (walkStep === ix + 1 ? ' aria-current="step" class="current"' : "") + ">" + label + "</li>",
-            )
-            .join("") +
-          "</ol>"
-      : "",
-  );
+  return walkOn
+    ? html`<ol class="ri-walk-steps" aria-label="One item at a time steps">${raw(
+        walkSteps
+          .map(
+            (label, ix) =>
+              html`<li data-walk-step="${ix + 1}"${raw(walkStep === ix + 1 ? html` aria-current="step" class="current"` : "")}>${label}</li>`,
+          )
+          .join(""),
+      )}</ol>`
+    : "";
 }
 
 function worksheetWalkPanelHTML({ readOnly, walkOn, src, left, next, walkSteps, walkStep, editableWalkItem, r, walkItemReady, walkKeys }) {
