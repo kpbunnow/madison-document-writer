@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { WriterState } from "./state.js";
 import { clone, byTime } from "./record_values.js";
 import { eventsFor } from "./writer_queries.js";
@@ -28,7 +29,7 @@ export function createDraftPersistence(services) {
   }
 
   async function saveDrafts() {
-    if (!WriterState.WRITER_ACCESS || (!WriterState.WORKSPACE_RESTORED && !WriterState.WRITER_READY)) return false;
+    if (!startup.WRITER_ACCESS || (!startup.WORKSPACE_RESTORED && !startup.WRITER_READY)) return false;
     if (WriterState.WORK_PATCH) await WriterState.WORK_PATCH;
     services.captureWork();
     const generation = ++WriterState.LOCAL_CHANGED,

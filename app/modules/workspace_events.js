@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 /* Workspace event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -636,7 +637,7 @@ export function createWorkspaceEvents(services) {
       await services.navigation.leave((sequence) => {
         const request = services.rnd12();
         WriterState.RETURN_ACK = "";
-        if (WriterState.WRITER_CHANNEL) WriterState.WRITER_CHANNEL.postMessage({ kind: "return", request });
+        if (startup.WRITER_CHANNEL) startup.WRITER_CHANNEL.postMessage({ kind: "return", request });
         setTimeout(() => {
           if (services.navigation.current(sequence) && WriterState.RETURN_ACK !== request) location.href = "madison-reports.html?return=1";
         }, 700);

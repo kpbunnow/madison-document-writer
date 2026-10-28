@@ -1,10 +1,11 @@
+import { startupState as startup } from "./startup_state.js";
 import { WriterState } from "./state.js";
 
 export function createWriterStartup(services) {
   async function bootStorage() {
     try {
       if (services.navigator.locks && services.navigator.locks.request) {
-        WriterState.WRITER_ACCESS = false;
+        startup.WRITER_ACCESS = false;
         const acquired = await new Promise((resolve) =>
           services.navigator.locks
             .request("madison-writer-workspace", { ifAvailable: true }, (lock) => {
@@ -14,14 +15,14 @@ export function createWriterStartup(services) {
               }
               resolve(true);
               return new Promise((release) => {
-                WriterState.releaseWorkspaceLock = release;
+                startup.releaseWorkspaceLock = release;
               }); // held until this tab closes or Writer stops
             })
             .catch(() => resolve(false)),
         );
         if (!acquired) {
-          WriterState.STARTUP_STATUS = "locked";
-          WriterState.releaseWriterReady(false);
+          startup.STARTUP_STATUS = "locked";
+          startup.releaseWriterReady(false);
           services.document.getElementById("app").innerHTML =
             '<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:s' +
             'ystem-ui"><h1>Document Writer is already open</h1><p>Continue in your ex' +
@@ -32,7 +33,7 @@ export function createWriterStartup(services) {
           return;
         }
       }
-      WriterState.WRITER_ACCESS = true;
+      startup.WRITER_ACCESS = true;
       services.initWriterHandoff();
       await services.checkHelper();
       if (WriterState.HELPER) await services.refreshCatalog();
@@ -40,7 +41,7 @@ export function createWriterStartup(services) {
       await services.restorePending();
       await services.restoreDrafts();
       // Internal pending-write recovery may save only after every retained draft has been read.
-      WriterState.WORKSPACE_RESTORED = true;
+      startup.WORKSPACE_RESTORED = true;
       await services.recordIntegrity.refresh();
       await services.refreshArtifactLocations();
       await services.flushPending();

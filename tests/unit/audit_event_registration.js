@@ -59,6 +59,7 @@ const allowed = new Set([
   "state.js",
   "workspace_state.js",
   "catalog_state.js",
+  "startup_state.js",
   "document_types.js",
   "document_rules.js",
   "writer_queries.js",
