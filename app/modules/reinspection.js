@@ -176,57 +176,36 @@ function worksheetBodyHTML({
   verdict,
   closed,
 }) {
-  return (
-    `${walkPanel}` +
-    "\n       " +
-    "".concat(
-      editor.state.riFilter
-        ? '<p class="ri-filtered">Showing ' +
-            `${rowsShown}` +
-            " of " +
-            `${src.items.length}` +
-            " items. This only changes what you are looking at &mdash; every item sti" +
-            "ll goes on the document.</p>"
-        : "",
-    ) +
-    "\n       </div></div>\n     " +
-    worksheetPriorVisitsHTML({ prior, services }) +
-    '\n     <h2 class="ri-items-heading">' +
-    "".concat(
-      editor.state.riWalk && editor.state.riWalkItem
-        ? "Current item · " + (left ? "next unresolved remains in order" : "reviewing recorded details")
-        : editor.state.riFilter
-          ? rowsShown + " of " + src.items.length + " items"
-          : "Review all " + src.items.length + " items",
-    ) +
-    "</h2>\n     " +
-    "".concat(
-      r.previousDraft
-        ? '<div class="banner info"><div>Previous document draft retained. <button ' +
-            'class="btn" id="btn-previousdraft">Restore previous draft and inspection' +
-            '</button><button class="btn" id="btn-exportprevious">Download previous d' +
-            "raft</button></div></div>"
-        : "",
-    ) +
-    "\n     " +
-    `${!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? services.inspection.duePanel(r, true) : ""}` +
-    `${rows}` +
-    "\n\n     " +
-    "".concat(
-      !readOnly
-        ? '<details class="ri-checks"><summary>Inspection checks · ' +
-            worksheetChecks(r).filter((c) => !c.soft).length +
-            " to resolve before a document</summary>" +
-            worksheetCheckPanel(r) +
-            "</details>"
-        : "",
-    ) +
-    "\n     " +
-    `${verdict}` +
-    "\n     " +
-    "".concat(!closed ? services.authoring.newDocuments.chooser(r) : `<button class="btn" data-open="${esc(r.docId)}">Open the document</button>`) +
-    '\n     <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>'
-  );
+  return html`${raw(walkPanel)}
+       ${raw(
+         editor.state.riFilter
+           ? html`<p class="ri-filtered">Showing ${rowsShown} of ${src.items.length} items. This only changes what you are looking at &mdash; every item still goes on the document.</p>`
+           : "",
+       )}
+       </div></div>
+     ${raw(worksheetPriorVisitsHTML({ prior, services }))}
+     <h2 class="ri-items-heading">${
+       editor.state.riWalk && editor.state.riWalkItem
+         ? "Current item · " + (left ? "next unresolved remains in order" : "reviewing recorded details")
+         : editor.state.riFilter
+           ? rowsShown + " of " + src.items.length + " items"
+           : "Review all " + src.items.length + " items"
+     }</h2>
+     ${raw(
+       r.previousDraft
+         ? html`<div class="banner info"><div>Previous document draft retained. <button class="btn" id="btn-previousdraft">Restore previous draft and inspection</button><button class="btn" id="btn-exportprevious">Download previous draft</button></div></div>`
+         : "",
+     )}
+     ${raw(!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? services.inspection.duePanel(r, true) : "")}${raw(rows)}
+
+     ${raw(
+       !readOnly
+         ? html`<details class="ri-checks"><summary>Inspection checks · ${worksheetChecks(r).filter((c) => !c.soft).length} to resolve before a document</summary>${raw(worksheetCheckPanel(r))}</details>`
+         : "",
+     )}
+     ${raw(verdict)}
+     ${raw(!closed ? services.authoring.newDocuments.chooser(r) : html`<button class="btn" data-open="${r.docId}">Open the document</button>`)}
+     <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>`;
 }
 
 function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred }) {
