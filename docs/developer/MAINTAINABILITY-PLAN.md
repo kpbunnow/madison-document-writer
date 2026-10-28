@@ -859,3 +859,9 @@ Measured counts: {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 11
 Separated last-write and reporting-index row formatting into private functions in the existing storage-status owner. Passed 4,000 retained-owner comparisons of exact HTML and property/service read order; shell boundary behavior, module boundaries, test seams, ESLint and formatting passed. No print/probe behavior or release identity changes.
 
 Measured counts: {'complexity': 58, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 57, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## case-load-status-message
+
+Moved success-message formatting into a private function, retaining the toast getter and argument evaluation order. Passed 320 retained-loader comparisons using actual migration/projection/event operations, varying zero/one/many documents and visits, repeats, saved/held loads and UI/save interruptions. Differential snapshots omit only wall-clock savedAt; existing proof/conflict/rollback assertions all pass. Module boundaries, test seams, ESLint and formatting pass; identities unchanged.
+
+Measured counts: {'complexity': 57, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
