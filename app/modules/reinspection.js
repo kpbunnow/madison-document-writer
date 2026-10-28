@@ -224,46 +224,19 @@ function worksheetProgressHTML({ recorded, activeCount, left, withdrawn }) {
 
 function worksheetFiltersHTML({ done, open, left, cited, src }) {
   return (
-    "<div " +
-    'class="ri-sum" ' +
-    `${editor.state.riWalk ? "hidden" : ""}` +
-    '>\n         <button class="cchip ' +
-    `${done ? "good" : ""}` +
-    '" data-rifilter="corrected" aria-pressed="' +
-    `${editor.state.riFilter === "corrected"}` +
-    '" ' +
-    `${editor.state.riWalk ? "disabled" : ""}` +
-    ">" +
-    `${done}` +
-    ' corrected</button>\n         <button class="cchip ' +
-    `${open ? "bad" : ""}` +
-    '" data-rifilter="open" aria-pressed="' +
-    `${editor.state.riFilter === "open"}` +
-    '" ' +
-    `${editor.state.riWalk ? "disabled" : ""}` +
-    ">" +
-    `${open}` +
-    " outstanding</button>\n         " +
-    "".concat(
-      left
-        ? '<button class="cchip" data-rifilter="todo" aria-pressed="' +
-            `${editor.state.riFilter === "todo"}` +
-            '" ' +
-            `${editor.state.riWalk ? "disabled" : ""}` +
-            ">" +
-            `${left}` +
-            " not yet resulted</button>"
-        : "",
-    ) +
-    "\n         " +
-    `${cited.length ? `<span class="cchip bad">${cited.length} to cite</span>` : ""}` +
-    "\n         " +
-    "".concat(
-      editor.state.riFilter
-        ? '<button class="lnk" data-rifilter="" ' + `${editor.state.riWalk ? "disabled" : ""}` + ">Show all " + `${src.items.length}` + "</button>"
-        : "",
-    ) +
-    "\n       </div>\n       "
+    html`<div class="ri-sum" ${editor.state.riWalk ? "hidden" : ""}>\n         ` +
+    html`<button class="cchip ${done ? "good" : ""}" data-rifilter="corrected" aria-pressed="${editor.state.riFilter === "corrected"}" ${editor.state.riWalk ? "disabled" : ""}>${done} corrected</button>\n         ` +
+    html`<button class="cchip ${open ? "bad" : ""}" data-rifilter="open" aria-pressed="${editor.state.riFilter === "open"}" ${editor.state.riWalk ? "disabled" : ""}>${open} outstanding</button>\n         ` +
+    (left
+      ? html`<button class="cchip" data-rifilter="todo" aria-pressed="${editor.state.riFilter === "todo"}" ${editor.state.riWalk ? "disabled" : ""}>${left} not yet resulted</button>`
+      : "") +
+    html`\n         ` +
+    (cited.length ? html`<span class="cchip bad">${cited.length} to cite</span>` : "") +
+    html`\n         ` +
+    (editor.state.riFilter
+      ? html`<button class="lnk" data-rifilter="" ${editor.state.riWalk ? "disabled" : ""}>Show all ${src.items.length}</button>`
+      : "") +
+    html`\n       </div>\n       `
   );
 }
 
