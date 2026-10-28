@@ -895,3 +895,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Converted walkthrough explanation text and progress-step list to escaped templates. Retained exact wording, whitespace and current-step attributes; raw fragments contain only local step renderer output. Passed 1,026 exact frozen-screen comparisons, escaping/print exclusion, independent reinspection behavior, module boundaries, test seams, ESLint and formatting. Release identities unchanged.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## worksheet-walk-panel-template
+
+Converted walkthrough mode controls, details navigation, undo and shortcut panel to an escaped template. Trusted fragments come only from local explanation, step and shortcut renderers. Passed 1,026 exact frozen-screen comparisons, screen escaping/print exclusion, reinspection service behavior, module boundaries, test seams, ESLint and formatting. Existing controls, keyboard labels, eligibility callbacks and output whitespace retained.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
