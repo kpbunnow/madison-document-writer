@@ -413,6 +413,7 @@
     "tests/fixtures/catalog_review_reference.txt",
     "tests/fixtures/citation_base_reference.txt",
     "tests/fixtures/citation_history_reference.txt",
+    "tests/fixtures/citation_ordinance_reference.txt",
     "tests/fixtures/citation_pricing_reference.txt",
     "tests/fixtures/citation_refresh_reference.txt",
     "tests/fixtures/citation_resolution_reference.txt",

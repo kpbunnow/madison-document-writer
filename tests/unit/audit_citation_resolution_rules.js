@@ -31,6 +31,10 @@ const assert = require("node:assert/strict"),
   }
   const baseFn = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }).body.find((n) => n.id?.name === "ruleBase");
   const baseReference = fs.readFileSync("tests/fixtures/citation_rule_base_reference.txt", "utf8");
+  const ordinanceFn = acorn
+    .parse(source, { ecmaVersion: 2022, sourceType: "module" })
+    .body.find((n) => n.declaration?.id?.name === "resolveOrdinance").declaration;
+  const ordinanceReference = fs.readFileSync("tests/fixtures/citation_ordinance_reference.txt", "utf8");
   let retained = source;
   for (const [node, text] of [
     [fn, reference],
@@ -110,6 +114,26 @@ const assert = require("node:assert/strict"),
     if (n < 100) for (const failAt of [1, 5, 10, 15]) compare(input, failAt);
   }
   for (const input of [undefined, null, false, {}, { date: "2026-10-24" }]) compare(input);
+  let resolved = 0;
+  const resolve = (api, args) => {
+    try {
+      return { value: api.resolveOrdinance(...args) };
+    } catch (e) {
+      return { error: [e.name, e.message] };
+    }
+  };
+  for (const [key, mappings] of Object.entries(current.CITATION_POLICY.itemMappings))
+    for (const mapping of mappings)
+      for (const date of [undefined, "2026-06-30", "2026-10-24"])
+        for (const entryId of ["", "missing"]) {
+          const args = [mapping.chargedOrdinance, key, entryId, date];
+          assert.deepEqual(resolve(current, args), resolve(legacy, args), "mapped ordinance " + resolved++);
+        }
+  for (const row of rows)
+    for (const entryId of [row.id, "", "missing"]) {
+      const args = [row.ordinance, "", entryId, "2026-10-24"];
+      assert.deepEqual(resolve(current, args), resolve(legacy, args), "scheduled ordinance " + resolved++);
+    }
   let measured = 0;
   for (const row of rows)
     for (const field of row.measurements || [{ key: "unused" }])
@@ -131,7 +155,9 @@ const assert = require("node:assert/strict"),
       checked +
       " scenarios and " +
       measured +
-      " direct measurement cases: policy rows, boundaries, dates, property reads and exceptions",
+      " direct measurement cases and " +
+      resolved +
+      " ordinance selections: policy rows, boundaries, dates, property reads and exceptions",
   );
 })().catch((error) => {
   console.error(error);

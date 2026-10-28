@@ -44,6 +44,25 @@ function compatible(e, via, charge, description) {
       : "Manual deposit required: " + (e.stale ? "the scheduled charge is stale." : "this row has no division verification."),
   };
 }
+function exactOrdinanceSelection(exact, entryId, charge, mapping) {
+  const chosen = entryId
+    ? exact.find((e) => e.id === entryId)
+    : exact.length === 1 || exact.every((e) => e.rule && JSON.stringify(e.rule) === JSON.stringify(exact[0].rule))
+      ? exact[0]
+      : null;
+  return chosen
+    ? compatible(chosen, "exact", charge, mapping?.printedDescription)
+    : {
+        o: charge,
+        id: "ambiguous-" + charge,
+        desc: "",
+        tiers: [],
+        raw: "",
+        resolvedVia: "none",
+        why: "Choose the scheduled offense; this ordinance has multiple rows.",
+      };
+}
+
 export function resolveOrdinance(value, libraryKey = "", entryId = "", date) {
   const P = date ? policyAt(date) : CITATION_POLICY;
   const charge = canonicalOrdinance(value);
@@ -55,24 +74,7 @@ export function resolveOrdinance(value, libraryKey = "", entryId = "", date) {
       ...compatible({ tiers: [], status: "manual-only", rawText: mapping.source }, "none", charge, mapping.printedDescription),
       id: "manual-" + charge,
     };
-  if (exact.length) {
-    const chosen = entryId
-      ? exact.find((e) => e.id === entryId)
-      : exact.length === 1 || exact.every((e) => e.rule && JSON.stringify(e.rule) === JSON.stringify(exact[0].rule))
-        ? exact[0]
-        : null;
-    return chosen
-      ? compatible(chosen, "exact", charge, mapping?.printedDescription)
-      : {
-          o: charge,
-          id: "ambiguous-" + charge,
-          desc: "",
-          tiers: [],
-          raw: "",
-          resolvedVia: "none",
-          why: "Choose the scheduled offense; this ordinance has multiple rows.",
-        };
-  }
+  if (exact.length) return exactOrdinanceSelection(exact, entryId, charge, mapping);
   if (["verified", "calculated"].includes(mapping?.status)) {
     exact = P.entries.filter((e) => e.ordinance === mapping.scheduleOrdinance);
     if (exact.length === 1) return compatible(exact[0], "mapped:" + mapping.scheduleOrdinance, charge, mapping.printedDescription);
