@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_scoped_edit_rules.js` | Frozen scoped-edit comparison for dispatch precedence, family caches, state mutation, DOM effects and lazy services. |
 | `audit_citation_resolution_rules.js` | Policy rows, measurement boundaries, invalid dates and observable input reads against frozen resolution. |
 | `audit_inspection_history_rules.js` | Frozen-owner comparison for lineage termination, cycles, visit observations and citation annotation precedence. |
 | `audit_case_file_fault_rules.js` | Frozen-validator comparison of refusal precedence, observable input reads, exceptions and mutation. |
