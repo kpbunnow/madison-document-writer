@@ -251,6 +251,39 @@ function reportExportCorrectionRows(services, M, F) {
   return correctionRows;
 }
 
+function appendNumberedReportSheets(services, M, F, sheets) {
+  const conv = (x) =>
+    x == null
+      ? null
+      : typeof x === "string"
+        ? x
+        : x.kase
+          ? x.kase
+          : x.owner !== undefined
+            ? x.text || ""
+            : x.n == null || isNaN(x.n)
+              ? null
+              : x.fmt === "money"
+                ? { m: x.n }
+                : x.fmt === "days"
+                  ? { f: x.n }
+                  : x.n;
+  services.REPORTS.forEach((r) => {
+    const res = r.run(M, F);
+    sheets.push({
+      name: r.n + " " + r.label,
+      opt: { header: true },
+      rows: [res.cols].concat(
+        orderedRows(res, validSort(ReportsState.S.tableSort, r.id), (message) => {
+          ReportsState.S.reportNotice = message;
+          services.A11Y.notify(message);
+        }).map(({ row }) => (row.cells || row).map(conv)),
+        res.total ? [res.total.map(conv)] : [],
+      ),
+    });
+  });
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1328,36 +1361,7 @@ export function createReportsScreens(services) {
       { name: "Referrals", rows: refRows, opt: { header: true } },
       { name: "Corrections", rows: correctionRows, opt: { header: true } },
     ];
-    const conv = (x) =>
-      x == null
-        ? null
-        : typeof x === "string"
-          ? x
-          : x.kase
-            ? x.kase
-            : x.owner !== undefined
-              ? x.text || ""
-              : x.n == null || isNaN(x.n)
-                ? null
-                : x.fmt === "money"
-                  ? { m: x.n }
-                  : x.fmt === "days"
-                    ? { f: x.n }
-                    : x.n;
-    services.REPORTS.forEach((r) => {
-      const res = r.run(M, F);
-      sheets.push({
-        name: r.n + " " + r.label,
-        opt: { header: true },
-        rows: [res.cols].concat(
-          orderedRows(res, validSort(ReportsState.S.tableSort, r.id), (message) => {
-            ReportsState.S.reportNotice = message;
-            services.A11Y.notify(message);
-          }).map(({ row }) => (row.cells || row).map(conv)),
-          res.total ? [res.total.map(conv)] : [],
-        ),
-      });
-    });
+    appendNumberedReportSheets(services, M, F, sheets);
     return sheets;
   }
 
