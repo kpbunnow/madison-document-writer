@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_retained_source_rules.py` | 3,000 retained-source scenarios preserve exact refusals, UTF-8 read order, source bytes and complete compiled policy bytes. |
 | `audit_policy_version_rules.py` | Every retained policy row plus 3,000 malformed version scenarios preserves exact refusals, date-call order, input data and compiled bytes. |
 | `audit_workflow_search_rules.py` | 3,000 search scenarios preserve exact output, errors, read/validation order, inputs and 5,000-file/100-result limits. |
 | `audit_citation_history_rules.py` | 3,000 synthetic scan traces preserve reads, guard order, exclusions and projection; unchanged real-store integrity tests remain. |

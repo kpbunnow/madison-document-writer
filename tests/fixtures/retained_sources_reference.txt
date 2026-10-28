@@ -1,0 +1,24 @@
+def validate_retained_sources(root):
+    root = Path(root)
+    grammar = read(root / "policy/sources/citation_policy_source.json")["grammar"]
+    library = json.loads((root / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
+    for category in library:
+        for group in category["groups"]:
+            for item in group["items"]:
+                key = json.dumps([category["code"], group["code"], item["o"]], separators=(",", ":"))
+                for section in item.get("s", []):
+                    if section not in item.get("citationManualSections", {}) and not item.get("citationMapping"):
+                        raise ValueError("Missing explicit provision review/manual marker: " + key + " " + section)
+                    normalized = re.sub(r"\(([^)]+)\)", lambda m: "(" + m[1].lower() + ")", section.replace(" ", ""))
+                    if re.search(r"\)\d+$", normalized):
+                        normalized += "."
+                    if not re.fullmatch(grammar, normalized):
+                        raise ValueError("Invalid library ordinance: " + key + " " + section)
+    entries = json.loads((root / "app/assets/deposits.js").read_text(encoding="utf-8").split("const DEPOSITS=", 1)[1].rsplit(";", 1)[0])
+    for entry in entries:
+        if not re.fullmatch(grammar, entry["ordinance"]):
+            raise ValueError("Invalid schedule ordinance: " + entry["ordinance"])
+        if entry["status"] == "verified":
+            raw = [int(round(float(x.replace(",", "")) * 100)) for x in re.findall(r"\$([\d,]+(?:\.\d+)?)", entry["rawText"])]
+            if raw != [tier["amountCents"] for tier in entry["tiers"]] or not entry.get("review") or entry["stale"]:
+                raise ValueError("Verified schedule data disagrees with source/review: " + entry["id"])
