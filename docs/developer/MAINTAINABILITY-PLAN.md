@@ -675,3 +675,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Added 3037 comparison scenarios before changing the status coordinator. Comparison, module boundaries, seam inventory, ESLint and JavaScript formatting pass. The frozen text fixture is retained source, not formatted; an initial explicit Prettier invocation on its .txt extension was unsupported. No production code or debt allowances changed.
 
 Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15} → {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15}.
+
+## case-status-phases
+
+Separated closure, deadline facts, attention and status-label precedence into private named helpers. Live snow and clock reads remain at their original short-circuit points; query order and returned aliases remain intact. All 3037 differential scenarios, independent screen/workspace/task audits, module boundaries, seam inventory, ESLint, formatting and a fresh test build pass. No production exports or factory inputs added.
+
+Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15} → {'complexity': 73, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.

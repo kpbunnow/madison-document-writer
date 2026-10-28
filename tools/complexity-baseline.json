@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 74,
+    "complexity": 73,
     "max-depth": 0,
-    "max-lines-per-function": 123,
+    "max-lines-per-function": 121,
     "python": 15
   },
   "violations": {
@@ -41,9 +41,6 @@
     "app/modules/case_recovery.js:createCaseRecovery#1/validateRecovery#1:complexity": 34,
     "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1:max-lines-per-function": 82,
     "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1:complexity": 25,
-    "app/modules/case_status.js:createCaseStatus#1:max-lines-per-function": 92,
-    "app/modules/case_status.js:createCaseStatus#1/caseState#1:complexity": 65,
-    "app/modules/case_status.js:createCaseStatus#1/caseState#1:max-lines-per-function": 89,
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,
