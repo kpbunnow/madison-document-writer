@@ -35,72 +35,34 @@ function worksheetItemShown({ r, it }) {
 }
 
 function worksheetNextDueHTML({ open, r, it, res, services, lock, dc }) {
-  return "".concat(
-    open && (!r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent))
-      ? '<label class="f"><span>Next due date</span>\n          <input type="date"' +
-          ' data-ridue="' +
-          `${esc(it.id)}` +
-          '" value="' +
-          `${esc(res.due || "")}` +
-          '" min="' +
-          `${services.authoring.MINDUE()}` +
-          '" ' +
-          `${lock ? "disabled" : ""}` +
-          '>\n          <span class="hint ' +
-          `${dc.ok ? (dc.warn ? "warnt" : "") : "badt"}` +
-          '">' +
-          `${esc(dc.msg)}` +
-          "</span></label>"
-      : "<div></div>",
-  );
+  return open &&
+    (!r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent))
+    ? html`<label class="f"><span>Next due date</span>
+          <input type="date" data-ridue="${it.id}" value="${res.due || ""}" min="${services.authoring.MINDUE()}" ${lock ? "disabled" : ""}>
+          <span class="hint ${dc.ok ? (dc.warn ? "warnt" : "") : "badt"}">${dc.msg}</span></label>`
+    : "<div></div>";
 }
 
 function worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc }) {
-  return "".concat(
-    oc
-      ? '<div class="ri-fields">\n        <label class="f"><span>Result date</span' +
-          '>\n          <input type="date" data-ridate="' +
-          `${esc(it.id)}` +
-          '" value="' +
-          `${esc(res.on || r.date)}` +
-          '" max="' +
-          `${recordDay(today)}` +
-          '" ' +
-          `${lock ? "disabled" : ""}` +
-          '><span class="hint">When this result was observed; no later than this vi' +
-          "sit.</span></label>\n        " +
-          worksheetNextDueHTML({ open, r, it, res, services, lock, dc }) +
-          '\n      </div>\n      <label class="f ri-note"><span>' +
-          `${oc === "noaccess" ? "Access attempt and observations" : "Notes " + (open ? "" : "(optional)")}` +
-          '</span>\n        <textarea rows="2" data-rinote="' +
-          `${esc(it.id)}` +
-          '" placeholder="What you observed, who you spoke to, anything worth havin' +
-          'g on the file" ' +
-          `${lock ? "disabled" : ""}` +
-          ">" +
-          `${esc(res.note || "")}` +
-          "</textarea>" +
-          "".concat(
-            oc === "noaccess"
-              ? '<span class="hint">Describe the access attempted, contact made and areas' +
-                  " you could not inspect. No access is not a finding of compliance.</span>"
-              : "",
-          ) +
-          "</label>\n      " +
-          "".concat(
-            open && (r.importRule?.cite || res.cite)
-              ? '<label class="ri-cite"><input type="checkbox" data-ricite="' +
-                  `${esc(it.id)}` +
-                  '" ' +
-                  `${res.cite ? "checked" : ""}` +
-                  " " +
-                  `${lock ? "disabled" : ""}` +
-                  ">\n        <span>Issue a citation for this item</span></label>"
-              : "",
-          ) +
-          ""
-      : "",
-  );
+  return oc
+    ? html`<div class="ri-fields">
+        <label class="f"><span>Result date</span>
+          <input type="date" data-ridate="${it.id}" value="${res.on || r.date}" max="${recordDay(today)}" ${lock ? "disabled" : ""}><span class="hint">When this result was observed; no later than this visit.</span></label>
+        ${raw(worksheetNextDueHTML({ open, r, it, res, services, lock, dc }))}
+      </div>
+      <label class="f ri-note"><span>${oc === "noaccess" ? "Access attempt and observations" : "Notes " + (open ? "" : "(optional)")}</span>
+        <textarea rows="2" data-rinote="${it.id}" placeholder="What you observed, who you spoke to, anything worth having on the file" ${lock ? "disabled" : ""}>${res.note || ""}</textarea>${raw(
+          oc === "noaccess"
+            ? html`<span class="hint">Describe the access attempted, contact made and areas you could not inspect. No access is not a finding of compliance.</span>`
+            : "",
+        )}</label>
+      ${raw(
+        open && (r.importRule?.cite || res.cite)
+          ? html`<label class="ri-cite"><input type="checkbox" data-ricite="${it.id}" ${res.cite ? "checked" : ""} ${lock ? "disabled" : ""}>
+        <span>Issue a citation for this item</span></label>`
+          : "",
+      )}`
+    : "";
 }
 
 function worksheetWalkCopyHTML({ walkOn, src, left, next }) {
