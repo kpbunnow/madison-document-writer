@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
 import { ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 
 export function createRecipientWorkflow(services) {
   function validateAndStandardizeAddresses(k, requireAgent = false, normalize = true) {
@@ -58,7 +58,7 @@ export function createRecipientWorkflow(services) {
     const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.ccList = ccList(k).concat([{ name: "", addr: "", city: "" }]);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.render();
   }
 
@@ -66,7 +66,7 @@ export function createRecipientWorkflow(services) {
     const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.ccList = ccList(k).filter((_, n) => n !== ix);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.render();
   }
 
@@ -74,7 +74,7 @@ export function createRecipientWorkflow(services) {
     const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.emails = emailList(k).concat([{ addr: "", kind: "Property Owner" }]);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.render();
   }
 
@@ -82,7 +82,7 @@ export function createRecipientWorkflow(services) {
     const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.emails = emailList(k).filter((_, n) => n !== ix);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.render();
   }
   return { validateAndStandardizeAddresses, recipientPreview, addCC, removeCC, addEmail, removeEmail };

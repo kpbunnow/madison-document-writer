@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 
 import { ccList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */
 export function initAddressParser(services) {
   const pending = new Map();
@@ -94,7 +94,7 @@ export function initAddressParser(services) {
       c.target.city = lines.at(-1);
       p.acceptedLines = [c.target.addr, c.target.city];
     }
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     pending.delete(token);
     services.saveDrafts();
     document.getElementById("utility-dialog")?.close();

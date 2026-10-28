@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 import { recordDay } from "../assets/shared.js";
@@ -8,7 +9,6 @@ import { addDays } from "./calendar.js";
 import { doc, docCase, docInsp, recordHead, reinsp } from "./writer_queries.js";
 import { clone } from "./record_values.js";
 import { isLLC } from "./mailing_rules.js";
-import { WriterState } from "./state.js";
 const TEST_CASES = [
   {
     id: "k1",
@@ -96,7 +96,7 @@ export function initTestFixtures(services) {
       null,
       docInsp(d).id,
     );
-    WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id); // the draft is spent
+    workspace.DOCS = workspace.DOCS.filter((x) => x.id !== d.id); // the draft is spent
     services.project();
     services.saveDrafts();
     const live = doc(d.id);

@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Citation event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { doc } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 import { citeAllowed } from "./document_rules.js";
 export function createCitationEvents(services) {
   function registerReviewInput(target = document) {
@@ -17,7 +17,7 @@ export function createCitationEvents(services) {
         if (!d || services.isLocked(d)) return;
         const [id, f] = ds.reviewCit.split("|");
         services.editCitation(d, id, f, el.value, "input");
-        WriterState.DIRTY = true;
+        workspace.DIRTY = true;
         services.scheduleDraftSave();
         services.syncChip();
         services.initialCitations.refresh(d);
@@ -33,7 +33,7 @@ export function createCitationEvents(services) {
         if (d && !services.isLocked(d)) {
           const [id, field] = ds.reviewCit.split("|");
           services.editCitation(d, id, field, e.target.value);
-          WriterState.DIRTY = true;
+          workspace.DIRTY = true;
           services.saveDrafts();
           services.refreshSheet();
           services.initialCitations.refresh(d);
@@ -59,7 +59,7 @@ export function createCitationEvents(services) {
         delete d.cits?.[it.id];
       }
       services.initialCitations.prepare(d);
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.render();
       if (it.cite) services.depositStep.openNext(d);
     }

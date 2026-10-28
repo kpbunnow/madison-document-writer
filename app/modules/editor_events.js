@@ -1,7 +1,7 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Editor event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 import { doc, draftDocFor, docsFor, docCase, kase, eventsFor, reinsp, docInsp } from "./writer_queries.js";
 import { itemLibraryKey, alignedExtension } from "./document_rules.js";
 import { clone } from "./record_values.js";
@@ -72,7 +72,7 @@ export function createEditorEvents(services) {
       const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
       d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
       services.renumber(d);
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.refreshSheet();
     });
   }
@@ -198,13 +198,13 @@ export function createEditorEvents(services) {
       d.selectionCache[itemLibraryKey(gone)] = clone(gone);
     }
     services.renumber(d);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.refreshSheet();
     services.toastUndo("Removed item — " + (gone.title || "untitled"), () => {
       if (!itemLibraryKey(gone) || !d.items.some((i) => itemLibraryKey(i) === itemLibraryKey(gone))) {
         d.items.splice(ix, 0, gone);
         services.renumber(d);
-        WriterState.DIRTY = true;
+        workspace.DIRTY = true;
         services.saveDrafts();
         services.refreshSheet();
       }
@@ -244,7 +244,7 @@ export function createEditorEvents(services) {
     it.abate = !it.abate;
     t.dataset.on = it.abate ? 1 : 0;
     t.textContent = it.abate ? "Y" : "N";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.scheduleDraftSave();
     return;
   };
@@ -269,7 +269,7 @@ export function createEditorEvents(services) {
       services.toast("This document has already been issued");
       return;
     }
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) services.grantCaseFolder(true); // reconnect while the click still counts
+    if (workspace.CASEDIR && workspace.NEEDGRANT) services.grantCaseFolder(true); // reconnect while the click still counts
     editor.state.picker = false;
     editor.state.modal = "final";
     services.render();
@@ -316,7 +316,7 @@ export function createEditorEvents(services) {
     d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
     // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
     t.disabled = true;
-    if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
+    if (workspace.CASEDIR && workspace.NEEDGRANT) {
       services.grantCaseFolder(true).then(() => services.runFinalize(d));
       return;
     }
@@ -357,7 +357,7 @@ export function createEditorEvents(services) {
         const reviewed = document.getElementById("correction-reviewed");
         if (reviewed) reviewed.checked = false;
       }
-      WriterState.DIRTY = true;
+      workspace.DIRTY = true;
       services.scheduleDraftSave();
       const val = el.dataset.case === "number" ? el.textContent.trim() : el.isContentEditable ? el.innerText : el.value;
 
@@ -511,7 +511,7 @@ export function createEditorEvents(services) {
       if (e.target.dataset && e.target.dataset.doc === "inspectorId" && !services.isLocked(d)) {
         d.inspectorId = e.target.value;
         Object.values(d.cits || {}).forEach((c) => (c.deptId = docInsp(d).badge || ""));
-        WriterState.DIRTY = true;
+        workspace.DIRTY = true;
         services.refreshSheet();
       }
     });

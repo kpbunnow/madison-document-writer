@@ -1,7 +1,7 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 /* Workflow event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { downloadText, csvText } from "../assets/shared.js";
 import { kase, eventsFor } from "./writer_queries.js";
 export function createWorkflowEvents(services) {
@@ -47,7 +47,7 @@ export function createWorkflowEvents(services) {
             ) +
             "</ul>";
         } else if (form.id === "reminder-settings") {
-          const prefs = WriterState.WORKFLOW_PREFS.reminders;
+          const prefs = workspace.WORKFLOW_PREFS.reminders;
           prefs.enabled = data.get("enabled") === "on";
           prefs.days = Math.min(30, Math.max(1, Number(data.get("days")) || 7));
           prefs.plans = {};
@@ -70,7 +70,7 @@ export function createWorkflowEvents(services) {
               return staged;
             },
             () => {
-              WriterState.DOCS = WriterState.DOCS.map((d) => copies.get(d.id) || d);
+              workspace.DOCS = workspace.DOCS.map((d) => copies.get(d.id) || d);
             },
           );
           document.getElementById("utility-dialog")?.close();
@@ -109,8 +109,8 @@ export function createWorkflowEvents(services) {
         } else if (t.hasAttribute("data-reminders")) services.showReminders();
         else if (t.dataset.reminderDraft) services.showReminderDraft(t.dataset.reminderDraft);
         else if (t.dataset.reminderDismiss) {
-          WriterState.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);
-          WriterState.WORKFLOW_PREFS.reminders.dismissed = WriterState.WORKFLOW_PREFS.reminders.dismissed.slice(-200);
+          workspace.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);
+          workspace.WORKFLOW_PREFS.reminders.dismissed = workspace.WORKFLOW_PREFS.reminders.dismissed.slice(-200);
           services.saveWorkflowPrefs();
           services.render();
         } else if (t.dataset.timeline) services.showTimeline(t.dataset.timeline, "all");
@@ -130,8 +130,8 @@ export function createWorkflowEvents(services) {
               {
                 format: "madison-event-log-export",
                 version: 1,
-                caseNumber: kase(WriterState.TIMELINE_CASE).number,
-                events: eventsFor(WriterState.TIMELINE_CASE),
+                caseNumber: kase(workspace.TIMELINE_CASE).number,
+                events: eventsFor(workspace.TIMELINE_CASE),
               },
               null,
               2,
@@ -148,7 +148,7 @@ export function createWorkflowEvents(services) {
 
   function registerTimelineFilter(target = document) {
     return registerEventOnce(target, "workflow.registerTimelineFilter", "change", (e) => {
-      if (e.target.id === "timeline-filter") services.showTimeline(WriterState.TIMELINE_CASE, e.target.value);
+      if (e.target.id === "timeline-filter") services.showTimeline(workspace.TIMELINE_CASE, e.target.value);
       if (["case-filter", "case-inspector"].includes(e.target.id)) queueMicrotask(services.saveWorkflowPrefs);
     });
   }

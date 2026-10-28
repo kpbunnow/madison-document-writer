@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 
 import { stableJSON } from "./record_values.js";
@@ -53,12 +54,12 @@ export function initAdministration(services) {
     'l><input type="checkbox" name="confirmed" required> I confirm this admin' +
     "istrative decision and its source.</label>";
   async function openOverride() {
-    if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
+    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) {
       services.toast("Connect the local helper and case folder first.");
       return;
     }
     const targets = [];
-    for (const d of WriterState.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
+    for (const d of workspace.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
       services.citationPricing.refresh(d);
       for (const i of d.items || []) {
         const c = d.cits?.[i.id];
@@ -120,7 +121,7 @@ export function initAdministration(services) {
         delete x.c.reconfirmDeposit;
         x.c.pricedOn = x.c.overrideBasis.pricingDate;
         x.c.policyVersionHash = x.c.overrideBasis.policyVersionHash;
-        WriterState.DIRTY = true;
+        workspace.DIRTY = true;
         await services.saveDrafts();
         document.getElementById("utility-dialog")?.close();
         services.toast("Administrator override recorded. Review the citation before issuance.");
@@ -131,7 +132,7 @@ export function initAdministration(services) {
     };
   }
   async function openLetter() {
-    if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper) {
+    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) {
       services.toast("Connect the local helper and case folder first.");
       return;
     }

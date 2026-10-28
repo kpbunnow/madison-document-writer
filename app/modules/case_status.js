@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
@@ -6,7 +7,6 @@ import { sourceDocFor, draftDocFor, draftReinspFor, docsFor, effectiveFiled } fr
 import { isHistoryDoc, activeRestrictions } from "./document_rules.js";
 import { validISO, addDays, daysBetween } from "./calendar.js";
 import { STATUS_OF } from "./document_types.js";
-import { WriterState } from "./state.js";
 import { recordDay } from "../assets/shared.js";
 
 export function createCaseStatus(services) {
@@ -36,7 +36,7 @@ export function createCaseStatus(services) {
       soon = !closed && !!due && !late && days >= 0 && days <= 7;
     const pendingRecord = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
     const pendingDoc = docsFor(k.id).find((d) => d.pendingAmendment) || null;
-    const pendingSync = WriterState.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
+    const pendingSync = workspace.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
     const filingDoc = live.find((d) => independentArtifact(d) && !effectiveFiled(d)) || null;
     const artifactIssue = live.find((d) => ["artifact conflict", "missing or unavailable"].includes(pdfTransferState(d))) || null;
     const numberIssue = !caseNumberAllowed(k);

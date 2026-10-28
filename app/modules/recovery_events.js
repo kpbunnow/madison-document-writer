@@ -1,8 +1,8 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 /* Recovery event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 import { doc, reinsp } from "./writer_queries.js";
 export function createRecoveryEvents(services) {
   function registerWorkingInput(target = document) {
@@ -236,7 +236,7 @@ export function createRecoveryEvents(services) {
 
   function registerUnloadWarning(target = window) {
     return registerEventOnce(target, "recovery.registerUnloadWarning", "beforeunload", (e) => {
-      if (WriterState.DIRTY) {
+      if (workspace.DIRTY) {
         e.preventDefault();
         e.returnValue = "";
       }

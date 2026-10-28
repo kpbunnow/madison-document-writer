@@ -1,10 +1,10 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Workspace task presentation consumes existing record and artifact facts; no action or persistence authority. */
 import { DOC_TYPES } from "./document_types.js";
 import { docsFor, effectiveFiled, kase } from "./writer_queries.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import { esc as dep_esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 
 /* Construction reads no services or workspace state and registers no listeners. */
 export function createWorkspaceTasks(services) {
@@ -39,7 +39,7 @@ export function createWorkspaceTasks(services) {
           (d) =>
             independentArtifact(d) &&
             (pdfTransferState(d) === "local outbox" ||
-              (pdfTransferState(d) === "last verified location; refresh unavailable" && WriterState.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
+              (pdfTransferState(d) === "last verified location; refresh unavailable" && workspace.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
         )
         .map((d) =>
           caseTask(
@@ -47,7 +47,7 @@ export function createWorkspaceTasks(services) {
             "Transfer " +
               ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) +
               " PDF" +
-              (WriterState.ARTIFACT_VERIFY[d.id] === "unavailable" ? " (last verified; refresh unavailable)" : ""),
+              (workspace.ARTIFACT_VERIFY[d.id] === "unavailable" ? " (last verified; refresh unavailable)" : ""),
             `data-outbox`,
           ),
         ),
@@ -114,7 +114,7 @@ export function createWorkspaceTasks(services) {
         "pending",
         "Case files to sync",
         "operations",
-        WriterState.PENDING.map((p) => ({
+        workspace.PENDING.map((p) => ({
           cid: p.cid,
           label: (kase(p.cid).number || p.name) + " · held case file from " + p.at,
           action: `data-case-sync="${dep_esc(p.cid)}"`,

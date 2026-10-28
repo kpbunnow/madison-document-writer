@@ -1,3 +1,4 @@
+const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
 /* Exact HTML snapshots from the pre-extraction renderer, including queue/empty/filter/error states. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -15,7 +16,7 @@ const assert = require("node:assert/strict"),
   source = source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("screenCases }", "screenCases,referenceScreenCases }");
   source += '\nexport {WriterState} from "./state.js";export {esc} from "./presentation_format.js";';
   const compiled = await esbuild.build({
-    stdin: { contents: source, resolveDir: dir },
+    stdin: { contents: withHistoricalState(source), resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",

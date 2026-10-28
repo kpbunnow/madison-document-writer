@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 import { recordDay } from "../assets/shared.js";
@@ -6,8 +7,6 @@ import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
 import { checkAttr, esc } from "./presentation_format.js";
 import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
 import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
-
-import { WriterState } from "./state.js";
 
 import { documentSaveHTML, localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
@@ -277,7 +276,7 @@ export function createEditorScreens(services) {
               : "",
           ) +
           // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
-          (WriterState.CASEDIR
+          (workspace.CASEDIR
             ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
             : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
               '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
@@ -442,7 +441,7 @@ export function createEditorScreens(services) {
     if (ix < 0 || to < 0 || to >= d.items.length) return false;
     [d.items[ix], d.items[to]] = [d.items[to], d.items[ix]];
     renumber(d);
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     refreshSheet();
     const target = document.querySelector(
       grip ? '[data-grip="' + checkAttr(id) + '"]' : '[data-move="' + checkAttr(id) + '"][data-direction="' + direction + '"]',
@@ -476,11 +475,11 @@ export function createEditorScreens(services) {
       cits: {},
       expectedHead: recordHead(caseId),
     };
-    WriterState.DOCS.unshift(nd);
+    workspace.DOCS.unshift(nd);
     if (services.snow.isCase(kase(caseId))) services.snow.addDefault(nd);
     editor.state.docId = nd.id;
     editor.state.screen = "write";
-    WriterState.DIRTY = true;
+    workspace.DIRTY = true;
     services.saveDrafts();
     services.render();
     services.toast(((DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");

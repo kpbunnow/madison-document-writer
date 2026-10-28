@@ -1,7 +1,7 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Safety event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 import { kase, docsFor } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { deliveredByCitation } from "./document_rules.js";
@@ -77,7 +77,7 @@ export function createSafetyEvents(services) {
           await services.showOutbox();
         } else if (t.hasAttribute("data-safety-pending")) {
           document.getElementById("utility-dialog")?.close();
-          if (!WriterState.CASEDIR || WriterState.NEEDGRANT) {
+          if (!workspace.CASEDIR || workspace.NEEDGRANT) {
             editor.state.modal = "storage";
             services.render();
           } else {

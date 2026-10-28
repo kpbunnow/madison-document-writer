@@ -1,3 +1,4 @@
+const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
 /* Real Chromium compares exact pages and measurement order with the original pagination algorithms. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -25,7 +26,7 @@ const { chromium } = require("playwright");
   source +=
     '\nimport {WriterState as testState} from "./state.js";testState.CASES=[];testState.DOCS=[];window.paginationProof=createDocumentPagination;';
   const compiled = await esbuild.build({
-    stdin: { contents: source, resolveDir: dir },
+    stdin: { contents: withHistoricalState(source), resolveDir: dir },
     bundle: true,
     write: false,
     format: "iife",
