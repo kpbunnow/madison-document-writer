@@ -853,3 +853,9 @@ Measured counts: {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 11
 Separated catalog opening and picker/library filtering into private named actions without changing navigation or asynchronous refresh boundaries. Passed 7,734 retained-owner comparisons, event registration (60 registrations/14 owners), module boundaries (137 modules/no cycles), test seams, ESLint and Prettier. Release identities and existing assertions unchanged.
 
 Measured counts: {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 58, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## storage-status-row-phases
+
+Separated last-write and reporting-index row formatting into private functions in the existing storage-status owner. Passed 4,000 retained-owner comparisons of exact HTML and property/service read order; shell boundary behavior, module boundaries, test seams, ESLint and formatting passed. No print/probe behavior or release identity changes.
+
+Measured counts: {'complexity': 58, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 57, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
