@@ -1340,136 +1340,105 @@ const citationCharges = createCitationCharges(
 export let { changeCharge: changeChargeBasis, applyDeposit } = citationCharges;
 const { changeCharge } = citationCharges;
 
-const documentRenderer = createDocumentRenderer({
-  fmtDate: (...args) => fmtDate(...args),
-  fmtTime: (...args) => fmtTime(...args),
-  inspAt: (...args) => inspAt(...args),
-  longDate: (...args) => longDate(...args),
-  parseTime: (...args) => parseTime(...args),
-  validISO: (...args) => validISO(...args),
-  documentItemHistory: (...args) => documentItemHistory(...args),
-  revisionPrintNote: (...args) => revisionPrintNote(...args),
-  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
-  catalogDraftNotice: (...args) => catalogDraftNotice(...args),
-  get newDocuments() {
-    return newDocuments;
-  },
-  MINDUE: (...args) => MINDUE(...args),
-  agentLines: (...args) => agentLines(...args),
-  ccLines: (...args) => ccLines(...args),
-  docBlocks: (...args) => docBlocks(...args),
-  docBody: (...args) => docBody(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-  isLocked: (...args) => isLocked(...args),
-  get snow() {
-    return snow;
-  },
-  structEditable: (...args) => structEditable(...args),
-  docCase: (...args) => docCase(...args),
-  docInsp: (...args) => docInsp(...args),
-  eventsFor: (...args) => eventsFor(...args),
-});
+const documentRenderer = createDocumentRenderer(
+  deferredServices(
+    {
+      fmtDate: () => fmtDate,
+      fmtTime: () => fmtTime,
+      inspAt: () => inspAt,
+      longDate: () => longDate,
+      parseTime: () => parseTime,
+      validISO: () => validISO,
+      documentItemHistory: () => documentItemHistory,
+      revisionPrintNote: () => revisionPrintNote,
+      hasItemInspectionHistory: () => hasItemInspectionHistory,
+      catalogDraftNotice: () => catalogDraftNotice,
+      newDocuments: () => newDocuments,
+      MINDUE: () => MINDUE,
+      agentLines: () => agentLines,
+      ccLines: () => ccLines,
+      docBlocks: () => docBlocks,
+      docBody: () => docBody,
+      initialCitations: () => initialCitations,
+      isLocked: () => isLocked,
+      snow: () => snow,
+      structEditable: () => structEditable,
+      docCase: () => docCase,
+      docInsp: () => docInsp,
+      eventsFor: () => eventsFor,
+    },
+    ["newDocuments", "initialCitations", "snow"],
+  ),
+);
 export const { documentHTML, citationFaces } = documentRenderer;
 const { noticeHTML, citAmount, referralHistoryHTML } = documentRenderer;
 
-export const app_savedworkContext = createSavedWorkContext({
-  get caseUnsaved() {
-    return caseUnsaved;
-  },
-  get caseState() {
-    return caseState;
-  },
-  get recoveryStatusHTML() {
-    return recoveryStatusHTML;
-  },
-  get pdfTransferState() {
-    return pdfTransferState;
-  },
-  get A11Y() {
-    return A11Y;
-  },
-  get CASEDIR_EXPECT() {
-    return CASEDIR_EXPECT;
-  },
-  get COMMITTED() {
-    return COMMITTED;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  get storageMode() {
-    return storageMode;
-  },
-});
-export const app_workspacequeueContext = createWorkspaceQueueContext({
-  get caseNumberAllowed() {
-    return caseNumberAllowed;
-  },
-  get pdfTransferState() {
-    return pdfTransferState;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  get snow() {
-    return snow;
-  },
-});
-export const app_languagediscoveryContext = createLanguageDiscoveryContext({
-  get allItems() {
-    return allItems;
-  },
-  get shell() {
-    return shell;
-  },
-  get catalogKey() {
-    return catalogKey;
-  },
-  get catalogItem() {
-    return catalogItem;
-  },
-  get catalogReviewPanel() {
-    return catalogReviewPanel;
-  },
-  get catalogStatus() {
-    return catalogStatus;
-  },
-  get catalogVisible() {
-    return catalogVisible;
-  },
-  get effectiveCatalog() {
-    return effectiveCatalog;
-  },
-});
+export const app_savedworkContext = createSavedWorkContext(
+  deferredServices(
+    {
+      caseUnsaved: () => caseUnsaved,
+      caseState: () => caseState,
+      recoveryStatusHTML: () => recoveryStatusHTML,
+      pdfTransferState: () => pdfTransferState,
+      A11Y: () => A11Y,
+      CASEDIR_EXPECT: () => CASEDIR_EXPECT,
+      COMMITTED: () => COMMITTED,
+      recordIntegrity: () => recordIntegrity,
+      storageMode: () => storageMode,
+    },
+    ["caseUnsaved", "caseState", "recoveryStatusHTML", "pdfTransferState", "A11Y", "CASEDIR_EXPECT", "COMMITTED", "recordIntegrity", "storageMode"],
+  ),
+);
+export const app_workspacequeueContext = createWorkspaceQueueContext(
+  deferredServices(
+    {
+      caseNumberAllowed: () => caseNumberAllowed,
+      pdfTransferState: () => pdfTransferState,
+      recordIntegrity: () => recordIntegrity,
+      snow: () => snow,
+    },
+    ["caseNumberAllowed", "pdfTransferState", "recordIntegrity", "snow"],
+  ),
+);
+export const app_languagediscoveryContext = createLanguageDiscoveryContext(
+  deferredServices(
+    {
+      allItems: () => allItems,
+      shell: () => shell,
+      catalogKey: () => catalogKey,
+      catalogItem: () => catalogItem,
+      catalogReviewPanel: () => catalogReviewPanel,
+      catalogStatus: () => catalogStatus,
+      catalogVisible: () => catalogVisible,
+      effectiveCatalog: () => effectiveCatalog,
+    },
+    ["allItems", "shell", "catalogKey", "catalogItem", "catalogReviewPanel", "catalogStatus", "catalogVisible", "effectiveCatalog"],
+  ),
+);
 
-const documentPagination = createDocumentPagination({
-  get PAGE_PX() {
-    return PAGE_PX;
-  },
-  get snow() {
-    return snow;
-  },
-  hasItemInspectionHistory: (...args) => hasItemInspectionHistory(...args),
-});
+const documentPagination = createDocumentPagination(
+  deferredServices({ PAGE_PX: () => PAGE_PX, snow: () => snow, hasItemInspectionHistory: () => hasItemInspectionHistory }, ["PAGE_PX", "snow"]),
+);
 // Retain the original mutable function binding used by the existing disclosure audit.
 export let { paginate } = documentPagination;
 const { contHead } = documentPagination;
 
 /* Feature interfaces are lazy: no service or later state is read during construction. */
-const utilityEvents = createUtilityEvents({
-  checks: (...args) => checks(...args),
-  focusCheckTarget: (...args) => focusCheckTarget(...args),
-  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
-  get navigation() {
-    return navigation;
-  },
-  render: (...args) => render(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  toast: (...args) => toast(...args),
-  worksheetChecks: (...args) => worksheetChecks(...args),
-});
+const utilityEvents = createUtilityEvents(
+  deferredServices(
+    {
+      checks: () => checks,
+      focusCheckTarget: () => focusCheckTarget,
+      highlightOpenChecks: () => highlightOpenChecks,
+      navigation: () => navigation,
+      render: () => render,
+      saveDrafts: () => saveDrafts,
+      toast: () => toast,
+      worksheetChecks: () => worksheetChecks,
+    },
+    ["navigation"],
+  ),
+);
 const recoveryEvents = createRecoveryEvents({
   ui: deferredServices({ captureWork: () => captureWork, render: () => render, scheduleDraftSave: () => scheduleDraftSave, toast: () => toast }),
   recovery: deferredServices(
@@ -1509,58 +1478,62 @@ const recoveryEvents = createRecoveryEvents({
     ["initialCitations"],
   ),
 });
-const catalogEvents = createCatalogEvents({
-  adoptCatalogReview: (...args) => adoptCatalogReview(...args),
-  catalogForm: (...args) => catalogForm(...args),
-  catalogItem: (...args) => catalogItem(...args),
-  catalogKey: (...args) => catalogKey(...args),
-  catalogReplacementOptions: (...args) => catalogReplacementOptions(...args),
-  catalogReview: (...args) => catalogReview(...args),
-  catalogSelection: (...args) => catalogSelection(...args),
-  catalogStatus: (...args) => catalogStatus(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  keepCatalogForms: (...args) => keepCatalogForms(...args),
-  languageClick: (...args) => languageClick(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  refreshOverlay: (...args) => refreshOverlay(...args),
-  render: (...args) => render(...args),
-  renumber: (...args) => renumber(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  get snow() {
-    return snow;
-  },
-  structEditable: (...args) => structEditable(...args),
-  toast: (...args) => toast(...args),
-  toggleLibraryItem: (...args) => toggleLibraryItem(...args),
-});
-const safetyEvents = createSafetyEvents({
-  get A11Y() {
-    return A11Y;
-  },
-  applyConflict: (...args) => applyConflict(...args),
-  backupUnfinished: (...args) => backupUnfinished(...args),
-  caseState: (...args) => caseState(...args),
-  commitAmendment: (...args) => commitAmendment(...args),
-  flushPending: (...args) => flushPending(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  inspectLock: (...args) => inspectLock(...args),
-  pdfTransferState: (...args) => pdfTransferState(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  recoveryJobs: (...args) => recoveryJobs(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  render: (...args) => render(...args),
-  saveCaseFile: (...args) => saveCaseFile(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  showHealth: (...args) => showHealth(...args),
-  showLock: (...args) => showLock(...args),
-  showOutbox: (...args) => showOutbox(...args),
-  showSafety: (...args) => showSafety(...args),
-  startReinspection: (...args) => startReinspection(...args),
-  toast: (...args) => toast(...args),
-});
+const catalogEvents = createCatalogEvents(
+  deferredServices(
+    {
+      adoptCatalogReview: () => adoptCatalogReview,
+      catalogForm: () => catalogForm,
+      catalogItem: () => catalogItem,
+      catalogKey: () => catalogKey,
+      catalogReplacementOptions: () => catalogReplacementOptions,
+      catalogReview: () => catalogReview,
+      catalogSelection: () => catalogSelection,
+      catalogStatus: () => catalogStatus,
+      helperJSON: () => helperJSON,
+      keepCatalogForms: () => keepCatalogForms,
+      languageClick: () => languageClick,
+      refreshCatalog: () => refreshCatalog,
+      refreshOverlay: () => refreshOverlay,
+      render: () => render,
+      renumber: () => renumber,
+      saveDrafts: () => saveDrafts,
+      snow: () => snow,
+      structEditable: () => structEditable,
+      toast: () => toast,
+      toggleLibraryItem: () => toggleLibraryItem,
+    },
+    ["snow"],
+  ),
+);
+const safetyEvents = createSafetyEvents(
+  deferredServices(
+    {
+      A11Y: () => A11Y,
+      applyConflict: () => applyConflict,
+      backupUnfinished: () => backupUnfinished,
+      caseState: () => caseState,
+      commitAmendment: () => commitAmendment,
+      flushPending: () => flushPending,
+      helperJSON: () => helperJSON,
+      inspectLock: () => inspectLock,
+      pdfTransferState: () => pdfTransferState,
+      preflightCase: () => preflightCase,
+      recordIntegrity: () => recordIntegrity,
+      recoveryJobs: () => recoveryJobs,
+      refreshCatalog: () => refreshCatalog,
+      render: () => render,
+      saveCaseFile: () => saveCaseFile,
+      saveDrafts: () => saveDrafts,
+      showHealth: () => showHealth,
+      showLock: () => showLock,
+      showOutbox: () => showOutbox,
+      showSafety: () => showSafety,
+      startReinspection: () => startReinspection,
+      toast: () => toast,
+    },
+    ["A11Y", "recordIntegrity"],
+  ),
+);
 const workflowEvents = createWorkflowEvents({
   checkHelper: (...args) => checkHelper(...args),
   downloadFile: (...args) => downloadFile(...args),

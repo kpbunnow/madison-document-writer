@@ -495,3 +495,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Fifteen document, delivery and recovery compositions use explicit ordered declarations. Existing recovery/history, record/visit, working-paper, printing/delivery, readiness, source and charge contracts pass unchanged, including snapshot-bound filing, receipt deduplication, guard-before-mutation and retained retry semantics. Original citation packet scenarios pass on the new bundle. The native clock/random adapter remains explicit. No document bytes, wording, protocol, source authority or initialization order changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared rendering composition
+
+Eight rendering/context/event compositions replace 67 handwritten forwarders and thirty getters with explicit ordered declarations. Renderer, view-context callback identity, pagination and sixty-listener contracts pass, with unchanged frozen facts, footer/read order, snow/mobile behavior and scope widths. Native Chromium passes all 69 exact authored variants and detects overflow/clipping/missing-copy mutations. Renderers and approved print wording/layout are untouched. An AST census at the pre-M4 checkpoint measured 763 transparent rest-argument forwarders (the earlier plan reported 761) and 209 getters; current measurements use the explicit AST definition rather than assuming the earlier raw count.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
