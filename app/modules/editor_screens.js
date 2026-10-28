@@ -1,3 +1,4 @@
+import { html } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
@@ -50,26 +51,10 @@ function editorActionsHTML({ d, locked, primary, services }) {
 
 function editorMetadataHTML({ d, tyLabel, locked, services }) {
   return (
-    '<div class="editor-context no-print"><div><strong>' +
-    `${esc(tyLabel)}` +
-    "</strong><span>" +
-    "".concat(
-      d.pendingAmendment
-        ? "Save confirmation needed"
-        : d.void
-          ? "Withdrawn"
-          : d.superseded
-            ? "Replaced version"
-            : d.draft
-              ? locked
-                ? "Draft · read-only"
-                : "Draft · not issued"
-              : "Issued " + services.record.fmtDate(d.mailed || d.created),
-    ) +
-    "" +
-    `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
-    '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
-    "ce</button></div>"
+    html`<div class="editor-context no-print"><div><strong>${tyLabel}</strong><span>` +
+    html`${d.pendingAmendment ? "Save confirmation needed" : d.void ? "Withdrawn" : d.superseded ? "Replaced version" : d.draft ? (locked ? "Draft · read-only" : "Draft · not issued") : "Issued " + services.record.fmtDate(d.mailed || d.created)}` +
+    (d.revision ? html` · revision ${d.revision.number}` : "") +
+    html`</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspace</button></div>`
   );
 }
 
