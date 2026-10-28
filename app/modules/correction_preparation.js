@@ -6,7 +6,7 @@ import { stableJSON, clone } from "./record_values.js";
 import { CASE_CORRECTION_FIELDS, FIELD_NAMES } from "./document_types.js";
 import { correctionSource, doc, docCase, docInsp, docsFor, eventsFor, kase, recordHead, reinsp, reinspFor } from "./writer_queries.js";
 import { isLLC } from "./mailing_rules.js";
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 
 // Existing correction comparisons, checks and retained snapshot preparation; no save confirmation.
 export function createCorrectionPreparation(services) {
@@ -151,7 +151,7 @@ export function createCorrectionPreparation(services) {
         t: "Record court / City Attorney instructions or the reviewed division amend" + "ment reference before issuing this correction",
       },
       {
-        ok: !!WriterState.CASEDIR && !!WriterState.CASEDIR.helper,
+        ok: !!workspaceState.CASEDIR && !!workspaceState.CASEDIR.helper,
         t: "Start the current local helper and connect the shared case folder before saving a correction",
       },
     ];

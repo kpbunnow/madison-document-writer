@@ -1,17 +1,17 @@
 import { recordCase } from "./record_sources.js";
 /* Live workspace queries, not startup: never capture array references or initialize shared state here. */
-import { WriterState } from "./state.js";
+import { workspaceState } from "./workspace_state.js";
 import { INSPECTORS } from "./data/inspectors.js";
 import { deliveredByCitation, frozenOf, isEffective, isHistoryDoc, ocOf, supplemental } from "./document_rules.js";
 export const effectiveFiled = (d) => (deliveredByCitation(d) ? !!doc(d.issuanceGroup.citationId)?.filedAt : !!d?.filedAt);
 
-export const kase = (id) => WriterState.CASES.find((k) => k.id === id) || {};
+export const kase = (id) => workspaceState.CASES.find((k) => k.id === id) || {};
 
 export const insp = (id) => INSPECTORS.find((i) => i.id === id) || {};
 
-export const doc = (id) => WriterState.DOCS.find((d) => d.id === id);
+export const doc = (id) => workspaceState.DOCS.find((d) => d.id === id);
 
-export const docCase = (d) => recordCase(d, WriterState.CASES);
+export const docCase = (d) => recordCase(d, workspaceState.CASES);
 
 export const docInsp = (d) =>
   d && d.correction ? insp(d.inspectorId) : (frozenOf(d) && frozenOf(d).inspector) || insp((d && d.inspectorId) || docCase(d).inspectorId);
@@ -35,18 +35,18 @@ export const docInsp = (d) =>
    No backend, so the exported JSON *is* the case record. It holds the case,
    every document written against it and every reinspection, so any inspector
    can open it off the shared drive and pick the work up. */
-export const reinsp = (id) => WriterState.REINSP.find((r) => r.id === id);
+export const reinsp = (id) => workspaceState.REINSP.find((r) => r.id === id);
 
-export const docsFor = (cid) => WriterState.DOCS.filter((d) => d.caseId === cid);
+export const docsFor = (cid) => workspaceState.DOCS.filter((d) => d.caseId === cid);
 
-export const reinspFor = (cid) => WriterState.REINSP.filter((r) => r.caseId === cid);
+export const reinspFor = (cid) => workspaceState.REINSP.filter((r) => r.caseId === cid);
 
 /* the document a reinspection is walked against: the newest one with items,
    which is the original notice on the first return visit and the extension
    after that */
 export const draftDocFor = (cid) => docsFor(cid).find((d) => d.draft) || null;
 
-export const draftReinspFor = (cid) => WriterState.REINSP.find((r) => r.draft && r.caseId === cid) || null;
+export const draftReinspFor = (cid) => workspaceState.REINSP.find((r) => r.draft && r.caseId === cid) || null;
 
 // oldest notice on the case — the one the owner first received
 export const originalNotice = (cid) =>
@@ -55,7 +55,7 @@ export const originalNotice = (cid) =>
     .slice(-1)[0] || null;
 
 /* caseId -> [event] */
-export const eventsFor = (cid) => WriterState.EVENTS[cid] || (WriterState.EVENTS[cid] = []);
+export const eventsFor = (cid) => workspaceState.EVENTS[cid] || (workspaceState.EVENTS[cid] = []);
 
 /* ---------- replay ----------
    Rebuilds the published documents and reinspection record for a case. Drafts

@@ -315,3 +315,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Twenty import diagnostic retention entries have no folded JS/helper/browser consumers or Python test-text references. Public core exports and import service interfaces are preserved. The independent import audit, seven original Accela scenarios and 23 selection assertions pass. Both production HTML files are byte-identical before/after removing these test-only fields. A new retained-hook baseline guards explicit review. Fields fall 74 → 54; current-head full CI remains required before merge.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 live workspace state boundary
+
+Thirteen record/save owners now use a 16-field workspace boundary. Accessors resolve the current existing root store on every read/write; construction performs no reads and initializes nothing. Tests pin absent values, replacement identity and getter/setter timing. Existing dependency, serialization, import and 19,687 differential rule cases pass, as do all six day-boundary runs. The first day-boundary invocation lacked PYTHONPATH; rerunning with the documented environment passed. Direct root-state importers fall 83 to 71, with zero cycles. View-pointer capture and remaining state cohorts are deferred to separate increments; M4 is not complete.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
