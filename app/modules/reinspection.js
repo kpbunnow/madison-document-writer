@@ -19,7 +19,7 @@ import {
   recordHead,
 } from "./writer_queries.js";
 import { daysBetween } from "./calendar.js";
-import { esc, checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
+import { checkTarget, itemSelector, checkAttr, citSelector, markBlanks } from "./presentation_format.js";
 import { ocOf, dueItems, distinctDues, itemLibraryKey, isEffective, supplemental } from "./document_rules.js";
 import { isLLC } from "./mailing_rules.js";
 import { INSPECTORS } from "./data/inspectors.js";
@@ -305,10 +305,7 @@ function worksheetFollowupExplanation({ referred, r }) {
 
 function worksheetCheckPanelHTML(list, checkRowHTML) {
   return list.length
-    ? '<section class="card no-print"><div class="card-h"><h2>Inspection checks' +
-        '</h2></div><div class="card-b">' +
-        `${list.map((c, ix) => checkRowHTML(c, ix, true)).join("")}` +
-        "</div></section>"
+    ? html`<section class="card no-print"><div class="card-h"><h2>Inspection checks</h2></div><div class="card-b">${raw(list.map((c, ix) => checkRowHTML(c, ix, true)).join(""))}</div></section>`
     : "";
 }
 
@@ -780,42 +777,18 @@ export function createReinspection(services) {
   }
 
   function checkRowHTML(c, ix, worksheet = false) {
-    return (
-      '<div class="check ' +
-      `${c.ok ? "pass" : c.soft ? "note" : "fail"}` +
-      '"><span class="m">' +
-      `${c.ok ? "✓" : c.soft ? "·" : "!"}` +
-      '</span><div><span id="check-msg-' +
-      `${worksheet ? "visit" : "doc"}` +
-      "-" +
-      `${ix}` +
-      '">' +
-      `${esc(c.t)}` +
-      "</span>" +
-      "".concat(
-        !c.ok
-          ? '<div class="check-links">' +
-              "".concat(
-                (c.targets || [])
-                  .map(
-                    (target, n) =>
-                      '<button type="button" class="check-link" data-check-index="' +
-                      `${ix}` +
-                      '" data-check-target="' +
-                      `${n}` +
-                      '" ' +
-                      `${worksheet === true ? 'data-check-worksheet="1"' : ""}` +
-                      ">" +
-                      `${esc(target.label)}` +
-                      "</button>",
-                  )
-                  .join(""),
-              ) +
-              "</div>"
-          : "",
-      ) +
-      "</div></div>"
-    );
+    return html`<div class="check ${c.ok ? "pass" : c.soft ? "note" : "fail"}"><span class="m">${c.ok ? "✓" : c.soft ? "·" : "!"}</span><div><span id="check-msg-${worksheet ? "visit" : "doc"}-${ix}">${c.t}</span>${raw(
+      !c.ok
+        ? html`<div class="check-links">${raw(
+            (c.targets || [])
+              .map(
+                (target, n) =>
+                  html`<button type="button" class="check-link" data-check-index="${ix}" data-check-target="${n}" ${raw(worksheet === true ? html`data-check-worksheet="1"` : "")}>${target.label}</button>`,
+              )
+              .join(""),
+          )}</div>`
+        : "",
+    )}</div></div>`;
   }
 
   function worksheetChecks(r) {

@@ -26,7 +26,7 @@ const assert = require("node:assert/strict"),
   source +=
     '\nexport {WriterState} from "./state.js";export {validISO,parseTime} from "./calendar.js";export {INSPECTORS} from "./data/inspectors.js";';
   const compiled = await esbuild.build({
-    stdin: { contents: withHistoricalBindings(source), resolveDir: dir },
+    stdin: { contents: withHistoricalBindings(source, ["WriterState", "esc"]), resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",
