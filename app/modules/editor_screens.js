@@ -11,9 +11,11 @@ import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
 import { documentSaveHTML, localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
+const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; edit their due dates in the item rows.";
+
 export function createEditorScreens(services) {
   function editorReadiness(d) {
-    const list = d.draft ? services.checks(d) : [],
+    const list = d.draft ? services.record.checks(d) : [],
       required = list.filter((c) => !c.ok && !c.soft),
       advice = list.filter((c) => !c.ok && c.soft);
     return { list, required, advice, held: !!d.draft && d.items.some((i) => i.cite && !i.withdrawn && d.cits?.[i.id]?.mandatoryAppearance) };
@@ -89,7 +91,7 @@ export function createEditorScreens(services) {
     return (
       '<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions">' +
       '<span class="editor-mobile-save" data-document-device-save>' +
-      esc(localSaveText(services.app_savedworkContext())) +
+      esc(localSaveText(services.record.app_savedworkContext())) +
       '</span><div class="editor-mobile-actions" data-bar-key="' +
       esc(mobileBarKey(d, readiness)) +
       '">' +
@@ -117,13 +119,13 @@ export function createEditorScreens(services) {
   /* R59: the Review dialog is the one review presentation. Blocking concerns come first, then advisories; each keeps
    its check-link to the exact field (the link closes the dialog). Passed checks stay collapsed. */
   function reviewConcernsHTML(d, readiness = editorReadiness(d)) {
-    if (services.isLocked(d))
+    if (services.edit.isLocked(d))
       return (
         "<p data-review-readonly>This document is read-only. Issued text and history are retained. Use Document actions for a " +
         "correction, or Print issued PDF for the archived original.</p>"
       );
     const { list, required, advice } = readiness,
-      rows = (soft) => list.map((c, ix) => (!c.ok && !!c.soft === soft ? services.checkRowHTML(c, ix) : "")).join(""),
+      rows = (soft) => list.map((c, ix) => (!c.ok && !!c.soft === soft ? services.record.checkRowHTML(c, ix) : "")).join(""),
       passed = list.filter((c) => c.ok).length;
     return (
       (!required.length && !advice.length
@@ -145,7 +147,7 @@ export function createEditorScreens(services) {
           " check" +
           (passed === 1 ? "" : "s") +
           " passed</summary>" +
-          list.map((c, ix) => (c.ok ? services.checkRowHTML(c, ix) : "")).join("") +
+          list.map((c, ix) => (c.ok ? services.record.checkRowHTML(c, ix) : "")).join("") +
           "</details>"
         : "")
     );
@@ -168,8 +170,8 @@ export function createEditorScreens(services) {
   }
 
   function editorPrimary(d, ready = editorReadiness(d)) {
-    const locked = services.isLocked(d);
-    if (services.recordIntegrity.status(kase(d.caseId)).valid === false)
+    const locked = services.edit.isLocked(d);
+    if (services.record.recordIntegrity.status(kase(d.caseId)).valid === false)
       return { label: "Review record problem", attrs: `data-sync-safety="${esc(d.caseId)}"` };
     const pending = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === d.caseId && x.pendingAmendment?.payload?.docId === d.id);
     if (pending) return { label: "Confirm saved action", attrs: `data-resumerecord="${esc(pending.recordKey)}"` };
@@ -191,7 +193,7 @@ export function createEditorScreens(services) {
     const d = doc(editor.state.docId);
     if (!d || editor.state.screen !== "write") return;
     editor.state.compactCitationCopies = editor.state.compactCitationCopies === d.id ? null : d.id;
-    services.render();
+    services.ui.render();
     document.querySelector("[data-citation-copies]")?.focus();
   });
 
@@ -231,7 +233,7 @@ export function createEditorScreens(services) {
       bar.dataset.barKey = barKey;
     }
     const review = document.getElementById("btn-review"),
-      required = services.isLocked(d) ? 0 : readiness.required.length;
+      required = services.edit.isLocked(d) ? 0 : readiness.required.length;
     if (review) review.textContent = "Review" + (required ? " · " + required : "");
     editorEnhance();
   }
@@ -256,18 +258,18 @@ export function createEditorScreens(services) {
     const d = doc(editor.state.docId);
     if (!d) {
       editor.state.screen = "cases";
-      return services.screenCases();
+      return services.ui.screenCases();
     }
-    services.snow.prepare(d);
+    services.record.snow.prepare(d);
     const k = docCase(d),
-      locked = services.isLocked(d),
+      locked = services.edit.isLocked(d),
       ready = editorReadiness(d),
       primary = editorPrimary(d, ready);
     const more =
       locked && !d.pendingAmendment
         ? "" +
           "".concat(
-            !d.draft && !services.correctionEligibility(d)
+            !d.draft && !services.record.correctionEligibility(d)
               ? '<button class="btn" id="btn-correct">' +
                   `${d.void ? "Restore with correction" : "Correct document"}` +
                   "</button>" +
@@ -312,7 +314,7 @@ export function createEditorScreens(services) {
                 ? locked
                   ? "Draft · read-only"
                   : "Draft · not issued"
-                : "Issued " + services.fmtDate(d.mailed || d.created),
+                : "Issued " + services.record.fmtDate(d.mailed || d.created),
       ) +
       "" +
       `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
@@ -321,7 +323,7 @@ export function createEditorScreens(services) {
     // The Inspection section appears only when it holds something to act on; ordinary inspection, property and
     // mailing details are edited on the working document, where required checks link to the exact field.
     const reviewVisit = fr && fr.draft && !d.correction && !d.pendingAmendment,
-      inspectionParts = `${services.newDocuments.details(d)}${services.snow.factsForm(d)}${services.correctionPanel(d)}`;
+      inspectionParts = `${services.record.newDocuments.details(d)}${services.record.snow.factsForm(d)}${services.record.correctionPanel(d)}`;
     const inspection =
       reviewVisit || inspectionParts
         ? '<div class="editor-taskbar no-print">' +
@@ -341,18 +343,16 @@ export function createEditorScreens(services) {
       "".concat(
         editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
       ) +
-      "".concat(
-        editable && !services.structEditable(d) ? " Violations are carried from the earlier document; edit their due dates in the item rows." : "",
-      ) +
+      "".concat(editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : "") +
       " " +
       `${d.items.filter((x) => !x.done && !x.withdrawn).length}` +
       " outstanding" +
       `${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}` +
       ".</p></div>" +
-      `${services.citationReview(d)}` +
+      `${services.record.citationReview(d)}` +
       "" +
       "".concat(
-        services.initialCitations.enabled(d) && d.authoringVersion >= 11
+        services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
           ? '<div class="banner info no-print" id="initial-citation-replaces"><div><s' +
               "trong>This inspection will be issued as a citation.</strong> The owner r" +
               "eceives only the citation letter and its court copies. The letter carrie" +
@@ -362,25 +362,25 @@ export function createEditorScreens(services) {
           : "",
       ) +
       '<div class="editor-preview-tools no-print"><span>Working document' +
-      "".concat(d.type === "citation" || services.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
+      "".concat(d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
       "</span>" +
-      `${d.type === "citation" || services.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
+      `${d.type === "citation" || services.record.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
       '</div><div class="desk">' +
-      `${services.documentHTML(d)}` +
+      `${services.record.documentHTML(d)}` +
       "</div>" +
       "".concat(
-        services.initialCitations.enabled(d)
+        services.record.initialCitations.enabled(d)
           ? '<div class="initial-citation-previews no-print" aria-label="Initial citation previews">' +
-              services.citationFaces(services.initialCitations.preview(d), true) +
+              services.record.citationFaces(services.record.initialCitations.preview(d), true) +
               "</div>"
           : "",
       ) +
       "" +
-      `${specialType(d.type) ? "" : services.duePanel(d, false)}` +
+      `${specialType(d.type) ? "" : services.record.duePanel(d, false)}` +
       "";
     // R59: the checklist is in the Review dialog; the issued record and next actions stay on the page.
-    const record = `${services.recordHistoryHTML(d)}${services.newDocuments.actionPanel(d)}`;
-    return services.shell(
+    const record = `${services.record.recordHistoryHTML(d)}${services.record.newDocuments.actionPanel(d)}`;
+    return services.ui.shell(
       k.address,
       `${k.number} · ${tyLabel}`,
       actions,
@@ -389,13 +389,13 @@ export function createEditorScreens(services) {
         '">' +
         `${meta}` +
         "" +
-        `${documentSaveHTML(services.app_savedworkContext(), d)}` +
+        `${documentSaveHTML(services.record.app_savedworkContext(), d)}` +
         "" +
-        `${services.publicationPanel(d)}` +
+        `${services.record.publicationPanel(d)}` +
         "" +
-        `${services.filingPanel(d)}` +
+        `${services.record.filingPanel(d)}` +
         "" +
-        `${services.citationRecoveryPanel(d)}` +
+        `${services.record.citationRecoveryPanel(d)}` +
         "" +
         "".concat(
           d.superseded
@@ -410,7 +410,7 @@ export function createEditorScreens(services) {
         `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
         // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
         // Review dialog. Neither scrolls the page.
-        `${services.structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
+        `${services.edit.structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
         '<button id="btn-review" data-editor-review aria-haspopup="dialog">Review' +
         `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
         "</button></nav>" +
@@ -435,7 +435,7 @@ export function createEditorScreens(services) {
 
   function moveItem(id, direction, grip = false) {
     const d = doc(editor.state.docId);
-    if (!d || !services.structEditable(d)) return false;
+    if (!d || !services.edit.structEditable(d)) return false;
     const ix = d.items.findIndex((it) => it.id === id),
       to = ix + (direction === "up" ? -1 : 1);
     if (ix < 0 || to < 0 || to >= d.items.length) return false;
@@ -447,22 +447,22 @@ export function createEditorScreens(services) {
       grip ? '[data-grip="' + checkAttr(id) + '"]' : '[data-move="' + checkAttr(id) + '"][data-direction="' + direction + '"]',
     );
     (target || document.querySelector('[data-grip="' + checkAttr(id) + '"]'))?.focus();
-    services.toast("Item " + (to + 1) + " moved " + direction);
+    services.ui.toast("Item " + (to + 1) + " moved " + direction);
     return true;
   }
 
   function newDoc(caseId, type) {
-    if (services.snow.isCase(kase(caseId)) && type !== "notice" && type !== "citation") {
-      services.toast("Snow cases offer only the snow citation.");
+    if (services.record.snow.isCase(kase(caseId)) && type !== "notice" && type !== "citation") {
+      services.ui.toast("Snow cases offer only the snow citation.");
       return;
     }
-    if (services.snow.isCase(kase(caseId))) type = "citation";
-    if (services.recordIntegrity.blocked(caseId)) {
-      services.toast("This record was changed outside the program. Read-only.");
+    if (services.record.snow.isCase(kase(caseId))) type = "citation";
+    if (services.record.recordIntegrity.blocked(caseId)) {
+      services.ui.toast("This record was changed outside the program. Read-only.");
       return;
     }
     const nd = {
-      id: services.uid("d"),
+      id: services.edit.uid("d"),
       caseId: caseId,
       type: type,
       created: recordDay(today),
@@ -476,43 +476,43 @@ export function createEditorScreens(services) {
       expectedHead: recordHead(caseId),
     };
     workspace.DOCS.unshift(nd);
-    if (services.snow.isCase(kase(caseId))) services.snow.addDefault(nd);
+    if (services.record.snow.isCase(kase(caseId))) services.record.snow.addDefault(nd);
     editor.state.docId = nd.id;
     editor.state.screen = "write";
     workspace.DIRTY = true;
-    services.saveDrafts();
-    services.render();
-    services.toast(((DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");
+    services.edit.saveDrafts();
+    services.ui.render();
+    services.ui.toast(((DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");
   }
 
   function refreshSheet() {
     const d = doc(editor.state.docId),
       desk = document.querySelector(".desk");
     if (d && desk) {
-      desk.innerHTML = services.documentHTML(d);
-      services.paginate();
+      desk.innerHTML = services.record.documentHTML(d);
+      services.ui.paginate();
       syncChip();
-      services.scheduleDraftSave();
+      services.edit.scheduleDraftSave();
     }
   }
 
   function syncChip() {
     editorSync();
-    services.highlightOpenChecks();
+    services.ui.highlightOpenChecks();
   }
 
   function refreshOverlay() {
-    const languageFocus = rememberLanguageFocus(services.app_languagediscoveryContext());
-    services.A11Y.rememberFocus();
-    document.getElementById("overlay").innerHTML = services.overlayHTML();
+    const languageFocus = rememberLanguageFocus(services.record.app_languagediscoveryContext());
+    services.ui.A11Y.rememberFocus();
+    document.getElementById("overlay").innerHTML = services.ui.overlayHTML();
     enhanceDialog();
-    services.A11Y.enhance();
+    services.ui.A11Y.enhance();
     const q = document.getElementById("pk-q");
     if (q) {
       q.focus();
       q.setSelectionRange(q.value.length, q.value.length);
     }
-    restoreLanguageFocus(services.app_languagediscoveryContext(), languageFocus);
+    restoreLanguageFocus(services.record.app_languagediscoveryContext(), languageFocus);
   }
 
   function enhanceDialog() {
