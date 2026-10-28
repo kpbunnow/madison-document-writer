@@ -53,9 +53,7 @@ def validate_letter(letter, review_required=False):
     return letter
 
 
-def validate_snapshot(snap, require_letter=False):
-    facts = snap.get("snow") or {}
-    items = snap.get("items", [])
+def _validate_snow_item(snap, items):
     if (
         snap.get("type") != "citation"
         or len(items) != 1
@@ -75,6 +73,9 @@ def validate_snapshot(snap, require_letter=False):
         or snap.get("issuanceGroup")
     ):
         raise ValueError("Snow citations have one exempt item, no notice and no reinspection")
+
+
+def _validate_snow_observations(facts, snap):
     try:
         fall = date.fromisoformat(facts["snowfallDate"])
         inspected = date.fromisoformat(snap["inspDate"])
@@ -95,6 +96,14 @@ def validate_snapshot(snap, require_letter=False):
     deadline = fall + timedelta(days=1)
     if inspected < deadline or inspected == deadline and clock < "12:00":
         raise ValueError("Under MGO 10.28(1) the owner has until noon on " + deadline.strftime("%m/%d/%Y") + "; inspect at or after that time.")
+    return clock
+
+
+def validate_snapshot(snap, require_letter=False):
+    facts = snap.get("snow") or {}
+    items = snap.get("items", [])
+    _validate_snow_item(snap, items)
+    clock = _validate_snow_observations(facts, snap)
     citation = snap.get("cits", {}).get(items[0]["id"], {})
     if pricing.canonical_ordinance(citation.get("ord")) != "10.28":
         raise ValueError(MIXED_MESSAGE)

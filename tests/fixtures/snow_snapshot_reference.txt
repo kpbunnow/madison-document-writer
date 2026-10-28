@@ -1,0 +1,51 @@
+def validate_snapshot(snap, require_letter=False):
+    facts = snap.get("snow") or {}
+    items = snap.get("items", [])
+    if (
+        snap.get("type") != "citation"
+        or len(items) != 1
+        or pricing.item_key(items[0]) != ITEM_KEY
+        or items[0].get("sections") != ["10.28"]
+        or not items[0].get("cite")
+        or items[0].get("withdrawn")
+        or items[0].get("done")
+    ):
+        raise ValueError(MIXED_MESSAGE)
+    if (
+        "due" not in items[0]
+        or items[0]["due"] is not None
+        or items[0].get("dueExempt") != TYPE
+        or snap.get("fromReinspId")
+        or snap.get("fromDocId")
+        or snap.get("issuanceGroup")
+    ):
+        raise ValueError("Snow citations have one exempt item, no notice and no reinspection")
+    try:
+        fall = date.fromisoformat(facts["snowfallDate"])
+        inspected = date.fromisoformat(snap["inspDate"])
+    except (KeyError, TypeError, ValueError):
+        raise ValueError("Enter the snowfall date and inspection date") from None
+    value = facts.get("inches")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
+        raise ValueError("Snowfall inches must be a decimal greater than zero")
+    if facts.get("condition") not in ("snow covered", "ice covered", "snow and ice covered"):
+        raise ValueError("Choose the observed sidewalk condition")
+    if facts.get("photographed") is not True:
+        raise ValueError("Confirm the violation was photographed before citation")
+    if "cornerNotCleared" in facts and not isinstance(facts["cornerNotCleared"], bool):
+        raise ValueError("The corner-lot confirmation must be yes or no")
+    clock = str(snap.get("inspTime", ""))
+    if not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", clock):
+        raise ValueError("Enter the snow inspection time")
+    deadline = fall + timedelta(days=1)
+    if inspected < deadline or inspected == deadline and clock < "12:00":
+        raise ValueError("Under MGO 10.28(1) the owner has until noon on " + deadline.strftime("%m/%d/%Y") + "; inspect at or after that time.")
+    citation = snap.get("cits", {}).get(items[0]["id"], {})
+    if pricing.canonical_ordinance(citation.get("ord")) != "10.28":
+        raise ValueError(MIXED_MESSAGE)
+    if require_letter:
+        validate_letter(snap.get("frozen", {}).get("snowLetter"))
+        if snap.get("snowInspectionId") != snap["inspDate"] + "T" + clock:
+            raise ValueError("Snow citation must retain its inspection identity")
+        if citation.get("comment") != comment(snap):
+            raise ValueError("Snow citation comment must match the recorded snowfall and condition")
