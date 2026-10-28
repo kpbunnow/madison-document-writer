@@ -669,3 +669,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Citation refresh delegates pending requests, history facts/warnings, site evidence, manual pricing, scheduled-result application and descriptions through private module-local helpers. Constructor/public exports and live closure/cache state remain unchanged. Coordinator complexity falls from 68 to 15; eight new helpers range from 5 to 12. The frozen-owner comparison and cache sequence pass, alongside original R32 pricing parity/draft workflow, R33 snow and immutable citation checks, R59 charge selection (40) and editor flow, module boundaries, seam inventory, ESLint and formatting after a fresh test build. An initial local extraction misplaced the public export; restored the original initCitationPricing export before successful verification. No assertion, policy, timing, hook, format or identity change. This increment is queued for review and approval; it is not merged.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 15} → {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15}.
+
+## case-status-equivalence
+
+Added 3037 comparison scenarios before changing the status coordinator. Comparison, module boundaries, seam inventory, ESLint and JavaScript formatting pass. The frozen text fixture is retained source, not formatted; an initial explicit Prettier invocation on its .txt extension was unsupported. No production code or debt allowances changed.
+
+Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15} → {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15}.
