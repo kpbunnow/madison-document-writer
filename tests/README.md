@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_correction_change_rules.js` | Correction change parity across historical cutoffs, fields and lazy reads |
 | `audit_case_load_message.js` | Load notification parity through real projection and interrupted UI/save dispatch |
 | `audit_storage_status_rules.js` | Exact storage diagnostic HTML and lazy state/service read order |
 | `audit_language_action_rules.js` | Language action equivalence: refusal order, service reads, focus and refresh |

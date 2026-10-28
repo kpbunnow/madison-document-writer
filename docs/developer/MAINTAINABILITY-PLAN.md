@@ -871,3 +871,9 @@ Measured counts: {'complexity': 57, 'max-depth': 0, 'max-lines-per-function': 11
 Migrated catalog normalization/pricing/classification coverage from whole Writer bundle evaluation to actual public catalog queries, citation policy, projection and shared date owners. All six original assertion ASTs are unchanged and console output is byte-identical; added inert-import assertion. Removed unused startup/persistence mocks; production source unchanged. Test seams, module boundaries, ESLint and formatting pass; legacy evaluator allowance lowered 81→80, retained hooks unchanged.
 
 Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## correction-special-comparison
+
+Separated the special-extension comparison phase from the correction change coordinator. Passed 4,120 retained-owner comparisons covering authoring cutoffs, optional special values, ordered case/item/citation/visit changes and property reads; existing correction lineage/retry/delivery checks pass. Module boundaries, test seams, ESLint and formatting pass. No wording, print, format or release identity changes.
+
+Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 55, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
