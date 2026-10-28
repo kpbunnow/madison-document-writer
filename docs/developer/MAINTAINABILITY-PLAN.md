@@ -681,3 +681,9 @@ Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 12
 Separated closure, deadline facts, attention and status-label precedence into private named helpers. Live snow and clock reads remain at their original short-circuit points; query order and returned aliases remain intact. All 3037 differential scenarios, independent screen/workspace/task audits, module boundaries, seam inventory, ESLint, formatting and a fresh test build pass. No production exports or factory inputs added.
 
 Measured counts: {'complexity': 74, 'max-depth': 0, 'max-lines-per-function': 123, 'python': 15} → {'complexity': 73, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## case-file-validation-phases
+
+Separated recipient/list, event and issued-snapshot checks without changing refusal order or property-read timing. The new comparison passed against the unchanged validator before extraction and after it over 3468 scenarios, including interrupted getters and malformed records. Record-rule, module-boundary, seam, ESLint and formatting checks pass. Initial test composition missed generated data resolution; corrected its explicit build plugin before verification. Existing assertions and frozen references remain unchanged.
+
+Measured counts: {'complexity': 73, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
