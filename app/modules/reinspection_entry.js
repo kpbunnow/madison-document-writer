@@ -4,6 +4,19 @@ import { inspectionIdentity } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
 import { draftDocFor, draftReinspFor, kase, recordHead } from "./writer_queries.js";
 
+function refreshImportedVisit(open, importedRow) {
+  if (importedRow) {
+    const oldDate = open.date;
+    open.date = importedRow.date;
+    open.time = importedRow.time || "";
+    open.inspectorId = importedRow.inspectorId || open.inspectorId;
+    open.importInspection = inspectionIdentity(importedRow);
+    Object.values(open.results || {}).forEach((res) => {
+      if (!res.carried && !res.manualDate && (!res.on || res.on === oldDate)) res.on = open.date;
+    });
+  }
+}
+
 export function createReinspectionEntry(services) {
   function startReinspection(cid, importedRow) {
     if (services.snow.isCase(kase(cid))) {
@@ -33,16 +46,7 @@ export function createReinspectionEntry(services) {
     }
     const open = draftReinspFor(cid) || services.unissuedVisitFor(cid);
     if (open) {
-      if (importedRow) {
-        const oldDate = open.date;
-        open.date = importedRow.date;
-        open.time = importedRow.time || "";
-        open.inspectorId = importedRow.inspectorId || open.inspectorId;
-        open.importInspection = inspectionIdentity(importedRow);
-        Object.values(open.results || {}).forEach((res) => {
-          if (!res.carried && !res.manualDate && (!res.on || res.on === oldDate)) res.on = open.date;
-        });
-      }
+      refreshImportedVisit(open, importedRow);
       editor.state.reinspId = open.id;
       editor.state.screen = "reinspect";
       services.restoreWalkFor(open);

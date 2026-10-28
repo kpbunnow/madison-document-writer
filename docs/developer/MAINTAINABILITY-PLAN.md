@@ -793,3 +793,9 @@ Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 12
 Separated existing-draft routing, ordered refusal checks, item/due projection, draft construction, citation preparation and completion text into private phases. Registration remains before citation numbering, and notification counts and lazy toast reads retain their original checkpoints. Expanded service interruptions through 35 call points for each successful family; all 2680 comparisons pass. Exact worksheet snapshots, owner/service and history/referral/extension feature regressions pass, including a final fresh build and R46 outcomes. Boundaries, seams, ESLint and formatting pass. Initial local AST/syntax extraction errors were corrected before verification. No public factory inputs or format identities change.
 
 Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 64, 'max-depth': 0, 'max-lines-per-function': 119, 'python': 15}.
+
+## reinspection-entry-phases
+
+Separated imported-visit date/time/inspector refresh and inherited result-date updates from worksheet entry. Kept snow/integrity refusal priority, clear-walk timing, repeated live draft queries and the original open-visit reference. All 3501 frozen scenarios pass before/after, including partial service failures and clearWalk replacing draft state. Reinspection service, module boundaries, seams, ESLint and formatting pass. No dependency, public API, stored identity or UI behavior change.
+
+Measured counts: {'complexity': 64, 'max-depth': 0, 'max-lines-per-function': 119, 'python': 15} → {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15}.
