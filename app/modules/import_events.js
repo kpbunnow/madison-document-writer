@@ -1,7 +1,7 @@
+import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 /* Import event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { WriterState } from "./state.js";
 export function createImportEvents(services) {
   function registerLookupSubmit(target = document) {
     return registerEventOnce(target, "import.registerLookupSubmit", "submit", (e) => {
@@ -63,9 +63,9 @@ export function createImportEvents(services) {
   };
 
   const cancelImport = () => {
-    WriterState.state.acc = null;
-    WriterState.WORK.acc = null;
-    delete WriterState.WORK.entry["lookup-number"];
+    editor.state.acc = null;
+    editor.WORK.acc = null;
+    delete editor.WORK.entry["lookup-number"];
     imports.LOOKUP_ERROR = "";
     services.render();
     services.saveDrafts();
@@ -73,7 +73,7 @@ export function createImportEvents(services) {
   };
 
   const acceptImport = () => {
-    const plan = services.accelaPlan(WriterState.state.acc),
+    const plan = services.accelaPlan(editor.state.acc),
       existing = plan.existing;
     if (existing) services.preflightCase(existing.id, "import update", () => services.acceptAccela());
     else services.acceptAccela();
@@ -82,17 +82,17 @@ export function createImportEvents(services) {
 
   const selectCase = (t) => {
     const ix = +t.dataset.acccase;
-    if (WriterState.state.acc.cases[ix] && !imports.LOOKUP_BUSY) {
+    if (editor.state.acc.cases[ix] && !imports.LOOKUP_BUSY) {
       services.cancelCaseLookup();
-      const acc = WriterState.state.acc,
+      const acc = editor.state.acc,
         serial = imports.LOOKUP_SERIAL;
-      WriterState.state.acc.caseIx = ix;
-      WriterState.state.acc.sel = WriterState.state.acc.cases[ix].sel;
+      editor.state.acc.caseIx = ix;
+      editor.state.acc.sel = editor.state.acc.cases[ix].sel;
       imports.ACC_SELECTION_SERIAL++;
-      WriterState.state.acc.manualDate = "";
-      WriterState.state.acc.manualTime = "";
+      editor.state.acc.manualDate = "";
+      editor.state.acc.manualTime = "";
       services.accelaFromShare().then(() => {
-        if (serial !== imports.LOOKUP_SERIAL || WriterState.state.screen !== "import" || WriterState.state.acc !== acc) return;
+        if (serial !== imports.LOOKUP_SERIAL || editor.state.screen !== "import" || editor.state.acc !== acc) return;
         const active = document.activeElement,
           id = active?.id,
           sel = active?.dataset.accsel,
@@ -149,7 +149,7 @@ export function createImportEvents(services) {
   }
 
   const changeInspectionDateTime = (e) => {
-    WriterState.state.acc[e.target.id === "acc-date" ? "manualDate" : "manualTime"] = e.target.value;
+    editor.state.acc[e.target.id === "acc-date" ? "manualDate" : "manualTime"] = e.target.value;
     services.scheduleDraftSave();
     services.renderKeep();
     return;

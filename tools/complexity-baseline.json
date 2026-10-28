@@ -6,7 +6,7 @@
     "python": 30
   },
   "violations": {
-    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1314,
+    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
     "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:complexity": 35,
     "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:max-lines-per-function": 221,
     "app/modules/accela_import.js:createAccelaImport#1/accelaTable#1:max-lines-per-function": 93,
@@ -111,7 +111,7 @@
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
     "app/modules/inspection_history.js:itemInspectionHistory#1:complexity": 50,
     "app/modules/language_actions.js:createLanguageActions#1/languageClick#1:complexity": 21,
-    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 880,
+    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 878,
     "app/modules/language_catalog.js:createLanguageCatalog#1/catalogReviewPanel#1:max-lines-per-function": 110,
     "app/modules/language_catalog.js:createLanguageCatalog#1/compareSharedCase#1:complexity": 36,
     "app/modules/language_catalog.js:createLanguageCatalog#1/openChangedShared#1:complexity": 22,

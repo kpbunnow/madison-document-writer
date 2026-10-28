@@ -70,7 +70,7 @@ const scopedServices = {
   "citation_events.js": ["./document_rules.js", "./editor_state.js", "./event_registration.js", "./state.js", "./writer_queries.js"],
   "recovery_events.js": ["./event_registration.js", "./recovery_state.js", "./state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./state.js", "./writer_queries.js"],
-  "import_events.js": ["./event_registration.js", "./imports_state.js", "./state.js"],
+  "import_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js"],
   "desktop_exit.js": [
     "./recovery_state.js",
     "./app_core.js",
@@ -82,6 +82,7 @@ const scopedServices = {
   ],
   "workspace_events.js": ["./imports_state.js", "./event_registration.js", "./startup_state.js", "./state.js", "./writer_queries.js"],
   "catalog_events.js": [
+    "./editor_state.js",
     "./calendar.js",
     "./catalog_state.js",
     "./data/library.js",
@@ -377,6 +378,7 @@ const scopedServices = {
     "./citation_policy.js",
   ],
   "language_catalog.js": [
+    "./editor_state.js",
     "./catalog_state.js",
     "../assets/shared.js",
     "./record_values.js",
@@ -393,6 +395,7 @@ const scopedServices = {
   "reports_view_contexts.js": ["./state.js"],
   "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [
+    "./editor_state.js",
     "./imports_state.js",
     "./inspection_facts.js",
     "./writer_queries.js",
@@ -432,7 +435,7 @@ const scopedServices = {
   ],
   "deposit_step.js": ["./citation_policy.js", "./document_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
   "initial_citations.js": ["./citation_policy.js", "./document_types.js", "./presentation_format.js", "./record_values.js", "./writer_queries.js"],
-  "language_actions.js": ["./catalog_state.js", "./state.js"],
+  "language_actions.js": ["./catalog_state.js", "./editor_state.js"],
 
   "administration.js": [
     "./citation_policy.js",
@@ -476,6 +479,7 @@ const scopedServices = {
     "./presentation_format.js",
   ],
   "app_view_contexts.js": [
+    "./editor_state.js",
     "./catalog_state.js",
     "./case_file_rules.js",
     "./data/library.js",
