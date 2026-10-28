@@ -342,6 +342,97 @@ def validate_special_fields(snap, at=None, check_date_window=True):
         raise ValueError("The document needs its actual factual inspection date")
 
 
+def _special_publication_source(*, snap, documents, superseded, voided, kind, rid):
+    pair = documents.get(snap.get("fromDocId"))
+    source = pair[0] if pair and snap.get("fromDocId") not in superseded | voided else None
+    if not source:
+        raise ValueError("The scoped action needs an effective factual source")
+    current = current_document(documents, superseded, voided)
+    if current and source["id"] != current["id"] and not (kind in SUPPLEMENTAL_TYPES and rid and current.get("fromReinspId") == rid):
+        raise ValueError("The source changed; review the current case")
+    if [(i.get("srcItemId"), str(i.get("no"))) for i in snap["items"]] != [(i.get("id"), str(i.get("no"))) for i in source["items"]]:
+        raise ValueError("Scoped actions retain all item identities, numbers and order")
+    return source
+
+
+def _special_publication_visit(*, snap, source, visits, live, kind, rid):
+    visit = next((r for r in visits if r.get("id") == rid), None)
+    if (
+        not visit
+        or visit.get("sourceDocId") != source["id"]
+        or snap.get("inspDate") != visit.get("date")
+        or snap.get("inspTime", "") != visit.get("time", "")
+    ):
+        raise ValueError("The action must match its one verified inspection")
+    existing = [d for d in live if d.get("fromReinspId") == rid]
+    if any(d.get("type") == kind or kind not in SUPPLEMENTAL_TYPES and d.get("type") not in SUPPLEMENTAL_TYPES for d in existing):
+        raise ValueError("This inspection already has that action or a conflicting primary follow-up")
+    for i in snap["items"]:
+        res = visit.get("results", {}).get(i["srcItemId"], {})
+        if bool(i.get("done")) != (res.get("oc") == "corrected") or i.get("done") and i.get("doneOn") != (res.get("on") or visit["date"]):
+            raise ValueError("Action outcomes must match the inspection")
+
+
+def _special_publication_administration(*, snap, source, visits):
+    factual = next((r for r in visits if r.get("id") == snap.get("factualVisitId")), None)
+    if (
+        not snap.get("administrativeAction")
+        or (
+            factual
+            and (
+                factual.get("sourceDocId") != source["id"]
+                or snap.get("inspDate") != factual.get("date")
+                or snap.get("inspTime", "") != factual.get("time", "")
+                or snap.get("inspectorId") != factual.get("inspectorId")
+            )
+        )
+        or (
+            not factual
+            and (
+                snap.get("factualVisitId") or snap.get("inspDate") != (source.get("inspDate") or source.get("frozen", {}).get("case", {}).get("date"))
+            )
+        )
+    ):
+        raise ValueError("Administrative letters must cite the actual existing inspection")
+    for item, prior in zip(snap["items"], continuing_items(source, visits)):
+        if bool(item.get("done")) != bool(prior.get("done")) or prior.get("done") and item.get("doneOn") != prior.get("doneOn"):
+            raise ValueError("Administrative actions must preserve recorded compliance")
+
+
+def _special_publication_retained_items(*, snap, source, kind, s):
+    for i, previous in zip(snap["items"], source["items"]):
+        if previous.get("withdrawn") and not i.get("withdrawn") or previous.get("done") and not i.get("done"):
+            raise ValueError("Prior withdrawals and compliance cannot be lost")
+        if kind in SUPPLEMENTAL_TYPES and i.get("due", "") != previous.get("due", ""):
+            raise ValueError("Supplemental orders cannot replace continuing item deadlines")
+        if kind not in SUPPLEMENTAL_TYPES and s.get("originalDues", {}).get(str(i["no"])) != previous.get("due", ""):
+            raise ValueError("Extension source deadlines must match the issued case")
+
+
+def _special_publication_release(*, record, s, documents, superseded, voided, visits):
+    old = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == s.get("releases")), None)
+    release_id = s.get("verifiedReleaseVisitId") if s.get("releaseVisitId") == "external" else s.get("releaseVisitId")
+    visit = next((r for r in visits if r.get("id") == release_id), None)
+    if not visit or visit.get("caseId") != record["case"]["id"] or visit.get("date") != s.get("releaseInspection"):
+        raise ValueError("The written release needs its actual verified physical reinspection record")
+    if s.get("releaseVisitId") == "external" and (
+        visit.get("purpose") != "occupancyRelease"
+        or visit.get("sourceDocId") != s.get("releases")
+        or visit.get("inspectionReference") != s.get("releaseInspectionRef")
+        or visit.get("inspectorId") != s.get("releaseInspectorId")
+        or visit.get("time", "") != s.get("releaseInspectionTime", "")
+    ):
+        raise ValueError("The external release must match its verified inspection facts")
+    if (
+        not old
+        or old["special"]["scope"] != s.get("scope")
+        or s.get("scope") == "unit"
+        and old["special"].get("unit", "") != s.get("unit", "")
+        or s.get("releaseInspection", "") < old["special"].get("effective", "")
+    ):
+        raise ValueError("Release requires an active restriction of the exact scope and a later verified reinspection")
+
+
 def validate_special_publication(record, snap, documents, superseded, voided, visits, correction=False, new_action=True):
     if record.get("schema") not in (4, 5):
         raise ValueError("R26 actions require schema 4; update the writer and helper together")
@@ -360,87 +451,16 @@ def validate_special_publication(record, snap, documents, superseded, voided, vi
         if kind not in SUPPLEMENTAL_TYPES or any(d.get("type") not in SUPPLEMENTAL_TYPES for d in live):
             raise ValueError("Use the current case source for this action")
     else:
-        pair = documents.get(snap.get("fromDocId"))
-        source = pair[0] if pair and snap.get("fromDocId") not in superseded | voided else None
-        if not source:
-            raise ValueError("The scoped action needs an effective factual source")
-        current = current_document(documents, superseded, voided)
-        if current and source["id"] != current["id"] and not (kind in SUPPLEMENTAL_TYPES and rid and current.get("fromReinspId") == rid):
-            raise ValueError("The source changed; review the current case")
-        if [(i.get("srcItemId"), str(i.get("no"))) for i in snap["items"]] != [(i.get("id"), str(i.get("no"))) for i in source["items"]]:
-            raise ValueError("Scoped actions retain all item identities, numbers and order")
+        source = _special_publication_source(snap=snap, documents=documents, superseded=superseded, voided=voided, kind=kind, rid=rid)
         if rid:
-            visit = next((r for r in visits if r.get("id") == rid), None)
-            if (
-                not visit
-                or visit.get("sourceDocId") != source["id"]
-                or snap.get("inspDate") != visit.get("date")
-                or snap.get("inspTime", "") != visit.get("time", "")
-            ):
-                raise ValueError("The action must match its one verified inspection")
-            existing = [d for d in live if d.get("fromReinspId") == rid]
-            if any(d.get("type") == kind or kind not in SUPPLEMENTAL_TYPES and d.get("type") not in SUPPLEMENTAL_TYPES for d in existing):
-                raise ValueError("This inspection already has that action or a conflicting primary follow-up")
-            for i in snap["items"]:
-                res = visit.get("results", {}).get(i["srcItemId"], {})
-                if bool(i.get("done")) != (res.get("oc") == "corrected") or i.get("done") and i.get("doneOn") != (res.get("on") or visit["date"]):
-                    raise ValueError("Action outcomes must match the inspection")
+            _special_publication_visit(snap=snap, source=source, visits=visits, live=live, kind=kind, rid=rid)
         else:
-            factual = next((r for r in visits if r.get("id") == snap.get("factualVisitId")), None)
-            if (
-                not snap.get("administrativeAction")
-                or (
-                    factual
-                    and (
-                        factual.get("sourceDocId") != source["id"]
-                        or snap.get("inspDate") != factual.get("date")
-                        or snap.get("inspTime", "") != factual.get("time", "")
-                        or snap.get("inspectorId") != factual.get("inspectorId")
-                    )
-                )
-                or (
-                    not factual
-                    and (
-                        snap.get("factualVisitId")
-                        or snap.get("inspDate") != (source.get("inspDate") or source.get("frozen", {}).get("case", {}).get("date"))
-                    )
-                )
-            ):
-                raise ValueError("Administrative letters must cite the actual existing inspection")
-            for item, prior in zip(snap["items"], continuing_items(source, visits)):
-                if bool(item.get("done")) != bool(prior.get("done")) or prior.get("done") and item.get("doneOn") != prior.get("doneOn"):
-                    raise ValueError("Administrative actions must preserve recorded compliance")
-        for i, previous in zip(snap["items"], source["items"]):
-            if previous.get("withdrawn") and not i.get("withdrawn") or previous.get("done") and not i.get("done"):
-                raise ValueError("Prior withdrawals and compliance cannot be lost")
-            if kind in SUPPLEMENTAL_TYPES and i.get("due", "") != previous.get("due", ""):
-                raise ValueError("Supplemental orders cannot replace continuing item deadlines")
-            if kind not in SUPPLEMENTAL_TYPES and s.get("originalDues", {}).get(str(i["no"])) != previous.get("due", ""):
-                raise ValueError("Extension source deadlines must match the issued case")
+            _special_publication_administration(snap=snap, source=source, visits=visits)
+        _special_publication_retained_items(snap=snap, source=source, kind=kind, s=s)
         if kind not in SUPPLEMENTAL_TYPES and (source.get("type") == "compliance" or not snap["items"]):
             raise ValueError("A completed case cannot receive a new extension")
     if kind == "noOccupancy" and s.get("mode") == "release":
-        old = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == s.get("releases")), None)
-        release_id = s.get("verifiedReleaseVisitId") if s.get("releaseVisitId") == "external" else s.get("releaseVisitId")
-        visit = next((r for r in visits if r.get("id") == release_id), None)
-        if not visit or visit.get("caseId") != record["case"]["id"] or visit.get("date") != s.get("releaseInspection"):
-            raise ValueError("The written release needs its actual verified physical reinspection record")
-        if s.get("releaseVisitId") == "external" and (
-            visit.get("purpose") != "occupancyRelease"
-            or visit.get("sourceDocId") != s.get("releases")
-            or visit.get("inspectionReference") != s.get("releaseInspectionRef")
-            or visit.get("inspectorId") != s.get("releaseInspectorId")
-            or visit.get("time", "") != s.get("releaseInspectionTime", "")
-        ):
-            raise ValueError("The external release must match its verified inspection facts")
-        if (
-            not old
-            or old["special"]["scope"] != s.get("scope")
-            or s.get("scope") == "unit"
-            and old["special"].get("unit", "") != s.get("unit", "")
-            or s.get("releaseInspection", "") < old["special"].get("effective", "")
-        ):
-            raise ValueError("Release requires an active restriction of the exact scope and a later verified reinspection")
+        _special_publication_release(record=record, s=s, documents=documents, superseded=superseded, voided=voided, visits=visits)
 
 
 def parse_instant(at):

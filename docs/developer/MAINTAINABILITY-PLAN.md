@@ -567,3 +567,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Editor metadata uses escaped screen templates for document type, status and revision. The original pending/withdrawn/replaced/draft/issued precedence and deferred date-format call remain unchanged; no raw interpolation is needed. All 2,031 exact editor HTML/state/service-effect comparisons and editor, class/style, escaping/print-exclusion and dependency guards pass. No approved document wording or print renderer is converted.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 30} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 30}.
+
+## M2 scoped action publication phases
+
+Scoped publication now delegates source identity, verified inspection, administrative evidence, retained item facts and occupancy release checks in the original order. The coordinator falls from McCabe 25 to 8; its five helpers range from 4 to 5. The 3,000-context differential corpus and all 16 original R26 helper tests pass, alongside existing publication/history/authoring/special-field differential suites. No format, wording, integrity, print or release identity changes. Full Ruff check reports an existing E731 lambda in untouched case merging; the required F checks and formatting pass.
+
+Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 30} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 29}.
