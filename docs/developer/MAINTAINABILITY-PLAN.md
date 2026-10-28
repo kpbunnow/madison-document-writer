@@ -823,3 +823,9 @@ Measured counts: {'complexity': 62, 'max-depth': 0, 'max-lines-per-function': 11
 Separated the initial walkthrough eligibility guard without changing registration or dispatch. Context validation retains its original place before prevented/repeat/modifier checks, and target/key reads still follow it. All 4561 comparisons pass before/after, including an eligible-key/target/undo matrix and contexts that mutate live worksheet state. Event registration, reinspection service, fresh-build R46 outcomes, module boundaries, seams, ESLint and formatting pass. No shortcut, input ownership, native action timing, dependency or public factory input changes.
 
 Measured counts: {'complexity': 61, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## worksheet-verdict-template
+
+Converted worksheet verdict banners and their follow-up explanation to escaped screen templates. Kept the existing closed/incomplete/compliance/deadline/default precedence, repeated document lookups, import-rule fields and exact text/entities. Raw is limited to the composed escaped explanation fragment. All 1026 frozen worksheet comparisons and 2680 drafting comparisons pass, plus class/style, escaping/print exclusion, module boundaries, ESLint and formatting. No CSS, print owner, approved wording data or stored format changes.
+
+Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.

@@ -313,59 +313,15 @@ function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, r
   if (closed) {
     const nd = doc(r.docId),
       ndl = (DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
-    verdict =
-      '<div class="banner ok"><div><strong>' +
-      "".concat(doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished.") +
-      "</strong> " +
-      `${esc(ndl)}` +
-      " written from " +
-      `${open}` +
-      " outstanding item" +
-      `${open === 1 ? "" : "s"}` +
-      ". Compatible additional scoped actions can use this same inspection.</di" +
-      "v></div>";
+    verdict = html`<div class="banner ok"><div><strong>${doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished."}</strong> ${ndl} written from ${open} outstanding item${open === 1 ? "" : "s"}. Compatible additional scoped actions can use this same inspection.</div></div>`;
   } else if (left) {
-    verdict =
-      '<div class="banner info"><div><strong>' +
-      `${left}` +
-      " item" +
-      `${left === 1 ? "" : "s"}` +
-      " still to result.</strong> Every item on the " +
-      `${esc(srcLabel.toLowerCase())}` +
-      " needs an outcome before you create a draft.</div></div>";
+    verdict = html`<div class="banner info"><div><strong>${left} item${left === 1 ? "" : "s"} still to result.</strong> Every item on the ${srcLabel.toLowerCase()} needs an outcome before you create a draft.</div></div>`;
   } else if (!open) {
-    verdict =
-      '<div class="banner ok"><div><strong>Everything on this ' +
-      `${esc(srcLabel.toLowerCase())}` +
-      " was corrected.</strong> Write the compliance letter to tell the owner t" +
-      "he case is closed. It records the visit and carries the date each item w" +
-      "as met.</div></div>";
+    verdict = html`<div class="banner ok"><div><strong>Everything on this ${srcLabel.toLowerCase()} was corrected.</strong> Write the compliance letter to tell the owner the case is closed. It records the visit and carries the date each item was met.</div></div>`;
   } else if (badDue.length && ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent)) {
-    verdict =
-      '<div class="banner warn"><div><strong>' +
-      `${badDue.length}` +
-      " outstanding item" +
-      `${badDue.length === 1 ? "" : "s"}` +
-      " need" +
-      `${badDue.length === 1 ? "s" : ""}` +
-      " a due date in the future.</strong> Set one on each item that was not co" +
-      "rrected &mdash; unless you are referring the case for prosecution, which" +
-      " sets no new date.</div></div>";
+    verdict = html`<div class="banner warn"><div><strong>${badDue.length} outstanding item${badDue.length === 1 ? "" : "s"} need${badDue.length === 1 ? "s" : ""} a due date in the future.</strong> Set one on each item that was not corrected &mdash; unless you are referring the case for prosecution, which sets no new date.</div></div>`;
   } else {
-    verdict =
-      '<div class="banner info"><div><strong>' +
-      `${open}` +
-      " item" +
-      `${open === 1 ? "" : "s"}` +
-      " carr" +
-      `${open === 1 ? "ies" : "y"}` +
-      " forward" +
-      `${done ? ", " + done + " corrected" : ""}` +
-      ".</strong> " +
-      worksheetFollowupExplanation({ referred, r }) +
-      " Item numbers stay as they are on the " +
-      `${esc(srcLabel.toLowerCase())}` +
-      ".</div></div>";
+    verdict = html`<div class="banner info"><div><strong>${open} item${open === 1 ? "" : "s"} carr${open === 1 ? "ies" : "y"} forward${done ? ", " + done + " corrected" : ""}.</strong> ${raw(worksheetFollowupExplanation({ referred, r }))} Item numbers stay as they are on the ${srcLabel.toLowerCase()}.</div></div>`;
   }
   return verdict;
 }
@@ -476,24 +432,11 @@ function worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, wal
 }
 
 function worksheetFollowupExplanation({ referred, r }) {
-  return "".concat(
-    referred
-      ? "This case is with the City Attorney, so the only documents left are an u" +
-          "pdated referral or, once everything is put right, a compliance letter. E" +
-          "xtensions and citations are no longer the division&rsquo;s to give."
-      : r.importRule
-        ? "The Accela status " +
-          esc(r.importRule.status) +
-          " sets the next document: " +
-          esc(r.importRule.label) +
-          "." +
-          (r.importRule.cite ? " Tick the items you are citing." : "") +
-          (r.importRule.allCorrected ? " Every item must be marked Corrected." : "")
-        : "Choose the next action: an extension to allow more time, a referral to s" +
-          "end the case to the City Attorney, or a citation. Citations are at your " +
-          "discretion for any item past its due date — tick the items you are citin" +
-          "g.",
-  );
+  return referred
+    ? html`This case is with the City Attorney, so the only documents left are an updated referral or, once everything is put right, a compliance letter. Extensions and citations are no longer the division&rsquo;s to give.`
+    : r.importRule
+      ? html`The Accela status ${r.importRule.status} sets the next document: ${r.importRule.label}.${r.importRule.cite ? " Tick the items you are citing." : ""}${r.importRule.allCorrected ? " Every item must be marked Corrected." : ""}`
+      : html`Choose the next action: an extension to allow more time, a referral to send the case to the City Attorney, or a citation. Citations are at your discretion for any item past its due date — tick the items you are citing.`;
 }
 
 function worksheetCheckPanelHTML(list, checkRowHTML) {
