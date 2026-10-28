@@ -13,6 +13,126 @@ import { documentSaveHTML, localSaveText } from "./saved_work.js";
 
 const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; edit their due dates in the item rows.";
 
+function editorActionsHTML({ d, locked, primary, services }) {
+  const more =
+    locked && !d.pendingAmendment
+      ? "" +
+        "".concat(
+          !d.draft && !services.record.correctionEligibility(d)
+            ? '<button class="btn" id="btn-correct">' +
+                `${d.void ? "Restore with correction" : "Correct document"}` +
+                "</button>" +
+                `${d.void ? "" : '<button class="btn" id="btn-void">Withdraw…</button>'}` +
+                ""
+            : "",
+        ) +
+        // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
+        (workspace.CASEDIR
+          ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
+          : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
+            '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
+            `<button class="btn" data-safety-case="${esc(d.caseId)}" data-safety-action="storage">Connect shared folder</button>`) +
+        `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
+        ""
+      : "";
+  return (
+    "" +
+    `${d.draft ? '<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>' : ""}` +
+    '<button class="btn btn-primary editor-primary" ' +
+    `${primary.attrs}` +
+    ">" +
+    `${primary.label}` +
+    "</button>" +
+    "".concat(more ? '<details class="editor-more"><summary>Document actions</summary><div>' + more + "</div></details>" : "") +
+    ""
+  );
+}
+
+function editorMetadataHTML({ d, tyLabel, locked, services }) {
+  return (
+    '<div class="editor-context no-print"><div><strong>' +
+    `${esc(tyLabel)}` +
+    "</strong><span>" +
+    "".concat(
+      d.pendingAmendment
+        ? "Save confirmation needed"
+        : d.void
+          ? "Withdrawn"
+          : d.superseded
+            ? "Replaced version"
+            : d.draft
+              ? locked
+                ? "Draft · read-only"
+                : "Draft · not issued"
+              : "Issued " + services.record.fmtDate(d.mailed || d.created),
+    ) +
+    "" +
+    `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
+    '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
+    "ce</button></div>"
+  );
+}
+
+function editorInspectionHTML({ reviewVisit, inspectionParts, locked }) {
+  return reviewVisit || inspectionParts
+    ? '<div class="editor-taskbar no-print">' +
+        "".concat(reviewVisit ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
+        '<p class="hint">' +
+        "".concat(
+          locked
+            ? "Issued details are retained with the document."
+            : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
+        ) +
+        "</p></div>" +
+        inspectionParts
+    : "";
+}
+
+function editorWorkHTML({ d, editable, services }) {
+  return (
+    '<div class="editor-taskbar no-print">' +
+    '<p class="hint">' +
+    "".concat(
+      editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
+    ) +
+    "".concat(editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : "") +
+    " " +
+    `${d.items.filter((x) => !x.done && !x.withdrawn).length}` +
+    " outstanding" +
+    `${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}` +
+    ".</p></div>" +
+    `${services.record.citationReview(d)}` +
+    "" +
+    "".concat(
+      services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
+        ? '<div class="banner info no-print" id="initial-citation-replaces"><div><s' +
+            "trong>This inspection will be issued as a citation.</strong> The owner r" +
+            "eceives only the citation letter and its court copies. The letter carrie" +
+            "s the items, due dates, appeal and rent-abatement language shown on this" +
+            " working paper, which is not mailed as a separate Official Notice.</div>" +
+            "</div>"
+        : "",
+    ) +
+    '<div class="editor-preview-tools no-print"><span>Working document' +
+    "".concat(d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
+    "</span>" +
+    `${d.type === "citation" || services.record.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
+    '</div><div class="desk">' +
+    `${services.record.documentHTML(d)}` +
+    "</div>" +
+    "".concat(
+      services.record.initialCitations.enabled(d)
+        ? '<div class="initial-citation-previews no-print" aria-label="Initial citation previews">' +
+            services.record.citationFaces(services.record.initialCitations.preview(d), true) +
+            "</div>"
+        : "",
+    ) +
+    "" +
+    `${specialType(d.type) ? "" : services.record.duePanel(d, false)}` +
+    ""
+  );
+}
+
 export function createEditorScreens(services) {
   function editorReadiness(d) {
     const list = d.draft ? services.record.checks(d) : [],
@@ -254,6 +374,50 @@ export function createEditorScreens(services) {
       : "";
   }
 
+  function editorWorkspaceHTML({ d, meta, inspection, work, record, editable, locked, ready }) {
+    return (
+      '<div class="document-workspace" data-editor-doc="' +
+      `${esc(d.id)}` +
+      '">' +
+      `${meta}` +
+      "" +
+      `${documentSaveHTML(services.record.app_savedworkContext(), d)}` +
+      "" +
+      `${services.record.publicationPanel(d)}` +
+      "" +
+      `${services.record.filingPanel(d)}` +
+      "" +
+      `${services.record.citationRecoveryPanel(d)}` +
+      "" +
+      "".concat(
+        d.superseded
+          ? '<div class="banner warn no-print"><div><strong>This is a replaced versio' +
+              'n.</strong> <button class="lnk" data-open="' +
+              `${esc(d.superseded.replacedBy)}` +
+              '">Open the corrected document</button></div></div>'
+          : "",
+      ) +
+      '<nav class="editor-sections no-print" aria-label="Document tasks">' +
+      // Recipients opens the copies and email dialog itself rather than moving to a section.
+      `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
+      // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
+      // Review dialog. Neither scrolls the page.
+      `${services.edit.structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
+      '<button id="btn-review" data-editor-review aria-haspopup="dialog">Review' +
+      `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
+      "</button></nav>" +
+      "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
+      "" +
+      `${editorSection("editor-inspection", "Inspection", inspection)}` +
+      "" +
+      `${editorSection("editor-items", "Violation items", work)}` +
+      "" +
+      `${record}` +
+      `${!locked ? "<div hidden data-editor-check-messages>" + editorCheckMessagesHTML(ready) + "</div>" : ""}` +
+      `${mobileBarHTML(d, ready)}` +
+      "</div>"
+    );
+  }
   function screenWrite() {
     const d = doc(editor.state.docId);
     if (!d) {
@@ -265,165 +429,24 @@ export function createEditorScreens(services) {
       locked = services.edit.isLocked(d),
       ready = editorReadiness(d),
       primary = editorPrimary(d, ready);
-    const more =
-      locked && !d.pendingAmendment
-        ? "" +
-          "".concat(
-            !d.draft && !services.record.correctionEligibility(d)
-              ? '<button class="btn" id="btn-correct">' +
-                  `${d.void ? "Restore with correction" : "Correct document"}` +
-                  "</button>" +
-                  `${d.void ? "" : '<button class="btn" id="btn-void">Withdraw…</button>'}` +
-                  ""
-              : "",
-          ) +
-          // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
-          (workspace.CASEDIR
-            ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
-            : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
-              '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
-              `<button class="btn" data-safety-case="${esc(d.caseId)}" data-safety-action="storage">Connect shared folder</button>`) +
-          `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
-          ""
-        : "";
-    const actions =
-      "" +
-      `${d.draft ? '<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>' : ""}` +
-      '<button class="btn btn-primary editor-primary" ' +
-      `${primary.attrs}` +
-      ">" +
-      `${primary.label}` +
-      "</button>" +
-      "".concat(more ? '<details class="editor-more"><summary>Document actions</summary><div>' + more + "</div></details>" : "") +
-      "";
+    const actions = editorActionsHTML({ d, locked, primary, services });
     const tyLabel = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
     const fr = d.fromReinspId ? reinsp(d.fromReinspId) : null;
     const editable = !locked;
-    const meta =
-      '<div class="editor-context no-print"><div><strong>' +
-      `${esc(tyLabel)}` +
-      "</strong><span>" +
-      "".concat(
-        d.pendingAmendment
-          ? "Save confirmation needed"
-          : d.void
-            ? "Withdrawn"
-            : d.superseded
-              ? "Replaced version"
-              : d.draft
-                ? locked
-                  ? "Draft · read-only"
-                  : "Draft · not issued"
-                : "Issued " + services.record.fmtDate(d.mailed || d.created),
-      ) +
-      "" +
-      `${d.revision ? " · revision " + esc(d.revision.number) : ""}` +
-      '</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspa' +
-      "ce</button></div>";
+    const meta = editorMetadataHTML({ d, tyLabel, locked, services });
     // The Inspection section appears only when it holds something to act on; ordinary inspection, property and
     // mailing details are edited on the working document, where required checks link to the exact field.
     const reviewVisit = fr && fr.draft && !d.correction && !d.pendingAmendment,
       inspectionParts = `${services.record.newDocuments.details(d)}${services.record.snow.factsForm(d)}${services.record.correctionPanel(d)}`;
-    const inspection =
-      reviewVisit || inspectionParts
-        ? '<div class="editor-taskbar no-print">' +
-          "".concat(reviewVisit ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
-          '<p class="hint">' +
-          "".concat(
-            locked
-              ? "Issued details are retained with the document."
-              : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
-          ) +
-          "</p></div>" +
-          inspectionParts
-        : "";
-    const work =
-      '<div class="editor-taskbar no-print">' +
-      '<p class="hint">' +
-      "".concat(
-        editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
-      ) +
-      "".concat(editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : "") +
-      " " +
-      `${d.items.filter((x) => !x.done && !x.withdrawn).length}` +
-      " outstanding" +
-      `${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}` +
-      ".</p></div>" +
-      `${services.record.citationReview(d)}` +
-      "" +
-      "".concat(
-        services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
-          ? '<div class="banner info no-print" id="initial-citation-replaces"><div><s' +
-              "trong>This inspection will be issued as a citation.</strong> The owner r" +
-              "eceives only the citation letter and its court copies. The letter carrie" +
-              "s the items, due dates, appeal and rent-abatement language shown on this" +
-              " working paper, which is not mailed as a separate Official Notice.</div>" +
-              "</div>"
-          : "",
-      ) +
-      '<div class="editor-preview-tools no-print"><span>Working document' +
-      "".concat(d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
-      "</span>" +
-      `${d.type === "citation" || services.record.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
-      '</div><div class="desk">' +
-      `${services.record.documentHTML(d)}` +
-      "</div>" +
-      "".concat(
-        services.record.initialCitations.enabled(d)
-          ? '<div class="initial-citation-previews no-print" aria-label="Initial citation previews">' +
-              services.record.citationFaces(services.record.initialCitations.preview(d), true) +
-              "</div>"
-          : "",
-      ) +
-      "" +
-      `${specialType(d.type) ? "" : services.record.duePanel(d, false)}` +
-      "";
+    const inspection = editorInspectionHTML({ reviewVisit, inspectionParts, locked });
+    const work = editorWorkHTML({ d, editable, services });
     // R59: the checklist is in the Review dialog; the issued record and next actions stay on the page.
     const record = `${services.record.recordHistoryHTML(d)}${services.record.newDocuments.actionPanel(d)}`;
     return services.ui.shell(
       k.address,
       `${k.number} · ${tyLabel}`,
       actions,
-      '<div class="document-workspace" data-editor-doc="' +
-        `${esc(d.id)}` +
-        '">' +
-        `${meta}` +
-        "" +
-        `${documentSaveHTML(services.record.app_savedworkContext(), d)}` +
-        "" +
-        `${services.record.publicationPanel(d)}` +
-        "" +
-        `${services.record.filingPanel(d)}` +
-        "" +
-        `${services.record.citationRecoveryPanel(d)}` +
-        "" +
-        "".concat(
-          d.superseded
-            ? '<div class="banner warn no-print"><div><strong>This is a replaced versio' +
-                'n.</strong> <button class="lnk" data-open="' +
-                `${esc(d.superseded.replacedBy)}` +
-                '">Open the corrected document</button></div></div>'
-            : "",
-        ) +
-        '<nav class="editor-sections no-print" aria-label="Document tasks">' +
-        // Recipients opens the copies and email dialog itself rather than moving to a section.
-        `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
-        // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
-        // Review dialog. Neither scrolls the page.
-        `${services.edit.structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
-        '<button id="btn-review" data-editor-review aria-haspopup="dialog">Review' +
-        `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
-        "</button></nav>" +
-        "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
-        "" +
-        `${editorSection("editor-inspection", "Inspection", inspection)}` +
-        "" +
-        `${editorSection("editor-items", "Violation items", work)}` +
-        "" +
-        `${record}` +
-        `${!locked ? "<div hidden data-editor-check-messages>" + editorCheckMessagesHTML(ready) + "</div>" : ""}` +
-        `${mobileBarHTML(d, ready)}` +
-        "</div>",
+      editorWorkspaceHTML({ d, meta, inspection, work, record, editable, locked, ready }),
     );
   }
 
