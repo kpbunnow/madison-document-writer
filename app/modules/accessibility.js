@@ -1,3 +1,23 @@
+function messageMarkup(m, callbacks, safe) {
+  return (
+    '<div class="toast message-' +
+    `${m.severity}` +
+    '" role="' +
+    `${["error", "warning"].includes(m.severity) ? "alert" : "status"}` +
+    '" aria-atomic="true" data-message="' +
+    `${m.id}` +
+    '"><span>' +
+    `${safe(m.text)}` +
+    "</span>" +
+    `${callbacks.has(m.id) ? `<button class="btn" data-message-undo="${m.id}">Undo</button>` : ""}` +
+    '<button class="message-dismiss" data-message-dismiss="' +
+    `${m.id}` +
+    '" aria-label="Dismiss message: ' +
+    `${safe(m.text)}` +
+    '">×</button></div>'
+  );
+}
+
 /* Shared screen accessibility; printable document source is not changed. */
 export function createAccessibility() {
   const messages = [],
@@ -88,22 +108,7 @@ export function createAccessibility() {
       local.className = "message-stack";
       dialog.querySelector("#utility-title")?.after(local);
     }
-    const markup = (m) =>
-      '<div class="toast message-' +
-      `${m.severity}` +
-      '" role="' +
-      `${["error", "warning"].includes(m.severity) ? "alert" : "status"}` +
-      '" aria-atomic="true" data-message="' +
-      `${m.id}` +
-      '"><span>' +
-      `${safe(m.text)}` +
-      "</span>" +
-      `${callbacks.has(m.id) ? `<button class="btn" data-message-undo="${m.id}">Undo</button>` : ""}` +
-      '<button class="message-dismiss" data-message-dismiss="' +
-      `${m.id}` +
-      '" aria-label="Dismiss message: ' +
-      `${safe(m.text)}` +
-      '">×</button></div>';
+    const markup = (m) => messageMarkup(m, callbacks, safe);
     const visible = messages.filter((m) => !m.inline);
     host.innerHTML = visible
       .filter((m) => !title || m.scope !== title)
@@ -116,10 +121,18 @@ export function createAccessibility() {
         .join("");
     // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
     // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
+    restoreMessageFocus(focusedMessage, focusedAction);
+    bindMessageTimers();
+  }
+
+  function restoreMessageFocus(focusedMessage, focusedAction) {
     if (focusedMessage)
       document
         .querySelector('[data-message="' + focusedMessage.dataset.message + '"] [data-message-' + focusedAction + "]")
         ?.focus({ preventScroll: true });
+  }
+
+  function bindMessageTimers() {
     for (const el of document.querySelectorAll("[data-message]")) {
       const m = messages.find((m) => m.id === el.dataset.message);
       if (!m) continue;
