@@ -705,3 +705,9 @@ Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 12
 Separated inspection lineage tracing, observed-visit rows and initial/visit citation annotations into private phases. Every phase retains its original query and mutation order. All 4000 seeded comparisons passed before/after extraction. Document rendering, correction service, record workflows and all six history/referral feature scenarios pass against a fresh test build, as do module boundaries, seam inventory, ESLint and formatting. Historical renderers and print assertions are unchanged.
 
 Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 71, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## citation-resolution-phases
+
+Separated schedule selection, mandatory deposits, measurement refusals and row-selection metadata into private phases. All 8917 comparisons passed before/after extraction; R32 passed 3872 JavaScript/Python pricing combinations and draft workflows; citation refresh and snow regressions pass against a fresh build. Boundaries, seam inventory, ESLint and formatting pass. Initial local extraction had an object-wrapper syntax error caught before verification and corrected. Initial trace assertions inspected returned proxies; snapshotting now unwraps test instrumentation before comparing, preserving full input-read traces without assertion-induced reads.
+
+Measured counts: {'complexity': 71, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.

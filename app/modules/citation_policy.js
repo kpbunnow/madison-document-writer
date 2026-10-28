@@ -174,66 +174,90 @@ export function formatDeposit(value) {
   const n = cents(value);
   return n > 0 ? "$" + depositNumbers.format(n / 100) : "";
 }
+function amountSchedule(o, libraryItem, entryId, date, measurements) {
+  let f = null;
+  if (o === "29.40(4)(b)" && Number.isFinite(measurements.area)) {
+    const selected = policyAt(date).entries.find((e) => e.ordinance === o && e.sizeBand === (measurements.area >= 100000 ? "large" : "small"));
+    if (selected) f = resolveOrdinance(o, libraryItem, selected.id, date);
+  }
+  if (!f) f = o ? resolveOrdinance(o, libraryItem, entryId, date) : null;
+  return f;
+}
+
+function mandatoryDeposit(f, tier, date) {
+  return {
+    kind: "priced",
+    mandatoryAppearance: true,
+    amount: "",
+    base: "",
+    cc: "",
+    assessments: null,
+    tier: tierLabel(tierOrdinal(tier)),
+    depositSource: f.raw,
+    pricedOn: date,
+    policyVersionHash: P.versionHash,
+  };
+}
+
+function scheduledMeasurement(f, tier, measurements, o) {
+  const measuredBase = f?.rule ? ruleBase(f, tier, measurements) : null;
+  if (f?.rule?.kind === "bands" && Number.isFinite(measurements[f.rule.field]) && measuredBase === null)
+    return {
+      measuredBase,
+      fault: { kind: "needs-basis", reason: "The schedule states no amount for this measured value. Record an approved manual basis." },
+    };
+  if (f?.measurements?.length && measuredBase === null)
+    return { measuredBase, fault: { kind: "needs-measurement", reason: "Enter the measurement required by the schedule.", fields: f.measurements } };
+  if (!f?.tiers?.length && measuredBase === null)
+    return {
+      measuredBase,
+      fault: {
+        kind: "needs-basis",
+        reason:
+          f?.why ||
+          (!o ? "Choose one complete ordinance." : "No verified fixed deposit for this ordinance. Enter an approved base or total and source."),
+      },
+    };
+  return { measuredBase, fault: null };
+}
+
+function amountRowSelection(f, entryId, measurements) {
+  return f?.rule?.kind === "building-duration"
+    ? {
+        scheduleEntryId: f.id,
+        rowDescription: f.description,
+        ...(entryId && entryId !== f.id
+          ? {
+              rowSelectionNotice:
+                "Floor area of " +
+                new Intl.NumberFormat("en-US").format(measurements.area) +
+                " sq ft matches the " +
+                (f.sizeBand === "large" ? "100,000 sq ft or more" : "less than 100,000 sq ft") +
+                " row",
+            }
+          : {}),
+      }
+    : {};
+}
+
 export function resolveCitationAmount({ ordinance, libraryItem = "", tier = 1, date, entryId = "", measurements = {} }) {
   const o = canonicalOrdinance(ordinance);
-  let f = null;
+  let f;
   try {
-    if (o === "29.40(4)(b)" && Number.isFinite(measurements.area)) {
-      const selected = policyAt(date).entries.find((e) => e.ordinance === o && e.sizeBand === (measurements.area >= 100000 ? "large" : "small"));
-      if (selected) f = resolveOrdinance(o, libraryItem, selected.id, date);
-    }
-    if (!f) f = o ? resolveOrdinance(o, libraryItem, entryId, date) : null;
+    f = amountSchedule(o, libraryItem, entryId, date, measurements);
   } catch (e) {
     return { kind: "needs-basis", reason: "Enter a valid pricing date." };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !Number.isFinite(Date.parse(date + "T00:00:00Z")))
     return { kind: "needs-basis", reason: "Enter a valid issue date." };
-  if (f?.rule?.kind === "mandatory")
-    return {
-      kind: "priced",
-      mandatoryAppearance: true,
-      amount: "",
-      base: "",
-      cc: "",
-      assessments: null,
-      tier: tierLabel(tierOrdinal(tier)),
-      depositSource: f.raw,
-      pricedOn: date,
-      policyVersionHash: P.versionHash,
-    };
-  const measuredBase = f?.rule ? ruleBase(f, tier, measurements) : null;
-  if (f?.rule?.kind === "bands" && Number.isFinite(measurements[f.rule.field]) && measuredBase === null)
-    return { kind: "needs-basis", reason: "The schedule states no amount for this measured value. Record an approved manual basis." };
-  if (f?.measurements?.length && measuredBase === null)
-    return { kind: "needs-measurement", reason: "Enter the measurement required by the schedule.", fields: f.measurements };
-  if (!f?.tiers?.length && measuredBase === null)
-    return {
-      kind: "needs-basis",
-      reason:
-        f?.why ||
-        (!o ? "Choose one complete ordinance." : "No verified fixed deposit for this ordinance. Enter an approved base or total and source."),
-    };
+  if (f?.rule?.kind === "mandatory") return mandatoryDeposit(f, tier, date);
+  const { measuredBase, fault } = scheduledMeasurement(f, tier, measurements, o);
+  if (fault) return fault;
   const ordinal = tierOrdinal(tier),
     b = measuredBase ?? Math.round(f.tiers[Math.min(ordinal, f.tiers.length) - 1].a * 100),
     cc = courtCents(date),
     v = assessmentCents(b, cc, date);
-  const row =
-    f?.rule?.kind === "building-duration"
-      ? {
-          scheduleEntryId: f.id,
-          rowDescription: f.description,
-          ...(entryId && entryId !== f.id
-            ? {
-                rowSelectionNotice:
-                  "Floor area of " +
-                  new Intl.NumberFormat("en-US").format(measurements.area) +
-                  " sq ft matches the " +
-                  (f.sizeBand === "large" ? "100,000 sq ft or more" : "less than 100,000 sq ft") +
-                  " row",
-              }
-            : {}),
-        }
-      : {};
+  const row = amountRowSelection(f, entryId, measurements);
   return {
     ...row,
     kind: "priced",
