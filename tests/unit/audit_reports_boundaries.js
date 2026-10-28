@@ -25,6 +25,12 @@ walk(core, (n) => {
 });
 assert.deepEqual([...constructors.keys()], Object.values(owners));
 for (const [name, factory] of Object.entries(owners)) {
+  if (name === "reports_screens") {
+    const call = constructors.get(factory);
+    assert.equal(call.arguments.length, 1);
+    require("../fixtures/scoped_service_contract.cjs").assertScopedServices(parse(name), call.arguments[0], name);
+    continue;
+  }
   const required = new Set();
   walk(parse(name), (n) => {
     if (n.type === "MemberExpression" && n.object.name === "services") {
