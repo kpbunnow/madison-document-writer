@@ -1,3 +1,4 @@
+import { html, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
@@ -197,80 +198,27 @@ function worksheetWalkPanelHTML({ readOnly, walkOn, src, left, next, walkSteps, 
 }
 
 function worksheetPriorVisitsHTML({ prior, services }) {
-  return "".concat(
-    prior.length
-      ? '<div class="card" style="margin-bottom:16px"><div class="card-h"><h2>Ear' +
-          'lier visits</h2></div><div class="card-b"><ul class="hist">' +
-          "".concat(
-            prior
-              .map(
-                (x) =>
-                  "<li><strong>" +
-                  `${services.inspection.fmtDate(x.date)}` +
-                  "</strong> — " +
-                  `${doneItems(x).length}` +
-                  " corrected, " +
-                  `${openItems(x).length}` +
-                  " outstanding · " +
-                  `${esc(insp(x.inspectorId).name)}` +
-                  "</li>",
-              )
-              .join(""),
-          ) +
-          "</ul></div></div>"
-      : "",
-  );
+  return prior.length
+    ? html`<div class="card" style="margin-bottom:16px"><div class="card-h"><h2>Earlier visits</h2></div><div class="card-b"><ul class="hist">${raw(prior.map((x) => html`<li><strong>${services.inspection.fmtDate(x.date)}</strong> — ${doneItems(x).length} corrected, ${openItems(x).length} outstanding · ${insp(x.inspectorId).name}</li>`).join(""))}</ul></div></div>`
+    : "";
 }
 
 function worksheetVisitHeaderHTML({ walkIdentity, r, srcLabel, services, src, readOnly }) {
   return (
-    '<div class="reinspection-workspace" data-worksheet-context="' +
-    `${esc(walkIdentity(r))}` +
-    '"><p class="ri-source">Inspecting against the ' +
-    `${esc(srcLabel.toLowerCase())}` +
-    " issued " +
-    `${services.inspection.fmtDate(src.mailed || src.created)}` +
-    ". Original item numbers and wording stay with the issued document.</p>\n " +
-    '    <div class="card ri-visit" style="margin-bottom:16px"><div class="ca' +
-    'rd-b">\n       <div class="grid g2">\n         <label class="f"><span>Actu' +
-    'al inspection date and time</span><span class="ri-when"><input type="dat' +
-    'e" id="ri-date" value="' +
-    `${esc(r.date)}` +
-    '" max="' +
-    `${recordDay(today)}` +
-    '" ' +
-    `${readOnly ? "disabled" : ""}` +
-    '><input type="time" id="ri-time" value="' +
-    `${esc(r.time || "")}` +
-    '" aria-label="Reinspection time" ' +
-    `${readOnly ? "disabled" : ""}` +
-    '></span><span class="hint">The physical visit. Item result dates and fut' +
-    'ure deadlines are separate below.</span></label>\n         <label class="' +
-    'f"><span>Inspector</span><select id="ri-insp" ' +
-    `${readOnly ? "disabled" : ""}` +
-    ">" +
-    "".concat(INSPECTORS.map((x) => `<option value="${x.id}" ${r.inspectorId === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")) +
-    "</select></label>\n       </div>\n       "
+    html`<div class="reinspection-workspace" data-worksheet-context="${walkIdentity(r)}"><p class="ri-source">Inspecting against the ${srcLabel.toLowerCase()} issued ${services.inspection.fmtDate(src.mailed || src.created)}. Original item numbers and wording stay with the issued document.</p>\n     ` +
+    html`<div class="card ri-visit" style="margin-bottom:16px"><div class="card-b">\n       <div class="grid g2">\n         <label class="f"><span>Actual inspection date and time</span><span class="ri-when">` +
+    html`<input type="date" id="ri-date" value="${r.date}" max="${recordDay(today)}" ${readOnly ? "disabled" : ""}>` +
+    html`<input type="time" id="ri-time" value="${r.time || ""}" aria-label="Reinspection time" ${readOnly ? "disabled" : ""}></span>` +
+    html`<span class="hint">The physical visit. Item result dates and future deadlines are separate below.</span></label>\n         ` +
+    html`<label class="f"><span>Inspector</span><select id="ri-insp" ${readOnly ? "disabled" : ""}>${raw(INSPECTORS.map((x) => html`<option value="${x.id}" ${r.inspectorId === x.id ? "selected" : ""}>${x.name}</option>`).join(""))}</select></label>\n       </div>\n       `
   );
 }
 
 function worksheetProgressHTML({ recorded, activeCount, left, withdrawn }) {
   return (
-    '<div class="ri-progress" role="st' +
-    'atus"><strong>' +
-    `${recorded}` +
-    " of " +
-    `${activeCount}` +
-    " active items have a result</strong><span>" +
-    `${left}` +
-    " unresolved" +
-    `${withdrawn ? " · " + withdrawn + " withdrawn (excluded)" : ""}` +
-    ". Previously cleared items remain carried forward.</span><progress value" +
-    '="' +
-    `${recorded}` +
-    '" max="' +
-    `${activeCount || 1}` +
-    '" aria-label="Active items with a result"></progress></div>\n       '
+    html`<div class="ri-progress" role="status"><strong>${recorded} of ${activeCount} active items have a result</strong>` +
+    html`<span>${left} unresolved${withdrawn ? " · " + withdrawn + " withdrawn (excluded)" : ""}. Previously cleared items remain carried forward.</span>` +
+    html`<progress value="${recorded}" max="${activeCount || 1}" aria-label="Active items with a result"></progress></div>\n       `
   );
 }
 
