@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 76,
+    "complexity": 75,
     "max-depth": 0,
-    "max-lines-per-function": 125,
+    "max-lines-per-function": 124,
     "python": 30
   },
   "violations": {
@@ -104,9 +104,7 @@
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentInput#1:max-lines-per-function": 131,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentInput#1/anonymous#1:complexity": 60,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentInput#1/anonymous#1:max-lines-per-function": 129,
-    "app/modules/editor_screens.js:createEditorScreens#1:max-lines-per-function": 500,
-    "app/modules/editor_screens.js:createEditorScreens#1/screenWrite#1:complexity": 49,
-    "app/modules/editor_screens.js:createEditorScreens#1/screenWrite#1:max-lines-per-function": 165,
+    "app/modules/editor_screens.js:createEditorScreens#1:max-lines-per-function": 404,
     "app/modules/import_events.js:createImportEvents#1:max-lines-per-function": 156,
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
     "app/modules/inspection_history.js:itemInspectionHistory#1:complexity": 50,
