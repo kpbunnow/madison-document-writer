@@ -110,6 +110,16 @@ function reportExportViolationRows(services, cases, F, A) {
   return vRows;
 }
 
+function reportExportVisitRows(services, cases, A) {
+  const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
+  cases.forEach((c) =>
+    c.visits.forEach((vi) =>
+      (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), services.D(vi.date), vi.inspector, services.numOr(r.no), r.oc])),
+    ),
+  );
+  return visitRows;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1169,12 +1179,7 @@ export function createReportsScreens(services) {
     const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
     const casesRows = reportExportCaseRows(services, cases);
     const vRows = reportExportViolationRows(services, cases, F, A);
-    const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
-    cases.forEach((c) =>
-      c.visits.forEach((vi) =>
-        (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), services.D(vi.date), vi.inspector, services.numOr(r.no), r.oc])),
-      ),
-    );
+    const visitRows = reportExportVisitRows(services, cases, A);
     const citRows = [
       [
         "Citation number",
