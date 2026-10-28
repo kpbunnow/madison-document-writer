@@ -1,0 +1,60 @@
+def validate_visit(record, visit, documents, superseded, voided, visits, at=None, check_date_window=True):
+    if visit.get("purpose") == "occupancyRelease":
+        source = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == visit.get("sourceDocId")), None)
+        if (
+            not source
+            or visit.get("caseId") != record["case"]["id"]
+            or not calendar_date(visit.get("date"))
+            or visit["date"] < source["special"]["effective"]
+            or check_date_window
+            and visit["date"] > city_day(at).isoformat()
+            or not visit.get("inspectorId")
+            or len(str(visit.get("inspectionReference", "")).strip()) < 10
+            or visit.get("results") != {}
+        ):
+            raise ValueError("Record the actual verified occupancy-release inspection, not a synthetic violation worksheet")
+        if visit.get("scope") != source["special"]["scope"] or visit.get("scope") == "unit" and visit.get("unit") != source["special"].get("unit"):
+            raise ValueError("The release inspection must identify the exact restriction scope")
+        if any(r.get("id") == visit.get("id") or r.get("inspectionReference") == visit["inspectionReference"] for r in visits):
+            raise ValueError("This physical release inspection is already recorded")
+        return
+    source = current_document(documents, superseded, voided)
+    if (
+        not source
+        or source["id"] != visit.get("sourceDocId")
+        or source.get("type") == "compliance"
+        or all(i.get("withdrawn") for i in source["items"])
+    ):
+        raise ValueError("An inspection must use the current open case document")
+    if any(r.get("id") == visit.get("id") for r in visits):
+        raise ValueError("An inspection identity can only be recorded once")
+    imported = visit.get("importInspection")
+    if imported:
+        if not isinstance(imported, dict) or imported.get("type") not in VISIT_IMPORT_TYPES or not calendar_date(imported.get("date")):
+            raise ValueError("Invalid imported inspection identity")
+        prior = [visit_import_identity(r) for r in visits]
+        prior.extend(d[0].get("importInspection") for d in documents.values())
+        if any(same_import_identity(key, imported) for key in prior):
+            raise ValueError(IMPORT_USED)
+    date = visit.get("date", "")
+    initial = source.get("frozen", {}).get("case", {}).get("date", record["case"].get("date", ""))
+    earliest = source.get("inspDate", initial)
+    if not calendar_date(date) or date < earliest:
+        raise ValueError("The inspection date precedes its source inspection")
+    results = visit.get("results", {})
+    if set(results) != {i["id"] for i in source["items"]}:
+        raise ValueError("An inspection must retain an outcome for every source item")
+    for item in continuing_items(source, visits):
+        result = results[item["id"]]
+        if item.get("withdrawn"):
+            if result.get("oc") != "withdrawn" or not result.get("carried"):
+                raise ValueError("A withdrawn item cannot be counted as newly compliant")
+        elif item.get("done"):
+            if result.get("oc") != "corrected" or result.get("on") != item.get("doneOn") or not result.get("carried"):
+                raise ValueError("Prior compliance must carry forward unchanged")
+        elif (
+            result.get("oc") not in ("corrected", "none", "progress", "noaccess")
+            or not calendar_date(result.get("on"))
+            or not initial <= result["on"] <= date
+        ):
+            raise ValueError("An inspection outcome or result date is invalid")

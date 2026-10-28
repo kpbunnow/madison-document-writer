@@ -1547,26 +1547,28 @@ def validate_document_import(event, documents, visits):
         raise ValueError(IMPORT_USED)
 
 
-def validate_visit(record, visit, documents, superseded, voided, visits, at=None, check_date_window=True):
-    if visit.get("purpose") == "occupancyRelease":
-        source = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == visit.get("sourceDocId")), None)
-        if (
-            not source
-            or visit.get("caseId") != record["case"]["id"]
-            or not calendar_date(visit.get("date"))
-            or visit["date"] < source["special"]["effective"]
-            or check_date_window
-            and visit["date"] > city_day(at).isoformat()
-            or not visit.get("inspectorId")
-            or len(str(visit.get("inspectionReference", "")).strip()) < 10
-            or visit.get("results") != {}
-        ):
-            raise ValueError("Record the actual verified occupancy-release inspection, not a synthetic violation worksheet")
-        if visit.get("scope") != source["special"]["scope"] or visit.get("scope") == "unit" and visit.get("unit") != source["special"].get("unit"):
-            raise ValueError("The release inspection must identify the exact restriction scope")
-        if any(r.get("id") == visit.get("id") or r.get("inspectionReference") == visit["inspectionReference"] for r in visits):
-            raise ValueError("This physical release inspection is already recorded")
-        return
+def _validate_release_visit(*, record, visit, documents, superseded, voided, visits, at, check_date_window):
+    source = next((d for d in active_restrictions(documents, superseded, voided) if d["id"] == visit.get("sourceDocId")), None)
+    if (
+        not source
+        or visit.get("caseId") != record["case"]["id"]
+        or not calendar_date(visit.get("date"))
+        or visit["date"] < source["special"]["effective"]
+        or check_date_window
+        and visit["date"] > city_day(at).isoformat()
+        or not visit.get("inspectorId")
+        or len(str(visit.get("inspectionReference", "")).strip()) < 10
+        or visit.get("results") != {}
+    ):
+        raise ValueError("Record the actual verified occupancy-release inspection, not a synthetic violation worksheet")
+    if visit.get("scope") != source["special"]["scope"] or visit.get("scope") == "unit" and visit.get("unit") != source["special"].get("unit"):
+        raise ValueError("The release inspection must identify the exact restriction scope")
+    if any(r.get("id") == visit.get("id") or r.get("inspectionReference") == visit["inspectionReference"] for r in visits):
+        raise ValueError("This physical release inspection is already recorded")
+    return
+
+
+def _validated_visit_source(*, visit, documents, superseded, voided, visits):
     source = current_document(documents, superseded, voided)
     if (
         not source
@@ -1577,6 +1579,10 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
         raise ValueError("An inspection must use the current open case document")
     if any(r.get("id") == visit.get("id") for r in visits):
         raise ValueError("An inspection identity can only be recorded once")
+    return source
+
+
+def _validate_visit_import(*, visit, visits, documents):
     imported = visit.get("importInspection")
     if imported:
         if not isinstance(imported, dict) or imported.get("type") not in VISIT_IMPORT_TYPES or not calendar_date(imported.get("date")):
@@ -1585,6 +1591,9 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
         prior.extend(d[0].get("importInspection") for d in documents.values())
         if any(same_import_identity(key, imported) for key in prior):
             raise ValueError(IMPORT_USED)
+
+
+def _validate_visit_outcomes(*, record, visit, source, visits):
     date = visit.get("date", "")
     initial = source.get("frozen", {}).get("case", {}).get("date", record["case"].get("date", ""))
     earliest = source.get("inspDate", initial)
@@ -1607,6 +1616,23 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
             or not initial <= result["on"] <= date
         ):
             raise ValueError("An inspection outcome or result date is invalid")
+
+
+def validate_visit(record, visit, documents, superseded, voided, visits, at=None, check_date_window=True):
+    if visit.get("purpose") == "occupancyRelease":
+        return _validate_release_visit(
+            record=record,
+            visit=visit,
+            documents=documents,
+            superseded=superseded,
+            voided=voided,
+            visits=visits,
+            at=at,
+            check_date_window=check_date_window,
+        )
+    source = _validated_visit_source(visit=visit, documents=documents, superseded=superseded, voided=voided, visits=visits)
+    _validate_visit_import(visit=visit, visits=visits, documents=documents)
+    _validate_visit_outcomes(record=record, visit=visit, source=source, visits=visits)
 
 
 def _validate_publication_identity(*, event, record, check_date_window):
