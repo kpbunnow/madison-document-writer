@@ -11,8 +11,8 @@ integration coverage.
 tests and fixtures, excluding inert reference snapshots. Local require dependencies
 are followed so a suite calling bundle_test is included even without a direct eval.
 It records direct eval,
-Function constructors, VM evaluation, browser evaluation and the 74 fields retained
-by the current test-only core hook. Constant string concatenations and String.raw payloads are folded before matching
+Function constructors, VM evaluation, browser evaluation and the fields retained
+by the test-only core hook (initially 74). Constant string concatenations and String.raw payloads are folded before matching
 hook bindings, so formatter-split test code remains visible. Matches are candidate consumers,
 not proof of execution or proof that an unmentioned hook is dead.
 
@@ -39,5 +39,16 @@ services is allowed. Existing production browser checks retain their own role.
 The new maintainability tests already construct focused screen, event, validation,
 pagination and Reports owners independently. Their frozen pre-refactor functions
 provide differential expectations without booting Writer or creating production
-hooks. The existing 91 application evaluators remain migration work; this inventory
-does not claim M6 is complete.
+hooks. The initial 91 application evaluators are migration work tracked by the shrinking
+baseline; this inventory does not claim M6 is complete.
+
+## Retained diagnostic baseline
+
+`tests/fixtures/test-hook-baseline.json` lists the reviewed retained fields.
+`audit_test_seams.js` requires explicit review of any change to that set. The
+first retirement removes 20 import-only retention entries after folded JS/helper/
+browser consumer inspection and Python test-text review found no consumers.
+Public module exports and the actual import service interface remain unchanged.
+Targeted import/selection suites pass and both production HTML files remain
+byte-identical before/after this test-only retirement. The full gate is still
+required before merge.
