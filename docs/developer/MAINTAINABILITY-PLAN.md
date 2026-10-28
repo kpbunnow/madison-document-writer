@@ -811,3 +811,9 @@ Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 11
 Separated case identity, parcel/coordinate facts and linked report records from the model coordinator. Retained stale-version exclusions, historical district selection, geographic lookup, sort/count rules, original summary/owner-address references and child-to-case links. All 3401 frozen comparisons pass before/after. Independent authenticated loading, Reports boundaries, ordinance normalization, mismatch exclusion and export-scope regressions pass against a final fresh build. Module boundaries, seams, ESLint and formatting pass. The initial projected-summary helper remained at complexity 21; separating record linkage removes the new finding rather than increasing an allowance.
 
 Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15} → {'complexity': 62, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## report-filter-phases
+
+Separated notice eligibility and status inclusion into private decisions while retaining area, inspector, owner and violation precedence. Historical status is still computed at the original point even without a status filter; TODAY remains a short-circuit read. All 4501 frozen comparisons pass before/after. Model comparisons, authenticated loading, Reports boundaries and fresh-build ordinance/mismatch/export-scope regressions pass, with module boundaries, seam inventory, ESLint and formatting. No public inputs, report outputs, dependencies or version identities change.
+
+Measured counts: {'complexity': 62, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 61, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.

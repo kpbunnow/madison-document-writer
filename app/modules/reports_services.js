@@ -97,6 +97,32 @@ function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, ver
   cases.push(c);
 }
 
+function reportNoticeIncluded(c, opt, versionAt, noticeAt) {
+  if (!(opt && opt.noNotice)) {
+    if (c.caseType === "snow-10.28") {
+      if (!c.citations.length) return false;
+      if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
+    } else {
+      if (!c.noticeIssued) return false;
+      if (opt && opt.asOf) {
+        if (!noticeAt(c, opt.asOf)) return false;
+      } else if (c.noticeActive === false) return false;
+    }
+  }
+  return true;
+}
+
+function reportStatusIncluded(services, c, F, opt, status) {
+  if (
+    F.status &&
+    (F.status === "open"
+      ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || services.TODAY))
+      : status !== F.status)
+  )
+    return false;
+  return true;
+}
+
 export function createReportsServices(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -606,28 +632,12 @@ export function createReportsServices(services) {
   }
 
   function caseOk(c, F, opt) {
-    if (!(opt && opt.noNotice)) {
-      if (c.caseType === "snow-10.28") {
-        if (!c.citations.length) return false;
-        if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
-      } else {
-        if (!c.noticeIssued) return false;
-        if (opt && opt.asOf) {
-          if (!noticeAt(c, opt.asOf)) return false;
-        } else if (c.noticeActive === false) return false;
-      }
-    }
+    if (!reportNoticeIncluded(c, opt, versionAt, noticeAt)) return false;
     if (F.areas.length && F.areas.indexOf(areaKey(c, F)) < 0) return false;
     if (F.inspector && !(opt && opt.noInspector) && c.inspector !== F.inspector) return false;
     if (F.owner && c.ownerKey !== F.owner) return false;
     const status = opt && opt.asOf ? statusAt(c, opt.asOf) : c.status;
-    if (
-      F.status &&
-      (F.status === "open"
-        ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || services.TODAY))
-        : status !== F.status)
-    )
-      return false;
+    if (!reportStatusIncluded(services, c, F, opt, status)) return false;
     if (
       (F.vtype || F.ord) &&
       !(opt && opt.noViol) &&
