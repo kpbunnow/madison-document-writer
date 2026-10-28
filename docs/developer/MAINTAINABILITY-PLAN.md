@@ -835,3 +835,9 @@ Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 11
 Completed ordered notice, identity, status and violation decisions. ESLint measures the caseOk coordinator at complexity 7; every extracted inclusion rule is below 10 (snow 5, standard notice 6, notice routing 4, status 9, identity 9, violation 6). All 4501 frozen field/service-read comparisons, 3401 model comparisons, authenticated loading and Reports boundary tests pass. Module boundaries, seams, ESLint and formatting pass. No public inputs, query order, report outputs or debt allowances change.
 
 Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## report-parcel-cache-phase
+
+Separated parcel cache defaults and lookup-key selection into a synchronous helper, retaining every await boundary and superseded-read guard. The existing loading assertions now run against both retained and current public owners through actual authenticated transport; full cache/model snapshots, request/abort details and render frames compare equal. Existing chunk-size, partial-lookup and superseded-read assertions remain unchanged. Model/filter comparisons, Reports/module boundaries, seams, ESLint and formatting pass. No async stage, request shape, chunk limit, authority or public interface changes.
+
+Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 59, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.

@@ -490,6 +490,7 @@
     "tests/fixtures/reinspection_entry_reference.txt",
     "tests/fixtures/reinspection_screen_reference.cjs",
     "tests/fixtures/report_filter_reference.txt",
+    "tests/fixtures/report_loading_reference.txt",
     "tests/fixtures/report_model_reference.txt",
     "tests/fixtures/report_output.cjs",
     "tests/fixtures/report_summaries.py",

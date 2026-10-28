@@ -1,0 +1,67 @@
+async function loadAll(refreshParcels) {
+    const sequence = ++loadSequence;
+    loadController?.abort();
+    const controller = new AbortController();
+    loadController = controller;
+    const get = async (url, opts = {}) => {
+      const result = await getJSON(url, { ...opts, signal: controller.signal });
+      if (sequence !== loadSequence) throw new Error("Superseded report read");
+      return result;
+    };
+    ReportsState.S.phase = "loading";
+    ReportsState.S.error = "";
+    ReportsState.S.msg = "Reading the reporting index…";
+    services.render();
+    try {
+      const idx = await get("/reporting/index");
+      if (!idx.ok) throw new Error(idx.error || "the index could not be read");
+      ReportsState.S.raw = idx;
+      ReportsState.S.msg = "Reading the parcel cache…";
+      services.render();
+      const pc = await get("/reporting/parcels");
+      ReportsState.S.parcels = (pc && pc.parcels) || {};
+      ReportsState.S.parcelMissing = (pc && pc.missing) || [];
+      ReportsState.S.parcelNote = "";
+      const keys = services.uniq(idx.summaries.map((s) => normParcel((s["case"] || {}).parcel)).filter(Boolean));
+      const need = refreshParcels ? keys : keys.filter((k) => !ReportsState.S.parcels[k]);
+      if (need.length) {
+        ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
+        services.render();
+        try {
+          for (let offset = 0; offset < need.length; offset += 500) {
+            ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
+            services.render();
+            const lk = await get("/reporting/parcels", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
+            });
+            mergeParcelLookup(services, lk);
+          }
+        } catch (e) {
+          if (sequence !== loadSequence) return;
+          ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
+        }
+      }
+      ReportsState.S.msg = "Loading area outlines…";
+      services.render();
+      try {
+        ReportsState.S.areas = await get("/reporting/areas");
+      } catch (e) {
+        if (sequence !== loadSequence) return;
+        ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
+      }
+      ReportsState.S.M = buildModel(idx.summaries, ReportsState.S.parcels, ReportsState.S.areas);
+      ReportsState.S.phase = "ready";
+    } catch (e) {
+      if (sequence !== loadSequence) return;
+      ReportsState.S.phase = "error";
+      ReportsState.S.error =
+        location.protocol === "file:"
+          ? "This page was opened as a file. Open it from the Document Writer (Report" + "s, in the left rail) so it can read the case folder."
+          : "The reporting data could not be read: " +
+            (e.message || e) +
+            ". Check that the Document Writer window is open and the share is reachable, then try again.";
+    }
+    services.render();
+  }
