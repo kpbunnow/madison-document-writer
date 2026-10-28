@@ -901,3 +901,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Converted walkthrough mode controls, details navigation, undo and shortcut panel to an escaped template. Trusted fragments come only from local explanation, step and shortcut renderers. Passed 1,026 exact frozen-screen comparisons, screen escaping/print exclusion, reinspection service behavior, module boundaries, test seams, ESLint and formatting. Existing controls, keyboard labels, eligibility callbacks and output whitespace retained.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## worksheet-body-template
+
+Converted worksheet body composition, filtered count, previous draft controls and closed-document action to an escaped template. Due panel, chooser, item rows and inspection checks retain their owners and evaluation order; only those renderer outputs use raw fragments. Passed 1,026 exact retained-screen comparisons, escaping/print exclusion, reinspection service, module boundaries, test seams, ESLint and formatting. Existing assertions, wording, structure and release identities unchanged.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
