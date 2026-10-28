@@ -865,3 +865,9 @@ Measured counts: {'complexity': 58, 'max-depth': 0, 'max-lines-per-function': 11
 Moved success-message formatting into a private function, retaining the toast getter and argument evaluation order. Passed 320 retained-loader comparisons using actual migration/projection/event operations, varying zero/one/many documents and visits, repeats, saved/held loads and UI/save interruptions. Differential snapshots omit only wall-clock savedAt; existing proof/conflict/rollback assertions all pass. Module boundaries, test seams, ESLint and formatting pass; identities unchanged.
 
 Measured counts: {'complexity': 57, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## language-catalog-owner-test
+
+Migrated catalog normalization/pricing/classification coverage from whole Writer bundle evaluation to actual public catalog queries, citation policy, projection and shared date owners. All six original assertion ASTs are unchanged and console output is byte-identical; added inert-import assertion. Removed unused startup/persistence mocks; production source unchanged. Test seams, module boundaries, ESLint and formatting pass; legacy evaluator allowance lowered 81→80, retained hooks unchanged.
+
+Measured counts: {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 56, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
