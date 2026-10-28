@@ -166,3 +166,16 @@ compares outcomes, input mutations, lock/write order and exact case/recovery byt
 Its synthetic anchor clock is fixed so independently timed status records are
 comparable; initial differences were clock-only and no assertion was relaxed.
 Python C901 findings fall 31 → 30. No stronger save acknowledgement is claimed.
+
+## M3 workspace action dispatch
+
+The click listener keeps target lookup, work capture, show-all and awaited
+navigation in place. Remaining workspace and document actions use two ordered
+feature dispatch tables; the current document is still fetched only between
+those phases. Runs are synchronous unless the original action returned a promise;
+no permission-sensitive call gains an await. All existing peer event owners keep
+their responsibilities and the 60 registrations keep their exact order/capture.
+
+The registration audit and 1,078 differential action/overlap cases compare results,
+state, full effect order and the synchronous call prefix. Complexity violations
+83 → 82; length reports 136 → 134.

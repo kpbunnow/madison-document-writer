@@ -2,6 +2,588 @@
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
 import { kase, doc } from "./writer_queries.js";
+const workspaceActions = [
+  {
+    id: "t-undo",
+    matches: (t, e) => t.id === "t-undo",
+    run: (services, t, e, d) => {
+      const f = WriterState.undoFn;
+      WriterState.undoFn = null;
+      document.getElementById("toast").innerHTML = "";
+      if (f) f();
+      return;
+    },
+  },
+  {
+    id: "exportcase",
+    matches: (t, e) => t.dataset.exportcase,
+    run: (services, t, e, d) => {
+      if (!services.caseNumberAllowed(kase(t.dataset.exportcase))) {
+        services.toast("Case number needs correction before export");
+        return;
+      }
+      services.downloadFile(services.caseFileName(kase(t.dataset.exportcase)), JSON.stringify(services.caseFile(t.dataset.exportcase), null, 2));
+      services.toast("Case record downloaded. Unfinished drafts stay on this device.");
+      return;
+    },
+  },
+  {
+    id: "btn-openfile",
+    matches: (t, e) => t.id === "btn-openfile" || t.hasAttribute("data-openfile"),
+    run: (services, t, e, d) => {
+      if (services.storageMode() === "folder") {
+        services.listCaseFolder().then((fs) => {
+          WriterState.state.folder = fs;
+          WriterState.state.modal = "folder";
+          services.render();
+        });
+        return;
+      }
+      services.pickCaseFile();
+      return;
+    },
+  },
+  {
+    id: "btn-linkdir",
+    matches: (t, e) => t.id === "btn-linkdir",
+    run: (services, t, e, d) => {
+      services.linkCaseFolder();
+      return;
+    },
+  },
+  {
+    id: "btn-grantdir",
+    matches: (t, e) => t.id === "btn-grantdir",
+    run: (services, t, e, d) => {
+      services.grantCaseFolder();
+      return;
+    },
+  },
+  {
+    id: "btn-browse",
+    matches: (t, e) => t.id === "btn-browse",
+    run: (services, t, e, d) => {
+      services.listCaseFolder().then((fs) => {
+        WriterState.state.folder = fs;
+        WriterState.state.modal = "folder";
+        services.render();
+      });
+      return;
+    },
+  },
+  {
+    id: "openfolder",
+    matches: (t, e) => t.dataset.openfolder,
+    run: (services, t, e, d) => {
+      WriterState.state.modal = null;
+      services.openFromFolder(t.dataset.openfolder);
+      return;
+    },
+  },
+  {
+    id: "discardri",
+    matches: (t, e) => t.dataset.discardri,
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.discardVisit(t);
+    },
+  },
+  {
+    id: "discard",
+    matches: (t, e) => t.dataset.discard,
+    run: (services, t, e, d) => {
+      return services.recoveryEvents.discardDocument(t);
+    },
+  },
+  {
+    id: "btn-flush",
+    matches: (t, e) => t.id === "btn-flush",
+    run: (services, t, e, d) => {
+      if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
+        services
+          .grantCaseFolder(true)
+          .then(() => services.flushPending())
+          .then(() => services.render());
+        return;
+      }
+      services.flushPending().then(() => services.render());
+      return;
+    },
+  },
+  {
+    id: "caseSync",
+    matches: (t, e) => t.dataset.caseSync,
+    run: (services, t, e, d) => {
+      if (!WriterState.CASEDIR) {
+        WriterState.state.modal = "storage";
+        services.render();
+        return;
+      }
+      if (WriterState.NEEDGRANT) {
+        services.grantCaseFolder(true).then((ok) => (ok ? services.flushPending() : services.render()));
+        return;
+      }
+      services.flushPending().then(() => services.render());
+      return;
+    },
+  },
+  {
+    id: "btn-storage",
+    matches: (t, e) => t.id === "btn-storage",
+    run: (services, t, e, d) => {
+      document.getElementById("utility-dialog")?.close();
+      WriterState.state.modal = "storage";
+      services.render();
+      return;
+    },
+  },
+  {
+    id: "btn-clear",
+    matches: (t, e) => t.id === "btn-clear",
+    run: (services, t, e, d) => {
+      WriterState.state.modal = "clear";
+      services.render();
+      return;
+    },
+  },
+  {
+    id: "btn-cc",
+    matches: (t, e) => t.id === "btn-cc",
+    run: (services, t, e, d) => {
+      return services.contactEvents.openRecipients();
+    },
+  },
+  {
+    id: "btn-addcc",
+    matches: (t, e) => t.id === "btn-addcc",
+    run: (services, t, e, d) => {
+      return services.contactEvents.addCopy();
+    },
+  },
+  {
+    id: "btn-addem",
+    matches: (t, e) => t.id === "btn-addem",
+    run: (services, t, e, d) => {
+      return services.contactEvents.addRecipient();
+    },
+  },
+  {
+    id: "rmcc",
+    matches: (t, e) => t.dataset.rmcc !== undefined && t.hasAttribute("data-rmcc"),
+    run: (services, t, e, d) => {
+      return services.contactEvents.removeCopy(t);
+    },
+  },
+  {
+    id: "rmem",
+    matches: (t, e) => t.dataset.rmem !== undefined && t.hasAttribute("data-rmem"),
+    run: (services, t, e, d) => {
+      return services.contactEvents.removeRecipient(t);
+    },
+  },
+  {
+    id: "clearcases",
+    matches: (t, e) => t.dataset.clearcases,
+    run: (services, t, e, d) => {
+      services.clearCases(t.dataset.clearcases);
+      return;
+    },
+  },
+  {
+    id: "rmcase",
+    matches: (t, e) => t.dataset.rmcase,
+    run: (services, t, e, d) => {
+      const k = kase(t.dataset.rmcase),
+        risky = services.caseUnsaved(k);
+      if (
+        risky &&
+        !confirm(
+          k.number +
+            " has " +
+            risky +
+            ". Removing it from this workspace loses that work. The shared case record is not deleted. Remove it from this workspace anyway?",
+        )
+      )
+        return;
+      if (services.removeCase(k.id) === false) return;
+      WriterState.state.screen = "cases";
+      services.render();
+      services.toast(k.number + " removed from this workspace. The shared case record is not deleted.");
+      return;
+    },
+  },
+  {
+    id: "btn-email",
+    matches: (t, e) => t.id === "btn-email",
+    run: (services, t, e, d) => {
+      return services.contactEvents.emailDocument();
+    },
+  },
+  {
+    id: "btn-sendgo",
+    matches: (t, e) => t.id === "btn-sendgo" || t.id === "btn-sendnone",
+    run: (services, t, e, d) => {
+      return services.contactEvents.sendDocument(t);
+    },
+  },
+  {
+    id: "btn-savecase",
+    matches: (t, e) => t.id === "btn-savecase",
+    run: (services, t, e, d) => {
+      const dd = doc(WriterState.state.docId);
+      if (!dd) return;
+      if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
+        services.grantCaseFolder(true).then(() => services.saveCaseFile(dd.caseId));
+        return;
+      }
+      services.saveCaseFile(dd.caseId);
+      return;
+    },
+  },
+  {
+    id: "btn-testwrite",
+    matches: (t, e) => t.id === "btn-testwrite",
+    run: (services, t, e, d) => {
+      services.testWrite();
+      return;
+    },
+  },
+  {
+    id: "btn-reindex",
+    matches: (t, e) => t.id === "btn-reindex",
+    run: (services, t, e, d) => {
+      services.rebuildIndex();
+      return;
+    },
+  },
+  {
+    id: "btn-syncpdf",
+    matches: (t, e) => t.id === "btn-syncpdf",
+    run: (services, t, e, d) => {
+      return services.workflowEvents.syncPdf(t);
+    },
+  },
+  {
+    id: "btn-risave",
+    matches: (t, e) => t.id === "btn-risave",
+    run: (services, t, e, d) => {
+      return services.recoveryEvents.saveVisit();
+    },
+  },
+  {
+    id: "btn-recordri",
+    matches: (t, e) => t.id === "btn-recordri",
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.recordVisit();
+    },
+  },
+  {
+    id: "reinsp",
+    matches: (t, e) => t.dataset.reinsp,
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.startVisit(t);
+    },
+  },
+  {
+    id: "riwalk",
+    matches: (t, e) => t.dataset.riwalk !== undefined,
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.toggleWalk(t);
+    },
+  },
+  {
+    id: "data-riwalk-next",
+    matches: (t, e) => t.hasAttribute("data-riwalk-next"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.nextItem();
+    },
+  },
+  {
+    id: "data-riwalk-skip",
+    matches: (t, e) => t.hasAttribute("data-riwalk-skip"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.skipDetails();
+    },
+  },
+  {
+    id: "data-riwalk-return",
+    matches: (t, e) => t.hasAttribute("data-riwalk-return"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.returnDetails();
+    },
+  },
+  {
+    id: "data-riwalk-prev",
+    matches: (t, e) => t.hasAttribute("data-riwalk-prev"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.previousItem();
+    },
+  },
+  {
+    id: "data-riwalk-undo",
+    matches: (t, e) => t.hasAttribute("data-riwalk-undo"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.undoOutcome();
+    },
+  },
+  {
+    id: "rifilter",
+    matches: (t, e) => t.dataset.rifilter !== undefined && t.hasAttribute("data-rifilter"),
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.filterItems(t);
+    },
+  },
+  {
+    id: "setoc",
+    matches: (t, e) => t.dataset.setoc !== undefined && t.dataset.item,
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.recordOutcome(t);
+    },
+  },
+  {
+    id: "makedoc",
+    matches: (t, e) => t.dataset.makedoc,
+    run: (services, t, e, d) => {
+      return services.reinspectionEvents.makeDocument(t);
+    },
+  },
+  {
+    id: "picker-bg",
+    matches: (t, e) => t.id === "picker-bg" && e.target.id === "picker-bg",
+    run: (services, t, e, d) => {
+      return services.catalogEvents.closePickerBackground();
+    },
+  },
+  {
+    id: "close",
+    matches: (t, e) => t.dataset.close === "picker",
+    run: (services, t, e, d) => {
+      return services.catalogEvents.closePicker();
+    },
+  },
+  {
+    id: "close",
+    matches: (t, e) => t.dataset.close === "modal",
+    run: (services, t, e, d) => {
+      return services.contactEvents.closeModal();
+    },
+  },
+  {
+    id: "libcl",
+    matches: (t, e) => t.dataset.libcl,
+    run: (services, t, e, d) => {
+      return services.catalogEvents.selectChecklist(t);
+    },
+  },
+  {
+    id: "open",
+    matches: (t, e) => t.dataset.open,
+    run: (services, t, e, d) => {
+      return services.editorEvents.openDocument(t);
+    },
+  },
+  {
+    id: "new",
+    matches: (t, e) => t.dataset.new,
+    run: (services, t, e, d) => {
+      return services.editorEvents.newNotice(t);
+    },
+  },
+  {
+    id: "grp",
+    matches: (t, e) => t.dataset.grp,
+    run: (services, t, e, d) => {
+      return services.catalogEvents.selectGroup(t);
+    },
+  },
+];
+const documentActions = [
+  {
+    id: "adoptCatalog",
+    matches: (t, e) => t.dataset.adoptCatalog,
+    run: (services, t, e, d) => {
+      return services.catalogEvents.adoptReview(d, t);
+    },
+  },
+  {
+    id: "resumerecord",
+    matches: (t, e) => t.dataset.resumerecord,
+    run: (services, t, e, d) => {
+      return services.correctionEvents.resumeRecord(t);
+    },
+  },
+  {
+    id: "pick",
+    matches: (t, e) => t.dataset.pick,
+    run: (services, t, e, d) => {
+      return services.catalogEvents.pickItem(d, t);
+    },
+  },
+  {
+    id: "btn-add-top",
+    matches: (t, e) => t.id === "btn-add-top",
+    run: (services, t, e, d) => {
+      return services.catalogEvents.openPicker(d);
+    },
+  },
+  {
+    id: "del",
+    matches: (t, e) => t.dataset.del,
+    run: (services, t, e, d) => {
+      return services.editorEvents.deleteItem(d, t);
+    },
+  },
+  {
+    id: "move",
+    matches: (t, e) => t.dataset.move,
+    run: (services, t, e, d) => {
+      return services.editorEvents.moveItem(t);
+    },
+  },
+  {
+    id: "grpbtn",
+    matches: (t, e) => t.dataset.grpbtn,
+    run: (services, t, e, d) => {
+      return services.editorEvents.toggleGroup(d, t);
+    },
+  },
+  {
+    id: "notecite",
+    matches: (t, e) => t.dataset.notecite,
+    run: (services, t, e, d) => {
+      return services.citationEvents.toggleCitation(d, t);
+    },
+  },
+  {
+    id: "abate",
+    matches: (t, e) => t.dataset.abate,
+    run: (services, t, e, d) => {
+      return services.editorEvents.toggleAbatement(d, t);
+    },
+  },
+  {
+    id: "btn-correct",
+    matches: (t, e) => t.id === "btn-correct" || t.id === "btn-reissue",
+    run: (services, t, e, d) => {
+      return services.correctionEvents.startCorrection(d);
+    },
+  },
+  {
+    id: "btn-exportcorrection",
+    matches: (t, e) => t.id === "btn-exportcorrection",
+    run: (services, t, e, d) => {
+      return services.correctionEvents.exportCorrection(d);
+    },
+  },
+  {
+    id: "btn-retrycorrection",
+    matches: (t, e) => t.id === "btn-retrycorrection",
+    run: (services, t, e, d) => {
+      return services.correctionEvents.retryCorrection(d);
+    },
+  },
+  {
+    id: "btn-recordnote",
+    matches: (t, e) =>
+      t.id === "btn-recordnote" &&
+      WriterState.state.publicationBusy &&
+      doc(WriterState.state.publicationBusy)?.caseId === doc(WriterState.state.docId)?.caseId,
+    run: (services, t, e, d) => {
+      return services.correctionEvents.refuseBusyNote();
+    },
+  },
+  {
+    id: "btn-void",
+    matches: (t, e) => t.id === "btn-void" || t.id === "btn-recordnote" || t.id === "btn-reconcile",
+    run: (services, t, e, d) => {
+      return services.correctionEvents.openRecordAction(t);
+    },
+  },
+  {
+    id: "record-action-go",
+    matches: (t, e) => t.id === "record-action-go",
+    run: (services, t, e, d) => {
+      return services.correctionEvents.commitRecordAction(t, d);
+    },
+  },
+  {
+    id: "btn-original",
+    matches: (t, e) => t.id === "btn-original",
+    run: (services, t, e, d) => {
+      return services.editorEvents.openOriginal(d);
+    },
+  },
+  {
+    id: "withdraw",
+    matches: (t, e) => t.dataset.withdraw,
+    run: (services, t, e, d) => {
+      return services.correctionEvents.withdrawItem(d, t);
+    },
+  },
+  {
+    id: "btn-save",
+    matches: (t, e) => t.id === "btn-save",
+    run: (services, t, e, d) => {
+      return services.recoveryEvents.saveDocument();
+    },
+  },
+  {
+    id: "btn-print",
+    matches: (t, e) => t.id === "btn-print",
+    run: (services, t, e, d) => {
+      return services.editorEvents.printDocument(d);
+    },
+  },
+  {
+    id: "btn-final",
+    matches: (t, e) => t.id === "btn-final" || t.id === "btn-reviewcorrection",
+    run: (services, t, e, d) => {
+      return services.editorEvents.reviewDocument(d);
+    },
+  },
+  {
+    id: "fin-go",
+    matches: (t, e) => t.id === "fin-go",
+    run: (services, t, e, d) => {
+      return services.editorEvents.finalizeDocument(d, t);
+    },
+  },
+  {
+    id: "acc-pick",
+    matches: (t, e) => t.id === "acc-pick",
+    run: (services, t, e, d) => {
+      return services.importEvents.pickWorkbook();
+    },
+  },
+  {
+    id: "acc-cancel",
+    matches: (t, e) => t.id === "acc-cancel",
+    run: (services, t, e, d) => {
+      return services.importEvents.cancelImport();
+    },
+  },
+  {
+    id: "acc-go",
+    matches: (t, e) => t.id === "acc-go",
+    run: (services, t, e, d) => {
+      return services.importEvents.acceptImport();
+    },
+  },
+  {
+    id: "acccase",
+    matches: (t, e) => t.dataset.acccase !== undefined && WriterState.state.acc,
+    run: (services, t, e, d) => {
+      return services.importEvents.selectCase(t);
+    },
+  },
+  {
+    id: "accsel",
+    matches: (t, e) => t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY,
+    run: (services, t, e, d) => {
+      return services.importEvents.selectInspection(t);
+    },
+  },
+];
+
 export function createWorkspaceEvents(services) {
   function registerQueueViews(target = document) {
     return registerEventOnce(target, "workspace.registerQueueViews", "click", (e) => {
@@ -97,307 +679,11 @@ export function createWorkspaceEvents(services) {
         await services.navigation.navigate(t.dataset.nav);
         return;
       }
-
-      if (t.id === "t-undo") {
-        const f = WriterState.undoFn;
-        WriterState.undoFn = null;
-        document.getElementById("toast").innerHTML = "";
-        if (f) f();
-        return;
-      }
-      if (t.dataset.exportcase) {
-        if (!services.caseNumberAllowed(kase(t.dataset.exportcase))) {
-          services.toast("Case number needs correction before export");
-          return;
-        }
-        services.downloadFile(services.caseFileName(kase(t.dataset.exportcase)), JSON.stringify(services.caseFile(t.dataset.exportcase), null, 2));
-        services.toast("Case record downloaded. Unfinished drafts stay on this device.");
-        return;
-      }
-      if (t.id === "btn-openfile" || t.hasAttribute("data-openfile")) {
-        if (services.storageMode() === "folder") {
-          services.listCaseFolder().then((fs) => {
-            WriterState.state.folder = fs;
-            WriterState.state.modal = "folder";
-            services.render();
-          });
-          return;
-        }
-        services.pickCaseFile();
-        return;
-      }
-      if (t.id === "btn-linkdir") {
-        services.linkCaseFolder();
-        return;
-      }
-      if (t.id === "btn-grantdir") {
-        services.grantCaseFolder();
-        return;
-      }
-      if (t.id === "btn-browse") {
-        services.listCaseFolder().then((fs) => {
-          WriterState.state.folder = fs;
-          WriterState.state.modal = "folder";
-          services.render();
-        });
-        return;
-      }
-      if (t.dataset.openfolder) {
-        WriterState.state.modal = null;
-        services.openFromFolder(t.dataset.openfolder);
-        return;
-      }
-      if (t.dataset.discardri) {
-        return services.reinspectionEvents.discardVisit(t);
-      }
-      if (t.dataset.discard) {
-        return services.recoveryEvents.discardDocument(t);
-      }
-      if (t.id === "btn-flush") {
-        if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
-          services
-            .grantCaseFolder(true)
-            .then(() => services.flushPending())
-            .then(() => services.render());
-          return;
-        }
-        services.flushPending().then(() => services.render());
-        return;
-      }
-      if (t.dataset.caseSync) {
-        if (!WriterState.CASEDIR) {
-          WriterState.state.modal = "storage";
-          services.render();
-          return;
-        }
-        if (WriterState.NEEDGRANT) {
-          services.grantCaseFolder(true).then((ok) => (ok ? services.flushPending() : services.render()));
-          return;
-        }
-        services.flushPending().then(() => services.render());
-        return;
-      }
-      if (t.id === "btn-storage") {
-        document.getElementById("utility-dialog")?.close();
-        WriterState.state.modal = "storage";
-        services.render();
-        return;
-      }
-      if (t.id === "btn-clear") {
-        WriterState.state.modal = "clear";
-        services.render();
-        return;
-      }
-      if (t.id === "btn-cc") {
-        return services.contactEvents.openRecipients();
-      }
-      if (t.id === "btn-addcc") {
-        return services.contactEvents.addCopy();
-      }
-      if (t.id === "btn-addem") {
-        return services.contactEvents.addRecipient();
-      }
-      if (t.dataset.rmcc !== undefined && t.hasAttribute("data-rmcc")) {
-        return services.contactEvents.removeCopy(t);
-      }
-      if (t.dataset.rmem !== undefined && t.hasAttribute("data-rmem")) {
-        return services.contactEvents.removeRecipient(t);
-      }
-      if (t.dataset.clearcases) {
-        services.clearCases(t.dataset.clearcases);
-        return;
-      }
-      if (t.dataset.rmcase) {
-        const k = kase(t.dataset.rmcase),
-          risky = services.caseUnsaved(k);
-        if (
-          risky &&
-          !confirm(
-            k.number +
-              " has " +
-              risky +
-              ". Removing it from this workspace loses that work. The shared case record is not deleted. Remove it from this workspace anyway?",
-          )
-        )
-          return;
-        if (services.removeCase(k.id) === false) return;
-        WriterState.state.screen = "cases";
-        services.render();
-        services.toast(k.number + " removed from this workspace. The shared case record is not deleted.");
-        return;
-      }
-      if (t.id === "btn-email") {
-        return services.contactEvents.emailDocument();
-      }
-      if (t.id === "btn-sendgo" || t.id === "btn-sendnone") {
-        return services.contactEvents.sendDocument(t);
-      }
-      if (t.id === "btn-savecase") {
-        const dd = doc(WriterState.state.docId);
-        if (!dd) return;
-        if (WriterState.CASEDIR && WriterState.NEEDGRANT) {
-          services.grantCaseFolder(true).then(() => services.saveCaseFile(dd.caseId));
-          return;
-        }
-        services.saveCaseFile(dd.caseId);
-        return;
-      }
-      if (t.id === "btn-testwrite") {
-        services.testWrite();
-        return;
-      }
-      if (t.id === "btn-reindex") {
-        services.rebuildIndex();
-        return;
-      }
-      if (t.id === "btn-syncpdf") {
-        return services.workflowEvents.syncPdf(t);
-      }
-      if (t.id === "btn-risave") {
-        return services.recoveryEvents.saveVisit();
-      }
-      if (t.id === "btn-recordri") {
-        return services.reinspectionEvents.recordVisit();
-      }
-
-      /* reinspection worksheet */
-      if (t.dataset.reinsp) {
-        return services.reinspectionEvents.startVisit(t);
-      }
-      if (t.dataset.riwalk !== undefined) {
-        return services.reinspectionEvents.toggleWalk(t);
-      }
-      if (t.hasAttribute("data-riwalk-next")) {
-        return services.reinspectionEvents.nextItem();
-      }
-      if (t.hasAttribute("data-riwalk-skip")) {
-        return services.reinspectionEvents.skipDetails();
-      }
-      if (t.hasAttribute("data-riwalk-return")) {
-        return services.reinspectionEvents.returnDetails();
-      }
-      if (t.hasAttribute("data-riwalk-prev")) {
-        return services.reinspectionEvents.previousItem();
-      }
-      if (t.hasAttribute("data-riwalk-undo")) {
-        return services.reinspectionEvents.undoOutcome();
-      }
-      if (t.dataset.rifilter !== undefined && t.hasAttribute("data-rifilter")) {
-        return services.reinspectionEvents.filterItems(t);
-      }
-      if (t.dataset.setoc !== undefined && t.dataset.item) {
-        return services.reinspectionEvents.recordOutcome(t);
-      }
-      if (t.dataset.makedoc) {
-        return services.reinspectionEvents.makeDocument(t);
-      }
-      if (t.id === "picker-bg" && e.target.id === "picker-bg") {
-        return services.catalogEvents.closePickerBackground();
-      }
-      if (t.dataset.close === "picker") {
-        return services.catalogEvents.closePicker();
-      }
-      if (t.dataset.close === "modal") {
-        return services.contactEvents.closeModal();
-      }
-      if (t.dataset.libcl) {
-        return services.catalogEvents.selectChecklist(t);
-      }
-      if (t.dataset.open) {
-        return services.editorEvents.openDocument(t);
-      }
-      if (t.dataset.new) {
-        return services.editorEvents.newNotice(t);
-      }
-      if (t.dataset.grp) {
-        return services.catalogEvents.selectGroup(t);
-      }
-
+      const action = workspaceActions.find((action) => action.matches(t, e));
+      if (action) return action.run(services, t, e);
       const d = doc(WriterState.state.docId);
-      if (t.dataset.adoptCatalog) {
-        return services.catalogEvents.adoptReview(d, t);
-      }
-      if (t.dataset.resumerecord) {
-        return services.correctionEvents.resumeRecord(t);
-      }
-
-      if (t.dataset.pick) {
-        return services.catalogEvents.pickItem(d, t);
-      }
-      if (t.id === "btn-add-top") {
-        return services.catalogEvents.openPicker(d);
-      }
-      if (t.dataset.del) {
-        return services.editorEvents.deleteItem(d, t);
-      }
-      if (t.dataset.move) {
-        return services.editorEvents.moveItem(t);
-      }
-      if (t.dataset.grpbtn) {
-        return services.editorEvents.toggleGroup(d, t);
-      }
-      if (t.dataset.notecite) {
-        return services.citationEvents.toggleCitation(d, t);
-      }
-      if (t.dataset.abate) {
-        return services.editorEvents.toggleAbatement(d, t);
-      }
-      if (t.id === "btn-correct" || t.id === "btn-reissue") {
-        return services.correctionEvents.startCorrection(d);
-      }
-      if (t.id === "btn-exportcorrection") {
-        return services.correctionEvents.exportCorrection(d);
-      }
-      if (t.id === "btn-retrycorrection") {
-        return services.correctionEvents.retryCorrection(d);
-      }
-      if (
-        t.id === "btn-recordnote" &&
-        WriterState.state.publicationBusy &&
-        doc(WriterState.state.publicationBusy)?.caseId === doc(WriterState.state.docId)?.caseId
-      ) {
-        return services.correctionEvents.refuseBusyNote();
-      }
-      if (t.id === "btn-void" || t.id === "btn-recordnote" || t.id === "btn-reconcile") {
-        return services.correctionEvents.openRecordAction(t);
-      }
-      if (t.id === "record-action-go") {
-        return services.correctionEvents.commitRecordAction(t, d);
-      }
-      if (t.id === "btn-original") {
-        return services.editorEvents.openOriginal(d);
-      }
-      if (t.dataset.withdraw) {
-        return services.correctionEvents.withdrawItem(d, t);
-      }
-      if (t.id === "btn-save") {
-        return services.recoveryEvents.saveDocument();
-      }
-      if (t.id === "btn-print") {
-        return services.editorEvents.printDocument(d);
-      }
-      if (t.id === "btn-final" || t.id === "btn-reviewcorrection") {
-        return services.editorEvents.reviewDocument(d);
-      }
-      if (t.id === "fin-go") {
-        return services.editorEvents.finalizeDocument(d, t);
-      }
-
-      if (t.id === "acc-pick") {
-        return services.importEvents.pickWorkbook();
-      }
-      if (t.id === "acc-cancel") {
-        return services.importEvents.cancelImport();
-      }
-      if (t.id === "acc-go") {
-        return services.importEvents.acceptImport();
-      }
-      if (t.dataset.acccase !== undefined && WriterState.state.acc) {
-        return services.importEvents.selectCase(t);
-      }
-      if (t.dataset.accsel !== undefined && WriterState.state.acc && !WriterState.LOOKUP_BUSY) {
-        return services.importEvents.selectInspection(t);
-      }
+      const documentAction = documentActions.find((action) => action.matches(t, e));
+      if (documentAction) return documentAction.run(services, t, e, d);
     });
   }
 
