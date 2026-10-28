@@ -441,3 +441,15 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The additional 40-field Reports screen interface is narrowed to 24 root fields, with thirteen fact helpers and five spreadsheet dependencies in explicit groups. Existing lazy getter identity and construction/deposit ordering pass. Reports, R48, R21 and R61 ordinance assertions pass unchanged, including workbook generation. JSDOM emits its canvas-not-implemented diagnostics while the assertions pass; native browser proof remains the required full gate. A private pure column-name helper preserves the public per-instance wrapper. The contract guard permits computed data lookup only after a statically declared service leaf, while rejecting computed interface paths; positive and negative fixtures pin this distinction. All scanned Writer/Reports injection objects are now at most 25 fields; core forwarder reduction remains open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 scoped architecture guard
+
+A read-only inventory now inspects 113 statically declared Writer/Reports injection interfaces, including nested groups: the largest has 25 fields and no spreads/computed interface keys. An architecture regression guard pins eleven state.js importers, six bounded owners covering exactly seventy disjoint root fields, and zero cycles. Existing grouped service, event, editor, reinspection and Reports contract tests pass. Namespace internals and behavioral coupling are explicitly outside this field-width measurement. Core forwarder reduction remains open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared editor composition
+
+A stateless per-owner adapter generates deferred callbacks/getters from explicit ordered resolver declarations. It stores no global registry and reads no dependency during construction. The first editor screen composition replaces 27 handwritten forwarders and five getters; scoped widths remain 8/5/19. Independent tests pin original property order/descriptors, callback name/arity, per-instance identity, live rebinding, synchronous error and Promise identity, and no early access to uninitialized bindings. Static contracts accept only named synchronous zero-argument resolvers and explicit value names; eager calls, spreads, unknown adapters and malformed metadata fail. Existing editor/architecture/dependency checks, five screen scenarios and R59 flow pass. The inventory still measures 113 interfaces at a maximum of 25 fields; no startup checkpoint changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
