@@ -90,58 +90,31 @@ function worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }) {
 
 function worksheetWalkPanelHTML({ readOnly, walkOn, src, left, next, walkSteps, walkStep, editableWalkItem, r, walkItemReady, walkKeys }) {
   return !readOnly
-    ? '<div class="ri-walk-panel ' +
-        `${walkOn ? "active" : ""}` +
-        '" role="group" aria-label="Reinspection review mode">\n    <div class="ri-walk-modes" role="group" aria-label="How to review items">' +
-        '<button type="button" class="btn btn-sm ' +
-        `${walkOn ? "" : "btn-primary"}` +
-        '" data-riwalk="off" aria-pressed="' +
-        `${walkOn ? "false" : "true"}` +
-        '">Review all items</button><button type="button" class="btn btn-sm ' +
-        `${walkOn ? "btn-primary" : ""}` +
-        '" data-riwalk="on" aria-pressed="' +
-        `${walkOn ? "true" : "false"}` +
-        '">One item at a time</button></div>\n    <div class="ri-walk-copy">' +
-        "<strong>" +
-        `${walkOn ? "One item at a time" : "Review all items"}` +
-        '</strong>\n      <span aria-live="polite">' +
-        worksheetWalkCopyHTML({ walkOn, src, left, next }) +
-        "</span>\n    </div>\n    " +
-        worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }) +
-        '\n    <label class="f"><span>After an outcome</span><select id' +
-        '="ri-walk-mode" ' +
-        `${walkOn ? "" : "disabled"}` +
-        '><option value="quick" ' +
-        `${editor.state.riWalkMode === "quick" ? "selected" : ""}` +
-        '>Go to next unanswered item</option><option value="details" ' +
-        `${editor.state.riWalkMode === "details" ? "selected" : ""}` +
-        ">Complete details first</option></select></label>\n    " +
-        "".concat(walkOn ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
-        "\n    " +
-        "".concat(
-          walkOn && editor.state.riWalkStage === "details"
-            ? '<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</butto' +
-                'n><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>'
-            : "",
-        ) +
-        "\n    " +
-        "".concat(
-          walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)))
-            ? '<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>'
-            : "",
-        ) +
-        "\n    " +
-        "".concat(
-          walkOn && editor.state.riWalkUndo
-            ? '<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-th' + 'rough result (U)">Undo last result <kbd>U</kbd></button>'
-            : "",
-        ) +
-        '\n    <details class="ri-walk-tips"><summary>Keyboard shortcuts and tips</summary>' +
-        "<p>In One item at a time: " +
-        walkKeys +
-        ".</p><p>Shortcuts are ignored while typing in a field. Nothing is recorded until you choose an outcome; " +
-        "follow-up choices stay limited to those the imported inspection result permits.</p><p>After an outcome: Go to next unanswered item moves on at once; " +
-        "Complete details first keeps the item open for its date, notes and any new due date.</p></details>\n  </div>"
+    ? html`<div class="ri-walk-panel ${walkOn ? "active" : ""}" role="group" aria-label="Reinspection review mode">
+    <div class="ri-walk-modes" role="group" aria-label="How to review items"><button type="button" class="btn btn-sm ${walkOn ? "" : "btn-primary"}" data-riwalk="off" aria-pressed="${walkOn ? "false" : "true"}">Review all items</button><button type="button" class="btn btn-sm ${walkOn ? "btn-primary" : ""}" data-riwalk="on" aria-pressed="${walkOn ? "true" : "false"}">One item at a time</button></div>
+    <div class="ri-walk-copy"><strong>${walkOn ? "One item at a time" : "Review all items"}</strong>
+      <span aria-live="polite">${raw(worksheetWalkCopyHTML({ walkOn, src, left, next }))}</span>
+    </div>
+    ${raw(worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }))}
+    <label class="f"><span>After an outcome</span><select id="ri-walk-mode" ${walkOn ? "" : "disabled"}><option value="quick" ${editor.state.riWalkMode === "quick" ? "selected" : ""}>Go to next unanswered item</option><option value="details" ${editor.state.riWalkMode === "details" ? "selected" : ""}>Complete details first</option></select></label>
+    ${raw(walkOn ? html`<button class="btn btn-sm" data-riwalk-prev>Previous item</button>` : "")}
+    ${raw(
+      walkOn && editor.state.riWalkStage === "details"
+        ? html`<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</button><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>`
+        : "",
+    )}
+    ${raw(
+      walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)))
+        ? html`<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>`
+        : "",
+    )}
+    ${raw(
+      walkOn && editor.state.riWalkUndo
+        ? html`<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-through result (U)">Undo last result <kbd>U</kbd></button>`
+        : "",
+    )}
+    <details class="ri-walk-tips"><summary>Keyboard shortcuts and tips</summary><p>In One item at a time: ${raw(walkKeys)}.</p><p>Shortcuts are ignored while typing in a field. Nothing is recorded until you choose an outcome; follow-up choices stay limited to those the imported inspection result permits.</p><p>After an outcome: Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date.</p></details>
+  </div>`
     : "";
 }
 
@@ -362,7 +335,7 @@ function worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, wal
           : 2
         : 1;
   const walkSteps = ["Record the outcome", "Complete required details", "Continue to the next item", "Review the inspection and permitted follow-up"];
-  const walkKeys = OUTCOMES.map((o, ix) => "<kbd>" + (ix + 1) + "</kbd> " + esc(o.label)).join(" · ") + " · <kbd>U</kbd> Undo the last outcome";
+  const walkKeys = OUTCOMES.map((o, ix) => html`<kbd>${ix + 1}</kbd> ${o.label}`).join(" · ") + " · <kbd>U</kbd> Undo the last outcome";
   const walkPanel = worksheetWalkPanelHTML({
     readOnly,
     walkOn,
