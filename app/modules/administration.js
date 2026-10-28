@@ -9,41 +9,53 @@ import { esc as dep_esc } from "./presentation_format.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
+function overrideAuthorizationFault(b) {
+  if (
+    b.version !== 1 ||
+    !b.confirmed ||
+    String(b.administrator || "").trim().length < 2 ||
+    String(b.reason || "").trim().length < 20 ||
+    !String(b.sourceReference || "").trim() ||
+    !/^[0-9a-f]{32}$/.test(b.authorizationId || "") ||
+    !/^[0-9a-f]{64}$/.test(b.authorizationHash || "")
+  )
+    return "Administrator override needs its named, confirmed helper authorization.";
+  return "";
+}
+
+function overrideCitationFault(b, c, k) {
+  if (
+    b.caseNumber !== k.number ||
+    b.citationNumber !== c.num ||
+    b.ordinance !== canonicalOrdinance(c.ord) ||
+    b.pricingDate !== (c.pricedOn || c.issued) ||
+    b.mode !== c.depositMode ||
+    b.totalCents !== cents(c.amount) ||
+    b.policyVersionHash !== c.policyVersionHash ||
+    (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)))
+  )
+    return "Administrator override no longer matches this citation; authorize it again.";
+  return "";
+}
+
+function overrideHistoryFault(b, c) {
+  if (
+    b.approvedTier !== tierOrdinal(c.tier) ||
+    b.approvedTier !== (c.computedTier || tierOrdinal(c.tier)) ||
+    (b.scheduleEntryId || "") !== (c.scheduleEntryId || "") ||
+    stableJSON(b.measurements || {}) !== stableJSON(c.measurements || {})
+  )
+    return "Administrator override pricing facts or citation history changed; authorize it again.";
+  return "";
+}
+
 export function initAdministration(services) {
   const esc = (value) => dep_esc(value);
   function overrideFault(c, d) {
     const b = c.overrideBasis,
       k = docCase(d);
     if (!b) return "";
-    if (
-      b.version !== 1 ||
-      !b.confirmed ||
-      String(b.administrator || "").trim().length < 2 ||
-      String(b.reason || "").trim().length < 20 ||
-      !String(b.sourceReference || "").trim() ||
-      !/^[0-9a-f]{32}$/.test(b.authorizationId || "") ||
-      !/^[0-9a-f]{64}$/.test(b.authorizationHash || "")
-    )
-      return "Administrator override needs its named, confirmed helper authorization.";
-    if (
-      b.caseNumber !== k.number ||
-      b.citationNumber !== c.num ||
-      b.ordinance !== canonicalOrdinance(c.ord) ||
-      b.pricingDate !== (c.pricedOn || c.issued) ||
-      b.mode !== c.depositMode ||
-      b.totalCents !== cents(c.amount) ||
-      b.policyVersionHash !== c.policyVersionHash ||
-      (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)))
-    )
-      return "Administrator override no longer matches this citation; authorize it again.";
-    if (
-      b.approvedTier !== tierOrdinal(c.tier) ||
-      b.approvedTier !== (c.computedTier || tierOrdinal(c.tier)) ||
-      (b.scheduleEntryId || "") !== (c.scheduleEntryId || "") ||
-      stableJSON(b.measurements || {}) !== stableJSON(c.measurements || {})
-    )
-      return "Administrator override pricing facts or citation history changed; authorize it again.";
-    return "";
+    return overrideAuthorizationFault(b) || overrideCitationFault(b, c, k) || overrideHistoryFault(b, c);
   }
   const actorFields = () =>
     '<label class="f"><span>Named administrator</span><input name="administra' +

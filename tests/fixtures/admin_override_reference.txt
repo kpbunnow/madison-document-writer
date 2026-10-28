@@ -1,0 +1,34 @@
+function overrideFault(c, d) {
+    const b = c.overrideBasis,
+      k = docCase(d);
+    if (!b) return "";
+    if (
+      b.version !== 1 ||
+      !b.confirmed ||
+      String(b.administrator || "").trim().length < 2 ||
+      String(b.reason || "").trim().length < 20 ||
+      !String(b.sourceReference || "").trim() ||
+      !/^[0-9a-f]{32}$/.test(b.authorizationId || "") ||
+      !/^[0-9a-f]{64}$/.test(b.authorizationHash || "")
+    )
+      return "Administrator override needs its named, confirmed helper authorization.";
+    if (
+      b.caseNumber !== k.number ||
+      b.citationNumber !== c.num ||
+      b.ordinance !== canonicalOrdinance(c.ord) ||
+      b.pricingDate !== (c.pricedOn || c.issued) ||
+      b.mode !== c.depositMode ||
+      b.totalCents !== cents(c.amount) ||
+      b.policyVersionHash !== c.policyVersionHash ||
+      (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)))
+    )
+      return "Administrator override no longer matches this citation; authorize it again.";
+    if (
+      b.approvedTier !== tierOrdinal(c.tier) ||
+      b.approvedTier !== (c.computedTier || tierOrdinal(c.tier)) ||
+      (b.scheduleEntryId || "") !== (c.scheduleEntryId || "") ||
+      stableJSON(b.measurements || {}) !== stableJSON(c.measurements || {})
+    )
+      return "Administrator override pricing facts or citation history changed; authorize it again.";
+    return "";
+  }

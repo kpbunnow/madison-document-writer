@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 67,
+    "complexity": 66,
     "max-depth": 0,
     "max-lines-per-function": 120,
     "python": 15
@@ -17,9 +17,8 @@
     "app/modules/accessibility.js:createAccessibility#1/enhance#1:max-lines-per-function": 95,
     "app/modules/accessibility.js:createAccessibility#1/paint#1:complexity": 25,
     "app/modules/address_parser.js:initAddressParser#1:max-lines-per-function": 106,
-    "app/modules/administration.js:initAdministration#1:max-lines-per-function": 211,
+    "app/modules/administration.js:initAdministration#1:max-lines-per-function": 183,
     "app/modules/administration.js:initAdministration#1/openLetter#1:max-lines-per-function": 83,
-    "app/modules/administration.js:initAdministration#1/overrideFault#1:complexity": 34,
     "app/modules/automatic_recovery.js:createAutomaticRecovery#1:max-lines-per-function": 166,
     "app/modules/browser_printing.js:createBrowserPrinting#1:max-lines-per-function": 142,
     "app/modules/browser_printing.js:createBrowserPrinting#1/printableHTML#1:max-lines-per-function": 95,
