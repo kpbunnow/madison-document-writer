@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_editor_html.js` | Exact editor HTML, state mutations and service access order |
 | `audit_screen_html.js` | Default screen escaping, explicit trusted fragments and print-path exclusion |
 | `audit_deferred_services.js` | Inert declared services, live callbacks/values and descriptor parity |
 | `audit_scoped_architecture.js` | Root-state ownership, zero cycles and static injection widths |
