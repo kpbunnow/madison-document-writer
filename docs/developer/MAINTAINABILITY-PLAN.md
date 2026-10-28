@@ -829,3 +829,9 @@ Measured counts: {'complexity': 61, 'max-depth': 0, 'max-lines-per-function': 11
 Converted worksheet verdict banners and their follow-up explanation to escaped screen templates. Kept the existing closed/incomplete/compliance/deadline/default precedence, repeated document lookups, import-rule fields and exact text/entities. Raw is limited to the composed escaped explanation fragment. All 1026 frozen worksheet comparisons and 2680 drafting comparisons pass, plus class/style, escaping/print exclusion, module boundaries, ESLint and formatting. No CSS, print owner, approved wording data or stored format changes.
 
 Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## report-filter-coordinator
+
+Completed ordered notice, identity, status and violation decisions. ESLint measures the caseOk coordinator at complexity 7; every extracted inclusion rule is below 10 (snow 5, standard notice 6, notice routing 4, status 9, identity 9, violation 6). All 4501 frozen field/service-read comparisons, 3401 model comparisons, authenticated loading and Reports boundary tests pass. Module boundaries, seams, ESLint and formatting pass. No public inputs, query order, report outputs or debt allowances change.
+
+Measured counts: {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.

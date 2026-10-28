@@ -97,19 +97,23 @@ function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, ver
   cases.push(c);
 }
 
-function reportNoticeIncluded(c, opt, versionAt, noticeAt) {
-  if (!(opt && opt.noNotice)) {
-    if (c.caseType === "snow-10.28") {
-      if (!c.citations.length) return false;
-      if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
-    } else {
-      if (!c.noticeIssued) return false;
-      if (opt && opt.asOf) {
-        if (!noticeAt(c, opt.asOf)) return false;
-      } else if (c.noticeActive === false) return false;
-    }
-  }
+function reportSnowNoticeIncluded(c, opt, versionAt) {
+  if (!c.citations.length) return false;
+  if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
   return true;
+}
+
+function reportStandardNoticeIncluded(c, opt, noticeAt) {
+  if (!c.noticeIssued) return false;
+  if (opt && opt.asOf) {
+    if (!noticeAt(c, opt.asOf)) return false;
+  } else if (c.noticeActive === false) return false;
+  return true;
+}
+
+function reportNoticeIncluded(c, opt, versionAt, noticeAt) {
+  if (opt && opt.noNotice) return true;
+  return c.caseType === "snow-10.28" ? reportSnowNoticeIncluded(c, opt, versionAt) : reportStandardNoticeIncluded(c, opt, noticeAt);
 }
 
 function reportStatusIncluded(services, c, F, opt, status) {
@@ -118,6 +122,26 @@ function reportStatusIncluded(services, c, F, opt, status) {
     (F.status === "open"
       ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || services.TODAY))
       : status !== F.status)
+  )
+    return false;
+  return true;
+}
+
+function reportIdentityIncluded(c, F, opt, areaKey) {
+  if (F.areas.length && F.areas.indexOf(areaKey(c, F)) < 0) return false;
+  if (F.inspector && !(opt && opt.noInspector) && c.inspector !== F.inspector) return false;
+  if (F.owner && c.ownerKey !== F.owner) return false;
+  return true;
+}
+
+function reportViolationIncluded(services, c, F, opt, violationAt) {
+  if (
+    (F.vtype || F.ord) &&
+    !(opt && opt.noViol) &&
+    !c.violations.some((v) => {
+      const at = opt && opt.asOf ? violationAt(v, opt.asOf) : v;
+      return at && !at.withdrawn && services.violOk(at, F);
+    })
   )
     return false;
   return true;
@@ -633,20 +657,10 @@ export function createReportsServices(services) {
 
   function caseOk(c, F, opt) {
     if (!reportNoticeIncluded(c, opt, versionAt, noticeAt)) return false;
-    if (F.areas.length && F.areas.indexOf(areaKey(c, F)) < 0) return false;
-    if (F.inspector && !(opt && opt.noInspector) && c.inspector !== F.inspector) return false;
-    if (F.owner && c.ownerKey !== F.owner) return false;
+    if (!reportIdentityIncluded(c, F, opt, areaKey)) return false;
     const status = opt && opt.asOf ? statusAt(c, opt.asOf) : c.status;
     if (!reportStatusIncluded(services, c, F, opt, status)) return false;
-    if (
-      (F.vtype || F.ord) &&
-      !(opt && opt.noViol) &&
-      !c.violations.some((v) => {
-        const at = opt && opt.asOf ? violationAt(v, opt.asOf) : v;
-        return at && !at.withdrawn && services.violOk(at, F);
-      })
-    )
-      return false;
+    if (!reportViolationIncluded(services, c, F, opt, violationAt)) return false;
     return true;
   }
 
