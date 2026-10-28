@@ -14,7 +14,17 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
     factory = ast.body.find((n) => n.declaration?.id?.name === "createEditorScreens").declaration,
     ret = factory.body.body.at(-1);
   const reference = require("../fixtures/editor_screen_reference.cjs").replace("function screenWrite(", "function referenceScreenWrite(");
-  source = source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("screenWrite,", "screenWrite,referenceScreenWrite,");
+  const presentation = fs.readFileSync("tests/fixtures/editor_presentation_reference.txt", "utf8");
+  const retained =
+    "const {referenceScreenWrite, referenceReviewModalHTML} = (() => {\n" +
+    presentation +
+    "\n" +
+    reference +
+    "\nreturn {referenceScreenWrite, referenceReviewModalHTML: reviewModalHTML};})();\n";
+  source =
+    source.slice(0, ret.start) +
+    retained +
+    source.slice(ret.start).replace("screenWrite,", "screenWrite,referenceScreenWrite,referenceReviewModalHTML,");
   source += '\nexport {WriterState} from "./state.js";export {esc} from "./presentation_format.js";';
   const compiled = await esbuild.build({
     stdin: { contents: withHistoricalBindings(source, ["WriterState", "esc"]), resolveDir: directory },
@@ -167,6 +177,11 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
     if (!input.missing && input.pending && !input.note && !input.invalid) assert.match(actual.html, /Confirm save/);
     if (!input.missing && input.busy && !input.note && !input.pending && !input.invalid) assert.match(actual.html, /Finishing document save/);
     assert.deepEqual(actual, expected, JSON.stringify(input));
+    reset();
+    const expectedReview = outcome(api.referenceReviewModalHTML);
+    reset();
+    const actualReview = outcome(api.reviewModalHTML);
+    assert.deepEqual(actualReview, expectedReview, "Review dialog: " + JSON.stringify(input));
     total++;
   }
   const base = {
