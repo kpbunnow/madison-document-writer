@@ -10,7 +10,6 @@ import { app_savedworkContext, captureWork, saveDrafts, backupUnfinished, recove
 import { savedCaseState } from "./saved_work.js";
 import { authFetch } from "./helper_transport.js";
 import { announceStop, helperStop, listenForStop, showStopped } from "./helper_stopped.js";
-import { WriterState } from "./state.js";
 
 const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
 
@@ -134,7 +133,7 @@ async function flushDrafts() {
 async function settleRecoveryCopy() {
   clearTimeout(recovery.RECOVERY_TIMER);
   for (let n = 0; recovery.RECOVERY_BUSY && n < 150; n++) await new Promise((resolve) => setTimeout(resolve, 100));
-  if (!WriterState.HELPER || recovery.RECOVERY_BUSY) return;
+  if (!startup.HELPER || recovery.RECOVERY_BUSY) return;
   try {
     await backupUnfinished(recoveryJobs());
   } catch (error) {
@@ -146,7 +145,7 @@ function stoppedDetails() {
   const details = ["Drafts saved on this device stay on this device."];
   const queued = [];
   if (workspace.PENDING.length) queued.push(plural(workspace.PENDING.length, "shared save"));
-  if (WriterState.HELPER?.outbox) queued.push(plural(WriterState.HELPER.outbox, "PDF transfer"));
+  if (startup.HELPER?.outbox) queued.push(plural(startup.HELPER.outbox, "PDF transfer"));
   if (queued.length)
     details.push(
       queued.join(" and ") + " remain queued on this device. They have not reached the shared folder; they resume when Document Writer starts again.",
@@ -160,7 +159,7 @@ function releaseStoppedWorkspace() {
   startup.WRITER_ACCESS = false;
   startup.releaseWorkspaceLock?.();
   startup.releaseWorkspaceLock = null;
-  WriterState.HANDOFF_SEQ++;
+  startup.HANDOFF_SEQ++;
   if (startup.WRITER_CHANNEL) {
     startup.WRITER_CHANNEL.onmessage = null;
     startup.WRITER_CHANNEL.close?.();
@@ -172,7 +171,7 @@ function stopped() {
   const details = stoppedDetails();
   helperStop.stopped = true;
   clearTimeout(recovery.RECOVERY_TIMER);
-  WriterState.HELPER = null;
+  startup.HELPER = null;
   releaseStoppedWorkspace();
   announceStop();
   showStopped(details);
@@ -279,7 +278,7 @@ export async function openExit(save = true) {
 async function stoppedElsewhere() {
   if (startup.WRITER_ACCESS) await flushDrafts();
   helperStop.stopped = true;
-  WriterState.HELPER = null;
+  startup.HELPER = null;
   clearTimeout(recovery.RECOVERY_TIMER);
   releaseStoppedWorkspace();
   showStopped(["Exit Document Writer was used in another Writer window.", "Drafts saved on this device stay on this device."]);

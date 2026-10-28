@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
@@ -5,7 +6,6 @@ import { iso } from "./calendar.js";
 import { DOC_TYPES } from "./document_types.js";
 import { emailList, ccList, isLLC, EMAIL_KINDS } from "./mailing_rules.js";
 import { esc, fmtDate } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 import { recordDay, mailingMaxDay } from "../assets/shared.js";
 
 function sendRecipientModal() {
@@ -353,7 +353,7 @@ function folderModal() {
 }
 
 function finalRecipientsHTML({ d }) {
-  if (!WriterState.HELPER || !WriterState.HELPER.chrome) return "";
+  if (!startup.HELPER || !startup.HELPER.chrome) return "";
   const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e.addr || "").trim());
   if (!list.length)
     return (
@@ -384,7 +384,7 @@ function finalRecipientsHTML({ d }) {
     ) +
     '\n          <p class="hint">Selected recipients are listed on the documen' +
     "t. An email draft opens for you to review and send." +
-    "".concat(WriterState.HELPER.outlook === false ? " Outlook was not found, so your default mail program will open without the attachment." : "") +
+    "".concat(startup.HELPER.outlook === false ? " Outlook was not found, so your default mail program will open without the attachment." : "") +
     "</p></div>"
   );
 }

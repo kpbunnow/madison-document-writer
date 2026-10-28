@@ -16,7 +16,9 @@ const esbuild = require("esbuild");
   new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
   const { WriterState, startupState } = box.exports;
   const keys =
-    "STARTUP_STATUS STARTUP_ERROR WRITER_READY WRITER_ACCESS WRITER_CHANNEL releaseWriterReady releaseWorkspaceLock WORKSPACE_RESTORED".split(" ");
+    "STARTUP_STATUS STARTUP_ERROR WRITER_READY WRITER_ACCESS WRITER_CHANNEL releaseWriterReady releaseWorkspaceLock WORKSPACE_RESTORED HELPER HANDOFF_SEQ RETURN_ACK REPORT_RETURN".split(
+      " ",
+    );
   assert.deepEqual(WriterState, {}, "importing a state boundary must not initialize or read startup fields");
   assert.deepEqual(Object.keys(startupState).sort(), [...keys].sort());
   assert.equal(Object.isFrozen(startupState), true);
@@ -54,7 +56,7 @@ const esbuild = require("esbuild");
     delete WriterState[key];
   }
   assert.deepEqual(WriterState, {});
-  console.log("PASS 8-field live startup boundary, replacement identity, absent values and accessor timing");
+  console.log("PASS 12-field live startup boundary, replacement identity, absent values and accessor timing");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

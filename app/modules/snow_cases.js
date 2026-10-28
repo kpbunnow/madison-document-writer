@@ -1,3 +1,4 @@
+import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
@@ -14,7 +15,6 @@ import { correctionSource, doc, docCase, docInsp, docsFor, kase, recordHead } fr
 
 import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
-import { WriterState } from "./state.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
 const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
 export function initSnow(services) {
@@ -87,7 +87,7 @@ export function initSnow(services) {
   }
   function prepare(d) {
     if (!d?.draft || !is(d) || d.pendingAmendment) return;
-    if (WriterState.HELPER?.ok && !letterLoaded && !loading)
+    if (startup.HELPER?.ok && !letterLoaded && !loading)
       void loadLetter().then((ok) => {
         if (ok && editor.state.docId === d.id) services.renderKeep();
       });
@@ -269,7 +269,7 @@ export function initSnow(services) {
     ...(d.authoringVersion >= 10 ? { snowCoverFormat: coverFormat(d) } : {}),
   });
   async function loadLetter(force = false) {
-    if (!WriterState.HELPER?.ok || !workspace.CASEDIR?.helper) return false;
+    if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper) return false;
     if (letterLoaded && !force) return true;
     if (!loading)
       loading = services

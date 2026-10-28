@@ -1,21 +1,21 @@
+import { startupState as startup } from "./startup_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { DOC_TYPES } from "./document_types.js";
 import { docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { project } from "./case_records.js";
-import { WriterState } from "./state.js";
 
 export function createDocumentDelivery(services) {
   async function checkHelper() {
     try {
       const r = await services.authFetch("/dw-status", { cache: "no-store" });
       if (!r.ok) throw 0;
-      WriterState.HELPER = await r.json();
+      startup.HELPER = await r.json();
     } catch (e) {
-      WriterState.HELPER = null;
+      startup.HELPER = null;
     }
-    return WriterState.HELPER;
+    return startup.HELPER;
   }
 
   function emailSubject(d) {
@@ -73,7 +73,7 @@ export function createDocumentDelivery(services) {
       return false;
     }
     const to = (picked || []).filter((e) => String(e.addr || "").trim());
-    if (!WriterState.HELPER) {
+    if (!startup.HELPER) {
       services.toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
       return false;
     }
@@ -126,7 +126,7 @@ export function createDocumentDelivery(services) {
   async function openIssuedCopy(d) {
     if (!d || d.draft) return false;
     const artifact = issuedArtifact(d);
-    if (artifact && WriterState.HELPER) {
+    if (artifact && startup.HELPER) {
       try {
         const response = await services.authFetch("/artifact/read", {
           method: "POST",
@@ -179,7 +179,7 @@ export function createDocumentDelivery(services) {
 
   async function filePdf(d, job) {
     if (!d) return false;
-    if (!WriterState.HELPER || !WriterState.HELPER.chrome) return false;
+    if (!startup.HELPER || !startup.HELPER.chrome) return false;
     // named jb: the JSON reply inside the try block is already called j
     const jb = job && job.docId === d.id ? job : services.printJob(d);
     if (!jb || !jb.html) return false;
@@ -202,7 +202,7 @@ export function createDocumentDelivery(services) {
       const j = await r.json();
       if (j && j.ok) {
         if (j.local) {
-          WriterState.HELPER.outbox = (WriterState.HELPER.outbox || 0) + 1;
+          startup.HELPER.outbox = (startup.HELPER.outbox || 0) + 1;
           services.toast("PDF filing needed. Original saved in the local outbox. Open Saved work & connection to transfer it.");
         } else services.toast("Filed " + j.name);
         if (

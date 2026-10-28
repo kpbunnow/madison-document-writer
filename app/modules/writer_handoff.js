@@ -4,7 +4,6 @@ import { startupState as startup } from "./startup_state.js";
 /* Writer readiness and Reports handoff; restoration and file authority stay in their adapters. */
 import { caseNumberKey } from "../assets/shared.js";
 import { caseFileFault } from "./case_file_rules.js";
-import { WriterState } from "./state.js";
 
 /* Construction is inert. Startup calls initWriterHandoff at its existing position. */
 export function createWriterHandoff(services) {
@@ -30,7 +29,7 @@ export function createWriterHandoff(services) {
     if (!startup.WRITER_READY) throw new Error("Saved workspace restoration must finish before opening a case.");
     const number = String(message.number || "");
     if (!caseNumberKey(number)) throw new Error("Invalid case number");
-    const request = ++WriterState.HANDOFF_SEQ;
+    const request = ++startup.HANDOFF_SEQ;
     const existing = workspace.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
     if (existing) {
       await services.preflightCase(existing.id, "report handoff", () => {
@@ -40,8 +39,8 @@ export function createWriterHandoff(services) {
         editor.state.screen = "cases";
         services.render();
       });
-      if (request !== WriterState.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
-      WriterState.REPORT_RETURN = true;
+      if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
+      startup.REPORT_RETURN = true;
       services.render();
       window.focus?.();
       return "Local work was kept; review the case or reconciliation panel in Writer.";
@@ -53,12 +52,12 @@ export function createWriterHandoff(services) {
       if (error.name === "NotFoundError") throw new Error("No shared case exists for " + number + ".");
       throw error;
     }
-    if (request !== WriterState.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
+    if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
     const file = opened.file;
     if (caseNumberKey(file.case?.number) !== caseNumberKey(number) || caseFileFault(file))
       throw new Error("The current shared file is invalid or belongs to a different case");
     if (!services.loadCaseFile(JSON.stringify(file))) throw new Error("The shared case could not be loaded");
-    WriterState.REPORT_RETURN = true;
+    startup.REPORT_RETURN = true;
     editor.state.metric = "";
     editor.state.caseQ = number;
     editor.state.caseFilter = "all";
@@ -82,7 +81,7 @@ export function createWriterHandoff(services) {
         if (!startup.WRITER_ACCESS || startup.WRITER_CHANNEL !== channel) return;
         const m = e.data;
         if (m?.kind === "return-ack") {
-          WriterState.RETURN_ACK = m.request;
+          startup.RETURN_ACK = m.request;
           return;
         }
         if (m?.kind !== "open" || !m.request) return;
