@@ -771,3 +771,7 @@ Measured counts: {'complexity': 67, 'max-depth': 0, 'max-lines-per-function': 12
 Converted earlier-visit rows, visit header and progress fragments to escaped screen templates. Source history from the prior M5 review establishes these split literals as retained formatting rather than approved wording boundaries. Data escape by default; raw is confined to joined option/visit markup produced by the tag. Kept element boundaries, exact whitespace and live date/inspector evaluation order. All 1026 frozen worksheet comparisons pass, along with class/style, escaping/print exclusion, screen dependencies, ESLint and formatting. No CSS or printed renderer changes.
 
 Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
+
+## Worksheet template dependency contract
+
+The initial worksheet-template gate failed. The local boundary checker identified the missing planned screen_html foundation edge for reinspection, which already owns the worksheet UI. Recorded that single dependency in the reviewed contract; retained the unchanged whitelist assertion, acyclic graph and print-owner exclusion assertions. No broader dependency allowance or output reference changes.
