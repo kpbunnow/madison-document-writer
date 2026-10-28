@@ -1,3 +1,4 @@
+const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
 /* Import decisions retain selection mutation, exact messages and service-call precedence. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -15,7 +16,7 @@ const assert = require("node:assert/strict"),
   source = source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("baseLookupPlan,", "baseLookupPlan,referenceLookupPlan,");
   source += '\nexport {WriterState} from "./state.js";export {INSPECTORS} from "./data/inspectors.js";';
   const built = await esbuild.build({
-    stdin: { contents: source, resolveDir: dir },
+    stdin: { contents: withHistoricalState(source), resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",

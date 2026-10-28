@@ -1,3 +1,4 @@
+import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Writer readiness and Reports handoff; restoration and file authority stay in their adapters. */
@@ -30,7 +31,7 @@ export function createWriterHandoff(services) {
     const number = String(message.number || "");
     if (!caseNumberKey(number)) throw new Error("Invalid case number");
     const request = ++WriterState.HANDOFF_SEQ;
-    const existing = WriterState.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
+    const existing = workspace.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
     if (existing) {
       await services.preflightCase(existing.id, "report handoff", () => {
         editor.state.metric = "";
@@ -65,7 +66,7 @@ export function createWriterHandoff(services) {
     window.focus?.();
     const count = Number(message.eventCount);
     if (Number.isFinite(count) && count !== (file.events || []).length) {
-      WriterState.PREFLIGHT_NOTICE =
+      workspace.PREFLIGHT_NOTICE =
         "The shared case changed since this report was indexed. Writer opened the" +
         " current validated case; refresh Reports before relying on its totals.";
       services.render();
@@ -99,7 +100,7 @@ export function createWriterHandoff(services) {
     const number = new URLSearchParams(globalThis.location?.search || "").get("case");
     if (number)
       writerOpenReportedCase({ number }).catch((e) => {
-        WriterState.PREFLIGHT_NOTICE = "Report handoff could not open the case: " + e.message;
+        workspace.PREFLIGHT_NOTICE = "Report handoff could not open the case: " + e.message;
         services.render();
       });
   }
