@@ -40,6 +40,10 @@ for (const row of interfaces) {
   assert.ok(row.fields <= 25, row.scope + ": " + row.fields);
   assert.deepEqual(row.opaque, [], row.scope + ": only statically declared fields");
 }
+assert.deepEqual(
+  sourceInterfaces('createOwner(deferredServices({first:()=>first,current:()=>current},["current"]))', "fixture").map(({ fields }) => fields),
+  [2],
+);
 const sample = sourceInterfaces("createOwner({ui:{first:()=>first},get current(){return current;}})", "fixture");
 assert.deepEqual(
   sample.map(({ fields }) => fields),
