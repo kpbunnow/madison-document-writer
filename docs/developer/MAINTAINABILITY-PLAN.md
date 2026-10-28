@@ -369,3 +369,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Import and catalog owners now read their view/work fields through the existing editor boundary. Independent import/catalog services, cached review checks, seven original import scenarios and 27 language assertions pass. The import fixture emits the existing JSDOM scrollTo-not-implemented diagnostic but completes every assertion; no runtime adapter or assertion was changed. Explicit view captures remain original pointers. Direct root-state importers fall 71 to 69 and cycles remain zero.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 lifecycle editor-state callers
+
+Screen repaint, recovery, handoff, navigation, device persistence and exit owners use the existing editor state boundary. Automatic/case recovery, handoff, screen dependency and desktop exit assertions pass unchanged, including deferred work, rollback retention and original startup barriers. No view pointer is copied or initialized. Direct root importers remain 69 because mixed workspace/helper fields are still direct; cycles remain zero.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor, kase } from "./writer_queries.js";
@@ -36,9 +37,9 @@ export function createAutomaticRecovery(services) {
   function recoveryIncluded(cid) {
     const ds = WriterState.DOCS.filter((d) => d.draft && d.caseId === cid),
       rs = WriterState.REINSP.filter((r) => r.draft && r.caseId === cid);
-    const acts = Object.values(WriterState.RECORD_ATTEMPTS).filter((x) => x.cid === cid);
+    const acts = Object.values(editor.RECORD_ATTEMPTS).filter((x) => x.cid === cid);
     const pending = WriterState.PENDING.filter((p) => p.cid === cid);
-    const forms = Object.keys(WriterState.WORK.recordForms || {}).filter((id) =>
+    const forms = Object.keys(editor.WORK.recordForms || {}).filter((id) =>
       WriterState.DOCS.some((d) => d.id === id.split(":")[0] && d.caseId === cid),
     );
     return [
@@ -68,14 +69,14 @@ export function createAutomaticRecovery(services) {
         docs: clone(b.docs.filter((d) => d.caseId === cid)),
         reinsp: clone(b.reinsp.filter((r) => r.caseId === cid)),
         events: { [cid]: clone(eventsFor(cid)) },
-        recordAttempts: Object.fromEntries(Object.entries(WriterState.RECORD_ATTEMPTS).filter(([, v]) => v.cid === cid)),
+        recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, v]) => v.cid === cid)),
         checkpoints: { [cid]: clone(WriterState.SAVE_CHECKPOINTS[cid] || null) },
         seq: b.seq,
         work: {
           entry: {},
           acc: null,
-          walk: WriterState.WORK.walk?.context?.startsWith(cid + "|") ? clone(WriterState.WORK.walk) : null,
-          recordForms: Object.fromEntries(Object.entries(WriterState.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === cid)),
+          walk: editor.WORK.walk?.context?.startsWith(cid + "|") ? clone(editor.WORK.walk) : null,
+          recordForms: Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === cid)),
         },
       },
       pending: clone(WriterState.PENDING.filter((p) => p.cid === cid)),
@@ -85,7 +86,7 @@ export function createAutomaticRecovery(services) {
   function recoveryJobs() {
     if (!services.RECOVERY_WORKSPACE) throw new Error("Browser workspace identity cannot be stored");
     const jobs = WriterState.CASES.filter((k) => recoveryIncluded(k.id).length).map((k) => ({ cid: k.id, key: recoveryCaseKey(k.id) }));
-    if (WriterState.state.acc || WriterState.WORK.acc || String(WriterState.WORK.entry?.["lookup-number"] || "").trim())
+    if (editor.state.acc || editor.WORK.acc || String(editor.WORK.entry?.["lookup-number"] || "").trim())
       jobs.push({ cid: null, key: "00000000000000000000000000000000" });
     return jobs.map((job) => {
       if (!job.key) throw new Error("Case backup identity cannot be stored");
@@ -108,7 +109,7 @@ export function createAutomaticRecovery(services) {
               recordAttempts: {},
               checkpoints: {},
               seq: WriterState.seq,
-              work: clone(WriterState.WORK),
+              work: clone(editor.WORK),
             },
             pending: [],
           };

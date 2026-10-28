@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 import { WriterState } from "./state.js";
 import { clone, byTime } from "./record_values.js";
@@ -19,8 +20,8 @@ export function createDraftPersistence(services) {
       reinsp: WriterState.REINSP.filter((r) => r.draft),
       cases: cases,
       events: events,
-      work: clone(WriterState.WORK),
-      recordAttempts: clone(WriterState.RECORD_ATTEMPTS),
+      work: clone(editor.WORK),
+      recordAttempts: clone(editor.RECORD_ATTEMPTS),
       integrityRecords: services.recordIntegrity.snapshot(),
       checkpoints: clone(WriterState.SAVE_CHECKPOINTS),
       seq: WriterState.seq,
@@ -30,33 +31,33 @@ export function createDraftPersistence(services) {
 
   async function saveDrafts() {
     if (!startup.WRITER_ACCESS || (!startup.WORKSPACE_RESTORED && !startup.WRITER_READY)) return false;
-    if (WriterState.WORK_PATCH) await WriterState.WORK_PATCH;
+    if (editor.WORK_PATCH) await editor.WORK_PATCH;
     services.captureWork();
-    const generation = ++WriterState.LOCAL_CHANGED,
+    const generation = ++editor.LOCAL_CHANGED,
       snapshot = clone(draftBundle());
-    WriterState.LOCAL_SAVE.saving = true;
+    editor.LOCAL_SAVE.saving = true;
     services.updateSaveStatus();
-    const task = WriterState.LOCAL_SAVE_CHAIN.then(() => services.idbSet("drafts", snapshot));
-    WriterState.LOCAL_SAVE_CHAIN = task.catch(() => false);
+    const task = editor.LOCAL_SAVE_CHAIN.then(() => services.idbSet("drafts", snapshot));
+    editor.LOCAL_SAVE_CHAIN = task.catch(() => false);
     const kept = await task;
-    if (generation === WriterState.LOCAL_CHANGED) {
-      WriterState.LOCAL_SAVE = { ok: kept, at: kept ? nowISO() : WriterState.LOCAL_SAVE.at, saving: false };
-      if (kept && !WriterState.draftTimer) WriterState.DIRTY = false;
+    if (generation === editor.LOCAL_CHANGED) {
+      editor.LOCAL_SAVE = { ok: kept, at: kept ? nowISO() : editor.LOCAL_SAVE.at, saving: false };
+      if (kept && !editor.draftTimer) WriterState.DIRTY = false;
       services.updateSaveStatus();
     }
-    if (kept && generation === WriterState.LOCAL_CHANGED) services.scheduleRecoveryBackup();
+    if (kept && generation === editor.LOCAL_CHANGED) services.scheduleRecoveryBackup();
     return kept;
   }
 
   async function restoreDrafts() {
     const b = await services.idbGet("drafts", services.IDB_OK);
     if (b && b.work) {
-      WriterState.WORK = b.work;
-      WriterState.WORK.entry = WriterState.WORK.entry || {};
-      WriterState.WORK.recordForms = WriterState.WORK.recordForms || {};
-      WriterState.state.acc = WriterState.WORK.acc || null;
+      editor.WORK = b.work;
+      editor.WORK.entry = editor.WORK.entry || {};
+      editor.WORK.recordForms = editor.WORK.recordForms || {};
+      editor.state.acc = editor.WORK.acc || null;
     }
-    if (b && b.recordAttempts) WriterState.RECORD_ATTEMPTS = b.recordAttempts;
+    if (b && b.recordAttempts) editor.RECORD_ATTEMPTS = b.recordAttempts;
     if (b && b.checkpoints && typeof b.checkpoints === "object") WriterState.SAVE_CHECKPOINTS = b.checkpoints;
     if (!b || !Array.isArray(b.cases)) return;
     if (typeof b.seq === "number") WriterState.seq = Math.max(WriterState.seq, b.seq);

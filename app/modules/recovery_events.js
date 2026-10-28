@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 /* Recovery event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
@@ -12,19 +13,19 @@ export function createRecoveryEvents(services) {
       (e) => {
         const el = e.target;
         if (services.ENTRY_IDS.includes(el.id)) {
-          WriterState.WORK.entry[el.id] = el.value;
+          editor.WORK.entry[el.id] = el.value;
           services.scheduleDraftSave();
           return;
         }
         if (["record-action-text", "record-action-external", "record-action-inspector"].includes(el.id)) {
           const key = services.recordFormKey(),
             field = { "record-action-text": "text", "record-action-external": "external", "record-action-inspector": "actor" }[el.id];
-          WriterState.WORK.recordForms[key] = { ...(WriterState.WORK.recordForms[key] || {}), [field]: el.value };
+          editor.WORK.recordForms[key] = { ...(editor.WORK.recordForms[key] || {}), [field]: el.value };
           services.scheduleDraftSave();
           return;
         }
         if (el.id === "fin-mailed") {
-          const d = doc(WriterState.state.docId);
+          const d = doc(editor.state.docId);
           if (d && !services.isLocked(d)) {
             services.initialCitations.mailed(d, el.value);
             services.scheduleDraftSave();
@@ -43,7 +44,7 @@ export function createRecoveryEvents(services) {
       "change",
       (e) => {
         if (services.ENTRY_IDS.includes(e.target.id)) {
-          WriterState.WORK.entry[e.target.id] = e.target.value;
+          editor.WORK.entry[e.target.id] = e.target.value;
           services.scheduleDraftSave();
         }
       },
@@ -83,16 +84,16 @@ export function createRecoveryEvents(services) {
           const key = button.dataset.worknote,
             cut = key.lastIndexOf(":"),
             d = doc(key.slice(0, cut));
-          if (d && WriterState.WORK.recordForms[key]) {
-            WriterState.state.docId = d.id;
-            WriterState.state.screen = "write";
-            WriterState.state.modal = key.slice(cut + 1);
+          if (d && editor.WORK.recordForms[key]) {
+            editor.state.docId = d.id;
+            editor.state.screen = "write";
+            editor.state.modal = key.slice(cut + 1);
             services.render();
           }
           return;
         }
         if (button.id === "btn-retryfiling") {
-          const d = doc(WriterState.state.docId);
+          const d = doc(editor.state.docId);
           if (d && !d.draft) {
             button.disabled = true;
             // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
@@ -109,26 +110,26 @@ export function createRecoveryEvents(services) {
           return;
         }
         if (button.id === "btn-continuecitation") {
-          const d = doc(WriterState.state.docId);
+          const d = doc(editor.state.docId);
           if (services.needsInitialCitation(d)) {
             const next = services.citationFromNotice(d.id);
             if (next) {
-              WriterState.state.docId = next.id;
-              WriterState.state.screen = "write";
+              editor.state.docId = next.id;
+              editor.state.screen = "write";
               services.render();
             }
           }
           return;
         }
         if (button.id === "btn-retrypublish") {
-          services.publishDocument(doc(WriterState.state.docId));
+          services.publishDocument(doc(editor.state.docId));
           return;
         }
         if (button.id === "btn-editvisit") {
-          services.returnToWorksheet(doc(WriterState.state.docId));
+          services.returnToWorksheet(doc(editor.state.docId));
           return;
         }
-        const r = reinsp(WriterState.state.reinspId);
+        const r = reinsp(editor.state.reinspId);
         if (button.id === "btn-previousdraft") {
           services.restorePreviousDraft(r);
           return;
@@ -172,7 +173,7 @@ export function createRecoveryEvents(services) {
       }
       if (t.hasAttribute("data-recovery-shared")) {
         const k = recovery.RECOVERY.selected?.bundle?.cases?.[0];
-        WriterState.state.modal = null;
+        editor.state.modal = null;
         if (k)
           services
             .helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))
