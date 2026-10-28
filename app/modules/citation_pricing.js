@@ -21,6 +21,130 @@ import {
 } from "./citation_policy.js";
 import { authFetch } from "./helper_transport.js";
 /* Mutable drafts only. Frozen documents and pending save identities are untouched. */
+function refreshDraftDepositRequests(services, key, d) {
+  for (const [id, request] of Object.entries(d.depositRequests || {})) {
+    const item = d.items.find((i) => i.id === id && i.cite && !i.withdrawn);
+    // R59: a charge still being typed is priced when it is committed, as for drafted citations below.
+    if (!item || Object.hasOwn(request, "ordEditingFrom")) continue;
+    const price = resolveCitationAmount({
+      ordinance: request.ord,
+      libraryItem: key(item),
+      entryId: request.scheduleEntryId,
+      tier: request.tier || 1,
+      date: services.citationPricingDate(request, d),
+      measurements: request.measurements || {},
+    });
+    if (price.kind === "priced" && !request.measurementFields?.length) {
+      d.cits = d.cits || {};
+      d.cits[id] = { ...request, ...price, depositMode: "schedule" };
+      delete d.cits[id].kind;
+      delete d.cits[id].reason;
+      delete d.cits[id].reconfirmDeposit;
+      delete d.depositRequests[id];
+    } else if (price.kind === "needs-measurement") {
+      request.measurementFields = price.fields;
+      request.reason = price.reason;
+    }
+  }
+}
+
+function refreshPricingWarning(c, f, date, history) {
+  c.pricingWarning = history.some((x) => x.differentOwner)
+    ? "Prior citation at this property was issued to a different owner"
+    : f?.rule?.priorCitationWarningDays && history.some((x) => daysBetween(x.date, date) < f.rule.priorCitationWarningDays)
+      ? "A prior " + c.ord + " citation for this respondent is under 90 days old."
+      : "";
+}
+
+function refreshPricingSiteMatch(d, c, f, respondent) {
+  const siteWindow = f && (f.window === "site" || f.window?.kind === "site-season");
+  if (siteWindow && d.authoringVersion >= 10) {
+    c.siteMatch = siteBasis(respondent);
+    const what = f.window?.kind === "site-season" ? "Prior snow citations" : "Prior citations at this property";
+    const note =
+      c.siteMatch === "address"
+        ? "Matched prior citations by address; no parcel number."
+        : c.siteMatch === "unavailable"
+          ? what + " could not be checked for this property."
+          : "";
+    if (note) c.pricingWarning = (c.pricingWarning ? c.pricingWarning + ". " : "") + note;
+  } else delete c.siteMatch;
+}
+
+function refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged) {
+  const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
+    date = c.violDate || services.inspAt(d).date;
+  const history = priorOffenses({
+    ordinanceEntry: f,
+    respondent,
+    parcel: normParcel(respondent.parcel) || respondent.address,
+    violationDate: date,
+    excludeId: d.correction?.targetId || d.id,
+    staged,
+  });
+  c.countedOffenses = history;
+  c.computedTier = history.length + 1;
+
+  refreshPricingWarning(c, f, date, history);
+  refreshPricingSiteMatch(d, c, f, respondent);
+  return { f, date };
+}
+
+function refreshDraftManualPrice(services, d, c) {
+  if (c.depositMode && c.depositMode !== "schedule") {
+    const at = services.citationPricingDate(c, d);
+    try {
+      if (c.depositMode === "total") delete c.assessments;
+      c.pricedOn = at;
+      c.policyVersionHash = CITATION_POLICY.versionHash;
+    } catch (error) {
+      /* The date check identifies incomplete dates. */
+    }
+  }
+}
+
+function applyDraftScheduledPrice(d, i, c, priced) {
+  if (priced.kind === "priced") {
+    Object.assign(c, priced);
+    delete c.kind;
+    delete c.reconfirmDeposit;
+  } else if (priced.kind !== "needs-measurement" && cents(c.amount) > 0) {
+    c.reconfirmDeposit = true;
+    c.depositReason = priced.reason;
+  } else {
+    d.depositRequests = d.depositRequests || {};
+    d.depositRequests[i.id] = { ...c, reason: priced.reason, measurementFields: priced.fields || [] };
+    delete d.cits[i.id];
+  }
+}
+
+function refreshDraftPriceDescription(services, d, i, c, f, priced) {
+  if (priced.rowDescription && (!c.descEdited || priced.rowSelectionNotice)) c.desc = priced.rowDescription.toUpperCase().replace(/\.$/, "");
+  else if (!c.descEdited)
+    c.desc = String(services.snow.is(d) ? CITATION_POLICY.snowDefaultDescription : i.title || f?.desc || "")
+      .toUpperCase()
+      .replace(/\.$/, "");
+}
+
+function refreshDraftScheduledPrice(services, key, d, i, c, f) {
+  if ((c.depositMode || "schedule") === "schedule") {
+    const ordinal = String(c.tierOverrideSource || "").trim().length >= 10 ? tierOrdinal(c.tierOverride) : c.computedTier;
+    c.tier = tierLabel(ordinal);
+
+    const priced = resolveCitationAmount({
+      ordinance: c.ord,
+      libraryItem: key(i),
+      entryId: c.scheduleEntryId,
+      tier: ordinal,
+      date: services.citationPricingDate(c, d),
+      measurements: c.measurements || {},
+    });
+
+    applyDraftScheduledPrice(d, i, c, priced);
+    refreshDraftPriceDescription(services, d, i, c, f, priced);
+  }
+}
+
 export function initCitationPricing(services) {
   let shared = [],
     busy = null,
@@ -108,30 +232,7 @@ export function initCitationPricing(services) {
     if (localHistorySignature && current !== localHistorySignature) loadedAt = 0;
     localHistorySignature = current;
     d.authoringVersion = Math.max(11, d.authoringVersion || 0);
-    for (const [id, request] of Object.entries(d.depositRequests || {})) {
-      const item = d.items.find((i) => i.id === id && i.cite && !i.withdrawn);
-      // R59: a charge still being typed is priced when it is committed, as for drafted citations below.
-      if (!item || Object.hasOwn(request, "ordEditingFrom")) continue;
-      const price = resolveCitationAmount({
-        ordinance: request.ord,
-        libraryItem: key(item),
-        entryId: request.scheduleEntryId,
-        tier: request.tier || 1,
-        date: services.citationPricingDate(request, d),
-        measurements: request.measurements || {},
-      });
-      if (price.kind === "priced" && !request.measurementFields?.length) {
-        d.cits = d.cits || {};
-        d.cits[id] = { ...request, ...price, depositMode: "schedule" };
-        delete d.cits[id].kind;
-        delete d.cits[id].reason;
-        delete d.cits[id].reconfirmDeposit;
-        delete d.depositRequests[id];
-      } else if (price.kind === "needs-measurement") {
-        request.measurementFields = price.fields;
-        request.reason = price.reason;
-      }
-    }
+    refreshDraftDepositRequests(services, key, d);
     const respondent = docCase(d),
       staged = [];
     for (const i of d.items.filter((i) => i.cite && !i.withdrawn)) {
@@ -143,75 +244,10 @@ export function initCitationPricing(services) {
         continue;
       }
       delete c.historicalDeposit;
-      const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
-        date = c.violDate || services.inspAt(d).date;
-      const history = priorOffenses({
-        ordinanceEntry: f,
-        respondent,
-        parcel: normParcel(respondent.parcel) || respondent.address,
-        violationDate: date,
-        excludeId: d.correction?.targetId || d.id,
-        staged,
-      });
-      c.countedOffenses = history;
-      c.computedTier = history.length + 1;
-      c.pricingWarning = history.some((x) => x.differentOwner)
-        ? "Prior citation at this property was issued to a different owner"
-        : f?.rule?.priorCitationWarningDays && history.some((x) => daysBetween(x.date, date) < f.rule.priorCitationWarningDays)
-          ? "A prior " + c.ord + " citation for this respondent is under 90 days old."
-          : "";
-      const siteWindow = f && (f.window === "site" || f.window?.kind === "site-season");
-      if (siteWindow && d.authoringVersion >= 10) {
-        c.siteMatch = siteBasis(respondent);
-        const what = f.window?.kind === "site-season" ? "Prior snow citations" : "Prior citations at this property";
-        const note =
-          c.siteMatch === "address"
-            ? "Matched prior citations by address; no parcel number."
-            : c.siteMatch === "unavailable"
-              ? what + " could not be checked for this property."
-              : "";
-        if (note) c.pricingWarning = (c.pricingWarning ? c.pricingWarning + ". " : "") + note;
-      } else delete c.siteMatch;
-      if (c.depositMode && c.depositMode !== "schedule") {
-        const at = services.citationPricingDate(c, d);
-        try {
-          if (c.depositMode === "total") delete c.assessments;
-          c.pricedOn = at;
-          c.policyVersionHash = CITATION_POLICY.versionHash;
-        } catch (error) {
-          /* The date check identifies incomplete dates. */
-        }
-      }
-      if ((c.depositMode || "schedule") === "schedule") {
-        const ordinal = String(c.tierOverrideSource || "").trim().length >= 10 ? tierOrdinal(c.tierOverride) : c.computedTier;
-        c.tier = tierLabel(ordinal);
+      const { f, date } = refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged);
+      refreshDraftManualPrice(services, d, c);
+      refreshDraftScheduledPrice(services, key, d, i, c, f);
 
-        const priced = resolveCitationAmount({
-          ordinance: c.ord,
-          libraryItem: key(i),
-          entryId: c.scheduleEntryId,
-          tier: ordinal,
-          date: services.citationPricingDate(c, d),
-          measurements: c.measurements || {},
-        });
-        if (priced.kind === "priced") {
-          Object.assign(c, priced);
-          delete c.kind;
-          delete c.reconfirmDeposit;
-        } else if (priced.kind !== "needs-measurement" && cents(c.amount) > 0) {
-          c.reconfirmDeposit = true;
-          c.depositReason = priced.reason;
-        } else {
-          d.depositRequests = d.depositRequests || {};
-          d.depositRequests[i.id] = { ...c, reason: priced.reason, measurementFields: priced.fields || [] };
-          delete d.cits[i.id];
-        }
-        if (priced.rowDescription && (!c.descEdited || priced.rowSelectionNotice)) c.desc = priced.rowDescription.toUpperCase().replace(/\.$/, "");
-        else if (!c.descEdited)
-          c.desc = String(services.snow.is(d) ? CITATION_POLICY.snowDefaultDescription : i.title || f?.desc || "")
-            .toUpperCase()
-            .replace(/\.$/, "");
-      }
       if (f && c.ord) staged.push({ entryId: f.id, date, number: c.num });
     }
   }
