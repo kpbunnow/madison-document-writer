@@ -579,3 +579,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Catalog publication delegates review-history loading and selected-item checks while retaining manifest-before-review reads, latest-by-key ordering, approved replacements and selection refusal precedence. Inherited history and corrections still return before any file access. Coordinator McCabe complexity falls from 16 to 5; review loading is 5 and item validation is 8. The 3,000-context differential corpus, five original R22 helper tests, scoped-publication and history comparisons, required Ruff F checks and formatting pass. No approved language, format, release identity, trust or print change.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 29} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 28}.
+
+## M2 citation base calculation phases
+
+Base-price calculation separates measurement validation and measured-rule evaluation after the unchanged readiness/fixed-tier/mandatory boundaries. Original arithmetic, band ordering, bounds, boolean/whole-number checks and tree-alternative exception remain. Coordinator McCabe complexity falls from 17 to 6; helpers are 6 and 8. Policy-row/generated comparisons include malformed, infinite and NaN measurements. Four original R32 pricing tests, existing authoring/history comparisons and the unchanged JS/Python pricing parity suite pass, as do required Ruff F checks and formatting. Policy data, print output, historical values, identities and authority are unchanged.
+
+Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 28} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 27}.
