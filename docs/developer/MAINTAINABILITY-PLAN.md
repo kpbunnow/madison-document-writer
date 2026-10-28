@@ -735,3 +735,9 @@ Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 12
 Converted editor workspace composition and named sections to escaped screen templates. Case/document identities, section labels and status counts escape by default; raw is limited to the existing owned renderers and composed section bodies. Retained panel/service order, live structural-edit checks and exact screen output. All 2031 independent frozen screen/Review comparisons pass, as do class/style, escaping/print exclusion, screen dependencies, ESLint and formatting. This completes the editor screen markup conversion; no CSS, approved wording data or printed renderer changes.
 
 Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## citation-measurement-validation
+
+Separated measurement eligibility from schedule rule arithmetic while retaining the tiers shortcut and original ordered field reads. Added an exact pre-change private-rule reference and 624 direct measurement boundary cases; all 8917 amount/input-read comparisons and 624 direct cases pass before/after extraction. R32 JavaScript/Python pricing parity and automatic draft workflow pass against a fresh build, plus module boundaries, seam inventory, ESLint and formatting. Private rule is exported only inside the isolated test compilation; production API is unchanged.
+
+Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.

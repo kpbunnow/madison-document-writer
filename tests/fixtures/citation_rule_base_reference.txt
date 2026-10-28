@@ -1,0 +1,26 @@
+function ruleBase(entry, tier, measurements = {}) {
+  const r = entry.rule,
+    m = measurements;
+  if (!r) return null;
+  if (r.kind === "tiers") return r.amountsCents[Math.min(tierOrdinal(tier), r.amountsCents.length) - 1];
+  for (const f of entry.measurements || []) {
+    if (r.kind === "tree-alternative" && f.key === "diameter" && m.removed === false) continue;
+    const v = m[f.key];
+    if (f.boolean) {
+      if (typeof v !== "boolean") return null;
+    } else if (typeof v !== "number" || !Number.isFinite(v) || v < (f.min ?? 0) || v > (f.max ?? Infinity) || (f.whole && !Number.isInteger(v)))
+      return null;
+  }
+  if (r.kind === "per-inch") return m.diameter * r.perInchCents;
+  if (r.kind === "tree-alternative") return m.removed ? m.diameter * r.perInchCents : r.offenseCents;
+  if (r.kind === "tree-increment")
+    return r.initialCents + Math.min(m.diameter, r.threshold) * r.firstInchCents + Math.max(0, m.diameter - r.threshold) * r.laterInchCents;
+  if (r.kind === "building-duration") return r[m.area >= r.areaThreshold ? "largeCents" : "smallCents"][m.days >= r.daysThreshold ? 1 : 0];
+  if (r.kind === "bands") {
+    const n = m[r.field];
+    return (
+      r.bands.find((b) => (b.minExclusive ? n > b.min : n >= b.min) && (b.max == null || (b.maxInclusive ? n <= b.max : n < b.max)))?.cents ?? null
+    );
+  }
+  return null;
+}

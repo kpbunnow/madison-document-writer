@@ -12,7 +12,7 @@ const assert = require("node:assert/strict"),
     reference = fs.readFileSync("tests/fixtures/citation_resolution_reference.txt", "utf8");
   async function compile(contents) {
     const built = await esbuild.build({
-      stdin: { contents, resolveDir: path.resolve("app/modules") },
+      stdin: { contents: contents + "\nexport {ruleBase};", resolveDir: path.resolve("app/modules") },
       bundle: true,
       write: false,
       format: "cjs",
@@ -29,7 +29,15 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  const baseFn = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }).body.find((n) => n.id?.name === "ruleBase");
+  const baseReference = fs.readFileSync("tests/fixtures/citation_rule_base_reference.txt", "utf8");
+  let retained = source;
+  for (const [node, text] of [
+    [fn, reference],
+    [baseFn, baseReference],
+  ].sort((a, b) => b[0].start - a[0].start))
+    retained = retained.slice(0, node.start) + text + retained.slice(node.end);
+  const [current, legacy] = await Promise.all([compile(source), compile(retained)]);
   let seed = 20261031,
     checked = 0;
   const random = (n) => {
@@ -102,7 +110,29 @@ const assert = require("node:assert/strict"),
     if (n < 100) for (const failAt of [1, 5, 10, 15]) compare(input, failAt);
   }
   for (const input of [undefined, null, false, {}, { date: "2026-10-24" }]) compare(input);
-  console.log("PASS citation resolution equivalence " + checked + " scenarios: policy rows, measurements, dates, property reads and exceptions");
+  let measured = 0;
+  for (const row of rows)
+    for (const field of row.measurements || [{ key: "unused" }])
+      for (const value of [undefined, null, false, true, -1, 0, 1, 15, 99999, 100000, Infinity, NaN, "1"])
+        for (const tier of [1, 2, 8]) {
+          const measurements = Object.fromEntries((row.measurements || []).map((f) => [f.key, f.boolean ? true : (f.min ?? 1)]));
+          measurements[field.key] = value;
+          const outcome = (api) => {
+            try {
+              return { value: api.ruleBase(row, tier, measurements) };
+            } catch (e) {
+              return { error: [e.name, e.message] };
+            }
+          };
+          assert.deepEqual(outcome(current), outcome(legacy), "measurement scenario " + measured++);
+        }
+  console.log(
+    "PASS citation resolution equivalence " +
+      checked +
+      " scenarios and " +
+      measured +
+      " direct measurement cases: policy rows, boundaries, dates, property reads and exceptions",
+  );
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
