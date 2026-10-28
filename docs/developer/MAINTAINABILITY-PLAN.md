@@ -759,3 +759,9 @@ Measured counts: {'complexity': 69, 'max-depth': 0, 'max-lines-per-function': 12
 Separated case/visit selection, administrative family switching, special-field editing and affected-item editing into private scoped handlers. The coordinator retains original lookups, first-match order and special-document lock guard. All 2000 frozen state/DOM/service-order scenarios pass before/after, plus 5000 special-rule scenarios, independent writer feature boundaries, every extension feature scenario, R62 all-item extensions and R32 pricing parity on a fresh build. Boundaries, seams, ESLint and formatting pass. No public factory inputs, authoring identities, assertions or approved wording changes.
 
 Measured counts: {'complexity': 68, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 67, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
+
+## admin-override-phases
+
+Separated administrator authorization shape, citation binding and history/measurement binding into private ordered validators. Kept eager document-case resolution before the absent-basis shortcut, first refusal text and short-circuit field reads. All 3520 frozen comparison scenarios pass before/after extraction. Writer feature boundaries retain listener construction and override binding; module boundaries, seams, ESLint and formatting pass. Production API, authorization receipts, helper authority and format identities are unchanged.
+
+Measured counts: {'complexity': 67, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
