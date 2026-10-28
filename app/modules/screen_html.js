@@ -6,7 +6,7 @@ export function raw(value) {
   fragments.set(marker, String(value));
   return marker;
 }
-export function html(strings, ...values) {
+function escapedScreenMarkup(strings, ...values) {
   let markup = strings[0];
   values.forEach((value, index) => {
     markup += fragments.has(value) ? fragments.get(value) : esc(value);
@@ -14,3 +14,6 @@ export function html(strings, ...values) {
   });
   return markup;
 }
+
+// Keep the public tag name while avoiding lexical collisions in retained bundle consumers.
+export { escapedScreenMarkup as html };
