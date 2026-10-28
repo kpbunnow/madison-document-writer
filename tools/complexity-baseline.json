@@ -139,7 +139,7 @@
     "app/modules/reinspection.js:createReinspection#1/recordReinspectionOutcome#1:complexity": 21,
     "app/modules/reports_core.js:anonymous#5:complexity": 46,
     "app/modules/reports_core.js:anonymous#5:max-lines-per-function": 173,
-    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 1049,
+    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 1029,
     "app/modules/reports_screens.js:createReportsScreens#1/caseCard#1:max-lines-per-function": 130,
     "app/modules/reports_screens.js:createReportsScreens#1/dataView#1:max-lines-per-function": 104,
     "app/modules/reports_screens.js:createReportsScreens#1/filtersBar#1:max-lines-per-function": 86,
