@@ -380,6 +380,37 @@ function reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max) {
     .join("");
 }
 
+function reportCaseTimeline(services, c) {
+  return c.documents
+    .map((d) => ({
+      d: d.effectiveFrom || d.issued,
+      t:
+        '<span class="' +
+        `${d.void ? "void" : ""}` +
+        '">' +
+        `${services.esc(d.label)}` +
+        "" +
+        `${d.revision ? " · revision " + services.esc(d.revision.number) : ""}` +
+        "</span>" +
+        `${d.superseded ? " (replaced)" : ""}` +
+        "" +
+        `${d.revision ? " — " + services.esc(d.revision.reason) : ""}` +
+        "" +
+        `${d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : ""}` +
+        "" +
+        `${d.by ? ' <span class="small">' + services.esc(d.by) + "</span>" : ""}` +
+        "",
+    }))
+    .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + services.esc(n.text) }))))
+    .concat(
+      c.visits.map((v) => ({
+        d: v.date,
+        t: "Reinspection" + (v.inspector ? ' <span class="small">' + services.esc(v.inspector) + "</span>" : ""),
+      })),
+    )
+    .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -931,34 +962,7 @@ export function createReportsScreens(services) {
 
   function caseCard(c) {
     const outc = { corrected: "Corrected", progress: "Progress made", none: "No change", noaccess: "No access" };
-    const ev = c.documents
-      .map((d) => ({
-        d: d.effectiveFrom || d.issued,
-        t:
-          '<span class="' +
-          `${d.void ? "void" : ""}` +
-          '">' +
-          `${services.esc(d.label)}` +
-          "" +
-          `${d.revision ? " · revision " + services.esc(d.revision.number) : ""}` +
-          "</span>" +
-          `${d.superseded ? " (replaced)" : ""}` +
-          "" +
-          `${d.revision ? " — " + services.esc(d.revision.reason) : ""}` +
-          "" +
-          `${d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : ""}` +
-          "" +
-          `${d.by ? ' <span class="small">' + services.esc(d.by) + "</span>" : ""}` +
-          "",
-      }))
-      .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + services.esc(n.text) }))))
-      .concat(
-        c.visits.map((v) => ({
-          d: v.date,
-          t: "Reinspection" + (v.inspector ? ' <span class="small">' + services.esc(v.inspector) + "</span>" : ""),
-        })),
-      )
-      .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
+    const ev = reportCaseTimeline(services, c);
     return (
       '<div class="card-case"><div class="cc-h"><div><h3>' +
       `${services.esc(c.address)}` +
