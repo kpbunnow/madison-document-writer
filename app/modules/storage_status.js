@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
 import { esc, fmtDate } from "./presentation_format.js";
 import { BUILD } from "./data/build_identity.js";
@@ -70,7 +71,7 @@ export function createStorageStatus(services) {
   }
 
   function reindexReport() {
-    const r = WriterState.state.reindex;
+    const r = editor.state.reindex;
     if (!r) return "";
     if (r.running)
       return (

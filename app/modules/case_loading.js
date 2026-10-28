@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseFileFault, mergeCaseDetails } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
 import { clone } from "./record_values.js";
@@ -77,7 +78,7 @@ export function createCaseLoading(services) {
       return null;
     }
     const inc = f["case"];
-    WriterState.state.screen = "cases";
+    editor.state.screen = "cases";
     WriterState.DIRTY = false;
     services.render();
     const st = replay(k.id);

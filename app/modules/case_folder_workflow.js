@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { caseFile, caseNumberAllowed } from "./case_records.js";
 import { caseFileFault, summaryName } from "./case_file_rules.js";
 import { migrate } from "./case_migrations.js";
@@ -37,7 +38,7 @@ export function createCaseFolderWorkflow(services) {
     }
     const files = (await listCaseFolder()).filter((x) => x.name.charAt(0) !== "_");
     const out = { written: 0, refused: [], failed: [], total: files.length, at: nowISO() };
-    WriterState.state.reindex = { running: true, done: 0, total: files.length };
+    editor.state.reindex = { running: true, done: 0, total: files.length };
     services.render();
     for (let n = 0; n < files.length; n++) {
       const nm = files[n].name;
@@ -64,9 +65,9 @@ export function createCaseFolderWorkflow(services) {
       const r = await services.writeIndexFile(summaryName(f["case"]), body);
       if (r.ok) out.written++;
       else out.failed.push(nm + " \u2014 " + r.why);
-      WriterState.state.reindex.done = n + 1;
+      editor.state.reindex.done = n + 1;
     }
-    WriterState.state.reindex = out;
+    editor.state.reindex = out;
     WriterState.LASTINDEX = {
       name: out.written + " of " + out.total + " case files",
       ok: !out.failed.length,
@@ -107,7 +108,7 @@ export function createCaseFolderWorkflow(services) {
       }
     } catch (e) {
       services.toast("Could not read the case folder — " + (e.message || e));
-      WriterState.state.folderError = e.message || String(e);
+      editor.state.folderError = e.message || String(e);
     }
     return out.sort((a, b) => b.mod - a.mod);
   }

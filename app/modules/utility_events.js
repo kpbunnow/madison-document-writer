@@ -1,8 +1,8 @@
+import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 /* Utility event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { reinsp, doc } from "./writer_queries.js";
-import { WriterState } from "./state.js";
 export function createUtilityEvents(services) {
   function registerHelpClicks(target = document) {
     return registerEventOnce(target, "utility.registerHelpClicks", "click", (e) => {
@@ -36,9 +36,7 @@ export function createUtilityEvents(services) {
     return registerEventOnce(target, "utility.registerCheckLinks", "click", (e) => {
       const b = e.target.closest("[data-check-index]");
       if (!b) return;
-      const list = b.dataset.checkWorksheet
-        ? services.worksheetChecks(reinsp(WriterState.state.reinspId))
-        : services.checks(doc(WriterState.state.docId));
+      const list = b.dataset.checkWorksheet ? services.worksheetChecks(reinsp(editor.state.reinspId)) : services.checks(doc(editor.state.docId));
       const c = list[+b.dataset.checkIndex],
         target = c?.targets?.[+b.dataset.checkTarget];
       if (target) {
@@ -89,13 +87,13 @@ export function createUtilityEvents(services) {
     return registerEventOnce(target, "utility.registerDismissKey", "keydown", (e) => {
       if (
         e.key === "Escape" &&
-        (WriterState.state.picker || WriterState.state.modal) &&
-        !WriterState.AMENDMENT_BUSY &&
+        (editor.state.picker || editor.state.modal) &&
+        !editor.AMENDMENT_BUSY &&
         !imports.LOOKUP_BUSY &&
-        !WriterState.RESOLUTION_BUSY
+        !editor.RESOLUTION_BUSY
       ) {
-        WriterState.state.picker = false;
-        WriterState.state.modal = null;
+        editor.state.picker = false;
+        editor.state.modal = null;
         services.render();
       }
     });

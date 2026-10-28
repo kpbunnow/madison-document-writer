@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Workspace task presentation consumes existing record and artifact facts; no action or persistence authority. */
 import { DOC_TYPES } from "./document_types.js";
 import { docsFor, effectiveFiled, kase } from "./writer_queries.js";
@@ -23,7 +24,7 @@ export function createWorkspaceTasks(services) {
         .map((d) => caseTask(x, "Document save confirmation", `data-open="${dep_esc(d.id)}"`)),
     );
     const pendingRecords = rows.flatMap((x) =>
-      Object.entries(WriterState.RECORD_ATTEMPTS)
+      Object.entries(editor.RECORD_ATTEMPTS)
         .filter(([, a]) => a.cid === x.k.id)
         .map(([id]) => caseTask(x, "Record save confirmation", `data-resumerecord="${dep_esc(id)}"`)),
     );

@@ -192,7 +192,7 @@
     "app/modules/snow_cases.js:initSnow#1/prepare#1:complexity": 22,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 94,
     "app/modules/storage_status.js:createStorageStatus#1/storageReport#1:complexity": 24,
-    "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 101,
+    "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 99,
     "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 168,
     "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1:max-lines-per-function": 86,
     "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1/anonymous#1:max-lines-per-function": 84,

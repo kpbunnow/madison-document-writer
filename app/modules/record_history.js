@@ -1,7 +1,7 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { doc, docsFor, insp } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
-import { WriterState } from "./state.js";
 
 // Document-history and revision presentation only; no record actions or persistence.
 export function createRecordHistory(services) {
@@ -14,7 +14,7 @@ export function createRecordHistory(services) {
     const notes = d.annotations || [],
       follow = !!d.void,
       pending = follow && !d.reconciliation;
-    const finishing = !!WriterState.state.publicationBusy && doc(WriterState.state.publicationBusy)?.caseId === d.caseId;
+    const finishing = !!editor.state.publicationBusy && doc(editor.state.publicationBusy)?.caseId === d.caseId;
     return (
       '<section class="card record-history no-print"><div class="card-b"><h2>Do' +
       "cument record</h2>\n    " +
@@ -37,7 +37,7 @@ export function createRecordHistory(services) {
       ) +
       "\n    " +
       "".concat(
-        Object.values(WriterState.RECORD_ATTEMPTS)
+        Object.values(editor.RECORD_ATTEMPTS)
           .filter((x) => x.cid === d.caseId && x.pendingAmendment.payload.docId === d.id)
           .map(
             (x) =>

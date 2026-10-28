@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
 import { ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
@@ -54,7 +55,7 @@ export function createRecipientWorkflow(services) {
   }
 
   function addCC(cid) {
-    const current = doc(WriterState.state.docId),
+    const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.ccList = ccList(k).concat([{ name: "", addr: "", city: "" }]);
     WriterState.DIRTY = true;
@@ -62,7 +63,7 @@ export function createRecipientWorkflow(services) {
   }
 
   function removeCC(cid, ix) {
-    const current = doc(WriterState.state.docId),
+    const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.ccList = ccList(k).filter((_, n) => n !== ix);
     WriterState.DIRTY = true;
@@ -70,7 +71,7 @@ export function createRecipientWorkflow(services) {
   }
 
   function addEmail(cid) {
-    const current = doc(WriterState.state.docId),
+    const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.emails = emailList(k).concat([{ addr: "", kind: "Property Owner" }]);
     WriterState.DIRTY = true;
@@ -78,7 +79,7 @@ export function createRecipientWorkflow(services) {
   }
 
   function removeEmail(cid, ix) {
-    const current = doc(WriterState.state.docId),
+    const current = doc(editor.state.docId),
       k = current && current.caseId === cid && current.correction ? docCase(current) : kase(cid);
     k.emails = emailList(k).filter((_, n) => n !== ix);
     WriterState.DIRTY = true;

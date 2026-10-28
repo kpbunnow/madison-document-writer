@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
 import { inspAt } from "./inspection_facts.js";
 import { recordDay } from "../assets/shared.js";
@@ -93,9 +94,9 @@ export function createWorksheetWorkflow(services) {
     r.previousWorksheet = cleanVisit(r);
     r.docId = null;
     WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== d.id);
-    WriterState.state.reinspId = r.id;
-    WriterState.state.screen = "reinspect";
-    WriterState.state.modal = null;
+    editor.state.reinspId = r.id;
+    editor.state.screen = "reinspect";
+    editor.state.modal = null;
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
@@ -112,8 +113,8 @@ export function createWorksheetWorkflow(services) {
     delete r.previousWorksheet;
     WriterState.DOCS.unshift(d);
     r.docId = d.id;
-    WriterState.state.docId = d.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
@@ -129,16 +130,16 @@ export function createWorksheetWorkflow(services) {
       return false;
     }
     if (d) {
-      WriterState.state.docId = d.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = d.id;
+      editor.state.screen = "write";
       services.render();
       services.toast("This inspection has a document draft. Use Review inspection from that document before discarding the worksheet.");
       return false;
     }
     WriterState.REINSP = WriterState.REINSP.filter((x) => x.id !== id);
-    WriterState.state.reinspId = null;
+    editor.state.reinspId = null;
     services.clearWalk();
-    WriterState.WORK.walk = null;
+    editor.WORK.walk = null;
     services.saveDrafts();
     services.render();
     return true;

@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Retained PDF outbox and location verification; helper adapters retain file authority. */
 import { deliveredByCitation } from "./document_rules.js";
 import { effectiveFiled } from "./writer_queries.js";
@@ -133,7 +134,7 @@ export function createPdfArtifacts(services) {
     WriterState.ARTIFACT_IDENTITY = ids;
     if (!WriterState.HELPER) {
       for (const x of items) WriterState.ARTIFACT_VERIFY[x.docId] = "unavailable";
-      if (WriterState.state.screen === "cases") services.render();
+      if (editor.state.screen === "cases") services.render();
       return;
     }
 
@@ -183,7 +184,7 @@ export function createPdfArtifacts(services) {
     }
     WriterState.ARTIFACT_LOCATIONS = next;
     WriterState.ARTIFACT_VERIFY = status;
-    if (WriterState.state.screen === "cases") services.render();
+    if (editor.state.screen === "cases") services.render();
   }
 
   return { showOutbox, selectedOutbox, printOutbox, refreshArtifactLocations };

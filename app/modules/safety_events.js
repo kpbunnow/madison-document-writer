@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Safety event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { WriterState } from "./state.js";
@@ -6,11 +7,11 @@ import { esc } from "./presentation_format.js";
 import { deliveredByCitation } from "./document_rules.js";
 function openPendingSafetyAction(services, st) {
   if (st.pendingDoc) {
-    WriterState.state.docId = st.pendingDoc.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = st.pendingDoc.id;
+    editor.state.screen = "write";
     services.render();
   } else {
-    const holder = WriterState.RECORD_ATTEMPTS[st.pendingRecord.recordKey];
+    const holder = editor.RECORD_ATTEMPTS[st.pendingRecord.recordKey];
     if (holder) services.commitAmendment(holder.cid, holder.pendingAmendment, holder);
   }
 }
@@ -25,14 +26,14 @@ export function createSafetyEvents(services) {
       try {
         const data = new FormData(form);
         await services.helperJSON("/locks/release", {
-          number: WriterState.SAFETY_LOCK.number,
-          resource: WriterState.SAFETY_LOCK.resource,
-          token: WriterState.SAFETY_LOCK.token,
+          number: editor.SAFETY_LOCK.number,
+          resource: editor.SAFETY_LOCK.resource,
+          token: editor.SAFETY_LOCK.token,
           administrator: data.get("administrator"),
           reason: data.get("reason"),
           confirmed: data.get("confirmed") === "on",
         });
-        WriterState.SAFETY_LOCK.present = false;
+        editor.SAFETY_LOCK.present = false;
         services.showLock();
         services.toast("Released verified lock; audit note saved", { severity: "success" });
       } catch (error) {
@@ -77,7 +78,7 @@ export function createSafetyEvents(services) {
         } else if (t.hasAttribute("data-safety-pending")) {
           document.getElementById("utility-dialog")?.close();
           if (!WriterState.CASEDIR || WriterState.NEEDGRANT) {
-            WriterState.state.modal = "storage";
+            editor.state.modal = "storage";
             services.render();
           } else {
             await services.flushPending();
@@ -109,7 +110,7 @@ export function createSafetyEvents(services) {
                 "</p></details>",
             );
           } else if (t.dataset.safetyAction === "conflict") {
-            WriterState.state.modal = "shared-change";
+            editor.state.modal = "shared-change";
             services.render();
           } else if (t.dataset.safetyAction === "pending") {
             openPendingSafetyAction(services, st);
@@ -117,8 +118,8 @@ export function createSafetyEvents(services) {
             const d = docsFor(cid).find((x) => x.draft) || st.current;
             if (d) {
               await services.preflightCase(cid, "draft", () => {
-                WriterState.state.docId = d.id;
-                WriterState.state.screen = "write";
+                editor.state.docId = d.id;
+                editor.state.screen = "write";
                 services.render();
               });
             } else if (st.visit) {
@@ -134,14 +135,14 @@ export function createSafetyEvents(services) {
                 (!x.filedAt || !["shared", "local outbox"].includes(services.pdfTransferState(x))),
             );
             if (d) {
-              WriterState.state.docId = d.id;
-              WriterState.state.screen = "write";
+              editor.state.docId = d.id;
+              editor.state.screen = "write";
               services.render();
             }
           } else if (t.dataset.safetyAction === "outbox") {
             await services.showOutbox();
           } else if (t.dataset.safetyAction === "storage") {
-            WriterState.state.modal = "storage";
+            editor.state.modal = "storage";
             services.render();
           } else if (t.dataset.safetyAction === "save") await services.saveCaseFile(cid);
           else

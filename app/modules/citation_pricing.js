@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { normParcel } from "../assets/shared.js";
 
@@ -255,7 +256,7 @@ export function initCitationPricing(services) {
     if (!WriterState.HELPER?.ok || !WriterState.CASEDIR?.helper || Date.now() - loadedAt < 15000 || busy) return;
     const old = loadedAt;
     void loadShared(d).then((ok) => {
-      if (ok && loadedAt !== old && WriterState.state.docId === d.id && d.draft && !d.pendingAmendment) services.renderKeep();
+      if (ok && loadedAt !== old && editor.state.docId === d.id && d.draft && !d.pendingAmendment) services.renderKeep();
     });
   }
   const signature = (d) => JSON.stringify(Object.entries(d.cits || {}).map(([id, c]) => [id, c.tier, c.base, c.cc, c.amount, c.countedOffenses]));
@@ -289,10 +290,10 @@ export function initCitationPricing(services) {
   }
   document.addEventListener("click", (e) => {
     if (!e.target.closest?.("[data-refresh-citation-history]")) return;
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d || !d.draft || d.pendingAmendment) return;
     void loadShared(d, true).then((ok) => {
-      if (WriterState.state.docId !== d.id) return;
+      if (editor.state.docId !== d.id) return;
       if (!ok) services.toast("Shared citation history is unavailable. Reconnect and try Refresh citation history.");
       services.renderKeep();
     });
