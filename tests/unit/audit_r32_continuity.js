@@ -53,9 +53,8 @@ const assert = require("assert/strict"),
     document.getElementById("overlay").innerHTML = ui.recordActionModal();
   };
   createRecoveryEvents({
-    ENTRY_IDS: [],
-    recordFormKey: () => WriterState.state.docId + ":" + WriterState.state.modal,
-    scheduleDraftSave: () => {},
+    ui: { scheduleDraftSave: () => {} },
+    recovery: { ENTRY_IDS: [], recordFormKey: () => WriterState.state.docId + ":" + WriterState.state.modal },
   }).registerWorkingInput(document);
   render();
   replace = true;
