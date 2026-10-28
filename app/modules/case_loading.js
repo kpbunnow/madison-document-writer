@@ -7,6 +7,22 @@ import { bumpSeq, mergeCaseEvents, project, replay, rememberSaved } from "./case
 import { kase } from "./writer_queries.js";
 import { INSPECTORS } from "./data/inspectors.js";
 
+function loadedCaseMessage(inc, st, added) {
+  return (
+    "Loaded " +
+    inc.number +
+    " — " +
+    st.documents.length +
+    " document" +
+    (st.documents.length === 1 ? "" : "s") +
+    ", " +
+    st.reinspections.length +
+    " reinspection" +
+    (st.reinspections.length === 1 ? "" : "s") +
+    (added ? "" : " (nothing new)")
+  );
+}
+
 // Verification/load/rollback orchestration; helper trust and UI actions stay supplied.
 export function createCaseLoading(services) {
   function loadCaseFile(text, isSaved = true) {
@@ -85,19 +101,7 @@ export function createCaseLoading(services) {
     if (isSaved) rememberSaved(k, f);
     services.saveDrafts();
     services.refreshArtifactLocations();
-    services.toast(
-      "Loaded " +
-        inc.number +
-        " — " +
-        st.documents.length +
-        " document" +
-        (st.documents.length === 1 ? "" : "s") +
-        ", " +
-        st.reinspections.length +
-        " reinspection" +
-        (st.reinspections.length === 1 ? "" : "s") +
-        (added ? "" : " (nothing new)"),
-    );
+    services.toast(loadedCaseMessage(inc, st, added));
     return k;
   }
 

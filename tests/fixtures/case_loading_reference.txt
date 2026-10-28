@@ -1,0 +1,91 @@
+  function loadCaseFile(text, isSaved = true) {
+    let f;
+    try {
+      f = JSON.parse(text);
+    } catch (err) {
+      services.toast("That file is not readable JSON");
+      return null;
+    }
+    if (!f || f.format !== "madison-case-file" || !f["case"]) {
+      services.toast("Not a Madison case file");
+      return null;
+    }
+    if (f.schema >= 5 && !services.recordIntegrity.hasProof(f)) {
+      void services.recordIntegrity.verify(f).then(() => {
+        loadCaseFile(JSON.stringify(f), isSaved);
+      });
+      return null;
+    }
+    try {
+      f = migrate(f);
+    } catch (err) {
+      services.toast(err.message);
+      return null;
+    }
+    const fault = caseFileFault(f);
+    if (fault) {
+      services.toast("That case file was not loaded — " + fault);
+      return null;
+    }
+    // nothing is touched until the whole file has been accepted and replayed
+    const undo = {
+      events: clone(workspace.EVENTS),
+      cases: clone(workspace.CASES),
+      inspectors: INSPECTORS.length,
+      docs: workspace.DOCS.slice(),
+      reinsp: workspace.REINSP.slice(),
+    };
+    let k = null,
+      added = 0;
+    try {
+      bumpSeq(f);
+      (f.inspectors || []).forEach((i) => {
+        if (!INSPECTORS.some((x) => x.id === i.id || x.name === i.name)) INSPECTORS.push(i);
+      });
+      const inc = f["case"];
+      k = workspace.CASES.find((c) => c.number === inc.number);
+      if (!k) {
+        k = clone(inc);
+        workspace.CASES.push(k);
+      } else if (isSaved) {
+        const combined = mergeCaseDetails(k, inc, workspace.SAVE_CHECKPOINTS[k.id] && workspace.SAVE_CHECKPOINTS[k.id].case);
+        Object.keys(k).forEach((key) => delete k[key]);
+        Object.assign(k, combined);
+      }
+      added = mergeCaseEvents(k, f);
+      project();
+      if (workspace.DOCS.some((x) => !x || !Array.isArray(x.items))) throw new Error("a document did not replay");
+    } catch (err) {
+      workspace.EVENTS = undo.events;
+      workspace.CASES = undo.cases;
+      INSPECTORS.length = undo.inspectors;
+      workspace.DOCS = undo.docs;
+      workspace.REINSP = undo.reinsp;
+      project();
+      services.render();
+      services.toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
+      return null;
+    }
+    const inc = f["case"];
+    editor.state.screen = "cases";
+    workspace.DIRTY = false;
+    services.render();
+    const st = replay(k.id);
+    if (isSaved) rememberSaved(k, f);
+    services.saveDrafts();
+    services.refreshArtifactLocations();
+    services.toast(
+      "Loaded " +
+        inc.number +
+        " — " +
+        st.documents.length +
+        " document" +
+        (st.documents.length === 1 ? "" : "s") +
+        ", " +
+        st.reinspections.length +
+        " reinspection" +
+        (st.reinspections.length === 1 ? "" : "s") +
+        (added ? "" : " (nothing new)"),
+    );
+    return k;
+  }
