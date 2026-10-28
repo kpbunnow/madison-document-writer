@@ -63,6 +63,16 @@ function exactOrdinanceSelection(exact, entryId, charge, mapping) {
       };
 }
 
+function fallbackOrdinanceSelection(P, charge, mapping) {
+  // An enumerated ancestor never authorizes a subdivision by itself.
+  if (P.entries.some((e) => charge.startsWith(e.ordinance) && /^[\(\d]/.test(charge.slice(e.ordinance.length)))) return null;
+  const children = P.entries.filter((e) => e.ordinance.startsWith(charge + "("));
+  if (children.length === 1) return compatible(children[0], "child:" + children[0].ordinance, charge, mapping?.printedDescription);
+  const section = /^(\d+)\.(\d+)/.exec(charge),
+    fb = P.fallback.find((e) => e.ch.includes(section[1]) || e.sec.includes(section[0]));
+  return fb ? compatible({ ...fb, id: fb.id + ":" + charge }, "ladder", charge, mapping?.printedDescription) : null;
+}
+
 export function resolveOrdinance(value, libraryKey = "", entryId = "", date) {
   const P = date ? policyAt(date) : CITATION_POLICY;
   const charge = canonicalOrdinance(value);
@@ -79,13 +89,7 @@ export function resolveOrdinance(value, libraryKey = "", entryId = "", date) {
     exact = P.entries.filter((e) => e.ordinance === mapping.scheduleOrdinance);
     if (exact.length === 1) return compatible(exact[0], "mapped:" + mapping.scheduleOrdinance, charge, mapping.printedDescription);
   }
-  // An enumerated ancestor never authorizes a subdivision by itself.
-  if (P.entries.some((e) => charge.startsWith(e.ordinance) && /^[\(\d]/.test(charge.slice(e.ordinance.length)))) return null;
-  const children = P.entries.filter((e) => e.ordinance.startsWith(charge + "("));
-  if (children.length === 1) return compatible(children[0], "child:" + children[0].ordinance, charge, mapping?.printedDescription);
-  const section = /^(\d+)\.(\d+)/.exec(charge),
-    fb = P.fallback.find((e) => e.ch.includes(section[1]) || e.sec.includes(section[0]));
-  return fb ? compatible({ ...fb, id: fb.id + ":" + charge }, "ladder", charge, mapping?.printedDescription) : null;
+  return fallbackOrdinanceSelection(P, charge, mapping);
 }
 export function respondentKey(k) {
   const p = k.ownerAddressParsed;
