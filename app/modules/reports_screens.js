@@ -494,6 +494,12 @@ function reportCaseViolationRowsHTML(services, c, outc) {
     .join("");
 }
 
+function reportCoverageListHTML(services, l) {
+  return l.length
+    ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${services.esc(s)}</li>`).join("")}` + "</ul>"
+    : "";
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1150,10 +1156,7 @@ export function createReportsScreens(services) {
       M = ReportsState.S.M,
       a = ReportsState.S.areas || {};
     const unlocated = M.counted.filter((c) => !c.located);
-    const li = (l) =>
-      l.length
-        ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${services.esc(s)}</li>`).join("")}` + "</ul>"
-        : "";
+    const li = (l) => reportCoverageListHTML(services, l);
     const why = (c) =>
       !c.parcel
         ? "no parcel on the case"
