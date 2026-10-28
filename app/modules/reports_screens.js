@@ -120,6 +120,57 @@ function reportExportVisitRows(services, cases, A) {
   return visitRows;
 }
 
+function reportExportCitationRows(services, M, F, A) {
+  const citRows = [
+    [
+      "Citation number",
+      "Case number",
+      "Address",
+      "Area",
+      "Item",
+      "Ordinance",
+      "Description",
+      "Issued",
+      "Court date",
+      "Cash deposit",
+      "Tier",
+      "Issued by",
+      "Case workflow",
+      "Override administrator",
+      "Override reason",
+      "Override source",
+      "Override authorized (UTC)",
+    ],
+  ];
+  M.counted
+    .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
+    .forEach((c) =>
+      c.citations.forEach((x) => {
+        if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
+        citRows.push([
+          x.num,
+          c.number,
+          c.address,
+          A(c),
+          services.numOr(x.no),
+          x.ordinance,
+          x.desc,
+          services.D(x.issued),
+          services.D(x.courtDate),
+          x.amount == null ? null : { m: x.amount },
+          x.tier,
+          x.by,
+          c.caseType || "",
+          x.overrideBasis?.administrator || "",
+          x.overrideBasis?.reason || "",
+          x.overrideBasis?.sourceReference || "",
+          x.overrideBasis?.approvedAt || "",
+        ]);
+      }),
+    );
+  return citRows;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1180,53 +1231,7 @@ export function createReportsScreens(services) {
     const casesRows = reportExportCaseRows(services, cases);
     const vRows = reportExportViolationRows(services, cases, F, A);
     const visitRows = reportExportVisitRows(services, cases, A);
-    const citRows = [
-      [
-        "Citation number",
-        "Case number",
-        "Address",
-        "Area",
-        "Item",
-        "Ordinance",
-        "Description",
-        "Issued",
-        "Court date",
-        "Cash deposit",
-        "Tier",
-        "Issued by",
-        "Case workflow",
-        "Override administrator",
-        "Override reason",
-        "Override source",
-        "Override authorized (UTC)",
-      ],
-    ];
-    M.counted
-      .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
-      .forEach((c) =>
-        c.citations.forEach((x) => {
-          if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
-          citRows.push([
-            x.num,
-            c.number,
-            c.address,
-            A(c),
-            services.numOr(x.no),
-            x.ordinance,
-            x.desc,
-            services.D(x.issued),
-            services.D(x.courtDate),
-            x.amount == null ? null : { m: x.amount },
-            x.tier,
-            x.by,
-            c.caseType || "",
-            x.overrideBasis?.administrator || "",
-            x.overrideBasis?.reason || "",
-            x.overrideBasis?.sourceReference || "",
-            x.overrideBasis?.approvedAt || "",
-          ]);
-        }),
-      );
+    const citRows = reportExportCitationRows(services, M, F, A);
     const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
     M.counted
       .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
