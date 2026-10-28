@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Independent postal formatting and recipient workflow; retain normalization and correction scope. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -25,11 +26,11 @@ const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).decla
   e = entries.find((n) => n.id.name === "recipientWorkflow");
 assert.equal(e.init.callee.name, "createRecipientWorkflow");
 assert.deepEqual(
-  e.init.arguments[0].properties.map((p) => p.key.name),
+  serviceComposition(e.init.arguments[0]).properties.map((p) => p.key.name),
   ["addressParser", "render"],
 );
-assert.equal(e.init.arguments[0].properties[0].value.body.body[0].argument.name, "addressParser");
-assert.equal(e.init.arguments[0].properties[1].value.body.callee.name, "render");
+assert.equal(serviceComposition(e.init.arguments[0]).properties[0].value.body.body[0].argument.name, "addressParser");
+assert.equal(serviceComposition(e.init.arguments[0]).properties[1].value.body.callee.name, "render");
 assert.ok(entries.indexOf(e) > entries.findIndex((n) => n.id.name === "addressParser"));
 assert.ok(entries.indexOf(e) < entries.findIndex((n) => n.id.name === "reinspection"));
 (async () => {

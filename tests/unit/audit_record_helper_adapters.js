@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Actual authenticated JSON adapter, summary projection adapter and direct record operations. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -26,9 +27,9 @@ for (const [name, file, ctor] of [
   assert.deepEqual([...used], ["recordIntegrity"]);
   const e = entries.find((n) => n.id.name === name);
   assert.equal(e.init.callee.name, ctor);
-  assert.equal(e.init.arguments[0].properties.length, 1);
-  assert.equal(e.init.arguments[0].properties[0].kind, "get");
-  assert.equal(e.init.arguments[0].properties[0].value.body.body[0].argument.name, "recordIntegrity");
+  assert.equal(serviceComposition(e.init.arguments[0]).properties.length, 1);
+  assert.equal(serviceComposition(e.init.arguments[0]).properties[0].kind, "get");
+  assert.equal(serviceComposition(e.init.arguments[0]).properties[0].value.body.body[0].argument.name, "recordIntegrity");
   assert.ok(entries.indexOf(e) > entries.findIndex((n) => n.id.name === "addressParser"));
   assert.ok(entries.indexOf(e) < entries.findIndex((n) => n.id.name === "folderConnections"));
 }

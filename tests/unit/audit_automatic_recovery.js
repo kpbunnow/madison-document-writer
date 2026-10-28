@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Automatic recovery snapshots and serialized latest-state writes, without Writer startup. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -38,11 +39,11 @@ assert.deepEqual(
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = entries.find((n) => n.id.name === "automaticRecovery");
 assert.equal(entry.init.callee.name, "createAutomaticRecovery");
-assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), used);
+assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), used);
 assert.ok(entries.indexOf(entry) > entries.findIndex((n) => n.id.name === "workspaceBackup"));
 assert.ok(entries.indexOf(entry) < entries.findIndex((n) => n.id.name === "documentRenderer"));
 assert.ok(entries.indexOf(entry) < entries.findIndex((n) => n.id.name === "RECOVERY_WORKSPACE"));
-for (const p of entry.init.arguments[0].properties) {
+for (const p of serviceComposition(entry.init.arguments[0]).properties) {
   if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
   else {
     assert.equal(p.value.type, "ArrowFunctionExpression");

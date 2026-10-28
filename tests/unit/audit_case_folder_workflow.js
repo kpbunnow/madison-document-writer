@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Case folder and summary owner: permission, original bytes and refusal/partial-result behavior. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -25,10 +26,10 @@ assert.deepEqual([...used].sort(), fields.slice().sort());
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   e = entries.find((n) => n.id.name === "caseFolderWorkflow");
 assert.equal(e.init.callee.name, "createCaseFolderWorkflow");
-assert.deepEqual(new Set(e.init.arguments[0].properties.map((p) => p.key.name)), used);
+assert.deepEqual(new Set(serviceComposition(e.init.arguments[0]).properties.map((p) => p.key.name)), used);
 assert.ok(entries.indexOf(e) > entries.findIndex((n) => n.id.name === "addressParser"));
 assert.ok(entries.indexOf(e) < entries.findIndex((n) => n.id.name === "recipientWorkflow"));
-for (const p of e.init.arguments[0].properties)
+for (const p of serviceComposition(e.init.arguments[0]).properties)
   if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
   else assert.equal(p.value.body.callee.name, p.key.name);
 (async () => {

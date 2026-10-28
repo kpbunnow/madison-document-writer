@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Independent worksheet validation and reversible working-paper transitions. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -24,10 +25,10 @@ assert.deepEqual([...used].sort(), ["sourceDocFor", "today", "newDocuments", "du
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = entries.find((n) => n.id.name === "worksheetWorkflow");
 assert.equal(entry.init.callee.name, "createWorksheetWorkflow");
-assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), used);
+assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), used);
 assert.ok(entries.indexOf(entry) > entries.findIndex((n) => n.id.name === "caseRecovery"));
 assert.ok(entries.indexOf(entry) < entries.findIndex((n) => n.id.name === "documentRenderer"));
-for (const p of entry.init.arguments[0].properties) {
+for (const p of serviceComposition(entry.init.arguments[0]).properties) {
   if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
   else {
     assert.equal(p.value.type, "ArrowFunctionExpression");

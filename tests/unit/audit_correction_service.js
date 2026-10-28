@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Correction preparation and workflow preserve lineage, checks, retry identity and post-confirmation delivery. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -49,10 +50,10 @@ for (const [file, fields] of Object.entries(interfaces)) {
   const name = file === "correction_preparation" ? "correctionPreparation" : "correctionWorkflow",
     entry = declarations.find((n) => n.id.name === name);
   assert.equal(entry.init.callee.name, file === "correction_preparation" ? "createCorrectionPreparation" : "createCorrectionWorkflow");
-  assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), used);
+  assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), used);
   assert.ok(declarations.indexOf(entry) > declarations.findIndex((n) => n.id.name === "publicationWorkflow"));
   assert.ok(declarations.indexOf(entry) < declarations.findIndex((n) => n.id.name === "documentRenderer"));
-  for (const p of entry.init.arguments[0].properties) {
+  for (const p of serviceComposition(entry.init.arguments[0]).properties) {
     if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
     else {
       assert.equal(p.value.type, "ArrowFunctionExpression");

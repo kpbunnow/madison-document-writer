@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Isolated fixed-layout packet preparation and archived original/email/filing coordination. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -60,11 +61,11 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   assert.deepEqual([...used].sort(), fields.slice().sort());
   const e = entries.find((n) => n.id.name === name);
   assert.equal(e.init.callee.name, ctor);
-  assert.deepEqual(new Set(e.init.arguments[0].properties.map((p) => p.key.name)), used);
+  assert.deepEqual(new Set(serviceComposition(e.init.arguments[0]).properties.map((p) => p.key.name)), used);
   assert.ok(entries.indexOf(e) > previous);
   assert.ok(entries.indexOf(e) < entries.findIndex((n) => n.id.name === "documentRenderer"));
   previous = entries.indexOf(e);
-  for (const p of e.init.arguments[0].properties) {
+  for (const p of serviceComposition(e.init.arguments[0]).properties) {
     if (p.kind === "get") assert.equal(p.value.body.body[0].argument.name, p.key.name);
     else {
       assert.equal(p.value.type, "ArrowFunctionExpression");

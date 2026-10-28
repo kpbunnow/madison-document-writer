@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Workspace removals and reinspection entry load without startup or storage. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -47,7 +48,7 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   assert.deepEqual([...used].sort(), fields.slice().sort());
   const e = entries.find((n) => n.id.name === name);
   assert.equal(e.init.callee.name, ctor);
-  assert.deepEqual(new Set(e.init.arguments[0].properties.map((p) => p.key.name)), used);
+  assert.deepEqual(new Set(serviceComposition(e.init.arguments[0]).properties.map((p) => p.key.name)), used);
   assert.ok(entries.indexOf(e) > prev);
   assert.ok(entries.indexOf(e) < entries.findIndex((n) => n.id.name === "recipientWorkflow"));
   prev = entries.indexOf(e);

@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Readiness and Reports handoff load independently and preserve restoration/request boundaries. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -27,7 +28,7 @@ assert.equal(entry.init.callee.name, "createWriterHandoff");
 assert.ok(declarations.indexOf(entry) > declarations.findIndex((n) => n.id.name === "pdfArtifacts"));
 assert.ok(declarations.indexOf(entry) < declarations.findIndex((n) => n.id.name === "documentRenderer"));
 assert.equal(entry.init.arguments.length, 1);
-const properties = entry.init.arguments[0].properties;
+const properties = serviceComposition(entry.init.arguments[0]).properties;
 assert.deepEqual(new Set(properties.map((p) => p.key.name)), required);
 for (const p of properties) {
   assert.equal(p.type, "Property");

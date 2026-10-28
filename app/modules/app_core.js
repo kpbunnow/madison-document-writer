@@ -188,145 +188,159 @@ export let {
 } = editorScreens;
 const { editorReadiness, readinessText, readinessFirst, reviewConcernsHTML } = editorScreens;
 
-export const snow = initSnow({
-  citationNumber: (...args) => citationNumber(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  nextCourtDate: (...args) => nextCourtDate(...args),
-  toast: (...args) => toast(...args),
-  validISO: (...args) => validISO(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  render: (...args) => render(...args),
-  refreshSheet: (...args) => refreshSheet(...args),
-  get citationPricing() {
-    return citationPricing;
-  },
-  get initialCitations() {
-    return initialCitations;
-  },
-  isLocked: (...args) => isLocked(...args),
-  uid: (...args) => uid(...args),
-});
-export const administration = initAdministration({
-  toast: (...args) => toast(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-  get A11Y() {
-    return A11Y;
-  },
-  get citationPricing() {
-    return citationPricing;
-  },
-  isLocked: (...args) => isLocked(...args),
-  get snow() {
-    return snow;
-  },
-});
+export const snow = initSnow(
+  deferredServices(
+    {
+      citationNumber: () => citationNumber,
+      fmtDate: () => fmtDate,
+      nextCourtDate: () => nextCourtDate,
+      toast: () => toast,
+      validISO: () => validISO,
+      helperJSON: () => helperJSON,
+      saveDrafts: () => saveDrafts,
+      scheduleDraftSave: () => scheduleDraftSave,
+      renderKeep: () => renderKeep,
+      render: () => render,
+      refreshSheet: () => refreshSheet,
+      citationPricing: () => citationPricing,
+      initialCitations: () => initialCitations,
+      isLocked: () => isLocked,
+      uid: () => uid,
+    },
+    ["citationPricing", "initialCitations"],
+  ),
+);
+export const administration = initAdministration(
+  deferredServices(
+    {
+      toast: () => toast,
+      helperJSON: () => helperJSON,
+      saveDrafts: () => saveDrafts,
+      render: () => render,
+      A11Y: () => A11Y,
+      citationPricing: () => citationPricing,
+      isLocked: () => isLocked,
+      snow: () => snow,
+    },
+    ["A11Y", "citationPricing", "snow"],
+  ),
+);
 export const libraryReview = initReviewedLibrary();
-export const newDocuments = initNewDocuments({
-  fmtDate: (...args) => fmtDate(...args),
-  inspAt: (...args) => inspAt(...args),
-  toast: (...args) => toast(...args),
-  validISO: (...args) => validISO(...args),
-  evid: (...args) => evid(...args),
-  shell: (...args) => shell(...args),
-  sourceDocFor: (...args) => sourceDocFor(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  screenCases: (...args) => screenCases(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  render: (...args) => render(...args),
-  commitRecordAttempt: (...args) => commitRecordAttempt(...args),
-  worksheetFaults: (...args) => worksheetFaults(...args),
-  newDoc: (...args) => newDoc(...args),
-  docFromReinspection: (...args) => docFromReinspection(...args),
-  refreshSheet: (...args) => refreshSheet(...args),
-  docBody: (...args) => docBody(...args),
-  isLocked: (...args) => isLocked(...args),
-  get snow() {
-    return snow;
-  },
-  uid: (...args) => uid(...args),
-});
-export const citationPricing = initCitationPricing({
-  inspAt: (...args) => inspAt(...args),
-  lookupForf: (...args) => lookupForf(...args),
-  toast: (...args) => toast(...args),
-  renderKeep: (...args) => renderKeep(...args),
-  citationPricingDate: (...args) => citationPricingDate(...args),
-  isLocked: (...args) => isLocked(...args),
-  get libraryReview() {
-    return libraryReview;
-  },
-  get snow() {
-    return snow;
-  },
-});
-export const depositStep = initDepositStep({
-  changeChargeBasis: (...args) => changeChargeBasis(...args),
-  chargeChoices: (...args) => chargeChoices(...args),
-  choosesCharge: (...args) => choosesCharge(...args),
-  toast: (...args) => toast(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  saveAndContinue: (...args) => saveAndContinue(...args),
-  citationDepositFault: (...args) => citationDepositFault(...args),
-  render: (...args) => render(...args),
-  get citationPricing() {
-    return citationPricing;
-  },
-  citationPricingDate: (...args) => citationPricingDate(...args),
-  isLocked: (...args) => isLocked(...args),
-});
-export const initialCitations = initInitialCitations({
-  applyDeposit: (...args) => applyDeposit(...args),
-  dep_checks: (...args) => dep_checks(...args),
-  citationNumber: (...args) => citationNumber(...args),
-  fmtDate: (...args) => fmtDate(...args),
-  freezeSources: (...args) => freezeSources(...args),
-  inspAt: (...args) => inspAt(...args),
-  nextCourtDate: (...args) => nextCourtDate(...args),
-  evid: (...args) => evid(...args),
-  citationTier: (...args) => citationTier(...args),
-  citationReview: (...args) => citationReview(...args),
-  editorSync: (...args) => editorSync(...args),
-  citationFaces: (...args) => citationFaces(...args),
-  get citationPricing() {
-    return citationPricing;
-  },
-  get libraryReview() {
-    return libraryReview;
-  },
-  uid: (...args) => uid(...args),
-});
-export const navigation = initNavigation({
-  toast: (...args) => toast(...args),
-  shell: (...args) => shell(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  uiIcon: (...args) => uiIcon(...args),
-  render: (...args) => render(...args),
-  captureWork: (...args) => captureWork(...args),
-  cancelCaseLookup: (...args) => cancelCaseLookup(...args),
-  get WRITER_READY_WAIT() {
-    return WRITER_READY_WAIT;
-  },
-});
-const languageClick = createLanguageActions({
-  catalogKey: (...args) => catalogKey(...args),
-  keepCatalogForms: (...args) => keepCatalogForms(...args),
-  catalogForm: (...args) => catalogForm(...args),
-  catalogItem: (...args) => catalogItem(...args),
-  catalogReview: (...args) => catalogReview(...args),
-  refreshCatalog: (...args) => refreshCatalog(...args),
-  render: (...args) => render(...args),
-  refreshOverlay: (...args) => refreshOverlay(...args),
-  get navigation() {
-    return navigation;
-  },
-});
+export const newDocuments = initNewDocuments(
+  deferredServices(
+    {
+      fmtDate: () => fmtDate,
+      inspAt: () => inspAt,
+      toast: () => toast,
+      validISO: () => validISO,
+      evid: () => evid,
+      shell: () => shell,
+      sourceDocFor: () => sourceDocFor,
+      saveDrafts: () => saveDrafts,
+      scheduleDraftSave: () => scheduleDraftSave,
+      screenCases: () => screenCases,
+      renderKeep: () => renderKeep,
+      render: () => render,
+      commitRecordAttempt: () => commitRecordAttempt,
+      worksheetFaults: () => worksheetFaults,
+      newDoc: () => newDoc,
+      docFromReinspection: () => docFromReinspection,
+      refreshSheet: () => refreshSheet,
+      docBody: () => docBody,
+      isLocked: () => isLocked,
+      snow: () => snow,
+      uid: () => uid,
+    },
+    ["snow"],
+  ),
+);
+export const citationPricing = initCitationPricing(
+  deferredServices(
+    {
+      inspAt: () => inspAt,
+      lookupForf: () => lookupForf,
+      toast: () => toast,
+      renderKeep: () => renderKeep,
+      citationPricingDate: () => citationPricingDate,
+      isLocked: () => isLocked,
+      libraryReview: () => libraryReview,
+      snow: () => snow,
+    },
+    ["libraryReview", "snow"],
+  ),
+);
+export const depositStep = initDepositStep(
+  deferredServices(
+    {
+      changeChargeBasis: () => changeChargeBasis,
+      chargeChoices: () => chargeChoices,
+      choosesCharge: () => choosesCharge,
+      toast: () => toast,
+      saveDrafts: () => saveDrafts,
+      scheduleDraftSave: () => scheduleDraftSave,
+      saveAndContinue: () => saveAndContinue,
+      citationDepositFault: () => citationDepositFault,
+      render: () => render,
+      citationPricing: () => citationPricing,
+      citationPricingDate: () => citationPricingDate,
+      isLocked: () => isLocked,
+    },
+    ["citationPricing"],
+  ),
+);
+export const initialCitations = initInitialCitations(
+  deferredServices(
+    {
+      applyDeposit: () => applyDeposit,
+      dep_checks: () => dep_checks,
+      citationNumber: () => citationNumber,
+      fmtDate: () => fmtDate,
+      freezeSources: () => freezeSources,
+      inspAt: () => inspAt,
+      nextCourtDate: () => nextCourtDate,
+      evid: () => evid,
+      citationTier: () => citationTier,
+      citationReview: () => citationReview,
+      editorSync: () => editorSync,
+      citationFaces: () => citationFaces,
+      citationPricing: () => citationPricing,
+      libraryReview: () => libraryReview,
+      uid: () => uid,
+    },
+    ["citationPricing", "libraryReview"],
+  ),
+);
+export const navigation = initNavigation(
+  deferredServices(
+    {
+      toast: () => toast,
+      shell: () => shell,
+      saveDrafts: () => saveDrafts,
+      uiIcon: () => uiIcon,
+      render: () => render,
+      captureWork: () => captureWork,
+      cancelCaseLookup: () => cancelCaseLookup,
+      WRITER_READY_WAIT: () => WRITER_READY_WAIT,
+    },
+    ["WRITER_READY_WAIT"],
+  ),
+);
+const languageClick = createLanguageActions(
+  deferredServices(
+    {
+      catalogKey: () => catalogKey,
+      keepCatalogForms: () => keepCatalogForms,
+      catalogForm: () => catalogForm,
+      catalogItem: () => catalogItem,
+      catalogReview: () => catalogReview,
+      refreshCatalog: () => refreshCatalog,
+      render: () => render,
+      refreshOverlay: () => refreshOverlay,
+      navigation: () => navigation,
+    },
+    ["navigation"],
+  ),
+);
 export const recordIntegrity = initRecordIntegrity({
   store: WriterState,
   kase: (...args) => kase(...args),

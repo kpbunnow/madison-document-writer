@@ -459,3 +459,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Four grouped event/worksheet compositions replace 110 handwritten forwarders and 24 getters with explicit ordered declarations. The existing adapter preserves live target lookup, callback/value identities and descriptor order; feature construction remains inert. All sixty listener registrations, independent editor/reinspection contracts, architecture widths, 1,078 dispatch and 1,026 worksheet comparisons, R59 editor flow, walkthrough and replaced-DOM form continuity pass. No new asynchronous boundary, startup checkpoint or state field is introduced. Further flat core compositions remain to migrate.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 declared domain composition
+
+Eight domain compositions replace 83 handwritten forwarders and thirteen getters with explicit ordered resolver lists. Forty existing contract readers accept the independently verified generated descriptor shape while retaining every exact dependency, timing and behavior assertion. All forty suites pass on the new source, as do architecture/listener guards, seven import scenarios, original deposit assertions and snow repaint. The migration validates that each old callback is a synchronous transparent rest-argument forwarder and each getter is a single identifier return before rewriting. No policy, data, print or release identity changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

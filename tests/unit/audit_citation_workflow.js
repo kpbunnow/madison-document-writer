@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Citation and item-selection owners preserve charge phases, retained prices and private wording. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -50,8 +51,8 @@ for (const [file, fields] of Object.entries(interfaces)) {
   assert.ok(decl.indexOf(entry) > decl.findIndex((n) => n.id.name === "deadlineAssignment"));
   assert.ok(decl.indexOf(entry) < decl.findIndex((n) => n.id.name === "workspaceTaskPresentation"));
   assert.equal(entry.init.arguments.length, 1);
-  assert.deepEqual(new Set(entry.init.arguments[0].properties.map((p) => p.key.name)), used);
-  for (const p of entry.init.arguments[0].properties) {
+  assert.deepEqual(new Set(serviceComposition(entry.init.arguments[0]).properties.map((p) => p.key.name)), used);
+  for (const p of serviceComposition(entry.init.arguments[0]).properties) {
     assert.equal(p.type, "Property");
     if (p.kind === "get") {
       assert.equal(p.value.body.body.length, 1);

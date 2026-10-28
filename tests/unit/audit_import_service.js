@@ -1,3 +1,4 @@
+const { serviceComposition } = require("../fixtures/deferred_service_syntax.cjs");
 /* Import can be composed without Writer startup; stale/failed shared reads never authorize acceptance. */
 const assert = require("assert/strict"),
   fs = require("fs"),
@@ -29,7 +30,7 @@ assert.equal(construction.init.callee.name, "createAccelaImport");
 assert.ok(declarations.findIndex((d) => d.id.name === "addressParser") < declarations.indexOf(construction));
 assert.ok(declarations.indexOf(construction) < declarations.findIndex((d) => d.id.name === "documentRenderer"));
 assert.equal(construction.init.arguments.length, 1);
-const properties = construction.init.arguments[0].properties;
+const properties = serviceComposition(construction.init.arguments[0]).properties;
 assert.deepEqual(new Set(properties.map((p) => p.key.name)), required, "exact named import dependencies");
 for (const p of properties) {
   assert.equal(p.type, "Property", "no shared service spread");
