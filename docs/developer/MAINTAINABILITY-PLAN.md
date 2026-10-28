@@ -997,3 +997,9 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Numbered report assembly retains stable sorting, cell conversion, totals and failure notification order. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes. Existing complete Reports workbook suite also passes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15}.
+
+## report-workbook-content-types
+
+Workbook content type XML retains exact names, namespaces and sheet index order. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15}.

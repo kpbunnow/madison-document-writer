@@ -284,6 +284,28 @@ function appendNumberedReportSheets(services, M, F, sheets) {
   });
 }
 
+function workbookContentTypesXML(named, x) {
+  return (
+    x +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    ('<Default Extension="rels" ContentType="application/vnd.openxmlformats-pa' +
+      'ckage.relationships+xml"/><Default Extension="xml" ContentType="applicat' +
+      'ion/xml"/>') +
+    ('<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openx' + 'mlformats-officedocument.spreadsheetml.sheet.main+xml"/>') +
+    ('<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxml' + 'formats-officedocument.spreadsheetml.styles+xml"/>') +
+    named
+      .map(
+        (s, i) =>
+          '<Override PartName="/xl/worksheets/sheet' +
+          `${i + 1}` +
+          '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreads' +
+          'heetml.worksheet+xml"/>',
+      )
+      .join("") +
+    "</Types>"
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1272,24 +1294,7 @@ export function createReportsScreens(services) {
     const files = [
       {
         name: "[Content_Types].xml",
-        data:
-          x +
-          '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
-          ('<Default Extension="rels" ContentType="application/vnd.openxmlformats-pa' +
-            'ckage.relationships+xml"/><Default Extension="xml" ContentType="applicat' +
-            'ion/xml"/>') +
-          ('<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openx' + 'mlformats-officedocument.spreadsheetml.sheet.main+xml"/>') +
-          ('<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxml' + 'formats-officedocument.spreadsheetml.styles+xml"/>') +
-          named
-            .map(
-              (s, i) =>
-                '<Override PartName="/xl/worksheets/sheet' +
-                `${i + 1}` +
-                '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreads' +
-                'heetml.worksheet+xml"/>',
-            )
-            .join("") +
-          "</Types>",
+        data: workbookContentTypesXML(named, x),
       },
       {
         name: "_rels/.rels",
