@@ -787,3 +787,9 @@ Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 12
 Added an independent owner comparison before changing follow-up drafting. All 2605 cases pass, including all five successful draft families, 100 explicit service-interruption points and 2500 seeded refusal/history combinations. Positive assertions require actual draft registration, write routing, dirty state and retained citation aliases. ESLint, formatting and seam inventory pass. Production drafting code and debt allowances are unchanged.
 
 Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
+
+## followup-draft-phases
+
+Separated existing-draft routing, ordered refusal checks, item/due projection, draft construction, citation preparation and completion text into private phases. Registration remains before citation numbering, and notification counts and lazy toast reads retain their original checkpoints. Expanded service interruptions through 35 call points for each successful family; all 2680 comparisons pass. Exact worksheet snapshots, owner/service and history/referral/extension feature regressions pass, including a final fresh build and R46 outcomes. Boundaries, seams, ESLint and formatting pass. Initial local AST/syntax extraction errors were corrected before verification. No public factory inputs or format identities change.
+
+Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 64, 'max-depth': 0, 'max-lines-per-function': 119, 'python': 15}.
