@@ -349,58 +349,38 @@ export const recordIntegrity = initRecordIntegrity({
   helperJSON: (...args) => helperJSON(...args),
   render: () => render(),
 });
-export const addressParser = initAddressParser({
-  toast: (...args) => toast(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  saveDrafts: (...args) => saveDrafts(...args),
-  render: (...args) => render(...args),
-  get A11Y() {
-    return A11Y;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  uid: (...args) => uid(...args),
-});
-const helperRequests = createHelperRequests({
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-});
+export const addressParser = initAddressParser(
+  deferredServices(
+    {
+      toast: () => toast,
+      helperJSON: () => helperJSON,
+      saveDrafts: () => saveDrafts,
+      render: () => render,
+      A11Y: () => A11Y,
+      recordIntegrity: () => recordIntegrity,
+      uid: () => uid,
+    },
+    ["A11Y", "recordIntegrity"],
+  ),
+);
+const helperRequests = createHelperRequests(deferredServices({ recordIntegrity: () => recordIntegrity }, ["recordIntegrity"]));
 export let { helperJSON } = helperRequests;
-const caseSummaryAdapter = createCaseSummaryAdapter({
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-});
+const caseSummaryAdapter = createCaseSummaryAdapter(deferredServices({ recordIntegrity: () => recordIntegrity }, ["recordIntegrity"]));
 export let { summarize } = caseSummaryAdapter;
 
-const workspaceShell = createWorkspaceShell({
-  get navigation() {
-    return navigation;
-  },
-  get recordIntegrity() {
-    return recordIntegrity;
-  },
-  app_savedworkContext: (...args) => app_savedworkContext(...args),
-});
+const workspaceShell = createWorkspaceShell(
+  deferredServices({ navigation: () => navigation, recordIntegrity: () => recordIntegrity, app_savedworkContext: () => app_savedworkContext }, [
+    "navigation",
+    "recordIntegrity",
+  ]),
+);
 export let { shell } = workspaceShell;
-const browserPrinting = createBrowserPrinting({
-  get document() {
-    return document;
-  },
-  get window() {
-    return window;
-  },
-  get URL() {
-    return URL;
-  },
-  get Blob() {
-    return Blob;
-  },
-  setTimeout: (...args) => setTimeout(...args),
-  toast: (...args) => toast(...args),
-});
+const browserPrinting = createBrowserPrinting(
+  deferredServices(
+    { document: () => document, window: () => window, URL: () => URL, Blob: () => Blob, setTimeout: () => setTimeout, toast: () => toast },
+    ["document", "window", "URL", "Blob"],
+  ),
+);
 export let { printableHTML, printNotice } = browserPrinting;
 const storageStatus = createStorageStatus({
   get window() {
@@ -418,116 +398,97 @@ const storageStatus = createStorageStatus({
   storageMode: (...args) => storageMode(...args),
 });
 export let { storageReport, reindexReport } = storageStatus;
-const storageProbe = createStorageProbe({
-  toast: (...args) => toast(...args),
-  grantCaseFolder: (...args) => grantCaseFolder(...args),
-  helperJSON: (...args) => helperJSON(...args),
-  writeToFolder: (...args) => writeToFolder(...args),
-  render: (...args) => render(...args),
-});
+const storageProbe = createStorageProbe(
+  deferredServices({
+    toast: () => toast,
+    grantCaseFolder: () => grantCaseFolder,
+    helperJSON: () => helperJSON,
+    writeToFolder: () => writeToFolder,
+    render: () => render,
+  }),
+);
 export let { testWrite } = storageProbe;
 
-const caseStatus = createCaseStatus({
-  get snow() {
-    return snow;
-  },
-  get today() {
-    return today;
-  },
-  unissuedVisitFor: (...args) => unissuedVisitFor(...args),
-});
+const caseStatus = createCaseStatus(
+  deferredServices({ snow: () => snow, today: () => today, unissuedVisitFor: () => unissuedVisitFor }, ["snow", "today"]),
+);
 export let { caseState } = caseStatus;
-const citationHistory = createCitationHistory({
-  get today() {
-    return today;
-  },
-});
+const citationHistory = createCitationHistory(deferredServices({ today: () => today }, ["today"]));
 export let { priorCitations } = citationHistory;
-const workspaceScreen = createWorkspaceScreen({
-  app_workspacequeueContext: (...args) => app_workspacequeueContext(...args),
-  caseSearchText: (...args) => caseSearchText(...args),
-  caseState: (...args) => caseState(...args),
-  get document() {
-    return document;
-  },
-  recoveryStatusHTML: (...args) => recoveryStatusHTML(...args),
-  remindersPanel: (...args) => remindersPanel(...args),
-  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
-  shell: (...args) => shell(...args),
-  workspaceTasks: (...args) => workspaceTasks(...args),
-});
+const workspaceScreen = createWorkspaceScreen(
+  deferredServices(
+    {
+      app_workspacequeueContext: () => app_workspacequeueContext,
+      caseSearchText: () => caseSearchText,
+      caseState: () => caseState,
+      document: () => document,
+      recoveryStatusHTML: () => recoveryStatusHTML,
+      remindersPanel: () => remindersPanel,
+      saveWorkflowPrefs: () => saveWorkflowPrefs,
+      shell: () => shell,
+      workspaceTasks: () => workspaceTasks,
+    },
+    ["document"],
+  ),
+);
 export let { revealIssuedCase, focusIssuedCase, screenCases } = workspaceScreen;
-const languageViews = createLanguageViews({
-  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
-});
+const languageViews = createLanguageViews(deferredServices({ app_languagediscoveryContext: () => app_languagediscoveryContext }));
 export let { screenLibrary, pickerHTML } = languageViews;
-const screenOverlays = createScreenOverlays({
-  get CASEDIR_EXPECT() {
-    return CASEDIR_EXPECT;
-  },
-  get blockers() {
-    return blockers;
-  },
-  caseUnsaved: (...args) => caseUnsaved(...args),
-  checkRowHTML: (...args) => checkRowHTML(...args),
-  checks: (...args) => checks(...args),
-  correctionDiffHTML: (...args) => correctionDiffHTML(...args),
-  get initialCitations() {
-    return initialCitations;
-  },
-  pickerHTML: (...args) => pickerHTML(...args),
-  recipientPreview: (...args) => recipientPreview(...args),
-  recordActionModal: (...args) => recordActionModal(...args),
-  recoveryModal: (...args) => recoveryModal(...args),
-  reindexReport: (...args) => reindexReport(...args),
-  reviewModalHTML: (...args) => reviewModalHTML(...args),
-  sharedChangeModal: (...args) => sharedChangeModal(...args),
-  storageReport: (...args) => storageReport(...args),
-  get today() {
-    return today;
-  },
-});
+const screenOverlays = createScreenOverlays(
+  deferredServices(
+    {
+      CASEDIR_EXPECT: () => CASEDIR_EXPECT,
+      blockers: () => blockers,
+      caseUnsaved: () => caseUnsaved,
+      checkRowHTML: () => checkRowHTML,
+      checks: () => checks,
+      correctionDiffHTML: () => correctionDiffHTML,
+      initialCitations: () => initialCitations,
+      pickerHTML: () => pickerHTML,
+      recipientPreview: () => recipientPreview,
+      recordActionModal: () => recordActionModal,
+      recoveryModal: () => recoveryModal,
+      reindexReport: () => reindexReport,
+      reviewModalHTML: () => reviewModalHTML,
+      sharedChangeModal: () => sharedChangeModal,
+      storageReport: () => storageReport,
+      today: () => today,
+    },
+    ["CASEDIR_EXPECT", "blockers", "initialCitations", "today"],
+  ),
+);
 export let { overlayHTML } = screenOverlays;
-const appScreens = createAppScreens({
-  get A11Y() {
-    return A11Y;
-  },
-  get IDB_OK() {
-    return IDB_OK;
-  },
-  app_languagediscoveryContext: (...args) => app_languagediscoveryContext(...args),
-  get document() {
-    return document;
-  },
-  editorEnhance: (...args) => editorEnhance(...args),
-  enhanceDialog: (...args) => enhanceDialog(...args),
-  ensureWalkContext: (...args) => ensureWalkContext(...args),
-  highlightOpenChecks: (...args) => highlightOpenChecks(...args),
-  isLocked: (...args) => isLocked(...args),
-  get location() {
-    return location;
-  },
-  get navigation() {
-    return navigation;
-  },
-  get newDocuments() {
-    return newDocuments;
-  },
-  overlayHTML: (...args) => overlayHTML(...args),
-  paginate: (...args) => paginate(...args),
-  restoreWorkControls: (...args) => restoreWorkControls(...args),
-  scheduleDraftSave: (...args) => scheduleDraftSave(...args),
-  screenCases: (...args) => screenCases(...args),
-  screenImport: (...args) => screenImport(...args),
-  screenLibrary: (...args) => screenLibrary(...args),
-  screenReinspect: (...args) => screenReinspect(...args),
-  screenWrite: (...args) => screenWrite(...args),
-  updateSaveStatus: (...args) => updateSaveStatus(...args),
-  walkIdentity: (...args) => walkIdentity(...args),
-  get window() {
-    return window;
-  },
-});
+const appScreens = createAppScreens(
+  deferredServices(
+    {
+      A11Y: () => A11Y,
+      IDB_OK: () => IDB_OK,
+      app_languagediscoveryContext: () => app_languagediscoveryContext,
+      document: () => document,
+      editorEnhance: () => editorEnhance,
+      enhanceDialog: () => enhanceDialog,
+      ensureWalkContext: () => ensureWalkContext,
+      highlightOpenChecks: () => highlightOpenChecks,
+      isLocked: () => isLocked,
+      location: () => location,
+      navigation: () => navigation,
+      newDocuments: () => newDocuments,
+      overlayHTML: () => overlayHTML,
+      paginate: () => paginate,
+      restoreWorkControls: () => restoreWorkControls,
+      scheduleDraftSave: () => scheduleDraftSave,
+      screenCases: () => screenCases,
+      screenImport: () => screenImport,
+      screenLibrary: () => screenLibrary,
+      screenReinspect: () => screenReinspect,
+      screenWrite: () => screenWrite,
+      updateSaveStatus: () => updateSaveStatus,
+      walkIdentity: () => walkIdentity,
+      window: () => window,
+    },
+    ["A11Y", "IDB_OK", "document", "location", "navigation", "newDocuments", "window"],
+  ),
+);
 export let { render, renderKeep } = appScreens;
 
 const folderConnections = createFolderConnections({
