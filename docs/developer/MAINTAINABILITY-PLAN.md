@@ -723,3 +723,9 @@ Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 12
 Converted working-document taskbar, preview tools and surrounding preview containers to escaped templates with explicit raw boundaries for existing citation/document/due renderers. Retained UI banner text exactly, service calls and repeated live enabled/copy-state reads at their original checkpoints. All 2031 frozen editor HTML/state/effect comparisons pass, along with CSS class/style, escaping/print exclusion, independent screen dependencies, ESLint and formatting. Printed renderers, approved wording data and CSS remain unchanged.
 
 Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## editor-readiness-templates
+
+Converted readiness chips/actions, mobile bar, Review dialog and hidden field messages to escaped screen templates. Added a frozen pre-change helper fixture so references do not share the changed implementation; extended every one of 2031 scenarios to compare the public Review dialog as well as screenWrite. The strengthened comparison passes against pre-change and refactored source. R59 editor workflow passes against a fresh build; class/style, escaping/print exclusion, screen dependencies, seam inventory, ESLint and formatting pass. No existing assertion or frozen reference was changed.
+
+Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.

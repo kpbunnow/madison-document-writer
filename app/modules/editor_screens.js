@@ -90,16 +90,11 @@ export function createEditorScreens(services) {
 
   function checkChip(d, readiness = editorReadiness(d)) {
     const { required, advice } = readiness;
-    return (
-      '<span class="cchip ' +
-      `${required.length ? "bad" : "good"}` +
-      '" id="chk-chip" data-editor-readiness>' +
-      readinessText(required, advice) +
-      "</span>"
-    );
+    return html`<span class="cchip ${required.length ? "bad" : "good"}" id="chk-chip" data-editor-readiness>${readinessText(required, advice)}</span>`;
   }
 
   // The first unresolved required check (or, with none, advisory) that names a field, as its index in checks(d).
+
   function readinessFirst(readiness) {
     const at = (soft) => readiness.list.findIndex((c) => !c.ok && !!c.soft === soft && c.targets?.length);
     const required = at(false);
@@ -111,34 +106,25 @@ export function createEditorScreens(services) {
 
   function readinessActionsHTML(readiness) {
     const first = readinessFirst(readiness);
+    // The existing check-link path (data-check-index) focuses the field through focusCheckTarget.
     return (
-      // The existing check-link path (data-check-index) focuses the field through focusCheckTarget.
       (first
-        ? '<button type="button" class="btn btn-sm" data-readiness-first data-check-index="' +
-          first.index +
-          '" data-check-target="0">' +
-          first.label +
-          "</button>"
-        : "") + '<button type="button" class="lnk" data-open-checklist aria-haspopup="dialog">Open full checklist</button>'
+        ? html`<button type="button" class="btn btn-sm" data-readiness-first data-check-index="${first.index}" data-check-target="0">${first.label}</button>`
+        : "") + html`<button type="button" class="lnk" data-open-checklist aria-haspopup="dialog">Open full checklist</button>`
     );
   }
 
   // Narrow-screen task bar: next required field, Review and the primary action (which clicks the toolbar's own button).
+
   function mobileBarActionsHTML(d, readiness = editorReadiness(d)) {
     const first = readinessFirst(readiness),
       primary = editorPrimary(d, readiness);
     return (
       (first && readiness.required.length
-        ? '<button type="button" class="btn btn-sm" data-mobile-next data-check-index="' +
-          first.index +
-          '" data-check-target="0">Next required field</button>'
+        ? html`<button type="button" class="btn btn-sm" data-mobile-next data-check-index="${first.index}" data-check-target="0">Next required field</button>`
         : "") +
-      '<button type="button" class="btn btn-sm" data-mobile-review>Review</button>' +
-      '<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ' +
-      (primary.attrs === "disabled" ? "disabled" : "") +
-      ">" +
-      primary.label +
-      "</button>"
+      html`<button type="button" class="btn btn-sm" data-mobile-review>Review</button>` +
+      html`<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ${primary.attrs === "disabled" ? "disabled" : ""}>${primary.label}</button>`
     );
   }
 
@@ -148,16 +134,7 @@ export function createEditorScreens(services) {
   }
 
   function mobileBarHTML(d, readiness) {
-    return (
-      '<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions">' +
-      '<span class="editor-mobile-save" data-document-device-save>' +
-      esc(localSaveText(services.record.app_savedworkContext())) +
-      '</span><div class="editor-mobile-actions" data-bar-key="' +
-      esc(mobileBarKey(d, readiness)) +
-      '">' +
-      mobileBarActionsHTML(d, readiness) +
-      "</div></div>"
-    );
+    return html`<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions"><span class="editor-mobile-save" data-document-device-save>${localSaveText(services.record.app_savedworkContext())}</span><div class="editor-mobile-actions" data-bar-key="${mobileBarKey(d, readiness)}">${raw(mobileBarActionsHTML(d, readiness))}</div></div>`;
   }
 
   function readinessKey(readiness) {
@@ -166,49 +143,30 @@ export function createEditorScreens(services) {
   }
 
   function readinessLineHTML(d, readiness) {
-    return (
-      checkChip(d, readiness) +
-      '<span class="readiness-actions" data-readiness-key="' +
-      esc(readinessKey(readiness)) +
-      '">' +
-      readinessActionsHTML(readiness) +
-      "</span>"
-    );
+    return html`${raw(checkChip(d, readiness))}<span class="readiness-actions" data-readiness-key="${readinessKey(readiness)}">${raw(readinessActionsHTML(readiness))}</span>`;
   }
 
   /* R59: the Review dialog is the one review presentation. Blocking concerns come first, then advisories; each keeps
    its check-link to the exact field (the link closes the dialog). Passed checks stay collapsed. */
+
   function reviewConcernsHTML(d, readiness = editorReadiness(d)) {
     if (services.edit.isLocked(d))
-      return (
-        "<p data-review-readonly>This document is read-only. Issued text and history are retained. Use Document actions for a " +
-        "correction, or Print issued PDF for the archived original.</p>"
-      );
+      return html`<p data-review-readonly>This document is read-only. Issued text and history are retained. Use Document actions for a correction, or Print issued PDF for the archived original.</p>`;
     const { list, required, advice } = readiness,
       rows = (soft) => list.map((c, ix) => (!c.ok && !!c.soft === soft ? services.record.checkRowHTML(c, ix) : "")).join(""),
       passed = list.filter((c) => c.ok).length;
     return (
       (!required.length && !advice.length
-        ? '<div class="banner ok" data-review-clear><div>No concerns. This document is ready to issue.</div></div>'
+        ? html`<div class="banner ok" data-review-clear><div>No concerns. This document is ready to issue.</div></div>`
         : "") +
       (required.length
-        ? '<section data-review-blocking aria-labelledby="review-blocking-title"><h3 id="review-blocking-title">Must fix before issuing</h3>' +
-          rows(false) +
-          "</section>"
+        ? html`<section data-review-blocking aria-labelledby="review-blocking-title"><h3 id="review-blocking-title">Must fix before issuing</h3>${raw(rows(false))}</section>`
         : "") +
       (advice.length
-        ? '<section data-review-advisories aria-labelledby="review-advisories-title"><h3 id="review-advisories-title">Advisories</h3>' +
-          rows(true) +
-          "</section>"
+        ? html`<section data-review-advisories aria-labelledby="review-advisories-title"><h3 id="review-advisories-title">Advisories</h3>${raw(rows(true))}</section>`
         : "") +
       (passed
-        ? '<details class="passed-checks"><summary>' +
-          passed +
-          " check" +
-          (passed === 1 ? "" : "s") +
-          " passed</summary>" +
-          list.map((c, ix) => (c.ok ? services.record.checkRowHTML(c, ix) : "")).join("") +
-          "</details>"
+        ? html`<details class="passed-checks"><summary>${passed} check${passed === 1 ? "" : "s"} passed</summary>${raw(list.map((c, ix) => (c.ok ? services.record.checkRowHTML(c, ix) : "")).join(""))}</details>`
         : "")
     );
   }
@@ -216,17 +174,13 @@ export function createEditorScreens(services) {
   function reviewModalHTML() {
     const d = doc(editor.state.docId);
     if (!d) return "";
-    return (
-      '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" data-review-dialog><div class="modal-h"><h2>Review</h2></div>' +
-      '<div class="modal-b">' +
-      reviewConcernsHTML(d) +
-      '</div><div class="modal-f"><button class="btn" data-close="modal">Close</button></div></div></div>'
-    );
+    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" data-review-dialog><div class="modal-h"><h2>Review</h2></div><div class="modal-b">${raw(reviewConcernsHTML(d))}</div><div class="modal-f"><button class="btn" data-close="modal">Close</button></div></div></div>`;
   }
 
   // Fields keep their aria-describedby text for unresolved checks now that the checklist lives in the Review dialog.
+
   function editorCheckMessagesHTML(readiness) {
-    return readiness.list.map((c, ix) => (!c.ok ? '<span id="editor-check-msg-doc-' + ix + '">' + esc(c.t) + "</span>" : "")).join("");
+    return readiness.list.map((c, ix) => (!c.ok ? html`<span id="editor-check-msg-doc-${ix}">${c.t}</span>` : "")).join("");
   }
 
   function editorPrimary(d, ready = editorReadiness(d)) {
