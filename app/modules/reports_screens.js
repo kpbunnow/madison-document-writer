@@ -6,6 +6,58 @@ import { orderedRows, validSort, reportNavigation, reportActions as compactActio
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
 
+function reportExportCaseRows(services, cases) {
+  return [
+    [
+      "Case number",
+      "Address",
+      "Parcel",
+      "ZIP",
+      "Alder district (current)",
+      "Alder district (when opened)",
+      "Building district",
+      "Inspector",
+      "Opened",
+      "Notice issued",
+      "Status",
+      "Closed",
+      "Owner",
+      "Owner mailing address",
+      "Owner key",
+      "Violations",
+      "Open violations",
+      "Citations",
+      "Referrals",
+      "Latitude",
+      "Longitude",
+    ],
+  ].concat(
+    cases.map((c) => [
+      c.number,
+      c.address,
+      c.parcel,
+      c.zip,
+      c.alderNow ? +c.alderNow : null,
+      c.alderAtOpen ? +c.alderAtOpen : null,
+      c.building ? +c.building : null,
+      c.inspector,
+      services.D(c.opened),
+      services.D(c.noticeIssued),
+      c.status,
+      services.D(c.closedOn),
+      c.owner,
+      c.ownerAddr.join(", "),
+      services.facts.ownerKeyLabel(c.ownerKey),
+      c.violations.filter((v) => !v.withdrawn).length,
+      c.violations.filter((v) => !v.done && !v.withdrawn).length,
+      c.citations.length,
+      c.referrals.length,
+      c.lat,
+      c.lon,
+    ]),
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1063,55 +1115,7 @@ export function createReportsScreens(services) {
       F = ReportsState.S.F;
     const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
     const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
-    const casesRows = [
-      [
-        "Case number",
-        "Address",
-        "Parcel",
-        "ZIP",
-        "Alder district (current)",
-        "Alder district (when opened)",
-        "Building district",
-        "Inspector",
-        "Opened",
-        "Notice issued",
-        "Status",
-        "Closed",
-        "Owner",
-        "Owner mailing address",
-        "Owner key",
-        "Violations",
-        "Open violations",
-        "Citations",
-        "Referrals",
-        "Latitude",
-        "Longitude",
-      ],
-    ].concat(
-      cases.map((c) => [
-        c.number,
-        c.address,
-        c.parcel,
-        c.zip,
-        c.alderNow ? +c.alderNow : null,
-        c.alderAtOpen ? +c.alderAtOpen : null,
-        c.building ? +c.building : null,
-        c.inspector,
-        services.D(c.opened),
-        services.D(c.noticeIssued),
-        c.status,
-        services.D(c.closedOn),
-        c.owner,
-        c.ownerAddr.join(", "),
-        services.facts.ownerKeyLabel(c.ownerKey),
-        c.violations.filter((v) => !v.withdrawn).length,
-        c.violations.filter((v) => !v.done && !v.withdrawn).length,
-        c.citations.length,
-        c.referrals.length,
-        c.lat,
-        c.lon,
-      ]),
-    );
+    const casesRows = reportExportCaseRows(services, cases);
     const vRows = [
       [
         "Case number",

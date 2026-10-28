@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_report_owner_phases.js` | Exact Reports exports/workbook/section output and lazy service order through phased owner extraction |
 | `audit_saved_work_html.js` | Exact saved-work output, case priority/limits, queues, health and ordered escape/renderer calls |
 | `audit_saved_case_state_rules.js` | Saved-case status priority, queue/PDF/connection states and lazy context/service reads |
 | `audit_report_sheet_xml.js` | Composed/standalone sheet XML, column names, widths, styles and lazy service receiver/read order |
