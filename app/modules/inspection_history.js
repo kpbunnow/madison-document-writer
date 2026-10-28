@@ -38,7 +38,7 @@ export function itemHistory(caseId, no) {
   return out;
 }
 
-export function itemInspectionHistory(d, it) {
+function inspectionLineage(d, it) {
   const lineage = new Map(),
     seen = new Set();
   let source = d,
@@ -67,7 +67,10 @@ export function itemInspectionHistory(d, it) {
     source = previous;
     item = prior;
   }
-  const rows = [initial || { on: "", oc: "initial", note: "", cit: "" }];
+  return { lineage, initial, rootId };
+}
+
+function appendInspectionVisits(d, lineage, rows) {
   for (const visit of reinspFor(d.caseId)) {
     if (visit.draft && visit.id !== d.fromReinspId) continue;
     const id = lineage.get(visit.sourceDocId),
@@ -81,9 +84,12 @@ export function itemInspectionHistory(d, it) {
       cit: "",
     });
   }
-  // Citation metadata may annotate an observed visit, but issue dates never create inspection observations.
-  // A citation issued with (or in place of) the original notice annotates the first observation; its
-  // number would otherwise be lost from the referral, as earlier history formats retain it.
+}
+
+// Citation metadata may annotate an observed visit, but issue dates never create inspection observations.
+// A citation issued with (or in place of) the original notice annotates the first observation; its
+// number would otherwise be lost from the referral, as earlier history formats retain it.
+function annotateInitialCitation(d, lineage, initial, rootId) {
   if (initial && rootId) {
     const rootItem = lineage.get(rootId);
     for (const citation of docsFor(d.caseId)) {
@@ -95,6 +101,9 @@ export function itemInspectionHistory(d, it) {
       if (cited && citation.cits?.[cited.id]?.num) initial.cit = citation.cits[cited.id].num;
     }
   }
+}
+
+function annotateVisitCitations(d, lineage, rows) {
   for (const row of rows) {
     if (!row.visitId) continue;
     for (const citation of docsFor(d.caseId)) {
@@ -104,6 +113,14 @@ export function itemInspectionHistory(d, it) {
       if (cited && citation.cits?.[cited.id]?.num) row.cit = citation.cits[cited.id].num;
     }
   }
+}
+
+export function itemInspectionHistory(d, it) {
+  const { lineage, initial, rootId } = inspectionLineage(d, it);
+  const rows = [initial || { on: "", oc: "initial", note: "", cit: "" }];
+  appendInspectionVisits(d, lineage, rows);
+  annotateInitialCitation(d, lineage, initial, rootId);
+  annotateVisitCitations(d, lineage, rows);
   return rows.sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")) || String(a.visitId || "").localeCompare(String(b.visitId || "")));
 }
 

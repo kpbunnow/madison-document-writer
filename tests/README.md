@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_inspection_history_rules.js` | Frozen-owner comparison for lineage termination, cycles, visit observations and citation annotation precedence. |
 | `audit_case_file_fault_rules.js` | Frozen-validator comparison of refusal precedence, observable input reads, exceptions and mutation. |
 | `audit_case_status_rules.js` | Frozen-owner comparison for status precedence, dates, pending records, artifact state and retained aliases. |
 | `audit_citation_refresh_rules.js` | 4,692 policy/generated owner scenarios pin mutation, aliases, exceptions, lazy service order and live shared-history cache invalidation/reloads. |
