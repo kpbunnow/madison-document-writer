@@ -147,6 +147,14 @@ function reportViolationIncluded(services, c, F, opt, violationAt) {
   return true;
 }
 
+function prepareReportParcelCache(services, idx, pc, refreshParcels) {
+  ReportsState.S.parcels = (pc && pc.parcels) || {};
+  ReportsState.S.parcelMissing = (pc && pc.missing) || [];
+  ReportsState.S.parcelNote = "";
+  const keys = services.uniq(idx.summaries.map((s) => normParcel((s["case"] || {}).parcel)).filter(Boolean));
+  return refreshParcels ? keys : keys.filter((k) => !ReportsState.S.parcels[k]);
+}
+
 export function createReportsServices(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -534,11 +542,7 @@ export function createReportsServices(services) {
       ReportsState.S.msg = "Reading the parcel cache…";
       services.render();
       const pc = await get("/reporting/parcels");
-      ReportsState.S.parcels = (pc && pc.parcels) || {};
-      ReportsState.S.parcelMissing = (pc && pc.missing) || [];
-      ReportsState.S.parcelNote = "";
-      const keys = services.uniq(idx.summaries.map((s) => normParcel((s["case"] || {}).parcel)).filter(Boolean));
-      const need = refreshParcels ? keys : keys.filter((k) => !ReportsState.S.parcels[k]);
+      const need = prepareReportParcelCache(services, idx, pc, refreshParcels);
       if (need.length) {
         ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
         services.render();
