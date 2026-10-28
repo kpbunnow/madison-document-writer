@@ -13,26 +13,34 @@ def read(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def _validate_version_source_and_dates(v, label):
+    if not v.get("source") or not v["source"].get("codification"):
+        raise ValueError("Missing legal source: " + label)
+    if v.get("from") is not None:
+        date.fromisoformat(v["from"])
+    if v.get("to") is not None:
+        date.fromisoformat(v["to"])
+    if v.get("from") and v.get("to") and v["from"] > v["to"]:
+        raise ValueError("Reversed date range: " + label)
+
+
+def _validate_verified_version(v, label):
+    if v.get("status") == "verified":
+        if not v.get("review", {}).get("reviewer") or not v.get("review", {}).get("date"):
+            raise ValueError("Verified value lacks reviewer: " + label)
+        amounts = [int(round(float(x.replace(",", "")) * 100)) for x in re.findall(r"\$([\d,]+(?:\.\d+)?)", v["rawText"])]
+        if amounts != [t["amountCents"] for t in v["tiers"]]:
+            raise ValueError("Tiers disagree with retained row text: " + label)
+
+
 def versions(rows, label):
     if not rows or rows[0].get("from") is not None or rows[-1].get("to") is not None:
         raise ValueError("Incomplete retained-baseline date coverage: " + label)
     for n, v in enumerate(rows):
-        if not v.get("source") or not v["source"].get("codification"):
-            raise ValueError("Missing legal source: " + label)
-        if v.get("from") is not None:
-            date.fromisoformat(v["from"])
-        if v.get("to") is not None:
-            date.fromisoformat(v["to"])
-        if v.get("from") and v.get("to") and v["from"] > v["to"]:
-            raise ValueError("Reversed date range: " + label)
+        _validate_version_source_and_dates(v, label)
         if n and (not rows[n - 1].get("to") or (date.fromisoformat(rows[n - 1]["to"]) + timedelta(days=1)).isoformat() != v.get("from")):
             raise ValueError("Overlap or gap in date ranges: " + label)
-        if v.get("status") == "verified":
-            if not v.get("review", {}).get("reviewer") or not v.get("review", {}).get("date"):
-                raise ValueError("Verified value lacks reviewer: " + label)
-            amounts = [int(round(float(x.replace(",", "")) * 100)) for x in re.findall(r"\$([\d,]+(?:\.\d+)?)", v["rawText"])]
-            if amounts != [t["amountCents"] for t in v["tiers"]]:
-                raise ValueError("Tiers disagree with retained row text: " + label)
+        _validate_verified_version(v, label)
 
 
 def unchanged(old, new):
