@@ -1,3 +1,4 @@
+import { catalogState as catalog } from "./catalog_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { WriterState } from "./state.js";
 export function createLanguageActions(services) {
@@ -27,7 +28,7 @@ export function createLanguageActions(services) {
       const i = services.catalogItem(button.dataset.catalogOpen);
       if (!i || WriterState.state.screen !== "library" || WriterState.state.languageMode !== "admin") return;
       WriterState.state.catalogAdminKey = services.catalogKey(i);
-      WriterState.CATALOG_FORMS[WriterState.state.catalogAdminKey] = {
+      catalog.CATALOG_FORMS[WriterState.state.catalogAdminKey] = {
         ...services.catalogForm(WriterState.state.catalogAdminKey, i, services.catalogReview(WriterState.state.catalogAdminKey)),
         open: true,
       };
