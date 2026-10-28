@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { clone } from "./record_values.js";
 import { DOC_TYPES } from "./document_types.js";
 import { doc, kase } from "./writer_queries.js";
@@ -26,19 +27,19 @@ export function createPublicationWorkflow(services) {
       services.toast("This record was changed outside the program. Open read-only and refer it for review.");
       return false;
     }
-    if (!d || !d.draft || d.correction || WriterState.AMENDMENT_BUSY) return false;
+    if (!d || !d.draft || d.correction || editor.AMENDMENT_BUSY) return false;
     if (!d.pendingAmendment) services.commitCitationEdits(d);
     if (!WriterState.CASEDIR || !WriterState.CASEDIR.helper) {
-      WriterState.state.amendmentError = "Connect the current local helper and shared case folder. The document remains a draft.";
+      editor.state.amendmentError = "Connect the current local helper and shared case folder. The document remains a draft.";
       await services.saveDrafts();
-      WriterState.state.modal = null;
+      editor.state.modal = null;
       services.render();
       return false;
     }
     if (!d.pendingAmendment && d.type === "notice" && !(await services.refreshCatalog())) {
-      WriterState.state.amendmentError = "Current catalog review status could not be checked. Draft retained; reconnect before issuing.";
+      editor.state.amendmentError = "Current catalog review status could not be checked. Draft retained; reconnect before issuing.";
       await services.saveDrafts();
-      WriterState.state.modal = null;
+      editor.state.modal = null;
       services.render();
       return false;
     }
@@ -47,15 +48,15 @@ export function createPublicationWorkflow(services) {
       services.citationPricing.refresh(d);
       const before = services.citationPricing.signature(d);
       if (!(await services.citationPricing.loadShared(d, true))) {
-        WriterState.state.amendmentError = "Shared citation history could not be checked. Reconnect before issuing.";
+        editor.state.amendmentError = "Shared citation history could not be checked. Reconnect before issuing.";
         await services.saveDrafts();
         services.render();
         return false;
       }
       if (before !== services.citationPricing.signature(d)) {
-        WriterState.state.amendmentError = "Citation history changed the deposit or tier. Review the updated charges before issuing.";
+        editor.state.amendmentError = "Citation history changed the deposit or tier. Review the updated charges before issuing.";
         await services.saveDrafts();
-        WriterState.state.modal = null;
+        editor.state.modal = null;
         services.render();
         return false;
       }
@@ -70,7 +71,7 @@ export function createPublicationWorkflow(services) {
       wanted = services.initialCitations.enabled(d),
       sendEmail = !!d.emailedTo && d.emailedTo.length > 0;
     const attempt = d.pendingAmendment || services.makePublication(d);
-    WriterState.state.modal = null;
+    editor.state.modal = null;
     const preparedJobs = new Map();
     if (wanted && !d.pendingAmendment) {
       try {
@@ -86,30 +87,30 @@ export function createPublicationWorkflow(services) {
           .filter((e) => e.payload?.snapshot && !deliveredByCitation(e.payload.snapshot)).length;
         if (preparedJobs.size !== expected || !expected) throw new Error("The initial documents must be prepared.");
       } catch (e) {
-        WriterState.state.amendmentError = "The initial citation could not be prepared. Draft retained; no issuance was sent. " + e.message;
+        editor.state.amendmentError = "The initial citation could not be prepared. Draft retained; no issuance was sent. " + e.message;
         await services.saveDrafts();
         services.render();
         return false;
       }
     }
-    WriterState.state.publicationBusy = id;
+    editor.state.publicationBusy = id;
     if (!(await services.commitAmendment(cid, attempt, d))) {
-      WriterState.state.publicationBusy = null;
-      WriterState.state.modal = null;
+      editor.state.publicationBusy = null;
+      editor.state.modal = null;
       services.render();
       return false;
     }
-    delete WriterState.WORK.recordForms[id + ":final"];
-    WriterState.state.amendmentError = "";
-    WriterState.state.docId = id;
-    WriterState.state.screen = "write";
+    delete editor.WORK.recordForms[id + ":final"];
+    editor.state.amendmentError = "";
+    editor.state.docId = id;
+    editor.state.screen = "write";
     services.render();
     const issuedDocs = [doc(id)].filter((x) => !deliveredByCitation(x));
     if (wanted) {
       const citation = doc(attempt.payload.snapshot.id);
       if (citation && citation.type === "citation") {
         issuedDocs.push(citation);
-        WriterState.state.docId = citation.id;
+        editor.state.docId = citation.id;
       }
     }
     // Both official snapshots are committed before either PDF is filed. Each filing
@@ -133,8 +134,7 @@ export function createPublicationWorkflow(services) {
       // R59: once the shared save is confirmed and filing and email were attempted, return to Workspace with the
       // issued case highlighted. A legacy notice still waiting for its separate initial citation stays open, and
       // an inspector who has already moved on (another screen, document or dialog) is not pulled back.
-      const stillHere =
-        WriterState.state.screen === "write" && !WriterState.state.modal && [id, ...issuedDocs.map((x) => x.id)].includes(WriterState.state.docId);
+      const stillHere = editor.state.screen === "write" && !editor.state.modal && [id, ...issuedDocs.map((x) => x.id)].includes(editor.state.docId);
       if (stillHere && !services.needsInitialCitation(doc(id))) {
         workspace = services.revealIssuedCase(cid);
         if (workspace && filed) {
@@ -144,7 +144,7 @@ export function createPublicationWorkflow(services) {
       }
       return true;
     } finally {
-      WriterState.state.publicationBusy = null;
+      editor.state.publicationBusy = null;
       services.render();
       if (workspace) services.focusIssuedCase(cid);
     }
@@ -164,9 +164,7 @@ export function createPublicationWorkflow(services) {
           : "",
       ) +
       "" +
-      "".concat(
-        WriterState.state.amendmentError ? '<div class="banner alert" role="alert">' + esc(WriterState.state.amendmentError) + "</div>" : "",
-      ) +
+      "".concat(editor.state.amendmentError ? '<div class="banner alert" role="alert">' + esc(editor.state.amendmentError) + "</div>" : "") +
       ""
     );
   }

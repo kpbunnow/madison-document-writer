@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
 import { continuingItemsForVisits } from "./case_projection.js";
 import { NEW_TYPES, DOC_TYPES } from "./document_types.js";
@@ -1043,7 +1044,7 @@ export function initNewDocuments(services) {
   }
   function chooser(r) {
     if (r.importRule) return statusChooser(r);
-    const saved = WriterState.WORK.actionChoices?.[r.id];
+    const saved = editor.WORK.actionChoices?.[r.id];
     if (saved && !r.draft) {
       r.followupIntent = saved.intent;
       r.actionGroup = saved.group;
@@ -1134,8 +1135,8 @@ export function initNewDocuments(services) {
   }
   function createSpecial(r, type) {
     if (r.docId && doc(r.docId)?.draft) {
-      WriterState.state.docId = r.docId;
-      WriterState.state.screen = "write";
+      editor.state.docId = r.docId;
+      editor.state.screen = "write";
       services.render();
       return;
     }
@@ -1147,8 +1148,8 @@ export function initNewDocuments(services) {
     }
     const existing = draftDocFor(r.caseId);
     if (existing) {
-      WriterState.state.docId = existing.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = existing.id;
+      editor.state.screen = "write";
       services.render();
       services.toast("Resume the unfinished document before starting another.");
       return;
@@ -1201,8 +1202,8 @@ export function initNewDocuments(services) {
     syncAffected(d);
     WriterState.DOCS.unshift(d);
     if (r.draft) r.docId = d.id;
-    WriterState.state.docId = d.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
     services.saveDrafts();
     services.render();
   }
@@ -1241,7 +1242,7 @@ export function initNewDocuments(services) {
     const records = d.serviceRecords || [],
       latest = records[records.length - 1],
       key = "service:" + d.id,
-      form = WriterState.WORK.recordForms[key] || {},
+      form = editor.WORK.recordForms[key] || {},
       field = (k, l, type = "text") =>
         '<label class="f"><span>' + l + '</span><input type="' + type + '" data-service-field="' + k + '" value="' + e(form[k] || "") + '"></label>';
     return (
@@ -1261,7 +1262,7 @@ export function initNewDocuments(services) {
           "</p>"
         : "<p>No completed service / publication recorded.</p>") +
       '<fieldset class="grid g2" aria-label="Service evidence" ' +
-      (WriterState.state.publicationBusy === d.id ? "disabled" : "") +
+      (editor.state.publicationBusy === d.id ? "disabled" : "") +
       ('><label class="f"><span>Actual method</span><select data-service-field="' +
         'method"><option value="">Choose…</option><option value="service" ') +
       (form.method === "service" ? "selected" : "") +
@@ -1272,7 +1273,7 @@ export function initNewDocuments(services) {
       field("reference", "Supporting record / evidence") +
       field("courtReference", "Court restriction reference (if applicable)") +
       '</fieldset><button class="btn" ' +
-      (WriterState.state.publicationBusy === d.id ? "disabled" : "") +
+      (editor.state.publicationBusy === d.id ? "disabled" : "") +
       ' data-save-service="' +
       e(d.id) +
       '">' +
@@ -1283,7 +1284,7 @@ export function initNewDocuments(services) {
   async function saveService(docId) {
     const d = doc(docId),
       key = "service:" + docId,
-      form = WriterState.WORK.recordForms[key] || {},
+      form = editor.WORK.recordForms[key] || {},
       old = (d?.serviceRecords || []).at(-1);
     if (
       !d ||
@@ -1314,7 +1315,7 @@ export function initNewDocuments(services) {
       },
     };
     if (await services.commitRecordAttempt(d.caseId, attempt)) {
-      delete WriterState.WORK.recordForms[key];
+      delete editor.WORK.recordForms[key];
       services.saveDrafts();
       services.render();
     }
@@ -1374,23 +1375,23 @@ export function initNewDocuments(services) {
       return null;
     }
     if (!type) {
-      WriterState.WORK.currentAction = { cid, type: "", group: "" };
-      WriterState.state.screen = "caseactions";
+      editor.WORK.currentAction = { cid, type: "", group: "" };
+      editor.state.screen = "caseactions";
       services.saveDrafts();
       services.render();
       return;
     }
     const pending = draftDocFor(cid);
     if (pending) {
-      WriterState.state.docId = pending.id;
-      WriterState.state.screen = "write";
+      editor.state.docId = pending.id;
+      editor.state.screen = "write";
       services.render();
       return;
     }
     const src = services.sourceDocFor(cid) || docsFor(cid).find(isEffective);
     if (!src) return;
-    WriterState.state.modal = null;
-    WriterState.state.screen = "write";
+    editor.state.modal = null;
+    editor.state.screen = "write";
     const factual = reinspFor(cid)
       .filter((r) => !r.draft && r.sourceDocId === src.id)
       .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
@@ -1425,12 +1426,12 @@ export function initNewDocuments(services) {
     };
     if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
     WriterState.DOCS.unshift(d);
-    WriterState.state.docId = d.id;
+    editor.state.docId = d.id;
     services.saveDrafts();
     services.render();
   }
   function caseActionScreen() {
-    const choice = WriterState.WORK.currentAction || {},
+    const choice = editor.WORK.currentAction || {},
       k = kase(choice.cid),
       referred = isReferredCase(choice.cid),
       closed = services.sourceDocFor(choice.cid)?.type === "compliance";
@@ -1501,41 +1502,41 @@ export function initNewDocuments(services) {
   }
   function editEvent(ev) {
     const el = ev.target,
-      d = doc(WriterState.state.docId),
-      r = reinsp(WriterState.state.reinspId);
+      d = doc(editor.state.docId),
+      r = reinsp(editor.state.reinspId);
     if (el.dataset.caseActionGroup) {
-      WriterState.WORK.currentAction.group = el.dataset.caseActionGroup;
-      WriterState.WORK.currentAction.type = "";
+      editor.WORK.currentAction.group = el.dataset.caseActionGroup;
+      editor.WORK.currentAction.type = "";
       services.saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.caseActionType) {
-      WriterState.WORK.currentAction.type = el.dataset.caseActionType;
+      editor.WORK.currentAction.type = el.dataset.caseActionType;
       services.saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.serviceField && d) {
       const key = "service:" + d.id;
-      WriterState.WORK.recordForms[key] = WriterState.WORK.recordForms[key] || {};
-      WriterState.WORK.recordForms[key][el.dataset.serviceField] = el.value;
+      editor.WORK.recordForms[key] = editor.WORK.recordForms[key] || {};
+      editor.WORK.recordForms[key][el.dataset.serviceField] = el.value;
       services.scheduleDraftSave();
       return true;
     }
     if (el.dataset.actionGroup && r) {
       r.actionGroup = el.dataset.actionGroup;
       r.followupIntent = "";
-      WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
-      WriterState.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
+      editor.WORK.actionChoices = editor.WORK.actionChoices || {};
+      editor.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
       services.saveDrafts();
       refreshControls(el);
       return true;
     }
     if (el.dataset.actionType && r) {
       r.followupIntent = el.dataset.actionType;
-      WriterState.WORK.actionChoices = WriterState.WORK.actionChoices || {};
-      WriterState.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
+      editor.WORK.actionChoices = editor.WORK.actionChoices || {};
+      editor.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
       services.saveDrafts();
       refreshControls(el);
       return true;
@@ -1656,7 +1657,7 @@ export function initNewDocuments(services) {
     );
     if (!el) return false;
     if (el.hasAttribute("data-adopt-best-interest")) {
-      const d = doc(WriterState.state.docId);
+      const d = doc(editor.state.docId);
       if (d?.type === "bestInterestExtension" && d.draft && !services.isLocked(d) && !d.correction && !d.pendingAmendment) {
         // R62: adoption moves to the current all-item format (Reasons, no safety confirmation or signer).
         d.authoringVersion = ALL_ITEM_EXTENSIONS;
@@ -1672,7 +1673,7 @@ export function initNewDocuments(services) {
       const src = doc(el.dataset.initialNotice);
       if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {
         services.newDoc(src.caseId, "notice");
-        const d = doc(WriterState.state.docId);
+        const d = doc(editor.state.docId);
         d.items = src.items.map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id }));
         services.saveDrafts();
         services.render();
@@ -1680,7 +1681,7 @@ export function initNewDocuments(services) {
       return true;
     }
     if (el.hasAttribute("data-create-case-action")) {
-      const c = WriterState.WORK.currentAction;
+      const c = editor.WORK.currentAction;
       if (c?.type) caseAction(c.cid, c.type);
       return true;
     }
@@ -1689,7 +1690,7 @@ export function initNewDocuments(services) {
       return true;
     }
     if (el.hasAttribute("data-create-action")) {
-      const r = reinsp(WriterState.state.reinspId);
+      const r = reinsp(editor.state.reinspId);
       if (r && r.followupIntent) {
         if (specialType(r.followupIntent)) createSpecial(r, r.followupIntent);
         else services.docFromReinspection(r, r.followupIntent);
@@ -1699,8 +1700,8 @@ export function initNewDocuments(services) {
     if (el.dataset.anotherAction) {
       const r = reinsp(el.dataset.anotherAction);
       if (r) {
-        WriterState.state.reinspId = r.id;
-        WriterState.state.screen = "actions";
+        editor.state.reinspId = r.id;
+        editor.state.screen = "actions";
         services.render();
       }
       return true;
@@ -1712,7 +1713,7 @@ export function initNewDocuments(services) {
     return false;
   }
   function actionScreen() {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     return r
       ? services.shell(
           "Add document for this inspection",

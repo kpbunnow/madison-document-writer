@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 import { recordDay } from "../assets/shared.js";
 
@@ -152,7 +153,7 @@ export function createEditorScreens(services) {
   }
 
   function reviewModalHTML() {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d) return "";
     return (
       '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" data-review-dialog><div class="modal-h"><h2>Review</h2></div>' +
@@ -171,11 +172,11 @@ export function createEditorScreens(services) {
     const locked = services.isLocked(d);
     if (services.recordIntegrity.status(kase(d.caseId)).valid === false)
       return { label: "Review record problem", attrs: `data-sync-safety="${esc(d.caseId)}"` };
-    const pending = Object.values(WriterState.RECORD_ATTEMPTS).find((x) => x.cid === d.caseId && x.pendingAmendment?.payload?.docId === d.id);
+    const pending = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === d.caseId && x.pendingAmendment?.payload?.docId === d.id);
     if (pending) return { label: "Confirm saved action", attrs: `data-resumerecord="${esc(pending.recordKey)}"` };
     if (d.pendingAmendment)
       return { label: "Confirm save", attrs: 'data-editor-command="' + (d.correction ? "btn-retrycorrection" : "btn-retrypublish") + '"' };
-    if (WriterState.state.publicationBusy && doc(WriterState.state.publicationBusy)?.caseId === d.caseId)
+    if (editor.state.publicationBusy && doc(editor.state.publicationBusy)?.caseId === d.caseId)
       return { label: "Finishing document save…", attrs: "disabled" };
     if (d.draft && locked) return { label: "Review saved work", attrs: `data-sync-safety="${esc(d.caseId)}"` };
     if (!locked)
@@ -188,28 +189,26 @@ export function createEditorScreens(services) {
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest("[data-citation-copies]")) return;
-    const d = doc(WriterState.state.docId);
-    if (!d || WriterState.state.screen !== "write") return;
-    WriterState.state.compactCitationCopies = WriterState.state.compactCitationCopies === d.id ? null : d.id;
+    const d = doc(editor.state.docId);
+    if (!d || editor.state.screen !== "write") return;
+    editor.state.compactCitationCopies = editor.state.compactCitationCopies === d.id ? null : d.id;
     services.render();
     document.querySelector("[data-citation-copies]")?.focus();
   });
 
   function editorEnhance() {
-    const d = doc(WriterState.state.docId);
-    if (!d || WriterState.state.screen !== "write") return;
+    const d = doc(editor.state.docId);
+    if (!d || editor.state.screen !== "write") return;
     const count = ((frozenOf(d) || {}).courtCopies || globalCourtCopies()).length || 1;
     for (const parent of document.querySelectorAll(".document-workspace .desk,.document-workspace .initial-citation-previews")) {
       parent
         .querySelectorAll(".cit")
-        .forEach((face, index) =>
-          face.toggleAttribute("data-editor-extra-copy", WriterState.state.compactCitationCopies === d.id && index % count !== 0),
-        );
+        .forEach((face, index) => face.toggleAttribute("data-editor-extra-copy", editor.state.compactCitationCopies === d.id && index % count !== 0));
     }
   }
 
   function editorSync() {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d || !document.querySelector(".document-workspace")) return;
     const readiness = editorReadiness(d);
     const chip = document.getElementById("chk-chip");
@@ -255,9 +254,9 @@ export function createEditorScreens(services) {
   }
 
   function screenWrite() {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d) {
-      WriterState.state.screen = "cases";
+      editor.state.screen = "cases";
       return services.screenCases();
     }
     services.snow.prepare(d);
@@ -366,7 +365,7 @@ export function createEditorScreens(services) {
       '<div class="editor-preview-tools no-print"><span>Working document' +
       "".concat(d.type === "citation" || services.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
       "</span>" +
-      `${d.type === "citation" || services.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (WriterState.state.compactCitationCopies !== d.id) + '">' + (WriterState.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
+      `${d.type === "citation" || services.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
       '</div><div class="desk">' +
       `${services.documentHTML(d)}` +
       "</div>" +
@@ -436,7 +435,7 @@ export function createEditorScreens(services) {
   }
 
   function moveItem(id, direction, grip = false) {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     if (!d || !services.structEditable(d)) return false;
     const ix = d.items.findIndex((it) => it.id === id),
       to = ix + (direction === "up" ? -1 : 1);
@@ -479,8 +478,8 @@ export function createEditorScreens(services) {
     };
     WriterState.DOCS.unshift(nd);
     if (services.snow.isCase(kase(caseId))) services.snow.addDefault(nd);
-    WriterState.state.docId = nd.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = nd.id;
+    editor.state.screen = "write";
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
@@ -488,7 +487,7 @@ export function createEditorScreens(services) {
   }
 
   function refreshSheet() {
-    const d = doc(WriterState.state.docId),
+    const d = doc(editor.state.docId),
       desk = document.querySelector(".desk");
     if (d && desk) {
       desk.innerHTML = services.documentHTML(d);
@@ -528,7 +527,7 @@ export function createEditorScreens(services) {
       box.setAttribute("aria-labelledby", "dialog-title");
     }
     box.tabIndex = -1;
-    if (WriterState.state.modal === "final" || WriterState.state.modal === "review") {
+    if (editor.state.modal === "final" || editor.state.modal === "review") {
       box.focus({ preventScroll: true });
       const body = box.querySelector(".modal-b");
       if (body) body.scrollTop = 0;
