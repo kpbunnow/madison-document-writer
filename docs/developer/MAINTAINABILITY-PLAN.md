@@ -889,3 +889,9 @@ Measured counts: {'complexity': 55, 'max-depth': 0, 'max-lines-per-function': 11
 Converted result-date/note/citation controls and next-due-date screen markup to escaped templates; raw fragments contain only local renderer output. Passed 1,026 exact retained-screen comparisons, screen escaping/print-owner exclusion, fresh test build, screen CSS contracts, R46 reinspection, reinspection-service behavior, module boundaries, test seams, ESLint and formatting. Controls, whitespace, labels, disabled states and release identities retained. Calendar-generated minimum/maximum attributes now flow through the existing screen escape.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## worksheet-walk-copy-templates
+
+Converted walkthrough explanation text and progress-step list to escaped templates. Retained exact wording, whitespace and current-step attributes; raw fragments contain only local step renderer output. Passed 1,026 exact frozen-screen comparisons, escaping/print exclusion, independent reinspection behavior, module boundaries, test seams, ESLint and formatting. Release identities unchanged.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
