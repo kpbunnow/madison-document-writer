@@ -531,3 +531,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The record-row coordinator and its task links use escaped templates for data and explicit trusted task-owner attribute fragments. Existing named row/proof/document/deadline renderers keep their original order, and all output whitespace, action attributes and displayed wording remain byte-equivalent. All 1,033 historical HTML/state/effect comparisons, retained-class/style guards and independent screen dependencies pass. No source rule, proof/status precedence, stored data, CSS or print owner changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 Workspace quick-view template
+
+Quick-view markup uses escaped templates and a named static resolution-attribute fragment. Labels/counts and pressed state remain in their original evaluation order, with identical source text and output whitespace. All 1,033 historical HTML/state/effect comparisons and retained-class/style checks pass. The static attribute fragment is the only raw interpolation; no case data or dynamic renderer result is granted implicit trust.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
