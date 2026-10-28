@@ -63,6 +63,40 @@ def owner_key(parts):
     return key + "|" + str(parts.get("ZipCode", ""))[:5]
 
 
+def _normalize_mailing_parts(parts, state):
+    parts["StateName"] = state
+    for key in ("StreetNamePreDirectional", "StreetNamePostDirectional"):
+        if key in parts:
+            parts[key] = DIRECTIONS.get(clean(parts[key]), clean(parts[key]))
+    if "StreetNamePostType" in parts:
+        parts["StreetNamePostType"] = SUFFIX.get(clean(parts["StreetNamePostType"]), clean(parts["StreetNamePostType"]))
+    if "OccupancyType" in parts:
+        parts["OccupancyType"] = UNITS.get(clean(parts["OccupancyType"]), clean(parts["OccupancyType"]))
+    if parts.get("OccupancyIdentifier"):
+        parts["OccupancyIdentifier"] = clean(parts["OccupancyIdentifier"]).lstrip("#").strip()
+
+
+def _normalized_street_line(parts):
+    if not parts.get("AddressNumber") or not parts.get("StreetName"):
+        return None
+    street = " ".join(
+        clean(parts.get(k, ""))
+        for k in (
+            "AddressNumber",
+            "AddressNumberSuffix",
+            "StreetNamePreDirectional",
+            "StreetNamePreType",
+            "StreetName",
+            "StreetNamePostType",
+            "StreetNamePostDirectional",
+        )
+        if parts.get(k)
+    )
+    if parts.get("OccupancyIdentifier"):
+        street += " " + (parts.get("OccupancyType") or "UNIT") + " " + parts["OccupancyIdentifier"]
+    return street
+
+
 def parse_address(raw):
     if not isinstance(raw, str) or not 0 < len(raw) <= 3000:
         raise ValueError("Enter a mailing address of at most 3000 characters")
@@ -89,39 +123,16 @@ def parse_address(raw):
     zipcode = parts.get("ZipCode", "")
     if not state or not re.fullmatch(r"\d{5}(?:-\d{4})?", zipcode) or not parts.get("PlaceName"):
         return {**result, "parts": parts}
-    parts["StateName"] = state
-    for key in ("StreetNamePreDirectional", "StreetNamePostDirectional"):
-        if key in parts:
-            parts[key] = DIRECTIONS.get(clean(parts[key]), clean(parts[key]))
-    if "StreetNamePostType" in parts:
-        parts["StreetNamePostType"] = SUFFIX.get(clean(parts["StreetNamePostType"]), clean(parts["StreetNamePostType"]))
-    if "OccupancyType" in parts:
-        parts["OccupancyType"] = UNITS.get(clean(parts["OccupancyType"]), clean(parts["OccupancyType"]))
-    if parts.get("OccupancyIdentifier"):
-        parts["OccupancyIdentifier"] = clean(parts["OccupancyIdentifier"]).lstrip("#").strip()
+    _normalize_mailing_parts(parts, state)
     if kind == "PO Box":
         if not parts.get("USPSBoxID"):
             return {**result, "parts": parts}
         street = "PO BOX " + clean(parts["USPSBoxID"])
         type_name = "po-box"
     else:
-        if not parts.get("AddressNumber") or not parts.get("StreetName"):
+        street = _normalized_street_line(parts)
+        if street is None:
             return {**result, "parts": parts}
-        street = " ".join(
-            clean(parts.get(k, ""))
-            for k in (
-                "AddressNumber",
-                "AddressNumberSuffix",
-                "StreetNamePreDirectional",
-                "StreetNamePreType",
-                "StreetName",
-                "StreetNamePostType",
-                "StreetNamePostDirectional",
-            )
-            if parts.get(k)
-        )
-        if parts.get("OccupancyIdentifier"):
-            street += " " + (parts.get("OccupancyType") or "UNIT") + " " + parts["OccupancyIdentifier"]
         type_name = "street"
     recipient = parts.get("Recipient", "")
     return {

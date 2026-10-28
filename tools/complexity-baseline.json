@@ -3,7 +3,7 @@
     "complexity": 75,
     "max-depth": 0,
     "max-lines-per-function": 124,
-    "python": 17
+    "python": 16
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -205,7 +205,6 @@
     "app/modules/workspace_tasks.js:createWorkspaceTasks#1:max-lines-per-function": 120,
     "app/modules/workspace_tasks.js:createWorkspaceTasks#1/workspaceTasks#1:max-lines-per-function": 117,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 96,
-    "helper/address_parser.py:parse_address:C901": 15,
     "helper/artifact_store.py:file_operation:C901": 18,
     "helper/case_integrity.py:__init__:C901": 19,
     "helper/case_integrity.py:verify_record:C901": 20,
