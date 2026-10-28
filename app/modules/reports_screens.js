@@ -446,6 +446,54 @@ function reportCaseMetadataHTML(services, c) {
   );
 }
 
+function reportCaseViolationRowsHTML(services, c, outc) {
+  return c.violations
+    .map((v) => {
+      const cits = c.citations.filter((x) => x.no === v.no);
+      return (
+        '<tr><td class="n">' +
+        `${services.esc(v.no)}` +
+        "</td><td>" +
+        `${services.esc(v.title)}` +
+        '<div class="muted">' +
+        `${services.esc(v.sections.join(", "))}` +
+        "</div></td><td>" +
+        `${services.esc(v.typeLabel)}` +
+        "</td>\n        <td>" +
+        "".concat(
+          v.withdrawn
+            ? "Withdrawn — entered in error"
+            : v.done
+              ? "Corrected " + services.esc(services.fmtDate(v.doneOn))
+              : v.lastOutcome
+                ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
+                : "Open",
+        ) +
+        '</td><td class="n">' +
+        `${services.fmtNum(v.visits)}` +
+        "</td>\n        <td>" +
+        "".concat(
+          cits
+            .map(
+              (x) =>
+                "" +
+                `${services.esc(x.num)}` +
+                ' <span class="muted">' +
+                `${services.esc(services.fmtDate(x.issued))}` +
+                ", " +
+                `${services.esc(x.ordinance)}` +
+                ", " +
+                `${services.esc(services.fmtMoney(x.amount))}` +
+                "</span>",
+            )
+            .join("<br>") || "—",
+        ) +
+        "</td></tr>"
+      );
+    })
+    .join("");
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1022,51 +1070,7 @@ export function createReportsScreens(services) {
       'em</th><th>Violation</th><th>Type</th><th>Status</th><th class="n">Visit' +
       "s</th><th>Citations</th></tr></thead><tbody>\n      " +
       "".concat(
-        c.violations
-          .map((v) => {
-            const cits = c.citations.filter((x) => x.no === v.no);
-            return (
-              '<tr><td class="n">' +
-              `${services.esc(v.no)}` +
-              "</td><td>" +
-              `${services.esc(v.title)}` +
-              '<div class="muted">' +
-              `${services.esc(v.sections.join(", "))}` +
-              "</div></td><td>" +
-              `${services.esc(v.typeLabel)}` +
-              "</td>\n        <td>" +
-              "".concat(
-                v.withdrawn
-                  ? "Withdrawn — entered in error"
-                  : v.done
-                    ? "Corrected " + services.esc(services.fmtDate(v.doneOn))
-                    : v.lastOutcome
-                      ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
-                      : "Open",
-              ) +
-              '</td><td class="n">' +
-              `${services.fmtNum(v.visits)}` +
-              "</td>\n        <td>" +
-              "".concat(
-                cits
-                  .map(
-                    (x) =>
-                      "" +
-                      `${services.esc(x.num)}` +
-                      ' <span class="muted">' +
-                      `${services.esc(services.fmtDate(x.issued))}` +
-                      ", " +
-                      `${services.esc(x.ordinance)}` +
-                      ", " +
-                      `${services.esc(services.fmtMoney(x.amount))}` +
-                      "</span>",
-                  )
-                  .join("<br>") || "—",
-              ) +
-              "</td></tr>"
-            );
-          })
-          .join("") || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>',
+        reportCaseViolationRowsHTML(services, c, outc) || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>',
       ) +
       "\n    </tbody></table></div></div>"
     );
