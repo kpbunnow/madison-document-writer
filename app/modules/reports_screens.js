@@ -306,6 +306,17 @@ function workbookContentTypesXML(named, x) {
   );
 }
 
+function workbookManifestXML(services, named, x) {
+  return (
+    x +
+    ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
+      'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
+      'ionships"><sheets>') +
+    named.map((s, i) => `<sheet name="${services.exports.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
+    "</sheets></workbook>"
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1307,13 +1318,7 @@ export function createReportsScreens(services) {
       },
       {
         name: "xl/workbook.xml",
-        data:
-          x +
-          ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
-            'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
-            'ionships"><sheets>') +
-          named.map((s, i) => `<sheet name="${services.exports.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
-          "</sheets></workbook>",
+        data: workbookManifestXML(services, named, x),
       },
       {
         name: "xl/_rels/workbook.xml.rels",
