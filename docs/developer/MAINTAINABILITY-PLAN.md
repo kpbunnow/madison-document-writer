@@ -817,3 +817,9 @@ Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 11
 Separated notice eligibility and status inclusion into private decisions while retaining area, inspector, owner and violation precedence. Historical status is still computed at the original point even without a status filter; TODAY remains a short-circuit read. All 4501 frozen comparisons pass before/after. Model comparisons, authenticated loading, Reports boundaries and fresh-build ordinance/mismatch/export-scope regressions pass, with module boundaries, seam inventory, ESLint and formatting. No public inputs, report outputs, dependencies or version identities change.
 
 Measured counts: {'complexity': 62, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 61, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
+
+## walk-shortcut-guard
+
+Separated the initial walkthrough eligibility guard without changing registration or dispatch. Context validation retains its original place before prevented/repeat/modifier checks, and target/key reads still follow it. All 4561 comparisons pass before/after, including an eligible-key/target/undo matrix and contexts that mutate live worksheet state. Event registration, reinspection service, fresh-build R46 outcomes, module boundaries, seams, ESLint and formatting pass. No shortcut, input ownership, native action timing, dependency or public factory input changes.
+
+Measured counts: {'complexity': 61, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15} → {'complexity': 60, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.

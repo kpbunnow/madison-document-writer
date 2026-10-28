@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 61,
+    "complexity": 60,
     "max-depth": 0,
     "max-lines-per-function": 117,
     "python": 15
@@ -138,8 +138,7 @@
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:max-lines-per-function": 85,
     "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 171,
     "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
-    "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 211,
-    "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1:complexity": 25,
+    "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
     "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 623,
     "app/modules/reinspection.js:createReinspection#1/attachCheckTargets#1:complexity": 26,
     "app/modules/reinspection.js:createReinspection#1/focusCheckTarget#1:complexity": 33,
