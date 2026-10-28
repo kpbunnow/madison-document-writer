@@ -157,7 +157,7 @@
     "app/modules/reinspection_entry.js:createReinspectionEntry#1/startReinspection#1:complexity": 23,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 211,
     "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1:complexity": 25,
-    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 744,
+    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 743,
     "app/modules/reinspection.js:createReinspection#1/attachCheckTargets#1:complexity": 26,
     "app/modules/reinspection.js:createReinspection#1/docFromReinspection#1:complexity": 49,
     "app/modules/reinspection.js:createReinspection#1/docFromReinspection#1:max-lines-per-function": 144,

@@ -17,7 +17,12 @@ const assert = require("node:assert/strict"),
     "function referenceScreenReinspect(",
   );
   source =
-    source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("screenReinspect,", "screenReinspect,referenceScreenReinspect,");
+    source.slice(0, ret.start) +
+    "const referenceScreenReinspect = ((services) => (" +
+    reference +
+    "))(historicalServices);\n" +
+    source.slice(ret.start).replace("screenReinspect,", "screenReinspect,referenceScreenReinspect,");
+  source = source.replace("export function createReinspection(services)", "export function createReinspection(services, historicalServices)");
   source +=
     '\nexport {WriterState} from "./state.js";export {validISO,parseTime} from "./calendar.js";export {INSPECTORS} from "./data/inspectors.js";';
   const compiled = await esbuild.build({
@@ -53,14 +58,13 @@ const assert = require("node:assert/strict"),
     newDocuments: { chooser: () => "<p>Permitted documents</p>" },
     shell: (title, crumb, actions, body) => body,
   };
-  const api = createReinspection(
-    new Proxy(methods, {
-      get(target, key) {
-        calls.push(key);
-        return target[key];
-      },
-    }),
-  );
+  const historicalServices = new Proxy(methods, {
+    get(target, key) {
+      calls.push(key);
+      return target[key];
+    },
+  });
+  const api = createReinspection({ ui: historicalServices, inspection: historicalServices, authoring: historicalServices }, historicalServices);
   function reset() {
     const kase = { id: "c", address: "100 TEST <&> ST", number: "CB2026-100-00001", date: "2026-10-20" };
     const items = flags.items.map((spec, i) => ({

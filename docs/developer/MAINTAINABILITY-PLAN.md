@@ -429,3 +429,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The 30-field recovery event interface becomes explicit UI/recovery/publication groups of 4/18/8 fields. Lazy service construction, all sixty listener checkpoints and replaced-DOM form continuity pass unchanged. Recovery export naming is a private pure helper, with an independent public-event test pinning the original filename, JSON bytes, synchronous invocation and selected identity. No stored format changes. Reinspection remains the final over-wide interface; core forwarder reduction is still open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 reinspection service groups
+
+The final over-wide 30-field interface becomes explicit UI/inspection/authoring groups of 5/16/9 fields. The exact composition audit verifies all used paths, lazy leaves and the 25-field limit. Independent workflow outcomes, undo/focus/save order and all 1,026 exact historical worksheet snapshots pass unchanged. Historical rendering keeps its original flat adapters in an explicit test-only closure; current production receives named groups. A private check-panel renderer is separated without changing its public wrapper or HTML. All measured Writer interfaces are now at most 25 fields. A broader scan found a 40-field Reports screen interface, which also needs narrowing; core forwarder reduction remains open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
