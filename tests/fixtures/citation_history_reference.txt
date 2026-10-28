@@ -1,0 +1,38 @@
+def citation_history(folder, exclude_number=""):
+    """Read all effective citation snapshots, without altering local projections.
+
+    Atomic replacement gives complete per-file reads. A corrupt/duplicate case
+    blocks the request; incomplete history must never suggest a first offense.
+    Publication serializes R30 citation writes before this read.
+    """
+    root = Path(folder)
+    if not root.is_dir():
+        raise OSError("The shared case folder is unavailable")
+    context = case_integrity.VerificationContext(root)
+    history, numbers = [], set()
+    for path in sorted(root.glob("*.json")):
+        if path.name.startswith("_"):
+            continue
+        value = json.loads(path.read_text(encoding="utf-8"))
+        validate_case(value, legacy=True)
+        case_integrity.require_valid(value, folder, context)
+        number = case_number_key(value["case"]["number"])
+        if number in numbers:
+            raise ValueError("Duplicate shared case prevents complete citation history review")
+        numbers.add(number)
+        if number == exclude_number:
+            continue
+        docs, excluded = {}, set()
+        for event in sorted(value.get("events", []), key=event_order):
+            payload = event.get("payload", {})
+            snap = payload.get("snapshot")
+            if record_event(event) and snap:
+                docs[snap["id"]] = snap
+                if payload.get("replaces"):
+                    excluded.add(payload["replaces"])
+            if event["type"] == "document.voided":
+                excluded.add(payload.get("docId"))
+        for identity, snap in docs.items():
+            if identity not in excluded and snap.get("type") == "citation":
+                history.append({"case": snap.get("frozen", {}).get("case", value["case"]), "document": snap})
+    return {"ok": True, "history": history}

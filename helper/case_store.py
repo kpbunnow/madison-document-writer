@@ -1084,6 +1084,22 @@ def legacy_scheduled_citation_base(ordinance, tier):
     return Decimal(str(pick["a"])) if pick else None
 
 
+def _append_effective_citations(value, history):
+    docs, excluded = {}, set()
+    for event in sorted(value.get("events", []), key=event_order):
+        payload = event.get("payload", {})
+        snap = payload.get("snapshot")
+        if record_event(event) and snap:
+            docs[snap["id"]] = snap
+            if payload.get("replaces"):
+                excluded.add(payload["replaces"])
+        if event["type"] == "document.voided":
+            excluded.add(payload.get("docId"))
+    for identity, snap in docs.items():
+        if identity not in excluded and snap.get("type") == "citation":
+            history.append({"case": snap.get("frozen", {}).get("case", value["case"]), "document": snap})
+
+
 def citation_history(folder, exclude_number=""):
     """Read all effective citation snapshots, without altering local projections.
 
@@ -1108,19 +1124,7 @@ def citation_history(folder, exclude_number=""):
         numbers.add(number)
         if number == exclude_number:
             continue
-        docs, excluded = {}, set()
-        for event in sorted(value.get("events", []), key=event_order):
-            payload = event.get("payload", {})
-            snap = payload.get("snapshot")
-            if record_event(event) and snap:
-                docs[snap["id"]] = snap
-                if payload.get("replaces"):
-                    excluded.add(payload["replaces"])
-            if event["type"] == "document.voided":
-                excluded.add(payload.get("docId"))
-        for identity, snap in docs.items():
-            if identity not in excluded and snap.get("type") == "citation":
-                history.append({"case": snap.get("frozen", {}).get("case", value["case"]), "document": snap})
+        _append_effective_citations(value, history)
     return {"ok": True, "history": history}
 
 

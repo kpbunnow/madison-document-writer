@@ -603,3 +603,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Atomic group validation retains the initial document index, then the complete notice pass, then the complete citation pass. Named checks keep their original short-circuit identity, selection and companion checks; neither merges, writes or repairs records. Coordinator McCabe complexity falls from 11 to 3; notice and citation checks are 6 and 4. The new 3,000-case differential corpus and reversed-event precedence assertion pass, along with original R28 atomic-store (8), authoring (9), workflow (14), history/publication comparisons, Ruff F and formatting. No partial issuance, stored format, signer/identity, trust, print or release change.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 25} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 24}.
+
+## M2 citation history scan phases
+
+Citation-history reading retains folder readiness, sorted UTF-8 reads, shape and integrity checks, duplicate numbering and exclusions in the scanner. Only effective snapshot projection moves to a named helper using the same history list. Coordinator McCabe complexity falls from 12 to 6; projection is 7. A 3,000-case differential scan uses explicit synthetic guard adapters to compare exact outcomes and read/validation/integrity order, including excluded duplicate cases and ignored underscore files. All nine original R30 real-store and seven UTF-8/integrity tests pass unchanged, along with existing history/pricing comparisons and required Ruff F/format checks. Synthetic guards do not establish trust; existing real-store authority and bytes are unchanged.
+
+Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 24} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 23}.
