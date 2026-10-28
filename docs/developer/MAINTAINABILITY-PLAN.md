@@ -771,3 +771,9 @@ Measured counts: {'complexity': 67, 'max-depth': 0, 'max-lines-per-function': 12
 Converted earlier-visit rows, visit header and progress fragments to escaped screen templates. Source history from the prior M5 review establishes these split literals as retained formatting rather than approved wording boundaries. Data escape by default; raw is confined to joined option/visit markup produced by the tag. Kept element boundaries, exact whitespace and live date/inspector evaluation order. All 1026 frozen worksheet comparisons pass, along with class/style, escaping/print exclusion, screen dependencies, ESLint and formatting. No CSS or printed renderer changes.
 
 Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
+
+## worksheet-filter-template
+
+Converted worksheet count/filter controls to escaped templates, retaining repeated live walk/filter reads, pressed/disabled state, conditional offers and exact whitespace. No raw interpolation is needed in this section. All 1026 frozen worksheet comparisons, class/style and escaping/print-exclusion checks pass, as do ESLint and formatting. No filter behavior, CSS, printed renderer or approved wording changes.
+
+Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15} → {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 120, 'python': 15}.
