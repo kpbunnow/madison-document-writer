@@ -254,62 +254,29 @@ export function createEditorScreens(services) {
 
   function editorSection(id, title, body) {
     return body
-      ? '<section class="editor-section" id="' +
-          `${id}` +
-          '" aria-labelledby="' +
-          `${id}` +
-          '-title"><h2 class="no-print" tabindex="-1" id="' +
-          `${id}` +
-          '-title">' +
-          `${title}` +
-          "</h2>" +
-          `${body}` +
-          "</section>"
+      ? html`<section class="editor-section" id="${id}" aria-labelledby="${id}-title"><h2 class="no-print" tabindex="-1" id="${id}-title">${title}</h2>${raw(body)}</section>`
       : "";
   }
 
   function editorWorkspaceHTML({ d, meta, inspection, work, record, editable, locked, ready }) {
     return (
-      '<div class="document-workspace" data-editor-doc="' +
-      `${esc(d.id)}` +
-      '">' +
-      `${meta}` +
-      "" +
-      `${documentSaveHTML(services.record.app_savedworkContext(), d)}` +
-      "" +
-      `${services.record.publicationPanel(d)}` +
-      "" +
-      `${services.record.filingPanel(d)}` +
-      "" +
-      `${services.record.citationRecoveryPanel(d)}` +
-      "" +
-      "".concat(
-        d.superseded
-          ? '<div class="banner warn no-print"><div><strong>This is a replaced versio' +
-              'n.</strong> <button class="lnk" data-open="' +
-              `${esc(d.superseded.replacedBy)}` +
-              '">Open the corrected document</button></div></div>'
-          : "",
-      ) +
-      '<nav class="editor-sections no-print" aria-label="Document tasks">' +
+      html`<div class="document-workspace" data-editor-doc="${d.id}">${raw(meta)}` +
+      html`${raw(documentSaveHTML(services.record.app_savedworkContext(), d))}` +
+      html`${raw(services.record.publicationPanel(d))}${raw(services.record.filingPanel(d))}${raw(services.record.citationRecoveryPanel(d))}` +
+      (d.superseded
+        ? html`<div class="banner warn no-print"><div><strong>This is a replaced version.</strong> <button class="lnk" data-open="${d.superseded.replacedBy}">Open the corrected document</button></div></div>`
+        : "") +
+      html`<nav class="editor-sections no-print" aria-label="Document tasks">` +
       // Recipients opens the copies and email dialog itself rather than moving to a section.
-      `${editable ? '<button id="btn-cc" aria-haspopup="dialog">Recipients</button>' : ""}` +
+      (editable ? html`<button id="btn-cc" aria-haspopup="dialog">Recipients</button>` : "") +
       // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
       // Review dialog. Neither scrolls the page.
-      `${services.edit.structEditable(d) ? '<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>' : ""}` +
-      '<button id="btn-review" data-editor-review aria-haspopup="dialog">Review' +
-      `${!locked && ready.required.length ? " · " + ready.required.length : ""}` +
-      "</button></nav>" +
-      "".concat(!locked ? '<div class="editor-readiness no-print">' + readinessLineHTML(d, ready) + "</div>" : "") +
-      "" +
-      `${editorSection("editor-inspection", "Inspection", inspection)}` +
-      "" +
-      `${editorSection("editor-items", "Violation items", work)}` +
-      "" +
-      `${record}` +
-      `${!locked ? "<div hidden data-editor-check-messages>" + editorCheckMessagesHTML(ready) + "</div>" : ""}` +
-      `${mobileBarHTML(d, ready)}` +
-      "</div>"
+      (services.edit.structEditable(d) ? html`<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>` : "") +
+      html`<button id="btn-review" data-editor-review aria-haspopup="dialog">Review${!locked && ready.required.length ? " · " + ready.required.length : ""}</button></nav>` +
+      (!locked ? html`<div class="editor-readiness no-print">${raw(readinessLineHTML(d, ready))}</div>` : "") +
+      html`${raw(editorSection("editor-inspection", "Inspection", inspection))}${raw(editorSection("editor-items", "Violation items", work))}${raw(record)}` +
+      (!locked ? html`<div hidden data-editor-check-messages>${raw(editorCheckMessagesHTML(ready))}</div>` : "") +
+      html`${raw(mobileBarHTML(d, ready))}</div>`
     );
   }
   function screenWrite() {

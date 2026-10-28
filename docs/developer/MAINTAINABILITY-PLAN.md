@@ -729,3 +729,9 @@ Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 12
 Converted readiness chips/actions, mobile bar, Review dialog and hidden field messages to escaped screen templates. Added a frozen pre-change helper fixture so references do not share the changed implementation; extended every one of 2031 scenarios to compare the public Review dialog as well as screenWrite. The strengthened comparison passes against pre-change and refactored source. R59 editor workflow passes against a fresh build; class/style, escaping/print exclusion, screen dependencies, seam inventory, ESLint and formatting pass. No existing assertion or frozen reference was changed.
 
 Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## editor-workspace-template
+
+Converted editor workspace composition and named sections to escaped screen templates. Case/document identities, section labels and status counts escape by default; raw is limited to the existing owned renderers and composed section bodies. Retained panel/service order, live structural-edit checks and exact screen output. All 2031 independent frozen screen/Review comparisons pass, as do class/style, escaping/print exclusion, screen dependencies, ESLint and formatting. This completes the editor screen markup conversion; no CSS, approved wording data or printed renderer changes.
+
+Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
