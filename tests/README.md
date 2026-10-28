@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_health_rules.py` | 3,000 status/probe contexts preserve exact diagnostics, caught/uncaught errors, native effect order and live reads; native cleanup retained. |
 | `audit_policy_compilation_rules.py` | 128 varied compilation contexts preserve build-formatted policy bytes, refusals, reads, interpretation and temporary-policy cleanup. |
 | `audit_retained_source_rules.py` | 3,000 retained-source scenarios preserve exact refusals, UTF-8 read order, source bytes and complete compiled policy bytes. |
 | `audit_policy_version_rules.py` | Every retained policy row plus 3,000 malformed version scenarios preserves exact refusals, date-call order, input data and compiled bytes. |

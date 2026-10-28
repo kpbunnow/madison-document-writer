@@ -1,0 +1,54 @@
+def health(server, probe=False):
+    try:
+        folder = server.case_dir()
+    except OSError:
+        folder = None
+    try:
+        share = server.share_root()
+    except OSError:
+        share = None
+
+    def reachable(path):
+        try:
+            return bool(path and path.is_dir())
+        except OSError:
+            return False
+
+    writable = None
+    if probe:
+        try:
+            for target in (folder, share / server.OUTDIR_NAME if share else None):
+                if not reachable(target):
+                    raise OSError("Folder unavailable")
+                with tempfile.NamedTemporaryFile(prefix="._dw-health-", dir=target) as check:
+                    check.write(b"Madison setup check")
+                    check.flush()
+                    os.fsync(check.fileno())
+            writable = True
+        except OSError:
+            writable = False
+    try:
+        manifest = json.loads(server.resource("catalog_manifest.json").read_text(encoding="utf-8"))
+        catalog = manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
+    except (OSError, ValueError):
+        catalog = False
+    try:
+        case_lookup.settings(share)
+        lookup_configured = True
+    except Exception:
+        lookup_configured = False
+    return {
+        "integrityAnchor": case_integrity.anchor_health(folder),
+        "addressParser": address_parser.available(),
+        "addressParserStatus": "Available" if address_parser.available() else "address parser unavailable; R19 fallback",
+        "shareReachable": reachable(share),
+        "caseReachable": reachable(folder),
+        "shareWritable": writable,
+        "catalogManifest": catalog,
+        "catalogCheckedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "lookupConfigured": lookup_configured,
+        "lookupPlatform": os.name == "nt",
+        "lookupConnection": "Not tested",
+        "versionMatch": server.HELPER_VERSION == VERSION,
+        "checkedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
