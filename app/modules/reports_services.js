@@ -11,6 +11,92 @@ function mergeParcelLookup(services, lk) {
   if (!lk.ok) ReportsState.S.parcelNote = lk.error || "the parcel lookup did not complete";
 }
 
+function reportCaseFields(k, pk) {
+  return {
+    caseType: k.caseType || "",
+    number: String(k.number || ""),
+    address: k.address || "",
+    parcel: k.parcel || "",
+    parcelKey: pk,
+    zip: k.zip || "",
+    description: k.description || "",
+    inspector: k.inspector || k.inspectorId || "",
+    opened: k.opened || "",
+    noticeIssued: k.noticeIssued || "",
+    status: k.status || "",
+    noticeActive: k.noticeActive !== false,
+    closedOn: k.closedOn || "",
+    owner: k.owner || "",
+    ownerAddr: k.ownerAddr || [],
+  };
+}
+
+function reportCoordinateFields(now) {
+  return {
+    lat: now && now.lat != null ? now.lat : null,
+    lon: now && now.lon != null ? now.lon : null,
+    located: !!(now && Number.isFinite(now.lat) && Number.isFinite(now.lon) && Math.abs(now.lat) <= 90 && Math.abs(now.lon) <= 180),
+  };
+}
+
+function reportParcelFields(now, at, pk) {
+  return {
+    alderNow: now && now.alder != null ? String(now.alder) : "",
+    alderAtOpen: at && at.alder != null ? String(at.alder) : "",
+    building: now && now.building != null ? String(now.building) : "",
+    ...reportCoordinateFields(now),
+    looked: !!now || (!!pk && ReportsState.S.parcelMissing.indexOf(pk) >= 0),
+  };
+}
+
+function linkReportRecords(s, c, ownerKey, reportOrdinance) {
+  c.violations = (s.violations || []).map((v) =>
+    Object.assign({}, v, {
+      c: c,
+      sections: (v.sections || []).map(reportOrdinance),
+      // As-of reports replace current fields with a retained historical version.
+      // Normalize those copies too, without rewriting the verified summary.
+      ...(Array.isArray(v.history)
+        ? { history: v.history.map((h) => ({ ...h, ...(Array.isArray(h.sections) ? { sections: h.sections.map(reportOrdinance) } : {}) })) }
+        : {}),
+    }),
+  );
+  c.citations = (s.citations || []).map((x) => Object.assign({}, x, { c: c, ordinance: reportOrdinance(x.ordinance) }));
+  c.referrals = (s.referrals || []).map((x) => Object.assign({}, x, { c: c, ownerKey: ownerKey(x.ownerAddr) }));
+  c.visits = s.visits || [];
+  c.documents = s.documents || [];
+}
+
+function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, versionStale, ownerKey, polyHas, reportOrdinance }) {
+  const k = s["case"] || {};
+  if ((s.summaryVersion ?? s.version ?? 0) < SUMMARY_VERSION) {
+    versionStale.push(k.number || "?");
+    return;
+  }
+  const pk = normParcel(k.parcel),
+    hist = (parcels[pk] && parcels[pk].history) || [];
+  const now = hist[hist.length - 1] || null;
+  // the district when the case opened: the parcel as last seen on or
+  // before that date; later observations cannot establish earlier boundaries
+  let at = null;
+  hist.forEach((h) => {
+    if (services.validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
+  });
+  const c = {
+    ...reportCaseFields(k, pk),
+    integrity: s.integrity || { label: "Shared integrity not checked" },
+    ownerKey: k.ownerAddressKey || ownerKey(k.ownerAddr),
+    ...reportParcelFields(now, at, pk),
+    summary: s,
+  };
+  if (!c.zip && zipField && c.located) {
+    const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
+    if (f) c.zip = services.areaIdOf(f, zipField);
+  }
+  linkReportRecords(s, c, ownerKey, reportOrdinance);
+  cases.push(c);
+}
+
 export function createReportsServices(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -452,69 +538,7 @@ export function createReportsServices(services) {
       distField = distFC ? detectField(distFC, "district") : "";
     const cases = [],
       versionStale = [];
-    summaries.forEach((s) => {
-      const k = s["case"] || {};
-      if ((s.summaryVersion ?? s.version ?? 0) < SUMMARY_VERSION) {
-        versionStale.push(k.number || "?");
-        return;
-      }
-      const pk = normParcel(k.parcel),
-        hist = (parcels[pk] && parcels[pk].history) || [];
-      const now = hist[hist.length - 1] || null;
-      // the district when the case opened: the parcel as last seen on or
-      // before that date; later observations cannot establish earlier boundaries
-      let at = null;
-      hist.forEach((h) => {
-        if (services.validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
-      });
-      const c = {
-        caseType: k.caseType || "",
-        number: String(k.number || ""),
-        address: k.address || "",
-        parcel: k.parcel || "",
-        parcelKey: pk,
-        zip: k.zip || "",
-        description: k.description || "",
-        inspector: k.inspector || k.inspectorId || "",
-        opened: k.opened || "",
-        noticeIssued: k.noticeIssued || "",
-        status: k.status || "",
-        noticeActive: k.noticeActive !== false,
-        closedOn: k.closedOn || "",
-        owner: k.owner || "",
-        ownerAddr: k.ownerAddr || [],
-        integrity: s.integrity || { label: "Shared integrity not checked" },
-        ownerKey: k.ownerAddressKey || ownerKey(k.ownerAddr),
-        alderNow: now && now.alder != null ? String(now.alder) : "",
-        alderAtOpen: at && at.alder != null ? String(at.alder) : "",
-        building: now && now.building != null ? String(now.building) : "",
-        lat: now && now.lat != null ? now.lat : null,
-        lon: now && now.lon != null ? now.lon : null,
-        located: !!(now && Number.isFinite(now.lat) && Number.isFinite(now.lon) && Math.abs(now.lat) <= 90 && Math.abs(now.lon) <= 180),
-        looked: !!now || (!!pk && ReportsState.S.parcelMissing.indexOf(pk) >= 0),
-        summary: s,
-      };
-      if (!c.zip && zipField && c.located) {
-        const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
-        if (f) c.zip = services.areaIdOf(f, zipField);
-      }
-      c.violations = (s.violations || []).map((v) =>
-        Object.assign({}, v, {
-          c: c,
-          sections: (v.sections || []).map(reportOrdinance),
-          // As-of reports replace current fields with a retained historical version.
-          // Normalize those copies too, without rewriting the verified summary.
-          ...(Array.isArray(v.history)
-            ? { history: v.history.map((h) => ({ ...h, ...(Array.isArray(h.sections) ? { sections: h.sections.map(reportOrdinance) } : {}) })) }
-            : {}),
-        }),
-      );
-      c.citations = (s.citations || []).map((x) => Object.assign({}, x, { c: c, ordinance: reportOrdinance(x.ordinance) }));
-      c.referrals = (s.referrals || []).map((x) => Object.assign({}, x, { c: c, ownerKey: ownerKey(x.ownerAddr) }));
-      c.visits = s.visits || [];
-      c.documents = s.documents || [];
-      cases.push(c);
-    });
+    summaries.forEach((s) => appendReportSummary({ s, services, parcels, zipFC, zipField, cases, versionStale, ownerKey, polyHas, reportOrdinance }));
     cases.sort((a, b) => (a.opened === b.opened ? (a.number < b.number ? -1 : 1) : a.opened < b.opened ? 1 : -1));
     const byNo = {};
     cases.forEach((c) => {

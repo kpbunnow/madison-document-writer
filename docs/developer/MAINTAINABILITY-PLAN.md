@@ -805,3 +805,9 @@ Measured counts: {'complexity': 64, 'max-depth': 0, 'max-lines-per-function': 11
 Added isolated public-owner coverage before simplifying report model projection. All 3401 comparisons pass across generated summary versions, parcel-history order, geography and partial service failures. Explicit assertions require actual counted cases and retained summary/child links; generated duplicate numbers preserve existing byNo semantics. ESLint, formatting and seam inventory pass. No production model, report assertion, export behavior or debt allowance changes.
 
 Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15} → {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15}.
+
+## report-model-phases
+
+Separated case identity, parcel/coordinate facts and linked report records from the model coordinator. Retained stale-version exclusions, historical district selection, geographic lookup, sort/count rules, original summary/owner-address references and child-to-case links. All 3401 frozen comparisons pass before/after. Independent authenticated loading, Reports boundaries, ordinance normalization, mismatch exclusion and export-scope regressions pass against a final fresh build. Module boundaries, seams, ESLint and formatting pass. The initial projected-summary helper remained at complexity 21; separating record linkage removes the new finding rather than increasing an allowance.
+
+Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15} → {'complexity': 62, 'max-depth': 0, 'max-lines-per-function': 117, 'python': 15}.
