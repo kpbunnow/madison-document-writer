@@ -55,46 +55,21 @@ function editorInspectionHTML({ reviewVisit, inspectionParts, locked }) {
 
 function editorWorkHTML({ d, editable, services }) {
   return (
-    '<div class="editor-taskbar no-print">' +
-    '<p class="hint">' +
-    "".concat(
-      editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document.",
-    ) +
-    "".concat(editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : "") +
-    " " +
-    `${d.items.filter((x) => !x.done && !x.withdrawn).length}` +
-    " outstanding" +
-    `${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}` +
-    ".</p></div>" +
-    `${services.record.citationReview(d)}` +
-    "" +
-    "".concat(
-      services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
-        ? '<div class="banner info no-print" id="initial-citation-replaces"><div><s' +
-            "trong>This inspection will be issued as a citation.</strong> The owner r" +
-            "eceives only the citation letter and its court copies. The letter carrie" +
-            "s the items, due dates, appeal and rent-abatement language shown on this" +
-            " working paper, which is not mailed as a separate Official Notice.</div>" +
-            "</div>"
-        : "",
-    ) +
-    '<div class="editor-preview-tools no-print"><span>Working document' +
-    "".concat(d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : "") +
-    "</span>" +
-    `${d.type === "citation" || services.record.initialCitations.enabled(d) ? '<button type="button" class="btn no-print" data-citation-copies aria-expanded="' + (editor.state.compactCitationCopies !== d.id) + '">' + (editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies") + "</button>" : ""}` +
-    '</div><div class="desk">' +
-    `${services.record.documentHTML(d)}` +
-    "</div>" +
-    "".concat(
-      services.record.initialCitations.enabled(d)
-        ? '<div class="initial-citation-previews no-print" aria-label="Initial citation previews">' +
-            services.record.citationFaces(services.record.initialCitations.preview(d), true) +
-            "</div>"
-        : "",
-    ) +
-    "" +
-    `${specialType(d.type) ? "" : services.record.duePanel(d, false)}` +
-    ""
+    html`<div class="editor-taskbar no-print"><p class="hint">${editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document."}` +
+    html`${editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : ""} ${d.items.filter((x) => !x.done && !x.withdrawn).length} outstanding${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}.</p></div>` +
+    html`${raw(services.record.citationReview(d))}` +
+    (services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
+      ? html`<div class="banner info no-print" id="initial-citation-replaces"><div><strong>This inspection will be issued as a citation.</strong> The owner receives only the citation letter and its court copies. The letter carries the items, due dates, appeal and rent-abatement language shown on this working paper, which is not mailed as a separate Official Notice.</div></div>`
+      : "") +
+    html`<div class="editor-preview-tools no-print"><span>Working document${d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : ""}</span>` +
+    (d.type === "citation" || services.record.initialCitations.enabled(d)
+      ? html`<button type="button" class="btn no-print" data-citation-copies aria-expanded="${editor.state.compactCitationCopies !== d.id}">${editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies"}</button>`
+      : "") +
+    html`</div><div class="desk">${raw(services.record.documentHTML(d))}</div>` +
+    (services.record.initialCitations.enabled(d)
+      ? html`<div class="initial-citation-previews no-print" aria-label="Initial citation previews">${raw(services.record.citationFaces(services.record.initialCitations.preview(d), true))}</div>`
+      : "") +
+    html`${raw(specialType(d.type) ? "" : services.record.duePanel(d, false))}`
   );
 }
 

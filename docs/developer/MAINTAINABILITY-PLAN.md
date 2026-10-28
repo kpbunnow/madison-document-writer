@@ -717,3 +717,9 @@ Measured counts: {'complexity': 71, 'max-depth': 0, 'max-lines-per-function': 12
 Converted editor action and inspection fragments to escaped screen templates. Dynamic case identity and static primary labels escape by default; raw is limited to existing primary attributes, composed action markup and the owned inspection renderer. Preserved original condition/service evaluation order, displayed text and output whitespace. The 2031 frozen HTML/state/effect comparisons pass, as do screen class/style, escaping/print exclusion, dependency, ESLint and formatting checks. Prior source inspection confirms split literals are retained source shape, not approved wording boundaries; no CSS or printed document wording changes.
 
 Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## editor-work-template
+
+Converted working-document taskbar, preview tools and surrounding preview containers to escaped templates with explicit raw boundaries for existing citation/document/due renderers. Retained UI banner text exactly, service calls and repeated live enabled/copy-state reads at their original checkpoints. All 2031 frozen editor HTML/state/effect comparisons pass, along with CSS class/style, escaping/print exclusion, independent screen dependencies, ESLint and formatting. Printed renderers, approved wording data and CSS remain unchanged.
+
+Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
