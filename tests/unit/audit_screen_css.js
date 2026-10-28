@@ -11,6 +11,7 @@ assert.deepEqual(
   ["case-view", "queue-primary"],
 );
 assert.deepEqual(classReferences('const html = `<span class="chip">${value}</span>`;', ["chip", "chips"]), ["chip"]);
+assert.deepEqual(classReferences('const markup = html`<span class="chip">${value}</span>`;', ["chip", "chips"]), ["chip"]);
 const consumers = scanModules(path.join(root, "app/modules"), [...inventory.removedClasses, ...inventory.retainedClasses]);
 for (const name of inventory.removedClasses) assert.deepEqual(consumers[name], [], name + " regained a source consumer; restore/review its styles");
 for (const name of inventory.retainedClasses) assert.ok(consumers[name].length, name + " must be retained as a split-literal regression case");
