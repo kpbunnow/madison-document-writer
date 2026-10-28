@@ -1,0 +1,64 @@
+  function correctionChanges(d) {
+    const old = correctionSource(d);
+    if (!old) return [];
+    const out = [],
+      add = (path, label, a, b) => {
+        if (stableJSON(a) !== stableJSON(b))
+          out.push({ path, label, before: a === undefined ? null : clone(a), after: b === undefined ? null : clone(b) });
+      };
+    add(
+      "actionDate",
+      "Original action date used in current reports",
+      (old.revision && (old.revision.actionDate || old.revision.originalIssued)) || old.mailed || recordDay(old.issuedAt),
+      d.correction.actionDate,
+    );
+    CASE_CORRECTION_FIELDS.forEach((k) => add("case." + k, FIELD_NAMES[k], docCase(old)[k], docCase(d)[k]));
+    ["type", "mailed", "inspDate", "inspTime", "inspectorId"].forEach((k) =>
+      add(k, FIELD_NAMES[k], k === "inspectorId" ? docInsp(old).id : old[k], d[k]),
+    );
+    if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
+      add("special.reason", "Reasons for Additional Time", old.special?.reason, d.special?.reason);
+      if (d.authoringVersion < 16)
+        add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
+    }
+    if (d.type === "vacancyExtension" && d.authoringVersion >= 16) {
+      add("special.scope", "Scope", old.special?.scope, d.special?.scope);
+      add("special.unit", "Apartment / unit identifier", old.special?.unit, d.special?.unit);
+      add("special.reviewDate", "Next scheduled review inspection", old.special?.reviewDate, d.special?.reviewDate);
+    }
+    d.items.forEach((it) => {
+      const was = old.items.find((x) => x.id === it.id);
+      if (!was) return;
+      ["text", "title", "sections", "due", "abate", "note", "withdrawn", "withdrawalReason", "done", "doneOn"].forEach((k) =>
+        add("item." + it.no + "." + k, "Item " + it.no + " · " + FIELD_NAMES[k], was[k], it[k]),
+      );
+      const visit = reinsp(old.fromReinspId),
+        res = visit && (visit.results || {})[it.srcItemId];
+      if (res && !res.carried) {
+        const oc = (d.correction.outcomes || {})[it.id] || res.oc;
+        add("visit.item." + it.no + ".outcome", "Visit · item " + it.no + " outcome", res.oc, oc);
+      }
+      const a = (old.cits || {})[it.id] || {},
+        b = (d.cits || {})[it.id] || {};
+      new Set(Object.keys(a).concat(Object.keys(b))).forEach((k) =>
+        add(
+          "citation." + it.no + "." + k,
+          "Citation for item " +
+            it.no +
+            " · " +
+            ({
+              base: "Base deposit",
+              amount: "Total deposit",
+              cc: "Court costs",
+              assessments: "Assessment breakdown",
+              overrideBasis: "Approved pricing basis",
+            }[k] ||
+              FIELD_NAMES[k] ||
+              k),
+          a[k],
+          b[k],
+        ),
+      );
+    });
+    return out;
+  }

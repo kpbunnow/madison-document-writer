@@ -8,6 +8,19 @@ import { correctionSource, doc, docCase, docInsp, docsFor, eventsFor, kase, reco
 import { isLLC } from "./mailing_rules.js";
 import { workspaceState } from "./workspace_state.js";
 
+function compareSpecialCorrectionFields(d, old, add) {
+  if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
+    add("special.reason", "Reasons for Additional Time", old.special?.reason, d.special?.reason);
+    if (d.authoringVersion < 16)
+      add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
+  }
+  if (d.type === "vacancyExtension" && d.authoringVersion >= 16) {
+    add("special.scope", "Scope", old.special?.scope, d.special?.scope);
+    add("special.unit", "Apartment / unit identifier", old.special?.unit, d.special?.unit);
+    add("special.reviewDate", "Next scheduled review inspection", old.special?.reviewDate, d.special?.reviewDate);
+  }
+}
+
 // Existing correction comparisons, checks and retained snapshot preparation; no save confirmation.
 export function createCorrectionPreparation(services) {
   function correctionChanges(d) {
@@ -28,16 +41,7 @@ export function createCorrectionPreparation(services) {
     ["type", "mailed", "inspDate", "inspTime", "inspectorId"].forEach((k) =>
       add(k, FIELD_NAMES[k], k === "inspectorId" ? docInsp(old).id : old[k], d[k]),
     );
-    if (d.type === "bestInterestExtension" && d.authoringVersion >= 15) {
-      add("special.reason", "Reasons for Additional Time", old.special?.reason, d.special?.reason);
-      if (d.authoringVersion < 16)
-        add("special.noSafety", "Selected items exclude safety, security and urgent obligations", old.special?.noSafety, d.special?.noSafety);
-    }
-    if (d.type === "vacancyExtension" && d.authoringVersion >= 16) {
-      add("special.scope", "Scope", old.special?.scope, d.special?.scope);
-      add("special.unit", "Apartment / unit identifier", old.special?.unit, d.special?.unit);
-      add("special.reviewDate", "Next scheduled review inspection", old.special?.reviewDate, d.special?.reviewDate);
-    }
+    compareSpecialCorrectionFields(d, old, add);
     d.items.forEach((it) => {
       const was = old.items.find((x) => x.id === it.id);
       if (!was) return;
