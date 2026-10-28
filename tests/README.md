@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_catalog_publication_rules.py` | 3,000 catalog publication contexts preserve exact refusals, file-read order, unchanged inputs and read-only files. |
 | `audit_special_publication_rules.py` | 3,000 scoped-action contexts preserve exact refusals, query order and mutation against the frozen original. |
 | `audit_editor_html.js` | Exact editor HTML, state mutations and service access order |
 | `audit_screen_html.js` | Default screen escaping, explicit trusted fragments and print-path exclusion |

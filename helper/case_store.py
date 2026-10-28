@@ -694,15 +694,7 @@ def read_case(folder, name):
     return {"ok": True, "file": value, "integrity": case_integrity.verify_record(value, folder), "revision": digest(raw), "name": target.name}
 
 
-def validate_catalog_publication(current, incoming, catalog_file, manifest_file):
-    """Only new selections are checked; corrections and inherited history stay frozen."""
-    prior = {e["id"] for e in current.get("events", [])} if current else set()
-    notices = [e for e in incoming["events"] if e["id"] not in prior and e["type"] == "notice.issued"]
-    if not notices:
-        return
-    manifest = json.loads(Path(manifest_file).read_text(encoding="utf-8"))
-    if manifest.get("format") != "madison-catalog-manifest" or not isinstance(manifest.get("items"), dict):
-        raise ValueError("Catalog manifest is unavailable or invalid")
+def _catalog_publication_reviews(catalog_file):
     path = Path(catalog_file)
     if path.exists():
         review_file = json.loads(path.read_text(encoding="utf-8"))
@@ -716,25 +708,42 @@ def validate_catalog_publication(current, incoming, catalog_file, manifest_file)
         if not isinstance(event, dict) or not isinstance(event.get("key"), str):
             raise ValueError("Catalog review history is invalid")
         latest[event["key"]] = event
+    return latest
+
+
+def _validate_catalog_selection(*, item, manifest, latest, replacements):
+    key = item.get("libraryKey")
+    if not key:
+        return  # Individually authored entries retain existing policy.
+    bundled = manifest["items"].get(key)
+    if not bundled:
+        raise ValueError("Selected catalog entry is not in this release")
+    review = latest.get(key)
+    if key in replacements or review and review.get("status") == "retired":
+        raise ValueError("Selected catalog entry was retired or superseded; review the draft")
+    if review and review.get("status") == "approved":
+        if item.get("catalogReviewId") != review.get("id") or item.get("catalogVersion") != review.get("version"):
+            raise ValueError("Catalog version changed after selection; review and adopt the current version")
+    elif bundled.get("draft") or not bundled.get("ordinances"):
+        raise ValueError("Draft or incomplete catalog language needs division review")
+    elif item.get("catalogReviewId"):
+        raise ValueError("Selected catalog review cannot be verified")
+
+
+def validate_catalog_publication(current, incoming, catalog_file, manifest_file):
+    """Only new selections are checked; corrections and inherited history stay frozen."""
+    prior = {e["id"] for e in current.get("events", [])} if current else set()
+    notices = [e for e in incoming["events"] if e["id"] not in prior and e["type"] == "notice.issued"]
+    if not notices:
+        return
+    manifest = json.loads(Path(manifest_file).read_text(encoding="utf-8"))
+    if manifest.get("format") != "madison-catalog-manifest" or not isinstance(manifest.get("items"), dict):
+        raise ValueError("Catalog manifest is unavailable or invalid")
+    latest = _catalog_publication_reviews(catalog_file)
     replacements = {e.get("replaces") for e in latest.values() if e.get("status") == "approved" and e.get("replaces")}
     for notice in notices:
         for item in notice["payload"]["snapshot"].get("items", []):
-            key = item.get("libraryKey")
-            if not key:
-                continue  # Individually authored entries retain existing policy.
-            bundled = manifest["items"].get(key)
-            if not bundled:
-                raise ValueError("Selected catalog entry is not in this release")
-            review = latest.get(key)
-            if key in replacements or review and review.get("status") == "retired":
-                raise ValueError("Selected catalog entry was retired or superseded; review the draft")
-            if review and review.get("status") == "approved":
-                if item.get("catalogReviewId") != review.get("id") or item.get("catalogVersion") != review.get("version"):
-                    raise ValueError("Catalog version changed after selection; review and adopt the current version")
-            elif bundled.get("draft") or not bundled.get("ordinances"):
-                raise ValueError("Draft or incomplete catalog language needs division review")
-            elif item.get("catalogReviewId"):
-                raise ValueError("Selected catalog review cannot be verified")
+            _validate_catalog_selection(item=item, manifest=manifest, latest=latest, replacements=replacements)
 
 
 @logged("case-save")

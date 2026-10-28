@@ -573,3 +573,9 @@ Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 12
 Scoped publication now delegates source identity, verified inspection, administrative evidence, retained item facts and occupancy release checks in the original order. The coordinator falls from McCabe 25 to 8; its five helpers range from 4 to 5. The 3,000-context differential corpus and all 16 original R26 helper tests pass, alongside existing publication/history/authoring/special-field differential suites. No format, wording, integrity, print or release identity changes. Full Ruff check reports an existing E731 lambda in untouched case merging; the required F checks and formatting pass.
 
 Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 30} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 29}.
+
+## M2 catalog publication phases
+
+Catalog publication delegates review-history loading and selected-item checks while retaining manifest-before-review reads, latest-by-key ordering, approved replacements and selection refusal precedence. Inherited history and corrections still return before any file access. Coordinator McCabe complexity falls from 16 to 5; review loading is 5 and item validation is 8. The 3,000-context differential corpus, five original R22 helper tests, scoped-publication and history comparisons, required Ruff F checks and formatting pass. No approved language, format, release identity, trust or print change.
+
+Measured counts: {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 29} → {'complexity': 75, 'max-depth': 0, 'max-lines-per-function': 124, 'python': 28}.
