@@ -416,6 +416,7 @@
     "tests/fixtures/citation_pricing_reference.txt",
     "tests/fixtures/citation_refresh_reference.txt",
     "tests/fixtures/citation_resolution_reference.txt",
+    "tests/fixtures/citation_rule_base_reference.txt",
     "tests/fixtures/deferred_service_syntax.cjs",
     "tests/fixtures/deposit_fault_reference.cjs",
     "tests/fixtures/deposit_golden.json",

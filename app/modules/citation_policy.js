@@ -328,19 +328,24 @@ export function policyAt(date) {
   return result;
 }
 
+function ruleMeasurementsValid(entry, r, m) {
+  for (const f of entry.measurements || []) {
+    if (r.kind === "tree-alternative" && f.key === "diameter" && m.removed === false) continue;
+    const v = m[f.key];
+    if (f.boolean) {
+      if (typeof v !== "boolean") return false;
+    } else if (typeof v !== "number" || !Number.isFinite(v) || v < (f.min ?? 0) || v > (f.max ?? Infinity) || (f.whole && !Number.isInteger(v)))
+      return false;
+  }
+  return true;
+}
+
 function ruleBase(entry, tier, measurements = {}) {
   const r = entry.rule,
     m = measurements;
   if (!r) return null;
   if (r.kind === "tiers") return r.amountsCents[Math.min(tierOrdinal(tier), r.amountsCents.length) - 1];
-  for (const f of entry.measurements || []) {
-    if (r.kind === "tree-alternative" && f.key === "diameter" && m.removed === false) continue;
-    const v = m[f.key];
-    if (f.boolean) {
-      if (typeof v !== "boolean") return null;
-    } else if (typeof v !== "number" || !Number.isFinite(v) || v < (f.min ?? 0) || v > (f.max ?? Infinity) || (f.whole && !Number.isInteger(v)))
-      return null;
-  }
+  if (!ruleMeasurementsValid(entry, r, m)) return null;
   if (r.kind === "per-inch") return m.diameter * r.perInchCents;
   if (r.kind === "tree-alternative") return m.removed ? m.diameter * r.perInchCents : r.offenseCents;
   if (r.kind === "tree-increment")
