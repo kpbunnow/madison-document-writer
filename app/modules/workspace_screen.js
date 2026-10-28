@@ -1,3 +1,4 @@
+import { html, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
@@ -11,80 +12,45 @@ import { INSPECTORS } from "./data/inspectors.js";
 import { uiIcon } from "./ui_icons.js";
 
 function workspaceRowHeadingHTML({ k, issued, secondary, detailActions }) {
+  // The attribute branch is static markup; detailActions comes from the task renderer below.
   return (
-    '<tr data-queue-case="' +
-    `${esc(k.id)}` +
-    '"' +
-    (issued ? ' data-issued-highlight aria-current="true" class="check-focus" tabindex="-1"' : "") +
-    '><td><div class="addr">' +
-    `${esc(k.address)}` +
-    '</div><div class="mono">' +
-    `${esc(k.number)}` +
-    '</div>\n      <details class="queue-details"><summary>Case details &amp; ' +
-    "history" +
-    `${secondary.length ? " · " + secondary.length + " task" + (secondary.length === 1 ? "" : "s") : ""}` +
-    '</summary><div class="doclinks"><p>' +
-    `${esc(k.owner)}` +
-    "</p>" +
-    `${detailActions}` +
-    "\n      "
+    html`<tr data-queue-case="${k.id}"${raw(issued ? ' data-issued-highlight aria-current="true" class="check-focus" tabindex="-1"' : "")}><td>` +
+    html`<div class="addr">${k.address}</div><div class="mono">${k.number}</div>
+      <details class="queue-details"><summary>Case details &amp; history` +
+    html`${secondary.length ? " · " + secondary.length + " task" + (secondary.length === 1 ? "" : "s") : ""}</summary>` +
+    html`<div class="doclinks"><p>${k.owner}</p>${raw(detailActions)}
+      `
   );
 }
 
 function workspaceRecordProblemHTML({ proof }) {
-  return "".concat(
-    proof.valid === false
-      ? "<p>" +
-          `${esc(proof.eventId || "")}` +
-          " · " +
-          `${esc(proof.lastGoodCommitTime || "Last good commit unavailable")}` +
-          '</p><button class="btn btn-sm" data-sync-safety>Review record problem</b' +
-          "utton>"
-      : "",
-  );
+  return proof.valid === false
+    ? html`<p>${proof.eventId || ""} · ${proof.lastGoodCommitTime || "Last good commit unavailable"}</p>` +
+        html`<button class="btn btn-sm" data-sync-safety>Review record problem</button>`
+    : "";
 }
 
 function workspaceDocumentLinksHTML({ documents }) {
-  return "".concat(
-    documents
-      .map(
-        (d) =>
-          '<button data-open="' +
-          `${esc(d.id)}` +
-          '" class="' +
-          `${d.void ? "voidlink" : d.draft ? "" : "fin"}` +
-          '">' +
-          `${d.void ? "VOID · " : d.superseded ? "REPLACED · " : d.revision ? "REV " + d.revision.number + " · " : ""}` +
-          "" +
-          `${esc((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type)}` +
-          " <span>" +
-          `${fmtDate(d.mailed || d.created)}` +
-          "" +
-          `${d.draft ? " · Draft" : ""}` +
-          "</span></button>",
-      )
-      .join(""),
-  );
+  return documents
+    .map(
+      (d) =>
+        html`<button data-open="${d.id}" class="${d.void ? "voidlink" : d.draft ? "" : "fin"}">` +
+        html`${d.void ? "VOID · " : d.superseded ? "REPLACED · " : d.revision ? "REV " + d.revision.number + " · " : ""}` +
+        html`${(DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type} <span>` +
+        html`${fmtDate(d.mailed || d.created)}${d.draft ? " · Draft" : ""}</span></button>`,
+    )
+    .join("");
 }
 
 function workspaceDueHTML({ st }) {
-  return "".concat(
-    st.due && !st.closed
-      ? '<span class="' +
-          `${st.late ? "pill late" : st.soon ? "case-date-soon" : "mono"}` +
-          '">' +
-          `${fmtDate(st.due)}` +
-          "</span>" +
-          "".concat(
-            st.late
-              ? '<div class="muted">Past due</div>'
-              : st.soon
-                ? '<div class="muted">' + (st.days === 0 ? "Due today" : st.days === 1 ? "Due tomorrow" : "Due in " + st.days + " days") + "</div>"
-                : "",
-          ) +
-          ""
-      : '<span class="muted">—</span>',
-  );
+  return st.due && !st.closed
+    ? html`<span class="${st.late ? "pill late" : st.soon ? "case-date-soon" : "mono"}">${fmtDate(st.due)}</span>` +
+        (st.late
+          ? html`<div class="muted">Past due</div>`
+          : st.soon
+            ? html`<div class="muted">${st.days === 0 ? "Due today" : st.days === 1 ? "Due tomorrow" : "Due in " + st.days + " days"}</div>`
+            : "")
+    : html`<span class="muted">—</span>`;
 }
 
 function renderWorkspaceRow(row) {
