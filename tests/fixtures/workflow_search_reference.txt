@@ -1,0 +1,40 @@
+def search_cases(folder, query):
+    if not Path(folder).is_dir():
+        raise OSError("Shared case folder unavailable")
+    if not isinstance(query, str) or not 2 <= len(query.strip()) <= 200:
+        raise ValueError("Search needs 2–200 characters")
+    query = query.strip().casefold()
+    files = sorted(p for p in Path(folder).glob("*.json") if not p.name.startswith("_"))
+    hits, unreadable, numbers = [], 0, {}
+    for path in files[:5000]:
+        try:
+            if path.stat().st_size > 32 * 1024 * 1024:
+                raise ValueError("Oversize record")
+            record = json.loads(path.read_bytes())
+            validate_case(record, legacy=True)
+            case = record["case"]
+            number = case_number_key(case["number"])
+            if not path.stem.casefold().endswith(" - " + number):
+                raise ValueError("Identity mismatch")
+            numbers[number] = numbers.get(number, 0) + 1
+            text = [case.get(k, "") for k in ("number", "address", "owner", "parcel")]
+            for event in record["events"]:
+                snap = event.get("payload", {}).get("snapshot", {})
+                if isinstance(snap, dict):
+                    frozen = snap.get("frozen", {}).get("case", {})
+                    text.extend(frozen.get(k, "") for k in ("address", "owner"))
+                    text.extend(c.get("num", "") for c in snap.get("cits", {}).values() if isinstance(c, dict))
+            if query in " ".join(map(str, text)).casefold():
+                hits.append(
+                    {
+                        "number": case["number"],
+                        "address": case.get("address", ""),
+                        "owner": case.get("owner", ""),
+                        "eventCount": len(record["events"]),
+                    }
+                )
+        except (OSError, ValueError, TypeError, KeyError, AttributeError):
+            unreadable += 1
+    for hit in hits:
+        hit["duplicate"] = numbers.get(case_number_key(hit["number"]), 0) > 1
+    return {"ok": True, "hits": hits[:100], "unreadable": unreadable, "partial": len(files) > 5000 or len(hits) > 100}

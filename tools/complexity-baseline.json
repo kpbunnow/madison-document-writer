@@ -3,7 +3,7 @@
     "complexity": 75,
     "max-depth": 0,
     "max-lines-per-function": 124,
-    "python": 23
+    "python": 22
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -223,7 +223,6 @@
     "helper/server.py:read_index:C901": 30,
     "helper/snow_rules.py:validate_snapshot:C901": 14,
     "helper/verified_update.py:stage_update:C901": 26,
-    "helper/workflow_helper.py:search_cases:C901": 11,
     "policy/compiler.py:compile_policy:C901": 17,
     "policy/compiler.py:validate_retained_sources:C901": 12,
     "policy/compiler.py:versions:C901": 11,

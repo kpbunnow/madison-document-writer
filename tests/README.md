@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_workflow_search_rules.py` | 3,000 search scenarios preserve exact output, errors, read/validation order, inputs and 5,000-file/100-result limits. |
 | `audit_citation_history_rules.py` | 3,000 synthetic scan traces preserve reads, guard order, exclusions and projection; unchanged real-store integrity tests remain. |
 | `audit_issuance_group_rules.py` | 3,000 atomic-group contexts and explicit reversed-event precedence preserve exact results, errors and inputs. |
 | `audit_visit_validation_rules.py` | 3,000 physical/release inspection contexts preserve exact refusals, dependency traces, dates and inputs. |

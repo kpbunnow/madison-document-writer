@@ -23,6 +23,17 @@ REPORTS = {
 FILTERS = {"from", "to", "asOf", "areaType", "boundary", "areas", "inspector", "vtype", "ord", "status", "owner"}
 
 
+def _case_search_terms(record, case):
+    text = [case.get(k, "") for k in ("number", "address", "owner", "parcel")]
+    for event in record["events"]:
+        snap = event.get("payload", {}).get("snapshot", {})
+        if isinstance(snap, dict):
+            frozen = snap.get("frozen", {}).get("case", {})
+            text.extend(frozen.get(k, "") for k in ("address", "owner"))
+            text.extend(c.get("num", "") for c in snap.get("cits", {}).values() if isinstance(c, dict))
+    return text
+
+
 @logged("search")
 def search_cases(folder, query):
     if not Path(folder).is_dir():
@@ -43,13 +54,7 @@ def search_cases(folder, query):
             if not path.stem.casefold().endswith(" - " + number):
                 raise ValueError("Identity mismatch")
             numbers[number] = numbers.get(number, 0) + 1
-            text = [case.get(k, "") for k in ("number", "address", "owner", "parcel")]
-            for event in record["events"]:
-                snap = event.get("payload", {}).get("snapshot", {})
-                if isinstance(snap, dict):
-                    frozen = snap.get("frozen", {}).get("case", {})
-                    text.extend(frozen.get(k, "") for k in ("address", "owner"))
-                    text.extend(c.get("num", "") for c in snap.get("cits", {}).values() if isinstance(c, dict))
+            text = _case_search_terms(record, case)
             if query in " ".join(map(str, text)).casefold():
                 hits.append(
                     {
