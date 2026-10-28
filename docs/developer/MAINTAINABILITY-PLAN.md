@@ -222,3 +222,90 @@ all outcomes, carried results, walk stages, date/filter states, retained drafts,
 closed inspections and missing-source redirects. Every snapshot renders and
 retains state and service lookup order. Complexity violations 79 → 77; length
 reports 129 → 127. Other workflow functions in the same owner are unchanged.
+
+## M3 pagination nesting
+
+History-row continuation, note fitting, observation fitting and continuation
+cleanup are named phases. Snow table handling uses an early continue rather than
+a nested else. Page creation, binary-search/word-boundary rules, furniture and
+measurement order are unchanged. No pagination function nests beyond four levels.
+
+The existing pagination audit and eight native-Chromium differential layouts
+compare exact page HTML and every overflow/limit measurement, including long
+Unicode notes, observation continuations, snow tables, mobile flow and historical
+page limits. All note characters are retained. The unchanged 69 authored print
+variants and their overflow/clipping/missing-copy mutation checks pass locally.
+JS complexity findings 77 → 76; nesting reports 13 → 3; length reports 127 → 125.
+The full GitHub gate remains required before this increment merges.
+
+## M3 language focus nesting
+
+The ordered control-attribute search is a named helper. Search caret and disclosure restoration stay unchanged; catalog-field identity still includes its catalog key. The independent DOM focus test passes. No selection/approval, markup or persistence policy changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 3, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30}.
+
+## M3 report loading nesting
+
+Parcel-result merging is a synchronous helper called after the same awaited request. No await or cancellation checkpoint is added. The independent actual-transport test passes for chunk boundaries, partial results, token propagation and superseded reads; Reports stays read-only.
+
+Measured counts: {'complexity': 76, 'max-depth': 2, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 125, 'python': 30}.
+
+## M3 safety action nesting
+
+Pending safety actions delegate a synchronous scoped helper. The existing document branch, holder lookup, unawaited amendment dispatch and no-holder behavior are unchanged. The new independent seam and 60-listener registration audit pass. No authority or persistence guarantee changes. No maintained JS function now nests deeper than four levels.
+
+Measured counts: {'complexity': 76, 'max-depth': 1, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 test seam inventory
+
+The inventory distinguishes whole-application evaluation, independent owner/VM construction and production browser evaluation. Textual hook candidates are explicitly not treated as proof of unused hooks. The initial migration baseline has 91 bundle evaluators and 74 retained core hook fields. No existing assertion or production hook is removed by this increment.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 Reports error seam
+
+Old access: getJSON and orderedRows names injected into the Reports application bundle by bundle_test. New access: createReportsServices(...).getJSON plus direct report_presentation.orderedRows, evaluated as independent owners with explicit synthetic transport services. The original 502/unreadable, default row order and warning assertions are unchanged. No Writer/Reports startup is run. Whole-application evaluator files fall 91 → 90; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 save serialization seam
+
+Old access: saveCaseFile plus mutable kase/caseFileName/caseFile/transport names inside the application eval. New access: createCaseSaveWorkflow services and live synthetic WriterState cases; the real filename/query owners are used. Every original false/no-write/export-error assertion remains, with an added check that initial serialization failure never reaches merge. Whole-application evaluator files fall 90 → 89; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 catalog cache seam
+
+Old access: screenLibrary/refreshCatalog plus mutable helper/render globals in the application eval. New access: real catalog queries/key, createLanguageCatalog, createLanguageDiscoveryContext and createLanguageViews with explicit transport/cache adapters. All original cached/current/offline caption and verification assertions remain unchanged. Whole-application evaluator files fall 89 → 88; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 disclosure seam
+
+Old access: render and mutable screen/enhancement globals in the application eval. New access: createAppScreens with explicit render/enhancement adapters and a real DOM. Every original same-document/open-pricing, absent initial-options and changed-document reset assertion is retained. Whole-application evaluator files fall 88 → 87; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 record form seam
+
+Old access: application startup, newDoc, render and internal record-form globals. New access: createRecoveryEvents.registerWorkingInput and createCorrectionUI.recordActionModal with a real DOM and explicit live form-key/save adapters. The capture-phase replacement listener stays before the actual input owner. Both original typed-value and repaint assertions remain unchanged. Whole-application evaluator files fall 87 → 86; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 date boundary seam
+
+Old access: date and court-policy names retained inside the application eval after startup. New access: shared calendar, calendar owner, citation policy and createCourtScheduling with the explicit test day. All original assertions across UTC/Los Angeles/New York and both Chicago midnight sides remain, including helper day parity, mailing limits, fees, court dates and rolling windows. Whole-application evaluator files fall 86 → 85; no production hook is retired yet.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 production contract seam
+
+Old access: public contract functions plus application-bundle eval for fixture exclusion. New access: direct contract owner compilation and a native Chromium production entrypoint helper. All original exact event/request identity, source parse/fixture exclusion and runtime empty-case/undefined-fixture-function assertions remain; MADISON_TEST_DATA is set before native startup to prove production ignores it. Local Chromium and transitive serial-suite classification checks pass. Whole-application evaluator files fall 85 → 84; no production diagnostic hook is installed or retired.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M6 folded hook consumers
+
+The read-only inventory folds constant string concatenations and String.raw payloads before identifying possible diagnostic consumers. Tests pin split-name detection and direct bundle-harness invocation. This closes an important gap in raw-text searches without claiming static matches prove execution or unused hooks. The 84 remaining application evaluator baseline is unchanged.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

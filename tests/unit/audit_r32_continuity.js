@@ -1,46 +1,73 @@
 /* A form input remains authoritative if another listener replaces its node. */
-globalThis.MADISON_TEST_DATA = true;
 const assert = require("assert/strict"),
+  path = require("path"),
+  esbuild = require("esbuild"),
   { JSDOM } = require("jsdom");
-const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-global.window = dom.window;
-global.document = dom.window.document;
-window.scrollTo = () => {};
-global.getSelection = () => window.getSelection();
-global.fetch = async () => {
-  throw Error("offline");
-};
-let replace = false;
-document.addEventListener(
-  "input",
-  (e) => {
-    if (replace && e.target.id === "record-action-text") {
-      const blank = e.target.cloneNode();
-      blank.value = "";
-      e.target.replaceWith(blank);
-    }
-  },
-  true,
-);
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
-  newDoc("k1", "notice");
-  const d = doc(WriterState.state.docId);
-  WriterState.state.modal = "recordnote";
+(async () => {
+  const compiled = await esbuild.build({
+    stdin: {
+      contents:
+        'export {createRecoveryEvents} from "./app/modules/recovery_events.js";export {createCorrectionUI} from "./app/modules/correction_ui.js";export {WriterState} from "./app/modules/state.js";',
+      resolveDir: path.resolve("."),
+    },
+    bundle: true,
+    write: false,
+    format: "cjs",
+    define: { __TEST_BUILD__: "false" },
+    plugins: [
+      {
+        name: "data",
+        setup(b) {
+          b.onResolve({ filter: /\/data\// }, (a) => ({ path: path.resolve("build/generated/modules/data", path.basename(a.path)) }));
+        },
+      },
+    ],
+  });
+  const dom = new JSDOM('<div id="app"></div><div id="overlay"></div>', { pretendToBeVisual: true }),
+    document = dom.window.document;
+  let replace = false;
+  document.addEventListener(
+    "input",
+    (e) => {
+      if (replace && e.target.id === "record-action-text") {
+        const blank = e.target.cloneNode();
+        blank.value = "";
+        e.target.replaceWith(blank);
+      }
+    },
+    true,
+  );
+  const box = { exports: {} };
+  new Function("document", "module", "exports", compiled.outputFiles[0].text)(document, box, box.exports);
+  const { createRecoveryEvents, createCorrectionUI, WriterState } = box.exports;
+  const d = { id: "document", caseId: "case", type: "notice", draft: true };
+  Object.assign(WriterState, {
+    DOCS: [d],
+    CASES: [{ id: "case", inspectorId: "i4" }],
+    RECORD_ATTEMPTS: {},
+    WORK: { entry: {}, recordForms: {} },
+    state: { screen: "write", docId: d.id, modal: "recordnote" },
+  });
+  const ui = createCorrectionUI({});
+  const render = () => {
+    document.getElementById("overlay").innerHTML = ui.recordActionModal();
+  };
+  createRecoveryEvents({
+    ENTRY_IDS: [],
+    recordFormKey: () => WriterState.state.docId + ":" + WriterState.state.modal,
+    scheduleDraftSave: () => {},
+  }).registerWorkingInput(document);
   render();
   replace = true;
   const field = document.getElementById("record-action-text");
   field.value = "A partial record note survives a concurrent redraw.";
-  field.dispatchEvent(new window.Event("input", { bubbles: true }));
+  field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
   assert.equal(WriterState.WORK.recordForms[d.id + ":recordnote"].text, field.value);
   render();
   assert.equal(document.getElementById("record-action-text").value, field.value);
+  dom.window.close();
   console.log("PASS record-note input survives replaced DOM node and redraw");
-  process.exit(0);
-};
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

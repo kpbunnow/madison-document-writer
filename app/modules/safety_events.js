@@ -4,6 +4,17 @@ import { WriterState } from "./state.js";
 import { kase, docsFor } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { deliveredByCitation } from "./document_rules.js";
+function openPendingSafetyAction(services, st) {
+  if (st.pendingDoc) {
+    WriterState.state.docId = st.pendingDoc.id;
+    WriterState.state.screen = "write";
+    services.render();
+  } else {
+    const holder = WriterState.RECORD_ATTEMPTS[st.pendingRecord.recordKey];
+    if (holder) services.commitAmendment(holder.cid, holder.pendingAmendment, holder);
+  }
+}
+
 export function createSafetyEvents(services) {
   function registerLockRelease(target = document) {
     return registerEventOnce(target, "safety.registerLockRelease", "submit", async (e) => {
@@ -101,14 +112,7 @@ export function createSafetyEvents(services) {
             WriterState.state.modal = "shared-change";
             services.render();
           } else if (t.dataset.safetyAction === "pending") {
-            if (st.pendingDoc) {
-              WriterState.state.docId = st.pendingDoc.id;
-              WriterState.state.screen = "write";
-              services.render();
-            } else {
-              const holder = WriterState.RECORD_ATTEMPTS[st.pendingRecord.recordKey];
-              if (holder) services.commitAmendment(holder.cid, holder.pendingAmendment, holder);
-            }
+            openPendingSafetyAction(services, st);
           } else if (t.dataset.safetyAction === "document") {
             const d = docsFor(cid).find((x) => x.draft) || st.current;
             if (d) {

@@ -17,9 +17,14 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_test_seams.js` | Read-only per-file seam/hook inventory; reject new application-bundle evaluation and lower migrated baselines |
+| `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |
+| `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
+| `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
+| `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
 | `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
 | `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
 | `audit_workspace_html.js` | Exact pre-refactor Workspace HTML snapshots over 1,033 empty/queue/filter/proof/draft/deadline states, plus state/effect order |

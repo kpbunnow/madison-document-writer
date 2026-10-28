@@ -7,6 +7,119 @@ import { WriterState } from "./state.js";
 
 /* Authoring 10+ retains the original one-line print allowance; earlier formats keep their exact limit. */
 const PRINT_SAFETY_PX = 16;
+function splitHistoryNote({ current, p, over, restNotes }) {
+  const note = restNotes[0],
+    body = note.lastChild,
+    chars = Array.from(body?.nodeType === 3 ? body.textContent : "");
+  if (chars.length) {
+    const partial = note.cloneNode(true);
+    current.querySelector(".corr").appendChild(partial);
+    const text = partial.lastChild;
+    let low = 0,
+      high = chars.length;
+    while (low < high) {
+      const middle = Math.ceil((low + high) / 2);
+      text.textContent = chars.slice(0, middle).join("");
+      if (over(p)) high = middle - 1;
+      else low = middle;
+    }
+    let split = low;
+    while (split > 0 && split < chars.length && !/\s/.test(chars[split - 1])) split--;
+    if (!split) split = low;
+    if (split > 0) {
+      text.textContent = chars.slice(0, split).join("");
+      if (split < chars.length) body.textContent = chars.slice(split).join("");
+      else restNotes.shift();
+    } else partial.remove();
+  }
+}
+
+function splitHistoryObservation({ p, over, note, observation, rest }) {
+  const chars = Array.from(note.textContent.slice(6));
+  let low = 0,
+    high = chars.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    note.textContent = "Note: " + chars.slice(0, middle).join("");
+    if (over(p)) high = middle - 1;
+    else low = middle;
+  }
+  if (low > 0 && low < chars.length) {
+    // Prefer a word boundary, without dropping whitespace or characters.
+    let split = low;
+    while (split > 0 && !/\s/.test(chars[split - 1])) split--;
+    if (!split) split = low;
+    const remainder = observation.cloneNode(true);
+    note.textContent = "Note: " + chars.slice(0, split).join("");
+    remainder.lastElementChild.textContent = "Note: " + chars.slice(split).join("");
+    rest.unshift(remainder);
+  } else note.textContent = "Note: " + chars.join("");
+}
+
+function prepareHistoryContinuation({ continuation, r, restNotes, rest }) {
+  continuation.removeAttribute("data-row");
+  continuation.querySelectorAll("[contenteditable],[data-field],[data-id]").forEach((el) => {
+    el.removeAttribute("contenteditable");
+    el.removeAttribute("data-field");
+    el.removeAttribute("data-id");
+  });
+  continuation.querySelector(".c-no").textContent = (r.querySelector(".num")?.textContent || "") + " (continued)";
+  continuation.querySelector(".corr").textContent = "Inspection history continued.";
+  continuation.querySelector(".corr").append(...restNotes);
+  continuation.querySelector(".visit-list")?.replaceChildren(...rest);
+}
+
+function paginateRowHistory({ r, p, over, newPage }) {
+  let current = r;
+  while (over(p)) {
+    const history = current.querySelector(".visit-list"),
+      notesOf = () => [...current.querySelectorAll(".corr [data-history-note]")];
+    if ((!history || !history.children.length) && !notesOf().length) break;
+    const continuation = current.cloneNode(true),
+      rest = [],
+      restNotes = [];
+    // R62: authoring-16 notes sit under the violation; later notes continue on the next page, and one note
+    // that does not fit is split at a word boundary, every character printed once.
+    while (over(p) && notesOf().length) {
+      const note = notesOf().at(-1);
+      restNotes.unshift(note);
+      note.remove();
+    }
+    if (restNotes.length && !over(p)) {
+      splitHistoryNote({ current, p, over, restNotes });
+    }
+    while (history && over(p) && history.children.length > 1) {
+      rest.unshift(history.lastElementChild);
+      history.lastElementChild.remove();
+    }
+    // One observation can itself exceed a page. Split its note while
+    // retaining the observation's date/outcome on each continuation.
+    const observation = history?.firstElementChild,
+      note = observation?.lastElementChild;
+    if (over(p) && note?.tagName === "EM" && note.textContent.startsWith("Note: ")) {
+      splitHistoryObservation({ p, over, note, observation, rest });
+    }
+    if (!rest.length && !restNotes.length) break;
+    prepareHistoryContinuation({ continuation, r, restNotes, rest });
+    p = newPage(true);
+    p._tb.appendChild(continuation);
+    current = continuation;
+  }
+  return p;
+}
+
+function numberSnowPages(pages) {
+  pages.forEach((p, n) => {
+    p.style.removeProperty("min-height");
+    if (pages.length > 1) {
+      const pg = document.createElement("span");
+      pg.className = "pg";
+      pg.textContent = "Page " + (n + 1) + " of " + pages.length;
+      p._foot.appendChild(pg);
+    }
+  });
+}
+
 export function createDocumentPagination(services) {
   function pageLimit(d) {
     return services.PAGE_PX - (d && d.authoringVersion >= 10 ? PRINT_SAFETY_PX : 0);
@@ -67,29 +180,31 @@ export function createDocumentPagination(services) {
     }
     fresh();
     for (const node of [...body.children]) {
-      if (node.matches("table.snow-sites")) {
-        const rows = [...node.querySelector("tbody").children];
-        let table = node.cloneNode(false),
+      if (!node.matches("table.snow-sites")) {
+        put(node);
+        continue;
+      }
+      const rows = [...node.querySelector("tbody").children];
+      let table = node.cloneNode(false),
+        tb = document.createElement("tbody");
+      table.appendChild(node.querySelector("thead").cloneNode(true));
+      table.appendChild(tb);
+      container.appendChild(table);
+      for (const row of rows) {
+        tb.appendChild(row);
+        if (over() && (contentCount || tb.children.length > 1)) {
+          row.remove();
+          if (!tb.children.length) table.remove();
+          fresh();
+          table = node.cloneNode(false);
+          table.appendChild(node.querySelector("thead").cloneNode(true));
           tb = document.createElement("tbody");
-        table.appendChild(node.querySelector("thead").cloneNode(true));
-        table.appendChild(tb);
-        container.appendChild(table);
-        for (const row of rows) {
+          table.appendChild(tb);
+          container.appendChild(table);
           tb.appendChild(row);
-          if (over() && (contentCount || tb.children.length > 1)) {
-            row.remove();
-            if (!tb.children.length) table.remove();
-            fresh();
-            table = node.cloneNode(false);
-            table.appendChild(node.querySelector("thead").cloneNode(true));
-            tb = document.createElement("tbody");
-            table.appendChild(tb);
-            container.appendChild(table);
-            tb.appendChild(row);
-          }
-          contentCount++;
         }
-      } else put(node);
+        contentCount++;
+      }
     }
     for (const node of post) {
       page.insertBefore(node, page._foot);
@@ -101,15 +216,7 @@ export function createDocumentPagination(services) {
       contentCount++;
     }
     src.remove();
-    pages.forEach((p, n) => {
-      p.style.removeProperty("min-height");
-      if (pages.length > 1) {
-        const pg = document.createElement("span");
-        pg.className = "pg";
-        pg.textContent = "Page " + (n + 1) + " of " + pages.length;
-        p._foot.appendChild(pg);
-      }
-    });
+    numberSnowPages(pages);
   }
 
   function paginate(deskOverride, documentOverride) {
@@ -225,91 +332,7 @@ export function createDocumentPagination(services) {
         p._tb.appendChild(r);
       }
       if (services.hasItemInspectionHistory(d)) {
-        let current = r;
-        while (over(p)) {
-          const history = current.querySelector(".visit-list"),
-            notesOf = () => [...current.querySelectorAll(".corr [data-history-note]")];
-          if ((!history || !history.children.length) && !notesOf().length) break;
-          const continuation = current.cloneNode(true),
-            rest = [],
-            restNotes = [];
-          // R62: authoring-16 notes sit under the violation; later notes continue on the next page, and one note
-          // that does not fit is split at a word boundary, every character printed once.
-          while (over(p) && notesOf().length) {
-            const note = notesOf().at(-1);
-            restNotes.unshift(note);
-            note.remove();
-          }
-          if (restNotes.length && !over(p)) {
-            const note = restNotes[0],
-              body = note.lastChild,
-              chars = Array.from(body?.nodeType === 3 ? body.textContent : "");
-            if (chars.length) {
-              const partial = note.cloneNode(true);
-              current.querySelector(".corr").appendChild(partial);
-              const text = partial.lastChild;
-              let low = 0,
-                high = chars.length;
-              while (low < high) {
-                const middle = Math.ceil((low + high) / 2);
-                text.textContent = chars.slice(0, middle).join("");
-                if (over(p)) high = middle - 1;
-                else low = middle;
-              }
-              let split = low;
-              while (split > 0 && split < chars.length && !/\s/.test(chars[split - 1])) split--;
-              if (!split) split = low;
-              if (split > 0) {
-                text.textContent = chars.slice(0, split).join("");
-                if (split < chars.length) body.textContent = chars.slice(split).join("");
-                else restNotes.shift();
-              } else partial.remove();
-            }
-          }
-          while (history && over(p) && history.children.length > 1) {
-            rest.unshift(history.lastElementChild);
-            history.lastElementChild.remove();
-          }
-          // One observation can itself exceed a page. Split its note while
-          // retaining the observation's date/outcome on each continuation.
-          const observation = history?.firstElementChild,
-            note = observation?.lastElementChild;
-          if (over(p) && note?.tagName === "EM" && note.textContent.startsWith("Note: ")) {
-            const chars = Array.from(note.textContent.slice(6));
-            let low = 0,
-              high = chars.length;
-            while (low < high) {
-              const middle = Math.ceil((low + high) / 2);
-              note.textContent = "Note: " + chars.slice(0, middle).join("");
-              if (over(p)) high = middle - 1;
-              else low = middle;
-            }
-            if (low > 0 && low < chars.length) {
-              // Prefer a word boundary, without dropping whitespace or characters.
-              let split = low;
-              while (split > 0 && !/\s/.test(chars[split - 1])) split--;
-              if (!split) split = low;
-              const remainder = observation.cloneNode(true);
-              note.textContent = "Note: " + chars.slice(0, split).join("");
-              remainder.lastElementChild.textContent = "Note: " + chars.slice(split).join("");
-              rest.unshift(remainder);
-            } else note.textContent = "Note: " + chars.join("");
-          }
-          if (!rest.length && !restNotes.length) break;
-          continuation.removeAttribute("data-row");
-          continuation.querySelectorAll("[contenteditable],[data-field],[data-id]").forEach((el) => {
-            el.removeAttribute("contenteditable");
-            el.removeAttribute("data-field");
-            el.removeAttribute("data-id");
-          });
-          continuation.querySelector(".c-no").textContent = (r.querySelector(".num")?.textContent || "") + " (continued)";
-          continuation.querySelector(".corr").textContent = "Inspection history continued.";
-          continuation.querySelector(".corr").append(...restNotes);
-          continuation.querySelector(".visit-list")?.replaceChildren(...rest);
-          p = newPage(true);
-          p._tb.appendChild(continuation);
-          current = continuation;
-        }
+        p = paginateRowHistory({ r, p, over, newPage });
       }
     });
     // the closing blocks follow the table, spilling to a page of their own only

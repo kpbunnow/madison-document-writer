@@ -18,18 +18,8 @@ global.Date = class extends NativeDate {
     return instant;
   }
 };
-globalThis.MADISON_TEST_DATA = true;
-const { JSDOM } = require("jsdom"),
-  dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', { url: "http://127.0.0.1:8777/", pretendToBeVisual: true });
-global.window = dom.window;
-global.document = dom.window.document;
-window.scrollTo = () => {};
-global.getSelection = () => window.getSelection();
-global.fetch = async () => {
-  throw Error("offline");
-};
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
+const esbuild = require("esbuild"),
+  path = require("path");
 const child = require("child_process");
 const day = process.env.R32_CLOCK.includes("04:30") ? "2026-07-29" : "2026-07-30";
 assert.equal(
@@ -40,8 +30,29 @@ assert.equal(
     .trim(),
   day,
 );
-const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+(async () => {
+  const compiled = await esbuild.build({
+    stdin: {
+      contents:
+        'export {recordDay,mailingMaxDay} from "./app/assets/shared.js";export {iso,addDays} from "./app/modules/calendar.js";export {courtCents,withinWindow} from "./app/modules/citation_policy.js";export {createCourtScheduling} from "./app/modules/court_scheduling.js";',
+      resolveDir: path.resolve("."),
+    },
+    bundle: true,
+    write: false,
+    format: "cjs",
+    plugins: [
+      {
+        name: "data",
+        setup(b) {
+          b.onResolve({ filter: /\/data\// }, (a) => ({ path: path.resolve("build/generated/modules/data", path.basename(a.path)) }));
+        },
+      },
+    ],
+  });
+  const box = { exports: {} };
+  new Function("module", "exports", compiled.outputFiles[0].text)(box, box.exports);
+  const { recordDay, mailingMaxDay, iso, addDays, courtCents, withinWindow, createCourtScheduling } = box.exports;
+  const { nextCourtDate } = createCourtScheduling({ today: new Date() });
   const expected = process.env.R32_CLOCK.includes("04:30") ? "2026-07-29" : "2026-07-30";
   assert.equal(recordDay(new Date()), expected);
   assert.equal(iso(new Date()), expected);
@@ -53,6 +64,7 @@ const test = async () => {
   assert.ok(withinWindow(expected === "2026-07-29" ? "2025-07-29" : "2025-07-30", expected, { months: 12 }));
   assert.ok(!withinWindow("2025-07-28", expected, { months: 12 }));
   console.log("PASS midnight " + process.env.TZ + " " + expected);
-  process.exit(0);
-};
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
