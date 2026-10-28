@@ -919,3 +919,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Completed worksheet check rows/panel template conversion and removed the now-unused production esc import. Added 1,536 independent retained-row/panel comparisons because the historical full-screen fixture shares this owner; its original references/assertions remain unchanged. Historical test composition explicitly supplies esc after production imports narrow. Passed 1,026 full-screen comparisons, fresh test build, R46 (256 outcomes), walkthrough (30 assertions), screen CSS/escaping/print exclusion, editor HTML (2,031 states), reinspection service, module boundaries, test seams, ESLint and formatting. No fragmented HTML concat chains remain in reinspection.js; other screen owners and quantitative targets remain unfinished.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## citation-prior-history-phases
+
+Separated record matching from prior-citation collection in private helpers, preserving first-source wins, read order, seasonal owner rules, date windows and staged facts. Passed 4,045 retained-owner comparisons using real history transport and matching, plus 4,692 existing pricing-refresh scenarios/cache reload checks. Module boundaries, test seams, ESLint and formatting pass. No pricing policy, print, stored format or release identity changes.
+
+Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 53, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
