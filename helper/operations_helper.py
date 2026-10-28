@@ -17,6 +17,20 @@ import uuid
 from case_store import atomic_write, case_number_key, file_lock
 
 
+def _probe_health_writable(server, folder, share, reachable):
+    try:
+        for target in (folder, share / server.OUTDIR_NAME if share else None):
+            if not reachable(target):
+                raise OSError("Folder unavailable")
+            with tempfile.NamedTemporaryFile(prefix="._dw-health-", dir=target) as check:
+                check.write(b"Madison setup check")
+                check.flush()
+                os.fsync(check.fileno())
+        return True
+    except OSError:
+        return False
+
+
 @logged("setup")
 def health(server, probe=False):
     try:
@@ -36,17 +50,7 @@ def health(server, probe=False):
 
     writable = None
     if probe:
-        try:
-            for target in (folder, share / server.OUTDIR_NAME if share else None):
-                if not reachable(target):
-                    raise OSError("Folder unavailable")
-                with tempfile.NamedTemporaryFile(prefix="._dw-health-", dir=target) as check:
-                    check.write(b"Madison setup check")
-                    check.flush()
-                    os.fsync(check.fileno())
-            writable = True
-        except OSError:
-            writable = False
+        writable = _probe_health_writable(server, folder, share, reachable)
     try:
         manifest = json.loads(server.resource("catalog_manifest.json").read_text(encoding="utf-8"))
         catalog = manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
