@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_citation_refresh_rules.js` | 4,692 policy/generated owner scenarios pin mutation, aliases, exceptions, lazy service order and live shared-history cache invalidation/reloads. |
 | `audit_snow_snapshot_rules.py` | 3,000 snow snapshots preserve exact item/evidence/noon/letter refusals, date/comment queries and unchanged inputs. |
 | `audit_address_parser_rules.py` | Real parser corpus and 3,000 tagged-part scenarios preserve raw/result data, fallback, errors and normalization/owner-key call order. |
 | `audit_catalog_review_rules.py` | 3,000 catalog review contexts preserve exact request refusals, lock/write order, concurrent versions, cycles and partial list effects. |
