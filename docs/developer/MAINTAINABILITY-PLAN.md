@@ -711,3 +711,9 @@ Measured counts: {'complexity': 72, 'max-depth': 0, 'max-lines-per-function': 12
 Separated schedule selection, mandatory deposits, measurement refusals and row-selection metadata into private phases. All 8917 comparisons passed before/after extraction; R32 passed 3872 JavaScript/Python pricing combinations and draft workflows; citation refresh and snow regressions pass against a fresh build. Boundaries, seam inventory, ESLint and formatting pass. Initial local extraction had an object-wrapper syntax error caught before verification and corrected. Initial trace assertions inspected returned proxies; snapshotting now unwraps test instrumentation before comparing, preserving full input-read traces without assertion-induced reads.
 
 Measured counts: {'complexity': 71, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.
+
+## editor-action-templates
+
+Converted editor action and inspection fragments to escaped screen templates. Dynamic case identity and static primary labels escape by default; raw is limited to existing primary attributes, composed action markup and the owned inspection renderer. Preserved original condition/service evaluation order, displayed text and output whitespace. The 2031 frozen HTML/state/effect comparisons pass, as do screen class/style, escaping/print exclusion, dependency, ESLint and formatting checks. Prior source inspection confirms split literals are retained source shape, not approved wording boundaries; no CSS or printed document wording changes.
+
+Measured counts: {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15} → {'complexity': 70, 'max-depth': 0, 'max-lines-per-function': 121, 'python': 15}.

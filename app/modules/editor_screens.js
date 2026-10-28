@@ -1,4 +1,4 @@
-import { html } from "./screen_html.js";
+import { html, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
@@ -17,35 +17,22 @@ const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; e
 function editorActionsHTML({ d, locked, primary, services }) {
   const more =
     locked && !d.pendingAmendment
-      ? "" +
-        "".concat(
-          !d.draft && !services.record.correctionEligibility(d)
-            ? '<button class="btn" id="btn-correct">' +
-                `${d.void ? "Restore with correction" : "Correct document"}` +
-                "</button>" +
-                `${d.void ? "" : '<button class="btn" id="btn-void">Withdraw…</button>'}` +
-                ""
-            : "",
-        ) +
+      ? (!d.draft && !services.record.correctionEligibility(d)
+          ? html`<button class="btn" id="btn-correct">${d.void ? "Restore with correction" : "Correct document"}</button>` +
+            (d.void ? "" : html`<button class="btn" id="btn-void">Withdraw…</button>`)
+          : "") +
         // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
         (workspace.CASEDIR
-          ? '<button class="btn" id="btn-savecase">Save case to shared folder</button>'
-          : '<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>' +
-            '<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>' +
-            `<button class="btn" data-safety-case="${esc(d.caseId)}" data-safety-action="storage">Connect shared folder</button>`) +
-        `${isEffective(d) ? '<button class="btn" id="btn-email">Email…</button>' : ""}` +
-        ""
+          ? html`<button class="btn" id="btn-savecase">Save case to shared folder</button>`
+          : html`<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>` +
+            html`<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>` +
+            html`<button class="btn" data-safety-case="${d.caseId}" data-safety-action="storage">Connect shared folder</button>`) +
+        (isEffective(d) ? html`<button class="btn" id="btn-email">Email…</button>` : "")
       : "";
   return (
-    "" +
-    `${d.draft ? '<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>' : ""}` +
-    '<button class="btn btn-primary editor-primary" ' +
-    `${primary.attrs}` +
-    ">" +
-    `${primary.label}` +
-    "</button>" +
-    "".concat(more ? '<details class="editor-more"><summary>Document actions</summary><div>' + more + "</div></details>" : "") +
-    ""
+    (d.draft ? html`<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>` : "") +
+    html`<button class="btn btn-primary editor-primary" ${raw(primary.attrs)}>${primary.label}</button>` +
+    (more ? html`<details class="editor-more"><summary>Document actions</summary><div>${raw(more)}</div></details>` : "")
   );
 }
 
@@ -60,16 +47,9 @@ function editorMetadataHTML({ d, tyLabel, locked, services }) {
 
 function editorInspectionHTML({ reviewVisit, inspectionParts, locked }) {
   return reviewVisit || inspectionParts
-    ? '<div class="editor-taskbar no-print">' +
-        "".concat(reviewVisit ? '<button class="btn" id="btn-editvisit">Review inspection</button>' : "") +
-        '<p class="hint">' +
-        "".concat(
-          locked
-            ? "Issued details are retained with the document."
-            : "Edit inspection, property and mailing details on the working document be" + "low. Required checks link to the exact field.",
-        ) +
-        "</p></div>" +
-        inspectionParts
+    ? html`<div class="editor-taskbar no-print">` +
+        (reviewVisit ? html`<button class="btn" id="btn-editvisit">Review inspection</button>` : "") +
+        html`<p class="hint">${locked ? "Issued details are retained with the document." : "Edit inspection, property and mailing details on the working document below. Required checks link to the exact field."}</p></div>${raw(inspectionParts)}`
     : "";
 }
 
