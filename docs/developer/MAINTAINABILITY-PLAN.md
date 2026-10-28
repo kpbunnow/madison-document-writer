@@ -799,3 +799,9 @@ Measured counts: {'complexity': 66, 'max-depth': 0, 'max-lines-per-function': 12
 Separated imported-visit date/time/inspector refresh and inherited result-date updates from worksheet entry. Kept snow/integrity refusal priority, clear-walk timing, repeated live draft queries and the original open-visit reference. All 3501 frozen scenarios pass before/after, including partial service failures and clearWalk replacing draft state. Reinspection service, module boundaries, seams, ESLint and formatting pass. No dependency, public API, stored identity or UI behavior change.
 
 Measured counts: {'complexity': 64, 'max-depth': 0, 'max-lines-per-function': 119, 'python': 15} → {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15}.
+
+## report-model-equivalence
+
+Added isolated public-owner coverage before simplifying report model projection. All 3401 comparisons pass across generated summary versions, parcel-history order, geography and partial service failures. Explicit assertions require actual counted cases and retained summary/child links; generated duplicate numbers preserve existing byNo semantics. ESLint, formatting and seam inventory pass. No production model, report assertion, export behavior or debt allowance changes.
+
+Measured counts: {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15} → {'complexity': 63, 'max-depth': 0, 'max-lines-per-function': 118, 'python': 15}.
