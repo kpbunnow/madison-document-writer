@@ -1,0 +1,67 @@
+def compile_policy(root):
+    validate_retained_sources(root)
+    folder = Path(root) / "policy"
+    p = read(folder / "metadata.json")
+    parameters = read(folder / "surcharges.json")
+    if p.get("pricingDateBasis") not in ("issue", "violation"):
+        raise ValueError("Choose one pricing date basis")
+    for name, rows in parameters.items():
+        versions(rows, name)
+    entries = [entry for path in sorted((folder / "schedule").glob("*.json")) for entry in read(path)]
+    ladders = read(folder / "ladders.json")
+    if len({e["id"] for e in entries}) != len(entries):
+        raise ValueError("Duplicate schedule identity")
+    for e in entries + ladders:
+        versions(e["versions"], e["id"])
+    for relative, old in read(folder / "version-ledger.json").items():
+        if not unchanged(old, read(folder / relative)):
+            raise ValueError("An old policy version was edited or deleted: " + relative)
+    # The directive authorizes deriving rules from every retained source version.
+    # Its date is authorization, not a newly invented legal effective date.
+    for entry in entries:
+        entry["versions"] = [{**interpret(entry, version), "sourceStatus": version["status"]} for version in entry["versions"]]
+    from library_ordinances import audit
+
+    p["libraryAudit"] = audit(root)
+    for entry in entries:
+        if entry["ordinance"] == "29.40(4)(b)":
+            for version in entry["versions"]:
+                version["sizeBand"] = "small" if "Less than" in version["description"] else "large"
+    p.update(parameters=parameters, entries=[{**e["versions"][-1], **e} for e in entries], fallback=[{**e["versions"][-1], **e} for e in ladders])
+    date.fromisoformat("2001-" + p.get("snowSeasonStartMonthDay", "07-01"))
+    for entry in p["entries"]:
+        if entry["ordinance"] == "10.28":
+            entry["window"] = {"kind": "site-season", "startMonthDay": p.get("snowSeasonStartMonthDay", "07-01")}
+            entry["divisionReading"] = (
+                "Count issued citations at the property during the same snow season, "
+                "including a previous owner by default; division letter reading, ordi"
+                "nance lookback is silent."
+            )
+            for version in entry["versions"]:
+                version["window"] = dict(entry["window"])
+    p["fees"] = {
+        "penaltyPercent": parameters["penalty"][-1]["percent"],
+        "jailMinimumCents": parameters["jail"][-1]["floorCents"],
+        "jailPercent": parameters["jail"][-1]["percent"],
+        "crimeLabCents": parameters["crimeLab"][-1]["cents"],
+        "courtRates": [{"effectiveDate": v["from"] or "0001-01-01", "cents": v["cents"]} for v in parameters["court"]],
+        "ccMinCents": 1500,
+        "ccMaxCents": max(4800, *[v["cents"] for v in parameters["court"]]),
+    }
+    p["versionHash"] = hashlib.sha256(json.dumps(p, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    import citation_pricing as pricing
+
+    previous = pricing.policy
+    try:
+        pricing.policy = lambda: p
+        for path in sorted((folder / "tests").glob("*.yaml")):
+            for test in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
+                at = str(test["date"])
+                entry = pricing.resolve(test["ordinance"], entry_id=test.get("entryId", ""), at=at)
+                base = pricing.base_cents(entry, test["tier"])
+                total = pricing.assessment_cents(base, pricing.court_cents(at), at=at)["total"] if base is not None else None
+                if (base, total) != (test["base"], test["total"]):
+                    raise ValueError("Legislation example does not compute: " + str(test))
+    finally:
+        pricing.policy = previous
+    return p

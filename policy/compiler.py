@@ -85,6 +85,45 @@ def validate_retained_sources(root):
         _validate_retained_schedule_entry(entry, grammar)
 
 
+def _annotate_building_size_bands(entries):
+    for entry in entries:
+        if entry["ordinance"] == "29.40(4)(b)":
+            for version in entry["versions"]:
+                version["sizeBand"] = "small" if "Less than" in version["description"] else "large"
+
+
+def _apply_snow_policy(p):
+    date.fromisoformat("2001-" + p.get("snowSeasonStartMonthDay", "07-01"))
+    for entry in p["entries"]:
+        if entry["ordinance"] == "10.28":
+            entry["window"] = {"kind": "site-season", "startMonthDay": p.get("snowSeasonStartMonthDay", "07-01")}
+            entry["divisionReading"] = (
+                "Count issued citations at the property during the same snow season, "
+                "including a previous owner by default; division letter reading, ordi"
+                "nance lookback is silent."
+            )
+            for version in entry["versions"]:
+                version["window"] = dict(entry["window"])
+
+
+def _validate_legislation_examples(p, folder):
+    import citation_pricing as pricing
+
+    previous = pricing.policy
+    try:
+        pricing.policy = lambda: p
+        for path in sorted((folder / "tests").glob("*.yaml")):
+            for test in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
+                at = str(test["date"])
+                entry = pricing.resolve(test["ordinance"], entry_id=test.get("entryId", ""), at=at)
+                base = pricing.base_cents(entry, test["tier"])
+                total = pricing.assessment_cents(base, pricing.court_cents(at), at=at)["total"] if base is not None else None
+                if (base, total) != (test["base"], test["total"]):
+                    raise ValueError("Legislation example does not compute: " + str(test))
+    finally:
+        pricing.policy = previous
+
+
 def compile_policy(root):
     validate_retained_sources(root)
     folder = Path(root) / "policy"
@@ -110,22 +149,9 @@ def compile_policy(root):
     from library_ordinances import audit
 
     p["libraryAudit"] = audit(root)
-    for entry in entries:
-        if entry["ordinance"] == "29.40(4)(b)":
-            for version in entry["versions"]:
-                version["sizeBand"] = "small" if "Less than" in version["description"] else "large"
+    _annotate_building_size_bands(entries)
     p.update(parameters=parameters, entries=[{**e["versions"][-1], **e} for e in entries], fallback=[{**e["versions"][-1], **e} for e in ladders])
-    date.fromisoformat("2001-" + p.get("snowSeasonStartMonthDay", "07-01"))
-    for entry in p["entries"]:
-        if entry["ordinance"] == "10.28":
-            entry["window"] = {"kind": "site-season", "startMonthDay": p.get("snowSeasonStartMonthDay", "07-01")}
-            entry["divisionReading"] = (
-                "Count issued citations at the property during the same snow season, "
-                "including a previous owner by default; division letter reading, ordi"
-                "nance lookback is silent."
-            )
-            for version in entry["versions"]:
-                version["window"] = dict(entry["window"])
+    _apply_snow_policy(p)
     p["fees"] = {
         "penaltyPercent": parameters["penalty"][-1]["percent"],
         "jailMinimumCents": parameters["jail"][-1]["floorCents"],
@@ -136,19 +162,5 @@ def compile_policy(root):
         "ccMaxCents": max(4800, *[v["cents"] for v in parameters["court"]]),
     }
     p["versionHash"] = hashlib.sha256(json.dumps(p, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    import citation_pricing as pricing
-
-    previous = pricing.policy
-    try:
-        pricing.policy = lambda: p
-        for path in sorted((folder / "tests").glob("*.yaml")):
-            for test in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
-                at = str(test["date"])
-                entry = pricing.resolve(test["ordinance"], entry_id=test.get("entryId", ""), at=at)
-                base = pricing.base_cents(entry, test["tier"])
-                total = pricing.assessment_cents(base, pricing.court_cents(at), at=at)["total"] if base is not None else None
-                if (base, total) != (test["base"], test["total"]):
-                    raise ValueError("Legislation example does not compute: " + str(test))
-    finally:
-        pricing.policy = previous
+    _validate_legislation_examples(p, folder)
     return p
