@@ -549,3 +549,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 Workspace composition now uses escaped templates for lead, import/empty states, queue notices and support. Repeated live-state reads and renderer/service order remain unchanged. Removing the incidental production esc import exposed a frozen-reference scope dependency; test-only historical bindings now explicitly provide its original esc and WriterState without changing reference bytes or assertions. All eight rule/HTML/dispatch comparisons (26,853 cases), native pagination, class/style, screen dependency and escaping/print-exclusion checks pass. This completes Workspace markup conversion without CSS, approved wording, print layout, release or stored-format changes.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M5 editor screen equivalence seam
+
+Before extracting the editor screen, an independent public-factory seam pins its current function as an immutable test reference. It compares complete HTML, state mutations and ordered service getter/call traces across 2,031 seeded and boundary cases covering drafts, retained/locked records, corrections, invalid proof, pending actions, initial citations, copies and missing documents. Attribute/text inputs include escaped characters. Every generated case must render successfully, so matching exceptions cannot mask missing coverage. The reference and assertions are test-only; no application hook or production function changes.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
