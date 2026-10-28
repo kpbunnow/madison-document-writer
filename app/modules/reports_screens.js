@@ -171,6 +171,28 @@ function reportExportCitationRows(services, M, F, A) {
   return citRows;
 }
 
+function reportExportReferralRows(services, M, F, A) {
+  const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
+  M.counted
+    .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
+    .forEach((c) =>
+      c.referrals.forEach((r) => {
+        if (!services.facts.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
+        refRows.push([
+          c.number,
+          c.address,
+          A(c),
+          services.D(r.issued),
+          r.by,
+          r.owner,
+          (r.ownerAddr || []).join(", "),
+          services.facts.ownerKeyLabel(r.ownerKey),
+        ]);
+      }),
+    );
+  return refRows;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1232,24 +1254,7 @@ export function createReportsScreens(services) {
     const vRows = reportExportViolationRows(services, cases, F, A);
     const visitRows = reportExportVisitRows(services, cases, A);
     const citRows = reportExportCitationRows(services, M, F, A);
-    const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
-    M.counted
-      .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
-      .forEach((c) =>
-        c.referrals.forEach((r) => {
-          if (!services.facts.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
-          refRows.push([
-            c.number,
-            c.address,
-            A(c),
-            services.D(r.issued),
-            r.by,
-            r.owner,
-            (r.ownerAddr || []).join(", "),
-            services.facts.ownerKeyLabel(r.ownerKey),
-          ]);
-        }),
-      );
+    const refRows = reportExportReferralRows(services, M, F, A);
     const about = [
       ["Building Inspection reports"],
       [],
