@@ -365,6 +365,127 @@ function specialFamilyReadiness(context) {
   }
 }
 
+function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
+  if (el.dataset.caseActionGroup) {
+    editor.WORK.currentAction.group = el.dataset.caseActionGroup;
+    editor.WORK.currentAction.type = "";
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  if (el.dataset.caseActionType) {
+    editor.WORK.currentAction.type = el.dataset.caseActionType;
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  if (el.dataset.serviceField && d) {
+    const key = "service:" + d.id;
+    editor.WORK.recordForms[key] = editor.WORK.recordForms[key] || {};
+    editor.WORK.recordForms[key][el.dataset.serviceField] = el.value;
+    services.scheduleDraftSave();
+    return true;
+  }
+  if (el.dataset.actionGroup && r) {
+    r.actionGroup = el.dataset.actionGroup;
+    r.followupIntent = "";
+    editor.WORK.actionChoices = editor.WORK.actionChoices || {};
+    editor.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  if (el.dataset.actionType && r) {
+    r.followupIntent = el.dataset.actionType;
+    editor.WORK.actionChoices = editor.WORK.actionChoices || {};
+    editor.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  return false;
+}
+
+function switchAdministrativeFamily(services, refreshControls, restoreDues, el, d) {
+  if (el.dataset.special === "administrativeType" && d && d.draft) {
+    d.selectionCache = d.selectionCache || {};
+    d.selectionCache[d.type] = clone(d.special || {});
+    // Switching families never adopts the simplified Best Interest format; that remains an explicit choice.
+    d.authoringCache = d.authoringCache || {};
+    d.authoringCache[d.type] = d.authoringVersion;
+    d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
+    d.type = el.value;
+    // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
+    // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
+    // R62: an authoring-16 draft stays on the all-item model in both families.
+    d.authoringVersion =
+      d.authoringCache[d.type] ??
+      (d.authoringVersion >= ALL_ITEM_EXTENSIONS
+        ? ALL_ITEM_EXTENSIONS
+        : d.authoringVersion >= DATED_EXTENSIONS
+          ? d.type === "bestInterestExtension"
+            ? 15
+            : DATED_EXTENSIONS
+          : d.authoringVersion);
+    d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
+    if (datedExtension(d)) requireDated(d.type, d.special, d.authoringVersion);
+    restoreDues(d);
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  return false;
+}
+
+function editScopedSpecialField({ services, refreshControls, restoreDues, specialBody, ev, el, d, s }) {
+  if (el.dataset.special) {
+    const k = el.dataset.special;
+    if (k !== "reviewed") {
+      s.reviewed = false;
+      const box = document.querySelector('[data-special="reviewed"]');
+      if (box) box.checked = false;
+    }
+    s[k] = el.type === "checkbox" ? el.checked : el.value;
+    if (d.correction && (allItemExtension(d) || (k === "reason" && simplifiedBestInterest(d)))) d.correction.body = specialBody(d);
+    if (k === "deadlineMode") restoreDues(d);
+    if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
+    if (d.fromReinspId) {
+      const visit = reinsp(d.fromReinspId);
+      if (visit) {
+        visit.actionDetails = visit.actionDetails || {};
+        visit.actionDetails[d.type] = clone(s);
+      }
+    }
+    services.scheduleDraftSave();
+    if (
+      ev.type === "change" &&
+      ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"].includes(k)
+    ) {
+      refreshControls(el);
+    } else services.refreshSheet();
+    return true;
+  }
+  return false;
+}
+
+function editScopedSpecialItem({ services, refreshControls, restoreDues, invalidateSafety, cacheDetails, el, d, s }) {
+  if (el.dataset.specialItem) {
+    s.reviewed = false;
+    const box = document.querySelector('[data-special="reviewed"]');
+    if (box) box.checked = false;
+    const no = el.dataset.specialItem;
+    s.affected = s.affected || [];
+    s.affected = el.checked ? [...new Set([...s.affected, no])] : s.affected.filter((x) => x !== no);
+    restoreDues(d);
+    invalidateSafety(d);
+    cacheDetails(d);
+    services.saveDrafts();
+    refreshControls(el);
+    return true;
+  }
+  return false;
+}
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -1504,113 +1625,12 @@ export function initNewDocuments(services) {
     const el = ev.target,
       d = doc(editor.state.docId),
       r = reinsp(editor.state.reinspId);
-    if (el.dataset.caseActionGroup) {
-      editor.WORK.currentAction.group = el.dataset.caseActionGroup;
-      editor.WORK.currentAction.type = "";
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
-    if (el.dataset.caseActionType) {
-      editor.WORK.currentAction.type = el.dataset.caseActionType;
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
-    if (el.dataset.serviceField && d) {
-      const key = "service:" + d.id;
-      editor.WORK.recordForms[key] = editor.WORK.recordForms[key] || {};
-      editor.WORK.recordForms[key][el.dataset.serviceField] = el.value;
-      services.scheduleDraftSave();
-      return true;
-    }
-    if (el.dataset.actionGroup && r) {
-      r.actionGroup = el.dataset.actionGroup;
-      r.followupIntent = "";
-      editor.WORK.actionChoices = editor.WORK.actionChoices || {};
-      editor.WORK.actionChoices[r.id] = { intent: "", group: r.actionGroup };
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
-    if (el.dataset.actionType && r) {
-      r.followupIntent = el.dataset.actionType;
-      editor.WORK.actionChoices = editor.WORK.actionChoices || {};
-      editor.WORK.actionChoices[r.id] = { intent: r.followupIntent, group: r.actionGroup };
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
-    if (el.dataset.special === "administrativeType" && d && d.draft) {
-      d.selectionCache = d.selectionCache || {};
-      d.selectionCache[d.type] = clone(d.special || {});
-      // Switching families never adopts the simplified Best Interest format; that remains an explicit choice.
-      d.authoringCache = d.authoringCache || {};
-      d.authoringCache[d.type] = d.authoringVersion;
-      d.items.forEach((i) => (i.due = d.special?.originalDues?.[i.no] ?? i.due));
-      d.type = el.value;
-      // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
-      // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
-      // R62: an authoring-16 draft stays on the all-item model in both families.
-      d.authoringVersion =
-        d.authoringCache[d.type] ??
-        (d.authoringVersion >= ALL_ITEM_EXTENSIONS
-          ? ALL_ITEM_EXTENSIONS
-          : d.authoringVersion >= DATED_EXTENSIONS
-            ? d.type === "bestInterestExtension"
-              ? 15
-              : DATED_EXTENSIONS
-            : d.authoringVersion);
-      d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
-      if (datedExtension(d)) requireDated(d.type, d.special, d.authoringVersion);
-      restoreDues(d);
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
+    if (editCaseAndVisitSelection(services, refreshControls, el, d, r)) return true;
+    if (switchAdministrativeFamily(services, refreshControls, restoreDues, el, d)) return true;
     if (!d || services.isLocked(d) || !specialType(d.type)) return false;
     const s = d.special || (d.special = {});
-    if (el.dataset.special) {
-      const k = el.dataset.special;
-      if (k !== "reviewed") {
-        s.reviewed = false;
-        const box = document.querySelector('[data-special="reviewed"]');
-        if (box) box.checked = false;
-      }
-      s[k] = el.type === "checkbox" ? el.checked : el.value;
-      if (d.correction && (allItemExtension(d) || (k === "reason" && simplifiedBestInterest(d)))) d.correction.body = specialBody(d);
-      if (k === "deadlineMode") restoreDues(d);
-      if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
-      if (d.fromReinspId) {
-        const visit = reinsp(d.fromReinspId);
-        if (visit) {
-          visit.actionDetails = visit.actionDetails || {};
-          visit.actionDetails[d.type] = clone(s);
-        }
-      }
-      services.scheduleDraftSave();
-      if (
-        ev.type === "change" &&
-        ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"].includes(k)
-      ) {
-        refreshControls(el);
-      } else services.refreshSheet();
-      return true;
-    }
-    if (el.dataset.specialItem) {
-      s.reviewed = false;
-      const box = document.querySelector('[data-special="reviewed"]');
-      if (box) box.checked = false;
-      const no = el.dataset.specialItem;
-      s.affected = s.affected || [];
-      s.affected = el.checked ? [...new Set([...s.affected, no])] : s.affected.filter((x) => x !== no);
-      restoreDues(d);
-      invalidateSafety(d);
-      cacheDetails(d);
-      services.saveDrafts();
-      refreshControls(el);
-      return true;
-    }
+    if (editScopedSpecialField({ services, refreshControls, restoreDues, specialBody, ev, el, d, s })) return true;
+    if (editScopedSpecialItem({ services, refreshControls, restoreDues, invalidateSafety, cacheDetails, el, d, s })) return true;
     if (el.dataset.specialDue) {
       setSpecialDue(
         d,
