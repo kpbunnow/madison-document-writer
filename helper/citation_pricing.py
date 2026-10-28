@@ -84,25 +84,14 @@ def tier_label(n):
     return str(n) + ("st" if n == 1 else "nd" if n == 2 else "rd" if n == 3 else "th")
 
 
-def base_cents(entry, tier, measurements=None):
-    if not ready(entry):
-        return None
-    rule = entry.get("rule")
-    m = measurements or {}
-    if not rule:
-        return entry["tiers"][min(ordinal(tier), len(entry["tiers"])) - 1]["amountCents"]
-    kind = rule["kind"]
-    if kind == "tiers":
-        return rule["amountsCents"][min(ordinal(tier), len(rule["amountsCents"])) - 1]
-    if kind == "mandatory":
-        return None
+def _base_measurements_valid(entry, kind, m):
     for f in entry.get("measurements", []):
         if kind == "tree-alternative" and f["key"] == "diameter" and m.get("removed") is False:
             continue
         value = m.get(f["key"])
         if f.get("boolean"):
             if not isinstance(value, bool):
-                return None
+                return False
         elif (
             isinstance(value, bool)
             or not isinstance(value, (int, float))
@@ -111,7 +100,11 @@ def base_cents(entry, tier, measurements=None):
             or f.get("whole")
             and value != int(value)
         ):
-            return None
+            return False
+    return True
+
+
+def _measured_base_cents(kind, rule, m):
     if kind == "per-inch":
         return m["diameter"] * rule["perInchCents"]
     if kind == "tree-alternative":
@@ -132,6 +125,23 @@ def base_cents(entry, tier, measurements=None):
             ):
                 return band["cents"]
     return None
+
+
+def base_cents(entry, tier, measurements=None):
+    if not ready(entry):
+        return None
+    rule = entry.get("rule")
+    m = measurements or {}
+    if not rule:
+        return entry["tiers"][min(ordinal(tier), len(entry["tiers"])) - 1]["amountCents"]
+    kind = rule["kind"]
+    if kind == "tiers":
+        return rule["amountsCents"][min(ordinal(tier), len(rule["amountsCents"])) - 1]
+    if kind == "mandatory":
+        return None
+    if not _base_measurements_valid(entry, kind, m):
+        return None
+    return _measured_base_cents(kind, rule, m)
 
 
 def court_cents(issued):

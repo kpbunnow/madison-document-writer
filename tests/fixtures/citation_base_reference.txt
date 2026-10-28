@@ -1,0 +1,48 @@
+def base_cents(entry, tier, measurements=None):
+    if not ready(entry):
+        return None
+    rule = entry.get("rule")
+    m = measurements or {}
+    if not rule:
+        return entry["tiers"][min(ordinal(tier), len(entry["tiers"])) - 1]["amountCents"]
+    kind = rule["kind"]
+    if kind == "tiers":
+        return rule["amountsCents"][min(ordinal(tier), len(rule["amountsCents"])) - 1]
+    if kind == "mandatory":
+        return None
+    for f in entry.get("measurements", []):
+        if kind == "tree-alternative" and f["key"] == "diameter" and m.get("removed") is False:
+            continue
+        value = m.get(f["key"])
+        if f.get("boolean"):
+            if not isinstance(value, bool):
+                return None
+        elif (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or value < f.get("min", 0)
+            or value > f.get("max", float("inf"))
+            or f.get("whole")
+            and value != int(value)
+        ):
+            return None
+    if kind == "per-inch":
+        return m["diameter"] * rule["perInchCents"]
+    if kind == "tree-alternative":
+        return m["diameter"] * rule["perInchCents"] if m["removed"] else rule["offenseCents"]
+    if kind == "tree-increment":
+        return (
+            rule["initialCents"]
+            + min(m["diameter"], rule["threshold"]) * rule["firstInchCents"]
+            + max(0, m["diameter"] - rule["threshold"]) * rule["laterInchCents"]
+        )
+    if kind == "building-duration":
+        return rule["largeCents" if m["area"] >= rule["areaThreshold"] else "smallCents"][int(m["days"] >= rule["daysThreshold"])]
+    if kind == "bands":
+        for band in rule["bands"]:
+            n = m[rule["field"]]
+            if (n > band["min"] if band.get("minExclusive") else n >= band["min"]) and (
+                "max" not in band or (n <= band["max"] if band.get("maxInclusive") else n < band["max"])
+            ):
+                return band["cents"]
+    return None
