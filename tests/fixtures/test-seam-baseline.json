@@ -7,7 +7,6 @@
   "tests/unit/audit_accessibility.js": 1,
   "tests/unit/audit_authoring.js": 1,
   "tests/unit/audit_corrections.js": 1,
-  "tests/unit/audit_data.js": 1,
   "tests/unit/audit_desktop_exit.js": 2,
   "tests/unit/audit_e2e.js": 1,
   "tests/unit/audit_events.js": 1,
