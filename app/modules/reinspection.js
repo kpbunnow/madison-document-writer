@@ -1,3 +1,4 @@
+import { editorState as editor } from "./editor_state.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 import { stableJSON, clone } from "./record_values.js";
 import { DOC_TYPES, OUTCOMES, REFERRED_ONLY, courtTime } from "./document_types.js";
@@ -26,9 +27,9 @@ import { canonicalOrdinance } from "./citation_policy.js";
 /* Explicit lazy UI/peer adapters preserve worksheet and walkthrough state at call time. */
 function worksheetItemShown({ r, it }) {
   const oc = ocOf(r, it.id);
-  if (WriterState.state.riFilter === "corrected") return oc === "corrected";
-  if (WriterState.state.riFilter === "open") return oc && oc !== "corrected" && oc !== "withdrawn";
-  if (WriterState.state.riFilter === "todo") return !oc;
+  if (editor.state.riFilter === "corrected") return oc === "corrected";
+  if (editor.state.riFilter === "open") return oc && oc !== "corrected" && oc !== "withdrawn";
+  if (editor.state.riFilter === "todo") return !oc;
   return true;
 }
 
@@ -104,9 +105,9 @@ function worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc })
 function worksheetWalkCopyHTML({ walkOn, src, left, next }) {
   return "".concat(
     walkOn
-      ? WriterState.state.riWalkStage === "details"
+      ? editor.state.riWalkStage === "details"
         ? "Complete item " +
-          `${esc(src.items.find((i) => i.id === WriterState.state.riWalkItem)?.no || "")}` +
+          `${esc(src.items.find((i) => i.id === editor.state.riWalkItem)?.no || "")}` +
           " details, then choose Next item. " +
           `${left}` +
           " without outcomes."
@@ -162,28 +163,27 @@ function worksheetWalkPanelHTML({ readOnly, walkOn, src, left, next, walkSteps, 
         '="ri-walk-mode" ' +
         `${walkOn ? "" : "disabled"}` +
         '><option value="quick" ' +
-        `${WriterState.state.riWalkMode === "quick" ? "selected" : ""}` +
+        `${editor.state.riWalkMode === "quick" ? "selected" : ""}` +
         '>Go to next unanswered item</option><option value="details" ' +
-        `${WriterState.state.riWalkMode === "details" ? "selected" : ""}` +
+        `${editor.state.riWalkMode === "details" ? "selected" : ""}` +
         ">Complete details first</option></select></label>\n    " +
         "".concat(walkOn ? '<button class="btn btn-sm" data-riwalk-prev>Previous item</button>' : "") +
         "\n    " +
         "".concat(
-          walkOn && WriterState.state.riWalkStage === "details"
+          walkOn && editor.state.riWalkStage === "details"
             ? '<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</butto' +
                 'n><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>'
             : "",
         ) +
         "\n    " +
         "".concat(
-          walkOn &&
-            src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)))
+          walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)))
             ? '<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>'
             : "",
         ) +
         "\n    " +
         "".concat(
-          walkOn && WriterState.state.riWalkUndo
+          walkOn && editor.state.riWalkUndo
             ? '<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-th' + 'rough result (U)">Undo last result <kbd>U</kbd></button>'
             : "",
         ) +
@@ -278,30 +278,30 @@ function worksheetFiltersHTML({ done, open, left, cited, src }) {
   return (
     "<div " +
     'class="ri-sum" ' +
-    `${WriterState.state.riWalk ? "hidden" : ""}` +
+    `${editor.state.riWalk ? "hidden" : ""}` +
     '>\n         <button class="cchip ' +
     `${done ? "good" : ""}` +
     '" data-rifilter="corrected" aria-pressed="' +
-    `${WriterState.state.riFilter === "corrected"}` +
+    `${editor.state.riFilter === "corrected"}` +
     '" ' +
-    `${WriterState.state.riWalk ? "disabled" : ""}` +
+    `${editor.state.riWalk ? "disabled" : ""}` +
     ">" +
     `${done}` +
     ' corrected</button>\n         <button class="cchip ' +
     `${open ? "bad" : ""}` +
     '" data-rifilter="open" aria-pressed="' +
-    `${WriterState.state.riFilter === "open"}` +
+    `${editor.state.riFilter === "open"}` +
     '" ' +
-    `${WriterState.state.riWalk ? "disabled" : ""}` +
+    `${editor.state.riWalk ? "disabled" : ""}` +
     ">" +
     `${open}` +
     " outstanding</button>\n         " +
     "".concat(
       left
         ? '<button class="cchip" data-rifilter="todo" aria-pressed="' +
-            `${WriterState.state.riFilter === "todo"}` +
+            `${editor.state.riFilter === "todo"}` +
             '" ' +
-            `${WriterState.state.riWalk ? "disabled" : ""}` +
+            `${editor.state.riWalk ? "disabled" : ""}` +
             ">" +
             `${left}` +
             " not yet resulted</button>"
@@ -311,12 +311,8 @@ function worksheetFiltersHTML({ done, open, left, cited, src }) {
     `${cited.length ? `<span class="cchip bad">${cited.length} to cite</span>` : ""}` +
     "\n         " +
     "".concat(
-      WriterState.state.riFilter
-        ? '<button class="lnk" data-rifilter="" ' +
-            `${WriterState.state.riWalk ? "disabled" : ""}` +
-            ">Show all " +
-            `${src.items.length}` +
-            "</button>"
+      editor.state.riFilter
+        ? '<button class="lnk" data-rifilter="" ' + `${editor.state.riWalk ? "disabled" : ""}` + ">Show all " + `${src.items.length}` + "</button>"
         : "",
     ) +
     "\n       </div>\n       "
@@ -342,7 +338,7 @@ function worksheetBodyHTML({
     `${walkPanel}` +
     "\n       " +
     "".concat(
-      WriterState.state.riFilter
+      editor.state.riFilter
         ? '<p class="ri-filtered">Showing ' +
             `${rowsShown}` +
             " of " +
@@ -355,9 +351,9 @@ function worksheetBodyHTML({
     worksheetPriorVisitsHTML({ prior, services }) +
     '\n     <h2 class="ri-items-heading">' +
     "".concat(
-      WriterState.state.riWalk && WriterState.state.riWalkItem
+      editor.state.riWalk && editor.state.riWalkItem
         ? "Current item · " + (left ? "next unresolved remains in order" : "reviewing recorded details")
-        : WriterState.state.riFilter
+        : editor.state.riFilter
           ? rowsShown + " of " + src.items.length + " items"
           : "Review all " + src.items.length + " items",
     ) +
@@ -457,13 +453,13 @@ function worksheetItemContext({ src, it, r, readOnly, dueCheck }) {
   const ix = src.items.indexOf(it);
   const res = r.results[it.id] || {},
     oc = res.oc || "";
-  const walkCurrent = !readOnly && WriterState.state.riWalk && WriterState.state.riWalkItem === it.id;
+  const walkCurrent = !readOnly && editor.state.riWalk && editor.state.riWalkItem === it.id;
   const late = it.due && daysBetween(it.due, r.date) > 0;
   const open = oc && oc !== "corrected" && oc !== "withdrawn";
   const carried = !!res.carried,
     lock = readOnly || carried;
   const dc = open ? dueCheck(res.due, r.date) : null;
-  const walkHidden = !readOnly && WriterState.state.riWalk && WriterState.state.riWalkItem && !walkCurrent;
+  const walkHidden = !readOnly && editor.state.riWalk && editor.state.riWalkItem && !walkCurrent;
   return { ix, res, oc, walkCurrent, late, open, carried, lock, dc, walkHidden };
 }
 
@@ -530,13 +526,13 @@ function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
 }
 
 function worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, walkItemReady }) {
-  const walkOn = WriterState.state.riWalk;
+  const walkOn = editor.state.riWalk;
   const walkStep = !walkOn
     ? 0
-    : !WriterState.state.riWalkItem
+    : !editor.state.riWalkItem
       ? 4
-      : WriterState.state.riWalkStage === "details"
-        ? walkItemReady(r, WriterState.state.riWalkItem)
+      : editor.state.riWalkStage === "details"
+        ? walkItemReady(r, editor.state.riWalkItem)
           ? 3
           : 2
         : 1;
@@ -587,33 +583,33 @@ export function createReinspection(services) {
   }
 
   function clearWalk() {
-    WriterState.state.riWalk = false;
-    WriterState.state.riWalkContext = null;
-    WriterState.state.riWalkItem = null;
-    WriterState.state.riWalkUndo = null;
-    WriterState.state.riWalkSkipped = [];
-    WriterState.state.riWalkStage = "outcome";
+    editor.state.riWalk = false;
+    editor.state.riWalkContext = null;
+    editor.state.riWalkItem = null;
+    editor.state.riWalkUndo = null;
+    editor.state.riWalkSkipped = [];
+    editor.state.riWalkStage = "outcome";
   }
 
   function restoreWalkFor(r) {
-    const saved = WriterState.WORK.walk;
+    const saved = editor.WORK.walk;
     if (saved?.context !== walkIdentity(r)) {
-      WriterState.WORK.walk = null;
+      editor.WORK.walk = null;
       return;
     }
-    WriterState.state.riWalk = true;
-    WriterState.state.riWalkContext = saved.context;
-    WriterState.state.riWalkItem = saved.item;
-    WriterState.state.riWalkUndo = saved.undo || null;
-    WriterState.state.riWalkMode = saved.mode === "details" ? "details" : "quick";
-    WriterState.state.riWalkSkipped = Array.isArray(saved.skipped) ? saved.skipped : [];
-    WriterState.state.riWalkStage = saved.stage === "details" ? "details" : "outcome";
-    if (!ensureWalkContext()) WriterState.WORK.walk = null;
+    editor.state.riWalk = true;
+    editor.state.riWalkContext = saved.context;
+    editor.state.riWalkItem = saved.item;
+    editor.state.riWalkUndo = saved.undo || null;
+    editor.state.riWalkMode = saved.mode === "details" ? "details" : "quick";
+    editor.state.riWalkSkipped = Array.isArray(saved.skipped) ? saved.skipped : [];
+    editor.state.riWalkStage = saved.stage === "details" ? "details" : "outcome";
+    if (!ensureWalkContext()) editor.WORK.walk = null;
   }
 
   function ensureWalkContext() {
-    const r = WriterState.state.screen === "reinspect" && reinsp(WriterState.state.reinspId);
-    if (!r || !r.draft || r.docId || WriterState.state.riWalkContext !== walkIdentity(r)) {
+    const r = editor.state.screen === "reinspect" && reinsp(editor.state.reinspId);
+    if (!r || !r.draft || r.docId || editor.state.riWalkContext !== walkIdentity(r)) {
       clearWalk();
       return false;
     }
@@ -622,16 +618,12 @@ export function createReinspection(services) {
       clearWalk();
       return false;
     }
-    if (
-      WriterState.state.riWalkItem &&
-      !src.items.some((it) => it.id === WriterState.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)
-    ) {
+    if (editor.state.riWalkItem && !src.items.some((it) => it.id === editor.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)) {
       clearWalk();
       return false;
     }
-    if (WriterState.state.riWalkUndo && !src.items.some((it) => it.id === WriterState.state.riWalkUndo.itemId && !it.withdrawn))
-      WriterState.state.riWalkUndo = null;
-    WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((id) =>
+    if (editor.state.riWalkUndo && !src.items.some((it) => it.id === editor.state.riWalkUndo.itemId && !it.withdrawn)) editor.state.riWalkUndo = null;
+    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) =>
       src.items.some((it) => it.id === id && !it.withdrawn && !(r.results[id] || {}).carried),
     );
     return true;
@@ -675,20 +667,20 @@ export function createReinspection(services) {
   }
 
   function advanceWalk(r) {
-    if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
+    if (!editor.state.riWalk || !ensureWalkContext()) return false;
     if (
-      WriterState.state.riWalkStage === "details" &&
-      WriterState.state.riWalkItem &&
-      !walkItemReady(r, WriterState.state.riWalkItem) &&
-      !WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)
+      editor.state.riWalkStage === "details" &&
+      editor.state.riWalkItem &&
+      !walkItemReady(r, editor.state.riWalkItem) &&
+      !editor.state.riWalkSkipped.includes(editor.state.riWalkItem)
     ) {
       services.toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
       focusWalkDetails();
       return false;
     }
     const next = nextWalkItem(r);
-    WriterState.state.riWalkItem = next?.id || null;
-    WriterState.state.riWalkStage = "outcome";
+    editor.state.riWalkItem = next?.id || null;
+    editor.state.riWalkStage = "outcome";
     services.scheduleDraftSave();
     services.render();
     focusWalkItem();
@@ -696,38 +688,38 @@ export function createReinspection(services) {
   }
 
   function skipWalkDetails(r) {
-    if (!WriterState.state.riWalk || !ensureWalkContext() || WriterState.state.riWalkStage !== "details") return false;
-    if (!WriterState.state.riWalkSkipped.includes(WriterState.state.riWalkItem)) WriterState.state.riWalkSkipped.push(WriterState.state.riWalkItem);
+    if (!editor.state.riWalk || !ensureWalkContext() || editor.state.riWalkStage !== "details") return false;
+    if (!editor.state.riWalkSkipped.includes(editor.state.riWalkItem)) editor.state.riWalkSkipped.push(editor.state.riWalkItem);
     services.scheduleDraftSave();
     return advanceWalk(r);
   }
 
   function returnWalkDetails(r) {
-    if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
+    if (!editor.state.riWalk || !ensureWalkContext()) return false;
     const src = doc(r.sourceDocId),
-      item = src.items.find((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || WriterState.state.riWalkSkipped.includes(it.id)));
+      item = src.items.find((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)));
     if (!item) return false;
-    WriterState.state.riWalkItem = item.id;
-    WriterState.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
-    WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((id) => id !== item.id);
+    editor.state.riWalkItem = item.id;
+    editor.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
+    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) => id !== item.id);
     services.scheduleDraftSave();
     services.render();
-    WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
+    editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
     return true;
   }
 
   function previousWalk(r) {
-    if (!WriterState.state.riWalk || !ensureWalkContext()) return false;
+    if (!editor.state.riWalk || !ensureWalkContext()) return false;
     const src = doc(r.sourceDocId),
       eligible = src.items.filter((i) => editableWalkItem(r, i.id));
-    const ix = eligible.findIndex((i) => i.id === WriterState.state.riWalkItem),
+    const ix = eligible.findIndex((i) => i.id === editor.state.riWalkItem),
       prior = eligible[ix < 0 ? eligible.length - 1 : ix - 1];
     if (!prior) return false;
-    WriterState.state.riWalkItem = prior.id;
-    WriterState.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
+    editor.state.riWalkItem = prior.id;
+    editor.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
     services.scheduleDraftSave();
     services.render();
-    WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
+    editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
     return true;
   }
 
@@ -735,9 +727,9 @@ export function createReinspection(services) {
     const src = r && doc(r.sourceDocId),
       it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
     return !!(
-      WriterState.state.screen === "reinspect" &&
+      editor.state.screen === "reinspect" &&
       r &&
-      r.id === WriterState.state.reinspId &&
+      r.id === editor.state.reinspId &&
       r.draft &&
       !r.docId &&
       it &&
@@ -747,9 +739,9 @@ export function createReinspection(services) {
   }
 
   function recordReinspectionOutcome(id, outcome) {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (!editableWalkItem(r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
-    if (WriterState.state.riWalk && (!ensureWalkContext() || !WriterState.state.riWalk)) return false;
+    if (editor.state.riWalk && (!ensureWalkContext() || !editor.state.riWalk)) return false;
     const cur = r.results[id] || {};
     if (cur.oc === outcome) return false;
     const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
@@ -761,34 +753,33 @@ export function createReinspection(services) {
       note: cur.note || "",
       cite: outcome === "corrected" ? false : !!cur.cite,
     };
-    if (WriterState.state.riWalk) WriterState.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
-    else WriterState.state.riWalkUndo = null;
+    if (editor.state.riWalk) editor.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
+    else editor.state.riWalkUndo = null;
     r.results[id] = result;
-    WriterState.state.riWalkSkipped = WriterState.state.riWalkSkipped.filter((x) => x !== id);
-    if (WriterState.state.riWalk) {
-      if (WriterState.state.riWalkMode === "details") {
-        WriterState.state.riWalkItem = id;
-        WriterState.state.riWalkStage = "details";
+    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((x) => x !== id);
+    if (editor.state.riWalk) {
+      if (editor.state.riWalkMode === "details") {
+        editor.state.riWalkItem = id;
+        editor.state.riWalkStage = "details";
       } else {
         const next = nextWalkItem(r);
-        WriterState.state.riWalkItem = (next && next.id) || null;
-        WriterState.state.riWalkStage = "outcome";
+        editor.state.riWalkItem = (next && next.id) || null;
+        editor.state.riWalkStage = "outcome";
       }
     }
     WriterState.DIRTY = true;
     services.scheduleDraftSave();
-    if (WriterState.state.riWalk) {
+    if (editor.state.riWalk) {
       services.render();
-      WriterState.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
+      editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
     } else services.renderKeep();
     return true;
   }
 
   function undoWalkOutcome() {
-    const r = reinsp(WriterState.state.reinspId),
-      undo = WriterState.state.riWalkUndo;
-    if (!WriterState.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId))
-      return false;
+    const r = reinsp(editor.state.reinspId),
+      undo = editor.state.riWalkUndo;
+    if (!editor.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId)) return false;
     const current = r.results[undo.itemId];
     if (!current || current.oc !== undo.after.oc) {
       services.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
@@ -801,9 +792,9 @@ export function createReinspection(services) {
       r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
       services.toast("Outcome undone; later note, date and due details were kept on this item.");
     }
-    WriterState.state.riWalkUndo = null;
-    WriterState.state.riWalkItem = undo.itemId;
-    WriterState.state.riWalkStage = "outcome";
+    editor.state.riWalkUndo = null;
+    editor.state.riWalkItem = undo.itemId;
+    editor.state.riWalkStage = "outcome";
     WriterState.DIRTY = true;
     services.scheduleDraftSave();
     services.render();
@@ -1015,12 +1006,12 @@ export function createReinspection(services) {
       }
       el.removeAttribute("aria-invalid");
     });
-    const d = doc(WriterState.state.docId),
-      r = reinsp(WriterState.state.reinspId);
+    const d = doc(editor.state.docId),
+      r = reinsp(editor.state.reinspId);
     const list =
-      WriterState.state.screen === "write" && d && !services.isLocked(d)
+      editor.state.screen === "write" && d && !services.isLocked(d)
         ? services.checks(d)
-        : WriterState.state.screen === "reinspect" && r && r.draft && !r.docId
+        : editor.state.screen === "reinspect" && r && r.draft && !r.docId
           ? worksheetChecks(r)
           : [];
     list.forEach((c, ix) => {
@@ -1031,9 +1022,9 @@ export function createReinspection(services) {
           el.classList.add("check-open");
           el.setAttribute("data-open-check", c.t);
           const id =
-            (WriterState.state.screen === "write" && !WriterState.state.modal ? "editor-" : "") +
+            (editor.state.screen === "write" && !editor.state.modal ? "editor-" : "") +
             "check-msg-" +
-            (WriterState.state.screen === "reinspect" ? "visit" : "doc") +
+            (editor.state.screen === "reinspect" ? "visit" : "doc") +
             "-" +
             ix;
           if (document.getElementById(id) && !el.getAttribute("aria-describedby")) {
@@ -1047,32 +1038,32 @@ export function createReinspection(services) {
   }
 
   function focusCheckTarget(target, message) {
-    const d = doc(WriterState.state.docId);
+    const d = doc(editor.state.docId);
     services.captureWork();
-    WriterState.state.modal = null;
-    WriterState.state.picker = false;
+    editor.state.modal = null;
+    editor.state.picker = false;
     if (target.action === "workspace") {
-      services.openImportWorkspace(d?.caseId || reinsp(WriterState.state.reinspId)?.caseId);
+      services.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
       return;
     }
     if (target.action === "catalog") {
-      WriterState.state.screen = "library";
-      WriterState.state.languageMode = "admin";
-      WriterState.state.catalogAdminStatus = "review";
-      const it = doc(WriterState.state.docId)?.items.find((i) => i.id === target.itemId);
-      if (it) WriterState.state.catalogAdminKey = itemLibraryKey(it);
+      editor.state.screen = "library";
+      editor.state.languageMode = "admin";
+      editor.state.catalogAdminStatus = "review";
+      const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
+      if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
       services.render();
       return;
     }
     if (target.action?.startsWith("recipient:")) {
       const k = d && docCase(d);
       if (!k) return;
-      WriterState.state.ccProblem = services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
-      WriterState.state.modal = "cc";
+      editor.state.ccProblem = services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
+      editor.state.modal = "cc";
       services.render();
       const parts = target.action.split(":");
       const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
-      const field = document.querySelector(WriterState.state.ccProblem?.selector || exact);
+      const field = document.querySelector(editor.state.ccProblem?.selector || exact);
       field?.focus();
       field?.scrollIntoView?.({ block: "center" });
       return;
@@ -1082,20 +1073,20 @@ export function createReinspection(services) {
         services.toast("Open the existing case in Workspace to review its recorded inspection.");
         return;
       }
-      const r = reinsp(WriterState.state.reinspId);
-      WriterState.state.riFilter = "";
+      const r = reinsp(editor.state.reinspId);
+      editor.state.riFilter = "";
       clearWalk();
-      WriterState.WORK.walk = null;
+      editor.WORK.walk = null;
       services.render();
       const check = worksheetChecks(r).find((c) => !c.soft) || worksheetChecks(r)[0];
       target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
     } else {
-      if (WriterState.state.screen === "reinspect") {
-        WriterState.state.riFilter = "";
+      if (editor.state.screen === "reinspect") {
+        editor.state.riFilter = "";
         clearWalk();
-        WriterState.WORK.walk = null;
+        editor.WORK.walk = null;
       }
-      if (target.action === "contacts") WriterState.state.modal = "cc";
+      if (target.action === "contacts") editor.state.modal = "cc";
       services.render();
     }
     if (target.action === "guidance") {
@@ -1126,15 +1117,15 @@ export function createReinspection(services) {
   }
 
   function screenReinspect() {
-    const r = reinsp(WriterState.state.reinspId);
+    const r = reinsp(editor.state.reinspId);
     if (!r) {
-      WriterState.state.screen = "cases";
+      editor.state.screen = "cases";
       return services.screenCases();
     }
     const k = kase(r.caseId),
       src = doc(r.sourceDocId);
     if (!src) {
-      WriterState.state.screen = "cases";
+      editor.state.screen = "cases";
       return services.screenCases();
     }
     const srcLabel = (DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
@@ -1151,7 +1142,7 @@ export function createReinspection(services) {
     const activeCount = src.items.filter((it) => !it.withdrawn).length;
     const recorded = activeCount - left,
       withdrawn = src.items.length - activeCount;
-    const next = WriterState.state.riWalk ? nextWalkItem(r) : null;
+    const next = editor.state.riWalk ? nextWalkItem(r) : null;
     const rowsShown = src.items.filter((it) => worksheetItemShown({ r, it })).length;
     const cited = openItems(r).filter((i) => (r.results[i.id] || {}).cite);
     const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
@@ -1190,8 +1181,8 @@ export function createReinspection(services) {
     // it open to write the follow-up again
     if (r.docId && !doc(r.docId)) r.docId = null;
     if (r.docId && (doc(r.docId)?.draft || !supplemental(doc(r.docId)))) {
-      WriterState.state.docId = r.docId;
-      WriterState.state.screen = "write";
+      editor.state.docId = r.docId;
+      editor.state.screen = "write";
       services.render();
       return;
     }
@@ -1308,8 +1299,8 @@ export function createReinspection(services) {
         });
     }
     r.docId = nd.id;
-    WriterState.state.docId = nd.id;
-    WriterState.state.screen = "write";
+    editor.state.docId = nd.id;
+    editor.state.screen = "write";
     WriterState.DIRTY = true;
     services.saveDrafts();
     services.render();
