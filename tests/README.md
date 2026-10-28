@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_citation_pricing_rules.py` | All policy snapshots plus 3,000 generated contexts preserve exact pricing refusals, dependency traces, staging and inputs. |
 | `audit_citation_base_rules.py` | All policy rows and 3,000 generated measurements preserve amounts, errors, lookup order and inputs against the original. |
 | `audit_catalog_publication_rules.py` | 3,000 catalog publication contexts preserve exact refusals, file-read order, unchanged inputs and read-only files. |
 | `audit_special_publication_rules.py` | 3,000 scoped-action contexts preserve exact refusals, query order and mutation against the frozen original. |
