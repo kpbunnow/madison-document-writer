@@ -14,6 +14,7 @@ const allowed = {
   "presentation_format.js": [],
   "mailing_rules.js": [],
   "state.js": [],
+  "imports_state.js": ["./state.js"],
   "startup_state.js": ["./state.js"],
   "catalog_state.js": ["./state.js"],
   "workspace_state.js": ["./state.js"],
@@ -41,8 +42,10 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
+  "utility_events.js": ["./event_registration.js", "./imports_state.js", "./state.js", "./writer_queries.js"],
+  "import_events.js": ["./event_registration.js", "./imports_state.js", "./state.js"],
   "desktop_exit.js": ["./app_core.js", "./helper_stopped.js", "./helper_transport.js", "./saved_work.js", "./startup_state.js", "./state.js"],
-  "workspace_events.js": ["./event_registration.js", "./startup_state.js", "./state.js", "./writer_queries.js"],
+  "workspace_events.js": ["./imports_state.js", "./event_registration.js", "./startup_state.js", "./state.js", "./writer_queries.js"],
   "catalog_events.js": [
     "./calendar.js",
     "./catalog_state.js",
@@ -337,6 +340,7 @@ const scopedServices = {
   "reports_view_contexts.js": ["./state.js"],
   "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [
+    "./imports_state.js",
     "./inspection_facts.js",
     "./writer_queries.js",
     "./record_values.js",
