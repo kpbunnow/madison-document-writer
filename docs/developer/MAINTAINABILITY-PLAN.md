@@ -417,3 +417,9 @@ Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 12
 The 38-field editor event interface becomes explicit UI/event-routing/action groups of 6/7/25 fields. Core retains the same lazy leaves; construction still reads no services, all sixty listener registrations and synchronous user actions remain in their original positions, and duplicate registration is still refused. The recursive contract guard now applies to grouped event composition. R59 editor flow, all five original screen scenarios and replaced-DOM record-note continuity pass unchanged. Other large interfaces and core forwarder reduction remain open.
 
 Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.
+
+## M4 workspace event service groups
+
+The 36-field workspace event interface becomes explicit UI/event-routing/case-operation groups of 6/9/21 fields. The historical dispatch reference receives its original flat test services, while the current factory receives the same adapters through named groups; all 1,078 exact outcome/effect comparisons pass. All sixty listener checkpoints, synchronous permission calls, fourteen workspace queue assertions and five editor scenarios pass unchanged. No extra listener or async boundary is introduced. An initial wrapped property access was caught by the exact interface and dispatch tests, then corrected; both pass on the final source. Other large interfaces and core forwarder reduction remain open.
+
+Measured counts: {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30} → {'complexity': 76, 'max-depth': 0, 'max-lines-per-function': 125, 'python': 30}.

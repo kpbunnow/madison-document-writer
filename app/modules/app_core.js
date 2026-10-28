@@ -1675,61 +1675,67 @@ const workflowEvents = createWorkflowEvents({
   writerOpenReportedCase: (...args) => writerOpenReportedCase(...args),
 });
 const workspaceEvents = createWorkspaceEvents({
-  captureWork: (...args) => captureWork(...args),
-  caseFile: (...args) => caseFile(...args),
-  caseFileName: (...args) => caseFileName(...args),
-  caseNumberAllowed: (...args) => caseNumberAllowed(...args),
-  caseState: (...args) => caseState(...args),
-  caseUnsaved: (...args) => caseUnsaved(...args),
-  clearCases: (...args) => clearCases(...args),
-  downloadFile: (...args) => downloadFile(...args),
-  flushPending: (...args) => flushPending(...args),
-  grantCaseFolder: (...args) => grantCaseFolder(...args),
-  linkCaseFolder: (...args) => linkCaseFolder(...args),
-  listCaseFolder: (...args) => listCaseFolder(...args),
-  get navigation() {
-    return navigation;
+  ui: {
+    captureWork: (...args) => captureWork(...args),
+    get navigation() {
+      return navigation;
+    },
+    refreshOverlay: (...args) => refreshOverlay(...args),
+    render: (...args) => render(...args),
+    saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
+    toast: (...args) => toast(...args),
   },
-  openFromFolder: (...args) => openFromFolder(...args),
-  pickCaseFile: (...args) => pickCaseFile(...args),
-  preflightCase: (...args) => preflightCase(...args),
-  rebuildIndex: (...args) => rebuildIndex(...args),
-  refreshOverlay: (...args) => refreshOverlay(...args),
-  removeCase: (...args) => removeCase(...args),
-  render: (...args) => render(...args),
-  rnd12: (...args) => rnd12(...args),
-  saveCaseFile: (...args) => saveCaseFile(...args),
-  saveWorkflowPrefs: (...args) => saveWorkflowPrefs(...args),
-  startReinspection: (...args) => startReinspection(...args),
-  storageMode: (...args) => storageMode(...args),
-  testWrite: (...args) => testWrite(...args),
-  toast: (...args) => toast(...args),
-  get catalogEvents() {
-    return catalogEvents;
+  events: {
+    get catalogEvents() {
+      return catalogEvents;
+    },
+    get citationEvents() {
+      return citationEvents;
+    },
+    get contactEvents() {
+      return contactEvents;
+    },
+    get correctionEvents() {
+      return correctionEvents;
+    },
+    get editorEvents() {
+      return editorEvents;
+    },
+    get importEvents() {
+      return importEvents;
+    },
+    get recoveryEvents() {
+      return recoveryEvents;
+    },
+    get reinspectionEvents() {
+      return reinspectionEvents;
+    },
+    get workflowEvents() {
+      return workflowEvents;
+    },
   },
-  get citationEvents() {
-    return citationEvents;
-  },
-  get contactEvents() {
-    return contactEvents;
-  },
-  get correctionEvents() {
-    return correctionEvents;
-  },
-  get editorEvents() {
-    return editorEvents;
-  },
-  get importEvents() {
-    return importEvents;
-  },
-  get recoveryEvents() {
-    return recoveryEvents;
-  },
-  get reinspectionEvents() {
-    return reinspectionEvents;
-  },
-  get workflowEvents() {
-    return workflowEvents;
+  cases: {
+    caseFile: (...args) => caseFile(...args),
+    caseFileName: (...args) => caseFileName(...args),
+    caseNumberAllowed: (...args) => caseNumberAllowed(...args),
+    caseState: (...args) => caseState(...args),
+    caseUnsaved: (...args) => caseUnsaved(...args),
+    clearCases: (...args) => clearCases(...args),
+    downloadFile: (...args) => downloadFile(...args),
+    flushPending: (...args) => flushPending(...args),
+    grantCaseFolder: (...args) => grantCaseFolder(...args),
+    linkCaseFolder: (...args) => linkCaseFolder(...args),
+    listCaseFolder: (...args) => listCaseFolder(...args),
+    openFromFolder: (...args) => openFromFolder(...args),
+    pickCaseFile: (...args) => pickCaseFile(...args),
+    preflightCase: (...args) => preflightCase(...args),
+    rebuildIndex: (...args) => rebuildIndex(...args),
+    removeCase: (...args) => removeCase(...args),
+    rnd12: (...args) => rnd12(...args),
+    saveCaseFile: (...args) => saveCaseFile(...args),
+    startReinspection: (...args) => startReinspection(...args),
+    storageMode: (...args) => storageMode(...args),
+    testWrite: (...args) => testWrite(...args),
   },
 });
 const citationEvents = createCitationEvents({
