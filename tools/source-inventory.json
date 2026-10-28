@@ -407,6 +407,7 @@
     "tests/fixtures/deposit_fault_reference.cjs",
     "tests/fixtures/deposit_golden.json",
     "tests/fixtures/feature_event_order.json",
+    "tests/fixtures/historical_module_scope.cjs",
     "tests/fixtures/history_reference.txt",
     "tests/fixtures/import_plan_reference.cjs",
     "tests/fixtures/mk_summaries.js",
