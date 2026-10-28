@@ -1,4 +1,4 @@
-const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
+const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
 /* Exact worksheet snapshots protect outcomes, walkthrough stages, filters and retained/closed work. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -26,7 +26,7 @@ const assert = require("node:assert/strict"),
   source +=
     '\nexport {WriterState} from "./state.js";export {validISO,parseTime} from "./calendar.js";export {INSPECTORS} from "./data/inspectors.js";';
   const compiled = await esbuild.build({
-    stdin: { contents: withHistoricalState(source), resolveDir: dir },
+    stdin: { contents: withHistoricalBindings(source), resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",

@@ -1,11 +1,19 @@
-/* Frozen legacy functions keep their original workspace binding as production imports narrow.
-   This is test composition only; references and assertions remain byte-for-byte unchanged. */
+/* Frozen functions retain explicit original bindings as production imports narrow.
+   This is test composition only; reference bytes and assertions remain unchanged. */
 const acorn = require("acorn");
-function withHistoricalState(source) {
+const imports = { WriterState: "./state.js", esc: "./presentation_format.js" };
+function withHistoricalBindings(source, names = ["WriterState"]) {
   const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" });
-  const bound = ast.body.some(
-    (node) => node.type === "ImportDeclaration" && node.specifiers.some((specifier) => specifier.local.name === "WriterState"),
+  const bound = new Set(
+    ast.body.filter((node) => node.type === "ImportDeclaration").flatMap((node) => node.specifiers.map((specifier) => specifier.local.name)),
   );
-  return bound ? source : 'import {WriterState} from "./state.js";\n' + source;
+  const missing = names.filter((name) => !bound.has(name));
+  const prefix = missing
+    .map((name) => {
+      if (!Object.hasOwn(imports, name)) throw new Error("Unknown historical binding: " + name);
+      return "import {" + name + "} from " + JSON.stringify(imports[name]) + ";\n";
+    })
+    .join("");
+  return prefix + source;
 }
-module.exports = { withHistoricalState };
+module.exports = { withHistoricalBindings };

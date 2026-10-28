@@ -1,4 +1,4 @@
-const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
+const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
 /* Differential refusal precedence over generated policy cases and malformed field combinations. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -12,7 +12,7 @@ const assert = require("node:assert/strict"),
   const built = await esbuild.build({
     stdin: {
       contents:
-        withHistoricalState(source) +
+        withHistoricalBindings(source) +
         "\nexport function reference(services){" +
         reference +
         '; return citationDepositFault;} export {WriterState} from "./state.js"; export {CITATION_POLICY} from "./citation_policy.js";',

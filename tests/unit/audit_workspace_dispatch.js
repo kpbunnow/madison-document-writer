@@ -1,4 +1,4 @@
-const { withHistoricalState } = require("../fixtures/historical_module_scope.cjs");
+const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
 /* First-match dispatch, synchronous permission calls, return values and state must match the original listener. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -12,7 +12,7 @@ const assert = require("node:assert/strict"),
   const compiled = await esbuild.build({
     stdin: {
       contents:
-        withHistoricalState(source) + "\nexport function legacy(services){return (" + reference + ');}export {WriterState} from "./state.js";',
+        withHistoricalBindings(source) + "\nexport function legacy(services){return (" + reference + ');}export {WriterState} from "./state.js";',
       resolveDir: dir,
     },
     bundle: true,
