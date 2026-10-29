@@ -328,90 +328,135 @@ def resource_policy():
 # ---- event replay (app/modules/case_projection.js replayEvents) ----
 
 
-def replay_events(events):
-    def compare(a, b):
-        delta = (date_ms(get(a, "at")) or 0) - (date_ms(get(b, "at")) or 0)
-        if delta:
-            return -1 if delta < 0 else 1
-        ai, bi = get(a, "id"), get(b, "id")
-        return 0 if jeq(ai, bi) else -1 if jlt(ai, bi) else 1
+class Replay:
+    """Replay state. The browser mirror is replayEvents in app/modules/case_projection.js; change both together."""
 
-    docs, reins, voided = [], [], {}
+    def __init__(self):
+        self.docs, self.reins, self.voided = [], [], {}
 
-    def find(key, value):
-        return next((x for x in docs if jeq(get(x, key), value)), None)
+    def find(self, key, value):
+        return next((x for x in self.docs if jeq(get(x, key), value)), None)
 
-    for ev in sorted(events or [], key=cmp_to_key(compare)):
-        p = jor(get(ev, "payload"), {})
-        kind = jstr(get(ev, "type"))
-        if re.search(r"\.issued$", kind) and truthy(get(p, "snapshot")):
-            d = clone(p["snapshot"])
-            d["status"] = "Final"
-            d["issuedAt"] = get(ev, "at")
-            d["issuedBy"] = get(ev, "by")
-            d["eventId"] = get(ev, "id")
-            if truthy(get(p, "replaces")):
-                d["replaces"] = p["replaces"]
-            if kind == "correction.issued":
-                old = find("id", get(p, "replaces"))
-                if old is not None:
-                    old["superseded"] = {"at": get(ev, "at"), "by": get(ev, "by"), "replacedBy": d.get("id", UNDEF), "reason": get(p, "reason")}
-                    if truthy(get(old, "void")):
-                        old["void"]["replacedBy"] = d.get("id", UNDEF)
-                revision = dict(get(d, "revision")) if isinstance(get(d, "revision"), dict) else {}
-                revision.update(at=get(ev, "at"), by=get(ev, "by"))
-                d["revision"] = revision
-                if truthy(get(p, "visitCorrection")):
-                    patch = p["visitCorrection"]
-                    r = next((x for x in reins if jeq(get(x, "id"), get(patch, "id"))), None)
-                    if r is not None:
-                        r["date"] = get(patch, "date")
-                        r["time"] = get(patch, "time")
-                        results = dict(get(r, "results")) if isinstance(get(r, "results"), dict) else {}
-                        if isinstance(get(patch, "results"), dict):
-                            results.update(clone(patch["results"]))
-                        r["results"] = results
-                        r["amendedAt"] = get(ev, "at")
-                        r["amendedBy"] = get(ev, "by")
-            docs.append(d)
-        elif kind == "reinspection.recorded" and truthy(get(p, "reinspection")):
-            r = clone(p["reinspection"])
-            r["recordedAt"] = get(ev, "at")
-            r["eventId"] = get(ev, "id")
-            reins.append(r)
-        elif kind == "document.voided":
-            voided[jstr(get(p, "docId"))] = {
-                "reason": jor(get(p, "reason"), ""),
-                "at": get(ev, "at"),
-                "by": get(ev, "by"),
-                "replacedBy": jor(get(p, "replacedBy"), ""),
-            }
-        elif kind == "document.served":
-            d = find("id", get(p, "docId"))
-            if d is not None:
-                d["serviceRecords"] = jor(get(d, "serviceRecords"), [])
-                d["serviceRecords"].append({**clone(p), "id": get(ev, "id"), "at": get(ev, "at"), "by": get(ev, "by")})
-        elif kind == "document.annotated":
-            d = find("id", get(p, "docId"))
-            if d is not None:
-                d["annotations"] = jor(get(d, "annotations"), [])
-                d["annotations"].append({"at": get(ev, "at"), "by": get(ev, "by"), "text": get(p, "text")})
-        elif kind == "document.reconciled":
-            d = find("id", get(p, "docId"))
-            if d is not None:
-                d["reconciliation"] = {"at": get(ev, "at"), "by": get(ev, "by"), "reference": get(p, "reference")}
-        elif kind == "document.recorded":
-            d = find("id", get(p, "docId"))
-            if d is not None:
-                d["accelaAt"] = get(ev, "at")
-                d["accelaRef"] = jor(get(p, "reference"), "")
-        elif kind == "document.filed":
-            d = find("id", get(p, "docId"))
-            if d is not None:
-                d["filedAt"] = get(ev, "at")
-                d["filedRef"] = jor(get(p, "reference"), "")
-                artifact = truthy(get(p, "sha256")) and truthy(get(p, "filename"))
-                d["filedArtifact"] = {"filename": p["filename"], "sha256": p["sha256"]} if artifact else None
+
+def event_order(a, b):
+    delta = (date_ms(get(a, "at")) or 0) - (date_ms(get(b, "at")) or 0)
+    if delta:
+        return -1 if delta < 0 else 1
+    ai, bi = get(a, "id"), get(b, "id")
+    return 0 if jeq(ai, bi) else -1 if jlt(ai, bi) else 1
+
+
+def patch_visit(state, ev, patch):
+    r = next((x for x in state.reins if jeq(get(x, "id"), get(patch, "id"))), None)
+    if r is None:
+        return
+    r["date"] = get(patch, "date")
+    r["time"] = get(patch, "time")
+    results = dict(get(r, "results")) if isinstance(get(r, "results"), dict) else {}
+    if isinstance(get(patch, "results"), dict):
+        results.update(clone(patch["results"]))
+    r["results"] = results
+    r["amendedAt"] = get(ev, "at")
+    r["amendedBy"] = get(ev, "by")
+
+
+def apply_correction(state, ev, p, d):
+    old = state.find("id", get(p, "replaces"))
+    if old is not None:
+        old["superseded"] = {"at": get(ev, "at"), "by": get(ev, "by"), "replacedBy": d.get("id", UNDEF), "reason": get(p, "reason")}
+        if truthy(get(old, "void")):
+            old["void"]["replacedBy"] = d.get("id", UNDEF)
+    revision = dict(get(d, "revision")) if isinstance(get(d, "revision"), dict) else {}
+    revision.update(at=get(ev, "at"), by=get(ev, "by"))
+    d["revision"] = revision
+    if truthy(get(p, "visitCorrection")):
+        patch_visit(state, ev, p["visitCorrection"])
+
+
+def replay_issued(state, ev, p, kind):
+    d = clone(p["snapshot"])
+    d["status"] = "Final"
+    d["issuedAt"] = get(ev, "at")
+    d["issuedBy"] = get(ev, "by")
+    d["eventId"] = get(ev, "id")
+    if truthy(get(p, "replaces")):
+        d["replaces"] = p["replaces"]
+    if kind == "correction.issued":
+        apply_correction(state, ev, p, d)
+    state.docs.append(d)
+
+
+def replay_visit(state, ev, p):
+    r = clone(p["reinspection"])
+    r["recordedAt"] = get(ev, "at")
+    r["eventId"] = get(ev, "id")
+    state.reins.append(r)
+
+
+def replay_served(d, ev, p):
+    d["serviceRecords"] = jor(get(d, "serviceRecords"), [])
+    d["serviceRecords"].append({**clone(p), "id": get(ev, "id"), "at": get(ev, "at"), "by": get(ev, "by")})
+
+
+def replay_annotated(d, ev, p):
+    d["annotations"] = jor(get(d, "annotations"), [])
+    d["annotations"].append({"at": get(ev, "at"), "by": get(ev, "by"), "text": get(p, "text")})
+
+
+def replay_reconciled(d, ev, p):
+    d["reconciliation"] = {"at": get(ev, "at"), "by": get(ev, "by"), "reference": get(p, "reference")}
+
+
+def replay_recorded(d, ev, p):
+    d["accelaAt"] = get(ev, "at")
+    d["accelaRef"] = jor(get(p, "reference"), "")
+
+
+def replay_filed(d, ev, p):
+    d["filedAt"] = get(ev, "at")
+    d["filedRef"] = jor(get(p, "reference"), "")
+    artifact = truthy(get(p, "sha256")) and truthy(get(p, "filename"))
+    d["filedArtifact"] = {"filename": p["filename"], "sha256": p["sha256"]} if artifact else None
+
+
+# Events that annotate an already replayed document; an unknown document or kind changes nothing.
+DOCUMENT_EVENTS = {
+    "document.served": replay_served,
+    "document.annotated": replay_annotated,
+    "document.reconciled": replay_reconciled,
+    "document.recorded": replay_recorded,
+    "document.filed": replay_filed,
+}
+
+
+def replay_document_event(state, ev, p, kind):
+    apply = DOCUMENT_EVENTS.get(kind)
+    if apply is None:
+        return
+    d = state.find("id", get(p, "docId"))
+    if d is not None:
+        apply(d, ev, p)
+
+
+def replay_event(state, ev):
+    p = jor(get(ev, "payload"), {})
+    kind = jstr(get(ev, "type"))
+    if re.search(r"\.issued$", kind) and truthy(get(p, "snapshot")):
+        replay_issued(state, ev, p, kind)
+    elif kind == "reinspection.recorded" and truthy(get(p, "reinspection")):
+        replay_visit(state, ev, p)
+    elif kind == "document.voided":
+        state.voided[jstr(get(p, "docId"))] = {
+            "reason": jor(get(p, "reason"), ""),
+            "at": get(ev, "at"),
+            "by": get(ev, "by"),
+            "replacedBy": jor(get(p, "replacedBy"), ""),
+        }
+    else:
+        replay_document_event(state, ev, p, kind)
+
+
+def link_voids(docs, voided):
     for d in docs:
         if jstr(get(d, "id")) in voided:
             d["void"] = voided[jstr(get(d, "id"))]
@@ -419,7 +464,14 @@ def replay_events(events):
         rep = next((x for x in docs if jeq(get(x, "replaces"), get(d, "id"))), None)
         if rep is not None and truthy(get(d, "void")) and not truthy(get(d["void"], "replacedBy")):
             d["void"]["replacedBy"] = get(rep, "id")
-    return list(reversed(docs)), reins
+
+
+def replay_events(events):
+    state = Replay()
+    for ev in sorted(events or [], key=cmp_to_key(event_order)):
+        replay_event(state, ev)
+    link_voids(state.docs, state.voided)
+    return list(reversed(state.docs)), state.reins
 
 
 # ---- summarize ----
@@ -519,69 +571,83 @@ def violation_type(it):
     return {"key": "unclassified/" + jstr(s0), "label": "Unclassified: " + jstr(jor(s0, "no ordinance")), "how": "section"}
 
 
-def project(f, workspace=None):
-    """summarize(f) for the reportable fields of a Reporting Index summary."""
-    workspace = workspace or Workspace(loaded=False)
-    library, _ = tables()
-    k = jor(get(f, "case"), {})
-    documents, reinspections = replay_events(jor(get(f, "events"), []))
+class Facts:
+    """Document facts of one case. The browser mirror is documentFacts in app/modules/case_projection.js."""
+
+    def __init__(self, documents):
+        self.docs = list(reversed(documents))  # oldest first
+        self.live = [d for d in self.docs if is_effective(d)]
+        self.notice = next((d for d in self.docs if get(d, "type") == "notice" and jlen(items(d))), None)
+        self.notice_active = any(get(d, "type") == "notice" and jlen(items(d)) for d in self.live)
+        self.restrictions = active_restrictions(self.live)
+        with_items = [d for d in self.live if jlen(items(d)) and not supplemental(d)]
+        self.last_items = with_items[-1] if with_items else None
+        self.last_doc = self.live[-1] if self.live else None
+        self.comp = self.last_items if self.last_items is not None and get(self.last_items, "type") == "compliance" else None
+        self.ever_referred = any(get(d, "type") == "referral" for d in self.live)
+
+
+def issued_day(d):
+    return jor(
+        jand(get(d, "revision"), jor(get(d, "revision", "actionDate"), get(d, "revision", "originalIssued"))),
+        get(d, "mailed"),
+        record_day(get(d, "issuedAt")),
+    )
+
+
+def starts(d):
+    return record_day(get(d, "issuedAt")) if truthy(get(d, "revision")) else jor(get(d, "mailed"), record_day(get(d, "issuedAt")))
+
+
+def ends(d):
+    days = [jand(get(d, "void"), record_day(get(d, "void", "at"))), jand(get(d, "superseded"), record_day(get(d, "superseded", "at")))]
+    days = sorted((x for x in days if truthy(x)), key=lambda x: utf16(jstr(x)))
+    return jor(days[0] if days else UNDEF, "")
+
+
+def issued_by(d, name_of):
+    return (
+        get(d, "frozen", "inspector", "name") if truthy(get(d, "frozen")) and truthy(get(d, "frozen", "inspector")) else name_of(get(d, "issuedBy"))
+    )
+
+
+def roster_names(f, library):
     roster = list(jor(get(f, "inspectors"), [])) + library["inspectors"]
 
     def name_of(id_):
         found = next((i for i in roster if jeq(get(i, "id"), id_)), None)
         return jor(get(found or {}, "name"), "")
 
-    def issued_day(d):
-        return jor(
-            jand(get(d, "revision"), jor(get(d, "revision", "actionDate"), get(d, "revision", "originalIssued"))),
-            get(d, "mailed"),
-            record_day(get(d, "issuedAt")),
-        )
+    return name_of
 
-    def starts(d):
-        return record_day(get(d, "issuedAt")) if truthy(get(d, "revision")) else jor(get(d, "mailed"), record_day(get(d, "issuedAt")))
 
-    def ends(d):
-        days = [jand(get(d, "void"), record_day(get(d, "void", "at"))), jand(get(d, "superseded"), record_day(get(d, "superseded", "at")))]
-        days = sorted((x for x in days if truthy(x)), key=lambda x: utf16(jstr(x)))
-        return jor(days[0] if days else UNDEF, "")
-
-    def by(d):
-        return (
-            get(d, "frozen", "inspector", "name")
-            if truthy(get(d, "frozen")) and truthy(get(d, "frozen", "inspector"))
-            else name_of(get(d, "issuedBy"))
-        )
-
-    docs = list(reversed(documents))  # oldest first
-    live = [d for d in docs if is_effective(d)]
-    notice = next((d for d in docs if get(d, "type") == "notice" and jlen(items(d))), None)
-    notice_active = any(get(d, "type") == "notice" and jlen(items(d)) for d in live)
-    restrictions = active_restrictions(live)
-    with_items = [d for d in live if jlen(items(d)) and not supplemental(d)]
-    last_items = with_items[-1] if with_items else None
-    last_doc = live[-1] if live else None
-    comp = last_items if last_items is not None and get(last_items, "type") == "compliance" else None
-    ever_referred = any(get(d, "type") == "referral" for d in live)
+def case_status(k, facts):
+    last_items, last_doc = facts.last_items, facts.last_doc
     if snow_case(k) and last_doc is not None:
-        status = "Cited – snow"
-    elif restrictions:
-        status = "Occupancy restricted"
-    elif last_doc is None:
-        status = "Not issued"
-    elif last_items is not None and jlen(items(last_items)) and all(truthy(get(i, "withdrawn")) for i in items(last_items)):
-        status = "Withdrawn"
-    elif comp is not None:
-        status = "Closed"
-    elif ever_referred:
-        status = "Referred"
-    elif get(last_doc, "type") == "noOccupancy" and jeq(get(last_doc, "special", "mode"), "release") and last_items is None:
-        status = "Restriction released"
-    else:
-        basis = get(last_items if last_items is not None else last_doc, "type")
-        status = jor(STATUS_OF.get(basis, UNDEF) if isinstance(basis, str) else UNDEF, basis)
-    printed = jor(jand(last_doc, jand(get(last_doc, "frozen"), get(last_doc, "frozen", "case"))) if last_doc is not None else last_doc, k)
+        return "Cited – snow"
+    if facts.restrictions:
+        return "Occupancy restricted"
+    if last_doc is None:
+        return "Not issued"
+    if last_items is not None and jlen(items(last_items)) and all(truthy(get(i, "withdrawn")) for i in items(last_items)):
+        return "Withdrawn"
+    if facts.comp is not None:
+        return "Closed"
+    if facts.ever_referred:
+        return "Referred"
+    if get(last_doc, "type") == "noOccupancy" and jeq(get(last_doc, "special", "mode"), "release") and last_items is None:
+        return "Restriction released"
+    basis = get(last_items if last_items is not None else last_doc, "type")
+    return jor(STATUS_OF.get(basis, UNDEF) if isinstance(basis, str) else UNDEF, basis)
 
+
+def visit_order(a, b):
+    da, db = get(a, "date"), get(b, "date")
+    return 0 if jeq(da, db) else -1 if jlt(da, db) else 1
+
+
+def active_visits(reinspections, docs):
+    """A reissue re-records its visit; the visit it replaced no longer counts."""
     superseded = set()
     for r in reinspections:
         if not truthy(get(r, "replaces")):
@@ -589,17 +655,34 @@ def project(f, workspace=None):
         vd = next((d for d in docs if jeq(get(d, "id"), get(r, "replaces"))), None)
         if vd is not None and truthy(get(vd, "fromReinspId")):
             superseded.add(jstr(vd["fromReinspId"]))
+    return sorted((r for r in reinspections if jstr(get(r, "id")) not in superseded), key=cmp_to_key(visit_order))
 
-    def visit_order(a, b):
-        da, db = get(a, "date"), get(b, "date")
-        return 0 if jeq(da, db) else -1 if jlt(da, db) else 1
 
-    visits = sorted((r for r in reinspections if jstr(get(r, "id")) not in superseded), key=cmp_to_key(visit_order))
+def item_numbers(docs):
     no_of = {}
     for d in docs:
         for it in items(d):
             no_of[jstr(get(d, "id")) + ":" + jstr(get(it, "id"))] = jstr(jor(get(it, "no"), ""))
+    return no_of
 
+
+def citation_row(d, it, c, name_of):
+    return {
+        "num": c["num"],
+        "no": jstr(jor(get(it, "no"), "")),
+        "ordinance": jor(get(c, "ord"), get(jor(get(it, "sections"), []), 0), ""),
+        "desc": jor(get(c, "desc"), ""),
+        "issued": issued_day(d),
+        "courtDate": jor(get(c, "courtDate"), ""),
+        "amount": money_num(get(c, "amount")),
+        "tier": jor(get(c, "tier"), ""),
+        "overrideBasis": jor(get(c, "overrideBasis"), None),
+        "caseType": jor(get(d, "caseType"), get(d, "frozen", "case", "caseType"), ""),
+        "by": issued_by(d, name_of),
+    }
+
+
+def citation_rows(live, name_of):
     citations, seen = [], set()
     for d in live:
         if get(d, "type") != "citation":
@@ -609,259 +692,334 @@ def project(f, workspace=None):
             if truthy(get(it, "withdrawn")) or not truthy(get(it, "cite")) or not truthy(c) or not truthy(get(c, "num")) or jstr(c["num"]) in seen:
                 continue
             seen.add(jstr(c["num"]))
-            citations.append(
+            citations.append(citation_row(d, it, c, name_of))
+    return citations
+
+
+def apply_visit_result(outcome, r, res):
+    """What the visits say about one numbered item, in visit order."""
+    if not truthy(get(res, "carried")):
+        outcome["n"] += 1
+        outcome["last"] = res["oc"]
+    if jeq(res["oc"], "corrected"):
+        if not outcome["done"]:
+            outcome["done"] = True
+            outcome["done_on"] = jor(get(res, "on"), get(r, "date"), "")
+    elif not truthy(get(res, "carried")):
+        outcome["done"], outcome["done_on"] = False, ""
+
+
+def visit_outcome(visits, no_of, no):
+    outcome = {"done": False, "done_on": "", "last": "", "n": 0}
+    for r in visits:
+        results = jor(get(r, "results"), {})
+        for id_ in keys(results):
+            if no_of.get(jstr(get(r, "sourceDocId")) + ":" + id_, UNDEF) != no:
+                continue
+            res = results[id_]
+            if not truthy(res) or not truthy(get(res, "oc")):
+                continue
+            apply_visit_result(outcome, r, res)
+    return outcome
+
+
+def document_history(docs, no):
+    history = []
+    for d in docs:
+        if supplemental(d):
+            continue
+        item = next((i for i in items(d) if jstr(jor(get(i, "no"), "")) == no), None)
+        if item is not None:
+            history.append(
                 {
-                    "num": c["num"],
-                    "no": jstr(jor(get(it, "no"), "")),
-                    "ordinance": jor(get(c, "ord"), get(jor(get(it, "sections"), []), 0), ""),
-                    "desc": jor(get(c, "desc"), ""),
-                    "issued": issued_day(d),
-                    "courtDate": jor(get(c, "courtDate"), ""),
-                    "amount": money_num(get(c, "amount")),
-                    "tier": jor(get(c, "tier"), ""),
-                    "overrideBasis": jor(get(c, "overrideBasis"), None),
-                    "caseType": jor(get(d, "caseType"), get(d, "frozen", "case", "caseType"), ""),
-                    "by": by(d),
+                    "docId": get(d, "id"),
+                    "issued": starts(d),
+                    "effectiveFrom": starts(d),
+                    "effectiveTo": ends(d),
+                    "void": truthy(get(d, "void")),
+                    "voidAt": record_day(get(d, "void", "at")) if truthy(get(d, "void")) else "",
+                    "done": truthy(get(item, "done")),
+                    "doneOn": jor(get(item, "doneOn"), ""),
+                    "withdrawn": truthy(get(item, "withdrawn")),
+                    "due": jor(get(item, "due"), ""),
+                    "title": jor(get(item, "title"), ""),
+                    "sections": jor(get(item, "sections"), []),
+                    **violation_type(item),
                 }
             )
+    return history
 
-    snow_first = next((d for d in docs if snow_doc(d, k, workspace)), None) if snow_case(k) else None
-    source = notice if notice is not None else snow_first
-    violations = []
-    for it in get(source, "items") if source is not None and isinstance(get(source, "items"), list) else []:
-        no = jstr(jor(get(it, "no"), ""))
-        done, done_on, last, n = False, "", "", 0
-        for r in visits:
-            results = jor(get(r, "results"), {})
-            for id_ in keys(results):
-                if no_of.get(jstr(get(r, "sourceDocId")) + ":" + id_, UNDEF) != no:
-                    continue
-                res = results[id_]
-                if not truthy(res) or not truthy(get(res, "oc")):
-                    continue
-                if not truthy(get(res, "carried")):
-                    n += 1
-                    last = res["oc"]
-                if jeq(res["oc"], "corrected"):
-                    if not done:
-                        done = True
-                        done_on = jor(get(res, "on"), get(r, "date"), "")
-                elif not truthy(get(res, "carried")):
-                    done, done_on = False, ""
-        x = next((i for i in items(last_items) if jstr(jor(get(i, "no"), "")) == no), UNDEF) if last_items is not None else None
-        if truthy(x):
-            projected = next((i for i in continuing_items(last_items, visits) if jstr(get(i, "no")) == no), None)
-            projected = x if projected is None else projected
-            done = truthy(get(projected, "done"))
-            done_on = jor(get(projected, "doneOn"), done_on) if truthy(get(projected, "done")) else ""
-        history = []
-        for d in docs:
-            if supplemental(d):
-                continue
-            item = next((i for i in items(d) if jstr(jor(get(i, "no"), "")) == no), None)
-            if item is not None:
-                history.append(
-                    {
-                        "docId": get(d, "id"),
-                        "issued": starts(d),
-                        "effectiveFrom": starts(d),
-                        "effectiveTo": ends(d),
-                        "void": truthy(get(d, "void")),
-                        "voidAt": record_day(get(d, "void", "at")) if truthy(get(d, "void")) else "",
-                        "done": truthy(get(item, "done")),
-                        "doneOn": jor(get(item, "doneOn"), ""),
-                        "withdrawn": truthy(get(item, "withdrawn")),
-                        "due": jor(get(item, "due"), ""),
-                        "title": jor(get(item, "title"), ""),
-                        "sections": jor(get(item, "sections"), []),
-                        **violation_type(item),
-                    }
-                )
-        for r in visits:
-            if any(not supplemental(d) and jeq(get(d, "fromReinspId"), get(r, "id")) for d in docs):
-                continue
-            parent = next((d for d in docs if jeq(get(d, "id"), get(r, "sourceDocId"))), None)
-            source_item = next((i for i in items(parent) if jstr(get(i, "no")) == no), UNDEF) if parent is not None else UNDEF
-            if not truthy(source_item):
-                continue
-            if not isinstance(get(r, "results"), dict):
-                raise TypeError("visit without results")
-            res = r["results"].get(jstr(get(source_item, "id")), UNDEF)
-            if truthy(res):
-                corrected = jeq(get(res, "oc"), "corrected")
-                history.append(
-                    {
-                        "docId": get(r, "id"),
-                        "issued": get(r, "date"),
-                        "effectiveFrom": get(r, "date"),
-                        "effectiveTo": "",
-                        "done": corrected,
-                        "doneOn": jor(get(res, "on"), get(r, "date")) if corrected else "",
-                        "withdrawn": truthy(get(source_item, "withdrawn")),
-                        "due": jor(get(source_item, "due"), ""),
-                        "title": jor(get(source_item, "title"), ""),
-                        "sections": jor(get(source_item, "sections"), []),
-                        **violation_type(source_item),
-                    }
-                )
-        if any(not isinstance(h["effectiveFrom"], str) for h in history):
-            raise TypeError("history entry without a date")
-        history.sort(key=lambda h: utf16(h["effectiveFrom"]))
-        current = x if truthy(x) else it
-        kind = violation_type(current)
-        violations.append(
-            {
-                "dueExempt": jor(get(current, "dueExempt"), ""),
-                "no": no,
-                "title": jor(get(current, "title"), ""),
-                "sections": list(jor(get(current, "sections"), [])),
-                "type": kind["key"],
-                "typeLabel": kind["label"],
-                "withdrawn": truthy(get(current, "withdrawn")),
-                "withdrawalReason": jor(get(current, "withdrawalReason"), ""),
-                "typeHow": kind["how"],
-                "history": history,
-                "due": jor(get(x, "due"), "") if truthy(x) else jor(get(it, "due"), ""),
-                "done": done,
-                "doneOn": done_on,
-                "lastOutcome": last,
-                "visits": n,
-                "cited": sum(1 for c in citations if c["no"] == no),
-            }
-        )
 
-    zip_match = re.search(r"\b(\d{5})(?:-\d{4})?" + S + "*$", jstr(jor(get(k, "siteCity"), "")), re.A)
+def visit_history(docs, visits, no):
+    entries = []
+    for r in visits:
+        if any(not supplemental(d) and jeq(get(d, "fromReinspId"), get(r, "id")) for d in docs):
+            continue
+        parent = next((d for d in docs if jeq(get(d, "id"), get(r, "sourceDocId"))), None)
+        source_item = next((i for i in items(parent) if jstr(get(i, "no")) == no), UNDEF) if parent is not None else UNDEF
+        if not truthy(source_item):
+            continue
+        if not isinstance(get(r, "results"), dict):
+            raise TypeError("visit without results")
+        res = r["results"].get(jstr(get(source_item, "id")), UNDEF)
+        if truthy(res):
+            corrected = jeq(get(res, "oc"), "corrected")
+            entries.append(
+                {
+                    "docId": get(r, "id"),
+                    "issued": get(r, "date"),
+                    "effectiveFrom": get(r, "date"),
+                    "effectiveTo": "",
+                    "done": corrected,
+                    "doneOn": jor(get(res, "on"), get(r, "date")) if corrected else "",
+                    "withdrawn": truthy(get(source_item, "withdrawn")),
+                    "due": jor(get(source_item, "due"), ""),
+                    "title": jor(get(source_item, "title"), ""),
+                    "sections": jor(get(source_item, "sections"), []),
+                    **violation_type(source_item),
+                }
+            )
+    return entries
+
+
+def violation_row(ctx, it):
+    docs, visits, no_of, last_items, citations = ctx["docs"], ctx["visits"], ctx["no_of"], ctx["last_items"], ctx["citations"]
+    no = jstr(jor(get(it, "no"), ""))
+    outcome = visit_outcome(visits, no_of, no)
+    done, done_on = outcome["done"], outcome["done_on"]
+    x = next((i for i in items(last_items) if jstr(jor(get(i, "no"), "")) == no), UNDEF) if last_items is not None else None
+    if truthy(x):
+        projected = next((i for i in continuing_items(last_items, visits) if jstr(get(i, "no")) == no), None)
+        projected = x if projected is None else projected
+        done = truthy(get(projected, "done"))
+        done_on = jor(get(projected, "doneOn"), done_on) if truthy(get(projected, "done")) else ""
+    history = document_history(docs, no)
+    history.extend(visit_history(docs, visits, no))
+    if any(not isinstance(h["effectiveFrom"], str) for h in history):
+        raise TypeError("history entry without a date")
+    history.sort(key=lambda h: utf16(h["effectiveFrom"]))
+    current = x if truthy(x) else it
+    kind = violation_type(current)
+    return {
+        "dueExempt": jor(get(current, "dueExempt"), ""),
+        "no": no,
+        "title": jor(get(current, "title"), ""),
+        "sections": list(jor(get(current, "sections"), [])),
+        "type": kind["key"],
+        "typeLabel": kind["label"],
+        "withdrawn": truthy(get(current, "withdrawn")),
+        "withdrawalReason": jor(get(current, "withdrawalReason"), ""),
+        "typeHow": kind["how"],
+        "history": history,
+        "due": jor(get(x, "due"), "") if truthy(x) else jor(get(it, "due"), ""),
+        "done": done,
+        "doneOn": done_on,
+        "lastOutcome": outcome["last"],
+        "visits": outcome["n"],
+        "cited": sum(1 for c in citations if c["no"] == no),
+    }
+
+
+def zip_code(k):
+    match = re.search(r"\b(\d{5})(?:-\d{4})?" + S + "*$", jstr(jor(get(k, "siteCity"), "")), re.A)
+    return match[1] if match else ""
+
+
+def case_identity(k, zip_, name_of):
+    return {
+        "caseType": jor(get(k, "caseType"), ""),
+        "number": jor(get(k, "number"), ""),
+        "address": jor(get(k, "address"), ""),
+        "siteCity": jor(get(k, "siteCity"), ""),
+        "zip": zip_,
+        "parcel": jor(get(k, "parcel"), ""),
+        "parcelKey": norm_parcel(get(k, "parcel")),
+        "description": jor(get(k, "description"), ""),
+        "inspectorId": jor(get(k, "inspectorId"), ""),
+        "inspector": name_of(get(k, "inspectorId")),
+        "opened": jor(get(k, "date"), ""),
+    }
+
+
+def case_standing(k, facts, status):
+    notice, live, last_doc = facts.notice, facts.live, facts.last_doc
     notice_doc = next((d for d in live if get(d, "type") == "notice"), None)
     snow_closed = (
         snow_case(k) and last_doc is not None and truthy(get(last_doc, "filedAt")) and not jeq(get(last_doc, "frozen", "snowCloseOnFiling"), False)
     )
     return {
+        "noticeIssued": issued_day(notice if notice_doc is None else notice_doc) if notice is not None else "",
+        "noticeActive": facts.notice_active,
+        "status": status if facts.notice_active or live else "Withdrawn" if notice is not None else "Not issued",
+        "closedOn": record_day(get(last_doc, "filedAt")) if snow_closed else starts(facts.comp) if facts.comp is not None else "",
+    }
+
+
+def case_ownership(k, printed):
+    return {
+        "ownerAddressKey": respondent_key(k),
+        "owner": jor(get(k, "owner"), get(printed, "owner"), ""),
+        "ownerAddr": list(jor(get(k, "ownerAddr"), get(printed, "ownerAddr"), [])),
+        "historic": truthy(get(k, "historic")),
+        "landmark": truthy(get(k, "landmark")),
+    }
+
+
+def restriction_rows(restrictions):
+    return [
+        {
+            "id": get(d, "id"),
+            "scope": get(d, "special", "scope"),
+            "unit": jor(get(d, "special", "unit"), ""),
+            "effective": get(d, "special", "effective"),
+            "posting": get(d, "special", "posting"),
+            "conditions": get(d, "special", "releaseConditions"),
+        }
+        for d in restrictions
+    ]
+
+
+def conditional_extension_rows(live):
+    return [
+        {
+            "id": get(d, "id"),
+            "reviewDate": get(d, "special", "reviewDate"),
+            "contactBy": add_days(get(d, "special", "reviewDate"), -7) if truthy(get(d, "special", "reviewDate")) else "",
+            "expiryDate": jor(get(d, "special", "expiryDate"), "") if jeq(get(d, "special", "expiryMode"), "fixed") else "",
+            "affected": jor(get(d, "special", "affected"), []),
+        }
+        for d in live
+        if get(d, "type") == "vacancyExtension"
+    ]
+
+
+def snow_inspection_rows(live, k, workspace, name_of):
+    return [
+        {
+            "id": get(d, "snowInspectionId"),
+            "docId": get(d, "id"),
+            "date": get(d, "inspDate"),
+            "time": get(d, "inspTime"),
+            "inspector": jor(get(d, "frozen", "inspector", "name"), name_of(get(d, "issuedBy"))),
+            "snow": clone(get(d, "snow")),
+            "citationNumber": jor(get(jor(get(d, "cits"), {}), *(keys(jor(get(d, "cits"), {}))[:1] or [""]), "num"), ""),
+        }
+        for d in live
+        if snow_doc(d, k, workspace)
+    ]
+
+
+def visit_rows(visits, no_of, name_of):
+    return [
+        {
+            "date": jor(get(r, "date"), ""),
+            "purpose": jor(get(r, "purpose"), "violation"),
+            "inspector": jor(get(r, "inspector", "name"), name_of(get(r, "inspectorId"))),
+            "results": [
+                {"no": jor(no_of.get(jstr(get(r, "sourceDocId")) + ":" + id_, UNDEF), ""), "oc": get(r, "results", id_, "oc")}
+                for id_ in keys(jor(get(r, "results"), {}))
+                if truthy(get(jor(get(r, "results", id_), {}), "oc")) and not truthy(get(jor(get(r, "results", id_), {}), "carried"))
+            ],
+        }
+        for r in visits
+    ]
+
+
+def document_rows(docs, name_of):
+    return [
+        {
+            "special": clone(d["special"]) if truthy(get(d, "special")) else None,
+            "serviceRecords": jor(get(d, "serviceRecords"), []),
+            "id": get(d, "id"),
+            "type": get(d, "type"),
+            "label": jor(DOC_LABELS.get(get(d, "type"), UNDEF) if isinstance(get(d, "type"), str) else UNDEF, get(d, "type")),
+            "issued": issued_day(d),
+            "effectiveFrom": starts(d),
+            "effectiveTo": ends(d),
+            "recordedAt": get(d, "issuedAt"),
+            "allWithdrawn": jlen(items(d)) > 0 and all(truthy(get(i, "withdrawn")) for i in items(d)),
+            "revision": jor(get(d, "revision"), None),
+            "superseded": truthy(get(d, "superseded")),
+            "voidAt": record_day(get(d, "void", "at")) if truthy(get(d, "void")) else "",
+            "annotations": jor(get(d, "annotations"), []),
+            "reconciliation": jor(get(d, "reconciliation"), None),
+            "by": issued_by(d, name_of),
+            "void": truthy(get(d, "void")),
+            "voidReason": jor(get(d, "void", "reason"), "") if truthy(get(d, "void")) else "",
+            "replaces": jor(get(d, "replaces"), ""),
+            "accelaAt": jor(get(d, "accelaAt"), ""),
+            "accelaRef": jor(get(d, "accelaRef"), ""),
+        }
+        for d in docs
+    ]
+
+
+def correction_rows(f, name_of):
+    return [
+        {
+            "at": get(e, "at"),
+            "by": name_of(get(e, "by")),
+            "docId": get(e, "payload", "docId"),
+            "replaces": get(e, "payload", "replaces"),
+            "reason": get(e, "payload", "reason"),
+            "changes": clone(jor(get(e, "payload", "changes"), [])),
+            "caseChanges": clone(jor(get(e, "payload", "caseChanges"), {})),
+        }
+        for e in jor(get(f, "events"), [])
+        if get(e, "type") == "correction.issued"
+    ]
+
+
+def referral_rows(live, k, name_of):
+    return [
+        {
+            "id": get(d, "id"),
+            "issued": issued_day(d),
+            "by": issued_by(d, name_of),
+            "owner": jor(get(jor(jand(get(d, "frozen"), get(d, "frozen", "case")), k), "owner"), ""),
+            "ownerAddr": list(jor(get(jor(jand(get(d, "frozen"), get(d, "frozen", "case")), k), "ownerAddr"), [])),
+        }
+        for d in live
+        if get(d, "type") == "referral"
+    ]
+
+
+def project(f, workspace=None):
+    """summarize(f) for the reportable fields of a Reporting Index summary. The browser mirror is summarizeRecord in
+    app/modules/case_projection.js; the phases below keep its statement order, so change both together."""
+    workspace = workspace or Workspace(loaded=False)
+    library, _ = tables()
+    k = jor(get(f, "case"), {})
+    documents, reinspections = replay_events(jor(get(f, "events"), []))
+    name_of = roster_names(f, library)
+    facts = Facts(documents)
+    docs, live = facts.docs, facts.live
+    status = case_status(k, facts)
+    last_doc = facts.last_doc
+    printed = jor(jand(last_doc, jand(get(last_doc, "frozen"), get(last_doc, "frozen", "case"))) if last_doc is not None else last_doc, k)
+    visits = active_visits(reinspections, docs)
+    no_of = item_numbers(docs)
+    citations = citation_rows(live, name_of)
+    snow_first = next((d for d in docs if snow_doc(d, k, workspace)), None) if snow_case(k) else None
+    source = facts.notice if facts.notice is not None else snow_first
+    ctx = {"docs": docs, "visits": visits, "no_of": no_of, "last_items": facts.last_items, "citations": citations}
+    violations = [violation_row(ctx, it) for it in (get(source, "items") if source is not None and isinstance(get(source, "items"), list) else [])]
+    zip_ = zip_code(k)
+    return {
         "format": "madison-case-summary",
         "summaryVersion": SUMMARY_VERSION,
         "schema": jor(get(f, "schema"), SCHEMA),
         "eventCount": len(jor(get(f, "events"), [])),
-        "case": {
-            "caseType": jor(get(k, "caseType"), ""),
-            "number": jor(get(k, "number"), ""),
-            "address": jor(get(k, "address"), ""),
-            "siteCity": jor(get(k, "siteCity"), ""),
-            "zip": zip_match[1] if zip_match else "",
-            "parcel": jor(get(k, "parcel"), ""),
-            "parcelKey": norm_parcel(get(k, "parcel")),
-            "description": jor(get(k, "description"), ""),
-            "inspectorId": jor(get(k, "inspectorId"), ""),
-            "inspector": name_of(get(k, "inspectorId")),
-            "opened": jor(get(k, "date"), ""),
-            "noticeIssued": issued_day(notice if notice_doc is None else notice_doc) if notice is not None else "",
-            "noticeActive": notice_active,
-            "status": status if notice_active or live else "Withdrawn" if notice is not None else "Not issued",
-            "closedOn": record_day(get(last_doc, "filedAt")) if snow_closed else starts(comp) if comp is not None else "",
-            "ownerAddressKey": respondent_key(k),
-            "owner": jor(get(k, "owner"), get(printed, "owner"), ""),
-            "ownerAddr": list(jor(get(k, "ownerAddr"), get(printed, "ownerAddr"), [])),
-            "historic": truthy(get(k, "historic")),
-            "landmark": truthy(get(k, "landmark")),
-        },
-        "restrictions": [
-            {
-                "id": get(d, "id"),
-                "scope": get(d, "special", "scope"),
-                "unit": jor(get(d, "special", "unit"), ""),
-                "effective": get(d, "special", "effective"),
-                "posting": get(d, "special", "posting"),
-                "conditions": get(d, "special", "releaseConditions"),
-            }
-            for d in restrictions
-        ],
-        "conditionalExtensions": [
-            {
-                "id": get(d, "id"),
-                "reviewDate": get(d, "special", "reviewDate"),
-                "contactBy": add_days(get(d, "special", "reviewDate"), -7) if truthy(get(d, "special", "reviewDate")) else "",
-                "expiryDate": jor(get(d, "special", "expiryDate"), "") if jeq(get(d, "special", "expiryMode"), "fixed") else "",
-                "affected": jor(get(d, "special", "affected"), []),
-            }
-            for d in live
-            if get(d, "type") == "vacancyExtension"
-        ],
+        "case": {**case_identity(k, zip_, name_of), **case_standing(k, facts, status), **case_ownership(k, printed)},
+        "restrictions": restriction_rows(facts.restrictions),
+        "conditionalExtensions": conditional_extension_rows(live),
         "violations": violations,
-        "snowInspections": [
-            {
-                "id": get(d, "snowInspectionId"),
-                "docId": get(d, "id"),
-                "date": get(d, "inspDate"),
-                "time": get(d, "inspTime"),
-                "inspector": jor(get(d, "frozen", "inspector", "name"), name_of(get(d, "issuedBy"))),
-                "snow": clone(get(d, "snow")),
-                "citationNumber": jor(get(jor(get(d, "cits"), {}), *(keys(jor(get(d, "cits"), {}))[:1] or [""]), "num"), ""),
-            }
-            for d in live
-            if snow_doc(d, k, workspace)
-        ],
-        "visits": [
-            {
-                "date": jor(get(r, "date"), ""),
-                "purpose": jor(get(r, "purpose"), "violation"),
-                "inspector": jor(get(r, "inspector", "name"), name_of(get(r, "inspectorId"))),
-                "results": [
-                    {"no": jor(no_of.get(jstr(get(r, "sourceDocId")) + ":" + id_, UNDEF), ""), "oc": get(r, "results", id_, "oc")}
-                    for id_ in keys(jor(get(r, "results"), {}))
-                    if truthy(get(jor(get(r, "results", id_), {}), "oc")) and not truthy(get(jor(get(r, "results", id_), {}), "carried"))
-                ],
-            }
-            for r in visits
-        ],
-        "documents": [
-            {
-                "special": clone(d["special"]) if truthy(get(d, "special")) else None,
-                "serviceRecords": jor(get(d, "serviceRecords"), []),
-                "id": get(d, "id"),
-                "type": get(d, "type"),
-                "label": jor(DOC_LABELS.get(get(d, "type"), UNDEF) if isinstance(get(d, "type"), str) else UNDEF, get(d, "type")),
-                "issued": issued_day(d),
-                "effectiveFrom": starts(d),
-                "effectiveTo": ends(d),
-                "recordedAt": get(d, "issuedAt"),
-                "allWithdrawn": jlen(items(d)) > 0 and all(truthy(get(i, "withdrawn")) for i in items(d)),
-                "revision": jor(get(d, "revision"), None),
-                "superseded": truthy(get(d, "superseded")),
-                "voidAt": record_day(get(d, "void", "at")) if truthy(get(d, "void")) else "",
-                "annotations": jor(get(d, "annotations"), []),
-                "reconciliation": jor(get(d, "reconciliation"), None),
-                "by": by(d),
-                "void": truthy(get(d, "void")),
-                "voidReason": jor(get(d, "void", "reason"), "") if truthy(get(d, "void")) else "",
-                "replaces": jor(get(d, "replaces"), ""),
-                "accelaAt": jor(get(d, "accelaAt"), ""),
-                "accelaRef": jor(get(d, "accelaRef"), ""),
-            }
-            for d in docs
-        ],
-        "corrections": [
-            {
-                "at": get(e, "at"),
-                "by": name_of(get(e, "by")),
-                "docId": get(e, "payload", "docId"),
-                "replaces": get(e, "payload", "replaces"),
-                "reason": get(e, "payload", "reason"),
-                "changes": clone(jor(get(e, "payload", "changes"), [])),
-                "caseChanges": clone(jor(get(e, "payload", "caseChanges"), {})),
-            }
-            for e in jor(get(f, "events"), [])
-            if get(e, "type") == "correction.issued"
-        ],
+        "snowInspections": snow_inspection_rows(live, k, workspace, name_of),
+        "visits": visit_rows(visits, no_of, name_of),
+        "documents": document_rows(docs, name_of),
+        "corrections": correction_rows(f, name_of),
         "citations": citations,
-        "referrals": [
-            {
-                "id": get(d, "id"),
-                "issued": issued_day(d),
-                "by": by(d),
-                "owner": jor(get(jor(jand(get(d, "frozen"), get(d, "frozen", "case")), k), "owner"), ""),
-                "ownerAddr": list(jor(get(jor(jand(get(d, "frozen"), get(d, "frozen", "case")), k), "ownerAddr"), [])),
-            }
-            for d in live
-            if get(d, "type") == "referral"
-        ],
+        "referrals": referral_rows(live, k, name_of),
     }
 
 

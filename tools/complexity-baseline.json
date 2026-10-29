@@ -3,7 +3,7 @@
     "complexity": 23,
     "max-depth": 0,
     "max-lines-per-function": 82,
-    "python": 15
+    "python": 13
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -116,8 +116,6 @@
     "helper/case_integrity.py:verify_record:C901": 20,
     "helper/case_lookup.py:run_query:C901": 29,
     "helper/case_lookup.py:settings:C901": 18,
-    "helper/case_projection.py:project:C901": 42,
-    "helper/case_projection.py:replay_events:C901": 29,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 24,
     "helper/server.py:_pdf:C901": 14,
