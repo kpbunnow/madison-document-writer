@@ -339,6 +339,25 @@ function workbookRelationshipsXML(named, x) {
   );
 }
 
+function reportTableHeaderHTML(services, res, sort, isNum) {
+  return res.cols
+    .map(
+      (h, ci) =>
+        '<th scope="col" aria-sort="' +
+        `${sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none"}` +
+        '" class="' +
+        `${isNum(ci) ? "n" : ""}` +
+        '"><button class="sort-button" data-report-sort="' +
+        `${ci}` +
+        '">' +
+        `${services.esc(h)}` +
+        "" +
+        `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
+        "</button></th>",
+    )
+    .join("");
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -670,24 +689,7 @@ export function createReportsScreens(services) {
       " · " +
       `${services.esc(dateTxt)}` +
       "</caption><thead><tr>" +
-      "".concat(
-        res.cols
-          .map(
-            (h, ci) =>
-              '<th scope="col" aria-sort="' +
-              `${sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none"}` +
-              '" class="' +
-              `${isNum(ci) ? "n" : ""}` +
-              '"><button class="sort-button" data-report-sort="' +
-              `${ci}` +
-              '">' +
-              `${services.esc(h)}` +
-              "" +
-              `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
-              "</button></th>",
-          )
-          .join(""),
-      ) +
+      "".concat(reportTableHeaderHTML(services, res, sort, isNum)) +
       "</tr></thead><tbody>\n    " +
       "".concat(
         rows
