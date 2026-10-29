@@ -1636,17 +1636,54 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return "expected application/json"
         return None
 
+    def _pdf_request(self):
+        """The JSON body of a PDF post, or (None, response) when the request is refused before it is read."""
+        raw = self.headers.get("Content-Length")
+        if raw is None or not raw.strip().isdigit():
+            return None, self._json(411, {"ok": False, "error": "a length is required"})
+        n = int(raw)
+        if n <= 0 or n > MAX_BODY:
+            return None, self._json(413, {"ok": False, "error": "that document is too large to accept"})
+        data = json.loads(self.rfile.read(n).decode("utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("Expected a JSON object")
+        return data, None
+
+    @staticmethod
+    def _render_and_file(html, name, target):
+        """Render the document and file it; only filing may fall back to the local outbox."""
+        with tempfile.TemporaryDirectory(prefix="dw-rendered-") as temporary:
+            rendered = Path(temporary) / name
+            # Renderer/startup errors propagate; only filing can use outbox.
+            make_pdf(html, rendered)
+            pdf_bytes = rendered.read_bytes()
+            try:
+                return target, file_pdf_bytes(target, pdf_bytes)
+            except OSError:
+                local = HERE / OUTDIR_NAME
+                if target.parent == local:
+                    raise
+                target = local / name
+                return target, file_pdf_bytes(target, pdf_bytes)
+
+    def _pdf_source(self, data, email, name, html):
+        """Where the PDF to file or mail comes from: a verified archive, or a fresh rendering."""
+        target = out_dir() / name
+        if email and data.get("sha256"):
+            target, _ = verified_artifact(name, data["sha256"], data.get("docId"))
+            return target, str(target)
+        if email and data.get("reuse"):
+            raise ValueError("The archived issued PDF must be verified before repeat distribution")
+        if not html.strip():
+            raise ValueError("no document was supplied")
+        target, path = self._render_and_file(html, name, target)
+        return target, path
+
     def _pdf(self, email=False):
         try:
-            raw = self.headers.get("Content-Length")
-            if raw is None or not raw.strip().isdigit():
-                return self._json(411, {"ok": False, "error": "a length is required"})
-            n = int(raw)
-            if n <= 0 or n > MAX_BODY:
-                return self._json(413, {"ok": False, "error": "that document is too large to accept"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
-            if not isinstance(data, dict):
-                raise ValueError("Expected a JSON object")
+            data, refusal = self._pdf_request()
+            if data is None:
+                return refusal
             name = safe_name(str(data.get("filename") or "Document"))
             html = data.get("html") or ""
             if not isinstance(html, str):
@@ -1655,28 +1692,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if not html.strip():
                     raise ValueError("no document was supplied")
                 return self._json(200, artifact_store.file_operation(sys.modules[__name__], data, name, html))
-            target = out_dir() / name
-            if email and data.get("sha256"):
-                target, _ = verified_artifact(name, data["sha256"], data.get("docId"))
-                path = str(target)
-            elif email and data.get("reuse"):
-                raise ValueError("The archived issued PDF must be verified before repeat distribution")
-            else:
-                if not html.strip():
-                    raise ValueError("no document was supplied")
-                with tempfile.TemporaryDirectory(prefix="dw-rendered-") as temporary:
-                    rendered = Path(temporary) / name
-                    # Renderer/startup errors propagate; only filing can use outbox.
-                    make_pdf(html, rendered)
-                    pdf_bytes = rendered.read_bytes()
-                    try:
-                        path = file_pdf_bytes(target, pdf_bytes)
-                    except OSError:
-                        local = HERE / OUTDIR_NAME
-                        if target.parent == local:
-                            raise
-                        target = local / name
-                        path = file_pdf_bytes(target, pdf_bytes)
+            target, path = self._pdf_source(data, email, name, html)
             record("pdf", "ok")
             if not email:
                 return self._json(

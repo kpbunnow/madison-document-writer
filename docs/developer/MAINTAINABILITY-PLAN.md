@@ -1542,3 +1542,9 @@ Added a frozen-original comparison of draft backup writes (`audit_backup_write_r
 ## shared-record-route-table
 
 Added a frozen-original comparison of the shared-record POST handler (`audit_shared_records_route_rules.py`: 3,000 seeded requests against the retained method text, with a stand-in request object). It compares size and body checks, each route's helper and arguments, the probe file and the status and message of every failure. The handler (C901 12) now looks its route up in a table of small functions that resolve their helper when called, so patched helpers and the unknown-route default behave as before.
+
+## pdf-post-phases
+
+Added a frozen-original comparison of the PDF filing and email handler (`audit_pdf_post_rules.py`: 3,000 seeded requests against the retained method text, with a request stand-in that keeps the real handler's helper methods). It compares length and body checks, the operation, verified and reused archives, rendering, outbox fallback (including the local-outbox case), the Outlook draft, files left behind and every failure status and message, with every peer call and argument in order.
+
+`_pdf` (C901 14) is now a request reader, a source selector (verified archive or fresh rendering) and a render-and-file step around the same reply. Mutations in the fallback, source selection, length check, status and reply fields are caught; the survivor (a ValueError raised as a TypeError) is equivalent because both map to the same status and message.
