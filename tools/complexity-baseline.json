@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 46,
+    "complexity": 45,
     "max-depth": 0,
     "max-lines-per-function": 102,
     "python": 15
@@ -39,7 +39,6 @@
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:max-lines-per-function": 104,
-    "app/modules/citation_charges.js:createCitationCharges#1/changeCharge#1:complexity": 24,
     "app/modules/citation_drafts.js:createCitationDrafts#1:max-lines-per-function": 92,
     "app/modules/citation_pricing.js:initCitationPricing#1:max-lines-per-function": 160,
     "app/modules/citation_workflow.js:createCitationWorkflow#1:max-lines-per-function": 546,

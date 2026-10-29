@@ -1105,3 +1105,9 @@ Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 10
 Committed metadata replacement and native write-failure classification retain lazy reads, concurrent-edit preservation and verification/write/projection order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
 
 Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-request-refresh
+
+Separated pending deposit repricing after the existing citation pricing refresh. Retained aliases, source/correction restoration, property/service order and approved-basis resets. Existing charge public-owner suite passes unchanged against maintained and original modules with byte-identical output/diagnostics. Prior-history and pricing-refresh regressions, module boundaries, test seams, ESLint and formatting pass. No policy, price, format, print or release changes.
+
+Measured counts: {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
