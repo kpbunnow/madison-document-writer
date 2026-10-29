@@ -46,6 +46,7 @@ covers, or a new suite under its feature.
 | `audit_integrity_classification_rules.js` | 238 downgrade and real-chain comparisons plus unchanged RFC8785/WebCrypto assertions |
 | `audit_recovery_validation_parity.js` | Unchanged recovery public-owner assertions against original and maintained owners |
 | `audit_recipient_validation_parity.js` | Unchanged public-owner assertions against maintained and retained recipient owners |
+| `audit_citation_check_rules.js` | 6,000 seeded scenarios compare the citation authoring checks with the retained module: ordered messages and targets, every peer read and call in order (including repeated fault reads), and refusal at each interrupted read. |
 | `audit_citation_edit_rules.js` | 5,306 retained-source field edits with real fees and interruption ordering |
 | `audit_deposit_completion_rules.js` | 3,036 retained-policy completion comparisons, mutations and service failures |
 | `audit_citation_charges_parity.js` | Existing charge/correction/amount assertions unchanged through retained public-owner parity |
