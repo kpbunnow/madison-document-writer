@@ -339,6 +339,261 @@ function workbookRelationshipsXML(named, x) {
   );
 }
 
+function reportTableHeaderHTML(services, res, sort, isNum) {
+  return res.cols
+    .map(
+      (h, ci) =>
+        '<th scope="col" aria-sort="' +
+        `${sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none"}` +
+        '" class="' +
+        `${isNum(ci) ? "n" : ""}` +
+        '"><button class="sort-button" data-report-sort="' +
+        `${ci}` +
+        '">' +
+        `${services.esc(h)}` +
+        "" +
+        `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
+        "</button></th>",
+    )
+    .join("");
+}
+
+function reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max) {
+  return rows
+    .map(
+      ({ row, ri }) =>
+        '<tr class="' +
+        `${row.dim ? "dim" : ""}` +
+        "" +
+        `${sel && sel.split(":")[0] === String(ri) ? " sel" : ""}` +
+        '">' +
+        "".concat(
+          cellsOf(row)
+            .map((x, ci) => {
+              const cell = cellHTML(x, ri, ci, max[ci], false);
+              return ci === 0 ? cell.replace("<td", '<th scope="row"').replace("</td>", "</th>") : cell;
+            })
+            .join(""),
+        ) +
+        "</tr>",
+    )
+    .join("");
+}
+
+function reportCaseTimeline(services, c) {
+  return c.documents
+    .map((d) => ({
+      d: d.effectiveFrom || d.issued,
+      t:
+        '<span class="' +
+        `${d.void ? "void" : ""}` +
+        '">' +
+        `${services.esc(d.label)}` +
+        "" +
+        `${d.revision ? " · revision " + services.esc(d.revision.number) : ""}` +
+        "</span>" +
+        `${d.superseded ? " (replaced)" : ""}` +
+        "" +
+        `${d.revision ? " — " + services.esc(d.revision.reason) : ""}` +
+        "" +
+        `${d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : ""}` +
+        "" +
+        `${d.by ? ' <span class="small">' + services.esc(d.by) + "</span>" : ""}` +
+        "",
+    }))
+    .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + services.esc(n.text) }))))
+    .concat(
+      c.visits.map((v) => ({
+        d: v.date,
+        t: "Reinspection" + (v.inspector ? ' <span class="small">' + services.esc(v.inspector) + "</span>" : ""),
+      })),
+    )
+    .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
+}
+
+function reportCaseMetadataHTML(services, c) {
+  return (
+    '<div class="cc-meta">\n      <div><span>Parcel</s' +
+    "pan>" +
+    `${services.esc(c.parcel || "—")}` +
+    "" +
+    `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
+    "</div>\n      <div><span>Alder district</span>" +
+    `${services.esc(c.alderNow || "—")}` +
+    "" +
+    "".concat(
+      c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + services.esc(c.alderAtOpen) + " when opened)</span>" : "",
+    ) +
+    "</div>\n      <div><span>ZIP</span>" +
+    `${services.esc(c.zip || "—")}` +
+    "</div>\n      <div><span>Building district</span>" +
+    `${services.esc(c.building || "—")}` +
+    "</div>\n      <div><span>Inspector</span>" +
+    `${services.esc(c.inspector || "—")}` +
+    "</div>\n      <div><span>Opened</span>" +
+    `${services.esc(services.fmtDate(c.opened))}` +
+    "</div>\n      <div><span>Closed</span>" +
+    `${services.esc(services.fmtDate(c.closedOn))}` +
+    "</div>\n      <div><span>Owner</span>" +
+    "".concat(
+      c.ownerKey
+        ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner || "—")}</button>`
+        : services.esc(c.owner || "—"),
+    ) +
+    "</div>\n      <div><span>Mailing address</span>" +
+    `${services.esc(c.ownerAddr.join(", ") || "—")}` +
+    "</div>\n    </div>\n    "
+  );
+}
+
+function reportCaseViolationRowsHTML(services, c, outc) {
+  return c.violations
+    .map((v) => {
+      const cits = c.citations.filter((x) => x.no === v.no);
+      return (
+        '<tr><td class="n">' +
+        `${services.esc(v.no)}` +
+        "</td><td>" +
+        `${services.esc(v.title)}` +
+        '<div class="muted">' +
+        `${services.esc(v.sections.join(", "))}` +
+        "</div></td><td>" +
+        `${services.esc(v.typeLabel)}` +
+        "</td>\n        <td>" +
+        "".concat(
+          v.withdrawn
+            ? "Withdrawn — entered in error"
+            : v.done
+              ? "Corrected " + services.esc(services.fmtDate(v.doneOn))
+              : v.lastOutcome
+                ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
+                : "Open",
+        ) +
+        '</td><td class="n">' +
+        `${services.fmtNum(v.visits)}` +
+        "</td>\n        <td>" +
+        "".concat(
+          cits
+            .map(
+              (x) =>
+                "" +
+                `${services.esc(x.num)}` +
+                ' <span class="muted">' +
+                `${services.esc(services.fmtDate(x.issued))}` +
+                ", " +
+                `${services.esc(x.ordinance)}` +
+                ", " +
+                `${services.esc(services.fmtMoney(x.amount))}` +
+                "</span>",
+            )
+            .join("<br>") || "—",
+        ) +
+        "</td></tr>"
+      );
+    })
+    .join("");
+}
+
+function reportCoverageListHTML(services, l) {
+  return l.length
+    ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${services.esc(s)}</li>`).join("")}` + "</ul>"
+    : "";
+}
+
+function unlocatedReportCaseReason(c) {
+  return !c.parcel
+    ? "no parcel on the case"
+    : !c.parcelKey
+      ? "parcel " + c.parcel + " is not 12 digits"
+      : c.looked
+        ? "parcel " + c.parcel + " is not on the city parcel layer"
+        : "parcel " + c.parcel + " has not been looked up yet";
+}
+
+function reportCoverageRowsHTML(services, x, M, unlocated, li, why) {
+  return (
+    "<li><b>" +
+    `${services.plural(x.summaries.length, "case summary", "case summaries")}` +
+    "</b> from " +
+    `${services.esc(x.caseDir)}` +
+    "\\" +
+    `${services.esc(SUMMARY_DIR)}` +
+    ", read " +
+    `${services.esc(services.fmtDate(String(x.readAt).slice(0, 10)))}` +
+    " " +
+    `${services.esc(String(x.readAt).slice(11, 16))}` +
+    ".\n        " +
+    `${services.fmtNum(M.cases.length - M.counted.length)}` +
+    " of them have no issued notice yet and are not counted.</li>\n      <li><" +
+    "b>" +
+    `${services.plural(x.missing.length, "case file")}` +
+    " with no summary.</b> " +
+    `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
+    "" +
+    `${li(x.missing)}` +
+    "</li>\n      <li><b>" +
+    `${services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
+    ".</b> Different from the exact case revision, missing its revision, or w" +
+    "ritten in an earlier summary format. Excluded from current totals; rebui" +
+    "ld the reporting index in Writer." +
+    `${li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)")))}` +
+    "</li>\n      " +
+    "".concat(
+      x.unreadable.length
+        ? "<li><b>" +
+            `${services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` +
+            ".</b>" +
+            `${li(x.unreadable)}` +
+            "</li>"
+        : "",
+    ) +
+    "".concat(
+      (x.mismatched || []).length
+        ? "<li><b>" +
+            `${services.plural(x.mismatched.length, "summary", "summaries")}` +
+            " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
+            `${li(x.mismatched)}` +
+            "</li>"
+        : "",
+    ) +
+    "\n      <li><b>" +
+    `${services.plural(unlocated.length, "case")}` +
+    " not located on the map.</b>" +
+    `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
+    "</li>\n      " +
+    "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${services.esc(ReportsState.S.parcelNote)}</li>` : "") +
+    "\n      "
+  );
+}
+
+function reportOutlineCoverageHTML(services, a, M) {
+  return (
+    "<li><b>District outlines:</b> " +
+    "".concat(
+      a.districts
+        ? M.distField
+          ? "loaded" +
+            (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
+            "; the district number is read from the " +
+            services.esc(M.distField) +
+            " field"
+          : "loaded, but no field reads as a district number, so districts are not shaded"
+        : "not available",
+    ) +
+    ".\n        <b>ZIP outlines:</b> " +
+    "".concat(
+      a.zips
+        ? M.zipField
+          ? "loaded; used for cases whose ZIP was not imported from Accela"
+          : "loaded, but no field reads as a ZIP code"
+        : "not provided (optional)",
+    ) +
+    ".\n        " +
+    `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${services.esc(n)}</div>`).join("")}` +
+    "</li>"
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -670,46 +925,9 @@ export function createReportsScreens(services) {
       " · " +
       `${services.esc(dateTxt)}` +
       "</caption><thead><tr>" +
-      "".concat(
-        res.cols
-          .map(
-            (h, ci) =>
-              '<th scope="col" aria-sort="' +
-              `${sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none"}` +
-              '" class="' +
-              `${isNum(ci) ? "n" : ""}` +
-              '"><button class="sort-button" data-report-sort="' +
-              `${ci}` +
-              '">' +
-              `${services.esc(h)}` +
-              "" +
-              `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
-              "</button></th>",
-          )
-          .join(""),
-      ) +
+      "".concat(reportTableHeaderHTML(services, res, sort, isNum)) +
       "</tr></thead><tbody>\n    " +
-      "".concat(
-        rows
-          .map(
-            ({ row, ri }) =>
-              '<tr class="' +
-              `${row.dim ? "dim" : ""}` +
-              "" +
-              `${sel && sel.split(":")[0] === String(ri) ? " sel" : ""}` +
-              '">' +
-              "".concat(
-                cellsOf(row)
-                  .map((x, ci) => {
-                    const cell = cellHTML(x, ri, ci, max[ci], false);
-                    return ci === 0 ? cell.replace("<td", '<th scope="row"').replace("</td>", "</th>") : cell;
-                  })
-                  .join(""),
-              ) +
-              "</tr>",
-          )
-          .join(""),
-      ) +
+      "".concat(reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max)) +
       "\n    " +
       "".concat(res.total ? `<tr class="total">${res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join("")}</tr>` : "") +
       "\n  </tbody></table></div>" +
@@ -927,34 +1145,7 @@ export function createReportsScreens(services) {
 
   function caseCard(c) {
     const outc = { corrected: "Corrected", progress: "Progress made", none: "No change", noaccess: "No access" };
-    const ev = c.documents
-      .map((d) => ({
-        d: d.effectiveFrom || d.issued,
-        t:
-          '<span class="' +
-          `${d.void ? "void" : ""}` +
-          '">' +
-          `${services.esc(d.label)}` +
-          "" +
-          `${d.revision ? " · revision " + services.esc(d.revision.number) : ""}` +
-          "</span>" +
-          `${d.superseded ? " (replaced)" : ""}` +
-          "" +
-          `${d.revision ? " — " + services.esc(d.revision.reason) : ""}` +
-          "" +
-          `${d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : ""}` +
-          "" +
-          `${d.by ? ' <span class="small">' + services.esc(d.by) + "</span>" : ""}` +
-          "",
-      }))
-      .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + services.esc(n.text) }))))
-      .concat(
-        c.visits.map((v) => ({
-          d: v.date,
-          t: "Reinspection" + (v.inspector ? ' <span class="small">' + services.esc(v.inspector) + "</span>" : ""),
-        })),
-      )
-      .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
+    const ev = reportCaseTimeline(services, c);
     return (
       '<div class="card-case"><div class="cc-h"><div><h3>' +
       `${services.esc(c.address)}` +
@@ -968,36 +1159,9 @@ export function createReportsScreens(services) {
       `${services.esc(c.status)}` +
       '">' +
       `${services.esc(c.status)}` +
-      '</span></div></div>\n    <div class="cc-meta">\n      <div><span>Parcel</s' +
-      "pan>" +
-      `${services.esc(c.parcel || "—")}` +
-      "" +
-      `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
-      "</div>\n      <div><span>Alder district</span>" +
-      `${services.esc(c.alderNow || "—")}` +
-      "" +
-      "".concat(
-        c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + services.esc(c.alderAtOpen) + " when opened)</span>" : "",
-      ) +
-      "</div>\n      <div><span>ZIP</span>" +
-      `${services.esc(c.zip || "—")}` +
-      "</div>\n      <div><span>Building district</span>" +
-      `${services.esc(c.building || "—")}` +
-      "</div>\n      <div><span>Inspector</span>" +
-      `${services.esc(c.inspector || "—")}` +
-      "</div>\n      <div><span>Opened</span>" +
-      `${services.esc(services.fmtDate(c.opened))}` +
-      "</div>\n      <div><span>Closed</span>" +
-      `${services.esc(services.fmtDate(c.closedOn))}` +
-      "</div>\n      <div><span>Owner</span>" +
-      "".concat(
-        c.ownerKey
-          ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner || "—")}</button>`
-          : services.esc(c.owner || "—"),
-      ) +
-      "</div>\n      <div><span>Mailing address</span>" +
-      `${services.esc(c.ownerAddr.join(", ") || "—")}` +
-      '</div>\n    </div>\n    <ul class="timeline">' +
+      "</span></div></div>\n    " +
+      reportCaseMetadataHTML(services, c) +
+      '<ul class="timeline">' +
       "".concat(
         ev.map((e) => `<li><span class="d">${services.esc(services.fmtDate(e.d))}</span><span>${e.t}</span></li>`).join("") ||
           '<li><span class="d"></span><span class="small">No documents issued</span></li>',
@@ -1006,51 +1170,7 @@ export function createReportsScreens(services) {
       'em</th><th>Violation</th><th>Type</th><th>Status</th><th class="n">Visit' +
       "s</th><th>Citations</th></tr></thead><tbody>\n      " +
       "".concat(
-        c.violations
-          .map((v) => {
-            const cits = c.citations.filter((x) => x.no === v.no);
-            return (
-              '<tr><td class="n">' +
-              `${services.esc(v.no)}` +
-              "</td><td>" +
-              `${services.esc(v.title)}` +
-              '<div class="muted">' +
-              `${services.esc(v.sections.join(", "))}` +
-              "</div></td><td>" +
-              `${services.esc(v.typeLabel)}` +
-              "</td>\n        <td>" +
-              "".concat(
-                v.withdrawn
-                  ? "Withdrawn — entered in error"
-                  : v.done
-                    ? "Corrected " + services.esc(services.fmtDate(v.doneOn))
-                    : v.lastOutcome
-                      ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
-                      : "Open",
-              ) +
-              '</td><td class="n">' +
-              `${services.fmtNum(v.visits)}` +
-              "</td>\n        <td>" +
-              "".concat(
-                cits
-                  .map(
-                    (x) =>
-                      "" +
-                      `${services.esc(x.num)}` +
-                      ' <span class="muted">' +
-                      `${services.esc(services.fmtDate(x.issued))}` +
-                      ", " +
-                      `${services.esc(x.ordinance)}` +
-                      ", " +
-                      `${services.esc(services.fmtMoney(x.amount))}` +
-                      "</span>",
-                  )
-                  .join("<br>") || "—",
-              ) +
-              "</td></tr>"
-            );
-          })
-          .join("") || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>',
+        reportCaseViolationRowsHTML(services, c, outc) || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>',
       ) +
       "\n    </tbody></table></div></div>"
     );
@@ -1130,18 +1250,8 @@ export function createReportsScreens(services) {
       M = ReportsState.S.M,
       a = ReportsState.S.areas || {};
     const unlocated = M.counted.filter((c) => !c.located);
-    const li = (l) =>
-      l.length
-        ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${services.esc(s)}</li>`).join("")}` + "</ul>"
-        : "";
-    const why = (c) =>
-      !c.parcel
-        ? "no parcel on the case"
-        : !c.parcelKey
-          ? "parcel " + c.parcel + " is not 12 digits"
-          : c.looked
-            ? "parcel " + c.parcel + " is not on the city parcel layer"
-            : "parcel " + c.parcel + " has not been looked up yet";
+    const li = (l) => reportCoverageListHTML(services, l);
+    const why = unlocatedReportCaseReason;
     return (
       '<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h' +
       '2></div><div class="panel-b"><p>For missing, stale or excluded summaries' +
@@ -1150,79 +1260,11 @@ export function createReportsScreens(services) {
       "ild reporting index. Resolve unreadable or integrity errors in the affec" +
       "ted case before rebuilding; rebuilding does not repair history. Refresh " +
       'Reports afterward.</p><details id="report-proof"><summary>Record proof a' +
-      'nd excluded files</summary>\n    <ul class="defs">\n      <li><b>' +
-      `${services.plural(x.summaries.length, "case summary", "case summaries")}` +
-      "</b> from " +
-      `${services.esc(x.caseDir)}` +
-      "\\" +
-      `${services.esc(SUMMARY_DIR)}` +
-      ", read " +
-      `${services.esc(services.fmtDate(String(x.readAt).slice(0, 10)))}` +
-      " " +
-      `${services.esc(String(x.readAt).slice(11, 16))}` +
-      ".\n        " +
-      `${services.fmtNum(M.cases.length - M.counted.length)}` +
-      " of them have no issued notice yet and are not counted.</li>\n      <li><" +
-      "b>" +
-      `${services.plural(x.missing.length, "case file")}` +
-      " with no summary.</b> " +
-      `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
+      'nd excluded files</summary>\n    <ul class="defs">\n      ' +
+      reportCoverageRowsHTML(services, x, M, unlocated, li, why) +
       "" +
-      `${li(x.missing)}` +
-      "</li>\n      <li><b>" +
-      `${services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
-      ".</b> Different from the exact case revision, missing its revision, or w" +
-      "ritten in an earlier summary format. Excluded from current totals; rebui" +
-      "ld the reporting index in Writer." +
-      `${li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)")))}` +
-      "</li>\n      " +
-      "".concat(
-        x.unreadable.length
-          ? "<li><b>" +
-              `${services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` +
-              ".</b>" +
-              `${li(x.unreadable)}` +
-              "</li>"
-          : "",
-      ) +
-      "".concat(
-        (x.mismatched || []).length
-          ? "<li><b>" +
-              `${services.plural(x.mismatched.length, "summary", "summaries")}` +
-              " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
-              `${li(x.mismatched)}` +
-              "</li>"
-          : "",
-      ) +
-      "\n      <li><b>" +
-      `${services.plural(unlocated.length, "case")}` +
-      " not located on the map.</b>" +
-      `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
-      "</li>\n      " +
-      "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${services.esc(ReportsState.S.parcelNote)}</li>` : "") +
-      "\n      <li><b>District outlines:</b> " +
-      "".concat(
-        a.districts
-          ? M.distField
-            ? "loaded" +
-              (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
-              "; the district number is read from the " +
-              services.esc(M.distField) +
-              " field"
-            : "loaded, but no field reads as a district number, so districts are not shaded"
-          : "not available",
-      ) +
-      ".\n        <b>ZIP outlines:</b> " +
-      "".concat(
-        a.zips
-          ? M.zipField
-            ? "loaded; used for cases whose ZIP was not imported from Accela"
-            : "loaded, but no field reads as a ZIP code"
-          : "not provided (optional)",
-      ) +
-      ".\n        " +
-      `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${services.esc(n)}</div>`).join("")}` +
-      '</li>\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
+      reportOutlineCoverageHTML(services, a, M) +
+      '\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
       'anel-b"><details id="report-definitions"><summary>Data definitions</summ' +
       'ary><ul class="defs">\n    ' +
       `${services.DEFINITIONS.map((d) => `<li><b>${services.esc(d[0])}.</b> ${services.esc(d[1])}</li>`).join("")}` +

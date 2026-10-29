@@ -1015,3 +1015,57 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Workbook relationships retain exact worksheet/style targets and identifiers. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15}.
+
+## report-table-header
+
+Table header rendering retains numeric alignment, sort attributes, arrows and escaped labels. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 113, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15}.
+
+## report-table-body
+
+Table rows retain selection/dim markers, original row indices and first-column row headers. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15}.
+
+## report-case-timeline
+
+Case timeline construction retains document/revision/void/note facts, visit order and stable date sorting. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15}.
+
+## report-case-metadata
+
+Case metadata retains parcel/district/owner/mail facts, fallbacks and exact HTML. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 112, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
+
+## report-case-violation-rows
+
+Case violation rows retain withdrawal/correction/outcome precedence, citation matching and rendered fields. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
+
+## report-coverage-file-list
+
+Coverage file list rendering retains empty-list behavior, escaping, focus and accessible label. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
+
+## report-unlocated-reason
+
+Unlocated-case explanations retain missing/invalid/unlooked/unmatched parcel precedence and wording. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
+
+## report-coverage-rows
+
+Coverage rows retain missing/stale/unreadable/mismatched summaries, unlocated cases and parcel notes. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15}.
+
+## report-outline-coverage
+
+Outline coverage retains district/ZIP availability, field selection, dates, notes and exact wording. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes. Existing complete Reports workbook suite also passes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15}.
