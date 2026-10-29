@@ -104,6 +104,7 @@
     "app/modules/editor_screens.js",
     "app/modules/editor_state.js",
     "app/modules/event_registration.js",
+    "app/modules/exit_review.js",
     "app/modules/folder_connections.js",
     "app/modules/helper_requests.js",
     "app/modules/helper_stopped.js",
