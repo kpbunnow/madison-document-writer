@@ -1,18 +1,12 @@
 {
   "counts": {
-    "complexity": 18,
+    "complexity": 15,
     "max-depth": 0,
-    "max-lines-per-function": 76,
+    "max-lines-per-function": 73,
     "python": 13
   },
   "violations": {
-    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
-    "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:complexity": 35,
-    "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:max-lines-per-function": 221,
-    "app/modules/accela_import.js:createAccelaImport#1/accelaTable#1:max-lines-per-function": 93,
-    "app/modules/accela_import.js:createAccelaImport#1/accUnzip#1:complexity": 21,
-    "app/modules/accela_import.js:createAccelaImport#1/baseLookupAccept#1:max-lines-per-function": 106,
-    "app/modules/accela_import.js:createAccelaImport#1/findDatabaseCase#1:complexity": 22,
+    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 428,
     "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 405,
     "app/modules/address_parser.js:initAddressParser#1:max-lines-per-function": 106,
     "app/modules/administration.js:initAdministration#1:max-lines-per-function": 183,
