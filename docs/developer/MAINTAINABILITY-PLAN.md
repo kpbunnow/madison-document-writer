@@ -1532,3 +1532,9 @@ Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, '
 Added a frozen-original comparison of the build-time deposit reading (`audit_deposit_interpreter_rules.py`: 6,000 seeded schedule entries against the retained module text, executed in its own namespace). It compares the exact result or error, every ordinance family, quantity row, tier list and stale notice, and that inputs are untouched.
 
 `interpret` (C901 14) is now an ordered table of rule readings (mandatory, tree, building, tons, percent, parking, tiers) with separate classification, status and stale-notice functions. Four of six deliberate mutations are caught; the survivors (swapping two rules with disjoint conditions, and a guard that cannot differ because a mandatory rule has no fields) are behavior-equivalent.
+
+## backup-write-phases
+
+Added a frozen-original comparison of draft backup writes (`audit_backup_write_rules.py`: 500 seeded requests on real folders against the retained function text executed in its own namespace). It compares validation order and messages, the written snapshot, daily, weekly and replacement retention across folders of up to 90 snapshots spread over 500 days, unreadable and undeletable files, and the audit records. A first draft of the comparison never reached retention (one malformed file aborts it by design); the scenarios were rebuilt so retention runs, and the limit mutations are now caught.
+
+`backup_write` (C901 16) is now a request check, a pure retention selection (`_backups_to_keep`) and a trimming step (`_trim_backups`) around the same locked write. The one surviving mutation (the size of the newest-kept group) is behavior-equivalent because the fill step keeps the same newest files.

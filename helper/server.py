@@ -758,8 +758,7 @@ def validate_draft_deposits(value):
             validate_draft_deposits(child)
 
 
-@logged("backup")
-def backup_write(data):
+def _checked_backup(data):
     if set(data) != {"workspace", "case", "backup"}:
         raise ValueError("Invalid draft backup request")
     payload = data["backup"]
@@ -768,6 +767,60 @@ def backup_write(data):
     if payload.get("workspace") != data["workspace"] or payload.get("case") != data["case"]:
         raise ValueError("Draft backup identity differs from its location")
     validate_draft_deposits(payload)
+    return payload
+
+
+def _backups_to_keep(files):
+    """Newest eight, then older daily and weekly representatives, up to two pre-replacement snapshots, then newest to the limit."""
+    keep = set(files[:8])
+    daily = {old.name[:8] for old in files[:8]}
+    weekly = {datetime.strptime(old.name[:8], "%Y%m%d").strftime("%Y-%W") for old in files[:8]}
+    daily_added, weekly_added, replacement = 0, 0, []
+    for old in files[8:]:
+        try:
+            snapshot = json.loads(old.read_text(encoding="utf-8"))
+            day_stamp = datetime.strptime(old.name[:8], "%Y%m%d")
+            day, week = old.name[:8], day_stamp.strftime("%Y-%W")
+            if snapshot.get("preReplacement"):
+                replacement.append(old)
+            elif day not in daily and daily_added < 10:
+                keep.add(old)
+                daily.add(day)
+                daily_added += 1
+                weekly.add(week)
+            elif week not in weekly and weekly_added < 4:
+                keep.add(old)
+                weekly.add(week)
+                weekly_added += 1
+                daily.add(day)
+        except (OSError, ValueError, TypeError) as error:
+            record("backup-retention", "failed", error=error)
+            continue
+    keep.update(replacement[:2])
+    for old in files:
+        if len(keep) >= BACKUP_KEEP:
+            break
+        keep.add(old)
+    return keep
+
+
+def _trim_backups(folder):
+    try:
+        files = sorted(folder.glob("*.json"), reverse=True)
+        keep = _backups_to_keep(files)
+        for old in files:
+            if old not in keep:
+                try:
+                    old.unlink()
+                except OSError as error:
+                    record("backup-retention", "failed", error=error)
+    except Exception as error:
+        record("backup-retention", "failed", error=error)  # New snapshot stays available.
+
+
+@logged("backup")
+def backup_write(data):
+    payload = _checked_backup(data)
     folder = backup_location(data["workspace"], data["case"])
     raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     if len(raw) > MAX_BODY:
@@ -777,45 +830,7 @@ def backup_write(data):
     name = stamp + "-" + hashlib.sha256(raw).hexdigest()[:12] + ".json"
     with file_lock(folder, "draft-backup"):
         atomic_write(folder / name, raw)
-        try:
-            files = sorted(folder.glob("*.json"), reverse=True)
-            keep = set(files[:8])
-            daily = {old.name[:8] for old in files[:8]}
-            weekly = {datetime.strptime(old.name[:8], "%Y%m%d").strftime("%Y-%W") for old in files[:8]}
-            daily_added, weekly_added, replacement = 0, 0, []
-            for old in files[8:]:
-                try:
-                    snapshot = json.loads(old.read_text(encoding="utf-8"))
-                    day_stamp = datetime.strptime(old.name[:8], "%Y%m%d")
-                    day, week = old.name[:8], day_stamp.strftime("%Y-%W")
-                    if snapshot.get("preReplacement"):
-                        replacement.append(old)
-                    elif day not in daily and daily_added < 10:
-                        keep.add(old)
-                        daily.add(day)
-                        daily_added += 1
-                        weekly.add(week)
-                    elif week not in weekly and weekly_added < 4:
-                        keep.add(old)
-                        weekly.add(week)
-                        weekly_added += 1
-                        daily.add(day)
-                except (OSError, ValueError, TypeError) as error:
-                    record("backup-retention", "failed", error=error)
-                    continue
-            keep.update(replacement[:2])
-            for old in files:
-                if len(keep) >= BACKUP_KEEP:
-                    break
-                keep.add(old)
-            for old in files:
-                if old not in keep:
-                    try:
-                        old.unlink()
-                    except OSError as error:
-                        record("backup-retention", "failed", error=error)
-        except Exception as error:
-            record("backup-retention", "failed", error=error)  # New snapshot stays available.
+        _trim_backups(folder)
     return {"ok": True, "at": stamp, "name": name}
 
 
