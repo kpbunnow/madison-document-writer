@@ -566,6 +566,34 @@ function reportCoverageRowsHTML(services, x, M, unlocated, li, why) {
   );
 }
 
+function reportOutlineCoverageHTML(services, a, M) {
+  return (
+    "<li><b>District outlines:</b> " +
+    "".concat(
+      a.districts
+        ? M.distField
+          ? "loaded" +
+            (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
+            "; the district number is read from the " +
+            services.esc(M.distField) +
+            " field"
+          : "loaded, but no field reads as a district number, so districts are not shaded"
+        : "not available",
+    ) +
+    ".\n        <b>ZIP outlines:</b> " +
+    "".concat(
+      a.zips
+        ? M.zipField
+          ? "loaded; used for cases whose ZIP was not imported from Accela"
+          : "loaded, but no field reads as a ZIP code"
+        : "not provided (optional)",
+    ) +
+    ".\n        " +
+    `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${services.esc(n)}</div>`).join("")}` +
+    "</li>"
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1234,29 +1262,9 @@ export function createReportsScreens(services) {
       'Reports afterward.</p><details id="report-proof"><summary>Record proof a' +
       'nd excluded files</summary>\n    <ul class="defs">\n      ' +
       reportCoverageRowsHTML(services, x, M, unlocated, li, why) +
-      "<li><b>District outlines:</b> " +
-      "".concat(
-        a.districts
-          ? M.distField
-            ? "loaded" +
-              (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
-              "; the district number is read from the " +
-              services.esc(M.distField) +
-              " field"
-            : "loaded, but no field reads as a district number, so districts are not shaded"
-          : "not available",
-      ) +
-      ".\n        <b>ZIP outlines:</b> " +
-      "".concat(
-        a.zips
-          ? M.zipField
-            ? "loaded; used for cases whose ZIP was not imported from Accela"
-            : "loaded, but no field reads as a ZIP code"
-          : "not provided (optional)",
-      ) +
-      ".\n        " +
-      `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${services.esc(n)}</div>`).join("")}` +
-      '</li>\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
+      "" +
+      reportOutlineCoverageHTML(services, a, M) +
+      '\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
       'anel-b"><details id="report-definitions"><summary>Data definitions</summ' +
       'ary><ul class="defs">\n    ' +
       `${services.DEFINITIONS.map((d) => `<li><b>${services.esc(d[0])}.</b> ${services.esc(d[1])}</li>`).join("")}` +
