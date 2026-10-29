@@ -1490,3 +1490,39 @@ Added a frozen-original comparison of `filePdf` before changing it (`audit_pdf_f
 `filePdf` now runs module-level phases in the original order: fileable job, filing operation, request, and filed-record handling. Five deliberate mutations (an inverted hash match, a changed toast field, an outbox count, a dropped location refresh and an unbalanced busy counter) are caught.
 
 Measured counts: {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13} → {'complexity': 18, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.
+## import-report-owner
+
+Added a frozen-original comparison of the Accela report reading before moving it (`audit_import_report_rules.js`: over 13,000 seeded comparisons against the retained whole module `accela_import_reference.txt`). It covers the report columns and constants, the type/status rules, every value reader, report-table parsing, workbook zip and XML reading (including damaged, truncated, forged and oversized files), the direct-lookup report builder, import-rule application and the lookup card and cancel effects, and fails if the generator stops reaching an outcome family.
+
+The pure report reading (columns, type and status rules, XLSX reading and table parsing) now lives in `accela_report.js`, with `accUnzip` split into directory, header and content phases and `accelaTable` into header, case, row and ordering phases. The factory's pure helpers (candidate filtering, rule application, the lookup card, cancel and the direct-lookup report builder) moved to module level, so `createAccelaImport` shrank from 1,309 to about 800 lines while its public surface is unchanged. Deliberate mutations at exact size boundaries and in case grouping are caught.
+
+Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 81, 'python': 13}.
+
+## import-panel-phases
+
+Added a frozen-original comparison of the import review panel before changing it (`audit_import_panel_rules.js`: 6,000 seeded reports, cases, drafts and lookup states against the retained `accela_import_reference.txt`, 213 with injected interruptions). It compares exact markup, every peer read and call in order, untouched state and refusal at each interrupted read.
+
+`accelaPanel` (complexity 35, 221 lines) now assembles module-level section builders (errors, case chooser, inspection summary, choices, unavailable list, continuity, manual date, blockers, case changes, source details) in the original evaluation order. Five deliberate mutations (a changed selected test, a dropped unissued-visit read, an inverted primary button, swapped section order and a changed disabled test) are caught.
+
+## import-acceptance-and-lookup-phases
+
+Added frozen-original comparisons of import acceptance (`audit_import_accept_rules.js`, 8,000 scenarios) and the direct case lookup (`audit_import_lookup_rules.js`, 6,000 scenarios with stale-result triggers, scripted fetch and timers). They compare created or updated cases, documents and worksheets, every peer call in order with the state it sees, failure messages, busy and controller cleanup, the arming of the lookup authorization and refusal at each interrupted call.
+
+`baseLookupAccept` is now a guard plus module-level phases (case values, case upsert, refresh, snow citation, reinspection, notice) and `findDatabaseCase` a short sequence over begin, request, shared check, open and end phases. Deliberate mutations are caught; the survivors (an unreachable null-rule branch and an unreachable final fall-through) are behavior-equivalent because the plan always yields a next step and only importable rows are selectable.
+
+The factory-size ratchet planned for C5 is already provided by the per-function line ratchet: factories above 80 lines have their own baseline entries and cannot grow. `createAccelaImport` fell from 1,309 to 428 lines.
+
+Measured counts for the import group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13}.
+## new-document-phases
+
+Added a frozen-original comparison of the scoped new-document authoring before changing it (`audit_new_document_rules.js`: 16,000 seeded documents of every special type and authoring version against the retained `new_documents_reference.txt`, 405 with injected interruptions). It covers the printed narrative, the details form, the lifecycle checks and the readiness checks: every peer read and call in order, document mutation and refusal at each interrupted read or call, and it fails if the generator stops reaching a message family.
+
+`specialBody` (complexity 40, 206 lines) is now an ordered dispatch over per-family paragraph builders plus item-reference and closing paragraphs; `details` (35, 199 lines) is a shell over lead, abatement, No Occupancy, extension, supplemental and review sections with shared form-field helpers; `specialLifecycle` (29) is source, visit and head fault phases, with eligibility moved to module level. The pure text helpers moved out of the factory, which fell from 1,089 to 619 lines. Deliberate mutations (a disabled family, reordered phases, a changed item test, dropped helper arguments) are caught; the surviving word-count mutation is behavior-equivalent.
+
+## new-document-click-actions
+
+Added a frozen-original comparison of the scoped action click handler (`audit_new_document_click_rules.js`: 8,000 seeded events against the retained `new_documents_reference.txt`, 323 with injected interruptions) covering attribute priority, each action's draft, worksheet and case effects, every peer read and call in order, and refusal at each interrupted call.
+
+`clickEvent` (complexity 25) is now one closest-target lookup over an ordered table of action handlers. Five deliberate mutations (a reordered pair, swapped steps, a changed guard, a changed fall-through and a changed id prefix) are caught.
+
+Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}; `initNewDocuments` fell from 1,089 to about 565 lines.
