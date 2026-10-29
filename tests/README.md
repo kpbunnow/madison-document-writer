@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_deposit_completion_rules.js` | 3,036 retained-policy completion comparisons, mutations and service failures |
 | `audit_citation_charges_parity.js` | Existing charge/correction/amount assertions unchanged through retained public-owner parity |
 | `audit_shared_case_storage_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
 | `audit_case_save_workflow_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
