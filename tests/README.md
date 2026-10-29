@@ -17,6 +17,10 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_writer_followup_templates.js` | Compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects. |
+| `audit_writer_frame_templates.js` | Compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments. |
+| `audit_writer_details_templates.js` | Compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls. |
+| `audit_writer_overlay_templates.js` | Compares 3,072 complete overlays, live state and ordered adapter failures against the retained owner, including recipients, send, removal, storage, folder, final/correction and delegated modal priority. |
 | `audit_document_action_templates.js` | 1,536 retained case/action/service comparisons with branch non-vacuity guards |
 | `audit_report_presentation_templates.js` | 2,048 retained shared-presentation comparisons and defensive attribute encoding |
 | `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
@@ -421,12 +425,5 @@ code; each scenario label starts with the former name. Release reviews cite them
 | `audit_r61_development.js` | `audit_feature_corrections.js`, `audit_feature_history_referrals.js` (history rendering; compliance generation), `audit_feature_language_catalog.js`, `audit_feature_extensions.js`, `audit_feature_citation_packets.js`, `audit_feature_editor_screens.js` | seven |
 | `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; corrective-detail dialog), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
 
-`audit_writer_followup_templates.js` compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects.
 
 `audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.
-
-`audit_writer_frame_templates.js` compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments.
-
-`audit_writer_details_templates.js` compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls.
-
-`audit_writer_overlay_templates.js` compares 3,072 complete overlays, live state and ordered adapter failures against the retained owner, including recipients, send, removal, storage, folder, final/correction and delegated modal priority.

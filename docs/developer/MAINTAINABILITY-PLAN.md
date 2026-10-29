@@ -1394,3 +1394,7 @@ Convert special-document screen forms to the existing escaping tag, preserving f
 ## writer-overlay-templates
 
 Convert recipient/send, workspace removal, storage/folder and final/correction overlays to the existing screen tag. Preserve every supported HTML byte, attribute/field name, native capability/refusal, live state read and service/callback order. Remove redundant empty-string concat only where AST review proves the argument already returns a string. All 3,072 retained/current full-overlay comparisons pass, with non-vacuous coverage of each modal route, partial failures, unsafe values, empty/large lists, correction facts and helper/native modes. Existing usability phase1/2, all18 recipient workflow assertions, screen dependencies and strict boundaries/architecture pass unchanged. No interface, print, CSS, release or persisted-format changes.
+
+## writer-test-index-correction
+
+The #314 full gate and local repository contract exposed missing mandatory test-index table rows for newly added Writer suites: prose descriptions did not meet the existing repository check. Move all four new suite descriptions into the Maintainability table without changing the test or any assertions. All six repository checks then pass. Earlier failed constituent heads remain failed; only the final corrected integration head can supply delivery evidence.
