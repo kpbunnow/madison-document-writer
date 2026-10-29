@@ -6,6 +6,77 @@ import { doc, reinsp, originalNotice, recordHead, recordNow, isReferredCase, doc
 import { isEffective, specialType } from "./document_rules.js";
 import { validISO } from "./calendar.js";
 
+/* Lifecycle check phases. Each returns its faults in the order the single check produced them. */
+function recordFaults(d, src, current) {
+  const faults = [],
+    first = originalNotice(d.caseId),
+    baseline = d.expectedHead;
+  if (Array.isArray(baseline) && stableJSON(baseline) !== stableJSON(recordHead(d.caseId)))
+    faults.push("The case record changed after this draft began. Reopen the current case and review the draft before issuing.");
+  if (d.type === "notice" && first) faults.push("A case can have only one original notice. Use its correction history.");
+  if (d.type !== "notice" && (!src || !isEffective(src) || !current || current.id !== src.id))
+    faults.push("The follow-up must use the current issued document.");
+  return faults;
+}
+
+function followUpFaults(d, src, r) {
+  const faults = [];
+  if (src && (src.type === "compliance" || src.items.every((i) => i.withdrawn)))
+    faults.push("This case is completed; start a new case for new observations.");
+  if (d.type !== "notice" && !r && !(d.type === "citation" && src && src.type === "notice"))
+    faults.push("This follow-up needs its recorded inspection.");
+  return faults;
+}
+
+function visitFaults(services, d, r) {
+  if (!r) return [];
+  const faults = [...services.worksheetFaults(r, d.type)];
+  if (r.sourceDocId !== d.fromDocId) faults.push("The document and inspection have different source documents.");
+  if (d.inspDate !== r.date || (d.inspTime || "") !== (r.time || "")) faults.push("Review the inspection: its date/time differs from this document.");
+  return faults;
+}
+
+function itemFaults(d, src) {
+  const faults = [];
+  if (src && stableJSON(src.items.map((i) => String(i.no))) !== stableJSON(d.items.map((i) => String(i.no))))
+    faults.push("Every issued item must retain its number and order through the follow-up.");
+  return faults;
+}
+
+function referralFaults(d) {
+  const faults = [];
+  if (d.type !== "notice" && REFERRED_ONLY.indexOf(d.type) < 0 && isReferredCase(d.caseId))
+    faults.push("A referred case permits only referral updates or compliance.");
+  if (d.type === "referralUpdate" && !isReferredCase(d.caseId)) faults.push("Issue the initial referral before a referral update.");
+  return faults;
+}
+
+function citationFaults(services, d) {
+  if (d.type !== "citation") return [];
+  const faults = [],
+    numbers = d.items
+      .filter((i) => i.cite && !i.withdrawn)
+      .map((i) => ((d.cits || {})[i.id] || {}).num)
+      .filter(Boolean);
+  if (
+    new Set(numbers).size !== numbers.length ||
+    docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
+  )
+    faults.push("Each new citation needs a unique citation number. Corrections retain their existing number.");
+  d.items
+    .filter((i) => i.cite && !i.withdrawn)
+    .forEach((i) => {
+      const c = d.cits[i.id] || {};
+      if (!validISO(c.issued) || c.issued < inspAt(d).date || c.issued > recordDay(services.today))
+        faults.push("Citation issue dates must be between the inspection and today.");
+    });
+  return faults;
+}
+
+function mailingFaults(d) {
+  return validISO(d.mailed) && (d.mailed < inspAt(d).date || d.mailed > mailingMaxDay(d.type)) ? [mailingDateMessage(d.type)] : [];
+}
+
 // Preparation consumes current facts; it does not confirm, persist or file an issuance.
 export function createPublicationPreparation(services) {
   function lifecycleChecks(d) {
@@ -13,51 +84,17 @@ export function createPublicationPreparation(services) {
     if (!d || !d.draft || d.correction) return [];
     if (services.snow.is(d)) return services.snow.lifecycle(d);
     if (specialType(d.type)) return services.newDocuments.specialLifecycle(d);
-    const faults = [],
-      src = d.fromDocId ? doc(d.fromDocId) : null,
+    const src = d.fromDocId ? doc(d.fromDocId) : null,
       r = d.fromReinspId ? reinsp(d.fromReinspId) : null;
-    const first = originalNotice(d.caseId),
-      current = services.sourceDocFor(d.caseId),
-      baseline = d.expectedHead;
-    if (Array.isArray(baseline) && stableJSON(baseline) !== stableJSON(recordHead(d.caseId)))
-      faults.push("The case record changed after this draft began. Reopen the current case and review the draft before issuing.");
-    if (d.type === "notice" && first) faults.push("A case can have only one original notice. Use its correction history.");
-    if (d.type !== "notice" && (!src || !isEffective(src) || !current || current.id !== src.id))
-      faults.push("The follow-up must use the current issued document.");
-    if (src && (src.type === "compliance" || src.items.every((i) => i.withdrawn)))
-      faults.push("This case is completed; start a new case for new observations.");
-    if (d.type !== "notice" && !r && !(d.type === "citation" && src && src.type === "notice"))
-      faults.push("This follow-up needs its recorded inspection.");
-    if (r) {
-      faults.push(...services.worksheetFaults(r, d.type));
-      if (r.sourceDocId !== d.fromDocId) faults.push("The document and inspection have different source documents.");
-      if (d.inspDate !== r.date || (d.inspTime || "") !== (r.time || ""))
-        faults.push("Review the inspection: its date/time differs from this document.");
-    }
-    if (src && stableJSON(src.items.map((i) => String(i.no))) !== stableJSON(d.items.map((i) => String(i.no))))
-      faults.push("Every issued item must retain its number and order through the follow-up.");
-    if (d.type !== "notice" && REFERRED_ONLY.indexOf(d.type) < 0 && isReferredCase(d.caseId))
-      faults.push("A referred case permits only referral updates or compliance.");
-    if (d.type === "referralUpdate" && !isReferredCase(d.caseId)) faults.push("Issue the initial referral before a referral update.");
-    if (d.type === "citation") {
-      const numbers = d.items
-        .filter((i) => i.cite && !i.withdrawn)
-        .map((i) => ((d.cits || {})[i.id] || {}).num)
-        .filter(Boolean);
-      if (
-        new Set(numbers).size !== numbers.length ||
-        docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
-      )
-        faults.push("Each new citation needs a unique citation number. Corrections retain their existing number.");
-      d.items
-        .filter((i) => i.cite && !i.withdrawn)
-        .forEach((i) => {
-          const c = d.cits[i.id] || {};
-          if (!validISO(c.issued) || c.issued < inspAt(d).date || c.issued > recordDay(services.today))
-            faults.push("Citation issue dates must be between the inspection and today.");
-        });
-    }
-    if (validISO(d.mailed) && (d.mailed < inspAt(d).date || d.mailed > mailingMaxDay(d.type))) faults.push(mailingDateMessage(d.type));
+    const faults = [
+      ...recordFaults(d, src, services.sourceDocFor(d.caseId)),
+      ...followUpFaults(d, src, r),
+      ...visitFaults(services, d, r),
+      ...itemFaults(d, src),
+      ...referralFaults(d),
+      ...citationFaults(services, d),
+      ...mailingFaults(d),
+    ];
     return [...new Set(faults)].map((t) => ({ ok: false, t }));
   }
 

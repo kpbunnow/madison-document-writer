@@ -6,6 +6,62 @@ import { docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { project } from "./case_records.js";
 
+/* Original PDF filing phases. Each takes the owner's `services` and runs in the order the single filing used to. */
+function fileableJob(services, d, job) {
+  if (!d) return null;
+  if (!startup.HELPER || !startup.HELPER.chrome) return null;
+  // named jb: the JSON reply inside the try block is already called j
+  const jb = job && job.docId === d.id ? job : services.printJob(d);
+  return !jb || !jb.html ? null : jb;
+}
+
+async function filingOperation(services, d) {
+  const snapshot = eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === d.id)?.payload.snapshot;
+  if (!snapshot) throw new Error("Save the issued document before filing its PDF.");
+  return {
+    caseId: snapshot.caseId || d.caseId,
+    caseNumber: snapshot.frozen?.case?.number || kase(d.caseId).number,
+    docId: d.id,
+    version: await services.recordIntegrity.sourceHash(snapshot),
+  };
+}
+
+async function postPdf(services, jb, operation) {
+  const r = await services.authFetch("/save-pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename: jb.name, html: jb.html, operation }),
+  });
+  return r.json();
+}
+
+// A filed copy becomes a record event once per document hash, and only for a live issued document.
+async function recordFiled(services, d, j) {
+  if (j.local) {
+    startup.HELPER.outbox = (startup.HELPER.outbox || 0) + 1;
+    services.toast("PDF filing needed. Original saved in the local outbox. Open Saved work & connection to transfer it.");
+  } else services.toast("Filed " + j.name);
+  if (
+    !d.draft &&
+    !d.void &&
+    !d.superseded &&
+    !eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
+  ) {
+    services.appendEvent(d.caseId, "document.filed", {
+      docId: d.id,
+      reference: j.path || j.name,
+      filename: j.name,
+      sha256: j.sha256 || "",
+      local: !!j.local,
+    });
+    project();
+  }
+  if (!d.draft && !d.void && !d.superseded) {
+    await services.saveCaseFile(d.caseId);
+    await services.refreshArtifactLocations();
+  }
+}
+
 export function createDocumentDelivery(services) {
   async function checkHelper() {
     try {
@@ -178,52 +234,15 @@ export function createDocumentDelivery(services) {
   }
 
   async function filePdf(d, job) {
-    if (!d) return false;
-    if (!startup.HELPER || !startup.HELPER.chrome) return false;
-    // named jb: the JSON reply inside the try block is already called j
-    const jb = job && job.docId === d.id ? job : services.printJob(d);
-    if (!jb || !jb.html) return false;
-    const snapshot = eventsFor(d.caseId).find((e) => e.payload?.snapshot?.id === d.id)?.payload.snapshot;
-    if (!snapshot) throw new Error("Save the issued document before filing its PDF.");
-    const operation = {
-      caseId: snapshot.caseId || d.caseId,
-      caseNumber: snapshot.frozen?.case?.number || kase(d.caseId).number,
-      docId: d.id,
-      version: await services.recordIntegrity.sourceHash(snapshot),
-    };
+    const jb = fileableJob(services, d, job);
+    if (!jb) return false;
+    const operation = await filingOperation(services, d);
     services.toastHold("Filing " + jb.name + " — this takes a few seconds");
     editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
     try {
-      const r = await services.authFetch("/save-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: jb.name, html: jb.html, operation }),
-      });
-      const j = await r.json();
+      const j = await postPdf(services, jb, operation);
       if (j && j.ok) {
-        if (j.local) {
-          startup.HELPER.outbox = (startup.HELPER.outbox || 0) + 1;
-          services.toast("PDF filing needed. Original saved in the local outbox. Open Saved work & connection to transfer it.");
-        } else services.toast("Filed " + j.name);
-        if (
-          !d.draft &&
-          !d.void &&
-          !d.superseded &&
-          !eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
-        ) {
-          services.appendEvent(d.caseId, "document.filed", {
-            docId: d.id,
-            reference: j.path || j.name,
-            filename: j.name,
-            sha256: j.sha256 || "",
-            local: !!j.local,
-          });
-          project();
-        }
-        if (!d.draft && !d.void && !d.superseded) {
-          await services.saveCaseFile(d.caseId);
-          await services.refreshArtifactLocations();
-        }
+        await recordFiled(services, d, j);
         return true;
       }
       services.toast("Could not write the PDF — " + ((j && j.error) || "unknown reason"));
