@@ -6,6 +6,284 @@ import { orderedRows, validSort, reportNavigation, reportActions as compactActio
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
 
+function reportExportCaseRows(services, cases) {
+  return [
+    [
+      "Case number",
+      "Address",
+      "Parcel",
+      "ZIP",
+      "Alder district (current)",
+      "Alder district (when opened)",
+      "Building district",
+      "Inspector",
+      "Opened",
+      "Notice issued",
+      "Status",
+      "Closed",
+      "Owner",
+      "Owner mailing address",
+      "Owner key",
+      "Violations",
+      "Open violations",
+      "Citations",
+      "Referrals",
+      "Latitude",
+      "Longitude",
+    ],
+  ].concat(
+    cases.map((c) => [
+      c.number,
+      c.address,
+      c.parcel,
+      c.zip,
+      c.alderNow ? +c.alderNow : null,
+      c.alderAtOpen ? +c.alderAtOpen : null,
+      c.building ? +c.building : null,
+      c.inspector,
+      services.D(c.opened),
+      services.D(c.noticeIssued),
+      c.status,
+      services.D(c.closedOn),
+      c.owner,
+      c.ownerAddr.join(", "),
+      services.facts.ownerKeyLabel(c.ownerKey),
+      c.violations.filter((v) => !v.withdrawn).length,
+      c.violations.filter((v) => !v.done && !v.withdrawn).length,
+      c.citations.length,
+      c.referrals.length,
+      c.lat,
+      c.lon,
+    ]),
+  );
+}
+
+function reportExportViolationRows(services, cases, F, A) {
+  const vRows = [
+    [
+      "Case number",
+      "Address",
+      "Area",
+      "Item",
+      "Title",
+      "Violation type",
+      "Classified by",
+      "Sections",
+      "Opened",
+      "Due",
+      "Corrected",
+      "Corrected on",
+      "Days to compliance",
+      "Last outcome",
+      "Visits",
+      "Times cited",
+      "Inspector",
+      "Owner key",
+    ],
+  ];
+  cases.forEach((c) =>
+    c.violations
+      .filter((v) => services.facts.violOk(v, F))
+      .forEach((v) =>
+        vRows.push([
+          c.number,
+          c.address,
+          A(c),
+          services.numOr(v.no),
+          v.title,
+          v.typeLabel,
+          v.typeHow,
+          v.sections.join(", "),
+          services.D(c.opened),
+          services.D(v.due),
+          v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
+          services.D(v.doneOn),
+          c.caseType !== "snow-10.28" && v.done ? services.facts.daysBetween(c.opened, v.doneOn) : null,
+          v.lastOutcome,
+          v.visits,
+          v.cited,
+          c.inspector,
+          services.facts.ownerKeyLabel(c.ownerKey),
+        ]),
+      ),
+  );
+  return vRows;
+}
+
+function reportExportVisitRows(services, cases, A) {
+  const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
+  cases.forEach((c) =>
+    c.visits.forEach((vi) =>
+      (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), services.D(vi.date), vi.inspector, services.numOr(r.no), r.oc])),
+    ),
+  );
+  return visitRows;
+}
+
+function reportExportCitationRows(services, M, F, A) {
+  const citRows = [
+    [
+      "Citation number",
+      "Case number",
+      "Address",
+      "Area",
+      "Item",
+      "Ordinance",
+      "Description",
+      "Issued",
+      "Court date",
+      "Cash deposit",
+      "Tier",
+      "Issued by",
+      "Case workflow",
+      "Override administrator",
+      "Override reason",
+      "Override source",
+      "Override authorized (UTC)",
+    ],
+  ];
+  M.counted
+    .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
+    .forEach((c) =>
+      c.citations.forEach((x) => {
+        if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
+        citRows.push([
+          x.num,
+          c.number,
+          c.address,
+          A(c),
+          services.numOr(x.no),
+          x.ordinance,
+          x.desc,
+          services.D(x.issued),
+          services.D(x.courtDate),
+          x.amount == null ? null : { m: x.amount },
+          x.tier,
+          x.by,
+          c.caseType || "",
+          x.overrideBasis?.administrator || "",
+          x.overrideBasis?.reason || "",
+          x.overrideBasis?.sourceReference || "",
+          x.overrideBasis?.approvedAt || "",
+        ]);
+      }),
+    );
+  return citRows;
+}
+
+function reportExportReferralRows(services, M, F, A) {
+  const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
+  M.counted
+    .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
+    .forEach((c) =>
+      c.referrals.forEach((r) => {
+        if (!services.facts.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
+        refRows.push([
+          c.number,
+          c.address,
+          A(c),
+          services.D(r.issued),
+          r.by,
+          r.owner,
+          (r.ownerAddr || []).join(", "),
+          services.facts.ownerKeyLabel(r.ownerKey),
+        ]);
+      }),
+    );
+  return refRows;
+}
+
+function reportExportAboutRows(services, M, F, cases, filterSummary) {
+  return [
+    ["Building Inspection reports"],
+    [],
+    ["Exported", services.iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
+    ["Build", BUILD],
+    ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
+    ["Period", services.fmtDate(F.from) + " to " + services.fmtDate(F.to) + " (each sheet's date is listed under Sheet scope)"],
+    ["As of (open-case reports)", services.fmtDate(F.asOf)],
+    [
+      "Area",
+      F.areaType === "zip" ? "ZIP code" : "Alder district, " + (F.boundary === "atOpen" ? "as it read when each case opened" : "current boundaries"),
+    ],
+    ["Filters", filterSummary().replace(/^\. Filtered to /, "") || "none"],
+    ["Cases in the period", cases.length],
+    ["Case files without a summary", ReportsState.S.raw.missing.length],
+    ["Stale summaries", ReportsState.S.raw.stale.length + M.versionStale.length],
+    ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
+    ["Cases not located", M.counted.filter((c) => !c.located).length],
+    [],
+    // Describes the selections below exactly; it does not change them.
+    ["Sheet scope"],
+  ]
+    .concat(services.exports.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
+    .concat(
+      [[], ["Definitions"]],
+      services.DEFINITIONS.map((d) => [d[0], d[1]]),
+    );
+}
+
+function reportExportCorrectionRows(services, M, F) {
+  const correctionRows = [
+    ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
+  ];
+  M.cases
+    .filter((c) => services.facts.caseOk(c, F))
+    .forEach((c) =>
+      (c.summary.corrections || [])
+        .filter((r) => services.facts.inPeriod(recordDay(r.at), F))
+        .forEach((r) =>
+          (r.changes || []).forEach((x) =>
+            correctionRows.push([
+              c.number,
+              r.at,
+              r.by,
+              r.docId,
+              r.replaces,
+              r.reason,
+              x.label,
+              services.humanCorrectionValue(x.before),
+              services.humanCorrectionValue(x.after),
+            ]),
+          ),
+        ),
+    );
+  return correctionRows;
+}
+
+function appendNumberedReportSheets(services, M, F, sheets) {
+  const conv = (x) =>
+    x == null
+      ? null
+      : typeof x === "string"
+        ? x
+        : x.kase
+          ? x.kase
+          : x.owner !== undefined
+            ? x.text || ""
+            : x.n == null || isNaN(x.n)
+              ? null
+              : x.fmt === "money"
+                ? { m: x.n }
+                : x.fmt === "days"
+                  ? { f: x.n }
+                  : x.n;
+  services.REPORTS.forEach((r) => {
+    const res = r.run(M, F);
+    sheets.push({
+      name: r.n + " " + r.label,
+      opt: { header: true },
+      rows: [res.cols].concat(
+        orderedRows(res, validSort(ReportsState.S.tableSort, r.id), (message) => {
+          ReportsState.S.reportNotice = message;
+          services.A11Y.notify(message);
+        }).map(({ row }) => (row.cells || row).map(conv)),
+        res.total ? [res.total.map(conv)] : [],
+      ),
+    });
+  });
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1063,227 +1341,13 @@ export function createReportsScreens(services) {
       F = ReportsState.S.F;
     const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
     const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
-    const casesRows = [
-      [
-        "Case number",
-        "Address",
-        "Parcel",
-        "ZIP",
-        "Alder district (current)",
-        "Alder district (when opened)",
-        "Building district",
-        "Inspector",
-        "Opened",
-        "Notice issued",
-        "Status",
-        "Closed",
-        "Owner",
-        "Owner mailing address",
-        "Owner key",
-        "Violations",
-        "Open violations",
-        "Citations",
-        "Referrals",
-        "Latitude",
-        "Longitude",
-      ],
-    ].concat(
-      cases.map((c) => [
-        c.number,
-        c.address,
-        c.parcel,
-        c.zip,
-        c.alderNow ? +c.alderNow : null,
-        c.alderAtOpen ? +c.alderAtOpen : null,
-        c.building ? +c.building : null,
-        c.inspector,
-        services.D(c.opened),
-        services.D(c.noticeIssued),
-        c.status,
-        services.D(c.closedOn),
-        c.owner,
-        c.ownerAddr.join(", "),
-        services.facts.ownerKeyLabel(c.ownerKey),
-        c.violations.filter((v) => !v.withdrawn).length,
-        c.violations.filter((v) => !v.done && !v.withdrawn).length,
-        c.citations.length,
-        c.referrals.length,
-        c.lat,
-        c.lon,
-      ]),
-    );
-    const vRows = [
-      [
-        "Case number",
-        "Address",
-        "Area",
-        "Item",
-        "Title",
-        "Violation type",
-        "Classified by",
-        "Sections",
-        "Opened",
-        "Due",
-        "Corrected",
-        "Corrected on",
-        "Days to compliance",
-        "Last outcome",
-        "Visits",
-        "Times cited",
-        "Inspector",
-        "Owner key",
-      ],
-    ];
-    cases.forEach((c) =>
-      c.violations
-        .filter((v) => services.facts.violOk(v, F))
-        .forEach((v) =>
-          vRows.push([
-            c.number,
-            c.address,
-            A(c),
-            services.numOr(v.no),
-            v.title,
-            v.typeLabel,
-            v.typeHow,
-            v.sections.join(", "),
-            services.D(c.opened),
-            services.D(v.due),
-            v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
-            services.D(v.doneOn),
-            c.caseType !== "snow-10.28" && v.done ? services.facts.daysBetween(c.opened, v.doneOn) : null,
-            v.lastOutcome,
-            v.visits,
-            v.cited,
-            c.inspector,
-            services.facts.ownerKeyLabel(c.ownerKey),
-          ]),
-        ),
-    );
-    const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
-    cases.forEach((c) =>
-      c.visits.forEach((vi) =>
-        (vi.results || []).forEach((r) => visitRows.push([c.number, c.address, A(c), services.D(vi.date), vi.inspector, services.numOr(r.no), r.oc])),
-      ),
-    );
-    const citRows = [
-      [
-        "Citation number",
-        "Case number",
-        "Address",
-        "Area",
-        "Item",
-        "Ordinance",
-        "Description",
-        "Issued",
-        "Court date",
-        "Cash deposit",
-        "Tier",
-        "Issued by",
-        "Case workflow",
-        "Override administrator",
-        "Override reason",
-        "Override source",
-        "Override authorized (UTC)",
-      ],
-    ];
-    M.counted
-      .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
-      .forEach((c) =>
-        c.citations.forEach((x) => {
-          if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
-          citRows.push([
-            x.num,
-            c.number,
-            c.address,
-            A(c),
-            services.numOr(x.no),
-            x.ordinance,
-            x.desc,
-            services.D(x.issued),
-            services.D(x.courtDate),
-            x.amount == null ? null : { m: x.amount },
-            x.tier,
-            x.by,
-            c.caseType || "",
-            x.overrideBasis?.administrator || "",
-            x.overrideBasis?.reason || "",
-            x.overrideBasis?.sourceReference || "",
-            x.overrideBasis?.approvedAt || "",
-          ]);
-        }),
-      );
-    const refRows = [["Case number", "Address", "Area", "Referred", "Referred by", "Owner", "Owner mailing address", "Owner key"]];
-    M.counted
-      .filter((c) => services.facts.caseOk(c, F, { noInspector: true }))
-      .forEach((c) =>
-        c.referrals.forEach((r) => {
-          if (!services.facts.inPeriod(r.issued, F) || (F.inspector && r.by !== F.inspector)) return;
-          refRows.push([
-            c.number,
-            c.address,
-            A(c),
-            services.D(r.issued),
-            r.by,
-            r.owner,
-            (r.ownerAddr || []).join(", "),
-            services.facts.ownerKeyLabel(r.ownerKey),
-          ]);
-        }),
-      );
-    const about = [
-      ["Building Inspection reports"],
-      [],
-      ["Exported", services.iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
-      ["Build", BUILD],
-      ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
-      ["Period", services.fmtDate(F.from) + " to " + services.fmtDate(F.to) + " (each sheet's date is listed under Sheet scope)"],
-      ["As of (open-case reports)", services.fmtDate(F.asOf)],
-      [
-        "Area",
-        F.areaType === "zip"
-          ? "ZIP code"
-          : "Alder district, " + (F.boundary === "atOpen" ? "as it read when each case opened" : "current boundaries"),
-      ],
-      ["Filters", filterSummary().replace(/^\. Filtered to /, "") || "none"],
-      ["Cases in the period", cases.length],
-      ["Case files without a summary", ReportsState.S.raw.missing.length],
-      ["Stale summaries", ReportsState.S.raw.stale.length + M.versionStale.length],
-      ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
-      ["Cases not located", M.counted.filter((c) => !c.located).length],
-      [],
-      // Describes the selections below exactly; it does not change them.
-      ["Sheet scope"],
-    ]
-      .concat(services.exports.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
-      .concat(
-        [[], ["Definitions"]],
-        services.DEFINITIONS.map((d) => [d[0], d[1]]),
-      );
-    const correctionRows = [
-      ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
-    ];
-    M.cases
-      .filter((c) => services.facts.caseOk(c, F))
-      .forEach((c) =>
-        (c.summary.corrections || [])
-          .filter((r) => services.facts.inPeriod(recordDay(r.at), F))
-          .forEach((r) =>
-            (r.changes || []).forEach((x) =>
-              correctionRows.push([
-                c.number,
-                r.at,
-                r.by,
-                r.docId,
-                r.replaces,
-                r.reason,
-                x.label,
-                services.humanCorrectionValue(x.before),
-                services.humanCorrectionValue(x.after),
-              ]),
-            ),
-          ),
-      );
+    const casesRows = reportExportCaseRows(services, cases);
+    const vRows = reportExportViolationRows(services, cases, F, A);
+    const visitRows = reportExportVisitRows(services, cases, A);
+    const citRows = reportExportCitationRows(services, M, F, A);
+    const refRows = reportExportReferralRows(services, M, F, A);
+    const about = reportExportAboutRows(services, M, F, cases, filterSummary);
+    const correctionRows = reportExportCorrectionRows(services, M, F);
     const sheets = [
       {
         name: "About",
@@ -1297,36 +1361,7 @@ export function createReportsScreens(services) {
       { name: "Referrals", rows: refRows, opt: { header: true } },
       { name: "Corrections", rows: correctionRows, opt: { header: true } },
     ];
-    const conv = (x) =>
-      x == null
-        ? null
-        : typeof x === "string"
-          ? x
-          : x.kase
-            ? x.kase
-            : x.owner !== undefined
-              ? x.text || ""
-              : x.n == null || isNaN(x.n)
-                ? null
-                : x.fmt === "money"
-                  ? { m: x.n }
-                  : x.fmt === "days"
-                    ? { f: x.n }
-                    : x.n;
-    services.REPORTS.forEach((r) => {
-      const res = r.run(M, F);
-      sheets.push({
-        name: r.n + " " + r.label,
-        opt: { header: true },
-        rows: [res.cols].concat(
-          orderedRows(res, validSort(ReportsState.S.tableSort, r.id), (message) => {
-            ReportsState.S.reportNotice = message;
-            services.A11Y.notify(message);
-          }).map(({ row }) => (row.cells || row).map(conv)),
-          res.total ? [res.total.map(conv)] : [],
-        ),
-      });
-    });
+    appendNumberedReportSheets(services, M, F, sheets);
     return sheets;
   }
 
