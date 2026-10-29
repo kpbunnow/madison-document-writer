@@ -6,6 +6,34 @@ import { workspaceState } from "./workspace_state.js";
 import { caseStoreRequest } from "./contracts.js";
 // Folder/helper write access; validation, revision and projection authority remain supplied.
 
+function applyCommittedCase(services, file, result) {
+  const current = workspaceState.CASES.find((k) => k.number === result.file.case.number);
+  if (current) {
+    const saved = caseDetails(result.file.case),
+      submitted = caseDetails(file.case);
+    new Set(Object.keys(submitted).concat(Object.keys(saved))).forEach((key) => {
+      if (key === "id") return;
+      if (stableJSON(current[key]) === stableJSON(submitted[key])) {
+        if (saved[key] === undefined) delete current[key];
+        else current[key] = clone(saved[key]);
+      }
+    });
+    services.mergeCaseEvents(current, clone(result.file));
+    services.project();
+  }
+}
+
+function recordFolderWriteFailure(name, err) {
+  const n = (err && err.name) || "";
+  const why = n === "NotAllowedError" || n === "SecurityError" ? "permission" : (err && err.message) || n || "the folder refused the write";
+  workspaceState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
+  if (why === "permission") {
+    workspaceState.NEEDGRANT = true;
+    return { ok: false, why: "permission", needGrant: true };
+  }
+  return { ok: false, why: why };
+}
+
 export function createSharedCaseStorage(services) {
   function helperFolder() {
     return {
@@ -49,20 +77,7 @@ export function createSharedCaseStorage(services) {
         );
         if (result.file.schema >= 5) await services.recordIntegrity.verify(result.file, result.integrity);
         services.COMMITTED.set(summaryName(result.file.case), result);
-        const current = workspaceState.CASES.find((k) => k.number === result.file.case.number);
-        if (current) {
-          const saved = caseDetails(result.file.case),
-            submitted = caseDetails(file.case);
-          new Set(Object.keys(submitted).concat(Object.keys(saved))).forEach((key) => {
-            if (key === "id") return;
-            if (stableJSON(current[key]) === stableJSON(submitted[key])) {
-              if (saved[key] === undefined) delete current[key];
-              else current[key] = clone(saved[key]);
-            }
-          });
-          services.mergeCaseEvents(current, clone(result.file));
-          services.project();
-        }
+        applyCommittedCase(services, file, result);
         workspaceState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
         return { ok: true, file: result.file, name: result.name };
       } catch (error) {
@@ -85,14 +100,7 @@ export function createSharedCaseStorage(services) {
       workspaceState.LASTWRITE = { name: name, ok: true, why: "", at: nowISO(), bytes: body.length };
       return { ok: true };
     } catch (err) {
-      const n = (err && err.name) || "";
-      const why = n === "NotAllowedError" || n === "SecurityError" ? "permission" : (err && err.message) || n || "the folder refused the write";
-      workspaceState.LASTWRITE = { name: name, ok: false, why: (n ? n + ": " : "") + why, at: nowISO() };
-      if (why === "permission") {
-        workspaceState.NEEDGRANT = true;
-        return { ok: false, why: "permission", needGrant: true };
-      }
-      return { ok: false, why: why };
+      return recordFolderWriteFailure(name, err);
     }
   }
 
