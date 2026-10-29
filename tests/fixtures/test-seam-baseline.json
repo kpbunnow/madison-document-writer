@@ -6,8 +6,8 @@
   },
   "tests/fixtures/mk_summaries.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "citation pricing: citAmount"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, startReinspection, summarize)"
   },
   "tests/fixtures/tagcheck.js": {
     "count": 1,
@@ -21,8 +21,8 @@
   },
   "tests/unit/audit_authoring.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "citation pricing: citAmount"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (applyDeposit, citationFaces, editCitation, issueDocument)"
   },
   "tests/unit/audit_corrections.js": {
     "count": 1,
@@ -61,13 +61,13 @@
   },
   "tests/unit/audit_feature_extensions.js": {
     "count": 2,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, scheduleDraftSave, startCorrection)"
   },
   "tests/unit/audit_feature_history_referrals.js": {
     "count": 6,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML, referralHistoryHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (makePublication, scheduleDraftSave)"
   },
   "tests/unit/audit_feature_worksheet_dates.js": {
     "count": 1,
@@ -91,8 +91,8 @@
   },
   "tests/unit/audit_lifecycle.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "Accela time reading: accTime"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (accTime, citationFaces, issueDocument, newDoc)"
   },
   "tests/unit/audit_lookup.js": {
     "count": 1,
@@ -101,8 +101,8 @@
   },
   "tests/unit/audit_order_improvements.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, scheduleDraftSave)"
   },
   "tests/unit/audit_perm.js": {
     "count": 1,
@@ -111,23 +111,23 @@
   },
   "tests/unit/audit_properties.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "citation pricing: citAmount"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (applyDeposit, editCitation)"
   },
   "tests/unit/audit_r20.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document naming: documentFileName"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (documentHTML, issueDocument, newDoc, openIssuedCopy)"
   },
   "tests/unit/audit_r21.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "recovery state: recoverySharedState"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, recoverySharedState, scheduleDraftSave)"
   },
   "tests/unit/audit_r22.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "recovery state: recoveryIncluded, persistRecoveryState"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, persistRecoveryState, recoverySharedState)"
   },
   "tests/unit/audit_r23.js": {
     "count": 1,
@@ -141,8 +141,8 @@
   },
   "tests/unit/audit_r26.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, startReinspection, summarize)"
   },
   "tests/unit/audit_r28.js": {
     "count": 1,
@@ -161,8 +161,8 @@
   },
   "tests/unit/audit_r33_snow.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, printJob, toggleLibraryItem)"
   },
   "tests/unit/audit_r34.js": {
     "count": 1,
@@ -231,18 +231,18 @@
   },
   "tests/unit/audit_r54_extensions.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (makeCorrectionAttempt, makePublication, startCorrection)"
   },
   "tests/unit/audit_r56_citation_status.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "Accela import rules: statusRule, applyImportRule"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, restoreDrafts)"
   },
   "tests/unit/audit_r59_charge_select.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "citation charge selection: changeCharge, CHARGE_DERIVED"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (changeCharge, editCitation, makePublication, newDoc)"
   },
   "tests/unit/audit_r59_editor_flow.js": {
     "count": 1,
@@ -256,18 +256,18 @@
   },
   "tests/unit/audit_r62_extensions.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, startCorrection, startReinspection)"
   },
   "tests/unit/audit_recipient_flow.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (citationFaces, documentHTML, newDoc, scheduleDraftSave)"
   },
   "tests/unit/audit_release.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document pagination: contHead"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (documentHTML, issueDocument, newDoc, startReinspection)"
   },
   "tests/unit/audit_resume.js": {
     "count": 1,
@@ -276,13 +276,13 @@
   },
   "tests/unit/audit_review.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "document renderer: noticeHTML, documentFileName"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc)"
   },
   "tests/unit/audit_safety.js": {
     "count": 1,
     "class": "migratable",
-    "owner": "case fields: resolvedCaseFields"
+    "owner": "shared case comparison: compareSharedCase, resolvedCaseFields"
   },
   "tests/unit/audit_snow_repaint.js": {
     "count": 1,
@@ -296,8 +296,8 @@
   },
   "tests/unit/audit_summary.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "citation pricing: citAmount"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, startCorrection, startReinspection, summarize)"
   },
   "tests/unit/audit_usability_phase1.js": {
     "count": 1,
@@ -316,8 +316,8 @@
   },
   "tests/unit/audit_valid.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "deposit schedule: deposits"
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, paginate)"
   },
   "tests/unit/audit_walkthrough.js": {
     "count": 1,
