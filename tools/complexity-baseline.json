@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 10,
+    "complexity": 9,
     "max-depth": 0,
-    "max-lines-per-function": 68,
+    "max-lines-per-function": 66,
     "python": 13
   },
   "violations": {
@@ -64,10 +64,7 @@
     "app/modules/record_history.js:createRecordHistory#1/recordHistoryHTML#1:max-lines-per-function": 97,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,
     "app/modules/record_integrity.js:verifyIntegrity#1:complexity": 26,
-    "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 241,
-    "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1:max-lines-per-function": 93,
-    "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:complexity": 23,
-    "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:max-lines-per-function": 85,
+    "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 169,
     "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 171,
     "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,

@@ -8,6 +8,76 @@ function recoveryExportName(number) {
   return "Madison-recovery-" + number + ".json";
 }
 
+function openWorkNote(services, button) {
+  const key = button.dataset.worknote,
+    cut = key.lastIndexOf(":"),
+    d = doc(key.slice(0, cut));
+  if (d && editor.WORK.recordForms[key]) {
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
+    editor.state.modal = key.slice(cut + 1);
+    services.ui.render();
+  }
+}
+
+function retryFiling(services, button) {
+  const d = doc(editor.state.docId);
+  if (d && !d.draft) {
+    button.disabled = true;
+    // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
+    let job;
+    try {
+      job = services.publication.printJob(d);
+    } catch (error) {
+      services.ui.toast(error.message);
+      services.ui.render();
+      return;
+    }
+    services.publication.filePdf(d, job).finally(() => services.ui.render());
+  }
+}
+
+function continueCitation(services) {
+  const d = doc(editor.state.docId);
+  if (services.publication.needsInitialCitation(d)) {
+    const next = services.publication.citationFromNotice(d.id);
+    if (next) {
+      editor.state.docId = next.id;
+      editor.state.screen = "write";
+      services.ui.render();
+    }
+  }
+}
+
+function exportPreviousDraft(services) {
+  const r = reinsp(editor.state.reinspId);
+  if (r && r.previousDraft)
+    services.publication.downloadFile(
+      "Previous-document-draft-" + r.id + ".json",
+      JSON.stringify({ format: "madison-draft-reference", draft: r.previousDraft, inspection: r.previousWorksheet }, null, 2),
+    );
+}
+
+/* Working-draft buttons in priority order; the first that applies handles the click. */
+const WORKING_ACTIONS = [
+  [(b) => b.id === "btn-savework", (services) => services.recovery.saveAndContinue()],
+  [(b) => b.id === "btn-workbackup" || b.hasAttribute("data-workbackup"), (services) => services.recovery.downloadWorkspace()],
+  [
+    (b) => b.id === "btn-workrestore",
+    (services) => {
+      document.getElementById("utility-dialog")?.close();
+      services.recovery.restoreWorkspaceFile();
+    },
+  ],
+  [(b) => b.dataset.worknote, openWorkNote],
+  [(b) => b.id === "btn-retryfiling", retryFiling],
+  [(b) => b.id === "btn-continuecitation", continueCitation],
+  [(b) => b.id === "btn-retrypublish", (services) => services.publication.publishDocument(doc(editor.state.docId))],
+  [(b) => b.id === "btn-editvisit", (services) => services.recovery.returnToWorksheet(doc(editor.state.docId))],
+  [(b) => b.id === "btn-previousdraft", (services) => services.recovery.restorePreviousDraft(reinsp(editor.state.reinspId))],
+  [(b) => b.id === "btn-exportprevious", exportPreviousDraft],
+];
+
 export function createRecoveryEvents(services) {
   function registerWorkingInput(target = document) {
     return registerEventOnce(
@@ -71,81 +141,8 @@ export function createRecoveryEvents(services) {
         e.preventDefault();
         e.stopImmediatePropagation();
         services.ui.captureWork();
-        if (button.id === "btn-savework") {
-          services.recovery.saveAndContinue();
-          return;
-        }
-        if (button.id === "btn-workbackup" || button.hasAttribute("data-workbackup")) {
-          services.recovery.downloadWorkspace();
-          return;
-        }
-        if (button.id === "btn-workrestore") {
-          document.getElementById("utility-dialog")?.close();
-          services.recovery.restoreWorkspaceFile();
-          return;
-        }
-        if (button.dataset.worknote) {
-          const key = button.dataset.worknote,
-            cut = key.lastIndexOf(":"),
-            d = doc(key.slice(0, cut));
-          if (d && editor.WORK.recordForms[key]) {
-            editor.state.docId = d.id;
-            editor.state.screen = "write";
-            editor.state.modal = key.slice(cut + 1);
-            services.ui.render();
-          }
-          return;
-        }
-        if (button.id === "btn-retryfiling") {
-          const d = doc(editor.state.docId);
-          if (d && !d.draft) {
-            button.disabled = true;
-            // printJob refuses synchronously (for example an incomplete citation packet); show why and re-enable.
-            let job;
-            try {
-              job = services.publication.printJob(d);
-            } catch (error) {
-              services.ui.toast(error.message);
-              services.ui.render();
-              return;
-            }
-            services.publication.filePdf(d, job).finally(() => services.ui.render());
-          }
-          return;
-        }
-        if (button.id === "btn-continuecitation") {
-          const d = doc(editor.state.docId);
-          if (services.publication.needsInitialCitation(d)) {
-            const next = services.publication.citationFromNotice(d.id);
-            if (next) {
-              editor.state.docId = next.id;
-              editor.state.screen = "write";
-              services.ui.render();
-            }
-          }
-          return;
-        }
-        if (button.id === "btn-retrypublish") {
-          services.publication.publishDocument(doc(editor.state.docId));
-          return;
-        }
-        if (button.id === "btn-editvisit") {
-          services.recovery.returnToWorksheet(doc(editor.state.docId));
-          return;
-        }
-        const r = reinsp(editor.state.reinspId);
-        if (button.id === "btn-previousdraft") {
-          services.recovery.restorePreviousDraft(r);
-          return;
-        }
-        if (button.id === "btn-exportprevious") {
-          if (r && r.previousDraft)
-            services.publication.downloadFile(
-              "Previous-document-draft-" + r.id + ".json",
-              JSON.stringify({ format: "madison-draft-reference", draft: r.previousDraft, inspection: r.previousWorksheet }, null, 2),
-            );
-          return;
-        }
+        const action = WORKING_ACTIONS.find(([applies]) => applies(button));
+        if (action) action[1](services, button);
       },
       true,
     );

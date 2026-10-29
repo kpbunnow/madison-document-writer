@@ -1532,3 +1532,7 @@ Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, '
 Added a frozen-original comparison of the safety click handler before changing it (`audit_safety_event_rules.js`: 10,000 seeded events against the retained `safety_events_reference.txt`, 644 with interruptions swallowed into failure toasts), using the new shared `tests/fixtures/equivalence_harness.cjs` (compile, seeded generator, call recorder, listener capture). It compares attribute priority, every action's peer calls in order with the state they see, and failure toasts.
 
 The handler (complexity 38) is now an ordered table of workspace buttons followed by a per-case action table with a safety-check default; the case actions, evidence panel and unfiled-PDF search are module-level functions. Mutations (a changed probe argument, swapped steps, a changed grant test, a skipped dialog close, a narrowed transfer test) are caught; one survivor, an inherited-key guard on the action table, cannot be distinguished by the harness and is kept as defensive equivalence.
+
+## recovery-action-phases
+
+Added a frozen-original comparison of the working-draft recovery click handler before changing it (`audit_recovery_event_rules.js`: 10,000 seeded events against the retained `recovery_events_reference.txt`, 1,519 with interruptions). The handler (complexity 23) is now an ordered table of button predicates with module-level handlers for notes, filing retry, citation continuation and previous-draft export. Five deliberate mutations are caught.
