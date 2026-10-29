@@ -82,3 +82,17 @@ helper_requests owns authenticated helper JSON response/error/verification coord
 workspace_shell.createWorkspaceShell owns the screen frame and private storageBar through lazy navigation/integrity/saved-work adapters. browser_printing.createBrowserPrinting owns printableHTML/printNotice; storage_status.createStorageStatus owns storageReport/reindexReport; storage_probe.createStorageProbe owns testWrite. Core constructs these after caseSummaryAdapter and before folderConnections and exports actual operations to screens/callbacks. Native/permission/helper/storage owners keep authority and original ordering; construction performs no reads, I/O or registration. The shell no longer imports core or screens; only core/screens remain cyclic.
 
 The screen factories are constructed after storageProbe and before folderConnections without reads, I/O or registration. Core exports actual operations; no screen owner imports core or peer orchestration. Writer and Reports are acyclic; audit_module_boundaries forbids every cycle. Existing repaint/startup/listener and helper/storage/publication order and authority remain.
+
+Reports filter select controls use the shared screen-only escaping tag. Already-escaped adapter text is explicitly marked as a trusted fragment to retain lazy adapter calls; fixed select IDs and selected attributes are escaped by the tag. Screen templates do not enter print or workbook XML renderers.
+
+report_catalog.createReportCatalog owns the eleven named report definitions. Construction reads no services; each run consumes twenty explicit lazy calculation inputs supplied at the original Reports initialization point. Core retains report lookup, state, startup and listener order; the catalog imports no core, UI, state or storage owner.
+
+report_facts owns thirteen existing date/number, collection and filter calculations without startup or storage. Reports core keeps its previous exported bindings and initializes TODAY at its original checkpoint. report_facts also owns the unchanged historical open-case predicate through the existing version/notice/status service inputs; the catalog test composes public owners directly and no longer extracts core function bodies.
+
+report_return.createReportReturn owns optional Writer return preferences through four lazy callbacks. It retains storage/read refusal, canonicalization, two relative-date reads and the original partial mutation/render order; core constructs it at the former definition point.
+
+The R61 ordinance regression composes public Reports model/history/catalog/return owners through a test-only scoped fixture, with rendering outside its rule assertions. All former assertions are retained. Report lookup words and area identification live in report_facts; core keeps its prior exports.
+
+report_metadata owns unchanged report definitions and workbook sheet scope with no dependencies. report_facts also owns typed date/numeric cell conversion. Core retains its original exports. The workbook-scope regression composes the real model/catalog/screen/export owners without application startup, preserving record-sheet selections and export-note assertions.
+
+Reports area labels receive a lazy filter reader; return preferences receive a lazy view-state input. Neither owner imports root state. The report-specific date formatter uses its distinct defining name on import, retaining the existing core/public aliases without claiming the Writer formatter identity.

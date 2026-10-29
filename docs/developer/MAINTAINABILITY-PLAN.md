@@ -1176,3 +1176,45 @@ Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 10
 Name stale-view, conflict-review, notice and replacement-staging decisions. Retain read/save awaits and rollback. 168 comparisons protect merge refusal, stale views, storage failure and replacement state. Pre-commit comparisons found and corrected a return-expression extraction error; no failed version was submitted. Includes the separately tested recovery correction, retaining both checkpoint records.
 
 Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15}.
+
+## report-filter-screen-templates
+
+Separate advanced filters and select controls; select/option markup uses the shared screen-only tag with explicit pre-escaped fragments preserving adapter timing. Extend existing differential operations to filter output without dropping assertions. Permit only the new screen_html dependency in the strict boundary map; cycles and peer/core isolation remain enforced. Full owner comparisons, sheet XML, Reports boundaries, module boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-catalog-owner
+
+Move eleven report definitions into focused private builders and a twenty-input inert public catalog. Scope analysis rewrites only unbound calculation references; metadata and report expressions retain their original logic. All 2,750 real-model comparisons and complete Reports integration checks pass; strict module map adds only the shared-facts import and no core/UI/storage dependency. Reports startup and listeners remain unchanged.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-facts-return-owners
+
+Move formatting/filter facts and historical openness to report_facts and return preferences to a four-input inert owner. Core retains original exports and TODAY initialization. Source-body and direct live/date checks pass; catalog tests compose public owners without extracting private core bodies. 389 return comparisons retain canonical filters, duplicate relative-date calls, optional-storage refusal and partial effects. Boundaries, seams, lint and formatting pass. No new or worsened debt.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-ordinance-owner-test
+
+Migrate the R61 ordinance suite from evaluated startup bundle to actual independently composed owners, retaining every assertion byte-for-byte. Reduce whole-bundle files79 to78, retain all54 hooks pending other consumers. Move unchanged lookup facts to the public fact owner with added source-body parity. Fix the Python shared-view inventory source path after catalog extraction; PR273 failed only because it still scanned core (0 instead of11 definitions), and all six assertions now pass against the correct defining owner. Existing expectations and trust rules unchanged. Public fact/catalog/return, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-history-binding-regression
+
+The Reports assembly stopped because esbuild assigned the imported fact helper the historical openAt diagnostic binding; retained bundle tests called it without history inputs. Rename only the internal helper binding and preserve its public export alias. The unchanged complete Reports suite now passes, as do public fact/catalog comparisons, boundaries, seams, lint and formatting. This corrects the PR275 regression before integration publication; no failed Reports source entered main.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-export-owner-tests
+
+Move unchanged report definitions/sheet scope and typed cell helpers out of startup core. Compose actual model, catalog, presentation and export owners for the workbook-scope regression; all25 assertions remain structurally identical, including expected rows and exported-note checks. Whole-bundle files78 to77; no hook retired while consumers remain. Complete Reports integration, 303 owner comparisons, 4,002 sheet comparisons, fact/metadata parity, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-scoped-owner-correction
+
+Correct failures exposed by integration PR277 without widening architecture allowances. Inject live filters into the area-label factory and live view state into return preferences; root-state importers remain11. Import the distinct report formatter by its defining name while preserving original core/public aliases. Add the omitted facts suite to the test index. Scoped architecture, Writer utilities, repository checks, source expression parity, catalog/return/R61/export-scope, complete Reports regression, boundaries, seams, lint and formatting pass. No failed Reports head has merged.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.

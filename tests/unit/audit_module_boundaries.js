@@ -482,6 +482,7 @@ const scopedServices = {
   ],
   "reports_services.js": ["./helper_stopped.js", "../assets/shared.js", "./state.js", "./helper_transport.js", "./report_presentation.js"],
   "reports_screens.js": [
+    "./screen_html.js",
     "../assets/shared.js",
     "./data/build_identity.js",
     "./state.js",
@@ -489,6 +490,10 @@ const scopedServices = {
     "./report_spreadsheet_sheet.js",
   ],
   "report_spreadsheet_sheet.js": [],
+  "report_catalog.js": ["../assets/shared.js"],
+  "report_metadata.js": [],
+  "report_return.js": ["./contracts.js"],
+  "report_facts.js": ["../assets/shared.js"],
   "reports_view_contexts.js": ["./state.js"],
   "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [

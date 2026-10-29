@@ -151,6 +151,8 @@ const assert = require("node:assert/strict"),
         return fn(...args);
       };
     const facts = {
+      uniq: effect("uniq", (a) => [...new Set(a)]),
+      areaSort: (a, b) => String(a).localeCompare(String(b)),
       caseOk: effect(
         "caseOk",
         (c, F, opt = {}) =>
@@ -168,6 +170,14 @@ const assert = require("node:assert/strict"),
     const res = { cols: ["Case", "Count"], rows: x.rows, total: x.total, note: "Scope <&>" };
     const services = {
       facts,
+      STATUSES: ["Notice", "Closed"],
+      reports_reportpresentationContext: () => ({
+        S: api.ReportsState.S,
+        esc: api.esc,
+        fmtDate: (s) => String(s),
+        areaLabel: (a) => String(a),
+        ownerKeyLabel: (a) => String(a),
+      }),
       exports: {
         CRC_T: new Uint32Array(256),
         xesc: effect("xml", api.esc),
@@ -192,7 +202,17 @@ const assert = require("node:assert/strict"),
     };
     const state = api.ReportsState;
     state.S = {
-      M: { cases: x.cases, counted: x.cases.filter((c) => !c.excluded), versionStale: [], types: [], distField: x.distField, zipField: x.zipField },
+      M: {
+        cases: x.cases,
+        counted: x.cases.filter((c) => !c.excluded),
+        versionStale: [],
+        types: [],
+        distField: x.distField,
+        zipField: x.zipField,
+        inspectors: ["Inspector <&>"],
+        ords: ["27.05<&>"],
+        types: [],
+      },
       F: x.F,
       raw: x.raw,
       areas: x.areas,
@@ -206,6 +226,7 @@ const assert = require("node:assert/strict"),
     assert.deepEqual(calls, [], "inert constructor");
     const out = {};
     for (const [key, fn] of Object.entries({
+      filters: () => owner.filtersBar("period"),
       sheets: () => owner.exportSheets(),
       workbook: () =>
         owner.workbook([
