@@ -1378,3 +1378,7 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 ## writer-followup-templates
 
 Convert the worksheet action and Accela-status choosers to the existing screen escaping tag. Retain exact output, saved-choice mutations, first-match eligibility and worksheet-fault timing; raw boundaries contain existing escaped values, owned renderer fragments or fixed attributes/text. All 2,048 retained/current comparisons pass, including corrected/cited/referred, missing sources, prior actions, import status, saved choices and interrupted callbacks. Complete history/referral scenarios, R26, R46, action-template parity, shell escaping and strict architecture/boundary guards pass. Chooser length falls below the threshold; total long reports94 to93, complexity30/depth0/Python15 unchanged. Frozen print and release identities are unchanged.
+
+## writer-shell-owner-test
+
+Migrate the screen title/breadcrumb escaping regression from the startup bundle to actual shell, case-action and editor owners with real state/query/escaping helpers. All 10 original assertion ASTs are unchanged. Unrelated print/readiness/storage peer output remains controlled at the existing service boundaries. Missing storageMode, sourceDocFor and snow adapters were supplied before final verification; assertions and production code were unchanged. Legacy evaluator files71 to70; retained hooks54. No startup or private diagnostic hooks are evaluated.

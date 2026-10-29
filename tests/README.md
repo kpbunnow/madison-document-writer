@@ -422,3 +422,5 @@ code; each scenario label starts with the former name. Release reviews cite them
 | `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; corrective-detail dialog), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
 
 `audit_writer_followup_templates.js` compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects.
+
+`audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.
