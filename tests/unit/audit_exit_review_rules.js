@@ -13,6 +13,8 @@ function scenario() {
     state: { pendingRecord: chance(8), pendingDoc: chance(8), pendingSync: chance(4), draft: chance(5), visit: chance(8) },
     proof: { valid: pick([true, true, false]), pendingTransaction: chance(10) },
     unsaved: chance(3),
+    docs: pick([[], [], [{ filedAt: "t" }], [{}], [{ filedAt: "t", draft: false }]]),
+    transfer: pick(["shared", "local outbox", "none"]),
   }));
   return {
     busy: pick([{}, {}, { publication: true }, { filing: true }, { publication: true, filing: true }]),
@@ -48,7 +50,9 @@ function run(exitReview, sc) {
     "recordIntegrity.status": (k) => states[k.id].proof,
     caseUnsaved: (k) => states[k.id].unsaved,
     caseFileName: (k) => "file-" + k.id,
-    pdfTransferState: () => "none",
+    docsFor: (cid) => states[cid].docs,
+    deliveredByCitation: () => false,
+    pdfTransferState: (d) => states[x.cases[0]?.id]?.transfer ?? "none",
   };
   const R = recorder(calls, returns, data, x.fail);
   let value, error;
@@ -62,9 +66,40 @@ function run(exitReview, sc) {
 
 (async () => {
   const [current, legacy] = await Promise.all([
-    compile('export {exitReview} from "./desktop_exit.js";'.replace('./desktop_exit.js', './desktop_exit.js')),
-    compile(fs.readFileSync("tests/fixtures/exit_review_reference.txt", "utf8") + '\n'),
+    compile('export {exitReview} from "./exit_review.js";'),
+    compile(fs.readFileSync("tests/fixtures/exit_review_reference.txt", "utf8")),
   ]);
-  void current;
-  void legacy;
-})().catch(() => {});
+  const seen = new Set();
+  let interrupted = 0;
+  for (let n = 0; n < 12000; n++) {
+    const sc = scenario();
+    const [before, after] = [run(legacy.exitReview, sc), run(current.exitReview, sc)];
+    assert.equal(after, before, `exit review scenario ${n} differs from the retained function:\n${JSON.stringify(sc)}`);
+    const parsed = JSON.parse(after);
+    if (parsed.error) interrupted++;
+    for (const item of [...(parsed.value?.blocking || []), ...(parsed.value?.unresolved || [])])
+      seen.add(item.text.replace(/^[^:]*: /, "").replace(/\d+/g, "N"));
+  }
+  for (const text of [
+    "A document is being issued.",
+    "A PDF is being filed or an email is being prepared.",
+    "Your work could not be saved on this device.",
+    "Device saving has not finished.",
+    "save confirmation needed.",
+    "shared changes need review.",
+    "issued PDF not yet filed.",
+    "changes have not reached the shared folder.",
+    "N shared saves queued on this device.",
+    "The local PDF outbox has not been checked.",
+    "N PDFs waiting in the local outbox.",
+  ])
+    assert.ok(
+      [...seen].some((t) => t.includes(text.replace("N shared saves", "N shared save").slice(0, 20))),
+      "scenarios reach: " + text,
+    );
+  assert.ok(interrupted > 300, "coverage: " + interrupted + " interrupted");
+  console.log("PASS exit review matches the retained function over 12000 scenarios (" + interrupted + " interrupted)");
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
