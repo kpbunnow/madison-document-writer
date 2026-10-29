@@ -487,6 +487,260 @@ function sqlReport(result, number) {
   };
 }
 
+/* Import review panel builders. Each takes what it renders from; services are read only for dates and drafts. */
+const CANCEL_IMPORT = '<button class="btn" id="acc-cancel">Clear import</button>';
+
+function importErrorPanel(acc) {
+  return (
+    '<section class="card acc"><div class="card-h"><h2>Import review</h2></di' +
+    'v><div class="card-b">' +
+    `${acc.errors.map((e) => `<p class="banner alert">${esc(e)}</p>`).join("")}` +
+    "" +
+    `${CANCEL_IMPORT}` +
+    "</div></section>"
+  );
+}
+
+function reportCasePicker(acc) {
+  return acc.cases.length > 1
+    ? '<div class="f"><span>Choose a case from this report</span><div class="ch' +
+        'ipbar">' +
+        "".concat(
+          acc.cases
+            .map(
+              (x, ix) =>
+                '<button class="cchip" data-acccase="' +
+                `${ix}` +
+                '" aria-pressed="' +
+                `${ix === (acc.caseIx || 0)}` +
+                '" ' +
+                `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
+                ">" +
+                `${esc(x.number)}` +
+                "</button>",
+            )
+            .join(""),
+        ) +
+        "</div></div>"
+    : "";
+}
+
+// R59: four labelled facts per candidate; selection is shown by the highlighted, pressed state only.
+function inspectionSummary(services, x) {
+  const when = x.date ? services.fmtDate(x.date) + (x.time ? " at " + services.fmtTime(x.time) : " · time not supplied") : "not supplied";
+  return [
+    ["Inspection type", x.type],
+    ["Date", when],
+    ["Inspector", x.inspectorName],
+    ["Status", x.status],
+  ]
+    .map(([label, value]) => '<span data-import-field="' + label + '">' + label + ": <strong>" + esc(value || "not supplied") + "</strong></span>")
+    .join("");
+}
+
+const BLOCKERS_ID = "acc-blockers";
+
+function inspectionChoices(services, acc, choices, visibleBlockers) {
+  if (choices.length > 1)
+    return (
+      '<fieldset class="import-choices"><legend>Choose the inspection result yo' +
+      'u are documenting</legend><p class="hint">Several eligible inspection re' +
+      "sults are available; choose one to continue.</p>" +
+      "".concat(
+        choices
+          .map(
+            (x) =>
+              '<button type="button" class="import-inspection ' +
+              `${x.i === acc.sel ? "is-selected" : ""}` +
+              '" data-accsel="' +
+              `${x.i}` +
+              '" aria-pressed="' +
+              `${x.i === acc.sel}` +
+              '" ' +
+              `${x.i === acc.sel && visibleBlockers.length ? 'aria-describedby="' + BLOCKERS_ID + '"' : ""}` +
+              " " +
+              `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
+              ">" +
+              `${inspectionSummary(services, x)}` +
+              "</button>",
+          )
+          .join(""),
+      ) +
+      "</fieldset>"
+    );
+  return choices.length === 1 ? `<div class="import-selected">${inspectionSummary(services, choices[0])}</div>` : "";
+}
+
+// R62: results that cannot be used are listed, greyed and not selectable, each with its reason.
+function unavailableInspections(services, unavailable) {
+  return unavailable.length
+    ? '<div class="import-unavailable-list"><h3>Not available for import</h3>' +
+        unavailable
+          .map(
+            (x) =>
+              '<div class="import-selected import-unavailable" aria-disabled="true">' +
+              inspectionSummary(services, x) +
+              '<span class="import-why">Not available: ' +
+              esc(x.why || "status " + (x.status || "not supplied") + " has no document rule") +
+              "</span></div>",
+          )
+          .join("") +
+        "</div>"
+    : "";
+}
+
+function existingCaseContinuity(p, k, unfinished) {
+  return k
+    ? '<div class="import-continuity"><h3>Continue existing case</h3><p>' +
+        "".concat(unfinished ? "Keep working on the saved draft or worksheet." : "Open the current case and its document history.") +
+        ' This does not import these inspection details.</p><button class="btn ' +
+        `${unfinished ? "btn-primary" : ""}` +
+        '" data-import-workspace="' +
+        `${esc(k.id)}` +
+        '">Continue existing case</button></div><h3>Inspection to import</h3><' +
+        'p class="hint">Use an unused completed inspection to start ' +
+        `${p.next === "snow" ? "a snow citation" : "a reinspection worksheet"}` +
+        ". Existing issued documents stay unchanged.</p>"
+    : "";
+}
+
+function manualDateFields(p, acc) {
+  return p.needDate
+    ? '<div class="grid g2"><label class="f"><span>Initial inspection date</spa' +
+        'n><input type="date" id="acc-date" value="' +
+        `${esc(acc.manualDate || "")}` +
+        '"></label><label class="f"><span>Initial inspection time</span><input ty' +
+        'pe="time" id="acc-time" value="' +
+        `${esc(acc.manualTime || "")}` +
+        '"></label></div>'
+    : "";
+}
+
+function blockerBanner(visibleBlockers) {
+  return visibleBlockers.length
+    ? '<div class="banner alert" id="' +
+        BLOCKERS_ID +
+        '"><div><strong>' +
+        `${esc(visibleBlockers[0])}` +
+        "</strong>" +
+        "".concat(
+          visibleBlockers.length > 1
+            ? `<ul>${visibleBlockers
+                .slice(1)
+                .map((b) => `<li>${esc(b)}</li>`)
+                .join("")}</ul>`
+            : "",
+        ) +
+        "</div></div>"
+    : "";
+}
+
+function caseChangeDetails(k, p) {
+  return k && p.diff.length
+    ? '<details class="import-changes"><summary>Case detail changes (' +
+        `${p.diff.length}` +
+        ")</summary><dl>" +
+        "".concat(
+          p.diff
+            .map(
+              (x) =>
+                "<dt>" +
+                `${esc(x.l)}` +
+                "</dt><dd><span>On file: " +
+                `${esc(x.was || "Not supplied")}` +
+                "</span><strong>After import: " +
+                `${esc(x.now || "Not supplied")}` +
+                "</strong></dd>",
+            )
+            .join(""),
+        ) +
+        "</dl></details>"
+    : "";
+}
+
+function importSourceDetails(acc, p) {
+  return (
+    '<details class="import-source"><summary>Source and import details</' +
+    "summary><p>" +
+    `${esc(acc.fileName || "SSRS Excel report")}` +
+    "</p>" +
+    "".concat(
+      acc.source?.kind === "sql"
+        ? "<p>Retrieved " +
+            `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
+            ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
+        : "",
+    ) +
+    "" +
+    `${(p.notes || []).map((n) => `<p>${esc(n)}</p>`).join("")}` +
+    "<p>The inspection type and its result status decide the document: an In" +
+    "itial Inspection with Official Notice, Citation, No Occupancy or an Abat" +
+    "ement result; a Reinspection with CA Referral (City Attorney Referral), " +
+    "Compliance, Citation, Extension Processing, No Fee Extension Processing, " +
+    "No Occupancy or No Fee No Occupancy; a CA Reinspection with Compliance or " +
+    "Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, " +
+    "Completed, Inspection, No Violation, Reinspection, No Fee Reinspection, an " +
+    "Initial Inspection with No Entry), Assist inspections, undated rows and " +
+    "inspections already used on the case are not listed; other combinations are " +
+    "listed as not available. Blank inspection times stay blank until explicitly" +
+    " corrected.</p></det" +
+    "ails>"
+  );
+}
+
+function importPanelHTML(services, acc, p) {
+  if (acc.errors?.length) return importErrorPanel(acc);
+  const c = p.c,
+    k = p.existing;
+  if (!c) return "";
+  const choices = p.candidates.filter((x) => x.selectable && accStatusEligible(x.status, x.type)),
+    unavailable = p.candidates.filter((x) => !(x.selectable && accStatusEligible(x.status, x.type)));
+  const pick = reportCasePicker(acc);
+  const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
+  const inspections = inspectionChoices(services, acc, choices, visibleBlockers);
+  const notAvailable = unavailableInspections(services, unavailable);
+  const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
+  const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
+  return (
+    '<section class="card acc import-review"><div class="card-h"><div><h2>' +
+    `${esc(c.number)}` +
+    "</h2><p>" +
+    `${esc(k?.address || p.f.address)}` +
+    '</p></div><span class="pill">' +
+    `${k ? "Existing case" : "New case"}` +
+    '</span></div><div class="card-b">\n    ' +
+    `${pick}` +
+    "\n    " +
+    existingCaseContinuity(p, k, unfinished) +
+    "\n    " +
+    `${inspections}` +
+    `${notAvailable}` +
+    "\n    " +
+    manualDateFields(p, acc) +
+    "\n    " +
+    `${p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join("")}` +
+    "\n    " +
+    blockerBanner(visibleBlockers) +
+    "\n    " +
+    "".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : "") +
+    "\n    " +
+    caseChangeDetails(k, p) +
+    "\n    " +
+    importSourceDetails(acc, p) +
+    '\n    <p class="hint">Case details change only when you confirm. Sav' +
+    "e draft &amp; return to Workspace keeps this review on this device when saving succee" +
+    'ds.</p>\n    <div class="acc-go"><button class="btn ' +
+    `${unfinished ? "" : "btn-primary"}` +
+    '" id="acc-go" ' +
+    `${p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : ""}` +
+    ">" +
+    `${label}` +
+    "</button>" +
+    `${CANCEL_IMPORT}` +
+    "</div>\n  </div></section>"
+  );
+}
+
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, XLSX reading, report parsing, import candidates,
    the review plan and panel, the direct database lookup and acceptance. */
@@ -727,227 +981,8 @@ export function createAccelaImport(services) {
   }
 
   function accelaPanel() {
-    const acc = editor.state.acc,
-      p = accelaPlan(acc);
-    const cancel = '<button class="btn" id="acc-cancel">Clear import</button>';
-    if (acc.errors?.length)
-      return (
-        '<section class="card acc"><div class="card-h"><h2>Import review</h2></di' +
-        'v><div class="card-b">' +
-        `${acc.errors.map((e) => `<p class="banner alert">${esc(e)}</p>`).join("")}` +
-        "" +
-        `${cancel}` +
-        "</div></section>"
-      );
-    const c = p.c,
-      k = p.existing;
-    if (!c) return "";
-    const choices = p.candidates.filter((x) => x.selectable && accStatusEligible(x.status, x.type)),
-      unavailable = p.candidates.filter((x) => !(x.selectable && accStatusEligible(x.status, x.type)));
-    const pick =
-      acc.cases.length > 1
-        ? '<div class="f"><span>Choose a case from this report</span><div class="ch' +
-          'ipbar">' +
-          "".concat(
-            acc.cases
-              .map(
-                (x, ix) =>
-                  '<button class="cchip" data-acccase="' +
-                  `${ix}` +
-                  '" aria-pressed="' +
-                  `${ix === (acc.caseIx || 0)}` +
-                  '" ' +
-                  `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
-                  ">" +
-                  `${esc(x.number)}` +
-                  "</button>",
-              )
-              .join(""),
-          ) +
-          "</div></div>"
-        : "";
-    // R59: four labelled facts per candidate; selection is shown by the highlighted, pressed state only.
-    const when = (x) => (x.date ? services.fmtDate(x.date) + (x.time ? " at " + services.fmtTime(x.time) : " · time not supplied") : "not supplied");
-    const summary = (x) =>
-      [
-        ["Inspection type", x.type],
-        ["Date", when(x)],
-        ["Inspector", x.inspectorName],
-        ["Status", x.status],
-      ]
-        .map(
-          ([label, value]) => '<span data-import-field="' + label + '">' + label + ": <strong>" + esc(value || "not supplied") + "</strong></span>",
-        )
-        .join("");
-    const blockerId = "acc-blockers";
-    const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
-    const inspections =
-      choices.length > 1
-        ? '<fieldset class="import-choices"><legend>Choose the inspection result yo' +
-          'u are documenting</legend><p class="hint">Several eligible inspection re' +
-          "sults are available; choose one to continue.</p>" +
-          "".concat(
-            choices
-              .map(
-                (x) =>
-                  '<button type="button" class="import-inspection ' +
-                  `${x.i === acc.sel ? "is-selected" : ""}` +
-                  '" data-accsel="' +
-                  `${x.i}` +
-                  '" aria-pressed="' +
-                  `${x.i === acc.sel}` +
-                  '" ' +
-                  `${x.i === acc.sel && visibleBlockers.length ? 'aria-describedby="' + blockerId + '"' : ""}` +
-                  " " +
-                  `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
-                  ">" +
-                  `${summary(x)}` +
-                  "</button>",
-              )
-              .join(""),
-          ) +
-          "</fieldset>"
-        : choices.length === 1
-          ? `<div class="import-selected">${summary(choices[0])}</div>`
-          : "";
-    // R62: results that cannot be used are listed, greyed and not selectable, each with its reason.
-    const notAvailable = unavailable.length
-      ? '<div class="import-unavailable-list"><h3>Not available for import</h3>' +
-        unavailable
-          .map(
-            (x) =>
-              '<div class="import-selected import-unavailable" aria-disabled="true">' +
-              summary(x) +
-              '<span class="import-why">Not available: ' +
-              esc(x.why || "status " + (x.status || "not supplied") + " has no document rule") +
-              "</span></div>",
-          )
-          .join("") +
-        "</div>"
-      : "";
-    const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
-    const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
-    return (
-      '<section class="card acc import-review"><div class="card-h"><div><h2>' +
-      `${esc(c.number)}` +
-      "</h2><p>" +
-      `${esc(k?.address || p.f.address)}` +
-      '</p></div><span class="pill">' +
-      `${k ? "Existing case" : "New case"}` +
-      '</span></div><div class="card-b">\n    ' +
-      `${pick}` +
-      "\n    " +
-      "".concat(
-        k
-          ? '<div class="import-continuity"><h3>Continue existing case</h3><p>' +
-              "".concat(unfinished ? "Keep working on the saved draft or worksheet." : "Open the current case and its document history.") +
-              ' This does not import these inspection details.</p><button class="btn ' +
-              `${unfinished ? "btn-primary" : ""}` +
-              '" data-import-workspace="' +
-              `${esc(k.id)}` +
-              '">Continue existing case</button></div><h3>Inspection to import</h3><' +
-              'p class="hint">Use an unused completed inspection to start ' +
-              `${p.next === "snow" ? "a snow citation" : "a reinspection worksheet"}` +
-              ". Existing issued documents stay unchanged.</p>"
-          : "",
-      ) +
-      "\n    " +
-      `${inspections}` +
-      `${notAvailable}` +
-      "\n    " +
-      "".concat(
-        p.needDate
-          ? '<div class="grid g2"><label class="f"><span>Initial inspection date</spa' +
-              'n><input type="date" id="acc-date" value="' +
-              `${esc(acc.manualDate || "")}` +
-              '"></label><label class="f"><span>Initial inspection time</span><input ty' +
-              'pe="time" id="acc-time" value="' +
-              `${esc(acc.manualTime || "")}` +
-              '"></label></div>'
-          : "",
-      ) +
-      "\n    " +
-      `${p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join("")}` +
-      "\n    " +
-      "".concat(
-        visibleBlockers.length
-          ? '<div class="banner alert" id="' +
-              blockerId +
-              '"><div><strong>' +
-              `${esc(visibleBlockers[0])}` +
-              "</strong>" +
-              "".concat(
-                visibleBlockers.length > 1
-                  ? `<ul>${visibleBlockers
-                      .slice(1)
-                      .map((b) => `<li>${esc(b)}</li>`)
-                      .join("")}</ul>`
-                  : "",
-              ) +
-              "</div></div>"
-          : "",
-      ) +
-      "\n    " +
-      "".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : "") +
-      "\n    " +
-      "".concat(
-        k && p.diff.length
-          ? '<details class="import-changes"><summary>Case detail changes (' +
-              `${p.diff.length}` +
-              ")</summary><dl>" +
-              "".concat(
-                p.diff
-                  .map(
-                    (x) =>
-                      "<dt>" +
-                      `${esc(x.l)}` +
-                      "</dt><dd><span>On file: " +
-                      `${esc(x.was || "Not supplied")}` +
-                      "</span><strong>After import: " +
-                      `${esc(x.now || "Not supplied")}` +
-                      "</strong></dd>",
-                  )
-                  .join(""),
-              ) +
-              "</dl></details>"
-          : "",
-      ) +
-      '\n    <details class="import-source"><summary>Source and import details</' +
-      "summary><p>" +
-      `${esc(acc.fileName || "SSRS Excel report")}` +
-      "</p>" +
-      "".concat(
-        acc.source?.kind === "sql"
-          ? "<p>Retrieved " +
-              `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
-              ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
-          : "",
-      ) +
-      "" +
-      `${(p.notes || []).map((n) => `<p>${esc(n)}</p>`).join("")}` +
-      "<p>The inspection type and its result status decide the document: an In" +
-      "itial Inspection with Official Notice, Citation, No Occupancy or an Abat" +
-      "ement result; a Reinspection with CA Referral (City Attorney Referral), " +
-      "Compliance, Citation, Extension Processing, No Fee Extension Processing, " +
-      "No Occupancy or No Fee No Occupancy; a CA Reinspection with Compliance or " +
-      "Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, " +
-      "Completed, Inspection, No Violation, Reinspection, No Fee Reinspection, an " +
-      "Initial Inspection with No Entry), Assist inspections, undated rows and " +
-      "inspections already used on the case are not listed; other combinations are " +
-      "listed as not available. Blank inspection times stay blank until explicitly" +
-      " corrected.</p></det" +
-      'ails>\n    <p class="hint">Case details change only when you confirm. Sav' +
-      "e draft &amp; return to Workspace keeps this review on this device when saving succee" +
-      'ds.</p>\n    <div class="acc-go"><button class="btn ' +
-      `${unfinished ? "" : "btn-primary"}` +
-      '" id="acc-go" ' +
-      `${p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : ""}` +
-      ">" +
-      `${label}` +
-      "</button>" +
-      `${cancel}` +
-      "</div>\n  </div></section>"
-    );
+    const acc = editor.state.acc;
+    return importPanelHTML(services, acc, accelaPlan(acc));
   }
 
   function pickAccelaFile() {

@@ -1,14 +1,12 @@
 {
   "counts": {
-    "complexity": 22,
+    "complexity": 21,
     "max-depth": 0,
-    "max-lines-per-function": 81,
+    "max-lines-per-function": 80,
     "python": 13
   },
   "violations": {
-    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 768,
-    "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:complexity": 35,
-    "app/modules/accela_import.js:createAccelaImport#1/accelaPanel#1:max-lines-per-function": 221,
+    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 551,
     "app/modules/accela_import.js:createAccelaImport#1/baseLookupAccept#1:max-lines-per-function": 106,
     "app/modules/accela_import.js:createAccelaImport#1/findDatabaseCase#1:complexity": 22,
     "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 405,
