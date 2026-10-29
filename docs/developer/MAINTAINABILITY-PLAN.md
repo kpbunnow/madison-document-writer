@@ -1332,3 +1332,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 Converted nine markup expressions in shared report navigation/actions/filter chips/coverage to the screen HTML tag. raw is restricted to existing scoped esc results, owned renderer fragments and fixed attribute tokens; scalars use String plus default escaping to retain supported fallback text. All 2,048 supported-source comparisons retain exact HTML, state and callback/exception order; malformed report metadata is defensively attribute-encoded. Existing full Reports workflow and 110 retained assertions, R48/R49 and 303 owner-phase comparisons pass. Explicit direct-dependency guard added. Screen-only change; frozen print renderers and release identities untouched. Numeric targets retained; legacy migration remains unfinished.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-shell-filter-templates
+
+Converted 16 shell/frame/header/filter markup expressions to the shared escaping tag, retaining exact supported-source HTML and callback timing. Existing owner-phase corpus now also checks both date-filter modes, header action fragments and complete loading/error frames, in addition to workbook/table/card/coverage output. Its added header comparison caught a missing raw marker for owned actions; corrected before publication without changing any retained expectation. All 303 expanded comparisons, complete Reports workflow with 110 unchanged assertions and R48/R49 regressions pass. raw is limited to scoped preescaped values, approved fixed attributes and owned renderers; print output remains untouched. Numerical targets retained.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
