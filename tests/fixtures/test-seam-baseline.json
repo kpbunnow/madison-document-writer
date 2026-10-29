@@ -11,7 +11,6 @@
   "tests/unit/audit_events.js": 1,
   "tests/unit/audit_feature_accela_import.js": 7,
   "tests/unit/audit_feature_citation_packets.js": 2,
-  "tests/unit/audit_feature_corrections.js": 1,
   "tests/unit/audit_feature_editor_screens.js": 5,
   "tests/unit/audit_feature_extensions.js": 2,
   "tests/unit/audit_feature_history_referrals.js": 6,
