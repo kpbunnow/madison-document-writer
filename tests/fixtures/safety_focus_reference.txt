@@ -1,0 +1,39 @@
+async function showSafety(cid = "") {
+    const context = services.navigation.utilityContext();
+    let health;
+    // The panel opens immediately; slow connection checks must not hide device recovery.
+    services.captureWork();
+    if (editor.state.modal) {
+      editor.state.modal = null;
+      services.render();
+    }
+    services.A11Y.utility("Saved work & connection", savedWorkHTML(services.app_savedworkContext(), cid, { checking: true }));
+    try {
+      health = await services.helperJSON("/dw-status");
+    } catch (error) {
+      health = { error: error.message };
+    }
+    if (!services.navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
+    editor.SAFETY_HEALTH = health;
+    // Keep focus and disclosures during the late health response.
+    const dialog = document.getElementById("utility-dialog"),
+      panel = dialog.querySelector("[data-saved-work-panel]");
+    const open = [...panel.querySelectorAll("details[open][data-saved-detail]")].map((el) => el.dataset.savedDetail);
+    const active = document.activeElement,
+      button = active?.closest("button"),
+      data = button ? { ...button.dataset } : null,
+      id = active?.id,
+      summary = active?.matches("summary") ? active.parentElement.dataset.savedDetail : "";
+    panel.outerHTML = savedWorkHTML(services.app_savedworkContext(), cid, health);
+    for (const key of open) dialog.querySelector('[data-saved-detail="' + key + '"]')?.setAttribute("open", "");
+    const target = summary
+      ? dialog.querySelector('[data-saved-detail="' + summary + '"] > summary')
+      : id
+        ? document.getElementById(id)
+        : data?.safetyCase
+          ? [...dialog.querySelectorAll("[data-safety-case]")].find((el) => el.dataset.safetyCase === data.safetyCase)
+          : data
+            ? [...dialog.querySelectorAll("button")].find((el) => Object.entries(data).every(([key, value]) => el.dataset[key] === value))
+            : null;
+    if (active && !active.isConnected) (target || dialog.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
+  }
