@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 49,
+    "complexity": 48,
     "max-depth": 0,
-    "max-lines-per-function": 106,
+    "max-lines-per-function": 104,
     "python": 15
   },
   "violations": {
@@ -156,9 +156,6 @@
     "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1:max-lines-per-function": 86,
     "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1/anonymous#1:max-lines-per-function": 84,
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,
-    "app/modules/workspace_backup.js:createWorkspaceBackup#1:max-lines-per-function": 108,
-    "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1:complexity": 41,
-    "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1:max-lines-per-function": 92,
     "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 128,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 96,
     "helper/artifact_store.py:file_operation:C901": 18,
