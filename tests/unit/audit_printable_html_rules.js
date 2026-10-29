@@ -24,7 +24,7 @@ function fragment() {
   return pick([
     () => `<p>${pick(["Note", "Row <1>"])} ${control()}</p>`,
     () => `<div class="grip">g</div>`,
-    () => `<span class="gbtn rm addrow no-print">x</span>`,
+    () => `<span class="${pick(["gbtn", "rm", "addrow", "no-print", "grip"])}">x</span>`,
     () => `<div contenteditable="true" data-editor-extra-copy="1">Edit</div>`,
     () => `<div data-editor-extra-copy="yes">Extra</div>`,
     () => `<table class="notice"><tbody><tr><td>${control()}</td></tr></tbody></table>`,

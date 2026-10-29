@@ -1613,3 +1613,7 @@ Added a frozen-original comparison of the catalog review panel (`audit_catalog_r
 ## deposit-schedule-sections
 
 Added a frozen-original comparison of the deposit schedule explorer (`audit_deposit_schedule_markup_rules.js`: 400 seeded sequences of date changes, searches and page clicks against the retained `deposit_schedule_reference.txt`) covering invalid dates, empty searches, page clamping, every prior-offense window shape and the order of renders and escapes. `html` (109 lines) is now a shell over invalid-date, controls, page-navigation, window-text, row and table builders at module level.
+
+## printable-html-sections
+
+Added a frozen-original comparison of `printableHTML` (`audit_printable_html_rules.js`: 1,500 seeded sheets in jsdom against the retained `browser_printing_reference.txt`) covering control-to-text substitution for text, date, time, select and button controls, removed editing parts, the header-time block, title escaping, the missing-sheet notice and the no-document case. The function (95 lines) is now a shell over a clone-cleanup function, a control-text function and a frozen module-level page stylesheet. Deliberate mutations, including each removed-class selector, are caught.

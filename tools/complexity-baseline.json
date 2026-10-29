@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 4,
     "max-depth": 0,
-    "max-lines-per-function": 56,
+    "max-lines-per-function": 54,
     "python": 8
   },
   "violations": {
@@ -12,8 +12,6 @@
     "app/modules/administration.js:initAdministration#1:max-lines-per-function": 183,
     "app/modules/administration.js:initAdministration#1/openLetter#1:max-lines-per-function": 83,
     "app/modules/automatic_recovery.js:createAutomaticRecovery#1:max-lines-per-function": 166,
-    "app/modules/browser_printing.js:createBrowserPrinting#1:max-lines-per-function": 142,
-    "app/modules/browser_printing.js:createBrowserPrinting#1/printableHTML#1:max-lines-per-function": 95,
     "app/modules/case_activity.js:createCaseActivity#1:max-lines-per-function": 160,
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
     "app/modules/case_loading.js:createCaseLoading#1:max-lines-per-function": 110,
