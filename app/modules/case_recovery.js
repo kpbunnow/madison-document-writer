@@ -80,6 +80,65 @@ function requireRecoveryReferences(services, b, k, cid) {
     throw new Error("Backup has inconsistent document or walk-through references");
 }
 
+function recoverySelectionChanged(selection, b) {
+  return selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || editor.state.modal !== "recovery";
+}
+
+function requireCompatibleLocalHistory(b, k, current) {
+  if (current && (current.id !== k.id || current.number !== k.number)) throw new Error("The case number or identity conflicts with local work.");
+  if (current) {
+    const backed = new Map((b.bundle.events[k.id] || []).map((e) => [e.id, e]));
+    if (eventsFor(k.id).some((e) => !backed.has(e.id) || stableJSON(e) !== stableJSON(backed.get(e.id))) || current.id !== k.id)
+      throw new Error("The local case has different issued history. Export both copies and reconcile before restoring.");
+  }
+}
+
+function recoveryWorkMatches(b, k) {
+  return;
+  stableJSON(workspace.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
+    stableJSON(workspace.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
+    stableJSON(workspace.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
+    stableJSON(Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id))) ===
+      stableJSON(b.bundle.work.recordForms) &&
+    stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null);
+}
+
+function stageRecoveredCase(services, b, k) {
+  return {
+    ...services.draftBundle(),
+    cases: workspace.CASES.filter((c) => c.id !== k.id).concat([clone(k)]),
+    docs: workspace.DOCS.filter((d) => d.draft && d.caseId !== k.id).concat(clone(b.bundle.docs)),
+    reinsp: workspace.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
+    events: { ...workspace.EVENTS, [k.id]: clone(b.bundle.events[k.id] || []) },
+    recordAttempts: {
+      ...Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
+      ...clone(b.bundle.recordAttempts || {}),
+    },
+    checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: clone(b.bundle.checkpoints?.[k.id] || null) },
+    seq: Math.max(workspace.seq, b.bundle.seq || 0),
+    work: {
+      ...clone(editor.WORK),
+      walk: b.bundle.work.walk ? clone(b.bundle.work.walk) : editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
+      recordForms: {
+        ...Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
+        ...clone(b.bundle.work.recordForms),
+      },
+    },
+  };
+}
+
+function applyRecoveredCase(staged, pending) {
+  workspace.CASES = staged.cases;
+  workspace.DOCS = staged.docs;
+  workspace.REINSP = staged.reinsp;
+  workspace.EVENTS = staged.events;
+  editor.RECORD_ATTEMPTS = staged.recordAttempts;
+  workspace.SAVE_CHECKPOINTS = staged.checkpoints;
+  workspace.PENDING = pending;
+  editor.WORK = staged.work;
+  workspace.seq = staged.seq;
+}
+
 // Individual-case recovery coordination; UI, helper/shared comparison and device storage stay supplied.
 export function createCaseRecovery(services) {
   async function listRecovery() {
@@ -188,7 +247,7 @@ export function createCaseRecovery(services) {
     try {
       validateRecovery(b, row);
       const currentShared = await recoverySharedState(b);
-      if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || editor.state.modal !== "recovery") return;
+      if (recoverySelectionChanged(selection, b)) return;
       recovery.RECOVERY.shared = currentShared;
       if (recoverySharedConflict(currentShared))
         throw new Error("Review the changed shared record before restoring this draft. Export the backup first.");
@@ -205,26 +264,15 @@ export function createCaseRecovery(services) {
         return;
       }
       const current = workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
-      if (current && (current.id !== k.id || current.number !== k.number)) throw new Error("The case number or identity conflicts with local work.");
-      if (current) {
-        const backed = new Map((b.bundle.events[k.id] || []).map((e) => [e.id, e]));
-        if (eventsFor(k.id).some((e) => !backed.has(e.id) || stableJSON(e) !== stableJSON(backed.get(e.id))) || current.id !== k.id)
-          throw new Error("The local case has different issued history. Export both copies and reconcile before restoring.");
-      }
+      requireCompatibleLocalHistory(b, k, current);
       const local = current && services.caseUnsaved(current);
       if (current) {
-        const same =
-          stableJSON(workspace.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
-          stableJSON(workspace.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
-          stableJSON(workspace.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
-          stableJSON(Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id))) ===
-            stableJSON(b.bundle.work.recordForms) &&
-          stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null);
+        const same = recoveryWorkMatches(b, k);
         if (!same) {
           const copy = services.recoverySnapshot(k.id, services.recoveryCaseKey(k.id));
           copy.preReplacement = true;
           await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: copy.case, backup: copy });
-          if (selection !== recovery.RECOVERY_SELECT_SEQ || recovery.RECOVERY.selected !== b || editor.state.modal !== "recovery") return;
+          if (recoverySelectionChanged(selection, b)) return;
           if (
             !services.confirm(
               "Local work differs (" +
@@ -237,39 +285,11 @@ export function createCaseRecovery(services) {
             return;
         }
       }
-      const staged = {
-        ...services.draftBundle(),
-        cases: workspace.CASES.filter((c) => c.id !== k.id).concat([clone(k)]),
-        docs: workspace.DOCS.filter((d) => d.draft && d.caseId !== k.id).concat(clone(b.bundle.docs)),
-        reinsp: workspace.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
-        events: { ...workspace.EVENTS, [k.id]: clone(b.bundle.events[k.id] || []) },
-        recordAttempts: {
-          ...Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
-          ...clone(b.bundle.recordAttempts || {}),
-        },
-        checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: clone(b.bundle.checkpoints?.[k.id] || null) },
-        seq: Math.max(workspace.seq, b.bundle.seq || 0),
-        work: {
-          ...clone(editor.WORK),
-          walk: b.bundle.work.walk ? clone(b.bundle.work.walk) : editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
-          recordForms: {
-            ...Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
-            ...clone(b.bundle.work.recordForms),
-          },
-        },
-      };
+      const staged = stageRecoveredCase(services, b, k);
       const pending = workspace.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
       if (!(await persistRecoveryState(staged, pending)))
         throw new Error("Browser storage could not commit the recovery; previous work was retained.");
-      workspace.CASES = staged.cases;
-      workspace.DOCS = staged.docs;
-      workspace.REINSP = staged.reinsp;
-      workspace.EVENTS = staged.events;
-      editor.RECORD_ATTEMPTS = staged.recordAttempts;
-      workspace.SAVE_CHECKPOINTS = staged.checkpoints;
-      workspace.PENDING = pending;
-      editor.WORK = staged.work;
-      workspace.seq = staged.seq;
+      applyRecoveredCase(staged, pending);
       services.clearWalk();
       project();
       editor.state.modal = null;

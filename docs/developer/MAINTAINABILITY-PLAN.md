@@ -1141,3 +1141,9 @@ Measured counts: {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 10
 Separate recovery shape, unrelated work and reference checks, retaining first failure and walk identity timing. Existing recovery tests run unchanged against both sources; boundaries, seams, lint and formatting pass.
 
 Measured counts: {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recovery-restore-phases
+
+Name local history refusal, draft comparison, staging, post-commit assignment and stale-selection checks. Await checkpoints and rollback authority remain in the coordinator. Existing tests pass against the original and refactored owners with boundaries, seams, lint and formatting.
+
+Measured counts: {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
