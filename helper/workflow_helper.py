@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 from case_store import atomic_write, case_number_key, file_lock, validate_case
+from plain_files import plain_json_files
 
 REPORTS = {
     "openCases",
@@ -41,7 +42,7 @@ def search_cases(folder, query):
     if not isinstance(query, str) or not 2 <= len(query.strip()) <= 200:
         raise ValueError("Search needs 2–200 characters")
     query = query.strip().casefold()
-    files = sorted(p for p in Path(folder).glob("*.json") if not p.name.startswith("_"))
+    files = sorted(p for p in plain_json_files(Path(folder)) if not p.name.startswith("_"))
     hits, unreadable, numbers = [], 0, {}
     for path in files[:5000]:
         try:
@@ -105,7 +106,7 @@ def shared_views(folder):
         raise OSError("Shared case folder unavailable")
     target = views_folder(folder)
     views = []
-    for path in sorted(target.glob("*.json"))[:200]:
+    for path in sorted(plain_json_files(target))[:200]:
         try:
             if path.stat().st_size > 16384:
                 continue

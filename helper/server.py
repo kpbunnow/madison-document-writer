@@ -42,6 +42,7 @@ import secrets
 import hmac
 import helper_session
 import case_integrity
+from plain_files import UNSAFE_NAME_CHARS, plain_json_files
 import case_projection
 from reporting_reads import ordered_reads
 import citation_pricing
@@ -215,7 +216,7 @@ def read_index(read_workers=4):
         out.update(ok=False, error="the case folder %s cannot be reached" % cd)
         return out
     by_number, files, seen, duplicates, mismatched = {}, {}, set(), set(), set()
-    for path in sorted(cd.glob("*.json")):
+    for path in sorted(plain_json_files(cd)):
         if not path.name.startswith("_"):
             files.setdefault(case_file_key(path), []).append(path)
     try:
@@ -646,7 +647,7 @@ def file_pdf_bytes(target, raw):
 
 
 def safe_name(name: str) -> str:
-    name = "".join(c for c in name if c not in '\\/:*?"<>|').strip()
+    name = "".join(c for c in UNSAFE_NAME_CHARS.sub("", name) if c not in '\\/:*?"<>|').strip()
     name = " ".join(name.split())
     if not name:
         name = "Document"
@@ -1374,7 +1375,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not cd.is_dir():
                 raise OSError("The shared case folder is unavailable")
             files = [
-                {"name": p.name, "size": p.stat().st_size, "mod": p.stat().st_mtime * 1000} for p in cd.glob("*.json") if not p.name.startswith("_")
+                {"name": p.name, "size": p.stat().st_size, "mod": p.stat().st_mtime * 1000}
+                for p in plain_json_files(cd)
+                if not p.name.startswith("_")
             ]
             return self._json(200, {"ok": True, "files": sorted(files, key=lambda p: p["mod"], reverse=True)})
         except Exception as error:
@@ -1395,7 +1398,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             folder = case_dir()
             if not folder.is_dir():
                 return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
-            names = [p.name for p in folder.glob("*.json") if case_file_key(p) == number_key]
+            names = [p.name for p in plain_json_files(folder) if case_file_key(p) == number_key]
             if not names:
                 raise FileNotFoundError("Case file not found")
             if len(names) != 1:

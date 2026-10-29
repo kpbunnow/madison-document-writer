@@ -279,6 +279,8 @@ covers, or a new suite under its feature.
 | `audit_recovery_modal_markup_rules.js` | 6,000 seeded states compare the recovery dialog markup (backup list, selection, errors, local and shared comparison, escaping) and every peer read with the retained module. |
 | `audit_correction_panel_markup_rules.js` | 6,000 seeded corrections compare the correction panel markup (locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping) and every peer read and call with the retained module. |
 | `lifted_splice.cjs` | Fixture helper: runs a retained original function beside the module-level functions lifted out of a factory. |
+| `audit_filename_policy.py` | File names from case data drop or refuse control and bidirectional characters; ordinary names are unchanged. |
+| `audit_case_containment.py` | Linked or non-regular entries in the case folder are never read, listed, resolved, indexed or written through; ordinary case files work as before. |
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
 | `audit_tool_form_submit_rules.js` | Tool form submits in real forms: search markup, reminder preferences, batch deadlines, outbox sync and failure handling against the retained module. |
 | `audit_start_correction_rules.js` | Opening a correction: existing-draft shortcut, refusals, dropped fields, recipient merge and stored record against the retained module. |

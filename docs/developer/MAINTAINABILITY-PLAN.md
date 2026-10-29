@@ -1679,6 +1679,11 @@ The change was made by a scope-aware rewrite (eslint-scope): only function decla
 
 Eleven frozen-original comparisons spliced a retained inner function into the factory by AST position. They now use `tests/fixtures/lifted_splice.cjs`, which places the retained original in a wrapper with bridges to its moved siblings; scenarios, expected values and assertions are untouched. The per-function baseline was lowered.
 
+## fix-case-containment-and-filenames
+
+Bug-scan findings F4 and F5. `read_case` followed a symlink in the case folder, so a linked file outside the folder was returned as a case (a synthetic outside JSON file came back with HTTP 200 and a valid integrity status). New `helper/plain_files.py` defines a plain file as a regular file that is not a link or Windows reparse point. Case listing, search, resolution, the Reports index, save-target resolution, integrity scans and `read_case` now skip or refuse anything else with one plain message; a missing file keeps its own error. Listing helpers accept the folder doubles used by the retained-original comparisons, which are unchanged.
+
+`safe_name` (PDF names) now drops control and bidirectional characters, and `safe_json_name` (case names) refuses them and all whitespace controls; ordinary names, including accented and CJK ones, are unchanged. The new helper is added to the runtime manifest template. Native Windows junction and reparse behavior was not exercised.
 ## fix-backup-integrity-records
 
 A workspace backup whose `integrityRecords` held a non-object entry was written to the browser's `drafts` store before the integrity owner read it and failed, leaving durable invalid state that startup would meet again. `restoreWorkspaceBackup` now checks that `integrityRecords` is absent or an array of objects before any write. `audit_backup_integrity_records.js` refuses eight malformed shapes without a write and still restores the well-formed ones. It is separate from `audit_workspace_backup.js` because the parity suite runs that file against the retained original.
