@@ -17,12 +17,17 @@ Before edits inspect Git status. Make focused checkpoint commits on a developmen
 branch after reviewing the diff and staged file list. Record actual verification
 outcomes and remaining blockers; a checkpoint is not release approval. Never commit
 operational records, credentials, private keys, dependency installations or caches.
-Keep local operational data outside the checkout. Do not merge automatically.
+Keep local operational data outside the checkout. Merge only within explicit owner
+authorization; guarded automation must enforce the development standard and cannot
+bypass protection.
 
 Before submitting a development PR, run targeted local checks for the changed
 behavior and record their actual results. A local full gate is optional; GitHub's
-Full gate and PR format must pass on the current PR head before merge. The automatic
-post-merge main gate may continue asynchronously; report it as pending and investigate
+Full gate and PR format must pass on the exact current head of the PR merged into main.
+Approved, related review PRs may use one integration PR under
+`docs/developer/INTEGRATION-BATCHES.md`; constituent PRs do not need repeated full gates
+after each main advance. Include current main and review the full combined scope.
+The automatic post-merge main gate may continue asynchronously; report it as pending and investigate
 failures when reported, fixing forward through a new PR. See DEVELOPMENT-STANDARD.md.
 
 Run the existing full gate before proposing a release. Keep measured browser runs
