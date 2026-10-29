@@ -10,7 +10,6 @@ import { createDraftSaveControls } from "./draft_save_controls.js";
 import { createLocalCaseFiles } from "./local_case_files.js";
 import { createCaseFolderWorkflow } from "./case_folder_workflow.js";
 import { ccLines, agentLines, addressProblem } from "./address_format.js";
-export { ccLines, agentLines };
 import { createRecipientWorkflow } from "./recipient_workflow.js";
 import { createDocumentReadiness } from "./document_readiness.js";
 import { createDocumentSources } from "./document_sources.js";
@@ -2073,6 +2072,8 @@ WriterState.draftTimer = null;
 WriterState.LOCAL_SAVE = { ok: true, at: "", saving: false };
 
 WriterState.LOCAL_CHANGED = 0;
+
+export { ccLines, agentLines };
 
 /* ---------- publishing ----------
    Issuing is the moment the working draft stops being editable and becomes a
