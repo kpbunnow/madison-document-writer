@@ -59,7 +59,6 @@
   "tests/unit/audit_resume.js": 1,
   "tests/unit/audit_review.js": 1,
   "tests/unit/audit_safety.js": 1,
-  "tests/unit/audit_shell_escaping.js": 1,
   "tests/unit/audit_snow_repaint.js": 1,
   "tests/unit/audit_storage.js": 1,
   "tests/unit/audit_summary.js": 1,
