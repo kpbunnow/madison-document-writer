@@ -1617,3 +1617,7 @@ Added a frozen-original comparison of the deposit schedule explorer (`audit_depo
 ## printable-html-sections
 
 Added a frozen-original comparison of `printableHTML` (`audit_printable_html_rules.js`: 1,500 seeded sheets in jsdom against the retained `browser_printing_reference.txt`) covering control-to-text substitution for text, date, time, select and button controls, removed editing parts, the header-time block, title escaping, the missing-sheet notice and the no-document case. The function (95 lines) is now a shell over a clone-cleanup function, a control-text function and a frozen module-level page stylesheet. Deliberate mutations, including each removed-class selector, are caught.
+
+## snow-letter-review-sections
+
+Added a frozen-original comparison of the seasonal letter review (`audit_snow_letter_review_rules.js`: 1,500 seeded letters and submissions in jsdom against the retained `administration_letter_reference.txt`) covering the connection refusals, load failure, the exact form, the submit that rewrites phone lines and posts the confirmed letter, failure display, and every peer read and call in order. `openLetter` (83 lines) is now a short opener over a form builder, a site-row builder, a reviewed-letter function and a save function; the shared administrator fields moved to a module-level function. The one surviving mutant (`reviewedOn || ""`) is equivalent because `esc` renders `undefined` as empty.

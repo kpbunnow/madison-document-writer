@@ -49,6 +49,103 @@ function overrideHistoryFault(b, c) {
   return "";
 }
 
+function actorFields() {
+  return (
+    '<label class="f"><span>Named administrator</span><input name="administra' +
+    'tor" required minlength="2"></label><label class="f"><span>Reason (at le' +
+    'ast 20 characters)</span><textarea name="reason" required minlength="20"' +
+    ' rows="3"></textarea></label><label class="f"><span>Court / division sou' +
+    'rce reference</span><input name="sourceReference" required></label><labe' +
+    'l><input type="checkbox" name="confirmed" required> I confirm this admin' +
+    "istrative decision and its source.</label>"
+  );
+}
+
+const LETTER_FIELDS = ["season", "reviewedOn", "webAddress", "westPhone", "eastPhone", "closing"];
+
+function siteRows(sites) {
+  return sites
+    .map(
+      ([a, b], n) =>
+        '<div class="grid g2"><label class="f"><span>West Side · row ' +
+        (n + 1) +
+        '</span><textarea name="west-' +
+        n +
+        '" rows="2">' +
+        dep_esc(a) +
+        '</textarea></label><label class="f"><span>East Side · row ' +
+        (n + 1) +
+        '</span><textarea name="east-' +
+        n +
+        '" rows="2">' +
+        dep_esc(b) +
+        "</textarea></label></div>",
+    )
+    .join("");
+}
+
+function letterFormHTML(letter) {
+  return (
+    '<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, con' +
+    "tacts and web address. New citations use this review; issued copies keep" +
+    ' their frozen content.</p><div class="grid g2"><label class="f"><span>Sn' +
+    'ow season</span><input name="season" value="' +
+    dep_esc(letter.season) +
+    ('" required placeholder="2026–27"></label><label class="f"><span>Reviewed' + ' on</span><input type="date" name="reviewedOn" value="') +
+    dep_esc(letter.reviewedOn || "") +
+    ('" required></label></div><label class="f"><span>Snow-removal web address' + '</span><input type="url" name="webAddress" value="') +
+    dep_esc(letter.webAddress) +
+    ('" required></label><div class="grid g2"><label class="f"><span>Streets W' + 'est phone</span><input name="westPhone" value="') +
+    dep_esc(letter.westPhone) +
+    '" required></label><label class="f"><span>Streets East phone</span><input name="eastPhone" value="' +
+    dep_esc(letter.eastPhone) +
+    '" required></label></div><fieldset><legend>Sand sites · West Side / East Side</legend>' +
+    siteRows(letter.sites) +
+    ('</fieldset><label class="f"><span>Community assistance / closing line</s' + 'pan><textarea name="closing" rows="3" required>') +
+    dep_esc(letter.closing) +
+    "</textarea></label>" +
+    actorFields() +
+    '<p role="alert"></p><button class="btn btn-primary">Save reviewed seasonal content</button></form>'
+  );
+}
+
+/* The reviewed letter: entered values, the confirmed status, and phone lines rewritten in every west-side row. */
+function reviewedLetter(letter, v) {
+  const updated = {
+    ...letter,
+    ...Object.fromEntries(LETTER_FIELDS.map((k) => [k, v[k]])),
+    reviewStatus: "Confirmed by named administrator",
+    sites: letter.sites.map((_, n) => [v["west-" + n], v["east-" + n]]),
+  };
+  updated.sites = updated.sites.map(([a, b]) => [
+    a.replace(/Streets West: [\d-]+/, "Streets West: " + updated.westPhone).replace(/Streets East: [\d-]+/, "Streets East: " + updated.eastPhone),
+    b,
+  ]);
+  return updated;
+}
+
+async function saveLetter(services, letter, e) {
+  e.preventDefault();
+  const form = e.target,
+    v = Object.fromEntries(new FormData(form));
+  try {
+    const updated = reviewedLetter(letter, v);
+    const result = await services.helperJSON("/administration/snow-letter", {
+      administrator: v.administrator,
+      reason: v.reason,
+      sourceReference: v.sourceReference,
+      confirmed: v.confirmed === "on",
+      letter: updated,
+    });
+    services.snow.setLetter(result.letter);
+    document.getElementById("utility-dialog")?.close();
+    services.toast("Seasonal content updated for new snow citations.");
+    services.render();
+  } catch (error) {
+    form.querySelector("[role=alert]").textContent = error.message;
+  }
+}
+
 export function initAdministration(services) {
   const esc = (value) => dep_esc(value);
   function overrideFault(c, d) {
@@ -57,14 +154,6 @@ export function initAdministration(services) {
     if (!b) return "";
     return overrideAuthorizationFault(b) || overrideCitationFault(b, c, k) || overrideHistoryFault(b, c);
   }
-  const actorFields = () =>
-    '<label class="f"><span>Named administrator</span><input name="administra' +
-    'tor" required minlength="2"></label><label class="f"><span>Reason (at le' +
-    'ast 20 characters)</span><textarea name="reason" required minlength="20"' +
-    ' rows="3"></textarea></label><label class="f"><span>Court / division sou' +
-    'rce reference</span><input name="sourceReference" required></label><labe' +
-    'l><input type="checkbox" name="confirmed" required> I confirm this admin' +
-    "istrative decision and its source.</label>";
   async function openOverride() {
     if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper) {
       services.toast("Connect the local helper and case folder first.");
@@ -150,78 +239,8 @@ export function initAdministration(services) {
     }
     try {
       const { letter } = await services.helperJSON("/administration/snow-letter");
-      services.A11Y.utility(
-        "Administrator snow-letter review",
-        '<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, con' +
-          "tacts and web address. New citations use this review; issued copies keep" +
-          ' their frozen content.</p><div class="grid g2"><label class="f"><span>Sn' +
-          'ow season</span><input name="season" value="' +
-          esc(letter.season) +
-          ('" required placeholder="2026–27"></label><label class="f"><span>Reviewed' + ' on</span><input type="date" name="reviewedOn" value="') +
-          esc(letter.reviewedOn || "") +
-          ('" required></label></div><label class="f"><span>Snow-removal web address' + '</span><input type="url" name="webAddress" value="') +
-          esc(letter.webAddress) +
-          ('" required></label><div class="grid g2"><label class="f"><span>Streets W' + 'est phone</span><input name="westPhone" value="') +
-          esc(letter.westPhone) +
-          '" required></label><label class="f"><span>Streets East phone</span><input name="eastPhone" value="' +
-          esc(letter.eastPhone) +
-          '" required></label></div><fieldset><legend>Sand sites · West Side / East Side</legend>' +
-          letter.sites
-            .map(
-              ([a, b], n) =>
-                '<div class="grid g2"><label class="f"><span>West Side · row ' +
-                (n + 1) +
-                '</span><textarea name="west-' +
-                n +
-                '" rows="2">' +
-                esc(a) +
-                '</textarea></label><label class="f"><span>East Side · row ' +
-                (n + 1) +
-                '</span><textarea name="east-' +
-                n +
-                '" rows="2">' +
-                esc(b) +
-                "</textarea></label></div>",
-            )
-            .join("") +
-          ('</fieldset><label class="f"><span>Community assistance / closing line</s' + 'pan><textarea name="closing" rows="3" required>') +
-          esc(letter.closing) +
-          "</textarea></label>" +
-          actorFields() +
-          '<p role="alert"></p><button class="btn btn-primary">Save reviewed seasonal content</button></form>',
-      );
-      document.getElementById("admin-snow-letter-form").onsubmit = async (e) => {
-        e.preventDefault();
-        const form = e.target,
-          v = Object.fromEntries(new FormData(form));
-        try {
-          const updated = {
-            ...letter,
-            ...Object.fromEntries(["season", "reviewedOn", "webAddress", "westPhone", "eastPhone", "closing"].map((k) => [k, v[k]])),
-            reviewStatus: "Confirmed by named administrator",
-            sites: letter.sites.map((_, n) => [v["west-" + n], v["east-" + n]]),
-          };
-          updated.sites = updated.sites.map(([a, b]) => [
-            a
-              .replace(/Streets West: [\d-]+/, "Streets West: " + updated.westPhone)
-              .replace(/Streets East: [\d-]+/, "Streets East: " + updated.eastPhone),
-            b,
-          ]);
-          const result = await services.helperJSON("/administration/snow-letter", {
-            administrator: v.administrator,
-            reason: v.reason,
-            sourceReference: v.sourceReference,
-            confirmed: v.confirmed === "on",
-            letter: updated,
-          });
-          services.snow.setLetter(result.letter);
-          document.getElementById("utility-dialog")?.close();
-          services.toast("Seasonal content updated for new snow citations.");
-          services.render();
-        } catch (error) {
-          form.querySelector("[role=alert]").textContent = error.message;
-        }
-      };
+      services.A11Y.utility("Administrator snow-letter review", letterFormHTML(letter));
+      document.getElementById("admin-snow-letter-form").onsubmit = (e) => saveLetter(services, letter, e);
     } catch (error) {
       services.toast(error.message);
     }
