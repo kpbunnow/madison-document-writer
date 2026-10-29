@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 50,
     "max-depth": 0,
-    "max-lines-per-function": 111,
+    "max-lines-per-function": 110,
     "python": 15
   },
   "violations": {
@@ -139,8 +139,7 @@
     "app/modules/reinspection.js:createReinspection#1/recordReinspectionOutcome#1:complexity": 21,
     "app/modules/reports_core.js:anonymous#5:complexity": 46,
     "app/modules/reports_core.js:anonymous#5:max-lines-per-function": 173,
-    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 921,
-    "app/modules/reports_screens.js:createReportsScreens#1/dataView#1:max-lines-per-function": 94,
+    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 873,
     "app/modules/reports_screens.js:createReportsScreens#1/filtersBar#1:max-lines-per-function": 86,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 581,
     "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,

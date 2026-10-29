@@ -1057,3 +1057,9 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Unlocated-case explanations retain missing/invalid/unlooked/unmatched parcel precedence and wording. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15}.
+
+## report-coverage-rows
+
+Coverage rows retain missing/stale/unreadable/mismatched summaries, unlocated cases and parcel notes. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 111, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15}.
