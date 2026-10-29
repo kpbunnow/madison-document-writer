@@ -260,6 +260,7 @@ covers, or a new suite under its feature.
 | `audit_r21_reports.js` | Saved date semantics, read-only Reports-to-Writer transport |
 | `audit_r48_reports.js`, `audit_r49_ui.js`, `audit_r50_report_errors.js` | Filters, ordering, coverage wording, report errors |
 | `audit_server_reporting.py` | Reporting endpoints over real HTTP |
+| `audit_publication_lifecycle_rules.js` | 8,000 seeded case records of every document type compare the publication lifecycle checks with the retained module: ordered messages, every peer read and call in order, refusal at each interrupted read and untouched inputs. |
 | `audit_publication_flow_rules.js` | 5,000 seeded scenarios compare the issuance flow with the retained module: result, errors, ordered peer reads and calls with the editor state at each call, draft effects and refusal at every interrupted read or call. |
 | `audit_summary_projection_rules.js` | 4,500 synthetic corpus cases compare the browser summary projection and event replay with the retained module: summaries, refusals, untouched inputs and both case-list modes. |
 | `audit_case_projection_phases.py` | 3,000 synthetic corpus cases compare the helper replay and projection with the retained functions for both workspace modes: results, workspace consultation, refusals and untouched inputs. |
