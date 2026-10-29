@@ -1159,3 +1159,9 @@ Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 10
 Separate field merge and conflict classification from shared identity/history checks. Preserve field order, checkpoint semantics and live unfinished-work default timing. Existing catalog-service assertions pass on both sources with boundaries, seams, lint and format.
 
 Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+
+## shared-case-generated-rules
+
+Supplement public-owner tests with 5,000 generated actual-validator cases covering field merging and conflict classifications beyond identity refusal. Existing assertions remain unchanged.
+
+Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
