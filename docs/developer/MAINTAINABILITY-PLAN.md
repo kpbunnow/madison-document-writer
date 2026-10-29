@@ -1224,3 +1224,9 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 Separate the large Reports click handler into period, view/filter, drill, subject and action phases through twelve scoped lazy inputs. Construction stays inert and core retains the original listener position. All5,100 comparisons retain first-match routing, synchronous errors/effects, state-read order and interruption behavior. Fresh build, complete Reports, R48, mismatch, architecture/utilities, boundaries, seams, lint and formatting pass. Complexity37 to36, long functions98 to97.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-coverage-owner-test
+
+Replace the evaluated application bundle in the mismatched-summary regression with actual model, catalog, screens, print and navigation owners. The fixture uses the real render coordinator, screen shell, row model, print preparation and click handler; no startup core or private diagnostics are evaluated. All17 original assertions are structurally unchanged, including exclusion from exports/screen/print and the real Data navigation click. Both migrated report suites pass; evaluator files77 to76, all54 hooks retained. Lint and seam ratchet pass.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
