@@ -800,6 +800,7 @@
     "tests/unit/audit_shared_case_storage_parity.js",
     "tests/unit/audit_shared_comparison_parity.js",
     "tests/unit/audit_shared_comparison_rules.js",
+    "tests/unit/audit_shared_preflight_rules.js",
     "tests/unit/audit_shell_boundaries.js",
     "tests/unit/audit_shell_escaping.js",
     "tests/unit/audit_snow_repaint.js",

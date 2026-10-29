@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_shared_preflight_rules.js` | 168 asynchronous retained-source scenarios for preflight and shared replacement |
 | `audit_shared_comparison_rules.js` | 5,000 retained-source field/history/checkpoint comparisons |
 | `audit_shared_comparison_parity.js` | Unchanged catalog public-owner comparisons against original and maintained source |
 | `audit_integrity_classification_rules.js` | 238 downgrade and real-chain comparisons plus unchanged RFC8785/WebCrypto assertions |
