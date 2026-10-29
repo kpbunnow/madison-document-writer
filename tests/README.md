@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
 | `audit_check_focus_rules.js` | 700 retained DOM/state/timer comparisons plus existing worksheet and outcome checks |
 | `audit_reinspection_outcome_rules.js` | 4,032 retained outcome/undo comparisons with real live records, focus and interrupted effects |
 | `audit_check_target_rules.js` | 4,075 retained target comparisons plus existing public owner and frozen screen checks |

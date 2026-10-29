@@ -1,0 +1,42 @@
+function prepare(d) {
+    if (!d?.draft || !is(d) || d.pendingAmendment) return;
+    if (startup.HELPER?.ok && !letterLoaded && !loading)
+      void loadLetter().then((ok) => {
+        if (ok && editor.state.docId === d.id) services.renderKeep();
+      });
+    d.authoringVersion = 11;
+    d.caseType = SNOW_TYPE;
+    d.snow = d.snow || { snowfallDate: "", inches: "", condition: "", photographed: false, cornerNotCleared: false };
+    d.inspDate = d.inspDate || docCase(d).date || "";
+    d.inspTime = d.inspTime || docCase(d).time || "";
+    d.snowInspectionId = d.inspDate + "T" + d.inspTime;
+    if (d.items.length !== 1) return;
+    const i = d.items[0];
+    if (itemLibraryKey(i) !== SNOW_KEY) return;
+    i.due = null;
+    i.dueExempt = SNOW_TYPE;
+    i.cite = true;
+    d.cits = d.cits || {};
+    const c = d.cits[i.id] || {
+      num: services.citationNumber(),
+      ord: "10.28",
+      preparedSections: ["10.28"],
+      desc: CITATION_POLICY.snowDefaultDescription,
+      deptId: docInsp(d).badge || "",
+      issued: d.mailed,
+      issuedAutomatic: true,
+      courtDate: services.nextCourtDate(d.mailed),
+      courtTime: courtTime(),
+      depositMode: "schedule",
+    };
+    d.cits[i.id] = c;
+    c.violDate = d.inspDate;
+    c.violTime = d.inspTime;
+    if (
+      services.validISO(d.snow.snowfallDate) &&
+      Number(d.snow.inches) > 0 &&
+      ["snow covered", "ice covered", "snow and ice covered"].includes(d.snow.condition)
+    )
+      c.comment = comment(d);
+    else c.comment = "";
+  }

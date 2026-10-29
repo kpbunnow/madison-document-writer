@@ -1266,3 +1266,9 @@ Measured counts: {'complexity': 34, 'max-depth': 0, 'max-lines-per-function': 97
 Deduplicate pre-merge and post-merge case serialization in one synchronous helper. Keep both existing try/catch boundaries, fresh case reads, failure wording, permission/merge/write/queue ordering and partial effects. All4,048 full retained-save comparisons and original refusal assertions pass, with architecture/boundaries, lint and formatting. Complexity33 to32, no new/worsened debt or public-interface/format/trust change.
 
 Measured counts: {'complexity': 33, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## snow-inspection-preparation
+
+Name the existing snow authoring/inspection defaults while leaving required-guard precedence and asynchronous letter-loading checkpoint intact. All1,824 comparisons retain draft/case identity, authoring11, inspection fallbacks, existing/new citation fields, comment facts, repeated preparation, helper reads and service failures. Existing writer-service listener audit, R33 snow, R36/R37 import regressions, fresh build, architecture/boundaries, seams, lint and format pass. Complexity32 to31; no rule, wording, authoring cutoff or release identity changes.
+
+Measured counts: {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
