@@ -1606,7 +1606,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
             if n <= 0 or n > 1024 * 1024:
                 return self._json(413, {"ok": False, "error": "that request is not a parcel list"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            try:
+                data = json.loads(self.rfile.read(n).decode("utf-8"))
+            except ValueError:
+                data = None
+            if not isinstance(data, dict):
+                return self._json(400, {"ok": False, "error": "Send a JSON object with a list of parcels."})
             ids = data.get("ids") or []
             if not isinstance(ids, list) or len(ids) > 5000:
                 return self._json(400, {"ok": False, "error": "ids must be a list of parcels"})

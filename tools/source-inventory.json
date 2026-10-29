@@ -742,6 +742,7 @@
     "tests/unit/audit_lookup.py",
     "tests/unit/audit_lookup_query_rules.py",
     "tests/unit/audit_lookup_settings_rules.py",
+    "tests/unit/audit_malformed_input_rules.py",
     "tests/unit/audit_manual_publication.py",
     "tests/unit/audit_markup_inventory.js",
     "tests/unit/audit_message_paint_rules.js",
