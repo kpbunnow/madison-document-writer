@@ -2,9 +2,6 @@
    27.05(2)(g)2. — Reports lists, filters and counts both as one ordinance. Stored summaries are unchanged. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage } = require("../fixtures/built_bundle.cjs");
-const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
-const payload = bundleSource(builtPage("reports"));
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {
     url: "http://127.0.0.1:8777/madison-reports.html",
     pretendToBeVisual: true,
@@ -13,6 +10,7 @@ const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></h
 w.__NO_AUTOLOAD__ = true;
 Object.assign(global, { window: w, document: w.document, localStorage: w.localStorage, location: w.location });
 w.scrollTo = () => {};
+const { ReportsState, buildModel, violOk, reportById, applyReportView, restoreReportReturn } = require("../fixtures/report_analysis.cjs")();
 const test = () => {
   const summary = (number, section, ordinance) => ({
     summaryVersion: 6,
@@ -99,4 +97,5 @@ const test = () => {
   assert.equal(localStorage.getItem("madison-report-return-v1"), returnContext, "return preferences stay unchanged");
   console.log("PASS R61 Reports treats 27.05(2)(g)2 and 27.05(2)(g)2. as one ordinance");
 };
-eval(payload + "\n(" + test.toString() + ")();process.exit(0);");
+test();
+process.exit(0);

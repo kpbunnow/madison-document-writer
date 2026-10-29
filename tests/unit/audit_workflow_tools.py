@@ -13,7 +13,7 @@ import server
 
 class WorkflowToolsTests(unittest.TestCase):
     def test_every_frontend_report_can_share_a_view(self):
-        source = (Path(__file__).resolve().parents[2] / "app/modules/reports_core.js").read_text(encoding="utf-8")
+        source = (Path(__file__).resolve().parents[2] / "app/modules/report_catalog.js").read_text(encoding="utf-8")
         reports = set(re.findall(r'^    id: "([^"]+)",', source, re.M))
         self.assertEqual(len(reports), 11)
         self.assertEqual(reports, workflow.REPORTS, "frontend reports and helper shared-view rules must agree")

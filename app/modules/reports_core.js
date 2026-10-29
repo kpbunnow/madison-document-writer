@@ -1,3 +1,5 @@
+import { STREET_WORDS, areaIdOf } from "./report_facts.js";
+export { STREET_WORDS, areaIdOf };
 import { openAt as reportOpenAt } from "./report_facts.js";
 import { createReportReturn } from "./report_return.js";
 import { iso, validISO, fmtDate, fmtNum, fmtDays, fmtMoney, plural, uniq, avg, ownerKeyLabel, areaLabel, inPeriod, violOk } from "./report_facts.js";
@@ -298,45 +300,6 @@ export const TODAY = iso(new Date());
    before the city line that starts with a number or PO BOX.
    Management-company addresses are kept: every owner using one manager
    shares its key, and the report lists every owner name under a key. */
-export const STREET_WORDS = {
-  STREET: "ST",
-  STR: "ST",
-  AVENUE: "AVE",
-  AV: "AVE",
-  AVN: "AVE",
-  ROAD: "RD",
-  DRIVE: "DR",
-  DRV: "DR",
-  LANE: "LN",
-  COURT: "CT",
-  BOULEVARD: "BLVD",
-  BLV: "BLVD",
-  PLACE: "PL",
-  PARKWAY: "PKWY",
-  PKY: "PKWY",
-  CIRCLE: "CIR",
-  TERRACE: "TER",
-  TRAIL: "TRL",
-  HIGHWAY: "HWY",
-  SQUARE: "SQ",
-  CROSSING: "XING",
-  RIDGE: "RDG",
-  NORTH: "N",
-  SOUTH: "S",
-  EAST: "E",
-  WEST: "W",
-  NORTHEAST: "NE",
-  NORTHWEST: "NW",
-  SOUTHEAST: "SE",
-  SOUTHWEST: "SW",
-  APARTMENT: "UNIT",
-  APT: "UNIT",
-  SUITE: "UNIT",
-  STE: "UNIT",
-  RM: "UNIT",
-  ROOM: "UNIT",
-  FLOOR: "FL",
-};
 
 /* ---------- geometry ---------- */
 
@@ -346,11 +309,6 @@ export const STREET_WORDS = {
 /* The property carrying the area's identifier. The district layer's field
    name is not known in advance, so the first property whose name reads as a
    district (or ZIP) and whose values all fit is used. */
-
-export const areaIdOf = (f, field) =>
-  String((f.properties || {})[field] == null ? "" : (f.properties || {})[field])
-    .trim()
-    .replace(/^0+(\d)/, "$1");
 
 /* ---------- state ---------- */
 export const TILE = {

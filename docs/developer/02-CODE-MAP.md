@@ -90,3 +90,5 @@ report_catalog.createReportCatalog owns the eleven named report definitions. Con
 report_facts owns thirteen existing date/number, collection and filter calculations without startup or storage. Reports core keeps its previous exported bindings and initializes TODAY at its original checkpoint. report_facts also owns the unchanged historical open-case predicate through the existing version/notice/status service inputs; the catalog test composes public owners directly and no longer extracts core function bodies.
 
 report_return.createReportReturn owns optional Writer return preferences through four lazy callbacks. It retains storage/read refusal, canonicalization, two relative-date reads and the original partial mutation/render order; core constructs it at the former definition point.
+
+The R61 ordinance regression composes public Reports model/history/catalog/return owners through a test-only scoped fixture, with rendering outside its rule assertions. All former assertions are retained. Report lookup words and area identification live in report_facts; core keeps its prior exports.

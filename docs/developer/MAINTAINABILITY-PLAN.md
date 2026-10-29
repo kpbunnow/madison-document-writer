@@ -1194,3 +1194,15 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 Move formatting/filter facts and historical openness to report_facts and return preferences to a four-input inert owner. Core retains original exports and TODAY initialization. Source-body and direct live/date checks pass; catalog tests compose public owners without extracting private core bodies. 389 return comparisons retain canonical filters, duplicate relative-date calls, optional-storage refusal and partial effects. Boundaries, seams, lint and formatting pass. No new or worsened debt.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-ordinance-owner-test
+
+Migrate the R61 ordinance suite from evaluated startup bundle to actual independently composed owners, retaining every assertion byte-for-byte. Reduce whole-bundle files79 to78, retain all54 hooks pending other consumers. Move unchanged lookup facts to the public fact owner with added source-body parity. Fix the Python shared-view inventory source path after catalog extraction; PR273 failed only because it still scanned core (0 instead of11 definitions), and all six assertions now pass against the correct defining owner. Existing expectations and trust rules unchanged. Public fact/catalog/return, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-history-binding-regression
+
+The Reports assembly stopped because esbuild assigned the imported fact helper the historical openAt diagnostic binding; retained bundle tests called it without history inputs. Rename only the internal helper binding and preserve its public export alias. The unchanged complete Reports suite now passes, as do public fact/catalog comparisons, boundaries, seams, lint and formatting. This corrects the PR275 regression before integration publication; no failed Reports source entered main.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.

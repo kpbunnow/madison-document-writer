@@ -20,8 +20,54 @@ export const areaLabel = (k, F) => (!k ? "Unlocated" : (F || ReportsState.S.F).a
 export const inPeriod = (d, F) => validISO(d) && d >= F.from && d <= F.to;
 export const violOk = (v, F) => (!F.vtype || v.type === F.vtype) && (!F.ord || v.sections.indexOf(F.ord) >= 0);
 
-export function openAt(c, date, history) {
+function reportCaseOpenAt(c, date, history) {
   return c.caseType === "snow-10.28"
     ? c.documents.some((d) => d.type === "citation" && history.versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
     : history.noticeAt(c, date) && !["Closed", "Withdrawn"].includes(history.statusAt(c, date));
 }
+
+export const STREET_WORDS = {
+  STREET: "ST",
+  STR: "ST",
+  AVENUE: "AVE",
+  AV: "AVE",
+  AVN: "AVE",
+  ROAD: "RD",
+  DRIVE: "DR",
+  DRV: "DR",
+  LANE: "LN",
+  COURT: "CT",
+  BOULEVARD: "BLVD",
+  BLV: "BLVD",
+  PLACE: "PL",
+  PARKWAY: "PKWY",
+  PKY: "PKWY",
+  CIRCLE: "CIR",
+  TERRACE: "TER",
+  TRAIL: "TRL",
+  HIGHWAY: "HWY",
+  SQUARE: "SQ",
+  CROSSING: "XING",
+  RIDGE: "RDG",
+  NORTH: "N",
+  SOUTH: "S",
+  EAST: "E",
+  WEST: "W",
+  NORTHEAST: "NE",
+  NORTHWEST: "NW",
+  SOUTHEAST: "SE",
+  SOUTHWEST: "SW",
+  APARTMENT: "UNIT",
+  APT: "UNIT",
+  SUITE: "UNIT",
+  STE: "UNIT",
+  RM: "UNIT",
+  ROOM: "UNIT",
+  FLOOR: "FL",
+};
+export const areaIdOf = (f, field) =>
+  String((f.properties || {})[field] == null ? "" : (f.properties || {})[field])
+    .trim()
+    .replace(/^0+(\d)/, "$1");
+
+export { reportCaseOpenAt as openAt };
