@@ -666,18 +666,27 @@ def validate_case(record, legacy=False):
     if not isinstance(case, dict) or any(not isinstance(case.get(k), str) or not case[k].strip() for k in ("number", "id")):
         raise ValueError("Case number and identity are required")
     case_number_key(case["number"])
-    if not isinstance(record.get("events"), list) or not isinstance(record.get("inspectors", []), list):
+    inspectors = record.get("inspectors", [])
+    if not isinstance(record.get("events"), list) or not isinstance(inspectors, list) or any(not isinstance(x, dict) for x in inspectors):
         raise ValueError("Invalid event or inspector list")
     seen = set()
     for event in record["events"]:
-        if not isinstance(event, dict) or not isinstance(event.get("id"), str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", event["id"]):
-            raise ValueError("Invalid event identity")
-        if event["id"] in seen:
-            raise ValueError("Duplicate event identity")
-        seen.add(event["id"])
-        if not isinstance(event.get("type"), str) or not event["type"].strip() or not isinstance(event.get("payload", {}), dict):
+        _require_valid_event(event, seen)
+
+
+def _require_valid_event(event, seen):
+    if not isinstance(event, dict) or not isinstance(event.get("id"), str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", event["id"]):
+        raise ValueError("Invalid event identity")
+    if event["id"] in seen:
+        raise ValueError("Duplicate event identity")
+    seen.add(event["id"])
+    if not isinstance(event.get("type"), str) or not event["type"].strip() or not isinstance(event.get("payload", {}), dict):
+        raise ValueError("Invalid event")
+    if event["type"].endswith(".issued"):
+        snapshot = event.get("payload", {}).get("snapshot", {})
+        if not isinstance(snapshot, dict):
             raise ValueError("Invalid event")
-        if event["type"].endswith(".issued") and event.get("payload", {}).get("snapshot", {}).get("draft"):
+        if snapshot.get("draft"):
             raise ValueError("A working draft cannot be published to the shared record")
 
 
@@ -690,12 +699,21 @@ def remap(event, old_id, new_id):
     return event
 
 
+UNREADABLE_CASE = "This case file could not be read as a Madison case record. It has been left unchanged; ask an administrator to review it."
+
+
 def read_case(folder, name):
     target = Path(folder) / safe_json_name(name)
     require_plain_file(target)
     raw = target.read_bytes()
-    value = json.loads(raw)
-    return {"ok": True, "file": value, "integrity": case_integrity.verify_record(value, folder), "revision": digest(raw), "name": target.name}
+    try:
+        value = json.loads(raw)
+        if not isinstance(value, dict):
+            raise ValueError("not a case record")
+        integrity = case_integrity.verify_record(value, folder)
+    except (ValueError, RecursionError, TypeError, AttributeError, KeyError):
+        raise ValueError(UNREADABLE_CASE) from None
+    return {"ok": True, "file": value, "integrity": integrity, "revision": digest(raw), "name": target.name}
 
 
 def _catalog_publication_reviews(catalog_file):
@@ -751,15 +769,24 @@ def validate_catalog_publication(current, incoming, catalog_file, manifest_file)
 
 
 @logged("case-save")
+def _has_priced_citation(record):
+    """Whether any event issues a priced citation. Wrong-shaped records answer no here; validation refuses them next."""
+    events = record.get("events") if isinstance(record, dict) else None
+    for event in events if isinstance(events, list) else []:
+        payload = event.get("payload") if isinstance(event, dict) else None
+        snapshot = payload.get("snapshot") if isinstance(payload, dict) else None
+        if not isinstance(snapshot, dict):
+            continue
+        version = snapshot.get("authoringVersion", 0)
+        if isinstance(version, (int, float)) and not isinstance(version, bool) and version >= 6 and snapshot.get("type") == "citation":
+            return True
+    return False
+
+
 def save_case(folder, name, incoming, base_revision="", base_case=None, idempotency_event="", catalog_file=None, manifest_file=None):
     # Different cases for one respondent share a pricing lock. The established
     # per-case lock still encloses merge/validate/write, and retries remain exact.
-    has_pricing = any(
-        e.get("payload", {}).get("snapshot", {}).get("authoringVersion", 0) >= 6
-        and e.get("payload", {}).get("snapshot", {}).get("type") == "citation"
-        for e in incoming.get("events", [])
-    )
-    lock = file_lock(Path(folder), "citation-pricing") if has_pricing else contextlib.nullcontext()
+    lock = file_lock(Path(folder), "citation-pricing") if _has_priced_citation(incoming) else contextlib.nullcontext()
     with lock:
         return _save_case(folder, name, incoming, base_revision, base_case, idempotency_event, catalog_file, manifest_file)
 
