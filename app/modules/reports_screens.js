@@ -358,6 +358,28 @@ function reportTableHeaderHTML(services, res, sort, isNum) {
     .join("");
 }
 
+function reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max) {
+  return rows
+    .map(
+      ({ row, ri }) =>
+        '<tr class="' +
+        `${row.dim ? "dim" : ""}` +
+        "" +
+        `${sel && sel.split(":")[0] === String(ri) ? " sel" : ""}` +
+        '">' +
+        "".concat(
+          cellsOf(row)
+            .map((x, ci) => {
+              const cell = cellHTML(x, ri, ci, max[ci], false);
+              return ci === 0 ? cell.replace("<td", '<th scope="row"').replace("</td>", "</th>") : cell;
+            })
+            .join(""),
+        ) +
+        "</tr>",
+    )
+    .join("");
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -691,27 +713,7 @@ export function createReportsScreens(services) {
       "</caption><thead><tr>" +
       "".concat(reportTableHeaderHTML(services, res, sort, isNum)) +
       "</tr></thead><tbody>\n    " +
-      "".concat(
-        rows
-          .map(
-            ({ row, ri }) =>
-              '<tr class="' +
-              `${row.dim ? "dim" : ""}` +
-              "" +
-              `${sel && sel.split(":")[0] === String(ri) ? " sel" : ""}` +
-              '">' +
-              "".concat(
-                cellsOf(row)
-                  .map((x, ci) => {
-                    const cell = cellHTML(x, ri, ci, max[ci], false);
-                    return ci === 0 ? cell.replace("<td", '<th scope="row"').replace("</td>", "</th>") : cell;
-                  })
-                  .join(""),
-              ) +
-              "</tr>",
-          )
-          .join(""),
-      ) +
+      "".concat(reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max)) +
       "\n    " +
       "".concat(res.total ? `<tr class="total">${res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join("")}</tr>` : "") +
       "\n  </tbody></table></div>" +
