@@ -1640,3 +1640,7 @@ Added a frozen-original comparison of the Windows case-lookup query (`audit_look
 ## lookup-settings-phases
 
 Added a frozen-original comparison of the case-lookup configuration (`audit_lookup_settings_rules.py`: 1,500 seeded shared and per-user settings folders against the retained function text). It compares the shared folder and file states, allowed keys and value rules (including the control-character and size boundaries), the approved-server check, the per-user certificate setting and the disabled switch, with the exact configuration or refusal. `settings` (C901 18) is now a shared-file reader, a settings check and a per-user certificate reader; all six deliberate mutations are caught after two boundary cases were added.
+
+## tool-form-submit-handlers
+
+Added a frozen-original comparison of the tool form submit listener (`audit_tool_form_submit_rules.js`: 4,000 seeded submits in real jsdom forms against the retained `workflow_events_reference.txt`) covering form selection, the search result markup, reminder preference clamping and plan filtering, the Outlook reminder draft, batch deadline staging and persistence, outbox sync with conflict severity, failure toasts, the button being re-enabled only while the form is connected, and every peer read and call in order. `registerToolForms` (86 lines, with an 84-line listener) is now a short listener over a form-id table of five module-level handlers. Ten deliberate mutations are caught.

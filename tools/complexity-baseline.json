@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 4,
     "max-depth": 0,
-    "max-lines-per-function": 51,
+    "max-lines-per-function": 49,
     "python": 5
   },
   "violations": {
@@ -55,9 +55,7 @@
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 388,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 94,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 99,
-    "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 168,
-    "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1:max-lines-per-function": 86,
-    "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolForms#1/anonymous#1:max-lines-per-function": 84,
+    "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 98,
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,
     "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 128,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 96,
