@@ -27,6 +27,8 @@ module.exports = async function createCitationDepositWorkflow() {
     export {createCitationDrafts} from './citation_drafts.js';
     export {createDocumentRenderer} from './document_render.js';
     export {createDocumentPrinting} from './document_printing.js';
+    export {createDocumentSources} from './document_sources.js';
+    export {clone} from './record_values.js';
     export {TEST_CASES} from './test_fixtures.js';`,
         resolveDir: path.resolve("app/modules"),
       },
@@ -129,6 +131,23 @@ module.exports = async function createCitationDepositWorkflow() {
     citationFaces: renderer.citationFaces,
     editorSync: quiet,
   });
+  const sources = a.createDocumentSources({
+    snow,
+    initialOrderCitation: () => false,
+    docBody: (d) => {
+      assert.equal(d.type, "citation", "court snapshot seam is citation-only");
+      assert.ok(
+        !d.fromReinspId && !d.correction && !d.frozen && d.authoringVersion < 11,
+        "court snapshot uses the retained standalone citation body",
+      );
+      return workflow.initialCitationBody(d);
+    },
+    docBlocks: (d) => {
+      const keys = sources.activeBlocks(d);
+      assert.deepEqual(keys, [], "standalone court citation has no notice blocks");
+      return keys;
+    },
+  });
   const editor = a.createEditorScreens({
     record: { snow, recordIntegrity },
     edit: { uid, saveDrafts: async () => true },
@@ -137,6 +156,8 @@ module.exports = async function createCitationDepositWorkflow() {
   const printing = a.createDocumentPrinting({ citationDepositFault: workflow.citationDepositFault });
   return {
     WriterState: s,
+    clone: a.clone,
+    freezeSources: sources.freezeSources,
     today,
     recordDay: a.recordDay,
     addDays: a.calendar.addDays,

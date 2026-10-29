@@ -1,22 +1,25 @@
-globalThis.MADISON_TEST_DATA = true;
+/* Retained court/mandatory/legacy-face regression through focused public citation owners. */
 const fs = require("fs"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-global.window = dom.window;
-global.document = dom.window.document;
-window.scrollTo = () => {};
-global.getSelection = () => window.getSelection();
-global.fetch = async () => {
-  throw Error("offline");
-};
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', { url: "http://127.0.0.1:8777/" });
+Object.assign(global, { window: dom.window, document: dom.window.document });
+(async () => {
+  const {
+    WriterState,
+    clone,
+    freezeSources,
+    today,
+    recordDay,
+    addDays,
+    doc,
+    newDoc,
+    initialCitations,
+    resolveCitationAmount,
+    policyAt,
+    citationFaces,
+  } = await require("../fixtures/citation_deposit_workflow.cjs")();
+
   const legacy = JSON.parse(fs.readFileSync("tests/fixtures/reference/r32-legacy-citation-face.json"));
   assert.equal(citationFaces(legacy.document, true), legacy.html);
   const fresh = clone(legacy.document);
@@ -74,5 +77,7 @@ const test = async () => {
   assert.match(d.items[0].citationReviewNotice, /corrected to 27.05/);
   console.log("PASS R33 immutable R32 faces, court fields, mandatory labels, size selection and draft library correction");
   process.exit(0);
-};
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

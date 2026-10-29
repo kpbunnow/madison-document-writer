@@ -432,3 +432,5 @@ code; each scenario label starts with the former name. Release reviews cite them
 `audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.
 
 R31 deposit and R32 pricing regressions compose real pricing, deposit/edit, court, initial-citation, editor and citation-face owners through `citation_deposit_workflow.cjs`; all41 original assertion ASTs remain unchanged, including Python3872-row parity and frozen historical face bytes. Native UI/save and non-snow/ordinary-draft adapters remain controlled.
+
+R33 court/mandatory-appearance/library correction now shares the focused citation composition, with real snapshot ownership and explicit retained standalone-citation body scope; all15 original assertion ASTs remain unchanged.

@@ -1418,3 +1418,7 @@ Convert the deposit completion form to the existing escaping screen tag. Existin
 ## citation-review-templates
 
 Convert citation review/charge cards, fields, pricing/authorization details and status fragments to the screen tag. Initial-citation narrative, deposit validation/editing rules and all other methods are excluded. Existing escaped values, owned field/card/form fragments and fixed attribute branches remain explicit raw boundaries. All4,096 retained/current comparisons preserve complete supported HTML, state and ordered peer access/effects/errors, with non-vacuous ready/held/completion/initial-preview coverage. Redundant empty-string concat is removed only for statically string-valued expressions. Print owners, deadlines, listeners, stored formats and release identities are unchanged.
+
+## citation-court-owner-test
+
+Migrate R33 court/mandatory-appearance/library-correction regression to the same focused citation owners, adding real document_sources composition for its retained authoring9 standalone court snapshot. The fixture explicitly refuses other body contexts and requires the real activeBlocks owner to return no notice blocks; it does not duplicate the core selector. All15 original assertion ASTs remain unchanged, including exact legacy face bytes, four copies, frozen court facts, mandatory refusal/labels and library correction. Existing public source/renderer tests retain broader historical coverage. Legacy evaluator files68 to67; hooks48 unchanged.
