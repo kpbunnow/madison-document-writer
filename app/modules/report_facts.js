@@ -77,3 +77,7 @@ export const D = (s) => (validISO(s) ? { d: s } : null);
 export const numOr = (v) => (/^\d+$/.test(String(v)) ? +v : v);
 
 export { formatReportDate as fmtDate };
+
+export function activeReportFilters(F) {
+  return !!(F.areas.length || F.inspector || F.vtype || F.ord || F.status || F.owner);
+}

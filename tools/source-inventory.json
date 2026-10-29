@@ -510,6 +510,7 @@
     "tests/fixtures/reference/r51-print-fixture-payload.js",
     "tests/fixtures/reinspection_entry_reference.txt",
     "tests/fixtures/reinspection_screen_reference.cjs",
+    "tests/fixtures/report_active_filters_reference.txt",
     "tests/fixtures/report_analysis.cjs",
     "tests/fixtures/report_catalog_reference.txt",
     "tests/fixtures/report_export_cell_reference.txt",

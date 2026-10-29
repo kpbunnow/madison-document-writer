@@ -55,6 +55,14 @@ assert.deepEqual(
   normalized(decls(parse(fs.readFileSync("tests/fixtures/report_metadata_reference.txt", "utf8")))),
   "shared report definitions and workbook scope retain their exact expressions",
 );
+const activeFilters = current.body.find((n) => n.declaration?.id?.name === "activeReportFilters").declaration;
+assert.deepEqual(
+  normalized(activeFilters.body.body[0].argument),
+  normalized(
+    parse("const expected=" + fs.readFileSync("tests/fixtures/report_active_filters_reference.txt", "utf8") + ";").body[0].declarations[0].init,
+  ),
+  "active filter predicate retains its original expression",
+);
 const open = current.body.find((n) => n.type === "FunctionDeclaration" && n.id.name === "reportCaseOpenAt");
 function unscoped(x) {
   if (Array.isArray(x)) return x.map(unscoped);

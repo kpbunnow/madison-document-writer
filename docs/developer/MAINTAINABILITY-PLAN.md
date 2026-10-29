@@ -1227,6 +1227,12 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 
 ## report-coverage-owner-test
 
-Replace the evaluated application bundle in the mismatched-summary regression with actual model, catalog, screens, print and navigation owners. The fixture uses the real render coordinator, screen shell, row model, print preparation and click handler; no startup core or private diagnostics are evaluated. All17 original assertions are structurally unchanged, including exclusion from exports/screen/print and the real Data navigation click. Both migrated report suites pass; evaluator files77 to76, all54 hooks retained. Lint and seam ratchet pass.
+Replace the evaluated application bundle in the mismatched-summary regression with actual model, catalog, screens, print and navigation owners. The fixture uses the real render coordinator, screen shell, row model, print preparation and click handler; no startup core or private diagnostics are evaluated. All13 original assertions are structurally unchanged, including exclusion from exports/screen/print and the real Data navigation click. Both migrated report suites pass; evaluator files77 to76, all54 hooks retained. Lint and seam ratchet pass.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-preference-owner-test
+
+Migrate the R48 output/preferences/overlapping-read suite from evaluated startup to public owners. Retain every assertion, real focus/disclosure restoration, saved preferences/storage failure behavior, malformed sorts, stale request exclusion and deposit table. Native fetch remains a controlled adapter with a synthetic page token; helper authorization code and production test flags remain unchanged. Move the active-filter expression unchanged to report_facts for shared composition. Whole-bundle files76 to75; all54 diagnostic hooks retained. All migrated Reports suites, 5,100 event comparisons, fact parity, full Reports regression, scoped architecture, boundaries, seams, lint and formatting pass. Correct the earlier coverage-entry assertion count to13.
 
 Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.

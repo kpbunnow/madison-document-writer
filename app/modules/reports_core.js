@@ -1,3 +1,4 @@
+import { activeReportFilters } from "./report_facts.js";
 import { createReportNavigation } from "./report_navigation.js";
 import { D, numOr } from "./report_facts.js";
 export { D, numOr };
@@ -491,10 +492,7 @@ export const reportById = (id) => REPORTS.find((r) => r.id === id);
 
 export const actions = () => reportActions();
 
-export const activeFilters = () => {
-  const F = ReportsState.S.F;
-  return !!(F.areas.length || F.inspector || F.vtype || F.ord || F.status || F.owner);
-};
+export const activeFilters = () => activeReportFilters(ReportsState.S.F);
 
 /* ---------- map ---------- */
 ReportsState.MAP = null;
