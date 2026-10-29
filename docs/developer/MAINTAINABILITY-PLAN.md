@@ -1450,3 +1450,11 @@ Added two independent frozen-original comparisons over the synthetic projection 
 Both implementations are split into the same ordered phases, named alike in each language: replay (issued, correction, visit patch, visit, void link and a document-event table) and summary (roster names, document facts, case status, active visits, item numbers, citation rows, visit outcome, document and visit history, violation rows and row builders for the case block, restrictions, extensions, snow inspections, visits, documents, corrections and referrals). Statement order is unchanged so the first refusing expression is too. The existing browser/helper parity audit and the real Writer flows pass unchanged. The helper's `summarize()` mirror comments name the phases so a rule change is made on both sides.
 
 Measured counts: {'complexity': 26, 'max-depth': 0, 'max-lines-per-function': 85, 'python': 15} → {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13}.
+
+## issuance-flow-phases
+
+Added a frozen-original comparison of `publishDocument` before changing it (`audit_publication_flow_rules.js`: 5,000 seeded scenarios against the retained `publication_workflow_reference.txt`, 944 with injected interruptions). It compares the result, thrown error, every peer read and call in order with the editor state at each call, draft effects and the final editor state.
+
+`publishOnce` is now a short sequence of module-level phases that take the owner's `services`: outright refusal, helper and catalog guards, citation history check, blockers, initial-document preparation, commit, filing and Workspace return. Messages, ordering and the single-flight guard are unchanged. Four deliberate mutations (a changed modal clear, an extra render, a changed focus condition and a dropped initial-citation wait) are caught.
+
+Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}.

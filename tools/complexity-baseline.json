@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 23,
+    "complexity": 22,
     "max-depth": 0,
-    "max-lines-per-function": 82,
+    "max-lines-per-function": 80,
     "python": 13
   },
   "violations": {
@@ -77,9 +77,6 @@
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 156,
     "app/modules/publication_preparation.js:createPublicationPreparation#1:max-lines-per-function": 114,
     "app/modules/publication_preparation.js:createPublicationPreparation#1/lifecycleChecks#1:complexity": 46,
-    "app/modules/publication_workflow.js:createPublicationWorkflow#1:max-lines-per-function": 153,
-    "app/modules/publication_workflow.js:createPublicationWorkflow#1/publishOnce#1:complexity": 55,
-    "app/modules/publication_workflow.js:createPublicationWorkflow#1/publishOnce#1:max-lines-per-function": 122,
     "app/modules/record_commit.js:createRecordCommit#1:max-lines-per-function": 86,
     "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:complexity": 38,
     "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:max-lines-per-function": 83,
