@@ -242,64 +242,28 @@ function worksheetItemContext({ src, it, r, readOnly, dueCheck }) {
 
 function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
   const { ix, res, oc, walkCurrent, late, open, carried, lock, dc, walkHidden } = worksheetItemContext({ src, it, r, readOnly, dueCheck });
-  return (
-    '<div class="ri-item ' +
-    `${walkCurrent ? "ri-walk-current" : ""}` +
-    '" data-ri-item="' +
-    `${esc(it.id)}` +
-    '" data-oc="' +
-    `${esc(oc)}` +
-    '" ' +
-    `${walkHidden ? "hidden" : ""}` +
-    " " +
-    `${walkCurrent ? 'data-ri-walk-current="true" aria-current="step" tabindex="-1"' : ""}` +
-    '>\n      <div class="ri-top">\n        <span class="ri-no">' +
-    `${esc(it.no || String(ix + 1))}` +
-    '.</span>\n        <span class="ri-ttl">' +
-    `${esc(it.title || "Violation item")}` +
-    "</span>\n        " +
-    `${(it.sections || []).map((x) => `<span class="cite-sec">${esc(x)}</span>`).join("")}` +
-    '\n        <span class="ri-due ' +
-    `${late ? "over" : ""}` +
-    '">Was due ' +
-    `${services.inspection.fmtDate(it.due)}` +
-    '</span>\n      </div>\n      <div class="ri-body">' +
-    `${markBlanks(it.text || "")}` +
-    '</div>\n      <div class="seg" role="group" aria-label="Result for item ' +
-    `${esc(it.no || String(ix + 1))}` +
-    '">\n        ' +
-    "".concat(
-      OUTCOMES.map(
-        (o) =>
-          '<button data-setoc="' +
-          `${esc(o.id)}` +
-          '" data-item="' +
-          `${esc(it.id)}` +
-          '" ' +
-          `${lock ? "disabled" : ""}` +
-          ' aria-pressed="' +
-          `${oc === o.id ? "true" : "false"}` +
-          '">' +
-          `${esc(o.label)}` +
-          "</button>",
-      ).join(""),
-    ) +
-    "\n      </div>\n      " +
-    "".concat(
-      carried
-        ? '<p class="ri-carried">' +
-            "".concat(
+  return html`<div class="ri-item ${walkCurrent ? "ri-walk-current" : ""}" data-ri-item="${it.id}" data-oc="${oc}" ${walkHidden ? "hidden" : ""} ${raw(walkCurrent ? html`data-ri-walk-current="true" aria-current="step" tabindex="-1"` : "")}>
+      <div class="ri-top">
+        <span class="ri-no">${it.no || String(ix + 1)}.</span>
+        <span class="ri-ttl">${it.title || "Violation item"}</span>
+        ${raw((it.sections || []).map((x) => html`<span class="cite-sec">${x}</span>`).join(""))}
+        <span class="ri-due ${late ? "over" : ""}">Was due ${services.inspection.fmtDate(it.due)}</span>
+      </div>
+      <div class="ri-body">${raw(markBlanks(it.text || ""))}</div>
+      <div class="seg" role="group" aria-label="Result for item ${it.no || String(ix + 1)}">
+        ${raw(OUTCOMES.map((o) => html`<button data-setoc="${o.id}" data-item="${it.id}" ${lock ? "disabled" : ""} aria-pressed="${oc === o.id ? "true" : "false"}">${o.label}</button>`).join(""))}
+      </div>
+      ${raw(
+        carried
+          ? html`<p class="ri-carried">${raw(
               oc === "withdrawn"
                 ? "Withdrawn as entered in error; excluded from compliance counts."
-                : "Cleared on " + esc(services.inspection.fmtDate(res.on)) + " and carried forward.",
-            ) +
-            "</p>"
-        : "",
-    ) +
-    "\n      " +
-    worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc }) +
-    "\n      </div>"
-  );
+                : html`Cleared on ${services.inspection.fmtDate(res.on)} and carried forward.`,
+            )}</p>`
+          : "",
+      )}
+      ${raw(worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc }))}
+      </div>`;
 }
 
 function worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, walkItemReady }) {
