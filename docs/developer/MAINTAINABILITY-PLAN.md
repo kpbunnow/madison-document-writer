@@ -1458,3 +1458,11 @@ Added a frozen-original comparison of `publishDocument` before changing it (`aud
 `publishOnce` is now a short sequence of module-level phases that take the owner's `services`: outright refusal, helper and catalog guards, citation history check, blockers, initial-document preparation, commit, filing and Workspace return. Messages, ordering and the single-flight guard are unchanged. Four deliberate mutations (a changed modal clear, an extra render, a changed focus condition and a dropped initial-citation wait) are caught.
 
 Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}.
+
+## lifecycle-check-phases
+
+Added a frozen-original comparison of `lifecycleChecks` before changing it (`audit_publication_lifecycle_rules.js`: 8,000 seeded case records of every document type against the retained `publication_preparation_reference.txt`, 327 with injected interruptions). It compares ordered messages, every peer read and call in order, refusal at each interrupted read and untouched inputs, and fails if the generator stops reaching any message family.
+
+`lifecycleChecks` now assembles module-level phases in the original order: record, follow-up, visit, item, referral, citation and mailing faults. Four deliberate mutations (reordered phases, a dropped current-document read, a changed date bound and an extra peer read) are caught.
+
+Measured counts: {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13} → {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13}.
