@@ -5,6 +5,7 @@ import { addDays } from "./calendar.js";
 import { distinctDues, dueItems } from "./document_rules.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { kase, eventsFor } from "./writer_queries.js";
+import { html, raw } from "./screen_html.js";
 
 export function timelineCategory(type) {
   return type.endsWith(".issued")
@@ -42,28 +43,16 @@ export function createCaseActivity(services) {
     const rows = remindersDue();
     return !rows.length
       ? ""
-      : '<section class="card" aria-labelledby="reminders-title"><h2 id="reminder' +
-          's-title">Upcoming reminders</h2><ul>' +
+      : html`<section class="card" aria-labelledby="reminders-title"><h2 id="reminders-title">Upcoming reminders</h2><ul>${raw(
           "".concat(
             rows
               .map(
                 (row) =>
-                  "<li>" +
-                  `${dep_esc(kase(row.cid).number)}` +
-                  " · " +
-                  `${dep_esc(row.kind)}` +
-                  " · " +
-                  `${services.fmtDate(row.date)}` +
-                  ' <button class="btn btn-sm" data-reminder-draft="' +
-                  `${dep_esc(row.id)}` +
-                  '">Email draft</button> <button class="btn btn-sm" data-reminder-dismiss=' +
-                  '"' +
-                  `${dep_esc(row.id)}` +
-                  '">Dismiss for today</button></li>',
+                  html`<li>${kase(row.cid).number} · ${row.kind} · ${raw(services.fmtDate(row.date))} <button class="btn btn-sm" data-reminder-draft="${row.id}">Email draft</button> <button class="btn btn-sm" data-reminder-dismiss="${row.id}">Dismiss for today</button></li>`,
               )
               .join(""),
-          ) +
-          "</ul></section>";
+          ),
+        )}</ul></section>`;
   }
 
   function showReminders() {
@@ -71,16 +60,7 @@ export function createCaseActivity(services) {
     const prefs = workspace.WORKFLOW_PREFS.reminders;
     services.A11Y.utility(
       "Optional reminders",
-      "<p>Reminders appear when you open this workspace. Email drafts open only" +
-        ' when requested, for you to review and send.</p><form id="reminder-setti' +
-        'ngs"><label><input name="enabled" type="checkbox" ' +
-        `${prefs.enabled ? "checked" : ""}` +
-        "> Show upcoming due dates and planned reinspections</label><label>Days a" +
-        'head <input name="days" type="number" min="1" max="30" value="' +
-        `${prefs.days}` +
-        '" required></label><table><caption>Personal reinspection plans in this b' +
-        'rowser profile</caption><thead><tr><th scope="col">Case</th><th scope="c' +
-        'ol">Planned date</th></tr></thead><tbody>' +
+      html`<p>Reminders appear when you open this workspace. Email drafts open only when requested, for you to review and send.</p><form id="reminder-settings"><label><input name="enabled" type="checkbox" ${raw(prefs.enabled ? "checked" : "")}> Show upcoming due dates and planned reinspections</label><label>Days ahead <input name="days" type="number" min="1" max="30" value="${raw(prefs.days)}" required></label><table><caption>Personal reinspection plans in this browser profile</caption><thead><tr><th scope="col">Case</th><th scope="col">Planned date</th></tr></thead><tbody>${raw(
         "".concat(
           workspace.CASES.filter((k) => !services.caseState(k).closed)
             .map(
@@ -96,9 +76,8 @@ export function createCaseActivity(services) {
                 '"></td></tr>',
             )
             .join(""),
-        ) +
-        '</tbody></table><button class="btn" type="submit">Save reminder preferen' +
-        "ces</button></form>",
+        ),
+      )}</tbody></table><button class="btn" type="submit">Save reminder preferences</button></form>`,
     );
   }
 
@@ -120,19 +99,7 @@ export function createCaseActivity(services) {
         "\n\nPlease contact Building Inspection with any questions.";
     services.A11Y.utility(
       "Review reminder email draft",
-      '<form id="reminder-email"><label>Recipient <input type="email" name="to"' +
-        ' required list="reminder-recipients" value="' +
-        `${dep_esc(k.emails?.[0]?.addr || "")}` +
-        '"><datalist id="reminder-recipients">' +
-        `${(k.emails || []).map((e) => `<option value="${dep_esc(e.addr)}">`).join("")}` +
-        '</datalist></label><label>Subject <input name="subject" maxlength="200" ' +
-        'required value="' +
-        `${dep_esc(subject)}` +
-        '"></label><label>Message <textarea name="body" required maxlength="12000' +
-        '" rows="8">' +
-        `${dep_esc(body)}` +
-        '</textarea></label><button class="btn" type="submit">Open Outlook draft<' +
-        "/button></form>",
+      html`<form id="reminder-email"><label>Recipient <input type="email" name="to" required list="reminder-recipients" value="${k.emails?.[0]?.addr || ""}"><datalist id="reminder-recipients">${raw((k.emails || []).map((e) => `<option value="${dep_esc(e.addr)}">`).join(""))}</datalist></label><label>Subject <input name="subject" maxlength="200" required value="${subject}"></label><label>Message <textarea name="body" required maxlength="12000" rows="8">${body}</textarea></label><button class="btn" type="submit">Open Outlook draft</button></form>`,
     );
   }
 
@@ -151,17 +118,13 @@ export function createCaseActivity(services) {
       k = kase(cid);
     services.A11Y.utility(
       "Case timeline — " + k.number,
-      '<label>Event filter <select id="timeline-filter">' +
+      html`<label>Event filter <select id="timeline-filter">${raw(
         "".concat(
           ["all", "issued", "corrected", "withdrawn", "filed", "recorded", "other"]
             .map((value) => `<option value="${value}" ${value === filter ? "selected" : ""}>${value}</option>`)
             .join(""),
-        ) +
-        '</select></label><button class="btn" data-timeline-csv>Export filtered C' +
-        'SV</button> <button class="btn" data-timeline-json>Export full event log' +
-        "</button><table><caption>Read-only case event log</caption><thead><tr><t" +
-        'h scope="col">Time (Chicago)</th><th scope="col">Event</th><th scope="co' +
-        'l">Recorded by</th><th scope="col">Details</th></tr></thead><tbody>' +
+        ),
+      )}</select></label><button class="btn" data-timeline-csv>Export filtered CSV</button> <button class="btn" data-timeline-json>Export full event log</button><table><caption>Read-only case event log</caption><thead><tr><th scope="col">Time (Chicago)</th><th scope="col">Event</th><th scope="col">Recorded by</th><th scope="col">Details</th></tr></thead><tbody>${raw(
         "".concat(
           rows
             .map(
@@ -179,8 +142,8 @@ export function createCaseActivity(services) {
                 "</td></tr>",
             )
             .join("") || '<tr><td colspan="4">No matching events.</td></tr>',
-        ) +
-        "</tbody></table>",
+        ),
+      )}</tbody></table>`,
     );
   }
   return { remindersDue, remindersPanel, showReminders, showReminderDraft, timelineRows, showTimeline };

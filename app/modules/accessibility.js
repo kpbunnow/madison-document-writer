@@ -1,3 +1,4 @@
+import { html, raw } from "./screen_html.js";
 function messageMarkup(m, callbacks, safe) {
   return (
     '<div class="toast message-' +
@@ -268,13 +269,7 @@ export function createAccessibility() {
     dialog.id = "utility-dialog";
     dialog.className = "utility-dialog";
     dialog.setAttribute("aria-labelledby", "utility-title");
-    dialog.innerHTML =
-      '<h2 id="utility-title">' +
-      `${safe(title)}` +
-      "</h2>" +
-      `${body}` +
-      '<div class="utility-actions"><button class="btn" data-utility-close>Clos' +
-      "e</button></div>";
+    dialog.innerHTML = html`<h2 id="utility-title">${raw(safe(title))}</h2>${raw(body)}<div class="utility-actions"><button class="btn" data-utility-close>Close</button></div>`;
     document.body.append(dialog);
     requestPaint();
     const previous = utilityInvoker;
@@ -306,24 +301,13 @@ export function createAccessibility() {
   function shortcuts() {
     utility(
       "Keyboard shortcuts",
-      "<table><caption>Writer and Reports keyboard shortcuts</caption><thead><t" +
-        'r><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody' +
-        '><tr><th scope="row">?</th><td>Open this sheet outside a text field</td>' +
-        '</tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls i' +
-        'nside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Clos' +
-        'e a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S /' +
-        " Command+S</th><td>Save Writer work on this device</td></tr><tr><th scop" +
-        'e="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress m' +
-        'ade / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last ' +
-        'outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>' +
-        "Activate the focused button or blank bubble</td></tr></tbody></table>",
+      '<table><caption>Writer and Reports keyboard shortcuts</caption><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">?</th><td>Open this sheet outside a text field</td></tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls inside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Close a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S / Command+S</th><td>Save Writer work on this device</td></tr><tr><th scope="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress made / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>Activate the focused button or blank bubble</td></tr></tbody></table>',
     );
   }
   function showHistory() {
     utility(
       "Message history",
-      "<p>The latest 200 messages in this browser profile. Dismissed alerts rem" +
-        "ain here.</p><ol>" +
+      html`<p>The latest 200 messages in this browser profile. Dismissed alerts remain here.</p><ol>${raw(
         "".concat(
           history
             .slice()
@@ -341,8 +325,8 @@ export function createAccessibility() {
                 "</p></li>",
             )
             .join("") || "<li>No messages yet.</li>",
-        ) +
-        "</ol>",
+        ),
+      )}</ol>`,
     );
   }
   function rememberFocus() {
@@ -383,10 +367,7 @@ export function createAccessibility() {
       if (!nav.querySelector("[data-a11y-history]"))
         nav.insertAdjacentHTML(
           "beforeend",
-          '<button class="rail-item" data-a11y-history>Message history</button><but' +
-            'ton class="rail-item" data-a11y-help>Keyboard shortcuts (?)</button><lab' +
-            'el class="rail-theme">Theme <select data-a11y-theme aria-label="Colour t' +
-            'heme">' +
+          html`<button class="rail-item" data-a11y-history>Message history</button><button class="rail-item" data-a11y-help>Keyboard shortcuts (?)</button><label class="rail-theme">Theme <select data-a11y-theme aria-label="Colour theme">${raw(
             "".concat(
               [
                 ["system", "Use device setting"],
@@ -396,8 +377,8 @@ export function createAccessibility() {
               ]
                 .map(([value, label]) => `<option value="${value}" ${theme === value ? "selected" : ""}>${label}</option>`)
                 .join(""),
-            ) +
-            "</select></label>",
+            ),
+          )}</select></label>`,
         );
     });
     enhanceDocumentControls();

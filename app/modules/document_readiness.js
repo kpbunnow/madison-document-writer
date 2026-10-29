@@ -235,9 +235,7 @@ const baseReadinessRules = [
       draft
         ? draft +
           (draft === 1 ? " item uses" : " items use") +
-          (" draft language or retired catalog language; division review is required" +
-            ". Open Order language or choose a reviewed item. Editing text alone cann" +
-            "ot approve it.")
+          " draft language or retired catalog language; division review is required. Open Order language or choose a reviewed item. Editing text alone cannot approve it."
         : "No unreviewed or retired catalog language",
   },
   {

@@ -4,6 +4,7 @@ import { doc, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 import { clone } from "./record_values.js";
+import { html } from "./screen_html.js";
 
 export function hasSetupWork() {
   return !!editor.state.acc || !!String(editor.WORK.entry?.["lookup-number"] || "").trim();
@@ -17,26 +18,11 @@ export function importResumePanel() {
       address = c && c.address;
     const detail = [number, address].filter(Boolean).join(" · ");
     const issue = acc.shareError ? "The shared record needs attention before you can confirm." : "";
-    return (
-      '<section class="attention-import" aria-label="Import awaiting review"><d' +
-      'iv class="attention-import-copy"><span class="attention-eyebrow">Import ' +
-      "awaiting review</span><strong>" +
-      `${esc(detail || acc.fileName || "Inspection result")}` +
-      "</strong><span>" +
-      `${esc(issue || "Review the inspection result and confirm what to do next.")}` +
-      '</span></div><button class="btn btn-primary" data-nav="import">Review im' +
-      "port</button></section>"
-    );
+    return html`<section class="attention-import" aria-label="Import awaiting review"><div class="attention-import-copy"><span class="attention-eyebrow">Import awaiting review</span><strong>${detail || acc.fileName || "Inspection result"}</strong><span>${issue || "Review the inspection result and confirm what to do next."}</span></div><button class="btn btn-primary" data-nav="import">Review import</button></section>`;
   }
   const number = String(editor.WORK.entry?.["lookup-number"] || "").trim();
   return number
-    ? '<section class="attention-import" aria-label="Import in progress"><div c' +
-        'lass="attention-import-copy"><span class="attention-eyebrow">Import in p' +
-        "rogress</span><strong>Case " +
-        `${esc(number)}` +
-        "</strong><span>Your case search is saved on this device.</span></div><bu" +
-        'tton class="btn btn-primary" data-nav="import">Continue search</button><' +
-        "/section>"
+    ? html`<section class="attention-import" aria-label="Import in progress"><div class="attention-import-copy"><span class="attention-eyebrow">Import in progress</span><strong>Case ${number}</strong><span>Your case search is saved on this device.</span></div><button class="btn btn-primary" data-nav="import">Continue search</button></section>`
     : "";
 }
 
@@ -70,18 +56,8 @@ export function workingNotesPanel() {
 export function filingPanel(d) {
   if (!d || d.draft || d.void || d.superseded || d.filedAt) return "";
   if (deliveredByCitation(d))
-    return (
-      '<div class="banner info no-print"><div><strong>Delivered within the cita' +
-      "tion.</strong> This Official Notice record holds the case deadlines. It " +
-      "was not mailed separately; the citation letter carried its order languag" +
-      "e.</div></div>"
-    );
-  return (
-    '<div class="banner warn no-print"><div><strong>PDF filing needed.</stron' +
-    'g> The case record is issued. <button class="btn" id="btn-retryfiling">F' +
-    "ile issued PDF</button> Keep any manually saved copy with the case recor" +
-    "d.</div></div>"
-  );
+    return '<div class="banner info no-print"><div><strong>Delivered within the citation.</strong> This Official Notice record holds the case deadlines. It was not mailed separately; the citation letter carried its order language.</div></div>';
+  return '<div class="banner warn no-print"><div><strong>PDF filing needed.</strong> The case record is issued. <button class="btn" id="btn-retryfiling">File issued PDF</button> Keep any manually saved copy with the case record.</div></div>';
 }
 
 export function createWorkingPapers(services) {

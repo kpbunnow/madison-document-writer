@@ -3,8 +3,8 @@ import { editorState as editor } from "./editor_state.js";
 /* Safety event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { kase, docsFor } from "./writer_queries.js";
-import { esc } from "./presentation_format.js";
 import { deliveredByCitation } from "./document_rules.js";
+import { html } from "./screen_html.js";
 function openPendingSafetyAction(services, st) {
   if (st.pendingDoc) {
     editor.state.docId = st.pendingDoc.id;
@@ -71,21 +71,7 @@ function showIntegrityEvidence(services, cid) {
   const proof = services.recordIntegrity.status(kase(cid));
   services.A11Y.utility(
     "Record verification details",
-    "<p>" +
-      `${esc(kase(cid).number)}` +
-      " · " +
-      `${esc(proof.label)}` +
-      "</p><p>Keep this case read-only and ask an administrator to review the r" +
-      "etained evidence. No automatic repair is performed.</p><details><summary" +
-      ">Technical evidence</summary><p>Event: " +
-      `${esc(proof.eventId || "Unavailable")}` +
-      " · expected: " +
-      `${esc(proof.expected || "Unavailable")}` +
-      " · actual: " +
-      `${esc(proof.actual || "Unavailable")}` +
-      " · last good commit: " +
-      `${esc(proof.lastGoodCommitTime || "Unavailable")}` +
-      "</p></details>",
+    html`<p>${kase(cid).number} · ${proof.label}</p><p>Keep this case read-only and ask an administrator to review the retained evidence. No automatic repair is performed.</p><details><summary>Technical evidence</summary><p>Event: ${proof.eventId || "Unavailable"} · expected: ${proof.expected || "Unavailable"} · actual: ${proof.actual || "Unavailable"} · last good commit: ${proof.lastGoodCommitTime || "Unavailable"}</p></details>`,
   );
 }
 
@@ -181,10 +167,7 @@ export function createSafetyEvents(services) {
   function registerSafetyActions(target = document) {
     return registerEventOnce(target, "safety.registerSafetyActions", "click", async (e) => {
       const t = e.target.closest?.(
-        "[data-sync-safety],[data-setup-health],[data-health-probe],[data-diagnos" +
-          "tics-copy],[data-lock-inspect],[data-safety-case],[data-safety-backup],[" +
-          "data-safety-catalog],[data-safety-outbox],[data-safety-pending],[data-co" +
-          "nflict-apply],[data-safety-local]",
+        "[data-sync-safety],[data-setup-health],[data-health-probe],[data-diagnostics-copy],[data-lock-inspect],[data-safety-case],[data-safety-backup],[data-safety-catalog],[data-safety-outbox],[data-safety-pending],[data-conflict-apply],[data-safety-local]",
       );
       if (!t) return;
       try {

@@ -651,22 +651,7 @@ export function createWorkspaceEvents(services) {
   function registerWorkspaceClicks(target = document) {
     return registerEventOnce(target, "workspace.registerWorkspaceClicks", "click", async (e) => {
       const t = e.target.closest(
-        "[data-nav],[data-open],[data-new],[data-pick],[data-grp],[data-libcl],[d" +
-          "ata-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[da" +
-          "ta-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo]" +
-          ",[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk" +
-          "-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-to" +
-          "p,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#" +
-          "btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-ex" +
-          "portcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-acti" +
-          "on-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#bt" +
-          "n-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf" +
-          ",#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc" +
-          ",#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notec" +
-          "ite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-disca" +
-          "rdri],[data-discard],[data-openfolder],#btn-print,#btn-final" +
-          ",#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-pick,#acc-go,#acc-cance" +
-          "l,[data-acccase],[data-accsel]",
+        "[data-nav],[data-open],[data-new],[data-pick],[data-grp],[data-libcl],[data-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[data-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo],[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-top,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-exportcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-action-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#btn-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf,#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc,#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notecite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-discardri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-pick,#acc-go,#acc-cancel,[data-acccase],[data-accsel]",
       );
       if (!t) return;
       services.ui.captureWork();

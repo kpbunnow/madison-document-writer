@@ -9,6 +9,7 @@ import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
+import { html, raw } from "./screen_html.js";
 
 function mergeComparedCaseFields(fields, merged, a, b) {
   for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
@@ -117,22 +118,7 @@ function reviewLine(r) {
 
 function reviewComparison(i, r, f) {
   return r
-    ? "<details><summary>Compare bundled, reviewed and draft wording</summary><" +
-        "p><strong>Bundled:</strong> " +
-        `${esc(i.a)}` +
-        " · " +
-        `${esc(i.s.join("; "))}` +
-        "</p>\n      <p><strong>Current reviewed v" +
-        `${r.version}` +
-        ":</strong> " +
-        `${esc(r.wording)}` +
-        " · " +
-        `${esc(r.ordinances.join("; "))}` +
-        "</p>\n      <p><strong>Unsubmitted form:</strong> " +
-        `${esc(f.wording)}` +
-        " · " +
-        `${esc(f.ordinances)}` +
-        "</p></details>"
+    ? html`<details><summary>Compare bundled, reviewed and draft wording</summary><p><strong>Bundled:</strong> ${i.a} · ${i.s.join("; ")}</p>\n      <p><strong>Current reviewed v${raw(r.version)}:</strong> ${r.wording} · ${r.ordinances.join("; ")}</p>\n      <p><strong>Unsubmitted form:</strong> ${f.wording} · ${f.ordinances}</p></details>`
     : "";
 }
 
@@ -534,33 +520,13 @@ export function createLanguageCatalog(services) {
     if (!c) return "";
     const k = kase(c.cid),
       v = c.comparison;
-    return (
-      '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
-      '" aria-label="Shared case reconciliation"><div class="modal-h"><h2>Revie' +
-      'w shared case</h2></div>\n  <div class="modal-b"><p>Case ' +
-      `${esc(k.number)}` +
-      ": " +
-      `${esc(v.detail)}` +
-      ". Your drafts and pending identities are retained.</p>\n  " +
+    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Shared case reconciliation"><div class="modal-h"><h2>Review shared case</h2></div>\n  <div class="modal-b"><p>Case ${k.number}: ${v.detail}. Your drafts and pending identities are retained.</p>\n  ${raw(
       "".concat(
         v.fields?.length
-          ? "<table><thead><tr><th>Field</th><th>Local</th><th>Shared</th><th>Resolut" +
-              "ion</th></tr></thead><tbody>" +
-              `${conflictControls(c)}` +
-              "</tbody></table>"
+          ? html`<table><thead><tr><th>Field</th><th>Local</th><th>Shared</th><th>Resolution</th></tr></thead><tbody>${raw(conflictControls(c))}</tbody></table>`
           : "",
-      ) +
-      "\n  <p>Keeping local work resumes " +
-      `${esc(c.action)}` +
-      ". Issuance still requires reconciliation with the current shared record." +
-      '</p></div>\n  <div class="modal-f">' +
-      "".concat(v.kind === "conflict" ? '<button class="btn btn-primary" data-conflict-apply>Apply field choices and save</button>' : "") +
-      '<button class="btn" data-shared-export>Export local work</button><button' +
-      ' class="btn" data-shared-current ' +
-      `${c.file ? "" : "disabled"}` +
-      '>Open current shared case</button><button class="btn" data-shared-local>' +
-      "Keep working locally</button></div></div></div>"
-    );
+      ),
+    )}\n  <p>Keeping local work resumes ${c.action}. Issuance still requires reconciliation with the current shared record.</p></div>\n  <div class="modal-f">${raw("".concat(v.kind === "conflict" ? '<button class="btn btn-primary" data-conflict-apply>Apply field choices and save</button>' : ""))}<button class="btn" data-shared-export>Export local work</button><button class="btn" data-shared-current ${raw(c.file ? "" : "disabled")}>Open current shared case</button><button class="btn" data-shared-local>Keep working locally</button></div></div></div>`;
   }
 
   function keepChangedLocal() {
@@ -678,21 +644,7 @@ export function createLanguageCatalog(services) {
           "</td><td>" +
           "".concat(
             f.localChanged && f.sharedChanged && !["id", "number"].includes(f.field)
-              ? "<label>Resolution for " +
-                  `${esc(f.field)}` +
-                  ' <select data-conflict-choice="' +
-                  `${n}` +
-                  '"><option value="">Choose…</option><option value="mine">Keep mine</optio' +
-                  'n><option value="shared">Take shared</option><option value="merge">Merge' +
-                  " field</option></select></label><label>Merged " +
-                  `${esc(f.field)}` +
-                  ' <textarea data-conflict-value="' +
-                  `${n}` +
-                  '">' +
-                  `${esc(typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2))}` +
-                  "</textarea></label>" +
-                  "".concat(typeof f.local === "string" ? "" : "<small>Structured fields use JSON to preserve their value type.</small>") +
-                  ""
+              ? html`<label>Resolution for ${f.field} <select data-conflict-choice="${raw(n)}"><option value="">Choose…</option><option value="mine">Keep mine</option><option value="shared">Take shared</option><option value="merge">Merge field</option></select></label><label>Merged ${f.field} <textarea data-conflict-value="${raw(n)}">${typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2)}</textarea></label>${raw("".concat(typeof f.local === "string" ? "" : "<small>Structured fields use JSON to preserve their value type.</small>"))}`
               : `${f.localChanged ? "Keep local independent change" : "Take shared independent change"}`,
           ) +
           "</td></tr>",
@@ -711,9 +663,7 @@ export function createLanguageCatalog(services) {
       )
         throw new Error("Confirm the pending official save before merging case details");
       if (c.comparison.added && localCaseWork(c.cid))
-        throw new Error(
-          "Shared history changed while local work is unfinished. Export local work" + " and review the shared case before merging fields.",
-        );
+        throw new Error("Shared history changed while local work is unfinished. Export local work and review the shared case before merging fields.");
       const choices = {};
       c.comparison.fields.forEach((f, n) => {
         const el = document.querySelector('[data-conflict-choice="' + n + '"]');
@@ -822,16 +772,7 @@ export function createLanguageCatalog(services) {
     ];
     services.A11Y.utility(
       "Connection & setup",
-      "<table><caption>Connection and installation checks</caption><thead><tr><" +
-        'th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>' +
-        "".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")) +
-        "</tbody></table><p>" +
-        "".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")) +
-        '</p><button class="btn" data-health-probe>Test share write access</butto' +
-        'n> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><l' +
-        'abel>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">' +
-        "".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))) +
-        "</textarea></label>",
+      html`<table><caption>Connection and installation checks</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>${raw("".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")))}</tbody></table><p>${raw("".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")))}</p><button class="btn" data-health-probe>Test share write access</button> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><label>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">${raw("".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))))}</textarea></label>`,
     );
   }
 
@@ -852,27 +793,7 @@ export function createLanguageCatalog(services) {
     services.A11Y.utility(
       "Shared lock assistant",
       lock.present
-        ? "<p><strong>" +
-            `${esc(lock.scope || "Case saving")}` +
-            "</strong> is locked. Ask an administrator to check the owning helper.</p" +
-            "><p>Computer: <strong>" +
-            `${esc(lock.host)}` +
-            "</strong>. Process: " +
-            `${lock.pid}` +
-            ". Created: " +
-            `${esc(new Date(lock.at * 1000).toLocaleString())}` +
-            ". Age: " +
-            `${Math.floor(lock.ageSeconds / 60)}` +
-            " minutes.</p><p>Ask the administrator to verify that the owning helper h" +
-            "as stopped and no save is running. Age alone does not establish that a l" +
-            "ock is stale. Folder permissions govern administration; this form record" +
-            's the administrator\'s confirmation.</p><form id="lock-release-form"><lab' +
-            'el>Administrator name <input name="administrator" required minlength="2"' +
-            ' maxlength="120"></label><label>Verification and reason <textarea name="' +
-            'reason" required minlength="15" maxlength="1000"></textarea></label><lab' +
-            'el><input name="confirmed" type="checkbox" required> Administrator has c' +
-            'onfirmed it is safe to release this lock</label><button class="btn" type' +
-            '="submit">Release verified lock with audit note</button></form>'
+        ? html`<p><strong>${lock.scope || "Case saving"}</strong> is locked. Ask an administrator to check the owning helper.</p><p>Computer: <strong>${lock.host}</strong>. Process: ${raw(lock.pid)}. Created: ${new Date(lock.at * 1000).toLocaleString()}. Age: ${raw(Math.floor(lock.ageSeconds / 60))} minutes.</p><p>Ask the administrator to verify that the owning helper has stopped and no save is running. Age alone does not establish that a lock is stale. Folder permissions govern administration; this form records the administrator's confirmation.</p><form id="lock-release-form"><label>Administrator name <input name="administrator" required minlength="2" maxlength="120"></label><label>Verification and reason <textarea name="reason" required minlength="15" maxlength="1000"></textarea></label><label><input name="confirmed" type="checkbox" required> Administrator has confirmed it is safe to release this lock</label><button class="btn" type="submit">Release verified lock with audit note</button></form>`
         : "<p>No lock is present for this case.</p>",
     );
   }
@@ -906,12 +827,7 @@ export function createLanguageCatalog(services) {
     services.navigation.utilityContext();
     services.A11Y.utility(
       "Search shared case records",
-      '<form id="global-search-form"><label>Case, address, owner or citation nu' +
-        'mber <input type="search" name="query" required minlength="2" maxlength=' +
-        '"200" value="' +
-        `${esc(editor.state.caseQ)}` +
-        '"></label><button class="btn" type="submit">Search shared case records</button>' +
-        '</form><div id="global-search-results" aria-live="polite"></div>',
+      html`<form id="global-search-form"><label>Case, address, owner or citation number <input type="search" name="query" required minlength="2" maxlength="200" value="${editor.state.caseQ}"></label><button class="btn" type="submit">Search shared case records</button></form><div id="global-search-results" aria-live="polite"></div>`,
     );
   }
   return {

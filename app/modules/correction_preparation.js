@@ -84,15 +84,9 @@ export function createCorrectionPreparation(services) {
     if (d.superseded) return "This version has already been replaced. Open its current revision.";
     const latest = docsFor(d.caseId).find((x) => !x.draft && !x.superseded);
     if (!latest || latest.id !== d.id)
-      return (
-        "Later documents depend on this record. Add a record note here, then corr" + "ect the current document if its contents also need to change."
-      );
+      return "Later documents depend on this record. Add a record note here, then correct the current document if its contents also need to change.";
     if (reinspFor(d.caseId).some((r) => r.sourceDocId === d.id))
-      return (
-        "An inspection already uses this document. Add a record note here and cor" +
-        "rect its follow-up. Discard an unfinished worksheet first if it was star" +
-        "ted in error."
-      );
+      return "An inspection already uses this document. Add a record note here and correct its follow-up. Discard an unfinished worksheet first if it was started in error.";
     const draft = docsFor(d.caseId).find((x) => x.draft && x.id !== ownDraft);
     if (draft) return "Finish or discard the existing document draft before starting a correction.";
     return "";
@@ -115,8 +109,7 @@ export function createCorrectionPreparation(services) {
         t:
           issue ||
           (!sameHead
-            ? "The case changed after this correction was started. Keep this draft for " +
-              "reference, open the shared case, then start from its current version."
+            ? "The case changed after this correction was started. Keep this draft for reference, open the shared case, then start from its current version."
             : "The correction is based on the current case record"),
       },
       { ok: sameItems, t: "Previously issued item identities, order and numbers must stay unchanged" },
@@ -130,7 +123,7 @@ export function createCorrectionPreparation(services) {
       },
       {
         ok: !!src && c.case.number === docCase(src).number && correctionTypeAllowed(src, d.type),
-        t: "Case number stays fixed. A different follow-up type must use the same re" + "corded visit and the existing referral path",
+        t: "Case number stays fixed. A different follow-up type must use the same recorded visit and the existing referral path",
       },
       { ok: c.reason.trim().length >= 10 && c.reason.trim().length <= 1000, t: "Explain the error and correction (10–1,000 characters)" },
       {
@@ -152,7 +145,7 @@ export function createCorrectionPreparation(services) {
       },
       {
         ok: !(d.type === "citation" || isHistoryDoc(d) || specialType(d.type)) || c.externalReference.trim().length >= 10,
-        t: "Record court / City Attorney instructions or the reviewed division amend" + "ment reference before issuing this correction",
+        t: "Record court / City Attorney instructions or the reviewed division amendment reference before issuing this correction",
       },
       {
         ok: !!workspaceState.CASEDIR && !!workspaceState.CASEDIR.helper,

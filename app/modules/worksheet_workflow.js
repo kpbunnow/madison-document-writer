@@ -79,7 +79,7 @@ export function createWorksheetWorkflow(services) {
           faults.push("Set a future due date for each outstanding item.");
       });
     if (src.type === "compliance" || src.items.every((i) => i.withdrawn))
-      faults.push("This case is completed. New observations require a new case; correct a r" + "ecording error through the document history.");
+      faults.push("This case is completed. New observations require a new case; correct a recording error through the document history.");
     if (["extension", "bestInterestExtension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)
       faults.push("Use no more than three distinct due dates.");
     if (["extension", "bestInterestExtension", "citation"].includes(type) && dueDateSpacingConflicts(dueContext(r, true)).length)

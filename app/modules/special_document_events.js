@@ -15,10 +15,7 @@ export function createSpecialDocumentEvents(services) {
     return registerEventOnce(target, "specialDocument.registerActionChange", "change", (e) => {
       if (
         e.target.matches(
-          "[data-case-action-group],[data-case-action-type],[data-service-field],[d" +
-            "ata-action-group],[data-action-type],[data-special],[data-special-item]," +
-            "[data-special-due],[data-administrative-type],[dat" +
-            'a-special="administrativeType"]',
+          '[data-case-action-group],[data-case-action-type],[data-service-field],[data-action-group],[data-action-type],[data-special],[data-special-item],[data-special-due],[data-administrative-type],[data-special="administrativeType"]',
         )
       )
         services.newDocuments.editEvent(e);

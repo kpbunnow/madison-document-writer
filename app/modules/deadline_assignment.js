@@ -6,6 +6,7 @@ import { clone } from "./record_values.js";
 import { dueItems, distinctDues } from "./document_rules.js";
 import { doc, kase, reinsp } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
+import { html, raw } from "./screen_html.js";
 
 export function dueDateSpacingConflicts(items) {
   const byDate = new Map();
@@ -80,12 +81,7 @@ export function createDeadlineAssignment(services) {
     services.navigation.utilityContext();
     services.A11Y.utility(
       "Batch draft due dates",
-      "<p>Updates apply only to selected outstanding items in new editable noti" +
-        "ce drafts. All selected drafts are validated together before saving.</p>" +
-        '<form id="batch-due-form"><label>New due date <input type="date" name="d' +
-        'ue" min="' +
-        `${services.MINDUE()}` +
-        '" required></label>' +
+      html`<p>Updates apply only to selected outstanding items in new editable notice drafts. All selected drafts are validated together before saving.</p><form id="batch-due-form"><label>New due date <input type="date" name="due" min="${raw(services.MINDUE())}" required></label>${raw(
         "".concat(
           workspace.DOCS.filter((d) => services.structEditable(d) && !d.pendingAmendment)
             .map(
@@ -114,9 +110,8 @@ export function createDeadlineAssignment(services) {
                 "</fieldset>",
             )
             .join("") || "<p>No eligible notice drafts.</p>",
-        ) +
-        '<button class="btn" type="submit">Validate and save selected deadlines</' +
-        "button></form>",
+        ),
+      )}<button class="btn" type="submit">Validate and save selected deadlines</button></form>`,
     );
   }
 
@@ -140,50 +135,34 @@ export function createDeadlineAssignment(services) {
       dates = distinctDues(items);
     /* A notice draft selects items in the items table (data-due-select beside each due date), so its panel is a compact
      bar; the reinspection worksheet keeps its item list. Both apply through assignDue. */
-    return (
-      '<section class="card no-print authoring-panel' +
-      `${visit ? "" : " due-compact"}` +
-      '" aria-label="Assign due dates"><div class="card-h"><h2>Assign due dates' +
-      "</h2><span data-due-count>" +
-      `${dates.length}` +
-      ' of 3 dates used</span></div><div class="card-b"><p class="hint">' +
-      (visit
+    return html`<section class="card no-print authoring-panel${raw(visit ? "" : " due-compact")}" aria-label="Assign due dates"><div class="card-h"><h2>Assign due dates</h2><span data-due-count>${raw(dates.length)} of 3 dates used</span></div><div class="card-b"><p class="hint">${raw(
+      visit
         ? "Select items that share a deadline and apply a date. Up to three distinct deadlines are allowed."
-        : "Select items in the table above, then apply one date to them. Up to three distinct due dates are allowed.") +
-      "</p>" +
-      (visit
+        : "Select items in the table above, then apply one date to them. Up to three distinct due dates are allowed.",
+    )}</p>${raw(
+      visit
         ? '<div class="deadline-items">' +
-          items
-            .map(
-              (i) =>
-                '<label class="deadline-item"><input type="checkbox" data-due-select="' +
-                `${dep_esc(i.id)}` +
-                '" ' +
-                `${selected.has(i.id) ? "checked" : ""}` +
-                "><span><strong>Item " +
-                `${dep_esc(i.no)}` +
-                "</strong> · " +
-                `${dep_esc(i.title || "Violation")}` +
-                '<small data-due-label="' +
-                `${dep_esc(i.id)}` +
-                '">' +
-                `${i.due ? dep_esc(services.fmtDate(i.due)) : "Date needed"}` +
-                "</small></span></label>",
-            )
-            .join("") +
-          "</div>"
-        : "") +
-      '<div class="editor-tools">' +
-      ("<span data-due-selected>" + dueSelectedText(items, selected) + "</span>") +
-      '<button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear' +
-      ' selection</button><label for="bulk-due">Date for selected items</label>' +
-      '<input type="date" id="bulk-due" value="' +
-      `${dep_esc(work.date || "")}` +
-      '" min="' +
-      `${services.MINDUE()}` +
-      '"><button class="btn btn-primary" id="btn-bulkdue">Apply date to selected items</bu' +
-      "tton></div></div></section>"
-    );
+            items
+              .map(
+                (i) =>
+                  '<label class="deadline-item"><input type="checkbox" data-due-select="' +
+                  `${dep_esc(i.id)}` +
+                  '" ' +
+                  `${selected.has(i.id) ? "checked" : ""}` +
+                  "><span><strong>Item " +
+                  `${dep_esc(i.no)}` +
+                  "</strong> · " +
+                  `${dep_esc(i.title || "Violation")}` +
+                  '<small data-due-label="' +
+                  `${dep_esc(i.id)}` +
+                  '">' +
+                  `${i.due ? dep_esc(services.fmtDate(i.due)) : "Date needed"}` +
+                  "</small></span></label>",
+              )
+              .join("") +
+            "</div>"
+        : "",
+    )}<div class="editor-tools"><span data-due-selected>${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue">Apply date to selected items</button></div></div></section>`;
   }
 
   function assignDue(target, visit, value, ids) {

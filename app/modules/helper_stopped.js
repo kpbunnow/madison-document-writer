@@ -1,3 +1,4 @@
+import { html, raw } from "./screen_html.js";
 /* Shared by Writer and Reports: the state shown after Exit Document Writer stopped the local helper.
    Closing a window never stops the helper; only the authenticated Exit Document Writer request does. */
 const HELPER_STOPPED_CHANNEL = "madison-helper-stopped-v1";
@@ -8,14 +9,7 @@ export const helperStop = { stopped: false, channel: null, instance: "" };
 const escapeText = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 function stoppedHTML(details = []) {
-  return (
-    '<main data-helper-stopped style="max-width:620px;margin:12vh auto;padding:28px;font-family:system-ui">' +
-    '<h1 tabindex="-1">' +
-    STOPPED_TITLE +
-    "</h1><p>You can close this window. To start again, double-click <strong>Document Writer</strong> on the desktop.</p>" +
-    details.map((text) => "<p>" + escapeText(text) + "</p>").join("") +
-    "</main>"
-  );
+  return html`<main data-helper-stopped style="max-width:620px;margin:12vh auto;padding:28px;font-family:system-ui"><h1 tabindex="-1">${raw(STOPPED_TITLE)}</h1><p>You can close this window. To start again, double-click <strong>Document Writer</strong> on the desktop.</p>${raw(details.map((text) => "<p>" + escapeText(text) + "</p>").join(""))}</main>`;
 }
 
 /* Replace the page with the stopped state. Later renders and helper requests are refused (see authFetch). */

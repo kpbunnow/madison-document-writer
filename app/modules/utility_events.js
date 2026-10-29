@@ -59,9 +59,7 @@ export function createUtilityEvents(services) {
       const box = document.querySelector('[role="dialog"]');
       if (e.key === "Tab" && box) {
         const nodes = Array.from(
-          box.querySelectorAll(
-            "button:not([disabled]),input:not([disabled]),select:not([disabled]),text" + 'area:not([disabled]),a[href],[tabindex="0"]',
-          ),
+          box.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex="0"]'),
         ).filter((el) => !el.hidden && el.style.display !== "none");
         const first = nodes[0],
           last = nodes[nodes.length - 1];

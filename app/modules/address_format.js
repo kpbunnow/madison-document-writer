@@ -103,11 +103,7 @@ export function addressProblem(name, street, city) {
   if (!String(name || "").trim()) return "Enter the recipient name.";
   if (!standardStreetAddress(street)) return "Enter a street address with a street number and name (for example, 123 Main St).";
   if (!standardCityStateZip(city))
-    return (
-      "Enter city, a complete state name or two-letter abbreviation, and ZIP (f" +
-      "or example, Madison, WI 53703). Check ambiguous or unsupported state tex" +
-      "t."
-    );
+    return "Enter city, a complete state name or two-letter abbreviation, and ZIP (for example, Madison, WI 53703). Check ambiguous or unsupported state text.";
   return "";
 }
 

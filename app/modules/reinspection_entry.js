@@ -59,7 +59,7 @@ export function createReinspectionEntry(services) {
       return;
     }
     if (src.type === "compliance" || src.items.every((i) => i.withdrawn)) {
-      services.toast("This case is completed. Use a new case for new observations or correct a" + " recording error from the document history.");
+      services.toast("This case is completed. Use a new case for new observations or correct a recording error from the document history.");
       return;
     }
     const k = kase(cid);

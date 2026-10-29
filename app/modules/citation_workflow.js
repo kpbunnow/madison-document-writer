@@ -358,9 +358,7 @@ function chargeChecks(services, d, i, c, prefix, check) {
   check(
     !c.mandatoryAppearance,
     prefix +
-      ("mandatory-appearance citations need division-approved defendant instruct" +
-        "ions. Your draft is retained; ask the division to approve the wording be" +
-        "fore issuance."),
+      "mandatory-appearance citations need division-approved defendant instructions. Your draft is retained; ask the division to approve the wording before issuance.",
     ["ord"],
   );
   check(!i.done, prefix + "only outstanding violations may be cited.");
@@ -635,14 +633,12 @@ export function createCitationWorkflow(services) {
     if (services.initialOrderCitation(d)) return DOCBODY.initialCitation;
     return DOCBODY.citation
       .replace(
-        "<p>A reinspection found that the work on one or more items is incomplete" +
-          ". Below is a list of items that need further work and your new due date." +
-          "</p>",
-        "<p>An inspection documented the violations listed below. The compliance " + "deadlines remain those in the Official Notice.</p>",
+        "<p>A reinspection found that the work on one or more items is incomplete. Below is a list of items that need further work and your new due date.</p>",
+        "<p>An inspection documented the violations listed below. The compliance deadlines remain those in the Official Notice.</p>",
       )
       .replace("We are issuing a citation for the unfinished work.", "We are issuing a citation for the documented violation.")
       .replace(
-        " We may also charge a $75.00 reinspection fee since the work is incomple" + "te. The $75.00 fee is separate from the citation amount.",
+        " We may also charge a $75.00 reinspection fee since the work is incomplete. The $75.00 fee is separate from the citation amount.",
         "",
       );
   }

@@ -66,15 +66,7 @@ const NUISANCES = [
   ["custom", "Custom nuisance with verified authority", ""],
 ];
 const REMEDY =
-  "Remedy from Order. The Building Code, Fire Code, Conveyance Code & Licen" +
-  "sing Appeals Board, created by Section 29.18 of these Ordinances, shall " +
-  "have no authority to act on orders issued under this subsection. Any per" +
-  "son affected by orders issued under this subsection shall, within thirty" +
-  " (30) days of service or publication of the order, apply to the Circuit " +
-  "Court for an order restraining the City and the Director of Building Ins" +
-  "pection from entering on the premises and abating or removing the nuisan" +
-  "ce, or be forever barred. The court shall determine the reasonableness o" +
-  "f the order for abatement of the nuisance.";
+  "Remedy from Order. The Building Code, Fire Code, Conveyance Code & Licensing Appeals Board, created by Section 29.18 of these Ordinances, shall have no authority to act on orders issued under this subsection. Any person affected by orders issued under this subsection shall, within thirty (30) days of service or publication of the order, apply to the Circuit Court for an order restraining the City and the Director of Building Inspection from entering on the premises and abating or removing the nuisance, or be forever barred. The court shall determine the reasonableness of the order for abatement of the nuisance.";
 
 function specialVacancyScope({ add, s, need }) {
   add(s.scope === "building" || s.scope === "unit", "Choose building or apartment / unit scope.", "scope");
@@ -539,9 +531,7 @@ function abatementParagraphs(c) {
   paras.push(
     "If you do not " +
       (type === "summaryAbatement" ? "immediately " : "") +
-      ("abate the nuisance as ordered, the City will abate it. The costs will be" +
-        " assessed against the property as a special charge. Additional charges o" +
-        "r penalties may apply."),
+      "abate the nuisance as ordered, the City will abate it. The costs will be assessed against the property as a special charge. Additional charges or penalties may apply.",
   );
   if (type === "nonSummaryAbatement") paras.push(REMEDY);
 
@@ -588,9 +578,7 @@ function noOccupancyParagraphs(c) {
     paras.push(
       "The premises must remain vacant. Required release conditions: " +
         clause(val(s, "releaseConditions")) +
-        (". Before occupancy is allowed, the City of Madison Building Inspection D" +
-          "ivision must reinspect the premises, remove the placard, and give writte" +
-          "n permission to reoccupy."),
+        ". Before occupancy is allowed, the City of Madison Building Inspection Division must reinspect the premises, remove the placard, and give written permission to reoccupy.",
     );
     if (text(s.access)) paras.push("Approved access conditions: " + s.access);
   }
@@ -624,14 +612,13 @@ function legacyBestInterestParagraphs(c) {
         " have been referred for supervisory review of possible prosecution. The compliance date has passed.",
     );
   paras.push(
-    "We find that granting additional time is in the City’s best interest and" +
-      " yours. Reasons supporting this extension: " +
+    "We find that granting additional time is in the City’s best interest and yours. Reasons supporting this extension: " +
       clause(val(s, "reason")) +
-      (". You have indicated that you intend to correct the listed violations, a" + "nd no safety items are included in this extension."),
+      ". You have indicated that you intend to correct the listed violations, and no safety items are included in this extension.",
   );
   paras.push("The compliance dates for Item(s) " + refs + " are extended as shown below. Unlisted items retain their existing deadlines.");
   if (s.stage === "supervisory" && s.prosecutionClause)
-    paras.push("If the work is not completed by the extended date, the case will be forw" + "arded to the City Attorney for legal action.");
+    paras.push("If the work is not completed by the extended date, the case will be forwarded to the City Attorney for legal action.");
 
   return paras;
 }
@@ -652,9 +639,7 @@ function simpleVacancyParagraphs(c) {
       place +
       " must remain secure. The exterior" +
       (s.scope === "unit" ? " and building common areas" : "") +
-      (" must be maintained, including removal of trash and debris, grass cuttin" +
-        "g, sidewalk snow removal, and general exterior maintenance. The property" +
-        " may be inspected periodically, including unscheduled inspections."),
+      " must be maintained, including removal of trash and debris, grass cutting, sidewalk snow removal, and general exterior maintenance. The property may be inspected periodically, including unscheduled inspections.",
   );
   paras.push(
     "The next scheduled review inspection is " +
@@ -666,12 +651,9 @@ function simpleVacancyParagraphs(c) {
       contact(d) +
       " at least one week before that inspection (by " +
       date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
-      ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
-        "or Building Inspection approval may result in a citation or referral to " +
-        "the City Attorney. Failure to maintain the required areas may void this " +
-        "extension and result in enforcement action."),
+      "), or before occupancy, to arrange a reinspection. Occupancy without prior Building Inspection approval may result in a citation or referral to the City Attorney. Failure to maintain the required areas may void this extension and result in enforcement action.",
   );
-  paras.push("A further extension will be considered after the next inspection, provid" + "ed vacancy and the extension conditions continue.");
+  paras.push("A further extension will be considered after the next inspection, provided vacancy and the extension conditions continue.");
 
   return paras;
 }
@@ -693,9 +675,7 @@ function vacancyParagraphs(c) {
       (s.scope === "unit" ? "apartment / unit" : "building") +
       " must remain secure. The exterior" +
       (s.scope === "unit" ? " and building common areas" : "") +
-      (" must be maintained, including removal of trash and debris, grass cuttin" +
-        "g, sidewalk snow removal, and general exterior maintenance. The property" +
-        " may be inspected periodically, including unscheduled inspections."),
+      " must be maintained, including removal of trash and debris, grass cutting, sidewalk snow removal, and general exterior maintenance. The property may be inspected periodically, including unscheduled inspections.",
   );
   paras.push(
     "The next scheduled review inspection is " +
@@ -710,23 +690,15 @@ function vacancyParagraphs(c) {
       contact(d) +
       " at least one week before that inspection (by " +
       date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
-      ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
-        "or Building Inspection approval may result in a citation or referral to " +
-        "the City Attorney. Failure to maintain the required areas may void this " +
-        "extension and result in enforcement action."),
+      "), or before occupancy, to arrange a reinspection. Occupancy without prior Building Inspection approval may result in a citation or referral to the City Attorney. Failure to maintain the required areas may void this extension and result in enforcement action.",
   );
   paras.push(
-    "A further extension will be considered after the next inspection, provid" +
-      "ed vacancy and the extension conditions continue. Contact Building Inspe" +
-      "ction before a sale or transfer to arrange review of the outstanding vio" +
-      "lations and case responsibility.",
+    "A further extension will be considered after the next inspection, provided vacancy and the extension conditions continue. Contact Building Inspection before a sale or transfer to arrange review of the outstanding violations and case responsibility.",
   );
   paras.push("Approved conditions: " + val(s, "conditions"));
   paras.push(val(s, "transferClause"));
   paras.push(
-    "Security, urgent safety obligations and unlisted items are not extended." +
-      " Any existing No Occupancy order continues until explicitly released in " +
-      "writing.",
+    "Security, urgent safety obligations and unlisted items are not extended. Any existing No Occupancy order continues until explicitly released in writing.",
   );
 
   return paras;
@@ -1094,8 +1066,7 @@ function lifecycleFaults(services, d, src, r) {
 
 /* Click actions in priority order: the first whose attribute is present on the element handles it. */
 const CLICK_TARGETS =
-  "[data-create-action],[data-another-action],[data-case-action],[data-save" +
-  "-service],[data-create-case-action],[data-initial-notice],[data-adopt-best-interest]";
+  "[data-create-action],[data-another-action],[data-case-action],[data-save-service],[data-create-case-action],[data-initial-notice],[data-adopt-best-interest]";
 
 function adoptCurrentBestInterest({ services, restoreDues }) {
   const d = doc(editor.state.docId);

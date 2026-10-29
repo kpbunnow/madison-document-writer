@@ -76,6 +76,7 @@ const allowed = new Set([
   "document_rules.js",
   "writer_queries.js",
   "presentation_format.js",
+  "screen_html.js",
   "calendar.js",
   "mailing_rules.js",
   "record_values.js",

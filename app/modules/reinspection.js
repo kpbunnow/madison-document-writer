@@ -797,8 +797,7 @@ export function createReinspection(services) {
       label.toLowerCase() +
       " was issued with a compliance date of " +
       services.inspection.fmtDate(it.due) +
-      ". " +
-      "Re-inspection on " +
+      ". Re-inspection on " +
       services.inspection.fmtDate(res.on || r.date) +
       " found " +
       ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +

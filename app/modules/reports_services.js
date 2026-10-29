@@ -3,6 +3,7 @@ import { SUMMARY_VERSION, csvText, downloadText, normParcel } from "../assets/sh
 import { ReportsState } from "./state.js";
 import { authFetch } from "./helper_transport.js";
 import { orderedRows, validSort, rememberUI, restoreUI } from "./report_presentation.js";
+import { html, raw } from "./screen_html.js";
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
 function mergeParcelLookup(services, lk) {
@@ -222,8 +223,7 @@ export function createReportsServices(services) {
     const views = (await reportHelper("/reporting/views")).views;
     services.A11Y.utility(
       "Shared report views",
-      "<p>These preferences are stored in Reporting Index/Views. Relative dates" +
-        " are evaluated when loaded.</p><ul>" +
+      html`<p>These preferences are stored in Reporting Index/Views. Relative dates are evaluated when loaded.</p><ul>${raw(
         "".concat(
           views
             .map(
@@ -239,8 +239,8 @@ export function createReportsServices(services) {
                 '">Load view</button></li>',
             )
             .join("") || "<li>No shared views saved.</li>",
-        ) +
-        "</ul>",
+        ),
+      )}</ul>`,
     );
     document.querySelectorAll("[data-load-shared-view]").forEach((button) =>
       button.addEventListener("click", () => {
@@ -577,7 +577,7 @@ export function createReportsServices(services) {
       ReportsState.S.phase = "error";
       ReportsState.S.error =
         location.protocol === "file:"
-          ? "This page was opened as a file. Open it from the Document Writer (Report" + "s, in the left rail) so it can read the case folder."
+          ? "This page was opened as a file. Open it from the Document Writer (Reports, in the left rail) so it can read the case folder."
           : "The reporting data could not be read: " +
             (e.message || e) +
             ". Check that the Document Writer window is open and the share is reachable, then try again.";

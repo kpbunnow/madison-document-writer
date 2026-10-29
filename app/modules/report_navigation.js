@@ -191,9 +191,7 @@ export function createReportNavigation(services) {
     const t =
       e.target.closest &&
       e.target.closest(
-        "[data-screen],[data-view],[data-act],[data-drill],[data-case],[data-writ" +
-          "er],[data-owner],[data-areatype],[data-boundary],[data-basemap],[data-pe" +
-          "riod]",
+        "[data-screen],[data-view],[data-act],[data-drill],[data-case],[data-writer],[data-owner],[data-areatype],[data-boundary],[data-basemap],[data-period]",
       );
     if (!t) return;
     const d = t.dataset;

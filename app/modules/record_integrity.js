@@ -193,11 +193,7 @@ export function initRecordIntegrity(R) {
     const k = R.kase(R.doc(store.state.docId)?.caseId || store.state.caseId),
       s = status(k);
     if (s.valid && s.pendingTransaction)
-      return (
-        '<div class="banner info" role="status">The saved migration needs complet' +
-        "ion. Retry saving; if it continues, ask an administrator to review the p" +
-        "ending transaction.</div>"
-      );
+      return '<div class="banner info" role="status">The saved migration needs completion. Retry saving; if it continues, ask an administrator to review the pending transaction.</div>';
     if (s.valid)
       return s.legacyHistoryAsFound
         ? '<div class="banner info" role="status">Integrity is verified from migration on ' +

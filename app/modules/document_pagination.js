@@ -130,14 +130,7 @@ function contHead(d) {
   const h = document.createElement("div");
   h.className = "n-cont";
   h.innerHTML =
-    "<strong>" +
-    esc(k.address || "") +
-    "</strong><span>" +
-    esc(ty) +
-    " &middot; continued</span>" +
-    '<span class="r">' +
-    esc(k.number || "") +
-    "</span>";
+    "<strong>" + esc(k.address || "") + "</strong><span>" + esc(ty) + ' &middot; continued</span><span class="r">' + esc(k.number || "") + "</span>";
   return h;
 }
 

@@ -1,3 +1,4 @@
+import { html, raw } from "./screen_html.js";
 /* Spreadsheet XML only; screen rendering and workbook download keep their existing owners. */
 export function spreadsheetColumnName(i) {
   let s = "";
@@ -40,20 +41,13 @@ export function createSpreadsheetSheet(services) {
           '<row r="' + `${ri + 1}` + '">' + "".concat(row.map((v, ci) => spreadsheetCellXML(services, widths, opt, ri, ci, v)).join("")) + "</row>",
       )
       .join("");
-    return (
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-      (opt.header
-        ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="' +
-          'A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
-        : "") +
-      (widths.length
-        ? "<cols>" + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("") + "</cols>"
-        : "") +
-      "<sheetData>" +
-      body +
-      "</sheetData></worksheet>"
-    );
+    return html`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${raw(
+      opt.header
+        ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+        : "",
+    )}${raw(
+      widths.length ? "<cols>" + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("") + "</cols>" : "",
+    )}<sheetData>${raw(body)}</sheetData></worksheet>`;
   }
   return sheetXml;
 }

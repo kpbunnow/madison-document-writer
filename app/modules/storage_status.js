@@ -4,6 +4,7 @@ import { editorState as editor } from "./editor_state.js";
 import { SUMMARY_DIR } from "../assets/shared.js";
 import { esc, fmtDate } from "./presentation_format.js";
 import { BUILD } from "./data/build_identity.js";
+import { html } from "./screen_html.js";
 
 export function createStorageStatus(services) {
   function lastWriteStatus() {
@@ -77,14 +78,7 @@ export function createStorageStatus(services) {
     const r = editor.state.reindex;
     if (!r) return "";
     if (r.running)
-      return (
-        '<div class="banner info" style="margin-top:14px"><div>Rebuilding the rep' +
-        "orting index &mdash; " +
-        `${esc(r.done)}` +
-        " of " +
-        `${esc(r.total)}` +
-        " case files read.</div></div>"
-      );
+      return html`<div class="banner info" style="margin-top:14px"><div>Rebuilding the reporting index &mdash; ${r.done} of ${r.total} case files read.</div></div>`;
     const bad = r.refused.concat(r.failed);
     return (
       '<div class="banner ' +

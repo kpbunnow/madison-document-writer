@@ -1,147 +1,15 @@
 {
-  "accela_import.js": {
-    "class": "screen",
-    "sites": 42
-  },
-  "accessibility.js": {
-    "class": "screen",
-    "sites": 15
-  },
-  "address_format.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "administration.js": {
-    "class": "screen",
-    "sites": 20
-  },
   "browser_printing.js": {
     "class": "print/issued",
     "sites": 57
-  },
-  "case_activity.js": {
-    "class": "screen",
-    "sites": 16
-  },
-  "case_file_rules.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "citation_drafts.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "citation_workflow.js": {
-    "class": "screen",
-    "sites": 6
-  },
-  "correction_preparation.js": {
-    "class": "screen",
-    "sites": 6
-  },
-  "correction_ui.js": {
-    "class": "screen",
-    "sites": 43
-  },
-  "deadline_assignment.js": {
-    "class": "screen",
-    "sites": 10
-  },
-  "deposit_schedule.js": {
-    "class": "screen",
-    "sites": 7
-  },
-  "deposit_step.js": {
-    "class": "screen",
-    "sites": 3
-  },
-  "desktop_exit.js": {
-    "class": "screen",
-    "sites": 6
-  },
-  "document_delivery.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "document_pagination.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "document_readiness.js": {
-    "class": "screen",
-    "sites": 2
   },
   "document_render.js": {
     "class": "print/issued",
     "sites": 74
   },
-  "helper_stopped.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "helper_transport.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "language_actions.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "language_catalog.js": {
-    "class": "screen",
-    "sites": 26
-  },
   "mailing_rules.js": {
     "class": "approved wording",
     "sites": 10
-  },
-  "navigation.js": {
-    "class": "screen",
-    "sites": 24
-  },
-  "new_documents.js": {
-    "class": "screen",
-    "sites": 32
-  },
-  "pdf_artifacts.js": {
-    "class": "screen",
-    "sites": 8
-  },
-  "presentation_format.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "publication_workflow.js": {
-    "class": "screen",
-    "sites": 3
-  },
-  "record_commit.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "record_history.js": {
-    "class": "screen",
-    "sites": 7
-  },
-  "record_integrity.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "recovery_events.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "recovery_ui.js": {
-    "class": "screen",
-    "sites": 15
-  },
-  "reinspection_entry.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "reinspection.js": {
-    "class": "screen",
-    "sites": 1
   },
   "report_catalog.js": {
     "class": "approved wording",
@@ -151,80 +19,8 @@
     "class": "approved wording",
     "sites": 31
   },
-  "report_navigation.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "report_spreadsheet_sheet.js": {
-    "class": "screen",
-    "sites": 2
-  },
   "report_workbook_definitions.js": {
     "class": "approved wording",
     "sites": 16
-  },
-  "reports_screens.js": {
-    "class": "screen",
-    "sites": 15
-  },
-  "reports_services.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "safety_events.js": {
-    "class": "screen",
-    "sites": 5
-  },
-  "saved_work.js": {
-    "class": "screen",
-    "sites": 41
-  },
-  "snow_cases.js": {
-    "class": "screen",
-    "sites": 22
-  },
-  "special_document_events.js": {
-    "class": "screen",
-    "sites": 3
-  },
-  "storage_status.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "ui_icons.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "utility_events.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "workflow_events.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "working_papers.js": {
-    "class": "screen",
-    "sites": 13
-  },
-  "worksheet_workflow.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "workspace_backup.js": {
-    "class": "screen",
-    "sites": 2
-  },
-  "workspace_events.js": {
-    "class": "screen",
-    "sites": 15
-  },
-  "writer_handoff.js": {
-    "class": "screen",
-    "sites": 1
-  },
-  "writer_startup.js": {
-    "class": "screen",
-    "sites": 4
   }
 }

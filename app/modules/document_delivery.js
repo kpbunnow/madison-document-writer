@@ -113,8 +113,7 @@ export function createDocumentDelivery(services) {
     const artifact = issuedArtifact(d);
     if (!artifact) {
       services.toast(
-        "This issued version has no verified archived PDF. It cannot be attached " +
-          "as an exact original. Re-file it only after reviewing the record.",
+        "This issued version has no verified archived PDF. It cannot be attached as an exact original. Re-file it only after reviewing the record.",
       );
       return false;
     }
@@ -224,8 +223,7 @@ export function createDocumentDelivery(services) {
       if (job) {
         job.html = job.html.replace(
           "<body>",
-          '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px sol' +
-            'id #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
+          '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px solid #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
         );
         services.printNotice(job);
       }

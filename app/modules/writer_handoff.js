@@ -66,8 +66,7 @@ export function createWriterHandoff(services) {
     const count = Number(message.eventCount);
     if (Number.isFinite(count) && count !== (file.events || []).length) {
       workspace.PREFLIGHT_NOTICE =
-        "The shared case changed since this report was indexed. Writer opened the" +
-        " current validated case; refresh Reports before relying on its totals.";
+        "The shared case changed since this report was indexed. Writer opened the current validated case; refresh Reports before relying on its totals.";
       services.render();
     }
     return "Current shared case opened in Writer.";

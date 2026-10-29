@@ -133,9 +133,7 @@ export function createRecoveryEvents(services) {
       "click",
       (e) => {
         const button = e.target.closest(
-          "#btn-savework,#btn-workbackup,[data-workbackup],#btn-workrestore,#btn-re" +
-            "trypublish,#btn-editvisit,#btn-previousdraft,#btn-exportprevious,#btn-re" +
-            "tryfiling,#btn-continuecitation,[data-worknote]",
+          "#btn-savework,#btn-workbackup,[data-workbackup],#btn-workrestore,#btn-retrypublish,#btn-editvisit,#btn-previousdraft,#btn-exportprevious,#btn-retryfiling,#btn-continuecitation,[data-worknote]",
         );
         if (!button) return;
         e.preventDefault();

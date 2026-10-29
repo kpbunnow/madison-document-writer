@@ -109,7 +109,7 @@ async function failCommit(services, error, draft) {
   }
   if (draft) await services.saveDrafts();
   editor.state.amendmentError = /failed to fetch|networkerror|network request failed/i.test(error.message)
-    ? "The shared save could not be confirmed. Your exact request is retained. " + "Reconnect and use Confirm save or Retry save."
+    ? "The shared save could not be confirmed. Your exact request is retained. Reconnect and use Confirm save or Retry save."
     : error.message;
   services.toast(editor.state.amendmentError);
 }

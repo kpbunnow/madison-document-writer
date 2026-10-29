@@ -16,6 +16,7 @@ import { correctionSource, doc, docCase, docInsp, docsFor, kase, recordHead } fr
 import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citation_policy.js";
 import { LIBRARY } from "./data/library.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
+import { html, raw } from "./screen_html.js";
 const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
 function prepareSnowInspection(d) {
   d.authoringVersion = 11;
@@ -210,31 +211,20 @@ export function initSnow(services) {
     const totals = [1, 2].map((tier) => resolveCitationAmount({ ordinance: "10.28", tier, date: at })).map((x) => formatDeposit(x.amount));
     const paragraphs = [
       "Subject: Failure to Remove Snow and/or Ice from Public Sidewalk",
-      "Madison City Ordinance 10.28(1) requires that sidewalks be cleared of al" +
-        "l snow and ice not later than 12:00 noon of the day after the snow or ic" +
-        "e has accumulated on the sidewalk or on a curb ramp that leads to the st" +
-        "reet.",
+      "Madison City Ordinance 10.28(1) requires that sidewalks be cleared of all snow and ice not later than 12:00 noon of the day after the snow or ice has accumulated on the sidewalk or on a curb ramp that leads to the street.",
       "When public walks are found in violation, the property owner is issued a Citation with an initial fine of " +
         totals[0] +
         ". All subsequent violations at the property during this snow season will result in a " +
         totals[1] +
-        (" fine. After a City inspector photographs a sidewalk in violation and ci" +
-          "tes the property, the owner has until 7:00 a.m. the following morning to" +
-          " remove the hazard. Failure to do so will cause a snow removal contracto" +
-          "r to do the work with costs assessed against the property. There are no " +
-          "warnings given for this Ordinance violation. If you have questions about" +
-          " snow removal Ordinances, please visit our website at ") +
+        " fine. After a City inspector photographs a sidewalk in violation and cites the property, the owner has until 7:00 a.m. the following morning to remove the hazard. Failure to do so will cause a snow removal contractor to do the work with costs assessed against the property. There are no warnings given for this Ordinance violation. If you have questions about snow removal Ordinances, please visit our website at " +
         data.webAddress +
         ".",
-      "In cases where ice has formed on the public sidewalk and cannot be remov" +
-        "ed, the property owner must use sand to effectively eliminate dangerous " +
-        "conditions. The City provides a mixture of sand and salt for public use " +
-        "at the locations listed.",
+      "In cases where ice has formed on the public sidewalk and cannot be removed, the property owner must use sand to effectively eliminate dangerous conditions. The City provides a mixture of sand and salt for public use at the locations listed.",
     ];
     if (coverFormat(d) < 10)
       return (
         paragraphs.map((p) => "<p>" + esc(p) + "</p>").join("") +
-        ('<table class="snow-sites"><thead><tr><th scope="col">West Side</th><th s' + 'cope="col">East Side</th></tr></thead><tbody>') +
+        '<table class="snow-sites"><thead><tr><th scope="col">West Side</th><th scope="col">East Side</th></tr></thead><tbody>' +
         data.sites.map(([a, b]) => "<tr><td>" + esc(a) + "</td><td>" + esc(b) + "</td></tr>").join("") +
         "</tbody></table><p>" +
         esc(data.closing) +
@@ -244,22 +234,7 @@ export function initSnow(services) {
     const phones = [data.westPhone, data.eastPhone].map((x) => String(x || "").trim()).filter(Boolean),
       cell = (v) => (phones.some((x) => String(v).includes(x)) ? "<td><strong>" + esc(v) + "</strong></td>" : "<td>" + esc(v) + "</td>");
     const second = esc(paragraphs[2]).replace(esc(WARNING), "<strong>" + esc(WARNING) + "</strong>");
-    return (
-      '<p class="snow-subject"><strong>' +
-      esc(paragraphs[0]) +
-      '</strong></p><p class="snow-para">' +
-      esc(paragraphs[1]) +
-      '</p><p class="snow-para">' +
-      second +
-      '</p><p class="snow-para">' +
-      esc(paragraphs[3]) +
-      ('</p><table class="snow-sites snow-sites-v10"><thead><tr><th scope="col">' +
-        'West Side</th><th scope="col">East Side</th></tr></thead><tbody>') +
-      data.sites.map(([a, b]) => "<tr>" + cell(a) + cell(b) + "</tr>").join("") +
-      '</tbody></table><p class="snow-para snow-closing">' +
-      esc(data.closing) +
-      "</p>"
-    );
+    return html`<p class="snow-subject"><strong>${paragraphs[0]}</strong></p><p class="snow-para">${paragraphs[1]}</p><p class="snow-para">${raw(second)}</p><p class="snow-para">${paragraphs[3]}</p><table class="snow-sites snow-sites-v10"><thead><tr><th scope="col">West Side</th><th scope="col">East Side</th></tr></thead><tbody>${raw(data.sites.map(([a, b]) => "<tr>" + cell(a) + cell(b) + "</tr>").join(""))}</tbody></table><p class="snow-para snow-closing">${data.closing}</p>`;
   }
   function coverFormat(d) {
     const recorded = d?.frozen?.snowCoverFormat ?? correctionSource(d)?.frozen?.snowCoverFormat;
@@ -298,42 +273,11 @@ export function initSnow(services) {
     const f = d.snow || {},
       locked = !d.draft || services.isLocked(d),
       disabled = locked ? "disabled" : "";
-    return (
-      '<section class="card no-print" id="snow-facts"><div class="card-h"><h2>S' +
-      'now citation · MGO 10.28</h2></div><div class="card-b"><p>Snow removal c' +
-      "ases issue a citation for one documented inspection. No warning notice, " +
-      "due-date assignment or reinspection is required.</p>" +
-      (!locked && !d.correction ? '<button class="btn btn-sm" type="button" data-remove-snow>Remove snow item</button>' : "") +
-      ('<button class="btn btn-sm" type="button" data-refresh-snow-letter>Refres' +
-        'h seasonal letter</button><p class="snow-action"><strong>Action:</strong' +
-        '> Snow citation</p><div class="grid g2"><label class="f"><span>Snowfall ' +
-        '/ accumulation date</span><input type="date" data-snow="snowfallDate" va' +
-        'lue="') +
-      esc(f.snowfallDate || "") +
-      '" ' +
-      disabled +
-      ('></label><label class="f"><span>Snowfall amount (inches)</span><input ty' + 'pe="number" data-snow="inches" min="0" step="any" value="') +
-      esc(f.inches ?? "") +
-      '" ' +
-      disabled +
-      '></label><label class="f"><span>Condition observed</span><select data-snow="condition" ' +
-      disabled +
-      '><option value="">Choose the observed condition</option>' +
+    return html`<section class="card no-print" id="snow-facts"><div class="card-h"><h2>Snow citation · MGO 10.28</h2></div><div class="card-b"><p>Snow removal cases issue a citation for one documented inspection. No warning notice, due-date assignment or reinspection is required.</p>${raw(!locked && !d.correction ? '<button class="btn btn-sm" type="button" data-remove-snow>Remove snow item</button>' : "")}<button class="btn btn-sm" type="button" data-refresh-snow-letter>Refresh seasonal letter</button><p class="snow-action"><strong>Action:</strong> Snow citation</p><div class="grid g2"><label class="f"><span>Snowfall / accumulation date</span><input type="date" data-snow="snowfallDate" value="${f.snowfallDate || ""}" ${raw(disabled)}></label><label class="f"><span>Snowfall amount (inches)</span><input type="number" data-snow="inches" min="0" step="any" value="${f.inches ?? ""}" ${raw(disabled)}></label><label class="f"><span>Condition observed</span><select data-snow="condition" ${raw(disabled)}><option value="">Choose the observed condition</option>${raw(
       ["snow covered", "ice covered", "snow and ice covered"]
         .map((x) => "<option " + (f.condition === x ? "selected" : "") + ">" + x + "</option>")
-        .join("") +
-      '</select></label></div><label><input type="checkbox" data-snow="photographed" ' +
-      (f.photographed ? "checked" : "") +
-      " " +
-      disabled +
-      '> Violation photographed before citation</label><label><input type="checkbox" data-snow="cornerNotCleared" ' +
-      (f.cornerNotCleared ? "checked" : "") +
-      " " +
-      disabled +
-      '> Corner lot, curb ramp or crosswalk border not cleared</label><p class="hint">Snow season: ' +
-      esc(season(d.inspDate || recordDay(new Date()))) +
-      (". Prior citations at this property in the season count, including a prev" + "ious owner by default.</p></div></section>")
-    );
+        .join(""),
+    )}</select></label></div><label><input type="checkbox" data-snow="photographed" ${raw(f.photographed ? "checked" : "")} ${raw(disabled)}> Violation photographed before citation</label><label><input type="checkbox" data-snow="cornerNotCleared" ${raw(f.cornerNotCleared ? "checked" : "")} ${raw(disabled)}> Corner lot, curb ramp or crosswalk border not cleared</label><p class="hint">Snow season: ${season(d.inspDate || recordDay(new Date()))}. Prior citations at this property in the season count, including a previous owner by default.</p></div></section>`;
   }
   // R36: an SSRS Record Category of "Snow Removal" makes the import a snow case immediately (10.28 citation draft).
   function matchesImport(row) {

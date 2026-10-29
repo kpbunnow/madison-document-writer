@@ -12,9 +12,7 @@ function uiIcon(name) {
     reports: "M4 21V3 M4 21h17 M8 17v-5 M13 17V7 M18 17V4",
   };
   return (
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="curr' +
-    'entColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="rou' +
-    'nd" aria-hidden="true"><path d="' +
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' +
     `${paths[name] || paths.cases}` +
     '"/></svg>'
   );
