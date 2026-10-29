@@ -145,6 +145,48 @@ function refreshDraftScheduledPrice(services, key, d, i, c, f) {
   }
 }
 
+function priorRecordMatch(k, ordinanceEntry, respondent) {
+  const siteSeason = ordinanceEntry.window?.kind === "site-season",
+    differentOwner =
+      String(k.owner || "")
+        .trim()
+        .toUpperCase() !==
+      String(respondent.owner || "")
+        .trim()
+        .toUpperCase();
+  if (siteSeason && differentOwner && !CITATION_POLICY.snowCountPriorDifferentOwner) return null;
+  if (
+    ordinanceEntry.window === "site" || siteSeason
+      ? !sameSite(k, respondent)
+      : !respondentKey(respondent) || respondentKey(k) !== respondentKey(respondent)
+  )
+    return null;
+  return { siteSeason, differentOwner };
+}
+
+function appendPriorCitations(services, key, record, query, out, seen) {
+  const { ordinanceEntry, respondent, violationDate } = query;
+  const k = record.case,
+    d = record.document;
+  const match = priorRecordMatch(k, ordinanceEntry, respondent);
+  if (!match) return;
+  const { siteSeason, differentOwner } = match;
+  for (const i of d.items || []) {
+    if (!i.cite || i.withdrawn) continue;
+    const c = d.cits?.[i.id],
+      f = c && services.lookupForf([c.ord], key(i), c.scheduleEntryId, c.pricedOn || c.issued);
+    const date = c?.violDate || d.inspDate || k.date;
+    if (f?.id !== ordinanceEntry.id || !withinWindow(date, violationDate, f.window) || seen.has(c.num)) continue;
+    seen.add(c.num);
+    out.push({
+      number: c.num,
+      date,
+      caseNumber: k.number,
+      ...(siteSeason ? { differentOwner, inspectionId: (d.inspDate || k.date) + "T" + (d.inspTime || k.time || "") } : {}),
+    });
+  }
+}
+
 export function initCitationPricing(services) {
   let shared = [],
     busy = null,
@@ -163,39 +205,8 @@ export function initCitationPricing(services) {
         ),
       out = [],
       seen = new Set();
-    for (const record of records) {
-      const k = record.case,
-        d = record.document;
-      const siteSeason = ordinanceEntry.window?.kind === "site-season",
-        differentOwner =
-          String(k.owner || "")
-            .trim()
-            .toUpperCase() !==
-          String(respondent.owner || "")
-            .trim()
-            .toUpperCase();
-      if (siteSeason && differentOwner && !CITATION_POLICY.snowCountPriorDifferentOwner) continue;
-      if (
-        ordinanceEntry.window === "site" || siteSeason
-          ? !sameSite(k, respondent)
-          : !respondentKey(respondent) || respondentKey(k) !== respondentKey(respondent)
-      )
-        continue;
-      for (const i of d.items || []) {
-        if (!i.cite || i.withdrawn) continue;
-        const c = d.cits?.[i.id],
-          f = c && services.lookupForf([c.ord], key(i), c.scheduleEntryId, c.pricedOn || c.issued);
-        const date = c?.violDate || d.inspDate || k.date;
-        if (f?.id !== ordinanceEntry.id || !withinWindow(date, violationDate, f.window) || seen.has(c.num)) continue;
-        seen.add(c.num);
-        out.push({
-          number: c.num,
-          date,
-          caseNumber: k.number,
-          ...(siteSeason ? { differentOwner, inspectionId: (d.inspDate || k.date) + "T" + (d.inspTime || k.time || "") } : {}),
-        });
-      }
-    }
+    const query = { ordinanceEntry, respondent, violationDate };
+    for (const record of records) appendPriorCitations(services, key, record, query, out, seen);
     return out.concat(
       staged
         .filter((s) => s.entryId === ordinanceEntry.id && withinWindow(s.date, violationDate, ordinanceEntry.window))

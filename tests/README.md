@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_citation_prior_history.js` | Prior offense shared/local ordering, matching, windows, duplicate numbers and lookup interruptions |
 | `audit_worksheet_check_html.js` | Independent retained check-row/panel oracle for severity, targets and worksheet flags |
 | `audit_message_paint_rules.js` | Retained message markup, focus, dialog scope and timer/event ordering |
 | `audit_correction_change_rules.js` | Correction change parity across historical cutoffs, fields and lazy reads |
