@@ -1254,3 +1254,9 @@ Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97
 Name the outcome result construction without changing acceptance guards, walk context, undo capture, mutation, save/render or focus order. All4,032 retained-function comparisons cover result fields, missing/carried/withdrawn work, replaced data, quick/details modes, undo and interrupted effects. Existing public owner, 4,075 target comparisons, 1,026 worksheet/1,536 check HTML cases, scoped architecture, boundaries, seams, lint and formatting pass. Complexity35 to34, with no new/worsened findings.
 
 Measured counts: {'complexity': 35, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 34, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## check-focus-routing
+
+Separate workspace/catalog and recipient focus routes from worksheet/general field focusing. Preserve capture-before-context changes, live versus retained document queries, early returns, exact validation arguments, disclosure/focus/scroll and2200ms cleanup. All700 real-DOM comparisons retain partial state and interrupted effects; unchanged owner, 4,075 target and4,032 outcome comparisons, frozen worksheet/check HTML, architecture/boundaries, seams, lint and formatting pass. Complexity34 to33; no print, warning text or interface change.
+
+Measured counts: {'complexity': 34, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 33, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
