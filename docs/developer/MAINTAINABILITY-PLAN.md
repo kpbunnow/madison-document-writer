@@ -1099,3 +1099,9 @@ Measured counts: {'complexity': 48, 'max-depth': 0, 'max-lines-per-function': 10
 Download fallback and save/refusal messages retain original service-getter, persistence and toast evaluation order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
 
 Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 103, 'python': 15} → {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## shared-save-result-phases
+
+Committed metadata replacement and native write-failure classification retain lazy reads, concurrent-edit preservation and verification/write/projection order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
+
+Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
