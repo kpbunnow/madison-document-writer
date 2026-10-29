@@ -94,13 +94,14 @@ function requireCompatibleLocalHistory(b, k, current) {
 }
 
 function recoveryWorkMatches(b, k) {
-  return;
-  stableJSON(workspace.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
+  return (
+    stableJSON(workspace.DOCS.filter((d) => d.draft && d.caseId === k.id)) === stableJSON(b.bundle.docs) &&
     stableJSON(workspace.REINSP.filter((r) => r.draft && r.caseId === k.id)) === stableJSON(b.bundle.reinsp) &&
     stableJSON(workspace.PENDING.filter((p) => p.cid === k.id)) === stableJSON(b.pending) &&
     stableJSON(Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId === k.id))) ===
       stableJSON(b.bundle.work.recordForms) &&
-    stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null);
+    stableJSON(editor.WORK.walk?.context?.startsWith(k.id + "|") ? editor.WORK.walk : null) === stableJSON(b.bundle.work.walk || null)
+  );
 }
 
 function stageRecoveredCase(services, b, k) {

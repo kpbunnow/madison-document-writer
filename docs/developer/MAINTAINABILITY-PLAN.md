@@ -1147,3 +1147,9 @@ Measured counts: {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 10
 Name local history refusal, draft comparison, staging, post-commit assignment and stale-selection checks. Await checkpoints and rollback authority remain in the coordinator. Existing tests pass against the original and refactored owners with boundaries, seams, lint and formatting.
 
 Measured counts: {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
+
+## recovery-identical-work-regression
+
+Pre-merge review found an automatic semicolon insertion mistake in the extracted comparison. Correct its return expression and add identical-work restore assertions, which pass on maintained and original owners. Existing assertions retained; no affected change has merged.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
