@@ -76,6 +76,7 @@ covers, or a new suite under its feature.
 | `audit_citation_resolution_rules.js` | Policy rows, measurement boundaries, invalid dates and observable input reads against frozen resolution. |
 | `audit_inspection_history_rules.js` | Frozen-owner comparison for lineage termination, cycles, visit observations and citation annotation precedence. |
 | `audit_case_file_fault_rules.js` | Frozen-validator comparison of refusal precedence, observable input reads, exceptions and mutation. |
+| `audit_editor_input_rules.js` | 12,000 seeded scenarios compare the editor's document input and change listeners with the frozen originals: service reads and calls in order, model mutation, DOM effects and thrown errors. |
 | `audit_case_status_rules.js` | Frozen-owner comparison for status precedence, dates, pending records, artifact state and retained aliases. |
 | `audit_citation_refresh_rules.js` | 4,692 policy/generated owner scenarios pin mutation, aliases, exceptions, lazy service order and live shared-history cache invalidation/reloads. |
 | `audit_snow_snapshot_rules.py` | 3,000 snow snapshots preserve exact item/evidence/noon/letter refusals, date/comment queries and unchanged inputs. |

@@ -1422,3 +1422,11 @@ Convert citation review/charge cards, fields, pricing/authorization details and 
 ## citation-court-owner-test
 
 Migrate R33 court/mandatory-appearance/library-correction regression to the same focused citation owners, adding real document_sources composition for its retained authoring9 standalone court snapshot. The fixture explicitly refuses other body contexts and requires the real activeBlocks owner to return no notice blocks; it does not duplicate the core selector. All15 original assertion ASTs remain unchanged, including exact legacy face bytes, four copies, frozen court facts, mandatory refusal/labels and library correction. Existing public source/renderer tests retain broader historical coverage. Legacy evaluator files68 to67; hooks48 unchanged.
+
+## editor-input-equivalence and editor-input-phases
+
+Added 12,000 seeded comparison scenarios (6,000 input, 6,000 change) before changing the editor's document listeners. The frozen text fixture is the byte-exact original `registerDocumentInput` and `registerDocumentChange`; the comparison records every service property read and call in order with its arguments at call time, model mutation, DOM effects and thrown errors. The generator is checked for reaching every feature delegate and edit branch. Four deliberate mutations (a reordered route, a dropped duplicate `syncChip`, a reordered save/review reset and an early service read) each fail the comparison.
+
+The input listener keeps its ordered feature-owner delegates in one table and delegates the draft's own edits to named phases for case fields, document fields and item fields (due date, sections, group, text). The change listener becomes an ordered route table with the same first-match precedence. The phases are module-level functions that receive the owner's `services`, so every service read still happens at the original point of use and `createEditorEvents` shrinks from 495 to 317 lines. The listeners are still registered at the original startup positions with the original keys; the registration order, capture phases and the scoped-service contract are unchanged. No assertion, format, hook or identity change.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 28, 'max-depth': 0, 'max-lines-per-function': 90, 'python': 15}.
