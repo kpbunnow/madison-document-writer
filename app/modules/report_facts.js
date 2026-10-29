@@ -71,3 +71,6 @@ export const areaIdOf = (f, field) =>
     .replace(/^0+(\d)/, "$1");
 
 export { reportCaseOpenAt as openAt };
+
+export const D = (s) => (validISO(s) ? { d: s } : null);
+export const numOr = (v) => (/^\d+$/.test(String(v)) ? +v : v);

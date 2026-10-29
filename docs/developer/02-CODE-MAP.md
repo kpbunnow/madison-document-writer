@@ -92,3 +92,5 @@ report_facts owns thirteen existing date/number, collection and filter calculati
 report_return.createReportReturn owns optional Writer return preferences through four lazy callbacks. It retains storage/read refusal, canonicalization, two relative-date reads and the original partial mutation/render order; core constructs it at the former definition point.
 
 The R61 ordinance regression composes public Reports model/history/catalog/return owners through a test-only scoped fixture, with rendering outside its rule assertions. All former assertions are retained. Report lookup words and area identification live in report_facts; core keeps its prior exports.
+
+report_metadata owns unchanged report definitions and workbook sheet scope with no dependencies. report_facts also owns typed date/numeric cell conversion. Core retains its original exports. The workbook-scope regression composes the real model/catalog/screen/export owners without application startup, preserving record-sheet selections and export-note assertions.

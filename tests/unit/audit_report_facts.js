@@ -21,8 +21,17 @@ const current = parse(fs.readFileSync("app/modules/report_facts.js", "utf8")),
 const decls = (t) => t.body.flatMap((n) => (n.declaration || n).declarations || []);
 assert.deepEqual(
   normalized(decls(current)),
-  normalized([...decls(original), ...decls(parse(fs.readFileSync("tests/fixtures/report_lookup_facts_reference.txt", "utf8")))]),
-  "all fifteen moved calculation expressions remain unchanged",
+  normalized([
+    ...decls(original),
+    ...decls(parse(fs.readFileSync("tests/fixtures/report_lookup_facts_reference.txt", "utf8"))),
+    ...decls(parse(fs.readFileSync("tests/fixtures/report_export_cell_reference.txt", "utf8"))),
+  ]),
+  "all seventeen moved calculation expressions remain unchanged",
+);
+assert.deepEqual(
+  normalized(decls(parse(fs.readFileSync("app/modules/report_metadata.js", "utf8")))),
+  normalized(decls(parse(fs.readFileSync("tests/fixtures/report_metadata_reference.txt", "utf8")))),
+  "shared report definitions and workbook scope retain their exact expressions",
 );
 const open = current.body.find((n) => n.type === "FunctionDeclaration" && n.id.name === "reportCaseOpenAt");
 function unscoped(x) {
@@ -62,7 +71,9 @@ assert.deepEqual(
   assert.equal(api.avg([]), null);
   assert.equal(api.avg([1, 2, 3]), 2);
   assert.equal(api.plural(2, "case"), "2 cases");
-  console.log("PASS independently loaded report facts: 13 unchanged expressions, original historical open predicate and live filter/date checks");
+  console.log(
+    "PASS independently loaded report facts: 17 unchanged expressions, metadata parity, original historical open predicate and live filter/date checks",
+  );
 })().catch((e) => {
   console.error(e);
   process.exit(1);

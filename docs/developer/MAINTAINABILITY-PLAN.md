@@ -1206,3 +1206,9 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 The Reports assembly stopped because esbuild assigned the imported fact helper the historical openAt diagnostic binding; retained bundle tests called it without history inputs. Rename only the internal helper binding and preserve its public export alias. The unchanged complete Reports suite now passes, as do public fact/catalog comparisons, boundaries, seams, lint and formatting. This corrects the PR275 regression before integration publication; no failed Reports source entered main.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-export-owner-tests
+
+Move unchanged report definitions/sheet scope and typed cell helpers out of startup core. Compose actual model, catalog, presentation and export owners for the workbook-scope regression; all25 assertions remain structurally identical, including expected rows and exported-note checks. Whole-bundle files78 to77; no hook retired while consumers remain. Complete Reports integration, 303 owner comparisons, 4,002 sheet comparisons, fact/metadata parity, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
