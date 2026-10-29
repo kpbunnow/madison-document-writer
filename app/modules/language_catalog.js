@@ -10,6 +10,40 @@ import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
 
+function mergeComparedCaseFields(fields, merged, a, b) {
+  for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
+    if (
+      field === "id" ||
+      (field === "number" && caseNumberKey(a[field]) === caseNumberKey(merged[field])) ||
+      stableJSON(a[field]) === stableJSON(merged[field])
+    )
+      continue;
+    const lc = b ? stableJSON(a[field]) !== stableJSON(b[field]) : true;
+    const rc = b ? stableJSON(merged[field]) !== stableJSON(b[field]) : true;
+    fields.push({ field, local: a[field], shared: merged[field], localChanged: lc, sharedChanged: rc });
+    if (lc && !rc) {
+      if (a[field] === undefined) delete merged[field];
+      else merged[field] = clone(a[field]);
+    }
+  }
+}
+
+function sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents) {
+  return conflict
+    ? "conflict"
+    : added.length && unfinished
+      ? "history-conflict"
+      : added.length
+        ? "shared-history"
+        : remoteDetails && localDetails
+          ? "compatible"
+          : remoteDetails
+            ? "shared-only"
+            : localDetails || localEvents.length
+              ? "local-only"
+              : "unchanged";
+}
+
 /* Named lazy adapters preserve review/preflight authority and live workspace references. */
 export function createLanguageCatalog(services) {
   /* app functions; direct dependencies use explicit shared state. */
@@ -341,38 +375,12 @@ export function createLanguageCatalog(services) {
       merged = caseDetails(shared.case),
       a = caseDetails(local),
       b = checkpoint?.case && caseDetails(checkpoint.case);
-    for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
-      if (
-        field === "id" ||
-        (field === "number" && caseNumberKey(a[field]) === caseNumberKey(merged[field])) ||
-        stableJSON(a[field]) === stableJSON(merged[field])
-      )
-        continue;
-      const lc = b ? stableJSON(a[field]) !== stableJSON(b[field]) : true;
-      const rc = b ? stableJSON(merged[field]) !== stableJSON(b[field]) : true;
-      fields.push({ field, local: a[field], shared: merged[field], localChanged: lc, sharedChanged: rc });
-      if (lc && !rc) {
-        if (a[field] === undefined) delete merged[field];
-        else merged[field] = clone(a[field]);
-      }
-    }
+    mergeComparedCaseFields(fields, merged, a, b);
     const conflict = fields.some((f) => f.localChanged && f.sharedChanged);
     const localEvents = [...known.keys()].filter((id) => !baseline.has(id));
     const remoteDetails = fields.some((f) => f.sharedChanged),
       localDetails = fields.some((f) => f.localChanged);
-    const kind = conflict
-      ? "conflict"
-      : added.length && unfinished
-        ? "history-conflict"
-        : added.length
-          ? "shared-history"
-          : remoteDetails && localDetails
-            ? "compatible"
-            : remoteDetails
-              ? "shared-only"
-              : localDetails || localEvents.length
-                ? "local-only"
-                : "unchanged";
+    const kind = sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents);
     return {
       kind,
       fields,

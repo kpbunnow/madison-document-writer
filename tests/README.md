@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_shared_comparison_parity.js` | Unchanged catalog public-owner comparisons against original and maintained source |
 | `audit_integrity_classification_rules.js` | 238 downgrade and real-chain comparisons plus unchanged RFC8785/WebCrypto assertions |
 | `audit_recovery_validation_parity.js` | Unchanged recovery public-owner assertions against original and maintained owners |
 | `audit_recipient_validation_parity.js` | Unchanged public-owner assertions against maintained and retained recipient owners |

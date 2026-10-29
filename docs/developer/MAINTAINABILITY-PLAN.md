@@ -1153,3 +1153,9 @@ Measured counts: {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 10
 Separate legacy/downgraded classification from modern chain verification. Hashing, trust, fail metadata and asynchronous checkpoints are unchanged. 238 original-source comparisons and existing canonical/tamper/read-only tests pass; boundaries, seams, lint and formatting pass.
 
 Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+
+## shared-case-comparison
+
+Separate field merge and conflict classification from shared identity/history checks. Preserve field order, checkpoint semantics and live unfinished-work default timing. Existing catalog-service assertions pass on both sources with boundaries, seams, lint and format.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.

@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 40,
+    "complexity": 39,
     "max-depth": 0,
     "max-lines-per-function": 100,
     "python": 15
@@ -83,9 +83,8 @@
     "app/modules/editor_screens.js:createEditorScreens#1:max-lines-per-function": 321,
     "app/modules/import_events.js:createImportEvents#1:max-lines-per-function": 156,
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
-    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 878,
+    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 852,
     "app/modules/language_catalog.js:createLanguageCatalog#1/catalogReviewPanel#1:max-lines-per-function": 110,
-    "app/modules/language_catalog.js:createLanguageCatalog#1/compareSharedCase#1:complexity": 36,
     "app/modules/language_catalog.js:createLanguageCatalog#1/openChangedShared#1:complexity": 22,
     "app/modules/language_catalog.js:createLanguageCatalog#1/preflightCase#1:complexity": 30,
     "app/modules/language_catalog.js:createLanguageCatalog#1/preflightCase#1:max-lines-per-function": 92,
