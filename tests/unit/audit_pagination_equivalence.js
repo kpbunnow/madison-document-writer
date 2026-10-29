@@ -59,6 +59,9 @@ const { chromium } = require("playwright");
       { length: 200, rows: 5, aligned: true, version: 16 },
       { length: 600, rows: 3, aligned: true, groups: true, version: 16, voided: true },
       { length: 100, rows: 12, version: 10 },
+      { length: 900, tall: true, empty: true, version: 16 },
+      { length: 900, tall: true, empty: true, aligned: true, version: 16 },
+      { length: 3000, aligned: true, rows: 1, version: 16 },
       { length: 50, snow: true, version: 9 },
       { length: 400, snow: true, version: 16 },
     ]) {
@@ -72,7 +75,7 @@ const { chromium } = require("playwright");
           { length: scenario.observations || 0 },
           (_, i) => "<div><span>2026-10-" + (20 + i) + " · Progress</span><em>Note: " + esc(text) + "</em></div>",
         ).join("");
-        const input = scenario.snow
+        const built = scenario.snow
           ? '<section class="sheet"><div>Snow header</div><div class="snow-cover"><p>' +
             esc(text) +
             '</p><table class="snow-sites"><thead><tr><th>Sites</th></tr></thead><tbody>' +
@@ -101,7 +104,10 @@ const { chromium } = require("playwright");
                 esc(text) +
                 '</td><td><div class="visit-list"></div></td></tr>',
             ).join("") +
-            '</tbody></table><p>Closing facts</p><div class="no-print">Editor controls</div><footer class="n-foot">Retained footer</footer></section>';
+            "</tbody></table><p>" +
+            (scenario.tall ? esc(text) : "Closing facts") +
+            '</p><div class="no-print">Editor controls</div><footer class="n-foot">Retained footer</footer></section>';
+        const input = scenario.empty ? built.replace(/<tbody><tr.*<\/tbody>/s, "<tbody></tbody>") : built;
         const d = {
           id: "d",
           caseId: "c",
@@ -146,7 +152,7 @@ const { chromium } = require("playwright");
         }
       }, scenario);
       assert.deepEqual(result.current, result.old, JSON.stringify(scenario));
-      if (!scenario.snow) {
+      if (!scenario.snow && !scenario.empty) {
         assert.equal(result.current.notes, scenario.length ? result.text : "");
         assert.equal(result.current.observations, result.text.repeat(scenario.observations));
       }
