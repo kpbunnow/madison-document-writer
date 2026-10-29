@@ -76,126 +76,153 @@ def describe_difference(label, names):
     return label + ": " + ", ".join(entries[:20]) + ("; " + str(len(entries) - 20) + " more locations" if len(entries) > 20 else "")
 
 
+def _read_manifest(share, local, step):
+    """The shared manifest and its checks against the pinned install: size, shape, version, build and downgrade."""
+    raw = (share / "runtime-manifest.json").read_bytes()
+    if len(raw) > 2 * 1024 * 1024:
+        raise ValueError("Manifest too large")
+    manifest = json.loads(raw)
+    files = manifest["files"]
+    if not isinstance(files, dict) or not files:
+        raise ValueError("Empty manifest")
+    version = version_tuple(manifest["helperVersion"])
+    pin = local / "verified-install.json"
+    build = manifest.get("helperBuild", version[-1])
+    if type(build) is not int or build < 0 or build != version[-1]:
+        raise ValueError("Invalid helper build counter")
+    if pin.exists():
+        previous = json.loads(pin.read_text(encoding="utf-8"))
+        old_version = version_tuple(previous["helperVersion"])
+        old_build = previous.get("helperBuild", old_version[-1])
+        # Legacy R50 pins may be written by the old launcher during upgrade.
+        # Comparing the independent counter prevents a future date masking rollback.
+        if type(old_build) is not int or build < old_build or version < old_version:
+            raise ValueError("Downgrade refused")
+        if "helperBuild" in previous and "helperBuild" not in manifest:
+            raise ValueError("Downgrade to legacy version scheme refused")
+    return raw, manifest, files, build
+
+
+def _enumeration_error(error):
+    raise error
+
+
+def _deployed_files(share, step):
+    """Every program file in the deployment folder, refusing links; real operational folders are not program code."""
+    found = set()
+    step["operation"] = "enumerate"
+    for current, directories, names in os.walk(share, followlinks=False, onerror=_enumeration_error):
+        current = Path(current)
+        if current == share:
+            # These established operational roots are neither scanned nor installed.
+            directories[:] = [name for name in directories if name not in DATA_DIRS]
+        for name in directories + names:
+            p = current / name
+            relative = p.relative_to(share).as_posix()
+            if relative in DATA_FILES:
+                continue
+            step["path"] = relative
+            if _is_link(p):
+                raise ValueError("Symlink in deployment: " + repr(relative))
+            if p.is_file():
+                found.add(relative)
+    return found
+
+
+def _require_exact_inventory(found, expected):
+    if found == expected:
+        return
+    details = []
+    if expected - found:
+        details.append(describe_difference("Missing program files", expected - found))
+    if found - expected:
+        if any(n in STALE_NAMES or n.startswith("vendor/python/pure25519") for n in found - expected):
+            raise ValueError(STALE_SIGNED + " " + describe_difference("Unexpected program-folder content", found - expected))
+        details.append(describe_difference("Unexpected program-folder content", found - expected))
+    raise ValueError("; ".join(details))
+
+
+def _stage_file(share, staging, name, metadata, step):
+    """Copy one listed file into staging while rechecking its size, growth and SHA-256."""
+    p = share / name
+    target = staging / name
+    step.update(operation="size", path=name)
+    if _inside_has_link(share, name):
+        raise ValueError("Symlink in deployment: " + repr(name))
+    size = metadata["size"]
+    if type(size) is not int or not 0 <= size <= 128 * 1024 * 1024 or p.stat().st_size != size:
+        raise ValueError("Changed program file (size): " + repr(name))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    digest = hashlib.sha256()
+    count = 0
+    step["operation"] = "read and hash"
+    with p.open("rb") as source, target.open("wb") as dest:
+        while chunk := source.read(min(1024 * 1024, size - count + 1)):
+            count += len(chunk)
+            if count > size:
+                raise ValueError("Deployment grew while reading")
+            digest.update(chunk)
+            dest.write(chunk)
+    if count != size or digest.hexdigest() != metadata["sha256"]:
+        raise ValueError("Changed program file (checksum): " + repr(name))
+
+
+def _write_pin(staging, manifest, build, raw):
+    # Pin is part of the recoverable installation transaction, not an afterthought.
+    (staging / "verified-install.json").write_text(
+        json.dumps(
+            {
+                "helperVersion": manifest["helperVersion"],
+                "helperBuild": build,
+                "release": manifest["release"],
+                "manifestSha256": hashlib.sha256(raw).hexdigest(),
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def _refuse_with_diagnostic(share, local, step, error):
+    where = step["operation"] + (" " + repr(step["path"]) if step["path"] else "")
+    detail = type(error).__name__ + " during " + where + ": " + str(error)
+    _write_diagnostic(
+        local,
+        "Madison Document Writer update diagnostic\n"
+        + "Python: "
+        + sys.version.split()[0]
+        + "\n"
+        + "Share path type: "
+        + ("UNC" if str(share).startswith(("\\\\", "//")) else "drive or local")
+        + "\n"
+        + "Operation: "
+        + where
+        + "\n"
+        + "Exception: "
+        + type(error).__name__
+        + "\n"
+        + "Detail: "
+        + str(error)
+        + "\n",
+    )
+    raise ValueError(FAILURE + "\n  Details: " + detail) from error
+
+
 def stage_update(share, staging, local):
     """Read the shared manifest, stage every listed file, and recheck each size and SHA-256."""
     share, staging, local = Path(share), Path(staging), Path(local)
     step = {"operation": "read manifest", "path": ""}
     try:
-        raw = (share / "runtime-manifest.json").read_bytes()
-        if len(raw) > 2 * 1024 * 1024:
-            raise ValueError("Manifest too large")
-        manifest = json.loads(raw)
-        files = manifest["files"]
-        if not isinstance(files, dict) or not files:
-            raise ValueError("Empty manifest")
-        version = version_tuple(manifest["helperVersion"])
-        pin = local / "verified-install.json"
-        build = manifest.get("helperBuild", version[-1])
-        if type(build) is not int or build < 0 or build != version[-1]:
-            raise ValueError("Invalid helper build counter")
-        if pin.exists():
-            previous = json.loads(pin.read_text(encoding="utf-8"))
-            old_version = version_tuple(previous["helperVersion"])
-            old_build = previous.get("helperBuild", old_version[-1])
-            # Legacy R50 pins may be written by the old launcher during upgrade.
-            # Comparing the independent counter prevents a future date masking rollback.
-            if type(old_build) is not int or build < old_build or version < old_version:
-                raise ValueError("Downgrade refused")
-            if "helperBuild" in previous and "helperBuild" not in manifest:
-                raise ValueError("Downgrade to legacy version scheme refused")
+        raw, manifest, files, build = _read_manifest(share, local, step)
         wanted = {safe_relative(n) for n in files}
         if "runtime-manifest.json" in wanted:
             raise ValueError("Self-referential manifest")
-        # Real operational folders are separate data, never staged as program code.
-        found = set()
-
-        def enumeration_error(error):
-            raise error
-
-        step["operation"] = "enumerate"
-        for current, directories, names in os.walk(share, followlinks=False, onerror=enumeration_error):
-            current = Path(current)
-            if current == share:
-                # These established operational roots are neither scanned nor installed.
-                directories[:] = [name for name in directories if name not in DATA_DIRS]
-            for name in directories + names:
-                p = current / name
-                relative = p.relative_to(share).as_posix()
-                if relative in DATA_FILES:
-                    continue
-                step["path"] = relative
-                if _is_link(p):
-                    raise ValueError("Symlink in deployment: " + repr(relative))
-                if p.is_file():
-                    found.add(relative)
-        expected = wanted | {"runtime-manifest.json"}
-        if found != expected:
-            details = []
-            if expected - found:
-                details.append(describe_difference("Missing program files", expected - found))
-            if found - expected:
-                if any(n in STALE_NAMES or n.startswith("vendor/python/pure25519") for n in found - expected):
-                    raise ValueError(STALE_SIGNED + " " + describe_difference("Unexpected program-folder content", found - expected))
-                details.append(describe_difference("Unexpected program-folder content", found - expected))
-            raise ValueError("; ".join(details))
+        _require_exact_inventory(_deployed_files(share, step), wanted | {"runtime-manifest.json"})
         for name, metadata in files.items():
-            p = share / name
-            target = staging / name
-            step.update(operation="size", path=name)
-            if _inside_has_link(share, name):
-                raise ValueError("Symlink in deployment: " + repr(name))
-            size = metadata["size"]
-            if type(size) is not int or not 0 <= size <= 128 * 1024 * 1024 or p.stat().st_size != size:
-                raise ValueError("Changed program file (size): " + repr(name))
-            target.parent.mkdir(parents=True, exist_ok=True)
-            digest = hashlib.sha256()
-            count = 0
-            step["operation"] = "read and hash"
-            with p.open("rb") as source, target.open("wb") as dest:
-                while chunk := source.read(min(1024 * 1024, size - count + 1)):
-                    count += len(chunk)
-                    if count > size:
-                        raise ValueError("Deployment grew while reading")
-                    digest.update(chunk)
-                    dest.write(chunk)
-            if count != size or digest.hexdigest() != metadata["sha256"]:
-                raise ValueError("Changed program file (checksum): " + repr(name))
+            _stage_file(share, staging, name, metadata, step)
         (staging / "runtime-manifest.json").write_bytes(raw)
-        # Pin is part of the recoverable installation transaction, not an afterthought.
-        (staging / "verified-install.json").write_text(
-            json.dumps(
-                {
-                    "helperVersion": manifest["helperVersion"],
-                    "helperBuild": build,
-                    "release": manifest["release"],
-                    "manifestSha256": hashlib.sha256(raw).hexdigest(),
-                },
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+        _write_pin(staging, manifest, build, raw)
         return manifest
     except (OSError, ValueError, KeyError, TypeError, AssertionError) as error:
-        where = step["operation"] + (" " + repr(step["path"]) if step["path"] else "")
-        detail = type(error).__name__ + " during " + where + ": " + str(error)
-        _write_diagnostic(
-            local,
-            "Madison Document Writer update diagnostic\n"
-            + "Python: "
-            + sys.version.split()[0]
-            + "\n"
-            + "Share path type: "
-            + ("UNC" if str(share).startswith(("\\\\", "//")) else "drive or local")
-            + "\n"
-            + "Operation: "
-            + where
-            + "\n"
-            + "Exception: "
-            + type(error).__name__
-            + "\n"
-            + "Detail: "
-            + str(error)
-            + "\n",
-        )
-        raise ValueError(FAILURE + "\n  Details: " + detail) from error
+        _refuse_with_diagnostic(share, local, step, error)
