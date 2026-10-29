@@ -3,7 +3,7 @@
     "complexity": 4,
     "max-depth": 0,
     "max-lines-per-function": 64,
-    "python": 7
+    "python": 6
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 428,
@@ -76,7 +76,6 @@
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 96,
     "helper/case_integrity.py:__init__:C901": 19,
     "helper/case_integrity.py:verify_record:C901": 20,
-    "helper/case_lookup.py:run_query:C901": 29,
     "helper/case_lookup.py:settings:C901": 18,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 24,
