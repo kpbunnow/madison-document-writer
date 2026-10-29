@@ -1554,3 +1554,9 @@ The pure exit review moved unchanged to `exit_review.js` (no services, state or 
 Added a frozen-original comparison of record verification before changing it (`audit_record_integrity_rules.js`: 6,000 genuine chains built with the module's own canonical form and digest, with tampering at every link and malformed or legacy input, against the retained `record_integrity_reference.txt`). It compares the exact verdict: failing event, expected and actual digests and last good commit time.
 
 `verifyIntegrity` (complexity 26) is now genesis, entry, commit and context checks that each return a failure verdict or null, assembled in the original order with one carried chain state. Five of six deliberate mutations are caught; the survivor (an already-known entry identity) is behavior-equivalent because the digest check fails with the same verdict.
+
+## record-action-dialog-phases
+
+Added a frozen-original comparison of the record-action dialog (`audit_record_action_modal_rules.js`: 6,000 seeded states, every mode, held attempt, saved form and error, with escaping, against the retained `correction_ui_reference.txt`). `recordActionModal` (complexity 25) is now a held-attempt lookup plus inspector, external-reference and shell builders. Four deliberate mutations are caught.
+
+Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 63 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
