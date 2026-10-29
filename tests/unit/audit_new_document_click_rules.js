@@ -60,35 +60,6 @@ function recorder(calls, returns, data, fail) {
   return make([]);
 }
 
-function recorder(calls, returns, data, fail) {
-  let count = 0;
-  const tick = (label) => {
-    if (++count === fail) throw new Error("interrupted:" + label);
-  };
-  const show = (value) => JSON.stringify(value, (_, v) => (v === undefined ? "<undefined>" : v));
-  const make = (trail) =>
-    new Proxy(function () {}, {
-      get(_, key) {
-        const next = trail.concat(String(key)),
-          name = next.join(".");
-        calls.push("get " + name);
-        tick("get " + name);
-        return name in data ? data[name] : make(next);
-      },
-      apply(_, __, args) {
-        const name = trail.join(".");
-        calls.push(name + "(" + show(args) + ")");
-        tick(name);
-        const result = returns[name];
-        return typeof result === "function" ? result(...args) : result;
-      },
-    });
-  return make([]);
-}
-
-globalThis.__TEST_BUILD__ = true;
-globalThis.document = { querySelector: () => ({ content: "token" }) };
-
 let seed = 20261108;
 const random = (n) => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -96,68 +67,6 @@ const random = (n) => {
   },
   pick = (values) => values[random(values.length)],
   chance = (n) => random(n) === 0;
-
-const NUMBER = "CB2026-100-00001";
-
-function sqlRow(type, status, date) {
-  return {
-    CaseNumber: NUMBER,
-    InspectionType: type,
-    InspectionStatus: status,
-    InspectionDate: date,
-    InspectionTime: "09:05",
-    InspectorName: "<inspector>",
-    SiteAddress: "100 TEST ST",
-    OwnerName: "OWNER",
-    OwnerAddress: "100 TEST ST\nMADISON WI",
-    ParcelNumber: "070913125237",
-    CaseDescription: "Complaint",
-    HistoricDistrict: "No",
-    IndividualLandmark: "No",
-  };
-}
-
-function scenario() {
-  const rows = Array.from({ length: pick([1, 1, 1, 2]) }, () =>
-    sqlRow(
-      pick(["Initial Inspection", "Initial Inspection", "Reinspection"]),
-      pick(["Official Notice", "Official Notice", "Citation", "Unknown"]),
-      pick(["2026-10-01T00:00:00", "2026-10-02T00:00:00"]),
-    ),
-  );
-  return {
-    entry: pick([NUMBER, NUMBER, NUMBER.toLowerCase(), " " + NUMBER + " ", "bad number!", "", undefined]),
-    busy: chance(8),
-    saveDrafts: pick([true, true, true, false]),
-    saveAfter: pick([true, true, true, false]),
-    stale: pick([
-      "",
-      "",
-      "",
-      "",
-      "serial-save",
-      "screen-save",
-      "serial-fetch",
-      "serial-json",
-      "serial-list",
-      "serial-open",
-      "serial-load",
-      "screen-load",
-      "screen-after",
-    ]),
-    response: pick(["ok", "ok", "ok", "ok", "notok", "failed", "abort", "boom", "emptyfail"]),
-    result: pick(["good", "good", "good", "good", "mismatch", "norows"]),
-    rows,
-    listing: pick(["none", "none", "none", "other", "duplicate", "match", "notarray"]),
-    openedNumber: pick([NUMBER, "CB2026-999-00009"]),
-    localDuplicate: chance(10),
-    loaded: pick([true, true, false]),
-    snow: chance(8),
-    existing: chance(10),
-    helper: chance(2),
-    fail: chance(2) ? 1 + random(14) : 0,
-  };
-}
 
 const POOLS = {
   scope: ["building", "unit", "", "other"],
