@@ -931,3 +931,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Extracted spreadsheet worksheet XML into an independently loadable owner with lazy facts/exports groups; split cell display and serialization below the complexity limit. Passed 4,002 retained-sheet inputs through composed and standalone owners, exact XML/property reads/service receivers and exceptions. Fresh test build, Reports workbook/export-scope suites, Reports boundaries, module boundaries (138 modules/no cycles), test seams, ESLint and formatting pass. Exact scoped-interface guard now inspects both composed owners; dependency whitelist adds only the new edge/owner. Initial scoped-interface mismatch corrected by checking the forwarded consumer, without relaxing assertions. Existing Reports suite passes with its JSDOM canvas warnings. No workbook format, print or release identity changes.
 
 Measured counts: {'complexity': 53, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 52, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## saved-case-confirmation-phase
+
+Separated shared-save/connection confirmation status from higher-priority integrity, draft, queue and PDF decisions. Passed 5,108 retained-owner comparisons covering ordered reads and interruptions, 1,033 exact Workspace snapshots, fresh test build, existing R44 saved-work and desktop-exit suites, module boundaries, test seams, ESLint and formatting. No storage/write authority, status wording, print or release identity changes.
+
+Measured counts: {'complexity': 52, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15}.

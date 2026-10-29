@@ -1,0 +1,90 @@
+export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
+  const st = R.caseState(k),
+    proof = R.recordIntegrity.status(k),
+    connected = available;
+  const result = (status, label, action, detail) => ({ status, label, action, detail });
+  if (proof.valid === false)
+    return result(
+      "Record review needed",
+      "View verification details",
+      "integrity",
+      "Keep this case read-only. Ask an administrator to review its retained evidence.",
+    );
+  if (R.PREFLIGHT_CONFLICT?.cid === k.id)
+    return result(
+      "Shared changes need review",
+      "Review differences",
+      "conflict",
+      "Local work is retained. Compare the changed shared record before continuing.",
+    );
+  if (st.pendingRecord || st.pendingDoc)
+    return result(
+      "Save confirmation needed",
+      "Confirm original save",
+      "pending",
+      "The original attempt is retained. Confirmation does not create another issued action.",
+    );
+  if (proof.pendingTransaction)
+    return result("Save confirmation needed", "Complete pending save", "save", "Continue the retained migration. No new baseline is created.");
+  if (st.draft || st.visit)
+    return result(
+      localSaveText(R),
+      st.draft ? "Continue draft" : "Continue inspection",
+      "document",
+      "Unfinished work is separate from the shared issued record. Device status is shown above.",
+    );
+  if (st.pendingSync || R.PENDING.some((p) => p.cid === k.id || p.name === R.caseFileName(k)))
+    return result(
+      connected ? "Shared save needed" : "Waiting for connection",
+      connected ? "Save case to shared folder" : "Connect shared folder",
+      connected ? "save" : "storage",
+      connected
+        ? "The queued case file is retained. Shared history will be checked before saving."
+        : "The queued case file is retained on this device only if device saving succeeded.",
+    );
+  const docs = R.docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded && !R.deliveredByCitation(d));
+  const needsPDF = docs.find((d) => !d.filedAt || !["shared", "local outbox"].includes(R.pdfTransferState(d)));
+  if (needsPDF)
+    return result(
+      "PDF filing needed",
+      "Review issued PDF",
+      "pdf",
+      "Open the issued document to verify the original or continue its exact filing attempt.",
+    );
+  if (docs.some((d) => R.pdfTransferState(d) === "local outbox"))
+    return result(
+      "PDF filing needed",
+      "Transfer saved PDF",
+      "outbox",
+      "Verified PDF bytes are in the local outbox. Transfer does not confirm delivery.",
+    );
+  if (R.caseUnsaved(k))
+    return result(
+      connected ? "Shared save needed" : "Waiting for connection",
+      connected ? "Save case to shared folder" : "Connect shared folder",
+      connected ? "save" : "storage",
+      connected
+        ? "Case details or recorded actions differ from the last confirmed shared save."
+        : "Check the shared connection before saving case records.",
+    );
+  if (!connected)
+    return result(
+      "Waiting for connection",
+      "Connect shared folder",
+      "storage",
+      "Last confirmed shared save is retained; its current availability has not been checked.",
+    );
+  if (R.CASEDIR.helper && !R.COMMITTED.has(R.summaryName(k)))
+    return result(
+      "Shared copy needs check",
+      "Check shared record",
+      "check",
+      "The retained workspace has no confirmed shared read in this session. Che" + "ck the shared case before treating its copy as current.",
+    );
+  return result(
+    "Shared copy current",
+    "Check shared record",
+    "check",
+    "Matches the last confirmed shared save in this workspace. Check for later changes on the share.",
+  );
+}
