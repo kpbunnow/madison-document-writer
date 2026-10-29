@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_recipient_lines.js` | 8,192 retained recipient-line output, access-order and error comparisons; public address formatter ownership |
 | `audit_writer_followup_templates.js` | Compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects. |
 | `audit_writer_frame_templates.js` | Compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments. |
 | `audit_writer_details_templates.js` | Compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls. |
