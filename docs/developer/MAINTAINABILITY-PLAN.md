@@ -1601,3 +1601,7 @@ Added a frozen-original comparison of verified update staging (`audit_verified_u
 Added a frozen-original comparison of the Windows case-lookup query (`audit_lookup_query_rules.py`: 6,000 scripted PowerShell answers against the retained function text, with the operating system, PowerShell and subprocess faked in the module). It compares refusals before the call, the exact request sent, each failure category and provider number, the diagnostic code built from allowlisted labels, the appended operation and argument text and the local-details note.
 
 `run_query` (C901 29) keeps its pre-call checks and request, and the failure text moved to an ordered table of category and number guidance, a diagnostic builder and one message function. Six of seven deliberate mutations are caught; the survivor re-reads the same number and is equivalent.
+
+## lookup-settings-phases
+
+Added a frozen-original comparison of the case-lookup configuration (`audit_lookup_settings_rules.py`: 1,500 seeded shared and per-user settings folders against the retained function text). It compares the shared folder and file states, allowed keys and value rules (including the control-character and size boundaries), the approved-server check, the per-user certificate setting and the disabled switch, with the exact configuration or refusal. `settings` (C901 18) is now a shared-file reader, a settings check and a per-user certificate reader; all six deliberate mutations are caught after two boundary cases were added.

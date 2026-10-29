@@ -30,17 +30,17 @@ class CaseLookupError(Exception):
         self.status = status
 
 
-def settings(root):
-    root = Path(root)
-    if not root.is_dir():
-        raise CaseLookupError("The shared program folder is unavailable. Reconnect to the City network and retry.")
+def _read_shared_settings(root):
     path = root / "Case Lookup" / "settings.json"
     try:
-        raw = path.read_text(encoding="utf-8-sig")
+        return path.read_text(encoding="utf-8-sig")
     except FileNotFoundError:
-        raw = "{}"
+        return "{}"
     except OSError:
         raise CaseLookupError("Case Lookup/settings.json cannot be read. Ask IT to check access.")
+
+
+def _checked_settings(raw):
     try:
         data = json.loads(raw)
         if not isinstance(data, dict) or set(data) - set(DEFAULTS):
@@ -54,6 +54,36 @@ def settings(root):
             raise ValueError()
     except (ValueError, TypeError):
         raise CaseLookupError(("Case Lookup/settings.json is invalid. Use the supplied example; allowed settings are server, database and enabled."))
+    return cfg
+
+
+def _local_certificate_setting(local_app_data):
+    """The per-user choice to skip server identity validation; absent means validate."""
+    local_path = Path(local_app_data) / "MadisonDocWriter" / LOCAL_TLS_SETTINGS
+    try:
+        local_data = json.loads(local_path.read_text(encoding="utf-8-sig"))
+    except FileNotFoundError:
+        local_data = {}
+    except OSError:
+        raise CaseLookupError("The local SQL certificate setting cannot be read. Remove it or check access.")
+    except (ValueError, UnicodeError):
+        raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
+    try:
+        if not isinstance(local_data, dict) or set(local_data) - {"trustServerCertificate"}:
+            raise ValueError()
+        trust_certificate = local_data.get("trustServerCertificate", False)
+        if type(trust_certificate) is not bool:
+            raise ValueError()
+    except (ValueError, TypeError):
+        raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
+    return trust_certificate
+
+
+def settings(root):
+    root = Path(root)
+    if not root.is_dir():
+        raise CaseLookupError("The shared program folder is unavailable. Reconnect to the City network and retry.")
+    cfg = _checked_settings(_read_shared_settings(root))
     try:
         trusted_connections.approved_sql(cfg["server"])
     except ValueError as error:
@@ -61,24 +91,7 @@ def settings(root):
     cfg["trustServerCertificate"] = False
     local_app_data = os.environ.get("LOCALAPPDATA")
     if local_app_data:
-        local_path = Path(local_app_data) / "MadisonDocWriter" / LOCAL_TLS_SETTINGS
-        try:
-            local_data = json.loads(local_path.read_text(encoding="utf-8-sig"))
-        except FileNotFoundError:
-            local_data = {}
-        except OSError:
-            raise CaseLookupError("The local SQL certificate setting cannot be read. Remove it or check access.")
-        except (ValueError, UnicodeError):
-            raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
-        try:
-            if not isinstance(local_data, dict) or set(local_data) - {"trustServerCertificate"}:
-                raise ValueError()
-            trust_certificate = local_data.get("trustServerCertificate", False)
-            if type(trust_certificate) is not bool:
-                raise ValueError()
-        except (ValueError, TypeError):
-            raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
-        cfg["trustServerCertificate"] = trust_certificate
+        cfg["trustServerCertificate"] = _local_certificate_setting(local_app_data)
     if not cfg["enabled"]:
         raise CaseLookupError("Direct case lookup is disabled by the administrator. Use an Excel report.")
     return cfg
