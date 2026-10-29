@@ -1302,3 +1302,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95
 Migrated the R31 address workflow from the full application bundle to actual editor, address parser, integrity, live records and summary owners. All 11 assertion ASTs remain identical, including Python corpus agreement, explicit acceptance, unchanged owner name, ambiguous address refusal and summary version. Native identity/UI/persistence remain controlled service inputs; no production hooks, startup or universal registry. Recipient and record-helper owner suites pass. Legacy bundle evaluator inventory decreases from 74 to 73; 54 existing hooks remain for other consumers. Numerical targets remain met; migration and final audit remain unfinished.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-saved-view-owner-test
+
+Migrated the R49 saved-view and coverage grammar regression to existing independently composed real Reports owners and the actual navigation listener. All 12 assertion ASTs remain identical, including singular/plural wording, saved-context clearing, retained filters/sort and export parity. R48 preference and mismatch regressions also pass. No production changes or hooks. Legacy bundle evaluators decrease 73 to 72; 54 hooks remain for other consumers; numerical targets remain met. Remaining migration, screen conversion and final audit are not complete.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
