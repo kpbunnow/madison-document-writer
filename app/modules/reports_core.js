@@ -1,3 +1,5 @@
+import { TILE } from "./report_metadata.js";
+export { TILE };
 import { CRC_T, xesc, excelDate, STYLES } from "./report_workbook_definitions.js";
 export { CRC_T, xesc, excelDate, STYLES };
 import { createReportFilterChange } from "./report_filter_events.js";
@@ -341,10 +343,6 @@ export const TODAY = iso(new Date());
    district (or ZIP) and whose values all fit is used. */
 
 /* ---------- state ---------- */
-export const TILE = {
-  labels: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_basemap/MapServer/tile/{z}/{y}/{x}",
-  plain: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_base_No_Names/MapServer/tile/{z}/{y}/{x}",
-};
 
 ReportsState.S = {
   phase: "loading",

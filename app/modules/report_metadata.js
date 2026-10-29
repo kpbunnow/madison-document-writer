@@ -110,3 +110,8 @@ export const STATUSES = [
   "Cited – snow",
 ];
 export const STATUS_COL = { Notice: "#14567F", Extension: "#C26A00", Cited: "#A8201A", Referred: "#5A3C8C", Closed: "#1B6045" };
+
+export const TILE = {
+  labels: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_basemap/MapServer/tile/{z}/{y}/{x}",
+  plain: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_base_No_Names/MapServer/tile/{z}/{y}/{x}",
+};
