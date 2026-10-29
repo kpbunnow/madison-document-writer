@@ -1625,3 +1625,18 @@ Added a frozen-original comparison of the seasonal letter review (`audit_snow_le
 ## start-correction-sections
 
 Added a frozen-original comparison of `startCorrection` (`audit_start_correction_rules.js`: 6,000 seeded documents, cases and recipient lists against the retained `correction_workflow_reference.txt`) covering the existing-draft shortcut, eligibility refusals, every dropped issued field, the recipient merge across case, document and issued copy, the stored correction record, state effects and the order of peer reads and calls. `startCorrection` (85 lines) is now a short shell over a dropped-field table, a recipient merge, a correction-record builder and a draft builder. Deliberate mutations are caught; the survivors (`on: true` on issued recipients, which the later issued pass overwrites, and `Array.isArray(docCase(src).emails)`, whose rows repeat the case's own) are equivalent.
+## verified-update-phases
+
+Added a frozen-original comparison of verified update staging (`audit_verified_update_rules.py`: 1,500 seeded shared deployments on real folders against the retained module text, plus network-share diagnostics). It damages deployments in 20 ways (changed size or checksum, missing, extra and stale files, links, bad paths, a self-referencing or empty manifest, oversized or malformed manifests, downgrade pins of both formats, operational folders and files) and compares the result, error text, staged files, pin and diagnostic.
+
+`stage_update` (C901 26) is now manifest reading with the pin checks, deployment enumeration, exact inventory check, per-file staging with size and checksum recheck, pin writing and the diagnostic refusal. Eight of ten deliberate mutations are caught after the version-pool fix; the two survivors (a link appearing between enumeration and copying, and a file growing while it is read) are races that a static folder cannot produce and are kept verbatim.
+
+## lookup-failure-table
+
+Added a frozen-original comparison of the Windows case-lookup query (`audit_lookup_query_rules.py`: 6,000 scripted PowerShell answers against the retained function text, with the operating system, PowerShell and subprocess faked in the module). It compares refusals before the call, the exact request sent, each failure category and provider number, the diagnostic code built from allowlisted labels, the appended operation and argument text and the local-details note.
+
+`run_query` (C901 29) keeps its pre-call checks and request, and the failure text moved to an ordered table of category and number guidance, a diagnostic builder and one message function. Six of seven deliberate mutations are caught; the survivor re-reads the same number and is equivalent.
+
+## lookup-settings-phases
+
+Added a frozen-original comparison of the case-lookup configuration (`audit_lookup_settings_rules.py`: 1,500 seeded shared and per-user settings folders against the retained function text). It compares the shared folder and file states, allowed keys and value rules (including the control-character and size boundaries), the approved-server check, the per-user certificate setting and the disabled switch, with the exact configuration or refusal. `settings` (C901 18) is now a shared-file reader, a settings check and a per-user certificate reader; all six deliberate mutations are caught after two boundary cases were added.
