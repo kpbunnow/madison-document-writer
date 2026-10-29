@@ -1,11 +1,10 @@
 # Maintainability architecture audit
 
 Snapshot: October 29, 2026, at the conclusion of the batch B1–B11 maintainability
-plan (merged through #339). This supersedes the PR #92
+plan (merged through #342; later bug-scan repairs are listed in MAINTAINABILITY-PLAN.md). This supersedes the PR #92
 measurement snapshot. It reviews the resumed maintainability work; it does not
 claim completion of every remaining screen/test migration, release approval or
-native acceptance. The exact final integration head must pass GitHub Full gate
-and PR format before merge.
+native acceptance. Each delivery merged only after the GitHub Full gate and PR format passed on its exact head.
 
 ## Measured structure
 
@@ -18,7 +17,7 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | --- | ---: | --- |
 | Maintained browser modules | 149 | Writer and Reports; generated/vendor modules excluded |
 | Cycles | 0 | Every cycle is rejected; no universal runtime registry |
-| Foundation / scoped owner boundaries | 25 / 108 | Exact permitted direct imports, not a behavioral-coupling score |
+| Foundation / scoped owner boundaries | 25 / 110 | Exact permitted direct imports, not a behavioral-coupling score |
 | Explicit service interfaces, including groups | 118 | No opaque spreads or computed interface keys |
 | Largest declared input object | 25 fields | Nested groups counted separately; not total transitive dependencies |
 | Root-state importers | 11 | Two cores, three other Reports modules, and six state boundaries |
@@ -26,7 +25,7 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | Core handwritten forwarders / getters | 19 / 8 | Down from measured763 /209; custom native/store/clock adapters remain explicit |
 | Deferred composition declarations / resolvers | 98 / 945 | Stateless per-owner adapters; no shared lookup registry |
 | JS complexity / nesting findings | 3 / 0 | Complexity >20; nesting >4; all three are the frozen print renderers (D1) |
-| Long JS function findings | 48 | 44 enclosing create/init factories (capped by the ratchet) and 4 frozen print renderers (D1) |
+| Long JS function findings | 44 | 40 enclosing create/init factories (capped by the ratchet) and 4 frozen print renderers (D1) |
 | Python C901 findings | 5 | Maintained helper/tools/policy scope, excluding vendor/history |
 | Whole-application evaluator files | 67 | 60 classified integration with a reason, 7 migratable with an owner; a new unclassified file fails the gate |
 | Split string literals in screen modules | 0 | Ratcheted per file by `tools/markup-baseline.json`; 131 print/issued and 60 approved-wording sites are listed, not ratcheted |
@@ -111,7 +110,7 @@ and 4,096 citation-review comparisons. Exact frozen legacy citation faces and th
 3,872-case Python price corpus remain unchanged. The form conversion removes one
 non-factory length finding; citation review falls from 316 to 155 lines. The
 initial-citation narrative and all non-presentation methods remain unchanged.
-Exact-head Full gate/PR format are required for this new delivery batch.
+That batch and every later one merged only after the Full gate and PR format passed on its exact head.
 
 ## Behavior-preserving method
 
@@ -124,7 +123,7 @@ Each accepted finding, why it stays, and the condition for reopening it.
 | Finding | Count | Reason accepted | Reopen when |
 | --- | ---: | --- | --- |
 | Print renderers in `document_render.js` (`noticeHTML`, `citationFaces` and their inner functions): length 446/270/242/228, complexity 55/55/75 | 4 length, 3 complexity | D1: issued-document bytes are protected by frozen references and approved-print parity; splitting risks historical rendering for no behavior gain | The owner approves a print-renderer change with byte-parity evidence, or a new document family is added |
-| Enclosing `create…`/`init…` factories over 80 lines | 44 | D3: factories are composition roots whose size is declared interface, not logic; only `createAccelaImport` and `initNewDocuments` were split. The per-function baseline stops any factory growing | A factory gains logic, or the owner asks for further shrinking (see the factory discussion in the batch B11 PR) |
+| Enclosing `create…`/`init…` factories over 80 lines | 40 | D3: factories are composition roots whose size is declared interface, not logic; `createAccelaImport`, `initNewDocuments`, `createReinspection`, `createReportsScreens` and `createLanguageCatalog` were split or lifted. The per-function baseline stops any factory growing | A factory gains logic, or the owner asks for further shrinking  |
 | Python functions over complexity 10: `read_index` 30, `launch.main` 24, `verify_record` 20, `CaseIntegrity.__init__` 19, `file_lock` 13 | 5 | Security-sensitive helper code (integrity, locking, launch) where each branch is a refusal; further splitting needs equivalence seams of the B8 kind | Any of them changes behavior, or the owner authorizes the same method for them |
 | Whole-application evaluators | 60 integration, 7 migratable | They create, edit and issue documents or drive startup, storage and screens across owners; rewriting them would change assertions | A test is rewritten for another reason, or the owner funds a migration |
 | Retained test hook fields | 48 | Read by the integration evaluators above (for example `noticeHTML`, `citAmount`, `editorReadiness`); retiring one needs every consumer traced and no lost assertion | The last consumer of a field migrates |
@@ -144,7 +143,7 @@ New and changed code keeps these rules; the gate enforces the first three.
 
 Batches B1–B11 are complete. Numerical complexity and nesting targets are met outside the recorded exceptions, and Python complexity is down from 13 to 5. State direction, owner boundaries and interface limits are enforced. Functionality development may resume under the contract above.
 
-The register records what is deliberately left. Items that need an owner decision rather than more behavior-preserving work are the shrinking of the factories and the evaluator and hook migrations. The screen split literals were converted afterwards (see the plan's template-conversion entry).
+The register records what is deliberately left. Items that need an owner decision rather than more behavior-preserving work are further shrinking of the remaining 40 factories and the evaluator and hook migrations. The screen split literals were converted (#341) and the three largest factories lifted (#342); both are recorded in the plan.
 
 City Windows, network-drive, Outlook and native-printing acceptance, manual accessibility checks, staff and legal review and exact PNG-parity acceptance retain their existing documented owners. Automated tests do not establish them.
 
