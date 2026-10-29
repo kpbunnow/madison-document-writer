@@ -1075,3 +1075,9 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Separated blocked, working, PDF and issued-case queue actions into named private phases. Passed 5,007 retained-owner comparisons and 1,033 exact Workspace snapshots, module boundaries, test seams, ESLint and formatting. Live input aliases, task/priority/read order, labels and storage/publication authority are unchanged. No print, stored format or release identity changes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15} → {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 108, 'python': 15}.
+
+## workspace-artifact-task-phases
+
+Separated unfiled/local/problem artifact task collection into private functions without changing task order or authority. The existing public-owner suite runs unchanged against the maintained and frozen original module; outputs and diagnostics are byte-identical, and missing retained-owner execution fails explicitly. Passed 5,007 queue comparisons, 1,033 Workspace snapshots, task parity, module boundaries, test seams, ESLint and formatting. Existing assertions/references and release identities unchanged.
+
+Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 108, 'python': 15} → {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 106, 'python': 15}.
