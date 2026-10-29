@@ -19,6 +19,61 @@ function messageMarkup(m, callbacks, safe) {
 }
 
 /* Shared screen accessibility; printable document source is not changed. */
+function enhanceDocumentControls() {
+  document.querySelectorAll("strong[aria-readonly]").forEach((el) => {
+    el.setAttribute("role", "textbox");
+    el.setAttribute("aria-label", "Case number");
+  });
+  const names = {
+    number: "Case number",
+    address: "Property address",
+    ownerBlock: "Owner and mailing address",
+    text: "Corrective action",
+    sections: "Violation sections",
+    title: "Violation title",
+    group: "Violation group",
+    ord: "Ordinance",
+    deptId: "Department ID",
+    comment: "Citation comment",
+  };
+  document.querySelectorAll("[contenteditable]").forEach((el) => {
+    const key = el.dataset.case || el.dataset.field || el.dataset.cit?.split("|")[1];
+    el.setAttribute("role", "textbox");
+    el.setAttribute("aria-label", names[key] || el.dataset.ph || key || "Document text");
+    el.setAttribute("aria-multiline", String(["ownerBlock", "text", "sections", "comment"].includes(key)));
+    el.tabIndex = 0;
+  });
+  document.querySelectorAll("#app input,#app select,#overlay input,#overlay select").forEach((el, index) => {
+    if (
+      el.type === "hidden" ||
+      el.hasAttribute("aria-label") ||
+      el.hasAttribute("aria-labelledby") ||
+      el.closest("label") ||
+      (el.id && document.querySelector(`label[for="${el.id}"]`))
+    )
+      return;
+    el.setAttribute(
+      "aria-label",
+      String(
+        el.dataset.ph || el.placeholder || el.title || el.dataset.case || el.dataset.doc || el.dataset.field || el.id || "Option " + (index + 1),
+      ).replace(/[-_]/g, " "),
+    );
+  });
+  document.querySelectorAll("#app table,#overlay table").forEach((table, index) => {
+    if (!table.querySelector("caption") && typeof table.prepend === "function") {
+      const caption = document.createElement("caption");
+      caption.className = "sr-only";
+      caption.textContent = table.closest(".card,.panel,.modal-box")?.querySelector("h2,h3")?.textContent || "Case information " + (index + 1);
+      table.prepend(caption);
+    }
+    table.querySelectorAll("thead th").forEach((el) => (el.scope = "col"));
+    table.querySelectorAll("tbody tr").forEach((row) => {
+      const el = row.firstElementChild;
+      if (el?.tagName === "TH") el.scope = "row";
+    });
+  });
+}
+
 export function createAccessibility() {
   const messages = [],
     callbacks = new Map(),
@@ -345,58 +400,8 @@ export function createAccessibility() {
             "</select></label>",
         );
     });
-    document.querySelectorAll("strong[aria-readonly]").forEach((el) => {
-      el.setAttribute("role", "textbox");
-      el.setAttribute("aria-label", "Case number");
-    });
-    const names = {
-      number: "Case number",
-      address: "Property address",
-      ownerBlock: "Owner and mailing address",
-      text: "Corrective action",
-      sections: "Violation sections",
-      title: "Violation title",
-      group: "Violation group",
-      ord: "Ordinance",
-      deptId: "Department ID",
-      comment: "Citation comment",
-    };
-    document.querySelectorAll("[contenteditable]").forEach((el) => {
-      const key = el.dataset.case || el.dataset.field || el.dataset.cit?.split("|")[1];
-      el.setAttribute("role", "textbox");
-      el.setAttribute("aria-label", names[key] || el.dataset.ph || key || "Document text");
-      el.setAttribute("aria-multiline", String(["ownerBlock", "text", "sections", "comment"].includes(key)));
-      el.tabIndex = 0;
-    });
-    document.querySelectorAll("#app input,#app select,#overlay input,#overlay select").forEach((el, index) => {
-      if (
-        el.type === "hidden" ||
-        el.hasAttribute("aria-label") ||
-        el.hasAttribute("aria-labelledby") ||
-        el.closest("label") ||
-        (el.id && document.querySelector(`label[for="${el.id}"]`))
-      )
-        return;
-      el.setAttribute(
-        "aria-label",
-        String(
-          el.dataset.ph || el.placeholder || el.title || el.dataset.case || el.dataset.doc || el.dataset.field || el.id || "Option " + (index + 1),
-        ).replace(/[-_]/g, " "),
-      );
-    });
-    document.querySelectorAll("#app table,#overlay table").forEach((table, index) => {
-      if (!table.querySelector("caption") && typeof table.prepend === "function") {
-        const caption = document.createElement("caption");
-        caption.className = "sr-only";
-        caption.textContent = table.closest(".card,.panel,.modal-box")?.querySelector("h2,h3")?.textContent || "Case information " + (index + 1);
-        table.prepend(caption);
-      }
-      table.querySelectorAll("thead th").forEach((el) => (el.scope = "col"));
-      table.querySelectorAll("tbody tr").forEach((row) => {
-        const el = row.firstElementChild;
-        if (el?.tagName === "TH") el.scope = "row";
-      });
-    });
+    enhanceDocumentControls();
+
     const dialog = document.querySelector('#overlay [role="dialog"]');
     if (!dialog && hadDialog) returnFocus();
     hadDialog = !!dialog;
