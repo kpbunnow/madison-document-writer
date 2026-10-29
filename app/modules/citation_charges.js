@@ -96,6 +96,21 @@ export function lookupForf(sections, libraryKey = "", entryId = "", date) {
   return resolveOrdinance(sections[0], libraryKey, entryId, date);
 }
 
+function refreshChangedDepositRequest(services, d, i, c, iid) {
+  if (d.depositRequests?.[iid] === c) {
+    const price = resolveCitationAmount({
+      ordinance: c.ord,
+      libraryItem: itemLibraryKey(i),
+      entryId: c.scheduleEntryId,
+      tier: c.tier || 1,
+      date: services.citationPricingDate(c, d),
+      measurements: c.measurements || {},
+    });
+    c.reason = price.reason || "Choose an approved deposit basis.";
+    c.measurementFields = price.fields || [];
+  }
+}
+
 export function createCitationCharges(services) {
   function changeCharge(d, iid, value) {
     const i = (d.items || []).find((x) => x.id === iid),
@@ -127,18 +142,7 @@ export function createCitationCharges(services) {
       return true;
     }
     services.citationPricing.refresh(d);
-    if (d.depositRequests?.[iid] === c) {
-      const price = resolveCitationAmount({
-        ordinance: c.ord,
-        libraryItem: itemLibraryKey(i),
-        entryId: c.scheduleEntryId,
-        tier: c.tier || 1,
-        date: services.citationPricingDate(c, d),
-        measurements: c.measurements || {},
-      });
-      c.reason = price.reason || "Choose an approved deposit basis.";
-      c.measurementFields = price.fields || [];
-    }
+    refreshChangedDepositRequest(services, d, i, c, iid);
     return true;
   }
 
