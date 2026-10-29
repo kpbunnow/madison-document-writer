@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 36,
+    "complexity": 33,
     "max-depth": 0,
     "max-lines-per-function": 97,
     "python": 15
@@ -118,10 +118,7 @@
     "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 171,
     "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
-    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 599,
-    "app/modules/reinspection.js:createReinspection#1/attachCheckTargets#1:complexity": 26,
-    "app/modules/reinspection.js:createReinspection#1/focusCheckTarget#1:complexity": 33,
-    "app/modules/reinspection.js:createReinspection#1/recordReinspectionOutcome#1:complexity": 21,
+    "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 520,
     "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 819,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 581,
     "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,

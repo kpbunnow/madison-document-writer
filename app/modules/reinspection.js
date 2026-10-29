@@ -458,6 +458,105 @@ function followupDraftMessage(type, carry, n, cl) {
         (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : "");
 }
 
+function attachIdentityCheckTargets(d, t, add) {
+  if (/registered agent/.test(t)) ["name", "addr", "city"].forEach((f) => add('[data-agent="' + f + '"]', "Registered agent " + f, "contacts"));
+  else if (/mailing block/.test(t)) add('[data-case="ownerBlock"]', "Mailing block");
+  else if (/case number/.test(t)) {
+    if (!validCaseNumber(docCase(d).number)) add('[data-case="number"]', "Case number");
+    if (!docCase(d).address) add('[data-case="address"]', "Property address");
+  } else if (/signing/.test(t)) add('[data-doc="inspectorId"]', "Signing inspector");
+  else if (/explain the error/.test(t)) add("#correction-reason", "Correction reason");
+  else if (/amendment instructions/.test(t)) add("#correction-external", "Amendment reference");
+  else if (/original action date/.test(t)) add("#correction-action-date", "Original action date");
+  else return false;
+  return true;
+}
+
+function attachContentCheckTargets(services, d, t, add, visit) {
+  if (/mailing date|mailed date/.test(t)) add('[data-doc="mailed"]', "Mailed date");
+  else if (/inspection|outcome|result date|compliance date|marked corrected/.test(t) && d.fromReinspId && !d.correction) visit();
+  else if (/inspection date/.test(t)) add(d.inspDate !== undefined ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date");
+  else if (/three distinct due dates/.test(t)) dueItems(d).forEach((i) => add(itemSelector(i.id, "due"), "Item " + i.no + " due date"));
+  else if (/duplicate items|only once/.test(t)) d.items.forEach((i) => add('[data-del="' + checkAttr(i.id) + '"]', "Item " + i.no));
+  else if (/citation|deposit|court|officer/.test(t)) {
+    d.items
+      .filter((i) => i.cite && !i.withdrawn)
+      .forEach((i) => {
+        const cc = (d.cits || {})[i.id] || {};
+        let fields = /court date/.test(t)
+          ? ["courtDate"]
+          : /badge|officer/.test(t)
+            ? ["deptId"]
+            : /unique citation|citation number/.test(t)
+              ? ["num"]
+              : /issue dates/.test(t)
+                ? ["issued"]
+                : /deposit/.test(t)
+                  ? [
+                      "depositMode",
+                      "ord",
+                      ...(cc.depositMode === "total" ? ["amount"] : ["base", "cc"]),
+                      ...(cc.depositMode && cc.depositMode !== "schedule" ? ["depositSource"] : []),
+                    ]
+                  : ["num", "courtDate", "amount", "ord", "desc"].filter((f) => !String(cc[f] || "").trim());
+        fields.forEach((f) => add(citSelector(i.id, f), "Item " + i.no + " · " + f));
+      });
+  } else if (/withdrawn item needs/.test(t))
+    d.items
+      .filter((i) => i.withdrawn && String(i.withdrawalReason || "").trim().length < 10)
+      .forEach((i) => add('[data-withdraw="' + checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
+  else if (/compliance dates/.test(t))
+    d.items
+      .filter((i) => i.done && !i.withdrawn && (!services.inspection.validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < docCase(d).date))
+      .forEach((i) => add(itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
+}
+
+function recordedOutcomeResult(cur, outcome, r) {
+  return {
+    oc: outcome,
+    on: cur.on || r.date,
+    manualDate: !!cur.manualDate,
+    due: outcome === "corrected" ? "" : cur.due || "",
+    note: cur.note || "",
+    cite: outcome === "corrected" ? false : !!cur.cite,
+  };
+}
+
+function focusRecipientCheckTarget(services, d, target) {
+  const k = d && docCase(d);
+  if (!k) return;
+  editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
+  editor.state.modal = "cc";
+  services.ui.render();
+  const parts = target.action.split(":");
+  const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
+  const field = document.querySelector(editor.state.ccProblem?.selector || exact);
+  field?.focus();
+  field?.scrollIntoView?.({ block: "center" });
+  return;
+}
+
+function focusAdministrativeCheckTarget(services, d, target) {
+  if (target.action === "workspace") {
+    services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
+    return true;
+  }
+  if (target.action === "catalog") {
+    editor.state.screen = "library";
+    editor.state.languageMode = "admin";
+    editor.state.catalogAdminStatus = "review";
+    const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
+    if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
+    services.ui.render();
+    return true;
+  }
+  if (target.action?.startsWith("recipient:")) {
+    focusRecipientCheckTarget(services, d, target);
+    return true;
+  }
+  return false;
+}
+
 export function createReinspection(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -628,14 +727,7 @@ export function createReinspection(services) {
     const cur = r.results[id] || {};
     if (cur.oc === outcome) return false;
     const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
-    const result = {
-      oc: outcome,
-      on: cur.on || r.date,
-      manualDate: !!cur.manualDate,
-      due: outcome === "corrected" ? "" : cur.due || "",
-      note: cur.note || "",
-      cite: outcome === "corrected" ? false : !!cur.cite,
-    };
+    const result = recordedOutcomeResult(cur, outcome, r);
     if (editor.state.riWalk) editor.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
     else editor.state.riWalkUndo = null;
     r.results[id] = result;
@@ -723,54 +815,7 @@ export function createReinspection(services) {
     const visit = () => add("#btn-editvisit", "Review inspection", "visit");
     // The parcel comes only from the Accela import; its check names that correction instead of a field.
     if (/parcel/.test(t)) return c;
-    else if (/registered agent/.test(t))
-      ["name", "addr", "city"].forEach((f) => add('[data-agent="' + f + '"]', "Registered agent " + f, "contacts"));
-    else if (/mailing block/.test(t)) add('[data-case="ownerBlock"]', "Mailing block");
-    else if (/case number/.test(t)) {
-      if (!validCaseNumber(docCase(d).number)) add('[data-case="number"]', "Case number");
-      if (!docCase(d).address) add('[data-case="address"]', "Property address");
-    } else if (/signing/.test(t)) add('[data-doc="inspectorId"]', "Signing inspector");
-    else if (/explain the error/.test(t)) add("#correction-reason", "Correction reason");
-    else if (/amendment instructions/.test(t)) add("#correction-external", "Amendment reference");
-    else if (/original action date/.test(t)) add("#correction-action-date", "Original action date");
-    else if (/mailing date|mailed date/.test(t)) add('[data-doc="mailed"]', "Mailed date");
-    else if (/inspection|outcome|result date|compliance date|marked corrected/.test(t) && d.fromReinspId && !d.correction) visit();
-    else if (/inspection date/.test(t)) add(d.inspDate !== undefined ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date");
-    else if (/three distinct due dates/.test(t)) dueItems(d).forEach((i) => add(itemSelector(i.id, "due"), "Item " + i.no + " due date"));
-    else if (/duplicate items|only once/.test(t)) d.items.forEach((i) => add('[data-del="' + checkAttr(i.id) + '"]', "Item " + i.no));
-    else if (/citation|deposit|court|officer/.test(t)) {
-      d.items
-        .filter((i) => i.cite && !i.withdrawn)
-        .forEach((i) => {
-          const cc = (d.cits || {})[i.id] || {};
-          let fields = /court date/.test(t)
-            ? ["courtDate"]
-            : /badge|officer/.test(t)
-              ? ["deptId"]
-              : /unique citation|citation number/.test(t)
-                ? ["num"]
-                : /issue dates/.test(t)
-                  ? ["issued"]
-                  : /deposit/.test(t)
-                    ? [
-                        "depositMode",
-                        "ord",
-                        ...(cc.depositMode === "total" ? ["amount"] : ["base", "cc"]),
-                        ...(cc.depositMode && cc.depositMode !== "schedule" ? ["depositSource"] : []),
-                      ]
-                    : ["num", "courtDate", "amount", "ord", "desc"].filter((f) => !String(cc[f] || "").trim());
-          fields.forEach((f) => add(citSelector(i.id, f), "Item " + i.no + " · " + f));
-        });
-    } else if (/withdrawn item needs/.test(t))
-      d.items
-        .filter((i) => i.withdrawn && String(i.withdrawalReason || "").trim().length < 10)
-        .forEach((i) => add('[data-withdraw="' + checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
-    else if (/compliance dates/.test(t))
-      d.items
-        .filter(
-          (i) => i.done && !i.withdrawn && (!services.inspection.validISO(i.doneOn) || i.doneOn > recordDay(today) || i.doneOn < docCase(d).date),
-        )
-        .forEach((i) => add(itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
+    if (!attachIdentityCheckTargets(d, t, add)) attachContentCheckTargets(services, d, t, add, visit);
     // Record conflicts have no editable field. Direct the inspector to the existing case.
     if (!targets.length) add('[data-nav="cases"]', "Open case in Workspace", "workspace");
     return { ...c, targets };
@@ -899,32 +944,7 @@ export function createReinspection(services) {
     services.inspection.captureWork();
     editor.state.modal = null;
     editor.state.picker = false;
-    if (target.action === "workspace") {
-      services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
-      return;
-    }
-    if (target.action === "catalog") {
-      editor.state.screen = "library";
-      editor.state.languageMode = "admin";
-      editor.state.catalogAdminStatus = "review";
-      const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
-      if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
-      services.ui.render();
-      return;
-    }
-    if (target.action?.startsWith("recipient:")) {
-      const k = d && docCase(d);
-      if (!k) return;
-      editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
-      editor.state.modal = "cc";
-      services.ui.render();
-      const parts = target.action.split(":");
-      const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
-      const field = document.querySelector(editor.state.ccProblem?.selector || exact);
-      field?.focus();
-      field?.scrollIntoView?.({ block: "center" });
-      return;
-    }
+    if (focusAdministrativeCheckTarget(services, d, target)) return;
     if (target.action === "visit") {
       if (!d || !services.inspection.returnToWorksheet(d)) {
         services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");

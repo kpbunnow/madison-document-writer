@@ -17,6 +17,9 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_check_focus_rules.js` | 700 retained DOM/state/timer comparisons plus existing worksheet and outcome checks |
+| `audit_reinspection_outcome_rules.js` | 4,032 retained outcome/undo comparisons with real live records, focus and interrupted effects |
+| `audit_check_target_rules.js` | 4,075 retained target comparisons plus existing public owner and frozen screen checks |
 | `report_output.cjs` | Exact complete output parity across eleven reports; five metadata and thirteen projection Python checks |
 | `audit_report_navigation.js` | 5,100 retained click comparisons and unchanged complete Reports, R48 and mismatch suites |
 | `audit_report_facts.js` | Source-body parity, scoped live filters, date and number facts, metadata and typed cells. |
