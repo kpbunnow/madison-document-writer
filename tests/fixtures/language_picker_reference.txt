@@ -1,0 +1,155 @@
+export function languagePicker(R) {
+  if (!R.state.picker) return "";
+  const current = R.doc(R.state.docId),
+    all = R.allItems(),
+    q = R.state.q.trim(),
+    filter = R.state.pickerStatus || "approved",
+    selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
+  const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter));
+  const items = all.filter((i) => visible(i) && languageMatches(R, i, q) && (q || R.state.cl < 0 || (i.ci === R.state.cl && i.gi === R.state.grp)));
+  // Selecting language for the open draft, distinct from browsing or reviewing the catalog.
+  const pickerTitle = "Select for this " + (current?.type === "notice" ? "notice" : "document");
+  const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp],
+    label = q ? "Search results across all checklists" : group ? group.name : "All checklists";
+  const tree = R.LIBRARY.map((c, ci) => {
+    const groups = c.groups
+      .map((g, gi) => ({ g, gi, count: all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length }))
+      .filter((x) => x.count || (R.state.cl === ci && R.state.grp === x.gi));
+    return groups.length
+      ? `<div class="tree-cl">${R.esc(c.name)}</div>` +
+          groups
+            .map(
+              ({ g, gi, count }) =>
+                '<button class="tree-g" data-grp="' +
+                `${ci}` +
+                ":" +
+                `${gi}` +
+                '" aria-current="' +
+                `${!q && ci === R.state.cl && gi === R.state.grp ? "true" : "false"}` +
+                '"><span>' +
+                `${R.esc(g.name)}` +
+                '</span><span class="n">' +
+                `${count}` +
+                "</span></button>",
+            )
+            .join("")
+      : "";
+  }).join("");
+  return (
+    '<div class="picker" id="picker-bg"><div class="picker-box" role="dialog"' +
+    ' aria-modal="true" aria-label="' +
+    pickerTitle +
+    '" data-language-context' +
+    '="picker|' +
+    `${R.esc(R.state.docId)}` +
+    '">\n <div class="picker-h"><h2>' +
+    pickerTitle +
+    '</h2><button class="btn ' +
+    'btn-sm" data-close="picker">Close</button></div>\n <div class="picker-sea' +
+    'rch"><label class="f"><span>Search all order language</span><input type=' +
+    '"search" id="pk-q" value="' +
+    `${R.esc(R.state.q)}` +
+    '" placeholder="Title, ordinance or ordinary terms"></label><label class=' +
+    '"f"><span>Language status</span><select id="pk-status">' +
+    `${languageFilterOptions(R, filter, true)}` +
+    '</select></label>\n <select id="pk-grp" class="pk-grp" aria-label="Browse' +
+    ' checklist group" style="display:none;margin-top:10px"><option value="-1' +
+    ':0" ' +
+    `${R.state.cl < 0 ? "selected" : ""}` +
+    ">All checklists</option>" +
+    "".concat(
+      R.LIBRARY.map(
+        (c, ci) =>
+          `<optgroup label="${R.esc(c.name)}">` +
+          c.groups
+            .map(
+              (g, gi) =>
+                '<option value="' +
+                `${ci}` +
+                ":" +
+                `${gi}` +
+                '" ' +
+                `${!q && ci === R.state.cl && gi === R.state.grp ? "selected" : ""}` +
+                ">" +
+                `${R.esc(g.name)}` +
+                " (" +
+                `${all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length}` +
+                ")</option>",
+            )
+            .join("") +
+          "</optgroup>",
+      ).join(""),
+    ) +
+    '</select></div>\n <div class="picker-cols"><div class="picker-tree"><butt' +
+    'on class="tree-g" data-language-all>All checklists <span class="n">' +
+    `${all.filter(visible).length}` +
+    "</span></button>" +
+    `${tree}` +
+    '</div><div class="picker-list"><div class="pane-h" role="status">' +
+    `${R.esc(label)}` +
+    " · " +
+    `${items.length}` +
+    " matching entries</div>\n " +
+    "".concat(
+      items
+        .map((i) => {
+          const key = R.catalogKey(i),
+            added = selected.has(key),
+            working = current?.items.find((it) => R.itemLibraryKey(it) === key) || current?.selectionCache?.[key],
+            e = R.effectiveCatalog(i),
+            s = R.catalogStatus(i),
+            blocked = ["review", "incomplete", "retired", "superseded", "unknown"].includes(s.code);
+          return (
+            '<article class="language-pick-row" data-language-key="' +
+            `${R.esc(key)}` +
+            '"><button class="gitem ' +
+            `${added ? "added" : ""}` +
+            '" data-pick="' +
+            `${i.ci}` +
+            ":" +
+            `${i.gi}` +
+            ":" +
+            `${i.o}` +
+            '" aria-pressed="' +
+            `${added}` +
+            '" ' +
+            `${blocked && !added ? "disabled" : ""}` +
+            '><div class="gitem-main"><h4>' +
+            `${R.esc(i.t)}` +
+            " " +
+            `${added ? '<span class="added-label">Selected · remove from notice</span>' : ""}` +
+            '</h4><p class="language-ordinance">' +
+            `${R.esc((working?.sections || e.s).join("; ") || "Ordinance needed")}` +
+            '</p><p class="language-preview">' +
+            `${R.markBlanks(working?.text || e.a)}` +
+            '</p><div class="chipbar">' +
+            `${languageBadge(R, i)}` +
+            "" +
+            `${working ? '<span class="tag">Draft item retained</span>' : ""}` +
+            "</div></div></button>" +
+            `${languageDetails(R, i, working)}` +
+            "</article>"
+          );
+        })
+        .join("") ||
+        '<div class="empty"><h3>' +
+          `${filter === "approved" ? "No approved language matches" : "No matching language"}` +
+          "</h3><p>Try another term or status. Proposed wording is not approved by " +
+          "selecting or editing it.</p>" +
+          "".concat(filter === "approved" ? '<button class="btn" data-language-standard>Include standard language</button>' : "") +
+          "</div>",
+    ) +
+    '\n </div></div><div class="picker-footer"><label><input type="checkbox" i' +
+    'd="keep-adding" ' +
+    `${R.state.keepAdding ? "checked" : ""}` +
+    '> Keep adding items</label><span data-language-selected role="status">' +
+    `${selected.size}` +
+    " selected from library · " +
+    `${current?.items.length || 0}` +
+    " item" +
+    `${current?.items.length === 1 ? "" : "s"}` +
+    ' on this notice</span><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
+    '</button><button class="btn btn-primary" data-close="picker' +
+    '">Done adding</button></div></div></div>'
+  );
+}
