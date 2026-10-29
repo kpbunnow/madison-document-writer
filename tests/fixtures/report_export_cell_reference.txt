@@ -1,0 +1,2 @@
+export const D = (s) => (validISO(s) ? { d: s } : null);
+export const numOr = (v) => (/^\d+$/.test(String(v)) ? +v : v);

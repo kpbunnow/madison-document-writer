@@ -1,5 +1,4 @@
 /* Reports formatting and filter facts load independently of startup and storage. */
-import { ReportsState } from "./state.js";
 import { recordDay } from "../assets/shared.js";
 export const iso = (d) => recordDay(d);
 export const validISO = (s) => {
@@ -7,7 +6,7 @@ export const validISO = (s) => {
   const d = new Date(s + "T12:00:00Z");
   return !isNaN(d) && iso(d) === s;
 };
-export const fmtDate = (s) => (validISO(s) ? s.slice(5, 7) + "/" + s.slice(8, 10) + "/" + s.slice(0, 4) : "—");
+export const formatReportDate = (s) => (validISO(s) ? s.slice(5, 7) + "/" + s.slice(8, 10) + "/" + s.slice(0, 4) : "—");
 export const fmtNum = (n) => (n == null || isNaN(n) ? "—" : Number(n).toLocaleString("en-US"));
 export const fmtDays = (n) => (n == null || isNaN(n) ? "—" : (Math.round(n * 10) / 10).toLocaleString("en-US", { maximumFractionDigits: 1 }));
 export const fmtMoney = (n) =>
@@ -16,7 +15,9 @@ export const plural = (n, w, p) => fmtNum(n) + " " + (n === 1 ? w : p || w + "s"
 export const uniq = (a) => Array.from(new Set(a));
 export const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 export const ownerKeyLabel = (k) => (k ? k.replace("|", ", ") : "No usable mailing address");
-export const areaLabel = (k, F) => (!k ? "Unlocated" : (F || ReportsState.S.F).areaType === "zip" ? k : "District " + k);
+export function createReportAreaLabel(readFilters) {
+  return (k, F) => (!k ? "Unlocated" : (F || readFilters()).areaType === "zip" ? k : "District " + k);
+}
 export const inPeriod = (d, F) => validISO(d) && d >= F.from && d <= F.to;
 export const violOk = (v, F) => (!F.vtype || v.type === F.vtype) && (!F.ord || v.sections.indexOf(F.ord) >= 0);
 
@@ -71,3 +72,8 @@ export const areaIdOf = (f, field) =>
     .replace(/^0+(\d)/, "$1");
 
 export { reportCaseOpenAt as openAt };
+
+export const D = (s) => (validISO(s) ? { d: s } : null);
+export const numOr = (v) => (/^\d+$/.test(String(v)) ? +v : v);
+
+export { formatReportDate as fmtDate };
