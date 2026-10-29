@@ -7,6 +7,17 @@ import { clearProhibitedCitations } from "./document_rules.js";
 import { nowISO } from "./calendar.js";
 
 // Local drafts coordinate snapshots, ordered writes and restoration; low-level database and UI access are supplied.
+function restoreDraftContext(b) {
+  if (b && b.work) {
+    editor.WORK = b.work;
+    editor.WORK.entry = editor.WORK.entry || {};
+    editor.WORK.recordForms = editor.WORK.recordForms || {};
+    editor.state.acc = editor.WORK.acc || null;
+  }
+  if (b && b.recordAttempts) editor.RECORD_ATTEMPTS = b.recordAttempts;
+  if (b && b.checkpoints && typeof b.checkpoints === "object") workspace.SAVE_CHECKPOINTS = b.checkpoints;
+}
+
 export function createDraftPersistence(services) {
   function draftBundle() {
     const cases = workspace.CASES.slice();
@@ -51,14 +62,7 @@ export function createDraftPersistence(services) {
 
   async function restoreDrafts() {
     const b = await services.idbGet("drafts", services.IDB_OK);
-    if (b && b.work) {
-      editor.WORK = b.work;
-      editor.WORK.entry = editor.WORK.entry || {};
-      editor.WORK.recordForms = editor.WORK.recordForms || {};
-      editor.state.acc = editor.WORK.acc || null;
-    }
-    if (b && b.recordAttempts) editor.RECORD_ATTEMPTS = b.recordAttempts;
-    if (b && b.checkpoints && typeof b.checkpoints === "object") workspace.SAVE_CHECKPOINTS = b.checkpoints;
+    restoreDraftContext(b);
     if (!b || !Array.isArray(b.cases)) return;
     if (typeof b.seq === "number") workspace.seq = Math.max(workspace.seq, b.seq);
     (b.cases || []).forEach((k) => {

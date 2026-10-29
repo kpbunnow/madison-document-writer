@@ -17,6 +17,9 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_shared_case_storage_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
+| `audit_case_save_workflow_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
+| `audit_draft_persistence_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
 | `audit_workspace_backup_parity.js` | Unchanged public-owner validation, identity, write, integrity and replacement assertions against retained module |
 | `audit_workspace_tasks_parity.js` | Unchanged public-owner task suite against maintained and retained module implementations |
 | `audit_workspace_queue_rules.js` | Queue action priority, derived flags, aliases, task association, ordering and interrupted context services |

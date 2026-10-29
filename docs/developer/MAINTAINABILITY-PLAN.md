@@ -1087,3 +1087,21 @@ Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 10
 Separated empty-workspace and retained-record validation from backup restoration coordination. Kept every refusal and validation order, synchronous validation checkpoint, awaited device/integrity writes and live replacement order. The existing public-owner suite passes unchanged against maintained and retained modules with byte-identical output/diagnostics; module boundaries, test seams, ESLint and formatting pass. No stronger transaction guarantee, authority, version or release change.
 
 Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 106, 'python': 15} → {'complexity': 48, 'max-depth': 0, 'max-lines-per-function': 104, 'python': 15}.
+
+## restore-draft-context
+
+Original work/checkpoint restoration occurs before the same case-array guard; async restoration and projection order are unchanged. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
+
+Measured counts: {'complexity': 48, 'max-depth': 0, 'max-lines-per-function': 104, 'python': 15} → {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 103, 'python': 15}.
+
+## case-save-presentation
+
+Download fallback and save/refusal messages retain original service-getter, persistence and toast evaluation order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
+
+Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 103, 'python': 15} → {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## shared-save-result-phases
+
+Committed metadata replacement and native write-failure classification retain lazy reads, concurrent-edit preservation and verification/write/projection order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
+
+Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.

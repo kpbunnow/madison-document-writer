@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 48,
+    "complexity": 46,
     "max-depth": 0,
-    "max-lines-per-function": 104,
+    "max-lines-per-function": 102,
     "python": 15
   },
   "violations": {
@@ -34,8 +34,7 @@
     "app/modules/case_recovery.js:createCaseRecovery#1/restoreRecovery#1:complexity": 47,
     "app/modules/case_recovery.js:createCaseRecovery#1/restoreRecovery#1:max-lines-per-function": 105,
     "app/modules/case_recovery.js:createCaseRecovery#1/validateRecovery#1:complexity": 34,
-    "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1:max-lines-per-function": 82,
-    "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1:complexity": 25,
+    "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1:complexity": 21,
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,
@@ -82,8 +81,6 @@
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1:max-lines-per-function": 446,
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1/anonymous#2:complexity": 75,
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1/anonymous#2:max-lines-per-function": 228,
-    "app/modules/draft_persistence.js:createDraftPersistence#1:max-lines-per-function": 82,
-    "app/modules/draft_persistence.js:createDraftPersistence#1/restoreDrafts#1:complexity": 22,
     "app/modules/editor_events.js:createEditorEvents#1:max-lines-per-function": 495,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentChange#1/anonymous#1:complexity": 35,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentInput#1:max-lines-per-function": 131,
@@ -146,8 +143,7 @@
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 38,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 111,
-    "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 119,
-    "app/modules/shared_case_storage.js:createSharedCaseStorage#1/writeToFolder#1:complexity": 24,
+    "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 393,
     "app/modules/snow_cases.js:initSnow#1/prepare#1:complexity": 22,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 94,
