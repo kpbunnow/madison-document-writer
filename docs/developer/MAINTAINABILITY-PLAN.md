@@ -1410,3 +1410,7 @@ Move ccLines and agentLines unchanged from startup core to their existing addres
 ## citation-deposit-owner-tests
 
 Migrate R31 deposit and R32 pricing suites from evaluated Writer startup to focused real editor, pricing, charges, deposit/edit, initial-citation, court/history and citation-face composition. All19 and22 original assertion ASTs remain identical, including required-deposit print refusal, edits/reconfirmation, Python3,872-row/tier/measurement parity, real review DOM refresh and frozen historical citation faces. Ordinary-draft/non-snow guards and native UI/save remain controlled service boundaries; actual pricing/validation/renderers run. Initial assembly omitted the agent-lines adapter; extracted its existing formatter unchanged in the preceding checkpoint and supplied that public owner. Cold imports leave Writer state empty. Legacy evaluator files70 to68; retained hooks48, no new diagnostics or registry.
+
+## deposit-form-templates
+
+Convert the deposit completion form to the existing escaping screen tag. Existing escapes, fixed native attributes and owned input/select/measurement fragments keep explicit raw boundaries. All4,096 complete retained/current HTML/state/callback/error comparisons preserve charge/offense selection, base/total/schedule, measurements, disabled/required flags and approved-source fields. No completion/authority logic, service ordering, listener, historical print or identity changes. Non-vacuity guards require manual, measurement and multiple-charge forms to render.
