@@ -1526,3 +1526,9 @@ Added a frozen-original comparison of the scoped action click handler (`audit_ne
 `clickEvent` (complexity 25) is now one closest-target lookup over an ordered table of action handlers. Five deliberate mutations (a reordered pair, swapped steps, a changed guard, a changed fall-through and a changed id prefix) are caught.
 
 Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}; `initNewDocuments` fell from 1,089 to about 565 lines.
+
+## safety-action-phases
+
+Added a frozen-original comparison of the safety click handler before changing it (`audit_safety_event_rules.js`: 10,000 seeded events against the retained `safety_events_reference.txt`, 644 with interruptions swallowed into failure toasts), using the new shared `tests/fixtures/equivalence_harness.cjs` (compile, seeded generator, call recorder, listener capture). It compares attribute priority, every action's peer calls in order with the state they see, and failure toasts.
+
+The handler (complexity 38) is now an ordered table of workspace buttons followed by a per-case action table with a safety-check default; the case actions, evidence panel and unfiled-PDF search are module-level functions. Mutations (a changed probe argument, swapped steps, a changed grant test, a skipped dialog close, a narrowed transfer test) are caught; one survivor, an inherited-key guard on the action table, cannot be distinguished by the harness and is kept as defensive equivalence.

@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 11,
+    "complexity": 10,
     "max-depth": 0,
-    "max-lines-per-function": 71,
+    "max-lines-per-function": 68,
     "python": 13
   },
   "violations": {
@@ -74,10 +74,6 @@
     "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 520,
     "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 601,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 581,
-    "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 38,
-    "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 111,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 388,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 94,
