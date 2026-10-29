@@ -487,27 +487,617 @@ function editScopedSpecialItem({ services, refreshControls, restoreDues, invalid
   return false;
 }
 
+const e = (v) => esc(v),
+  text = (v) => String(v || "").trim(),
+  p = (t) => "<p>" + e(t).replace(/◯|\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>') + "</p>",
+  val = (s, k) => text(s[k]) || "◯",
+  clause = (v) => text(v).replace(/[.\s]+$/, ""),
+  scope = (d, s) =>
+    docCase(d).address +
+    (s.scope === "unit"
+      ? " — " + (/^(?:apartment|apt\.?|unit|suite|room)\b/i.test(text(s.unit)) ? "" : "Apartment / unit ") + val(s, "unit")
+      : " — Entire building"),
+  contact = (d) => {
+    const i = insp(docCase(d).inspectorId);
+    return i.name + " at " + i.phone + (i.email ? " or " + i.email : "");
+  },
+  selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn);
+
+// Bound narrative rows so long findings paginate without an oversized row.
+function narrativeParagraphs(paras) {
+  return paras
+    .flatMap((t) => {
+      const words = t.split(/\s+/);
+      if (words.length <= 100) return [p(t)];
+      const out = [];
+      for (let n = 0; n < words.length; n += 100) out.push(p(words.slice(n, n + 100).join(" ")));
+      return out;
+    })
+    .join("");
+}
+
+/* Printed narrative by document family. Each builder takes the shared context and returns its paragraphs in print order. */
+function abatementParagraphs(c) {
+  const { s, type, at, address, date } = c,
+    paras = [];
+  paras.push("An inspection of " + address + " on " + date(at.date) + " identified the following conditions:");
+  paras.push(...val(s, "findings").split(/\n+/));
+  paras.push("These conditions constitute a public nuisance under Madison General Ordinances " + val(s, "authority") + ".");
+  paras.push(
+    "You are ordered to " +
+      (type === "summaryAbatement" ? "immediately abate the nuisance" : "abate the nuisance no later than " + date(s.orderDue)) +
+      ". Required corrective work: " +
+      clause(val(s, "work")) +
+      ".",
+  );
+  if (s.variant === "tree" && s.removeTree) paras.push("Remove the tree flush with the ground and properly dispose of all limbs and branches.");
+  if (s.variant === "secure") paras.push("Securing conditions: " + clause(val(s, "securingConditions")) + ".");
+  if (s.variant === "secure" && s.boarding)
+    paras.push(
+      "Boarding requires prior written approval from the Director of Building Inspection. Approval reference: " + val(s, "boardingRef") + ".",
+    );
+  paras.push(
+    "If you do not " +
+      (type === "summaryAbatement" ? "immediately " : "") +
+      ("abate the nuisance as ordered, the City will abate it. The costs will be" +
+        " assessed against the property as a special charge. Additional charges o" +
+        "r penalties may apply."),
+  );
+  if (type === "nonSummaryAbatement") paras.push(REMEDY);
+
+  return paras;
+}
+
+function noOccupancyParagraphs(c) {
+  const { s, address, date } = c,
+    paras = [];
+  if (s.mode === "release") {
+    paras.push(
+      "Building Inspection grants written permission to reoccupy " +
+        address +
+        " effective " +
+        date(s.effective) +
+        ", releasing the No Occupancy order " +
+        val(s, "releases") +
+        ".",
+    );
+    paras.push(
+      "The premises were reinspected on " +
+        date(s.releaseInspection) +
+        ". Required release conditions have been verified: " +
+        clause(val(s, "releaseFacts")) +
+        ".",
+    );
+    paras.push(
+      s.placardRemoved
+        ? "The No Occupancy placard was removed on " + date(s.removalDate) + "."
+        : "Placard removal status: " + val(s, "removalFacts") + ".",
+    );
+  } else {
+    paras.push(
+      "Pursuant to Madison General Ordinances " +
+        val(s, "authority") +
+        ", " +
+        address +
+        (s.posting === "posted" ? " was posted “No Occupancy” on " + date(s.postedDate) : " is ordered to remain vacant, with posting pending") +
+        " and shall not be used for human habitation. This order is effective " +
+        date(s.effective) +
+        ".",
+    );
+    paras.push("The restriction is based on the following findings: " + clause(val(s, "findings")) + ".");
+    paras.push(
+      "The premises must remain vacant. Required release conditions: " +
+        clause(val(s, "releaseConditions")) +
+        (". Before occupancy is allowed, the City of Madison Building Inspection D" +
+          "ivision must reinspect the premises, remove the placard, and give writte" +
+          "n permission to reoccupy."),
+    );
+    if (text(s.access)) paras.push("Approved access conditions: " + s.access);
+  }
+
+  return paras;
+}
+
+function allItemBestInterestParagraphs(c) {
+  const { s } = c,
+    paras = [];
+  paras.push("Additional time is granted for the uncorrected items for the following reasons: " + clause(val(s, "reason")) + ".");
+
+  return paras;
+}
+
+function simplifiedBestInterestParagraphs(c) {
+  const { s } = c,
+    paras = [];
+  paras.push("Additional time is granted for the selected items for the following reasons: " + clause(val(s, "reason")) + ".");
+
+  return paras;
+}
+
+function legacyBestInterestParagraphs(c) {
+  const { s, refs } = c,
+    paras = [];
+  if (s.stage === "supervisory")
+    paras.push(
+      "The uncorrected violations in Official Notice " +
+        val(s, "noticeRef") +
+        " have been referred for supervisory review of possible prosecution. The compliance date has passed.",
+    );
+  paras.push(
+    "We find that granting additional time is in the City’s best interest and" +
+      " yours. Reasons supporting this extension: " +
+      clause(val(s, "reason")) +
+      (". You have indicated that you intend to correct the listed violations, a" + "nd no safety items are included in this extension."),
+  );
+  paras.push("The compliance dates for Item(s) " + refs + " are extended as shown below. Unlisted items retain their existing deadlines.");
+  if (s.stage === "supervisory" && s.prosecutionClause)
+    paras.push("If the work is not completed by the extended date, the case will be forw" + "arded to the City Attorney for legal action.");
+
+  return paras;
+}
+
+function simpleVacancyParagraphs(c) {
+  const { d, s, address, date } = c,
+    paras = [];
+  const place = s.scope === "unit" ? "apartment / unit" : "building";
+  paras.push(
+    "Your request for additional time to correct the violations at " +
+      address +
+      " has been reviewed. While the " +
+      place +
+      " remains vacant and the conditions below are met, we grant an extension for the uncorrected item(s).",
+  );
+  paras.push(
+    "The " +
+      place +
+      " must remain secure. The exterior" +
+      (s.scope === "unit" ? " and building common areas" : "") +
+      (" must be maintained, including removal of trash and debris, grass cuttin" +
+        "g, sidewalk snow removal, and general exterior maintenance. The property" +
+        " may be inspected periodically, including unscheduled inspections."),
+  );
+  paras.push(
+    "The next scheduled review inspection is " +
+      date(s.reviewDate) +
+      ". This appointment is separate from repair deadlines and does not grant permission to occupy.",
+  );
+  paras.push(
+    "Contact " +
+      contact(d) +
+      " at least one week before that inspection (by " +
+      date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
+      ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
+        "or Building Inspection approval may result in a citation or referral to " +
+        "the City Attorney. Failure to maintain the required areas may void this " +
+        "extension and result in enforcement action."),
+  );
+  paras.push("A further extension will be considered after the next inspection, provid" + "ed vacancy and the extension conditions continue.");
+
+  return paras;
+}
+
+function vacancyParagraphs(c) {
+  const { d, s, address, refs, date } = c,
+    paras = [];
+  paras.push(
+    "Your request for additional time to correct the violations at " +
+      address +
+      " has been reviewed. While the " +
+      (s.scope === "unit" ? "apartment / unit" : "building") +
+      " remains vacant and the conditions below are met, we grant an extension for Item(s) " +
+      refs +
+      ".",
+  );
+  paras.push(
+    "The " +
+      (s.scope === "unit" ? "apartment / unit" : "building") +
+      " must remain secure. The exterior" +
+      (s.scope === "unit" ? " and building common areas" : "") +
+      (" must be maintained, including removal of trash and debris, grass cuttin" +
+        "g, sidewalk snow removal, and general exterior maintenance. The property" +
+        " may be inspected periodically, including unscheduled inspections."),
+  );
+  paras.push(
+    "The next scheduled review inspection is " +
+      date(s.reviewDate) +
+      ". This appointment is separate from repair deadlines and does not grant permission to occupy. " +
+      (s.expiryMode === "fixed"
+        ? "This conditional extension expires on " + date(s.expiryDate) + "."
+        : "The extension is subject to review under the approved conditions below."),
+  );
+  paras.push(
+    "Contact " +
+      contact(d) +
+      " at least one week before that inspection (by " +
+      date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
+      ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
+        "or Building Inspection approval may result in a citation or referral to " +
+        "the City Attorney. Failure to maintain the required areas may void this " +
+        "extension and result in enforcement action."),
+  );
+  paras.push(
+    "A further extension will be considered after the next inspection, provid" +
+      "ed vacancy and the extension conditions continue. Contact Building Inspe" +
+      "ction before a sale or transfer to arrange review of the outstanding vio" +
+      "lations and case responsibility.",
+  );
+  paras.push("Approved conditions: " + val(s, "conditions"));
+  paras.push(val(s, "transferClause"));
+  paras.push(
+    "Security, urgent safety obligations and unlisted items are not extended." +
+      " Any existing No Occupancy order continues until explicitly released in " +
+      "writing.",
+  );
+
+  return paras;
+}
+
+function itemReferenceParagraphs(c, paras) {
+  const { s, type, items, refs, date } = c;
+  if (items.length) {
+    paras.push("Affected item references: " + refs + ".");
+    if (["bestInterestExtension", "vacancyExtension"].includes(type))
+      items.forEach((i) =>
+        paras.push(
+          "Item " +
+            i.no +
+            " — " +
+            i.text +
+            "\nPrevious deadline: " +
+            date(s.originalDues?.[i.no]) +
+            "; " +
+            (type === "vacancyExtension" && s.deadlineMode === "conditional"
+              ? "conditional extension; no replacement repair date."
+              : "extended deadline: " + date(i.due) + "."),
+        ),
+      );
+  }
+}
+
+function closingParagraphs(c, paras) {
+  const { d, s, type } = c;
+  paras.push("For questions" + (type === "noOccupancy" ? ", or to arrange reinspection" : "") + ", contact " + contact(d) + ".");
+  paras.push(val(s, "signerName") + "\n" + val(s, "signerTitle"));
+}
+
+const NARRATIVE_BUILDERS = [
+  [({ type }) => type === "summaryAbatement" || type === "nonSummaryAbatement", abatementParagraphs],
+  [({ type }) => type === "noOccupancy", noOccupancyParagraphs],
+  [({ type, d }) => type === "bestInterestExtension" && allItemExtension(d), allItemBestInterestParagraphs],
+  [({ type, d }) => type === "bestInterestExtension" && simplifiedBestInterest(d), simplifiedBestInterestParagraphs],
+  [({ type }) => type === "bestInterestExtension", legacyBestInterestParagraphs],
+  [({ d }) => simpleVacancy(d), simpleVacancyParagraphs],
+  [({ type }) => type === "vacancyExtension", vacancyParagraphs],
+];
+
+/* Details form sections. Each builds its fields from the document; the shell wraps them in the order shown. */
+const formField = (s, k, label, type = "text") =>
+  screen`<label class="f"><span>${raw(e(label))}</span><${raw(type === "textarea" ? 'textarea rows="3"' : 'input type="' + type + '"')} aria-label="${raw(e(label))}" data-special="${String(k)}" ${raw(type === "textarea" ? "" : 'value="' + e(s[k] || "") + '"')}>${raw(type === "textarea" ? e(s[k] || "") + "</textarea>" : "")}</label>`;
+
+const formSelect = (s, k, label, opts) =>
+  screen`<label class="f"><span>${String(label)}</span><select data-special="${String(k)}"><option value="">Choose…</option>${raw(opts.map(([v, l]) => screen`<option value="${String(v)}" ${raw(s[k] === v ? "selected" : "")}>${raw(e(l))}</option>`).join(""))}</select></label>`;
+
+const formCheck = (s, k, l) => screen`<label><input type="checkbox" data-special="${String(k)}" ${raw(s[k] ? "checked" : "")}> ${raw(e(l))}</label>`;
+
+const formTools = (s) => ({
+  f: (k, label, type) => formField(s, k, label, type),
+  sel: (k, label, opts) => formSelect(s, k, label, opts),
+  ck: (k, l) => formCheck(s, k, l),
+});
+
+function allItemDetails(d, s) {
+  const { f, sel } = formTools(s);
+  const family =
+    d.administrativeAction && !d.correction
+      ? sel(
+          "administrativeType",
+          "Document family",
+          NEW_TYPES.map((t) => [t.id, t.label]),
+        )
+      : "";
+  return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b">${raw(
+    d.type === "bestInterestExtension"
+      ? screen`<p class="hint">Every uncorrected item is extended. Enter or change each due date in Violation items.</p>${raw(family)}${raw(f("reason", "Reasons for Additional Time", "textarea"))}`
+      : screen`<p class="hint">Every uncorrected item is extended while the property remains vacant; uncorrected items have no due date. Corrected items keep their dates.</p><div class="grid g2">${raw(family)}${raw(
+          sel("scope", "Scope", [
+            ["building", "Entire building"],
+            ["unit", "Apartment / unit"],
+          ]),
+        )}${raw(s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "")}${raw(f("reviewDate", "Next scheduled review inspection", "date"))}</div>`,
+  )}</div></section>`;
+}
+
+function simplifiedDetails(d, s) {
+  const { f, ck } = formTools(s);
+  return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>${raw(f("reason", "Reasons for Additional Time", "textarea"))}${raw(ck("noSafety", "Affected items exclude safety, security and urgent obligations"))}</div></section>`;
+}
+
+function leadFields(d, s) {
+  const { f, sel } = formTools(s);
+  return (
+    (d.importRule
+      ? screen`<p class="f"><span>Document from the Accela status</span><strong>${raw(e(d.importRule.label))}</strong> (Initial Inspection status ${raw(e(d.importRule.status))})</p>`
+      : d.initialAction
+        ? screen`<label class="f"><span>Initial inspection action</span><select data-initial-action><option value="notice">Official Notice</option>${raw(
+            NEW_TYPES.filter((t) => t.effect === "supplemental")
+              .map((t) => screen`<option value="${String(t.id)}" ${raw(d.type === t.id ? "selected" : "")}>${String(t.label)}</option>`)
+              .join(""),
+          )}</select></label>`
+        : "") +
+    (d.administrativeAction
+      ? sel(
+          "administrativeType",
+          "Document family",
+          NEW_TYPES.map((t) => [t.id, t.label]),
+        )
+      : "") +
+    sel("scope", "Scope", [
+      ["building", "Entire building"],
+      ["unit", "Apartment / unit"],
+    ]) +
+    (s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "")
+  );
+}
+
+function abatementFields(d, s) {
+  const { f, sel, ck } = formTools(s);
+  let fields = "";
+  fields +=
+    sel(
+      "variant",
+      "Nuisance preset",
+      NUISANCES.filter((v) => d.type === "summaryAbatement" || v[0] !== "secure"),
+    ) +
+    f("findings", "Specific findings and locations", "textarea") +
+    f("work", "Required corrective work", "textarea");
+  fields +=
+    d.type === "summaryAbatement"
+      ? f("summaryBasis", "Factual basis for immediate summary action", "textarea")
+      : f("orderDue", "Order compliance date", "date") +
+        f("servicePlan", "Service / publication plan", "textarea") +
+        ck("remedyReviewed", "Circuit Court remedy reviewed against current code");
+  if (s.variant === "custom") fields += f("customReviewRef", "Custom authority and wording approval");
+  if (s.variant === "tree")
+    fields +=
+      f("forestryRef", "Forestry report / factual assessment") + ck("removeTree", "Tree removal ordered: flush with ground and dispose of branches");
+  if (s.variant === "secure")
+    fields +=
+      f("securingConditions", "Required securing, animals and materials conditions", "textarea") +
+      ck("boarding", "Boarding is required") +
+      (s.boarding ? f("boardingRef", "Prior written boarding approval") : "");
+  return fields;
+}
+
+function noOccupancyFields(d, s, date) {
+  const { f, sel, ck } = formTools(s);
+  let fields = "";
+  fields +=
+    sel("mode", "Action", [
+      ["restrict", "Restrict human habitation"],
+      ["release", "Documented written release"],
+    ]) + f("effective", "Effective date", "date");
+  if (s.mode === "release")
+    fields +=
+      sel(
+        "releases",
+        "Restriction being released",
+        activeRestrictions(docsFor(d.caseId)).map((x) => [x.id, scope(x, x.special) + " · " + date(x.special.effective)]),
+      ) +
+      f("releaseInspection", "Verified reinspection date", "date") +
+      f("releaseFacts", "Corrections and reinspection record", "textarea") +
+      ck("placardRemoved", "Placard actually removed") +
+      f("removalDate", "Actual placard removal date", "date") +
+      f("releaseFormRef", "Approved written release form / procedure") +
+      sel("releaseVisitId", "Verified physical reinspection", [
+        ...reinspFor(d.caseId)
+          .filter((r) => !r.draft)
+          .map((r) => [r.id, date(r.date) + " · " + insp(r.inspectorId).name]),
+        ["external", "Verified external inspection not recorded here"],
+      ]) +
+      (s.releaseVisitId === "external"
+        ? f("releaseInspectionRef", "Verified external reinspection record reference") +
+          sel(
+            "releaseInspectorId",
+            "Inspector who performed release reinspection",
+            INSPECTORS.map((i) => [i.id, i.name]),
+          ) +
+          f("releaseInspectionTime", "Actual reinspection time (if known)", "time")
+        : "");
+  else
+    fields +=
+      f("findings", "Restriction findings", "textarea") +
+      f("releaseConditions", "Required release conditions", "textarea") +
+      sel("posting", "Posting status", [
+        ["posted", "Actually posted"],
+        ["pending", "Posting pending"],
+      ]) +
+      (s.posting === "posted" ? f("postedDate", "Actual posting date", "date") : f("prePostingRef", "Approved pre-posting order procedure")) +
+      f("access", "Approved access conditions (optional)", "textarea");
+  return fields;
+}
+
+function extensionFields(d, s, rowAffectedSelection) {
+  const { f, sel, ck } = formTools(s);
+  let fields = "";
+  fields +=
+    (rowAffectedSelection(d)
+      ? '<p class="hint">Select affected items and enter their new due dates in Violation items. Other items keep their original dates.</p>'
+      : screen`<fieldset class="r26-items"><legend>Affected outstanding items</legend>${raw(
+          d.items
+            .filter((i) => !i.done && !i.withdrawn)
+            .map(
+              (i) =>
+                screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || i.text.slice(0, 60)))}</label>${raw(
+                  (s.affected || []).includes(String(i.no)) &&
+                    !datedExtension(d) &&
+                    (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
+                    ? screen`<label class="f"><span>Extended deadline for item ${raw(e(i.no))}</span><input type="date" data-special-due="${raw(e(i.no))}" value="${raw(e(i.due || ""))}"></label>`
+                    : "",
+                )}`,
+            )
+            .join(""),
+        )}</fieldset>`) +
+    ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
+    f("safetyBasis", "Reviewed factual basis for excluding safety items", "textarea");
+  if (d.type === "bestInterestExtension")
+    fields +=
+      f("noticeRef", "Prior Official Notice reference") +
+      f("reason", "Reasons for additional time", "textarea") +
+      f("intentions", "Owner’s intended corrective work", "textarea") +
+      f("supervisor", "Supervisory reviewer") +
+      sel("stage", "Actual internal review stage", [
+        ["administrative", "Administrative extension review"],
+        ["supervisory", "Internal supervisory prosecution review"],
+      ]) +
+      (s.stage === "supervisory" ? ck("prosecutionClause", "Approved prosecution consequence applies") : "");
+  else
+    fields +=
+      f("requestRef", "Extension request reference") +
+      f("vacancyFacts", "Verified vacancy basis", "textarea") +
+      f("conditions", "Approved continuing conditions", "textarea") +
+      f("reviewDate", "Next scheduled review inspection", "date") +
+      (datedExtension(d)
+        ? ""
+        : sel("deadlineMode", "Repair deadline model", [
+            ["dated", "Specific repair deadlines"],
+            ["conditional", "Conditional; no replacement repair dates"],
+          ])) +
+      sel("expiryMode", "Expiration / review model", [
+        ["fixed", "Fixed expiration"],
+        ["review", "Reviewed at next inspection"],
+      ]) +
+      (s.expiryMode === "fixed" ? f("expiryDate", "Separate extension expiration", "date") : "") +
+      f("expiryPolicyRef", "Approved expiration / review policy") +
+      f("shortNoticeRef", "Approved short-notice procedure (if needed)") +
+      f("transferClause", "Reviewed sale / transfer and applicable disclosure wording", "textarea");
+  return fields;
+}
+
+function supplementalFields(d, s) {
+  let fields = "";
+  fields += screen`<fieldset class="r26-items"><legend>Referenced source items (optional)</legend>${raw(
+    d.items
+      .map(
+        (i) =>
+          screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || "Source violation"))}</label>`,
+      )
+      .join(""),
+  )}</fieldset>`;
+  return fields;
+}
+
+function reviewFields(s) {
+  const { f, ck } = formTools(s);
+  return (
+    f("authority", "Verified ordinance authority") +
+    f("codeSource", "Verified current-code source URL / official reference") +
+    f("codeRevision", "Code revision / effective information and amendment review") +
+    f("reviewer", "Division reviewer") +
+    f("reviewDateLegal", "Current-code review date", "date") +
+    f("reviewRef", "Approved ordinance, wording and procedure reference", "textarea") +
+    f("signerName", "Authorized signer name") +
+    f("signerTitle", "Authorized signer title") +
+    f("delegation", "Authorization / delegation reference") +
+    ck("reviewed", "Division review confirms this variant, wording, procedure and authority")
+  );
+}
+
+function detailsShell(d, fields, review) {
+  return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b"><p class="hint">Drafts can be saved unfinished. Issuance requires recorded division review of current law, wording and signer authority. Review entries are supplied by the operator; they are not authenticated role checks.</p><div class="grid g2">${raw(
+    d.type === "bestInterestExtension"
+      ? '<div class="banner">This draft retains the earlier reviewed extension format. <button class="btn" data-adopt-best-interest>Use simplified Reasons-only format (no signer)</button></div>'
+      : "",
+  )}${raw(fields)}</div><details><summary>Authority, wording and signer review</summary><div class="grid g2">${raw(review)}</div></details></div></section>`;
+}
+
+/* Eligibility of a recorded inspection for a scoped action, and the lifecycle checks built on it. */
+// R62: on a referred case only Update for Case Referral and Compliance Letter are offered.
+function referredOnly(referred, list) {
+  return referred ? list.filter((c) => ["referralUpdate", "compliance"].includes(c[0])) : list;
+}
+function allowedByStatus(r) {
+  return r.importRule ? r.importRule.choose || [r.importRule.doc] : null;
+}
+function statusFault(r, type) {
+  const rule = r.importRule;
+  if (!rule) return "";
+  if (!allowedByStatus(r).includes(type)) return "The Accela status " + rule.status + " calls for " + rule.label + ".";
+  const open = openItems(r);
+  if (rule.allCorrected && open.length)
+    return (
+      "The Accela status is " +
+      rule.status +
+      ", but item" +
+      (open.length > 1 ? "s " : " ") +
+      open.map((i) => i.no).join(", ") +
+      (open.length > 1 ? " are" : " is") +
+      " not marked Corrected. Correct the results, or correct the status in Accela and import this inspection again."
+    );
+  if (rule.cite && !open.some((i) => r.results[i.id]?.cite))
+    return "The Accela status is Citation, but no item is marked for citation. Mark the items to cite, or correct the status in Accela and import this inspection again.";
+  return "";
+}
+function eligibility(r, type) {
+  const fault = statusFault(r, type);
+  if (fault) return fault;
+  const src = doc(r.sourceDocId),
+    open = openItems(r),
+    referred = isReferredCase(r.caseId);
+  if (type === "notice") return "Official Notice is created from an initial imported inspection.";
+  if (!src || !isEffective(src)) return "The inspection source is no longer effective.";
+  const issued = docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
+  if (issued.some((d) => d.type === type)) return "This inspection already has that action. Open the existing document.";
+  if (!supplemental({ type }) && issued.some((d) => !supplemental(d)))
+    return "This inspection already has a primary follow-up. Add a compatible scoped order.";
+  if (referred && !["referralUpdate", "compliance"].includes(type)) return REFERRED_MESSAGE;
+  if (type === "compliance" && open.length) return "Some violation items remain outstanding.";
+  if (!supplemental({ type }) && type !== "compliance" && !open.length) return "No outstanding items for this action.";
+  if (type === "citation" && !open.some((i) => r.results[i.id]?.cite)) return "Select the outstanding items to cite on the worksheet.";
+  return "";
+}
+
+function lifecycleSourceFaults(services, d, src, r) {
+  const faults = [];
+  if (!src || !isEffective(src)) faults.push("The factual source is no longer effective.");
+  const current = services.sourceDocFor(d.caseId);
+  if (current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id))
+    faults.push("The source changed. Review the current case before issuing.");
+  if (d.administrativeAction && d.type !== "noOccupancy" && src?.type === "compliance")
+    faults.push("A completed case cannot receive a new extension or ordinary enforcement action.");
+  return faults;
+}
+
+function lifecycleVisitFaults(services, d, src, r) {
+  const faults = [];
+  if (r) {
+    faults.push(...services.worksheetFaults(r));
+    if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time) faults.push("The action must match its recorded inspection.");
+  } else if (!d.administrativeAction) faults.push("Select the actual inspection for this action.");
+  if (src && stableJSON(d.items.map((i) => [i.srcItemId, i.no])) !== stableJSON(src.items.map((i) => [i.id, i.no])))
+    faults.push("Retain every source item identity, number and order.");
+  if (r) {
+    const why = eligibility(r, d.type);
+    if (why) faults.push(why);
+  }
+  return faults;
+}
+
+function lifecycleFaults(services, d, src, r) {
+  const faults = [];
+  if (stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
+    faults.push("The case changed after this draft began. Review the current case before issuing.");
+  if (d.initialAction) {
+    if (docsFor(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
+  } else faults.push(...lifecycleSourceFaults(services, d, src, r), ...lifecycleVisitFaults(services, d, src, r));
+  return faults;
+}
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
   const rowAffectedSelection = (d) => datedExtension(d) && !allItemExtension(d) && !services.isLocked(d) && !d.correction;
-  const e = (v) => esc(v),
-    text = (v) => String(v || "").trim(),
-    day = () => recordDay(today);
-  const p = (t) => "<p>" + e(t).replace(/◯|\(\s{0,8}\)/g, '<span class="blank" role="img" aria-label="fill-in bubble"></span>') + "</p>",
-    date = (v) => services.fmtDate(v) || "◯",
-    val = (s, k) => text(s[k]) || "◯";
-  const clause = (v) => text(v).replace(/[.\s]+$/, "");
-  const scope = (d, s) =>
-    docCase(d).address +
-    (s.scope === "unit"
-      ? " — " + (/^(?:apartment|apt\.?|unit|suite|room)\b/i.test(text(s.unit)) ? "" : "Apartment / unit ") + val(s, "unit")
-      : " — Entire building");
-  const contact = (d) => {
-    const i = insp(docCase(d).inspectorId);
-    return i.name + " at " + i.phone + (i.email ? " or " + i.email : "");
-  };
-  const selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn);
+  const day = () => recordDay(today);
+  const date = (v) => services.fmtDate(v) || "◯";
   function continuingItems(source, visits = reinspFor(source.caseId)) {
     return continuingItemsForVisits(source, visits);
   }
@@ -543,215 +1133,13 @@ export function initNewDocuments(services) {
       address = scope(d, s),
       items = selected(d, s);
     const refs = items.map((i) => i.no).join(", ") || "◯";
-    let paras = [];
-    if (type === "summaryAbatement" || type === "nonSummaryAbatement") {
-      paras.push("An inspection of " + address + " on " + date(at.date) + " identified the following conditions:");
-      paras.push(...val(s, "findings").split(/\n+/));
-      paras.push("These conditions constitute a public nuisance under Madison General Ordinances " + val(s, "authority") + ".");
-      paras.push(
-        "You are ordered to " +
-          (type === "summaryAbatement" ? "immediately abate the nuisance" : "abate the nuisance no later than " + date(s.orderDue)) +
-          ". Required corrective work: " +
-          clause(val(s, "work")) +
-          ".",
-      );
-      if (s.variant === "tree" && s.removeTree) paras.push("Remove the tree flush with the ground and properly dispose of all limbs and branches.");
-      if (s.variant === "secure") paras.push("Securing conditions: " + clause(val(s, "securingConditions")) + ".");
-      if (s.variant === "secure" && s.boarding)
-        paras.push(
-          "Boarding requires prior written approval from the Director of Building Inspection. Approval reference: " + val(s, "boardingRef") + ".",
-        );
-      paras.push(
-        "If you do not " +
-          (type === "summaryAbatement" ? "immediately " : "") +
-          ("abate the nuisance as ordered, the City will abate it. The costs will be" +
-            " assessed against the property as a special charge. Additional charges o" +
-            "r penalties may apply."),
-      );
-      if (type === "nonSummaryAbatement") paras.push(REMEDY);
-    } else if (type === "noOccupancy") {
-      if (s.mode === "release") {
-        paras.push(
-          "Building Inspection grants written permission to reoccupy " +
-            address +
-            " effective " +
-            date(s.effective) +
-            ", releasing the No Occupancy order " +
-            val(s, "releases") +
-            ".",
-        );
-        paras.push(
-          "The premises were reinspected on " +
-            date(s.releaseInspection) +
-            ". Required release conditions have been verified: " +
-            clause(val(s, "releaseFacts")) +
-            ".",
-        );
-        paras.push(
-          s.placardRemoved
-            ? "The No Occupancy placard was removed on " + date(s.removalDate) + "."
-            : "Placard removal status: " + val(s, "removalFacts") + ".",
-        );
-      } else {
-        paras.push(
-          "Pursuant to Madison General Ordinances " +
-            val(s, "authority") +
-            ", " +
-            address +
-            (s.posting === "posted" ? " was posted “No Occupancy” on " + date(s.postedDate) : " is ordered to remain vacant, with posting pending") +
-            " and shall not be used for human habitation. This order is effective " +
-            date(s.effective) +
-            ".",
-        );
-        paras.push("The restriction is based on the following findings: " + clause(val(s, "findings")) + ".");
-        paras.push(
-          "The premises must remain vacant. Required release conditions: " +
-            clause(val(s, "releaseConditions")) +
-            (". Before occupancy is allowed, the City of Madison Building Inspection D" +
-              "ivision must reinspect the premises, remove the placard, and give writte" +
-              "n permission to reoccupy."),
-        );
-        if (text(s.access)) paras.push("Approved access conditions: " + s.access);
-      }
-    } else if (type === "bestInterestExtension" && allItemExtension(d)) {
-      paras.push("Additional time is granted for the uncorrected items for the following reasons: " + clause(val(s, "reason")) + ".");
-    } else if (type === "bestInterestExtension" && simplifiedBestInterest(d)) {
-      paras.push("Additional time is granted for the selected items for the following reasons: " + clause(val(s, "reason")) + ".");
-    } else if (type === "bestInterestExtension") {
-      if (s.stage === "supervisory")
-        paras.push(
-          "The uncorrected violations in Official Notice " +
-            val(s, "noticeRef") +
-            " have been referred for supervisory review of possible prosecution. The compliance date has passed.",
-        );
-      paras.push(
-        "We find that granting additional time is in the City’s best interest and" +
-          " yours. Reasons supporting this extension: " +
-          clause(val(s, "reason")) +
-          (". You have indicated that you intend to correct the listed violations, a" + "nd no safety items are included in this extension."),
-      );
-      paras.push("The compliance dates for Item(s) " + refs + " are extended as shown below. Unlisted items retain their existing deadlines.");
-      if (s.stage === "supervisory" && s.prosecutionClause)
-        paras.push("If the work is not completed by the extended date, the case will be forw" + "arded to the City Attorney for legal action.");
-    } else if (simpleVacancy(d)) {
-      const place = s.scope === "unit" ? "apartment / unit" : "building";
-      paras.push(
-        "Your request for additional time to correct the violations at " +
-          address +
-          " has been reviewed. While the " +
-          place +
-          " remains vacant and the conditions below are met, we grant an extension for the uncorrected item(s).",
-      );
-      paras.push(
-        "The " +
-          place +
-          " must remain secure. The exterior" +
-          (s.scope === "unit" ? " and building common areas" : "") +
-          (" must be maintained, including removal of trash and debris, grass cuttin" +
-            "g, sidewalk snow removal, and general exterior maintenance. The property" +
-            " may be inspected periodically, including unscheduled inspections."),
-      );
-      paras.push(
-        "The next scheduled review inspection is " +
-          date(s.reviewDate) +
-          ". This appointment is separate from repair deadlines and does not grant permission to occupy.",
-      );
-      paras.push(
-        "Contact " +
-          contact(d) +
-          " at least one week before that inspection (by " +
-          date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
-          ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
-            "or Building Inspection approval may result in a citation or referral to " +
-            "the City Attorney. Failure to maintain the required areas may void this " +
-            "extension and result in enforcement action."),
-      );
-      paras.push("A further extension will be considered after the next inspection, provid" + "ed vacancy and the extension conditions continue.");
-    } else if (type === "vacancyExtension") {
-      paras.push(
-        "Your request for additional time to correct the violations at " +
-          address +
-          " has been reviewed. While the " +
-          (s.scope === "unit" ? "apartment / unit" : "building") +
-          " remains vacant and the conditions below are met, we grant an extension for Item(s) " +
-          refs +
-          ".",
-      );
-      paras.push(
-        "The " +
-          (s.scope === "unit" ? "apartment / unit" : "building") +
-          " must remain secure. The exterior" +
-          (s.scope === "unit" ? " and building common areas" : "") +
-          (" must be maintained, including removal of trash and debris, grass cuttin" +
-            "g, sidewalk snow removal, and general exterior maintenance. The property" +
-            " may be inspected periodically, including unscheduled inspections."),
-      );
-      paras.push(
-        "The next scheduled review inspection is " +
-          date(s.reviewDate) +
-          ". This appointment is separate from repair deadlines and does not grant permission to occupy. " +
-          (s.expiryMode === "fixed"
-            ? "This conditional extension expires on " + date(s.expiryDate) + "."
-            : "The extension is subject to review under the approved conditions below."),
-      );
-      paras.push(
-        "Contact " +
-          contact(d) +
-          " at least one week before that inspection (by " +
-          date(s.reviewDate ? addDays(s.reviewDate, -7) : "") +
-          ("), or before occupancy, to arrange a reinspection. Occupancy without pri" +
-            "or Building Inspection approval may result in a citation or referral to " +
-            "the City Attorney. Failure to maintain the required areas may void this " +
-            "extension and result in enforcement action."),
-      );
-      paras.push(
-        "A further extension will be considered after the next inspection, provid" +
-          "ed vacancy and the extension conditions continue. Contact Building Inspe" +
-          "ction before a sale or transfer to arrange review of the outstanding vio" +
-          "lations and case responsibility.",
-      );
-      paras.push("Approved conditions: " + val(s, "conditions"));
-      paras.push(val(s, "transferClause"));
-      paras.push(
-        "Security, urgent safety obligations and unlisted items are not extended." +
-          " Any existing No Occupancy order continues until explicitly released in " +
-          "writing.",
-      );
-    }
+    const context = { d, s, type, at, address, items, refs, date };
+    const build = NARRATIVE_BUILDERS.find(([applies]) => applies(context));
+    const paras = build ? build[1](context) : [];
     if (alignedExtension(d)) return narrativeParagraphs(paras);
-    if (items.length) {
-      paras.push("Affected item references: " + refs + ".");
-      if (["bestInterestExtension", "vacancyExtension"].includes(type))
-        items.forEach((i) =>
-          paras.push(
-            "Item " +
-              i.no +
-              " — " +
-              i.text +
-              "\nPrevious deadline: " +
-              date(s.originalDues?.[i.no]) +
-              "; " +
-              (type === "vacancyExtension" && s.deadlineMode === "conditional"
-                ? "conditional extension; no replacement repair date."
-                : "extended deadline: " + date(i.due) + "."),
-          ),
-        );
-    }
-    paras.push("For questions" + (type === "noOccupancy" ? ", or to arrange reinspection" : "") + ", contact " + contact(d) + ".");
-    paras.push(val(s, "signerName") + "\n" + val(s, "signerTitle"));
+    itemReferenceParagraphs(context, paras);
+    closingParagraphs(context, paras);
     return narrativeParagraphs(paras);
-  }
-  function narrativeParagraphs(paras) {
-    // Bound narrative rows so long findings paginate without an oversized row.
-    return paras
-      .flatMap((t) => {
-        const words = t.split(/\s+/);
-        if (words.length <= 100) return [p(t)];
-        const out = [];
-        for (let n = 0; n < words.length; n += 100) out.push(p(words.slice(n, n + 100).join(" ")));
-        return out;
-      })
-      .join("");
   }
   function specialChecks(d) {
     if (!specialType(d.type)) return [];
@@ -784,202 +1172,15 @@ export function initNewDocuments(services) {
   }
   function details(d) {
     if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
-    const s = d.special || (d.special = {}),
-      f = (k, label, type = "text") =>
-        screen`<label class="f"><span>${raw(e(label))}</span><${raw(type === "textarea" ? 'textarea rows="3"' : 'input type="' + type + '"')} aria-label="${raw(e(label))}" data-special="${String(k)}" ${raw(type === "textarea" ? "" : 'value="' + e(s[k] || "") + '"')}>${raw(type === "textarea" ? e(s[k] || "") + "</textarea>" : "")}</label>`,
-      sel = (k, label, opts) =>
-        screen`<label class="f"><span>${String(label)}</span><select data-special="${String(k)}"><option value="">Choose…</option>${raw(opts.map(([v, l]) => screen`<option value="${String(v)}" ${raw(s[k] === v ? "selected" : "")}>${raw(e(l))}</option>`).join(""))}</select></label>`,
-      ck = (k, l) => screen`<label><input type="checkbox" data-special="${String(k)}" ${raw(s[k] ? "checked" : "")}> ${raw(e(l))}</label>`;
-    if (allItemExtension(d)) {
-      const family =
-        d.administrativeAction && !d.correction
-          ? sel(
-              "administrativeType",
-              "Document family",
-              NEW_TYPES.map((t) => [t.id, t.label]),
-            )
-          : "";
-      return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b">${raw(
-        d.type === "bestInterestExtension"
-          ? screen`<p class="hint">Every uncorrected item is extended. Enter or change each due date in Violation items.</p>${raw(family)}${raw(f("reason", "Reasons for Additional Time", "textarea"))}`
-          : screen`<p class="hint">Every uncorrected item is extended while the property remains vacant; uncorrected items have no due date. Corrected items keep their dates.</p><div class="grid g2">${raw(family)}${raw(
-              sel("scope", "Scope", [
-                ["building", "Entire building"],
-                ["unit", "Apartment / unit"],
-              ]),
-            )}${raw(s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "")}${raw(f("reviewDate", "Next scheduled review inspection", "date"))}</div>`,
-      )}</div></section>`;
-    }
-    if (simplifiedBestInterest(d))
-      return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>${raw(f("reason", "Reasons for Additional Time", "textarea"))}${raw(ck("noSafety", "Affected items exclude safety, security and urgent obligations"))}</div></section>`;
-    let fields =
-      (d.importRule
-        ? screen`<p class="f"><span>Document from the Accela status</span><strong>${raw(e(d.importRule.label))}</strong> (Initial Inspection status ${raw(e(d.importRule.status))})</p>`
-        : d.initialAction
-          ? screen`<label class="f"><span>Initial inspection action</span><select data-initial-action><option value="notice">Official Notice</option>${raw(
-              NEW_TYPES.filter((t) => t.effect === "supplemental")
-                .map((t) => screen`<option value="${String(t.id)}" ${raw(d.type === t.id ? "selected" : "")}>${String(t.label)}</option>`)
-                .join(""),
-            )}</select></label>`
-          : "") +
-      (d.administrativeAction
-        ? sel(
-            "administrativeType",
-            "Document family",
-            NEW_TYPES.map((t) => [t.id, t.label]),
-          )
-        : "") +
-      sel("scope", "Scope", [
-        ["building", "Entire building"],
-        ["unit", "Apartment / unit"],
-      ]) +
-      (s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "");
-    if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) {
-      fields +=
-        sel(
-          "variant",
-          "Nuisance preset",
-          NUISANCES.filter((v) => d.type === "summaryAbatement" || v[0] !== "secure"),
-        ) +
-        f("findings", "Specific findings and locations", "textarea") +
-        f("work", "Required corrective work", "textarea");
-      fields +=
-        d.type === "summaryAbatement"
-          ? f("summaryBasis", "Factual basis for immediate summary action", "textarea")
-          : f("orderDue", "Order compliance date", "date") +
-            f("servicePlan", "Service / publication plan", "textarea") +
-            ck("remedyReviewed", "Circuit Court remedy reviewed against current code");
-      if (s.variant === "custom") fields += f("customReviewRef", "Custom authority and wording approval");
-      if (s.variant === "tree")
-        fields +=
-          f("forestryRef", "Forestry report / factual assessment") +
-          ck("removeTree", "Tree removal ordered: flush with ground and dispose of branches");
-      if (s.variant === "secure")
-        fields +=
-          f("securingConditions", "Required securing, animals and materials conditions", "textarea") +
-          ck("boarding", "Boarding is required") +
-          (s.boarding ? f("boardingRef", "Prior written boarding approval") : "");
-    } else if (d.type === "noOccupancy") {
-      fields +=
-        sel("mode", "Action", [
-          ["restrict", "Restrict human habitation"],
-          ["release", "Documented written release"],
-        ]) + f("effective", "Effective date", "date");
-      if (s.mode === "release")
-        fields +=
-          sel(
-            "releases",
-            "Restriction being released",
-            activeRestrictions(docsFor(d.caseId)).map((x) => [x.id, scope(x, x.special) + " · " + date(x.special.effective)]),
-          ) +
-          f("releaseInspection", "Verified reinspection date", "date") +
-          f("releaseFacts", "Corrections and reinspection record", "textarea") +
-          ck("placardRemoved", "Placard actually removed") +
-          f("removalDate", "Actual placard removal date", "date") +
-          f("releaseFormRef", "Approved written release form / procedure") +
-          sel("releaseVisitId", "Verified physical reinspection", [
-            ...reinspFor(d.caseId)
-              .filter((r) => !r.draft)
-              .map((r) => [r.id, date(r.date) + " · " + insp(r.inspectorId).name]),
-            ["external", "Verified external inspection not recorded here"],
-          ]) +
-          (s.releaseVisitId === "external"
-            ? f("releaseInspectionRef", "Verified external reinspection record reference") +
-              sel(
-                "releaseInspectorId",
-                "Inspector who performed release reinspection",
-                INSPECTORS.map((i) => [i.id, i.name]),
-              ) +
-              f("releaseInspectionTime", "Actual reinspection time (if known)", "time")
-            : "");
-      else
-        fields +=
-          f("findings", "Restriction findings", "textarea") +
-          f("releaseConditions", "Required release conditions", "textarea") +
-          sel("posting", "Posting status", [
-            ["posted", "Actually posted"],
-            ["pending", "Posting pending"],
-          ]) +
-          (s.posting === "posted" ? f("postedDate", "Actual posting date", "date") : f("prePostingRef", "Approved pre-posting order procedure")) +
-          f("access", "Approved access conditions (optional)", "textarea");
-    } else {
-      fields +=
-        (rowAffectedSelection(d)
-          ? '<p class="hint">Select affected items and enter their new due dates in Violation items. Other items keep their original dates.</p>'
-          : screen`<fieldset class="r26-items"><legend>Affected outstanding items</legend>${raw(
-              d.items
-                .filter((i) => !i.done && !i.withdrawn)
-                .map(
-                  (i) =>
-                    screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || i.text.slice(0, 60)))}</label>${raw(
-                      (s.affected || []).includes(String(i.no)) &&
-                        !datedExtension(d) &&
-                        (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
-                        ? screen`<label class="f"><span>Extended deadline for item ${raw(e(i.no))}</span><input type="date" data-special-due="${raw(e(i.no))}" value="${raw(e(i.due || ""))}"></label>`
-                        : "",
-                    )}`,
-                )
-                .join(""),
-            )}</fieldset>`) +
-        ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
-        f("safetyBasis", "Reviewed factual basis for excluding safety items", "textarea");
-      if (d.type === "bestInterestExtension")
-        fields +=
-          f("noticeRef", "Prior Official Notice reference") +
-          f("reason", "Reasons for additional time", "textarea") +
-          f("intentions", "Owner’s intended corrective work", "textarea") +
-          f("supervisor", "Supervisory reviewer") +
-          sel("stage", "Actual internal review stage", [
-            ["administrative", "Administrative extension review"],
-            ["supervisory", "Internal supervisory prosecution review"],
-          ]) +
-          (s.stage === "supervisory" ? ck("prosecutionClause", "Approved prosecution consequence applies") : "");
-      else
-        fields +=
-          f("requestRef", "Extension request reference") +
-          f("vacancyFacts", "Verified vacancy basis", "textarea") +
-          f("conditions", "Approved continuing conditions", "textarea") +
-          f("reviewDate", "Next scheduled review inspection", "date") +
-          (datedExtension(d)
-            ? ""
-            : sel("deadlineMode", "Repair deadline model", [
-                ["dated", "Specific repair deadlines"],
-                ["conditional", "Conditional; no replacement repair dates"],
-              ])) +
-          sel("expiryMode", "Expiration / review model", [
-            ["fixed", "Fixed expiration"],
-            ["review", "Reviewed at next inspection"],
-          ]) +
-          (s.expiryMode === "fixed" ? f("expiryDate", "Separate extension expiration", "date") : "") +
-          f("expiryPolicyRef", "Approved expiration / review policy") +
-          f("shortNoticeRef", "Approved short-notice procedure (if needed)") +
-          f("transferClause", "Reviewed sale / transfer and applicable disclosure wording", "textarea");
-    }
-    if (supplemental(d) && d.items.length)
-      fields += screen`<fieldset class="r26-items"><legend>Referenced source items (optional)</legend>${raw(
-        d.items
-          .map(
-            (i) =>
-              screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || "Source violation"))}</label>`,
-          )
-          .join(""),
-      )}</fieldset>`;
-    const review =
-      f("authority", "Verified ordinance authority") +
-      f("codeSource", "Verified current-code source URL / official reference") +
-      f("codeRevision", "Code revision / effective information and amendment review") +
-      f("reviewer", "Division reviewer") +
-      f("reviewDateLegal", "Current-code review date", "date") +
-      f("reviewRef", "Approved ordinance, wording and procedure reference", "textarea") +
-      f("signerName", "Authorized signer name") +
-      f("signerTitle", "Authorized signer title") +
-      f("delegation", "Authorization / delegation reference") +
-      ck("reviewed", "Division review confirms this variant, wording, procedure and authority");
-    return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b"><p class="hint">Drafts can be saved unfinished. Issuance requires recorded division review of current law, wording and signer authority. Review entries are supplied by the operator; they are not authenticated role checks.</p><div class="grid g2">${raw(
-      d.type === "bestInterestExtension"
-        ? '<div class="banner">This draft retains the earlier reviewed extension format. <button class="btn" data-adopt-best-interest>Use simplified Reasons-only format (no signer)</button></div>'
-        : "",
-    )}${raw(fields)}</div><details><summary>Authority, wording and signer review</summary><div class="grid g2">${raw(review)}</div></details></div></section>`;
+    const s = d.special || (d.special = {});
+    if (allItemExtension(d)) return allItemDetails(d, s);
+    if (simplifiedBestInterest(d)) return simplifiedDetails(d, s);
+    let fields = leadFields(d, s);
+    if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) fields += abatementFields(d, s);
+    else if (d.type === "noOccupancy") fields += noOccupancyFields(d, s, date);
+    else fields += extensionFields(d, s, rowAffectedSelection);
+    if (supplemental(d) && d.items.length) fields += supplementalFields(d, s);
+    return detailsShell(d, fields, reviewFields(s));
   }
   const groups = [
     ["time", "Give more time"],
@@ -1005,50 +1206,6 @@ export function initNewDocuments(services) {
       ["noOccupancy", "No Occupancy", "occupancy", "Restrict human habitation or document an approved release."],
       ["compliance", "Compliance Letter", "compliance", "Confirm correction of all active violation items."],
     ]);
-  }
-  // R62: on a referred case only Update for Case Referral and Compliance Letter are offered.
-  function referredOnly(referred, list) {
-    return referred ? list.filter((c) => ["referralUpdate", "compliance"].includes(c[0])) : list;
-  }
-  function allowedByStatus(r) {
-    return r.importRule ? r.importRule.choose || [r.importRule.doc] : null;
-  }
-  function statusFault(r, type) {
-    const rule = r.importRule;
-    if (!rule) return "";
-    if (!allowedByStatus(r).includes(type)) return "The Accela status " + rule.status + " calls for " + rule.label + ".";
-    const open = openItems(r);
-    if (rule.allCorrected && open.length)
-      return (
-        "The Accela status is " +
-        rule.status +
-        ", but item" +
-        (open.length > 1 ? "s " : " ") +
-        open.map((i) => i.no).join(", ") +
-        (open.length > 1 ? " are" : " is") +
-        " not marked Corrected. Correct the results, or correct the status in Accela and import this inspection again."
-      );
-    if (rule.cite && !open.some((i) => r.results[i.id]?.cite))
-      return "The Accela status is Citation, but no item is marked for citation. Mark the items to cite, or correct the status in Accela and import this inspection again.";
-    return "";
-  }
-  function eligibility(r, type) {
-    const fault = statusFault(r, type);
-    if (fault) return fault;
-    const src = doc(r.sourceDocId),
-      open = openItems(r),
-      referred = isReferredCase(r.caseId);
-    if (type === "notice") return "Official Notice is created from an initial imported inspection.";
-    if (!src || !isEffective(src)) return "The inspection source is no longer effective.";
-    const issued = docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
-    if (issued.some((d) => d.type === type)) return "This inspection already has that action. Open the existing document.";
-    if (!supplemental({ type }) && issued.some((d) => !supplemental(d)))
-      return "This inspection already has a primary follow-up. Add a compatible scoped order.";
-    if (referred && !["referralUpdate", "compliance"].includes(type)) return REFERRED_MESSAGE;
-    if (type === "compliance" && open.length) return "Some violation items remain outstanding.";
-    if (!supplemental({ type }) && type !== "compliance" && !open.length) return "No outstanding items for this action.";
-    if (type === "citation" && !open.some((i) => r.results[i.id]?.cite)) return "Select the outstanding items to cite on the worksheet.";
-    return "";
   }
   function statusChooser(r) {
     const rule = r.importRule,
@@ -1212,33 +1369,9 @@ export function initNewDocuments(services) {
   }
   function specialLifecycle(d) {
     if (!specialType(d.type) || !d.draft || d.correction) return [];
-    const faults = [],
-      src = doc(d.fromDocId),
+    const src = doc(d.fromDocId),
       r = reinsp(d.fromReinspId);
-    if (stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
-      faults.push("The case changed after this draft began. Review the current case before issuing.");
-    if (d.initialAction) {
-      if (docsFor(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
-    } else {
-      if (!src || !isEffective(src)) faults.push("The factual source is no longer effective.");
-      const current = services.sourceDocFor(d.caseId);
-      if (current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id))
-        faults.push("The source changed. Review the current case before issuing.");
-      if (d.administrativeAction && d.type !== "noOccupancy" && src?.type === "compliance")
-        faults.push("A completed case cannot receive a new extension or ordinary enforcement action.");
-      if (r) {
-        faults.push(...services.worksheetFaults(r));
-        if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time)
-          faults.push("The action must match its recorded inspection.");
-      } else if (!d.administrativeAction) faults.push("Select the actual inspection for this action.");
-      if (src && stableJSON(d.items.map((i) => [i.srcItemId, i.no])) !== stableJSON(src.items.map((i) => [i.id, i.no])))
-        faults.push("Retain every source item identity, number and order.");
-      if (r) {
-        const why = eligibility(r, d.type);
-        if (why) faults.push(why);
-      }
-    }
-    return faults.map((t) => ({ ok: false, t }));
+    return lifecycleFaults(services, d, src, r).map((t) => ({ ok: false, t }));
   }
   function servicePanel(d) {
     if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
