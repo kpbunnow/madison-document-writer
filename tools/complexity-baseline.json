@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 4,
     "max-depth": 0,
-    "max-lines-per-function": 60,
+    "max-lines-per-function": 59,
     "python": 8
   },
   "violations": {
@@ -49,8 +49,7 @@
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
     "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 808,
     "app/modules/language_catalog.js:createLanguageCatalog#1/catalogReviewPanel#1:max-lines-per-function": 110,
-    "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 243,
-    "app/modules/navigation.js:initNavigation#1/screen#1:max-lines-per-function": 114,
+    "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 158,
     "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 567,
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 156,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,

@@ -1601,3 +1601,7 @@ Added a frozen-original comparison of the recovery dialog (`audit_recovery_modal
 ## correction-panel-sections
 
 Added a frozen-original comparison of the correction panel (`audit_correction_panel_markup_rules.js`: 6,000 seeded corrections against the retained `correction_panel_reference.txt`) covering locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping and every peer read and call. `correctionPanel` (81 lines) is now a shell over notice, external-reference, property-detail and action builders, with the visit editor and diff supplied by the factory in their original order. Deliberate mutations are caught.
+
+## tools-screen-sections
+
+Added a frozen-original comparison of the Tools & settings screen (`audit_tools_screen_markup_rules.js`: every colour-theme state against the retained `navigation_reference.txt`, with the shell and icon peers recorded in order). `screen` (114 lines) now keeps its tool tables and static sections as module constants and builds the display and administrator sections in two functions; the icon calls happen in the original order. Deliberate mutations are caught.
