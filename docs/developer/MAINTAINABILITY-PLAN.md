@@ -1111,3 +1111,9 @@ Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 10
 Separated pending deposit repricing after the existing citation pricing refresh. Retained aliases, source/correction restoration, property/service order and approved-basis resets. Existing charge public-owner suite passes unchanged against maintained and original modules with byte-identical output/diagnostics. Prior-history and pricing-refresh regressions, module boundaries, test seams, ESLint and formatting pass. No policy, price, format, print or release changes.
 
 Measured counts: {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## approved-deposit-completion
+
+Separate approved manual basis completion from scheduled lookup without changing validation, partial mutations or pricing reads. Generated comparisons cover 3,036 real-policy inputs; writer services, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.

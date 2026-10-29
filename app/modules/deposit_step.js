@@ -6,6 +6,24 @@ import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
 import { workspaceState } from "./workspace_state.js";
 /* Required completion is stored as a request, never as a blank citation. */
+function applyApprovedDeposit(services, c, d) {
+  if (!["base", "total"].includes(c.depositMode) || String(c.depositSource || "").trim().length < 10) return false;
+  c.cc = courtCents(services.citationPricingDate(c, d)) / 100;
+  if (c.depositMode === "base") {
+    if (cents(c.base) === null || (cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits)) return false;
+    const v = assessmentCents(cents(c.base), cents(c.cc), services.citationPricingDate(c, d));
+    c.amount = (v.total / 100).toFixed(2);
+    c.assessments = v;
+  } else {
+    if (!(cents(c.amount) > 0)) return false;
+    delete c.assessments;
+  }
+  c.resolvedVia = "approved-" + c.depositMode;
+  c.pricedOn = services.citationPricingDate(c, d);
+  c.policyVersionHash = CITATION_POLICY.versionHash;
+  return true;
+}
+
 export function initDepositStep(services) {
   let active = null;
   function close() {
@@ -37,22 +55,7 @@ export function initDepositStep(services) {
       }
       Object.assign(c, priced);
       delete c.kind;
-    } else {
-      if (!["base", "total"].includes(c.depositMode) || String(c.depositSource || "").trim().length < 10) return false;
-      c.cc = courtCents(services.citationPricingDate(c, d)) / 100;
-      if (c.depositMode === "base") {
-        if (cents(c.base) === null || (cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits)) return false;
-        const v = assessmentCents(cents(c.base), cents(c.cc), services.citationPricingDate(c, d));
-        c.amount = (v.total / 100).toFixed(2);
-        c.assessments = v;
-      } else {
-        if (!(cents(c.amount) > 0)) return false;
-        delete c.assessments;
-      }
-      c.resolvedVia = "approved-" + c.depositMode;
-      c.pricedOn = services.citationPricingDate(c, d);
-      c.policyVersionHash = CITATION_POLICY.versionHash;
-    }
+    } else if (!applyApprovedDeposit(services, c, d)) return false;
     delete c.reason;
     delete c.reconfirmDeposit;
     c.preparedSections = (i.sections || []).map(canonicalOrdinance);
