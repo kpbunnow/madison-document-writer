@@ -1129,3 +1129,50 @@ Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 10
 Complete the same edit-phase increment by naming date/time normalization. Retained comparisons and existing owner checks pass.
 
 Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recipient-validation-phases
+
+Name copy validation, agent validation and post-validation normalization. Preserve parser precedence, all-or-nothing normalization and field-specific refusal metadata. Retained public-owner checks, boundaries, seams, lint and format pass.
+
+Measured counts: {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recovery-validation-phases
+
+Separate recovery shape, unrelated work and reference checks, retaining first failure and walk identity timing. Existing recovery tests run unchanged against both sources; boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recovery-restore-phases
+
+Name local history refusal, draft comparison, staging, post-commit assignment and stale-selection checks. Await checkpoints and rollback authority remain in the coordinator. Existing tests pass against the original and refactored owners with boundaries, seams, lint and formatting.
+
+Measured counts: {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
+
+## integrity-legacy-classification
+
+Separate legacy/downgraded classification from modern chain verification. Hashing, trust, fail metadata and asynchronous checkpoints are unchanged. 238 original-source comparisons and existing canonical/tamper/read-only tests pass; boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+
+## shared-case-comparison
+
+Separate field merge and conflict classification from shared identity/history checks. Preserve field order, checkpoint semantics and live unfinished-work default timing. Existing catalog-service assertions pass on both sources with boundaries, seams, lint and format.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+
+## shared-case-generated-rules
+
+Supplement public-owner tests with 5,000 generated actual-validator cases covering field merging and conflict classifications beyond identity refusal. Existing assertions remain unchanged.
+
+Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+## recovery-identical-work-regression
+
+Pre-merge review found an automatic semicolon insertion mistake in the extracted comparison. Correct its return expression and add identical-work restore assertions, which pass on maintained and original owners. Existing assertions retained; no affected change has merged.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
+
+## shared-preflight-phases
+
+Name stale-view, conflict-review, notice and replacement-staging decisions. Retain read/save awaits and rollback. 168 comparisons protect merge refusal, stale views, storage failure and replacement state. Pre-commit comparisons found and corrected a return-expression extraction error; no failed version was submitted. Includes the separately tested recovery correction, retaining both checkpoint records.
+
+Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15}.

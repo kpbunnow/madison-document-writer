@@ -10,6 +10,79 @@ import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
 
+function mergeComparedCaseFields(fields, merged, a, b) {
+  for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
+    if (
+      field === "id" ||
+      (field === "number" && caseNumberKey(a[field]) === caseNumberKey(merged[field])) ||
+      stableJSON(a[field]) === stableJSON(merged[field])
+    )
+      continue;
+    const lc = b ? stableJSON(a[field]) !== stableJSON(b[field]) : true;
+    const rc = b ? stableJSON(merged[field]) !== stableJSON(b[field]) : true;
+    fields.push({ field, local: a[field], shared: merged[field], localChanged: lc, sharedChanged: rc });
+    if (lc && !rc) {
+      if (a[field] === undefined) delete merged[field];
+      else merged[field] = clone(a[field]);
+    }
+  }
+}
+
+function sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents) {
+  return conflict
+    ? "conflict"
+    : added.length && unfinished
+      ? "history-conflict"
+      : added.length
+        ? "shared-history"
+        : remoteDetails && localDetails
+          ? "compatible"
+          : remoteDetails
+            ? "shared-only"
+            : localDetails || localEvents.length
+              ? "local-only"
+              : "unchanged";
+}
+
+function preflightViewChanged(wasScreen, wasDoc, wasVisit) {
+  return editor.state.screen !== wasScreen || editor.state.docId !== wasDoc || editor.state.reinspId !== wasVisit;
+}
+
+function sharedComparisonNeedsReview(services, cid, k, comparison, localCaseWork) {
+  return (
+    ["invalid", "conflict", "history-conflict"].includes(comparison.kind) ||
+    (comparison.kind === "shared-history" && (localCaseWork(cid) || services.caseUnsaved(k))) ||
+    (comparison.kind === "shared-only" && !workspace.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
+  );
+}
+
+function sharedPreflightNotice(comparison) {
+  return comparison.kind === "unavailable"
+    ? "Shared case unavailable; final publication will recheck it."
+    : comparison.kind === "missing"
+      ? "No shared case file yet; publication will verify this."
+      : comparison.kind === "local-only"
+        ? "Local changes retained; publication will reconcile them."
+        : "Shared history checked.";
+}
+
+function stageSharedReplacement(services, k, fresh) {
+  return {
+    ...services.draftBundle(),
+    cases: workspace.CASES.filter((x) => x.id !== k.id).concat([clone(fresh.case)]),
+    docs: workspace.DOCS.filter((d) => d.caseId !== k.id),
+    reinsp: workspace.REINSP.filter((r) => r.caseId !== k.id),
+    events: { ...workspace.EVENTS, [k.id]: clone(fresh.events) },
+    recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
+    checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
+    work: {
+      ...clone(editor.WORK),
+      walk: editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
+      recordForms: Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
+    },
+  };
+}
+
 /* Named lazy adapters preserve review/preflight authority and live workspace references. */
 export function createLanguageCatalog(services) {
   /* app functions; direct dependencies use explicit shared state. */
@@ -341,38 +414,12 @@ export function createLanguageCatalog(services) {
       merged = caseDetails(shared.case),
       a = caseDetails(local),
       b = checkpoint?.case && caseDetails(checkpoint.case);
-    for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
-      if (
-        field === "id" ||
-        (field === "number" && caseNumberKey(a[field]) === caseNumberKey(merged[field])) ||
-        stableJSON(a[field]) === stableJSON(merged[field])
-      )
-        continue;
-      const lc = b ? stableJSON(a[field]) !== stableJSON(b[field]) : true;
-      const rc = b ? stableJSON(merged[field]) !== stableJSON(b[field]) : true;
-      fields.push({ field, local: a[field], shared: merged[field], localChanged: lc, sharedChanged: rc });
-      if (lc && !rc) {
-        if (a[field] === undefined) delete merged[field];
-        else merged[field] = clone(a[field]);
-      }
-    }
+    mergeComparedCaseFields(fields, merged, a, b);
     const conflict = fields.some((f) => f.localChanged && f.sharedChanged);
     const localEvents = [...known.keys()].filter((id) => !baseline.has(id));
     const remoteDetails = fields.some((f) => f.sharedChanged),
       localDetails = fields.some((f) => f.localChanged);
-    const kind = conflict
-      ? "conflict"
-      : added.length && unfinished
-        ? "history-conflict"
-        : added.length
-          ? "shared-history"
-          : remoteDetails && localDetails
-            ? "compatible"
-            : remoteDetails
-              ? "shared-only"
-              : localDetails || localEvents.length
-                ? "local-only"
-                : "unchanged";
+    const kind = sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents);
     return {
       kind,
       fields,
@@ -409,19 +456,9 @@ export function createLanguageCatalog(services) {
     } catch (e) {
       comparison = { kind: e.name === "NotFoundError" ? "missing" : "unavailable", detail: e.message, fields: [] };
     }
-    if (
-      token !== workspace.PREFLIGHT_SEQ ||
-      !workspace.CASES.some((x) => x.id === cid) ||
-      editor.state.screen !== wasScreen ||
-      editor.state.docId !== wasDoc ||
-      editor.state.reinspId !== wasVisit
-    )
+    if (token !== workspace.PREFLIGHT_SEQ || !workspace.CASES.some((x) => x.id === cid) || preflightViewChanged(wasScreen, wasDoc, wasVisit))
       return false;
-    if (
-      ["invalid", "conflict", "history-conflict"].includes(comparison.kind) ||
-      (comparison.kind === "shared-history" && (localCaseWork(cid) || services.caseUnsaved(k))) ||
-      (comparison.kind === "shared-only" && !workspace.SAVE_CHECKPOINTS[cid] && localCaseWork(cid))
-    ) {
+    if (sharedComparisonNeedsReview(services, cid, k, comparison, localCaseWork)) {
       workspace.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
       editor.state.modal = "shared-change";
       services.render();
@@ -449,13 +486,7 @@ export function createLanguageCatalog(services) {
         services.render();
         return false;
       }
-      if (
-        token !== workspace.PREFLIGHT_SEQ ||
-        editor.state.screen !== wasScreen ||
-        editor.state.docId !== wasDoc ||
-        editor.state.reinspId !== wasVisit
-      )
-        return false;
+      if (token !== workspace.PREFLIGHT_SEQ || preflightViewChanged(wasScreen, wasDoc, wasVisit)) return false;
     } else if (comparison.kind === "shared-history") {
       if (!services.loadCaseFile(JSON.stringify(file))) {
         workspace.PREFLIGHT_CONFLICT = {
@@ -471,14 +502,7 @@ export function createLanguageCatalog(services) {
         return false;
       }
     }
-    workspace.PREFLIGHT_NOTICE =
-      comparison.kind === "unavailable"
-        ? "Shared case unavailable; final publication will recheck it."
-        : comparison.kind === "missing"
-          ? "No shared case file yet; publication will verify this."
-          : comparison.kind === "local-only"
-            ? "Local changes retained; publication will reconcile them."
-            : "Shared history checked.";
+    workspace.PREFLIGHT_NOTICE = sharedPreflightNotice(comparison);
     continuation();
     return true;
   }
@@ -548,20 +572,7 @@ export function createLanguageCatalog(services) {
       if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
         throw new Error("Shared case changed again. Review it before replacing local work.");
       if (workspace.PREFLIGHT_CONFLICT !== c) return;
-      const staged = {
-        ...services.draftBundle(),
-        cases: workspace.CASES.filter((x) => x.id !== k.id).concat([clone(fresh.case)]),
-        docs: workspace.DOCS.filter((d) => d.caseId !== k.id),
-        reinsp: workspace.REINSP.filter((r) => r.caseId !== k.id),
-        events: { ...workspace.EVENTS, [k.id]: clone(fresh.events) },
-        recordAttempts: Object.fromEntries(Object.entries(editor.RECORD_ATTEMPTS).filter(([, x]) => x.cid !== k.id)),
-        checkpoints: { ...workspace.SAVE_CHECKPOINTS, [k.id]: { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) } },
-        work: {
-          ...clone(editor.WORK),
-          walk: editor.WORK.walk?.context?.startsWith(k.id + "|") ? null : editor.WORK.walk,
-          recordForms: Object.fromEntries(Object.entries(editor.WORK.recordForms || {}).filter(([id]) => doc(id.split(":")[0])?.caseId !== k.id)),
-        },
-      };
+      const staged = stageSharedReplacement(services, k, fresh);
       if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
       workspace.CASES = staged.cases;
       workspace.DOCS = staged.docs;
