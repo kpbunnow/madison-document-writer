@@ -411,6 +411,41 @@ function reportCaseTimeline(services, c) {
     .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
 }
 
+function reportCaseMetadataHTML(services, c) {
+  return (
+    '<div class="cc-meta">\n      <div><span>Parcel</s' +
+    "pan>" +
+    `${services.esc(c.parcel || "—")}` +
+    "" +
+    `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
+    "</div>\n      <div><span>Alder district</span>" +
+    `${services.esc(c.alderNow || "—")}` +
+    "" +
+    "".concat(
+      c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + services.esc(c.alderAtOpen) + " when opened)</span>" : "",
+    ) +
+    "</div>\n      <div><span>ZIP</span>" +
+    `${services.esc(c.zip || "—")}` +
+    "</div>\n      <div><span>Building district</span>" +
+    `${services.esc(c.building || "—")}` +
+    "</div>\n      <div><span>Inspector</span>" +
+    `${services.esc(c.inspector || "—")}` +
+    "</div>\n      <div><span>Opened</span>" +
+    `${services.esc(services.fmtDate(c.opened))}` +
+    "</div>\n      <div><span>Closed</span>" +
+    `${services.esc(services.fmtDate(c.closedOn))}` +
+    "</div>\n      <div><span>Owner</span>" +
+    "".concat(
+      c.ownerKey
+        ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner || "—")}</button>`
+        : services.esc(c.owner || "—"),
+    ) +
+    "</div>\n      <div><span>Mailing address</span>" +
+    `${services.esc(c.ownerAddr.join(", ") || "—")}` +
+    "</div>\n    </div>\n    "
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -976,36 +1011,9 @@ export function createReportsScreens(services) {
       `${services.esc(c.status)}` +
       '">' +
       `${services.esc(c.status)}` +
-      '</span></div></div>\n    <div class="cc-meta">\n      <div><span>Parcel</s' +
-      "pan>" +
-      `${services.esc(c.parcel || "—")}` +
-      "" +
-      `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
-      "</div>\n      <div><span>Alder district</span>" +
-      `${services.esc(c.alderNow || "—")}` +
-      "" +
-      "".concat(
-        c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + services.esc(c.alderAtOpen) + " when opened)</span>" : "",
-      ) +
-      "</div>\n      <div><span>ZIP</span>" +
-      `${services.esc(c.zip || "—")}` +
-      "</div>\n      <div><span>Building district</span>" +
-      `${services.esc(c.building || "—")}` +
-      "</div>\n      <div><span>Inspector</span>" +
-      `${services.esc(c.inspector || "—")}` +
-      "</div>\n      <div><span>Opened</span>" +
-      `${services.esc(services.fmtDate(c.opened))}` +
-      "</div>\n      <div><span>Closed</span>" +
-      `${services.esc(services.fmtDate(c.closedOn))}` +
-      "</div>\n      <div><span>Owner</span>" +
-      "".concat(
-        c.ownerKey
-          ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner || "—")}</button>`
-          : services.esc(c.owner || "—"),
-      ) +
-      "</div>\n      <div><span>Mailing address</span>" +
-      `${services.esc(c.ownerAddr.join(", ") || "—")}` +
-      '</div>\n    </div>\n    <ul class="timeline">' +
+      "</span></div></div>\n    " +
+      reportCaseMetadataHTML(services, c) +
+      '<ul class="timeline">' +
       "".concat(
         ev.map((e) => `<li><span class="d">${services.esc(services.fmtDate(e.d))}</span><span>${e.t}</span></li>`).join("") ||
           '<li><span class="d"></span><span class="small">No documents issued</span></li>',
