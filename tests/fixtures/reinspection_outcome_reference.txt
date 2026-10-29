@@ -1,0 +1,37 @@
+function recordReinspectionOutcome(id, outcome) {
+    const r = reinsp(editor.state.reinspId);
+    if (!editableWalkItem(r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
+    if (editor.state.riWalk && (!ensureWalkContext() || !editor.state.riWalk)) return false;
+    const cur = r.results[id] || {};
+    if (cur.oc === outcome) return false;
+    const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
+    const result = {
+      oc: outcome,
+      on: cur.on || r.date,
+      manualDate: !!cur.manualDate,
+      due: outcome === "corrected" ? "" : cur.due || "",
+      note: cur.note || "",
+      cite: outcome === "corrected" ? false : !!cur.cite,
+    };
+    if (editor.state.riWalk) editor.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
+    else editor.state.riWalkUndo = null;
+    r.results[id] = result;
+    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((x) => x !== id);
+    if (editor.state.riWalk) {
+      if (editor.state.riWalkMode === "details") {
+        editor.state.riWalkItem = id;
+        editor.state.riWalkStage = "details";
+      } else {
+        const next = nextWalkItem(r);
+        editor.state.riWalkItem = (next && next.id) || null;
+        editor.state.riWalkStage = "outcome";
+      }
+    }
+    workspace.DIRTY = true;
+    services.authoring.scheduleDraftSave();
+    if (editor.state.riWalk) {
+      services.ui.render();
+      editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
+    } else services.ui.renderKeep();
+    return true;
+  }
