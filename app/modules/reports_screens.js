@@ -396,83 +396,43 @@ function reportCaseTimeline(services, c) {
   return c.documents
     .map((d) => ({
       d: d.effectiveFrom || d.issued,
-      t:
-        '<span class="' +
-        `${d.void ? "void" : ""}` +
-        '">' +
-        `${services.esc(d.label)}` +
-        "" +
-        `${d.revision ? " · revision " + services.esc(d.revision.number) : ""}` +
-        "</span>" +
-        `${d.superseded ? " (replaced)" : ""}` +
-        "" +
-        `${d.revision ? " — " + services.esc(d.revision.reason) : ""}` +
-        "" +
-        `${d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : ""}` +
-        "" +
-        `${d.by ? ' <span class="small">' + services.esc(d.by) + "</span>" : ""}` +
-        "",
+      t: screen`<span class="${raw(d.void ? "void" : "")}">${raw(services.esc(d.label))}${raw(d.revision ? " · revision " + services.esc(d.revision.number) : "")}</span>${raw(d.superseded ? " (replaced)" : "")}${raw(d.revision ? " — " + services.esc(d.revision.reason) : "")}${raw(d.void ? " (void" + (d.voidReason ? ": " + services.esc(d.voidReason) : "") + ")" : "")}${raw(d.by ? screen` <span class="small">${raw(services.esc(d.by))}</span>` : "")}`,
     }))
     .concat(c.documents.flatMap((d) => (d.annotations || []).map((n) => ({ d: recordDay(n.at), t: "Record note: " + services.esc(n.text) }))))
     .concat(
       c.visits.map((v) => ({
         d: v.date,
-        t: "Reinspection" + (v.inspector ? ' <span class="small">' + services.esc(v.inspector) + "</span>" : ""),
+        t: screen`Reinspection${raw(v.inspector ? screen` <span class="small">${raw(services.esc(v.inspector))}</span>` : "")}`,
       })),
     )
     .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
 }
 
 function reportCaseMetadataHTML(services, c) {
-  return (
-    '<div class="cc-meta">\n      <div><span>Parcel</s' +
-    "pan>" +
-    `${services.esc(c.parcel || "—")}` +
-    "" +
-    `${c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : ""}` +
-    "</div>\n      <div><span>Alder district</span>" +
-    `${services.esc(c.alderNow || "—")}` +
-    "" +
-    "".concat(
-      c.alderAtOpen && c.alderAtOpen !== c.alderNow ? ' <span class="small">(was ' + services.esc(c.alderAtOpen) + " when opened)</span>" : "",
-    ) +
-    "</div>\n      <div><span>ZIP</span>" +
-    `${services.esc(c.zip || "—")}` +
-    "</div>\n      <div><span>Building district</span>" +
-    `${services.esc(c.building || "—")}` +
-    "</div>\n      <div><span>Inspector</span>" +
-    `${services.esc(c.inspector || "—")}` +
-    "</div>\n      <div><span>Opened</span>" +
-    `${services.esc(services.fmtDate(c.opened))}` +
-    "</div>\n      <div><span>Closed</span>" +
-    `${services.esc(services.fmtDate(c.closedOn))}` +
-    "</div>\n      <div><span>Owner</span>" +
-    "".concat(
-      c.ownerKey
-        ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner || "—")}</button>`
-        : services.esc(c.owner || "—"),
-    ) +
-    "</div>\n      <div><span>Mailing address</span>" +
-    `${services.esc(c.ownerAddr.join(", ") || "—")}` +
-    "</div>\n    </div>\n    "
-  );
+  return screen`<div class="cc-meta">
+      <div><span>Parcel</span>${raw(services.esc(c.parcel || "—"))}${raw(c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : "")}</div>
+      <div><span>Alder district</span>${raw(services.esc(c.alderNow || "—"))}${raw(c.alderAtOpen && c.alderAtOpen !== c.alderNow ? screen` <span class="small">(was ${raw(services.esc(c.alderAtOpen))} when opened)</span>` : "")}</div>
+      <div><span>ZIP</span>${raw(services.esc(c.zip || "—"))}</div>
+      <div><span>Building district</span>${raw(services.esc(c.building || "—"))}</div>
+      <div><span>Inspector</span>${raw(services.esc(c.inspector || "—"))}</div>
+      <div><span>Opened</span>${raw(services.esc(services.fmtDate(c.opened)))}</div>
+      <div><span>Closed</span>${raw(services.esc(services.fmtDate(c.closedOn)))}</div>
+      <div><span>Owner</span>${raw(
+        c.ownerKey
+          ? screen`<button class="linkish" data-owner="${raw(services.esc(c.ownerKey))}">${raw(services.esc(c.owner || "—"))}</button>`
+          : services.esc(c.owner || "—"),
+      )}</div>
+      <div><span>Mailing address</span>${raw(services.esc(c.ownerAddr.join(", ") || "—"))}</div>
+    </div>
+    `;
 }
 
 function reportCaseViolationRowsHTML(services, c, outc) {
   return c.violations
     .map((v) => {
       const cits = c.citations.filter((x) => x.no === v.no);
-      return (
-        '<tr><td class="n">' +
-        `${services.esc(v.no)}` +
-        "</td><td>" +
-        `${services.esc(v.title)}` +
-        '<div class="muted">' +
-        `${services.esc(v.sections.join(", "))}` +
-        "</div></td><td>" +
-        `${services.esc(v.typeLabel)}` +
-        "</td>\n        <td>" +
-        "".concat(
+      return screen`<tr><td class="n">${raw(services.esc(v.no))}</td><td>${raw(services.esc(v.title))}<div class="muted">${raw(services.esc(v.sections.join(", ")))}</div></td><td>${raw(services.esc(v.typeLabel))}</td>
+        <td>${raw(
           v.withdrawn
             ? "Withdrawn — entered in error"
             : v.done
@@ -480,35 +440,22 @@ function reportCaseViolationRowsHTML(services, c, outc) {
               : v.lastOutcome
                 ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
                 : "Open",
-        ) +
-        '</td><td class="n">' +
-        `${services.fmtNum(v.visits)}` +
-        "</td>\n        <td>" +
-        "".concat(
+        )}</td><td class="n">${String(services.fmtNum(v.visits))}</td>
+        <td>${raw(
           cits
             .map(
               (x) =>
-                "" +
-                `${services.esc(x.num)}` +
-                ' <span class="muted">' +
-                `${services.esc(services.fmtDate(x.issued))}` +
-                ", " +
-                `${services.esc(x.ordinance)}` +
-                ", " +
-                `${services.esc(services.fmtMoney(x.amount))}` +
-                "</span>",
+                screen`${raw(services.esc(x.num))} <span class="muted">${raw(services.esc(services.fmtDate(x.issued)))}, ${raw(services.esc(x.ordinance))}, ${raw(services.esc(services.fmtMoney(x.amount)))}</span>`,
             )
             .join("<br>") || "—",
-        ) +
-        "</td></tr>"
-      );
+        )}</td></tr>`;
     })
     .join("");
 }
 
 function reportCoverageListHTML(services, l) {
   return l.length
-    ? '<ul class="list" tabindex="0" aria-label="Reported files or cases">' + `${l.map((s) => `<li>${services.esc(s)}</li>`).join("")}` + "</ul>"
+    ? screen`<ul class="list" tabindex="0" aria-label="Reported files or cases">${raw(l.map((s) => screen`<li>${raw(services.esc(s))}</li>`).join(""))}</ul>`
     : "";
 }
 
@@ -523,87 +470,44 @@ function unlocatedReportCaseReason(c) {
 }
 
 function reportCoverageRowsHTML(services, x, M, unlocated, li, why) {
-  return (
-    "<li><b>" +
-    `${services.plural(x.summaries.length, "case summary", "case summaries")}` +
-    "</b> from " +
-    `${services.esc(x.caseDir)}` +
-    "\\" +
-    `${services.esc(SUMMARY_DIR)}` +
-    ", read " +
-    `${services.esc(services.fmtDate(String(x.readAt).slice(0, 10)))}` +
-    " " +
-    `${services.esc(String(x.readAt).slice(11, 16))}` +
-    ".\n        " +
-    `${services.fmtNum(M.cases.length - M.counted.length)}` +
-    " of them have no issued notice yet and are not counted.</li>\n      <li><" +
-    "b>" +
-    `${services.plural(x.missing.length, "case file")}` +
-    " with no summary.</b> " +
-    `${x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : ""}` +
-    "" +
-    `${li(x.missing)}` +
-    "</li>\n      <li><b>" +
-    `${services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries")}` +
-    ".</b> Different from the exact case revision, missing its revision, or w" +
-    "ritten in an earlier summary format. Excluded from current totals; rebui" +
-    "ld the reporting index in Writer." +
-    `${li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)")))}` +
-    "</li>\n      " +
-    "".concat(
-      x.unreadable.length
-        ? "<li><b>" +
-            `${services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries")}` +
-            ".</b>" +
-            `${li(x.unreadable)}` +
-            "</li>"
-        : "",
-    ) +
-    "".concat(
-      (x.mismatched || []).length
-        ? "<li><b>" +
-            `${services.plural(x.mismatched.length, "summary", "summaries")}` +
-            " not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history." +
-            `${li(x.mismatched)}` +
-            "</li>"
-        : "",
-    ) +
-    "\n      <li><b>" +
-    `${services.plural(unlocated.length, "case")}` +
-    " not located on the map.</b>" +
-    `${li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c)))}` +
-    "</li>\n      " +
-    "".concat(ReportsState.S.parcelNote ? `<li><b>Parcel lookup.</b> ${services.esc(ReportsState.S.parcelNote)}</li>` : "") +
-    "\n      "
-  );
+  return screen`<li><b>${String(services.plural(x.summaries.length, "case summary", "case summaries"))}</b> from ${raw(services.esc(x.caseDir))}\\${raw(services.esc(SUMMARY_DIR))}, read ${raw(services.esc(services.fmtDate(String(x.readAt).slice(0, 10))))} ${raw(services.esc(String(x.readAt).slice(11, 16)))}.
+        ${String(services.fmtNum(M.cases.length - M.counted.length))} of them have no issued notice yet and are not counted.</li>
+      <li><b>${String(services.plural(x.missing.length, "case file"))} with no summary.</b> ${raw(x.missing.length ? "Rebuild the reporting index in Writer using the steps above." : "")}${raw(li(x.missing))}</li>
+      <li><b>${String(services.plural(x.stale.length + M.versionStale.length, "stale summary", "stale summaries"))}.</b> Different from the exact case revision, missing its revision, or written in an earlier summary format. Excluded from current totals; rebuild the reporting index in Writer.${raw(li(x.stale.concat(M.versionStale.map((n) => n + " (earlier summary format)"))))}</li>
+      ${raw(
+        x.unreadable.length
+          ? screen`<li><b>${String(services.plural(x.unreadable.length, "unreadable summary", "unreadable summaries"))}.</b>${raw(li(x.unreadable))}</li>`
+          : "",
+      )}${raw(
+        (x.mismatched || []).length
+          ? screen`<li><b>${String(services.plural(x.mismatched.length, "summary", "summaries"))} not matching the verified case.</b> The summary names the current case revision, but its reported facts differ from that case. Excluded from totals, tables and exports; rebuild the reporting index in Writer. Rebuilding rewrites only the summary, never the case or its history.${raw(li(x.mismatched))}</li>`
+          : "",
+      )}
+      <li><b>${String(services.plural(unlocated.length, "case"))} not located on the map.</b>${raw(li(unlocated.map((c) => c.number + ", " + c.address + ": " + why(c))))}</li>
+      ${raw(ReportsState.S.parcelNote ? screen`<li><b>Parcel lookup.</b> ${raw(services.esc(ReportsState.S.parcelNote))}</li>` : "")}
+      `;
 }
 
 function reportOutlineCoverageHTML(services, a, M) {
-  return (
-    "<li><b>District outlines:</b> " +
-    "".concat(
-      a.districts
-        ? M.distField
-          ? "loaded" +
-            (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
-            "; the district number is read from the " +
-            services.esc(M.distField) +
-            " field"
-          : "loaded, but no field reads as a district number, so districts are not shaded"
-        : "not available",
-    ) +
-    ".\n        <b>ZIP outlines:</b> " +
-    "".concat(
-      a.zips
-        ? M.zipField
-          ? "loaded; used for cases whose ZIP was not imported from Accela"
-          : "loaded, but no field reads as a ZIP code"
-        : "not provided (optional)",
-    ) +
-    ".\n        " +
-    `${(a.notes || []).map((n) => `<div class="small" style="margin-top:6px">${services.esc(n)}</div>`).join("")}` +
-    "</li>"
-  );
+  return screen`<li><b>District outlines:</b> ${raw(
+    a.districts
+      ? M.distField
+        ? "loaded" +
+          (a.districtsDate ? " (file dated " + services.esc(services.fmtDate(a.districtsDate)) + ")" : "") +
+          "; the district number is read from the " +
+          services.esc(M.distField) +
+          " field"
+        : "loaded, but no field reads as a district number, so districts are not shaded"
+      : "not available",
+  )}.
+        <b>ZIP outlines:</b> ${raw(
+          a.zips
+            ? M.zipField
+              ? "loaded; used for cases whose ZIP was not imported from Accela"
+              : "loaded, but no field reads as a ZIP code"
+            : "not provided (optional)",
+        )}.
+        ${raw((a.notes || []).map((n) => screen`<div class="small" style="margin-top:6px">${raw(services.esc(n))}</div>`).join(""))}</li>`;
 }
 
 export function createReportsScreens(services) {
@@ -838,34 +742,17 @@ export function createReportsScreens(services) {
       shade = z
         ? ReportsState.S.areas && ReportsState.S.areas.zips && ReportsState.S.M.zipField
         : ReportsState.S.areas && ReportsState.S.areas.districts && ReportsState.S.M.distField;
-    return (
-      '<div class="legend">' +
-      "".concat(services.STATUSES.map((s) => `<span><i style="background:${services.STATUS_COL[s]}"></i>${s}</span>`).join("")) +
-      "\n      <span>" +
-      `${services.plural(pts.length, "case")}` +
-      " on the map" +
-      `${off ? ", " + services.fmtNum(off) + " not located" : ""}` +
-      ".</span>\n      <span>" +
-      "".concat(
+    return screen`<div class="legend">${raw(services.STATUSES.map((s) => screen`<span><i style="background:${String(services.STATUS_COL[s])}"></i>${String(s)}</span>`).join(""))}
+      <span>${String(services.plural(pts.length, "case"))} on the map${String(off ? ", " + services.fmtNum(off) + " not located" : "")}.</span>
+      <span>${raw(
         res.area && shade
           ? "Shading is this report’s count by " + (z ? "ZIP code" : "district") + ". Click an area to filter to it."
           : res.area
             ? "No " + (z ? "ZIP" : "district") + " outlines are available, so areas are not shaded (see Data and definitions)."
             : "",
-      ) +
-      '</span>\n      <span class="seg" role="group" aria-label="Basemap"><butto' +
-      'n data-basemap="labels" aria-pressed="' +
-      `${ReportsState.S.basemap === "labels"}` +
-      '">Street names</button><button data-basemap="plain" aria-pressed="' +
-      `${ReportsState.S.basemap === "plain"}` +
-      '">No labels</button></span></div>\n    <div id="map" role="region" aria-l' +
-      'abel="Map of ' +
-      `${services.esc(r.label)}` +
-      '"></div><details class="map-table-alternative"><summary>Table alternativ' +
-      "e: all matching records, including unlocated cases</summary>" +
-      `${tablePanel(res, r.label)}` +
-      "</details>"
-    );
+      )}</span>
+      <span class="seg" role="group" aria-label="Basemap"><button data-basemap="labels" aria-pressed="${String(ReportsState.S.basemap === "labels")}">Street names</button><button data-basemap="plain" aria-pressed="${String(ReportsState.S.basemap === "plain")}">No labels</button></span></div>
+    <div id="map" role="region" aria-label="Map of ${raw(services.esc(r.label))}"></div><details class="map-table-alternative"><summary>Table alternative: all matching records, including unlocated cases</summary>${raw(tablePanel(res, r.label))}</details>`;
   }
 
   function drawMap() {
@@ -933,7 +820,7 @@ export function createReportsScreens(services) {
       });
       if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
     } catch (e) {
-      el.innerHTML = '<div class="empty">The map could not be drawn (' + services.esc(e.message || e) + ").</div>";
+      el.innerHTML = screen`<div class="empty">The map could not be drawn (${raw(services.esc(e.message || e))}).</div>`;
     }
   }
 
@@ -962,55 +849,30 @@ export function createReportsScreens(services) {
   function propertyView() {
     const p = ReportsState.S.prop,
       hits = p.hits;
-    return (
-      '<div class="panel"><div class="panel-b"><div class="search">\n      <inpu' +
-      't id="pv-q" type="search" value="' +
-      `${services.esc(p.q)}` +
-      '" placeholder="Parcel number, address or case number" aria-label="Parcel' +
-      ' number, address or case number">\n      <button class="btn btn-primary" ' +
-      'data-act="propGo">Find</button></div></div></div>\n    ' +
-      "".concat(
-        hits == null
-          ? ""
-          : !hits.length
-            ? `<div class="empty">No case matches &ldquo;${services.esc(p.q)}&rdquo;.</div>`
-            : hits.map(caseCard).join(""),
-      ) +
-      ""
-    );
+    return screen`<div class="panel"><div class="panel-b"><div class="search">
+      <input id="pv-q" type="search" value="${raw(services.esc(p.q))}" placeholder="Parcel number, address or case number" aria-label="Parcel number, address or case number">
+      <button class="btn btn-primary" data-act="propGo">Find</button></div></div></div>
+    ${raw(
+      hits == null
+        ? ""
+        : !hits.length
+          ? screen`<div class="empty">No case matches &ldquo;${raw(services.esc(p.q))}&rdquo;.</div>`
+          : hits.map(caseCard).join(""),
+    )}`;
   }
 
   function caseCard(c) {
     const outc = { corrected: "Corrected", progress: "Progress made", none: "No change", noaccess: "No access" };
     const ev = reportCaseTimeline(services, c);
-    return (
-      '<div class="card-case"><div class="cc-h"><div><h3>' +
-      `${services.esc(c.address)}` +
-      '</h3><div class="small">Case ' +
-      `${services.esc(c.number)}` +
-      ' <button class="linkish" data-writer="' +
-      `${services.esc(c.number)}` +
-      '">Open case in Writer</button>' +
-      `${c.description ? ", " + services.esc(c.description) : ""}` +
-      '</div></div>\n      <div><span class="st st-' +
-      `${services.esc(c.status)}` +
-      '">' +
-      `${services.esc(c.status)}` +
-      "</span></div></div>\n    " +
-      reportCaseMetadataHTML(services, c) +
-      '<ul class="timeline">' +
-      "".concat(
-        ev.map((e) => `<li><span class="d">${services.esc(services.fmtDate(e.d))}</span><span>${e.t}</span></li>`).join("") ||
-          '<li><span class="d"></span><span class="small">No documents issued</span></li>',
-      ) +
-      '</ul>\n    <div class="tw"><table class="rep"><thead><tr><th class="n">It' +
-      'em</th><th>Violation</th><th>Type</th><th>Status</th><th class="n">Visit' +
-      "s</th><th>Citations</th></tr></thead><tbody>\n      " +
-      "".concat(
-        reportCaseViolationRowsHTML(services, c, outc) || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>',
-      ) +
-      "\n    </tbody></table></div></div>"
-    );
+    return screen`<div class="card-case"><div class="cc-h"><div><h3>${raw(services.esc(c.address))}</h3><div class="small">Case ${raw(services.esc(c.number))} <button class="linkish" data-writer="${raw(services.esc(c.number))}">Open case in Writer</button>${raw(c.description ? ", " + services.esc(c.description) : "")}</div></div>
+      <div><span class="st st-${raw(services.esc(c.status))}">${raw(services.esc(c.status))}</span></div></div>
+    ${raw(reportCaseMetadataHTML(services, c))}<ul class="timeline">${raw(
+      ev.map((e) => screen`<li><span class="d">${raw(services.esc(services.fmtDate(e.d)))}</span><span>${raw(e.t)}</span></li>`).join("") ||
+        '<li><span class="d"></span><span class="small">No documents issued</span></li>',
+    )}</ul>
+    <div class="tw"><table class="rep"><thead><tr><th class="n">Item</th><th>Violation</th><th>Type</th><th>Status</th><th class="n">Visits</th><th>Citations</th></tr></thead><tbody>
+      ${raw(reportCaseViolationRowsHTML(services, c, outc) || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>')}
+    </tbody></table></div></div>`;
   }
 
   function ownerView() {
@@ -1028,58 +890,34 @@ export function createReportsScreens(services) {
         )
       : [];
     const sel = o.key && g.get(o.key);
-    return (
-      '<div class="panel"><div class="panel-b"><div class="search">\n      <inpu' +
-      't id="ow-q" type="search" value="' +
-      `${services.esc(o.q)}` +
-      '" placeholder="Owner name or mailing address" aria-label="Owner name or ' +
-      'mailing address">\n      <button class="btn btn-primary" data-act="ownGo"' +
-      ">Find</button></div>\n    " +
-      "".concat(
-        q && !sel
-          ? matches.length
-            ? '<div class="tw" style="margin-top:12px"><table class="rep"><thead><tr><t' +
-              'h>Mailing address</th><th>Owner names seen</th><th class="n">Cases</th><' +
-              "/tr></thead><tbody>\n      " +
-              "".concat(
-                matches
-                  .map(
-                    (k) =>
-                      '<tr><td><button class="linkish" data-owner="' +
-                      `${services.esc(k)}` +
-                      '">' +
-                      `${services.esc(services.facts.ownerKeyLabel(k))}` +
-                      "</button></td><td>" +
-                      `${services.esc(services.facts.uniq(g.get(k).map((c) => c.owner)).join("; "))}` +
-                      '</td><td class="n">' +
-                      `${services.fmtNum(g.get(k).length)}` +
-                      "</td></tr>",
-                  )
-                  .join(""),
-              ) +
-              "\n      </tbody></table></div>"
-            : `<div class="empty">No owner matches &ldquo;${services.esc(o.q)}&rdquo;.</div>`
-          : "",
-      ) +
-      "\n    </div></div>\n    " +
-      "".concat(
-        sel
-          ? '<div class="panel"><div class="panel-h"><div><h2>' +
-              `${services.esc(services.facts.ownerKeyLabel(o.key))}` +
-              '</h2>\n        <div class="sub">' +
-              `${services.plural(sel.length, "case")}` +
-              " at " +
-              `${services.plural(services.facts.uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties")}` +
-              ". Owner names seen: " +
-              `${services.esc(services.facts.uniq(sel.map((c) => c.owner)).join("; "))}` +
-              '</div></div>\n        <button class="btn" data-act="useOwner">Filter the ' +
-              "reports to this owner</button></div>\n      " +
-              `${caseTable(sel)}` +
-              "</div>"
-          : "",
-      ) +
-      ""
-    );
+    return screen`<div class="panel"><div class="panel-b"><div class="search">
+      <input id="ow-q" type="search" value="${raw(services.esc(o.q))}" placeholder="Owner name or mailing address" aria-label="Owner name or mailing address">
+      <button class="btn btn-primary" data-act="ownGo">Find</button></div>
+    ${raw(
+      q && !sel
+        ? matches.length
+          ? screen`<div class="tw" style="margin-top:12px"><table class="rep"><thead><tr><th>Mailing address</th><th>Owner names seen</th><th class="n">Cases</th></tr></thead><tbody>
+      ${raw(
+        matches
+          .map(
+            (k) =>
+              screen`<tr><td><button class="linkish" data-owner="${raw(services.esc(k))}">${raw(services.esc(services.facts.ownerKeyLabel(k)))}</button></td><td>${raw(services.esc(services.facts.uniq(g.get(k).map((c) => c.owner)).join("; ")))}</td><td class="n">${String(services.fmtNum(g.get(k).length))}</td></tr>`,
+          )
+          .join(""),
+      )}
+      </tbody></table></div>`
+          : screen`<div class="empty">No owner matches &ldquo;${raw(services.esc(o.q))}&rdquo;.</div>`
+        : "",
+    )}
+    </div></div>
+    ${raw(
+      sel
+        ? screen`<div class="panel"><div class="panel-h"><div><h2>${raw(services.esc(services.facts.ownerKeyLabel(o.key)))}</h2>
+        <div class="sub">${String(services.plural(sel.length, "case"))} at ${String(services.plural(services.facts.uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties"))}. Owner names seen: ${raw(services.esc(services.facts.uniq(sel.map((c) => c.owner)).join("; ")))}</div></div>
+        <button class="btn" data-act="useOwner">Filter the reports to this owner</button></div>
+      ${raw(caseTable(sel))}</div>`
+        : "",
+    )}`;
   }
 
   function dataView() {
@@ -1089,24 +927,13 @@ export function createReportsScreens(services) {
     const unlocated = M.counted.filter((c) => !c.located);
     const li = (l) => reportCoverageListHTML(services, l);
     const why = unlocatedReportCaseReason;
-    return (
-      '<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h' +
-      '2></div><div class="panel-b"><p>For missing, stale or excluded summaries' +
-      ": open Document Writer → Tools &amp; settings → Saved work and connectio" +
-      "n → Connection checks and technical details → Storage diagnostics → Rebu" +
-      "ild reporting index. Resolve unreadable or integrity errors in the affec" +
-      "ted case before rebuilding; rebuilding does not repair history. Refresh " +
-      'Reports afterward.</p><details id="report-proof"><summary>Record proof a' +
-      'nd excluded files</summary>\n    <ul class="defs">\n      ' +
-      reportCoverageRowsHTML(services, x, M, unlocated, li, why) +
-      "" +
-      reportOutlineCoverageHTML(services, a, M) +
-      '\n    </ul></details></div></div>\n  <div class="panel"><div class="p' +
-      'anel-b"><details id="report-definitions"><summary>Data definitions</summ' +
-      'ary><ul class="defs">\n    ' +
-      `${services.DEFINITIONS.map((d) => `<li><b>${services.esc(d[0])}.</b> ${services.esc(d[1])}</li>`).join("")}` +
-      "\n  </ul></details></div></div>"
-    );
+    return screen`<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h2></div><div class="panel-b"><p>For missing, stale or excluded summaries: open Document Writer → Tools &amp; settings → Saved work and connection → Connection checks and technical details → Storage diagnostics → Rebuild reporting index. Resolve unreadable or integrity errors in the affected case before rebuilding; rebuilding does not repair history. Refresh Reports afterward.</p><details id="report-proof"><summary>Record proof and excluded files</summary>
+    <ul class="defs">
+      ${raw(reportCoverageRowsHTML(services, x, M, unlocated, li, why))}${raw(reportOutlineCoverageHTML(services, a, M))}
+    </ul></details></div></div>
+  <div class="panel"><div class="panel-b"><details id="report-definitions"><summary>Data definitions</summary><ul class="defs">
+    ${raw(services.DEFINITIONS.map((d) => screen`<li><b>${raw(services.esc(d[0]))}.</b> ${raw(services.esc(d[1]))}</li>`).join(""))}
+  </ul></details></div></div>`;
   }
 
   function crc32(u) {
