@@ -1,5 +1,7 @@
 # Maintainability development checkpoints
 
+**Status: concluded (batches B1–B11, merged through #339).** The final measurements, the exception register and the maintainability contract are in `MAINTAINABILITY-ASSESSMENT.md`. The sections below are provenance for each increment.
+
 Owner-requested follow-up to the October 27, 2026 maintainability plan. This work
 preserves behavior, release identities, persisted formats, print bytes and security
 authority. Each focused increment uses targeted local checks, then the full GitHub

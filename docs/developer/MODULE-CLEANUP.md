@@ -438,3 +438,7 @@ Further decomposition or dead-name removal should address a concrete defect, fea
 ## Verification and merge
 
 Run targeted local checks before submitting each development PR; a local full gate is optional. Require GitHub Full gate and PR format to pass on the exact direct or integration PR head merged into main under INTEGRATION-BATCHES.md. Report actual outcomes and completed-run regression/accessibility/print counts plus source/toolchain evidence. Automatic merged-main verification may continue asynchronously; report its pending run link and investigate failures when reported. Preserve every historical assertion, frozen print reference, screen style and deadline. Keep measured browser work serial. Follow DEVELOPMENT-STANDARD.md's owner-authorization and guarded-merge policy; release assignment, packaging and deployment remain separately authorized. City/native/legal acceptance remains separate.
+
+## Conclusion
+
+The batch B1–B11 maintainability plan is concluded. Final counts, the exception register and the maintainability contract are in MAINTAINABILITY-ASSESSMENT.md; MAINTAINABILITY-PLAN.md keeps each increment as provenance.

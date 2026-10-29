@@ -1,5 +1,10 @@
 # Release changelog
 
+## Unreleased — Maintainability plan concluded (development)
+
+- Split the remaining long builders and handlers behind frozen-original comparisons that check output, error text, peer-call order and state effects; Python complexity findings fall from 13 to 5 and the long-function baseline from 92 to 48 findings.
+- Ratchet split string literals in screen modules, classify the 67 whole-application evaluators with a reason or owner, and record the accepted exceptions and the maintainability contract in MAINTAINABILITY-ASSESSMENT.md. No behavior, release identity (R63, helper build 64), stored format or print reference changes.
+
 ## Unreleased — CI actions on Node 24 (development)
 
 - Move the full-gate workflow's pinned actions off the deprecated Node 20 runtime: checkout v7.0.1, setup-node v7.1.0, setup-python v7.1.0 and upload-artifact v7.0.2, each still pinned to a full commit SHA. Their workflow inputs, the pinned Node/Python/Chromium toolchain and the gate itself are unchanged. CI only; no program, identity or format change.

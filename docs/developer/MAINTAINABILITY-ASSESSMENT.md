@@ -1,7 +1,7 @@
 # Maintainability architecture audit
 
-Snapshot: October 29, 2026, through the recipient/citation owner, form and
-regression continuation following merged batch #319. This supersedes the PR #92
+Snapshot: October 29, 2026, at the conclusion of the batch B1–B11 maintainability
+plan (merged through #339). This supersedes the PR #92
 measurement snapshot. It reviews the resumed maintainability work; it does not
 claim completion of every remaining screen/test migration, release approval or
 native acceptance. The exact final integration head must pass GitHub Full gate
@@ -16,7 +16,7 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 
 | Measurement | Current source | Meaning and limit |
 | --- | ---: | --- |
-| Maintained browser modules | 147 | Writer and Reports; generated/vendor modules excluded |
+| Maintained browser modules | 149 | Writer and Reports; generated/vendor modules excluded |
 | Cycles | 0 | Every cycle is rejected; no universal runtime registry |
 | Foundation / scoped owner boundaries | 25 / 108 | Exact permitted direct imports, not a behavioral-coupling score |
 | Explicit service interfaces, including groups | 118 | No opaque spreads or computed interface keys |
@@ -25,10 +25,11 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | Owned Writer root-state fields | 70 | Six disjoint frozen accessor boundaries retain live replacement semantics |
 | Core handwritten forwarders / getters | 19 / 8 | Down from measured763 /209; custom native/store/clock adapters remain explicit |
 | Deferred composition declarations / resolvers | 98 / 945 | Stateless per-owner adapters; no shared lookup registry |
-| JS complexity / nesting findings | 30 / 0 | Complexity >20; nesting >4 |
-| Long JS function findings | 92 | 54 enclosing create/init factories and 38 non-factory functions |
-| Python C901 findings | 15 | Maintained helper/tools/policy scope, excluding vendor/history |
-| Whole-application evaluator files | 67 | Includes fixtures and genuine integration flows; not all are isolated tests |
+| JS complexity / nesting findings | 3 / 0 | Complexity >20; nesting >4; all three are the frozen print renderers (D1) |
+| Long JS function findings | 48 | 44 enclosing create/init factories (capped by the ratchet) and 4 frozen print renderers (D1) |
+| Python C901 findings | 5 | Maintained helper/tools/policy scope, excluding vendor/history |
+| Whole-application evaluator files | 67 | 60 classified integration with a reason, 7 migratable with an owner; a new unclassified file fails the gate |
+| Split string literals in screen modules | 445 | Ratcheted per file by `tools/markup-baseline.json`; 131 print/issued and 60 approved-wording sites are listed, not ratcheted |
 | Retained test hook fields | 48 | No hook is removed merely because a text search finds no consumer |
 
 Counts are structural evidence, not a quality score. Baselines only decrease after
@@ -112,31 +113,40 @@ non-factory length finding; citation review falls from 316 to 155 lines. The
 initial-citation narrative and all non-presentation methods remain unchanged.
 Exact-head Full gate/PR format are required for this new delivery batch.
 
+## Behavior-preserving method
+
+Every refactor in batches B1–B11 followed one method. A frozen copy of the original function or module is kept in `tests/fixtures/*_reference.txt` (or the retained `.cjs` snapshot). A comparison compiles current and retained code, drives seeded scenarios, and compares results, thrown errors, the order of every peer read and call, and state or DOM effects, including refusal on each interrupted read or call. The comparison lands in its own commit and must pass on the unchanged source before the refactor commit. Deliberate mutations then prove the comparison has teeth; a surviving mutant must be explained as equivalent or the scenarios strengthened (several were, including empty tables and oversized paragraphs in pagination and dropped issued fields in `startCorrection`). No assertion, golden, hash or deadline was edited to pass.
+
+## Exception register
+
+Each accepted finding, why it stays, and the condition for reopening it.
+
+| Finding | Count | Reason accepted | Reopen when |
+| --- | ---: | --- | --- |
+| Print renderers in `document_render.js` (`noticeHTML`, `citationFaces` and their inner functions): length 446/270/242/228, complexity 55/55/75 | 4 length, 3 complexity | D1: issued-document bytes are protected by frozen references and approved-print parity; splitting risks historical rendering for no behavior gain | The owner approves a print-renderer change with byte-parity evidence, or a new document family is added |
+| Enclosing `create…`/`init…` factories over 80 lines | 44 | D3: factories are composition roots whose size is declared interface, not logic; only `createAccelaImport` and `initNewDocuments` were split. The per-function baseline stops any factory growing | A factory gains logic, or the owner asks for further shrinking (see the factory discussion in the batch B11 PR) |
+| Python functions over complexity 10: `read_index` 30, `launch.main` 24, `verify_record` 20, `CaseIntegrity.__init__` 19, `file_lock` 13 | 5 | Security-sensitive helper code (integrity, locking, launch) where each branch is a refusal; further splitting needs equivalence seams of the B8 kind | Any of them changes behavior, or the owner authorizes the same method for them |
+| Split string literals in screen modules | 445 | Converting to templates touches the screen contract (`SCREEN-SHELL.md`) and needs owner review; the ratchet stops growth | The owner approves a template conversion batch |
+| Whole-application evaluators | 60 integration, 7 migratable | They create, edit and issue documents or drive startup, storage and screens across owners; rewriting them would change assertions | A test is rewritten for another reason, or the owner funds a migration |
+| Retained test hook fields | 48 | Read by the integration evaluators above (for example `noticeHTML`, `citAmount`, `editorReadiness`); retiring one needs every consumer traced and no lost assertion | The last consumer of a field migrates |
+
+## Maintainability contract
+
+New and changed code keeps these rules; the gate enforces the first three.
+
+1. Complexity, nesting, function-length and Python complexity may not rise above `tools/complexity-baseline.json`; lower it when a function improves.
+2. Screen modules may not gain split string literals (`tools/markup-baseline.json`). Use a template or one literal.
+3. A new whole-application evaluator needs a class and reason in `tests/fixtures/test-seam-baseline.json`; prefer a real-owner composition with explicit test services.
+4. Refactoring a function that renders markup, builds a record, orders effects or reads peers first needs a retained-original comparison in its own commit, as above.
+5. Keep factories as composition: put logic in module-level functions that take explicit services, ordered tables or named phases. Keep the original variable names in places where engine error messages embed them.
+6. Do not change identities, goldens, print references or the screen-shell reference to satisfy a metric.
+
 ## Remaining work and stopping decision
 
-The numerical complexity, nesting, non-factory length and Python targets are met;
-state direction and explicit interface limits are enforced. This does **not** make
-M5/M6 complete. The following remain concrete follow-up work:
+Batches B1–B11 are complete. Numerical complexity and nesting targets are met outside the recorded exceptions, and Python complexity is down from 13 to 5. State direction, owner boundaries and interface limits are enforced. Functionality development may resume under the contract above.
 
-- Recipient/send/storage/final-confirmation overlays now use screen templates,
-  with complete retained HTML and ordered failure comparisons. Inspect other
-  remaining fragmented forms in their own feature owners before converting; do
-  not mechanically convert historical narrative/print renderers.
-- Continue migrating feature regressions that access private bundle bindings to
-  their actual public owners. The R31/R32 deposit/pricing and R33 court regressions now compose real owners;
-  continue recipient interaction and isolated overlay behavior. Keep real cross-owner lifecycle, startup, browser and print
-  integration coverage; moving eval to a shared fixture is not a migration.
-- Retire each remaining diagnostic field only after tracing folded JS/helper,
-  Python and browser consumers and proving no lost assertions or production-byte
-  change. The 67-file inventory is a baseline, not evidence that every file should
-  disappear or that the48 hooks are unused.
-- Refresh this audit and attach exact-head full-gate evidence after the remaining
-  migrations. Do not revive the old blanket architecture-complete claim while
-  those tracked migrations are open.
+The register records what is deliberately left. Items that need an owner decision rather than more behavior-preserving work are the template conversion of screen literals, further shrinking of the 44 factories, and the evaluator and hook migrations.
 
-Further structural extraction should address these identified responsibilities or
-an observed maintenance problem. Zero cycles does not justify decomposing every
-large feature owner. City Windows/network-drive/Outlook/native printing, manual
-accessibility, staff/legal and exact PNG-parity acceptance retain their existing
-holds. R63/helper build64 and independent formats remain unchanged; no packaging
-or deployment is authorized by this audit.
+City Windows, network-drive, Outlook and native-printing acceptance, manual accessibility checks, staff and legal review and exact PNG-parity acceptance retain their existing documented owners. Automated tests do not establish them.
+
+R63/helper build 64 and independent formats remain unchanged; no packaging or deployment is authorized by this audit.
