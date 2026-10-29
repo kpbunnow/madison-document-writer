@@ -1450,3 +1450,43 @@ Added two independent frozen-original comparisons over the synthetic projection 
 Both implementations are split into the same ordered phases, named alike in each language: replay (issued, correction, visit patch, visit, void link and a document-event table) and summary (roster names, document facts, case status, active visits, item numbers, citation rows, visit outcome, document and visit history, violation rows and row builders for the case block, restrictions, extensions, snow inspections, visits, documents, corrections and referrals). Statement order is unchanged so the first refusing expression is too. The existing browser/helper parity audit and the real Writer flows pass unchanged. The helper's `summarize()` mirror comments name the phases so a rule change is made on both sides.
 
 Measured counts: {'complexity': 26, 'max-depth': 0, 'max-lines-per-function': 85, 'python': 15} → {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13}.
+
+## issuance-flow-phases
+
+Added a frozen-original comparison of `publishDocument` before changing it (`audit_publication_flow_rules.js`: 5,000 seeded scenarios against the retained `publication_workflow_reference.txt`, 944 with injected interruptions). It compares the result, thrown error, every peer read and call in order with the editor state at each call, draft effects and the final editor state.
+
+`publishOnce` is now a short sequence of module-level phases that take the owner's `services`: outright refusal, helper and catalog guards, citation history check, blockers, initial-document preparation, commit, filing and Workspace return. Messages, ordering and the single-flight guard are unchanged. Four deliberate mutations (a changed modal clear, an extra render, a changed focus condition and a dropped initial-citation wait) are caught.
+
+Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}.
+
+## lifecycle-check-phases
+
+Added a frozen-original comparison of `lifecycleChecks` before changing it (`audit_publication_lifecycle_rules.js`: 8,000 seeded case records of every document type against the retained `publication_preparation_reference.txt`, 327 with injected interruptions). It compares ordered messages, every peer read and call in order, refusal at each interrupted read and untouched inputs, and fails if the generator stops reaching any message family.
+
+`lifecycleChecks` now assembles module-level phases in the original order: record, follow-up, visit, item, referral, citation and mailing faults. Four deliberate mutations (reordered phases, a dropped current-document read, a changed date bound and an extra peer read) are caught.
+
+Measured counts: {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13} → {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13}.
+
+## amendment-commit-phases
+
+Added a frozen-original comparison of `commitAmendment` before changing it (`audit_record_commit_rules.js`: 6,000 seeded amendment saves against the retained `record_commit_reference.txt`, 115 with injected interruptions). It compares the result, ordered peer reads and calls, candidate, case, draft and editor effects, definitive and indefinite failures, and refusal at each interrupted read or call.
+
+`commitAmendment` now runs module-level phases in the original order: start guard, durable attempt, candidate staging, helper save, case merge, draft settlement, record-form close, confirmation and failure handling. Deliberate mutations (a dropped committed-state write, a swapped project/remember order, a changed null test) are caught; the two surviving variants are behavior-equivalent (an unreachable `definitive` value and two independent steps swapped).
+
+Measured counts: {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13} → {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13}.
+
+## print-job-phases
+
+Added a frozen-original comparison of `printJob` before changing it (`audit_print_job_rules.js`: 8,000 seeded documents against the retained `document_printing_reference.txt` over a scripted print frame, 603 with injected interruptions). It compares refusals, every frame and document write in order, packet completeness checks, the snow and standard pagination paths, the returned job and refusal at each interrupted read or call.
+
+`printJob` now runs module-level phases in the original order: refusal, frame, desk write, citation packet check, snow or standard pagination and cleanup; the file-name builder is shared by `documentFileName`. Five deliberate mutations (packet check dropped, a changed snow version bound, an extra stage read, an inverted screen-document test and a dropped frame removal) are caught. R54 real-Chromium print geometry passes unchanged.
+
+Measured counts: {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.
+
+## pdf-filing-phases
+
+Added a frozen-original comparison of `filePdf` before changing it (`audit_pdf_filing_rules.js`: 6,000 seeded issued documents against the retained `document_delivery_reference.txt`, 761 refusals or interruptions). It compares the guards, the request, every helper reply outcome, the filed-event decision, the busy counter and refusal at each interrupted read or call.
+
+`filePdf` now runs module-level phases in the original order: fileable job, filing operation, request, and filed-record handling. Five deliberate mutations (an inverted hash match, a changed toast field, an outbox count, a dropped location refresh and an unbalanced busy counter) are caught.
+
+Measured counts: {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13} → {'complexity': 18, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.
