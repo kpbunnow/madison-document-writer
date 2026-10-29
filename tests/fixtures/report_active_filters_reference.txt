@@ -1,0 +1,1 @@
+!!(F.areas.length || F.inspector || F.vtype || F.ord || F.status || F.owner)

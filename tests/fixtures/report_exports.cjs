@@ -1,11 +1,11 @@
-/* Real report calculations and screen/export owners, with no application startup or event listeners. */
+/* Real Reports owners; feature listeners are composed explicitly without application startup. */
 const path = require("node:path"),
   esbuild = require("esbuild");
-module.exports = async function createReportExports({ navigation = false } = {}) {
+module.exports = async function createReportExports({ navigation = false, deposits = false } = {}) {
   const result = await esbuild.build({
       stdin: {
         contents:
-          'export {createReportNavigation} from "./report_navigation.js";export {esc} from "./presentation_format.js";export * as facts from "./report_facts.js";export * as metadata from "./report_metadata.js";export {reportActions} from "./report_presentation.js";export {createReportsServices} from "./reports_services.js";export {createReportCatalog} from "./report_catalog.js";export {createReportsScreens} from "./reports_screens.js";export {ReportsState} from "./state.js";',
+          'export {initDepositSchedule} from "./deposit_schedule.js";export {createReportNavigation} from "./report_navigation.js";export {esc} from "./presentation_format.js";export * as facts from "./report_facts.js";export * as metadata from "./report_metadata.js";export {reportActions} from "./report_presentation.js";export {createReportsServices} from "./reports_services.js";export {createReportCatalog} from "./report_catalog.js";export {createReportsScreens} from "./reports_screens.js";export {ReportsState} from "./state.js";',
         resolveDir: path.resolve(__dirname, "../../app/modules"),
       },
       bundle: true,
@@ -24,8 +24,10 @@ module.exports = async function createReportExports({ navigation = false } = {})
       ],
     }),
     box = { exports: {} };
-  new Function("module", "exports", result.outputFiles[0].text)(box, box.exports);
+  const transport = { fetch: (...args) => global.fetch(...args) };
+  new Function("fetch", "module", "exports", result.outputFiles[0].text)((...args) => transport.fetch(...args), box, box.exports);
   const {
+      initDepositSchedule,
       createReportNavigation,
       esc,
       facts,
@@ -49,6 +51,8 @@ module.exports = async function createReportExports({ navigation = false } = {})
     savedId: "",
     reportNotice: "",
     parcelMissing: [],
+    parcels: {},
+    areas: null,
     F: {
       from: TODAY.slice(0, 4) + "-01-01",
       to: TODAY,
@@ -72,6 +76,7 @@ module.exports = async function createReportExports({ navigation = false } = {})
   const calculations = createReportsServices({
     render,
     reportById,
+    REPORT_VIEWS_KEY: "madison-report-views-v1",
     shell: () => screens.shell(),
     A11Y: { enhance() {}, notify() {} },
     TODAY,
@@ -94,7 +99,10 @@ module.exports = async function createReportExports({ navigation = false } = {})
     SAVED_VIEWS: ReportsState.SAVED_VIEWS,
     reportById,
   });
+  const depositSchedule = deposits ? initDepositSchedule({ render, esc }) : null;
   screens = createReportsScreens({
+    depositSchedule,
+    activeFilters: () => facts.activeReportFilters(ReportsState.S.F),
     ...facts,
     areaLabel,
     esc,
@@ -138,5 +146,12 @@ module.exports = async function createReportExports({ navigation = false } = {})
     freshness: screens.freshness,
     currentReportRows: calculations.currentReportRows,
     printReport: calculations.printReport,
+    dataView: screens.dataView,
+    REPORTS: reports,
+    saveReportView: calculations.saveReportView,
+    applyReportView: calculations.applyReportView,
+    deleteReportView: calculations.deleteReportView,
+    loadAll: calculations.loadAll,
+    transport,
   };
 };
