@@ -1597,3 +1597,7 @@ Added a frozen-original comparison of the document record panel (`audit_record_h
 ## recovery-dialog-sections
 
 Added a frozen-original comparison of the recovery dialog (`audit_recovery_modal_markup_rules.js`: 6,000 seeded states against the retained `recovery_ui_reference.txt`) covering the backup list, selection, errors, local and shared comparison, restore gating, escaping and every peer read. `recoveryModal` (94 lines) is now a shell over backup-list, selected-backup, field-table and action builders. Five deliberate mutations are caught.
+
+## correction-panel-sections
+
+Added a frozen-original comparison of the correction panel (`audit_correction_panel_markup_rules.js`: 6,000 seeded corrections against the retained `correction_panel_reference.txt`) covering locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping and every peer read and call. `correctionPanel` (81 lines) is now a shell over notice, external-reference, property-detail and action builders, with the visit editor and diff supplied by the factory in their original order. Deliberate mutations are caught.

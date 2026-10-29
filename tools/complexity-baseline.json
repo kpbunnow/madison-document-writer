@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 4,
     "max-depth": 0,
-    "max-lines-per-function": 61,
+    "max-lines-per-function": 60,
     "python": 8
   },
   "violations": {
@@ -24,8 +24,7 @@
     "app/modules/contact_events.js:createContactEvents#1:max-lines-per-function": 129,
     "app/modules/correction_events.js:createCorrectionEvents#1:max-lines-per-function": 155,
     "app/modules/correction_preparation.js:createCorrectionPreparation#1:max-lines-per-function": 240,
-    "app/modules/correction_ui.js:createCorrectionUI#1:max-lines-per-function": 219,
-    "app/modules/correction_ui.js:createCorrectionUI#1/correctionPanel#1:max-lines-per-function": 81,
+    "app/modules/correction_ui.js:createCorrectionUI#1:max-lines-per-function": 142,
     "app/modules/correction_workflow.js:createCorrectionWorkflow#1:max-lines-per-function": 129,
     "app/modules/correction_workflow.js:createCorrectionWorkflow#1/startCorrection#1:max-lines-per-function": 85,
     "app/modules/deadline_assignment.js:createDeadlineAssignment#1:max-lines-per-function": 154,
