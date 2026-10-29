@@ -1,19 +1,10 @@
+import { createSpreadsheetSheet, spreadsheetColumnName } from "./report_spreadsheet_sheet.js";
 import { SUMMARY_DIR, normParcel, recordDay } from "../assets/shared.js";
 import { BUILD, LOGO } from "./data/build_identity.js";
 import { ReportsState } from "./state.js";
 import { orderedRows, validSort, reportNavigation, reportActions as compactActions, appliedFilters, coverage } from "./report_presentation.js";
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
-function spreadsheetColumnName(i) {
-  let s = "";
-  i++;
-  while (i) {
-    const m = (i - 1) % 26;
-    s = String.fromCharCode(65 + m) + s;
-    i = Math.floor((i - 1) / 26);
-  }
-  return s;
-}
 
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
@@ -971,53 +962,14 @@ export function createReportsScreens(services) {
     return spreadsheetColumnName(i);
   }
 
-  function sheetXml(rows, opt) {
-    opt = opt || {};
-    const widths = [];
-    const body = rows
-      .map(
-        (row, ri) =>
-          '<row r="' +
-          `${ri + 1}` +
-          '">' +
-          "".concat(
-            row
-              .map((v, ci) => {
-                const r = colName(ci) + (ri + 1);
-                const shown =
-                  v == null ? "" : typeof v === "object" ? (v.d ? "00/00/0000" : v.m != null ? "$" + v.m.toFixed(2) : String(v.f)) : String(v);
-                widths[ci] = Math.max(widths[ci] || 8, Math.min(60, shown.length + 2));
-                if (v == null || v === "") return "";
-                if (typeof v === "number") return isFinite(v) ? `<c r="${r}"><v>${v}</v></c>` : "";
-                if (typeof v === "object") {
-                  if (v.d) return services.facts.validISO(v.d) ? `<c r="${r}" s="1"><v>${services.exports.excelDate(v.d)}</v></c>` : "";
-                  if (v.m != null) return isFinite(v.m) ? `<c r="${r}" s="3"><v>${v.m}</v></c>` : "";
-                  if (v.f != null) return isFinite(v.f) ? `<c r="${r}" s="4"><v>${Math.round(v.f * 10) / 10}</v></c>` : "";
-                  return "";
-                }
-                const bold = (opt.header && ri === 0) || (opt.boldRows && opt.boldRows.indexOf(ri) >= 0);
-                return `<c r="${r}" t="inlineStr"${bold ? ' s="2"' : ""}><is><t xml:space="preserve">${services.exports.xesc(v)}</t></is></c>`;
-              })
-              .join(""),
-          ) +
-          "</row>",
-      )
-      .join("");
-    return (
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-      (opt.header
-        ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="' +
-          'A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
-        : "") +
-      (widths.length
-        ? "<cols>" + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("") + "</cols>"
-        : "") +
-      "<sheetData>" +
-      body +
-      "</sheetData></worksheet>"
-    );
-  }
+  const sheetXml = createSpreadsheetSheet({
+    get facts() {
+      return services.facts;
+    },
+    get exports() {
+      return services.exports;
+    },
+  });
 
   function sheetName(s, used) {
     let n =

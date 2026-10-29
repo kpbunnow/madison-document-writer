@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 53,
+    "complexity": 52,
     "max-depth": 0,
     "max-lines-per-function": 116,
     "python": 15
@@ -139,12 +139,11 @@
     "app/modules/reinspection.js:createReinspection#1/recordReinspectionOutcome#1:complexity": 21,
     "app/modules/reports_core.js:anonymous#5:complexity": 46,
     "app/modules/reports_core.js:anonymous#5:max-lines-per-function": 173,
-    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 1387,
+    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 1348,
     "app/modules/reports_screens.js:createReportsScreens#1/caseCard#1:max-lines-per-function": 130,
     "app/modules/reports_screens.js:createReportsScreens#1/dataView#1:max-lines-per-function": 104,
     "app/modules/reports_screens.js:createReportsScreens#1/exportSheets#1:max-lines-per-function": 270,
     "app/modules/reports_screens.js:createReportsScreens#1/filtersBar#1:max-lines-per-function": 86,
-    "app/modules/reports_screens.js:createReportsScreens#1/sheetXml#1/anonymous#1/anonymous#1:complexity": 21,
     "app/modules/reports_screens.js:createReportsScreens#1/tablePanel#1:max-lines-per-function": 83,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 581,
     "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,

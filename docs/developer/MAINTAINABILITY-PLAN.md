@@ -925,3 +925,9 @@ Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 11
 Separated record matching from prior-citation collection in private helpers, preserving first-source wins, read order, seasonal owner rules, date windows and staged facts. Passed 4,045 retained-owner comparisons using real history transport and matching, plus 4,692 existing pricing-refresh scenarios/cache reload checks. Module boundaries, test seams, ESLint and formatting pass. No pricing policy, print, stored format or release identity changes.
 
 Measured counts: {'complexity': 54, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 53, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
+
+## report-spreadsheet-sheet-owner
+
+Extracted spreadsheet worksheet XML into an independently loadable owner with lazy facts/exports groups; split cell display and serialization below the complexity limit. Passed 4,002 retained-sheet inputs through composed and standalone owners, exact XML/property reads/service receivers and exceptions. Fresh test build, Reports workbook/export-scope suites, Reports boundaries, module boundaries (138 modules/no cycles), test seams, ESLint and formatting pass. Exact scoped-interface guard now inspects both composed owners; dependency whitelist adds only the new edge/owner. Initial scoped-interface mismatch corrected by checking the forwarded consumer, without relaxing assertions. Existing Reports suite passes with its JSDOM canvas warnings. No workbook format, print or release identity changes.
+
+Measured counts: {'complexity': 53, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 52, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15}.
