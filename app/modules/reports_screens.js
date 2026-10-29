@@ -1,4 +1,4 @@
-import { html, raw } from "./screen_html.js";
+import { html, html as screen, raw } from "./screen_html.js";
 import { createSpreadsheetSheet, spreadsheetColumnName } from "./report_spreadsheet_sheet.js";
 import { SUMMARY_DIR, normParcel, recordDay } from "../assets/shared.js";
 import { BUILD, LOGO } from "./data/build_identity.js";
@@ -10,25 +10,16 @@ function reportFilterSelect(services, id, label, val, opts) {
 }
 
 function reportAdvancedFilters(services, F, M, sel) {
-  return (
-    "".concat(
-      F.areaType === "district"
-        ? '<div class="f"><span>Boundaries</span><div class="seg" role="group" aria' +
-            '-label="District boundaries">\n      <button data-boundary="current" aria' +
-            '-pressed="' +
-            `${F.boundary === "current"}` +
-            '">Current</button>\n      <button data-boundary="atOpen" aria-pressed="' +
-            `${F.boundary === "atOpen"}` +
-            '" title="Only available if a parcel lookup was saved on or before the in' +
-            'spection date">When opened</button></div></div>'
-        : "",
-    ) +
-    "\n    " +
-    "".concat(sel("f-vtype", "Violation type", F.vtype, [["", "All types"]].concat(M.types.map((t) => [t.key, t.label])))) +
-    "\n    " +
-    `${sel("f-ord", "Ordinance", F.ord, [["", "All ordinances"]].concat(M.ords.map((o) => [o, o])))}` +
-    "\n    " +
-    "".concat(
+  return screen`${raw(
+    F.areaType === "district"
+      ? screen`<div class="f"><span>Boundaries</span><div class="seg" role="group" aria-label="District boundaries">
+      <button data-boundary="current" aria-pressed="${String(F.boundary === "current")}">Current</button>
+      <button data-boundary="atOpen" aria-pressed="${String(F.boundary === "atOpen")}" title="Only available if a parcel lookup was saved on or before the inspection date">When opened</button></div></div>`
+      : "",
+  )}
+    ${raw(sel("f-vtype", "Violation type", F.vtype, [["", "All types"]].concat(M.types.map((t) => [t.key, t.label]))))}
+    ${raw(sel("f-ord", "Ordinance", F.ord, [["", "All ordinances"]].concat(M.ords.map((o) => [o, o]))))}
+    ${raw(
       sel(
         "f-status",
         "Status",
@@ -38,8 +29,7 @@ function reportAdvancedFilters(services, F, M, sel) {
           ["open", "Open (not closed)"],
         ].concat(services.STATUSES.map((s) => [s, s])),
       ),
-    )
-  );
+    )}`;
 }
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
@@ -645,76 +635,52 @@ export function createReportsScreens(services) {
     ]
       .map(
         ([k, l]) =>
-          '<button class="rail-item" data-screen="' +
-          `${k}` +
-          '" ' +
-          `${ReportsState.S.screen === k ? 'aria-current="page"' : ""}` +
-          "><span>" +
-          `${services.esc(l)}` +
-          "</span></button>",
+          screen`<button class="rail-item" data-screen="${String(k)}" ${raw(ReportsState.S.screen === k ? 'aria-current="page"' : "")}><span>${raw(services.esc(l))}</span></button>`,
       )
       .join("");
-    return (
-      '<div class="app">\n    <aside class="rail">\n      <div class="rail-brand"' +
-      '><img class="rail-logo" src="' +
-      `${LOGO}` +
-      '" alt="City of Madison Building Inspection"><div class="rail-sub">Report' +
-      's</div></div>\n      <nav><a class="rail-item" href="madison-document-wri' +
-      'ter.html">← Document Writer</a>' +
-      `${nav}` +
-      '<div class="rail-group">Look up</div>' +
-      `${more}` +
-      '</nav>\n      <div class="rail-foot">Read-only. Nothing here changes a ca' +
-      'se.<span class="build">Build ' +
-      `${services.esc(BUILD)}` +
-      '</span></div>\n    </aside>\n    <div class="main">' +
-      "".concat(
-        ReportsState.S.phase === "loading"
-          ? `<div class="loading">${services.esc(ReportsState.S.msg)}</div>`
-          : ReportsState.S.phase === "error"
-            ? '<div class="content"><div class="banner alert">' +
-              `${services.esc(ReportsState.S.error)}` +
-              '</div><div><button class="btn btn-primary" data-act="reload">Try again</' +
-              "button></div></div>"
-            : screenFrame(),
-      ) +
-      "</div></div>"
-    );
+    return screen`<div class="app">
+    <aside class="rail">
+      <div class="rail-brand"><img class="rail-logo" src="${String(LOGO)}" alt="City of Madison Building Inspection"><div class="rail-sub">Reports</div></div>
+      <nav><a class="rail-item" href="madison-document-writer.html">← Document Writer</a>${raw(nav)}<div class="rail-group">Look up</div>${raw(more)}</nav>
+      <div class="rail-foot">Read-only. Nothing here changes a case.<span class="build">Build ${raw(services.esc(BUILD))}</span></div>
+    </aside>
+    <div class="main">${raw(
+      ReportsState.S.phase === "loading"
+        ? screen`<div class="loading">${raw(services.esc(ReportsState.S.msg))}</div>`
+        : ReportsState.S.phase === "error"
+          ? screen`<div class="content"><div class="banner alert">${raw(services.esc(ReportsState.S.error))}</div><div><button class="btn btn-primary" data-act="reload">Try again</button></div></div>`
+          : screenFrame(),
+    )}</div></div>`;
   }
 
   function screenFrame() {
     if (ReportsState.S.screen === "deposit")
-      return (
-        topbar("Deposit schedule", "Read the reviewed law in force on a selected date.") +
-        '<div class="content">' +
-        services.depositSchedule.html() +
-        "</div>"
-      );
+      return screen`${raw(topbar("Deposit schedule", "Read the reviewed law in force on a selected date."))}<div class="content">${raw(services.depositSchedule.html())}</div>`;
     const r = services.reportById(ReportsState.S.screen);
     if (r) return reportScreen(r);
     if (ReportsState.S.screen === "property")
-      return (
+      return screen`${raw(
         topbar(
           "Property",
           "Every case at a parcel or address, with its documents, visits and items.",
           '<button class="btn" data-act="reload">Refresh data</button>',
-        ) + `<div class="content">${freshness()}${propertyView()}</div>`
-      );
+        ),
+      )}<div class="content">${raw(freshness())}${raw(propertyView())}</div>`;
     if (ReportsState.S.screen === "owner")
-      return (
+      return screen`${raw(
         topbar(
           "Owner",
           "Every case under one mailing address, and every owner name seen there.",
           '<button class="btn" data-act="reload">Refresh data</button>',
-        ) + `<div class="content">${freshness()}${ownerView()}</div>`
-      );
-    return (
+        ),
+      )}<div class="content">${raw(freshness())}${raw(ownerView())}</div>`;
+    return screen`${raw(
       topbar(
         "Data and definitions",
         "What the reports are built from, and how each term is counted.",
-        '<button class="btn" data-act="reload">Refresh data</button><button class' + '="btn" data-act="refreshParcels">Check parcels again</button>',
-      ) + `<div class="content">${dataView()}</div>`
-    );
+        screen`<button class="btn" data-act="reload">Refresh data</button><button class="btn" data-act="refreshParcels">Check parcels again</button>`,
+      ),
+    )}<div class="content">${raw(dataView())}</div>`;
   }
 
   function reportActions() {
@@ -722,15 +688,7 @@ export function createReportsScreens(services) {
   }
 
   function topbar(title, lede, acts) {
-    return (
-      '<header class="topbar"><div><h1>' +
-      `${services.esc(title)}` +
-      '</h1><div class="lede">' +
-      `${services.esc(lede)}` +
-      '</div></div><div class="topbar-actions">' +
-      `${acts || ""}` +
-      "</div></header>"
-    );
+    return screen`<header class="topbar"><div><h1>${raw(services.esc(title))}</h1><div class="lede">${raw(services.esc(lede))}</div></div><div class="topbar-actions">${raw(acts || "")}</div></header>`;
   }
 
   function filtersBar(dateMode) {
@@ -739,51 +697,30 @@ export function createReportsScreens(services) {
     const allAreas = services.facts.uniq(M.counted.map((c) => services.facts.areaKey(c, F))).sort(services.facts.areaSort);
     const dates =
       dateMode === "asOf"
-        ? `<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${services.esc(F.asOf)}"></label>`
-        : `<label class="f"><span>From</span><input type="date" id="f-from" value="${services.esc(F.from)}"></label>
-      <label class="f"><span>To</span><input type="date" id="f-to" value="${services.esc(F.to)}"></label>`;
+        ? screen`<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${raw(services.esc(F.asOf))}"></label>`
+        : screen`<label class="f"><span>From</span><input type="date" id="f-from" value="${raw(services.esc(F.from))}"></label>
+      <label class="f"><span>To</span><input type="date" id="f-to" value="${raw(services.esc(F.to))}"></label>`;
     const sel = (id, label, val, opts) => reportFilterSelect(services, id, label, val, opts);
-    return (
-      '<div class="filters">\n    ' +
-      `${dates}` +
-      '<div class="quickdates"><span>Quick range</span><button data-period="mon' +
-      'th">This month</button><button data-period="year">This year</button><but' +
-      'ton data-period="all">All dates</button></div>\n    <div class="f"><span>' +
-      'Area</span><div class="seg" role="group" aria-label="Area type">\n      <' +
-      'button data-areatype="district" aria-pressed="' +
-      `${F.areaType === "district"}` +
-      '">Alder district</button>\n      <button data-areatype="zip" aria-pressed' +
-      '="' +
-      `${F.areaType === "zip"}` +
-      '">ZIP code</button></div></div>\n    ' +
-      "".concat(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n])))) +
-      '\n    <div class="f"><span>Areas</span><details class="areas" ' +
-      `${ReportsState.S.areasOpen ? "open" : ""}` +
-      ' id="f-areas"><summary>' +
-      `${F.areas.length ? services.esc(F.areas.map((a) => services.facts.areaLabel(a)).join(", ")) : "All areas"}` +
-      '</summary>\n      <div class="pop">' +
-      "".concat(
+    return screen`<div class="filters">
+    ${raw(dates)}<div class="quickdates"><span>Quick range</span><button data-period="month">This month</button><button data-period="year">This year</button><button data-period="all">All dates</button></div>
+    <div class="f"><span>Area</span><div class="seg" role="group" aria-label="Area type">
+      <button data-areatype="district" aria-pressed="${String(F.areaType === "district")}">Alder district</button>
+      <button data-areatype="zip" aria-pressed="${String(F.areaType === "zip")}">ZIP code</button></div></div>
+    ${raw(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n]))))}
+    <div class="f"><span>Areas</span><details class="areas" ${raw(ReportsState.S.areasOpen ? "open" : "")} id="f-areas"><summary>${raw(F.areas.length ? services.esc(F.areas.map((a) => services.facts.areaLabel(a)).join(", ")) : "All areas")}</summary>
+      <div class="pop">${raw(
         allAreas
           .map(
             (a) =>
-              '<label><input type="checkbox" data-area="' +
-              `${services.esc(a)}` +
-              '" ' +
-              `${F.areas.indexOf(a) >= 0 ? "checked" : ""}` +
-              ">" +
-              `${services.esc(services.facts.areaLabel(a))}` +
-              "</label>",
+              screen`<label><input type="checkbox" data-area="${raw(services.esc(a))}" ${raw(F.areas.indexOf(a) >= 0 ? "checked" : "")}>${raw(services.esc(services.facts.areaLabel(a)))}</label>`,
           )
           .join("") || '<div class="small">No areas yet</div>',
-      ) +
-      '</div></details></div>\n    <details id="report-more-filters" class="more' +
-      '-filters"><summary>More filters</summary><div class="advanced-filters">\n' +
-      "    " +
-      reportAdvancedFilters(services, F, M, sel) +
-      "\n    </div></details>\n    " +
-      `${appliedFilters(services.reports_reportpresentationContext(), dateMode)}` +
-      "\n  </div>"
-    );
+      )}</div></details></div>
+    <details id="report-more-filters" class="more-filters"><summary>More filters</summary><div class="advanced-filters">
+    ${raw(reportAdvancedFilters(services, F, M, sel))}
+    </div></details>
+    ${raw(appliedFilters(services.reports_reportpresentationContext(), dateMode))}
+  </div>`;
   }
 
   function freshness() {

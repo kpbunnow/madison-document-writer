@@ -177,6 +177,9 @@ const assert = require("node:assert/strict"),
         fmtDate: (s) => String(s),
         areaLabel: (a) => String(a),
         ownerKeyLabel: (a) => String(a),
+        REPORTS: services.REPORTS,
+        reportById: (id) => services.REPORTS.find((r) => r.id === id),
+        SAVED_VIEWS: [],
       }),
       exports: {
         CRC_T: new Uint32Array(256),
@@ -227,6 +230,18 @@ const assert = require("node:assert/strict"),
     const out = {};
     for (const [key, fn] of Object.entries({
       filters: () => owner.filtersBar("period"),
+      asOfFilters: () => owner.filtersBar("asOf"),
+      topbar: () => owner.topbar("Report <&>", "Scope <&>", "<button>Owned action</button>"),
+      loadingShell: () => {
+        state.S.phase = "loading";
+        state.S.msg = "Reading <&>";
+        return owner.shell();
+      },
+      errorShell: () => {
+        state.S.phase = "error";
+        state.S.error = "Unavailable <&>";
+        return owner.shell();
+      },
       sheets: () => owner.exportSheets(),
       workbook: () =>
         owner.workbook([
