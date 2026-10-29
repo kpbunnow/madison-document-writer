@@ -1242,3 +1242,9 @@ Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97
 Migrate the report_output CLI used by Python metadata/projection tests to public owners. Compose actual accessibility enhancement and all status options; all returned rows, counted totals, coverage, sheets and complete enhanced/printed HTML equal the prior fixture across eleven reports under a fixed test clock. Move status metadata unchanged into report_metadata with exact source-expression parity; core exports are retained. Five metadata and thirteen projection Python tests pass, with all migrated Reports suites, architecture/boundaries, seams, lint and formatting. Whole-bundle files75 to74; all54 hooks remain for other consumers.
 
 Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## check-target-routing
+
+Name identity/administrative and content/inspection target phases while retaining parcel refusal, first-match message precedence, case/source queries and Workspace fallback. All4,075 comparisons preserve selectors, labels/actions, alias returns, mutations and date-service interruptions. Existing reinspection owner, 1,026 worksheet HTML and 1,536 check HTML comparisons, architecture, boundaries, seams, lint and format pass. Complexity36 to35 with no new/worsened debt; no print or approved-wording change.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 35, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
