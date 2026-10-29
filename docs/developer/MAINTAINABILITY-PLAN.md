@@ -1218,3 +1218,9 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 Correct failures exposed by integration PR277 without widening architecture allowances. Inject live filters into the area-label factory and live view state into return preferences; root-state importers remain11. Import the distinct report formatter by its defining name while preserving original core/public aliases. Add the omitted facts suite to the test index. Scoped architecture, Writer utilities, repository checks, source expression parity, catalog/return/R61/export-scope, complete Reports regression, boundaries, seams, lint and formatting pass. No failed Reports head has merged.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-navigation-owner
+
+Separate the large Reports click handler into period, view/filter, drill, subject and action phases through twelve scoped lazy inputs. Construction stays inert and core retains the original listener position. All5,100 comparisons retain first-match routing, synchronous errors/effects, state-read order and interruption behavior. Fresh build, complete Reports, R48, mismatch, architecture/utilities, boundaries, seams, lint and formatting pass. Complexity37 to36, long functions98 to97.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.

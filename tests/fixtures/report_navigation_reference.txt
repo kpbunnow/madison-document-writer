@@ -1,0 +1,173 @@
+(e) => {
+  const t =
+    e.target.closest &&
+    e.target.closest(
+      "[data-screen],[data-view],[data-act],[data-drill],[data-case],[data-writ" +
+        "er],[data-owner],[data-areatype],[data-boundary],[data-basemap],[data-pe" +
+        "riod]",
+    );
+  if (!t) return;
+  const d = t.dataset;
+  if (d.period) {
+    const now = iso(new Date());
+    ReportsState.S.F.to = now;
+    ReportsState.S.F.asOf = now;
+    ReportsState.S.F.from =
+      d.period === "month"
+        ? now.slice(0, 7) + "-01"
+        : d.period === "year"
+          ? now.slice(0, 4) + "-01-01"
+          : ReportsState.S.M.counted
+              .map((c) => c.opened)
+              .filter(validISO)
+              .sort()[0] || now;
+    ReportsState.S.dateMode = d.period;
+    ReportsState.S.savedId = "";
+    ReportsState.S.drill = null;
+    render();
+    return;
+  }
+  if (d.screen) {
+    ReportsState.S.screen = d.screen;
+    ReportsState.S.savedId = "";
+    ReportsState.S.reportNotice = "";
+    ReportsState.S.drill = null;
+    render();
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (d.view) {
+    ReportsState.S.view = d.view;
+    ReportsState.S.savedId = "";
+    render();
+    return;
+  }
+  if (d.basemap) {
+    ReportsState.S.basemap = d.basemap;
+    render();
+    return;
+  }
+  if (d.areatype) {
+    if (ReportsState.S.F.areaType !== d.areatype) {
+      ReportsState.S.F.areaType = d.areatype;
+      ReportsState.S.F.areas = [];
+      ReportsState.S.drill = null;
+      ReportsState.S.savedId = "";
+    }
+    render();
+    return;
+  }
+  if (d.boundary) {
+    if (ReportsState.S.F.boundary !== d.boundary) {
+      ReportsState.S.F.boundary = d.boundary;
+      ReportsState.S.F.areas = [];
+      ReportsState.S.drill = null;
+      ReportsState.S.savedId = "";
+    }
+    render();
+    return;
+  }
+  if (d.drill) {
+    const parts = d.drill.split(":"),
+      res = ReportsState.S.rep && ReportsState.S.rep.res;
+    if (!res) return;
+    const row = parts[0] === "t" ? res.total : res.rows[+parts[0]].cells || res.rows[+parts[0]],
+      x = row && row[+parts[1]];
+    if (!x || !x.ids) return;
+    const first = typeof row[0] === "string" ? row[0] : (row[0] && row[0].text) || "";
+    ReportsState.S.drill = { at: d.drill, ids: x.ids, title: res.list ? "Referred cases" : first + ", " + res.cols[+parts[1]].toLowerCase() };
+    render();
+    const p = document.getElementById("drill");
+    if (p && p.scrollIntoView) p.scrollIntoView({ block: "start" });
+    return;
+  }
+  if (d.case) {
+    openCase(d.case);
+    return;
+  }
+  if (d.writer) {
+    openInWriter(d.writer);
+    return;
+  }
+  if (d.owner) {
+    ReportsState.S.screen = "owner";
+    ReportsState.S.own = { q: "", key: d.owner };
+    ReportsState.S.drill = null;
+    render();
+    window.scrollTo(0, 0);
+    return;
+  }
+  const a = d.act;
+  if (a === "reload") {
+    loadAll(false);
+    return;
+  }
+  if (a === "refreshParcels") {
+    loadAll(true);
+    return;
+  }
+  if (a === "export") {
+    exportWorkbook();
+    return;
+  }
+  if (a === "saveView") {
+    saveReportView();
+    return;
+  }
+  if (a === "deleteView") {
+    deleteReportView();
+    return;
+  }
+  if (a === "closeDrill") {
+    ReportsState.S.drill = null;
+    render();
+    return;
+  }
+  if (a === "clearOwner") {
+    ReportsState.S.F.owner = "";
+    render();
+    return;
+  }
+  if (a === "clearFilters") {
+    Object.assign(ReportsState.S.F, {
+      from: TODAY.slice(0, 4) + "-01-01",
+      to: TODAY,
+      asOf: TODAY,
+      areaType: "district",
+      boundary: "current",
+      areas: [],
+      inspector: "",
+      vtype: "",
+      ord: "",
+      status: "",
+      owner: "",
+    });
+    ReportsState.S.dateMode = "fixed";
+    ReportsState.S.tableSort = null;
+    ReportsState.S.savedId = "";
+    ReportsState.S.drill = null;
+    render();
+    return;
+  }
+  if (a === "useOwner") {
+    ReportsState.S.F.owner = ReportsState.S.own.key;
+    ReportsState.S.screen = "allCases";
+    ReportsState.S.savedId = "";
+    ReportsState.S.drill = null;
+    render();
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (a === "propGo") {
+    const q = (document.getElementById("pv-q") || {}).value || "";
+    ReportsState.S.prop = { q: q, hits: propertyHits(q) };
+    render();
+    return;
+  }
+  if (a === "ownGo") {
+    const q = (document.getElementById("ow-q") || {}).value || "";
+    ReportsState.S.own = { q: q, key: "" };
+    render();
+    return;
+  }
+}
