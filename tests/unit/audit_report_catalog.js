@@ -2,13 +2,12 @@
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
-  acorn = require("acorn"),
   esbuild = require("esbuild");
 (async () => {
   const built = await esbuild.build({
       stdin: {
         contents:
-          'export {createReportCatalog} from "./report_catalog.js";export {createReportsServices} from "./reports_services.js";export {ReportsState} from "./state.js";export {recordDay} from "../assets/shared.js";',
+          'export {createReportCatalog} from "./report_catalog.js";export {createReportsServices} from "./reports_services.js";export {ReportsState} from "./state.js";export {recordDay} from "../assets/shared.js";export * as reportFacts from "./report_facts.js";',
         resolveDir: path.resolve("app/modules"),
       },
       bundle: true,
@@ -32,18 +31,6 @@ const assert = require("node:assert/strict"),
     ).length,
     11,
   );
-  const source = fs.readFileSync("app/modules/reports_core.js", "utf8"),
-    ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
-    names = ["iso", "validISO", "fmtDate", "fmtNum", "plural", "uniq", "avg", "ownerKeyLabel", "areaLabel", "inPeriod", "violOk", "openAt"],
-    decls = ast.body.flatMap((n) => (n.declaration || n).declarations || []);
-  const factsSource = names
-    .map((name) => {
-      const d = decls.find((n) => n.id.name === name);
-      assert.ok(d, name);
-      return "const " + source.slice(d.start, d.end) + ";";
-    })
-    .join("\n");
-  const makeFacts = new Function("ReportsState", "versionAt", "noticeAt", "statusAt", "recordDay", factsSource + "return {" + names.join(",") + "};");
   const primitive = {
     uniq: (a) => [...new Set(a)],
     validISO: (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || ""),
@@ -51,8 +38,8 @@ const assert = require("node:assert/strict"),
     areaIdOf: (f, key) => String(f.properties[key] ?? ""),
   };
   const model = createReportsServices(primitive),
-    facts = makeFacts(ReportsState, model.versionAt, model.noticeAt, model.statusAt, recordDay),
-    services = { ...facts, ...model, TODAY: "2026-10-29" };
+    facts = box.exports.reportFacts,
+    services = { ...facts, ...model, openAt: (c, date) => facts.openAt(c, date, model), TODAY: "2026-10-29" };
   primitive.violOk = facts.violOk;
   const keys = [
     "TODAY",

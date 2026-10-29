@@ -1188,3 +1188,9 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99
 Move eleven report definitions into focused private builders and a twenty-input inert public catalog. Scope analysis rewrites only unbound calculation references; metadata and report expressions retain their original logic. All 2,750 real-model comparisons and complete Reports integration checks pass; strict module map adds only the shared-facts import and no core/UI/storage dependency. Reports startup and listeners remain unchanged.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-facts-return-owners
+
+Move formatting/filter facts and historical openness to report_facts and return preferences to a four-input inert owner. Core retains original exports and TODAY initialization. Source-body and direct live/date checks pass; catalog tests compose public owners without extracting private core bodies. 389 return comparisons retain canonical filters, duplicate relative-date calls, optional-storage refusal and partial effects. Boundaries, seams, lint and formatting pass. No new or worsened debt.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
