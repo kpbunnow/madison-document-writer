@@ -1589,3 +1589,7 @@ Added a frozen-original comparison of the record-action dialog (`audit_record_ac
 Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
 
 The durable-operation comparison first failed intermittently in the full run: the retained and current functions check the shared and local archive locations through a set, whose iteration order follows the path text, so two different temporary folders could order a double conflict differently. The production code is unchanged by that finding (the two locations are checked in an arbitrary but complete order); the comparison now runs both sides in the same folder path so the order is identical, and was run repeatedly under different hash seeds.
+
+## record-history-sections
+
+Added a frozen-original comparison of the document record panel (`audit_record_history_markup_rules.js`: 6,000 seeded documents against the retained `record_history_reference.txt`) covering revision chains, withdrawal and follow-through states, pending attempts, record notes, the save-in-progress state, escaping and every peer read. `recordHistoryHTML` (97 lines) is now a shell over follow-through, held-attempt, version-list and record-note section builders. Four deliberate mutations are caught.
