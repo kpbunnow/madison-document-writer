@@ -1682,3 +1682,7 @@ Eleven frozen-original comparisons spliced a retained inner function into the fa
 ## fix-backup-integrity-records
 
 A workspace backup whose `integrityRecords` held a non-object entry was written to the browser's `drafts` store before the integrity owner read it and failed, leaving durable invalid state that startup would meet again. `restoreWorkspaceBackup` now checks that `integrityRecords` is absent or an array of objects before any write. `audit_backup_integrity_records.js` refuses eight malformed shapes without a write and still restores the well-formed ones. It is separate from `audit_workspace_backup.js` because the parity suite runs that file against the retained original.
+
+## fix-reports-live-date
+
+Bug-scan finding F6. `reports_core.js` set `TODAY = iso(new Date())` once at load and every Reports service that needed "today" read that constant, so a tab left open past midnight (or New Year) kept counting open-case age and resetting filters from the earlier day. A new `currentDay()` reads the date when asked, and the three service getters named `TODAY` return it; the load-time constant now only supplies the first view's default filters. The Writer already reads its clock at use. `audit_reports_clock_wiring.js` checks the production wiring (the Reports test fixture composes its own services), and the fixture's service objects now read the day live, so `audit_reports.js` can move the clock to January 2 of the next year and confirm Reset filters follows it.

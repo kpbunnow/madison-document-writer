@@ -94,7 +94,9 @@ module.exports = async function createReportExports({ navigation = false, deposi
     shell: () => screens.shell(),
     drawMap: () => screens.drawMap(),
     A11Y,
-    TODAY,
+    get TODAY() {
+      return facts.iso(new Date());
+    },
     esc,
     plural: facts.plural,
     iso: facts.iso,
@@ -105,7 +107,15 @@ module.exports = async function createReportExports({ navigation = false, deposi
     violOk: facts.violOk,
   });
   const areaLabel = facts.createReportAreaLabel(() => ReportsState.S.F);
-  reports = createReportCatalog({ ...facts, areaLabel, ...calculations, TODAY, openAt: (c, date) => facts.openAt(c, date, calculations) });
+  reports = createReportCatalog({
+    ...facts,
+    areaLabel,
+    ...calculations,
+    get TODAY() {
+      return facts.iso(new Date());
+    },
+    openAt: (c, date) => facts.openAt(c, date, calculations),
+  });
   const context = () => ({
     ...facts,
     areaLabel,
@@ -145,7 +155,9 @@ module.exports = async function createReportExports({ navigation = false, deposi
         },
         iso: facts.iso,
         validISO: facts.validISO,
-        TODAY,
+        get TODAY() {
+          return facts.iso(new Date());
+        },
         render,
         openCase: screens.openCase,
         openInWriter: calculations.openInWriter,

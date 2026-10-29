@@ -70,7 +70,7 @@ const reportsServices = createReportsServices({
     return STREET_WORDS;
   },
   get TODAY() {
-    return TODAY;
+    return currentDay();
   },
   get areaIdOf() {
     return areaIdOf;
@@ -323,7 +323,10 @@ export const esc = (s) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+/* The day the page loaded, for its first view. Anything that means "today" when it runs reads currentDay(): a
+   Reports tab left open past midnight must not keep counting from yesterday. */
 export const TODAY = iso(new Date());
+export const currentDay = () => iso(new Date());
 
 /* ---------- owner key ----------
    One owner is recognized by mailing address (division, 09/18/2026): the
@@ -414,7 +417,7 @@ const openAt = (c, date) => reportOpenAt(c, date, reportsServices);
    through to its cases. area is {areaKey: n}, for shading the map. */
 export const REPORTS = createReportCatalog({
   get TODAY() {
-    return TODAY;
+    return currentDay();
   },
   get areaKey() {
     return areaKey;
@@ -530,7 +533,7 @@ document.addEventListener(
       return render;
     },
     get TODAY() {
-      return TODAY;
+      return currentDay();
     },
     get openCase() {
       return openCase;
