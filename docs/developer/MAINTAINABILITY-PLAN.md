@@ -1474,3 +1474,11 @@ Added a frozen-original comparison of `commitAmendment` before changing it (`aud
 `commitAmendment` now runs module-level phases in the original order: start guard, durable attempt, candidate staging, helper save, case merge, draft settlement, record-form close, confirmation and failure handling. Deliberate mutations (a dropped committed-state write, a swapped project/remember order, a changed null test) are caught; the two surviving variants are behavior-equivalent (an unreachable `definitive` value and two independent steps swapped).
 
 Measured counts: {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13} → {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13}.
+
+## print-job-phases
+
+Added a frozen-original comparison of `printJob` before changing it (`audit_print_job_rules.js`: 8,000 seeded documents against the retained `document_printing_reference.txt` over a scripted print frame, 603 with injected interruptions). It compares refusals, every frame and document write in order, packet completeness checks, the snow and standard pagination paths, the returned job and refusal at each interrupted read or call.
+
+`printJob` now runs module-level phases in the original order: refusal, frame, desk write, citation packet check, snow or standard pagination and cleanup; the file-name builder is shared by `documentFileName`. Five deliberate mutations (packet check dropped, a changed snow version bound, an extra stage read, an inverted screen-document test and a dropped frame removal) are caught. R54 real-Chromium print geometry passes unchanged.
+
+Measured counts: {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.

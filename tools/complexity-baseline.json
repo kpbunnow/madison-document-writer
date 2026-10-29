@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 20,
+    "complexity": 19,
     "max-depth": 0,
-    "max-lines-per-function": 77,
+    "max-lines-per-function": 76,
     "python": 13
   },
   "violations": {
@@ -49,8 +49,6 @@
     "app/modules/document_pagination.js:createDocumentPagination#1:max-lines-per-function": 223,
     "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:complexity": 23,
     "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:max-lines-per-function": 125,
-    "app/modules/document_printing.js:createDocumentPrinting#1:max-lines-per-function": 81,
-    "app/modules/document_printing.js:createDocumentPrinting#1/printJob#1:complexity": 26,
     "app/modules/document_render.js:createDocumentRenderer#1:max-lines-per-function": 811,
     "app/modules/document_render.js:createDocumentRenderer#1/citationFaces#1:max-lines-per-function": 270,
     "app/modules/document_render.js:createDocumentRenderer#1/citationFaces#1/face#1:complexity": 55,
