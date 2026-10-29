@@ -128,17 +128,67 @@ function deviceSaveHTML(R) {
   );
 }
 
-export function savedWorkHTML(R, cid = "", health = {}) {
-  const esc = R.esc,
-    connected = !!R.CASEDIR && !R.NEEDGRANT && !health.error && health.ok !== false && health.caseReachable !== false;
-  const cases = R.CASES.filter((k) => !cid || k.id === cid);
-  const status = health.checking
+function savedConnectionStatus(health, connected) {
+  return health.checking
     ? "Checking connection…"
     : health.error || health.ok === false
       ? "Waiting for connection"
       : connected
         ? "Shared folder connected"
         : "Waiting for connection";
+}
+
+function savedWorkDetailsHTML(R, esc, outbox, health) {
+  return (
+    '</section>\n    <section aria-labelledby="saved-pdf-title"><h3 id="saved-' +
+    'pdf-title">PDF filing</h3><p>' +
+    `${esc(outbox)}` +
+    '</p><button class="btn" data-outbox>Review PDF outbox</button><details d' +
+    'ata-saved-detail="pdf"><summary>Originals and retries</summary><p>A new ' +
+    "original needs shared coordination. An already prepared exact retry may " +
+    "finish in the local outbox while offline. The program keeps the original" +
+    " bytes; it does not render a replacement. Open the affected issued docum" +
+    "ent for its available action. A filed marker alone does not prove that t" +
+    "he PDF still exists.</p><p>Printing or opening Outlook does not confirm " +
+    "mailing, delivery or Accela recording.</p></details></section>\n    <deta" +
+    'ils data-saved-detail="recovery"><summary>Backups and recovery</summary>' +
+    "<p>Restoring either kind of copy does not issue a document.</p>" +
+    '<section data-recovery-group="device" aria-labelledby="saved-recovery-device-title">' +
+    '<h4 id="saved-recovery-device-title">Recovery on this device</h4>' +
+    "<p>Recovery copies keep unfinished cases on this computer. Recovering a case does not issue a document or save to the shared folder.</p>" +
+    '<div id="saved-recovery-status">' +
+    `${R.recoveryStatusHTML()}` +
+    '</div><div class="saved-actions"><button class="btn" id="btn-recovery">R' +
+    'ecover an unfinished case</button><button class="btn" data-safety-backup' +
+    ">Create recovery copy on this device</button></div><p>Case recovery checks shared changes and preserv" +
+    "es a recovery copy before replacing differing local work.</p></section>" +
+    '<section data-recovery-group="workspace" aria-labelledby="saved-recovery-workspace-title">' +
+    '<h4 id="saved-recovery-workspace-title">Download or restore a workspace</h4>' +
+    "<p>A workspace backup is a downloaded file of the whole workspace. Restoring one requires an empty workspace.</p>" +
+    '<div class="saved-actions"><button class="btn" id="btn-workbac' +
+    'kup">Download workspace backup</button><button class="btn" id="btn-workr' +
+    'estore">Restore workspace backup</button></div></section><p>Program ' +
+    "update rollback restores installed program files. It is separate from re" +
+    'storing workspace data.</p></details>\n    <details data-saved-detail="di' +
+    'agnostics"><summary>Connection checks and technical details</summary>' +
+    `${health.error ? `<p>${esc(health.error)}</p>` : ""}` +
+    '<div class="saved-actions"><button class="btn" data-setup-health>Open co' +
+    'nnection checks</button><button class="btn" id="btn-storage">Storage dia' +
+    'gnostics</button><button class="btn" data-lock-inspect>Inspect a case lo' +
+    'ck</button><button class="btn" data-safety-catalog>Check catalog</button' +
+    "></div><p>Lock age alone never authorizes release. An administrator must" +
+    " verify ownership; an active operating-system lock cannot be released he" +
+    "re.</p><p>Catalog last checked: " +
+    `${esc(R.CATALOG_AT || "Not yet checked")}` +
+    "</p></details></div>"
+  );
+}
+
+export function savedWorkHTML(R, cid = "", health = {}) {
+  const esc = R.esc,
+    connected = !!R.CASEDIR && !R.NEEDGRANT && !health.error && health.ok !== false && health.caseReachable !== false;
+  const cases = R.CASES.filter((k) => !cid || k.id === cid);
+  const status = savedConnectionStatus(health, connected);
   const outbox = Number.isFinite(health.outbox)
     ? `${health.outbox} PDF${health.outbox === 1 ? "" : "s"} reported in the local outbox.`
     : "Outbox count not checked. Open the outbox to verify its contents.";
@@ -204,47 +254,7 @@ export function savedWorkHTML(R, cid = "", health = {}) {
             "</button></details>"
         : "",
     ) +
-    '</section>\n    <section aria-labelledby="saved-pdf-title"><h3 id="saved-' +
-    'pdf-title">PDF filing</h3><p>' +
-    `${esc(outbox)}` +
-    '</p><button class="btn" data-outbox>Review PDF outbox</button><details d' +
-    'ata-saved-detail="pdf"><summary>Originals and retries</summary><p>A new ' +
-    "original needs shared coordination. An already prepared exact retry may " +
-    "finish in the local outbox while offline. The program keeps the original" +
-    " bytes; it does not render a replacement. Open the affected issued docum" +
-    "ent for its available action. A filed marker alone does not prove that t" +
-    "he PDF still exists.</p><p>Printing or opening Outlook does not confirm " +
-    "mailing, delivery or Accela recording.</p></details></section>\n    <deta" +
-    'ils data-saved-detail="recovery"><summary>Backups and recovery</summary>' +
-    "<p>Restoring either kind of copy does not issue a document.</p>" +
-    '<section data-recovery-group="device" aria-labelledby="saved-recovery-device-title">' +
-    '<h4 id="saved-recovery-device-title">Recovery on this device</h4>' +
-    "<p>Recovery copies keep unfinished cases on this computer. Recovering a case does not issue a document or save to the shared folder.</p>" +
-    '<div id="saved-recovery-status">' +
-    `${R.recoveryStatusHTML()}` +
-    '</div><div class="saved-actions"><button class="btn" id="btn-recovery">R' +
-    'ecover an unfinished case</button><button class="btn" data-safety-backup' +
-    ">Create recovery copy on this device</button></div><p>Case recovery checks shared changes and preserv" +
-    "es a recovery copy before replacing differing local work.</p></section>" +
-    '<section data-recovery-group="workspace" aria-labelledby="saved-recovery-workspace-title">' +
-    '<h4 id="saved-recovery-workspace-title">Download or restore a workspace</h4>' +
-    "<p>A workspace backup is a downloaded file of the whole workspace. Restoring one requires an empty workspace.</p>" +
-    '<div class="saved-actions"><button class="btn" id="btn-workbac' +
-    'kup">Download workspace backup</button><button class="btn" id="btn-workr' +
-    'estore">Restore workspace backup</button></div></section><p>Program ' +
-    "update rollback restores installed program files. It is separate from re" +
-    'storing workspace data.</p></details>\n    <details data-saved-detail="di' +
-    'agnostics"><summary>Connection checks and technical details</summary>' +
-    `${health.error ? `<p>${esc(health.error)}</p>` : ""}` +
-    '<div class="saved-actions"><button class="btn" data-setup-health>Open co' +
-    'nnection checks</button><button class="btn" id="btn-storage">Storage dia' +
-    'gnostics</button><button class="btn" data-lock-inspect>Inspect a case lo' +
-    'ck</button><button class="btn" data-safety-catalog>Check catalog</button' +
-    "></div><p>Lock age alone never authorizes release. An administrator must" +
-    " verify ownership; an active operating-system lock cannot be released he" +
-    "re.</p><p>Catalog last checked: " +
-    `${esc(R.CATALOG_AT || "Not yet checked")}` +
-    "</p></details></div>"
+    savedWorkDetailsHTML(R, esc, outbox, health)
   );
 }
 
