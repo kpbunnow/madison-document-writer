@@ -786,28 +786,10 @@ export function initNewDocuments(services) {
     if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
     const s = d.special || (d.special = {}),
       f = (k, label, type = "text") =>
-        '<label class="f"><span>' +
-        e(label) +
-        "</span><" +
-        (type === "textarea" ? 'textarea rows="3"' : 'input type="' + type + '"') +
-        ' aria-label="' +
-        e(label) +
-        '" data-special="' +
-        k +
-        '" ' +
-        (type === "textarea" ? "" : 'value="' + e(s[k] || "") + '"') +
-        ">" +
-        (type === "textarea" ? e(s[k] || "") + "</textarea>" : "") +
-        "</label>",
+        screen`<label class="f"><span>${raw(e(label))}</span><${raw(type === "textarea" ? 'textarea rows="3"' : 'input type="' + type + '"')} aria-label="${raw(e(label))}" data-special="${String(k)}" ${raw(type === "textarea" ? "" : 'value="' + e(s[k] || "") + '"')}>${raw(type === "textarea" ? e(s[k] || "") + "</textarea>" : "")}</label>`,
       sel = (k, label, opts) =>
-        '<label class="f"><span>' +
-        label +
-        '</span><select data-special="' +
-        k +
-        '"><option value="">Choose…</option>' +
-        opts.map(([v, l]) => '<option value="' + v + '" ' + (s[k] === v ? "selected" : "") + ">" + e(l) + "</option>").join("") +
-        "</select></label>",
-      ck = (k, l) => '<label><input type="checkbox" data-special="' + k + '" ' + (s[k] ? "checked" : "") + "> " + e(l) + "</label>";
+        screen`<label class="f"><span>${String(label)}</span><select data-special="${String(k)}"><option value="">Choose…</option>${raw(opts.map(([v, l]) => screen`<option value="${String(v)}" ${raw(s[k] === v ? "selected" : "")}>${raw(e(l))}</option>`).join(""))}</select></label>`,
+      ck = (k, l) => screen`<label><input type="checkbox" data-special="${String(k)}" ${raw(s[k] ? "checked" : "")}> ${raw(e(l))}</label>`;
     if (allItemExtension(d)) {
       const family =
         d.administrativeAction && !d.correction
@@ -817,47 +799,28 @@ export function initNewDocuments(services) {
               NEW_TYPES.map((t) => [t.id, t.label]),
             )
           : "";
-      return (
-        '<section class="card no-print" id="r26-details"><div class="card-h"><h2>' +
-        e(specialType(d.type).label) +
-        ' details</h2></div><div class="card-b">' +
-        (d.type === "bestInterestExtension"
-          ? '<p class="hint">Every uncorrected item is extended. Enter or change each due date in Violation items.</p>' +
-            family +
-            f("reason", "Reasons for Additional Time", "textarea")
-          : '<p class="hint">Every uncorrected item is extended while the property remains vacant; uncorrected items have no due date. Corrected items keep their dates.</p><div class="grid g2">' +
-            family +
-            sel("scope", "Scope", [
-              ["building", "Entire building"],
-              ["unit", "Apartment / unit"],
-            ]) +
-            (s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "") +
-            f("reviewDate", "Next scheduled review inspection", "date") +
-            "</div>") +
-        "</div></section>"
-      );
+      return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b">${raw(
+        d.type === "bestInterestExtension"
+          ? screen`<p class="hint">Every uncorrected item is extended. Enter or change each due date in Violation items.</p>${raw(family)}${raw(f("reason", "Reasons for Additional Time", "textarea"))}`
+          : screen`<p class="hint">Every uncorrected item is extended while the property remains vacant; uncorrected items have no due date. Corrected items keep their dates.</p><div class="grid g2">${raw(family)}${raw(
+              sel("scope", "Scope", [
+                ["building", "Entire building"],
+                ["unit", "Apartment / unit"],
+              ]),
+            )}${raw(s.scope === "unit" ? f("unit", "Apartment / unit identifier") : "")}${raw(f("reviewDate", "Next scheduled review inspection", "date"))}</div>`,
+      )}</div></section>`;
     }
     if (simplifiedBestInterest(d))
-      return (
-        '<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>' +
-        f("reason", "Reasons for Additional Time", "textarea") +
-        ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
-        "</div></section>"
-      );
+      return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>Best Interest Extension details</h2></div><div class="card-b"><p class="hint">Select affected items and enter later deadlines in Violation items. Other items retain their dates.</p>${raw(f("reason", "Reasons for Additional Time", "textarea"))}${raw(ck("noSafety", "Affected items exclude safety, security and urgent obligations"))}</div></section>`;
     let fields =
       (d.importRule
-        ? '<p class="f"><span>Document from the Accela status</span><strong>' +
-          e(d.importRule.label) +
-          "</strong> (Initial Inspection status " +
-          e(d.importRule.status) +
-          ")</p>"
+        ? screen`<p class="f"><span>Document from the Accela status</span><strong>${raw(e(d.importRule.label))}</strong> (Initial Inspection status ${raw(e(d.importRule.status))})</p>`
         : d.initialAction
-          ? '<label class="f"><span>Initial inspection action</span><select data-init' +
-            'ial-action><option value="notice">Official Notice</option>' +
-            NEW_TYPES.filter((t) => t.effect === "supplemental")
-              .map((t) => '<option value="' + t.id + '" ' + (d.type === t.id ? "selected" : "") + ">" + t.label + "</option>")
-              .join("") +
-            "</select></label>"
+          ? screen`<label class="f"><span>Initial inspection action</span><select data-initial-action><option value="notice">Official Notice</option>${raw(
+              NEW_TYPES.filter((t) => t.effect === "supplemental")
+                .map((t) => screen`<option value="${String(t.id)}" ${raw(d.type === t.id ? "selected" : "")}>${String(t.label)}</option>`)
+                .join(""),
+            )}</select></label>`
           : "") +
       (d.administrativeAction
         ? sel(
@@ -943,34 +906,21 @@ export function initNewDocuments(services) {
       fields +=
         (rowAffectedSelection(d)
           ? '<p class="hint">Select affected items and enter their new due dates in Violation items. Other items keep their original dates.</p>'
-          : '<fieldset class="r26-items"><legend>Affected outstanding items</legend>' +
-            d.items
-              .filter((i) => !i.done && !i.withdrawn)
-              .map(
-                (i) =>
-                  '<label><input type="checkbox" data-special-item="' +
-                  e(i.no) +
-                  '" ' +
-                  ((s.affected || []).includes(String(i.no)) ? "checked" : "") +
-                  "> Item " +
-                  e(i.no) +
-                  " · " +
-                  e(i.title || i.text.slice(0, 60)) +
-                  "</label>" +
-                  ((s.affected || []).includes(String(i.no)) &&
-                  !datedExtension(d) &&
-                  (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
-                    ? '<label class="f"><span>Extended deadline for item ' +
-                      e(i.no) +
-                      '</span><input type="date" data-special-due="' +
-                      e(i.no) +
-                      '" value="' +
-                      e(i.due || "") +
-                      '"></label>'
-                    : ""),
-              )
-              .join("") +
-            "</fieldset>") +
+          : screen`<fieldset class="r26-items"><legend>Affected outstanding items</legend>${raw(
+              d.items
+                .filter((i) => !i.done && !i.withdrawn)
+                .map(
+                  (i) =>
+                    screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || i.text.slice(0, 60)))}</label>${raw(
+                      (s.affected || []).includes(String(i.no)) &&
+                        !datedExtension(d) &&
+                        (d.type === "bestInterestExtension" || s.deadlineMode === "dated")
+                        ? screen`<label class="f"><span>Extended deadline for item ${raw(e(i.no))}</span><input type="date" data-special-due="${raw(e(i.no))}" value="${raw(e(i.due || ""))}"></label>`
+                        : "",
+                    )}`,
+                )
+                .join(""),
+            )}</fieldset>`) +
         ck("noSafety", "Affected items exclude safety, security and urgent obligations") +
         f("safetyBasis", "Reviewed factual basis for excluding safety items", "textarea");
       if (d.type === "bestInterestExtension")
@@ -1006,23 +956,14 @@ export function initNewDocuments(services) {
           f("transferClause", "Reviewed sale / transfer and applicable disclosure wording", "textarea");
     }
     if (supplemental(d) && d.items.length)
-      fields +=
-        '<fieldset class="r26-items"><legend>Referenced source items (optional)</legend>' +
+      fields += screen`<fieldset class="r26-items"><legend>Referenced source items (optional)</legend>${raw(
         d.items
           .map(
             (i) =>
-              '<label><input type="checkbox" data-special-item="' +
-              e(i.no) +
-              '" ' +
-              ((s.affected || []).includes(String(i.no)) ? "checked" : "") +
-              "> Item " +
-              e(i.no) +
-              " · " +
-              e(i.title || "Source violation") +
-              "</label>",
+              screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || "Source violation"))}</label>`,
           )
-          .join("") +
-        "</fieldset>";
+          .join(""),
+      )}</fieldset>`;
     const review =
       f("authority", "Verified ordinance authority") +
       f("codeSource", "Verified current-code source URL / official reference") +
@@ -1034,21 +975,11 @@ export function initNewDocuments(services) {
       f("signerTitle", "Authorized signer title") +
       f("delegation", "Authorization / delegation reference") +
       ck("reviewed", "Division review confirms this variant, wording, procedure and authority");
-    return (
-      '<section class="card no-print" id="r26-details"><div class="card-h"><h2>' +
-      e(specialType(d.type).label) +
-      (' details</h2></div><div class="card-b"><p class="hint">Drafts can be sav' +
-        "ed unfinished. Issuance requires recorded division review of current law" +
-        ", wording and signer authority. Review entries are supplied by the opera" +
-        'tor; they are not authenticated role checks.</p><div class="grid g2">') +
-      (d.type === "bestInterestExtension"
+    return screen`<section class="card no-print" id="r26-details"><div class="card-h"><h2>${raw(e(specialType(d.type).label))} details</h2></div><div class="card-b"><p class="hint">Drafts can be saved unfinished. Issuance requires recorded division review of current law, wording and signer authority. Review entries are supplied by the operator; they are not authenticated role checks.</p><div class="grid g2">${raw(
+      d.type === "bestInterestExtension"
         ? '<div class="banner">This draft retains the earlier reviewed extension format. <button class="btn" data-adopt-best-interest>Use simplified Reasons-only format (no signer)</button></div>'
-        : "") +
-      fields +
-      '</div><details><summary>Authority, wording and signer review</summary><div class="grid g2">' +
-      review +
-      "</div></details></div></section>"
-    );
+        : "",
+    )}${raw(fields)}</div><details><summary>Authority, wording and signer review</summary><div class="grid g2">${raw(review)}</div></details></div></section>`;
   }
   const groups = [
     ["time", "Give more time"],
@@ -1130,39 +1061,20 @@ export function initNewDocuments(services) {
     }
     const faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
     const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
-    return (
-      '<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b">' +
-      "<p>Accela status <strong>" +
-      e(rule.status) +
-      "</strong> \u2192 " +
-      e(rule.label) +
-      ".</p>" +
-      (allowed.length > 1
-        ? "<fieldset><legend>Choose the extension type</legend>" +
-          list
-            .map(
-              (c) =>
-                '<label class="r26-choice"><input type="radio" name="action-type" data-action-type="' +
-                c[0] +
-                '" ' +
-                (picked === c[0] ? "checked" : "") +
-                "><span><strong>" +
-                e(c[1]) +
-                "</strong><small>" +
-                e(c[3]) +
-                "</small></span></label>",
-            )
-            .join("") +
-          "</fieldset>"
-        : "") +
-      '<p aria-live="polite">' +
-      (picked
-        ? e(label) + ": " + (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
-        : e(faults[0])) +
-      '</p><button class="btn btn-primary" data-create-action ' +
-      (faults.length ? "disabled" : "") +
-      ">Create draft</button></div></section>"
-    );
+    return screen`<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b"><p>Accela status <strong>${raw(e(rule.status))}</strong> → ${raw(e(rule.label))}.</p>${raw(
+      allowed.length > 1
+        ? screen`<fieldset><legend>Choose the extension type</legend>${raw(
+            list
+              .map(
+                (c) =>
+                  screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
+              )
+              .join(""),
+          )}</fieldset>`
+        : "",
+    )}<p aria-live="polite">${raw(
+      picked ? e(label) + ": " + (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.") : e(faults[0]),
+    )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
   }
   function chooser(r) {
     if (r.importRule) return statusChooser(r);
@@ -1177,83 +1089,52 @@ export function initNewDocuments(services) {
       faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
     const available = list.filter((c) => !eligibility(r, c[0])),
       options = available.filter((c) => c[2] === group);
-    return (
-      '<section class="card no-print r26-chooser" aria-label="Choose next actio' +
-      'n"><div class="card-h"><h2>Choose next action</h2></div><div class="card' +
-      '-b"><p>Use this physical inspection for one primary follow-up and compat' +
-      "ible additional scoped documents. Each document has its own review; addi" +
-      "ng one does not record another visit.</p><fieldset><legend>What should h" +
-      'appen next?</legend><div class="r26-groups">' +
+    return screen`<section class="card no-print r26-chooser" aria-label="Choose next action"><div class="card-h"><h2>Choose next action</h2></div><div class="card-b"><p>Use this physical inspection for one primary follow-up and compatible additional scoped documents. Each document has its own review; adding one does not record another visit.</p><fieldset><legend>What should happen next?</legend><div class="r26-groups">${raw(
       groups
         .filter(([v]) => list.some((c) => c[2] === v))
         .map(
           ([v, l]) =>
-            '<label class="r26-choice"><input type="radio" name="action-group" data-action-group="' +
-            v +
-            '" ' +
-            (group === v ? "checked" : "") +
-            "> " +
-            l +
-            "</label>",
+            screen`<label class="r26-choice"><input type="radio" name="action-group" data-action-group="${String(v)}" ${raw(group === v ? "checked" : "")}> ${String(l)}</label>`,
         )
-        .join("") +
-      "</div></fieldset>" +
-      (group
-        ? "<fieldset><legend>Available documents</legend>" +
-          ["primary", "supplemental"]
-            .map((kind) => {
-              const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
-              return items.length
-                ? '<h3 class="ri-action-heading">' +
-                    (kind === "primary" ? "Primary follow-up" : "Additional scoped documents") +
-                    "</h3>" +
-                    items
-                      .map(
-                        (c) =>
-                          '<label class="r26-choice"><input type="radio" name="action-type" data-action-type="' +
-                          c[0] +
-                          '" ' +
-                          (picked === c[0] ? "checked" : "") +
-                          "><span><strong>" +
-                          e(c[1]) +
-                          "</strong><small>" +
-                          e(c[3]) +
-                          "</small></span></label>",
-                      )
-                      .join("")
-                : "";
-            })
-            .join("") +
-          (!options.length
-            ? "<p>No documents in this group are available for these results. Review th" + "e reasons below or choose another group.</p>"
-            : "") +
-          "</fieldset>"
-        : "") +
-      '<p aria-live="polite">' +
-      (picked
+        .join(""),
+    )}</div></fieldset>${raw(
+      group
+        ? screen`<fieldset><legend>Available documents</legend>${raw(
+            ["primary", "supplemental"]
+              .map((kind) => {
+                const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
+                return items.length
+                  ? screen`<h3 class="ri-action-heading">${raw(kind === "primary" ? "Primary follow-up" : "Additional scoped documents")}</h3>${raw(
+                      items
+                        .map(
+                          (c) =>
+                            screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
+                        )
+                        .join(""),
+                    )}`
+                  : "";
+              })
+              .join(""),
+          )}${raw(
+            !options.length
+              ? screen`<p>No documents in this group are available for these results. Review the reasons below or choose another group.</p>`
+              : "",
+          )}</fieldset>`
+        : "",
+    )}<p aria-live="polite">${raw(
+      picked
         ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) +
-          ": " +
-          (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
-        : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.") +
-      '</p><button class="btn btn-primary" data-create-action ' +
-      (faults.length ? "disabled" : "") +
-      (">Create draft</button><details><summary>All document types (10 families)" +
-        " / why unavailable</summary><ul><li>Official Notice — initial imported i" +
-        "nspection only.</li>") +
+            ": " +
+            (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
+        : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.",
+    )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button><details><summary>All document types (10 families) / why unavailable</summary><ul><li>Official Notice — initial imported inspection only.</li>${raw(
       list
         .map(
           (c) =>
-            "<li><strong>" +
-            e(c[1]) +
-            "</strong> (" +
-            (supplemental({ type: c[0] }) ? "additional scoped document" : "primary follow-up") +
-            "): " +
-            e(eligibility(r, c[0]) || c[3]) +
-            "</li>",
+            screen`<li><strong>${raw(e(c[1]))}</strong> (${raw(supplemental({ type: c[0] }) ? "additional scoped document" : "primary follow-up")}): ${raw(e(eligibility(r, c[0]) || c[3]))}</li>`,
         )
-        .join("") +
-      "</ul></details></div></section>"
-    );
+        .join(""),
+    )}</ul></details></div></section>`;
   }
   function createSpecial(r, type) {
     if (r.docId && doc(r.docId)?.draft) {

@@ -1374,3 +1374,31 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 Fixes batch306 Full gate failure in audit_report_facts: adding TILE to the shared workbook/definition metadata owner changed its exact retained declaration inventory. Moved TILE unchanged into its own independent map-configuration owner and updated core/public feature composition. The original metadata guard and all expected fixtures/assertions remain untouched and pass. Original map declaration AST equals the pre-extraction core declaration exactly. Full Reports workflow, R48/R49, 303 expanded owner comparisons and architecture guards pass. 147 acyclic modules, 11 root-state importers and maximum interface25. Failed integration306 will be superseded by a corrected combined head and must never merge.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## writer-followup-templates
+
+Convert the worksheet action and Accela-status choosers to the existing screen escaping tag. Retain exact output, saved-choice mutations, first-match eligibility and worksheet-fault timing; raw boundaries contain existing escaped values, owned renderer fragments or fixed attributes/text. All 2,048 retained/current comparisons pass, including corrected/cited/referred, missing sources, prior actions, import status, saved choices and interrupted callbacks. Complete history/referral scenarios, R26, R46, action-template parity, shell escaping and strict architecture/boundary guards pass. Chooser length falls below the threshold; total long reports94 to93, complexity30/depth0/Python15 unchanged. Frozen print and release identities are unchanged.
+
+## writer-shell-owner-test
+
+Migrate the screen title/breadcrumb escaping regression from the startup bundle to actual shell, case-action and editor owners with real state/query/escaping helpers. All 10 original assertion ASTs are unchanged. Unrelated print/readiness/storage peer output remains controlled at the existing service boundaries. Missing storageMode, sourceDocFor and snow adapters were supplied before final verification; assertions and production code were unchanged. Legacy evaluator files71 to70; retained hooks54. No startup or private diagnostic hooks are evaluated.
+
+## writer-frame-templates
+
+Convert the Writer frame's fragmented HTML to the screen escaping tag. Titles/crumbs keep their original escape calls; owned navigation, proof, connection and body fragments remain explicit raw boundaries. All 512 complete retained/current output and adapter/failure comparisons pass, alongside the migrated shell escaping, shell boundary and strict dependency suites. No construction reads, callback reordering, print, CSS, persistence or identity changes. Numerical findings remain30/0/93/15; 70 legacy evaluator files and54 hooks remain.
+
+## writer-details-templates
+
+Convert special-document screen forms to the existing escaping tag, preserving field/attribute names, retained authoring-family branches, lock/correction refusals, special-object initialization and adapter timing. All 4,096 retained/current HTML/state/callback comparisons pass, including release visits, restrictions, external inspectors, all nuisance variants, affected/corrected/withdrawn items, empty facts and interrupted date/lock services. The original R62, production R54, R26 and usability phase1 suites pass, plus chooser/action parity, 5,000 special-rule cases and 2,031 editor cases. Assembly review explicitly marks owned form fragments raw; frozen narrative/print bodies remain unchanged. Local R54 setup initially supplied a test bundle, then a nonexistent production path; final run used the separately saved production build and unchanged assertions. Numerical counts remain30/0/93/15; measured owner lengths lowered in the ratchet.
+
+## writer-overlay-templates
+
+Convert recipient/send, workspace removal, storage/folder and final/correction overlays to the existing screen tag. Preserve every supported HTML byte, attribute/field name, native capability/refusal, live state read and service/callback order. Remove redundant empty-string concat only where AST review proves the argument already returns a string. All 3,072 retained/current full-overlay comparisons pass, with non-vacuous coverage of each modal route, partial failures, unsafe values, empty/large lists, correction facts and helper/native modes. Existing usability phase1/2, all18 recipient workflow assertions, screen dependencies and strict boundaries/architecture pass unchanged. No interface, print, CSS, release or persisted-format changes.
+
+## writer-test-index-correction
+
+The #314 full gate and local repository contract exposed missing mandatory test-index table rows for newly added Writer suites: prose descriptions did not meet the existing repository check. Move all four new suite descriptions into the Maintainability table without changing the test or any assertions. All six repository checks then pass. Earlier failed constituent heads remain failed; only the final corrected integration head can supply delivery evidence.
+
+## retire-unused-writer-diagnostics
+
+Trace remaining diagnostic consumers with folded JS/helper strings, Python tests and browser sources. Six retention entries have no consumers: focusWalkDetails, catalogReplacement, readSharedCase, localCaseWork, friendlyField and conflictControls. Names in retained owner references are independent private definitions/calls, not core diagnostics. Remove the six test-build properties and now-unused core aliases; preserve owner methods and all behavioral assertions. The first hook-only version was production-byte-identical but correctly failed ESLint for unused aliases. The final version removes those aliases; Writer bundle bytes differ only through the removed plain-object aliases and incidental bundler binding names, verified by normalized production AST comparison. Reports HTML remains byte-identical. Retained hooks54 to48; legacy evaluator files70 unchanged. Catalog/cache/shared comparison/preflight/focus/outcome, original R47/catalog feature and registration/architecture/seam checks pass.

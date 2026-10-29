@@ -651,7 +651,7 @@ export let {
   screenReinspect,
   docFromReinspection,
 } = reinspection;
-const { focusWalkDetails, worksheetCheckPanel } = reinspection;
+const { worksheetCheckPanel } = reinspection;
 
 const languageCatalog = createLanguageCatalog(
   deferredServices(
@@ -715,7 +715,7 @@ export let {
   caseSearchText,
   globalSearch,
 } = languageCatalog;
-const { catalogReplacement, readSharedCase, localCaseWork, resolvedCaseFields, friendlyField, conflictControls } = languageCatalog;
+const { resolvedCaseFields } = languageCatalog;
 
 const accelaImport = createAccelaImport(
   deferredServices(
@@ -2404,14 +2404,8 @@ if (__TEST_BUILD__)
     recoverySharedState,
     persistRecoveryState,
     remindersDue,
-    focusWalkDetails,
     worksheetCheckPanel,
-    catalogReplacement,
-    readSharedCase,
-    localCaseWork,
     resolvedCaseFields,
-    friendlyField,
-    conflictControls,
     statusRule,
     accStatusEligible,
     accTime,

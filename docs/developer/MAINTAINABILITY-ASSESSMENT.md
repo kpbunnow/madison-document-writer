@@ -1,58 +1,133 @@
-# Architecture cleanup completion audit
+# Maintainability architecture audit
 
-Snapshot: screen dependency direction following PR #92 and the verification-policy update. This records the planned cleanup's stopping criteria; it is not release, native acceptance or a claim that every bug is absent. The final screen-dependency PR's current-head GitHub Full gate supplies final verification evidence.
+Snapshot: October 29, 2026, through the Writer detail-form checkpoint
+`cf43366c5184acab461b64d19d75f61d7880113b` and subsequent overlay conversion and diagnostic retirement. This supersedes the PR #92
+measurement snapshot. It reviews the resumed maintainability work; it does not
+claim completion of every remaining screen/test migration, release approval or
+native acceptance. The exact final integration head must pass GitHub Full gate
+and PR format before merge.
 
-## Dependency direction and ownership
+## Measured structure
 
-The maintained browser graph contains 129 modules and no cyclic component in either Writer or Reports. `audit_module_boundaries.js` now rejects every cycle and restricts imports for 16 foundation modules and 83 scoped owners. Generated/vendor modules are outside this graph. Source inventory, code map and test index retain ordinary direct imports; there is no replacement universal registry or forwarding barrel.
+Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs`,
+`node tools/test_seams.cjs` and `node tools/complexity_report.cjs --report`.
+`audit_module_boundaries.js`, `audit_scoped_architecture.js` and
+`audit_test_seams.js` enforce the corresponding boundaries and ratchets.
 
-Core remains the explicit composition/state/startup/registration root. The screen split removes its final import cycle: app_screens receives only readiness, routing, native focus and enhancement operations; Workspace presentation, live case status, citation history, language adapters and overlays have separate owners. Domain services, helper validation, record integrity, persistence and publication keep authority. Pure facts and live state operations remain explicitly distinguished.
-
-| Owner | Source lines | Direct graph imports | Responsibility retained |
-| --- | ---: | ---: | --- |
-| app_core.js | 2581 | 112 | Explicit composition, state/bootstrap and registration order |
-| app_screens.js | 244 | 5 | Startup/refusal barriers and ordered repaint/focus restoration |
-| workspace_screen.js | 376 | 10 | Workspace list, issuance reveal/filter relaxation and row focus |
-| screen_overlays.js | 458 | 7 | Shared modal/picker dispatch and presentation |
-| workspace_shell.js | 44 | 3 | Screen frame and connection banner |
-
-Counts include comments/blank lines and describe the audited layout, not quality thresholds. Reproduce the dependency graph with `node tools/module_graph.cjs`.
-
-## Interface breadth review
-
-Core has 92 imported constructor calls with explicit object inputs (82 create-prefixed and 10 init-prefixed, including conditional test fixtures). No constructor input spreads the entire core or state. The largest interfaces were reviewed by responsibility and actual property use:
-
-| Constructor | Named inputs | Review decision |
+| Measurement | Current source | Meaning and limit |
 | --- | ---: | --- |
-| createEditorEvents | 38 | Retain ordered editor field/item/picker/command routing; independent event tests cover first-match and synchronous dispatch |
-| createWorkspaceEvents | 36 | Retain ordered workspace/folder/Reports actions; cross-feature actions delegate to their owners |
-| createEditorScreens | 32 | Retain coherent document readiness/render/refresh actions and original listener position |
-| createReinspection / createRecoveryEvents | 30 each | Retain worksheet/walkthrough coordination and recovery event routing; effects remain delegated |
-| createLanguageCatalog | 25 | Retain review/preflight and guarded tools; helper/storage/integrity authority stays supplied |
-| createAppScreens | 24 | Retain one repaint transaction: route, native focus/disclosures, readiness and ordered enhancements |
-| createDocumentRenderer / createReinspectionEvents | 23 each | Retain frozen render facts and feature-specific dispatch |
-| createSafetyEvents | 22 | Retain feature-specific safety/lock routing through explicit adapters |
-| initNewDocuments / createAccelaImport / createWorkflowEvents | 21 each | Retain feature ownership and established creation/import/workflow ordering |
-| createDocumentDelivery | 20 | Retain archive/email/filing coordination through existing receipt/helper/native owners |
+| Maintained browser modules | 147 | Writer and Reports; generated/vendor modules excluded |
+| Cycles | 0 | Every cycle is rejected; no universal runtime registry |
+| Foundation / scoped owner boundaries | 25 / 108 | Exact permitted direct imports, not a behavioral-coupling score |
+| Explicit service interfaces, including groups | 118 | No opaque spreads or computed interface keys |
+| Largest declared input object | 25 fields | Nested groups counted separately; not total transitive dependencies |
+| Root-state importers | 11 | Two cores, three other Reports modules, and six state boundaries |
+| Owned Writer root-state fields | 70 | Six disjoint frozen accessor boundaries retain live replacement semantics |
+| Core handwritten forwarders / getters | 19 / 8 | Down from measured763 /209; custom native/store/clock adapters remain explicit |
+| Deferred composition declarations / resolvers | 98 / 945 | Stateless per-owner adapters; no shared lookup registry |
+| JS complexity / nesting findings | 30 / 0 | Complexity >20; nesting >4 |
+| Long JS function findings | 93 | 54 enclosing create/init factories and39 non-factory functions |
+| Python C901 findings | 15 | Maintained helper/tools/policy scope, excluding vendor/history |
+| Whole-application evaluator files | 70 | Includes fixtures and genuine integration flows; not all are isolated tests |
+| Retained test hook fields | 48 | No hook is removed merely because a text search finds no consumer |
 
-All named inputs in these reviewed interfaces are consumed. Field count alone does not justify splitting a coherent transaction or hiding names inside a broad callback bag. Keep call-time getters where initialization or restoration replaces values. Future narrowing should address an identified responsibility, defect or recurring development difficulty, with targeted behavior evidence.
+Counts are structural evidence, not a quality score. Baselines only decrease after
+reviewed, measured improvement. Historical assertions, deadlines and frozen
+references are not rewritten to satisfy them.
 
-The new case-status/citation-history/Workspace/language/overlay/repaint factories use 3/1/9/1/16/24 inputs. Independent construction tests verify no reads, I/O or registration at construction; focused tests exercise live replacements and operation order. The proof service retains its existing explicit store adapter; test-only reference hooks are not runtime service registries.
+## Ownership and interfaces
 
-## Startup and failure-order review
+Core remains the composition, state initialization and registration root. Writer
+services use bounded workspace/editor/startup/catalog/recovery/import state
+accessors. Reports retains its read-only model, catalog, presentation, services,
+filter/navigation/return and spreadsheet owners. The map configuration is separate
+from the retained workbook/report metadata inventory; `audit_report_facts.js`
+continues to verify the original declarations unchanged.
 
-Core still constructs the original editor and feature listeners at their documented positions, initializes state explicitly, constructs/invokes writer_startup at the original checkpoint and registers the remaining listeners in their original order. `audit_event_registration.js` verifies all 60 feature registrations and capture phases; `audit_writer_startup.js` verifies lock lifetime, restoration/readiness and failure sequencing. The screen split preserves all twelve original function bodies apart from scoped access, including stopped/locked/restoring/failed barriers, current workspace/day reads, modal priority, paint/enhancement order and focus/caret/disclosure/scroll restoration.
+| Reviewed interface | Fields | Decision |
+| --- | ---: | --- |
+| Language catalog; editor event actions group | 25 each | Retain coherent guarded feature actions; no blanket state bag |
+| Repaint coordinator; Reports screens | 24 each | Preserve ordered transaction and explicit fact/spreadsheet subgroups |
+| Document renderer; reinspection events | 23 each | Keep frozen render inputs separate from mutable workflow effects |
+| Safety events | 22 | Delegate save/publication authority; preserve first-match routing |
+| New documents; import workflow; workflow events; workspace case group | 21 each | Preserve feature-specific sequencing and named lazy leaves |
+| Document delivery | 20 | Authenticated immutable receipt/PDF authority remains in helper owners |
+| Editor screen groups | 8 UI /5 editing /19 record | Explicit responsibility groups replace the earlier flat32-field surface |
 
-A separate bootstrap rewrite is not required to finish this roadmap: startup already has an independent owner, its wiring is explicit and tested, and further movement without a concrete problem would add review risk. Keep existing helper, permission, durable-write, held-publication and immutable-PDF authority unchanged.
+A25-field limit does not prove independence. Reviewed responsibilities still span
+multiple effects, particularly creation/import/repaint/delivery. Splitting them
+solely to improve field counts would obscure ordering. Retain call-time getters
+where startup/restoration or callbacks replace data or services. Do not collapse
+scoped interfaces into a universal fixture or production registry.
 
-## Completion and validation
+## Startup, failures and security authority
 
-The planned architecture refactor is complete once the current-head GitHub Full gate passes for the final screen-dependency PR. Writer/Reports are acyclic, major feature owners have independent scoped construction tests, broad interfaces and startup clarity have been reviewed, and current ownership/roadmap/testing guidance is reconciled. Historical intermediate descriptions in architecture and cleanup records remain provenance; the latest ownership sections and code map describe the completed layout.
+`audit_event_registration.js` retains all60 listener checkpoints and capture
+phases. `audit_writer_startup.js` checks lock lifetime, required restoration,
+readiness settlement and failures at original stages. `audit_repaint_keepers.js`,
+`audit_screen_dependencies.js` and editor regressions cover focus/caret, active
+editing, stopped/locked/restoring/failed barriers and ordered enhancement.
 
-Use targeted local checks before development PR submission and require GitHub Full gate and PR format on the exact direct or integration PR head merged into main under INTEGRATION-BATCHES.md. Automatic main verification may continue asynchronously; report pending status/run links and investigate failures when reported. Preserve historical assertions, frozen print/screen references, source inventory and source-bound evidence. Packaging still requires an assigned release and exact-source full-gate evidence.
+The resumed batch preserves early refusal and partial effects: ordinary merges
+retain source ancestry, Reports filter changes read live state, map facts do not
+expand metadata ownership, and helper-stop observation stays at its startup
+checkpoint. New screen templates retain complete supported HTML and ordered
+service access. `raw` marks existing escaped values, owned renderer fragments or
+fixed tokens; it is not an input-sanitization substitute.
 
-After this stopping point, make further maintainability changes only for a concrete defect, feature, platform requirement or recurring development difficulty. Zero cycles does not require decomposing every large module or eliminating legitimate cross-feature actions.
+Helper validation, verified projections, integrity, publication locks, immutable
+original PDFs, receipt binding and held-write readiness retain their owners.
+Screen tests cannot establish durable persistence or City/native acceptance.
+No release identity, trusted connection, vendored dependency, stored format,
+approved print style or historical print reference changes in this batch.
 
-## Outside this refactor
+## Regression review and delivery evidence
 
-R63/helper build 64 and independently versioned formats stay unchanged. City Windows/network-drive/Outlook/native printing, manual accessibility, staff/legal and exact PNG-parity acceptance retain their existing holds and need their actual owners' evidence. No release assignment, packaging, deployment or acceptance approval is part of this development work.
+Corrected integration #311 records exact #297–#305 and #307–#310 source SHAs,
+baseline main and dependency closure. Failed #306 is excluded. The first #311
+head passed317 of318 regression suites; usability phase1 failed because it still
+imported the diagnostic fixture removed in #309. Correction
+`2d15668266c49a24131b7a8d4947b67c39551e14` changes only that source reader. All
+original usability assertions and `audit_report_facts` pass locally. The new
+combined Full gate must pass; the failed head is not passing evidence.
+
+Writer checkpoints #312–#315 and the subsequent overlay checkpoint add2048 chooser,512 complete frame,4096 detail-form and3072 overlay
+comparisons against retained original owners, preserving HTML, state and callback
+failure order. The migrated shell-escaping suite retains all10 original assertion
+ASTs and composes real shell/case-action/editor owners without startup. Existing
+R26/R46/R54/R62, usability, special-rule and editor checks remain unchanged.
+Six unconsumed test-build retention properties are subsequently retired after
+folded JS/helper, Python and browser review. Names inside retained owner fixtures
+are private definitions/calls, not core diagnostic consumers. Reports production HTML is byte-identical. Writer bundle changes are limited to
+removed unused plain-object aliases and incidental bundler binding names, verified
+by normalized production AST comparison; public owner methods remain. The test-hook baseline decreases54 to48. Local JSDOM/owner results
+do not replace pinned-Chromium CI evidence.
+
+## Remaining work and stopping decision
+
+The numerical complexity, nesting, non-factory length and Python targets are met;
+state direction and explicit interface limits are enforced. This does **not** make
+M5/M6 complete. The following remain concrete follow-up work:
+
+- Recipient/send/storage/final-confirmation overlays now use screen templates,
+  with complete retained HTML and ordered failure comparisons. Inspect other
+  remaining fragmented forms in their own feature owners before converting; do
+  not mechanically convert historical narrative/print renderers.
+- Continue migrating feature regressions that access private bundle bindings to
+  their actual public owners. Prioritize recipient/deposit/pricing and isolated
+  overlay behavior. Keep real cross-owner lifecycle, startup, browser and print
+  integration coverage; moving eval to a shared fixture is not a migration.
+- Retire each remaining diagnostic field only after tracing folded JS/helper,
+  Python and browser consumers and proving no lost assertions or production-byte
+  change. The70-file inventory is a baseline, not evidence that every file should
+  disappear or that the48 hooks are unused.
+- Refresh this audit and attach exact-head full-gate evidence after the remaining
+  migrations. Do not revive the old blanket architecture-complete claim while
+  those tracked migrations are open.
+
+Further structural extraction should address these identified responsibilities or
+an observed maintenance problem. Zero cycles does not justify decomposing every
+large feature owner. City Windows/network-drive/Outlook/native printing, manual
+accessibility, staff/legal and exact PNG-parity acceptance retain their existing
+holds. R63/helper build64 and independent formats remain unchanged; no packaging
+or deployment is authorized by this audit.
