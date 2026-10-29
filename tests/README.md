@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_report_facts.js` | Source-body parity, scoped live filters, date and number facts, metadata and typed cells. |
 | `audit_report_return.js` | 389 original-return comparisons, 13 unchanged calculation ASTs and 2,750 real-model catalog comparisons |
 | `audit_report_catalog.js` | 11 inert definitions and 2,750 original-catalog comparisons using actual model/history services |
 | `audit_shared_preflight_rules.js` | 168 asynchronous retained-source scenarios for preflight and shared replacement |

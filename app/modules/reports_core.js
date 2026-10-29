@@ -6,7 +6,26 @@ import { STREET_WORDS, areaIdOf } from "./report_facts.js";
 export { STREET_WORDS, areaIdOf };
 import { openAt as reportOpenAt } from "./report_facts.js";
 import { createReportReturn } from "./report_return.js";
-import { iso, validISO, fmtDate, fmtNum, fmtDays, fmtMoney, plural, uniq, avg, ownerKeyLabel, areaLabel, inPeriod, violOk } from "./report_facts.js";
+import {
+  iso,
+  validISO,
+  formatReportDate,
+  fmtNum,
+  fmtDays,
+  fmtMoney,
+  plural,
+  uniq,
+  avg,
+  ownerKeyLabel,
+  createReportAreaLabel,
+  inPeriod,
+  violOk,
+} from "./report_facts.js";
+const fmtDate = formatReportDate;
+function currentReportFilters() {
+  return ReportsState.S.F;
+}
+const areaLabel = createReportAreaLabel(currentReportFilters);
 export { iso, validISO, fmtDate, fmtNum, fmtDays, fmtMoney, plural, uniq, ownerKeyLabel, areaLabel, inPeriod, violOk };
 import { createReportCatalog } from "./report_catalog.js";
 import { createReportsServices } from "./reports_services.js";
@@ -770,6 +789,9 @@ document.addEventListener("keydown", (e) => {
 // Restores the report, filters, view, date mode and sort saved when a case was opened in Writer.
 // Used by both the ?return=1 page load and the existing-tab return message.
 export const restoreReportReturn = createReportReturn({
+  get state() {
+    return ReportsState.S;
+  },
   get reportById() {
     return reportById;
   },

@@ -61,8 +61,17 @@ module.exports = function createReportAnalysis() {
     validISO: facts.validISO,
     violOk: facts.violOk,
   });
-  reports = createReportCatalog({ ...facts, ...service, TODAY, openAt: (c, date) => facts.openAt(c, date, service) });
-  restoreReportReturn = createReportReturn({ render, reportById, reportOrdinance: service.reportOrdinance, relativeDates: service.relativeDates });
+  const areaLabel = facts.createReportAreaLabel(() => ReportsState.S.F);
+  reports = createReportCatalog({ ...facts, areaLabel, ...service, TODAY, openAt: (c, date) => facts.openAt(c, date, service) });
+  restoreReportReturn = createReportReturn({
+    get state() {
+      return ReportsState.S;
+    },
+    render,
+    reportById,
+    reportOrdinance: service.reportOrdinance,
+    relativeDates: service.relativeDates,
+  });
   return {
     ReportsState,
     buildModel: service.buildModel,

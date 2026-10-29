@@ -1212,3 +1212,9 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 Move unchanged report definitions/sheet scope and typed cell helpers out of startup core. Compose actual model, catalog, presentation and export owners for the workbook-scope regression; all25 assertions remain structurally identical, including expected rows and exported-note checks. Whole-bundle files78 to77; no hook retired while consumers remain. Complete Reports integration, 303 owner comparisons, 4,002 sheet comparisons, fact/metadata parity, boundaries, seams, lint and formatting pass.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## reports-scoped-owner-correction
+
+Correct failures exposed by integration PR277 without widening architecture allowances. Inject live filters into the area-label factory and live view state into return preferences; root-state importers remain11. Import the distinct report formatter by its defining name while preserving original core/public aliases. Add the omitted facts suite to the test index. Scoped architecture, Writer utilities, repository checks, source expression parity, catalog/return/R61/export-scope, complete Reports regression, boundaries, seams, lint and formatting pass. No failed Reports head has merged.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.

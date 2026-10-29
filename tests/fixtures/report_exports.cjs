@@ -70,9 +70,11 @@ module.exports = async function createReportExports() {
     validISO: facts.validISO,
     violOk: facts.violOk,
   });
-  reports = createReportCatalog({ ...facts, ...calculations, TODAY, openAt: (c, date) => facts.openAt(c, date, calculations) });
+  const areaLabel = facts.createReportAreaLabel(() => ReportsState.S.F);
+  reports = createReportCatalog({ ...facts, areaLabel, ...calculations, TODAY, openAt: (c, date) => facts.openAt(c, date, calculations) });
   const context = () => ({
     ...facts,
+    areaLabel,
     esc,
     areaKey: calculations.areaKey,
     REPORTS: reports,
@@ -82,8 +84,9 @@ module.exports = async function createReportExports() {
   });
   screens = createReportsScreens({
     ...facts,
+    areaLabel,
     esc,
-    facts: { ...facts, ...calculations },
+    facts: { ...facts, ...calculations, areaLabel },
     REPORTS: reports,
     DEFINITIONS: metadata.DEFINITIONS,
     exports: { EXPORT_SCOPE: metadata.EXPORT_SCOPE },

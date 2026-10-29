@@ -39,6 +39,9 @@ const assert = require("node:assert/strict"),
     });
     api.ReportsState.S = { screen: "before", F: { ord: "before", asOf: "2026-10-29" }, drill: { case: "old" }, savedId: "old", reportNotice: "old" };
     const owner = api.createReportReturn({
+      get state() {
+        return api.ReportsState.S;
+      },
       reportById(id) {
         effect("reportById", id);
         return ["openCases", "openViolations"].includes(id);

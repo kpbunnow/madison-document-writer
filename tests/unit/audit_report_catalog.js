@@ -39,7 +39,13 @@ const assert = require("node:assert/strict"),
   };
   const model = createReportsServices(primitive),
     facts = box.exports.reportFacts,
-    services = { ...facts, ...model, openAt: (c, date) => facts.openAt(c, date, model), TODAY: "2026-10-29" };
+    services = {
+      ...facts,
+      areaLabel: facts.createReportAreaLabel(() => ReportsState.S.F),
+      ...model,
+      openAt: (c, date) => facts.openAt(c, date, model),
+      TODAY: "2026-10-29",
+    };
   primitive.violOk = facts.violOk;
   const keys = [
     "TODAY",
