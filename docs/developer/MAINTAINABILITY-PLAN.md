@@ -1176,3 +1176,9 @@ Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 10
 Name stale-view, conflict-review, notice and replacement-staging decisions. Retain read/save awaits and rollback. 168 comparisons protect merge refusal, stale views, storage failure and replacement state. Pre-commit comparisons found and corrected a return-expression extraction error; no failed version was submitted. Includes the separately tested recovery correction, retaining both checkpoint records.
 
 Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15}.
+
+## report-filter-screen-templates
+
+Separate advanced filters and select controls; select/option markup uses the shared screen-only tag with explicit pre-escaped fragments preserving adapter timing. Extend existing differential operations to filter output without dropping assertions. Permit only the new screen_html dependency in the strict boundary map; cycles and peer/core isolation remain enforced. Full owner comparisons, sheet XML, Reports boundaries, module boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.

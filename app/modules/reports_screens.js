@@ -1,8 +1,46 @@
+import { html, raw } from "./screen_html.js";
 import { createSpreadsheetSheet, spreadsheetColumnName } from "./report_spreadsheet_sheet.js";
 import { SUMMARY_DIR, normParcel, recordDay } from "../assets/shared.js";
 import { BUILD, LOGO } from "./data/build_identity.js";
 import { ReportsState } from "./state.js";
 import { orderedRows, validSort, reportNavigation, reportActions as compactActions, appliedFilters, coverage } from "./report_presentation.js";
+
+function reportFilterSelect(services, id, label, val, opts) {
+  return html`<label class="f"><span>${raw(services.esc(label))}</span><select id="${id}">${raw(opts.map((o) => html`<option value="${raw(services.esc(o[0]))}" ${o[0] === val ? "selected" : ""}>${raw(services.esc(o[1]))}</option>`).join(""))}</select></label>`;
+}
+
+function reportAdvancedFilters(services, F, M, sel) {
+  return (
+    "".concat(
+      F.areaType === "district"
+        ? '<div class="f"><span>Boundaries</span><div class="seg" role="group" aria' +
+            '-label="District boundaries">\n      <button data-boundary="current" aria' +
+            '-pressed="' +
+            `${F.boundary === "current"}` +
+            '">Current</button>\n      <button data-boundary="atOpen" aria-pressed="' +
+            `${F.boundary === "atOpen"}` +
+            '" title="Only available if a parcel lookup was saved on or before the in' +
+            'spection date">When opened</button></div></div>'
+        : "",
+    ) +
+    "\n    " +
+    "".concat(sel("f-vtype", "Violation type", F.vtype, [["", "All types"]].concat(M.types.map((t) => [t.key, t.label])))) +
+    "\n    " +
+    `${sel("f-ord", "Ordinance", F.ord, [["", "All ordinances"]].concat(M.ords.map((o) => [o, o])))}` +
+    "\n    " +
+    "".concat(
+      sel(
+        "f-status",
+        "Status",
+        F.status,
+        [
+          ["", "Any status"],
+          ["open", "Open (not closed)"],
+        ].concat(services.STATUSES.map((s) => [s, s])),
+      ),
+    )
+  );
+}
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
 
@@ -704,14 +742,7 @@ export function createReportsScreens(services) {
         ? `<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${services.esc(F.asOf)}"></label>`
         : `<label class="f"><span>From</span><input type="date" id="f-from" value="${services.esc(F.from)}"></label>
       <label class="f"><span>To</span><input type="date" id="f-to" value="${services.esc(F.to)}"></label>`;
-    const sel = (id, label, val, opts) =>
-      '<label class="f"><span>' +
-      `${services.esc(label)}` +
-      '</span><select id="' +
-      `${id}` +
-      '">' +
-      "".concat(opts.map((o) => `<option value="${services.esc(o[0])}" ${o[0] === val ? "selected" : ""}>${services.esc(o[1])}</option>`).join("")) +
-      "</select></label>";
+    const sel = (id, label, val, opts) => reportFilterSelect(services, id, label, val, opts);
     return (
       '<div class="filters">\n    ' +
       `${dates}` +
@@ -748,34 +779,7 @@ export function createReportsScreens(services) {
       '</div></details></div>\n    <details id="report-more-filters" class="more' +
       '-filters"><summary>More filters</summary><div class="advanced-filters">\n' +
       "    " +
-      "".concat(
-        F.areaType === "district"
-          ? '<div class="f"><span>Boundaries</span><div class="seg" role="group" aria' +
-              '-label="District boundaries">\n      <button data-boundary="current" aria' +
-              '-pressed="' +
-              `${F.boundary === "current"}` +
-              '">Current</button>\n      <button data-boundary="atOpen" aria-pressed="' +
-              `${F.boundary === "atOpen"}` +
-              '" title="Only available if a parcel lookup was saved on or before the in' +
-              'spection date">When opened</button></div></div>'
-          : "",
-      ) +
-      "\n    " +
-      "".concat(sel("f-vtype", "Violation type", F.vtype, [["", "All types"]].concat(M.types.map((t) => [t.key, t.label])))) +
-      "\n    " +
-      `${sel("f-ord", "Ordinance", F.ord, [["", "All ordinances"]].concat(M.ords.map((o) => [o, o])))}` +
-      "\n    " +
-      "".concat(
-        sel(
-          "f-status",
-          "Status",
-          F.status,
-          [
-            ["", "Any status"],
-            ["open", "Open (not closed)"],
-          ].concat(services.STATUSES.map((s) => [s, s])),
-        ),
-      ) +
+      reportAdvancedFilters(services, F, M, sel) +
       "\n    </div></details>\n    " +
       `${appliedFilters(services.reports_reportpresentationContext(), dateMode)}` +
       "\n  </div>"

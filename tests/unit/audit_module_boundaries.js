@@ -482,6 +482,7 @@ const scopedServices = {
   ],
   "reports_services.js": ["./helper_stopped.js", "../assets/shared.js", "./state.js", "./helper_transport.js", "./report_presentation.js"],
   "reports_screens.js": [
+    "./screen_html.js",
     "../assets/shared.js",
     "./data/build_identity.js",
     "./state.js",
