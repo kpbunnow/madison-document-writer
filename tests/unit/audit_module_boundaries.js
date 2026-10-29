@@ -163,7 +163,7 @@ const scopedServices = {
     "./writer_queries.js",
   ],
 
-  "workspace_shell.js": ["./presentation_format.js", "./data/build_identity.js", "./saved_work.js"],
+  "workspace_shell.js": ["./screen_html.js", "./presentation_format.js", "./data/build_identity.js", "./saved_work.js"],
   "browser_printing.js": ["./data/approved_print_style.js", "./presentation_format.js", "./writer_queries.js", "./editor_state.js"],
   "storage_status.js": [
     "./workspace_state.js",

@@ -1382,3 +1382,7 @@ Convert the worksheet action and Accela-status choosers to the existing screen e
 ## writer-shell-owner-test
 
 Migrate the screen title/breadcrumb escaping regression from the startup bundle to actual shell, case-action and editor owners with real state/query/escaping helpers. All 10 original assertion ASTs are unchanged. Unrelated print/readiness/storage peer output remains controlled at the existing service boundaries. Missing storageMode, sourceDocFor and snow adapters were supplied before final verification; assertions and production code were unchanged. Legacy evaluator files71 to70; retained hooks54. No startup or private diagnostic hooks are evaluated.
+
+## writer-frame-templates
+
+Convert the Writer frame's fragmented HTML to the screen escaping tag. Titles/crumbs keep their original escape calls; owned navigation, proof, connection and body fragments remain explicit raw boundaries. All 512 complete retained/current output and adapter/failure comparisons pass, alongside the migrated shell escaping, shell boundary and strict dependency suites. No construction reads, callback reordering, print, CSS, persistence or identity changes. Numerical findings remain30/0/93/15; 70 legacy evaluator files and54 hooks remain.
