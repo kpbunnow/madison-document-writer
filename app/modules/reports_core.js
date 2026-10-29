@@ -1,4 +1,4 @@
-import { TILE } from "./report_metadata.js";
+import { TILE } from "./report_map_config.js";
 export { TILE };
 import { CRC_T, xesc, excelDate, STYLES } from "./report_workbook_definitions.js";
 export { CRC_T, xesc, excelDate, STYLES };

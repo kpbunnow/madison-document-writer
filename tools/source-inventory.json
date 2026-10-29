@@ -145,6 +145,7 @@
     "app/modules/report_connection.js",
     "app/modules/report_facts.js",
     "app/modules/report_filter_events.js",
+    "app/modules/report_map_config.js",
     "app/modules/report_metadata.js",
     "app/modules/report_navigation.js",
     "app/modules/report_presentation.js",

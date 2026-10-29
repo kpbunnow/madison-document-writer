@@ -6,7 +6,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
       stdin: {
         contents:
           (maps ? 'export {installLeaflet} from "./vendor/leaflet_runtime.js";' : "") +
-          'export {createReportFilterChange} from "./report_filter_events.js";export * as workbookDefinitions from "./report_workbook_definitions.js";' +
+          'export {TILE} from "./report_map_config.js";export {createReportFilterChange} from "./report_filter_events.js";export * as workbookDefinitions from "./report_workbook_definitions.js";' +
           'export {createAccessibility} from "./accessibility.js";export {initDepositSchedule} from "./deposit_schedule.js";export {createReportNavigation} from "./report_navigation.js";export {esc} from "./presentation_format.js";export * as facts from "./report_facts.js";export * as metadata from "./report_metadata.js";export {reportActions} from "./report_presentation.js";export {createReportsServices} from "./reports_services.js";export {createReportCatalog} from "./report_catalog.js";export {createReportsScreens} from "./reports_screens.js";export {ReportsState} from "./state.js";',
         resolveDir: path.resolve(__dirname, "../../app/modules"),
       },
@@ -29,6 +29,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
   const transport = { fetch: (...args) => global.fetch(...args) };
   new Function("fetch", "module", "exports", result.outputFiles[0].text)((...args) => transport.fetch(...args), box, box.exports);
   const {
+      TILE,
       createAccessibility,
       createReportFilterChange,
       workbookDefinitions,
@@ -118,7 +119,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
   const depositSchedule = deposits ? initDepositSchedule({ render, esc }) : null;
   screens = createReportsScreens({
     depositSchedule,
-    TILE: metadata.TILE,
+    TILE,
     activeFilters: () => facts.activeReportFilters(ReportsState.S.F),
     ...facts,
     areaLabel,
