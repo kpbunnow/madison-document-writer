@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 4,
     "max-depth": 0,
-    "max-lines-per-function": 62,
+    "max-lines-per-function": 61,
     "python": 8
   },
   "violations": {
@@ -56,8 +56,7 @@
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 156,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 169,
-    "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 171,
-    "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
+    "app/modules/recovery_ui.js:createRecoveryUI#1:max-lines-per-function": 100,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
     "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 520,
     "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 601,

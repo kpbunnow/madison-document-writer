@@ -1593,3 +1593,7 @@ The durable-operation comparison first failed intermittently in the full run: th
 ## record-history-sections
 
 Added a frozen-original comparison of the document record panel (`audit_record_history_markup_rules.js`: 6,000 seeded documents against the retained `record_history_reference.txt`) covering revision chains, withdrawal and follow-through states, pending attempts, record notes, the save-in-progress state, escaping and every peer read. `recordHistoryHTML` (97 lines) is now a shell over follow-through, held-attempt, version-list and record-note section builders. Four deliberate mutations are caught.
+
+## recovery-dialog-sections
+
+Added a frozen-original comparison of the recovery dialog (`audit_recovery_modal_markup_rules.js`: 6,000 seeded states against the retained `recovery_ui_reference.txt`) covering the backup list, selection, errors, local and shared comparison, restore gating, escaping and every peer read. `recoveryModal` (94 lines) is now a shell over backup-list, selected-backup, field-table and action builders. Five deliberate mutations are caught.
