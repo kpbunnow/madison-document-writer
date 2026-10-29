@@ -1236,3 +1236,9 @@ Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97
 Migrate the R48 output/preferences/overlapping-read suite from evaluated startup to public owners. Retain every assertion, real focus/disclosure restoration, saved preferences/storage failure behavior, malformed sorts, stale request exclusion and deposit table. Native fetch remains a controlled adapter with a synthetic page token; helper authorization code and production test flags remain unchanged. Move the active-filter expression unchanged to report_facts for shared composition. Whole-bundle files76 to75; all54 diagnostic hooks retained. All migrated Reports suites, 5,100 event comparisons, fact parity, full Reports regression, scoped architecture, boundaries, seams, lint and formatting pass. Correct the earlier coverage-entry assertion count to13.
 
 Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-output-owner-fixture
+
+Migrate the report_output CLI used by Python metadata/projection tests to public owners. Compose actual accessibility enhancement and all status options; all returned rows, counted totals, coverage, sheets and complete enhanced/printed HTML equal the prior fixture across eleven reports under a fixed test clock. Move status metadata unchanged into report_metadata with exact source-expression parity; core exports are retained. Five metadata and thirteen projection Python tests pass, with all migrated Reports suites, architecture/boundaries, seams, lint and formatting. Whole-bundle files75 to74; all54 hooks remain for other consumers.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.

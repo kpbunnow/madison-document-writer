@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `report_output.cjs` | Exact complete output parity across eleven reports; five metadata and thirteen projection Python checks |
 | `audit_report_navigation.js` | 5,100 retained click comparisons and unchanged complete Reports, R48 and mismatch suites |
 | `audit_report_facts.js` | Source-body parity, scoped live filters, date and number facts, metadata and typed cells. |
 | `audit_report_return.js` | 389 original-return comparisons, 13 unchanged calculation ASTs and 2,750 real-model catalog comparisons |

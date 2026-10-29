@@ -98,3 +98,5 @@ report_metadata owns unchanged report definitions and workbook sheet scope with 
 Reports area labels receive a lazy filter reader; return preferences receive a lazy view-state input. Neither owner imports root state. The report-specific date formatter uses its distinct defining name on import, retaining the existing core/public aliases without claiming the Writer formatter identity.
 
 report_navigation.createReportNavigation composes period, view/filter, drill, subject and action dispatch through twelve lazy inputs. It imports no root state, core or UI owners. Core registers its returned synchronous handler at the same listener position; early returns, fire-and-forget delegates, render, focus and scroll order remain unchanged.
+
+The report_output CLI composes the real public Reports owners and accessibility enhancement. Its rows, counts, coverage, sheets and full enhanced/printed HTML match the prior bundle fixture across all eleven reports. Status names/colours live unchanged in report_metadata; core retains its original exports.

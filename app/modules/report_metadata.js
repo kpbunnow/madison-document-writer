@@ -93,3 +93,20 @@ export const EXPORT_SCOPE = [
       "the cited item, reports 9 and 10 apply it to the case and report 11 does not apply it.",
   ],
 ];
+
+export const STATUSES = [
+  "Notice",
+  "Extension",
+  "Best Interest Extension",
+  "Vacancy Extension",
+  "Summary Abatement",
+  "Non-Summary Abatement",
+  "Occupancy restricted",
+  "Restriction released",
+  "Cited",
+  "Referred",
+  "Closed",
+  "Withdrawn",
+  "Cited – snow",
+];
+export const STATUS_COL = { Notice: "#14567F", Extension: "#C26A00", Cited: "#A8201A", Referred: "#5A3C8C", Closed: "#1B6045" };

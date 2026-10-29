@@ -1,3 +1,5 @@
+import { STATUSES, STATUS_COL } from "./report_metadata.js";
+export { STATUSES, STATUS_COL };
 import { activeReportFilters } from "./report_facts.js";
 import { createReportNavigation } from "./report_navigation.js";
 import { D, numOr } from "./report_facts.js";
@@ -340,22 +342,7 @@ export const TILE = {
   labels: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_basemap/MapServer/tile/{z}/{y}/{x}",
   plain: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_base_No_Names/MapServer/tile/{z}/{y}/{x}",
 };
-export const STATUSES = [
-  "Notice",
-  "Extension",
-  "Best Interest Extension",
-  "Vacancy Extension",
-  "Summary Abatement",
-  "Non-Summary Abatement",
-  "Occupancy restricted",
-  "Restriction released",
-  "Cited",
-  "Referred",
-  "Closed",
-  "Withdrawn",
-  "Cited – snow",
-];
-export const STATUS_COL = { Notice: "#14567F", Extension: "#C26A00", Cited: "#A8201A", Referred: "#5A3C8C", Closed: "#1B6045" };
+
 ReportsState.S = {
   phase: "loading",
   msg: "Reading the reporting index…",
