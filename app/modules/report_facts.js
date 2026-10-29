@@ -20,7 +20,7 @@ export const areaLabel = (k, F) => (!k ? "Unlocated" : (F || ReportsState.S.F).a
 export const inPeriod = (d, F) => validISO(d) && d >= F.from && d <= F.to;
 export const violOk = (v, F) => (!F.vtype || v.type === F.vtype) && (!F.ord || v.sections.indexOf(F.ord) >= 0);
 
-export function openAt(c, date, history) {
+function reportCaseOpenAt(c, date, history) {
   return c.caseType === "snow-10.28"
     ? c.documents.some((d) => d.type === "citation" && history.versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
     : history.noticeAt(c, date) && !["Closed", "Withdrawn"].includes(history.statusAt(c, date));
@@ -69,3 +69,5 @@ export const areaIdOf = (f, field) =>
   String((f.properties || {})[field] == null ? "" : (f.properties || {})[field])
     .trim()
     .replace(/^0+(\d)/, "$1");
+
+export { reportCaseOpenAt as openAt };

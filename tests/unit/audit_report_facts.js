@@ -24,7 +24,7 @@ assert.deepEqual(
   normalized([...decls(original), ...decls(parse(fs.readFileSync("tests/fixtures/report_lookup_facts_reference.txt", "utf8")))]),
   "all fifteen moved calculation expressions remain unchanged",
 );
-const open = current.body.find((n) => n.declaration?.id?.name === "openAt").declaration;
+const open = current.body.find((n) => n.type === "FunctionDeclaration" && n.id.name === "reportCaseOpenAt");
 function unscoped(x) {
   if (Array.isArray(x)) return x.map(unscoped);
   if (!x || typeof x !== "object") return x;
