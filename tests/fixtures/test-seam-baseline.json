@@ -1,7 +1,6 @@
 {
   "tests/fixtures/bundle_test.cjs": 1,
   "tests/fixtures/mk_summaries.js": 1,
-  "tests/fixtures/report_output.cjs": 1,
   "tests/fixtures/tagcheck.js": 1,
   "tests/unit/audit_accessibility.js": 1,
   "tests/unit/audit_authoring.js": 1,
@@ -48,7 +47,6 @@
   "tests/unit/audit_r44_saved_work.js": 1,
   "tests/unit/audit_r46_reinspection.js": 1,
   "tests/unit/audit_r47_language.js": 1,
-  "tests/unit/audit_r48_reports.js": 1,
   "tests/unit/audit_r49_ui.js": 1,
   "tests/unit/audit_r50_editor_repaint.js": 1,
   "tests/unit/audit_r53_workflow.js": 1,
@@ -60,7 +58,6 @@
   "tests/unit/audit_r62_extensions.js": 1,
   "tests/unit/audit_recipient_flow.js": 1,
   "tests/unit/audit_release.js": 1,
-  "tests/unit/audit_report_mismatch.js": 1,
   "tests/unit/audit_reports.js": 1,
   "tests/unit/audit_resume.js": 1,
   "tests/unit/audit_review.js": 1,

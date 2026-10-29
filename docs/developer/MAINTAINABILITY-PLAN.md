@@ -1218,3 +1218,27 @@ Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98
 Correct failures exposed by integration PR277 without widening architecture allowances. Inject live filters into the area-label factory and live view state into return preferences; root-state importers remain11. Import the distinct report formatter by its defining name while preserving original core/public aliases. Add the omitted facts suite to the test index. Scoped architecture, Writer utilities, repository checks, source expression parity, catalog/return/R61/export-scope, complete Reports regression, boundaries, seams, lint and formatting pass. No failed Reports head has merged.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-navigation-owner
+
+Separate the large Reports click handler into period, view/filter, drill, subject and action phases through twelve scoped lazy inputs. Construction stays inert and core retains the original listener position. All5,100 comparisons retain first-match routing, synchronous errors/effects, state-read order and interruption behavior. Fresh build, complete Reports, R48, mismatch, architecture/utilities, boundaries, seams, lint and formatting pass. Complexity37 to36, long functions98 to97.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-coverage-owner-test
+
+Replace the evaluated application bundle in the mismatched-summary regression with actual model, catalog, screens, print and navigation owners. The fixture uses the real render coordinator, screen shell, row model, print preparation and click handler; no startup core or private diagnostics are evaluated. All13 original assertions are structurally unchanged, including exclusion from exports/screen/print and the real Data navigation click. Both migrated report suites pass; evaluator files77 to76, all54 hooks retained. Lint and seam ratchet pass.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-preference-owner-test
+
+Migrate the R48 output/preferences/overlapping-read suite from evaluated startup to public owners. Retain every assertion, real focus/disclosure restoration, saved preferences/storage failure behavior, malformed sorts, stale request exclusion and deposit table. Native fetch remains a controlled adapter with a synthetic page token; helper authorization code and production test flags remain unchanged. Move the active-filter expression unchanged to report_facts for shared composition. Whole-bundle files76 to75; all54 diagnostic hooks retained. All migrated Reports suites, 5,100 event comparisons, fact parity, full Reports regression, scoped architecture, boundaries, seams, lint and formatting pass. Correct the earlier coverage-entry assertion count to13.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## report-output-owner-fixture
+
+Migrate the report_output CLI used by Python metadata/projection tests to public owners. Compose actual accessibility enhancement and all status options; all returned rows, counted totals, coverage, sheets and complete enhanced/printed HTML equal the prior fixture across eleven reports under a fixed test clock. Move status metadata unchanged into report_metadata with exact source-expression parity; core exports are retained. Five metadata and thirteen projection Python tests pass, with all migrated Reports suites, architecture/boundaries, seams, lint and formatting. Whole-bundle files75 to74; all54 hooks remain for other consumers.
+
+Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.

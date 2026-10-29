@@ -1,3 +1,7 @@
+import { STATUSES, STATUS_COL } from "./report_metadata.js";
+export { STATUSES, STATUS_COL };
+import { activeReportFilters } from "./report_facts.js";
+import { createReportNavigation } from "./report_navigation.js";
 import { D, numOr } from "./report_facts.js";
 export { D, numOr };
 import { DEFINITIONS, EXPORT_SCOPE } from "./report_metadata.js";
@@ -338,22 +342,7 @@ export const TILE = {
   labels: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_basemap/MapServer/tile/{z}/{y}/{x}",
   plain: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_base_No_Names/MapServer/tile/{z}/{y}/{x}",
 };
-export const STATUSES = [
-  "Notice",
-  "Extension",
-  "Best Interest Extension",
-  "Vacancy Extension",
-  "Summary Abatement",
-  "Non-Summary Abatement",
-  "Occupancy restricted",
-  "Restriction released",
-  "Cited",
-  "Referred",
-  "Closed",
-  "Withdrawn",
-  "Cited – snow",
-];
-export const STATUS_COL = { Notice: "#14567F", Extension: "#C26A00", Cited: "#A8201A", Referred: "#5A3C8C", Closed: "#1B6045" };
+
 ReportsState.S = {
   phase: "loading",
   msg: "Reading the reporting index…",
@@ -490,10 +479,7 @@ export const reportById = (id) => REPORTS.find((r) => r.id === id);
 
 export const actions = () => reportActions();
 
-export const activeFilters = () => {
-  const F = ReportsState.S.F;
-  return !!(F.areas.length || F.inspector || F.vtype || F.ord || F.status || F.owner);
-};
+export const activeFilters = () => activeReportFilters(ReportsState.S.F);
 
 /* ---------- map ---------- */
 ReportsState.MAP = null;
@@ -565,179 +551,47 @@ document.addEventListener("click", (e) => {
 });
 /* ---------- events ---------- */
 
-document.addEventListener("click", (e) => {
-  const t =
-    e.target.closest &&
-    e.target.closest(
-      "[data-screen],[data-view],[data-act],[data-drill],[data-case],[data-writ" +
-        "er],[data-owner],[data-areatype],[data-boundary],[data-basemap],[data-pe" +
-        "riod]",
-    );
-  if (!t) return;
-  const d = t.dataset;
-  if (d.period) {
-    const now = iso(new Date());
-    ReportsState.S.F.to = now;
-    ReportsState.S.F.asOf = now;
-    ReportsState.S.F.from =
-      d.period === "month"
-        ? now.slice(0, 7) + "-01"
-        : d.period === "year"
-          ? now.slice(0, 4) + "-01-01"
-          : ReportsState.S.M.counted
-              .map((c) => c.opened)
-              .filter(validISO)
-              .sort()[0] || now;
-    ReportsState.S.dateMode = d.period;
-    ReportsState.S.savedId = "";
-    ReportsState.S.drill = null;
-    render();
-    return;
-  }
-  if (d.screen) {
-    ReportsState.S.screen = d.screen;
-    ReportsState.S.savedId = "";
-    ReportsState.S.reportNotice = "";
-    ReportsState.S.drill = null;
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (d.view) {
-    ReportsState.S.view = d.view;
-    ReportsState.S.savedId = "";
-    render();
-    return;
-  }
-  if (d.basemap) {
-    ReportsState.S.basemap = d.basemap;
-    render();
-    return;
-  }
-  if (d.areatype) {
-    if (ReportsState.S.F.areaType !== d.areatype) {
-      ReportsState.S.F.areaType = d.areatype;
-      ReportsState.S.F.areas = [];
-      ReportsState.S.drill = null;
-      ReportsState.S.savedId = "";
-    }
-    render();
-    return;
-  }
-  if (d.boundary) {
-    if (ReportsState.S.F.boundary !== d.boundary) {
-      ReportsState.S.F.boundary = d.boundary;
-      ReportsState.S.F.areas = [];
-      ReportsState.S.drill = null;
-      ReportsState.S.savedId = "";
-    }
-    render();
-    return;
-  }
-  if (d.drill) {
-    const parts = d.drill.split(":"),
-      res = ReportsState.S.rep && ReportsState.S.rep.res;
-    if (!res) return;
-    const row = parts[0] === "t" ? res.total : res.rows[+parts[0]].cells || res.rows[+parts[0]],
-      x = row && row[+parts[1]];
-    if (!x || !x.ids) return;
-    const first = typeof row[0] === "string" ? row[0] : (row[0] && row[0].text) || "";
-    ReportsState.S.drill = { at: d.drill, ids: x.ids, title: res.list ? "Referred cases" : first + ", " + res.cols[+parts[1]].toLowerCase() };
-    render();
-    const p = document.getElementById("drill");
-    if (p && p.scrollIntoView) p.scrollIntoView({ block: "start" });
-    return;
-  }
-  if (d.case) {
-    openCase(d.case);
-    return;
-  }
-  if (d.writer) {
-    openInWriter(d.writer);
-    return;
-  }
-  if (d.owner) {
-    ReportsState.S.screen = "owner";
-    ReportsState.S.own = { q: "", key: d.owner };
-    ReportsState.S.drill = null;
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  const a = d.act;
-  if (a === "reload") {
-    loadAll(false);
-    return;
-  }
-  if (a === "refreshParcels") {
-    loadAll(true);
-    return;
-  }
-  if (a === "export") {
-    exportWorkbook();
-    return;
-  }
-  if (a === "saveView") {
-    saveReportView();
-    return;
-  }
-  if (a === "deleteView") {
-    deleteReportView();
-    return;
-  }
-  if (a === "closeDrill") {
-    ReportsState.S.drill = null;
-    render();
-    return;
-  }
-  if (a === "clearOwner") {
-    ReportsState.S.F.owner = "";
-    render();
-    return;
-  }
-  if (a === "clearFilters") {
-    Object.assign(ReportsState.S.F, {
-      from: TODAY.slice(0, 4) + "-01-01",
-      to: TODAY,
-      asOf: TODAY,
-      areaType: "district",
-      boundary: "current",
-      areas: [],
-      inspector: "",
-      vtype: "",
-      ord: "",
-      status: "",
-      owner: "",
-    });
-    ReportsState.S.dateMode = "fixed";
-    ReportsState.S.tableSort = null;
-    ReportsState.S.savedId = "";
-    ReportsState.S.drill = null;
-    render();
-    return;
-  }
-  if (a === "useOwner") {
-    ReportsState.S.F.owner = ReportsState.S.own.key;
-    ReportsState.S.screen = "allCases";
-    ReportsState.S.savedId = "";
-    ReportsState.S.drill = null;
-    render();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (a === "propGo") {
-    const q = (document.getElementById("pv-q") || {}).value || "";
-    ReportsState.S.prop = { q: q, hits: propertyHits(q) };
-    render();
-    return;
-  }
-  if (a === "ownGo") {
-    const q = (document.getElementById("ow-q") || {}).value || "";
-    ReportsState.S.own = { q: q, key: "" };
-    render();
-    return;
-  }
-});
+document.addEventListener(
+  "click",
+  createReportNavigation({
+    get state() {
+      return ReportsState.S;
+    },
+    get iso() {
+      return iso;
+    },
+    get validISO() {
+      return validISO;
+    },
+    get render() {
+      return render;
+    },
+    get TODAY() {
+      return TODAY;
+    },
+    get openCase() {
+      return openCase;
+    },
+    get openInWriter() {
+      return openInWriter;
+    },
+    get loadAll() {
+      return loadAll;
+    },
+    get exportWorkbook() {
+      return exportWorkbook;
+    },
+    get saveReportView() {
+      return saveReportView;
+    },
+    get deleteReportView() {
+      return deleteReportView;
+    },
+    get propertyHits() {
+      return propertyHits;
+    },
+  }),
+);
 document.addEventListener("change", (e) => {
   const t = e.target,
     F = ReportsState.S.F;
