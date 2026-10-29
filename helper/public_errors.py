@@ -11,12 +11,16 @@ UNREADABLE = "The request or file could not be read. Nothing was changed."
 UNREACHABLE = "A file or folder could not be reached. Check that the shared case folder is connected, then try again."
 
 
+# Errors Python raises when the program meets data of a shape it did not expect; their wording is never meant for people.
+INTERNAL = (AttributeError, LookupError, TypeError, ArithmeticError, RecursionError, NameError, AssertionError, ImportError)
+
+
 def public_message(error):
     if isinstance(error, (json.JSONDecodeError, UnicodeError)):
         return UNREADABLE
     if isinstance(error, OSError):
         # A system error carries an errno and usually a path; one the program raised itself carries only its message.
         return UNREACHABLE if error.errno is not None else (str(error) or UNREACHABLE)
-    if isinstance(error, ValueError):
-        return str(error) or UNREADABLE
-    return UNEXPECTED
+    if isinstance(error, INTERNAL):
+        return UNEXPECTED
+    return str(error) or UNREADABLE  # ValueError, RuntimeError and the program's own error classes carry their own words

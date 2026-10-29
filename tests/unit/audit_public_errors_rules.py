@@ -22,6 +22,8 @@ class PublicMessages(unittest.TestCase):
         self.assertEqual(public_errors.public_message(ValueError("Invalid case filename")), "Invalid case filename")
         self.assertEqual(public_errors.public_message(OSError("The shared case folder is unavailable")), "The shared case folder is unavailable")
         self.assertEqual(public_errors.public_message(FileNotFoundError("Case file not found")), "Case file not found")
+        for words in ("Chrome or Edge was not found, so the PDF could not be made", "Outlook was not found on this computer"):
+            self.assertEqual(public_errors.public_message(RuntimeError(words)), words)
 
     def test_parser_and_python_wording_becomes_a_plain_sentence(self):
         for error in (
