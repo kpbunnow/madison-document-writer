@@ -1165,3 +1165,8 @@ Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 10
 Supplement public-owner tests with 5,000 generated actual-validator cases covering field merging and conflict classifications beyond identity refusal. Existing assertions remain unchanged.
 
 Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15} → {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
+## recovery-identical-work-regression
+
+Pre-merge review found an automatic semicolon insertion mistake in the extracted comparison. Correct its return expression and add identical-work restore assertions, which pass on maintained and original owners. Existing assertions retained; no affected change has merged.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
