@@ -435,6 +435,196 @@ function citationDocumentChecks(services, d, out, collect) {
   d.items.filter((i) => i.cite && !i.withdrawn).forEach((i) => itemAuthoringChecks(services, d, i, out, collect));
 }
 
+/* Citation review cards. Builders run in the order the card's markup is evaluated, so peer reads keep their order. */
+const reviewField = (i, c, key, label, type = "text", extra = "") =>
+  html`<label class="f"><span>${String(label)}</span><input type="${String(type)}" data-review-cit="${raw(dep_esc(i.id))}|${String(key)}" aria-label="${String(label)} for item ${raw(dep_esc(i.no))}" value="${raw(dep_esc(c[key] ?? ""))}" ${raw(extra)}></label>`;
+
+// R59: several sections → a select of exactly those sections with no default; the different-charge path stays secondary.
+function reviewChargeSelect(services, i, c, readonly) {
+  const esc = dep_esc;
+  const choices = services.chargeChoices(i),
+    chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
+    listed = choices.some((x) => x.value === chosen);
+  return html`<label class="f"><span>Ordinance</span><select data-review-cit="${raw(esc(i.id))}|ord" aria-label="Ordinance for item ${raw(esc(i.no))}" ${raw(readonly ? "disabled" : "")}><option value="">Choose the charged ordinance</option>${raw(
+    choices
+      .map((x) => html`<option value="${raw(esc(x.value))}" ${raw(listed && x.value === chosen ? "selected" : "")}>${raw(esc(x.label))}</option>`)
+      .join(""),
+  )}</select></label>${raw(
+    reviewField(
+      i,
+      { ordOther: listed ? "" : c.ord || "" },
+      "ordOther",
+      "Different charge — ordinance outside the item’s sections",
+      "text",
+      readonly ? "readonly" : "",
+    ),
+  )}`;
+}
+
+const reviewDetail = (key, label, body, open = false) =>
+  html`<details data-review-details="${String(key)}" ${raw(open ? "open" : "")}><summary>${String(label)}</summary><div class="charge-detail-body">${raw(body)}</div></details>`;
+
+const chargeStatus = (request, held, fault) =>
+  request ? "Completion required" : held ? "Wording approval required" : fault ? "Review required" : "Deposit ready";
+
+const chargeResult = (request, held, c) => (request ? "Deposit incomplete" : held ? "Mandatory appearance" : formatDeposit(c.amount));
+
+function chargeSummary(services, i, c, status, result) {
+  const esc = dep_esc;
+  return html`<div class="charge-overview"><div><span class="charge-ordinance">${raw(esc(c.ord || "Choose an ordinance"))}</span><p class="charge-description">${raw(esc(c.desc || i.title || "Citation"))}</p><span class="hint">${raw(esc(c.num || "Citation number pending"))} · ${raw(esc(c.tier || "1st"))} offense</span></div><div class="charge-result"><strong>${raw(esc(result))}</strong><span>${raw(esc(status))}</span></div><div class="charge-session"><span class="hint">Court session</span><strong>${raw(esc(c.courtDate ? services.fmtDate(c.courtDate) : "Date required"))} · ${raw(esc(c.courtTime || "Time required"))}</strong><span class="hint">Suggested session; confirm the court-approved schedule.</span></div></div>`;
+}
+
+function chargeChoiceHint(services, i) {
+  return services.choosesCharge(i)
+    ? html`<p class="hint">Item sections: ${raw(dep_esc(i.sections.join(", ")))}. Choose the one ordinance charged; a charge outside these sections needs its approved source.</p>`
+    : "";
+}
+
+function chargeOrdinanceField(services, d, i, c) {
+  return services.choosesCharge(i)
+    ? reviewChargeSelect(services, i, c, services.snow.is(d))
+    : reviewField(i, c, "ord", "Ordinance", "text", services.snow.is(d) ? "readonly" : "");
+}
+
+function scheduledOffenseSelect(i, c, entries) {
+  const esc = dep_esc;
+  return entries.length > 1
+    ? html`<label class="f"><span>Scheduled offense</span><select data-review-cit="${raw(esc(i.id))}|scheduleEntryId" aria-label="Scheduled offense for item ${raw(esc(i.no))}"><option value="">Choose the charged offense</option>${raw(
+        entries
+          .map(
+            (e) => html`<option value="${raw(esc(e.id))}" ${raw(c.scheduleEntryId === e.id ? "selected" : "")}>${raw(esc(e.description))}</option>`,
+          )
+          .join(""),
+      )}</select></label>`
+    : "";
+}
+
+function chargeEditFields(services, d, i, c) {
+  const entries = CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord));
+  return html`${raw(chargeChoiceHint(services, i))}<div class="grid g2">${raw(chargeOrdinanceField(services, d, i, c))}${raw(reviewField(i, c, "differentChargeSource", "Different charge — approved source / confirmation"))}${raw(
+    scheduledOffenseSelect(i, c, entries),
+  )}${raw(reviewField(i, c, "desc", "Violation description"))}${raw(reviewField(i, c, "num", "Citation number", "text", d.correction ? "readonly" : ""))}${raw("".concat(reviewField(i, c, "comment", "Violation comment / inspection history", "text", services.snow.is(d) ? "readonly" : "")))}${raw(reviewField(i, c, "statute", "Adopted state statute (if applicable)"))}${raw(reviewField(i, c, "deptId", "Officer ID"))}${raw(reviewField(i, c, "courtDate", "Court date", "date"))}${raw(reviewField(i, c, "courtTime", "Court time", "time"))}${raw(reviewField(i, c, "issued", "Citation issue date", "date", 'max="' + recordDay(services.today) + '"'))}${raw(reviewField(i, { ...c, violDate: c.violDate || inspAt(d).date }, "violDate", "Violation date", "date"))}${raw(reviewField(i, { ...c, violTime: c.violTime || inspAt(d).time }, "violTime", "Violation time", "time"))}</div><p class="hint">Issue date must match the document’s mailed date${raw(d.correction ? " retained from the original action" : "")}. Violation date records the inspection; court date follows issuance.</p>`;
+}
+
+function pricingHint(c, mode, determined) {
+  return html`<p class="hint">${raw(
+    c.historicalDeposit
+      ? "The original deposit is retained for this correction."
+      : c.overrideBasis
+        ? "This amount has a recorded administrator authorization."
+        : determined
+          ? "The approved schedule determines this amount."
+          : "Use a court-approved amount and record its source.",
+  )} ${raw(mode === "total" ? "This total includes assessments; they are not added again." : "")}</p>`;
+}
+
+function depositMethodSelect(i, c, mode, determined) {
+  const esc = dep_esc;
+  return html`<label class="f"><span>Deposit method</span><select data-review-cit="${raw(esc(i.id))}|depositMode" aria-label="Deposit method for item ${raw(esc(i.no))}" ${raw(c.overrideBasis ? "disabled" : "")}>${raw(
+    [
+      ["schedule", "Scheduled deposit"],
+      ["base", "Approved base + assessments"],
+      ["total", "Approved total (assessments included)"],
+    ]
+      .map(
+        ([v, l]) =>
+          html`<option value="${String(v)}" ${raw(mode === v ? "selected" : "")} ${raw(determined && v !== "schedule" ? "disabled" : "")}>${String(l)}</option>`,
+      )
+      .join(""),
+  )}</select></label>`;
+}
+
+function depositAmountFields(i, c, mode, determined) {
+  return mode === "total"
+    ? reviewField(i, c, "amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (determined ? "readonly" : ""))
+    : reviewField(i, c, "base", "Base deposit", "number", 'min="0" step="0.01" ' + (mode === "schedule" || determined ? "readonly" : "")) +
+        reviewField(i, c, "cc", "Court costs", "number", 'min="15" max="48" step="0.01" ' + (mode === "schedule" || determined ? "readonly" : ""));
+}
+
+function depositTierFields(i, c, mode) {
+  const esc = dep_esc;
+  return mode === "schedule"
+    ? reviewField(i, c, "tier", "Computed offense tier", "text", "readonly") +
+        reviewField(i, c, "tierOverride", "Approved tier override", "number", 'min="1" step="1"') +
+        reviewField(i, c, "tierOverrideSource", "Tier override — approved source")
+    : html`<label class="f"><span>Offense tier</span><select data-review-cit="${raw(esc(i.id))}|tier" aria-label="Offense tier for item ${raw(esc(i.no))}">${raw(["1st", "2nd", "3rd+"].map((t) => html`<option value="${String(t)}" ${raw(c.tier === t ? "selected" : "")}>${String(t)}</option>`).join(""))}</select></label>${raw(reviewField(i, c, "depositSource", "Approved source / reason"))}`;
+}
+
+function chargeFactors(c) {
+  const esc = dep_esc;
+  return c.measurements
+    ? html`<dl class="charge-factors">${raw(
+        Object.entries(c.measurements)
+          .map(
+            ([key, value]) =>
+              html`<div><dt>${raw(
+                esc(
+                  {
+                    area: "Building area (square feet)",
+                    days: "Days of noncompliance",
+                    diameter: "Tree diameter (inches)",
+                    removed: "Tree removed",
+                  }[key] || key,
+                ),
+              )}</dt><dd>${raw(esc(value === true ? "Yes" : value === false ? "No" : value))}</dd></div>`,
+          )
+          .join(""),
+      )}</dl>`
+    : "";
+}
+
+function pricingDetails(services, d, i, c, mode, determined) {
+  const esc = dep_esc;
+  return html`${raw(pricingHint(c, mode, determined))}<div class="grid g2">${raw(depositMethodSelect(i, c, mode, determined))}${raw(
+    "".concat(depositAmountFields(i, c, mode, determined)),
+  )}${raw("".concat(depositTierFields(i, c, mode)))}</div>${raw(
+    c.reconfirmDeposit
+      ? html`<button class="btn" data-confirm-deposit="${raw(esc(d.id))}|${raw(esc(i.id))}">Confirm current approved deposit</button>`
+      : "",
+  )}<p class="hint" data-deposit-schedule="${raw(esc(i.id))}">${raw(esc(services.citationPricing.hint(d, i, c)))}</p>${raw(chargeFactors(c))}<p class="hint" data-deposit-breakdown="${raw(esc(i.id))}">${raw(
+    mode !== "total" && validMoney(c.base)
+      ? services
+          .feeLines(c.base, c.cc, c.pricedOn || c.issued)
+          .rows.map((row) => esc(row.k) + ": $" + money(row.v))
+          .join(" · ")
+      : "",
+  )}</p>`;
+}
+
+function chargeCardHTML(i, c, request, held, fault, summary, body) {
+  const esc = dep_esc;
+  return html`<fieldset class="citation-editor charge-card" data-charge="${raw(esc(i.id))}" ${raw(request ? 'data-deposit-request="' + esc(i.id) + '"' : "")}><legend>Item ${raw(esc(i.no))} · ${raw(esc(i.title || "Citation"))}</legend>${raw(summary)}${raw(
+    held
+      ? html`<p class="banner alert charge-hold">Issuance on hold. Division-approved defendant instructions are required. Save this draft and request wording approval.</p>`
+      : "",
+  )}${raw(
+    !request
+      ? html`<p class="deposit-summary ${raw(fault ? "charge-fault" : "")}" data-deposit-summary="${raw(esc(i.id))}">${raw(
+          "".concat(esc(held ? "Mandatory appearance · wording approval required" : fault || "Total cash deposit: " + formatDeposit(c.amount))),
+        )}</p>`
+      : "",
+  )}${raw(body)}</fieldset>`;
+}
+
+function chargeCard(services, d, i) {
+  const request = d.depositRequests?.[i.id],
+    c = d.cits?.[i.id] || request;
+  if (!c) return "";
+  const mode = c.depositMode || "schedule",
+    fault = request ? request.reason : depositFault(services, c, d, i),
+    determined = !request && services.citationPricing.determined(d, i, c);
+  const held = !!c.mandatoryAppearance;
+  const summary = chargeSummary(services, i, c, chargeStatus(request, held, fault), chargeResult(request, held, c));
+  let body = "";
+  if (request) {
+    body = services.depositStep.form(d, i, request);
+  } else {
+    body += reviewDetail("charge", "Edit charge and dates", chargeEditFields(services, d, i, c));
+    body += reviewDetail("pricing", "Pricing details and authorization", pricingDetails(services, d, i, c, mode, determined), !!fault && !held);
+  }
+  return chargeCardHTML(i, c, request, held, fault, summary, body);
+}
+
 export function createCitationWorkflow(services) {
   function depositComplete(d) {
     return isDepositComplete(services, d);
@@ -503,153 +693,9 @@ export function createCitationWorkflow(services) {
     if (services.initialCitations.enabled(d)) d = services.initialCitations.preview(d);
     if (d.type !== "citation" || services.isLocked(d)) return "";
     services.citationPricing.refresh(d);
-    const esc = dep_esc;
-    const field = (i, c, key, label, type = "text", extra = "") =>
-      html`<label class="f"><span>${String(label)}</span><input type="${String(type)}" data-review-cit="${raw(esc(i.id))}|${String(key)}" aria-label="${String(label)} for item ${raw(esc(i.no))}" value="${raw(esc(c[key] ?? ""))}" ${raw(extra)}></label>`;
-    // R59: several sections → a select of exactly those sections with no default; the different-charge path stays secondary.
-    const chargeSelect = (i, c, readonly) => {
-      const choices = services.chargeChoices(i),
-        chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
-        listed = choices.some((x) => x.value === chosen);
-      return html`<label class="f"><span>Ordinance</span><select data-review-cit="${raw(esc(i.id))}|ord" aria-label="Ordinance for item ${raw(esc(i.no))}" ${raw(readonly ? "disabled" : "")}><option value="">Choose the charged ordinance</option>${raw(
-        choices
-          .map((x) => html`<option value="${raw(esc(x.value))}" ${raw(listed && x.value === chosen ? "selected" : "")}>${raw(esc(x.label))}</option>`)
-          .join(""),
-      )}</select></label>${raw(
-        field(
-          i,
-          { ordOther: listed ? "" : c.ord || "" },
-          "ordOther",
-          "Different charge — ordinance outside the item’s sections",
-          "text",
-          readonly ? "readonly" : "",
-        ),
-      )}`;
-    };
-    const detail = (key, label, body, open = false) =>
-      html`<details data-review-details="${String(key)}" ${raw(open ? "open" : "")}><summary>${String(label)}</summary><div class="charge-detail-body">${raw(body)}</div></details>`;
     const cards = d.items
       .filter((i) => i.cite && !i.withdrawn)
-      .map((i) => {
-        const request = d.depositRequests?.[i.id],
-          c = d.cits?.[i.id] || request;
-        if (!c) return "";
-        const mode = c.depositMode || "schedule",
-          fault = request ? request.reason : citationDepositFault(c, d, i),
-          determined = !request && services.citationPricing.determined(d, i, c);
-        const held = !!c.mandatoryAppearance,
-          status = request ? "Completion required" : held ? "Wording approval required" : fault ? "Review required" : "Deposit ready";
-        const result = request ? "Deposit incomplete" : held ? "Mandatory appearance" : formatDeposit(c.amount);
-        const summary = html`<div class="charge-overview"><div><span class="charge-ordinance">${raw(esc(c.ord || "Choose an ordinance"))}</span><p class="charge-description">${raw(esc(c.desc || i.title || "Citation"))}</p><span class="hint">${raw(esc(c.num || "Citation number pending"))} · ${raw(esc(c.tier || "1st"))} offense</span></div><div class="charge-result"><strong>${raw(esc(result))}</strong><span>${raw(esc(status))}</span></div><div class="charge-session"><span class="hint">Court session</span><strong>${raw(esc(c.courtDate ? services.fmtDate(c.courtDate) : "Date required"))} · ${raw(esc(c.courtTime || "Time required"))}</strong><span class="hint">Suggested session; confirm the court-approved schedule.</span></div></div>`;
-        let body = "";
-        if (request) {
-          body = services.depositStep.form(d, i, request);
-        } else {
-          const entries = CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord));
-          const chargeFields = html`${raw(
-            services.choosesCharge(i)
-              ? html`<p class="hint">Item sections: ${raw(esc(i.sections.join(", ")))}. Choose the one ordinance charged; a charge outside these sections needs its approved source.</p>`
-              : "",
-          )}<div class="grid g2">${raw(services.choosesCharge(i) ? chargeSelect(i, c, services.snow.is(d)) : field(i, c, "ord", "Ordinance", "text", services.snow.is(d) ? "readonly" : ""))}${raw(field(i, c, "differentChargeSource", "Different charge — approved source / confirmation"))}${raw(
-            entries.length > 1
-              ? html`<label class="f"><span>Scheduled offense</span><select data-review-cit="${raw(esc(i.id))}|scheduleEntryId" aria-label="Scheduled offense for item ${raw(esc(i.no))}"><option value="">Choose the charged offense</option>${raw(
-                  entries
-                    .map(
-                      (e) =>
-                        html`<option value="${raw(esc(e.id))}" ${raw(c.scheduleEntryId === e.id ? "selected" : "")}>${raw(esc(e.description))}</option>`,
-                    )
-                    .join(""),
-                )}</select></label>`
-              : "",
-          )}${raw(field(i, c, "desc", "Violation description"))}${raw(field(i, c, "num", "Citation number", "text", d.correction ? "readonly" : ""))}${raw("".concat(field(i, c, "comment", "Violation comment / inspection history", "text", services.snow.is(d) ? "readonly" : "")))}${raw(field(i, c, "statute", "Adopted state statute (if applicable)"))}${raw(field(i, c, "deptId", "Officer ID"))}${raw(field(i, c, "courtDate", "Court date", "date"))}${raw(field(i, c, "courtTime", "Court time", "time"))}${raw(field(i, c, "issued", "Citation issue date", "date", 'max="' + recordDay(services.today) + '"'))}${raw(field(i, { ...c, violDate: c.violDate || inspAt(d).date }, "violDate", "Violation date", "date"))}${raw(field(i, { ...c, violTime: c.violTime || inspAt(d).time }, "violTime", "Violation time", "time"))}</div><p class="hint">Issue date must match the document’s mailed date${raw(d.correction ? " retained from the original action" : "")}. Violation date records the inspection; court date follows issuance.</p>`;
-          body += detail("charge", "Edit charge and dates", chargeFields);
-          const pricing = html`<p class="hint">${raw(
-            c.historicalDeposit
-              ? "The original deposit is retained for this correction."
-              : c.overrideBasis
-                ? "This amount has a recorded administrator authorization."
-                : determined
-                  ? "The approved schedule determines this amount."
-                  : "Use a court-approved amount and record its source.",
-          )} ${raw(mode === "total" ? "This total includes assessments; they are not added again." : "")}</p><div class="grid g2"><label class="f"><span>Deposit method</span><select data-review-cit="${raw(esc(i.id))}|depositMode" aria-label="Deposit method for item ${raw(esc(i.no))}" ${raw(c.overrideBasis ? "disabled" : "")}>${raw(
-            [
-              ["schedule", "Scheduled deposit"],
-              ["base", "Approved base + assessments"],
-              ["total", "Approved total (assessments included)"],
-            ]
-              .map(
-                ([v, l]) =>
-                  html`<option value="${String(v)}" ${raw(mode === v ? "selected" : "")} ${raw(determined && v !== "schedule" ? "disabled" : "")}>${String(l)}</option>`,
-              )
-              .join(""),
-          )}</select></label>${raw(
-            "".concat(
-              mode === "total"
-                ? field(i, c, "amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (determined ? "readonly" : ""))
-                : field(i, c, "base", "Base deposit", "number", 'min="0" step="0.01" ' + (mode === "schedule" || determined ? "readonly" : "")) +
-                    field(
-                      i,
-                      c,
-                      "cc",
-                      "Court costs",
-                      "number",
-                      'min="15" max="48" step="0.01" ' + (mode === "schedule" || determined ? "readonly" : ""),
-                    ),
-            ),
-          )}${raw(
-            "".concat(
-              mode === "schedule"
-                ? field(i, c, "tier", "Computed offense tier", "text", "readonly") +
-                    field(i, c, "tierOverride", "Approved tier override", "number", 'min="1" step="1"') +
-                    field(i, c, "tierOverrideSource", "Tier override — approved source")
-                : html`<label class="f"><span>Offense tier</span><select data-review-cit="${raw(esc(i.id))}|tier" aria-label="Offense tier for item ${raw(esc(i.no))}">${raw(["1st", "2nd", "3rd+"].map((t) => html`<option value="${String(t)}" ${raw(c.tier === t ? "selected" : "")}>${String(t)}</option>`).join(""))}</select></label>${raw(field(i, c, "depositSource", "Approved source / reason"))}`,
-            ),
-          )}</div>${raw(
-            c.reconfirmDeposit
-              ? html`<button class="btn" data-confirm-deposit="${raw(esc(d.id))}|${raw(esc(i.id))}">Confirm current approved deposit</button>`
-              : "",
-          )}<p class="hint" data-deposit-schedule="${raw(esc(i.id))}">${raw(esc(services.citationPricing.hint(d, i, c)))}</p>${raw(
-            c.measurements
-              ? html`<dl class="charge-factors">${raw(
-                  Object.entries(c.measurements)
-                    .map(
-                      ([key, value]) =>
-                        html`<div><dt>${raw(
-                          esc(
-                            {
-                              area: "Building area (square feet)",
-                              days: "Days of noncompliance",
-                              diameter: "Tree diameter (inches)",
-                              removed: "Tree removed",
-                            }[key] || key,
-                          ),
-                        )}</dt><dd>${raw(esc(value === true ? "Yes" : value === false ? "No" : value))}</dd></div>`,
-                    )
-                    .join(""),
-                )}</dl>`
-              : "",
-          )}<p class="hint" data-deposit-breakdown="${raw(esc(i.id))}">${raw(
-            mode !== "total" && validMoney(c.base)
-              ? services
-                  .feeLines(c.base, c.cc, c.pricedOn || c.issued)
-                  .rows.map((row) => esc(row.k) + ": $" + money(row.v))
-                  .join(" · ")
-              : "",
-          )}</p>`;
-          body += detail("pricing", "Pricing details and authorization", pricing, !!fault && !held);
-        }
-        return html`<fieldset class="citation-editor charge-card" data-charge="${raw(esc(i.id))}" ${raw(request ? 'data-deposit-request="' + esc(i.id) + '"' : "")}><legend>Item ${raw(esc(i.no))} · ${raw(esc(i.title || "Citation"))}</legend>${raw(summary)}${raw(
-          held
-            ? html`<p class="banner alert charge-hold">Issuance on hold. Division-approved defendant instructions are required. Save this draft and request wording approval.</p>`
-            : "",
-        )}${raw(
-          !request
-            ? html`<p class="deposit-summary ${raw(fault ? "charge-fault" : "")}" data-deposit-summary="${raw(esc(i.id))}">${raw(
-                "".concat(esc(held ? "Mandatory appearance · wording approval required" : fault || "Total cash deposit: " + formatDeposit(c.amount))),
-              )}</p>`
-            : "",
-        )}${raw(body)}</fieldset>`;
-      })
+      .map((i) => chargeCard(services, d, i))
       .join("");
     return html`<section class="card no-print authoring-panel" id="citation-review"><div class="card-h"><h2>${raw(d.initialPreview ? "Initial-inspection citations · complete before issuance" : "Citation review")}</h2><div><button class="btn btn-sm" data-refresh-citation-history>Refresh citation history</button> <button class="btn btn-sm" id="btn-savework">Save draft &amp; return to Workspace</button></div></div><div class="card-b"><p class="hint">Review each charge, deposit and court session. ${raw(d.initialPreview ? "All selected citations and the inspection are saved together after every check passes." : "")} Each completed charge produces four matching court copies. Expand a charge to edit its facts or inspect its pricing basis.</p>${raw(cards)}</div></section>`;
   }
