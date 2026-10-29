@@ -86,3 +86,7 @@ The screen factories are constructed after storageProbe and before folderConnect
 Reports filter select controls use the shared screen-only escaping tag. Already-escaped adapter text is explicitly marked as a trusted fragment to retain lazy adapter calls; fixed select IDs and selected attributes are escaped by the tag. Screen templates do not enter print or workbook XML renderers.
 
 report_catalog.createReportCatalog owns the eleven named report definitions. Construction reads no services; each run consumes twenty explicit lazy calculation inputs supplied at the original Reports initialization point. Core retains report lookup, state, startup and listener order; the catalog imports no core, UI, state or storage owner.
+
+report_facts owns thirteen existing date/number, collection and filter calculations without startup or storage. Reports core keeps its previous exported bindings and initializes TODAY at its original checkpoint. report_facts also owns the unchanged historical open-case predicate through the existing version/notice/status service inputs; the catalog test composes public owners directly and no longer extracts core function bodies.
+
+report_return.createReportReturn owns optional Writer return preferences through four lazy callbacks. It retains storage/read refusal, canonicalization, two relative-date reads and the original partial mutation/render order; core constructs it at the former definition point.

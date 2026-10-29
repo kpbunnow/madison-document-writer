@@ -1,3 +1,7 @@
+import { openAt as reportOpenAt } from "./report_facts.js";
+import { createReportReturn } from "./report_return.js";
+import { iso, validISO, fmtDate, fmtNum, fmtDays, fmtMoney, plural, uniq, avg, ownerKeyLabel, areaLabel, inPeriod, violOk } from "./report_facts.js";
+export { iso, validISO, fmtDate, fmtNum, fmtDays, fmtMoney, plural, uniq, ownerKeyLabel, areaLabel, inPeriod, violOk };
 import { createReportCatalog } from "./report_catalog.js";
 import { createReportsServices } from "./reports_services.js";
 import { createReportsScreens } from "./reports_screens.js";
@@ -5,10 +9,8 @@ import { createReportsViewContext } from "./reports_view_contexts.js";
 import { listenForStop, showStopped } from "./helper_stopped.js";
 
 import { ReportsState } from "./state.js";
-import { reportSort } from "./contracts.js";
 import { initDepositSchedule } from "./deposit_schedule.js";
 import { installLeaflet } from "./vendor/leaflet_runtime.js";
-import { recordDay } from "../assets/shared.js";
 import { createAccessibility } from "./accessibility.js";
 
 const reportsServices = createReportsServices({
@@ -286,22 +288,8 @@ export const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-export const iso = (d) => recordDay(d);
-export const validISO = (s) => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ""))) return false;
-  const d = new Date(s + "T12:00:00Z");
-  return !isNaN(d) && iso(d) === s;
-};
-export const TODAY = iso(new Date());
 
-export const fmtDate = (s) => (validISO(s) ? s.slice(5, 7) + "/" + s.slice(8, 10) + "/" + s.slice(0, 4) : "—");
-export const fmtNum = (n) => (n == null || isNaN(n) ? "—" : Number(n).toLocaleString("en-US"));
-export const fmtDays = (n) => (n == null || isNaN(n) ? "—" : (Math.round(n * 10) / 10).toLocaleString("en-US", { maximumFractionDigits: 1 }));
-export const fmtMoney = (n) =>
-  n == null || isNaN(n) ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const plural = (n, w, p) => fmtNum(n) + " " + (n === 1 ? w : p || w + "s");
-export const uniq = (a) => Array.from(new Set(a));
-const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+export const TODAY = iso(new Date());
 
 /* ---------- owner key ----------
    One owner is recognized by mailing address (division, 09/18/2026): the
@@ -349,8 +337,6 @@ export const STREET_WORDS = {
   ROOM: "UNIT",
   FLOOR: "FL",
 };
-
-export const ownerKeyLabel = (k) => (k ? k.replace("|", ", ") : "No usable mailing address");
 
 /* ---------- geometry ---------- */
 
@@ -443,20 +429,13 @@ ReportsState.REPORT_LINK = null;
 
 /* ---------- filters ---------- */
 
-export const areaLabel = (k, F) => (!k ? "Unlocated" : (F || ReportsState.S.F).areaType === "zip" ? k : "District " + k);
-
-export const inPeriod = (d, F) => validISO(d) && d >= F.from && d <= F.to;
-export const violOk = (v, F) => (!F.vtype || v.type === F.vtype) && (!F.ord || v.sections.indexOf(F.ord) >= 0);
 /* A case counts once its Official Notice or its snow-only citation has been issued. */
 
 /* As-of reports mean end of the selected calendar day. A correction starts
    when recorded, not at the old letter's mailing date; void/replacement ends
    that version without removing the days for which it was on the record. */
 
-const openAt = (c, date) =>
-  c.caseType === "snow-10.28"
-    ? c.documents.some((d) => d.type === "citation" && versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
-    : noticeAt(c, date) && !["Closed", "Withdrawn"].includes(statusAt(c, date));
+const openAt = (c, date) => reportOpenAt(c, date, reportsServices);
 
 /* ---------- the reports ----------
    Each returns {cols, rows, total, area, points, note}. A numeric cell is
@@ -925,29 +904,20 @@ document.addEventListener("keydown", (e) => {
 
 // Restores the report, filters, view, date mode and sort saved when a case was opened in Writer.
 // Used by both the ?return=1 page load and the existing-tab return message.
-export function restoreReportReturn() {
-  try {
-    const x = JSON.parse(localStorage.getItem("madison-report-return-v1") || "null");
-    if (!x || !reportById(x.report)) return false;
-    ReportsState.S.screen = x.report;
-    ReportsState.S.F = { ...ReportsState.S.F, ...x.filters };
-    ReportsState.S.F.ord = reportOrdinance(ReportsState.S.F.ord);
-    ReportsState.S.view = x.view === "map" ? "map" : "table";
-    ReportsState.S.tableSort = reportSort(x.sort, x.report);
-    ReportsState.S.dateMode = x.dateMode || "fixed";
-    if (relativeDates(ReportsState.S.dateMode)) Object.assign(ReportsState.S.F, relativeDates(ReportsState.S.dateMode));
-    // A drill-down or saved-view selection opened since the handoff belongs to another context; like
-    // applyReportView, start the restored report without either so nothing outside its scope stays visible.
-    ReportsState.S.drill = null;
-    ReportsState.S.savedId = "";
-    ReportsState.S.reportNotice = "Returned to the saved report context.";
-    render();
-    return true;
-  } catch (e) {
-    /* A missing optional return preference does not affect report records or filters. */
-    return false;
-  }
-}
+export const restoreReportReturn = createReportReturn({
+  get reportById() {
+    return reportById;
+  },
+  get reportOrdinance() {
+    return reportOrdinance;
+  },
+  get relativeDates() {
+    return relativeDates;
+  },
+  get render() {
+    return render;
+  },
+});
 
 /* Exit Document Writer in a Writer window stops the helper: this window shows the same stopped state. */
 listenForStop(() =>
