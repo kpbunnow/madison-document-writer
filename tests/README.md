@@ -420,3 +420,5 @@ code; each scenario label starts with the former name. Release reviews cite them
 | `audit_r61_review_fixes.js` | `audit_feature_extensions.js` (family switching), `audit_feature_citation_packets.js` (packet labels and retry filing) | two |
 | `audit_r61_development.js` | `audit_feature_corrections.js`, `audit_feature_history_referrals.js` (history rendering; compliance generation), `audit_feature_language_catalog.js`, `audit_feature_extensions.js`, `audit_feature_citation_packets.js`, `audit_feature_editor_screens.js` | seven |
 | `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; corrective-detail dialog), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
+
+`audit_writer_followup_templates.js` compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects.
