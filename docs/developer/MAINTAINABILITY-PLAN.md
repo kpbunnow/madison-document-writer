@@ -1456,3 +1456,11 @@ Measured counts: {'complexity': 26, 'max-depth': 0, 'max-lines-per-function': 85
 Added a frozen-original comparison of the scoped new-document authoring before changing it (`audit_new_document_rules.js`: 16,000 seeded documents of every special type and authoring version against the retained `new_documents_reference.txt`, 405 with injected interruptions). It covers the printed narrative, the details form, the lifecycle checks and the readiness checks: every peer read and call in order, document mutation and refusal at each interrupted read or call, and it fails if the generator stops reaching a message family.
 
 `specialBody` (complexity 40, 206 lines) is now an ordered dispatch over per-family paragraph builders plus item-reference and closing paragraphs; `details` (35, 199 lines) is a shell over lead, abatement, No Occupancy, extension, supplemental and review sections with shared form-field helpers; `specialLifecycle` (29) is source, visit and head fault phases, with eligibility moved to module level. The pure text helpers moved out of the factory, which fell from 1,089 to 619 lines. Deliberate mutations (a disabled family, reordered phases, a changed item test, dropped helper arguments) are caught; the surviving word-count mutation is behavior-equivalent.
+
+## new-document-click-actions
+
+Added a frozen-original comparison of the scoped action click handler (`audit_new_document_click_rules.js`: 8,000 seeded events against the retained `new_documents_reference.txt`, 323 with injected interruptions) covering attribute priority, each action's draft, worksheet and case effects, every peer read and call in order, and refusal at each interrupted call.
+
+`clickEvent` (complexity 25) is now one closest-target lookup over an ordered table of action handlers. Five deliberate mutations (a reordered pair, swapped steps, a changed guard, a changed fall-through and a changed id prefix) are caught.
+
+Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}; `initNewDocuments` fell from 1,089 to about 565 lines.

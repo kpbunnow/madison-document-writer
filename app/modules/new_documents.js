@@ -1092,6 +1092,67 @@ function lifecycleFaults(services, d, src, r) {
   return faults;
 }
 
+/* Click actions in priority order: the first whose attribute is present on the element handles it. */
+const CLICK_TARGETS =
+  "[data-create-action],[data-another-action],[data-case-action],[data-save" +
+  "-service],[data-create-case-action],[data-initial-notice],[data-adopt-best-interest]";
+
+function adoptCurrentBestInterest({ services, restoreDues }) {
+  const d = doc(editor.state.docId);
+  if (d?.type === "bestInterestExtension" && d.draft && !services.isLocked(d) && !d.correction && !d.pendingAmendment) {
+    // R62: adoption moves to the current all-item format (Reasons, no safety confirmation or signer).
+    d.authoringVersion = ALL_ITEM_EXTENSIONS;
+    restoreDues(d);
+    // Keep earlier review data for recovery; it is not asserted as new authorization.
+    services.saveDrafts();
+    services.render();
+    document.querySelector('[data-special="reason"]')?.focus();
+  }
+}
+
+function startNoticeFromInitial({ services, el }) {
+  const src = doc(el.dataset.initialNotice);
+  if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {
+    services.newDoc(src.caseId, "notice");
+    const d = doc(editor.state.docId);
+    d.items = src.items.map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id }));
+    services.saveDrafts();
+    services.render();
+  }
+}
+
+function createCurrentCaseAction({ caseAction }) {
+  const c = editor.WORK.currentAction;
+  if (c?.type) caseAction(c.cid, c.type);
+}
+
+function createWorksheetAction({ services, createSpecial }) {
+  const r = reinsp(editor.state.reinspId);
+  if (r && r.followupIntent) {
+    if (specialType(r.followupIntent)) createSpecial(r, r.followupIntent);
+    else services.docFromReinspection(r, r.followupIntent);
+  }
+}
+
+function showAnotherAction({ services, el }) {
+  const r = reinsp(el.dataset.anotherAction);
+  if (r) {
+    editor.state.reinspId = r.id;
+    editor.state.screen = "actions";
+    services.render();
+  }
+}
+
+const CLICK_ACTIONS = [
+  [(el) => el.hasAttribute("data-adopt-best-interest"), adoptCurrentBestInterest],
+  [(el) => el.dataset.initialNotice, startNoticeFromInitial],
+  [(el) => el.hasAttribute("data-create-case-action"), createCurrentCaseAction],
+  [(el) => el.dataset.saveService, ({ el, saveService }) => saveService(el.dataset.saveService)],
+  [(el) => el.hasAttribute("data-create-action"), createWorksheetAction],
+  [(el) => el.dataset.anotherAction, showAnotherAction],
+  [(el) => el.dataset.caseAction, ({ el, caseAction }) => caseAction(el.dataset.caseAction)],
+];
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -1630,66 +1691,12 @@ export function initNewDocuments(services) {
     services.refreshSheet();
   }
   function clickEvent(ev) {
-    const el = ev.target.closest(
-      "[data-create-action],[data-another-action],[data-case-action],[data-save" +
-        "-service],[data-create-case-action],[data-initial-notice],[data-adopt-best-interest]",
-    );
+    const el = ev.target.closest(CLICK_TARGETS);
     if (!el) return false;
-    if (el.hasAttribute("data-adopt-best-interest")) {
-      const d = doc(editor.state.docId);
-      if (d?.type === "bestInterestExtension" && d.draft && !services.isLocked(d) && !d.correction && !d.pendingAmendment) {
-        // R62: adoption moves to the current all-item format (Reasons, no safety confirmation or signer).
-        d.authoringVersion = ALL_ITEM_EXTENSIONS;
-        restoreDues(d);
-        // Keep earlier review data for recovery; it is not asserted as new authorization.
-        services.saveDrafts();
-        services.render();
-        document.querySelector('[data-special="reason"]')?.focus();
-      }
-      return true;
-    }
-    if (el.dataset.initialNotice) {
-      const src = doc(el.dataset.initialNotice);
-      if (src && !originalNotice(src.caseId) && !draftDocFor(src.caseId)) {
-        services.newDoc(src.caseId, "notice");
-        const d = doc(editor.state.docId);
-        d.items = src.items.map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id }));
-        services.saveDrafts();
-        services.render();
-      }
-      return true;
-    }
-    if (el.hasAttribute("data-create-case-action")) {
-      const c = editor.WORK.currentAction;
-      if (c?.type) caseAction(c.cid, c.type);
-      return true;
-    }
-    if (el.dataset.saveService) {
-      saveService(el.dataset.saveService);
-      return true;
-    }
-    if (el.hasAttribute("data-create-action")) {
-      const r = reinsp(editor.state.reinspId);
-      if (r && r.followupIntent) {
-        if (specialType(r.followupIntent)) createSpecial(r, r.followupIntent);
-        else services.docFromReinspection(r, r.followupIntent);
-      }
-      return true;
-    }
-    if (el.dataset.anotherAction) {
-      const r = reinsp(el.dataset.anotherAction);
-      if (r) {
-        editor.state.reinspId = r.id;
-        editor.state.screen = "actions";
-        services.render();
-      }
-      return true;
-    }
-    if (el.dataset.caseAction) {
-      caseAction(el.dataset.caseAction);
-      return true;
-    }
-    return false;
+    const action = CLICK_ACTIONS.find(([applies]) => applies(el));
+    if (!action) return false;
+    action[1]({ services, el, restoreDues, caseAction, saveService, createSpecial });
+    return true;
   }
   function actionScreen() {
     const r = reinsp(editor.state.reinspId);
