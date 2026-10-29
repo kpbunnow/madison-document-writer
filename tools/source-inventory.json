@@ -840,6 +840,7 @@
     "tests/unit/audit_record_commit.js",
     "tests/unit/audit_record_commit_rules.js",
     "tests/unit/audit_record_helper_adapters.js",
+    "tests/unit/audit_record_integrity_rules.js",
     "tests/unit/audit_record_rules.js",
     "tests/unit/audit_record_workflows.js",
     "tests/unit/audit_recovery_event_export.js",
