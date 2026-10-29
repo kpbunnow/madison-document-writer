@@ -193,6 +193,36 @@ function reportExportReferralRows(services, M, F, A) {
   return refRows;
 }
 
+function reportExportAboutRows(services, M, F, cases, filterSummary) {
+  return [
+    ["Building Inspection reports"],
+    [],
+    ["Exported", services.iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
+    ["Build", BUILD],
+    ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
+    ["Period", services.fmtDate(F.from) + " to " + services.fmtDate(F.to) + " (each sheet's date is listed under Sheet scope)"],
+    ["As of (open-case reports)", services.fmtDate(F.asOf)],
+    [
+      "Area",
+      F.areaType === "zip" ? "ZIP code" : "Alder district, " + (F.boundary === "atOpen" ? "as it read when each case opened" : "current boundaries"),
+    ],
+    ["Filters", filterSummary().replace(/^\. Filtered to /, "") || "none"],
+    ["Cases in the period", cases.length],
+    ["Case files without a summary", ReportsState.S.raw.missing.length],
+    ["Stale summaries", ReportsState.S.raw.stale.length + M.versionStale.length],
+    ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
+    ["Cases not located", M.counted.filter((c) => !c.located).length],
+    [],
+    // Describes the selections below exactly; it does not change them.
+    ["Sheet scope"],
+  ]
+    .concat(services.exports.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
+    .concat(
+      [[], ["Definitions"]],
+      services.DEFINITIONS.map((d) => [d[0], d[1]]),
+    );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1255,35 +1285,7 @@ export function createReportsScreens(services) {
     const visitRows = reportExportVisitRows(services, cases, A);
     const citRows = reportExportCitationRows(services, M, F, A);
     const refRows = reportExportReferralRows(services, M, F, A);
-    const about = [
-      ["Building Inspection reports"],
-      [],
-      ["Exported", services.iso(new Date()) + " " + new Date().toTimeString().slice(0, 5)],
-      ["Build", BUILD],
-      ["Index read", String(ReportsState.S.raw.readAt).replace("T", " ")],
-      ["Period", services.fmtDate(F.from) + " to " + services.fmtDate(F.to) + " (each sheet's date is listed under Sheet scope)"],
-      ["As of (open-case reports)", services.fmtDate(F.asOf)],
-      [
-        "Area",
-        F.areaType === "zip"
-          ? "ZIP code"
-          : "Alder district, " + (F.boundary === "atOpen" ? "as it read when each case opened" : "current boundaries"),
-      ],
-      ["Filters", filterSummary().replace(/^\. Filtered to /, "") || "none"],
-      ["Cases in the period", cases.length],
-      ["Case files without a summary", ReportsState.S.raw.missing.length],
-      ["Stale summaries", ReportsState.S.raw.stale.length + M.versionStale.length],
-      ["Summaries not matching their case", (ReportsState.S.raw.mismatched || []).length],
-      ["Cases not located", M.counted.filter((c) => !c.located).length],
-      [],
-      // Describes the selections below exactly; it does not change them.
-      ["Sheet scope"],
-    ]
-      .concat(services.exports.EXPORT_SCOPE.map((d) => [d[0], d[1]]))
-      .concat(
-        [[], ["Definitions"]],
-        services.DEFINITIONS.map((d) => [d[0], d[1]]),
-      );
+    const about = reportExportAboutRows(services, M, F, cases, filterSummary);
     const correctionRows = [
       ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
     ];
