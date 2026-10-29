@@ -284,6 +284,61 @@ function appendNumberedReportSheets(services, M, F, sheets) {
   });
 }
 
+function workbookContentTypesXML(named, x) {
+  return (
+    x +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    ('<Default Extension="rels" ContentType="application/vnd.openxmlformats-pa' +
+      'ckage.relationships+xml"/><Default Extension="xml" ContentType="applicat' +
+      'ion/xml"/>') +
+    ('<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openx' + 'mlformats-officedocument.spreadsheetml.sheet.main+xml"/>') +
+    ('<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxml' + 'formats-officedocument.spreadsheetml.styles+xml"/>') +
+    named
+      .map(
+        (s, i) =>
+          '<Override PartName="/xl/worksheets/sheet' +
+          `${i + 1}` +
+          '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreads' +
+          'heetml.worksheet+xml"/>',
+      )
+      .join("") +
+    "</Types>"
+  );
+}
+
+function workbookManifestXML(services, named, x) {
+  return (
+    x +
+    ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
+      'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
+      'ionships"><sheets>') +
+    named.map((s, i) => `<sheet name="${services.exports.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
+    "</sheets></workbook>"
+  );
+}
+
+function workbookRelationshipsXML(named, x) {
+  return (
+    x +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    named
+      .map(
+        (s, i) =>
+          '<Relationship Id="rId' +
+          `${i + 1}` +
+          '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
+          'ips/worksheet" Target="worksheets/sheet' +
+          `${i + 1}` +
+          '.xml"/>',
+      )
+      .join("") +
+    ('<Relationship Id="rId' +
+      `${named.length + 1}` +
+      '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
+      'ips/styles" Target="styles.xml"/></Relationships>')
+  );
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1272,24 +1327,7 @@ export function createReportsScreens(services) {
     const files = [
       {
         name: "[Content_Types].xml",
-        data:
-          x +
-          '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
-          ('<Default Extension="rels" ContentType="application/vnd.openxmlformats-pa' +
-            'ckage.relationships+xml"/><Default Extension="xml" ContentType="applicat' +
-            'ion/xml"/>') +
-          ('<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openx' + 'mlformats-officedocument.spreadsheetml.sheet.main+xml"/>') +
-          ('<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxml' + 'formats-officedocument.spreadsheetml.styles+xml"/>') +
-          named
-            .map(
-              (s, i) =>
-                '<Override PartName="/xl/worksheets/sheet' +
-                `${i + 1}` +
-                '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreads' +
-                'heetml.worksheet+xml"/>',
-            )
-            .join("") +
-          "</Types>",
+        data: workbookContentTypesXML(named, x),
       },
       {
         name: "_rels/.rels",
@@ -1302,34 +1340,11 @@ export function createReportsScreens(services) {
       },
       {
         name: "xl/workbook.xml",
-        data:
-          x +
-          ('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/ma' +
-            'in" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relat' +
-            'ionships"><sheets>') +
-          named.map((s, i) => `<sheet name="${services.exports.xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("") +
-          "</sheets></workbook>",
+        data: workbookManifestXML(services, named, x),
       },
       {
         name: "xl/_rels/workbook.xml.rels",
-        data:
-          x +
-          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-          named
-            .map(
-              (s, i) =>
-                '<Relationship Id="rId' +
-                `${i + 1}` +
-                '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
-                'ips/worksheet" Target="worksheets/sheet' +
-                `${i + 1}` +
-                '.xml"/>',
-            )
-            .join("") +
-          ('<Relationship Id="rId' +
-            `${named.length + 1}` +
-            '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationsh' +
-            'ips/styles" Target="styles.xml"/></Relationships>'),
+        data: workbookRelationshipsXML(named, x),
       },
       { name: "xl/styles.xml", data: services.exports.STYLES },
     ].concat(named.map((s, i) => ({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: sheetXml(s.rows, s.opt) })));
