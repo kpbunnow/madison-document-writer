@@ -69,6 +69,14 @@ def request(rng):
     return {"operation": operation}, name, html, shape
 
 
+def wipe(root):
+    for child in list(root.iterdir()):
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+
+
 def tree(root):
     return {str(p.relative_to(root)): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file() and not p.name.endswith(".lock")}
 
@@ -179,10 +187,13 @@ class ArtifactOperation(unittest.TestCase):
                 for _ in range(rng.choice((2, 2, 3, 4)))
             ]
             results = []
-            for module in (REFERENCE, vars(current)):
-                function = module["file_operation"]
-                with tempfile.TemporaryDirectory() as temporary:
-                    root = Path(temporary)
+            # Both sides run in the same folder path: candidate locations are checked through a set, whose order
+            # follows the path text, so different folders could order a double conflict differently.
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                for module in (REFERENCE, vars(current)):
+                    function = module["file_operation"]
+                    wipe(root)
                     (root / "share").mkdir()
                     trace, notes, rows = [], [], []
                     for (data, name, html, shape), fail, kind, at_local in steps:
