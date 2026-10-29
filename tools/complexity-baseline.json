@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 33,
+    "complexity": 32,
     "max-depth": 0,
     "max-lines-per-function": 97,
     "python": 15
@@ -31,7 +31,6 @@
     "app/modules/case_projection.js:summarizeRecord#1/anonymous#11/anonymous#1:complexity": 21,
     "app/modules/case_projection.js:summarizeRecord#1/anonymous#13:max-lines-per-function": 98,
     "app/modules/case_recovery.js:createCaseRecovery#1:max-lines-per-function": 163,
-    "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1:complexity": 21,
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,

@@ -4,6 +4,12 @@ import { kase } from "./writer_queries.js";
 import { workspaceState } from "./workspace_state.js";
 // Case saving delegates folder writes, validation/merge, retained retries and summary generation.
 
+function serializedCaseBody(services, cid) {
+  const body = JSON.stringify(services.caseFile(cid), null, 2);
+  if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
+  return body;
+}
+
 function saveCaseToDownloads(services, k, name, body) {
   if (JSON.parse(body).schema >= 5) {
     services.downloadWorkspace();
@@ -45,8 +51,7 @@ export function createCaseSaveWorkflow(services) {
       name = caseFileName(k);
     let body;
     try {
-      body = JSON.stringify(services.caseFile(cid), null, 2);
-      if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
+      body = serializedCaseBody(services, cid);
     } catch (err) {
       services.toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
       return false;
@@ -67,8 +72,7 @@ export function createCaseSaveWorkflow(services) {
       return false;
     }
     try {
-      body = JSON.stringify(services.caseFile(cid), null, 2);
-      if (typeof body !== "string" || !body.length) throw new Error("The case did not produce a readable record");
+      body = serializedCaseBody(services, cid);
     } catch (err) {
       services.toast("The case could not be exported — " + ((err && err.message) || "unknown error"));
       return false;
