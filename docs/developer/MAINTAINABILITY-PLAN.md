@@ -1402,3 +1402,23 @@ The #314 full gate and local repository contract exposed missing mandatory test-
 ## retire-unused-writer-diagnostics
 
 Trace remaining diagnostic consumers with folded JS/helper strings, Python tests and browser sources. Six retention entries have no consumers: focusWalkDetails, catalogReplacement, readSharedCase, localCaseWork, friendlyField and conflictControls. Names in retained owner references are independent private definitions/calls, not core diagnostics. Remove the six test-build properties and now-unused core aliases; preserve owner methods and all behavioral assertions. The first hook-only version was production-byte-identical but correctly failed ESLint for unused aliases. The final version removes those aliases; Writer bundle bytes differ only through the removed plain-object aliases and incidental bundler binding names, verified by normalized production AST comparison. Reports HTML remains byte-identical. Retained hooks54 to48; legacy evaluator files70 unchanged. Catalog/cache/shared comparison/preflight/focus/outcome, original R47/catalog feature and registration/architecture/seam checks pass.
+
+## recipient-line-owner
+
+Move ccLines and agentLines unchanged from startup core to their existing address_format owner, retaining core export aliases and declaration ASTs. This enables direct citation/recipient composition without copying formatting behavior into tests. All8,192 retained/current comparisons preserve normalization/fallback/blank filtering, property access and interruption order; original recipient/citation historical face assertions pass. No new module, state/import boundary, public service field, print reference, stored identity or release change.
+
+## citation-deposit-owner-tests
+
+Migrate R31 deposit and R32 pricing suites from evaluated Writer startup to focused real editor, pricing, charges, deposit/edit, initial-citation, court/history and citation-face composition. All19 and22 original assertion ASTs remain identical, including required-deposit print refusal, edits/reconfirmation, Python3,872-row/tier/measurement parity, real review DOM refresh and frozen historical citation faces. Ordinary-draft/non-snow guards and native UI/save remain controlled service boundaries; actual pricing/validation/renderers run. Initial assembly omitted the agent-lines adapter; extracted its existing formatter unchanged in the preceding checkpoint and supplied that public owner. Cold imports leave Writer state empty. Legacy evaluator files70 to68; retained hooks48, no new diagnostics or registry.
+
+## deposit-form-templates
+
+Convert the deposit completion form to the existing escaping screen tag. Existing escapes, fixed native attributes and owned input/select/measurement fragments keep explicit raw boundaries. All4,096 complete retained/current HTML/state/callback/error comparisons preserve charge/offense selection, base/total/schedule, measurements, disabled/required flags and approved-source fields. No completion/authority logic, service ordering, listener, historical print or identity changes. Non-vacuity guards require manual, measurement and multiple-charge forms to render.
+
+## citation-review-templates
+
+Convert citation review/charge cards, fields, pricing/authorization details and status fragments to the screen tag. Initial-citation narrative, deposit validation/editing rules and all other methods are excluded. Existing escaped values, owned field/card/form fragments and fixed attribute branches remain explicit raw boundaries. All4,096 retained/current comparisons preserve complete supported HTML, state and ordered peer access/effects/errors, with non-vacuous ready/held/completion/initial-preview coverage. Redundant empty-string concat is removed only for statically string-valued expressions. Print owners, deadlines, listeners, stored formats and release identities are unchanged.
+
+## citation-court-owner-test
+
+Migrate R33 court/mandatory-appearance/library-correction regression to the same focused citation owners, adding real document_sources composition for its retained authoring9 standalone court snapshot. The fixture explicitly refuses other body contexts and requires the real activeBlocks owner to return no notice blocks; it does not duplicate the core selector. All15 original assertion ASTs remain unchanged, including exact legacy face bytes, four copies, frozen court facts, mandatory refusal/labels and library correction. Existing public source/renderer tests retain broader historical coverage. Legacy evaluator files68 to67; hooks48 unchanged.

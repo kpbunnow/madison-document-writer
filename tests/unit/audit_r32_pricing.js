@@ -1,5 +1,4 @@
-/* Every current compiled row and random measurements must agree with Python. */
-globalThis.MADISON_TEST_DATA = true;
+/* Retained deposit/pricing/renderer assertions through real feature owners without Writer startup. */
 const fs = require("fs"),
   assert = require("assert/strict"),
   cp = require("child_process"),
@@ -8,17 +7,26 @@ const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toas
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,
 });
-global.window = dom.window;
-global.document = dom.window.document;
-window.scrollTo = () => {};
-global.getSelection = () => window.getSelection();
-global.fetch = async () => {
-  throw Error("offline");
-};
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+Object.assign(global, { window: dom.window, document: dom.window.document, getSelection: () => dom.window.getSelection() });
+(async () => {
+  const {
+    WriterState,
+    today,
+    recordDay,
+    addDays,
+    doc,
+    newDoc,
+    initialCitations,
+    depositStep,
+    resolveCitationAmount,
+    canonicalOrdinance,
+    policyAt,
+    editCitation,
+    citationReview,
+    citationDepositFault,
+    citationFaces,
+  } = await require("../fixtures/citation_deposit_workflow.cjs")();
+
   assert.equal(canonicalOrdinance("Section 27.05(2)(c)"), "27.05(2)(c)");
   const cases = [];
   for (const e of policyAt("2026-10-11").entries)
@@ -145,5 +153,7 @@ const test = async () => {
   );
   console.log("PASS R32 " + cases.length + " row/tier/measurement parity and automatic draft workflow");
   process.exit(0);
-};
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

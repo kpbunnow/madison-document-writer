@@ -1,0 +1,14 @@
+export const ccLines = (c, normalize = true) =>
+  [
+    String(c.name || "").trim(),
+    normalize ? standardStreetAddress(c.addr) || String(c.addr || "").trim() : String(c.addr || "").trim(),
+    normalize ? standardCityStateZip(c.city) || String(c.city || "").trim() : String(c.city || "").trim(),
+  ].filter(Boolean);
+export const agentLines = (k, normalize = true) => {
+  const a = (k && k.agent) || {};
+  return [
+    String(a.name || "").trim(),
+    normalize ? standardStreetAddress(a.addr) || String(a.addr || "").trim() : String(a.addr || "").trim(),
+    normalize ? standardCityStateZip(a.city) || String(a.city || "").trim() : String(a.city || "").trim(),
+  ].filter(Boolean);
+};
