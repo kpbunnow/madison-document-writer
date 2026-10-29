@@ -1430,3 +1430,15 @@ Added 12,000 seeded comparison scenarios (6,000 input, 6,000 change) before chan
 The input listener keeps its ordered feature-owner delegates in one table and delegates the draft's own edits to named phases for case fields, document fields and item fields (due date, sections, group, text). The change listener becomes an ordered route table with the same first-match precedence. The phases are module-level functions that receive the owner's `services`, so every service read still happens at the original point of use and `createEditorEvents` shrinks from 495 to 317 lines. The listeners are still registered at the original startup positions with the original keys; the registration order, capture phases and the scoped-service contract are unchanged. No assertion, format, hook or identity change.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 28, 'max-depth': 0, 'max-lines-per-function': 90, 'python': 15}.
+
+## citation-check-equivalence and citation-check-phases
+
+Added 6,000 seeded comparison scenarios before changing the citation authoring checks, comparing them with the retained frozen module (`citation_workflow_reference.txt`, whose `authoringChecks` is byte-identical to the source). The comparison records ordered messages and targets, every peer property read and call in order including the repeated charge, history and deposit fault reads, refusal at each injected interruption (531 scenarios) and untouched inputs, and fails if the generator stops reaching any of 27 message families. Four deliberate mutations (a reused charge fault, swapped phases, a single history read and an early `choosesCharge` read) each fail it.
+
+The checks become module-level phases that receive the owner's services: due-date spacing, the notice library check, document-level deposit and history checks, and per-item charge, schedule and number checks, with the deposit-request refusal built by its own message and selector helpers. `scheduledOffenseNeeded` and the deposit-completeness test move to module level beside the deposit rules.
+
+## citation-review-card-phases
+
+The review card callback (complexity 55) becomes `chargeCard`, built from small ordered builders: status and result, summary, the charge-choice hint, ordinance field, scheduled-offense select, edit fields, pricing hint, deposit method, amount and tier fields, measurement factors, pricing details and the card shell. Builders run in the order the original markup evaluated, so peer reads keep their order. The existing 4,096-scenario comparison with the retained presentation (exact HTML, state, ordered reads and effects, errors and interruptions) passes unchanged on the first run, and four deliberate mutations (a text change, an early `snow.is` read, a dropped pricing-hint read and a changed disclosure flag) each fail it. No assertion, fixture, hook, format or identity change.
+
+Measured counts: {'complexity': 28, 'max-depth': 0, 'max-lines-per-function': 90, 'python': 15} → {'complexity': 26, 'max-depth': 0, 'max-lines-per-function': 85, 'python': 15}.

@@ -618,6 +618,7 @@
     "tests/unit/audit_citation_base_rules.py",
     "tests/unit/audit_citation_charges.js",
     "tests/unit/audit_citation_charges_parity.js",
+    "tests/unit/audit_citation_check_rules.js",
     "tests/unit/audit_citation_edit_rules.js",
     "tests/unit/audit_citation_history_rules.py",
     "tests/unit/audit_citation_pricing_rules.py",
