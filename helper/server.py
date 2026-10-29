@@ -758,8 +758,7 @@ def validate_draft_deposits(value):
             validate_draft_deposits(child)
 
 
-@logged("backup")
-def backup_write(data):
+def _checked_backup(data):
     if set(data) != {"workspace", "case", "backup"}:
         raise ValueError("Invalid draft backup request")
     payload = data["backup"]
@@ -768,6 +767,60 @@ def backup_write(data):
     if payload.get("workspace") != data["workspace"] or payload.get("case") != data["case"]:
         raise ValueError("Draft backup identity differs from its location")
     validate_draft_deposits(payload)
+    return payload
+
+
+def _backups_to_keep(files):
+    """Newest eight, then older daily and weekly representatives, up to two pre-replacement snapshots, then newest to the limit."""
+    keep = set(files[:8])
+    daily = {old.name[:8] for old in files[:8]}
+    weekly = {datetime.strptime(old.name[:8], "%Y%m%d").strftime("%Y-%W") for old in files[:8]}
+    daily_added, weekly_added, replacement = 0, 0, []
+    for old in files[8:]:
+        try:
+            snapshot = json.loads(old.read_text(encoding="utf-8"))
+            day_stamp = datetime.strptime(old.name[:8], "%Y%m%d")
+            day, week = old.name[:8], day_stamp.strftime("%Y-%W")
+            if snapshot.get("preReplacement"):
+                replacement.append(old)
+            elif day not in daily and daily_added < 10:
+                keep.add(old)
+                daily.add(day)
+                daily_added += 1
+                weekly.add(week)
+            elif week not in weekly and weekly_added < 4:
+                keep.add(old)
+                weekly.add(week)
+                weekly_added += 1
+                daily.add(day)
+        except (OSError, ValueError, TypeError) as error:
+            record("backup-retention", "failed", error=error)
+            continue
+    keep.update(replacement[:2])
+    for old in files:
+        if len(keep) >= BACKUP_KEEP:
+            break
+        keep.add(old)
+    return keep
+
+
+def _trim_backups(folder):
+    try:
+        files = sorted(folder.glob("*.json"), reverse=True)
+        keep = _backups_to_keep(files)
+        for old in files:
+            if old not in keep:
+                try:
+                    old.unlink()
+                except OSError as error:
+                    record("backup-retention", "failed", error=error)
+    except Exception as error:
+        record("backup-retention", "failed", error=error)  # New snapshot stays available.
+
+
+@logged("backup")
+def backup_write(data):
+    payload = _checked_backup(data)
     folder = backup_location(data["workspace"], data["case"])
     raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     if len(raw) > MAX_BODY:
@@ -777,45 +830,7 @@ def backup_write(data):
     name = stamp + "-" + hashlib.sha256(raw).hexdigest()[:12] + ".json"
     with file_lock(folder, "draft-backup"):
         atomic_write(folder / name, raw)
-        try:
-            files = sorted(folder.glob("*.json"), reverse=True)
-            keep = set(files[:8])
-            daily = {old.name[:8] for old in files[:8]}
-            weekly = {datetime.strptime(old.name[:8], "%Y%m%d").strftime("%Y-%W") for old in files[:8]}
-            daily_added, weekly_added, replacement = 0, 0, []
-            for old in files[8:]:
-                try:
-                    snapshot = json.loads(old.read_text(encoding="utf-8"))
-                    day_stamp = datetime.strptime(old.name[:8], "%Y%m%d")
-                    day, week = old.name[:8], day_stamp.strftime("%Y-%W")
-                    if snapshot.get("preReplacement"):
-                        replacement.append(old)
-                    elif day not in daily and daily_added < 10:
-                        keep.add(old)
-                        daily.add(day)
-                        daily_added += 1
-                        weekly.add(week)
-                    elif week not in weekly and weekly_added < 4:
-                        keep.add(old)
-                        weekly.add(week)
-                        weekly_added += 1
-                        daily.add(day)
-                except (OSError, ValueError, TypeError) as error:
-                    record("backup-retention", "failed", error=error)
-                    continue
-            keep.update(replacement[:2])
-            for old in files:
-                if len(keep) >= BACKUP_KEEP:
-                    break
-                keep.add(old)
-            for old in files:
-                if old not in keep:
-                    try:
-                        old.unlink()
-                    except OSError as error:
-                        record("backup-retention", "failed", error=error)
-        except Exception as error:
-            record("backup-retention", "failed", error=error)  # New snapshot stays available.
+        _trim_backups(folder)
     return {"ok": True, "at": stamp, "name": name}
 
 
@@ -1044,6 +1059,63 @@ def stop_serving(httpd, answered):
     """Separate thread: let the shutdown answer reach the page, then end serve_forever (the socket closes in main)."""
     answered.wait(5)
     httpd.shutdown()
+
+
+# Shared-record POST routes. Each looks its helper up when called, so the table never holds a stale function.
+def _shared_save_case(data):
+    return save_case(
+        case_dir(),
+        data.get("name"),
+        data.get("file"),
+        data.get("baseRevision", ""),
+        data.get("baseCase"),
+        data.get("idempotencyEvent", ""),
+        catalog_path(),
+        resource("catalog_manifest.json"),
+    )
+
+
+def _shared_save_summary(data):
+    return save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
+
+
+def _shared_probe(data):
+    with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
+        probe.write(b"Madison Document Writer connection check")
+        probe.flush()
+        os.fsync(probe.fileno())
+    return {"ok": True}
+
+
+def _shared_backup_write(data):
+    return backup_write(data)
+
+
+def _shared_backup_read(data):
+    return backup_read(data)
+
+
+def _shared_catalog_review(data):
+    return catalog_review(data)
+
+
+def _shared_artifact_status(data):
+    return artifact_status(data.get("items"))
+
+
+def _shared_sync_outbox(data):
+    return sync_outbox()
+
+
+SHARED_ROUTES = {
+    "/cases/save": _shared_save_case,
+    "/cases/summary": _shared_save_summary,
+    "/cases/probe": _shared_probe,
+    "/draft-backups/write": _shared_backup_write,
+    "/draft-backups/read": _shared_backup_read,
+    "/catalog/review": _shared_catalog_review,
+    "/artifact/status": _shared_artifact_status,
+}
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -1495,36 +1567,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict):
                 raise ValueError("Expected a JSON object")
-            if route == "/cases/save":
-                answer = save_case(
-                    case_dir(),
-                    data.get("name"),
-                    data.get("file"),
-                    data.get("baseRevision", ""),
-                    data.get("baseCase"),
-                    data.get("idempotencyEvent", ""),
-                    catalog_path(),
-                    resource("catalog_manifest.json"),
-                )
-            elif route == "/cases/summary":
-                answer = save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
-            elif route == "/cases/probe":
-                with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
-                    probe.write(b"Madison Document Writer connection check")
-                    probe.flush()
-                    os.fsync(probe.fileno())
-                answer = {"ok": True}
-            elif route == "/draft-backups/write":
-                answer = backup_write(data)
-            elif route == "/draft-backups/read":
-                answer = backup_read(data)
-            elif route == "/catalog/review":
-                answer = catalog_review(data)
-            elif route == "/artifact/status":
-                answer = artifact_status(data.get("items"))
-            else:
-                answer = sync_outbox()
-            return self._json(200, answer)
+            return self._json(200, SHARED_ROUTES.get(route, _shared_sync_outbox)(data))
         except (ValueError, TypeError) as error:
             return self._json(400, {"ok": False, "error": str(error)})
         except Exception as error:
@@ -1593,17 +1636,54 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return "expected application/json"
         return None
 
+    def _pdf_request(self):
+        """The JSON body of a PDF post, or (None, response) when the request is refused before it is read."""
+        raw = self.headers.get("Content-Length")
+        if raw is None or not raw.strip().isdigit():
+            return None, self._json(411, {"ok": False, "error": "a length is required"})
+        n = int(raw)
+        if n <= 0 or n > MAX_BODY:
+            return None, self._json(413, {"ok": False, "error": "that document is too large to accept"})
+        data = json.loads(self.rfile.read(n).decode("utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("Expected a JSON object")
+        return data, None
+
+    @staticmethod
+    def _render_and_file(html, name, target):
+        """Render the document and file it; only filing may fall back to the local outbox."""
+        with tempfile.TemporaryDirectory(prefix="dw-rendered-") as temporary:
+            rendered = Path(temporary) / name
+            # Renderer/startup errors propagate; only filing can use outbox.
+            make_pdf(html, rendered)
+            pdf_bytes = rendered.read_bytes()
+            try:
+                return target, file_pdf_bytes(target, pdf_bytes)
+            except OSError:
+                local = HERE / OUTDIR_NAME
+                if target.parent == local:
+                    raise
+                target = local / name
+                return target, file_pdf_bytes(target, pdf_bytes)
+
+    def _pdf_source(self, data, email, name, html):
+        """Where the PDF to file or mail comes from: a verified archive, or a fresh rendering."""
+        target = out_dir() / name
+        if email and data.get("sha256"):
+            target, _ = verified_artifact(name, data["sha256"], data.get("docId"))
+            return target, str(target)
+        if email and data.get("reuse"):
+            raise ValueError("The archived issued PDF must be verified before repeat distribution")
+        if not html.strip():
+            raise ValueError("no document was supplied")
+        target, path = self._render_and_file(html, name, target)
+        return target, path
+
     def _pdf(self, email=False):
         try:
-            raw = self.headers.get("Content-Length")
-            if raw is None or not raw.strip().isdigit():
-                return self._json(411, {"ok": False, "error": "a length is required"})
-            n = int(raw)
-            if n <= 0 or n > MAX_BODY:
-                return self._json(413, {"ok": False, "error": "that document is too large to accept"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
-            if not isinstance(data, dict):
-                raise ValueError("Expected a JSON object")
+            data, refusal = self._pdf_request()
+            if data is None:
+                return refusal
             name = safe_name(str(data.get("filename") or "Document"))
             html = data.get("html") or ""
             if not isinstance(html, str):
@@ -1612,28 +1692,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if not html.strip():
                     raise ValueError("no document was supplied")
                 return self._json(200, artifact_store.file_operation(sys.modules[__name__], data, name, html))
-            target = out_dir() / name
-            if email and data.get("sha256"):
-                target, _ = verified_artifact(name, data["sha256"], data.get("docId"))
-                path = str(target)
-            elif email and data.get("reuse"):
-                raise ValueError("The archived issued PDF must be verified before repeat distribution")
-            else:
-                if not html.strip():
-                    raise ValueError("no document was supplied")
-                with tempfile.TemporaryDirectory(prefix="dw-rendered-") as temporary:
-                    rendered = Path(temporary) / name
-                    # Renderer/startup errors propagate; only filing can use outbox.
-                    make_pdf(html, rendered)
-                    pdf_bytes = rendered.read_bytes()
-                    try:
-                        path = file_pdf_bytes(target, pdf_bytes)
-                    except OSError:
-                        local = HERE / OUTDIR_NAME
-                        if target.parent == local:
-                            raise
-                        target = local / name
-                        path = file_pdf_bytes(target, pdf_bytes)
+            target, path = self._pdf_source(data, email, name, html)
             record("pdf", "ok")
             if not email:
                 return self._json(

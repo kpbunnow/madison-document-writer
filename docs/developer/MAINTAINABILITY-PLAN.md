@@ -1527,6 +1527,33 @@ Added a frozen-original comparison of the scoped action click handler (`audit_ne
 
 Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}; `initNewDocuments` fell from 1,089 to about 565 lines.
 
+## deposit-reading-phases
+
+Added a frozen-original comparison of the build-time deposit reading (`audit_deposit_interpreter_rules.py`: 6,000 seeded schedule entries against the retained module text, executed in its own namespace). It compares the exact result or error, every ordinance family, quantity row, tier list and stale notice, and that inputs are untouched.
+
+`interpret` (C901 14) is now an ordered table of rule readings (mandatory, tree, building, tons, percent, parking, tiers) with separate classification, status and stale-notice functions. Four of six deliberate mutations are caught; the survivors (swapping two rules with disjoint conditions, and a guard that cannot differ because a mandatory rule has no fields) are behavior-equivalent.
+
+## backup-write-phases
+
+Added a frozen-original comparison of draft backup writes (`audit_backup_write_rules.py`: 500 seeded requests on real folders against the retained function text executed in its own namespace). It compares validation order and messages, the written snapshot, daily, weekly and replacement retention across folders of up to 90 snapshots spread over 500 days, unreadable and undeletable files, and the audit records. A first draft of the comparison never reached retention (one malformed file aborts it by design); the scenarios were rebuilt so retention runs, and the limit mutations are now caught.
+
+`backup_write` (C901 16) is now a request check, a pure retention selection (`_backups_to_keep`) and a trimming step (`_trim_backups`) around the same locked write. The one surviving mutation (the size of the newest-kept group) is behavior-equivalent because the fill step keeps the same newest files.
+
+## shared-record-route-table
+
+Added a frozen-original comparison of the shared-record POST handler (`audit_shared_records_route_rules.py`: 3,000 seeded requests against the retained method text, with a stand-in request object). It compares size and body checks, each route's helper and arguments, the probe file and the status and message of every failure. The handler (C901 12) now looks its route up in a table of small functions that resolve their helper when called, so patched helpers and the unknown-route default behave as before.
+
+## pdf-post-phases
+
+Added a frozen-original comparison of the PDF filing and email handler (`audit_pdf_post_rules.py`: 3,000 seeded requests against the retained method text, with a request stand-in that keeps the real handler's helper methods). It compares length and body checks, the operation, verified and reused archives, rendering, outbox fallback (including the local-outbox case), the Outlook draft, files left behind and every failure status and message, with every peer call and argument in order.
+
+`_pdf` (C901 14) is now a request reader, a source selector (verified archive or fresh rendering) and a render-and-file step around the same reply. Mutations in the fallback, source selection, length check, status and reply fields are caught; the survivor (a ValueError raised as a TypeError) is equivalent because both map to the same status and message.
+
+## durable-pdf-operation-phases
+
+Added a frozen-original comparison of durable PDF operations (`audit_artifact_operation_rules.py`: 1,200 seeded sequences of two to four requests on real folders against the retained module). Between requests it applies disturbances: a dropped or unusable share, tampered, truncated, deleted or badly encoded receipts, same-named conflicting files, a symlinked or directory-shaped archive in either location and a share that is the same folder as the local outbox. It compares every result, error message, peer call and the exact files left behind. Eight mutations of the security checks (symlink and conflict refusals, receipt binding and encoding, cache retry, local-write refusal and the share-unavailable message) are caught; the comparison was rebuilt twice after mutations survived because the scenarios never replayed the same operation or never reached the unavailable-share path.
+
+`file_operation` (C901 18) is now an operation check, receipt reader, finish step and first-filing step with explicit state, keeping the lock, receipt, cache and retry order unchanged.
 ## safety-action-phases
 
 Added a frozen-original comparison of the safety click handler before changing it (`audit_safety_event_rules.js`: 10,000 seeded events against the retained `safety_events_reference.txt`, 644 with interruptions swallowed into failure toasts), using the new shared `tests/fixtures/equivalence_harness.cjs` (compile, seeded generator, call recorder, listener capture). It compares attribute priority, every action's peer calls in order with the state they see, and failure toasts.
@@ -1560,3 +1587,5 @@ Added a frozen-original comparison of record verification before changing it (`a
 Added a frozen-original comparison of the record-action dialog (`audit_record_action_modal_rules.js`: 6,000 seeded states, every mode, held attempt, saved form and error, with escaping, against the retained `correction_ui_reference.txt`). `recordActionModal` (complexity 25) is now a held-attempt lookup plus inspector, external-reference and shell builders. Four deliberate mutations are caught.
 
 Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
+
+The durable-operation comparison first failed intermittently in the full run: the retained and current functions check the shared and local archive locations through a set, whose iteration order follows the path text, so two different temporary folders could order a double conflict differently. The production code is unchanged by that finding (the two locations are checked in an arbitrary but complete order); the comparison now runs both sides in the same folder path so the order is identical, and was run repeatedly under different hash seeds.
