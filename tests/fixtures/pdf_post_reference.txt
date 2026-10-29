@@ -1,0 +1,59 @@
+def _pdf(self, email=False):
+    try:
+        raw = self.headers.get("Content-Length")
+        if raw is None or not raw.strip().isdigit():
+            return self._json(411, {"ok": False, "error": "a length is required"})
+        n = int(raw)
+        if n <= 0 or n > MAX_BODY:
+            return self._json(413, {"ok": False, "error": "that document is too large to accept"})
+        data = json.loads(self.rfile.read(n).decode("utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("Expected a JSON object")
+        name = safe_name(str(data.get("filename") or "Document"))
+        html = data.get("html") or ""
+        if not isinstance(html, str):
+            raise ValueError("Expected document HTML")
+        if not email and "operation" in data:
+            if not html.strip():
+                raise ValueError("no document was supplied")
+            return self._json(200, artifact_store.file_operation(sys.modules[__name__], data, name, html))
+        target = out_dir() / name
+        if email and data.get("sha256"):
+            target, _ = verified_artifact(name, data["sha256"], data.get("docId"))
+            path = str(target)
+        elif email and data.get("reuse"):
+            raise ValueError("The archived issued PDF must be verified before repeat distribution")
+        else:
+            if not html.strip():
+                raise ValueError("no document was supplied")
+            with tempfile.TemporaryDirectory(prefix="dw-rendered-") as temporary:
+                rendered = Path(temporary) / name
+                # Renderer/startup errors propagate; only filing can use outbox.
+                make_pdf(html, rendered)
+                pdf_bytes = rendered.read_bytes()
+                try:
+                    path = file_pdf_bytes(target, pdf_bytes)
+                except OSError:
+                    local = HERE / OUTDIR_NAME
+                    if target.parent == local:
+                        raise
+                    target = local / name
+                    path = file_pdf_bytes(target, pdf_bytes)
+        record("pdf", "ok")
+        if not email:
+            return self._json(
+                200,
+                {
+                    "ok": True,
+                    "path": path,
+                    "name": name,
+                    "local": target.parent == HERE / OUTDIR_NAME and share_root() != HERE,
+                    "sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+                },
+            )
+        how = open_in_outlook(Path(path), data.get("subject") or name, data.get("body") or "", data.get("to") or "")
+        record("email-draft", "ok")
+        return self._json(200, {"ok": True, "path": path, "name": name, "via": how})
+    except Exception as e:
+        record("email-draft" if email else "pdf", "failed", error=e)
+        return self._json(400 if isinstance(e, (ValueError, TypeError)) else 500, {"ok": False, "error": str(e)})
