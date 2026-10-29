@@ -399,6 +399,7 @@ const scopedServices = {
     "./workspace_state.js",
   ],
   "citation_workflow.js": [
+    "./screen_html.js",
     "./deadline_assignment.js",
     "./inspection_facts.js",
     "../assets/shared.js",

@@ -1414,3 +1414,7 @@ Migrate R31 deposit and R32 pricing suites from evaluated Writer startup to focu
 ## deposit-form-templates
 
 Convert the deposit completion form to the existing escaping screen tag. Existing escapes, fixed native attributes and owned input/select/measurement fragments keep explicit raw boundaries. All4,096 complete retained/current HTML/state/callback/error comparisons preserve charge/offense selection, base/total/schedule, measurements, disabled/required flags and approved-source fields. No completion/authority logic, service ordering, listener, historical print or identity changes. Non-vacuity guards require manual, measurement and multiple-charge forms to render.
+
+## citation-review-templates
+
+Convert citation review/charge cards, fields, pricing/authorization details and status fragments to the screen tag. Initial-citation narrative, deposit validation/editing rules and all other methods are excluded. Existing escaped values, owned field/card/form fragments and fixed attribute branches remain explicit raw boundaries. All4,096 retained/current comparisons preserve complete supported HTML, state and ordered peer access/effects/errors, with non-vacuous ready/held/completion/initial-preview coverage. Redundant empty-string concat is removed only for statically string-valued expressions. Print owners, deadlines, listeners, stored formats and release identities are unchanged.
