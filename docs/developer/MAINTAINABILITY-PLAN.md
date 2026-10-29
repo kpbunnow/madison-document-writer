@@ -949,3 +949,9 @@ Measured counts: {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 11
 Separated connection status and PDF/recovery/diagnostic presentation from the saved-work coordinator without changing escaping, wording or renderer order. Passed 3,020 retained-function exact HTML and ordered context/escape/renderer comparisons, 5,108 saved-case comparisons, 1,033 Workspace snapshots, fresh test build and existing R44 saved-work suite. Module boundaries, test seams, ESLint and formatting pass. No storage, print, format or release identity changes.
 
 Measured counts: {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 114, 'python': 15}.
+
+## report-export-case-rows
+
+Case sheet headers and row construction retain column order, date wrappers and live case facts. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes. The large new test-only fixture retains the complete pre-batch owner once so every later extraction has an independent oracle; existing frozen references are untouched. Existing full Reports suite also passes (its JSDOM canvas warnings remain).
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 114, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 114, 'python': 15}.
