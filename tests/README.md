@@ -277,6 +277,7 @@ covers, or a new suite under its feature.
 | `audit_record_history_markup_rules.js` | 6,000 seeded documents compare the document record panel markup (revision chain, withdrawal and follow-through, pending attempts, record notes, save-in-progress, escaping) and every peer read with the retained module. |
 | `audit_recovery_modal_markup_rules.js` | 6,000 seeded states compare the recovery dialog markup (backup list, selection, errors, local and shared comparison, escaping) and every peer read with the retained module. |
 | `audit_correction_panel_markup_rules.js` | 6,000 seeded corrections compare the correction panel markup (locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping) and every peer read and call with the retained module. |
+| `audit_deposit_schedule_markup_rules.js` | Deposit schedule explorer markup after date, search and page actions against the retained module. |
 | `audit_catalog_review_panel_markup_rules.js` | Catalog review panel markup, notices, replacement search and peer-call order against the retained module. |
 | `audit_tools_screen_markup_rules.js` | Every colour-theme state compares the Tools & settings screen markup and its shell and icon peer calls with the retained module. |
 | `audit_new_document_click_rules.js` | 8,000 seeded click events compare scoped new-document actions with the retained module: attribute priority, the draft, worksheet and case effects of each action, every peer read and call in order and refusal at each interrupted call. |
