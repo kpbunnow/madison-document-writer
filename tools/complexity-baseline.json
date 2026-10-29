@@ -1,9 +1,9 @@
 {
   "counts": {
-    "complexity": 26,
+    "complexity": 23,
     "max-depth": 0,
-    "max-lines-per-function": 85,
-    "python": 15
+    "max-lines-per-function": 82,
+    "python": 13
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 1309,
@@ -23,12 +23,6 @@
     "app/modules/case_activity.js:createCaseActivity#1:max-lines-per-function": 160,
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
     "app/modules/case_loading.js:createCaseLoading#1:max-lines-per-function": 110,
-    "app/modules/case_projection.js:replayEvents#1:max-lines-per-function": 84,
-    "app/modules/case_projection.js:replayEvents#1/anonymous#1:complexity": 31,
-    "app/modules/case_projection.js:summarizeRecord#1:complexity": 61,
-    "app/modules/case_projection.js:summarizeRecord#1:max-lines-per-function": 291,
-    "app/modules/case_projection.js:summarizeRecord#1/anonymous#11/anonymous#1:complexity": 21,
-    "app/modules/case_projection.js:summarizeRecord#1/anonymous#13:max-lines-per-function": 98,
     "app/modules/case_recovery.js:createCaseRecovery#1:max-lines-per-function": 163,
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
@@ -122,8 +116,6 @@
     "helper/case_integrity.py:verify_record:C901": 20,
     "helper/case_lookup.py:run_query:C901": 29,
     "helper/case_lookup.py:settings:C901": 18,
-    "helper/case_projection.py:project:C901": 42,
-    "helper/case_projection.py:replay_events:C901": 29,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 24,
     "helper/server.py:_pdf:C901": 14,
