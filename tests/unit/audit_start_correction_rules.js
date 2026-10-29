@@ -35,6 +35,11 @@ function scenario() {
     superseded: chance(3) ? true : undefined,
     annotations: [1],
     filedAt: "x",
+    filedRef: "f1",
+    accelaAt: "a1",
+    accelaRef: "a2",
+    issuedBy: "ins1",
+    reconciliation: { r: 1 },
     replaces: "old",
     inspectorId: pick(["ins1", "ins2"]),
   };

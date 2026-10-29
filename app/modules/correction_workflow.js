@@ -4,6 +4,83 @@ import { recordDay } from "../assets/shared.js";
 import { caseDetails, clone } from "./record_values.js";
 import { doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
 
+/* Issued fields a correction draft never inherits. */
+const ISSUED_FIELDS = [
+  "frozen",
+  "void",
+  "superseded",
+  "annotations",
+  "reconciliation",
+  "accelaAt",
+  "accelaRef",
+  "filedAt",
+  "filedRef",
+  "issuedAt",
+  "issuedBy",
+  "eventId",
+  "revision",
+  "replaces",
+  "emailedTo",
+];
+
+const emailKey = (e, addr) => addr.toLowerCase() + "|" + (e.kind || "Other");
+
+/* Recipients from the case, the document and the issued copy, one row per address and kind; issued rows win. */
+function recipientRows(src) {
+  const savedEmails = (Array.isArray(kase(src.caseId).emails) ? kase(src.caseId).emails : []).concat(
+    Array.isArray(docCase(src).emails) ? docCase(src).emails : [],
+  );
+  const issuedEmails = Array.isArray(src.emailedTo) ? src.emailedTo : [];
+  const allEmails = savedEmails.concat(issuedEmails.map((e) => ({ addr: e.addr, kind: e.kind || "Other", on: true })));
+  const emailMap = new Map();
+  allEmails.forEach((e) => {
+    const addr = String(e.addr || "").trim();
+    if (addr) {
+      const key = emailKey(e, addr);
+      if (!emailMap.has(key)) emailMap.set(key, Object.assign({}, e, { addr }));
+    }
+  });
+  issuedEmails.forEach((e) => {
+    const addr = String(e.addr || "").trim();
+    if (addr) emailMap.set(emailKey(e, addr), { addr, kind: e.kind || "Other", on: true });
+  });
+  return Array.from(emailMap.values());
+}
+
+function correctionRecord(services, src) {
+  return {
+    targetId: src.id,
+    baseEventId: src.eventId,
+    expectedHead: recordHead(src.caseId),
+    reason: "",
+    case: clone(docCase(src)),
+    caseBaseline: caseDetails(kase(src.caseId)),
+    body: services.docBody(src),
+    blocks: clone(services.docBlocks(src)),
+    updateCase: true,
+    externalReference: "",
+    reviewed: false,
+    outcomes: {},
+    actionDate: (src.revision && (src.revision.actionDate || src.revision.originalIssued)) || src.mailed || recordDay(src.issuedAt),
+  };
+}
+
+function correctionDraft(services, src) {
+  const d = clone(src);
+  ISSUED_FIELDS.forEach((k) => delete d[k]);
+  const emailRows = recipientRows(src);
+  d.id = services.uid("d");
+  d.draft = true;
+  d.status = "Draft";
+  d.created = recordDay(services.today);
+  d.mailed = recordDay(services.today);
+  d.inspectorId = kase(src.caseId).inspectorId || docInsp(src).id;
+  d.correction = correctionRecord(services, src);
+  d.correction.case.emails = emailRows;
+  d.emailSelection = emailRows.filter((e) => e.on !== false).map((e) => e.addr + "|" + (e.kind || "Other"));
+  return d;
+}
+
 // Opening and issuing corrections delegate preparation, confirmation and original PDF authority.
 export function createCorrectionWorkflow(services) {
   function startCorrection(docId) {
@@ -20,68 +97,7 @@ export function createCorrectionWorkflow(services) {
       services.toast(fault);
       return null;
     }
-    const d = clone(src);
-    [
-      "frozen",
-      "void",
-      "superseded",
-      "annotations",
-      "reconciliation",
-      "accelaAt",
-      "accelaRef",
-      "filedAt",
-      "filedRef",
-      "issuedAt",
-      "issuedBy",
-      "eventId",
-      "revision",
-      "replaces",
-      "emailedTo",
-    ].forEach((k) => delete d[k]);
-    const savedEmails = (Array.isArray(kase(src.caseId).emails) ? kase(src.caseId).emails : []).concat(
-      Array.isArray(docCase(src).emails) ? docCase(src).emails : [],
-    );
-    const issuedEmails = Array.isArray(src.emailedTo) ? src.emailedTo : [];
-    const allEmails = savedEmails.concat(issuedEmails.map((e) => ({ addr: e.addr, kind: e.kind || "Other", on: true })));
-    const emailMap = new Map();
-    allEmails.forEach((e) => {
-      const addr = String(e.addr || "").trim();
-      if (addr) {
-        const key = addr.toLowerCase() + "|" + (e.kind || "Other");
-        if (!emailMap.has(key)) emailMap.set(key, Object.assign({}, e, { addr }));
-      }
-    });
-    issuedEmails.forEach((e) => {
-      const addr = String(e.addr || "").trim();
-      if (addr) {
-        const key = addr.toLowerCase() + "|" + (e.kind || "Other");
-        emailMap.set(key, { addr, kind: e.kind || "Other", on: true });
-      }
-    });
-    const emailRows = Array.from(emailMap.values());
-    d.id = services.uid("d");
-    d.draft = true;
-    d.status = "Draft";
-    d.created = recordDay(services.today);
-    d.mailed = recordDay(services.today);
-    d.inspectorId = kase(src.caseId).inspectorId || docInsp(src).id;
-    d.correction = {
-      targetId: src.id,
-      baseEventId: src.eventId,
-      expectedHead: recordHead(src.caseId),
-      reason: "",
-      case: clone(docCase(src)),
-      caseBaseline: caseDetails(kase(src.caseId)),
-      body: services.docBody(src),
-      blocks: clone(services.docBlocks(src)),
-      updateCase: true,
-      externalReference: "",
-      reviewed: false,
-      outcomes: {},
-      actionDate: (src.revision && (src.revision.actionDate || src.revision.originalIssued)) || src.mailed || recordDay(src.issuedAt),
-    };
-    d.correction.case.emails = emailRows;
-    d.emailSelection = emailRows.filter((e) => e.on !== false).map((e) => e.addr + "|" + (e.kind || "Other"));
+    const d = correctionDraft(services, src);
     workspace.DOCS.unshift(d);
     editor.state.docId = d.id;
     editor.state.screen = "write";
