@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 21,
+    "complexity": 20,
     "max-depth": 0,
-    "max-lines-per-function": 79,
+    "max-lines-per-function": 77,
     "python": 13
   },
   "violations": {
@@ -75,9 +75,6 @@
     "app/modules/new_documents.js:initNewDocuments#1/specialBody#1:max-lines-per-function": 206,
     "app/modules/new_documents.js:initNewDocuments#1/specialLifecycle#1:complexity": 29,
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 156,
-    "app/modules/record_commit.js:createRecordCommit#1:max-lines-per-function": 86,
-    "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:complexity": 38,
-    "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:max-lines-per-function": 83,
     "app/modules/record_history.js:createRecordHistory#1:max-lines-per-function": 118,
     "app/modules/record_history.js:createRecordHistory#1/recordHistoryHTML#1:max-lines-per-function": 97,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,

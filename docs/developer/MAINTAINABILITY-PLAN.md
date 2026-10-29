@@ -1466,3 +1466,11 @@ Added a frozen-original comparison of `lifecycleChecks` before changing it (`aud
 `lifecycleChecks` now assembles module-level phases in the original order: record, follow-up, visit, item, referral, citation and mailing faults. Four deliberate mutations (reordered phases, a dropped current-document read, a changed date bound and an extra peer read) are caught.
 
 Measured counts: {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13} → {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13}.
+
+## amendment-commit-phases
+
+Added a frozen-original comparison of `commitAmendment` before changing it (`audit_record_commit_rules.js`: 6,000 seeded amendment saves against the retained `record_commit_reference.txt`, 115 with injected interruptions). It compares the result, ordered peer reads and calls, candidate, case, draft and editor effects, definitive and indefinite failures, and refusal at each interrupted read or call.
+
+`commitAmendment` now runs module-level phases in the original order: start guard, durable attempt, candidate staging, helper save, case merge, draft settlement, record-form close, confirmation and failure handling. Deliberate mutations (a dropped committed-state write, a swapped project/remember order, a changed null test) are caught; the two surviving variants are behavior-equivalent (an unreachable `definitive` value and two independent steps swapped).
+
+Measured counts: {'complexity': 21, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13} → {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13}.
