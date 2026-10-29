@@ -20,7 +20,7 @@ The initial inventory has 91 files that read an application bundle and evaluate
 code, 59 files with isolated owner/VM evaluation and 32 files with browser evaluate
 calls. These are source-file categories, not suite/coverage counts, and overlap.
 The complete per-file inventory is reproducible; the legacy evaluator baseline is
-`tests/fixtures/test-seam-baseline.json`.
+`tests/fixtures/test-seam-baseline.json`. Each entry records its count and a class: **integration** (a genuine cross-owner lifecycle, startup, storage or screen flow, with its reason) or **migratable** (reaches private bindings of one owner, naming that owner). `audit_test_seams.js` rejects an unclassified entry or an integration entry without a reason, and a migration lowers or removes its entry.
 
 `audit_test_seams.js` rejects new/worsened whole-application evaluation and requires
 lowering the baseline as files migrate. Isolated owner construction through explicit
