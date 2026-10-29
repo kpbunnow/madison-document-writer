@@ -41,6 +41,7 @@ import {
 } from "./accela_report.js";
 import { authFetch } from "./helper_transport.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
+import { html, raw } from "./screen_html.js";
 
 /* Lazy dependencies preserve the complete import workflow without starting Writer. */
 function importedCaseFields({ c, accParcel, p }) {
@@ -150,9 +151,7 @@ function issuedInspectionDate({ p, k }) {
   p.time = k.time || "";
   if (p.initial && (p.initial.date !== k.date || p.initial.time !== (k.time || "")))
     p.warnings.push(
-      "The issued case keeps its initial inspection date/time. Correct a record" +
-        "ing error through document correction so reporting retains its audit tra" +
-        "il.",
+      "The issued case keeps its initial inspection date/time. Correct a recording error through document correction so reporting retains its audit trail.",
     );
 }
 
@@ -399,37 +398,15 @@ function applyImportRule(target, rule) {
 }
 
 function lookupCard() {
-  return (
-    '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
-    'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
-    "er the case number to retrieve its property, owner and inspection detail" +
-    's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
-    `${imports.LOOKUP_BUSY}` +
-    '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
-    'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
-    'holder="CB2026-000-00000" value="' +
-    `${esc(editor.WORK.entry["lookup-number"] || "")}` +
-    '" ' +
-    `${imports.LOOKUP_BUSY ? "readonly" : ""}` +
-    '></label>\n    <button class="btn btn-primary" type="submit" ' +
-    `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
-    ">" +
-    `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
-    "</button>\n    " +
+  return html`<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><span class="pill">City database</span></div><div class="card-b">\n  <p>Enter the case number to retrieve its property, owner and inspection details.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="${raw(imports.LOOKUP_BUSY)}">\n    <label class="f"><span>Case number</span><input type="text" id="lookup-number" maxlength="80" autocomplete="off" spellcheck="false" placeholder="CB2026-000-00000" value="${editor.WORK.entry["lookup-number"] || ""}" ${raw(imports.LOOKUP_BUSY ? "readonly" : "")}></label>\n    <button class="btn btn-primary" type="submit" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>${raw(imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection")}</button>\n    ${raw(
     "".concat(
       imports.LOOKUP_BUSY
         ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
         : !editor.state.acc
           ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
           : "",
-    ) +
-    '\n  </form>\n  <p class="hint">Uses your Windows account. A single eligibl' +
-    "e initial inspection opens a draft notice when all checks pass. Multiple" +
-    " or later results open for review. Your search and review can be saved f" +
-    'or later.</p>\n  <div role="status" aria-live="polite">' +
-    "".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : "") +
-    "</div>\n  </div></div>"
-  );
+    ),
+  )}\n  </form>\n  <p class="hint">Uses your Windows account. A single eligible initial inspection opens a draft notice when all checks pass. Multiple or later results open for review. Your search and review can be saved for later.</p>\n  <div role="status" aria-live="polite">${raw("".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : ""))}</div>\n  </div></div>`;
 }
 
 function cancelCaseLookup() {
@@ -450,10 +427,10 @@ function sqlReport(result, number) {
     if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
     if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
       throw new Error(
-        "The database marks this property as an individual landmark but supplies " + "no landmark name. Correct the source record before importing.",
+        "The database marks this property as an individual landmark but supplies no landmark name. Correct the source record before importing.",
       );
     if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
-      throw new Error("The database marks this property as historic but supplies no district na" + "me. Correct the source record before importing.");
+      throw new Error("The database marks this property as historic but supplies no district name. Correct the source record before importing.");
     grid.push(
       keys.map((k) =>
         k === "number"
@@ -658,20 +635,12 @@ function acceptImportPlan(services, acc, p) {
 const CANCEL_IMPORT = '<button class="btn" id="acc-cancel">Clear import</button>';
 
 function importErrorPanel(acc) {
-  return (
-    '<section class="card acc"><div class="card-h"><h2>Import review</h2></di' +
-    'v><div class="card-b">' +
-    `${acc.errors.map((e) => `<p class="banner alert">${esc(e)}</p>`).join("")}` +
-    "" +
-    `${CANCEL_IMPORT}` +
-    "</div></section>"
-  );
+  return html`<section class="card acc"><div class="card-h"><h2>Import review</h2></div><div class="card-b">${raw(acc.errors.map((e) => `<p class="banner alert">${esc(e)}</p>`).join(""))}${raw(CANCEL_IMPORT)}</div></section>`;
 }
 
 function reportCasePicker(acc) {
   return acc.cases.length > 1
-    ? '<div class="f"><span>Choose a case from this report</span><div class="ch' +
-        'ipbar">' +
+    ? html`<div class="f"><span>Choose a case from this report</span><div class="chipbar">${raw(
         "".concat(
           acc.cases
             .map(
@@ -687,8 +656,8 @@ function reportCasePicker(acc) {
                 "</button>",
             )
             .join(""),
-        ) +
-        "</div></div>"
+        ),
+      )}</div></div>`
     : "";
 }
 
@@ -709,10 +678,7 @@ const BLOCKERS_ID = "acc-blockers";
 
 function inspectionChoices(services, acc, choices, visibleBlockers) {
   if (choices.length > 1)
-    return (
-      '<fieldset class="import-choices"><legend>Choose the inspection result yo' +
-      'u are documenting</legend><p class="hint">Several eligible inspection re' +
-      "sults are available; choose one to continue.</p>" +
+    return html`<fieldset class="import-choices"><legend>Choose the inspection result you are documenting</legend><p class="hint">Several eligible inspection results are available; choose one to continue.</p>${raw(
       "".concat(
         choices
           .map(
@@ -732,9 +698,8 @@ function inspectionChoices(services, acc, choices, visibleBlockers) {
               "</button>",
           )
           .join(""),
-      ) +
-      "</fieldset>"
-    );
+      ),
+    )}</fieldset>`;
   return choices.length === 1 ? `<div class="import-selected">${inspectionSummary(services, choices[0])}</div>` : "";
 }
 
@@ -758,28 +723,13 @@ function unavailableInspections(services, unavailable) {
 
 function existingCaseContinuity(p, k, unfinished) {
   return k
-    ? '<div class="import-continuity"><h3>Continue existing case</h3><p>' +
-        "".concat(unfinished ? "Keep working on the saved draft or worksheet." : "Open the current case and its document history.") +
-        ' This does not import these inspection details.</p><button class="btn ' +
-        `${unfinished ? "btn-primary" : ""}` +
-        '" data-import-workspace="' +
-        `${esc(k.id)}` +
-        '">Continue existing case</button></div><h3>Inspection to import</h3><' +
-        'p class="hint">Use an unused completed inspection to start ' +
-        `${p.next === "snow" ? "a snow citation" : "a reinspection worksheet"}` +
-        ". Existing issued documents stay unchanged.</p>"
+    ? html`<div class="import-continuity"><h3>Continue existing case</h3><p>${raw("".concat(unfinished ? "Keep working on the saved draft or worksheet." : "Open the current case and its document history."))} This does not import these inspection details.</p><button class="btn ${raw(unfinished ? "btn-primary" : "")}" data-import-workspace="${k.id}">Continue existing case</button></div><h3>Inspection to import</h3><p class="hint">Use an unused completed inspection to start ${raw(p.next === "snow" ? "a snow citation" : "a reinspection worksheet")}. Existing issued documents stay unchanged.</p>`
     : "";
 }
 
 function manualDateFields(p, acc) {
   return p.needDate
-    ? '<div class="grid g2"><label class="f"><span>Initial inspection date</spa' +
-        'n><input type="date" id="acc-date" value="' +
-        `${esc(acc.manualDate || "")}` +
-        '"></label><label class="f"><span>Initial inspection time</span><input ty' +
-        'pe="time" id="acc-time" value="' +
-        `${esc(acc.manualTime || "")}` +
-        '"></label></div>'
+    ? html`<div class="grid g2"><label class="f"><span>Initial inspection date</span><input type="date" id="acc-date" value="${acc.manualDate || ""}"></label><label class="f"><span>Initial inspection time</span><input type="time" id="acc-time" value="${acc.manualTime || ""}"></label></div>`
     : "";
 }
 
@@ -826,33 +776,15 @@ function caseChangeDetails(k, p) {
 }
 
 function importSourceDetails(acc, p) {
-  return (
-    '<details class="import-source"><summary>Source and import details</' +
-    "summary><p>" +
-    `${esc(acc.fileName || "SSRS Excel report")}` +
-    "</p>" +
+  return html`<details class="import-source"><summary>Source and import details</summary><p>${acc.fileName || "SSRS Excel report"}</p>${raw(
     "".concat(
       acc.source?.kind === "sql"
         ? "<p>Retrieved " +
             `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
             ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
         : "",
-    ) +
-    "" +
-    `${(p.notes || []).map((n) => `<p>${esc(n)}</p>`).join("")}` +
-    "<p>The inspection type and its result status decide the document: an In" +
-    "itial Inspection with Official Notice, Citation, No Occupancy or an Abat" +
-    "ement result; a Reinspection with CA Referral (City Attorney Referral), " +
-    "Compliance, Citation, Extension Processing, No Fee Extension Processing, " +
-    "No Occupancy or No Fee No Occupancy; a CA Reinspection with Compliance or " +
-    "Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, " +
-    "Completed, Inspection, No Violation, Reinspection, No Fee Reinspection, an " +
-    "Initial Inspection with No Entry), Assist inspections, undated rows and " +
-    "inspections already used on the case are not listed; other combinations are " +
-    "listed as not available. Blank inspection times stay blank until explicitly" +
-    " corrected.</p></det" +
-    "ails>"
-  );
+    ),
+  )}${raw((p.notes || []).map((n) => `<p>${esc(n)}</p>`).join(""))}<p>The inspection type and its result status decide the document: an Initial Inspection with Official Notice, Citation, No Occupancy or an Abatement result; a Reinspection with CA Referral (City Attorney Referral), Compliance, Citation, Extension Processing, No Fee Extension Processing, No Occupancy or No Fee No Occupancy; a CA Reinspection with Compliance or Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, Completed, Inspection, No Violation, Reinspection, No Fee Reinspection, an Initial Inspection with No Entry), Assist inspections, undated rows and inspections already used on the case are not listed; other combinations are listed as not available. Blank inspection times stay blank until explicitly corrected.</p></details>`;
 }
 
 function importPanelHTML(services, acc, p) {
@@ -868,44 +800,7 @@ function importPanelHTML(services, acc, p) {
   const notAvailable = unavailableInspections(services, unavailable);
   const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
   const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
-  return (
-    '<section class="card acc import-review"><div class="card-h"><div><h2>' +
-    `${esc(c.number)}` +
-    "</h2><p>" +
-    `${esc(k?.address || p.f.address)}` +
-    '</p></div><span class="pill">' +
-    `${k ? "Existing case" : "New case"}` +
-    '</span></div><div class="card-b">\n    ' +
-    `${pick}` +
-    "\n    " +
-    existingCaseContinuity(p, k, unfinished) +
-    "\n    " +
-    `${inspections}` +
-    `${notAvailable}` +
-    "\n    " +
-    manualDateFields(p, acc) +
-    "\n    " +
-    `${p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join("")}` +
-    "\n    " +
-    blockerBanner(visibleBlockers) +
-    "\n    " +
-    "".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : "") +
-    "\n    " +
-    caseChangeDetails(k, p) +
-    "\n    " +
-    importSourceDetails(acc, p) +
-    '\n    <p class="hint">Case details change only when you confirm. Sav' +
-    "e draft &amp; return to Workspace keeps this review on this device when saving succee" +
-    'ds.</p>\n    <div class="acc-go"><button class="btn ' +
-    `${unfinished ? "" : "btn-primary"}` +
-    '" id="acc-go" ' +
-    `${p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : ""}` +
-    ">" +
-    `${label}` +
-    "</button>" +
-    `${CANCEL_IMPORT}` +
-    "</div>\n  </div></section>"
-  );
+  return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${k?.address || p.f.address}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : ""))}\n    ${raw(caseChangeDetails(k, p))}\n    ${raw(importSourceDetails(acc, p))}\n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "")}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
 }
 
 export function createAccelaImport(services) {
@@ -1067,31 +962,12 @@ export function createAccelaImport(services) {
   }
 
   function screenImport() {
-    const caseTypeChoice =
-      '<label class="f no-print"><span>Case workflow for a new case</span><sele' +
-      'ct id="new-case-type"><option value="">Standard code violation</option><' +
-      'option value="snow-10.28" ' +
-      (editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "") +
-      ">Snow removal (MGO 10.28)</option></select></label>";
+    const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
     return services.shell(
       "Import inspection",
       "Bring in case details",
       '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
-      '<div style="max-width:980px">\n      ' +
-        `${lookupCard()}` +
-        "\n      " +
-        `${editor.state.acc ? accelaPanel() : ""}` +
-        '\n      <details class="card import-alternative"><summary>Import an SSRS ' +
-        'Excel report instead</summary><div class="card-b"><div class="acc-drop" ' +
-        'id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.<' +
-        '/p><button class="btn" id="acc-pick" ' +
-        `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
-        ">Load Accela report</button></div></div></details>\n      <details class=" +
-        '"import-workflow"><summary>New-case workflow</summary>' +
-        `${caseTypeChoice}` +
-        '<p class="hint">Snow Removal records select the snow workflow automatica' +
-        "lly. Use this setting only when the source does not identify the workflo" +
-        "w.</p></details>\n      </div>",
+      html`<div style="max-width:980px">\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="card import-alternative"><summary>Import an SSRS Excel report instead</summary><div class="card-b"><div class="acc-drop" id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.</p><button class="btn" id="acc-pick" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>Load Accela report</button></div></div></details>\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
     );
   }
 
@@ -1137,9 +1013,7 @@ export function createAccelaImport(services) {
       throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
     const locals = workspace.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
     if (locals.length > 1 || locals.some((k) => k.number !== number))
-      throw new Error(
-        "The local workspace has duplicate or differently capitalized case number" + "s. Resolve the existing record before importing.",
-      );
+      throw new Error("The local workspace has duplicate or differently capitalized case numbers. Resolve the existing record before importing.");
     if (hits.length) {
       const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
       if (!isCurrent()) return false;

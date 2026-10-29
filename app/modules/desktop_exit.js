@@ -10,6 +10,7 @@ import { app_savedworkContext, captureWork, saveDrafts, backupUnfinished, recove
 import { exitReview, plural } from "./exit_review.js";
 import { authFetch } from "./helper_transport.js";
 import { announceStop, helperStop, listenForStop, showStopped } from "./helper_stopped.js";
+import { html, raw } from "./screen_html.js";
 
 function currentReview() {
   return exitReview(app_savedworkContext(), {
@@ -24,32 +25,26 @@ function itemsHTML(R, items) {
 
 function exitDialogHTML(R, review) {
   const blocked = review.blocking.length > 0;
-  return (
-    '<form id="exit-writer-form" data-exit-writer-form><p>Exit stops Document Writer on this computer. This window and any other ' +
-    "open Writer or Reports windows lose their connection until Document Writer is started again.</p><ul>" +
-    "<li>Drafts saved on this device stay on this device.</li>" +
-    "<li>Queued shared saves and PDF transfers stay queued on this device and resume when Document Writer starts again. " +
-    "They are not in the shared folder until then.</li>" +
-    "<li>To start again, double-click Document Writer on the desktop.</li></ul>" +
-    (blocked
+  return html`<form id="exit-writer-form" data-exit-writer-form><p>Exit stops Document Writer on this computer. This window and any other open Writer or Reports windows lose their connection until Document Writer is started again.</p><ul><li>Drafts saved on this device stay on this device.</li><li>Queued shared saves and PDF transfers stay queued on this device and resume when Document Writer starts again. They are not in the shared folder until then.</li><li>To start again, double-click Document Writer on the desktop.</li></ul>${raw(
+    blocked
       ? '<section aria-labelledby="exit-blocking-title" data-exit-blocking><h3 id="exit-blocking-title">Finish this first</h3>' +
-        itemsHTML(R, review.blocking) +
-        "<p>Document Writer cannot exit while this work is in progress.</p></section>"
-      : "") +
-    (review.unresolved.length
+          itemsHTML(R, review.blocking) +
+          "<p>Document Writer cannot exit while this work is in progress.</p></section>"
+      : "",
+  )}${raw(
+    review.unresolved.length
       ? '<section aria-labelledby="exit-unresolved-title" data-exit-unresolved><h3 id="exit-unresolved-title">Not yet in the shared folder</h3>' +
-        itemsHTML(R, review.unresolved) +
-        (blocked
-          ? ""
-          : '<label><input type="checkbox" name="acknowledged" required> I understand these items stay on this device until Document Writer starts again.</label>') +
-        "</section>"
-      : "") +
-    '<p role="alert" data-exit-error></p>' +
-    (blocked
+          itemsHTML(R, review.unresolved) +
+          (blocked
+            ? ""
+            : '<label><input type="checkbox" name="acknowledged" required> I understand these items stay on this device until Document Writer starts again.</label>') +
+          "</section>"
+      : "",
+  )}<p role="alert" data-exit-error></p>${raw(
+    blocked
       ? '<button class="btn" type="button" data-exit-recheck>Check again</button>'
-      : '<button class="btn btn-primary" type="submit" data-exit-confirm>Exit Document Writer</button>') +
-    "</form>"
-  );
+      : '<button class="btn btn-primary" type="submit" data-exit-confirm>Exit Document Writer</button>',
+  )}</form>`;
 }
 
 async function flushDrafts() {
@@ -151,8 +146,7 @@ async function sendShutdown(form, alert, button, review) {
     alert.textContent = refusalText(data);
   } catch (error) {
     alert.textContent =
-      "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. " +
-      "To start again, double-click Document Writer on the desktop.";
+      "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. To start again, double-click Document Writer on the desktop.";
   }
   delete form.dataset.shutdownRequested;
   if (cancel) cancel.disabled = false;

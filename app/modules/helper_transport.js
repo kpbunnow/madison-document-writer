@@ -8,6 +8,6 @@ export async function authFetch(url, options = {}) {
   if (token) headers.set("X-DocWriter-Token", token);
   const response = await fetch(url, { ...options, headers });
   if (response.status === 403 && token)
-    throw new Error("The helper session changed or refused this request. Reload the program t" + "o reconnect; your device work is retained.");
+    throw new Error("The helper session changed or refused this request. Reload the program to reconnect; your device work is retained.");
   return response;
 }

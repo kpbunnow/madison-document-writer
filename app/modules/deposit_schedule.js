@@ -1,6 +1,7 @@
 /* Read-only dated legislation explorer; descriptions never determine a charge. */
 import { recordDay } from "../assets/shared.js";
 import { policyAt, formatDeposit, pricingDateBasis } from "./citation_policy.js";
+import { html, raw } from "./screen_html.js";
 function describeDepositRule(e) {
   const money = (c) => formatDeposit((c / 100).toFixed(2)),
     r = e.rule;
@@ -104,27 +105,13 @@ function classificationCounts(p) {
 
 function scheduleControls(services, date, query, p) {
   const counts = classificationCounts(p);
-  return (
-    '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
-    services.esc(date) +
-    ('"></label><label class="f"><span>Find ordinance or description</span><in' + 'put type="search" id="deposit-schedule-search" value="') +
-    services.esc(query) +
-    '"></label><p>Base deposits below exclude assessments and court costs. ' +
+  return html`<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="${raw(services.esc(date))}"></label><label class="f"><span>Find ordinance or description</span><input type="search" id="deposit-schedule-search" value="${raw(services.esc(query))}"></label><p>Base deposits below exclude assessments and court costs. ${raw(
     services.esc(
       Object.entries(counts)
         .map(([k, n]) => n + " " + k)
         .join(" · "),
-    ) +
-    ". Pricing date basis: " +
-    services.esc(pricingDateBasis) +
-    (" (pending City Attorney). Retained baseline start dates are unknown; no " +
-      'legal date was invented.</p><details id="deposit-policy"><summary>Policy' +
-      " and calculation details</summary><p>Policy ") +
-    services.esc(p.versionHash) +
-    " · court costs " +
-    services.esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))) +
-    ". This explorer does not authorize a charge or an override.</p></details>"
-  );
+    ),
+  )}. Pricing date basis: ${raw(services.esc(pricingDateBasis))} (pending City Attorney). Retained baseline start dates are unknown; no legal date was invented.</p><details id="deposit-policy"><summary>Policy and calculation details</summary><p>Policy ${raw(services.esc(p.versionHash))} · court costs ${raw(services.esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))))}. This explorer does not authorize a charge or an override.</p></details>`;
 }
 
 function windowText(w) {
@@ -175,15 +162,7 @@ function scheduleRow(services, e) {
 }
 
 function scheduleTable(services, visible) {
-  return (
-    '<div class="tw"><table class="rep"><caption>Deposit schedule, base amoun' +
-    'ts and retained legal sources</caption><thead><tr><th scope="col">Ordina' +
-    'nce</th><th scope="col">Description</th><th scope="col">Base amount and ' +
-    'measurements</th><th scope="col">Dates and source</th></tr></thead><tbod' +
-    "y>" +
-    visible.map((e) => scheduleRow(services, e)).join("") +
-    "</tbody></table></div>"
-  );
+  return html`<div class="tw"><table class="rep"><caption>Deposit schedule, base amounts and retained legal sources</caption><thead><tr><th scope="col">Ordinance</th><th scope="col">Description</th><th scope="col">Base amount and measurements</th><th scope="col">Dates and source</th></tr></thead><tbody>${raw(visible.map((e) => scheduleRow(services, e)).join(""))}</tbody></table></div>`;
 }
 
 export function initDepositSchedule(services) {

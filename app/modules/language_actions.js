@@ -4,8 +4,7 @@ import { catalogState as catalog } from "./catalog_state.js";
 export function createLanguageActions(services) {
   async function languageClick(event) {
     const button = event.target.closest?.(
-      "[data-language-mode],[data-catalog-open],[data-language-standard],[data-" +
-        "language-replacement],[data-language-refresh],[data-language-all]",
+      "[data-language-mode],[data-catalog-open],[data-language-standard],[data-language-replacement],[data-language-refresh],[data-language-all]",
     );
     if (!button) return;
     if (button.dataset.languageMode) {

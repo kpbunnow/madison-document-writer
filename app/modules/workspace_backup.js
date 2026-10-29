@@ -24,9 +24,7 @@ function validateWorkspaceBackupRecords(b, value) {
       throw new Error(
         "Case " +
           k.number +
-          (" is already on this workspace. Its current work has been kept. Restore t" +
-            "his backup in an empty browser profile, or remove that case from this workspace only after" +
-            " saving its work."),
+          " is already on this workspace. Its current work has been kept. Restore this backup in an empty browser profile, or remove that case from this workspace only after saving its work.",
       );
     const fault = caseFileFault({ format: "madison-case-file", schema: SCHEMA, case: k, inspectors: [], events: b.events[k.id] || [] });
     if (fault) throw new Error(fault);

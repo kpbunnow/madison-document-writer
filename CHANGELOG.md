@@ -1,5 +1,9 @@
 # Release changelog
 
+## Unreleased — Screen markup templates (development)
+
+- Convert every split string literal in the screen modules to `html` templates or single literals, with escaping and evaluation order unchanged, and ratchet screen modules at zero. Print renderers and approved-wording modules are untouched. No behavior, release identity (R63, helper build 64), stored format or print reference changes.
+
 ## Unreleased — Maintainability plan concluded (development)
 
 - Split the remaining long builders and handlers behind frozen-original comparisons that check output, error text, peer-call order and state effects; Python complexity findings fall from 13 to 5 and the long-function baseline from 92 to 48 findings.

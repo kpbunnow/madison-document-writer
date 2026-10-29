@@ -201,10 +201,7 @@ export function createPublicationWorkflow(services) {
       "" +
       "".concat(
         waiting
-          ? '<div class="banner warn"><div><strong>Save confirmation needed.</strong>' +
-              " Keep this draft. Retry the exact save before editing, printing or start" +
-              'ing another action. <button class="btn" id="btn-retrypublish">Confirm sa' +
-              "ve</button></div></div>"
+          ? '<div class="banner warn"><div><strong>Save confirmation needed.</strong> Keep this draft. Retry the exact save before editing, printing or starting another action. <button class="btn" id="btn-retrypublish">Confirm save</button></div></div>'
           : "",
       ) +
       "" +

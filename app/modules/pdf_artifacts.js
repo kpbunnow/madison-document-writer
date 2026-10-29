@@ -6,6 +6,7 @@ import { deliveredByCitation } from "./document_rules.js";
 import { effectiveFiled } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { authFetch } from "./helper_transport.js";
+import { html, raw } from "./screen_html.js";
 
 export function pdfTransferState(d) {
   if (deliveredByCitation(d)) return "included in citation PDF";
@@ -38,13 +39,7 @@ export function createPdfArtifacts(services) {
     if (startup.HELPER) startup.HELPER.outbox = result.files.length;
     services.A11Y.utility(
       "PDF outbox",
-      "<p>Select existing PDFs to file or open for printing. Conflicting shared" +
-        " copies stay in the outbox for review. Transferring or printing does not" +
-        ' confirm mailing, email delivery or Accela recording.</p><button class="' +
-        'btn" data-sync-safety>Back to saved work &amp; connection</button><form ' +
-        'id="outbox-form"><table><caption>Local PDFs awaiting shared filing</capt' +
-        'ion><thead><tr><th scope="col">Select</th><th scope="col">PDF</th><th sc' +
-        'ope="col">Bytes</th></tr></thead><tbody>' +
+      html`<p>Select existing PDFs to file or open for printing. Conflicting shared copies stay in the outbox for review. Transferring or printing does not confirm mailing, email delivery or Accela recording.</p><button class="btn" data-sync-safety>Back to saved work &amp; connection</button><form id="outbox-form"><table><caption>Local PDFs awaiting shared filing</caption><thead><tr><th scope="col">Select</th><th scope="col">PDF</th><th scope="col">Bytes</th></tr></thead><tbody>${raw(
         "".concat(
           workspace.OUTBOX_FILES.map(
             (file, n) =>
@@ -58,10 +53,8 @@ export function createPdfArtifacts(services) {
               `${file.size}` +
               "</td></tr>",
           ).join("") || '<tr><td colspan="3">No local outbox PDFs.</td></tr>',
-        ) +
-        '</tbody></table><button class="btn" type="submit">Transfer selected PDFs' +
-        '</button> <button class="btn" type="button" data-outbox-print>Print sele' +
-        "cted PDFs</button></form>",
+        ),
+      )}</tbody></table><button class="btn" type="submit">Transfer selected PDFs</button> <button class="btn" type="button" data-outbox-print>Print selected PDFs</button></form>`,
     );
   }
 

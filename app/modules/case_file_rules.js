@@ -35,8 +35,7 @@ export function mergeCaseDetails(local, remote, base) {
     if (stableJSON(a[key]) === stableJSON(output[key])) return;
     if (!b)
       throw new Error(
-        "Case details differ from the shared copy. Export your local case for rev" +
-          "iew, then remove it from the workspace and reopen the shared case.",
+        "Case details differ from the shared copy. Export your local case for review, then remove it from the workspace and reopen the shared case.",
       );
     if (stableJSON(a[key]) === stableJSON(b[key])) return;
     if (stableJSON(output[key]) !== stableJSON(b[key]))

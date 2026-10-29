@@ -23,11 +23,7 @@ export function createWriterStartup(services) {
           startup.STARTUP_STATUS = "locked";
           startup.releaseWriterReady(false);
           services.document.getElementById("app").innerHTML =
-            '<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:s' +
-            'ystem-ui"><h1>Document Writer is already open</h1><p>Continue in your ex' +
-            "isting Writer tab. To use this tab, close the other Writer tab and reloa" +
-            "d this page.</p><button data-reload-tab>Reload this tab</button> <a href" +
-            '="madison-reports.html">Open Reports</a></main>';
+            '<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:system-ui"><h1>Document Writer is already open</h1><p>Continue in your existing Writer tab. To use this tab, close the other Writer tab and reload this page.</p><button data-reload-tab>Reload this tab</button> <a href="madison-reports.html">Open Reports</a></main>';
           services.document.querySelector("[data-reload-tab]").addEventListener("click", () => services.location.reload());
           return;
         }

@@ -8,6 +8,7 @@ import { docCase } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
+import { html, raw } from "./screen_html.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
 function overrideAuthorizationFault(b) {
   if (
@@ -50,15 +51,7 @@ function overrideHistoryFault(b, c) {
 }
 
 function actorFields() {
-  return (
-    '<label class="f"><span>Named administrator</span><input name="administra' +
-    'tor" required minlength="2"></label><label class="f"><span>Reason (at le' +
-    'ast 20 characters)</span><textarea name="reason" required minlength="20"' +
-    ' rows="3"></textarea></label><label class="f"><span>Court / division sou' +
-    'rce reference</span><input name="sourceReference" required></label><labe' +
-    'l><input type="checkbox" name="confirmed" required> I confirm this admin' +
-    "istrative decision and its source.</label>"
-  );
+  return '<label class="f"><span>Named administrator</span><input name="administrator" required minlength="2"></label><label class="f"><span>Reason (at least 20 characters)</span><textarea name="reason" required minlength="20" rows="3"></textarea></label><label class="f"><span>Court / division source reference</span><input name="sourceReference" required></label><label><input type="checkbox" name="confirmed" required> I confirm this administrative decision and its source.</label>';
 }
 
 const LETTER_FIELDS = ["season", "reviewedOn", "webAddress", "westPhone", "eastPhone", "closing"];
@@ -85,28 +78,7 @@ function siteRows(sites) {
 }
 
 function letterFormHTML(letter) {
-  return (
-    '<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, con' +
-    "tacts and web address. New citations use this review; issued copies keep" +
-    ' their frozen content.</p><div class="grid g2"><label class="f"><span>Sn' +
-    'ow season</span><input name="season" value="' +
-    dep_esc(letter.season) +
-    ('" required placeholder="2026–27"></label><label class="f"><span>Reviewed' + ' on</span><input type="date" name="reviewedOn" value="') +
-    dep_esc(letter.reviewedOn || "") +
-    ('" required></label></div><label class="f"><span>Snow-removal web address' + '</span><input type="url" name="webAddress" value="') +
-    dep_esc(letter.webAddress) +
-    ('" required></label><div class="grid g2"><label class="f"><span>Streets W' + 'est phone</span><input name="westPhone" value="') +
-    dep_esc(letter.westPhone) +
-    '" required></label><label class="f"><span>Streets East phone</span><input name="eastPhone" value="' +
-    dep_esc(letter.eastPhone) +
-    '" required></label></div><fieldset><legend>Sand sites · West Side / East Side</legend>' +
-    siteRows(letter.sites) +
-    ('</fieldset><label class="f"><span>Community assistance / closing line</s' + 'pan><textarea name="closing" rows="3" required>') +
-    dep_esc(letter.closing) +
-    "</textarea></label>" +
-    actorFields() +
-    '<p role="alert"></p><button class="btn btn-primary">Save reviewed seasonal content</button></form>'
-  );
+  return html`<form id="admin-snow-letter-form"><p>Review the seasonal sand sites, contacts and web address. New citations use this review; issued copies keep their frozen content.</p><div class="grid g2"><label class="f"><span>Snow season</span><input name="season" value="${letter.season}" required placeholder="2026–27"></label><label class="f"><span>Reviewed on</span><input type="date" name="reviewedOn" value="${letter.reviewedOn || ""}" required></label></div><label class="f"><span>Snow-removal web address</span><input type="url" name="webAddress" value="${letter.webAddress}" required></label><div class="grid g2"><label class="f"><span>Streets West phone</span><input name="westPhone" value="${letter.westPhone}" required></label><label class="f"><span>Streets East phone</span><input name="eastPhone" value="${letter.eastPhone}" required></label></div><fieldset><legend>Sand sites · West Side / East Side</legend>${raw(siteRows(letter.sites))}</fieldset><label class="f"><span>Community assistance / closing line</span><textarea name="closing" rows="3" required>${letter.closing}</textarea></label>${raw(actorFields())}<p role="alert"></p><button class="btn btn-primary">Save reviewed seasonal content</button></form>`;
 }
 
 /* The reviewed letter: entered values, the confirmed status, and phone lines rewritten in every west-side row. */
@@ -182,18 +154,7 @@ export function initAdministration(services) {
     }
     services.A11Y.utility(
       "Administrator deposit override",
-      '<form id="admin-deposit-form"><p>Authorize a single exceptional deposit ' +
-        "from a court or division instruction. The citation retains the administr" +
-        'ator, reason, source and authorization receipt.</p><label class="f"><spa' +
-        'n>Draft citation</span><select name="target">' +
-        targets.map((x, n) => '<option value="' + n + '">' + esc(docCase(x.d).number + " · " + x.c.ord + " · " + x.c.num) + "</option>").join("") +
-        ('</select></label><label class="f"><span>Approved method</span><select na' +
-          'me="mode"><option value="total">Approved total, including assessments</o' +
-          'ption><option value="base">Approved base plus scheduled assessments</opt' +
-          'ion></select></label><label class="f"><span>Approved amount</span><input' +
-          ' type="number" name="amount" min="0.01" step="0.01" required></label>') +
-        actorFields() +
-        '<p role="alert"></p><button class="btn btn-primary">Record administrator override</button></form>',
+      html`<form id="admin-deposit-form"><p>Authorize a single exceptional deposit from a court or division instruction. The citation retains the administrator, reason, source and authorization receipt.</p><label class="f"><span>Draft citation</span><select name="target">${raw(targets.map((x, n) => '<option value="' + n + '">' + esc(docCase(x.d).number + " · " + x.c.ord + " · " + x.c.num) + "</option>").join(""))}</select></label><label class="f"><span>Approved method</span><select name="mode"><option value="total">Approved total, including assessments</option><option value="base">Approved base plus scheduled assessments</option></select></label><label class="f"><span>Approved amount</span><input type="number" name="amount" min="0.01" step="0.01" required></label>${raw(actorFields())}<p role="alert"></p><button class="btn btn-primary">Record administrator override</button></form>`,
     );
     document.getElementById("admin-deposit-form").onsubmit = async (e) => {
       e.preventDefault();

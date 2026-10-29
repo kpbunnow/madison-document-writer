@@ -2,6 +2,7 @@ import { editorState as editor } from "./editor_state.js";
 import { startupState as startup } from "./startup_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
+import { html, raw } from "./screen_html.js";
 
 const TOOL_GROUPS = [
   [
@@ -39,29 +40,14 @@ const ADMIN_TOOLS = [
 ];
 
 const toolButton = (services, [label, description, attributes, icon]) =>
-  '<button class="tool-action" ' +
-  `${attributes}` +
-  ">" +
-  `${services.uiIcon(icon)}` +
-  "<span><strong>" +
-  `${label}` +
-  "</strong><span>" +
-  `${description}` +
-  '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
-  "on>";
+  html`<button class="tool-action" ${raw(attributes)}>${raw(services.uiIcon(icon))}<span><strong>${raw(label)}</strong><span>${raw(description)}</span></span><span class="tool-arrow" aria-hidden="true">→</span></button>`;
 
 // Stops the local helper for every open Writer and Reports window, after reviewing unresolved work (desktop_exit.js).
 const EXIT_WRITER =
-  '<div data-tools-exit><p class="hint">Finished for the day? Exit stops Document Writer on this computer after ' +
-  "saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p>" +
-  '<p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
+  '<div data-tools-exit><p class="hint">Finished for the day? Exit stops Document Writer on this computer after saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p><p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
 
 const PROGRAM_MANUAL_SECTION =
-  '<section class="tools-section" aria-labelledby="tools-manual"><h2 id="to' +
-  'ols-manual">Program instructions</h2><p><a class="btn" href="PROGRAM-MAN' +
-  'UAL.html" target="_blank" rel="noopener">Open program manual (new tab)</' +
-  'a> <a class="btn" href="Program_Instruction_Manual.pdf" target="_bla' +
-  'nk" rel="noopener">Printable manual PDF</a></p></section>';
+  '<section class="tools-section" aria-labelledby="tools-manual"><h2 id="tools-manual">Program instructions</h2><p><a class="btn" href="PROGRAM-MANUAL.html" target="_blank" rel="noopener">Open program manual (new tab)</a> <a class="btn" href="Program_Instruction_Manual.pdf" target="_blank" rel="noopener">Printable manual PDF</a></p></section>';
 
 const THEMES = [
   ["system", "Use device setting"],
@@ -71,33 +57,11 @@ const THEMES = [
 ];
 
 function displaySection(services, theme) {
-  return (
-    '<section class="tools-section" aria-labelledby="tools-display"><h2 id="tools-display">D' +
-    'isplay &amp; help</h2><div class="tools-grid"><label class="tool-theme">' +
-    "<strong>Color theme</strong><span>Use your device setting or choose a re" +
-    'adable display.</span><select data-a11y-theme aria-label="Color theme">' +
-    "".concat(THEMES.map(([value, label]) => `<option value="${value}" ${value === theme ? "selected" : ""}>${label}</option>`).join("")) +
-    '</select></label><button class="tool-action" data-a11y-history>' +
-    `${services.uiIcon("files")}` +
-    "<span><strong>Message history</strong><span>Review earlier save confirma" +
-    'tions, warnings and errors.</span></span><span class="tool-arrow" aria-h' +
-    'idden="true">→</span></button><button class="tool-action" data-a11y-help' +
-    ">" +
-    `${services.uiIcon("tools")}` +
-    "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
-    ' ? outside a text field for quick help.</span></span><span class="tool-a' +
-    'rrow" aria-hidden="true">→</span></button></div></section>'
-  );
+  return html`<section class="tools-section" aria-labelledby="tools-display"><h2 id="tools-display">Display &amp; help</h2><div class="tools-grid"><label class="tool-theme"><strong>Color theme</strong><span>Use your device setting or choose a readable display.</span><select data-a11y-theme aria-label="Color theme">${raw("".concat(THEMES.map(([value, label]) => `<option value="${value}" ${value === theme ? "selected" : ""}>${label}</option>`).join("")))}</select></label><button class="tool-action" data-a11y-history>${raw(services.uiIcon("files"))}<span><strong>Message history</strong><span>Review earlier save confirmations, warnings and errors.</span></span><span class="tool-arrow" aria-hidden="true">→</span></button><button class="tool-action" data-a11y-help>${raw(services.uiIcon("tools"))}<span><strong>Keyboard shortcuts</strong><span>See available keys. Press ? outside a text field for quick help.</span></span><span class="tool-arrow" aria-hidden="true">→</span></button></div></section>`;
 }
 
 function adminSection(services) {
-  return (
-    '<section class="tools-section tools-admin" aria-labelledby="tools-admin"><details data-tools-admin><summary id="tools-admin">Administrator tools</summary>' +
-    '<p class="hint">Specialist tools for division administrators. Access still depends on the existing administrator checks; this grouping does not grant authorization.</p>' +
-    '<div class="tools-grid">' +
-    ADMIN_TOOLS.map((item) => toolButton(services, item)).join("") +
-    "</div></details></section>"
-  );
+  return html`<section class="tools-section tools-admin" aria-labelledby="tools-admin"><details data-tools-admin><summary id="tools-admin">Administrator tools</summary><p class="hint">Specialist tools for division administrators. Access still depends on the existing administrator checks; this grouping does not grant authorization.</p><div class="tools-grid">${raw(ADMIN_TOOLS.map((item) => toolButton(services, item)).join(""))}</div></details></section>`;
 }
 
 /* Main destinations and infrequent tools share safe, saved navigation. */
@@ -123,7 +87,7 @@ export function initNavigation(services) {
     );
   }
   function saveFailure() {
-    services.toast("Your work could not be saved on this device. Keep this screen open and r" + "etry. Download a workspace backup to preserve it.", {
+    services.toast("Your work could not be saved on this device. Keep this screen open and retry. Download a workspace backup to preserve it.", {
       severity: "error",
       key: "device-save",
       inline: true,
@@ -137,10 +101,7 @@ export function initNavigation(services) {
       banner.className = "banner alert no-print";
       banner.setAttribute("role", "alert");
       banner.innerHTML =
-        "<div><strong>Work could not be saved on this device.</strong><p>Keep thi" +
-        "s screen open. Download a backup of your current work, then retry the na" +
-        'vigation when device saving works.</p><button class="btn" data-workbacku' +
-        "p>Download workspace backup</button></div>";
+        '<div><strong>Work could not be saved on this device.</strong><p>Keep this screen open. Download a backup of your current work, then retry the navigation when device saving works.</p><button class="btn" data-workbackup>Download workspace backup</button></div>';
     }
     parent.prepend(banner);
   }
@@ -209,11 +170,7 @@ export function initNavigation(services) {
       .join("");
     const reports = startup.REPORT_RETURN
       ? `<button class="rail-item" data-report-return>${services.uiIcon("reports")}<span>Back to Reports</span></button>`
-      : '<a class="rail-item" href="madison-reports.html" target="_blank" rel="no' +
-        'opener" aria-label="Open Reports (opens in a new tab)">' +
-        `${services.uiIcon("reports")}` +
-        '<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</spa' +
-        "n></a>";
+      : html`<a class="rail-item" href="madison-reports.html" target="_blank" rel="noopener" aria-label="Open Reports (opens in a new tab)">${raw(services.uiIcon("reports"))}<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</span></a>`;
     return (
       "" +
       `${buttons}` +
@@ -232,8 +189,7 @@ export function initNavigation(services) {
       "Tools & settings",
       "Building Inspection",
       `<button class="btn" data-nav="cases">Back to Workspace</button>`,
-      '<p class="tools-intro">Find a shared case, manage saved files, or check ' +
-        "your connection. Daily case work stays in Workspace.</p>" +
+      html`<p class="tools-intro">Find a shared case, manage saved files, or check your connection. Daily case work stays in Workspace.</p>${raw(
         "".concat(
           TOOL_GROUPS.map(
             ([title, items], index) =>
@@ -249,10 +205,8 @@ export function initNavigation(services) {
               (title === "Saved work & connection" ? EXIT_WRITER : "") +
               "</section>",
           ).join(""),
-        ) +
-        PROGRAM_MANUAL_SECTION +
-        displaySection(services, theme) +
-        adminSection(services),
+        ),
+      )}${raw(PROGRAM_MANUAL_SECTION)}${raw(displaySection(services, theme))}${raw(adminSection(services))}`,
     );
   }
   function helperVersion() {

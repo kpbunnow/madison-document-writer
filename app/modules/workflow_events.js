@@ -119,9 +119,7 @@ export function createWorkflowEvents(services) {
   function registerToolActions(target = document) {
     return registerEventOnce(target, "workflow.registerToolActions", "click", async (e) => {
       const t = e.target.closest?.(
-        "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-" +
-          "draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data" +
-          "-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
+        "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
       );
       if (!t) return;
       try {

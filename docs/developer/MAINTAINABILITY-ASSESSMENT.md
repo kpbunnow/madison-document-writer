@@ -29,7 +29,7 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | Long JS function findings | 48 | 44 enclosing create/init factories (capped by the ratchet) and 4 frozen print renderers (D1) |
 | Python C901 findings | 5 | Maintained helper/tools/policy scope, excluding vendor/history |
 | Whole-application evaluator files | 67 | 60 classified integration with a reason, 7 migratable with an owner; a new unclassified file fails the gate |
-| Split string literals in screen modules | 445 | Ratcheted per file by `tools/markup-baseline.json`; 131 print/issued and 60 approved-wording sites are listed, not ratcheted |
+| Split string literals in screen modules | 0 | Ratcheted per file by `tools/markup-baseline.json`; 131 print/issued and 60 approved-wording sites are listed, not ratcheted |
 | Retained test hook fields | 48 | No hook is removed merely because a text search finds no consumer |
 
 Counts are structural evidence, not a quality score. Baselines only decrease after
@@ -126,7 +126,6 @@ Each accepted finding, why it stays, and the condition for reopening it.
 | Print renderers in `document_render.js` (`noticeHTML`, `citationFaces` and their inner functions): length 446/270/242/228, complexity 55/55/75 | 4 length, 3 complexity | D1: issued-document bytes are protected by frozen references and approved-print parity; splitting risks historical rendering for no behavior gain | The owner approves a print-renderer change with byte-parity evidence, or a new document family is added |
 | Enclosing `create…`/`init…` factories over 80 lines | 44 | D3: factories are composition roots whose size is declared interface, not logic; only `createAccelaImport` and `initNewDocuments` were split. The per-function baseline stops any factory growing | A factory gains logic, or the owner asks for further shrinking (see the factory discussion in the batch B11 PR) |
 | Python functions over complexity 10: `read_index` 30, `launch.main` 24, `verify_record` 20, `CaseIntegrity.__init__` 19, `file_lock` 13 | 5 | Security-sensitive helper code (integrity, locking, launch) where each branch is a refusal; further splitting needs equivalence seams of the B8 kind | Any of them changes behavior, or the owner authorizes the same method for them |
-| Split string literals in screen modules | 445 | Converting to templates touches the screen contract (`SCREEN-SHELL.md`) and needs owner review; the ratchet stops growth | The owner approves a template conversion batch |
 | Whole-application evaluators | 60 integration, 7 migratable | They create, edit and issue documents or drive startup, storage and screens across owners; rewriting them would change assertions | A test is rewritten for another reason, or the owner funds a migration |
 | Retained test hook fields | 48 | Read by the integration evaluators above (for example `noticeHTML`, `citAmount`, `editorReadiness`); retiring one needs every consumer traced and no lost assertion | The last consumer of a field migrates |
 
@@ -145,7 +144,7 @@ New and changed code keeps these rules; the gate enforces the first three.
 
 Batches B1–B11 are complete. Numerical complexity and nesting targets are met outside the recorded exceptions, and Python complexity is down from 13 to 5. State direction, owner boundaries and interface limits are enforced. Functionality development may resume under the contract above.
 
-The register records what is deliberately left. Items that need an owner decision rather than more behavior-preserving work are the template conversion of screen literals, further shrinking of the 44 factories, and the evaluator and hook migrations.
+The register records what is deliberately left. Items that need an owner decision rather than more behavior-preserving work are the shrinking of the factories and the evaluator and hook migrations. The screen split literals were converted afterwards (see the plan's template-conversion entry).
 
 City Windows, network-drive, Outlook and native-printing acceptance, manual accessibility checks, staff and legal review and exact PNG-parity acceptance retain their existing documented owners. Automated tests do not establish them.
 

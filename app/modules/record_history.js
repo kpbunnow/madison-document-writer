@@ -2,16 +2,13 @@ import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
 import { doc, docsFor, insp } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
+import { html, raw } from "./screen_html.js";
 
 // Document-history and revision presentation only; no record actions or persistence.
 /* Document record panel sections. Each builds its markup from the document and the supplied date formatter. */
 function followThroughNotice(services, d, pending) {
   return pending
-    ? '<div class="banner warn"><div><strong>Follow-through still needs recordi' +
-        "ng.</strong> Notify affected recipients and update Accela and any court " +
-        "/ attorney records as applicable. Opening an email draft does not confir" +
-        'm delivery. <button class="btn" id="btn-reconcile">Record follow-through' +
-        "</button></div></div>"
+    ? '<div class="banner warn"><div><strong>Follow-through still needs recording.</strong> Notify affected recipients and update Accela and any court / attorney records as applicable. Opening an email draft does not confirm delivery. <button class="btn" id="btn-reconcile">Record follow-through</button></div></div>'
     : d.reconciliation
       ? "<p>Follow-through recorded by " +
         `${esc(insp(d.reconciliation.by).name || d.reconciliation.by)}` +
@@ -28,10 +25,7 @@ function heldRecordNotices(d) {
     .filter((x) => x.cid === d.caseId && x.pendingAmendment.payload.docId === d.id)
     .map(
       (x) =>
-        '<div class="banner warn">A record change is awaiting save confirmation. ' +
-        'Its exact request is retained. <button class="btn" data-resumerecord="' +
-        `${esc(x.recordKey)}` +
-        '">Confirm save</button></div>',
+        html`<div class="banner warn">A record change is awaiting save confirmation. Its exact request is retained. <button class="btn" data-resumerecord="${x.recordKey}">Confirm save</button></div>`,
     )
     .join("");
 }
@@ -86,29 +80,7 @@ export function createRecordHistory(services) {
     const notes = d.annotations || [],
       pending = !!d.void && !d.reconciliation;
     const finishing = !!editor.state.publicationBusy && doc(editor.state.publicationBusy)?.caseId === d.caseId;
-    return (
-      '<section class="card record-history no-print"><div class="card-b"><h2>Do' +
-      "cument record</h2>\n    " +
-      "".concat(followThroughNotice(services, d, pending)) +
-      "\n    " +
-      "".concat(heldRecordNotices(d)) +
-      "\n    <details><summary>Version history · " +
-      `${chain.length}` +
-      " " +
-      `${chain.length === 1 ? "version" : "versions"}` +
-      "" +
-      `${notes.length ? " · " + notes.length + " record notes" : ""}` +
-      '</summary><ol class="record-chain">' +
-      "".concat(versionItems(services, chain)) +
-      "</ol>\n    " +
-      "".concat(recordNotes(services, notes)) +
-      "\n    </details>" +
-      "".concat(finishing ? '<p class="hint" id="record-save-progress" role="status">Finishing document save…</p>' : "") +
-      '<div class="correction-actions"><button class="btn" id="btn-recordnote" ' +
-      `${finishing ? 'disabled aria-describedby="record-save-progress"' : ""}` +
-      '>Add record note</button> <button class="btn" id="btn-original">Print or' +
-      "iginal issued copy</button></div></div></section>"
-    );
+    return html`<section class="card record-history no-print"><div class="card-b"><h2>Document record</h2>\n    ${raw("".concat(followThroughNotice(services, d, pending)))}\n    ${raw("".concat(heldRecordNotices(d)))}\n    <details><summary>Version history · ${raw(chain.length)} ${raw(chain.length === 1 ? "version" : "versions")}${raw(notes.length ? " · " + notes.length + " record notes" : "")}</summary><ol class="record-chain">${raw("".concat(versionItems(services, chain)))}</ol>\n    ${raw("".concat(recordNotes(services, notes)))}\n    </details>${raw("".concat(finishing ? '<p class="hint" id="record-save-progress" role="status">Finishing document save…</p>' : ""))}<div class="correction-actions"><button class="btn" id="btn-recordnote" ${raw(finishing ? 'disabled aria-describedby="record-save-progress"' : "")}>Add record note</button> <button class="btn" id="btn-original">Print original issued copy</button></div></div></section>`;
   }
 
   function revisionPrintNote(d) {

@@ -94,9 +94,7 @@ export function createCitationDrafts(services) {
 
   function citationRecoveryPanel(d) {
     return needsInitialCitation(d)
-      ? '<div class="banner info no-print"><div><strong>This notice has items sel' +
-          'ected for citation.</strong> <button class="btn" id="btn-continuecitatio' +
-          'n">Create citation draft</button></div></div>'
+      ? '<div class="banner info no-print"><div><strong>This notice has items selected for citation.</strong> <button class="btn" id="btn-continuecitation">Create citation draft</button></div></div>'
       : "";
   }
   return { citationTier, citationFromNotice, needsInitialCitation, citationRecoveryPanel };

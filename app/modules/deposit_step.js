@@ -129,8 +129,7 @@ export function initDepositStep(services) {
     )}</div><p class="hint">${raw(
       measured
         ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
-        : "A base adds the approved assessments. A total already includes them. Rec" +
-            "ord the approval source; the program does not authorize an amount.",
+        : "A base adds the approved assessments. A total already includes them. Record the approval source; the program does not authorize an amount.",
     )}</p><p role="alert" data-deposit-error></p><button class="btn btn-primary" type="submit">Complete charge</button> <button class="btn" type="button" data-deposit-later>Save unfinished draft</button></form>`;
   }
   function findForm(id) {
@@ -275,9 +274,7 @@ export function initDepositStep(services) {
         return;
       }
       node.querySelector("[data-deposit-error]").textContent =
-        "Complete the ordinance, required measurements or positive approved amoun" +
-        "t, and an approval source of at least 10 characters. A zero forfeiture n" +
-        "eeds City Attorney approval.";
+        "Complete the ordinance, required measurements or positive approved amount, and an approval source of at least 10 characters. A zero forfeiture needs City Attorney approval.";
       return;
     }
     active = null;

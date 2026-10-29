@@ -4,6 +4,7 @@ import { editorState as editor } from "./editor_state.js";
 import { recoveryState as recovery } from "./recovery_state.js";
 import { recoverySharedConflict } from "./case_recovery.js";
 import { esc } from "./presentation_format.js";
+import { html, raw } from "./screen_html.js";
 
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
 /* Recovery dialog sections. Each builds its markup from the recovery state it is given. */
@@ -36,8 +37,7 @@ function backupList(list) {
 
 function sharedFieldTable(fields) {
   return fields.length
-    ? "<table><thead><tr><th>Field</th><th>Backup</th><th>Shared</th></tr></the" +
-        "ad><tbody>" +
+    ? html`<table><thead><tr><th>Field</th><th>Backup</th><th>Shared</th></tr></thead><tbody>${raw(
         "".concat(
           fields
             .map((f) =>
@@ -52,8 +52,8 @@ function sharedFieldTable(fields) {
               ),
             )
             .join(""),
-        ) +
-        "</tbody></table>"
+        ),
+      )}</tbody></table>`
     : "";
 }
 
@@ -76,14 +76,7 @@ function selectedBackup(services, b, local) {
 }
 
 function recoveryActions(k) {
-  return (
-    '<button class="btn btn-primary" data-recovery-restore ' +
-    `${recoverySharedConflict(recovery.RECOVERY.shared) ? "disabled" : ""}` +
-    '>Restore selected case</button><button class="btn" data-recovery-export>' +
-    "Export selected backup</button>" +
-    `${k ? `<button class="btn" data-recovery-shared>Open current shared case</button>` : ""}` +
-    ""
-  );
+  return html`<button class="btn btn-primary" data-recovery-restore ${raw(recoverySharedConflict(recovery.RECOVERY.shared) ? "disabled" : "")}>Restore selected case</button><button class="btn" data-recovery-export>Export selected backup</button>${raw(k ? `<button class="btn" data-recovery-shared>Open current shared case</button>` : "")}`;
 }
 
 export function createRecoveryUI(services) {
@@ -146,23 +139,11 @@ export function createRecoveryUI(services) {
 
   function recoveryStatusHTML() {
     return !startup.HELPER
-      ? '<span class="save-error" role="status">Automatic backup unavailable. Sta' +
-          'rt the local helper; device autosave is separate. <button class="lnk" da' +
-          "ta-setup-health>Check connection</button></span>"
+      ? '<span class="save-error" role="status">Automatic backup unavailable. Start the local helper; device autosave is separate. <button class="lnk" data-setup-health>Check connection</button></span>'
       : recovery.RECOVERY.error
-        ? '<div class="save-error" role="alert">Automatic backup needs attention. D' +
-          'evice autosave is separate. <button class="lnk" data-sync-safety>Review ' +
-          'saved work</button><details data-saved-detail="automatic-backup"><summar' +
-          "y>Backup details</summary>" +
-          `${esc(recovery.RECOVERY.error)}` +
-          " · Last successful backup: " +
-          `${esc(recovery.RECOVERY.at || "none")}` +
-          "</details></div>"
+        ? html`<div class="save-error" role="alert">Automatic backup needs attention. Device autosave is separate. <button class="lnk" data-sync-safety>Review saved work</button><details data-saved-detail="automatic-backup"><summary>Backup details</summary>${recovery.RECOVERY.error} · Last successful backup: ${recovery.RECOVERY.at || "none"}</details></div>`
         : recovery.RECOVERY.at
-          ? '<div>Automatic recovery copy available. <details data-saved-detail="auto' +
-            'matic-backup"><summary>Backup details</summary>' +
-            `${esc(recovery.RECOVERY.at)}` +
-            "</details></div>"
+          ? html`<div>Automatic recovery copy available. <details data-saved-detail="automatic-backup"><summary>Backup details</summary>${recovery.RECOVERY.at}</details></div>`
           : "<span>Automatic backup waiting for its first save. Device autosave is separate.</span>";
   }
 
@@ -170,24 +151,7 @@ export function createRecoveryUI(services) {
     const b = recovery.RECOVERY.selected,
       k = b?.bundle?.cases?.[0],
       local = k && workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
-    return (
-      '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
-      '" aria-label="Recover unfinished work">\n    <div class="modal-h"><h2>Rec' +
-      'over unfinished work</h2></div><div class="modal-b">\n      <p>Backups ar' +
-      "e separate from issued case files. Select one case. Nothing is issued du" +
-      "ring recovery.</p>\n      <label>Import an exported individual recovery J" +
-      'SON <input id="recovery-import" type="file" accept=".json,application/js' +
-      'on"></label>\n      ' +
-      "".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : "") +
-      "\n      " +
-      "".concat(recovery.RECOVERY.loading ? "Reading backups…" : backupList(recovery.RECOVERY.list)) +
-      "\n      " +
-      "".concat(b ? selectedBackup(services, b, local) : "") +
-      '\n      </div><div class="modal-f">' +
-      "".concat(b ? recoveryActions(k) : "") +
-      '<button class="btn" data-sync-safety>Saved work &amp; connection</button' +
-      '><button class="btn" data-close="modal">Close</button></div></div></div>'
-    );
+    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Recover unfinished work">\n    <div class="modal-h"><h2>Recover unfinished work</h2></div><div class="modal-b">\n      <p>Backups are separate from issued case files. Select one case. Nothing is issued during recovery.</p>\n      <label>Import an exported individual recovery JSON <input id="recovery-import" type="file" accept=".json,application/json"></label>\n      ${raw("".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : ""))}\n      ${raw("".concat(recovery.RECOVERY.loading ? "Reading backups…" : backupList(recovery.RECOVERY.list)))}\n      ${raw("".concat(b ? selectedBackup(services, b, local) : ""))}\n      </div><div class="modal-f">${raw("".concat(b ? recoveryActions(k) : ""))}<button class="btn" data-sync-safety>Saved work &amp; connection</button><button class="btn" data-close="modal">Close</button></div></div></div>`;
   }
   return { restoreWorkControls, saveAndContinue, restoreWorkspaceFile, renderRecoveryStatus, recoveryStatusHTML, recoveryModal };
 }
