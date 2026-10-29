@@ -120,27 +120,20 @@ async function confirmExit(form) {
   }
 }
 
-async function requestExit(form) {
-  const alert = form.querySelector("[data-exit-error]"),
-    button = form.querySelector("[data-exit-confirm]");
-  button.disabled = true;
-  const kept = await flushDrafts();
-  if (!form.isConnected || !form.closest("dialog")?.open) return false;
-  const review = currentReview();
-  // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
-  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
-    await openExit(false);
-    return false;
+const superseded = (form) => !form.isConnected || !form.closest("dialog")?.open;
+
+const refusalText = (data) =>
+  (data.error || "Document Writer did not stop.") + (Array.isArray(data.reasons) && data.reasons.length ? " " + data.reasons.join(" ") : "");
+
+async function readShutdownReply(response) {
+  try {
+    return await response.json();
+  } catch (error) {
+    return {};
   }
-  alert.textContent = "Stopping Document Writer…";
-  await settleRecoveryCopy();
-  // Cancel/Escape or a different dialog may have superseded this request while device/recovery saving ran.
-  if (!form.isConnected || !form.closest("dialog")?.open) return false;
-  const finalReview = currentReview();
-  if (finalReview.blocking.length || JSON.stringify(finalReview.unresolved) !== JSON.stringify(review.unresolved)) {
-    await openExit(false);
-    return false;
-  }
+}
+
+async function sendShutdown(form, alert, button, review) {
   form.dataset.shutdownRequested = "true";
   const cancel = form.closest("dialog")?.querySelector("[data-utility-close]");
   if (cancel) cancel.disabled = true;
@@ -150,18 +143,12 @@ async function requestExit(form) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ force: review.unresolved.length > 0 }),
     });
-    let data = {};
-    try {
-      data = await response.json();
-    } catch (error) {
-      data = {};
-    }
+    const data = await readShutdownReply(response);
     if (response.ok && data.ok) {
       stopped();
       return true;
     }
-    alert.textContent =
-      (data.error || "Document Writer did not stop.") + (Array.isArray(data.reasons) && data.reasons.length ? " " + data.reasons.join(" ") : "");
+    alert.textContent = refusalText(data);
   } catch (error) {
     alert.textContent =
       "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. " +
@@ -171,6 +158,30 @@ async function requestExit(form) {
   if (cancel) cancel.disabled = false;
   button.disabled = false;
   return false;
+}
+
+async function requestExit(form) {
+  const alert = form.querySelector("[data-exit-error]"),
+    button = form.querySelector("[data-exit-confirm]");
+  button.disabled = true;
+  const kept = await flushDrafts();
+  if (superseded(form)) return false;
+  const review = currentReview();
+  // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
+  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
+    await openExit(false);
+    return false;
+  }
+  alert.textContent = "Stopping Document Writer…";
+  await settleRecoveryCopy();
+  // Cancel/Escape or a different dialog may have superseded this request while device/recovery saving ran.
+  if (superseded(form)) return false;
+  const finalReview = currentReview();
+  if (finalReview.blocking.length || JSON.stringify(finalReview.unresolved) !== JSON.stringify(review.unresolved)) {
+    await openExit(false);
+    return false;
+  }
+  return sendShutdown(form, alert, button, review);
 }
 
 export async function openExit(save = true) {

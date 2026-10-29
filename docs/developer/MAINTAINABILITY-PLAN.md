@@ -1542,3 +1542,9 @@ Added a frozen-original comparison of the working-draft recovery click handler b
 Added a frozen-original comparison of the catalog review click handler before changing it (`audit_catalog_review_action_rules.js`: 10,000 seeded events against the retained `catalog_events_reference.txt`, 650 with interruptions). It covers the basis confirmation, validation order, the recorded review and its browser cache, retained-edit detection and failure handling. The seam also caught a duplicated peer read introduced during the first draft of the split.
 
 The handler (complexity 26, 104 lines) is now a short sequence over basis, read, fault, record and failure functions. Five deliberate mutations are caught.
+
+## exit-phases
+
+The pure exit review moved unchanged to `exit_review.js` (no services, state or DOM), and two frozen-original comparisons were added before its split: `audit_exit_review_rules.js` (12,000 seeded case, queue and outbox states against the retained function) and `audit_exit_request_rules.js` (3,000 seeded exit requests in a real JSDOM dialog with the app, transport and stop-page peers stubbed, against the retained module; it compares draft saving, the two review checks, supersession, the shutdown request and every failure path, with every peer call in order). The existing exit suite missed four of five deliberate mutations of the request path; the new comparison catches all of them.
+
+`exitReview` (complexity 24) is now busy, device-save, per-case, queue and outbox item builders assembled in the original order, and `requestExit` (24) a short sequence over supersession, review and shutdown phases.

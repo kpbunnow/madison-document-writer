@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 8,
+    "complexity": 6,
     "max-depth": 0,
     "max-lines-per-function": 64,
     "python": 13
@@ -33,8 +33,6 @@
     "app/modules/deposit_schedule.js:initDepositSchedule#1:max-lines-per-function": 137,
     "app/modules/deposit_schedule.js:initDepositSchedule#1/html#1:max-lines-per-function": 109,
     "app/modules/deposit_step.js:initDepositStep#1:max-lines-per-function": 302,
-    "app/modules/desktop_exit.js:exitReview#1:complexity": 24,
-    "app/modules/desktop_exit.js:requestExit#1:complexity": 24,
     "app/modules/document_delivery.js:createDocumentDelivery#1:max-lines-per-function": 182,
     "app/modules/document_pagination.js:createDocumentPagination#1:max-lines-per-function": 223,
     "app/modules/document_pagination.js:createDocumentPagination#1/paginate#1:complexity": 23,
