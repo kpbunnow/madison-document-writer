@@ -1105,3 +1105,27 @@ Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 10
 Committed metadata replacement and native write-failure classification retain lazy reads, concurrent-edit preservation and verification/write/projection order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
 
 Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-request-refresh
+
+Separated pending deposit repricing after the existing citation pricing refresh. Retained aliases, source/correction restoration, property/service order and approved-basis resets. Existing charge public-owner suite passes unchanged against maintained and original modules with byte-identical output/diagnostics. Prior-history and pricing-refresh regressions, module boundaries, test seams, ESLint and formatting pass. No policy, price, format, print or release changes.
+
+Measured counts: {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## approved-deposit-completion
+
+Separate approved manual basis completion from scheduled lookup without changing validation, partial mutations or pricing reads. Generated comparisons cover 3,036 real-policy inputs; writer services, boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-edit-phases
+
+Split ordinance input/commit, early refusal, mode, fee and approved-basis phases. Public editing and lazy interfaces stay unchanged. 5,306 comparisons against retained source plus existing citation workflow, boundaries, seams and lint pass.
+
+Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-edit-normalization
+
+Complete the same edit-phase increment by naming date/time normalization. Retained comparisons and existing owner checks pass.
+
+Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.

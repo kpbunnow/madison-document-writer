@@ -202,6 +202,80 @@ function depositRuleFault(context) {
 }
 
 /* Construction is inert; dependencies and the live date are read at operation time. */
+function normalizeCitationFieldValue(field, value) {
+  if (["courtDate", "issued", "violDate"].includes(field)) value = parseDate(value) || String(value || "").trim();
+  if (["courtTime", "violTime"].includes(field)) value = parseTime(value) || String(value || "").trim();
+  return value;
+}
+
+function editCitationOrdinance(services, d, id, c, value, phase) {
+  if (phase === "input") {
+    if (!Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
+    c.ord = String(value || "");
+    if (d.correction) d.correction.reviewed = false;
+    return;
+  }
+  if (Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
+  delete c.ordEditingFrom;
+  // Nothing priced, measured or approved for the previous charge carries over to the new one.
+  if (services.changeCharge(d, id, value) && d.correction) d.correction.reviewed = false;
+  return;
+}
+
+function rejectCitationFieldEdit(services, d, c, field, value) {
+  if (["tierOverride", "tierOverrideSource"].includes(field) && !String(value || "").trim()) {
+    delete c[field];
+    services.citationPricing.refresh(d);
+    return true;
+  }
+  if (field === "amount" && !(cents(value) > 0)) {
+    c.depositEditInvalid = true;
+    c.reconfirmDeposit = true;
+    return true;
+  }
+  return false;
+}
+
+function editCitationDepositMode(services, d, id, c, value) {
+  if (value !== "schedule" && c.resolvedVia && !c.resolvedVia.startsWith("approved-")) delete c.depositSource;
+  delete c.assessments;
+  if (value === "schedule") services.applyDeposit(d, id, c.ord);
+  else {
+    if (value === "base" && validMoney(c.base) && validMoney(c.cc)) {
+      const lines = services.feeLines(c.base, c.cc, c.pricedOn || c.issued);
+      c.amount = money(lines.total);
+      c.assessments = lines.cents;
+    }
+    c.reconfirmDeposit = String(c.depositSource || "").trim().length < 10;
+  }
+}
+
+function updateCitationFees(services, c, field) {
+  if (["base", "cc"].includes(field) && c.depositMode !== "total") {
+    const lines = validMoney(c.base) && validMoney(c.cc) ? services.feeLines(c.base, c.cc, c.pricedOn || c.issued) : null;
+    if (lines) {
+      c.amount = money(lines.total);
+      c.assessments = lines.cents;
+    } else c.reconfirmDeposit = true;
+  }
+}
+
+function confirmEditedDepositBasis(services, d, c, field) {
+  if (
+    ["base", "cc", "amount", "depositSource"].includes(field) &&
+    c.depositMode !== "schedule" &&
+    !c.depositEditInvalid &&
+    validMoney(c.amount) &&
+    String(c.depositSource || "").trim().length >= 10 &&
+    (c.depositMode === "total" || (validMoney(c.base) && validMoney(c.cc)))
+  ) {
+    delete c.reconfirmDeposit;
+    c.resolvedVia = "approved-" + c.depositMode;
+    c.pricedOn = services.citationPricingDate(c, d);
+    c.policyVersionHash = CITATION_POLICY.versionHash;
+  }
+}
+
 export function createCitationWorkflow(services) {
   function depositComplete(d) {
     return (
@@ -240,70 +314,18 @@ export function createCitationWorkflow(services) {
     if (field === "ordOther") field = "ord";
     const c = d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
     if (!c) return;
-    if (["courtDate", "issued", "violDate"].includes(field)) value = parseDate(value) || String(value || "").trim();
-    if (["courtTime", "violTime"].includes(field)) value = parseTime(value) || String(value || "").trim();
-    if (field === "ord") {
-      if (phase === "input") {
-        if (!Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
-        c.ord = String(value || "");
-        if (d.correction) d.correction.reviewed = false;
-        return;
-      }
-      if (Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
-      delete c.ordEditingFrom;
-      // Nothing priced, measured or approved for the previous charge carries over to the new one.
-      if (services.changeCharge(d, id, value) && d.correction) d.correction.reviewed = false;
-      return;
-    }
+    value = normalizeCitationFieldValue(field, value);
+    if (field === "ord") return editCitationOrdinance(services, d, id, c, value, phase);
     if (c[field] === value) return;
-    if (["tierOverride", "tierOverrideSource"].includes(field) && !String(value || "").trim()) {
-      delete c[field];
-      services.citationPricing.refresh(d);
-      return;
-    }
-    if (field === "amount" && !(cents(value) > 0)) {
-      c.depositEditInvalid = true;
-      c.reconfirmDeposit = true;
-      return;
-    }
+    if (rejectCitationFieldEdit(services, d, c, field, value)) return;
     c[field] = value;
     if (field === "amount") delete c.depositEditInvalid;
     if (field === "issued") delete c.issuedAutomatic;
     if (field === "desc") c.descEdited = true;
     if (["violDate", "issued", "scheduleEntryId", "tierOverride", "tierOverrideSource"].includes(field)) services.citationPricing.refresh(d);
-    if (field === "depositMode") {
-      if (value !== "schedule" && c.resolvedVia && !c.resolvedVia.startsWith("approved-")) delete c.depositSource;
-      delete c.assessments;
-      if (value === "schedule") services.applyDeposit(d, id, c.ord);
-      else {
-        if (value === "base" && validMoney(c.base) && validMoney(c.cc)) {
-          const lines = services.feeLines(c.base, c.cc, c.pricedOn || c.issued);
-          c.amount = money(lines.total);
-          c.assessments = lines.cents;
-        }
-        c.reconfirmDeposit = String(c.depositSource || "").trim().length < 10;
-      }
-    }
-    if (["base", "cc"].includes(field) && c.depositMode !== "total") {
-      const lines = validMoney(c.base) && validMoney(c.cc) ? services.feeLines(c.base, c.cc, c.pricedOn || c.issued) : null;
-      if (lines) {
-        c.amount = money(lines.total);
-        c.assessments = lines.cents;
-      } else c.reconfirmDeposit = true;
-    }
-    if (
-      ["base", "cc", "amount", "depositSource"].includes(field) &&
-      c.depositMode !== "schedule" &&
-      !c.depositEditInvalid &&
-      validMoney(c.amount) &&
-      String(c.depositSource || "").trim().length >= 10 &&
-      (c.depositMode === "total" || (validMoney(c.base) && validMoney(c.cc)))
-    ) {
-      delete c.reconfirmDeposit;
-      c.resolvedVia = "approved-" + c.depositMode;
-      c.pricedOn = services.citationPricingDate(c, d);
-      c.policyVersionHash = CITATION_POLICY.versionHash;
-    }
+    if (field === "depositMode") editCitationDepositMode(services, d, id, c, value);
+    updateCitationFees(services, c, field);
+    confirmEditedDepositBasis(services, d, c, field);
     if (d.correction) d.correction.reviewed = false;
   }
 
