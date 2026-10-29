@@ -6,6 +6,86 @@ import { recoverySharedConflict } from "./case_recovery.js";
 import { esc } from "./presentation_format.js";
 
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
+/* Recovery dialog sections. Each builds its markup from the recovery state it is given. */
+function backupList(list) {
+  return (
+    '<div class="folderlist">' +
+    "".concat(
+      list
+        .map(
+          (x, i) =>
+            '<button data-recovery-row="' +
+            `${i}` +
+            '" ' +
+            `${x.error ? "disabled" : ""}` +
+            ">" +
+            `${esc(x.number || "Unknown case")}` +
+            " · " +
+            `${esc(x.at || x.name)}` +
+            " · " +
+            `${esc((x.included || []).join(", ") || x.error || "No listed drafts")}` +
+            " · workspace " +
+            `${esc(x.workspace.slice(0, 8))}` +
+            "</button>",
+        )
+        .join("") || "No backups found.",
+    ) +
+    "</div>"
+  );
+}
+
+function sharedFieldTable(fields) {
+  return fields.length
+    ? "<table><thead><tr><th>Field</th><th>Backup</th><th>Shared</th></tr></the" +
+        "ad><tbody>" +
+        "".concat(
+          fields
+            .map((f) =>
+              "".concat(
+                "<tr><td>",
+                esc(f.field),
+                "</td><td>",
+                esc(JSON.stringify(f.local) ?? "(absent)"),
+                "</td><td>",
+                esc(JSON.stringify(f.shared) ?? "(absent)"),
+                "</td></tr>",
+              ),
+            )
+            .join(""),
+        ) +
+        "</tbody></table>"
+    : "";
+}
+
+function selectedBackup(services, b, local) {
+  return (
+    '<div class="banner info"><strong>' +
+    `${esc(b.number)}` +
+    " · " +
+    `${esc(b.at)}` +
+    "</strong><p>Included: " +
+    `${esc(b.included.join(", ") || "import work")}` +
+    ". Local: " +
+    `${esc(local ? services.caseUnsaved(local) || "case present, no unfinished work" : "case absent")}` +
+    ". Shared: " +
+    `${esc(recovery.RECOVERY.shared?.detail || "Checking shared record…")}` +
+    "</p>\n        " +
+    "".concat(recovery.RECOVERY.shared?.fields?.length ? sharedFieldTable(recovery.RECOVERY.shared.fields) : "") +
+    "\n        </div>"
+  );
+}
+
+function recoveryActions(k) {
+  return (
+    '<button class="btn btn-primary" data-recovery-restore ' +
+    `${recoverySharedConflict(recovery.RECOVERY.shared) ? "disabled" : ""}` +
+    '>Restore selected case</button><button class="btn" data-recovery-export>' +
+    "Export selected backup</button>" +
+    `${k ? `<button class="btn" data-recovery-shared>Open current shared case</button>` : ""}` +
+    ""
+  );
+}
+
 export function createRecoveryUI(services) {
   function restoreWorkControls() {
     if (editor.state.screen === "import")
@@ -100,82 +180,11 @@ export function createRecoveryUI(services) {
       'on"></label>\n      ' +
       "".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : "") +
       "\n      " +
-      "".concat(
-        recovery.RECOVERY.loading
-          ? "Reading backups…"
-          : '<div class="folderlist">' +
-              "".concat(
-                recovery.RECOVERY.list
-                  .map(
-                    (x, i) =>
-                      '<button data-recovery-row="' +
-                      `${i}` +
-                      '" ' +
-                      `${x.error ? "disabled" : ""}` +
-                      ">" +
-                      `${esc(x.number || "Unknown case")}` +
-                      " · " +
-                      `${esc(x.at || x.name)}` +
-                      " · " +
-                      `${esc((x.included || []).join(", ") || x.error || "No listed drafts")}` +
-                      " · workspace " +
-                      `${esc(x.workspace.slice(0, 8))}` +
-                      "</button>",
-                  )
-                  .join("") || "No backups found.",
-              ) +
-              "</div>",
-      ) +
+      "".concat(recovery.RECOVERY.loading ? "Reading backups…" : backupList(recovery.RECOVERY.list)) +
       "\n      " +
-      "".concat(
-        b
-          ? '<div class="banner info"><strong>' +
-              `${esc(b.number)}` +
-              " · " +
-              `${esc(b.at)}` +
-              "</strong><p>Included: " +
-              `${esc(b.included.join(", ") || "import work")}` +
-              ". Local: " +
-              `${esc(local ? services.caseUnsaved(local) || "case present, no unfinished work" : "case absent")}` +
-              ". Shared: " +
-              `${esc(recovery.RECOVERY.shared?.detail || "Checking shared record…")}` +
-              "</p>\n        " +
-              "".concat(
-                recovery.RECOVERY.shared?.fields?.length
-                  ? "<table><thead><tr><th>Field</th><th>Backup</th><th>Shared</th></tr></the" +
-                      "ad><tbody>" +
-                      "".concat(
-                        recovery.RECOVERY.shared.fields
-                          .map((f) =>
-                            "".concat(
-                              "<tr><td>",
-                              esc(f.field),
-                              "</td><td>",
-                              esc(JSON.stringify(f.local) ?? "(absent)"),
-                              "</td><td>",
-                              esc(JSON.stringify(f.shared) ?? "(absent)"),
-                              "</td></tr>",
-                            ),
-                          )
-                          .join(""),
-                      ) +
-                      "</tbody></table>"
-                  : "",
-              ) +
-              "\n        </div>"
-          : "",
-      ) +
+      "".concat(b ? selectedBackup(services, b, local) : "") +
       '\n      </div><div class="modal-f">' +
-      "".concat(
-        b
-          ? '<button class="btn btn-primary" data-recovery-restore ' +
-              `${recoverySharedConflict(recovery.RECOVERY.shared) ? "disabled" : ""}` +
-              '>Restore selected case</button><button class="btn" data-recovery-export>' +
-              "Export selected backup</button>" +
-              `${k ? `<button class="btn" data-recovery-shared>Open current shared case</button>` : ""}` +
-              ""
-          : "",
-      ) +
+      "".concat(b ? recoveryActions(k) : "") +
       '<button class="btn" data-sync-safety>Saved work &amp; connection</button' +
       '><button class="btn" data-close="modal">Close</button></div></div></div>'
     );

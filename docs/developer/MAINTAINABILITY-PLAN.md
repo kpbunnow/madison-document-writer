@@ -1590,6 +1590,41 @@ Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 
 
 The durable-operation comparison first failed intermittently in the full run: the retained and current functions check the shared and local archive locations through a set, whose iteration order follows the path text, so two different temporary folders could order a double conflict differently. The production code is unchanged by that finding (the two locations are checked in an arbitrary but complete order); the comparison now runs both sides in the same folder path so the order is identical, and was run repeatedly under different hash seeds.
 
+## record-history-sections
+
+Added a frozen-original comparison of the document record panel (`audit_record_history_markup_rules.js`: 6,000 seeded documents against the retained `record_history_reference.txt`) covering revision chains, withdrawal and follow-through states, pending attempts, record notes, the save-in-progress state, escaping and every peer read. `recordHistoryHTML` (97 lines) is now a shell over follow-through, held-attempt, version-list and record-note section builders. Four deliberate mutations are caught.
+
+## recovery-dialog-sections
+
+Added a frozen-original comparison of the recovery dialog (`audit_recovery_modal_markup_rules.js`: 6,000 seeded states against the retained `recovery_ui_reference.txt`) covering the backup list, selection, errors, local and shared comparison, restore gating, escaping and every peer read. `recoveryModal` (94 lines) is now a shell over backup-list, selected-backup, field-table and action builders. Five deliberate mutations are caught.
+
+## correction-panel-sections
+
+Added a frozen-original comparison of the correction panel (`audit_correction_panel_markup_rules.js`: 6,000 seeded corrections against the retained `correction_panel_reference.txt`) covering locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping and every peer read and call. `correctionPanel` (81 lines) is now a shell over notice, external-reference, property-detail and action builders, with the visit editor and diff supplied by the factory in their original order. Deliberate mutations are caught.
+
+## tools-screen-sections
+
+Added a frozen-original comparison of the Tools & settings screen (`audit_tools_screen_markup_rules.js`: every colour-theme state against the retained `navigation_reference.txt`, with the shell and icon peers recorded in order). `screen` (114 lines) now keeps its tool tables and static sections as module constants and builds the display and administrator sections in two functions; the icon calls happen in the original order. Deliberate mutations are caught.
+
+## catalog-review-panel-sections
+
+Added a frozen-original comparison of the catalog review panel (`audit_catalog_review_panel_markup_rules.js`: 6,000 seeded entries against the retained `catalog_review_panel_reference.txt`) covering every review status, open and closed forms, the rebase and error notices, replacement search, escaping and every peer read in order. `catalogReviewPanel` (110 lines) is now a shell over review-line, comparison, rebase-button, field and footer builders; the replacement options are still produced at their original position. Deliberate mutations are caught; the one survivor (`f.replacementQuery || ""`) is equivalent because `esc` renders `undefined` as empty.
+
+## deposit-schedule-sections
+
+Added a frozen-original comparison of the deposit schedule explorer (`audit_deposit_schedule_markup_rules.js`: 400 seeded sequences of date changes, searches and page clicks against the retained `deposit_schedule_reference.txt`) covering invalid dates, empty searches, page clamping, every prior-offense window shape and the order of renders and escapes. `html` (109 lines) is now a shell over invalid-date, controls, page-navigation, window-text, row and table builders at module level.
+
+## printable-html-sections
+
+Added a frozen-original comparison of `printableHTML` (`audit_printable_html_rules.js`: 1,500 seeded sheets in jsdom against the retained `browser_printing_reference.txt`) covering control-to-text substitution for text, date, time, select and button controls, removed editing parts, the header-time block, title escaping, the missing-sheet notice and the no-document case. The function (95 lines) is now a shell over a clone-cleanup function, a control-text function and a frozen module-level page stylesheet. Deliberate mutations, including each removed-class selector, are caught.
+
+## snow-letter-review-sections
+
+Added a frozen-original comparison of the seasonal letter review (`audit_snow_letter_review_rules.js`: 1,500 seeded letters and submissions in jsdom against the retained `administration_letter_reference.txt`) covering the connection refusals, load failure, the exact form, the submit that rewrites phone lines and posts the confirmed letter, failure display, and every peer read and call in order. `openLetter` (83 lines) is now a short opener over a form builder, a site-row builder, a reviewed-letter function and a save function; the shared administrator fields moved to a module-level function. The one surviving mutant (`reviewedOn || ""`) is equivalent because `esc` renders `undefined` as empty.
+
+## start-correction-sections
+
+Added a frozen-original comparison of `startCorrection` (`audit_start_correction_rules.js`: 6,000 seeded documents, cases and recipient lists against the retained `correction_workflow_reference.txt`) covering the existing-draft shortcut, eligibility refusals, every dropped issued field, the recipient merge across case, document and issued copy, the stored correction record, state effects and the order of peer reads and calls. `startCorrection` (85 lines) is now a short shell over a dropped-field table, a recipient merge, a correction-record builder and a draft builder. Deliberate mutations are caught; the survivors (`on: true` on issued recipients, which the later issued pass overwrites, and `Array.isArray(docCase(src).emails)`, whose rows repeat the case's own) are equivalent.
 ## verified-update-phases
 
 Added a frozen-original comparison of verified update staging (`audit_verified_update_rules.py`: 1,500 seeded shared deployments on real folders against the retained module text, plus network-share diagnostics). It damages deployments in 20 ways (changed size or checksum, missing, extra and stale files, links, bad paths, a self-referencing or empty manifest, oversized or malformed manifests, downgrade pins of both formats, operational folders and files) and compares the result, error text, staged files, pin and diagnostic.
@@ -1605,3 +1640,15 @@ Added a frozen-original comparison of the Windows case-lookup query (`audit_look
 ## lookup-settings-phases
 
 Added a frozen-original comparison of the case-lookup configuration (`audit_lookup_settings_rules.py`: 1,500 seeded shared and per-user settings folders against the retained function text). It compares the shared folder and file states, allowed keys and value rules (including the control-character and size boundaries), the approved-server check, the per-user certificate setting and the disabled switch, with the exact configuration or refusal. `settings` (C901 18) is now a shared-file reader, a settings check and a per-user certificate reader; all six deliberate mutations are caught after two boundary cases were added.
+
+## tool-form-submit-handlers
+
+Added a frozen-original comparison of the tool form submit listener (`audit_tool_form_submit_rules.js`: 4,000 seeded submits in real jsdom forms against the retained `workflow_events_reference.txt`) covering form selection, the search result markup, reminder preference clamping and plan filtering, the Outlook reminder draft, batch deadline staging and persistence, outbox sync with conflict severity, failure toasts, the button being re-enabled only while the form is connected, and every peer read and call in order. `registerToolForms` (86 lines, with an 84-line listener) is now a short listener over a form-id table of five module-level handlers. Ten deliberate mutations are caught.
+
+## notice-pagination-phases
+
+The existing real-Chromium comparison with the retained pagination algorithms (`audit_pagination_equivalence.js`) gained grouped rows, aligned extension language, voided sheets, empty tables, oversized blocks and many-row notices, compared exactly including measurement order. `paginate` (125 lines, complexity 23) is now a guard shell over module-level phases: a notice layout reader, page builder, language fill, row carry, row fill, closing fill and page numbering. Twelve deliberate mutations are caught, two of which exposed the missing empty-table and oversized-paragraph scenarios that were then added.
+
+## split-literal-ratchet
+
+`tools/markup_inventory.cjs` counts adjacent static string pieces joined with `+` in each application module and classifies the module as screen, print/issued (`document_render.js`, `browser_printing.js`) or approved wording (mailing rules and report metadata). `tools/markup-baseline.json` records 445 screen, 131 print/issued and 60 approved-wording sites, and `audit_markup_inventory.js` fails when a screen module gains a split literal or when a file falls below its recorded count without the baseline being lowered. Print/issued and approved-wording sites are listed but not ratcheted (D1). Converting the remaining screen sites to templates is a separate, owner-reviewed step because it touches the screen contract; until then the 445 sites are the recorded exceptions.

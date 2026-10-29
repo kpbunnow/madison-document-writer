@@ -3,6 +3,103 @@ import { startupState as startup } from "./startup_state.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { HELPER_VERSION } from "./data/build_identity.js";
 
+const TOOL_GROUPS = [
+  [
+    "Cases & planning",
+    [
+      ["Search shared case records", "Find shared records by case number, address, owner, citation or parcel.", "data-global-search", "search"],
+      ["Reminders", "Choose upcoming deadlines and personal reinspection plans.", "data-reminders", "calendar"],
+      ["Batch draft due dates", "Assign deadlines across selected items in unfinished original notices.", "data-batch-due", "calendar"],
+    ],
+  ],
+  [
+    "Saved work & connection",
+    [
+      [
+        "Saved work & connection",
+        "See device saving, shared copies, PDF filing, backups and connection checks in one place.",
+        "data-sync-safety",
+        "sync",
+      ],
+      ["Open saved case", "Open a case JSON file already saved on this computer or the share.", "data-openfile", "cases"],
+    ],
+  ],
+];
+
+// Specialist tools; each keeps its own administrator checks. Grouping here grants no authorization.
+const ADMIN_TOOLS = [
+  [
+    "Review catalog",
+    "Review order language wording, ordinance authority, replacements and immutable versions.",
+    'data-language-mode="admin"',
+    "library",
+  ],
+  ["Administrator deposit override", "Record an exceptional court or division deposit with its named authorization.", "data-admin-deposit", "tools"],
+  ["Review snow-letter content", "Confirm seasonal sand sites, contacts and web address for new citations.", "data-admin-snow-letter", "tools"],
+];
+
+const toolButton = (services, [label, description, attributes, icon]) =>
+  '<button class="tool-action" ' +
+  `${attributes}` +
+  ">" +
+  `${services.uiIcon(icon)}` +
+  "<span><strong>" +
+  `${label}` +
+  "</strong><span>" +
+  `${description}` +
+  '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
+  "on>";
+
+// Stops the local helper for every open Writer and Reports window, after reviewing unresolved work (desktop_exit.js).
+const EXIT_WRITER =
+  '<div data-tools-exit><p class="hint">Finished for the day? Exit stops Document Writer on this computer after ' +
+  "saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p>" +
+  '<p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
+
+const PROGRAM_MANUAL_SECTION =
+  '<section class="tools-section" aria-labelledby="tools-manual"><h2 id="to' +
+  'ols-manual">Program instructions</h2><p><a class="btn" href="PROGRAM-MAN' +
+  'UAL.html" target="_blank" rel="noopener">Open program manual (new tab)</' +
+  'a> <a class="btn" href="Program_Instruction_Manual.pdf" target="_bla' +
+  'nk" rel="noopener">Printable manual PDF</a></p></section>';
+
+const THEMES = [
+  ["system", "Use device setting"],
+  ["light", "Light"],
+  ["dark", "Dark"],
+  ["high", "High contrast"],
+];
+
+function displaySection(services, theme) {
+  return (
+    '<section class="tools-section" aria-labelledby="tools-display"><h2 id="tools-display">D' +
+    'isplay &amp; help</h2><div class="tools-grid"><label class="tool-theme">' +
+    "<strong>Color theme</strong><span>Use your device setting or choose a re" +
+    'adable display.</span><select data-a11y-theme aria-label="Color theme">' +
+    "".concat(THEMES.map(([value, label]) => `<option value="${value}" ${value === theme ? "selected" : ""}>${label}</option>`).join("")) +
+    '</select></label><button class="tool-action" data-a11y-history>' +
+    `${services.uiIcon("files")}` +
+    "<span><strong>Message history</strong><span>Review earlier save confirma" +
+    'tions, warnings and errors.</span></span><span class="tool-arrow" aria-h' +
+    'idden="true">→</span></button><button class="tool-action" data-a11y-help' +
+    ">" +
+    `${services.uiIcon("tools")}` +
+    "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
+    ' ? outside a text field for quick help.</span></span><span class="tool-a' +
+    'rrow" aria-hidden="true">→</span></button></div></section>'
+  );
+}
+
+function adminSection(services) {
+  return (
+    '<section class="tools-section tools-admin" aria-labelledby="tools-admin"><details data-tools-admin><summary id="tools-admin">Administrator tools</summary>' +
+    '<p class="hint">Specialist tools for division administrators. Access still depends on the existing administrator checks; this grouping does not grant authorization.</p>' +
+    '<div class="tools-grid">' +
+    ADMIN_TOOLS.map((item) => toolButton(services, item)).join("") +
+    "</div></details></section>"
+  );
+}
+
 /* Main destinations and infrequent tools share safe, saved navigation. */
 export function initNavigation(services) {
   const routes = new Set(["import", "cases", "library", "tools"]);
@@ -130,60 +227,6 @@ export function initNavigation(services) {
     );
   }
   function screen() {
-    const groups = [
-      [
-        "Cases & planning",
-        [
-          ["Search shared case records", "Find shared records by case number, address, owner, citation or parcel.", "data-global-search", "search"],
-          ["Reminders", "Choose upcoming deadlines and personal reinspection plans.", "data-reminders", "calendar"],
-          ["Batch draft due dates", "Assign deadlines across selected items in unfinished original notices.", "data-batch-due", "calendar"],
-        ],
-      ],
-      [
-        "Saved work & connection",
-        [
-          [
-            "Saved work & connection",
-            "See device saving, shared copies, PDF filing, backups and connection checks in one place.",
-            "data-sync-safety",
-            "sync",
-          ],
-          ["Open saved case", "Open a case JSON file already saved on this computer or the share.", "data-openfile", "cases"],
-        ],
-      ],
-    ];
-    // Specialist tools; each keeps its own administrator checks. Grouping here grants no authorization.
-    const adminTools = [
-      [
-        "Review catalog",
-        "Review order language wording, ordinance authority, replacements and immutable versions.",
-        'data-language-mode="admin"',
-        "library",
-      ],
-      [
-        "Administrator deposit override",
-        "Record an exceptional court or division deposit with its named authorization.",
-        "data-admin-deposit",
-        "tools",
-      ],
-      ["Review snow-letter content", "Confirm seasonal sand sites, contacts and web address for new citations.", "data-admin-snow-letter", "tools"],
-    ];
-    const toolButton = ([label, description, attributes, icon]) =>
-      '<button class="tool-action" ' +
-      `${attributes}` +
-      ">" +
-      `${services.uiIcon(icon)}` +
-      "<span><strong>" +
-      `${label}` +
-      "</strong><span>" +
-      `${description}` +
-      '</span></span><span class="tool-arrow" aria-hidden="true">→</span></butt' +
-      "on>";
-    // Stops the local helper for every open Writer and Reports window, after reviewing unresolved work (desktop_exit.js).
-    const exitWriter =
-      '<div data-tools-exit><p class="hint">Finished for the day? Exit stops Document Writer on this computer after ' +
-      "saving drafts on this device and checking for unfinished work. Closing a window does not stop it.</p>" +
-      '<p><button class="btn" data-exit-writer>Exit Document Writer</button></p></div>';
     const theme = document.documentElement.dataset.theme || "system";
     return services.shell(
       "Tools & settings",
@@ -192,57 +235,24 @@ export function initNavigation(services) {
       '<p class="tools-intro">Find a shared case, manage saved files, or check ' +
         "your connection. Daily case work stays in Workspace.</p>" +
         "".concat(
-          groups
-            .map(
-              ([title, items], index) =>
-                '<section class="tools-section" aria-labelledby="tools-group-' +
-                `${index}` +
-                '"><h2 id="tools-group-' +
-                `${index}` +
-                '">' +
-                `${title}` +
-                '</h2><div class="tools-grid">' +
-                "".concat(items.map(toolButton).join("")) +
-                "</div>" +
-                (title === "Saved work & connection" ? exitWriter : "") +
-                "</section>",
-            )
-            .join(""),
+          TOOL_GROUPS.map(
+            ([title, items], index) =>
+              '<section class="tools-section" aria-labelledby="tools-group-' +
+              `${index}` +
+              '"><h2 id="tools-group-' +
+              `${index}` +
+              '">' +
+              `${title}` +
+              '</h2><div class="tools-grid">' +
+              "".concat(items.map((item) => toolButton(services, item)).join("")) +
+              "</div>" +
+              (title === "Saved work & connection" ? EXIT_WRITER : "") +
+              "</section>",
+          ).join(""),
         ) +
-        '<section class="tools-section" aria-labelledby="tools-manual"><h2 id="to' +
-        'ols-manual">Program instructions</h2><p><a class="btn" href="PROGRAM-MAN' +
-        'UAL.html" target="_blank" rel="noopener">Open program manual (new tab)</' +
-        'a> <a class="btn" href="Program_Instruction_Manual.pdf" target="_bla' +
-        'nk" rel="noopener">Printable manual PDF</a></p></section><section class=' +
-        '"tools-section" aria-labelledby="tools-display"><h2 id="tools-display">D' +
-        'isplay &amp; help</h2><div class="tools-grid"><label class="tool-theme">' +
-        "<strong>Color theme</strong><span>Use your device setting or choose a re" +
-        'adable display.</span><select data-a11y-theme aria-label="Color theme">' +
-        "".concat(
-          [
-            ["system", "Use device setting"],
-            ["light", "Light"],
-            ["dark", "Dark"],
-            ["high", "High contrast"],
-          ]
-            .map(([value, label]) => `<option value="${value}" ${value === theme ? "selected" : ""}>${label}</option>`)
-            .join(""),
-        ) +
-        '</select></label><button class="tool-action" data-a11y-history>' +
-        `${services.uiIcon("files")}` +
-        "<span><strong>Message history</strong><span>Review earlier save confirma" +
-        'tions, warnings and errors.</span></span><span class="tool-arrow" aria-h' +
-        'idden="true">→</span></button><button class="tool-action" data-a11y-help' +
-        ">" +
-        `${services.uiIcon("tools")}` +
-        "<span><strong>Keyboard shortcuts</strong><span>See available keys. Press" +
-        ' ? outside a text field for quick help.</span></span><span class="tool-a' +
-        'rrow" aria-hidden="true">→</span></button></div></section>' +
-        '<section class="tools-section tools-admin" aria-labelledby="tools-admin"><details data-tools-admin><summary id="tools-admin">Administrator tools</summary>' +
-        '<p class="hint">Specialist tools for division administrators. Access still depends on the existing administrator checks; this grouping does not grant authorization.</p>' +
-        '<div class="tools-grid">' +
-        adminTools.map(toolButton).join("") +
-        "</div></details></section>",
+        PROGRAM_MANUAL_SECTION +
+        displaySection(services, theme) +
+        adminSection(services),
     );
   }
   function helperVersion() {

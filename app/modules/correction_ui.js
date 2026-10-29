@@ -90,6 +90,108 @@ function recordActionShell(d, mode, held) {
   );
 }
 
+/* Correction panel sections. Each takes the draft and whether its save is awaiting confirmation. */
+function correctionNotices(locked) {
+  return locked
+    ? '<div class="banner warn">The save response was not confirmed. Retry the ' +
+        "exact save to check the shared record before editing or discarding this " +
+        'draft. <button class="btn" id="btn-retrycorrection">Retry save</button><' +
+        "/div>"
+    : "";
+}
+
+function externalReferenceField(d, c, locked) {
+  return d.type === "citation" || isHistoryDoc(d) || specialType(d.type)
+    ? '<label class="f"><span>Court / City Attorney / division amendment instru' +
+        'ctions or reference</span><textarea id="correction-external" rows="2" ' +
+        `${locked ? "disabled" : ""}` +
+        ">" +
+        `${esc(c.externalReference)}` +
+        '</textarea><span class="hint">Confirm the required process with the rece' +
+        "iving office. Saving here does not amend an external court or attorney r" +
+        "ecord.</span></label>"
+    : "";
+}
+
+function propertyDetails(services, c, locked) {
+  return (
+    "<details><summary>Property record details and original action date<" +
+    '/summary><label class="f"><span>Original action date used in current rep' +
+    'orts</span><input type="date" id="correction-action-date" value="' +
+    `${esc(c.actionDate)}` +
+    '" max="' +
+    `${recordDay(services.today)}` +
+    '" ' +
+    `${locked ? "disabled" : ""}` +
+    '><span class="hint">Keep this date unless the original issue date was re' +
+    "corded incorrectly. This differs from the mailing date of this new corre" +
+    "cted copy. A change is included in the review and audit trail.</span></l" +
+    'abel><div class="grid g2"><label class="f"><span>Parcel</span><input dat' +
+    'a-case="parcel" value="' +
+    `${esc(c.case.parcel || "")}` +
+    '" ' +
+    `${locked ? "disabled" : ""}` +
+    '></label><label class="f"><span>City / state / ZIP</span><input data-cas' +
+    'e="siteCity" value="' +
+    `${esc(c.case.siteCity || "")}` +
+    '" ' +
+    `${locked ? "disabled" : ""}` +
+    "></label></div></details>"
+  );
+}
+
+function correctionActions(d, c, locked) {
+  return (
+    '<div class="correction-actions"><button class="btn" data-' +
+    'open="' +
+    `${esc(c.targetId)}` +
+    '">View previous version</button><button class="btn" id="btn-exportcorrec' +
+    'tion">Download draft changes</button><button class="btn" data-discard="' +
+    `${esc(d.id)}` +
+    '" ' +
+    `${locked ? "disabled" : ""}` +
+    '>Discard correction</button><button class="btn" id="btn-reviewcorrection' +
+    '" ' +
+    `${locked ? "disabled" : ""}` +
+    ">Review correction</button></div>"
+  );
+}
+
+function correctionPanelHTML(services, d, parts) {
+  const c = d.correction,
+    locked = !!d.pendingAmendment;
+  return (
+    '<section class="card correction-panel no-print"><div class="card-b"><div' +
+    ' class="revision-eyebrow">Correction draft · revision ' +
+    `${((correctionSource(d) || {}).revision || {}).number + 1 || 1}` +
+    "</div><h2>Fix the record without losing its history</h2><p>The prior ver" +
+    "sion remains on record while you work. Item numbers, inspection history " +
+    "and unchanged deadlines carry forward. Changed conditions belong in a ne" +
+    "w reinspection.</p>\n    " +
+    "".concat(correctionNotices(locked)) +
+    "\n    " +
+    "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
+    '\n    <label class="f"><span>What was wrong, and why is this correction n' +
+    'eeded?</span><textarea id="correction-reason" rows="2" maxlength="1000" ' +
+    `${locked ? "disabled" : ""}` +
+    ">" +
+    `${esc(c.reason)}` +
+    '</textarea></label>\n    <p class="hint">Changed case details are saved f' +
+    "or future documents and current reports. The original issued copy remain" +
+    "s unchanged. Case number stays fixed.</p>\n    " +
+    "".concat(externalReferenceField(d, c, locked)) +
+    "\n    " +
+    propertyDetails(services, c, locked) +
+    "\n    " +
+    `${locked ? "" : parts.visitEditor(d)}` +
+    "\n    <details><summary>Compare with the issued version</summary>" +
+    `${parts.diff(d)}` +
+    "</details>\n    " +
+    correctionActions(d, c, locked) +
+    "\n  </div></section>"
+  );
+}
+
 export function createCorrectionUI(services) {
   function changeText(v) {
     return v == null
@@ -160,84 +262,7 @@ export function createCorrectionUI(services) {
 
   function correctionPanel(d) {
     if (!d.correction) return "";
-    const c = d.correction,
-      locked = !!d.pendingAmendment;
-    return (
-      '<section class="card correction-panel no-print"><div class="card-b"><div' +
-      ' class="revision-eyebrow">Correction draft · revision ' +
-      `${((correctionSource(d) || {}).revision || {}).number + 1 || 1}` +
-      "</div><h2>Fix the record without losing its history</h2><p>The prior ver" +
-      "sion remains on record while you work. Item numbers, inspection history " +
-      "and unchanged deadlines carry forward. Changed conditions belong in a ne" +
-      "w reinspection.</p>\n    " +
-      "".concat(
-        locked
-          ? '<div class="banner warn">The save response was not confirmed. Retry the ' +
-              "exact save to check the shared record before editing or discarding this " +
-              'draft. <button class="btn" id="btn-retrycorrection">Retry save</button><' +
-              "/div>"
-          : "",
-      ) +
-      "\n    " +
-      "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
-      '\n    <label class="f"><span>What was wrong, and why is this correction n' +
-      'eeded?</span><textarea id="correction-reason" rows="2" maxlength="1000" ' +
-      `${locked ? "disabled" : ""}` +
-      ">" +
-      `${esc(c.reason)}` +
-      '</textarea></label>\n    <p class="hint">Changed case details are saved f' +
-      "or future documents and current reports. The original issued copy remain" +
-      "s unchanged. Case number stays fixed.</p>\n    " +
-      "".concat(
-        d.type === "citation" || isHistoryDoc(d) || specialType(d.type)
-          ? '<label class="f"><span>Court / City Attorney / division amendment instru' +
-              'ctions or reference</span><textarea id="correction-external" rows="2" ' +
-              `${locked ? "disabled" : ""}` +
-              ">" +
-              `${esc(c.externalReference)}` +
-              '</textarea><span class="hint">Confirm the required process with the rece' +
-              "iving office. Saving here does not amend an external court or attorney r" +
-              "ecord.</span></label>"
-          : "",
-      ) +
-      "\n    <details><summary>Property record details and original action date<" +
-      '/summary><label class="f"><span>Original action date used in current rep' +
-      'orts</span><input type="date" id="correction-action-date" value="' +
-      `${esc(c.actionDate)}` +
-      '" max="' +
-      `${recordDay(services.today)}` +
-      '" ' +
-      `${locked ? "disabled" : ""}` +
-      '><span class="hint">Keep this date unless the original issue date was re' +
-      "corded incorrectly. This differs from the mailing date of this new corre" +
-      "cted copy. A change is included in the review and audit trail.</span></l" +
-      'abel><div class="grid g2"><label class="f"><span>Parcel</span><input dat' +
-      'a-case="parcel" value="' +
-      `${esc(c.case.parcel || "")}` +
-      '" ' +
-      `${locked ? "disabled" : ""}` +
-      '></label><label class="f"><span>City / state / ZIP</span><input data-cas' +
-      'e="siteCity" value="' +
-      `${esc(c.case.siteCity || "")}` +
-      '" ' +
-      `${locked ? "disabled" : ""}` +
-      "></label></div></details>\n    " +
-      `${locked ? "" : correctionVisitEditor(d)}` +
-      "\n    <details><summary>Compare with the issued version</summary>" +
-      `${correctionDiffHTML(d)}` +
-      '</details>\n    <div class="correction-actions"><button class="btn" data-' +
-      'open="' +
-      `${esc(c.targetId)}` +
-      '">View previous version</button><button class="btn" id="btn-exportcorrec' +
-      'tion">Download draft changes</button><button class="btn" data-discard="' +
-      `${esc(d.id)}` +
-      '" ' +
-      `${locked ? "disabled" : ""}` +
-      '>Discard correction</button><button class="btn" id="btn-reviewcorrection' +
-      '" ' +
-      `${locked ? "disabled" : ""}` +
-      ">Review correction</button></div>\n  </div></section>"
-    );
+    return correctionPanelHTML(services, d, { visitEditor: correctionVisitEditor, diff: correctionDiffHTML });
   }
 
   function recordActionModal() {

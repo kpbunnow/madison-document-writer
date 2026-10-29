@@ -54,6 +54,14 @@ const { chromium } = require("playwright");
       { length: 1500, observations: 1, version: 16 },
       { length: 1500, observations: 0, version: 16 },
       { length: 80, observations: 2, version: 16, mobile: true },
+      { length: 300, rows: 6, groups: true, version: 16 },
+      { length: 120, rows: 9, groups: true, version: 10, voided: true },
+      { length: 200, rows: 5, aligned: true, version: 16 },
+      { length: 600, rows: 3, aligned: true, groups: true, version: 16, voided: true },
+      { length: 100, rows: 12, version: 10 },
+      { length: 900, tall: true, empty: true, version: 16 },
+      { length: 900, tall: true, empty: true, aligned: true, version: 16 },
+      { length: 3000, aligned: true, rows: 1, version: 16 },
       { length: 50, snow: true, version: 9 },
       { length: 400, snow: true, version: 16 },
     ]) {
@@ -67,21 +75,43 @@ const { chromium } = require("playwright");
           { length: scenario.observations || 0 },
           (_, i) => "<div><span>2026-10-" + (20 + i) + " · Progress</span><em>Note: " + esc(text) + "</em></div>",
         ).join("");
-        const input = scenario.snow
+        const built = scenario.snow
           ? '<section class="sheet"><div>Snow header</div><div class="snow-cover"><p>' +
             esc(text) +
             '</p><table class="snow-sites"><thead><tr><th>Sites</th></tr></thead><tbody>' +
             Array.from({ length: 8 }, (_, i) => "<tr><td>Site " + i + " " + esc(text) + "</td></tr>").join("") +
             '</tbody></table><p>Closing snow paragraph</p></div><footer class="n-foot">Snow footer</footer></section>'
-          : '<section class="sheet"><div>Original header</div><table class="notice"><thead><tr><th>No</th><th>Violation</th><th>History</th></tr></thead><tbody><tr data-row="item"><td class="c-no"><span class="num">1</span></td><td class="corr">Repair wall' +
+          : '<section class="sheet' +
+            (scenario.voided ? " voided" : "") +
+            '"><div>Original header</div>' +
+            (scenario.aligned
+              ? '<div class="n-body">' +
+                Array.from({ length: 4 }, (_, i) => "<p>Language " + i + " " + esc(text) + "</p>").join("") +
+                "</div><div>After the language</div><div>And more after</div>"
+              : "") +
+            '<table class="notice"><thead><tr><th>No</th><th>Violation</th><th>History</th></tr></thead><tbody><tr data-row="item"><td class="c-no"><span class="num">1</span></td><td class="corr">Repair wall' +
             notes +
             '</td><td><div class="visit-list">' +
             observations +
-            '</div></td></tr></tbody></table><p>Closing facts</p><div class="no-print">Editor controls</div><footer class="n-foot">Retained footer</footer></section>';
+            "</div></td></tr>" +
+            Array.from(
+              { length: scenario.rows || 0 },
+              (_, i) =>
+                (scenario.groups && i % 2 ? '<tr class="grp"><td colspan="3">Group ' + i + "</td></tr>" : "") +
+                '<tr data-row="item"><td class="c-no"><span class="num">' +
+                (i + 2) +
+                '</span></td><td class="corr">Repair ' +
+                esc(text) +
+                '</td><td><div class="visit-list"></div></td></tr>',
+            ).join("") +
+            "</tbody></table><p>" +
+            (scenario.tall ? esc(text) : "Closing facts") +
+            '</p><div class="no-print">Editor controls</div><footer class="n-foot">Retained footer</footer></section>';
+        const input = scenario.empty ? built.replace(/<tbody><tr.*<\/tbody>/s, "<tbody></tbody>") : built;
         const d = {
           id: "d",
           caseId: "c",
-          type: "notice",
+          type: scenario.aligned ? "vacancyExtension" : "notice",
           authoringVersion: scenario.version,
           frozen: { case: { id: "c", address: "100 TEST ST", number: "TEST-PAGES" } },
         };
@@ -122,7 +152,7 @@ const { chromium } = require("playwright");
         }
       }, scenario);
       assert.deepEqual(result.current, result.old, JSON.stringify(scenario));
-      if (!scenario.snow) {
+      if (!scenario.snow && !scenario.empty) {
         assert.equal(result.current.notes, scenario.length ? result.text : "");
         assert.equal(result.current.observations, result.text.repeat(scenario.observations));
       }

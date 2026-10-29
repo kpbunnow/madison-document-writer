@@ -4,86 +4,110 @@ import { registerEventOnce } from "./event_registration.js";
 import { esc } from "./presentation_format.js";
 import { downloadText, csvText } from "../assets/shared.js";
 import { kase, eventsFor } from "./writer_queries.js";
+/* Result list for a shared-case search. */
+function searchResultsHTML(result) {
+  return (
+    "<p>" +
+    `${result.hits.length}` +
+    " matching cases. " +
+    `${result.unreadable}` +
+    " unreadable files. " +
+    `${result.partial ? "Results limited; refine your search." : ""}` +
+    "</p><ul>" +
+    "".concat(
+      result.hits
+        .map(
+          (hit) =>
+            "<li>" +
+            `${esc(hit.number)}` +
+            " · " +
+            `${esc(hit.address)}` +
+            " · " +
+            `${esc(hit.owner)}` +
+            " " +
+            "".concat(
+              hit.duplicate
+                ? "Duplicate identity; administrator review needed"
+                : `<button class="btn" data-global-open="${esc(hit.number)}">Open current case</button>`,
+            ) +
+            "</li>",
+        )
+        .join(""),
+    ) +
+    "</ul>"
+  );
+}
+
+async function submitSearch(services, form, data) {
+  const result = await services.helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
+  if (!form.isConnected) return;
+  document.getElementById("global-search-results").innerHTML = searchResultsHTML(result);
+}
+
+function submitReminderSettings(services, form, data) {
+  const prefs = workspace.WORKFLOW_PREFS.reminders;
+  prefs.enabled = data.get("enabled") === "on";
+  prefs.days = Math.min(30, Math.max(1, Number(data.get("days")) || 7));
+  prefs.plans = {};
+  for (const [key, value] of data.entries()) if (key.startsWith("plan:") && services.validISO(value)) prefs.plans[key.slice(5)] = value;
+  services.saveWorkflowPrefs();
+  document.getElementById("utility-dialog")?.close();
+  services.render();
+}
+
+async function submitReminderEmail(services, form, data) {
+  await services.helperJSON("/email/reminder", { to: data.get("to"), subject: data.get("subject"), body: data.get("body") });
+  services.toast("Opened Outlook reminder draft", { severity: "success" });
+}
+
+async function submitBatchDue(services, form, data) {
+  const changes = [...form.querySelectorAll("[data-batch-item]:checked")].map((el) => ({
+    docId: el.dataset.batchDoc,
+    itemId: el.dataset.batchItem,
+  }));
+  const copies = services.planBulkDue(changes, data.get("due"));
+  await services.persistWorkspacePatch(
+    (staged) => {
+      staged.docs = staged.docs.map((d) => copies.get(d.id) || d);
+      return staged;
+    },
+    () => {
+      workspace.DOCS = workspace.DOCS.map((d) => copies.get(d.id) || d);
+    },
+  );
+  document.getElementById("utility-dialog")?.close();
+  services.render();
+  services.toast("Saved selected draft deadlines", { severity: "success" });
+}
+
+async function submitOutboxSync(services) {
+  const result = await services.helperJSON("/outbox/batch-sync", { items: services.selectedOutbox() });
+  await services.refreshArtifactLocations();
+  await services.showOutbox();
+  services.toast(result.result.moved + " PDF(s) filed; " + result.result.conflicts.length + " conflict(s) retained", {
+    severity: result.result.conflicts.length ? "warning" : "success",
+  });
+}
+
+/* Forms handled here, by form id. */
+const TOOL_FORMS = {
+  "global-search-form": submitSearch,
+  "reminder-settings": submitReminderSettings,
+  "reminder-email": submitReminderEmail,
+  "batch-due-form": submitBatchDue,
+  "outbox-form": submitOutboxSync,
+};
+
 export function createWorkflowEvents(services) {
   function registerToolForms(target = document) {
     return registerEventOnce(target, "workflow.registerToolForms", "submit", async (e) => {
       const form = e.target;
-      if (!["global-search-form", "reminder-settings", "reminder-email", "batch-due-form", "outbox-form"].includes(form.id)) return;
+      if (!Object.hasOwn(TOOL_FORMS, form.id)) return;
       e.preventDefault();
       const submit = form.querySelector("button[type=submit]");
       submit.disabled = true;
       try {
-        const data = new FormData(form);
-        if (form.id === "global-search-form") {
-          const result = await services.helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
-          if (!form.isConnected) return;
-          document.getElementById("global-search-results").innerHTML =
-            "<p>" +
-            `${result.hits.length}` +
-            " matching cases. " +
-            `${result.unreadable}` +
-            " unreadable files. " +
-            `${result.partial ? "Results limited; refine your search." : ""}` +
-            "</p><ul>" +
-            "".concat(
-              result.hits
-                .map(
-                  (hit) =>
-                    "<li>" +
-                    `${esc(hit.number)}` +
-                    " · " +
-                    `${esc(hit.address)}` +
-                    " · " +
-                    `${esc(hit.owner)}` +
-                    " " +
-                    "".concat(
-                      hit.duplicate
-                        ? "Duplicate identity; administrator review needed"
-                        : `<button class="btn" data-global-open="${esc(hit.number)}">Open current case</button>`,
-                    ) +
-                    "</li>",
-                )
-                .join(""),
-            ) +
-            "</ul>";
-        } else if (form.id === "reminder-settings") {
-          const prefs = workspace.WORKFLOW_PREFS.reminders;
-          prefs.enabled = data.get("enabled") === "on";
-          prefs.days = Math.min(30, Math.max(1, Number(data.get("days")) || 7));
-          prefs.plans = {};
-          for (const [key, value] of data.entries()) if (key.startsWith("plan:") && services.validISO(value)) prefs.plans[key.slice(5)] = value;
-          services.saveWorkflowPrefs();
-          document.getElementById("utility-dialog")?.close();
-          services.render();
-        } else if (form.id === "reminder-email") {
-          await services.helperJSON("/email/reminder", { to: data.get("to"), subject: data.get("subject"), body: data.get("body") });
-          services.toast("Opened Outlook reminder draft", { severity: "success" });
-        } else if (form.id === "batch-due-form") {
-          const changes = [...form.querySelectorAll("[data-batch-item]:checked")].map((el) => ({
-            docId: el.dataset.batchDoc,
-            itemId: el.dataset.batchItem,
-          }));
-          const copies = services.planBulkDue(changes, data.get("due"));
-          await services.persistWorkspacePatch(
-            (staged) => {
-              staged.docs = staged.docs.map((d) => copies.get(d.id) || d);
-              return staged;
-            },
-            () => {
-              workspace.DOCS = workspace.DOCS.map((d) => copies.get(d.id) || d);
-            },
-          );
-          document.getElementById("utility-dialog")?.close();
-          services.render();
-          services.toast("Saved selected draft deadlines", { severity: "success" });
-        } else {
-          const result = await services.helperJSON("/outbox/batch-sync", { items: services.selectedOutbox() });
-          await services.refreshArtifactLocations();
-          await services.showOutbox();
-          services.toast(result.result.moved + " PDF(s) filed; " + result.result.conflicts.length + " conflict(s) retained", {
-            severity: result.result.conflicts.length ? "warning" : "success",
-          });
-        }
+        await TOOL_FORMS[form.id](services, form, new FormData(form));
       } catch (error) {
         services.toast(error.message, { severity: "error" });
       } finally {

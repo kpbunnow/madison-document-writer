@@ -62,117 +62,148 @@ function describeDepositRule(e) {
     );
   return "Approved manual basis required; review the source and technical rule.";
 }
+/* Explorer sections, each a pure function of the policy, the search and the visible page. */
+const PAGE_SIZE = 40;
+
+function invalidDateHTML(services, date) {
+  return (
+    '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
+    services.esc(date) +
+    '"></label><p role="alert">Enter a valid date.</p>'
+  );
+}
+
+function matchingEntries(p, query) {
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  return p.entries.filter((e) =>
+    terms.every((t) => (e.ordinance + " " + e.description + " " + (e.classification || e.status)).toLowerCase().includes(t)),
+  );
+}
+
+function pageNavigation(total, page) {
+  return (
+    '<div class="schedule-pages"><p id="deposit-matches" role="status">' +
+    total +
+    " matching schedule rows · " +
+    (total ? "showing " + (page * PAGE_SIZE + 1) + "–" + Math.min(total, (page + 1) * PAGE_SIZE) : "no matches") +
+    '</p><button class="btn" data-schedule-page="previous" aria-disabled="' +
+    (page === 0) +
+    '">Previous rows</button> <button class="btn" data-schedule-page="next" aria-disabled="' +
+    ((page + 1) * PAGE_SIZE >= total) +
+    '">Next rows</button></div>'
+  );
+}
+
+function classificationCounts(p) {
+  return p.entries.reduce((a, e) => {
+    const k = e.classification || e.status;
+    a[k] = (a[k] || 0) + 1;
+    return a;
+  }, {});
+}
+
+function scheduleControls(services, date, query, p) {
+  const counts = classificationCounts(p);
+  return (
+    '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
+    services.esc(date) +
+    ('"></label><label class="f"><span>Find ordinance or description</span><in' + 'put type="search" id="deposit-schedule-search" value="') +
+    services.esc(query) +
+    '"></label><p>Base deposits below exclude assessments and court costs. ' +
+    services.esc(
+      Object.entries(counts)
+        .map(([k, n]) => n + " " + k)
+        .join(" · "),
+    ) +
+    ". Pricing date basis: " +
+    services.esc(pricingDateBasis) +
+    (" (pending City Attorney). Retained baseline start dates are unknown; no " +
+      'legal date was invented.</p><details id="deposit-policy"><summary>Policy' +
+      " and calculation details</summary><p>Policy ") +
+    services.esc(p.versionHash) +
+    " · court costs " +
+    services.esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))) +
+    ". This explorer does not authorize a charge or an override.</p></details>"
+  );
+}
+
+function windowText(w) {
+  if (w?.years) return "Prior-offense window: " + w.years + " years.";
+  if (w?.months) return "Prior-offense window: " + w.months + " months.";
+  if (w?.kind === "site-season") return "Same site and season, starting " + w.startMonthDay + ".";
+  if (typeof w === "string" && w !== "none") return "Prior-offense window: " + w + ".";
+  return "No rolling year window stated.";
+}
+
+function technicalDetails(e) {
+  return JSON.stringify(
+    {
+      rule: e.rule,
+      authorization: e.authorization,
+      review: e.review,
+      window: e.window,
+      countBasis: e.countBasis,
+      measurements: e.measurements,
+    },
+    null,
+    2,
+  );
+}
+
+function scheduleRow(services, e) {
+  return (
+    '<tr><th scope="row">' +
+    services.esc(e.ordinance) +
+    "</th><td>" +
+    services.esc(e.description) +
+    "</td><td>" +
+    services.esc(describeDepositRule(e)) +
+    '<p class="small">' +
+    services.esc(windowText(e.window)) +
+    " " +
+    services.esc(e.measurements?.map((m) => m.label).join("; ") || "No measurements required.") +
+    "</p></td><td>" +
+    services.esc((e.from || "Retained baseline") + " to " + (e.to || "open")) +
+    "<p>" +
+    services.esc((e.classification || e.status) + " · " + e.source.codification + " · " + (e.source.ordinance || e.source.subsection)) +
+    "</p><details><summary>Source and technical details</summary><p>" +
+    services.esc((e.notice || "") + " " + e.rawText) +
+    "</p><pre>" +
+    services.esc(technicalDetails(e)) +
+    "</pre></details></td></tr>"
+  );
+}
+
+function scheduleTable(services, visible) {
+  return (
+    '<div class="tw"><table class="rep"><caption>Deposit schedule, base amoun' +
+    'ts and retained legal sources</caption><thead><tr><th scope="col">Ordina' +
+    'nce</th><th scope="col">Description</th><th scope="col">Base amount and ' +
+    'measurements</th><th scope="col">Dates and source</th></tr></thead><tbod' +
+    "y>" +
+    visible.map((e) => scheduleRow(services, e)).join("") +
+    "</tbody></table></div>"
+  );
+}
+
 export function initDepositSchedule(services) {
   let date = recordDay(new Date()),
     query = "",
     page = 0;
-  const pageSize = 40;
   function html() {
     let p;
     try {
       p = policyAt(date);
     } catch (e) {
-      return (
-        '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
-        services.esc(date) +
-        '"></label><p role="alert">Enter a valid date.</p>'
-      );
+      return invalidDateHTML(services, date);
     }
-    const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean),
-      entries = p.entries.filter((e) =>
-        terms.every((t) => (e.ordinance + " " + e.description + " " + (e.classification || e.status)).toLowerCase().includes(t)),
-      );
-    page = Math.min(page, Math.max(0, Math.ceil(entries.length / pageSize) - 1));
-    const navigation =
-      '<div class="schedule-pages"><p id="deposit-matches" role="status">' +
-      entries.length +
-      " matching schedule rows · " +
-      (entries.length ? "showing " + (page * pageSize + 1) + "–" + Math.min(entries.length, (page + 1) * pageSize) : "no matches") +
-      '</p><button class="btn" data-schedule-page="previous" aria-disabled="' +
-      (page === 0) +
-      '">Previous rows</button> <button class="btn" data-schedule-page="next" aria-disabled="' +
-      ((page + 1) * pageSize >= entries.length) +
-      '">Next rows</button></div>';
-    const counts = p.entries.reduce((a, e) => {
-      const k = e.classification || e.status;
-      a[k] = (a[k] || 0) + 1;
-      return a;
-    }, {});
+    const entries = matchingEntries(p, query);
+    page = Math.min(page, Math.max(0, Math.ceil(entries.length / PAGE_SIZE) - 1));
+    const navigation = pageNavigation(entries.length, page);
     return (
-      '<label class="f"><span>Schedule on date</span><input id="deposit-schedule-date" type="date" value="' +
-      services.esc(date) +
-      ('"></label><label class="f"><span>Find ordinance or description</span><in' + 'put type="search" id="deposit-schedule-search" value="') +
-      services.esc(query) +
-      '"></label><p>Base deposits below exclude assessments and court costs. ' +
-      services.esc(
-        Object.entries(counts)
-          .map(([k, n]) => n + " " + k)
-          .join(" · "),
-      ) +
-      ". Pricing date basis: " +
-      services.esc(pricingDateBasis) +
-      (" (pending City Attorney). Retained baseline start dates are unknown; no " +
-        'legal date was invented.</p><details id="deposit-policy"><summary>Policy' +
-        " and calculation details</summary><p>Policy ") +
-      services.esc(p.versionHash) +
-      " · court costs " +
-      services.esc(formatDeposit((p.fees.courtRates.at(-1).cents / 100).toFixed(2))) +
-      ". This explorer does not authorize a charge or an override.</p></details>" +
+      scheduleControls(services, date, query, p) +
       navigation +
-      ('<div class="tw"><table class="rep"><caption>Deposit schedule, base amoun' +
-        'ts and retained legal sources</caption><thead><tr><th scope="col">Ordina' +
-        'nce</th><th scope="col">Description</th><th scope="col">Base amount and ' +
-        'measurements</th><th scope="col">Dates and source</th></tr></thead><tbod' +
-        "y>") +
-      entries
-        .slice(page * pageSize, (page + 1) * pageSize)
-        .map(
-          (e) =>
-            '<tr><th scope="row">' +
-            services.esc(e.ordinance) +
-            "</th><td>" +
-            services.esc(e.description) +
-            "</td><td>" +
-            services.esc(describeDepositRule(e)) +
-            '<p class="small">' +
-            services.esc(
-              e.window?.years
-                ? "Prior-offense window: " + e.window.years + " years."
-                : e.window?.months
-                  ? "Prior-offense window: " + e.window.months + " months."
-                  : e.window?.kind === "site-season"
-                    ? "Same site and season, starting " + e.window.startMonthDay + "."
-                    : typeof e.window === "string" && e.window !== "none"
-                      ? "Prior-offense window: " + e.window + "."
-                      : "No rolling year window stated.",
-            ) +
-            " " +
-            services.esc(e.measurements?.map((m) => m.label).join("; ") || "No measurements required.") +
-            "</p></td><td>" +
-            services.esc((e.from || "Retained baseline") + " to " + (e.to || "open")) +
-            "<p>" +
-            services.esc((e.classification || e.status) + " · " + e.source.codification + " · " + (e.source.ordinance || e.source.subsection)) +
-            "</p><details><summary>Source and technical details</summary><p>" +
-            services.esc((e.notice || "") + " " + e.rawText) +
-            "</p><pre>" +
-            services.esc(
-              JSON.stringify(
-                {
-                  rule: e.rule,
-                  authorization: e.authorization,
-                  review: e.review,
-                  window: e.window,
-                  countBasis: e.countBasis,
-                  measurements: e.measurements,
-                },
-                null,
-                2,
-              ),
-            ) +
-            "</pre></details></td></tr>",
-        )
-        .join("") +
-      "</tbody></table></div>" +
+      scheduleTable(services, entries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)) +
       (!entries.length ? "<p>No schedule rows match this search.</p>" : "")
     );
   }
