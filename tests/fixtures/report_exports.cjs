@@ -94,9 +94,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
     shell: () => screens.shell(),
     drawMap: () => screens.drawMap(),
     A11Y,
-    get TODAY() {
-      return facts.iso(new Date());
-    },
+    currentDay: () => facts.iso(new Date()),
     esc,
     plural: facts.plural,
     iso: facts.iso,
@@ -111,9 +109,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
     ...facts,
     areaLabel,
     ...calculations,
-    get TODAY() {
-      return facts.iso(new Date());
-    },
+    currentDay: () => facts.iso(new Date()),
     openAt: (c, date) => facts.openAt(c, date, calculations),
   });
   const context = () => ({
@@ -155,9 +151,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
         },
         iso: facts.iso,
         validISO: facts.validISO,
-        get TODAY() {
-          return facts.iso(new Date());
-        },
+        currentDay: () => facts.iso(new Date()),
         render,
         openCase: screens.openCase,
         openInWriter: calculations.openInWriter,
