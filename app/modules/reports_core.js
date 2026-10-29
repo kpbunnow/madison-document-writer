@@ -1,3 +1,4 @@
+import { createReportFilterChange } from "./report_filter_events.js";
 import { STATUSES, STATUS_COL } from "./report_metadata.js";
 export { STATUSES, STATUS_COL };
 import { activeReportFilters } from "./report_facts.js";
@@ -592,35 +593,26 @@ document.addEventListener(
     },
   }),
 );
-document.addEventListener("change", (e) => {
-  const t = e.target,
-    F = ReportsState.S.F;
-  if (t.id === "saved-view") {
-    applyReportView(t.value);
-    return;
-  }
-  if (t.dataset && t.dataset.area !== undefined) {
-    ReportsState.S.areasOpen = true;
-    toggleArea(t.dataset.area);
-    return;
-  }
-  const k = {
-    "f-from": "from",
-    "f-to": "to",
-    "f-asOf": "asOf",
-    "f-inspector": "inspector",
-    "f-vtype": "vtype",
-    "f-ord": "ord",
-    "f-status": "status",
-  }[t.id];
-  if (!k) return;
-  if ((k === "from" || k === "to" || k === "asOf") && !validISO(t.value)) return; // a half-typed date is not a filter
-  F[k] = t.value;
-  if (["from", "to", "asOf"].includes(k)) ReportsState.S.dateMode = "fixed";
-  ReportsState.S.savedId = "";
-  ReportsState.S.drill = null;
-  render();
-});
+document.addEventListener(
+  "change",
+  createReportFilterChange({
+    get state() {
+      return ReportsState.S;
+    },
+    get applyReportView() {
+      return applyReportView;
+    },
+    get toggleArea() {
+      return toggleArea;
+    },
+    get validISO() {
+      return validISO;
+    },
+    get render() {
+      return render;
+    },
+  }),
+);
 document.addEventListener(
   "toggle",
   (e) => {

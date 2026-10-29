@@ -1308,3 +1308,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 Migrated the R49 saved-view and coverage grammar regression to existing independently composed real Reports owners and the actual navigation listener. All 12 assertion ASTs remain identical, including singular/plural wording, saved-context clearing, retained filters/sort and export parity. R48 preference and mismatch regressions also pass. No production changes or hooks. Legacy bundle evaluators decrease 73 to 72; 54 hooks remain for other consumers; numerical targets remain met. Remaining migration, screen conversion and final audit are not complete.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-filter-events
+
+Moved the actual Reports filter-change handler into an inert five-input owner without importing root state. Core registers it at the same checkpoint between navigation and disclosure listeners. All 1,680 old/current changes preserve exact state, retained filter object, refusal/callback order, live state replacement and interrupted effects. Listener order and exact lazy inputs are guarded. Existing complete Reports workflow, R48 preferences, R49 saved-view and 5,100 navigation comparisons pass. Architecture: 144 modules, zero cycles, 11 root-state importers, largest interface25. All numerical targets remain met; no format/print/release identity change.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
