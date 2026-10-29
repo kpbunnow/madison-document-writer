@@ -11,6 +11,75 @@ export function recoverySharedConflict(value) {
   return ["invalid", "history-conflict", "conflict", "shared-history"].includes(value?.kind);
 }
 
+function requireRecoveryShape(b, row) {
+  if (
+    !b ||
+    b.format !== "madison-draft-recovery" ||
+    b.version !== 1 ||
+    b.workspace !== row.workspace ||
+    b.case !== row.case ||
+    !b.bundle ||
+    !Array.isArray(b.bundle.cases) ||
+    !Array.isArray(b.bundle.docs) ||
+    !Array.isArray(b.bundle.reinsp) ||
+    !b.bundle.events ||
+    !b.bundle.work ||
+    typeof b.bundle.work.recordForms !== "object" ||
+    !b.bundle.work.recordForms ||
+    !Array.isArray(b.pending) ||
+    b.bundle.cases.length > 1 ||
+    badIds(b.bundle)
+  )
+    throw new Error("Invalid or unsupported recovery backup");
+}
+
+function requireRelatedRecoveryWork(b, k, cid) {
+  if (
+    b.bundle.docs.some((d) => !d.draft || d.caseId !== cid || !Array.isArray(d.items)) ||
+    b.bundle.reinsp.some((r) => !r.draft || r.caseId !== cid || !r.results) ||
+    Object.keys(b.bundle.events).some((id) => id !== cid) ||
+    Object.values(b.bundle.recordAttempts || {}).some((x) => x.cid !== cid) ||
+    b.pending.some(
+      (p) =>
+        p.cid !== cid ||
+        (() => {
+          try {
+            const file = JSON.parse(p.body);
+            return caseFileFault(file) || file.case.id !== cid || file.case.number !== k.number;
+          } catch (e) {
+            return true;
+          }
+        })(),
+    )
+  )
+    throw new Error("Backup contains unrelated or invalid work");
+}
+
+function requireRecoveryReferences(services, b, k, cid) {
+  const docs = new Map(b.bundle.docs.map((d) => [d.id, d]));
+  if (
+    k &&
+    (b.bundle.reinsp.some((r) => {
+      const source = (b.bundle.events[cid] || []).find((e) => e.payload?.snapshot?.id === r.sourceDocId)?.payload.snapshot;
+      return !source || source.caseId !== cid || Object.keys(r.results).some((id) => !source.items.some((it) => it.id === id));
+    }) ||
+      Object.keys(b.bundle.work.recordForms).some((id) => {
+        const docId = id.split(":")[0];
+        return !docs.has(docId) && !(b.bundle.events[cid] || []).some((e) => e.payload?.snapshot?.id === docId);
+      }) ||
+      (b.bundle.work.walk &&
+        (!b.bundle.reinsp.some((r) => r.draft && services.walkIdentity(r) === b.bundle.work.walk.context) ||
+          !b.bundle.reinsp.some(
+            (r) =>
+              r.id === b.bundle.work.walk.context.split("|")[1] &&
+              (b.bundle.events[cid] || []).some(
+                (e) => e.payload?.snapshot?.id === r.sourceDocId && e.payload.snapshot.items.some((it) => it.id === b.bundle.work.walk.item),
+              ),
+          ))))
+  )
+    throw new Error("Backup has inconsistent document or walk-through references");
+}
+
 // Individual-case recovery coordination; UI, helper/shared comparison and device storage stay supplied.
 export function createCaseRecovery(services) {
   async function listRecovery() {
@@ -65,25 +134,7 @@ export function createCaseRecovery(services) {
   }
 
   function validateRecovery(b, row) {
-    if (
-      !b ||
-      b.format !== "madison-draft-recovery" ||
-      b.version !== 1 ||
-      b.workspace !== row.workspace ||
-      b.case !== row.case ||
-      !b.bundle ||
-      !Array.isArray(b.bundle.cases) ||
-      !Array.isArray(b.bundle.docs) ||
-      !Array.isArray(b.bundle.reinsp) ||
-      !b.bundle.events ||
-      !b.bundle.work ||
-      typeof b.bundle.work.recordForms !== "object" ||
-      !b.bundle.work.recordForms ||
-      !Array.isArray(b.pending) ||
-      b.bundle.cases.length > 1 ||
-      badIds(b.bundle)
-    )
-      throw new Error("Invalid or unsupported recovery backup");
+    requireRecoveryShape(b, row);
     const k = b.bundle.cases[0],
       cid = k?.id;
     if (k) {
@@ -93,47 +144,8 @@ export function createCaseRecovery(services) {
       )
         throw new Error("Invalid backed-up case history");
     }
-    if (
-      b.bundle.docs.some((d) => !d.draft || d.caseId !== cid || !Array.isArray(d.items)) ||
-      b.bundle.reinsp.some((r) => !r.draft || r.caseId !== cid || !r.results) ||
-      Object.keys(b.bundle.events).some((id) => id !== cid) ||
-      Object.values(b.bundle.recordAttempts || {}).some((x) => x.cid !== cid) ||
-      b.pending.some(
-        (p) =>
-          p.cid !== cid ||
-          (() => {
-            try {
-              const file = JSON.parse(p.body);
-              return caseFileFault(file) || file.case.id !== cid || file.case.number !== k.number;
-            } catch (e) {
-              return true;
-            }
-          })(),
-      )
-    )
-      throw new Error("Backup contains unrelated or invalid work");
-    const docs = new Map(b.bundle.docs.map((d) => [d.id, d]));
-    if (
-      k &&
-      (b.bundle.reinsp.some((r) => {
-        const source = (b.bundle.events[cid] || []).find((e) => e.payload?.snapshot?.id === r.sourceDocId)?.payload.snapshot;
-        return !source || source.caseId !== cid || Object.keys(r.results).some((id) => !source.items.some((it) => it.id === id));
-      }) ||
-        Object.keys(b.bundle.work.recordForms).some((id) => {
-          const docId = id.split(":")[0];
-          return !docs.has(docId) && !(b.bundle.events[cid] || []).some((e) => e.payload?.snapshot?.id === docId);
-        }) ||
-        (b.bundle.work.walk &&
-          (!b.bundle.reinsp.some((r) => r.draft && services.walkIdentity(r) === b.bundle.work.walk.context) ||
-            !b.bundle.reinsp.some(
-              (r) =>
-                r.id === b.bundle.work.walk.context.split("|")[1] &&
-                (b.bundle.events[cid] || []).some(
-                  (e) => e.payload?.snapshot?.id === r.sourceDocId && e.payload.snapshot.items.some((it) => it.id === b.bundle.work.walk.item),
-                ),
-            ))))
-    )
-      throw new Error("Backup has inconsistent document or walk-through references");
+    requireRelatedRecoveryWork(b, k, cid);
+    requireRecoveryReferences(services, b, k, cid);
     return true;
   }
 

@@ -1135,3 +1135,9 @@ Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 10
 Name copy validation, agent validation and post-validation normalization. Preserve parser precedence, all-or-nothing normalization and field-specific refusal metadata. Retained public-owner checks, boundaries, seams, lint and format pass.
 
 Measured counts: {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recovery-validation-phases
+
+Separate recovery shape, unrelated work and reference checks, retaining first failure and walk identity timing. Existing recovery tests run unchanged against both sources; boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
