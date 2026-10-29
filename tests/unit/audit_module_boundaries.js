@@ -143,6 +143,7 @@ const scopedServices = {
   ],
   "language_views.js": ["./language_discovery.js"],
   "screen_overlays.js": [
+    "./screen_html.js",
     "./workspace_state.js",
     "./editor_state.js",
     "../assets/shared.js",

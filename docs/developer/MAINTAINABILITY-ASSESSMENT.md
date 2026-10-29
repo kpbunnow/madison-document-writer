@@ -1,7 +1,7 @@
 # Maintainability architecture audit
 
 Snapshot: October 29, 2026, through the Writer detail-form checkpoint
-`cf43366c5184acab461b64d19d75f61d7880113b`. This supersedes the PR #92
+`cf43366c5184acab461b64d19d75f61d7880113b` and subsequent overlay conversion. This supersedes the PR #92
 measurement snapshot. It reviews the resumed maintainability work; it does not
 claim completion of every remaining screen/test migration, release approval or
 native acceptance. The exact final integration head must pass GitHub Full gate
@@ -91,7 +91,7 @@ imported the diagnostic fixture removed in #309. Correction
 original usability assertions and `audit_report_facts` pass locally. The new
 combined Full gate must pass; the failed head is not passing evidence.
 
-Writer checkpoints #312–#315 add2048 chooser,512 complete frame and4096 detail-form
+Writer checkpoints #312–#315 and the subsequent overlay checkpoint add2048 chooser,512 complete frame,4096 detail-form and3072 overlay
 comparisons against retained original owners, preserving HTML, state and callback
 failure order. The migrated shell-escaping suite retains all10 original assertion
 ASTs and composes real shell/case-action/editor owners without startup. Existing
@@ -104,10 +104,10 @@ The numerical complexity, nesting, non-factory length and Python targets are met
 state direction and explicit interface limits are enforced. This does **not** make
 M5/M6 complete. The following remain concrete follow-up work:
 
-- Convert remaining Writer recipient/send/storage/final-confirmation overlays and
-  other fragmented screen forms in focused owners, with complete retained HTML,
-  branch non-vacuity and ordered callback/failure comparisons. Do not mechanically
-  convert historical narrative/print renderers.
+- Recipient/send/storage/final-confirmation overlays now use screen templates,
+  with complete retained HTML and ordered failure comparisons. Inspect other
+  remaining fragmented forms in their own feature owners before converting; do
+  not mechanically convert historical narrative/print renderers.
 - Continue migrating feature regressions that access private bundle bindings to
   their actual public owners. Prioritize recipient/deposit/pricing and isolated
   overlay behavior. Keep real cross-owner lifecycle, startup, browser and print

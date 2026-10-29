@@ -428,3 +428,5 @@ code; each scenario label starts with the former name. Release reviews cite them
 `audit_writer_frame_templates.js` compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments.
 
 `audit_writer_details_templates.js` compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls.
+
+`audit_writer_overlay_templates.js` compares 3,072 complete overlays, live state and ordered adapter failures against the retained owner, including recipients, send, removal, storage, folder, final/correction and delegated modal priority.
