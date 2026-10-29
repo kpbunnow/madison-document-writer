@@ -260,6 +260,7 @@ covers, or a new suite under its feature.
 | `audit_r21_reports.js` | Saved date semantics, read-only Reports-to-Writer transport |
 | `audit_r48_reports.js`, `audit_r49_ui.js`, `audit_r50_report_errors.js` | Filters, ordering, coverage wording, report errors |
 | `audit_server_reporting.py` | Reporting endpoints over real HTTP |
+| `audit_publication_flow_rules.js` | 5,000 seeded scenarios compare the issuance flow with the retained module: result, errors, ordered peer reads and calls with the editor state at each call, draft effects and refusal at every interrupted read or call. |
 | `audit_summary_projection_rules.js` | 4,500 synthetic corpus cases compare the browser summary projection and event replay with the retained module: summaries, refusals, untouched inputs and both case-list modes. |
 | `audit_case_projection_phases.py` | 3,000 synthetic corpus cases compare the helper replay and projection with the retained functions for both workspace modes: results, workspace consultation, refusals and untouched inputs. |
 | `audit_case_projection.py` | The helper's reporting projection (`helper/case_projection.py`) equals the real `summarize()` over 6,000 generated cases and every summary written by seven Writer flow suites (`fixtures/projection_corpus.cjs`, `fixtures/projection_capture.cjs`); comparisons are canonical JSON (RFC 8785), so booleans never equal numbers |
