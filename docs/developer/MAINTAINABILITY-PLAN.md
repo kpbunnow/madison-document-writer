@@ -1609,3 +1609,7 @@ Added a frozen-original comparison of the Tools & settings screen (`audit_tools_
 ## catalog-review-panel-sections
 
 Added a frozen-original comparison of the catalog review panel (`audit_catalog_review_panel_markup_rules.js`: 6,000 seeded entries against the retained `catalog_review_panel_reference.txt`) covering every review status, open and closed forms, the rebase and error notices, replacement search, escaping and every peer read in order. `catalogReviewPanel` (110 lines) is now a shell over review-line, comparison, rebase-button, field and footer builders; the replacement options are still produced at their original position. Deliberate mutations are caught; the one survivor (`f.replacementQuery || ""`) is equivalent because `esc` renders `undefined` as empty.
+
+## deposit-schedule-sections
+
+Added a frozen-original comparison of the deposit schedule explorer (`audit_deposit_schedule_markup_rules.js`: 400 seeded sequences of date changes, searches and page clicks against the retained `deposit_schedule_reference.txt`) covering invalid dates, empty searches, page clamping, every prior-offense window shape and the order of renders and escapes. `html` (109 lines) is now a shell over invalid-date, controls, page-navigation, window-text, row and table builders at module level.
