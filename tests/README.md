@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_saved_work_html.js` | Exact saved-work output, case priority/limits, queues, health and ordered escape/renderer calls |
 | `audit_saved_case_state_rules.js` | Saved-case status priority, queue/PDF/connection states and lazy context/service reads |
 | `audit_report_sheet_xml.js` | Composed/standalone sheet XML, column names, widths, styles and lazy service receiver/read order |
 | `audit_citation_prior_history.js` | Prior offense shared/local ordering, matching, windows, duplicate numbers and lookup interruptions |
