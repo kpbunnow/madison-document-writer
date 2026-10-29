@@ -1644,3 +1644,7 @@ Added a frozen-original comparison of the case-lookup configuration (`audit_look
 ## tool-form-submit-handlers
 
 Added a frozen-original comparison of the tool form submit listener (`audit_tool_form_submit_rules.js`: 4,000 seeded submits in real jsdom forms against the retained `workflow_events_reference.txt`) covering form selection, the search result markup, reminder preference clamping and plan filtering, the Outlook reminder draft, batch deadline staging and persistence, outbox sync with conflict severity, failure toasts, the button being re-enabled only while the form is connected, and every peer read and call in order. `registerToolForms` (86 lines, with an 84-line listener) is now a short listener over a form-id table of five module-level handlers. Ten deliberate mutations are caught.
+
+## notice-pagination-phases
+
+The existing real-Chromium comparison with the retained pagination algorithms (`audit_pagination_equivalence.js`) gained grouped rows, aligned extension language, voided sheets, empty tables, oversized blocks and many-row notices, compared exactly including measurement order. `paginate` (125 lines, complexity 23) is now a guard shell over module-level phases: a notice layout reader, page builder, language fill, row carry, row fill, closing fill and page numbering. Twelve deliberate mutations are caught, two of which exposed the missing empty-table and oversized-paragraph scenarios that were then added.

@@ -120,27 +120,189 @@ function numberSnowPages(pages) {
   });
 }
 
-export function createDocumentPagination(services) {
-  function pageLimit(d) {
-    return services.PAGE_PX - (d && d.authoringVersion >= 10 ? PRINT_SAFETY_PX : 0);
-  }
+function pageLimitFor(services, d) {
+  return services.PAGE_PX - (d && d.authoringVersion >= 10 ? PRINT_SAFETY_PX : 0);
+}
 
-  function contHead(d) {
-    const k = docCase(d),
-      ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || "";
-    const h = document.createElement("div");
-    h.className = "n-cont";
-    h.innerHTML =
-      "<strong>" +
-      esc(k.address || "") +
-      "</strong><span>" +
-      esc(ty) +
-      " &middot; continued</span>" +
-      '<span class="r">' +
-      esc(k.number || "") +
-      "</span>";
-    return h;
+function contHead(d) {
+  const k = docCase(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || "";
+  const h = document.createElement("div");
+  h.className = "n-cont";
+  h.innerHTML =
+    "<strong>" +
+    esc(k.address || "") +
+    "</strong><span>" +
+    esc(ty) +
+    " &middot; continued</span>" +
+    '<span class="r">' +
+    esc(k.number || "") +
+    "</span>";
+  return h;
+}
+
+/* Everything one notice pagination reads before it moves a node, or null when the sheet has no table and footer. */
+function noticeLayout(services, desk, src, d) {
+  const table = src.querySelector("table.notice");
+  const foot = src.querySelector(".n-foot");
+  if (!table || !foot) return null;
+  const kids = Array.prototype.slice.call(src.children);
+  const ti = kids.indexOf(table);
+  const pre = kids.slice(0, ti);
+  const aligned = alignedExtension(d);
+  const language = aligned ? src.querySelector(".n-body") : null;
+  const languageAt = language ? pre.indexOf(language) : -1;
+  const rest = kids.slice(ti + 1).filter((n) => n !== foot);
+  const isUI = (n) => n.classList && (n.classList.contains("no-print") || n.classList.contains("addrow"));
+  const post = rest.filter((n) => !isUI(n)); // printed closing blocks
+  const postUI = rest.filter(isUI); // on-screen controls, never paginated
+  const thead = table.querySelector("thead");
+  const rows = Array.prototype.slice.call(table.querySelector("tbody").children);
+  const over = (p) => p.scrollHeight > pageLimitFor(services, d);
+  return { desk, src, d, table, foot, pre, aligned, language, languageAt, post, postUI, thead, rows, over, pages: [] };
+}
+
+/* Every page is built complete — running head, table header and footer all
+   present — before anything is measured into it, so the fill never runs a
+   page over by the height of furniture added afterwards. */
+function newPage(layout, withTable) {
+  const { desk, src, d, table, foot, pre, language, languageAt, thead, pages } = layout;
+  const p = document.createElement("div");
+  p.className = "sheet" + (pages.length ? " cont" : "") + (src.classList.contains("voided") ? " voided" : "");
+  p.style.minHeight = "0";
+  if (pages.length) p.appendChild(contHead(d));
+  else (language ? pre.slice(0, languageAt) : pre).forEach((n) => p.appendChild(n));
+  if (withTable) {
+    const t = document.createElement("table");
+    t.className = table.className;
+    t.appendChild(thead.cloneNode(true));
+    const tb = document.createElement("tbody");
+    t.appendChild(tb);
+    p.appendChild(t);
+    p._tb = tb;
   }
+  const f = foot.cloneNode(true);
+  const n = document.createElement("span");
+  n.className = "pg";
+  f.appendChild(n);
+  p.appendChild(f);
+  p._foot = f;
+  p._pg = n;
+  pages.push(p);
+  desk.insertBefore(p, src); // ahead of the citation copies
+  return p;
+}
+
+const putOn = (p, node) => p.insertBefore(node, p._foot);
+
+/* An aligned extension's language flows paragraph by paragraph, then the blocks after it, then the table starts. */
+function fillLanguage(layout, first) {
+  const { language, languageAt, pre, table, thead, over } = layout;
+  let p = first;
+  let body = language.cloneNode(false);
+  putOn(p, body);
+  for (const paragraph of [...language.children]) {
+    body.appendChild(paragraph);
+    if (over(p)) {
+      paragraph.remove();
+      if (!body.children.length) body.remove();
+      p = newPage(layout, false);
+      body = language.cloneNode(false);
+      body.appendChild(paragraph);
+      putOn(p, body);
+    }
+  }
+  for (const node of pre.slice(languageAt + 1)) {
+    putOn(p, node);
+    if (over(p)) {
+      node.remove();
+      p = newPage(layout, false);
+      putOn(p, node);
+    }
+  }
+  const t = table.cloneNode(false);
+  t.appendChild(thead.cloneNode(true));
+  p._tb = document.createElement("tbody");
+  t.appendChild(p._tb);
+  putOn(p, t);
+  return p;
+}
+
+/* Moves a row that will not fit to a new page, taking a trailing group heading along with it. */
+function carryRow(layout, p, r) {
+  const { aligned } = layout;
+  p._tb.removeChild(r);
+  // a group heading travels with the first row under it rather than being
+  // stranded at the foot of the page
+  let carry = null,
+    last = p._tb.lastChild;
+  if (last && last.className === "grp" && (p._tb.children.length > 1 || aligned)) {
+    carry = last;
+    p._tb.removeChild(last);
+  }
+  if (aligned && !p._tb.children.length) p._tb.parentNode.remove();
+  p = newPage(layout, true);
+  if (carry) p._tb.appendChild(carry);
+  p._tb.appendChild(r);
+  return p;
+}
+
+function fillRows(services, layout, first) {
+  const { rows, aligned, d, over } = layout;
+  let p = first;
+  rows.forEach((r) => {
+    p._tb.appendChild(r);
+    // one row that will not fit anywhere still has to live somewhere
+    if (over(p) && (p._tb.children.length > 1 || aligned)) p = carryRow(layout, p, r);
+    if (services.hasItemInspectionHistory(d)) {
+      p = paginateRowHistory({ r, p, over, newPage: (withTable) => newPage(layout, withTable) });
+    }
+  });
+  return p;
+}
+
+// the closing blocks follow the table, spilling to a page of their own only
+// if they will not fit under it
+function fillClosing(layout, first) {
+  const { post, postUI, rows, over } = layout;
+  let p = first;
+  if (post.length) {
+    post.forEach((n) => putOn(p, n));
+    if (over(p) && rows.length) {
+      p = newPage(layout, false);
+      post.forEach((n) => putOn(p, n));
+    }
+  }
+  // the controls ride along on the last page without ever creating one
+  postUI.forEach((n) => putOn(p, n));
+  return p;
+}
+
+function numberPages(pages) {
+  pages.forEach((pg, n) => {
+    pg.style.minHeight = "";
+    // a single-page order carries no footer, as the division's own do not
+    if (pages.length < 2) {
+      pg._foot.remove();
+      return;
+    }
+    pg._pg.textContent = "Page " + (n + 1) + " of " + pages.length;
+  });
+}
+
+function paginateNotice(services, desk, src, d) {
+  const layout = noticeLayout(services, desk, src, d);
+  if (!layout) return;
+  let p = newPage(layout, !layout.language);
+  if (layout.language) p = fillLanguage(layout, p);
+  p = fillRows(services, layout, p);
+  fillClosing(layout, p);
+  src.remove();
+  numberPages(layout.pages);
+}
+
+export function createDocumentPagination(services) {
+  const pageLimit = (d) => pageLimitFor(services, d);
 
   function paginateSnow(desk, src, d) {
     const body = src.querySelector(".snow-cover"),
@@ -235,127 +397,7 @@ export function createDocumentPagination(services) {
       paginateSnow(desk, src, d);
       return;
     }
-    const table = src.querySelector("table.notice");
-    const foot = src.querySelector(".n-foot");
-    if (!table || !foot) return;
-    const kids = Array.prototype.slice.call(src.children);
-    const ti = kids.indexOf(table);
-    const pre = kids.slice(0, ti);
-    const aligned = alignedExtension(d);
-    const language = aligned ? src.querySelector(".n-body") : null;
-    const languageAt = language ? pre.indexOf(language) : -1;
-    const rest = kids.slice(ti + 1).filter((n) => n !== foot);
-    const isUI = (n) => n.classList && (n.classList.contains("no-print") || n.classList.contains("addrow"));
-    const post = rest.filter((n) => !isUI(n)); // printed closing blocks
-    const postUI = rest.filter(isUI); // on-screen controls, never paginated
-    const thead = table.querySelector("thead");
-    const rows = Array.prototype.slice.call(table.querySelector("tbody").children);
-
-    const pages = [];
-    /* Every page is built complete — running head, table header and footer all
-     present — before anything is measured into it, so the fill never runs a
-     page over by the height of furniture added afterwards. */
-    function newPage(withTable) {
-      const p = document.createElement("div");
-      p.className = "sheet" + (pages.length ? " cont" : "") + (src.classList.contains("voided") ? " voided" : "");
-      p.style.minHeight = "0";
-      if (pages.length) p.appendChild(contHead(d));
-      else (language ? pre.slice(0, languageAt) : pre).forEach((n) => p.appendChild(n));
-      if (withTable) {
-        const t = document.createElement("table");
-        t.className = table.className;
-        t.appendChild(thead.cloneNode(true));
-        const tb = document.createElement("tbody");
-        t.appendChild(tb);
-        p.appendChild(t);
-        p._tb = tb;
-      }
-      const f = foot.cloneNode(true);
-      const n = document.createElement("span");
-      n.className = "pg";
-      f.appendChild(n);
-      p.appendChild(f);
-      p._foot = f;
-      p._pg = n;
-      pages.push(p);
-      desk.insertBefore(p, src); // ahead of the citation copies
-      return p;
-    }
-    const over = (p) => p.scrollHeight > pageLimit(d);
-    const put = (p, node) => p.insertBefore(node, p._foot);
-
-    let p = newPage(!language);
-    if (language) {
-      let body = language.cloneNode(false);
-      put(p, body);
-      for (const paragraph of [...language.children]) {
-        body.appendChild(paragraph);
-        if (over(p)) {
-          paragraph.remove();
-          if (!body.children.length) body.remove();
-          p = newPage(false);
-          body = language.cloneNode(false);
-          body.appendChild(paragraph);
-          put(p, body);
-        }
-      }
-      for (const node of pre.slice(languageAt + 1)) {
-        put(p, node);
-        if (over(p)) {
-          node.remove();
-          p = newPage(false);
-          put(p, node);
-        }
-      }
-      const t = table.cloneNode(false);
-      t.appendChild(thead.cloneNode(true));
-      p._tb = document.createElement("tbody");
-      t.appendChild(p._tb);
-      put(p, t);
-    }
-    rows.forEach((r) => {
-      p._tb.appendChild(r);
-      // one row that will not fit anywhere still has to live somewhere
-      if (over(p) && (p._tb.children.length > 1 || aligned)) {
-        p._tb.removeChild(r);
-        // a group heading travels with the first row under it rather than being
-        // stranded at the foot of the page
-        let carry = null,
-          last = p._tb.lastChild;
-        if (last && last.className === "grp" && (p._tb.children.length > 1 || aligned)) {
-          carry = last;
-          p._tb.removeChild(last);
-        }
-        if (aligned && !p._tb.children.length) p._tb.parentNode.remove();
-        p = newPage(true);
-        if (carry) p._tb.appendChild(carry);
-        p._tb.appendChild(r);
-      }
-      if (services.hasItemInspectionHistory(d)) {
-        p = paginateRowHistory({ r, p, over, newPage });
-      }
-    });
-    // the closing blocks follow the table, spilling to a page of their own only
-    // if they will not fit under it
-    if (post.length) {
-      post.forEach((n) => put(p, n));
-      if (over(p) && rows.length) {
-        p = newPage(false);
-        post.forEach((n) => put(p, n));
-      }
-    }
-    // the controls ride along on the last page without ever creating one
-    postUI.forEach((n) => put(p, n));
-    src.remove();
-    pages.forEach((pg, n) => {
-      pg.style.minHeight = "";
-      // a single-page order carries no footer, as the division's own do not
-      if (pages.length < 2) {
-        pg._foot.remove();
-        return;
-      }
-      pg._pg.textContent = "Page " + (n + 1) + " of " + pages.length;
-    });
+    paginateNotice(services, desk, src, d);
   }
   return { paginate, pageLimit, contHead };
 }
