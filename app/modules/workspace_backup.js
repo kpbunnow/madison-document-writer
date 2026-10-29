@@ -13,9 +13,19 @@ function requireEmptyWorkspaceForBackup(services) {
     throw new Error("Restore in an empty workspace or browser profile. Existing work has been kept; download its backup first.");
 }
 
+/* Retained integrity proofs are verified by the integrity owner, which reads each as a case-file object. */
+function integrityRecordFault(records) {
+  if (records === undefined) return "";
+  if (!Array.isArray(records) || records.some((x) => !x || typeof x !== "object" || Array.isArray(x)))
+    return "The backup has invalid integrity records.";
+  return "";
+}
+
 function validateWorkspaceBackupRecords(b, value) {
   const numbers = new Set(),
     ids = new Set();
+  const integrityFault = integrityRecordFault(b.integrityRecords);
+  if (integrityFault) throw new Error(integrityFault);
   b.cases.forEach((k) => {
     if (numbers.has(k.number) || ids.has(k.id)) throw new Error("Duplicate cases in the backup.");
     numbers.add(k.number);
