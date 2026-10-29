@@ -1548,3 +1548,9 @@ The handler (complexity 26, 104 lines) is now a short sequence over basis, read,
 The pure exit review moved unchanged to `exit_review.js` (no services, state or DOM), and two frozen-original comparisons were added before its split: `audit_exit_review_rules.js` (12,000 seeded case, queue and outbox states against the retained function) and `audit_exit_request_rules.js` (3,000 seeded exit requests in a real JSDOM dialog with the app, transport and stop-page peers stubbed, against the retained module; it compares draft saving, the two review checks, supersession, the shutdown request and every failure path, with every peer call in order). The existing exit suite missed four of five deliberate mutations of the request path; the new comparison catches all of them.
 
 `exitReview` (complexity 24) is now busy, device-save, per-case, queue and outbox item builders assembled in the original order, and `requestExit` (24) a short sequence over supersession, review and shutdown phases.
+
+## record-verification-phases
+
+Added a frozen-original comparison of record verification before changing it (`audit_record_integrity_rules.js`: 6,000 genuine chains built with the module's own canonical form and digest, with tampering at every link and malformed or legacy input, against the retained `record_integrity_reference.txt`). It compares the exact verdict: failing event, expected and actual digests and last good commit time.
+
+`verifyIntegrity` (complexity 26) is now genesis, entry, commit and context checks that each return a failure verdict or null, assembled in the original order with one carried chain state. Five of six deliberate mutations are caught; the survivor (an already-known entry identity) is behavior-equivalent because the digest check fails with the same verdict.

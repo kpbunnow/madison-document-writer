@@ -53,75 +53,108 @@ function legacyIntegrityStatus(record) {
   return { valid: true, legacy: true, anchored: false, label: "Legacy: integrity begins on migration" };
 }
 
+const integrityFailure = (last, eventId, expected, actual) => ({
+  valid: false,
+  eventId,
+  expected: String(expected),
+  actual: String(actual),
+  lastGoodCommitTime: last,
+  label: "This record was changed outside the program",
+});
+
+// Each check returns a failure verdict, or null when its link holds; `chain` carries what later checks need.
+async function checkGenesis(chain, record) {
+  const genesis = chain.record.integrity.genesis,
+    genesisBody = { ...genesis };
+  delete genesisBody.hash;
+  let actual = await sha256(canonicalJSON(genesisBody));
+  if (actual !== genesis.hash) return integrityFailure(chain.last, "genesis", genesis.hash, actual);
+  const events = new Map(record.events.map((e) => [e.id, e]));
+  if (events.size !== record.events.length) return integrityFailure(chain.last, "duplicate event", "unique identities", "duplicate identity");
+  actual = await sha256(canonicalJSON(genesis.eventIds.map((id) => events.get(id) ?? null)));
+  if (actual !== genesis.historyHash)
+    return integrityFailure(chain.last, genesis.eventIds.find((id) => !events.has(id)) || "genesis history", genesis.historyHash, actual);
+  chain.genesis = genesis;
+  chain.events = events;
+  chain.head = genesis.hash;
+  chain.last = genesis.committedAt;
+  chain.known = new Set(genesis.eventIds);
+  return null;
+}
+
+async function checkEntries(chain, entries) {
+  for (let n = 0; n < entries.length; n++) {
+    const entry = entries[n];
+    const actual = await sha256(chain.head + canonicalJSON(chain.events.get(entry.eventId) ?? null));
+    if (chain.known.has(entry.eventId) || entry.seq !== n + 1 || entry.prevHash !== chain.head || entry.hash !== actual)
+      return integrityFailure(chain.last, entry.eventId, entry.hash, actual);
+    chain.known.add(entry.eventId);
+    chain.head = actual;
+    chain.last = entry.committedAt;
+  }
+  if (chain.known.size !== chain.events.size)
+    return integrityFailure(
+      chain.last,
+      Array.from(chain.events.keys()).find((id) => !chain.known.has(id)) || "deleted event",
+      "one commit per event",
+      "missing event",
+    );
+  return null;
+}
+
+async function checkCommits(chain, stored) {
+  if (chain.head !== stored.headHash) return integrityFailure(chain.last, "head", stored.headHash, chain.head);
+  chain.previous = "0".repeat(64);
+  for (const commit of stored.commits) {
+    const actual = await sha256(chain.previous + canonicalJSON(commit.context));
+    if (commit.prevHash !== chain.previous || commit.hash !== actual) return integrityFailure(chain.last, "record commit", commit.hash, actual);
+    chain.previous = actual;
+  }
+  return null;
+}
+
+async function checkContext(chain, record, stored) {
+  const context = stored.commits.at(-1).context,
+    order = record.events.map((e) => e.id);
+  if (canonicalJSON(order) !== canonicalJSON(context.eventOrder))
+    return integrityFailure(
+      chain.last,
+      order.find((id, n) => id !== context.eventOrder[n]) || "deleted event",
+      await sha256(canonicalJSON(context.eventOrder)),
+      await sha256(canonicalJSON(order)),
+    );
+  if (context.headHash !== chain.head || canonicalJSON(context.commitTimes) !== canonicalJSON(stored.entries.map((e) => e.committedAt)))
+    return integrityFailure(chain.last, "commit metadata", context.headHash, chain.head);
+  const recordBody = { ...record };
+  delete recordBody.integrity;
+  const actual = await sha256(canonicalJSON(recordBody));
+  if (actual !== context.rootHash) return integrityFailure(chain.last, "case details or inspectors", context.rootHash, actual);
+  return null;
+}
+
 export async function verifyIntegrity(record) {
   if ((record.schema || record.version || 1) < 5) return legacyIntegrityStatus(record);
-  let last = "";
-  const fail = (eventId, expected, actual) => ({
-    valid: false,
-    eventId,
-    expected: String(expected),
-    actual: String(actual),
-    lastGoodCommitTime: last,
-    label: "This record was changed outside the program",
-  });
+  const chain = { record, last: "" };
   try {
-    const chain = record.integrity,
-      genesis = chain.genesis,
-      genesisBody = { ...genesis };
-    delete genesisBody.hash;
-    let actual = await sha256(canonicalJSON(genesisBody));
-    if (actual !== genesis.hash) return fail("genesis", genesis.hash, actual);
-    const events = new Map(record.events.map((e) => [e.id, e]));
-    if (events.size !== record.events.length) return fail("duplicate event", "unique identities", "duplicate identity");
-    actual = await sha256(canonicalJSON(genesis.eventIds.map((id) => events.get(id) ?? null)));
-    if (actual !== genesis.historyHash) return fail(genesis.eventIds.find((id) => !events.has(id)) || "genesis history", genesis.historyHash, actual);
-    let head = genesis.hash;
-    last = genesis.committedAt;
-    const known = new Set(genesis.eventIds);
-    for (let n = 0; n < chain.entries.length; n++) {
-      const entry = chain.entries[n];
-      actual = await sha256(head + canonicalJSON(events.get(entry.eventId) ?? null));
-      if (known.has(entry.eventId) || entry.seq !== n + 1 || entry.prevHash !== head || entry.hash !== actual)
-        return fail(entry.eventId, entry.hash, actual);
-      known.add(entry.eventId);
-      head = actual;
-      last = entry.committedAt;
-    }
-    if (known.size !== events.size)
-      return fail(Array.from(events.keys()).find((id) => !known.has(id)) || "deleted event", "one commit per event", "missing event");
-    if (head !== chain.headHash) return fail("head", chain.headHash, head);
-    let previous = "0".repeat(64);
-    for (const commit of chain.commits) {
-      actual = await sha256(previous + canonicalJSON(commit.context));
-      if (commit.prevHash !== previous || commit.hash !== actual) return fail("record commit", commit.hash, actual);
-      previous = actual;
-    }
-    const context = chain.commits.at(-1).context,
-      order = record.events.map((e) => e.id);
-    if (canonicalJSON(order) !== canonicalJSON(context.eventOrder))
-      return fail(
-        order.find((id, n) => id !== context.eventOrder[n]) || "deleted event",
-        await sha256(canonicalJSON(context.eventOrder)),
-        await sha256(canonicalJSON(order)),
-      );
-    if (context.headHash !== head || canonicalJSON(context.commitTimes) !== canonicalJSON(chain.entries.map((e) => e.committedAt)))
-      return fail("commit metadata", context.headHash, head);
-    const recordBody = { ...record };
-    delete recordBody.integrity;
-    actual = await sha256(canonicalJSON(recordBody));
-    if (actual !== context.rootHash) return fail("case details or inspectors", context.rootHash, actual);
+    const stored = record.integrity;
+    const failure =
+      (await checkGenesis(chain, record)) ||
+      (await checkEntries(chain, stored.entries)) ||
+      (await checkCommits(chain, stored)) ||
+      (await checkContext(chain, record, stored));
+    if (failure) return failure;
     return {
       valid: true,
       anchored: false,
       label: "Verified chain / not externally anchored",
-      headHash: head,
-      commitHash: previous,
-      lastGoodCommitTime: last,
-      migrationDate: genesis.committedAt,
-      legacyHistoryAsFound: genesis.sourceSchema < 5,
+      headHash: chain.head,
+      commitHash: chain.previous,
+      lastGoodCommitTime: chain.last,
+      migrationDate: chain.genesis.committedAt,
+      legacyHistoryAsFound: chain.genesis.sourceSchema < 5,
     };
   } catch (error) {
-    return fail("integrity metadata", "complete verifiable chain", error.message);
+    return integrityFailure(chain.last, "integrity metadata", "complete verifiable chain", error.message);
   }
 }
 export function initRecordIntegrity(R) {
