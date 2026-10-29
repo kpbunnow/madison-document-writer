@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 28,
+    "complexity": 27,
     "max-depth": 0,
-    "max-lines-per-function": 90,
+    "max-lines-per-function": 88,
     "python": 15
   },
   "violations": {
@@ -36,10 +36,7 @@
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:max-lines-per-function": 104,
     "app/modules/citation_drafts.js:createCitationDrafts#1:max-lines-per-function": 92,
     "app/modules/citation_pricing.js:initCitationPricing#1:max-lines-per-function": 160,
-    "app/modules/citation_workflow.js:createCitationWorkflow#1:max-lines-per-function": 334,
-    "app/modules/citation_workflow.js:createCitationWorkflow#1/authoringChecks#1:max-lines-per-function": 128,
-    "app/modules/citation_workflow.js:createCitationWorkflow#1/authoringChecks#1/anonymous#6:complexity": 46,
-    "app/modules/citation_workflow.js:createCitationWorkflow#1/authoringChecks#1/anonymous#6:max-lines-per-function": 91,
+    "app/modules/citation_workflow.js:createCitationWorkflow#1:max-lines-per-function": 210,
     "app/modules/citation_workflow.js:createCitationWorkflow#1/citationReview#1:max-lines-per-function": 155,
     "app/modules/citation_workflow.js:createCitationWorkflow#1/citationReview#1/anonymous#2:complexity": 55,
     "app/modules/citation_workflow.js:createCitationWorkflow#1/citationReview#1/anonymous#2:max-lines-per-function": 120,

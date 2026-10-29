@@ -277,12 +277,167 @@ function confirmEditedDepositBasis(services, d, c, field) {
   }
 }
 
+const scheduledOffenseNeeded = (c) =>
+  !c.scheduleEntryId && CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord)).length > 1;
+
+/* Authoring checks. Each phase receives the owner's services explicitly, so every service read stays at its original point. */
+function checkCollector(out) {
+  let targetItem = null;
+  const check = (ok, t, fields = []) =>
+    out.push({
+      ok,
+      t,
+      ...(targetItem && fields.length
+        ? { targets: fields.map((f) => checkTarget(citSelector(targetItem.id, f), "Item " + targetItem.no + " · " + f)) }
+        : {}),
+    });
+  return { check, target: (item) => (targetItem = item) };
+}
+
+function depositFault(services, c, d = null, i = null) {
+  return depositRuleFault({ c, d, i, services });
+}
+
+function isDepositComplete(services, d) {
+  return (
+    !Object.keys(d.depositRequests || {}).length &&
+    (d.items || []).filter((i) => i.cite && !i.withdrawn).every((i) => !depositFault(services, d.cits?.[i.id] || {}, d, i))
+  );
+}
+
+function dueDateChecks(services, d, out, check) {
+  if (["notice", "extension", "citation"].includes(d.type))
+    check(distinctDues(dueItems(d)).length <= 3, "Use no more than three distinct due dates for outstanding items.");
+  if (["notice", "extension", "citation"].includes(d.type)) {
+    const close = dueDateSpacingConflicts(dueItems(d)).filter(
+      (pair) => !d.correction || pair.items.some((i) => !services.unchangedCorrectionValue(d, i.id, "due")),
+    );
+    const items = [...new Map(close.flatMap((pair) => pair.items).map((i) => [i.id, i])).values()];
+    out.push({
+      ok: close.length === 0,
+      t: close.length ? "Keep distinct due dates at least seven days apart." : "Distinct due dates are at least seven days apart.",
+      ...(items.length ? { targets: items.map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " · due date")) } : {}),
+    });
+  }
+}
+
+function noticeLibraryCheck(d, check) {
+  if (d.type !== "notice" || d.correction) return;
+  const keys = d.items.map(itemLibraryKey).filter(Boolean);
+  check(new Set(keys).size === keys.length, "Each library item can appear only once on an original notice. Remove duplicate items.");
+}
+
+function depositRequestMessage(services, i, request) {
+  if (services.choosesCharge(i) && !String(request.ord || "").trim()) return "choose the charged ordinance from its sections.";
+  if (scheduledOffenseNeeded(request)) return "choose the scheduled offense in Citation review.";
+  if (!canonicalOrdinance(request.ord)) return "choose one complete ordinance and complete the approved deposit basis in Citation review.";
+  return request.measurementFields?.length
+    ? "complete the required measurements in Citation review."
+    : "complete the approved deposit basis in Citation review.";
+}
+
+function depositRequestSelector(i, request) {
+  return (
+    '[data-deposit-form="' +
+    checkAttr(i.id) +
+    '"] ' +
+    (request.measurementFields?.length
+      ? '[name^="measure-"]'
+      : canonicalOrdinance(request.ord) && scheduledOffenseNeeded(request)
+        ? '[name="scheduleEntryId"]'
+        : '[name="ord"]')
+  );
+}
+
+function depositRequestEntry(services, i, request, prefix) {
+  const t = prefix + depositRequestMessage(services, i, request);
+  return { ok: false, t, targets: [checkTarget(depositRequestSelector(i, request), "Item " + i.no + " · complete charge")] };
+}
+
+function chargeChecks(services, d, i, c, prefix, check) {
+  check(
+    !c.mandatoryAppearance,
+    prefix +
+      ("mandatory-appearance citations need division-approved defendant instruct" +
+        "ions. Your draft is retained; ask the division to approve the wording be" +
+        "fore issuance."),
+    ["ord"],
+  );
+  check(!i.done, prefix + "only outstanding violations may be cited.");
+  const unchosen = services.choosesCharge(i) && !String(c.ord || "").trim();
+  check(
+    !unchosen && !!canonicalOrdinance(c.ord),
+    prefix + (unchosen ? "choose the charged ordinance from its sections." : "enter one complete ordinance number, not a list of sections."),
+    ["ord"],
+  );
+  check(
+    !services.citationPricing.chargeFault(d, i, c),
+    prefix + (services.citationPricing.chargeFault(d, i, c) || "charge matches the current item."),
+    ["ord", "differentChargeSource"],
+  );
+  check(
+    !["desc", "comment", "statute", "deptId"].some((k) => countBlanks(String(c[k] || ""))),
+    prefix + "complete all placeholder details in the citation fields.",
+    ["desc", "comment"],
+  );
+  check(!depositFault(services, c, d, i), prefix + (depositFault(services, c, d, i) || "deposit and its basis agree."), [
+    "depositMode",
+    "ord",
+    ...(c.depositMode === "total" ? ["amount"] : c.depositMode === "base" ? ["base", "cc"] : []),
+    ...(c.depositMode && c.depositMode !== "schedule" ? ["depositSource"] : []),
+  ]);
+}
+
+function scheduleChecks(services, d, c, prefix, check) {
+  check(!!parseTime(c.courtTime), prefix + "enter a valid court time in Citation review.", ["courtTime"]);
+  check(!!parseTime(c.violTime || inspAt(d).time), prefix + "enter the inspection/violation time.", ["violTime"]);
+  check(
+    validISO(c.violDate || inspAt(d).date) &&
+      (c.violDate || inspAt(d).date) >= (docCase(d).date || "") &&
+      (c.violDate || inspAt(d).date) <= (c.issued || ""),
+    prefix + "the violation date must be on or before issuance.",
+    ["violDate"],
+  );
+  check(validISO(c.issued) && c.issued <= recordDay(services.today), prefix + "the issue date must be no later than today.", ["issued"]);
+  check(
+    validISO(c.issued) &&
+      c.issued === (d.correction ? d.correction.actionDate : d.authoringVersion >= 9 ? d.revision?.actionDate || d.mailed : d.mailed),
+    prefix +
+      (d.correction
+        ? "the issue date must match the original action date used in reports."
+        : "the issue date must match this document’s mailed date."),
+    ["issued"],
+  );
+  check(validISO(c.courtDate) && c.courtDate > c.issued, prefix + "the court date must follow issuance.", ["courtDate"]);
+}
+
+function itemAuthoringChecks(services, d, i, out, collect) {
+  const c = (d.cits || {})[i.id] || {},
+    prefix = "Citation for item " + i.no + ": ",
+    old = correctionSource(d),
+    original = old && (old.cits || {})[i.id];
+  collect.target(i);
+  const request = d.depositRequests?.[i.id];
+  if (request) {
+    out.push(depositRequestEntry(services, i, request, prefix));
+    return;
+  }
+  chargeChecks(services, d, i, c, prefix, collect.check);
+  scheduleChecks(services, d, c, prefix, collect.check);
+  collect.check(/^[A-Za-z0-9-]+$/.test(c.num || ""), prefix + "use a citation number containing letters, numbers or hyphens.", ["num"]);
+  if (original) collect.check(c.num === original.num, prefix + "a correction retains the original citation number.", ["num"]);
+}
+
+function citationDocumentChecks(services, d, out, collect) {
+  if (d.type !== "citation") return;
+  collect.check(isDepositComplete(services, d), "Citation needs deposit. Complete the required deposit step.");
+  collect.check(!services.citationPricing.historyFault(d), services.citationPricing.historyFault(d) || "Shared citation history has been checked.");
+  d.items.filter((i) => i.cite && !i.withdrawn).forEach((i) => itemAuthoringChecks(services, d, i, out, collect));
+}
+
 export function createCitationWorkflow(services) {
   function depositComplete(d) {
-    return (
-      !Object.keys(d.depositRequests || {}).length &&
-      (d.items || []).filter((i) => i.cite && !i.withdrawn).every((i) => !citationDepositFault(d.cits?.[i.id] || {}, d, i))
-    );
+    return isDepositComplete(services, d);
   }
 
   function initialCitationBody(d) {
@@ -305,9 +460,6 @@ export function createCitationWorkflow(services) {
   function citationDepositFault(c, d = null, i = null) {
     return depositRuleFault({ c, d, i, services });
   }
-
-  const scheduledOffenseNeeded = (c) =>
-    !c.scheduleEntryId && CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord)).length > 1;
 
   function editCitation(d, id, field, value, phase = "commit") {
     // R59: the different-charge ordinance input edits the same stored charge as the section select, and a
@@ -337,130 +489,11 @@ export function createCitationWorkflow(services) {
 
   function authoringChecks(d) {
     services.citationPricing.refresh(d);
-    const out = [];
-    let targetItem = null;
-    const check = (ok, t, fields = []) =>
-      out.push({
-        ok,
-        t,
-        ...(targetItem && fields.length
-          ? { targets: fields.map((f) => checkTarget(citSelector(targetItem.id, f), "Item " + targetItem.no + " · " + f)) }
-          : {}),
-      });
-    if (["notice", "extension", "citation"].includes(d.type))
-      check(distinctDues(dueItems(d)).length <= 3, "Use no more than three distinct due dates for outstanding items.");
-    if (["notice", "extension", "citation"].includes(d.type)) {
-      const close = dueDateSpacingConflicts(dueItems(d)).filter(
-        (pair) => !d.correction || pair.items.some((i) => !services.unchangedCorrectionValue(d, i.id, "due")),
-      );
-      const items = [...new Map(close.flatMap((pair) => pair.items).map((i) => [i.id, i])).values()];
-      out.push({
-        ok: close.length === 0,
-        t: close.length ? "Keep distinct due dates at least seven days apart." : "Distinct due dates are at least seven days apart.",
-        ...(items.length ? { targets: items.map((i) => checkTarget(itemSelector(i.id, "due"), "Item " + i.no + " · due date")) } : {}),
-      });
-    }
-    if (d.type === "notice" && !d.correction) {
-      const keys = d.items.map(itemLibraryKey).filter(Boolean);
-      check(new Set(keys).size === keys.length, "Each library item can appear only once on an original notice. Remove duplicate items.");
-    }
-    if (d.type === "citation") check(depositComplete(d), "Citation needs deposit. Complete the required deposit step.");
-    if (d.type === "citation")
-      check(!services.citationPricing.historyFault(d), services.citationPricing.historyFault(d) || "Shared citation history has been checked.");
-    if (d.type === "citation")
-      d.items
-        .filter((i) => i.cite && !i.withdrawn)
-        .forEach((i) => {
-          const c = (d.cits || {})[i.id] || {},
-            prefix = "Citation for item " + i.no + ": ",
-            old = correctionSource(d),
-            original = old && (old.cits || {})[i.id];
-          targetItem = i;
-          const request = d.depositRequests?.[i.id];
-          if (request) {
-            out.push({
-              ok: false,
-              t:
-                prefix +
-                (services.choosesCharge(i) && !String(request.ord || "").trim()
-                  ? "choose the charged ordinance from its sections."
-                  : scheduledOffenseNeeded(request)
-                    ? "choose the scheduled offense in Citation review."
-                    : !canonicalOrdinance(request.ord)
-                      ? "choose one complete ordinance and complete the approved deposit basis in Citation review."
-                      : request.measurementFields?.length
-                        ? "complete the required measurements in Citation review."
-                        : "complete the approved deposit basis in Citation review."),
-              targets: [
-                checkTarget(
-                  '[data-deposit-form="' +
-                    checkAttr(i.id) +
-                    '"] ' +
-                    (request.measurementFields?.length
-                      ? '[name^="measure-"]'
-                      : canonicalOrdinance(request.ord) && scheduledOffenseNeeded(request)
-                        ? '[name="scheduleEntryId"]'
-                        : '[name="ord"]'),
-                  "Item " + i.no + " · complete charge",
-                ),
-              ],
-            });
-            return;
-          }
-          check(
-            !c.mandatoryAppearance,
-            prefix +
-              ("mandatory-appearance citations need division-approved defendant instruct" +
-                "ions. Your draft is retained; ask the division to approve the wording be" +
-                "fore issuance."),
-            ["ord"],
-          );
-          check(!i.done, prefix + "only outstanding violations may be cited.");
-          const unchosen = services.choosesCharge(i) && !String(c.ord || "").trim();
-          check(
-            !unchosen && !!canonicalOrdinance(c.ord),
-            prefix + (unchosen ? "choose the charged ordinance from its sections." : "enter one complete ordinance number, not a list of sections."),
-            ["ord"],
-          );
-          check(
-            !services.citationPricing.chargeFault(d, i, c),
-            prefix + (services.citationPricing.chargeFault(d, i, c) || "charge matches the current item."),
-            ["ord", "differentChargeSource"],
-          );
-          check(
-            !["desc", "comment", "statute", "deptId"].some((k) => countBlanks(String(c[k] || ""))),
-            prefix + "complete all placeholder details in the citation fields.",
-            ["desc", "comment"],
-          );
-          check(!citationDepositFault(c, d, i), prefix + (citationDepositFault(c, d, i) || "deposit and its basis agree."), [
-            "depositMode",
-            "ord",
-            ...(c.depositMode === "total" ? ["amount"] : c.depositMode === "base" ? ["base", "cc"] : []),
-            ...(c.depositMode && c.depositMode !== "schedule" ? ["depositSource"] : []),
-          ]);
-          check(!!parseTime(c.courtTime), prefix + "enter a valid court time in Citation review.", ["courtTime"]);
-          check(!!parseTime(c.violTime || inspAt(d).time), prefix + "enter the inspection/violation time.", ["violTime"]);
-          check(
-            validISO(c.violDate || inspAt(d).date) &&
-              (c.violDate || inspAt(d).date) >= (docCase(d).date || "") &&
-              (c.violDate || inspAt(d).date) <= (c.issued || ""),
-            prefix + "the violation date must be on or before issuance.",
-            ["violDate"],
-          );
-          check(validISO(c.issued) && c.issued <= recordDay(services.today), prefix + "the issue date must be no later than today.", ["issued"]);
-          check(
-            validISO(c.issued) &&
-              c.issued === (d.correction ? d.correction.actionDate : d.authoringVersion >= 9 ? d.revision?.actionDate || d.mailed : d.mailed),
-            prefix +
-              (d.correction
-                ? "the issue date must match the original action date used in reports."
-                : "the issue date must match this document’s mailed date."),
-            ["issued"],
-          );
-          check(validISO(c.courtDate) && c.courtDate > c.issued, prefix + "the court date must follow issuance.", ["courtDate"]);
-          check(/^[A-Za-z0-9-]+$/.test(c.num || ""), prefix + "use a citation number containing letters, numbers or hyphens.", ["num"]);
-          if (original) check(c.num === original.num, prefix + "a correction retains the original citation number.", ["num"]);
-        });
+    const out = [],
+      collect = checkCollector(out);
+    dueDateChecks(services, d, out, collect.check);
+    noticeLibraryCheck(d, collect.check);
+    citationDocumentChecks(services, d, out, collect);
     return out;
   }
 
