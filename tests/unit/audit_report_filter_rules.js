@@ -75,8 +75,10 @@ const assert = require("node:assert/strict"),
       {},
       {
         get(_, key) {
-          reads.push("services." + String(key));
+          // The day is asked for when it is used (currentDay); the retained original read it as TODAY. Same read, same day.
+          reads.push("services." + String(key === "currentDay" ? "TODAY" : key));
           if (key === "TODAY") return "2026-10-28";
+          if (key === "currentDay") return () => "2026-10-28";
           if (key === "violOk")
             return (v, F) => {
               reads.push("call:violOk");

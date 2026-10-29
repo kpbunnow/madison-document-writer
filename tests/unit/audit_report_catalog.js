@@ -45,6 +45,8 @@ const assert = require("node:assert/strict"),
       ...model,
       openAt: (c, date) => facts.openAt(c, date, model),
       TODAY: "2026-10-29",
+      // The day is asked for when it is used; the retained original receives the same day as a value.
+      currentDay: () => "2026-10-29",
     };
   primitive.violOk = facts.violOk;
   const keys = [

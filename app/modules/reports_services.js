@@ -121,7 +121,7 @@ function reportStatusIncluded(services, c, F, opt, status) {
   if (
     F.status &&
     (F.status === "open"
-      ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || services.TODAY))
+      ? ["Closed", "Withdrawn"].includes(status) || (c.caseType === "snow-10.28" && c.closedOn && c.closedOn <= (opt?.asOf || services.currentDay()))
       : status !== F.status)
   )
     return false;

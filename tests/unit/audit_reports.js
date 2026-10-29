@@ -498,6 +498,38 @@ const completion = require("../fixtures/report_exports.cjs")({ navigation: true,
     );
     click($('button[data-act="clearFilters"]'));
     ok("owner filter cleared", !ReportsState.S.F.owner);
+    // A tab left open past New Year resets its filters from the day it is now, not the day it loaded.
+    {
+      const RealDate = Date,
+        later = RealDate.UTC(new RealDate().getUTCFullYear() + 1, 0, 2, 18, 0, 0),
+        newYear = new RealDate(later).getUTCFullYear() + "-01-02";
+      global.Date = class extends RealDate {
+        constructor(...args) {
+          if (args.length) super(...args);
+          else super(later);
+        }
+        static now() {
+          return later;
+        }
+      };
+      try {
+        click($('button[data-act="clearFilters"]'));
+        ok(
+          "reset filters read the current day " +
+            JSON.stringify([
+              ReportsState.S.F.from,
+              ReportsState.S.F.to,
+              ReportsState.S.F.asOf,
+              newYear,
+              String(new global.Date()),
+              String(!!$('button[data-act="clearFilters"]')),
+            ]),
+          ReportsState.S.F.to === newYear && ReportsState.S.F.asOf === newYear && ReportsState.S.F.from === newYear.slice(0, 4) + "-01-01",
+        );
+      } finally {
+        global.Date = RealDate;
+      }
+    }
     click($('button[data-screen="property"]'));
     $("#pv-q").value = "2222-222-2222-2";
     click($('button[data-act="propGo"]'));

@@ -82,6 +82,8 @@ const assert = require("node:assert/strict"),
         return state;
       },
       TODAY: "2026-10-29",
+      // The day is asked for when it is used; the retained original receives the same day as a value.
+      currentDay: () => "2026-10-29",
     };
     for (const key of keys.filter((k) => k !== "TODAY"))
       service[key] = (...args) => {

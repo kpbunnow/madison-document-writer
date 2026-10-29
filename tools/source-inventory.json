@@ -916,6 +916,7 @@
     "tests/unit/audit_report_workbook_definitions.js",
     "tests/unit/audit_reports.js",
     "tests/unit/audit_reports_boundaries.js",
+    "tests/unit/audit_reports_clock_wiring.js",
     "tests/unit/audit_resume.js",
     "tests/unit/audit_retained_source_rules.py",
     "tests/unit/audit_review.js",
