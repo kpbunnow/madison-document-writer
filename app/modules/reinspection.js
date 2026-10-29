@@ -522,6 +522,41 @@ function recordedOutcomeResult(cur, outcome, r) {
   };
 }
 
+function focusRecipientCheckTarget(services, d, target) {
+  const k = d && docCase(d);
+  if (!k) return;
+  editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
+  editor.state.modal = "cc";
+  services.ui.render();
+  const parts = target.action.split(":");
+  const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
+  const field = document.querySelector(editor.state.ccProblem?.selector || exact);
+  field?.focus();
+  field?.scrollIntoView?.({ block: "center" });
+  return;
+}
+
+function focusAdministrativeCheckTarget(services, d, target) {
+  if (target.action === "workspace") {
+    services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
+    return true;
+  }
+  if (target.action === "catalog") {
+    editor.state.screen = "library";
+    editor.state.languageMode = "admin";
+    editor.state.catalogAdminStatus = "review";
+    const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
+    if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
+    services.ui.render();
+    return true;
+  }
+  if (target.action?.startsWith("recipient:")) {
+    focusRecipientCheckTarget(services, d, target);
+    return true;
+  }
+  return false;
+}
+
 export function createReinspection(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -909,32 +944,7 @@ export function createReinspection(services) {
     services.inspection.captureWork();
     editor.state.modal = null;
     editor.state.picker = false;
-    if (target.action === "workspace") {
-      services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
-      return;
-    }
-    if (target.action === "catalog") {
-      editor.state.screen = "library";
-      editor.state.languageMode = "admin";
-      editor.state.catalogAdminStatus = "review";
-      const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
-      if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
-      services.ui.render();
-      return;
-    }
-    if (target.action?.startsWith("recipient:")) {
-      const k = d && docCase(d);
-      if (!k) return;
-      editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
-      editor.state.modal = "cc";
-      services.ui.render();
-      const parts = target.action.split(":");
-      const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
-      const field = document.querySelector(editor.state.ccProblem?.selector || exact);
-      field?.focus();
-      field?.scrollIntoView?.({ block: "center" });
-      return;
-    }
+    if (focusAdministrativeCheckTarget(services, d, target)) return;
     if (target.action === "visit") {
       if (!d || !services.inspection.returnToWorksheet(d)) {
         services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");

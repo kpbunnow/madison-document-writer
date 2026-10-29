@@ -1,0 +1,68 @@
+function focusCheckTarget(target, message) {
+    const d = doc(editor.state.docId);
+    services.inspection.captureWork();
+    editor.state.modal = null;
+    editor.state.picker = false;
+    if (target.action === "workspace") {
+      services.inspection.openImportWorkspace(d?.caseId || reinsp(editor.state.reinspId)?.caseId);
+      return;
+    }
+    if (target.action === "catalog") {
+      editor.state.screen = "library";
+      editor.state.languageMode = "admin";
+      editor.state.catalogAdminStatus = "review";
+      const it = doc(editor.state.docId)?.items.find((i) => i.id === target.itemId);
+      if (it) editor.state.catalogAdminKey = itemLibraryKey(it);
+      services.ui.render();
+      return;
+    }
+    if (target.action?.startsWith("recipient:")) {
+      const k = d && docCase(d);
+      if (!k) return;
+      editor.state.ccProblem = services.authoring.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k), false);
+      editor.state.modal = "cc";
+      services.ui.render();
+      const parts = target.action.split(":");
+      const exact = parts[1] === "agent" ? '[data-agent="' + parts[3] + '"]' : '[data-cc="' + parts[2] + "|" + parts[3] + '"]';
+      const field = document.querySelector(editor.state.ccProblem?.selector || exact);
+      field?.focus();
+      field?.scrollIntoView?.({ block: "center" });
+      return;
+    }
+    if (target.action === "visit") {
+      if (!d || !services.inspection.returnToWorksheet(d)) {
+        services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
+        return;
+      }
+      const r = reinsp(editor.state.reinspId);
+      editor.state.riFilter = "";
+      clearWalk();
+      editor.WORK.walk = null;
+      services.ui.render();
+      const check = worksheetChecks(r).find((c) => !c.soft) || worksheetChecks(r)[0];
+      target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
+    } else {
+      if (editor.state.screen === "reinspect") {
+        editor.state.riFilter = "";
+        clearWalk();
+        editor.WORK.walk = null;
+      }
+      if (target.action === "contacts") editor.state.modal = "cc";
+      services.ui.render();
+    }
+    if (target.action === "guidance") {
+      services.ui.toast(message);
+      return;
+    }
+    const el = document.querySelector(target.selector);
+    if (!el) {
+      services.ui.toast(message + " Open the existing case to review the retained record.");
+      return;
+    }
+    for (let parent = el.parentElement; parent; parent = parent.parentElement) if (parent.tagName === "DETAILS") parent.open = true;
+    el.classList.add("check-focus");
+    el.setAttribute("tabindex", el.getAttribute("tabindex") || "0");
+    el.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    el.focus({ preventScroll: true });
+    setTimeout(() => el.classList.remove("check-focus"), 2200);
+  }
