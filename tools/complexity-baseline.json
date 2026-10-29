@@ -114,7 +114,7 @@
     "app/modules/recovery_ui.js:createRecoveryUI#1/recoveryModal#1:max-lines-per-function": 94,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
     "app/modules/reinspection.js:createReinspection#1:max-lines-per-function": 520,
-    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 678,
+    "app/modules/reports_screens.js:createReportsScreens#1:max-lines-per-function": 601,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 581,
     "app/modules/safety_events.js:createSafetyEvents#1:max-lines-per-function": 141,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1:max-lines-per-function": 113,
