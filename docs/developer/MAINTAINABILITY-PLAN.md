@@ -1314,3 +1314,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 Moved the actual Reports filter-change handler into an inert five-input owner without importing root state. Core registers it at the same checkpoint between navigation and disclosure listeners. All 1,680 old/current changes preserve exact state, retained filter object, refusal/callback order, live state replacement and interrupted effects. Listener order and exact lazy inputs are guarded. Existing complete Reports workflow, R48 preferences, R49 saved-view and 5,100 navigation comparisons pass. Architecture: 144 modules, zero cycles, 11 root-state importers, largest interface25. All numerical targets remain met; no format/print/release identity change.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-workbook-definitions
+
+Moved the existing public CRC table, XML escaper, Excel-date conversion and workbook styles unchanged from Reports core into an independently loadable owner. Core retains the original public export names and live screen composition; no output formatting changes. The original declarations protect exact CRC/style bytes and 12,072 scalar/date comparisons. Complete Reports workflow, sheet XML and workbook/screen phase parity pass. The newly added non-vacuity count was corrected before publication (12,072 comparisons); all production comparisons passed on its first run. No historical assertion/reference or independent release identity changed.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
