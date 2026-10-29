@@ -1093,3 +1093,9 @@ Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 10
 Original work/checkpoint restoration occurs before the same case-array guard; async restoration and projection order are unchanged. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
 
 Measured counts: {'complexity': 48, 'max-depth': 0, 'max-lines-per-function': 104, 'python': 15} → {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 103, 'python': 15}.
+
+## case-save-presentation
+
+Download fallback and save/refusal messages retain original service-getter, persistence and toast evaluation order. The unchanged public-owner suite passes against maintained and frozen original modules, with byte-identical output/diagnostics. Module boundaries, test seams, ESLint and formatting pass. No new awaits, assertions, trust, stored formats or release identities changed.
+
+Measured counts: {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 103, 'python': 15} → {'complexity': 47, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
