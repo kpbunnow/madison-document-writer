@@ -432,6 +432,7 @@
     "tests/fixtures/check_targets_reference.txt",
     "tests/fixtures/citation_base_reference.txt",
     "tests/fixtures/citation_charges_reference.txt",
+    "tests/fixtures/citation_deposit_workflow.cjs",
     "tests/fixtures/citation_history_reference.txt",
     "tests/fixtures/citation_ordinance_reference.txt",
     "tests/fixtures/citation_pricing_reference.txt",

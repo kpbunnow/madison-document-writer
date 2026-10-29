@@ -1406,3 +1406,7 @@ Trace remaining diagnostic consumers with folded JS/helper strings, Python tests
 ## recipient-line-owner
 
 Move ccLines and agentLines unchanged from startup core to their existing address_format owner, retaining core export aliases and declaration ASTs. This enables direct citation/recipient composition without copying formatting behavior into tests. All8,192 retained/current comparisons preserve normalization/fallback/blank filtering, property access and interruption order; original recipient/citation historical face assertions pass. No new module, state/import boundary, public service field, print reference, stored identity or release change.
+
+## citation-deposit-owner-tests
+
+Migrate R31 deposit and R32 pricing suites from evaluated Writer startup to focused real editor, pricing, charges, deposit/edit, initial-citation, court/history and citation-face composition. All19 and22 original assertion ASTs remain identical, including required-deposit print refusal, edits/reconfirmation, Python3,872-row/tier/measurement parity, real review DOM refresh and frozen historical citation faces. Ordinary-draft/non-snow guards and native UI/save remain controlled service boundaries; actual pricing/validation/renderers run. Initial assembly omitted the agent-lines adapter; extracted its existing formatter unchanged in the preceding checkpoint and supplied that public owner. Cold imports leave Writer state empty. Legacy evaluator files70 to68; retained hooks48, no new diagnostics or registry.
