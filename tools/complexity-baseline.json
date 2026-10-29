@@ -3,7 +3,7 @@
     "complexity": 4,
     "max-depth": 0,
     "max-lines-per-function": 64,
-    "python": 8
+    "python": 7
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 428,
@@ -80,7 +80,6 @@
     "helper/case_lookup.py:settings:C901": 18,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 24,
-    "helper/server.py:read_index:C901": 30,
-    "helper/verified_update.py:stage_update:C901": 26
+    "helper/server.py:read_index:C901": 30
   }
 }

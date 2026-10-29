@@ -1589,3 +1589,9 @@ Added a frozen-original comparison of the record-action dialog (`audit_record_ac
 Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
 
 The durable-operation comparison first failed intermittently in the full run: the retained and current functions check the shared and local archive locations through a set, whose iteration order follows the path text, so two different temporary folders could order a double conflict differently. The production code is unchanged by that finding (the two locations are checked in an arbitrary but complete order); the comparison now runs both sides in the same folder path so the order is identical, and was run repeatedly under different hash seeds.
+
+## verified-update-phases
+
+Added a frozen-original comparison of verified update staging (`audit_verified_update_rules.py`: 1,500 seeded shared deployments on real folders against the retained module text, plus network-share diagnostics). It damages deployments in 20 ways (changed size or checksum, missing, extra and stale files, links, bad paths, a self-referencing or empty manifest, oversized or malformed manifests, downgrade pins of both formats, operational folders and files) and compares the result, error text, staged files, pin and diagnostic.
+
+`stage_update` (C901 26) is now manifest reading with the pin checks, deployment enumeration, exact inventory check, per-file staging with size and checksum recheck, pin writing and the diagnostic refusal. Eight of ten deliberate mutations are caught after the version-pool fix; the two survivors (a link appearing between enumeration and copying, and a file growing while it is read) are races that a static folder cannot produce and are kept verbatim.
