@@ -1069,3 +1069,21 @@ Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 11
 Outline coverage retains district/ZIP availability, field selection, dates, notes and exact wording. Extracted one named private phase, preserving the existing owner and public interface. Passed 303 frozen-owner comparisons of exact export sheets/workbook bytes/HTML/ordered service exceptions, 4,002 standalone-sheet inputs, fresh test build and existing export-scope/mismatched-summary checks, Reports/module boundaries, test seams, ESLint and formatting. No print renderer, assertion, stored format, release identity or packaging changes. Existing complete Reports workbook suite also passes.
 
 Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15} → {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15}.
+
+## workspace-queue-actions
+
+Separated blocked, working, PDF and issued-case queue actions into named private phases. Passed 5,007 retained-owner comparisons and 1,033 exact Workspace snapshots, module boundaries, test seams, ESLint and formatting. Live input aliases, task/priority/read order, labels and storage/publication authority are unchanged. No print, stored format or release identity changes.
+
+Measured counts: {'complexity': 50, 'max-depth': 0, 'max-lines-per-function': 110, 'python': 15} → {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 108, 'python': 15}.
+
+## workspace-artifact-task-phases
+
+Separated unfiled/local/problem artifact task collection into private functions without changing task order or authority. The existing public-owner suite runs unchanged against the maintained and frozen original module; outputs and diagnostics are byte-identical, and missing retained-owner execution fails explicitly. Passed 5,007 queue comparisons, 1,033 Workspace snapshots, task parity, module boundaries, test seams, ESLint and formatting. Existing assertions/references and release identities unchanged.
+
+Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 108, 'python': 15} → {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 106, 'python': 15}.
+
+## workspace-backup-validation
+
+Separated empty-workspace and retained-record validation from backup restoration coordination. Kept every refusal and validation order, synchronous validation checkpoint, awaited device/integrity writes and live replacement order. The existing public-owner suite passes unchanged against maintained and retained modules with byte-identical output/diagnostics; module boundaries, test seams, ESLint and formatting pass. No stronger transaction guarantee, authority, version or release change.
+
+Measured counts: {'complexity': 49, 'max-depth': 0, 'max-lines-per-function': 106, 'python': 15} → {'complexity': 48, 'max-depth': 0, 'max-lines-per-function': 104, 'python': 15}.

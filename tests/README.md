@@ -17,6 +17,9 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_workspace_backup_parity.js` | Unchanged public-owner validation, identity, write, integrity and replacement assertions against retained module |
+| `audit_workspace_tasks_parity.js` | Unchanged public-owner task suite against maintained and retained module implementations |
+| `audit_workspace_queue_rules.js` | Queue action priority, derived flags, aliases, task association, ordering and interrupted context services |
 | `audit_report_owner_phases.js` | Exact Reports exports/workbook/section output and lazy service order through phased owner extraction |
 | `audit_saved_work_html.js` | Exact saved-work output, case priority/limits, queues, health and ordered escape/renderer calls |
 | `audit_saved_case_state_rules.js` | Saved-case status priority, queue/PDF/connection states and lazy context/service reads |

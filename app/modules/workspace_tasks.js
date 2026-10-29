@@ -6,6 +6,62 @@ import { docsFor, effectiveFiled, kase } from "./writer_queries.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import { esc as dep_esc } from "./presentation_format.js";
 
+function unfiledTaskItems(rows, caseTask) {
+  return rows.flatMap((x) =>
+    docsFor(x.k.id)
+      .filter((d) => independentArtifact(d) && !effectiveFiled(d))
+      .map((d) => caseTask(x, "File " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF", `data-open="${dep_esc(d.id)}"`)),
+  );
+}
+
+function localArtifactTaskItems(rows, caseTask) {
+  return rows.flatMap((x) =>
+    docsFor(x.k.id)
+      .filter(
+        (d) =>
+          independentArtifact(d) &&
+          (pdfTransferState(d) === "local outbox" ||
+            (pdfTransferState(d) === "last verified location; refresh unavailable" && workspace.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
+      )
+      .map((d) =>
+        caseTask(
+          x,
+          "Transfer " +
+            ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) +
+            " PDF" +
+            (workspace.ARTIFACT_VERIFY[d.id] === "unavailable" ? " (last verified; refresh unavailable)" : ""),
+          `data-outbox`,
+        ),
+      ),
+  );
+}
+
+function artifactIssueTaskItems(rows, caseTask) {
+  return rows.flatMap((x) =>
+    docsFor(x.k.id)
+      .filter(
+        (d) =>
+          independentArtifact(d) &&
+          [
+            "artifact conflict",
+            "missing or unavailable",
+            "location unverified",
+            "historical / location unverified",
+            "invalid artifact identity",
+            "location verification unavailable",
+            "last verified location; refresh unavailable",
+          ].includes(pdfTransferState(d)),
+      )
+      .map((d) =>
+        caseTask(
+          x,
+          "Check " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF · " + pdfTransferState(d),
+          `data-open="${dep_esc(d.id)}"`,
+        ),
+      ),
+  );
+}
+
 /* Construction reads no services or workspace state and registers no listeners. */
 export function createWorkspaceTasks(services) {
   function workspaceTasks(rows) {
@@ -28,53 +84,9 @@ export function createWorkspaceTasks(services) {
         .filter(([, a]) => a.cid === x.k.id)
         .map(([id]) => caseTask(x, "Record save confirmation", `data-resumerecord="${dep_esc(id)}"`)),
     );
-    const unfiled = rows.flatMap((x) =>
-      docsFor(x.k.id)
-        .filter((d) => independentArtifact(d) && !effectiveFiled(d))
-        .map((d) => caseTask(x, "File " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF", `data-open="${dep_esc(d.id)}"`)),
-    );
-    const local = rows.flatMap((x) =>
-      docsFor(x.k.id)
-        .filter(
-          (d) =>
-            independentArtifact(d) &&
-            (pdfTransferState(d) === "local outbox" ||
-              (pdfTransferState(d) === "last verified location; refresh unavailable" && workspace.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
-        )
-        .map((d) =>
-          caseTask(
-            x,
-            "Transfer " +
-              ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) +
-              " PDF" +
-              (workspace.ARTIFACT_VERIFY[d.id] === "unavailable" ? " (last verified; refresh unavailable)" : ""),
-            `data-outbox`,
-          ),
-        ),
-    );
-    const issues = rows.flatMap((x) =>
-      docsFor(x.k.id)
-        .filter(
-          (d) =>
-            independentArtifact(d) &&
-            [
-              "artifact conflict",
-              "missing or unavailable",
-              "location unverified",
-              "historical / location unverified",
-              "invalid artifact identity",
-              "location verification unavailable",
-              "last verified location; refresh unavailable",
-            ].includes(pdfTransferState(d)),
-        )
-        .map((d) =>
-          caseTask(
-            x,
-            "Check " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF · " + pdfTransferState(d),
-            `data-open="${dep_esc(d.id)}"`,
-          ),
-        ),
-    );
+    const unfiled = unfiledTaskItems(rows, caseTask);
+    const local = localArtifactTaskItems(rows, caseTask);
+    const issues = artifactIssueTaskItems(rows, caseTask);
     return [
       task("deposit", "Citation needs deposit", "documents", needsDeposit),
       task(
