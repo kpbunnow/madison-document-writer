@@ -83,6 +83,7 @@ const scopedServices = {
   "recovery_events.js": ["./editor_state.js", "./event_registration.js", "./recovery_state.js", "./workspace_state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js", "./writer_queries.js"],
   "import_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js"],
+  "exit_review.js": ["./saved_work.js"],
   "desktop_exit.js": [
     "./workspace_state.js",
     "./editor_state.js",
@@ -90,7 +91,7 @@ const scopedServices = {
     "./app_core.js",
     "./helper_stopped.js",
     "./helper_transport.js",
-    "./saved_work.js",
+    "./exit_review.js",
     "./startup_state.js",
     "./startup_state.js",
   ],

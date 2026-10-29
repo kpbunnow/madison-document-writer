@@ -7,6 +7,101 @@ import { nowISO } from "./calendar.js";
 import { doc } from "./writer_queries.js";
 import { LIBRARY } from "./data/library.js";
 import { itemLibraryKey } from "./document_rules.js";
+const REVIEW_FIELDS = ["reviewer", "wording", "ordinances", "source", "replaces"];
+
+function rebaseReviewBasis(services, rebase) {
+  const key = rebase.dataset.catalogRebase,
+    r = services.catalogReview(key),
+    form = catalog.CATALOG_FORMS[key];
+  if (!r || !form) return;
+  if (
+    confirm(
+      "Use reviewed v" + r.version + " as the basis for this new review? Your unsubmitted values are kept. Compare both versions before recording.",
+    )
+  ) {
+    form.baseVersion = r.version;
+    form.error = "Review basis updated to v" + r.version + ". Confirm your entered wording and ordinance before recording.";
+    services.keepCatalogForms();
+    services.render();
+  }
+}
+
+// What the reviewer entered, read once: the record to send and the raw values to keep if it fails.
+function readReview(services, t, key, i) {
+  const host = t.closest("details"),
+    field = (name) => host.querySelector('[data-catalog-field="' + name + '"]')?.value.trim() || "";
+  const status = t.dataset.catalogStatus,
+    form = catalog.CATALOG_FORMS[key] || services.catalogForm(key, i, services.catalogReview(key));
+  const data = {
+    key,
+    status,
+    reviewer: field("reviewer"),
+    wording: field("wording"),
+    ordinances: field("ordinances")
+      .split(";")
+      .map((x) => x.trim())
+      .filter(Boolean),
+    source: field("source"),
+    replaces: field("replaces"),
+    expectedVersion: form.baseVersion,
+  };
+  const submitted = Object.fromEntries(REVIEW_FIELDS.map((n) => [n, field(n)]));
+  return { key, form, data, submitted };
+}
+
+function reviewFault(services, data, key) {
+  if (!data.reviewer) return "Reviewer is required.";
+  if (!data.source) return "Source or authority is required.";
+  if (data.status === "approved" && (!data.wording || !data.ordinances.length)) return "Approved wording and ordinance references are required.";
+  if (data.replaces && (!services.catalogItem(data.replaces) || data.replaces === key)) return "Choose a different catalog entry.";
+  return "";
+}
+
+function failReview(services, review, message) {
+  const { key, form, submitted } = review;
+  catalog.CATALOG_FORMS[key] = { ...form, ...submitted, ...catalog.CATALOG_FORMS[key], open: true, error: message };
+  services.keepCatalogForms();
+  if (editor.state.screen === "library") services.render();
+  else services.toast(message, { severity: "warning" });
+}
+
+function cacheCatalogEvents() {
+  try {
+    localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events: catalog.CATALOG_EVENTS }));
+  } catch (error) {
+    catalog.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
+  }
+}
+
+async function recordReview(services, review) {
+  const { key, data, submitted } = review;
+  const response = await services.helperJSON("/catalog/review", data);
+  const known = new Set(catalog.CATALOG_EVENTS.map((event) => event.id)),
+    incoming = new Set(response.events.map((event) => event.id));
+  if (!(catalog.CATALOG_EVENTS.some((event) => !incoming.has(event.id)) && response.events.every((event) => known.has(event.id))))
+    catalog.CATALOG_EVENTS = response.events;
+  catalog.CATALOG_VERIFIED = true;
+  catalog.CATALOG_FROM_CACHE = false;
+  catalog.CATALOG_AT = nowISO();
+  catalog.CATALOG_ERROR = "";
+  cacheCatalogEvents();
+  const later = catalog.CATALOG_FORMS[key],
+    changed = later && REVIEW_FIELDS.some((n) => String(later[n] || "").trim() !== submitted[n]);
+  if (changed)
+    catalog.CATALOG_FORMS[key] = {
+      ...later,
+      open: true,
+      error:
+        "Review v" +
+        response.event.version +
+        " was recorded. Your later edits are retained; compare and update the review basis before recording again.",
+    };
+  else delete catalog.CATALOG_FORMS[key];
+  services.keepCatalogForms();
+  if (editor.state.screen === "library") services.render();
+  services.toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");
+}
+
 export function createCatalogEvents(services) {
   function registerGuidanceToggle(target = document) {
     return registerEventOnce(
@@ -76,22 +171,7 @@ export function createCatalogEvents(services) {
     return registerEventOnce(target, "catalog.registerReviewActions", "click", async (e) => {
       const rebase = e.target.closest?.("[data-catalog-rebase]");
       if (rebase) {
-        const key = rebase.dataset.catalogRebase,
-          r = services.catalogReview(key),
-          form = catalog.CATALOG_FORMS[key];
-        if (!r || !form) return;
-        if (
-          confirm(
-            "Use reviewed v" +
-              r.version +
-              " as the basis for this new review? Your unsubmitted values are kept. Compare both versions before recording.",
-          )
-        ) {
-          form.baseVersion = r.version;
-          form.error = "Review basis updated to v" + r.version + ". Confirm your entered wording and ordinance before recording.";
-          services.keepCatalogForms();
-          services.render();
-        }
+        rebaseReviewBasis(services, rebase);
         return;
       }
       const t = e.target.closest?.("[data-catalog-save]");
@@ -99,82 +179,26 @@ export function createCatalogEvents(services) {
       const key = t.dataset.catalogSave,
         i = services.catalogItem(key);
       if (!i) return;
-      const host = t.closest("details"),
-        field = (name) => host.querySelector('[data-catalog-field="' + name + '"]')?.value.trim() || "";
-      const status = t.dataset.catalogStatus,
-        form = catalog.CATALOG_FORMS[key] || services.catalogForm(key, i, services.catalogReview(key));
-      const data = {
-        key,
-        status,
-        reviewer: field("reviewer"),
-        wording: field("wording"),
-        ordinances: field("ordinances")
-          .split(";")
-          .map((x) => x.trim())
-          .filter(Boolean),
-        source: field("source"),
-        replaces: field("replaces"),
-        expectedVersion: form.baseVersion,
-      };
-      const fields = ["reviewer", "wording", "ordinances", "source", "replaces"],
-        submitted = Object.fromEntries(fields.map((n) => [n, field(n)]));
-      const fail = (message) => {
-        catalog.CATALOG_FORMS[key] = { ...form, ...submitted, ...catalog.CATALOG_FORMS[key], open: true, error: message };
-        services.keepCatalogForms();
-        if (editor.state.screen === "library") services.render();
-        else services.toast(message, { severity: "warning" });
-      };
-      if (!data.reviewer) {
-        fail("Reviewer is required.");
+      const review = readReview(services, t, key, i);
+      const message = reviewFault(services, review.data, key);
+      if (message) {
+        failReview(services, review, message);
         return;
       }
-      if (!data.source) {
-        fail("Source or authority is required.");
+      if (
+        !confirm("Record " + review.data.status + " review for " + i.t + " by " + review.data.reviewer + "? This adds a permanent catalog version.")
+      )
         return;
-      }
-      if (status === "approved" && (!data.wording || !data.ordinances.length)) {
-        fail("Approved wording and ordinance references are required.");
-        return;
-      }
-      if (data.replaces && (!services.catalogItem(data.replaces) || data.replaces === key)) {
-        fail("Choose a different catalog entry.");
-        return;
-      }
-      if (!confirm("Record " + status + " review for " + i.t + " by " + data.reviewer + "? This adds a permanent catalog version.")) return;
       t.disabled = true;
       try {
-        const response = await services.helperJSON("/catalog/review", data);
-        const known = new Set(catalog.CATALOG_EVENTS.map((event) => event.id)),
-          incoming = new Set(response.events.map((event) => event.id));
-        if (!(catalog.CATALOG_EVENTS.some((event) => !incoming.has(event.id)) && response.events.every((event) => known.has(event.id))))
-          catalog.CATALOG_EVENTS = response.events;
-        catalog.CATALOG_VERIFIED = true;
-        catalog.CATALOG_FROM_CACHE = false;
-        catalog.CATALOG_AT = nowISO();
-        catalog.CATALOG_ERROR = "";
-        try {
-          localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events: catalog.CATALOG_EVENTS }));
-        } catch (error) {
-          catalog.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
-        }
-        const later = catalog.CATALOG_FORMS[key],
-          changed = later && fields.some((n) => String(later[n] || "").trim() !== submitted[n]);
-        if (changed)
-          catalog.CATALOG_FORMS[key] = {
-            ...later,
-            open: true,
-            error:
-              "Review v" +
-              response.event.version +
-              " was recorded. Your later edits are retained; compare and update the review basis before recording again.",
-          };
-        else delete catalog.CATALOG_FORMS[key];
-        services.keepCatalogForms();
-        if (editor.state.screen === "library") services.render();
-        services.toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");
+        await recordReview(services, review);
       } catch (err) {
         t.disabled = false;
-        fail("Review save was not confirmed: " + err.message + ". Your form is retained. Refresh review status before retrying.");
+        failReview(
+          services,
+          review,
+          "Review save was not confirmed: " + err.message + ". Your form is retained. Refresh review status before retrying.",
+        );
       }
     });
   }
