@@ -526,6 +526,7 @@
     "tests/fixtures/report_output.cjs",
     "tests/fixtures/report_return_reference.txt",
     "tests/fixtures/report_sheet_xml_reference.txt",
+    "tests/fixtures/report_status_metadata_reference.txt",
     "tests/fixtures/report_summaries.py",
     "tests/fixtures/reports_bundle.cjs",
     "tests/fixtures/reports_owner_phase_reference.txt",

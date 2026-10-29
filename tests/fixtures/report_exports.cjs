@@ -5,7 +5,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
   const result = await esbuild.build({
       stdin: {
         contents:
-          'export {initDepositSchedule} from "./deposit_schedule.js";export {createReportNavigation} from "./report_navigation.js";export {esc} from "./presentation_format.js";export * as facts from "./report_facts.js";export * as metadata from "./report_metadata.js";export {reportActions} from "./report_presentation.js";export {createReportsServices} from "./reports_services.js";export {createReportCatalog} from "./report_catalog.js";export {createReportsScreens} from "./reports_screens.js";export {ReportsState} from "./state.js";',
+          'export {createAccessibility} from "./accessibility.js";export {initDepositSchedule} from "./deposit_schedule.js";export {createReportNavigation} from "./report_navigation.js";export {esc} from "./presentation_format.js";export * as facts from "./report_facts.js";export * as metadata from "./report_metadata.js";export {reportActions} from "./report_presentation.js";export {createReportsServices} from "./reports_services.js";export {createReportCatalog} from "./report_catalog.js";export {createReportsScreens} from "./reports_screens.js";export {ReportsState} from "./state.js";',
         resolveDir: path.resolve(__dirname, "../../app/modules"),
       },
       bundle: true,
@@ -27,6 +27,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
   const transport = { fetch: (...args) => global.fetch(...args) };
   new Function("fetch", "module", "exports", result.outputFiles[0].text)((...args) => transport.fetch(...args), box, box.exports);
   const {
+      createAccessibility,
       initDepositSchedule,
       createReportNavigation,
       esc,
@@ -39,6 +40,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
       ReportsState,
     } = box.exports,
     TODAY = facts.iso(new Date());
+  const A11Y = createAccessibility();
   ReportsState.S = {
     phase: "loading",
     M: null,
@@ -78,7 +80,7 @@ module.exports = async function createReportExports({ navigation = false, deposi
     reportById,
     REPORT_VIEWS_KEY: "madison-report-views-v1",
     shell: () => screens.shell(),
-    A11Y: { enhance() {}, notify() {} },
+    A11Y,
     TODAY,
     iso: facts.iso,
     STREET_WORDS: facts.STREET_WORDS,
@@ -114,8 +116,9 @@ module.exports = async function createReportExports({ navigation = false, deposi
     humanCorrectionValue: calculations.humanCorrectionValue,
     reports_reportpresentationContext: context,
     actions: () => reportActions(context()),
-    STATUSES: ["Notice", "Extension", "Cited", "Referred", "Closed"],
-    A11Y: { notify() {} },
+    STATUSES: metadata.STATUSES,
+    STATUS_COL: metadata.STATUS_COL,
+    A11Y,
   });
   if (navigation)
     document.addEventListener(

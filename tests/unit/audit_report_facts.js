@@ -52,7 +52,10 @@ assert.deepEqual(
 );
 assert.deepEqual(
   normalized(decls(parse(fs.readFileSync("app/modules/report_metadata.js", "utf8")))),
-  normalized(decls(parse(fs.readFileSync("tests/fixtures/report_metadata_reference.txt", "utf8")))),
+  normalized([
+    ...decls(parse(fs.readFileSync("tests/fixtures/report_metadata_reference.txt", "utf8"))),
+    ...decls(parse(fs.readFileSync("tests/fixtures/report_status_metadata_reference.txt", "utf8"))),
+  ]),
   "shared report definitions and workbook scope retain their exact expressions",
 );
 const activeFilters = current.body.find((n) => n.declaration?.id?.name === "activeReportFilters").declaration;
