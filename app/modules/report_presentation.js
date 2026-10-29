@@ -1,3 +1,4 @@
+import { html as screen, raw } from "./screen_html.js";
 /* Read-only report presentation. All output paths share this stable row ordering. */
 import { reportSort } from "./contracts.js";
 const reportValue = (x) => (x == null ? "" : typeof x === "object" ? (x.n ?? x.text ?? x.kase ?? "") : x);
@@ -26,63 +27,18 @@ export function reportNavigation(R) {
     list
       .map(
         (r) =>
-          '<button class="rail-item" data-screen="' +
-          `${r.id}` +
-          '" ' +
-          `${R.S.screen === r.id ? 'aria-current="page"' : ""}` +
-          ">" +
-          `${R.esc(r.label)}` +
-          "</button>",
+          screen`<button class="rail-item" data-screen="${String(r.id)}" ${raw(R.S.screen === r.id ? 'aria-current="page"' : "")}>${raw(R.esc(r.label))}</button>`,
       )
       .join("");
-  return (
-    '<div class="rail-group">Case reports</div>' +
-    buttons(primary.map((id) => R.reportById(id)).filter(Boolean)) +
-    '<details id="report-menu" class="report-menu" ' +
-    (!primary.includes(R.S.screen) && R.reportById(R.S.screen) ? "open" : "") +
-    "><summary>More reports</summary>" +
-    buttons(R.REPORTS.filter((r) => !primary.includes(r.id))) +
-    "</details>"
-  );
+  return screen`<div class="rail-group">Case reports</div>${raw(buttons(primary.map((id) => R.reportById(id)).filter(Boolean)))}<details id="report-menu" class="report-menu" ${raw(!primary.includes(R.S.screen) && R.reportById(R.S.screen) ? "open" : "")}><summary>More reports</summary>${raw(buttons(R.REPORTS.filter((r) => !primary.includes(r.id))))}</details>`;
 }
 export function reportActions(R) {
-  return (
-    '<button class="btn" data-act="reload">Refresh data</button><details id="' +
-    'report-exports" class="report-actions"><summary>Export and print</summar' +
-    'y><div><button class="btn" data-report-csv>Current report — CSV</butto' +
-    'n><button class="btn" data-report-print>Print report</button><button cla' +
-    'ss="btn btn-primary" data-act="export">Reports workbook — Excel</button><p class=' +
-    '"small" data-report-export-note>The CSV contains exactly the rows and columns of this table, with its filters, dates and sort. ' +
-    "The workbook has an About sheet, record sheets (Cases, Violations, Visits, Citations, Referrals, Corrections) and a sheet for " +
-    "every named report. Sheets do not all apply the filters the same way: each uses its own date (case opened; citation or " +
-    "referral issued; correction recorded; or the As of date), and some ignore a filter or apply it to a different person or " +
-    "record — for example, Citations ignores violation type and uses the issuing inspector. The About sheet lists each " +
-    "sheet’s scope. This report’s sheet keeps the table sort; other report sheets use their default order.</p></div></details><details " +
-    'id="report-views" class="report-actions"><summary>Saved views</summary><' +
-    'div><label class="f">Saved views<select id="saved-view"><option value=""' +
-    ">Choose a view</option>" +
-    "".concat(
-      R.SAVED_VIEWS.map(
-        (v) =>
-          '<option value="' +
-          `${R.esc(v.id)}` +
-          '" ' +
-          `${R.S.savedId === v.id ? "selected" : ""}` +
-          ">" +
-          `${R.esc(v.name)}` +
-          " · " +
-          `${R.esc(v.dateMode)}` +
-          "</option>",
-      ).join(""),
-    ) +
-    '</select></label><button class="btn" data-act="saveView">Save view</butt' +
-    "on>" +
-    `${R.S.savedId ? '<button class="btn" data-act="deleteView">Delete view</button>' : ""}` +
-    '<button class="btn" data-share-report-view>Share view</button><button cl' +
-    'ass="btn" data-shared-report-views>Shared views</button><p class="small"' +
-    ">Shared views retain filters, date mode and table/map choice. Sort is sa" +
-    "ved in local views only.</p></div></details>"
-  );
+  return screen`<button class="btn" data-act="reload">Refresh data</button><details id="report-exports" class="report-actions"><summary>Export and print</summary><div><button class="btn" data-report-csv>Current report — CSV</button><button class="btn" data-report-print>Print report</button><button class="btn btn-primary" data-act="export">Reports workbook — Excel</button><p class="small" data-report-export-note>The CSV contains exactly the rows and columns of this table, with its filters, dates and sort. The workbook has an About sheet, record sheets (Cases, Violations, Visits, Citations, Referrals, Corrections) and a sheet for every named report. Sheets do not all apply the filters the same way: each uses its own date (case opened; citation or referral issued; correction recorded; or the As of date), and some ignore a filter or apply it to a different person or record — for example, Citations ignores violation type and uses the issuing inspector. The About sheet lists each sheet’s scope. This report’s sheet keeps the table sort; other report sheets use their default order.</p></div></details><details id="report-views" class="report-actions"><summary>Saved views</summary><div><label class="f">Saved views<select id="saved-view"><option value="">Choose a view</option>${raw(
+    R.SAVED_VIEWS.map(
+      (v) =>
+        screen`<option value="${raw(R.esc(v.id))}" ${raw(R.S.savedId === v.id ? "selected" : "")}>${raw(R.esc(v.name))} · ${raw(R.esc(v.dateMode))}</option>`,
+    ).join(""),
+  )}</select></label><button class="btn" data-act="saveView">Save view</button>${raw(R.S.savedId ? '<button class="btn" data-act="deleteView">Delete view</button>' : "")}<button class="btn" data-share-report-view>Share view</button><button class="btn" data-shared-report-views>Shared views</button><p class="small">Shared views retain filters, date mode and table/map choice. Sort is saved in local views only.</p></div></details>`;
 }
 export function appliedFilters(R, dateMode) {
   const F = R.S.F,
@@ -96,11 +52,7 @@ export function appliedFilters(R, dateMode) {
   if (F.ord) labels.push("Ordinance: " + F.ord);
   if (F.status) labels.push("Status: " + F.status);
   if (F.owner) labels.push("Owner: " + R.ownerKeyLabel(F.owner));
-  return (
-    '<div class="applied-filters" aria-label="Applied filters">' +
-    labels.map((l) => '<span class="chip">' + R.esc(l) + "</span>").join("") +
-    '<button class="btn" data-act="clearFilters">Reset filters</button></div>'
-  );
+  return screen`<div class="applied-filters" aria-label="Applied filters">${raw(labels.map((l) => screen`<span class="chip">${raw(R.esc(l))}</span>`).join(""))}<button class="btn" data-act="clearFilters">Reset filters</button></div>`;
 }
 export function coverage(R) {
   const x = R.S.raw,
@@ -112,41 +64,15 @@ export function coverage(R) {
     old = M.versionStale || [],
     incomplete = missing.length || stale.length || bad.length || mismatched.length || old.length,
     unlocated = M.counted.filter((c) => !R.areaKey(c, R.S.F)).length;
-  return (
-    '<div class="report-coverage"><p><b>Shared reporting: ' +
-    `${R.fmtNum(M.counted.length)}` +
-    " issued cases</b> · verified against case bytes at " +
-    `${R.esc(String(x.readAt).replace("T", " "))}` +
-    ". Workspace queue counts cover this device and may differ. Refresh to ch" +
-    "eck for later changes.</p>" +
-    "".concat(
-      incomplete
-        ? '<p class="warn"><b>Coverage incomplete.</b> ' +
-            R.plural(missing.length, "case file") +
-            " without a usable summary; " +
-            R.plural(stale.length, "revision mismatch", "revision mismatches") +
-            "; " +
-            R.plural(old.length, "earlier-format summary", "earlier-format summaries") +
-            "; " +
-            R.plural(bad.length, "unreadable/duplicate summary entry", "unreadable/duplicate summary entries") +
-            "; " +
-            R.plural(mismatched.length, "summary not matching its verified case", "summaries not matching their verified cases") +
-            ('. These categories can overlap. <button class="linkish" data-screen="dat' +
-              'a">Review excluded records and rebuild instructions</button></p>')
-        : "",
-    ) +
-    "" +
-    "".concat(
-      unlocated
-        ? "<p>" +
-            R.plural(unlocated, "case") +
-            " without a matching " +
-            (R.S.F.areaType === "zip" ? "ZIP" : "district") +
-            '; included as Unlocated. <button class="linkish" data-screen="data">Review location coverage</button></p>'
-        : "",
-    ) +
-    "</div>"
-  );
+  return screen`<div class="report-coverage"><p><b>Shared reporting: ${String(R.fmtNum(M.counted.length))} issued cases</b> · verified against case bytes at ${raw(R.esc(String(x.readAt).replace("T", " ")))}. Workspace queue counts cover this device and may differ. Refresh to check for later changes.</p>${raw(
+    incomplete
+      ? screen`<p class="warn"><b>Coverage incomplete.</b> ${String(R.plural(missing.length, "case file"))} without a usable summary; ${String(R.plural(stale.length, "revision mismatch", "revision mismatches"))}; ${String(R.plural(old.length, "earlier-format summary", "earlier-format summaries"))}; ${String(R.plural(bad.length, "unreadable/duplicate summary entry", "unreadable/duplicate summary entries"))}; ${String(R.plural(mismatched.length, "summary not matching its verified case", "summaries not matching their verified cases"))}. These categories can overlap. <button class="linkish" data-screen="data">Review excluded records and rebuild instructions</button></p>`
+      : "",
+  )}${raw(
+    unlocated
+      ? screen`<p>${String(R.plural(unlocated, "case"))} without a matching ${raw(R.S.F.areaType === "zip" ? "ZIP" : "district")}; included as Unlocated. <button class="linkish" data-screen="data">Review location coverage</button></p>`
+      : "",
+  )}</div>`;
 }
 export function rememberUI() {
   const app = document.getElementById("app"),
