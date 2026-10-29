@@ -1,10 +1,7 @@
 /* R49 saved-view truth and exact singular/plural coverage wording. */
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage } = require("../fixtures/built_bundle.cjs");
-const { reportsBundleSource: bundleSource } = require("../fixtures/reports_bundle.cjs");
-const html = builtPage("reports"),
-  payload = bundleSource(html);
+const createReportExports = require("../fixtures/report_exports.cjs");
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', {
     url: "http://127.0.0.1:8777/madison-reports.html",
     pretendToBeVisual: true,
@@ -16,7 +13,8 @@ global.document = w.document;
 global.localStorage = w.localStorage;
 global.location = w.location;
 w.scrollTo = () => {};
-const test = () => {
+const test = async () => {
+  const { ReportsState, buildModel, TODAY, render, freshness, exportSheets, currentReportRows } = await createReportExports({ navigation: true });
   const summary = {
     summaryVersion: 6,
     case: { number: "QA-R49", address: "1 TEST", opened: "2026-01-02", noticeIssued: "2026-01-03", status: "Notice", inspector: "QA" },
@@ -61,4 +59,7 @@ const test = () => {
   );
   process.exit(0);
 };
-eval(payload + "\n(" + test.toString() + ")();");
+test().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

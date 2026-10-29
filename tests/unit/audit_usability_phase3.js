@@ -7,11 +7,10 @@ const assert = require("assert/strict"),
   { JSDOM } = require("jsdom"),
   { spawnSync } = require("child_process");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const { reportsBundleSource } = require("../fixtures/reports_bundle.cjs");
 
 if (process.argv[2] === "reports") {
   // Reports runs in its own process: its bundle and globals are separate from Writer's.
-  const payload = reportsBundleSource(builtPage("reports"));
+  const payload = bundleSource(builtPage("reports"));
   const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>', { url: "http://127.0.0.1:8777/madison-reports.html" });
   const w = dom.window;
   w.__NO_AUTOLOAD__ = true;
@@ -30,10 +29,16 @@ if (process.argv[2] === "reports") {
   };
   global.BroadcastChannel = w.BroadcastChannel;
   const reports = async () => {
+    const {
+      ReportsState,
+      REPORTS,
+      applyReportView,
+      restoreReportReturn,
+      handoff: { openInWriter, iso },
+    } = require("../fixtures/report_analysis.cjs")();
     // ITEM 12. One label for every Reports to Writer action.
     assert.equal(payload.includes(">Open in Writer<"), false, "the old Reports label is gone");
     assert.ok(payload.split('">Open case in Writer</button>').length - 1 >= 3, "table, list and case card use Open case in Writer");
-    render = () => {};
     ReportsState.S.M = { byNo: { "QA-U3": { number: "QA-U3" } } };
     ReportsState.S.raw = { summaries: [{ case: { number: "QA-U3" }, eventCount: 3 }] };
     const target = REPORTS[1];
@@ -141,7 +146,12 @@ if (process.argv[2] === "reports") {
     }
     console.log("R56 usability phase 3 Reports checks passed");
   };
-  eval(payload + "\n(" + reports.toString() + ")().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1)});");
+  reports()
+    .then(() => process.exit(0))
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    });
 } else {
   const payload = bundleSource(builtPage());
   const dom = new JSDOM('<!doctype html><html><body><div id="app"></div><div id="overlay"></div><div id="toast"></div></body></html>', {

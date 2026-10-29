@@ -1,0 +1,133 @@
+function servicePanel(d) {
+    if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
+    const records = d.serviceRecords || [],
+      latest = records[records.length - 1],
+      key = "service:" + d.id,
+      form = editor.WORK.recordForms[key] || {},
+      field = (k, l, type = "text") =>
+        '<label class="f"><span>' + l + '</span><input type="' + type + '" data-service-field="' + k + '" value="' + e(form[k] || "") + '"></label>';
+    return (
+      '<section class="card no-print"><div class="card-h"><h2>Service and court' +
+      ' evidence</h2></div><div class="card-b"><p>Issuance does not establish s' +
+      "ervice or publication. The remedy period is distinct from the order comp" +
+      "liance date. Court restrictions and City abatement require separate exte" +
+      "rnal decisions.</p>" +
+      (latest
+        ? "<p><strong>Latest recorded evidence:</strong> " +
+          e(latest.method) +
+          " on " +
+          date(latest.date) +
+          " — " +
+          e(latest.reference) +
+          (latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "") +
+          "</p>"
+        : "<p>No completed service / publication recorded.</p>") +
+      '<fieldset class="grid g2" aria-label="Service evidence" ' +
+      (editor.state.publicationBusy === d.id ? "disabled" : "") +
+      ('><label class="f"><span>Actual method</span><select data-service-field="' +
+        'method"><option value="">Choose…</option><option value="service" ') +
+      (form.method === "service" ? "selected" : "") +
+      '>Service</option><option value="publication" ' +
+      (form.method === "publication" ? "selected" : "") +
+      ">Publication</option></select></label>" +
+      field("date", "Actual service / publication date", "date") +
+      field("reference", "Supporting record / evidence") +
+      field("courtReference", "Court restriction reference (if applicable)") +
+      '</fieldset><button class="btn" ' +
+      (editor.state.publicationBusy === d.id ? "disabled" : "") +
+      ' data-save-service="' +
+      e(d.id) +
+      '">' +
+      (latest ? "Record corrected / additional evidence" : "Record completed service / publication") +
+      "</button></div></section>"
+    );
+  }
+
+function actionPanel(d) {
+    if (services.snow.is(d)) return "";
+    if (d.draft) return "";
+    const restrictions = activeRestrictions(docsFor(d.caseId));
+    return (
+      servicePanel(d) +
+      '<section class="card no-print"><div class="card-b">' +
+      (restrictions.length
+        ? '<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ' +
+          restrictions.map((x) => e(scope(x, x.special))).join("; ") +
+          ". Compliance and extension letters do not release it.</p>"
+        : "") +
+      (d.initialAction && !originalNotice(d.caseId) && isEffective(d)
+        ? '<button class="btn" data-initial-notice="' + e(d.id) + '">Create Official Notice from this initial inspection</button>'
+        : "") +
+      (d.fromReinspId && isEffective(d)
+        ? '<button class="btn" data-another-action="' + e(d.fromReinspId) + '">Add another document for this inspection</button>'
+        : "") +
+      (isEffective(d)
+        ? '<button class="btn" data-case-action="' + e(d.caseId) + '">Create a scoped order / administrative letter from current case facts</button>'
+        : "") +
+      "</div></section>"
+    );
+  }
+
+function caseActionScreen() {
+    const choice = editor.WORK.currentAction || {},
+      k = kase(choice.cid),
+      referred = isReferredCase(choice.cid),
+      closed = services.sourceDocFor(choice.cid)?.type === "compliance";
+    const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
+    if (referred)
+      return services.shell(
+        k.address || "Current case action",
+        k.number || "",
+        '<button class="btn" data-nav="cases">Workspace</button>',
+        '<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>' +
+          e(REFERRED_MESSAGE) +
+          " Import a CA Reinspection to write them.</p></div></section>",
+      );
+    return services.shell(
+      k.address || "Current case action",
+      k.number || "",
+      '<button class="btn" data-nav="cases">Workspace</button>',
+      '<section class="card no-print r26-chooser"><div class="card-h"><h2>Choos' +
+        'e next action from current case facts</h2></div><div class="card-b"><p>A' +
+        "dministrative letters cite the actual existing inspection. New observati" +
+        "ons require a real recorded inspection. Existing restrictions continue u" +
+        "ntil a documented release.</p><fieldset><legend>Action group</legend><di" +
+        'v class="r26-groups">' +
+        groups
+          .filter((g) => g[0] !== "compliance")
+          .map(
+            ([v, l]) =>
+              '<label class="r26-choice"><input type="radio" name="case-action-group" data-case-action-group="' +
+              v +
+              '" ' +
+              (choice.group === v ? "checked" : "") +
+              "> " +
+              l +
+              "</label>",
+          )
+          .join("") +
+        "</div></fieldset>" +
+        (choice.group
+          ? "<fieldset><legend>Document</legend>" +
+            NEW_TYPES.filter((t) => t.group === choice.group)
+              .map(
+                (t) =>
+                  '<label class="r26-choice"><input type="radio" name="case-action-type" data-case-action-type="' +
+                  t.id +
+                  '" ' +
+                  (choice.type === t.id ? "checked" : "") +
+                  " " +
+                  (why(t) ? "disabled" : "") +
+                  "><span>" +
+                  e(t.label) +
+                  (why(t) ? "<small>" + e(why(t)) + "</small>" : "") +
+                  "</span></label>",
+              )
+              .join("") +
+            "</fieldset>"
+          : "") +
+        '<button class="btn btn-primary" data-create-case-action ' +
+        (!choice.type ? "disabled" : "") +
+        ">Create draft</button></div></section>",
+    );
+  }

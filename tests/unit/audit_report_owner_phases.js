@@ -165,18 +165,36 @@ const assert = require("node:assert/strict"),
       areaLabel: effect("areaLabel", (a) => "Area " + a),
       ownerKeyLabel: effect("owner", (k) => String(k || "")),
       daysBetween: effect("days", (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000)),
+      groupBy: (items, key) =>
+        effect("groupBy", (items) => {
+          const groups = new Map();
+          for (const item of items) {
+            const k = key(item);
+            if (!groups.has(k)) groups.set(k, []);
+            groups.get(k).push(item);
+          }
+          return groups;
+        })(items),
+      normStreet: effect("street", (value) => String(value).toUpperCase()),
       validISO: effect("valid", (s) => /^\d{4}-\d{2}-\d{2}$/.test(s)),
     };
-    const res = { cols: ["Case", "Count"], rows: x.rows, total: x.total, note: "Scope <&>" };
+    const res = { cols: ["Case", "Count"], rows: x.rows, total: x.total, note: "Scope <&>", points: x.cases, area: {} };
     const services = {
       facts,
       STATUSES: ["Notice", "Closed"],
+      STATUS_COL: { Notice: "#123456", Closed: "#abcdef" },
       reports_reportpresentationContext: () => ({
         S: api.ReportsState.S,
         esc: api.esc,
         fmtDate: (s) => String(s),
         areaLabel: (a) => String(a),
         ownerKeyLabel: (a) => String(a),
+        REPORTS: services.REPORTS,
+        reportById: (id) => services.REPORTS.find((r) => r.id === id),
+        SAVED_VIEWS: [],
+        fmtNum: services.fmtNum,
+        plural: services.plural,
+        areaKey: facts.areaKey,
       }),
       exports: {
         CRC_T: new Uint32Array(256),
@@ -221,12 +239,28 @@ const assert = require("node:assert/strict"),
       rep: { r: { label: "Sample" } },
       drill: x.drill,
       parcelNote: x.parcelNote,
+      prop: { q: "Test <&>", hits: x.cases },
+      own: { q: "", key: "owner" },
+      basemap: "labels",
     };
     const owner = api.createReportsScreens(services);
+    services.actions = () => owner.reportActions();
     assert.deepEqual(calls, [], "inert constructor");
     const out = {};
     for (const [key, fn] of Object.entries({
       filters: () => owner.filtersBar("period"),
+      asOfFilters: () => owner.filtersBar("asOf"),
+      topbar: () => owner.topbar("Report <&>", "Scope <&>", "<button>Owned action</button>"),
+      loadingShell: () => {
+        state.S.phase = "loading";
+        state.S.msg = "Reading <&>";
+        return owner.shell();
+      },
+      errorShell: () => {
+        state.S.phase = "error";
+        state.S.error = "Unavailable <&>";
+        return owner.shell();
+      },
       sheets: () => owner.exportSheets(),
       workbook: () =>
         owner.workbook([
@@ -237,6 +271,19 @@ const assert = require("node:assert/strict"),
       cases: () => owner.caseTable(x.cases),
       cards: () => x.cases.map((c) => owner.caseCard(c)),
       data: () => owner.dataView(),
+      property: () => owner.propertyView(),
+      owner: () => owner.ownerView(),
+      map: () => owner.mapPanel({ label: "Report <&>" }, res),
+      report: () => owner.reportScreen({ ...services.REPORTS[0], n: 1, label: "Report <&>", lede: "Scope <&>", date: "period" }),
+      invalidPeriod: () => {
+        const from = state.S.F.from;
+        state.S.F.from = "9999-12-31";
+        try {
+          return owner.reportScreen({ ...services.REPORTS[0], label: "Report <&>", lede: "Scope <&>", date: "period" });
+        } finally {
+          state.S.F.from = from;
+        }
+      },
     })) {
       try {
         out[key] = fn();

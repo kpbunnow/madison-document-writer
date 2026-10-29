@@ -17,6 +17,10 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_document_action_templates.js` | 1,536 retained case/action/service comparisons with branch non-vacuity guards |
+| `audit_report_presentation_templates.js` | 2,048 retained shared-presentation comparisons and defensive attribute encoding |
+| `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
+| `audit_report_filter_events.js` | 1,680 retained filter changes, listener checkpoint and lazy input guards |
 | `audit_accessibility_enhance_rules.js` | 172 retained native DOM comparisons plus complete accessibility and Reports workflows |
 | `audit_language_presentation_rules.js` | 1,596 retained full-screen comparisons plus existing focus and catalog workflows |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |

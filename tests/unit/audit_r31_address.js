@@ -1,9 +1,7 @@
-globalThis.MADISON_TEST_DATA = true;
 const fs = require("fs"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
+const createAddressWorkflow = require("../fixtures/address_workflow.cjs");
 const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,
@@ -24,7 +22,25 @@ if (
   process.exit(1);
 }
 const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+  const workflow = await createAddressWorkflow(),
+    {
+      WriterState,
+      queries: { kase, doc },
+      editor: { newDoc },
+      addresses: addressParser,
+      records: { caseFile },
+      summary: { summarize },
+      format: { standardStreetAddress, standardCityStateZip, respondentKey, SUMMARY_VERSION },
+    } = workflow;
+  let saveDrafts = async () => true,
+    render = () => {},
+    helperJSON;
+  const A11Y = workflow.adapters.A11Y;
+  Object.assign(workflow.adapters, {
+    saveDrafts: (...args) => saveDrafts(...args),
+    render: (...args) => render(...args),
+    helperJSON: (...args) => helperJSON(...args),
+  });
   const corpus = JSON.parse(fs.readFileSync("tests/fixtures/address_corpus.json")),
     answers = JSON.parse(
       require("child_process").execFileSync(
@@ -88,4 +104,7 @@ const test = async () => {
   console.log("PASS R31 address corpus, preview acceptance, unchanged owner name, raw ambiguity and summary 6");
   process.exit(0);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+test().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

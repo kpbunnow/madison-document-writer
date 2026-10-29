@@ -1296,3 +1296,81 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95
 Move readonly/editable labels, unlabeled controls and table semantics into one private native-DOM phase at the same point between navigation and dialog/theme/paint handling. All172 comparisons retain exact DOM, themes, repeated dialog handling, early body/capability guards and partial failures. Existing full accessibility and R48 workflows, 1,596 language comparisons, fresh build, architecture/boundaries, seams, lint and format pass. Non-factory long methods41 to40; total95 to94. All four numerical targets are met on this prepared source; M5/M6 cleanup and final audit remain.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## address-owner-test
+
+Migrated the R31 address workflow from the full application bundle to actual editor, address parser, integrity, live records and summary owners. All 11 assertion ASTs remain identical, including Python corpus agreement, explicit acceptance, unchanged owner name, ambiguous address refusal and summary version. Native identity/UI/persistence remain controlled service inputs; no production hooks, startup or universal registry. Recipient and record-helper owner suites pass. Legacy bundle evaluator inventory decreases from 74 to 73; 54 existing hooks remain for other consumers. Numerical targets remain met; migration and final audit remain unfinished.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-saved-view-owner-test
+
+Migrated the R49 saved-view and coverage grammar regression to existing independently composed real Reports owners and the actual navigation listener. All 12 assertion ASTs remain identical, including singular/plural wording, saved-context clearing, retained filters/sort and export parity. R48 preference and mismatch regressions also pass. No production changes or hooks. Legacy bundle evaluators decrease 73 to 72; 54 hooks remain for other consumers; numerical targets remain met. Remaining migration, screen conversion and final audit are not complete.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-filter-events
+
+Moved the actual Reports filter-change handler into an inert five-input owner without importing root state. Core registers it at the same checkpoint between navigation and disclosure listeners. All 1,680 old/current changes preserve exact state, retained filter object, refusal/callback order, live state replacement and interrupted effects. Listener order and exact lazy inputs are guarded. Existing complete Reports workflow, R48 preferences, R49 saved-view and 5,100 navigation comparisons pass. Architecture: 144 modules, zero cycles, 11 root-state importers, largest interface25. All numerical targets remain met; no format/print/release identity change.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-workbook-definitions
+
+Moved the existing public CRC table, XML escaper, Excel-date conversion and workbook styles unchanged from Reports core into an independently loadable owner. Core retains the original public export names and live screen composition; no output formatting changes. The original declarations protect exact CRC/style bytes and 12,072 scalar/date comparisons. Complete Reports workflow, sheet XML and workbook/screen phase parity pass. The newly added non-vacuity count was corrected before publication (12,072 comparisons); all production comparisons passed on its first run. No historical assertion/reference or independent release identity changed.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-workflow-owner-test
+
+Replaced the stringified whole-bundle Reports regression with readable JavaScript composed through actual public model/catalog/screens/navigation/filter/accessibility owners and the actual Leaflet module. All 110 original assertion ASTs remain identical. Existing synthetic network responses now pass through real authenticated transport with a test-only token; no production trust relaxation. The unchanged public TILE definition moved into report_metadata so the real map path uses its current owner. Workbook definitions use their public owner; native Blob/URL adapters remain unchanged. Initial fixture wiring omitted plural/esc and the violationAt binding; corrected those dependencies, with complete workflow, R48/R49, mismatch and Python metadata/projection suites passing before publication. Legacy whole-bundle evaluators decrease 72 to 71; mk_summaries still retains Writer lifecycle integration and further migration remains. Numeric targets unchanged.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-presentation-templates
+
+Converted nine markup expressions in shared report navigation/actions/filter chips/coverage to the screen HTML tag. raw is restricted to existing scoped esc results, owned renderer fragments and fixed attribute tokens; scalars use String plus default escaping to retain supported fallback text. All 2,048 supported-source comparisons retain exact HTML, state and callback/exception order; malformed report metadata is defensively attribute-encoded. Existing full Reports workflow and 110 retained assertions, R48/R49 and 303 owner-phase comparisons pass. Explicit direct-dependency guard added. Screen-only change; frozen print renderers and release identities untouched. Numeric targets retained; legacy migration remains unfinished.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-shell-filter-templates
+
+Converted 16 shell/frame/header/filter markup expressions to the shared escaping tag, retaining exact supported-source HTML and callback timing. Existing owner-phase corpus now also checks both date-filter modes, header action fragments and complete loading/error frames, in addition to workbook/table/card/coverage output. Its added header comparison caught a missing raw marker for owned actions; corrected before publication without changing any retained expectation. All 303 expanded comparisons, complete Reports workflow with 110 unchanged assertions and R48/R49 regressions pass. raw is limited to scoped preescaped values, approved fixed attributes and owned renderers; print output remains untouched. Numerical targets retained.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-table-templates
+
+Converted 20 table/result/drill/case-table markup expressions to the shared screen tag, with raw restricted to owned fragments and existing escaping callbacks. Expanded the 303 original/current scenarios to complete report screens and invalid-period refusal output; all prior expectations and frozen references remain. The added complete-screen comparison caught a missing raw marker on combined owned header/filter output; corrected before publication. Complete Reports workflow with 110 retained assertions, R48/R49, module and strict architecture checks pass. Numeric targets retained; approved wording/spacing and frozen print renderers unchanged.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-detail-templates
+
+Converted the remaining 31 dynamic detail/coverage/map markup expressions in Reports screens to the screen tag. Existing escaped source facts and owner-generated timeline fragments are explicit raw boundaries; scalar metadata is escaped by default. Expanded all 303 retained owner scenarios with property/owner/map alternatives and actual output inputs. The expanded fixture initially attempted to clone a callback when logging a new grouping dependency; fixed the test adapter to log its data argument while retaining invocation and exception counting. Exact HTML, workbook bytes, state and callback-order comparisons pass, together with the complete Reports workflow and all 110 original assertions, R48/R49 and architecture checks. No frozen printable renderer, workbook XML/style byte or version identity changes. Further Writer screen conversion and legacy test migration remain.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## document-action-templates
+
+Converted 14 dynamic action/service-evidence markup expressions to shared screen templates. The original case action, action-panel and service-panel functions are retained for 1,536 exact HTML/state/callback comparisons through real Writer state/query owners, with explicit guards that archived non-summary evidence and referred cases execute. Native UI/format providers stay controlled at the feature boundary. Existing shell escaping, complete history/referral feature, R26 scoped action and R53 workflow assertions pass. Added the direct screen-tag dependency to the existing owner guard; no interface/state expansion. specialBody and historical narrative/print renderers remain unchanged. Numeric targets retained; remaining screen/form conversion and legacy test migration continue.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-handoff-owner-test
+
+Migrated the Reports half of usability phase3 to actual model/catalog/preferences/return/handoff owners through the existing focused analysis composition. Its native render adapter remains a no-op as in the original scenario; actual channels and saved-context restore/acknowledgement run unchanged. All 127 assertion ASTs in the mixed suite remain identical, including label-source checks and Writer assertions. Complete mixed suite, report-return parity and R61 ordinance regression pass. Removed one whole-bundle evaluation site; this mixed file still retains its Writer integration, so legacy evaluator-file count remains71 and hooks54. No production change or new universal registry; remaining Writer migration continues.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-stop-owner-test
+
+Reports composes its existing helper-stop observer through an inert public owner at the original startup checkpoint; same scoped protocol, exact message and rendering/transport guards. Migrated its stopped-session scenario to that owner plus actual render and authenticated transport, preserving all 74 assertion ASTs. Removed the unused Reports private bundle diagnostic fixture and unused generic harness branch. The first migration kept the isolated compiler inside the mixed suite, so the conservative inventory correctly still counted two evaluators; moved that compilation into a scoped feature fixture before lowering the baseline. Fresh build, complete desktop-exit, usability phase3, shell escaping, seams and architecture checks pass. One Reports evaluation site removed; 71 legacy mixed/Writer evaluator files and 54 hooks remain. Independently, batch306 exposed an unchanged metadata inventory guard against the earlier TILE move; that correction follows in a separate source checkpoint before delivery.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-map-config-owner
+
+Fixes batch306 Full gate failure in audit_report_facts: adding TILE to the shared workbook/definition metadata owner changed its exact retained declaration inventory. Moved TILE unchanged into its own independent map-configuration owner and updated core/public feature composition. The original metadata guard and all expected fixtures/assertions remain untouched and pass. Original map declaration AST equals the pre-extraction core declaration exactly. Full Reports workflow, R48/R49, 303 expanded owner comparisons and architecture guards pass. 147 acyclic modules, 11 root-state importers and maximum interface25. Failed integration306 will be superseded by a corrected combined head and must never merge.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.

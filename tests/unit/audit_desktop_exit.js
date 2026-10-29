@@ -45,7 +45,7 @@ function setup(stem, url) {
     this.open = false;
     this.dispatchEvent(new w.Event("close"));
   };
-  return bundleSource(builtPage(stem));
+  return stem === "app" ? bundleSource(builtPage(stem)) : undefined;
 }
 
 const squash = (el) => (el?.textContent || "").replace(/\s+/g, " ").trim();
@@ -63,8 +63,9 @@ async function until(check, label) {
 }
 
 if (process.argv[2] === "reports") {
-  const src = setup("reports", "http://127.0.0.1:8777/madison-reports.html");
+  setup("reports", "http://127.0.0.1:8777/madison-reports.html");
   const test = async () => {
+    const { render, authFetch } = await require("../fixtures/report_stop.cjs")();
     await new Promise((r) => setTimeout(r, 40));
     const channel = FakeChannel.all.find((c) => c.name === "madison-helper-stopped-v1");
     assert.ok(channel && typeof channel.onmessage === "function", "Reports listens for Exit Document Writer");
@@ -85,7 +86,10 @@ if (process.argv[2] === "reports") {
     console.log("PASS Reports shows the stopped state when Exit Document Writer is used in Writer");
     process.exit(0);
   };
-  eval(src + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+  test().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 } else {
   const src = setup("app", "http://127.0.0.1:8777/");
   // Nothing but the confirmed Exit action asks the helper to stop; closing or reloading a window never does.
