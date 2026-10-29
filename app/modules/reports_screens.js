@@ -58,6 +58,58 @@ function reportExportCaseRows(services, cases) {
   );
 }
 
+function reportExportViolationRows(services, cases, F, A) {
+  const vRows = [
+    [
+      "Case number",
+      "Address",
+      "Area",
+      "Item",
+      "Title",
+      "Violation type",
+      "Classified by",
+      "Sections",
+      "Opened",
+      "Due",
+      "Corrected",
+      "Corrected on",
+      "Days to compliance",
+      "Last outcome",
+      "Visits",
+      "Times cited",
+      "Inspector",
+      "Owner key",
+    ],
+  ];
+  cases.forEach((c) =>
+    c.violations
+      .filter((v) => services.facts.violOk(v, F))
+      .forEach((v) =>
+        vRows.push([
+          c.number,
+          c.address,
+          A(c),
+          services.numOr(v.no),
+          v.title,
+          v.typeLabel,
+          v.typeHow,
+          v.sections.join(", "),
+          services.D(c.opened),
+          services.D(v.due),
+          v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
+          services.D(v.doneOn),
+          c.caseType !== "snow-10.28" && v.done ? services.facts.daysBetween(c.opened, v.doneOn) : null,
+          v.lastOutcome,
+          v.visits,
+          v.cited,
+          c.inspector,
+          services.facts.ownerKeyLabel(c.ownerKey),
+        ]),
+      ),
+  );
+  return vRows;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1116,54 +1168,7 @@ export function createReportsScreens(services) {
     const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
     const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
     const casesRows = reportExportCaseRows(services, cases);
-    const vRows = [
-      [
-        "Case number",
-        "Address",
-        "Area",
-        "Item",
-        "Title",
-        "Violation type",
-        "Classified by",
-        "Sections",
-        "Opened",
-        "Due",
-        "Corrected",
-        "Corrected on",
-        "Days to compliance",
-        "Last outcome",
-        "Visits",
-        "Times cited",
-        "Inspector",
-        "Owner key",
-      ],
-    ];
-    cases.forEach((c) =>
-      c.violations
-        .filter((v) => services.facts.violOk(v, F))
-        .forEach((v) =>
-          vRows.push([
-            c.number,
-            c.address,
-            A(c),
-            services.numOr(v.no),
-            v.title,
-            v.typeLabel,
-            v.typeHow,
-            v.sections.join(", "),
-            services.D(c.opened),
-            services.D(v.due),
-            v.withdrawn ? "Withdrawn" : v.done ? "Yes" : "No",
-            services.D(v.doneOn),
-            c.caseType !== "snow-10.28" && v.done ? services.facts.daysBetween(c.opened, v.doneOn) : null,
-            v.lastOutcome,
-            v.visits,
-            v.cited,
-            c.inspector,
-            services.facts.ownerKeyLabel(c.ownerKey),
-          ]),
-        ),
-    );
+    const vRows = reportExportViolationRows(services, cases, F, A);
     const visitRows = [["Case number", "Address", "Area", "Visit date", "Inspector", "Item", "Outcome"]];
     cases.forEach((c) =>
       c.visits.forEach((vi) =>
