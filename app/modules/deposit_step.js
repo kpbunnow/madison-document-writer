@@ -1,3 +1,4 @@
+import { html as screen, raw } from "./screen_html.js";
 /* Scoped UI/peer services are supplied by core; read them only when an action runs. */
 import { citSelector, esc as dep_esc } from "./presentation_format.js";
 
@@ -72,66 +73,38 @@ export function initDepositStep(services) {
       measured = !!c.measurementFields?.length,
       mode = ["base", "total"].includes(c.depositMode) ? c.depositMode : "base";
     const input = (key, label, type = "text", extra = "", value = c[key] ?? "") =>
-      '<label class="f"><span>' +
-      esc(label) +
-      '</span><input name="' +
-      key +
-      '" type="' +
-      type +
-      '" aria-label="' +
-      esc(label + " for item " + i.no) +
-      '" value="' +
-      esc(value) +
-      '" ' +
-      extra +
-      "></label>";
+      screen`<label class="f"><span>${raw(esc(label))}</span><input name="${String(key)}" type="${String(type)}" aria-label="${raw(esc(label + " for item " + i.no))}" value="${raw(esc(value))}" ${raw(extra)}></label>`;
     // R59: several item sections → choose exactly one; a charge outside them stays a secondary, sourced entry.
     const chargeSelect = (i, c) => {
       const choices = services.chargeChoices(i),
         chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
         listed = choices.some((x) => x.value === chosen);
-      return (
-        '<label class="f"><span>Charged ordinance</span><select name="ord" aria-label="' +
-        esc("Charged ordinance for item " + i.no) +
-        '"' +
-        (listed || !chosen ? " required" : "") +
-        '><option value="">Choose the charged ordinance</option>' +
+      return screen`<label class="f"><span>Charged ordinance</span><select name="ord" aria-label="${raw(esc("Charged ordinance for item " + i.no))}"${raw(listed || !chosen ? " required" : "")}><option value="">Choose the charged ordinance</option>${raw(
         choices
-          .map((x) => '<option value="' + esc(x.value) + '" ' + (listed && x.value === chosen ? "selected" : "") + ">" + esc(x.label) + "</option>")
-          .join("") +
-        "</select></label>" +
-        input("ordOther", "Different charge — ordinance outside the item’s sections", "text", "", listed ? "" : c.ord || "")
-      );
+          .map(
+            (x) => screen`<option value="${raw(esc(x.value))}" ${raw(listed && x.value === chosen ? "selected" : "")}>${raw(esc(x.label))}</option>`,
+          )
+          .join(""),
+      )}</select></label>${raw(input("ordOther", "Different charge — ordinance outside the item’s sections", "text", "", listed ? "" : c.ord || ""))}`;
     };
     // An ordinance with several schedule rows needs its scheduled offense, as on the charge card.
     const offenseSelect = (i, c) => {
       const entries = CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord));
       return entries.length > 1
-        ? '<label class="f"><span>Scheduled offense</span><select name="scheduleEntryId" aria-label="' +
-            esc("Scheduled offense for item " + i.no) +
-            '"><option value="">Choose the charged offense</option>' +
+        ? screen`<label class="f"><span>Scheduled offense</span><select name="scheduleEntryId" aria-label="${raw(esc("Scheduled offense for item " + i.no))}"><option value="">Choose the charged offense</option>${raw(
             entries
               .map(
-                (e) => '<option value="' + esc(e.id) + '" ' + (c.scheduleEntryId === e.id ? "selected" : "") + ">" + esc(e.description) + "</option>",
+                (e) =>
+                  screen`<option value="${raw(esc(e.id))}" ${raw(c.scheduleEntryId === e.id ? "selected" : "")}>${raw(esc(e.description))}</option>`,
               )
-              .join("") +
-            "</select></label>"
+              .join(""),
+          )}</select></label>`
         : "";
     };
     const measurements = (c.measurementFields || [])
       .map((f) =>
         f.boolean
-          ? '<label class="f"><span>' +
-            esc(f.label) +
-            '</span><select name="measure-' +
-            f.key +
-            '" aria-label="' +
-            esc(f.label + " for item " + i.no) +
-            '" required><option value="">Choose</option><option value="true" ' +
-            (c.measurements?.[f.key] === true ? "selected" : "") +
-            '>Yes</option><option value="false" ' +
-            (c.measurements?.[f.key] === false ? "selected" : "") +
-            ">No</option></select></label>"
+          ? screen`<label class="f"><span>${raw(esc(f.label))}</span><select name="measure-${String(f.key)}" aria-label="${raw(esc(f.label + " for item " + i.no))}" required><option value="">Choose</option><option value="true" ${raw(c.measurements?.[f.key] === true ? "selected" : "")}>Yes</option><option value="false" ${raw(c.measurements?.[f.key] === false ? "selected" : "")}>No</option></select></label>`
           : input(
               "measure-" + f.key,
               f.label,
@@ -149,50 +122,16 @@ export function initDepositStep(services) {
       )
       .join("");
     // Keep the same required completion contract; no citation is created until complete succeeds.
-    return (
-      '<form data-deposit-form="' +
-      esc(i.id) +
-      '" data-deposit-doc="' +
-      esc(d.id) +
-      '"><h3>' +
-      (measured ? "Complete measurements" : "Complete approved deposit") +
-      "</h3><p>" +
-      esc(c.reason || "Choose an approved deposit basis.") +
-      '</p><div class="grid g2">' +
-      (services.choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required")) +
-      offenseSelect(i, c) +
-      (measured
+    return screen`<form data-deposit-form="${raw(esc(i.id))}" data-deposit-doc="${raw(esc(d.id))}"><h3>${raw(measured ? "Complete measurements" : "Complete approved deposit")}</h3><p>${raw(esc(c.reason || "Choose an approved deposit basis."))}</p><div class="grid g2">${raw(services.choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required"))}${raw(offenseSelect(i, c))}${raw(
+      measured
         ? measurements
-        : '<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ' +
-          esc(i.no) +
-          '"><option value="schedule">Verified schedule</option><option value="base" ' +
-          (mode === "base" ? "selected" : "") +
-          '>Approved base + assessments</option><option value="total" ' +
-          (mode === "total" ? "selected" : "") +
-          '>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ' +
-          (mode === "base" ? "" : "hidden") +
-          ">" +
-          input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")) +
-          '</div><div data-deposit-mode="total" ' +
-          (mode === "total" ? "" : "hidden") +
-          ">" +
-          input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")) +
-          ('</div><label class="f" data-deposit-source><span>Approved source / reaso' +
-            'n</span><textarea name="depositSource" aria-label="Approved source / rea' +
-            "son for item ") +
-          esc(i.no) +
-          '" rows="2" minlength="10" required>' +
-          esc(c.depositSource || "") +
-          "</textarea></label>") +
-      '</div><p class="hint">' +
-      (measured
+        : screen`<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ${raw(esc(i.no))}"><option value="schedule">Verified schedule</option><option value="base" ${raw(mode === "base" ? "selected" : "")}>Approved base + assessments</option><option value="total" ${raw(mode === "total" ? "selected" : "")}>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ${raw(mode === "base" ? "" : "hidden")}>${raw(input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")))}</div><div data-deposit-mode="total" ${raw(mode === "total" ? "" : "hidden")}>${raw(input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")))}</div><label class="f" data-deposit-source><span>Approved source / reason</span><textarea name="depositSource" aria-label="Approved source / reason for item ${raw(esc(i.no))}" rows="2" minlength="10" required>${raw(esc(c.depositSource || ""))}</textarea></label>`,
+    )}</div><p class="hint">${raw(
+      measured
         ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
         : "A base adds the approved assessments. A total already includes them. Rec" +
-          "ord the approval source; the program does not authorize an amount.") +
-      ('</p><p role="alert" data-deposit-error></p><button class="btn btn-primar' +
-        'y" type="submit">Complete charge</button> <button class="btn" type="butt' +
-        'on" data-deposit-later>Save unfinished draft</button></form>')
-    );
+            "ord the approval source; the program does not authorize an amount.",
+    )}</p><p role="alert" data-deposit-error></p><button class="btn btn-primary" type="submit">Complete charge</button> <button class="btn" type="button" data-deposit-later>Save unfinished draft</button></form>`;
   }
   function findForm(id) {
     return [...document.querySelectorAll("[data-deposit-form]")].find((el) => el.dataset.depositForm === id);

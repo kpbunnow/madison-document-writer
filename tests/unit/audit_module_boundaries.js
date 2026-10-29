@@ -399,6 +399,7 @@ const scopedServices = {
     "./workspace_state.js",
   ],
   "citation_workflow.js": [
+    "./screen_html.js",
     "./deadline_assignment.js",
     "./inspection_facts.js",
     "../assets/shared.js",
@@ -547,7 +548,14 @@ const scopedServices = {
     "./startup_state.js",
     "./writer_queries.js",
   ],
-  "deposit_step.js": ["./citation_policy.js", "./document_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
+  "deposit_step.js": [
+    "./screen_html.js",
+    "./citation_policy.js",
+    "./document_rules.js",
+    "./presentation_format.js",
+    "./workspace_state.js",
+    "./writer_queries.js",
+  ],
   "initial_citations.js": ["./citation_policy.js", "./document_types.js", "./presentation_format.js", "./record_values.js", "./writer_queries.js"],
   "language_actions.js": ["./catalog_state.js", "./editor_state.js"],
 

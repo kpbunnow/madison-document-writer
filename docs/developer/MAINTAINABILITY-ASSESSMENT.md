@@ -1,7 +1,7 @@
 # Maintainability architecture audit
 
-Snapshot: October 29, 2026, through the Writer detail-form checkpoint
-`cf43366c5184acab461b64d19d75f61d7880113b` and subsequent overlay conversion and diagnostic retirement. This supersedes the PR #92
+Snapshot: October 29, 2026, through the recipient/citation owner, form and
+regression continuation following merged batch #319. This supersedes the PR #92
 measurement snapshot. It reviews the resumed maintainability work; it does not
 claim completion of every remaining screen/test migration, release approval or
 native acceptance. The exact final integration head must pass GitHub Full gate
@@ -26,9 +26,9 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | Core handwritten forwarders / getters | 19 / 8 | Down from measured763 /209; custom native/store/clock adapters remain explicit |
 | Deferred composition declarations / resolvers | 98 / 945 | Stateless per-owner adapters; no shared lookup registry |
 | JS complexity / nesting findings | 30 / 0 | Complexity >20; nesting >4 |
-| Long JS function findings | 93 | 54 enclosing create/init factories and39 non-factory functions |
+| Long JS function findings | 92 | 54 enclosing create/init factories and 38 non-factory functions |
 | Python C901 findings | 15 | Maintained helper/tools/policy scope, excluding vendor/history |
-| Whole-application evaluator files | 70 | Includes fixtures and genuine integration flows; not all are isolated tests |
+| Whole-application evaluator files | 67 | Includes fixtures and genuine integration flows; not all are isolated tests |
 | Retained test hook fields | 48 | No hook is removed merely because a text search finds no consumer |
 
 Counts are structural evidence, not a quality score. Baselines only decrease after
@@ -103,6 +103,15 @@ removed unused plain-object aliases and incidental bundler binding names, verifi
 by normalized production AST comparison; public owner methods remain. The test-hook baseline decreases54 to48. Local JSDOM/owner results
 do not replace pinned-Chromium CI evidence.
 
+The next recipient/citation continuation moves unchanged line formatters into the
+existing address owner, retains all 19 R31, 22 R32 and 15 R33 assertion ASTs in
+focused real-owner compositions, and adds 8,192 line-format plus 4,096 deposit-form
+and 4,096 citation-review comparisons. Exact frozen legacy citation faces and the
+3,872-case Python price corpus remain unchanged. The form conversion removes one
+non-factory length finding; citation review falls from 316 to 155 lines. The
+initial-citation narrative and all non-presentation methods remain unchanged.
+Exact-head Full gate/PR format are required for this new delivery batch.
+
 ## Remaining work and stopping decision
 
 The numerical complexity, nesting, non-factory length and Python targets are met;
@@ -114,12 +123,12 @@ M5/M6 complete. The following remain concrete follow-up work:
   remaining fragmented forms in their own feature owners before converting; do
   not mechanically convert historical narrative/print renderers.
 - Continue migrating feature regressions that access private bundle bindings to
-  their actual public owners. Prioritize recipient/deposit/pricing and isolated
-  overlay behavior. Keep real cross-owner lifecycle, startup, browser and print
+  their actual public owners. The R31/R32 deposit/pricing and R33 court regressions now compose real owners;
+  continue recipient interaction and isolated overlay behavior. Keep real cross-owner lifecycle, startup, browser and print
   integration coverage; moving eval to a shared fixture is not a migration.
 - Retire each remaining diagnostic field only after tracing folded JS/helper,
   Python and browser consumers and proving no lost assertions or production-byte
-  change. The70-file inventory is a baseline, not evidence that every file should
+  change. The 67-file inventory is a baseline, not evidence that every file should
   disappear or that the48 hooks are unused.
 - Refresh this audit and attach exact-head full-gate evidence after the remaining
   migrations. Do not revive the old blanket architecture-complete claim while

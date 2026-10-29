@@ -1,0 +1,127 @@
+function form(d, i, c) {
+    const esc = dep_esc,
+      measured = !!c.measurementFields?.length,
+      mode = ["base", "total"].includes(c.depositMode) ? c.depositMode : "base";
+    const input = (key, label, type = "text", extra = "", value = c[key] ?? "") =>
+      '<label class="f"><span>' +
+      esc(label) +
+      '</span><input name="' +
+      key +
+      '" type="' +
+      type +
+      '" aria-label="' +
+      esc(label + " for item " + i.no) +
+      '" value="' +
+      esc(value) +
+      '" ' +
+      extra +
+      "></label>";
+    // R59: several item sections → choose exactly one; a charge outside them stays a secondary, sourced entry.
+    const chargeSelect = (i, c) => {
+      const choices = services.chargeChoices(i),
+        chosen = canonicalOrdinance(c.ord) || String(c.ord || "").trim(),
+        listed = choices.some((x) => x.value === chosen);
+      return (
+        '<label class="f"><span>Charged ordinance</span><select name="ord" aria-label="' +
+        esc("Charged ordinance for item " + i.no) +
+        '"' +
+        (listed || !chosen ? " required" : "") +
+        '><option value="">Choose the charged ordinance</option>' +
+        choices
+          .map((x) => '<option value="' + esc(x.value) + '" ' + (listed && x.value === chosen ? "selected" : "") + ">" + esc(x.label) + "</option>")
+          .join("") +
+        "</select></label>" +
+        input("ordOther", "Different charge — ordinance outside the item’s sections", "text", "", listed ? "" : c.ord || "")
+      );
+    };
+    // An ordinance with several schedule rows needs its scheduled offense, as on the charge card.
+    const offenseSelect = (i, c) => {
+      const entries = CITATION_POLICY.entries.filter((e) => e.ordinance === canonicalOrdinance(c.ord));
+      return entries.length > 1
+        ? '<label class="f"><span>Scheduled offense</span><select name="scheduleEntryId" aria-label="' +
+            esc("Scheduled offense for item " + i.no) +
+            '"><option value="">Choose the charged offense</option>' +
+            entries
+              .map(
+                (e) => '<option value="' + esc(e.id) + '" ' + (c.scheduleEntryId === e.id ? "selected" : "") + ">" + esc(e.description) + "</option>",
+              )
+              .join("") +
+            "</select></label>"
+        : "";
+    };
+    const measurements = (c.measurementFields || [])
+      .map((f) =>
+        f.boolean
+          ? '<label class="f"><span>' +
+            esc(f.label) +
+            '</span><select name="measure-' +
+            f.key +
+            '" aria-label="' +
+            esc(f.label + " for item " + i.no) +
+            '" required><option value="">Choose</option><option value="true" ' +
+            (c.measurements?.[f.key] === true ? "selected" : "") +
+            '>Yes</option><option value="false" ' +
+            (c.measurements?.[f.key] === false ? "selected" : "") +
+            ">No</option></select></label>"
+          : input(
+              "measure-" + f.key,
+              f.label,
+              "number",
+              'min="' +
+                (f.min ?? 0) +
+                '" ' +
+                (f.max == null ? "" : 'max="' + f.max + '"') +
+                ' step="' +
+                (f.whole ? "1" : "any") +
+                '" ' +
+                (f.key === "diameter" && c.measurements?.removed === false ? "disabled" : "required"),
+              c.measurements?.[f.key] ?? "",
+            ),
+      )
+      .join("");
+    // Keep the same required completion contract; no citation is created until complete succeeds.
+    return (
+      '<form data-deposit-form="' +
+      esc(i.id) +
+      '" data-deposit-doc="' +
+      esc(d.id) +
+      '"><h3>' +
+      (measured ? "Complete measurements" : "Complete approved deposit") +
+      "</h3><p>" +
+      esc(c.reason || "Choose an approved deposit basis.") +
+      '</p><div class="grid g2">' +
+      (services.choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required")) +
+      offenseSelect(i, c) +
+      (measured
+        ? measurements
+        : '<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ' +
+          esc(i.no) +
+          '"><option value="schedule">Verified schedule</option><option value="base" ' +
+          (mode === "base" ? "selected" : "") +
+          '>Approved base + assessments</option><option value="total" ' +
+          (mode === "total" ? "selected" : "") +
+          '>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ' +
+          (mode === "base" ? "" : "hidden") +
+          ">" +
+          input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")) +
+          '</div><div data-deposit-mode="total" ' +
+          (mode === "total" ? "" : "hidden") +
+          ">" +
+          input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")) +
+          ('</div><label class="f" data-deposit-source><span>Approved source / reaso' +
+            'n</span><textarea name="depositSource" aria-label="Approved source / rea' +
+            "son for item ") +
+          esc(i.no) +
+          '" rows="2" minlength="10" required>' +
+          esc(c.depositSource || "") +
+          "</textarea></label>") +
+      '</div><p class="hint">' +
+      (measured
+        ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
+        : "A base adds the approved assessments. A total already includes them. Rec" +
+          "ord the approval source; the program does not authorize an amount.") +
+      ('</p><p role="alert" data-deposit-error></p><button class="btn btn-primar' +
+        'y" type="submit">Complete charge</button> <button class="btn" type="butt' +
+        'on" data-deposit-later>Save unfinished draft</button></form>')
+    );
+  }

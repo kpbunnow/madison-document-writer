@@ -9,7 +9,7 @@ import { createCaseWorkspaceActions } from "./case_workspace_actions.js";
 import { createDraftSaveControls } from "./draft_save_controls.js";
 import { createLocalCaseFiles } from "./local_case_files.js";
 import { createCaseFolderWorkflow } from "./case_folder_workflow.js";
-import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
+import { ccLines, agentLines, addressProblem } from "./address_format.js";
 import { createRecipientWorkflow } from "./recipient_workflow.js";
 import { createDocumentReadiness } from "./document_readiness.js";
 import { createDocumentSources } from "./document_sources.js";
@@ -2073,20 +2073,7 @@ WriterState.LOCAL_SAVE = { ok: true, at: "", saving: false };
 
 WriterState.LOCAL_CHANGED = 0;
 
-export const ccLines = (c, normalize = true) =>
-  [
-    String(c.name || "").trim(),
-    normalize ? standardStreetAddress(c.addr) || String(c.addr || "").trim() : String(c.addr || "").trim(),
-    normalize ? standardCityStateZip(c.city) || String(c.city || "").trim() : String(c.city || "").trim(),
-  ].filter(Boolean);
-export const agentLines = (k, normalize = true) => {
-  const a = (k && k.agent) || {};
-  return [
-    String(a.name || "").trim(),
-    normalize ? standardStreetAddress(a.addr) || String(a.addr || "").trim() : String(a.addr || "").trim(),
-    normalize ? standardCityStateZip(a.city) || String(a.city || "").trim() : String(a.city || "").trim(),
-  ].filter(Boolean);
-};
+export { ccLines, agentLines };
 
 /* ---------- publishing ----------
    Issuing is the moment the working draft stops being editable and becomes a

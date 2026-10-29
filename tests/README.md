@@ -17,6 +17,9 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_citation_review_templates.js` | 4,096 complete retained citation review cards with exact state, peer reads, ordered effects and interruptions |
+| `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
+| `audit_recipient_lines.js` | 8,192 retained recipient-line output, access-order and error comparisons; public address formatter ownership |
 | `audit_writer_followup_templates.js` | Compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects. |
 | `audit_writer_frame_templates.js` | Compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments. |
 | `audit_writer_details_templates.js` | Compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls. |
@@ -427,3 +430,7 @@ code; each scenario label starts with the former name. Release reviews cite them
 
 
 `audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.
+
+R31 deposit and R32 pricing regressions compose real pricing, deposit/edit, court, initial-citation, editor and citation-face owners through `citation_deposit_workflow.cjs`; all41 original assertion ASTs remain unchanged, including Python3872-row parity and frozen historical face bytes. Native UI/save and non-snow/ordinary-draft adapters remain controlled.
+
+R33 court/mandatory-appearance/library correction now shares the focused citation composition, with real snapshot ownership and explicit retained standalone-citation body scope; all15 original assertion ASTs remain unchanged.

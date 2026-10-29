@@ -1,23 +1,30 @@
-globalThis.MADISON_TEST_DATA = true;
+/* Retained deposit/pricing/renderer assertions through real feature owners without Writer startup. */
 const fs = require("fs"),
   assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
+const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,
 });
-global.window = dom.window;
-global.document = dom.window.document;
-global.getSelection = () => window.getSelection();
-window.scrollTo = () => {};
-global.confirm = () => true;
-global.fetch = async () => {
-  throw Error("offline");
-};
-const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+Object.assign(global, { window: dom.window, document: dom.window.document, getSelection: () => dom.window.getSelection() });
+(async () => {
+  const {
+    WriterState,
+    today,
+    recordDay,
+    addDays,
+    doc,
+    newDoc,
+    initialCitations,
+    depositStep,
+    resolveCitationAmount,
+    formatDeposit,
+    editCitation,
+    citationDepositFault,
+    citationFaces,
+    printJob,
+  } = await require("../fixtures/citation_deposit_workflow.cjs")();
+
   assert.equal(resolveCitationAmount({ ordinance: "27.05(2)(c)", tier: 1, date: "2026-10-11" }).amount, "197.00");
   assert.equal(resolveCitationAmount({ ordinance: "SPS321.125", tier: 1, date: "2026-10-11" }).kind, "needs-basis");
   assert.equal(formatDeposit("6411.00"), "$6,411.00");
@@ -58,5 +65,7 @@ const test = async () => {
   assert.equal(citationFaces(legacy.document, true), legacy.html);
   console.log("PASS R31 required deposits, edits, renderer and print guard");
   process.exit(0);
-};
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});
