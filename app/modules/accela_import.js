@@ -7,10 +7,39 @@ import { clone, stableJSON, caseDetails } from "./record_values.js";
 import { summaryName } from "./case_file_rules.js";
 import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
-import { parseTime, parseDate, validISO, nowISO, iso } from "./calendar.js";
+import { parseTime, validISO, nowISO } from "./calendar.js";
 import { esc } from "./presentation_format.js";
+import {
+  ACC_MAX,
+  ACC_EXPANDED_MAX,
+  ACC_COLS,
+  ACC_REQUIRED,
+  ACC_LABEL,
+  inspectionKind,
+  statusRule,
+  hiddenImportRow,
+  accStatusEligible,
+  ACC_CASEFIELDS,
+  accXml,
+  accAll,
+  accKids,
+  accText,
+  accColIx,
+  accStr,
+  accNorm,
+  accHM,
+  accTime,
+  accInspector,
+  SQL_COLUMNS,
+  accInflate,
+  readXlsx,
+  accSerial,
+  accWhen,
+  accParcel,
+  hiddenRowsMessage,
+  accelaTable,
+} from "./accela_report.js";
 import { authFetch } from "./helper_transport.js";
-import { INSPECTORS } from "./data/inspectors.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 
 /* Lazy dependencies preserve the complete import workflow without starting Writer. */
@@ -324,510 +353,145 @@ function importPlanCase(acc, p) {
   return c;
 }
 
+/* R62: the rows offered for import. A row already used on the case is hidden, except the R53 refresh of an
+ unissued draft or worksheet's own inspection, which updates that work instead of creating new work. */
+function refreshImportPending(k, row) {
+  const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
+  return pending?.draft &&
+    !pending.correction &&
+    !pending.pendingAmendment &&
+    pending.importInspection &&
+    sameInspection(pending.importInspection, inspectionIdentity(row))
+    ? pending
+    : null;
+}
+
+function importCandidates(c, k) {
+  if (!k) return c.rows;
+  return c.rows.filter((row) => {
+    if (refreshImportPending(k, row)) return true;
+    return !inspectionUsed(k, row);
+  });
+}
+
+const INITIAL_EXISTS = "An Initial Inspection result can only start a new case, and this case already exists.";
+
+const NO_CASE = "No case exists for this inspection. Import its Initial Inspection first.";
+
+/* R53: record the Accela status rule on a draft or worksheet. Initial No Occupancy and Abatement statuses use the
+ established initial-action document; reinspection worksheets show the status card instead of Choose next action. */
+function applyImportRule(target, rule) {
+  target.importRule = rule;
+  clearProhibitedCitations(target);
+  if (target.results) {
+    target.followupIntent = rule.choose ? "" : rule.doc;
+    return;
+  }
+  if (rule.doc !== "notice") {
+    target.selectionCache = target.selectionCache || {};
+    target.special = clone(target.selectionCache[rule.doc] || {});
+    target.type = rule.doc;
+    target.initialAction = true;
+  } else if (target.initialAction) {
+    target.type = "notice";
+    target.initialAction = false;
+  }
+}
+
+function lookupCard() {
+  return (
+    '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
+    'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
+    "er the case number to retrieve its property, owner and inspection detail" +
+    's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
+    `${imports.LOOKUP_BUSY}` +
+    '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
+    'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
+    'holder="CB2026-000-00000" value="' +
+    `${esc(editor.WORK.entry["lookup-number"] || "")}` +
+    '" ' +
+    `${imports.LOOKUP_BUSY ? "readonly" : ""}` +
+    '></label>\n    <button class="btn btn-primary" type="submit" ' +
+    `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
+    ">" +
+    `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
+    "</button>\n    " +
+    "".concat(
+      imports.LOOKUP_BUSY
+        ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
+        : !editor.state.acc
+          ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
+          : "",
+    ) +
+    '\n  </form>\n  <p class="hint">Uses your Windows account. A single eligibl' +
+    "e initial inspection opens a draft notice when all checks pass. Multiple" +
+    " or later results open for review. Your search and review can be saved f" +
+    'or later.</p>\n  <div role="status" aria-live="polite">' +
+    "".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : "") +
+    "</div>\n  </div></div>"
+  );
+}
+
+function cancelCaseLookup() {
+  ++imports.LOOKUP_SERIAL;
+  if (imports.LOOKUP_CONTROLLER) imports.LOOKUP_CONTROLLER.abort();
+  imports.LOOKUP_CONTROLLER = null;
+  imports.LOOKUP_BUSY = false;
+}
+
+function sqlReport(result, number) {
+  if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || result.source?.kind !== "sql")
+    throw new Error("Unexpected case response. Nothing was imported.");
+  if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
+  const keys = Object.keys(ACC_COLS);
+  const grid = [keys.map((k) => ACC_LABEL(k))];
+  const warnings = [];
+  result.rows.forEach((row) => {
+    if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
+    if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
+      throw new Error(
+        "The database marks this property as an individual landmark but supplies " + "no landmark name. Correct the source record before importing.",
+      );
+    if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
+      throw new Error("The database marks this property as historic but supplies no district na" + "me. Correct the source record before importing.");
+    grid.push(
+      keys.map((k) =>
+        k === "number"
+          ? number
+          : k === "detail" || k === "zoning"
+            ? ""
+            : k === "date" && /T00:00:00$/.test(row.InspectionDate || "")
+              ? row.InspectionDate.slice(0, 10)
+              : (row[SQL_COLUMNS[k]] ?? ""),
+      ),
+    );
+  });
+  const table = accelaTable(grid);
+  if (table.errors.length) throw new Error(table.errors.join(" "));
+  if (table.cases.length !== 1) throw new Error("More than one case was returned. Nothing was imported.");
+  const c = table.cases[0],
+    eligible = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
+  // No arbitrary choice when several completed inspections are available.
+  const sel = eligible.length === 1 ? eligible[0].i : null;
+  if (eligible.length > 1) warnings.push("Several completed inspections are available. Select the inspection you are documenting.");
+  return {
+    fileName: "Case lookup · " + number,
+    source: clone(result.source),
+    errors: [],
+    notes: table.notes.concat(warnings),
+    cases: table.cases,
+    caseIx: 0,
+    sel,
+    manualDate: "",
+    manualTime: "",
+  };
+}
+
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, XLSX reading, report parsing, import candidates,
    the review plan and panel, the direct database lookup and acceptance. */
 
-  /* ---------- import ---------- */
-  /* ---------- Accela report import ----------
-   The SSRS report exports one .xlsx per case, one row per inspection, with
-   the case columns repeated on every row. It is read here in the browser with
-   no library: the ZIP is walked by hand, entries are inflated with the
-   browser's own DecompressionStream, and the sheet is parsed with DOMParser.
-   The table is found by its header text, never by position — adding the
-   Inspector Name column moved every later column. An Excel re-save turns the
-   report's inline strings into shared strings and may turn dates into text,
-   so both forms read the same. The Detailed Description and Zoning District
-   columns are recognised and never read (division, 09/18/2026). */
-
-  const ACC_MAX = 5 * 1024 * 1024;
-
-  const ACC_EXPANDED_MAX = 32 * 1024 * 1024;
-
-  const ACC_COLS = {
-    number: "case number",
-    inspector: "inspector name",
-    address: "site address",
-    zoning: "zoning district",
-    historic: "historic district",
-    landmark: "landmark",
-    parcel: "parcel number",
-    description: "case description",
-    detail: "detailed description",
-    owner: "owner name",
-    ownerAddr: "owner address",
-    type: "inspection type",
-    date: "inspection date",
-    status: "inspection status",
-    time: "inspection time",
-    caseType: "case type",
-    recordCategory: "record category",
-  };
-
-  const ACC_REQUIRED = ["number", "inspector", "address", "owner", "ownerAddr", "type", "date", "status"];
-
-  const ACC_LABEL = (k) => ACC_COLS[k].replace(/\b\w/g, (m) => m.toUpperCase());
-
-  /* R53: the imported inspection's type and status decide the document (division rules and decisions, 10/19/2026).
-   Snow cases follow the same table: Initial Inspection/Citation starts the season case and Reinspection/Citation
-   records each later snow event. "Completed" has no rule and is not importable. */
-  const inspectionKind = (type) => {
-    const t = accNorm(type);
-    return /^initial inspection$/.test(t)
-      ? "initial"
-      : /^re-?inspection$/.test(t)
-        ? "reinspection"
-        : /^ca re-?inspection$/.test(t)
-          ? "caReinspection"
-          : null;
-  };
-
-  const statusKey = (s) =>
-    accNorm(s)
-      .replace(/[\u2010-\u2015]/g, "-")
-      .replace(/\s*-\s*/g, "-");
-
-  const RULE = {
-    notice: { doc: "notice", label: "Official Notice" },
-    initialCitation: { doc: "notice", cite: true, label: "Citation" },
-    noOccupancy: { doc: "noOccupancy", label: "No Occupancy" },
-    summary: { doc: "summaryAbatement", label: "Summary Abatement" },
-    nonSummary: { doc: "nonSummaryAbatement", label: "Non-Summary Abatement" },
-    referral: { doc: "referral", label: "Referral for Prosecution", firstReferral: true },
-    compliance: { doc: "compliance", allCorrected: true, label: "Compliance Letter" },
-    citation: { doc: "citation", cite: true, label: "Citation" },
-    extension: {
-      choose: ["extension", "bestInterestExtension", "vacancyExtension"],
-      label: "Extension, Best Interest Extension or Vacancy Extension",
-    },
-    referralUpdate: { doc: "referralUpdate", label: "Update for Case Referral", needsReferral: true },
-  };
-
-  const STATUS_RULES = {
-    initial: {
-      "official notice": RULE.notice,
-      citation: RULE.initialCitation,
-      "no occupancy": RULE.noOccupancy,
-      "abatement summary": RULE.summary,
-      "abatement non-summary": RULE.nonSummary,
-      "abatement non summary": RULE.nonSummary,
-    },
-    reinspection: {
-      "ca referral": RULE.referral,
-      "city attorney referral": RULE.referral,
-      compliance: RULE.compliance,
-      citation: RULE.citation,
-      "extension processing": RULE.extension,
-      "no fee extension processing": RULE.extension,
-      "no occupancy": RULE.noOccupancy,
-      "no fee no occupancy": RULE.noOccupancy,
-    },
-    caReinspection: {
-      compliance: { ...RULE.compliance, needsReferral: true },
-      "non compliance": RULE.referralUpdate,
-      "non-compliance": RULE.referralUpdate,
-    },
-  };
-
-  function statusRule(type, status) {
-    const kind = inspectionKind(type);
-    if (!kind) return { kind: null, error: 'Inspection type "' + (accStr(type) || "not supplied") + '" has no document rule' };
-    // Own properties only: a status such as "constructor" or "__proto__" must not resolve to an inherited value.
-    const rules = STATUS_RULES[kind],
-      key = statusKey(status),
-      rule = Object.hasOwn(rules, key) ? rules[key] : null;
-    if (!rule)
-      return {
-        kind,
-        error: accStr(type) + ' status "' + (accStr(status) || "not supplied") + '" has no document rule',
-      };
-    return { kind, status: accStr(status), ...rule };
-  }
-
-  /* R62: rows that never appear among import candidates (owner, Development 3). Statuses apply to every inspection
-   type; No Entry is hidden only on an Initial Inspection and is otherwise a listed pair without a rule. */
-  const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation", "reinspection", "no fee reinspection"]);
-
-  function hiddenImportRow(type, status) {
-    if (/^assist$/.test(accNorm(type))) return "assist";
-    const key = statusKey(status);
-    if (HIDDEN_STATUSES.has(key)) return key === "scheduled" ? "scheduled" : "notDone";
-    if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
-    return "";
-  }
-
-  const accStatusEligible = (status, type) => !statusRule(type, status).error;
-
-  const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];
-
-  const accXml = (t) => {
-    const x = new DOMParser().parseFromString(t, "application/xml");
-    if (x.getElementsByTagName("parsererror").length) throw new Error("the workbook is damaged");
-    return x;
-  };
-
-  const accAll = (n, tag) => Array.prototype.slice.call(n.getElementsByTagNameNS("*", tag));
-
-  const accKids = (n, tag) => Array.prototype.filter.call(n.childNodes, (c) => c.localName === tag);
-
-  /* text of a string item: every run's <t>, not the phonetic guide */
-  const accText = (n) =>
-    accAll(n, "t")
-      .filter((t) => !(t.parentNode && t.parentNode.localName === "rPh"))
-      .map((t) => t.textContent)
-      .join("");
-
-  const accColIx = (ref) => {
-    const m = /^([A-Z]+)/i.exec(ref || "");
-    if (!m) return -1;
-    let n = 0;
-    for (const ch of m[1].toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
-    return n - 1;
-  };
-
-  const accStr = (v) => (v === undefined || v === null ? "" : String(v).replace(/\r\n?/g, "\n").trim());
-
-  const accNorm = (v) => accStr(v).replace(/\s+/g, " ").toLowerCase();
-
-  const accHM = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-
-  const accTime = (v) => {
-    if (typeof v === "number" && v >= 0 && v < 1) return accHM(Math.round(v * 1440) % 1440);
-    return parseTime(accStr(v));
-  };
-
-  const accInspector = (name) => {
-    const n = accNorm(name).toUpperCase();
-    return n ? INSPECTORS.find((i) => accNorm(i.name).toUpperCase() === n) || null : null;
-  };
-
   const LOOKUP_READY = new WeakSet();
-
-  const SQL_COLUMNS = {
-    caseType: "CaseType",
-    number: "CaseNumber",
-    inspector: "InspectorName",
-    address: "SiteAddress",
-    zoning: "ZoningDistrict",
-    historic: "HistoricDistrictName",
-    landmark: "Landmark",
-    parcel: "ParcelNumber",
-    description: "CaseDescription",
-    detail: "DetailedDescription",
-    owner: "OwnerName",
-    ownerAddr: "OwnerAddress",
-    type: "InspectionType",
-    date: "InspectionDate",
-    status: "InspectionStatus",
-    time: "InspectionTime",
-    recordCategory: "RecordCategory",
-  };
-
-  async function accInflate(bytes, limit = ACC_EXPANDED_MAX) {
-    const ds = new DecompressionStream("deflate-raw");
-    const w = ds.writable.getWriter();
-    w.write(bytes).catch(() => {});
-    w.close().catch(() => {});
-    const rd = ds.readable.getReader(),
-      parts = [];
-    let n = 0;
-    for (;;) {
-      const x = await rd.read();
-      if (x.done) break;
-      n += x.value.length;
-      if (n > limit) {
-        await rd.cancel();
-        throw new Error("The expanded workbook is too large. Export a report for one case.");
-      }
-      parts.push(x.value);
-    }
-    const out = new Uint8Array(n);
-    let o = 0;
-    parts.forEach((p) => {
-      out.set(p, o);
-      o += p.length;
-    });
-    return out;
-  }
-
-  async function accUnzip(buf, want) {
-    const u8 = new Uint8Array(buf),
-      dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
-    const fail = (m) => {
-      throw new Error(m);
-    };
-    if (u8.length < 22 || dv.getUint32(0, true) !== 0x04034b50) fail("it is not an Excel .xlsx file");
-    let e = -1;
-    for (let p = u8.length - 22; p >= Math.max(0, u8.length - 65557); p--)
-      if (dv.getUint32(p, true) === 0x06054b50) {
-        e = p;
-        break;
-      }
-    if (e < 0) fail("the file is incomplete or damaged");
-    const count = dv.getUint16(e + 10, true),
-      cdOff = dv.getUint32(e + 16, true);
-    if (cdOff === 0xffffffff || cdOff >= u8.length) fail("the file is incomplete or damaged");
-    const dec = new TextDecoder("utf-8"),
-      out = {};
-    let p = cdOff,
-      total = 0;
-    for (let n = 0; n < count; n++) {
-      if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) fail("the file is incomplete or damaged");
-      const method = dv.getUint16(p + 10, true),
-        csize = dv.getUint32(p + 20, true),
-        usize = dv.getUint32(p + 24, true);
-      const nlen = dv.getUint16(p + 28, true),
-        xlen = dv.getUint16(p + 30, true),
-        clen = dv.getUint16(p + 32, true);
-      const lho = dv.getUint32(p + 42, true);
-      const name = dec.decode(u8.subarray(p + 46, p + 46 + nlen));
-      p += 46 + nlen + xlen + clen;
-      if (!want(name)) continue;
-      if (usize > ACC_EXPANDED_MAX - total) fail("The expanded workbook is too large. Export a report for one case.");
-      if (lho + 30 > u8.length || dv.getUint32(lho, true) !== 0x04034b50) fail("the file is incomplete or damaged");
-      const start = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
-      if (start + csize > u8.length) fail("the file is incomplete or damaged");
-      const raw = u8.subarray(start, start + csize);
-      let bytes;
-      if (method === 0) bytes = raw;
-      else if (method === 8) {
-        try {
-          bytes = await accInflate(raw, ACC_EXPANDED_MAX - total);
-        } catch (err) {
-          fail(/expanded workbook/.test(err.message) ? err.message : "the file is incomplete or damaged");
-        }
-      } else fail("the file uses a compression this program cannot read");
-      total += bytes.length;
-      if (total > ACC_EXPANDED_MAX) fail("The expanded workbook is too large. Export a report for one case.");
-      out[name] = dec.decode(bytes);
-    }
-    return out;
-  }
-
-  async function readXlsx(buf) {
-    const files = await accUnzip(buf, (n) => /^xl\/(workbook\.xml|_rels\/workbook\.xml\.rels|sharedStrings\.xml|worksheets\/[^/]+\.xml)$/i.test(n));
-    const key = (n) => Object.keys(files).find((k) => k.toLowerCase() === n.toLowerCase());
-    if (!key("xl/workbook.xml")) throw new Error("it is not an Excel workbook");
-    const wb = accXml(files[key("xl/workbook.xml")]);
-    if (accAll(wb, "workbookPr").some((p) => /^(1|true)$/i.test(p.getAttribute("date1904") || "")))
-      throw new Error("This workbook uses the 1904 date system. Export the SSRS report again using the standard 1900 date system.");
-    const sheet = accAll(wb, "sheet")[0];
-    if (!sheet) throw new Error("the workbook has no sheets");
-    let rid = "";
-    Array.prototype.forEach.call(sheet.attributes, (a) => {
-      if (a.localName === "id" && a.name !== "sheetId") rid = a.value;
-    });
-    let target = "";
-    if (key("xl/_rels/workbook.xml.rels")) {
-      const rel = accAll(accXml(files[key("xl/_rels/workbook.xml.rels")]), "Relationship").find((r) => r.getAttribute("Id") === rid);
-      if (rel) target = rel.getAttribute("Target") || "";
-    }
-    let path = target.charAt(0) === "/" ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
-    if (!target || !key(path))
-      path =
-        Object.keys(files)
-          .filter((n) => /^xl\/worksheets\//i.test(n))
-          .sort()[0] || "";
-    if (!path || !key(path)) throw new Error("the workbook has no readable sheet");
-    const sst = key("xl/sharedStrings.xml") ? accAll(accXml(files[key("xl/sharedStrings.xml")]), "si").map(accText) : [];
-    const ws = accXml(files[key(path)]);
-    const rows = [];
-    accAll(ws, "row").forEach((rw) => {
-      const row = [];
-      let next = 0;
-      accKids(rw, "c").forEach((c) => {
-        const r = c.getAttribute("r"),
-          ix = r ? accColIx(r) : next;
-        next = ix + 1;
-        const t = c.getAttribute("t") || "",
-          v = accKids(c, "v")[0],
-          vt = v ? v.textContent : "";
-        let val;
-        if (t === "s") val = sst[+vt] !== undefined ? sst[+vt] : "";
-        else if (t === "inlineStr") {
-          const is = accKids(c, "is")[0];
-          val = is ? accText(is) : "";
-        } else if (t === "str" || t === "e") val = vt;
-        else if (t === "b") val = vt === "1" ? "TRUE" : "FALSE";
-        else val = vt === "" ? "" : Number(vt);
-        if (ix >= 0) row[ix] = val;
-      });
-      rows.push(row);
-    });
-    return rows;
-  }
-
-  function accSerial(v) {
-    if (typeof v !== "number" || !isFinite(v) || v <= 0) return null;
-    let days = Math.floor(v),
-      mins = Math.round((v - days) * 1440);
-    if (mins >= 1440) {
-      days++;
-      mins -= 1440;
-    }
-    return { date: iso(new Date(Date.UTC(1899, 11, 30 + days, 12))), mins: mins };
-  }
-
-  function accWhen(dv, tv) {
-    let date = null;
-    // R36: the Inspection Time column is authoritative. Any time carried in the date column is ignored, with no comparison warning.
-    const s = accSerial(dv);
-    if (s) date = s.date;
-    else if (accStr(dv)) date = parseDate(accStr(dv).split(/[\sT]+/)[0]);
-    const textTime = accStr(tv) || typeof tv === "number" ? accTime(tv) : null;
-    return { date: date, time: textTime || "", warn: "" };
-  }
-
-  function accParcel(v) {
-    const raw = accStr(v);
-    if (/^\d{12}$/.test(raw)) return { v: raw.slice(0, 4) + "-" + raw.slice(4, 7) + "-" + raw.slice(7, 11) + "-" + raw.slice(11), warn: "" };
-    if (/^\d{4}-\d{3}-\d{4}-\d$/.test(raw)) return { v: raw, warn: "" };
-    return { v: raw, warn: raw ? "Parcel number " + raw + " is not 12 digits — imported as delivered" : "" };
-  }
-
-  /* R62: why nothing could be listed, naming each hidden category that occurred. */
-  const HIDDEN_ROW_TEXT = {
-    scheduled: "Scheduled rows (the inspection has not been completed)",
-    notDone: "rows whose status is not an inspection result (such as Pending, Completed or No Violation)",
-    noEntry: "Initial Inspection rows with status No Entry",
-    assist: "Assist rows",
-    noDate: "rows without an inspection date",
-  };
-
-  function hiddenRowsMessage(excluded, used = 0) {
-    const parts = Object.keys(HIDDEN_ROW_TEXT)
-      .filter((k) => excluded?.[k])
-      .map((k) => HIDDEN_ROW_TEXT[k]);
-    if (used && !parts.length)
-      return "Every inspection returned for this case has already been used to generate a document. Choose Continue existing case to continue or correct that work.";
-    if (!parts.length) return "";
-    return (
-      "No eligible completed inspection: the report returned only " +
-      (parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts.at(-1) : parts[0]) +
-      ". Choose a completed Initial Inspection or Reinspection."
-    );
-  }
-
-  function accelaTable(grid) {
-    const res = { cases: [], errors: [], notes: [], excluded: { scheduled: 0, assist: 0, notDone: 0, noEntry: 0, noDate: 0 } };
-    const known = Object.keys(ACC_COLS).map((k) => ACC_COLS[k]);
-    const hr = grid.findIndex((r) => r && r.some((v) => accNorm(v) === "case number") && r.filter((v) => known.indexOf(accNorm(v)) >= 0).length >= 4);
-    if (hr < 0) {
-      res.errors.push("No Accela report table was found — the file has no Case Number header row");
-      return res;
-    }
-    const col = {};
-    grid[hr].forEach((v, ix) => {
-      let h = accNorm(v);
-      if (h === "case type name" || h === "casetype" || h === "casetypename") h = "case type";
-      if (!h) return;
-      const k = Object.keys(ACC_COLS).find((k) => ACC_COLS[k] === h);
-      if (k) {
-        if (col[k] === undefined) col[k] = ix;
-      } else res.notes.push('Column "' + accStr(v) + '" is not part of the Accela report and was ignored');
-    });
-    const miss = ACC_REQUIRED.filter((k) => col[k] === undefined);
-    if (miss.length) {
-      res.errors.push(
-        "The report is missing the column" + (miss.length === 1 ? "" : "s") + " " + miss.map(ACC_LABEL).join(", ") + " — nothing was imported",
-      );
-      return res;
-    }
-    Object.keys(ACC_COLS)
-      .filter(
-        (k) => ACC_REQUIRED.indexOf(k) < 0 && k !== "detail" && k !== "zoning" && k !== "caseType" && k !== "recordCategory" && col[k] === undefined,
-      )
-      .forEach((k) => res.notes.push("The report has no " + ACC_LABEL(k) + " column"));
-    const get = (r, k) => (col[k] === undefined ? "" : r[col[k]]);
-    // Keyed by report text, so a Map: a case number such as "constructor" must not find an inherited value.
-    const by = new Map();
-    grid.slice(hr + 1).forEach((r) => {
-      if (!r) return;
-      const num = accStr(get(r, "number"));
-      if (!num) return;
-      // R62: hidden rows never appear among candidates and are not retained in the import history.
-      const hidden = hiddenImportRow(get(r, "type"), get(r, "status")) || (accWhen(get(r, "date"), get(r, "time")).date ? "" : "noDate");
-      if (hidden) {
-        res.excluded[hidden]++;
-        return;
-      }
-      let c = by.get(num);
-      if (!c) {
-        c = { number: num, raw: {}, conflicts: [], rows: [] };
-        by.set(num, c);
-        res.cases.push(c);
-        ACC_CASEFIELDS.forEach((f) => {
-          c.raw[f] = accStr(get(r, f));
-        });
-      } else
-        ACC_CASEFIELDS.forEach((f) => {
-          const v = accStr(get(r, f));
-          if (v !== c.raw[f] && !c.conflicts.some((x) => x.f === f)) c.conflicts.push({ f: f, a: c.raw[f], b: v });
-        });
-      const w = accWhen(get(r, "date"), get(r, "time"));
-      const type = accStr(get(r, "type")),
-        status = accStr(get(r, "status"));
-      const kind = inspectionKind(type),
-        tk = kind || "other",
-        rule = statusRule(type, status);
-      const name = accStr(get(r, "inspector")),
-        ins = accInspector(name);
-      const row = {
-        caseType: accStr(get(r, "caseType")),
-        recordCategory: accStr(get(r, "recordCategory")),
-        i: c.rows.length,
-        type: type,
-        typeKey: tk,
-        date: w.date || "",
-        time: w.time,
-        status: status,
-        rule: rule,
-        inspectorName: name,
-        inspectorId: ins ? ins.id : "",
-        selectable: true,
-        why: "",
-        warn: [],
-      };
-      if (w.warn) row.warn.push(w.warn);
-      if (rule.error) {
-        row.selectable = false;
-        row.why = rule.error;
-      }
-      c.rows.push(row);
-    });
-    if (!res.cases.length) res.errors.push(hiddenRowsMessage(res.excluded) || "The report has a header row but no case rows");
-    res.cases.forEach((c) => {
-      c.rows.sort((a, b) => !a.date - !b.date || (a.date + a.time < b.date + b.time ? -1 : a.date + a.time > b.date + b.time ? 1 : 0));
-      const done = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
-      c.sel = done.length === 1 ? done[0].i : null;
-    });
-    return res;
-  }
-
-  /* R62: the rows offered for import. A row already used on the case is hidden, except the R53 refresh of an
-   unissued draft or worksheet's own inspection, which updates that work instead of creating new work. */
-  function refreshImportPending(k, row) {
-    const pending = k && row ? (row.typeKey === "initial" ? draftDocFor(k.id) : draftReinspFor(k.id)) : null;
-    return pending?.draft &&
-      !pending.correction &&
-      !pending.pendingAmendment &&
-      pending.importInspection &&
-      sameInspection(pending.importInspection, inspectionIdentity(row))
-      ? pending
-      : null;
-  }
-
-  function importCandidates(c, k) {
-    if (!k) return c.rows;
-    return c.rows.filter((row) => {
-      if (refreshImportPending(k, row)) return true;
-      return !inspectionUsed(k, row);
-    });
-  }
-
-  const INITIAL_EXISTS = "An Initial Inspection result can only start a new case, and this case already exists.";
-
-  const NO_CASE = "No case exists for this inspection. Import its Initial Inspection first.";
 
   function baseLookupPlan(acc) {
     const p = newImportPlan(acc);
@@ -950,26 +614,6 @@ export function createAccelaImport(services) {
         acc.shareError = "The existing case file could not be read. Reconnect the share and retry.";
         services.toast(acc.shareError);
       }
-    }
-  }
-
-  /* R53: record the Accela status rule on a draft or worksheet. Initial No Occupancy and Abatement statuses use the
-   established initial-action document; reinspection worksheets show the status card instead of Choose next action. */
-  function applyImportRule(target, rule) {
-    target.importRule = rule;
-    clearProhibitedCitations(target);
-    if (target.results) {
-      target.followupIntent = rule.choose ? "" : rule.doc;
-      return;
-    }
-    if (rule.doc !== "notice") {
-      target.selectionCache = target.selectionCache || {};
-      target.special = clone(target.selectionCache[rule.doc] || {});
-      target.type = rule.doc;
-      target.initialAction = true;
-    } else if (target.initialAction) {
-      target.type = "notice";
-      target.initialAction = false;
     }
   }
 
@@ -1375,98 +1019,6 @@ export function createAccelaImport(services) {
       services.saveDrafts();
       services.render();
     });
-  }
-
-  function lookupCard() {
-    return (
-      '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
-      'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
-      "er the case number to retrieve its property, owner and inspection detail" +
-      's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
-      `${imports.LOOKUP_BUSY}` +
-      '">\n    <label class="f"><span>Case number</span><input type="text" id="l' +
-      'ookup-number" maxlength="80" autocomplete="off" spellcheck="false" place' +
-      'holder="CB2026-000-00000" value="' +
-      `${esc(editor.WORK.entry["lookup-number"] || "")}` +
-      '" ' +
-      `${imports.LOOKUP_BUSY ? "readonly" : ""}` +
-      '></label>\n    <button class="btn btn-primary" type="submit" ' +
-      `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
-      ">" +
-      `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
-      "</button>\n    " +
-      "".concat(
-        imports.LOOKUP_BUSY
-          ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
-          : !editor.state.acc
-            ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
-            : "",
-      ) +
-      '\n  </form>\n  <p class="hint">Uses your Windows account. A single eligibl' +
-      "e initial inspection opens a draft notice when all checks pass. Multiple" +
-      " or later results open for review. Your search and review can be saved f" +
-      'or later.</p>\n  <div role="status" aria-live="polite">' +
-      "".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : "") +
-      "</div>\n  </div></div>"
-    );
-  }
-
-  function cancelCaseLookup() {
-    ++imports.LOOKUP_SERIAL;
-    if (imports.LOOKUP_CONTROLLER) imports.LOOKUP_CONTROLLER.abort();
-    imports.LOOKUP_CONTROLLER = null;
-    imports.LOOKUP_BUSY = false;
-  }
-
-  function sqlReport(result, number) {
-    if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || result.source?.kind !== "sql")
-      throw new Error("Unexpected case response. Nothing was imported.");
-    if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
-    const keys = Object.keys(ACC_COLS);
-    const grid = [keys.map((k) => ACC_LABEL(k))];
-    const warnings = [];
-    result.rows.forEach((row) => {
-      if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
-      if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
-        throw new Error(
-          "The database marks this property as an individual landmark but supplies " +
-            "no landmark name. Correct the source record before importing.",
-        );
-      if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
-        throw new Error(
-          "The database marks this property as historic but supplies no district na" + "me. Correct the source record before importing.",
-        );
-      grid.push(
-        keys.map((k) =>
-          k === "number"
-            ? number
-            : k === "detail" || k === "zoning"
-              ? ""
-              : k === "date" && /T00:00:00$/.test(row.InspectionDate || "")
-                ? row.InspectionDate.slice(0, 10)
-                : (row[SQL_COLUMNS[k]] ?? ""),
-        ),
-      );
-    });
-    const table = accelaTable(grid);
-    if (table.errors.length) throw new Error(table.errors.join(" "));
-    if (table.cases.length !== 1) throw new Error("More than one case was returned. Nothing was imported.");
-    const c = table.cases[0],
-      eligible = c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type));
-    // No arbitrary choice when several completed inspections are available.
-    const sel = eligible.length === 1 ? eligible[0].i : null;
-    if (eligible.length > 1) warnings.push("Several completed inspections are available. Select the inspection you are documenting.");
-    return {
-      fileName: "Case lookup · " + number,
-      source: clone(result.source),
-      errors: [],
-      notes: table.notes.concat(warnings),
-      cases: table.cases,
-      caseIx: 0,
-      sel,
-      manualDate: "",
-      manualTime: "",
-    };
   }
 
   async function checkLookupShared(acc, isCurrent = () => true) {

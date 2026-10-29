@@ -41,6 +41,7 @@
     "app/assets/ui-refresh.css",
     "app/assets/writer.css",
     "app/modules/accela_import.js",
+    "app/modules/accela_report.js",
     "app/modules/accessibility.js",
     "app/modules/address_format.js",
     "app/modules/address_parser.js",

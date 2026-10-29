@@ -1450,3 +1450,11 @@ Added two independent frozen-original comparisons over the synthetic projection 
 Both implementations are split into the same ordered phases, named alike in each language: replay (issued, correction, visit patch, visit, void link and a document-event table) and summary (roster names, document facts, case status, active visits, item numbers, citation rows, visit outcome, document and visit history, violation rows and row builders for the case block, restrictions, extensions, snow inspections, visits, documents, corrections and referrals). Statement order is unchanged so the first refusing expression is too. The existing browser/helper parity audit and the real Writer flows pass unchanged. The helper's `summarize()` mirror comments name the phases so a rule change is made on both sides.
 
 Measured counts: {'complexity': 26, 'max-depth': 0, 'max-lines-per-function': 85, 'python': 15} → {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13}.
+
+## import-report-owner
+
+Added a frozen-original comparison of the Accela report reading before moving it (`audit_import_report_rules.js`: over 13,000 seeded comparisons against the retained whole module `accela_import_reference.txt`). It covers the report columns and constants, the type/status rules, every value reader, report-table parsing, workbook zip and XML reading (including damaged, truncated, forged and oversized files), the direct-lookup report builder, import-rule application and the lookup card and cancel effects, and fails if the generator stops reaching an outcome family.
+
+The pure report reading (columns, type and status rules, XLSX reading and table parsing) now lives in `accela_report.js`, with `accUnzip` split into directory, header and content phases and `accelaTable` into header, case, row and ordering phases. The factory's pure helpers (candidate filtering, rule application, the lookup card, cancel and the direct-lookup report builder) moved to module level, so `createAccelaImport` shrank from 1,309 to about 800 lines while its public surface is unchanged. Deliberate mutations at exact size boundaries and in case grouping are caught.
+
+Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 81, 'python': 13}.

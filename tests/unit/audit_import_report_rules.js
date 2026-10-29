@@ -141,6 +141,19 @@ function workbook(grid) {
     bytes = Buffer.from(bytes);
     bytes[random(bytes.length)] ^= 0xff;
   }
+  if (chance(8)) {
+    // Forge the first central-directory entry to sit exactly on a size boundary.
+    bytes = Buffer.from(bytes);
+    const cd = bytes.lastIndexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
+    const first = bytes.indexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
+    if (first >= 0 && cd >= 0 && first + 46 <= bytes.length) {
+      if (chance(2)) bytes.writeUInt32LE(32 * 1024 * 1024, first + 24);
+      else {
+        const start = bytes.readUInt32LE(first + 42) + 30 + bytes.readUInt16LE(first + 28);
+        bytes.writeUInt32LE(bytes.length - start, first + 20);
+      }
+    }
+  }
   if (chance(40)) bytes = Buffer.from("not a workbook at all");
   return bytes;
 }
@@ -313,6 +326,62 @@ async function battery(api) {
       owner.accInspector(pick(NAMES)),
     ]);
   }
+  const sqlRow = (number) => ({
+    CaseNumber: pick([number, number, number.toLowerCase(), "CB2026-9", undefined]),
+    InspectionType: pick(["Initial Inspection", "Reinspection", ...TYPES]),
+    InspectionStatus: pick(["Official Notice", "Citation", "Compliance", stat()]),
+    InspectionDate: pick(["2026-09-10T00:00:00", "2026-09-10T10:00:00", "2026-09-11", "", undefined]),
+    InspectionTime: pick(["10:50AM", "", undefined]),
+    InspectorName: pick(NAMES),
+    SiteAddress: "1 Main",
+    OwnerName: "Carr",
+    OwnerAddress: "1 Main",
+    Landmark: pick(["", "Name"]),
+    IndividualLandmark: pick(["Yes", "No", ""]),
+    HistoricDistrict: pick(["Yes", "No", ""]),
+    HistoricDistrictName: pick(["", "District"]),
+  });
+  for (let n = 0; n < 1500; n++) {
+    const number = pick(["CB2026-1", "CB2026-2"]);
+    const good = {
+      rows: Array.from({ length: 1 + random(3) }, () => ({
+        ...sqlRow(number),
+        ...(chance(4) ? {} : { IndividualLandmark: "No", HistoricDistrict: "No", CaseNumber: number }),
+      })),
+      caseNumber: number,
+      source: { kind: "sql", at: "t" },
+    };
+    const result = chance(3) ? pick([null, {}, { rows: [] }, { ...good, caseNumber: "x" }, { ...good, source: { kind: "file" } }]) : good;
+    out.push(await attempt(() => owner.sqlReport(result, number)));
+  }
+  for (let n = 0; n < 1500; n++) {
+    const rule = pick([{ doc: "notice" }, { doc: "citation", cite: true }, { choose: ["extension"], label: "x" }, { doc: "referral" }]);
+    const target = pick([
+      {},
+      { results: {} },
+      { results: {}, type: "notice" },
+      { initialAction: true, type: "citation" },
+      { initialAction: false },
+      { selectionCache: { citation: { a: 1 } } },
+      { items: [{ cite: true }], cits: { x: 1 } },
+    ]);
+    const copy = structuredClone(target);
+    const result = await attempt(() => owner.applyImportRule(copy, rule));
+    out.push([result, copy]);
+  }
+  for (let n = 0; n < 200; n++) {
+    Object.assign(api.WriterState, {
+      LOOKUP_BUSY: chance(2),
+      LOOKUP_ERROR: pick(["", "bad <b>", undefined]),
+      LOOKUP_SERIAL: random(5),
+      LOOKUP_CONTROLLER: chance(2) ? { abort: () => out.push("aborted") } : null,
+      WORK: { entry: pick([{}, { "lookup-number": 'CB<"1' }]) },
+      state: { acc: pick([null, {}]) },
+    });
+    out.push(owner.lookupCard());
+    owner.cancelCaseLookup();
+    out.push([api.WriterState.LOOKUP_BUSY, api.WriterState.LOOKUP_SERIAL, api.WriterState.LOOKUP_CONTROLLER]);
+  }
   for (let n = 0; n < 2500; n++) out.push(owner.accelaTable(grid()));
   for (let n = 0; n < 500; n++) {
     const g = grid(),
@@ -352,6 +421,10 @@ async function battery(api) {
     "The expanded workbook is too large",
     '"conflicts":[{',
     "not 12 digits",
+    "Unexpected case response",
+    "Several completed inspections",
+    "Find Accela inspection",
+    "aborted",
   ])
     assert.ok(text.includes(fragment), "scenarios reach: " + fragment);
   const parsed = before.filter((r) => r.startsWith('{"value":[['));
