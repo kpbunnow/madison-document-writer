@@ -1482,3 +1482,11 @@ Added a frozen-original comparison of `printJob` before changing it (`audit_prin
 `printJob` now runs module-level phases in the original order: refusal, frame, desk write, citation packet check, snow or standard pagination and cleanup; the file-name builder is shared by `documentFileName`. Five deliberate mutations (packet check dropped, a changed snow version bound, an extra stage read, an inverted screen-document test and a dropped frame removal) are caught. R54 real-Chromium print geometry passes unchanged.
 
 Measured counts: {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 77, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.
+
+## pdf-filing-phases
+
+Added a frozen-original comparison of `filePdf` before changing it (`audit_pdf_filing_rules.js`: 6,000 seeded issued documents against the retained `document_delivery_reference.txt`, 761 refusals or interruptions). It compares the guards, the request, every helper reply outcome, the filed-event decision, the busy counter and refusal at each interrupted read or call.
+
+`filePdf` now runs module-level phases in the original order: fileable job, filing operation, request, and filed-record handling. Five deliberate mutations (an inverted hash match, a changed toast field, an outbox count, a dropped location refresh and an unbalanced busy counter) are caught.
+
+Measured counts: {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13} → {'complexity': 18, 'max-depth': 0, 'max-lines-per-function': 76, 'python': 13}.
