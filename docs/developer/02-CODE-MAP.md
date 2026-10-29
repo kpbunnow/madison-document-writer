@@ -84,3 +84,5 @@ workspace_shell.createWorkspaceShell owns the screen frame and private storageBa
 The screen factories are constructed after storageProbe and before folderConnections without reads, I/O or registration. Core exports actual operations; no screen owner imports core or peer orchestration. Writer and Reports are acyclic; audit_module_boundaries forbids every cycle. Existing repaint/startup/listener and helper/storage/publication order and authority remain.
 
 Reports filter select controls use the shared screen-only escaping tag. Already-escaped adapter text is explicitly marked as a trusted fragment to retain lazy adapter calls; fixed select IDs and selected attributes are escaped by the tag. Screen templates do not enter print or workbook XML renderers.
+
+report_catalog.createReportCatalog owns the eleven named report definitions. Construction reads no services; each run consumes twenty explicit lazy calculation inputs supplied at the original Reports initialization point. Core retains report lookup, state, startup and listener order; the catalog imports no core, UI, state or storage owner.

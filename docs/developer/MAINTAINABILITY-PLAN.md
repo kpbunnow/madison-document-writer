@@ -1182,3 +1182,9 @@ Measured counts: {'complexity': 39, 'max-depth': 0, 'max-lines-per-function': 10
 Separate advanced filters and select controls; select/option markup uses the shared screen-only tag with explicit pre-escaped fragments preserving adapter timing. Extend existing differential operations to filter output without dropping assertions. Permit only the new screen_html dependency in the strict boundary map; cycles and peer/core isolation remain enforced. Full owner comparisons, sheet XML, Reports boundaries, module boundaries, seams, lint and formatting pass.
 
 Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 99, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
+
+## report-catalog-owner
+
+Move eleven report definitions into focused private builders and a twenty-input inert public catalog. Scope analysis rewrites only unbound calculation references; metadata and report expressions retain their original logic. All 2,750 real-model comparisons and complete Reports integration checks pass; strict module map adds only the shared-facts import and no core/UI/storage dependency. Reports startup and listeners remain unchanged.
+
+Measured counts: {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15} → {'complexity': 37, 'max-depth': 0, 'max-lines-per-function': 98, 'python': 15}.
