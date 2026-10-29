@@ -1,7 +1,7 @@
 # Maintainability architecture audit
 
 Snapshot: October 29, 2026, through the Writer detail-form checkpoint
-`cf43366c5184acab461b64d19d75f61d7880113b` and subsequent overlay conversion. This supersedes the PR #92
+`cf43366c5184acab461b64d19d75f61d7880113b` and subsequent overlay conversion and diagnostic retirement. This supersedes the PR #92
 measurement snapshot. It reviews the resumed maintainability work; it does not
 claim completion of every remaining screen/test migration, release approval or
 native acceptance. The exact final integration head must pass GitHub Full gate
@@ -29,7 +29,7 @@ Reproduce with `node tools/module_graph.cjs`, `node tools/service_interfaces.cjs
 | Long JS function findings | 93 | 54 enclosing create/init factories and39 non-factory functions |
 | Python C901 findings | 15 | Maintained helper/tools/policy scope, excluding vendor/history |
 | Whole-application evaluator files | 70 | Includes fixtures and genuine integration flows; not all are isolated tests |
-| Retained test hook fields | 54 | No hook is removed merely because a text search finds no consumer |
+| Retained test hook fields | 48 | No hook is removed merely because a text search finds no consumer |
 
 Counts are structural evidence, not a quality score. Baselines only decrease after
 reviewed, measured improvement. Historical assertions, deadlines and frozen
@@ -96,7 +96,12 @@ comparisons against retained original owners, preserving HTML, state and callbac
 failure order. The migrated shell-escaping suite retains all10 original assertion
 ASTs and composes real shell/case-action/editor owners without startup. Existing
 R26/R46/R54/R62, usability, special-rule and editor checks remain unchanged.
-Local JSDOM/owner results do not replace pinned-Chromium CI evidence.
+Six unconsumed test-build retention properties are subsequently retired after
+folded JS/helper, Python and browser review. Names inside retained owner fixtures
+are private definitions/calls, not core diagnostic consumers. Reports production HTML is byte-identical. Writer bundle changes are limited to
+removed unused plain-object aliases and incidental bundler binding names, verified
+by normalized production AST comparison; public owner methods remain. The test-hook baseline decreases54 to48. Local JSDOM/owner results
+do not replace pinned-Chromium CI evidence.
 
 ## Remaining work and stopping decision
 
@@ -115,7 +120,7 @@ M5/M6 complete. The following remain concrete follow-up work:
 - Retire each remaining diagnostic field only after tracing folded JS/helper,
   Python and browser consumers and proving no lost assertions or production-byte
   change. The70-file inventory is a baseline, not evidence that every file should
-  disappear or that the54 hooks are unused.
+  disappear or that the48 hooks are unused.
 - Refresh this audit and attach exact-head full-gate evidence after the remaining
   migrations. Do not revive the old blanket architecture-complete claim while
   those tracked migrations are open.
