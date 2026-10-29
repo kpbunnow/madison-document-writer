@@ -1,3 +1,4 @@
+import { html as screen, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Core supplies named UI/peer dependencies; construction does not read them. */
@@ -1365,42 +1366,12 @@ export function initNewDocuments(services) {
       key = "service:" + d.id,
       form = editor.WORK.recordForms[key] || {},
       field = (k, l, type = "text") =>
-        '<label class="f"><span>' + l + '</span><input type="' + type + '" data-service-field="' + k + '" value="' + e(form[k] || "") + '"></label>';
-    return (
-      '<section class="card no-print"><div class="card-h"><h2>Service and court' +
-      ' evidence</h2></div><div class="card-b"><p>Issuance does not establish s' +
-      "ervice or publication. The remedy period is distinct from the order comp" +
-      "liance date. Court restrictions and City abatement require separate exte" +
-      "rnal decisions.</p>" +
-      (latest
-        ? "<p><strong>Latest recorded evidence:</strong> " +
-          e(latest.method) +
-          " on " +
-          date(latest.date) +
-          " — " +
-          e(latest.reference) +
-          (latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "") +
-          "</p>"
-        : "<p>No completed service / publication recorded.</p>") +
-      '<fieldset class="grid g2" aria-label="Service evidence" ' +
-      (editor.state.publicationBusy === d.id ? "disabled" : "") +
-      ('><label class="f"><span>Actual method</span><select data-service-field="' +
-        'method"><option value="">Choose…</option><option value="service" ') +
-      (form.method === "service" ? "selected" : "") +
-      '>Service</option><option value="publication" ' +
-      (form.method === "publication" ? "selected" : "") +
-      ">Publication</option></select></label>" +
-      field("date", "Actual service / publication date", "date") +
-      field("reference", "Supporting record / evidence") +
-      field("courtReference", "Court restriction reference (if applicable)") +
-      '</fieldset><button class="btn" ' +
-      (editor.state.publicationBusy === d.id ? "disabled" : "") +
-      ' data-save-service="' +
-      e(d.id) +
-      '">' +
-      (latest ? "Record corrected / additional evidence" : "Record completed service / publication") +
-      "</button></div></section>"
-    );
+        screen`<label class="f"><span>${String(l)}</span><input type="${String(type)}" data-service-field="${String(k)}" value="${raw(e(form[k] || ""))}"></label>`;
+    return screen`<section class="card no-print"><div class="card-h"><h2>Service and court evidence</h2></div><div class="card-b"><p>Issuance does not establish service or publication. The remedy period is distinct from the order compliance date. Court restrictions and City abatement require separate external decisions.</p>${raw(
+      latest
+        ? screen`<p><strong>Latest recorded evidence:</strong> ${raw(e(latest.method))} on ${String(date(latest.date))} — ${raw(e(latest.reference))}${raw(latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "")}</p>`
+        : "<p>No completed service / publication recorded.</p>",
+    )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}><label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
   }
   async function saveService(docId) {
     const d = doc(docId),
@@ -1466,25 +1437,23 @@ export function initNewDocuments(services) {
     if (services.snow.is(d)) return "";
     if (d.draft) return "";
     const restrictions = activeRestrictions(docsFor(d.caseId));
-    return (
-      servicePanel(d) +
-      '<section class="card no-print"><div class="card-b">' +
-      (restrictions.length
-        ? '<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ' +
-          restrictions.map((x) => e(scope(x, x.special))).join("; ") +
-          ". Compliance and extension letters do not release it.</p>"
-        : "") +
-      (d.initialAction && !originalNotice(d.caseId) && isEffective(d)
-        ? '<button class="btn" data-initial-notice="' + e(d.id) + '">Create Official Notice from this initial inspection</button>'
-        : "") +
-      (d.fromReinspId && isEffective(d)
-        ? '<button class="btn" data-another-action="' + e(d.fromReinspId) + '">Add another document for this inspection</button>'
-        : "") +
-      (isEffective(d)
-        ? '<button class="btn" data-case-action="' + e(d.caseId) + '">Create a scoped order / administrative letter from current case facts</button>'
-        : "") +
-      "</div></section>"
-    );
+    return screen`${raw(servicePanel(d))}<section class="card no-print"><div class="card-b">${raw(
+      restrictions.length
+        ? screen`<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ${raw(restrictions.map((x) => e(scope(x, x.special))).join("; "))}. Compliance and extension letters do not release it.</p>`
+        : "",
+    )}${raw(
+      d.initialAction && !originalNotice(d.caseId) && isEffective(d)
+        ? screen`<button class="btn" data-initial-notice="${raw(e(d.id))}">Create Official Notice from this initial inspection</button>`
+        : "",
+    )}${raw(
+      d.fromReinspId && isEffective(d)
+        ? screen`<button class="btn" data-another-action="${raw(e(d.fromReinspId))}">Add another document for this inspection</button>`
+        : "",
+    )}${raw(
+      isEffective(d)
+        ? screen`<button class="btn" data-case-action="${raw(e(d.caseId))}">Create a scoped order / administrative letter from current case facts</button>`
+        : "",
+    )}</div></section>`;
   }
   function caseAction(cid, type) {
     if (services.snow.isCase(kase(cid))) {
@@ -1562,56 +1531,32 @@ export function initNewDocuments(services) {
         k.address || "Current case action",
         k.number || "",
         '<button class="btn" data-nav="cases">Workspace</button>',
-        '<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>' +
-          e(REFERRED_MESSAGE) +
-          " Import a CA Reinspection to write them.</p></div></section>",
+        screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>${raw(e(REFERRED_MESSAGE))} Import a CA Reinspection to write them.</p></div></section>`,
       );
     return services.shell(
       k.address || "Current case action",
       k.number || "",
       '<button class="btn" data-nav="cases">Workspace</button>',
-      '<section class="card no-print r26-chooser"><div class="card-h"><h2>Choos' +
-        'e next action from current case facts</h2></div><div class="card-b"><p>A' +
-        "dministrative letters cite the actual existing inspection. New observati" +
-        "ons require a real recorded inspection. Existing restrictions continue u" +
-        "ntil a documented release.</p><fieldset><legend>Action group</legend><di" +
-        'v class="r26-groups">' +
+      screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>Administrative letters cite the actual existing inspection. New observations require a real recorded inspection. Existing restrictions continue until a documented release.</p><fieldset><legend>Action group</legend><div class="r26-groups">${raw(
         groups
           .filter((g) => g[0] !== "compliance")
           .map(
             ([v, l]) =>
-              '<label class="r26-choice"><input type="radio" name="case-action-group" data-case-action-group="' +
-              v +
-              '" ' +
-              (choice.group === v ? "checked" : "") +
-              "> " +
-              l +
-              "</label>",
+              screen`<label class="r26-choice"><input type="radio" name="case-action-group" data-case-action-group="${String(v)}" ${raw(choice.group === v ? "checked" : "")}> ${String(l)}</label>`,
           )
-          .join("") +
-        "</div></fieldset>" +
-        (choice.group
-          ? "<fieldset><legend>Document</legend>" +
-            NEW_TYPES.filter((t) => t.group === choice.group)
-              .map(
-                (t) =>
-                  '<label class="r26-choice"><input type="radio" name="case-action-type" data-case-action-type="' +
-                  t.id +
-                  '" ' +
-                  (choice.type === t.id ? "checked" : "") +
-                  " " +
-                  (why(t) ? "disabled" : "") +
-                  "><span>" +
-                  e(t.label) +
-                  (why(t) ? "<small>" + e(why(t)) + "</small>" : "") +
-                  "</span></label>",
-              )
-              .join("") +
-            "</fieldset>"
-          : "") +
-        '<button class="btn btn-primary" data-create-case-action ' +
-        (!choice.type ? "disabled" : "") +
-        ">Create draft</button></div></section>",
+          .join(""),
+      )}</div></fieldset>${raw(
+        choice.group
+          ? screen`<fieldset><legend>Document</legend>${raw(
+              NEW_TYPES.filter((t) => t.group === choice.group)
+                .map(
+                  (t) =>
+                    screen`<label class="r26-choice"><input type="radio" name="case-action-type" data-case-action-type="${String(t.id)}" ${raw(choice.type === t.id ? "checked" : "")} ${raw(why(t) ? "disabled" : "")}><span>${raw(e(t.label))}${raw(why(t) ? screen`<small>${raw(e(why(t)))}</small>` : "")}</span></label>`,
+                )
+                .join(""),
+            )}</fieldset>`
+          : "",
+      )}<button class="btn btn-primary" data-create-case-action ${raw(!choice.type ? "disabled" : "")}>Create draft</button></div></section>`,
     );
   }
   function cacheDetails(d) {

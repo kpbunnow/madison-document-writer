@@ -1,3 +1,8 @@
+import { TILE } from "./report_map_config.js";
+export { TILE };
+import { CRC_T, xesc, excelDate, STYLES } from "./report_workbook_definitions.js";
+export { CRC_T, xesc, excelDate, STYLES };
+import { createReportFilterChange } from "./report_filter_events.js";
 import { STATUSES, STATUS_COL } from "./report_metadata.js";
 export { STATUSES, STATUS_COL };
 import { activeReportFilters } from "./report_facts.js";
@@ -35,7 +40,7 @@ import { createReportCatalog } from "./report_catalog.js";
 import { createReportsServices } from "./reports_services.js";
 import { createReportsScreens } from "./reports_screens.js";
 import { createReportsViewContext } from "./reports_view_contexts.js";
-import { listenForStop, showStopped } from "./helper_stopped.js";
+import { listenForReportStop } from "./report_connection.js";
 
 import { ReportsState } from "./state.js";
 import { initDepositSchedule } from "./deposit_schedule.js";
@@ -338,10 +343,6 @@ export const TODAY = iso(new Date());
    district (or ZIP) and whose values all fit is used. */
 
 /* ---------- state ---------- */
-export const TILE = {
-  labels: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_basemap/MapServer/tile/{z}/{y}/{x}",
-  plain: "https://maps.cityofmadison.com/arcgis/rest/services/BaseMaps/Color_base_No_Names/MapServer/tile/{z}/{y}/{x}",
-};
 
 ReportsState.S = {
   phase: "loading",
@@ -494,47 +495,9 @@ ReportsState.MAP = null;
 /* ---------- Excel ----------
    A stored (uncompressed) ZIP holding the SpreadsheetML parts. Dates are
    real Excel dates and money is numeric. */
-export const CRC_T = (() => {
-  const t = new Uint32Array(256);
-  for (let n = 0; n < 256; n++) {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    t[n] = c >>> 0;
-  }
-  return t;
-})();
 
-export const xesc = (s) =>
-  String(s)
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-
-export const excelDate = (s) => {
-  const p = s.split("-").map(Number);
-  return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000 + 25569;
-};
 /* cell values: string, number, {d:'YYYY-MM-DD'}, {m:n} money, {f:n} one
    decimal, null */
-
-export const STYLES =
-  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-  '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-  ('<numFmts count="2"><numFmt numFmtId="164" formatCode="mm/dd/yyyy"/><numF' + 'mt numFmtId="165" formatCode="0.0"/></numFmts>') +
-  ('<fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2' +
-    '"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/>' +
-    "</font></fonts>") +
-  ('<fills count="2"><fill><patternFill patternType="none"/></fill><fill><pa' + 'tternFill patternType="gray125"/></fill></fills>') +
-  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
-  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
-  '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
-  '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
-  '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
-  '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
-  '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>' +
-  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
 
 /* The flat tables follow the current filters as EXPORT_SCOPE describes. Cases,
    violations and visits use the period on the case opening date; citations and
@@ -592,35 +555,26 @@ document.addEventListener(
     },
   }),
 );
-document.addEventListener("change", (e) => {
-  const t = e.target,
-    F = ReportsState.S.F;
-  if (t.id === "saved-view") {
-    applyReportView(t.value);
-    return;
-  }
-  if (t.dataset && t.dataset.area !== undefined) {
-    ReportsState.S.areasOpen = true;
-    toggleArea(t.dataset.area);
-    return;
-  }
-  const k = {
-    "f-from": "from",
-    "f-to": "to",
-    "f-asOf": "asOf",
-    "f-inspector": "inspector",
-    "f-vtype": "vtype",
-    "f-ord": "ord",
-    "f-status": "status",
-  }[t.id];
-  if (!k) return;
-  if ((k === "from" || k === "to" || k === "asOf") && !validISO(t.value)) return; // a half-typed date is not a filter
-  F[k] = t.value;
-  if (["from", "to", "asOf"].includes(k)) ReportsState.S.dateMode = "fixed";
-  ReportsState.S.savedId = "";
-  ReportsState.S.drill = null;
-  render();
-});
+document.addEventListener(
+  "change",
+  createReportFilterChange({
+    get state() {
+      return ReportsState.S;
+    },
+    get applyReportView() {
+      return applyReportView;
+    },
+    get toggleArea() {
+      return toggleArea;
+    },
+    get validISO() {
+      return validISO;
+    },
+    get render() {
+      return render;
+    },
+  }),
+);
 document.addEventListener(
   "toggle",
   (e) => {
@@ -661,9 +615,7 @@ export const restoreReportReturn = createReportReturn({
 });
 
 /* Exit Document Writer in a Writer window stops the helper: this window shows the same stopped state. */
-listenForStop(() =>
-  showStopped(["Exit Document Writer was used in a Writer window. Reports cannot read case records until Document Writer starts again."]),
-);
+listenForReportStop();
 if (!window.__NO_AUTOLOAD__)
   loadAll(false).then(() => {
     if (new URLSearchParams(location.search).has("return")) restoreReportReturn();

@@ -54,6 +54,7 @@ module.exports = function createReportAnalysis() {
       return restoreReportReturn;
     },
     TODAY,
+    REPORT_CHANNEL: "madison-writer-handoff-v1",
     iso: facts.iso,
     STREET_WORDS: facts.STREET_WORDS,
     areaIdOf: facts.areaIdOf,
@@ -74,6 +75,8 @@ module.exports = function createReportAnalysis() {
   });
   return {
     ReportsState,
+    REPORTS: reports,
+    handoff: { openInWriter: service.openInWriter, iso: facts.iso },
     buildModel: service.buildModel,
     violOk: facts.violOk,
     reportById,
