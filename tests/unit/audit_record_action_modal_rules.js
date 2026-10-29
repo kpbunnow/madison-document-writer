@@ -23,7 +23,14 @@ function scenario(inspectors) {
             by: pick(inspectors),
             payload: {
               docId: pick(["doc", "doc", "x"]),
-              ...pick([{ reason: "Held <reason>" }, { text: "Held note" }, { reference: "Held ref" }, {}]),
+              ...pick([
+                { reason: "Held <reason>" },
+                { text: "Held note" },
+                { reference: "Held ref" },
+                { reason: "", text: "Held note", reference: "Held ref" },
+                { text: "T", reference: "R" },
+                {},
+              ]),
               externalReference: pick(["", "Ext & ref"]),
             },
           },

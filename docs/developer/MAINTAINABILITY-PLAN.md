@@ -1559,4 +1559,4 @@ Added a frozen-original comparison of record verification before changing it (`a
 
 Added a frozen-original comparison of the record-action dialog (`audit_record_action_modal_rules.js`: 6,000 seeded states, every mode, held attempt, saved form and error, with escaping, against the retained `correction_ui_reference.txt`). `recordActionModal` (complexity 25) is now a held-attempt lookup plus inspector, external-reference and shell builders. Four deliberate mutations are caught.
 
-Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 63 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
+Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
