@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 48,
+    "complexity": 47,
     "max-depth": 0,
-    "max-lines-per-function": 104,
+    "max-lines-per-function": 103,
     "python": 15
   },
   "violations": {
@@ -82,8 +82,6 @@
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1:max-lines-per-function": 446,
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1/anonymous#2:complexity": 75,
     "app/modules/document_render.js:createDocumentRenderer#1/noticeHTML#1/anonymous#2:max-lines-per-function": 228,
-    "app/modules/draft_persistence.js:createDraftPersistence#1:max-lines-per-function": 82,
-    "app/modules/draft_persistence.js:createDraftPersistence#1/restoreDrafts#1:complexity": 22,
     "app/modules/editor_events.js:createEditorEvents#1:max-lines-per-function": 495,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentChange#1/anonymous#1:complexity": 35,
     "app/modules/editor_events.js:createEditorEvents#1/registerDocumentInput#1:max-lines-per-function": 131,
