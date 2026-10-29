@@ -937,3 +937,9 @@ Measured counts: {'complexity': 53, 'max-depth': 0, 'max-lines-per-function': 11
 Separated shared-save/connection confirmation status from higher-priority integrity, draft, queue and PDF decisions. Passed 5,108 retained-owner comparisons covering ordered reads and interruptions, 1,033 exact Workspace snapshots, fresh test build, existing R44 saved-work and desktop-exit suites, module boundaries, test seams, ESLint and formatting. No storage/write authority, status wording, print or release identity changes.
 
 Measured counts: {'complexity': 52, 'max-depth': 0, 'max-lines-per-function': 116, 'python': 15} → {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15}.
+
+## correction-format-owner-test
+
+Migrated correction-value formatting coverage from whole Writer evaluation to createCorrectionUI with explicit fail-on-read services under its existing test-build interface. All nine original behavioral assertion ASTs remain unchanged and console output is byte-identical; added inert-import protection. Production code unchanged; existing test-only hooks retained. Test seams, module boundaries, ESLint and formatting pass; legacy bundle evaluators80→79.
+
+Measured counts: {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15} → {'complexity': 51, 'max-depth': 0, 'max-lines-per-function': 115, 'python': 15}.
