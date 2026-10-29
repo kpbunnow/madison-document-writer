@@ -261,6 +261,7 @@ covers, or a new suite under its feature.
 | `audit_r48_reports.js`, `audit_r49_ui.js`, `audit_r50_report_errors.js` | Filters, ordering, coverage wording, report errors |
 | `audit_server_reporting.py` | Reporting endpoints over real HTTP |
 | `audit_import_panel_rules.js` | 6,000 seeded reports, cases, drafts and lookup states compare the import review panel with the retained module: exact markup, every peer read and call in order, untouched state and refusal at each interrupted read. |
+| `audit_import_accept_rules.js` | 8,000 seeded reports, cases and drafts compare import acceptance with the retained module: the case, document and worksheet it creates or updates, every peer read and call in order with the state they see, and refusal at each interrupted read or call. |
 | `audit_import_report_rules.js` | Over 10,000 seeded comparisons the Accela report reading (columns, type and status rules, value readers, report-table parsing and workbook zip/XML reading, including damaged and oversized files) matches the retained module. |
 | `audit_summary_projection_rules.js` | 4,500 synthetic corpus cases compare the browser summary projection and event replay with the retained module: summaries, refusals, untouched inputs and both case-list modes. |
 | `audit_case_projection_phases.py` | 3,000 synthetic corpus cases compare the helper replay and projection with the retained functions for both workspace modes: results, workspace consultation, refusals and untouched inputs. |

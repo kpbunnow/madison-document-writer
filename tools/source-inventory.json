@@ -677,6 +677,7 @@
     "tests/unit/audit_health_rules.py",
     "tests/unit/audit_helper.py",
     "tests/unit/audit_history_rules.py",
+    "tests/unit/audit_import_accept_rules.js",
     "tests/unit/audit_import_panel_rules.js",
     "tests/unit/audit_import_plan_rules.js",
     "tests/unit/audit_import_r13.js",
