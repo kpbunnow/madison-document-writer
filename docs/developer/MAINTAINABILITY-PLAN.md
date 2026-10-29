@@ -1526,3 +1526,9 @@ Added a frozen-original comparison of the scoped action click handler (`audit_ne
 `clickEvent` (complexity 25) is now one closest-target lookup over an ordered table of action handlers. Five deliberate mutations (a reordered pair, swapped steps, a changed guard, a changed fall-through and a changed id prefix) are caught.
 
 Measured counts for the new-document group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 19, 'max-depth': 0, 'max-lines-per-function': 80, 'python': 13}; `initNewDocuments` fell from 1,089 to about 565 lines.
+
+## deposit-reading-phases
+
+Added a frozen-original comparison of the build-time deposit reading (`audit_deposit_interpreter_rules.py`: 6,000 seeded schedule entries against the retained module text, executed in its own namespace). It compares the exact result or error, every ordinance family, quantity row, tier list and stale notice, and that inputs are untouched.
+
+`interpret` (C901 14) is now an ordered table of rule readings (mandatory, tree, building, tons, percent, parking, tiers) with separate classification, status and stale-notice functions. Four of six deliberate mutations are caught; the survivors (swapping two rules with disjoint conditions, and a guard that cannot differ because a mandatory rule has no fields) are behavior-equivalent.
