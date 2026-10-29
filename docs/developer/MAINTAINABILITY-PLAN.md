@@ -1458,3 +1458,19 @@ Added a frozen-original comparison of the Accela report reading before moving it
 The pure report reading (columns, type and status rules, XLSX reading and table parsing) now lives in `accela_report.js`, with `accUnzip` split into directory, header and content phases and `accelaTable` into header, case, row and ordering phases. The factory's pure helpers (candidate filtering, rule application, the lookup card, cancel and the direct-lookup report builder) moved to module level, so `createAccelaImport` shrank from 1,309 to about 800 lines while its public surface is unchanged. Deliberate mutations at exact size boundaries and in case grouping are caught.
 
 Measured counts: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 22, 'max-depth': 0, 'max-lines-per-function': 81, 'python': 13}.
+
+## import-panel-phases
+
+Added a frozen-original comparison of the import review panel before changing it (`audit_import_panel_rules.js`: 6,000 seeded reports, cases, drafts and lookup states against the retained `accela_import_reference.txt`, 213 with injected interruptions). It compares exact markup, every peer read and call in order, untouched state and refusal at each interrupted read.
+
+`accelaPanel` (complexity 35, 221 lines) now assembles module-level section builders (errors, case chooser, inspection summary, choices, unavailable list, continuity, manual date, blockers, case changes, source details) in the original evaluation order. Five deliberate mutations (a changed selected test, a dropped unissued-visit read, an inverted primary button, swapped section order and a changed disabled test) are caught.
+
+## import-acceptance-and-lookup-phases
+
+Added frozen-original comparisons of import acceptance (`audit_import_accept_rules.js`, 8,000 scenarios) and the direct case lookup (`audit_import_lookup_rules.js`, 6,000 scenarios with stale-result triggers, scripted fetch and timers). They compare created or updated cases, documents and worksheets, every peer call in order with the state it sees, failure messages, busy and controller cleanup, the arming of the lookup authorization and refusal at each interrupted call.
+
+`baseLookupAccept` is now a guard plus module-level phases (case values, case upsert, refresh, snow citation, reinspection, notice) and `findDatabaseCase` a short sequence over begin, request, shared check, open and end phases. Deliberate mutations are caught; the survivors (an unreachable null-rule branch and an unreachable final fall-through) are behavior-equivalent because the plan always yields a next step and only importable rows are selectable.
+
+The factory-size ratchet planned for C5 is already provided by the per-function line ratchet: factories above 80 lines have their own baseline entries and cannot grow. `createAccelaImport` fell from 1,309 to 428 lines.
+
+Measured counts for the import group: {'complexity': 23, 'max-depth': 0, 'max-lines-per-function': 82, 'python': 13} → {'complexity': 20, 'max-depth': 0, 'max-lines-per-function': 79, 'python': 13}.

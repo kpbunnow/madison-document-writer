@@ -487,6 +487,173 @@ function sqlReport(result, number) {
   };
 }
 
+/* Direct lookup phases. Each takes the owner's `services` and runs in the order the single lookup used to. */
+function beginLookup(services) {
+  if (imports.LOOKUP_BUSY) return null;
+  services.captureWork();
+  const number = accStr(editor.WORK.entry["lookup-number"]).toUpperCase();
+  editor.WORK.entry["lookup-number"] = number;
+  if (!validCaseNumber(number)) {
+    imports.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
+    services.render();
+    return null;
+  }
+  imports.LOOKUP_ERROR = "";
+  imports.LOOKUP_BUSY = true;
+  const serial = ++imports.LOOKUP_SERIAL;
+  const controller = new AbortController();
+  imports.LOOKUP_CONTROLLER = controller;
+  const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import";
+  services.render();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  return { number, serial, controller, active, timer };
+}
+
+async function requestCase(number, controller) {
+  const response = await authFetch("/case-lookup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ caseNumber: number }),
+    signal: controller.signal,
+  });
+  return { response, result: await response.json() };
+}
+
+function lookupFailureMessage(error) {
+  return error.name === "AbortError"
+    ? "The lookup timed out. Your work is kept; retry when the network is available."
+    : error.message || "The lookup failed. Your work is kept.";
+}
+
+async function endLookup(services, serial, timer) {
+  clearTimeout(timer);
+  if (serial !== imports.LOOKUP_SERIAL) return;
+  imports.LOOKUP_BUSY = false;
+  imports.LOOKUP_CONTROLLER = null;
+  await services.saveDrafts();
+  services.render();
+}
+
+/* Acceptance phases. Each takes the owner's `services` and runs in the order the single acceptance used to. */
+function importedCaseValues(p, acc) {
+  const c = p.c,
+    row = p.row,
+    f = p.f;
+  return {
+    siteCity: f.siteCity,
+    parcel: f.parcel,
+    description: f.description,
+    owner: f.owner,
+    ownerAddr: f.ownerAddr.slice(),
+    historic: f.historic,
+    historicDistrict: f.historicDistrict,
+    landmark: f.landmark,
+    date: p.date,
+    time: p.time,
+    inspectorId: row.inspectorId,
+    accela: {
+      pulled: nowISO(),
+      file: acc.fileName || "",
+      ...(acc.source ? { source: clone(acc.source) } : {}),
+      inspections: c.rows.map((x) => ({ type: x.type, date: x.date, time: x.time, status: x.status, inspector: x.inspectorName })),
+    },
+  };
+}
+
+// the address on file is kept: the case-file name is built from it
+function upsertImportedCase(services, p, fields) {
+  const k = p.existing;
+  if (k) return Object.assign(k, fields);
+  const created = { id: services.uid("k"), number: p.c.number, address: p.f.address, ...fields };
+  workspace.CASES.push(created);
+  return created;
+}
+
+function clearImportReview() {
+  editor.state.acc = null;
+  editor.WORK.acc = null;
+}
+
+function refreshImportedStatus(services, k, p, importRule) {
+  clearImportReview();
+  applyImportRule(p.refresh, importRule);
+  workspace.DIRTY = true;
+  services.saveDrafts();
+  services.render();
+  services.toast("Accela status refreshed: " + importRule.status + " → " + importRule.label);
+  return k;
+}
+
+function startSnowCitation(services, k, row) {
+  k.caseType = "snow-10.28";
+  services.newDoc(k.id, "citation");
+  const d = doc(editor.state.docId);
+  d.inspDate = row.date;
+  d.inspTime = row.time;
+  d.importInspection = inspectionIdentity(row);
+  services.snow.prepare(d);
+  services.citationPricing.refresh(d);
+  services.saveDrafts();
+  services.render();
+  return k;
+}
+
+function startImportedReinspection(services, k, row, importRule) {
+  const open = draftReinspFor(k.id);
+  if (open) {
+    services.startReinspection(k.id, row);
+    services.saveDrafts();
+    services.render();
+    services.toast("Case updated — the open worksheet of " + services.fmtDate(row.date) + " is on screen");
+    return k;
+  }
+  services.startReinspection(k.id, row);
+  const worksheet = draftReinspFor(k.id);
+  if (worksheet && importRule) applyImportRule(worksheet, importRule);
+  services.saveDrafts();
+  services.render();
+  services.toast("Reinspection of " + services.fmtDate(row.date) + " opened from the Accela report");
+  return k;
+}
+
+function startImportedNotice(services, k, row, importRule) {
+  const dd = draftDocFor(k.id);
+  if (dd) {
+    editor.state.docId = dd.id;
+    editor.state.screen = "write";
+    services.saveDrafts();
+    services.render();
+    services.toast("Case updated — its draft is on screen");
+    return k;
+  }
+  services.newDoc(k.id, "notice");
+  const created = doc(editor.state.docId);
+  if (created) {
+    created.importInspection = inspectionIdentity(row);
+    if (importRule) applyImportRule(created, importRule);
+    services.saveDrafts();
+  }
+  return k;
+}
+
+function acceptImportPlan(services, acc, p) {
+  const row = p.row;
+  const k = upsertImportedCase(services, p, importedCaseValues(p, acc));
+  services.snow.imported(k, row);
+  const importRule = row.rule && !row.rule.error ? clone(row.rule) : null;
+  if (p.refresh && importRule) return refreshImportedStatus(services, k, p, importRule);
+  clearImportReview();
+  workspace.DIRTY = true;
+  if (p.next === "snow") return startSnowCitation(services, k, row);
+  if (p.next === "reinspect") return startImportedReinspection(services, k, row, importRule);
+  if (p.next === "notice") return startImportedNotice(services, k, row, importRule);
+  editor.state.screen = "cases";
+  services.saveDrafts();
+  services.render();
+  services.toast("Case " + k.number + " updated from the Accela report");
+  return k;
+}
+
 /* Import review panel builders. Each takes what it renders from; services are read only for dates and drafts. */
 const CANCEL_IMPORT = '<button class="btn" id="acc-cancel">Clear import</button>';
 
@@ -880,104 +1047,7 @@ export function createAccelaImport(services) {
       services.render();
       return null;
     }
-    const c = p.c,
-      row = p.row,
-      f = p.f;
-    let k = p.existing;
-    const fields = {
-      siteCity: f.siteCity,
-      parcel: f.parcel,
-      description: f.description,
-      owner: f.owner,
-      ownerAddr: f.ownerAddr.slice(),
-      historic: f.historic,
-      historicDistrict: f.historicDistrict,
-      landmark: f.landmark,
-      date: p.date,
-      time: p.time,
-      inspectorId: row.inspectorId,
-      accela: {
-        pulled: nowISO(),
-        file: acc.fileName || "",
-        ...(acc.source ? { source: clone(acc.source) } : {}),
-        inspections: c.rows.map((x) => ({ type: x.type, date: x.date, time: x.time, status: x.status, inspector: x.inspectorName })),
-      },
-    };
-    // the address on file is kept: the case-file name is built from it
-    if (k) Object.assign(k, fields);
-    else {
-      k = { id: services.uid("k"), number: c.number, address: f.address, ...fields };
-      workspace.CASES.push(k);
-    }
-    services.snow.imported(k, row);
-    const importRule = row.rule && !row.rule.error ? clone(row.rule) : null;
-    if (p.refresh && importRule) {
-      editor.state.acc = null;
-      editor.WORK.acc = null;
-      applyImportRule(p.refresh, importRule);
-      workspace.DIRTY = true;
-      services.saveDrafts();
-      services.render();
-      services.toast("Accela status refreshed: " + importRule.status + " \u2192 " + importRule.label);
-      return k;
-    }
-    editor.state.acc = null;
-    editor.WORK.acc = null;
-    workspace.DIRTY = true;
-    if (p.next === "snow") {
-      k.caseType = "snow-10.28";
-      services.newDoc(k.id, "citation");
-      const d = doc(editor.state.docId);
-      d.inspDate = row.date;
-      d.inspTime = row.time;
-      d.importInspection = inspectionIdentity(row);
-      services.snow.prepare(d);
-      services.citationPricing.refresh(d);
-      services.saveDrafts();
-      services.render();
-      return k;
-    }
-    if (p.next === "reinspect") {
-      const open = draftReinspFor(k.id);
-      if (open) {
-        services.startReinspection(k.id, row);
-        services.saveDrafts();
-        services.render();
-        services.toast("Case updated — the open worksheet of " + services.fmtDate(row.date) + " is on screen");
-        return k;
-      }
-      services.startReinspection(k.id, row);
-      const worksheet = draftReinspFor(k.id);
-      if (worksheet && importRule) applyImportRule(worksheet, importRule);
-      services.saveDrafts();
-      services.render();
-      services.toast("Reinspection of " + services.fmtDate(row.date) + " opened from the Accela report");
-      return k;
-    }
-    if (p.next === "notice") {
-      const dd = draftDocFor(k.id);
-      if (dd) {
-        editor.state.docId = dd.id;
-        editor.state.screen = "write";
-        services.saveDrafts();
-        services.render();
-        services.toast("Case updated — its draft is on screen");
-        return k;
-      }
-      services.newDoc(k.id, "notice");
-      const created = doc(editor.state.docId);
-      if (created) {
-        created.importInspection = inspectionIdentity(row);
-        if (importRule) applyImportRule(created, importRule);
-        services.saveDrafts();
-      }
-      return k;
-    }
-    editor.state.screen = "cases";
-    services.saveDrafts();
-    services.render();
-    services.toast("Case " + k.number + " updated from the Accela report");
-    return k;
+    return acceptImportPlan(services, acc, p);
   }
 
   function accelaPanel() {
@@ -1124,35 +1194,31 @@ export function createAccelaImport(services) {
     );
   }
 
+  // Shows the retrieved case, or accepts it directly when it is a single eligible new case.
+  async function openLookupResult(acc, active) {
+    editor.state.acc = acc;
+    editor.WORK.acc = clone(acc);
+    if (!(await services.saveDrafts()))
+      throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
+    if (active() && !acc.shareError && lookupCanOpen(acc)) {
+      LOOKUP_READY.add(acc);
+      try {
+        acceptAccela();
+      } finally {
+        LOOKUP_READY.delete(acc);
+      }
+    } else if (active()) services.toast("Case retrieved — review the inspection and details");
+  }
+
   async function findDatabaseCase() {
-    if (imports.LOOKUP_BUSY) return;
-    services.captureWork();
-    const number = accStr(editor.WORK.entry["lookup-number"]).toUpperCase();
-    editor.WORK.entry["lookup-number"] = number;
-    if (!validCaseNumber(number)) {
-      imports.LOOKUP_ERROR = "Enter a complete case number using letters, numbers and hyphens.";
-      services.render();
-      return;
-    }
-    imports.LOOKUP_ERROR = "";
-    imports.LOOKUP_BUSY = true;
-    const serial = ++imports.LOOKUP_SERIAL;
-    const controller = new AbortController();
-    imports.LOOKUP_CONTROLLER = controller;
-    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import";
-    services.render();
-    const timer = setTimeout(() => controller.abort(), 45000);
+    const lookup = beginLookup(services);
+    if (!lookup) return;
+    const { number, serial, controller, active, timer } = lookup;
     try {
       if (!(await services.saveDrafts()))
         throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
       if (!active()) return;
-      const response = await authFetch("/case-lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ caseNumber: number }),
-        signal: controller.signal,
-      });
-      const result = await response.json();
+      const { response, result } = await requestCase(number, controller);
       if (!active()) return;
       if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
       const acc = sqlReport(result, number);
@@ -1162,32 +1228,11 @@ export function createAccelaImport(services) {
         acc.shareError = e.message;
       }
       if (!active()) return;
-      editor.state.acc = acc;
-      editor.WORK.acc = clone(acc);
-      if (!(await services.saveDrafts()))
-        throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
-      if (active() && !acc.shareError && lookupCanOpen(acc)) {
-        LOOKUP_READY.add(acc);
-        try {
-          acceptAccela();
-        } finally {
-          LOOKUP_READY.delete(acc);
-        }
-      } else if (active()) services.toast("Case retrieved — review the inspection and details");
+      await openLookupResult(acc, active);
     } catch (error) {
-      if (active())
-        imports.LOOKUP_ERROR =
-          error.name === "AbortError"
-            ? "The lookup timed out. Your work is kept; retry when the network is available."
-            : error.message || "The lookup failed. Your work is kept.";
+      if (active()) imports.LOOKUP_ERROR = lookupFailureMessage(error);
     } finally {
-      clearTimeout(timer);
-      if (serial === imports.LOOKUP_SERIAL) {
-        imports.LOOKUP_BUSY = false;
-        imports.LOOKUP_CONTROLLER = null;
-        await services.saveDrafts();
-        services.render();
-      }
+      await endLookup(services, serial, timer);
     }
   }
 

@@ -99,7 +99,21 @@ function scenario() {
     busy: chance(8),
     saveDrafts: pick([true, true, true, false]),
     saveAfter: pick([true, true, true, false]),
-    stale: pick(["", "", "", "", "serial-save", "screen-save", "serial-fetch", "serial-json", "serial-list", "serial-open", "screen-after"]),
+    stale: pick([
+      "",
+      "",
+      "",
+      "",
+      "serial-save",
+      "screen-save",
+      "serial-fetch",
+      "serial-json",
+      "serial-list",
+      "serial-open",
+      "serial-load",
+      "screen-load",
+      "screen-after",
+    ]),
     response: pick(["ok", "ok", "ok", "ok", "notok", "failed", "abort", "boom", "emptyfail"]),
     result: pick(["good", "good", "good", "good", "mismatch", "norows"]),
     rows,
@@ -159,6 +173,8 @@ async function run(api, sc, inspector) {
   };
   let saves = 0,
     counter = 0;
+  globalThis.setTimeout = (fn, ms) => (calls.push("setTimeout " + ms), 1);
+  globalThis.clearTimeout = (id) => calls.push("clearTimeout " + id);
   const fetches = [];
   globalThis.fetch = async (url, options) => {
     fetches.push([url, options.method, options.body, options.headers.get("X-DocWriter-Token")]);
@@ -205,7 +221,7 @@ async function run(api, sc, inspector) {
       }
       return { file: { case: { number: x.openedNumber } }, name: "a" };
     },
-    loadCaseFile: () => x.loaded,
+    loadCaseFile: () => (trigger("load"), x.loaded),
     "COMMITTED.set": () => undefined,
     "snow.isCase": () => x.snow,
     "snow.is": () => x.snow,
@@ -232,6 +248,7 @@ async function run(api, sc, inspector) {
   try {
     await owner.findDatabaseCase();
     trigger("after");
+    if (state.state.acc) calls.push("accept " + JSON.stringify(owner.acceptAccela() && "accepted"));
   } catch (e) {
     error = [e.name, e.message];
   }
