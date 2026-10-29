@@ -42,6 +42,7 @@ import secrets
 import hmac
 import helper_session
 import case_integrity
+from public_errors import public_message
 import case_projection
 from reporting_reads import ordered_reads
 import citation_pricing
@@ -1272,7 +1273,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             )
             return self._json(200, result)
         except (OSError, ValueError, TypeError, KeyError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
 
     def do_POST(self):
         if self._guard_read():
@@ -1331,7 +1332,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             return self._json(200, operations_helper.lock_status(case_dir(), parse_qs(urlsplit(self.path).query).get("number", [""])[0]))
         except (ValueError, TypeError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except OSError:
             return self._json(503, {"ok": False, "error": "Shared case folder unavailable"})
 
@@ -1345,7 +1346,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 result = workflow_helper.shared_views(case_dir())
             return self._json(200, result)
         except (ValueError, TypeError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except OSError:
             return self._json(503, {"ok": False, "error": "Shared folder unavailable"})
 
@@ -1358,7 +1359,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             return self._json(200, {"ok": True, "letter": snow_rules.validate_letter(snow_rules.read_letter(case_dir()))})
         except (OSError, ValueError, TypeError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
 
     def _get_citation_history(self, route):
         try:
@@ -1378,7 +1379,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             ]
             return self._json(200, {"ok": True, "files": sorted(files, key=lambda p: p["mod"], reverse=True)})
         except Exception as error:
-            return self._json(503, {"ok": False, "error": str(error)})
+            return self._json(503, {"ok": False, "error": public_message(error)})
 
     def _get_case_open(self, route):
         try:
@@ -1386,7 +1387,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except FileNotFoundError:
             return self._json(404, {"ok": False, "missing": True, "error": "Case file not found"})
         except Exception as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
 
     def _get_case_resolve(self, route):
         try:
@@ -1405,11 +1406,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 raise ValueError("Case number differs from its filename")
             return self._json(200, found)
         except FileNotFoundError as error:
-            return self._json(404, {"ok": False, "missing": True, "error": str(error)})
+            return self._json(404, {"ok": False, "missing": True, "error": public_message(error)})
         except OSError:
             return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
         except Exception as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
 
     def _get_reporting(self, route):
         try:
@@ -1425,7 +1426,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if self.path.startswith("/reporting/areas"):
                 return self._json(200, read_areas())
         except Exception as e:
-            return self._json(500, {"ok": False, "error": str(e)})
+            return self._json(500, {"ok": False, "error": public_message(e)})
         return self._json(404, {"ok": False, "error": "unknown endpoint"})
 
     def _get_status(self, route):
@@ -1463,13 +1464,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             return self._json(200, backup_list())
         except Exception as error:
-            return self._json(503, {"ok": False, "error": str(error)})
+            return self._json(503, {"ok": False, "error": public_message(error)})
 
     def _get_catalog_reviews(self, route):
         try:
             return self._json(200, {"ok": True, "events": catalog_events()})
         except Exception as error:
-            return self._json(503, {"ok": False, "error": str(error)})
+            return self._json(503, {"ok": False, "error": public_message(error)})
 
     def _post_session_bootstrap(self, route):
         try:
@@ -1502,7 +1503,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 }
             return self._json(200, result)
         except (ValueError, TypeError, KeyError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except (OSError, RuntimeError):
             return self._json(503, {"ok": False, "error": "Shared case folder unavailable; no lock released"})
 
@@ -1527,7 +1528,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 result = workflow_helper.reminder_draft(sys.modules[__name__], data)
             return self._json(200, result)
         except (ValueError, TypeError, KeyError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except (OSError, RuntimeError):
             return self._json(503, {"ok": False, "error": "Operation unavailable; local work kept"})
 
@@ -1553,7 +1554,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 raise ValueError("Expected only a caseNumber")
             return self._json(200, lookup_case(share_root(), data["caseNumber"]))
         except CaseLookupError as error:
-            return self._json(error.status, {"ok": False, "error": str(error)})
+            return self._json(error.status, {"ok": False, "error": public_message(error)})
         except (ValueError, TypeError):
             return self._json(400, {"ok": False, "error": "Invalid case lookup request"})
         except Exception:
@@ -1569,9 +1570,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 raise ValueError("Expected a JSON object")
             return self._json(200, SHARED_ROUTES.get(route, _shared_sync_outbox)(data))
         except (ValueError, TypeError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except Exception as error:
-            return self._json(503, {"ok": False, "error": str(error)})
+            return self._json(503, {"ok": False, "error": public_message(error)})
 
     def _post_artifact_read(self, route):
         try:
@@ -1589,11 +1590,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 {"ok": True, "pdf": base64.b64encode(raw).decode("ascii"), "sha256": data["sha256"], "local": path.parent == HERE / OUTDIR_NAME},
             )
         except (ValueError, TypeError, KeyError) as error:
-            return self._json(400, {"ok": False, "error": str(error)})
+            return self._json(400, {"ok": False, "error": public_message(error)})
         except FileNotFoundError as error:
-            return self._json(404, {"ok": False, "error": str(error)})
+            return self._json(404, {"ok": False, "error": public_message(error)})
         except Exception as error:
-            return self._json(503, {"ok": False, "error": str(error)})
+            return self._json(503, {"ok": False, "error": public_message(error)})
 
     def _post_save_pdf(self, route):
         return self._pdf(email=False)
@@ -1612,7 +1613,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"ok": False, "error": "ids must be a list of parcels"})
             return self._json(200, lookup_parcels(ids, bool(data.get("refresh"))))
         except Exception as e:
-            return self._json(500, {"ok": False, "error": str(e)})
+            return self._json(500, {"ok": False, "error": public_message(e)})
 
     def _guard(self):
         """Only this machine's own page may drive the helper.
@@ -1710,7 +1711,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, {"ok": True, "path": path, "name": name, "via": how})
         except Exception as e:
             record("email-draft" if email else "pdf", "failed", error=e)
-            return self._json(400 if isinstance(e, (ValueError, TypeError)) else 500, {"ok": False, "error": str(e)})
+            return self._json(400 if isinstance(e, (ValueError, TypeError)) else 500, {"ok": False, "error": public_message(e)})
 
 
 # Every API route and the Handler method that answers it. do_GET/do_POST apply the shared guards first;
