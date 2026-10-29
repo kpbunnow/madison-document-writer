@@ -1117,3 +1117,9 @@ Measured counts: {'complexity': 46, 'max-depth': 0, 'max-lines-per-function': 10
 Separate approved manual basis completion from scheduled lookup without changing validation, partial mutations or pricing reads. Generated comparisons cover 3,036 real-policy inputs; writer services, boundaries, seams, lint and formatting pass.
 
 Measured counts: {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-edit-phases
+
+Split ordinance input/commit, early refusal, mode, fee and approved-basis phases. Public editing and lazy interfaces stay unchanged. 5,306 comparisons against retained source plus existing citation workflow, boundaries, seams and lint pass.
+
+Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
