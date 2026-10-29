@@ -486,6 +486,7 @@
     "tests/fixtures/language_catalog_reference.txt",
     "tests/fixtures/language_picker_reference.txt",
     "tests/fixtures/language_screen_reference.txt",
+    "tests/fixtures/lifted_splice.cjs",
     "tests/fixtures/lookup_settings_reference.txt",
     "tests/fixtures/message_paint_reference.txt",
     "tests/fixtures/mk_summaries.js",

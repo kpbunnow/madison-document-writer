@@ -170,129 +170,648 @@ function reviewFooter(key) {
   );
 }
 
-export function createLanguageCatalog(services) {
-  /* app functions; direct dependencies use explicit shared state. */
+/* app functions; direct dependencies use explicit shared state. */
 
-  function catalogReview(key) {
-    return catalog.CATALOG_EVENTS.filter((e) => e.key === key).slice(-1)[0] || null;
-  }
+function languageCatalogCatalogReview(services, key) {
+  return catalog.CATALOG_EVENTS.filter((e) => e.key === key).slice(-1)[0] || null;
+}
 
-  function catalogReplacement(key) {
-    return (
-      catalog.CATALOG_EVENTS.filter((e) => e.status === "approved" && e.replaces === key && catalogReview(e.key)?.id === e.id).slice(-1)[0] || null
-    );
-  }
+function languageCatalogCatalogReplacement(services, key) {
+  return (
+    catalog.CATALOG_EVENTS.filter(
+      (e) => e.status === "approved" && e.replaces === key && languageCatalogCatalogReview(services, e.key)?.id === e.id,
+    ).slice(-1)[0] || null
+  );
+}
 
-  function catalogStatus(i) {
-    const key = services.catalogKey(i),
-      review = catalogReview(key),
-      replacement = catalogReplacement(key);
-    if (review?.status === "retired") return { code: "retired", label: "Retired · historical only", review };
-    if (replacement) return { code: "superseded", label: "Replaced by " + replacement.key, review, replacement };
-    if (review?.status === "approved")
-      return { code: "ready", label: "Reviewed v" + review.version + " · " + review.reviewer + " · " + review.at.slice(0, 10), review };
-    if (!catalog.CATALOG_VERIFIED) return { code: "unknown", label: "Review status unavailable · selection paused" };
-    if (!i.s.length) return { code: "incomplete", label: "Missing ordinance · division review required" };
-    if (i.p === "draft") return { code: "review", label: "Draft · division review required" };
-    return { code: "legacy", label: "Legacy selection · formal review not recorded" };
-  }
+function languageCatalogCatalogStatus(services, i) {
+  const key = services.catalogKey(i),
+    review = languageCatalogCatalogReview(services, key),
+    replacement = languageCatalogCatalogReplacement(services, key);
+  if (review?.status === "retired") return { code: "retired", label: "Retired · historical only", review };
+  if (replacement) return { code: "superseded", label: "Replaced by " + replacement.key, review, replacement };
+  if (review?.status === "approved")
+    return { code: "ready", label: "Reviewed v" + review.version + " · " + review.reviewer + " · " + review.at.slice(0, 10), review };
+  if (!catalog.CATALOG_VERIFIED) return { code: "unknown", label: "Review status unavailable · selection paused" };
+  if (!i.s.length) return { code: "incomplete", label: "Missing ordinance · division review required" };
+  if (i.p === "draft") return { code: "review", label: "Draft · division review required" };
+  return { code: "legacy", label: "Legacy selection · formal review not recorded" };
+}
 
-  function effectiveCatalog(i) {
-    const status = catalogStatus(i),
-      r = status.code === "ready" && status.review;
-    return { ...i, a: r ? r.wording : i.a, s: r ? [...r.ordinances] : i.s, effectiveReview: r || null };
-  }
+function languageCatalogEffectiveCatalog(services, i) {
+  const status = languageCatalogCatalogStatus(services, i),
+    r = status.code === "ready" && status.review;
+  return { ...i, a: r ? r.wording : i.a, s: r ? [...r.ordinances] : i.s, effectiveReview: r || null };
+}
 
-  function catalogItem(key) {
-    return services.allItems().find((i) => services.catalogKey(i) === key);
-  }
+function languageCatalogCatalogItem(services, key) {
+  return services.allItems().find((i) => services.catalogKey(i) === key);
+}
 
-  function catalogDraftBlocked(it) {
-    const source = it.libraryKey && catalogItem(it.libraryKey);
-    const status = source && catalogStatus(source);
-    return (
-      it.prov === "draft" ||
-      (!!status && (["retired", "superseded"].includes(status.code) || (status.code === "ready" && it.catalogReviewId !== status.review.id)))
-    );
-  }
+function languageCatalogCatalogDraftBlocked(services, it) {
+  const source = it.libraryKey && languageCatalogCatalogItem(services, it.libraryKey);
+  const status = source && languageCatalogCatalogStatus(services, source);
+  return (
+    it.prov === "draft" ||
+    (!!status && (["retired", "superseded"].includes(status.code) || (status.code === "ready" && it.catalogReviewId !== status.review.id)))
+  );
+}
 
-  function catalogDraftNotice(it) {
-    const source = it.libraryKey && catalogItem(it.libraryKey),
-      status = source && catalogStatus(source);
-    if (!status || !["ready", "retired", "superseded"].includes(status.code)) return "";
-    if (status.code === "ready" && it.catalogReviewId === status.review.id) return "";
-    return (
-      '<div class="hint no-print" role="status">' +
-      "".concat(
-        esc(
-          status.code === "ready"
-            ? "Catalog wording changed since selection. Your draft text is preserved."
-            : status.code === "superseded"
-              ? "Catalog entry is superseded. Review the preferred entry before issuing."
-              : "Catalog entry was retired. Division review is required before issuing.",
-        ),
-      ) +
-      "\n    " +
-      "".concat(
+function languageCatalogCatalogDraftNotice(services, it) {
+  const source = it.libraryKey && languageCatalogCatalogItem(services, it.libraryKey),
+    status = source && languageCatalogCatalogStatus(services, source);
+  if (!status || !["ready", "retired", "superseded"].includes(status.code)) return "";
+  if (status.code === "ready" && it.catalogReviewId === status.review.id) return "";
+  return (
+    '<div class="hint no-print" role="status">' +
+    "".concat(
+      esc(
         status.code === "ready"
-          ? '<button class="btn btn-sm" data-adopt-catalog="' + `${esc(it.id)}` + '">Review and use v' + `${status.review.version}` + "</button>"
-          : "",
-      ) +
-      "</div>"
-    );
-  }
+          ? "Catalog wording changed since selection. Your draft text is preserved."
+          : status.code === "superseded"
+            ? "Catalog entry is superseded. Review the preferred entry before issuing."
+            : "Catalog entry was retired. Division review is required before issuing.",
+      ),
+    ) +
+    "\n    " +
+    "".concat(
+      status.code === "ready"
+        ? '<button class="btn btn-sm" data-adopt-catalog="' + `${esc(it.id)}` + '">Review and use v' + `${status.review.version}` + "</button>"
+        : "",
+    ) +
+    "</div>"
+  );
+}
 
-  function adoptCatalogReview(d, it) {
-    const source = it.libraryKey && catalogItem(it.libraryKey),
-      status = source && catalogStatus(source);
-    if (!d?.draft || !it || !status || status.code !== "ready") return false;
-    if (
-      !confirm(
-        "Compare current draft:\n" +
-          it.text +
-          "\nOrdinance: " +
-          (it.sections || []).join("; ") +
-          "\n\nReviewed v" +
-          status.review.version +
-          ":\n" +
-          status.review.wording +
-          "\nOrdinance: " +
-          status.review.ordinances.join("; ") +
-          "\n\nReplace the draft wording and ordinance? Item identity stays the same.",
-      )
+function languageCatalogAdoptCatalogReview(services, d, it) {
+  const source = it.libraryKey && languageCatalogCatalogItem(services, it.libraryKey),
+    status = source && languageCatalogCatalogStatus(services, source);
+  if (!d?.draft || !it || !status || status.code !== "ready") return false;
+  if (
+    !confirm(
+      "Compare current draft:\n" +
+        it.text +
+        "\nOrdinance: " +
+        (it.sections || []).join("; ") +
+        "\n\nReviewed v" +
+        status.review.version +
+        ":\n" +
+        status.review.wording +
+        "\nOrdinance: " +
+        status.review.ordinances.join("; ") +
+        "\n\nReplace the draft wording and ordinance? Item identity stays the same.",
     )
-      return false;
-    it.text = status.review.wording;
-    it.sections = [...status.review.ordinances];
-    it.prov = "approved";
-    it.catalogVersion = status.review.version;
-    it.catalogReviewId = status.review.id;
-    workspace.DIRTY = true;
-    services.saveDrafts();
-    services.refreshSheet();
+  )
+    return false;
+  it.text = status.review.wording;
+  it.sections = [...status.review.ordinances];
+  it.prov = "approved";
+  it.catalogVersion = status.review.version;
+  it.catalogReviewId = status.review.id;
+  workspace.DIRTY = true;
+  services.saveDrafts();
+  services.refreshSheet();
+  return true;
+}
+
+function languageCatalogCatalogSelection(services, i) {
+  const status = languageCatalogCatalogStatus(services, i),
+    r = status.review;
+  return status.code === "ready"
+    ? { ...i, a: r.wording, s: r.ordinances, p: "approved", catalogVersion: r.version, catalogReviewId: r.id }
+    : { ...i, catalogVersion: 0 };
+}
+
+function languageCatalogCatalogVisible(services, i, filter) {
+  const s = languageCatalogCatalogStatus(services, i).code;
+  return (
+    !filter ||
+    filter === "all" ||
+    (filter === "approved" && s === "ready") ||
+    (filter === "usable" && ["ready", "legacy"].includes(s)) ||
+    (filter === "review" && ["review", "incomplete"].includes(s)) ||
+    (filter === "legacy" && ["legacy", "superseded", "retired"].includes(s))
+  );
+}
+
+function languageCatalogCatalogForm(services, key, i, r) {
+  return (
+    catalog.CATALOG_FORMS[key] || {
+      reviewer: "",
+      wording: r?.wording || i.a,
+      ordinances: (r?.ordinances || i.s).join("; "),
+      source: r?.source || "",
+      replaces: r?.replaces || "",
+      baseVersion: r?.version || 0,
+    }
+  );
+}
+
+function languageCatalogCatalogReplacementOptions(services, key, selected, query = "") {
+  return (
+    '<option value="">None</option>' +
+    services
+      .allItems()
+      .filter((x) => services.catalogKey(x) !== key)
+      .map((x) => {
+        const k = services.catalogKey(x),
+          s = languageCatalogCatalogStatus(services, x),
+          e = languageCatalogEffectiveCatalog(services, x);
+        return { k, label: x.t + " · " + e.s.join(", ") + " · " + s.label };
+      })
+      .filter((x) => !query || x.k === selected || x.label.toLowerCase().includes(query.toLowerCase()))
+      .map((x) => `<option value="${esc(x.k)}" ${selected === x.k ? "selected" : ""}>${esc(x.label)}</option>`)
+      .join("")
+  );
+}
+
+function languageCatalogCatalogReviewPanel(services, i) {
+  const key = services.catalogKey(i),
+    s = languageCatalogCatalogStatus(services, i),
+    r = s.review;
+  const f = languageCatalogCatalogForm(services, key, i, r);
+  const form = catalog.CATALOG_FORMS[key];
+  return (
+    '<details class="lib-guidance" ' +
+    `${form?.open ? "open" : ""}` +
+    "><summary>Division review administration · " +
+    `${esc(s.label)}` +
+    "</summary>\n    <p>Source: " +
+    `${esc(i.p || "export")}` +
+    "" +
+    `${i.legacyKeys?.length ? " · overlaps " + esc(i.legacyKeys.join(", ")) : ""}` +
+    ".</p>\n    " +
+    reviewLine(r) +
+    "\n    " +
+    reviewComparison(i, r, f) +
+    "\n    " +
+    "".concat(form?.error ? `<p class="save-error" role="alert">${esc(form.error)}</p>` : "") +
+    "\n    " +
+    rebaseButton(key, form, f, r) +
+    reviewFields(key, f) +
+    "".concat(
+      form?.open
+        ? languageCatalogCatalogReplacementOptions(services, key, f.replaces, f.replacementQuery)
+        : '<option value="' + esc(f.replaces) + '">Open to browse entries</option>',
+    ) +
+    reviewFooter(key)
+  );
+}
+
+async function languageCatalogReadSharedCase(services, k) {
+  if (workspace.CASEDIR?.helper) return (await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
+  if (workspace.CASEDIR && !workspace.NEEDGRANT) {
+    const fh = await workspace.CASEDIR.getFileHandle(caseFileName(k));
+    return JSON.parse(await (await fh.getFile()).text());
+  }
+  throw new Error("Shared case storage is unavailable");
+}
+
+function languageCatalogLocalCaseWork(services, cid) {
+  return (
+    workspace.DOCS.some((d) => d.draft && d.caseId === cid) ||
+    workspace.REINSP.some((r) => r.draft && r.caseId === cid) ||
+    workspace.PENDING.some((p) => p.cid === cid) ||
+    Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) ||
+    workspace.DOCS.some((d) => d.caseId === cid && d.pendingAmendment)
+  );
+}
+
+function languageCatalogCompareSharedCase(
+  services,
+  local,
+  events,
+  shared,
+  checkpoint,
+  unfinished = languageCatalogLocalCaseWork(services, local.id),
+) {
+  const fault =
+    services.recordIntegrity.status(shared.case).valid === false ? "This record was changed outside the program. Read-only." : caseFileFault(shared);
+  if (fault || caseNumberKey(shared.case.number) !== caseNumberKey(local.number) || shared.case.id !== local.id)
+    return { kind: "invalid", detail: fault || "The shared record has a different case identity", fields: [] };
+  const known = new Map(events.map((e) => [e.id, e])),
+    remote = new Map(shared.events.map((e) => [e.id, e]));
+  const baseline = new Set(checkpoint?.events || []);
+  const removed = [...known].filter(([id]) => !remote.has(id) && (!checkpoint || baseline.has(id)));
+  const altered = [...known].filter(([id, e]) => remote.has(id) && stableJSON(e) !== stableJSON(remote.get(id)));
+  const added = [...remote].filter(([id]) => !known.has(id));
+  if (removed.length || altered.length)
+    return { kind: "history-conflict", detail: `${removed.length} locally known event(s) missing; ${altered.length} event(s) changed`, fields: [] };
+  const fields = [],
+    merged = caseDetails(shared.case),
+    a = caseDetails(local),
+    b = checkpoint?.case && caseDetails(checkpoint.case);
+  mergeComparedCaseFields(fields, merged, a, b);
+  const conflict = fields.some((f) => f.localChanged && f.sharedChanged);
+  const localEvents = [...known.keys()].filter((id) => !baseline.has(id));
+  const remoteDetails = fields.some((f) => f.sharedChanged),
+    localDetails = fields.some((f) => f.localChanged);
+  const kind = sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents);
+  return {
+    kind,
+    fields,
+    merged,
+    added: added.length,
+    detail: added.length
+      ? `${added.length} new shared history event(s)`
+      : conflict
+        ? "The same case field changed differently in both copies"
+        : kind === "compatible"
+          ? "Independent case fields changed in both copies"
+          : kind === "shared-only"
+            ? "Shared case details changed"
+            : "Local changes are retained",
+  };
+}
+
+async function languageCatalogPreflightCase(services, cid, action, continuation) {
+  const k = kase(cid);
+  if (!k.id) return false;
+  if (!workspace.CASEDIR || workspace.NEEDGRANT) {
+    workspace.PREFLIGHT_NOTICE = "Shared case unavailable; final publication will recheck it.";
+    continuation();
     return true;
   }
-
-  function catalogSelection(i) {
-    const status = catalogStatus(i),
-      r = status.review;
-    return status.code === "ready"
-      ? { ...i, a: r.wording, s: r.ordinances, p: "approved", catalogVersion: r.version, catalogReviewId: r.id }
-      : { ...i, catalogVersion: 0 };
+  const token = ++workspace.PREFLIGHT_SEQ,
+    wasScreen = editor.state.screen,
+    wasDoc = editor.state.docId,
+    wasVisit = editor.state.reinspId;
+  let file, comparison;
+  try {
+    file = await languageCatalogReadSharedCase(services, k);
+    comparison = languageCatalogCompareSharedCase(services, k, eventsFor(cid), file, workspace.SAVE_CHECKPOINTS[cid]);
+  } catch (e) {
+    comparison = { kind: e.name === "NotFoundError" ? "missing" : "unavailable", detail: e.message, fields: [] };
   }
+  if (token !== workspace.PREFLIGHT_SEQ || !workspace.CASES.some((x) => x.id === cid) || preflightViewChanged(wasScreen, wasDoc, wasVisit))
+    return false;
+  if (sharedComparisonNeedsReview(services, cid, k, comparison, (...args) => languageCatalogLocalCaseWork(services, ...args))) {
+    workspace.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
+    editor.state.modal = "shared-change";
+    services.render();
+    return false;
+  }
+  if (["shared-only", "compatible"].includes(comparison.kind)) {
+    const prior = clone(k),
+      checkpoint = clone(workspace.SAVE_CHECKPOINTS[cid] || null);
+    Object.keys(k).forEach((key) => delete k[key]);
+    Object.assign(k, comparison.merged);
+    services.rememberSaved(k, file);
+    if (!(await services.saveDrafts())) {
+      Object.keys(k).forEach((key) => delete k[key]);
+      Object.assign(k, prior);
+      workspace.SAVE_CHECKPOINTS[cid] = checkpoint;
+      workspace.PREFLIGHT_CONFLICT = {
+        cid,
+        action,
+        file,
+        comparison: { kind: "unavailable", detail: "Browser storage could not save the merged case", fields: comparison.fields },
+        continuation,
+        token,
+      };
+      editor.state.modal = "shared-change";
+      services.render();
+      return false;
+    }
+    if (token !== workspace.PREFLIGHT_SEQ || preflightViewChanged(wasScreen, wasDoc, wasVisit)) return false;
+  } else if (comparison.kind === "shared-history") {
+    if (!services.loadCaseFile(JSON.stringify(file))) {
+      workspace.PREFLIGHT_CONFLICT = {
+        cid,
+        action,
+        file,
+        comparison: { kind: "invalid", detail: "The shared case could not be loaded", fields: [] },
+        continuation,
+        token,
+      };
+      editor.state.modal = "shared-change";
+      services.render();
+      return false;
+    }
+  }
+  workspace.PREFLIGHT_NOTICE = sharedPreflightNotice(comparison);
+  continuation();
+  return true;
+}
 
-  function catalogVisible(i, filter) {
-    const s = catalogStatus(i).code;
-    return (
-      !filter ||
-      filter === "all" ||
-      (filter === "approved" && s === "ready") ||
-      (filter === "usable" && ["ready", "legacy"].includes(s)) ||
-      (filter === "review" && ["review", "incomplete"].includes(s)) ||
-      (filter === "legacy" && ["legacy", "superseded", "retired"].includes(s))
+function languageCatalogSharedChangeModal(services) {
+  const c = workspace.PREFLIGHT_CONFLICT;
+  if (!c) return "";
+  const k = kase(c.cid),
+    v = c.comparison;
+  return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Shared case reconciliation"><div class="modal-h"><h2>Review shared case</h2></div>\n  <div class="modal-b"><p>Case ${k.number}: ${v.detail}. Your drafts and pending identities are retained.</p>\n  ${raw(
+    "".concat(
+      v.fields?.length
+        ? html`<table><thead><tr><th>Field</th><th>Local</th><th>Shared</th><th>Resolution</th></tr></thead><tbody>${raw(languageCatalogConflictControls(services, c))}</tbody></table>`
+        : "",
+    ),
+  )}\n  <p>Keeping local work resumes ${c.action}. Issuance still requires reconciliation with the current shared record.</p></div>\n  <div class="modal-f">${raw("".concat(v.kind === "conflict" ? '<button class="btn btn-primary" data-conflict-apply>Apply field choices and save</button>' : ""))}<button class="btn" data-shared-export>Export local work</button><button class="btn" data-shared-current ${raw(c.file ? "" : "disabled")}>Open current shared case</button><button class="btn" data-shared-local>Keep working locally</button></div></div></div>`;
+}
+
+function languageCatalogKeepChangedLocal(services) {
+  const c = workspace.PREFLIGHT_CONFLICT;
+  if (!c) return;
+  workspace.PREFLIGHT_CONFLICT = null;
+  editor.state.modal = null;
+  workspace.PREFLIGHT_NOTICE = "Local work retained. Resolve shared differences before publication.";
+  c.continuation();
+}
+
+async function languageCatalogOpenChangedShared(services) {
+  const c = workspace.PREFLIGHT_CONFLICT,
+    k = c && kase(c.cid);
+  if (!k?.id || !c.file) return;
+  try {
+    const key = services.recoveryCaseKey(k.id);
+    if (!services.RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
+    if (
+      workspace.PENDING.some((p) => p.cid === k.id) ||
+      workspace.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
+      Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
+    )
+      throw new Error("Confirm pending save identities before replacing this case.");
+    if (caseFileFault(c.file) || c.file.case.id !== k.id) throw new Error("Shared case is invalid or has a different identity.");
+    const backup = services.recoverySnapshot(k.id, key);
+    backup.preReplacement = true;
+    await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: key, backup });
+    if (!confirm("Recovery copy saved. Replace local work for " + k.number + " with the current shared record?")) return;
+    const fresh = await languageCatalogReadSharedCase(services, k);
+    if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
+      throw new Error("Shared case changed again. Review it before replacing local work.");
+    if (workspace.PREFLIGHT_CONFLICT !== c) return;
+    const staged = stageSharedReplacement(services, k, fresh);
+    if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
+    workspace.CASES = staged.cases;
+    workspace.DOCS = staged.docs;
+    workspace.REINSP = staged.reinsp;
+    workspace.EVENTS = staged.events;
+    editor.RECORD_ATTEMPTS = staged.recordAttempts;
+    workspace.SAVE_CHECKPOINTS = staged.checkpoints;
+    editor.WORK = staged.work;
+    services.clearWalk();
+    services.project();
+    workspace.PREFLIGHT_CONFLICT = null;
+    editor.state.modal = null;
+    editor.state.screen = "cases";
+    services.render();
+  } catch (e) {
+    services.toast("Local work kept: " + e.message);
+  }
+}
+
+async function languageCatalogPersistWorkspacePatch(services, prepare, commit) {
+  if (editor.WORK_PATCH) throw new Error("Another workspace change is saving");
+  let unlock;
+  editor.WORK_PATCH = new Promise((resolve) => {
+    unlock = resolve;
+  });
+  try {
+    await editor.LOCAL_SAVE_CHAIN;
+    services.captureWork();
+    const staged = prepare(clone(services.draftBundle()));
+    if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the change. Local work was kept.");
+    commit(staged);
+    editor.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
+    ++editor.LOCAL_CHANGED;
+    workspace.DIRTY = false;
+    services.scheduleRecoveryBackup();
+    return true;
+  } finally {
+    unlock();
+    editor.WORK_PATCH = null;
+  }
+}
+
+function languageCatalogResolvedCaseFields(services, local, shared, comparison, choices) {
+  if (comparison.kind !== "conflict" || !comparison.merged) throw new Error("Only case field conflicts can be merged here");
+  const merged = clone(comparison.merged);
+  for (const f of comparison.fields) {
+    if (!f.localChanged || !f.sharedChanged) continue;
+    const choice = choices[f.field];
+    if (!choice || !["mine", "shared", "merge"].includes(choice.kind)) throw new Error("Choose how to resolve " + f.field);
+    const value = choice.kind === "mine" ? f.local : choice.kind === "shared" ? f.shared : choice.value;
+    if (f.field === "id" || f.field === "number") throw new Error("Case identity cannot be merged");
+    if (typeof value !== typeof f.local && typeof value !== typeof f.shared) throw new Error("The merged " + f.field + " has the wrong value type");
+    if (value === undefined) delete merged[f.field];
+    else merged[f.field] = clone(value);
+  }
+  merged.id = local.id;
+  merged.number = local.number;
+  return merged;
+}
+
+function languageCatalogFriendlyField(services, value) {
+  if (value === undefined) return "(absent)";
+  if (Array.isArray(value)) return value.map((...args) => languageCatalogFriendlyField(services, ...args)).join("\n");
+  if (value && typeof value === "object")
+    return Object.entries(value)
+      .map(([k, v]) => k + ": " + languageCatalogFriendlyField(services, v))
+      .join("\n");
+  return String(value);
+}
+
+function languageCatalogConflictControls(services, c) {
+  return c.comparison.fields
+    .map(
+      (f, n) =>
+        '<tr><th scope="row">' +
+        `${esc(f.field)}` +
+        "</th><td>" +
+        `${esc(languageCatalogFriendlyField(services, f.local))}` +
+        "</td><td>" +
+        `${esc(languageCatalogFriendlyField(services, f.shared))}` +
+        "</td><td>" +
+        "".concat(
+          f.localChanged && f.sharedChanged && !["id", "number"].includes(f.field)
+            ? html`<label>Resolution for ${f.field} <select data-conflict-choice="${raw(n)}"><option value="">Choose…</option><option value="mine">Keep mine</option><option value="shared">Take shared</option><option value="merge">Merge field</option></select></label><label>Merged ${f.field} <textarea data-conflict-value="${raw(n)}">${typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2)}</textarea></label>${raw("".concat(typeof f.local === "string" ? "" : "<small>Structured fields use JSON to preserve their value type.</small>"))}`
+            : `${f.localChanged ? "Keep local independent change" : "Take shared independent change"}`,
+        ) +
+        "</td></tr>",
+    )
+    .join("");
+}
+
+async function languageCatalogApplyConflict(services) {
+  const c = workspace.PREFLIGHT_CONFLICT;
+  if (!c || editor.RESOLUTION_BUSY) return;
+  try {
+    if (
+      workspace.PENDING.some((p) => p.cid === c.cid && p.idempotencyEvent) ||
+      workspace.DOCS.some((d) => d.caseId === c.cid && d.pendingAmendment) ||
+      Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === c.cid)
+    )
+      throw new Error("Confirm the pending official save before merging case details");
+    if (c.comparison.added && languageCatalogLocalCaseWork(services, c.cid))
+      throw new Error("Shared history changed while local work is unfinished. Export local work and review the shared case before merging fields.");
+    const choices = {};
+    c.comparison.fields.forEach((f, n) => {
+      const el = document.querySelector('[data-conflict-choice="' + n + '"]');
+      if (!el) return;
+      let value = document.querySelector('[data-conflict-value="' + n + '"]')?.value;
+      if (el.value === "merge" && typeof f.local !== "string") value = JSON.parse(value);
+      choices[f.field] = { kind: el.value, value };
+    });
+    const merged = languageCatalogResolvedCaseFields(services, kase(c.cid), c.file.case, c.comparison, choices);
+    editor.RESOLUTION_BUSY = true;
+    document.querySelectorAll("#overlay button,#overlay input,#overlay select,#overlay textarea").forEach((el) => (el.disabled = true));
+    const fresh = await languageCatalogReadSharedCase(services, kase(c.cid));
+    if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
+      throw new Error("Shared case changed again; review it again before merging");
+    const key = services.recoveryCaseKey(c.cid);
+    if (!services.RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
+    const backup = services.recoverySnapshot(c.cid, key);
+    backup.preReplacement = true;
+    await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: key, backup });
+    await languageCatalogPersistWorkspacePatch(
+      services,
+      (staged) => {
+        staged.cases = staged.cases.map((k) => (k.id === c.cid ? merged : k));
+        staged.checkpoints[c.cid] = { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) };
+        return staged;
+      },
+      (staged) => {
+        workspace.CASES = staged.cases;
+        workspace.SAVE_CHECKPOINTS = staged.checkpoints;
+      },
     );
+    workspace.PREFLIGHT_CONFLICT = null;
+    editor.state.modal = null;
+    workspace.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
+    editor.RESOLUTION_BUSY = false;
+    await services.saveCaseFile(c.cid);
+    services.render();
+  } catch (error) {
+    editor.RESOLUTION_BUSY = false;
+    services.toast(error.message, { severity: "error" });
+    services.render();
   }
+}
 
+function languageCatalogSafetyCaseStatus(services, k) {
+  const result = savedCaseState(services.app_savedworkContext(), k);
+  return [result.status, result.label, result.action];
+}
+
+async function languageCatalogShowSafety(services, cid = "") {
+  const context = services.navigation.utilityContext();
+  let health;
+  // The panel opens immediately; slow connection checks must not hide device recovery.
+  services.captureWork();
+  if (editor.state.modal) {
+    editor.state.modal = null;
+    services.render();
+  }
+  services.A11Y.utility("Saved work & connection", savedWorkHTML(services.app_savedworkContext(), cid, { checking: true }));
+  try {
+    health = await services.helperJSON("/dw-status");
+  } catch (error) {
+    health = { error: error.message };
+  }
+  if (!services.navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
+  editor.SAFETY_HEALTH = health;
+  // Keep focus and disclosures during the late health response.
+  const dialog = document.getElementById("utility-dialog"),
+    panel = dialog.querySelector("[data-saved-work-panel]");
+  const open = [...panel.querySelectorAll("details[open][data-saved-detail]")].map((el) => el.dataset.savedDetail);
+  const active = document.activeElement,
+    button = active?.closest("button"),
+    data = button ? { ...button.dataset } : null,
+    id = active?.id,
+    summary = active?.matches("summary") ? active.parentElement.dataset.savedDetail : "";
+  panel.outerHTML = savedWorkHTML(services.app_savedworkContext(), cid, health);
+  for (const key of open) dialog.querySelector('[data-saved-detail="' + key + '"]')?.setAttribute("open", "");
+  const target = savedWorkFocusTarget(dialog, summary, id, data);
+  if (active && !active.isConnected) (target || dialog.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
+}
+
+async function languageCatalogShowHealth(services, probe = false) {
+  const context = services.navigation.utilityContext();
+  let health;
+  try {
+    health = await services.helperJSON(probe ? "/setup/probe" : "/dw-status", probe ? {} : undefined);
+  } catch (error) {
+    health = { error: error.message };
+  }
+  if (!services.navigation.utilityCurrent(context)) return false;
+  editor.SAFETY_HEALTH = health;
+  const h = editor.SAFETY_HEALTH,
+    check = (x) => (x === true ? "Available" : x === false ? "Unavailable" : "Not tested");
+  const fields = [
+    ["External integrity anchor", h.integrityAnchor || "Not configured"],
+    ["Local address parser", h.addressParserStatus || "address parser unavailable; R19 fallback"],
+    ["Shared folder reachable", check(h.shareReachable)],
+    ["Share and case folder writable", check(h.shareWritable)],
+    ["Chrome / Edge PDF renderer", check(h.chrome)],
+    ["Outlook draft handoff", check(h.outlook)],
+    ["SQL lookup configuration", check(h.lookupConfigured)],
+    ["SQL Windows support", check(h.lookupPlatform)],
+    ["SQL connection", h.lookupConnection || "Not tested"],
+    ["Catalog manifest", check(h.catalogManifest)],
+    ["Program/helper versions", h.versionMatch && h.version === services.navigation.helperVersion() ? "Match" : "Mismatch or helper unavailable"],
+    ["Checked at", h.checkedAt || "Unavailable"],
+  ];
+  services.A11Y.utility(
+    "Connection & setup",
+    html`<table><caption>Connection and installation checks</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>${raw("".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")))}</tbody></table><p>${raw("".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")))}</p><button class="btn" data-health-probe>Test share write access</button> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><label>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">${raw("".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))))}</textarea></label>`,
+  );
+}
+
+async function languageCatalogInspectLock(services) {
+  const number = prompt("Case number whose lock should be inspected");
+  if (!number) return;
+  try {
+    editor.SAFETY_LOCK = { number, ...(await services.helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
+    languageCatalogShowLock(services);
+  } catch (error) {
+    services.toast(error.message, { severity: "error" });
+  }
+}
+
+function languageCatalogShowLock(services) {
+  const lock = editor.SAFETY_LOCK;
+  if (!lock) return;
+  services.A11Y.utility(
+    "Shared lock assistant",
+    lock.present
+      ? html`<p><strong>${lock.scope || "Case saving"}</strong> is locked. Ask an administrator to check the owning helper.</p><p>Computer: <strong>${lock.host}</strong>. Process: ${raw(lock.pid)}. Created: ${new Date(lock.at * 1000).toLocaleString()}. Age: ${raw(Math.floor(lock.ageSeconds / 60))} minutes.</p><p>Ask the administrator to verify that the owning helper has stopped and no save is running. Age alone does not establish that a lock is stale. Folder permissions govern administration; this form records the administrator's confirmation.</p><form id="lock-release-form"><label>Administrator name <input name="administrator" required minlength="2" maxlength="120"></label><label>Verification and reason <textarea name="reason" required minlength="15" maxlength="1000"></textarea></label><label><input name="confirmed" type="checkbox" required> Administrator has confirmed it is safe to release this lock</label><button class="btn" type="submit">Release verified lock with audit note</button></form>`
+      : "<p>No lock is present for this case.</p>",
+  );
+}
+
+function languageCatalogSaveWorkflowPrefs(services) {
+  workspace.WORKFLOW_PREFS.filter = editor.state.caseFilter;
+  workspace.WORKFLOW_PREFS.query = editor.state.caseQ;
+  workspace.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
+  try {
+    localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(workspace.WORKFLOW_PREFS));
+  } catch (error) {
+    services.toast("Could not save workspace preferences", { severity: "error" });
+  }
+}
+
+function languageCatalogCaseSearchText(services, k) {
+  const docs = docsFor(k.id);
+  return [
+    k.number,
+    k.address,
+    k.owner,
+    k.parcel,
+    ...docs.flatMap((d) => [d.frozen?.case?.address, d.frozen?.case?.owner, ...Object.values(d.cits || {}).map((c) => c.num)]),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+async function languageCatalogGlobalSearch(services) {
+  services.navigation.utilityContext();
+  services.A11Y.utility(
+    "Search shared case records",
+    html`<form id="global-search-form"><label>Case, address, owner or citation number <input type="search" name="query" required minlength="2" maxlength="200" value="${editor.state.caseQ}"></label><button class="btn" type="submit">Search shared case records</button></form><div id="global-search-results" aria-live="polite"></div>`,
+  );
+}
+
+export function createLanguageCatalog(services) {
   let catalogReadSequence = 0;
   async function refreshCatalog() {
     const sequence = ++catalogReadSequence,
@@ -320,550 +839,40 @@ export function createLanguageCatalog(services) {
     return catalog.CATALOG_VERIFIED && !/Review refresh unavailable/.test(catalog.CATALOG_ERROR);
   }
 
-  function catalogForm(key, i, r) {
-    return (
-      catalog.CATALOG_FORMS[key] || {
-        reviewer: "",
-        wording: r?.wording || i.a,
-        ordinances: (r?.ordinances || i.s).join("; "),
-        source: r?.source || "",
-        replaces: r?.replaces || "",
-        baseVersion: r?.version || 0,
-      }
-    );
-  }
-
-  function catalogReplacementOptions(key, selected, query = "") {
-    return (
-      '<option value="">None</option>' +
-      services
-        .allItems()
-        .filter((x) => services.catalogKey(x) !== key)
-        .map((x) => {
-          const k = services.catalogKey(x),
-            s = catalogStatus(x),
-            e = effectiveCatalog(x);
-          return { k, label: x.t + " · " + e.s.join(", ") + " · " + s.label };
-        })
-        .filter((x) => !query || x.k === selected || x.label.toLowerCase().includes(query.toLowerCase()))
-        .map((x) => `<option value="${esc(x.k)}" ${selected === x.k ? "selected" : ""}>${esc(x.label)}</option>`)
-        .join("")
-    );
-  }
-
-  function catalogReviewPanel(i) {
-    const key = services.catalogKey(i),
-      s = catalogStatus(i),
-      r = s.review;
-    const f = catalogForm(key, i, r);
-    const form = catalog.CATALOG_FORMS[key];
-    return (
-      '<details class="lib-guidance" ' +
-      `${form?.open ? "open" : ""}` +
-      "><summary>Division review administration · " +
-      `${esc(s.label)}` +
-      "</summary>\n    <p>Source: " +
-      `${esc(i.p || "export")}` +
-      "" +
-      `${i.legacyKeys?.length ? " · overlaps " + esc(i.legacyKeys.join(", ")) : ""}` +
-      ".</p>\n    " +
-      reviewLine(r) +
-      "\n    " +
-      reviewComparison(i, r, f) +
-      "\n    " +
-      "".concat(form?.error ? `<p class="save-error" role="alert">${esc(form.error)}</p>` : "") +
-      "\n    " +
-      rebaseButton(key, form, f, r) +
-      reviewFields(key, f) +
-      "".concat(
-        form?.open
-          ? catalogReplacementOptions(key, f.replaces, f.replacementQuery)
-          : '<option value="' + esc(f.replaces) + '">Open to browse entries</option>',
-      ) +
-      reviewFooter(key)
-    );
-  }
-
-  async function readSharedCase(k) {
-    if (workspace.CASEDIR?.helper) return (await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number))).file;
-    if (workspace.CASEDIR && !workspace.NEEDGRANT) {
-      const fh = await workspace.CASEDIR.getFileHandle(caseFileName(k));
-      return JSON.parse(await (await fh.getFile()).text());
-    }
-    throw new Error("Shared case storage is unavailable");
-  }
-
-  function localCaseWork(cid) {
-    return (
-      workspace.DOCS.some((d) => d.draft && d.caseId === cid) ||
-      workspace.REINSP.some((r) => r.draft && r.caseId === cid) ||
-      workspace.PENDING.some((p) => p.cid === cid) ||
-      Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) ||
-      workspace.DOCS.some((d) => d.caseId === cid && d.pendingAmendment)
-    );
-  }
-
-  function compareSharedCase(local, events, shared, checkpoint, unfinished = localCaseWork(local.id)) {
-    const fault =
-      services.recordIntegrity.status(shared.case).valid === false
-        ? "This record was changed outside the program. Read-only."
-        : caseFileFault(shared);
-    if (fault || caseNumberKey(shared.case.number) !== caseNumberKey(local.number) || shared.case.id !== local.id)
-      return { kind: "invalid", detail: fault || "The shared record has a different case identity", fields: [] };
-    const known = new Map(events.map((e) => [e.id, e])),
-      remote = new Map(shared.events.map((e) => [e.id, e]));
-    const baseline = new Set(checkpoint?.events || []);
-    const removed = [...known].filter(([id]) => !remote.has(id) && (!checkpoint || baseline.has(id)));
-    const altered = [...known].filter(([id, e]) => remote.has(id) && stableJSON(e) !== stableJSON(remote.get(id)));
-    const added = [...remote].filter(([id]) => !known.has(id));
-    if (removed.length || altered.length)
-      return { kind: "history-conflict", detail: `${removed.length} locally known event(s) missing; ${altered.length} event(s) changed`, fields: [] };
-    const fields = [],
-      merged = caseDetails(shared.case),
-      a = caseDetails(local),
-      b = checkpoint?.case && caseDetails(checkpoint.case);
-    mergeComparedCaseFields(fields, merged, a, b);
-    const conflict = fields.some((f) => f.localChanged && f.sharedChanged);
-    const localEvents = [...known.keys()].filter((id) => !baseline.has(id));
-    const remoteDetails = fields.some((f) => f.sharedChanged),
-      localDetails = fields.some((f) => f.localChanged);
-    const kind = sharedComparisonKind(conflict, added, unfinished, remoteDetails, localDetails, localEvents);
-    return {
-      kind,
-      fields,
-      merged,
-      added: added.length,
-      detail: added.length
-        ? `${added.length} new shared history event(s)`
-        : conflict
-          ? "The same case field changed differently in both copies"
-          : kind === "compatible"
-            ? "Independent case fields changed in both copies"
-            : kind === "shared-only"
-              ? "Shared case details changed"
-              : "Local changes are retained",
-    };
-  }
-
-  async function preflightCase(cid, action, continuation) {
-    const k = kase(cid);
-    if (!k.id) return false;
-    if (!workspace.CASEDIR || workspace.NEEDGRANT) {
-      workspace.PREFLIGHT_NOTICE = "Shared case unavailable; final publication will recheck it.";
-      continuation();
-      return true;
-    }
-    const token = ++workspace.PREFLIGHT_SEQ,
-      wasScreen = editor.state.screen,
-      wasDoc = editor.state.docId,
-      wasVisit = editor.state.reinspId;
-    let file, comparison;
-    try {
-      file = await readSharedCase(k);
-      comparison = compareSharedCase(k, eventsFor(cid), file, workspace.SAVE_CHECKPOINTS[cid]);
-    } catch (e) {
-      comparison = { kind: e.name === "NotFoundError" ? "missing" : "unavailable", detail: e.message, fields: [] };
-    }
-    if (token !== workspace.PREFLIGHT_SEQ || !workspace.CASES.some((x) => x.id === cid) || preflightViewChanged(wasScreen, wasDoc, wasVisit))
-      return false;
-    if (sharedComparisonNeedsReview(services, cid, k, comparison, localCaseWork)) {
-      workspace.PREFLIGHT_CONFLICT = { cid, action, file, comparison, continuation, token };
-      editor.state.modal = "shared-change";
-      services.render();
-      return false;
-    }
-    if (["shared-only", "compatible"].includes(comparison.kind)) {
-      const prior = clone(k),
-        checkpoint = clone(workspace.SAVE_CHECKPOINTS[cid] || null);
-      Object.keys(k).forEach((key) => delete k[key]);
-      Object.assign(k, comparison.merged);
-      services.rememberSaved(k, file);
-      if (!(await services.saveDrafts())) {
-        Object.keys(k).forEach((key) => delete k[key]);
-        Object.assign(k, prior);
-        workspace.SAVE_CHECKPOINTS[cid] = checkpoint;
-        workspace.PREFLIGHT_CONFLICT = {
-          cid,
-          action,
-          file,
-          comparison: { kind: "unavailable", detail: "Browser storage could not save the merged case", fields: comparison.fields },
-          continuation,
-          token,
-        };
-        editor.state.modal = "shared-change";
-        services.render();
-        return false;
-      }
-      if (token !== workspace.PREFLIGHT_SEQ || preflightViewChanged(wasScreen, wasDoc, wasVisit)) return false;
-    } else if (comparison.kind === "shared-history") {
-      if (!services.loadCaseFile(JSON.stringify(file))) {
-        workspace.PREFLIGHT_CONFLICT = {
-          cid,
-          action,
-          file,
-          comparison: { kind: "invalid", detail: "The shared case could not be loaded", fields: [] },
-          continuation,
-          token,
-        };
-        editor.state.modal = "shared-change";
-        services.render();
-        return false;
-      }
-    }
-    workspace.PREFLIGHT_NOTICE = sharedPreflightNotice(comparison);
-    continuation();
-    return true;
-  }
-
-  function sharedChangeModal() {
-    const c = workspace.PREFLIGHT_CONFLICT;
-    if (!c) return "";
-    const k = kase(c.cid),
-      v = c.comparison;
-    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Shared case reconciliation"><div class="modal-h"><h2>Review shared case</h2></div>\n  <div class="modal-b"><p>Case ${k.number}: ${v.detail}. Your drafts and pending identities are retained.</p>\n  ${raw(
-      "".concat(
-        v.fields?.length
-          ? html`<table><thead><tr><th>Field</th><th>Local</th><th>Shared</th><th>Resolution</th></tr></thead><tbody>${raw(conflictControls(c))}</tbody></table>`
-          : "",
-      ),
-    )}\n  <p>Keeping local work resumes ${c.action}. Issuance still requires reconciliation with the current shared record.</p></div>\n  <div class="modal-f">${raw("".concat(v.kind === "conflict" ? '<button class="btn btn-primary" data-conflict-apply>Apply field choices and save</button>' : ""))}<button class="btn" data-shared-export>Export local work</button><button class="btn" data-shared-current ${raw(c.file ? "" : "disabled")}>Open current shared case</button><button class="btn" data-shared-local>Keep working locally</button></div></div></div>`;
-  }
-
-  function keepChangedLocal() {
-    const c = workspace.PREFLIGHT_CONFLICT;
-    if (!c) return;
-    workspace.PREFLIGHT_CONFLICT = null;
-    editor.state.modal = null;
-    workspace.PREFLIGHT_NOTICE = "Local work retained. Resolve shared differences before publication.";
-    c.continuation();
-  }
-
-  async function openChangedShared() {
-    const c = workspace.PREFLIGHT_CONFLICT,
-      k = c && kase(c.cid);
-    if (!k?.id || !c.file) return;
-    try {
-      const key = services.recoveryCaseKey(k.id);
-      if (!services.RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
-      if (
-        workspace.PENDING.some((p) => p.cid === k.id) ||
-        workspace.DOCS.some((d) => d.caseId === k.id && d.pendingAmendment) ||
-        Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === k.id)
-      )
-        throw new Error("Confirm pending save identities before replacing this case.");
-      if (caseFileFault(c.file) || c.file.case.id !== k.id) throw new Error("Shared case is invalid or has a different identity.");
-      const backup = services.recoverySnapshot(k.id, key);
-      backup.preReplacement = true;
-      await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: key, backup });
-      if (!confirm("Recovery copy saved. Replace local work for " + k.number + " with the current shared record?")) return;
-      const fresh = await readSharedCase(k);
-      if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
-        throw new Error("Shared case changed again. Review it before replacing local work.");
-      if (workspace.PREFLIGHT_CONFLICT !== c) return;
-      const staged = stageSharedReplacement(services, k, fresh);
-      if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the replacement.");
-      workspace.CASES = staged.cases;
-      workspace.DOCS = staged.docs;
-      workspace.REINSP = staged.reinsp;
-      workspace.EVENTS = staged.events;
-      editor.RECORD_ATTEMPTS = staged.recordAttempts;
-      workspace.SAVE_CHECKPOINTS = staged.checkpoints;
-      editor.WORK = staged.work;
-      services.clearWalk();
-      services.project();
-      workspace.PREFLIGHT_CONFLICT = null;
-      editor.state.modal = null;
-      editor.state.screen = "cases";
-      services.render();
-    } catch (e) {
-      services.toast("Local work kept: " + e.message);
-    }
-  }
-
-  async function persistWorkspacePatch(prepare, commit) {
-    if (editor.WORK_PATCH) throw new Error("Another workspace change is saving");
-    let unlock;
-    editor.WORK_PATCH = new Promise((resolve) => {
-      unlock = resolve;
-    });
-    try {
-      await editor.LOCAL_SAVE_CHAIN;
-      services.captureWork();
-      const staged = prepare(clone(services.draftBundle()));
-      if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the change. Local work was kept.");
-      commit(staged);
-      editor.LOCAL_SAVE = { ok: true, at: nowISO(), saving: false };
-      ++editor.LOCAL_CHANGED;
-      workspace.DIRTY = false;
-      services.scheduleRecoveryBackup();
-      return true;
-    } finally {
-      unlock();
-      editor.WORK_PATCH = null;
-    }
-  }
-
-  function resolvedCaseFields(local, shared, comparison, choices) {
-    if (comparison.kind !== "conflict" || !comparison.merged) throw new Error("Only case field conflicts can be merged here");
-    const merged = clone(comparison.merged);
-    for (const f of comparison.fields) {
-      if (!f.localChanged || !f.sharedChanged) continue;
-      const choice = choices[f.field];
-      if (!choice || !["mine", "shared", "merge"].includes(choice.kind)) throw new Error("Choose how to resolve " + f.field);
-      const value = choice.kind === "mine" ? f.local : choice.kind === "shared" ? f.shared : choice.value;
-      if (f.field === "id" || f.field === "number") throw new Error("Case identity cannot be merged");
-      if (typeof value !== typeof f.local && typeof value !== typeof f.shared) throw new Error("The merged " + f.field + " has the wrong value type");
-      if (value === undefined) delete merged[f.field];
-      else merged[f.field] = clone(value);
-    }
-    merged.id = local.id;
-    merged.number = local.number;
-    return merged;
-  }
-
-  function friendlyField(value) {
-    if (value === undefined) return "(absent)";
-    if (Array.isArray(value)) return value.map(friendlyField).join("\n");
-    if (value && typeof value === "object")
-      return Object.entries(value)
-        .map(([k, v]) => k + ": " + friendlyField(v))
-        .join("\n");
-    return String(value);
-  }
-
-  function conflictControls(c) {
-    return c.comparison.fields
-      .map(
-        (f, n) =>
-          '<tr><th scope="row">' +
-          `${esc(f.field)}` +
-          "</th><td>" +
-          `${esc(friendlyField(f.local))}` +
-          "</td><td>" +
-          `${esc(friendlyField(f.shared))}` +
-          "</td><td>" +
-          "".concat(
-            f.localChanged && f.sharedChanged && !["id", "number"].includes(f.field)
-              ? html`<label>Resolution for ${f.field} <select data-conflict-choice="${raw(n)}"><option value="">Choose…</option><option value="mine">Keep mine</option><option value="shared">Take shared</option><option value="merge">Merge field</option></select></label><label>Merged ${f.field} <textarea data-conflict-value="${raw(n)}">${typeof f.local === "string" ? f.local : JSON.stringify(f.local, null, 2)}</textarea></label>${raw("".concat(typeof f.local === "string" ? "" : "<small>Structured fields use JSON to preserve their value type.</small>"))}`
-              : `${f.localChanged ? "Keep local independent change" : "Take shared independent change"}`,
-          ) +
-          "</td></tr>",
-      )
-      .join("");
-  }
-
-  async function applyConflict() {
-    const c = workspace.PREFLIGHT_CONFLICT;
-    if (!c || editor.RESOLUTION_BUSY) return;
-    try {
-      if (
-        workspace.PENDING.some((p) => p.cid === c.cid && p.idempotencyEvent) ||
-        workspace.DOCS.some((d) => d.caseId === c.cid && d.pendingAmendment) ||
-        Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === c.cid)
-      )
-        throw new Error("Confirm the pending official save before merging case details");
-      if (c.comparison.added && localCaseWork(c.cid))
-        throw new Error("Shared history changed while local work is unfinished. Export local work and review the shared case before merging fields.");
-      const choices = {};
-      c.comparison.fields.forEach((f, n) => {
-        const el = document.querySelector('[data-conflict-choice="' + n + '"]');
-        if (!el) return;
-        let value = document.querySelector('[data-conflict-value="' + n + '"]')?.value;
-        if (el.value === "merge" && typeof f.local !== "string") value = JSON.parse(value);
-        choices[f.field] = { kind: el.value, value };
-      });
-      const merged = resolvedCaseFields(kase(c.cid), c.file.case, c.comparison, choices);
-      editor.RESOLUTION_BUSY = true;
-      document.querySelectorAll("#overlay button,#overlay input,#overlay select,#overlay textarea").forEach((el) => (el.disabled = true));
-      const fresh = await readSharedCase(kase(c.cid));
-      if (stableJSON(fresh.case) !== stableJSON(c.file.case) || stableJSON(fresh.events) !== stableJSON(c.file.events))
-        throw new Error("Shared case changed again; review it again before merging");
-      const key = services.recoveryCaseKey(c.cid);
-      if (!services.RECOVERY_WORKSPACE || !key) throw new Error("Recovery identity unavailable");
-      const backup = services.recoverySnapshot(c.cid, key);
-      backup.preReplacement = true;
-      await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: key, backup });
-      await persistWorkspacePatch(
-        (staged) => {
-          staged.cases = staged.cases.map((k) => (k.id === c.cid ? merged : k));
-          staged.checkpoints[c.cid] = { case: caseDetails(fresh.case), events: fresh.events.map((e) => e.id) };
-          return staged;
-        },
-        (staged) => {
-          workspace.CASES = staged.cases;
-          workspace.SAVE_CHECKPOINTS = staged.checkpoints;
-        },
-      );
-      workspace.PREFLIGHT_CONFLICT = null;
-      editor.state.modal = null;
-      workspace.PREFLIGHT_NOTICE = "Case field choices saved on this device. Writing the shared record checks it again.";
-      editor.RESOLUTION_BUSY = false;
-      await services.saveCaseFile(c.cid);
-      services.render();
-    } catch (error) {
-      editor.RESOLUTION_BUSY = false;
-      services.toast(error.message, { severity: "error" });
-      services.render();
-    }
-  }
-
-  function safetyCaseStatus(k) {
-    const result = savedCaseState(services.app_savedworkContext(), k);
-    return [result.status, result.label, result.action];
-  }
-
-  async function showSafety(cid = "") {
-    const context = services.navigation.utilityContext();
-    let health;
-    // The panel opens immediately; slow connection checks must not hide device recovery.
-    services.captureWork();
-    if (editor.state.modal) {
-      editor.state.modal = null;
-      services.render();
-    }
-    services.A11Y.utility("Saved work & connection", savedWorkHTML(services.app_savedworkContext(), cid, { checking: true }));
-    try {
-      health = await services.helperJSON("/dw-status");
-    } catch (error) {
-      health = { error: error.message };
-    }
-    if (!services.navigation.utilityCurrent(context) || !document.querySelector("[data-saved-work-panel]")) return false;
-    editor.SAFETY_HEALTH = health;
-    // Keep focus and disclosures during the late health response.
-    const dialog = document.getElementById("utility-dialog"),
-      panel = dialog.querySelector("[data-saved-work-panel]");
-    const open = [...panel.querySelectorAll("details[open][data-saved-detail]")].map((el) => el.dataset.savedDetail);
-    const active = document.activeElement,
-      button = active?.closest("button"),
-      data = button ? { ...button.dataset } : null,
-      id = active?.id,
-      summary = active?.matches("summary") ? active.parentElement.dataset.savedDetail : "";
-    panel.outerHTML = savedWorkHTML(services.app_savedworkContext(), cid, health);
-    for (const key of open) dialog.querySelector('[data-saved-detail="' + key + '"]')?.setAttribute("open", "");
-    const target = savedWorkFocusTarget(dialog, summary, id, data);
-    if (active && !active.isConnected) (target || dialog.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
-  }
-
-  async function showHealth(probe = false) {
-    const context = services.navigation.utilityContext();
-    let health;
-    try {
-      health = await services.helperJSON(probe ? "/setup/probe" : "/dw-status", probe ? {} : undefined);
-    } catch (error) {
-      health = { error: error.message };
-    }
-    if (!services.navigation.utilityCurrent(context)) return false;
-    editor.SAFETY_HEALTH = health;
-    const h = editor.SAFETY_HEALTH,
-      check = (x) => (x === true ? "Available" : x === false ? "Unavailable" : "Not tested");
-    const fields = [
-      ["External integrity anchor", h.integrityAnchor || "Not configured"],
-      ["Local address parser", h.addressParserStatus || "address parser unavailable; R19 fallback"],
-      ["Shared folder reachable", check(h.shareReachable)],
-      ["Share and case folder writable", check(h.shareWritable)],
-      ["Chrome / Edge PDF renderer", check(h.chrome)],
-      ["Outlook draft handoff", check(h.outlook)],
-      ["SQL lookup configuration", check(h.lookupConfigured)],
-      ["SQL Windows support", check(h.lookupPlatform)],
-      ["SQL connection", h.lookupConnection || "Not tested"],
-      ["Catalog manifest", check(h.catalogManifest)],
-      ["Program/helper versions", h.versionMatch && h.version === services.navigation.helperVersion() ? "Match" : "Mismatch or helper unavailable"],
-      ["Checked at", h.checkedAt || "Unavailable"],
-    ];
-    services.A11Y.utility(
-      "Connection & setup",
-      html`<table><caption>Connection and installation checks</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>${raw("".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")))}</tbody></table><p>${raw("".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")))}</p><button class="btn" data-health-probe>Test share write access</button> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><label>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">${raw("".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))))}</textarea></label>`,
-    );
-  }
-
-  async function inspectLock() {
-    const number = prompt("Case number whose lock should be inspected");
-    if (!number) return;
-    try {
-      editor.SAFETY_LOCK = { number, ...(await services.helperJSON("/locks/status?number=" + encodeURIComponent(number))) };
-      showLock();
-    } catch (error) {
-      services.toast(error.message, { severity: "error" });
-    }
-  }
-
-  function showLock() {
-    const lock = editor.SAFETY_LOCK;
-    if (!lock) return;
-    services.A11Y.utility(
-      "Shared lock assistant",
-      lock.present
-        ? html`<p><strong>${lock.scope || "Case saving"}</strong> is locked. Ask an administrator to check the owning helper.</p><p>Computer: <strong>${lock.host}</strong>. Process: ${raw(lock.pid)}. Created: ${new Date(lock.at * 1000).toLocaleString()}. Age: ${raw(Math.floor(lock.ageSeconds / 60))} minutes.</p><p>Ask the administrator to verify that the owning helper has stopped and no save is running. Age alone does not establish that a lock is stale. Folder permissions govern administration; this form records the administrator's confirmation.</p><form id="lock-release-form"><label>Administrator name <input name="administrator" required minlength="2" maxlength="120"></label><label>Verification and reason <textarea name="reason" required minlength="15" maxlength="1000"></textarea></label><label><input name="confirmed" type="checkbox" required> Administrator has confirmed it is safe to release this lock</label><button class="btn" type="submit">Release verified lock with audit note</button></form>`
-        : "<p>No lock is present for this case.</p>",
-    );
-  }
-
-  function saveWorkflowPrefs() {
-    workspace.WORKFLOW_PREFS.filter = editor.state.caseFilter;
-    workspace.WORKFLOW_PREFS.query = editor.state.caseQ;
-    workspace.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
-    try {
-      localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(workspace.WORKFLOW_PREFS));
-    } catch (error) {
-      services.toast("Could not save workspace preferences", { severity: "error" });
-    }
-  }
-
-  function caseSearchText(k) {
-    const docs = docsFor(k.id);
-    return [
-      k.number,
-      k.address,
-      k.owner,
-      k.parcel,
-      ...docs.flatMap((d) => [d.frozen?.case?.address, d.frozen?.case?.owner, ...Object.values(d.cits || {}).map((c) => c.num)]),
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-  }
-
-  async function globalSearch() {
-    services.navigation.utilityContext();
-    services.A11Y.utility(
-      "Search shared case records",
-      html`<form id="global-search-form"><label>Case, address, owner or citation number <input type="search" name="query" required minlength="2" maxlength="200" value="${editor.state.caseQ}"></label><button class="btn" type="submit">Search shared case records</button></form><div id="global-search-results" aria-live="polite"></div>`,
-    );
-  }
   return {
-    catalogReview,
-    catalogStatus,
-    effectiveCatalog,
-    catalogItem,
-    catalogDraftBlocked,
-    catalogDraftNotice,
-    adoptCatalogReview,
-    catalogSelection,
-    catalogVisible,
+    catalogReview: (...args) => languageCatalogCatalogReview(services, ...args),
+    catalogStatus: (...args) => languageCatalogCatalogStatus(services, ...args),
+    effectiveCatalog: (...args) => languageCatalogEffectiveCatalog(services, ...args),
+    catalogItem: (...args) => languageCatalogCatalogItem(services, ...args),
+    catalogDraftBlocked: (...args) => languageCatalogCatalogDraftBlocked(services, ...args),
+    catalogDraftNotice: (...args) => languageCatalogCatalogDraftNotice(services, ...args),
+    adoptCatalogReview: (...args) => languageCatalogAdoptCatalogReview(services, ...args),
+    catalogSelection: (...args) => languageCatalogCatalogSelection(services, ...args),
+    catalogVisible: (...args) => languageCatalogCatalogVisible(services, ...args),
     refreshCatalog,
-    catalogForm,
-    catalogReplacementOptions,
-    catalogReviewPanel,
-    compareSharedCase,
-    preflightCase,
-    sharedChangeModal,
-    keepChangedLocal,
-    openChangedShared,
-    persistWorkspacePatch,
-    applyConflict,
-    safetyCaseStatus,
-    showSafety,
-    showHealth,
-    inspectLock,
-    showLock,
-    saveWorkflowPrefs,
-    caseSearchText,
-    globalSearch,
-    catalogReplacement,
-    readSharedCase,
-    localCaseWork,
-    resolvedCaseFields,
-    friendlyField,
-    conflictControls,
+    catalogForm: (...args) => languageCatalogCatalogForm(services, ...args),
+    catalogReplacementOptions: (...args) => languageCatalogCatalogReplacementOptions(services, ...args),
+    catalogReviewPanel: (...args) => languageCatalogCatalogReviewPanel(services, ...args),
+    compareSharedCase: (...args) => languageCatalogCompareSharedCase(services, ...args),
+    preflightCase: (...args) => languageCatalogPreflightCase(services, ...args),
+    sharedChangeModal: (...args) => languageCatalogSharedChangeModal(services, ...args),
+    keepChangedLocal: (...args) => languageCatalogKeepChangedLocal(services, ...args),
+    openChangedShared: (...args) => languageCatalogOpenChangedShared(services, ...args),
+    persistWorkspacePatch: (...args) => languageCatalogPersistWorkspacePatch(services, ...args),
+    applyConflict: (...args) => languageCatalogApplyConflict(services, ...args),
+    safetyCaseStatus: (...args) => languageCatalogSafetyCaseStatus(services, ...args),
+    showSafety: (...args) => languageCatalogShowSafety(services, ...args),
+    showHealth: (...args) => languageCatalogShowHealth(services, ...args),
+    inspectLock: (...args) => languageCatalogInspectLock(services, ...args),
+    showLock: (...args) => languageCatalogShowLock(services, ...args),
+    saveWorkflowPrefs: (...args) => languageCatalogSaveWorkflowPrefs(services, ...args),
+    caseSearchText: (...args) => languageCatalogCaseSearchText(services, ...args),
+    globalSearch: (...args) => languageCatalogGlobalSearch(services, ...args),
+    catalogReplacement: (...args) => languageCatalogCatalogReplacement(services, ...args),
+    readSharedCase: (...args) => languageCatalogReadSharedCase(services, ...args),
+    localCaseWork: (...args) => languageCatalogLocalCaseWork(services, ...args),
+    resolvedCaseFields: (...args) => languageCatalogResolvedCaseFields(services, ...args),
+    friendlyField: (...args) => languageCatalogFriendlyField(services, ...args),
+    conflictControls: (...args) => languageCatalogConflictControls(services, ...args),
   };
 }

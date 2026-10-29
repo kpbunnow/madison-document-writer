@@ -4,20 +4,14 @@ const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
   acorn = require("acorn"),
-  esbuild = require("esbuild");
+  esbuild = require("esbuild"),
+  { liftedSplice } = require("../fixtures/lifted_splice.cjs");
 (async () => {
   const source = fs.readFileSync("app/modules/reinspection.js", "utf8"),
-    ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
-    factory = ast.body.find((n) => n.declaration?.id?.name === "createReinspection").declaration,
-    row = factory.body.body.find((n) => n.id?.name === "checkRowHTML"),
-    panel = ast.body.find((n) => n.id?.name === "worksheetCheckPanelHTML"),
     reference = JSON.parse(fs.readFileSync("tests/fixtures/worksheet_checks_reference.json", "utf8"));
-  let legacy = source;
-  for (const [n, text] of [
-    [row, reference.row],
-    [panel, reference.panel],
-  ].sort((a, b) => b[0].start - a[0].start))
-    legacy = legacy.slice(0, n.start) + text + legacy.slice(n.end);
+  let legacy = liftedSplice(source, "reinspection", "checkRowHTML", reference.row);
+  const panel = acorn.parse(legacy, { ecmaVersion: 2022, sourceType: "module" }).body.find((n) => n.id?.name === "worksheetCheckPanelHTML");
+  legacy = legacy.slice(0, panel.start) + reference.panel + legacy.slice(panel.end);
   async function compile(contents) {
     const b = await esbuild.build({
       stdin: { contents: contents + "\nexport {worksheetCheckPanelHTML};", resolveDir: path.resolve("app/modules") },

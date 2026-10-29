@@ -557,551 +557,571 @@ function focusAdministrativeCheckTarget(services, d, target) {
   return false;
 }
 
-export function createReinspection(services) {
-  /* app functions; direct dependencies use explicit shared state. */
+/* app functions; direct dependencies use explicit shared state. */
 
-  function walkIdentity(r) {
-    return r && r.caseId + "|" + r.id + "|" + r.sourceDocId;
+function reinspectionWalkIdentity(services, r) {
+  return r && r.caseId + "|" + r.id + "|" + r.sourceDocId;
+}
+
+function reinspectionClearWalk(services) {
+  editor.state.riWalk = false;
+  editor.state.riWalkContext = null;
+  editor.state.riWalkItem = null;
+  editor.state.riWalkUndo = null;
+  editor.state.riWalkSkipped = [];
+  editor.state.riWalkStage = "outcome";
+}
+
+function reinspectionRestoreWalkFor(services, r) {
+  const saved = editor.WORK.walk;
+  if (saved?.context !== reinspectionWalkIdentity(services, r)) {
+    editor.WORK.walk = null;
+    return;
   }
+  editor.state.riWalk = true;
+  editor.state.riWalkContext = saved.context;
+  editor.state.riWalkItem = saved.item;
+  editor.state.riWalkUndo = saved.undo || null;
+  editor.state.riWalkMode = saved.mode === "details" ? "details" : "quick";
+  editor.state.riWalkSkipped = Array.isArray(saved.skipped) ? saved.skipped : [];
+  editor.state.riWalkStage = saved.stage === "details" ? "details" : "outcome";
+  if (!reinspectionEnsureWalkContext(services)) editor.WORK.walk = null;
+}
 
-  function clearWalk() {
-    editor.state.riWalk = false;
-    editor.state.riWalkContext = null;
-    editor.state.riWalkItem = null;
-    editor.state.riWalkUndo = null;
-    editor.state.riWalkSkipped = [];
-    editor.state.riWalkStage = "outcome";
+function reinspectionEnsureWalkContext(services) {
+  const r = editor.state.screen === "reinspect" && reinsp(editor.state.reinspId);
+  if (!r || !r.draft || r.docId || editor.state.riWalkContext !== reinspectionWalkIdentity(services, r)) {
+    reinspectionClearWalk(services);
+    return false;
   }
-
-  function restoreWalkFor(r) {
-    const saved = editor.WORK.walk;
-    if (saved?.context !== walkIdentity(r)) {
-      editor.WORK.walk = null;
-      return;
-    }
-    editor.state.riWalk = true;
-    editor.state.riWalkContext = saved.context;
-    editor.state.riWalkItem = saved.item;
-    editor.state.riWalkUndo = saved.undo || null;
-    editor.state.riWalkMode = saved.mode === "details" ? "details" : "quick";
-    editor.state.riWalkSkipped = Array.isArray(saved.skipped) ? saved.skipped : [];
-    editor.state.riWalkStage = saved.stage === "details" ? "details" : "outcome";
-    if (!ensureWalkContext()) editor.WORK.walk = null;
+  const src = doc(r.sourceDocId);
+  if (!src || src.caseId !== r.caseId) {
+    reinspectionClearWalk(services);
+    return false;
   }
+  if (editor.state.riWalkItem && !src.items.some((it) => it.id === editor.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)) {
+    reinspectionClearWalk(services);
+    return false;
+  }
+  if (editor.state.riWalkUndo && !src.items.some((it) => it.id === editor.state.riWalkUndo.itemId && !it.withdrawn)) editor.state.riWalkUndo = null;
+  editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) =>
+    src.items.some((it) => it.id === id && !it.withdrawn && !(r.results[id] || {}).carried),
+  );
+  return true;
+}
 
-  function ensureWalkContext() {
-    const r = editor.state.screen === "reinspect" && reinsp(editor.state.reinspId);
-    if (!r || !r.draft || r.docId || editor.state.riWalkContext !== walkIdentity(r)) {
-      clearWalk();
-      return false;
-    }
-    const src = doc(r.sourceDocId);
-    if (!src || src.caseId !== r.caseId) {
-      clearWalk();
-      return false;
-    }
-    if (editor.state.riWalkItem && !src.items.some((it) => it.id === editor.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)) {
-      clearWalk();
-      return false;
-    }
-    if (editor.state.riWalkUndo && !src.items.some((it) => it.id === editor.state.riWalkUndo.itemId && !it.withdrawn)) editor.state.riWalkUndo = null;
-    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) =>
-      src.items.some((it) => it.id === id && !it.withdrawn && !(r.results[id] || {}).carried),
+function reinspectionNextWalkItem(services, r) {
+  const src = r && doc(r.sourceDocId);
+  return (src && src.items.find((it) => !it.withdrawn && !(r.results[it.id] || {}).carried && !ocOf(r, it.id))) || null;
+}
+
+function reinspectionFocusWalkItem(services) {
+  const current = document.querySelector('[data-ri-walk-current="true"]');
+  if (!current) {
+    document.querySelector('[data-riwalk="off"]')?.focus();
+    return;
+  }
+  const action = current.querySelector("[data-setoc]:not([disabled])");
+  if (action) action.focus();
+  else current.focus();
+  if (current.scrollIntoView) current.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+function reinspectionFocusWalkDetails(services) {
+  const current = document.querySelector('[data-ri-walk-current="true"]');
+  const el = current?.querySelector("[data-rinote], [data-ridate]");
+  if (el) {
+    el.focus();
+    el.scrollIntoView?.({ block: "center" });
+  } else reinspectionFocusWalkItem(services);
+}
+
+function reinspectionWalkItemReady(services, r, id) {
+  if (!reinspectionEditableWalkItem(services, r, id)) return false;
+  const result = r.results[id] || {},
+    intent = r.followupIntent || "undecided";
+  const source = doc(r.sourceDocId),
+    on = result.manualDate ? result.on : result.on || r.date;
+  if (!result.oc || !services.inspection.validISO(on) || on < docCase(source).date || on > r.date) return false;
+  if (result.oc === "corrected") return true;
+  return !["extension", "bestInterestExtension", "citation"].includes(intent) || reinspectionDueCheck(services, result.due, r.date).ok;
+}
+
+function reinspectionAdvanceWalk(services, r) {
+  if (!editor.state.riWalk || !reinspectionEnsureWalkContext(services)) return false;
+  if (
+    editor.state.riWalkStage === "details" &&
+    editor.state.riWalkItem &&
+    !reinspectionWalkItemReady(services, r, editor.state.riWalkItem) &&
+    !editor.state.riWalkSkipped.includes(editor.state.riWalkItem)
+  ) {
+    services.ui.toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
+    reinspectionFocusWalkDetails(services);
+    return false;
+  }
+  const next = reinspectionNextWalkItem(services, r);
+  editor.state.riWalkItem = next?.id || null;
+  editor.state.riWalkStage = "outcome";
+  services.authoring.scheduleDraftSave();
+  services.ui.render();
+  reinspectionFocusWalkItem(services);
+  return true;
+}
+
+function reinspectionSkipWalkDetails(services, r) {
+  if (!editor.state.riWalk || !reinspectionEnsureWalkContext(services) || editor.state.riWalkStage !== "details") return false;
+  if (!editor.state.riWalkSkipped.includes(editor.state.riWalkItem)) editor.state.riWalkSkipped.push(editor.state.riWalkItem);
+  services.authoring.scheduleDraftSave();
+  return reinspectionAdvanceWalk(services, r);
+}
+
+function reinspectionReturnWalkDetails(services, r) {
+  if (!editor.state.riWalk || !reinspectionEnsureWalkContext(services)) return false;
+  const src = doc(r.sourceDocId),
+    item = src.items.find(
+      (it) =>
+        reinspectionEditableWalkItem(services, r, it.id) &&
+        (!reinspectionWalkItemReady(services, r, it.id) || editor.state.riWalkSkipped.includes(it.id)),
     );
-    return true;
-  }
+  if (!item) return false;
+  editor.state.riWalkItem = item.id;
+  editor.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
+  editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) => id !== item.id);
+  services.authoring.scheduleDraftSave();
+  services.ui.render();
+  editor.state.riWalkStage === "details" ? reinspectionFocusWalkDetails(services) : reinspectionFocusWalkItem(services);
+  return true;
+}
 
-  function nextWalkItem(r) {
-    const src = r && doc(r.sourceDocId);
-    return (src && src.items.find((it) => !it.withdrawn && !(r.results[it.id] || {}).carried && !ocOf(r, it.id))) || null;
-  }
+function reinspectionPreviousWalk(services, r) {
+  if (!editor.state.riWalk || !reinspectionEnsureWalkContext(services)) return false;
+  const src = doc(r.sourceDocId),
+    eligible = src.items.filter((i) => reinspectionEditableWalkItem(services, r, i.id));
+  const ix = eligible.findIndex((i) => i.id === editor.state.riWalkItem),
+    prior = eligible[ix < 0 ? eligible.length - 1 : ix - 1];
+  if (!prior) return false;
+  editor.state.riWalkItem = prior.id;
+  editor.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
+  services.authoring.scheduleDraftSave();
+  services.ui.render();
+  editor.state.riWalkStage === "details" ? reinspectionFocusWalkDetails(services) : reinspectionFocusWalkItem(services);
+  return true;
+}
 
-  function focusWalkItem() {
-    const current = document.querySelector('[data-ri-walk-current="true"]');
-    if (!current) {
-      document.querySelector('[data-riwalk="off"]')?.focus();
-      return;
-    }
-    const action = current.querySelector("[data-setoc]:not([disabled])");
-    if (action) action.focus();
-    else current.focus();
-    if (current.scrollIntoView) current.scrollIntoView({ block: "center", behavior: "smooth" });
-  }
+function reinspectionEditableWalkItem(services, r, id) {
+  const src = r && doc(r.sourceDocId),
+    it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
+  return !!(
+    editor.state.screen === "reinspect" &&
+    r &&
+    r.id === editor.state.reinspId &&
+    r.draft &&
+    !r.docId &&
+    it &&
+    !it.withdrawn &&
+    !(r.results[id] || {}).carried
+  );
+}
 
-  function focusWalkDetails() {
-    const current = document.querySelector('[data-ri-walk-current="true"]');
-    const el = current?.querySelector("[data-rinote], [data-ridate]");
-    if (el) {
-      el.focus();
-      el.scrollIntoView?.({ block: "center" });
-    } else focusWalkItem();
-  }
-
-  function walkItemReady(r, id) {
-    if (!editableWalkItem(r, id)) return false;
-    const result = r.results[id] || {},
-      intent = r.followupIntent || "undecided";
-    const source = doc(r.sourceDocId),
-      on = result.manualDate ? result.on : result.on || r.date;
-    if (!result.oc || !services.inspection.validISO(on) || on < docCase(source).date || on > r.date) return false;
-    if (result.oc === "corrected") return true;
-    return !["extension", "bestInterestExtension", "citation"].includes(intent) || dueCheck(result.due, r.date).ok;
-  }
-
-  function advanceWalk(r) {
-    if (!editor.state.riWalk || !ensureWalkContext()) return false;
-    if (
-      editor.state.riWalkStage === "details" &&
-      editor.state.riWalkItem &&
-      !walkItemReady(r, editor.state.riWalkItem) &&
-      !editor.state.riWalkSkipped.includes(editor.state.riWalkItem)
-    ) {
-      services.ui.toast("This item needs a valid date and, for an extension or citation, a new due date. Use Skip for now to continue.");
-      focusWalkDetails();
-      return false;
-    }
-    const next = nextWalkItem(r);
-    editor.state.riWalkItem = next?.id || null;
-    editor.state.riWalkStage = "outcome";
-    services.authoring.scheduleDraftSave();
-    services.ui.render();
-    focusWalkItem();
-    return true;
-  }
-
-  function skipWalkDetails(r) {
-    if (!editor.state.riWalk || !ensureWalkContext() || editor.state.riWalkStage !== "details") return false;
-    if (!editor.state.riWalkSkipped.includes(editor.state.riWalkItem)) editor.state.riWalkSkipped.push(editor.state.riWalkItem);
-    services.authoring.scheduleDraftSave();
-    return advanceWalk(r);
-  }
-
-  function returnWalkDetails(r) {
-    if (!editor.state.riWalk || !ensureWalkContext()) return false;
-    const src = doc(r.sourceDocId),
-      item = src.items.find((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)));
-    if (!item) return false;
-    editor.state.riWalkItem = item.id;
-    editor.state.riWalkStage = ocOf(r, item.id) ? "details" : "outcome";
-    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((id) => id !== item.id);
-    services.authoring.scheduleDraftSave();
-    services.ui.render();
-    editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-    return true;
-  }
-
-  function previousWalk(r) {
-    if (!editor.state.riWalk || !ensureWalkContext()) return false;
-    const src = doc(r.sourceDocId),
-      eligible = src.items.filter((i) => editableWalkItem(r, i.id));
-    const ix = eligible.findIndex((i) => i.id === editor.state.riWalkItem),
-      prior = eligible[ix < 0 ? eligible.length - 1 : ix - 1];
-    if (!prior) return false;
-    editor.state.riWalkItem = prior.id;
-    editor.state.riWalkStage = ocOf(r, prior.id) ? "details" : "outcome";
-    services.authoring.scheduleDraftSave();
-    services.ui.render();
-    editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-    return true;
-  }
-
-  function editableWalkItem(r, id) {
-    const src = r && doc(r.sourceDocId),
-      it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
-    return !!(
-      editor.state.screen === "reinspect" &&
-      r &&
-      r.id === editor.state.reinspId &&
-      r.draft &&
-      !r.docId &&
-      it &&
-      !it.withdrawn &&
-      !(r.results[id] || {}).carried
-    );
-  }
-
-  function recordReinspectionOutcome(id, outcome) {
-    const r = reinsp(editor.state.reinspId);
-    if (!editableWalkItem(r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
-    if (editor.state.riWalk && (!ensureWalkContext() || !editor.state.riWalk)) return false;
-    const cur = r.results[id] || {};
-    if (cur.oc === outcome) return false;
-    const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
-    const result = recordedOutcomeResult(cur, outcome, r);
-    if (editor.state.riWalk) editor.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
-    else editor.state.riWalkUndo = null;
-    r.results[id] = result;
-    editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((x) => x !== id);
-    if (editor.state.riWalk) {
-      if (editor.state.riWalkMode === "details") {
-        editor.state.riWalkItem = id;
-        editor.state.riWalkStage = "details";
-      } else {
-        const next = nextWalkItem(r);
-        editor.state.riWalkItem = (next && next.id) || null;
-        editor.state.riWalkStage = "outcome";
-      }
-    }
-    workspace.DIRTY = true;
-    services.authoring.scheduleDraftSave();
-    if (editor.state.riWalk) {
-      services.ui.render();
-      editor.state.riWalkStage === "details" ? focusWalkDetails() : focusWalkItem();
-    } else services.ui.renderKeep();
-    return true;
-  }
-
-  function undoWalkOutcome() {
-    const r = reinsp(editor.state.reinspId),
-      undo = editor.state.riWalkUndo;
-    if (!editor.state.riWalk || !ensureWalkContext() || !undo || undo.context !== walkIdentity(r) || !editableWalkItem(r, undo.itemId)) return false;
-    const current = r.results[undo.itemId];
-    if (!current || current.oc !== undo.after.oc) {
-      services.ui.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
-      return false;
-    }
-    if (stableJSON(current) === stableJSON(undo.after)) {
-      if (undo.before) r.results[undo.itemId] = clone(undo.before);
-      else delete r.results[undo.itemId];
+function reinspectionRecordReinspectionOutcome(services, id, outcome) {
+  const r = reinsp(editor.state.reinspId);
+  if (!reinspectionEditableWalkItem(services, r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
+  if (editor.state.riWalk && (!reinspectionEnsureWalkContext(services) || !editor.state.riWalk)) return false;
+  const cur = r.results[id] || {};
+  if (cur.oc === outcome) return false;
+  const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
+  const result = recordedOutcomeResult(cur, outcome, r);
+  if (editor.state.riWalk) editor.state.riWalkUndo = { context: reinspectionWalkIdentity(services, r), itemId: id, before, after: clone(result) };
+  else editor.state.riWalkUndo = null;
+  r.results[id] = result;
+  editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((x) => x !== id);
+  if (editor.state.riWalk) {
+    if (editor.state.riWalkMode === "details") {
+      editor.state.riWalkItem = id;
+      editor.state.riWalkStage = "details";
     } else {
-      r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
-      services.ui.toast("Outcome undone; later note, date and due details were kept on this item.");
+      const next = reinspectionNextWalkItem(services, r);
+      editor.state.riWalkItem = (next && next.id) || null;
+      editor.state.riWalkStage = "outcome";
     }
-    editor.state.riWalkUndo = null;
-    editor.state.riWalkItem = undo.itemId;
-    editor.state.riWalkStage = "outcome";
-    workspace.DIRTY = true;
-    services.authoring.scheduleDraftSave();
+  }
+  workspace.DIRTY = true;
+  services.authoring.scheduleDraftSave();
+  if (editor.state.riWalk) {
     services.ui.render();
-    focusWalkItem();
-    return true;
-  }
+    editor.state.riWalkStage === "details" ? reinspectionFocusWalkDetails(services) : reinspectionFocusWalkItem(services);
+  } else services.ui.renderKeep();
+  return true;
+}
 
-  function narrativeFor(r, it) {
-    const k = kase(r.caseId),
-      src = doc(r.sourceDocId),
-      oc = ocOf(r, it.id),
-      res = r.results[it.id] || {};
-    const first = originalNotice(r.caseId),
-      firstDate = (first && k.date) || k.date || (first || {}).created;
-    const what = String(it.title || "the violation").replace(/\.$/, "");
-    const label = (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
-    const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
-    return (
-      "Initial inspection on " +
-      services.inspection.fmtDate(firstDate) +
-      " documented the following violation: " +
-      what +
-      ". " +
-      art +
-      label.toLowerCase() +
-      " was issued with a compliance date of " +
-      services.inspection.fmtDate(it.due) +
-      ". Re-inspection on " +
-      services.inspection.fmtDate(res.on || r.date) +
-      " found " +
-      ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
-      "." +
-      (res.note ? " " + String(res.note).trim().replace(/\s+/g, " ") : "")
-    );
+function reinspectionUndoWalkOutcome(services) {
+  const r = reinsp(editor.state.reinspId),
+    undo = editor.state.riWalkUndo;
+  if (
+    !editor.state.riWalk ||
+    !reinspectionEnsureWalkContext(services) ||
+    !undo ||
+    undo.context !== reinspectionWalkIdentity(services, r) ||
+    !reinspectionEditableWalkItem(services, r, undo.itemId)
+  )
+    return false;
+  const current = r.results[undo.itemId];
+  if (!current || current.oc !== undo.after.oc) {
+    services.ui.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
+    return false;
   }
-
-  function attachCheckTargets(d, c) {
-    if (c.ok || c.targets?.length) return c;
-    const t = c.t.toLowerCase(),
-      targets = [],
-      add = (s, l, a) => targets.push(checkTarget(s, l, a));
-    const visit = () => add("#btn-editvisit", "Review inspection", "visit");
-    // The parcel comes only from the Accela import; its check names that correction instead of a field.
-    if (/parcel/.test(t)) return c;
-    if (!attachIdentityCheckTargets(d, t, add)) attachContentCheckTargets(services, d, t, add, visit);
-    // Record conflicts have no editable field. Direct the inspector to the existing case.
-    if (!targets.length) add('[data-nav="cases"]', "Open case in Workspace", "workspace");
-    return { ...c, targets };
+  if (stableJSON(current) === stableJSON(undo.after)) {
+    if (undo.before) r.results[undo.itemId] = clone(undo.before);
+    else delete r.results[undo.itemId];
+  } else {
+    r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
+    services.ui.toast("Outcome undone; later note, date and due details were kept on this item.");
   }
+  editor.state.riWalkUndo = null;
+  editor.state.riWalkItem = undo.itemId;
+  editor.state.riWalkStage = "outcome";
+  workspace.DIRTY = true;
+  services.authoring.scheduleDraftSave();
+  services.ui.render();
+  reinspectionFocusWalkItem(services);
+  return true;
+}
 
-  function checkRowHTML(c, ix, worksheet = false) {
-    return html`<div class="check ${c.ok ? "pass" : c.soft ? "note" : "fail"}"><span class="m">${c.ok ? "✓" : c.soft ? "·" : "!"}</span><div><span id="check-msg-${worksheet ? "visit" : "doc"}-${ix}">${c.t}</span>${raw(
-      !c.ok
-        ? html`<div class="check-links">${raw(
-            (c.targets || [])
-              .map(
-                (target, n) =>
-                  html`<button type="button" class="check-link" data-check-index="${ix}" data-check-target="${n}" ${raw(worksheet === true ? html`data-check-worksheet="1"` : "")}>${target.label}</button>`,
-              )
-              .join(""),
-          )}</div>`
-        : "",
-    )}</div></div>`;
-  }
+function reinspectionNarrativeFor(services, r, it) {
+  const k = kase(r.caseId),
+    src = doc(r.sourceDocId),
+    oc = ocOf(r, it.id),
+    res = r.results[it.id] || {};
+  const first = originalNotice(r.caseId),
+    firstDate = (first && k.date) || k.date || (first || {}).created;
+  const what = String(it.title || "the violation").replace(/\.$/, "");
+  const label = (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
+  const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
+  return (
+    "Initial inspection on " +
+    services.inspection.fmtDate(firstDate) +
+    " documented the following violation: " +
+    what +
+    ". " +
+    art +
+    label.toLowerCase() +
+    " was issued with a compliance date of " +
+    services.inspection.fmtDate(it.due) +
+    ". Re-inspection on " +
+    services.inspection.fmtDate(res.on || r.date) +
+    " found " +
+    ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
+    "." +
+    (res.note ? " " + String(res.note).trim().replace(/\s+/g, " ") : "")
+  );
+}
 
-  function worksheetChecks(r) {
-    const src = doc(r.sourceDocId);
-    if (!src) return [];
-    const out = [],
-      add = (t, selector, label) => out.push({ ok: false, t, targets: [checkTarget(selector, label)] });
-    const dueRelevant =
-      !r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
-    const initial = docCase(src).date || "",
-      earliest = services.inspection.inspAt(src).date || initial;
-    if (!services.inspection.validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
-      add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
-    if (!services.inspection.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
-    if (!insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
-    src.items.forEach((i) => {
-      const res = r.results[i.id] || {},
-        on = res.manualDate ? res.on : res.on || r.date;
-      if (i.done || i.withdrawn) return;
-      if (!OUTCOMES.some((o) => o.id === res.oc))
-        add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
-      else {
-        if (!services.inspection.validISO(on) || on < initial || on > r.date)
-          add(
-            "Item " + i.no + ": result date must be between the initial inspection and this visit.",
-            '[data-ridate="' + checkAttr(i.id) + '"]',
-            "Item " + i.no + " result date",
-          );
-        if (dueRelevant && res.oc !== "corrected" && !dueCheck(res.due, recordDay(today)).ok)
-          out.push({
-            ok: false,
-            soft: true,
-            t: "Item " + i.no + ": set a future due date for an extension or citation. Referrals need no due date.",
-            targets: [checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")],
-          });
-      }
-    });
-    if (dueRelevant && distinctDues(services.inspection.dueContext(r, true)).length > 3)
-      out.push({
-        ok: false,
-        t: "Use no more than three distinct due dates for an extension or citation.",
-        targets: services.inspection
-          .dueContext(r, true)
-          .map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
-      });
-    const spacing = services.inspection.dueDateSpacingConflicts(services.inspection.dueContext(r, true));
-    if (dueRelevant && spacing.length) {
-      const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
-      out.push({
-        ok: false,
-        t: "Keep distinct due dates at least seven days apart.",
-        targets: items.map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
-      });
-    }
-    for (const t of services.inspection.worksheetFaults(r))
-      if (!out.some((c) => c.t === t) && !/outcome|Result dates/.test(t))
-        out.push({ ok: false, t, targets: [checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
-    return out;
-  }
+function reinspectionAttachCheckTargets(services, d, c) {
+  if (c.ok || c.targets?.length) return c;
+  const t = c.t.toLowerCase(),
+    targets = [],
+    add = (s, l, a) => targets.push(checkTarget(s, l, a));
+  const visit = () => add("#btn-editvisit", "Review inspection", "visit");
+  // The parcel comes only from the Accela import; its check names that correction instead of a field.
+  if (/parcel/.test(t)) return c;
+  if (!attachIdentityCheckTargets(d, t, add)) attachContentCheckTargets(services, d, t, add, visit);
+  // Record conflicts have no editable field. Direct the inspector to the existing case.
+  if (!targets.length) add('[data-nav="cases"]', "Open case in Workspace", "workspace");
+  return { ...c, targets };
+}
 
-  function worksheetCheckPanel(r) {
-    return worksheetCheckPanelHTML(worksheetChecks(r), checkRowHTML);
-  }
+function reinspectionCheckRowHTML(services, c, ix, worksheet = false) {
+  return html`<div class="check ${c.ok ? "pass" : c.soft ? "note" : "fail"}"><span class="m">${c.ok ? "✓" : c.soft ? "·" : "!"}</span><div><span id="check-msg-${worksheet ? "visit" : "doc"}-${ix}">${c.t}</span>${raw(
+    !c.ok
+      ? html`<div class="check-links">${raw(
+          (c.targets || [])
+            .map(
+              (target, n) =>
+                html`<button type="button" class="check-link" data-check-index="${ix}" data-check-target="${n}" ${raw(worksheet === true ? html`data-check-worksheet="1"` : "")}>${target.label}</button>`,
+            )
+            .join(""),
+        )}</div>`
+      : "",
+  )}</div></div>`;
+}
 
-  function highlightOpenChecks() {
-    document.querySelectorAll(".check-open").forEach((el) => {
-      el.classList.remove("check-open");
-      el.removeAttribute("data-open-check");
-      if (el.dataset.checkDesc) {
-        el.removeAttribute("data-check-desc");
-        el.removeAttribute("aria-describedby");
-      }
-      el.removeAttribute("aria-invalid");
-    });
-    const d = doc(editor.state.docId),
-      r = reinsp(editor.state.reinspId);
-    const list =
-      editor.state.screen === "write" && d && !services.inspection.isLocked(d)
-        ? services.inspection.checks(d)
-        : editor.state.screen === "reinspect" && r && r.draft && !r.docId
-          ? worksheetChecks(r)
-          : [];
-    list.forEach((c, ix) => {
-      if (c.ok) return;
-      (c.targets || []).forEach((t) => {
-        if (t.action && !["contacts"].includes(t.action) && !t.action.startsWith("recipient:")) return;
-        document.querySelectorAll(t.selector).forEach((el) => {
-          el.classList.add("check-open");
-          el.setAttribute("data-open-check", c.t);
-          const id =
-            (editor.state.screen === "write" && !editor.state.modal ? "editor-" : "") +
-            "check-msg-" +
-            (editor.state.screen === "reinspect" ? "visit" : "doc") +
-            "-" +
-            ix;
-          if (document.getElementById(id) && !el.getAttribute("aria-describedby")) {
-            el.setAttribute("aria-describedby", id);
-            el.dataset.checkDesc = id;
-          }
-          if (!c.soft) el.setAttribute("aria-invalid", "true");
+function reinspectionWorksheetChecks(services, r) {
+  const src = doc(r.sourceDocId);
+  if (!src) return [];
+  const out = [],
+    add = (t, selector, label) => out.push({ ok: false, t, targets: [checkTarget(selector, label)] });
+  const dueRelevant =
+    !r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
+  const initial = docCase(src).date || "",
+    earliest = services.inspection.inspAt(src).date || initial;
+  if (!services.inspection.validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
+    add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
+  if (!services.inspection.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
+  if (!insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
+  src.items.forEach((i) => {
+    const res = r.results[i.id] || {},
+      on = res.manualDate ? res.on : res.on || r.date;
+    if (i.done || i.withdrawn) return;
+    if (!OUTCOMES.some((o) => o.id === res.oc))
+      add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
+    else {
+      if (!services.inspection.validISO(on) || on < initial || on > r.date)
+        add(
+          "Item " + i.no + ": result date must be between the initial inspection and this visit.",
+          '[data-ridate="' + checkAttr(i.id) + '"]',
+          "Item " + i.no + " result date",
+        );
+      if (dueRelevant && res.oc !== "corrected" && !reinspectionDueCheck(services, res.due, recordDay(today)).ok)
+        out.push({
+          ok: false,
+          soft: true,
+          t: "Item " + i.no + ": set a future due date for an extension or citation. Referrals need no due date.",
+          targets: [checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")],
         });
-      });
+    }
+  });
+  if (dueRelevant && distinctDues(services.inspection.dueContext(r, true)).length > 3)
+    out.push({
+      ok: false,
+      t: "Use no more than three distinct due dates for an extension or citation.",
+      targets: services.inspection
+        .dueContext(r, true)
+        .map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
+    });
+  const spacing = services.inspection.dueDateSpacingConflicts(services.inspection.dueContext(r, true));
+  if (dueRelevant && spacing.length) {
+    const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
+    out.push({
+      ok: false,
+      t: "Keep distinct due dates at least seven days apart.",
+      targets: items.map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
     });
   }
+  for (const t of services.inspection.worksheetFaults(r))
+    if (!out.some((c) => c.t === t) && !/outcome|Result dates/.test(t))
+      out.push({ ok: false, t, targets: [checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
+  return out;
+}
 
-  function focusCheckTarget(target, message) {
-    const d = doc(editor.state.docId);
-    services.inspection.captureWork();
-    editor.state.modal = null;
-    editor.state.picker = false;
-    if (focusAdministrativeCheckTarget(services, d, target)) return;
-    if (target.action === "visit") {
-      if (!d || !services.inspection.returnToWorksheet(d)) {
-        services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
-        return;
-      }
-      const r = reinsp(editor.state.reinspId);
-      editor.state.riFilter = "";
-      clearWalk();
-      editor.WORK.walk = null;
-      services.ui.render();
-      const check = worksheetChecks(r).find((c) => !c.soft) || worksheetChecks(r)[0];
-      target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
-    } else {
-      if (editor.state.screen === "reinspect") {
-        editor.state.riFilter = "";
-        clearWalk();
-        editor.WORK.walk = null;
-      }
-      if (target.action === "contacts") editor.state.modal = "cc";
-      services.ui.render();
+function reinspectionWorksheetCheckPanel(services, r) {
+  return worksheetCheckPanelHTML(reinspectionWorksheetChecks(services, r), (...args) => reinspectionCheckRowHTML(services, ...args));
+}
+
+function reinspectionHighlightOpenChecks(services) {
+  document.querySelectorAll(".check-open").forEach((el) => {
+    el.classList.remove("check-open");
+    el.removeAttribute("data-open-check");
+    if (el.dataset.checkDesc) {
+      el.removeAttribute("data-check-desc");
+      el.removeAttribute("aria-describedby");
     }
-    if (target.action === "guidance") {
-      services.ui.toast(message);
+    el.removeAttribute("aria-invalid");
+  });
+  const d = doc(editor.state.docId),
+    r = reinsp(editor.state.reinspId);
+  const list =
+    editor.state.screen === "write" && d && !services.inspection.isLocked(d)
+      ? services.inspection.checks(d)
+      : editor.state.screen === "reinspect" && r && r.draft && !r.docId
+        ? reinspectionWorksheetChecks(services, r)
+        : [];
+  list.forEach((c, ix) => {
+    if (c.ok) return;
+    (c.targets || []).forEach((t) => {
+      if (t.action && !["contacts"].includes(t.action) && !t.action.startsWith("recipient:")) return;
+      document.querySelectorAll(t.selector).forEach((el) => {
+        el.classList.add("check-open");
+        el.setAttribute("data-open-check", c.t);
+        const id =
+          (editor.state.screen === "write" && !editor.state.modal ? "editor-" : "") +
+          "check-msg-" +
+          (editor.state.screen === "reinspect" ? "visit" : "doc") +
+          "-" +
+          ix;
+        if (document.getElementById(id) && !el.getAttribute("aria-describedby")) {
+          el.setAttribute("aria-describedby", id);
+          el.dataset.checkDesc = id;
+        }
+        if (!c.soft) el.setAttribute("aria-invalid", "true");
+      });
+    });
+  });
+}
+
+function reinspectionFocusCheckTarget(services, target, message) {
+  const d = doc(editor.state.docId);
+  services.inspection.captureWork();
+  editor.state.modal = null;
+  editor.state.picker = false;
+  if (focusAdministrativeCheckTarget(services, d, target)) return;
+  if (target.action === "visit") {
+    if (!d || !services.inspection.returnToWorksheet(d)) {
+      services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
       return;
     }
-    const el = document.querySelector(target.selector);
-    if (!el) {
-      services.ui.toast(message + " Open the existing case to review the retained record.");
-      return;
-    }
-    for (let parent = el.parentElement; parent; parent = parent.parentElement) if (parent.tagName === "DETAILS") parent.open = true;
-    el.classList.add("check-focus");
-    el.setAttribute("tabindex", el.getAttribute("tabindex") || "0");
-    el.scrollIntoView?.({ behavior: "smooth", block: "center" });
-    el.focus({ preventScroll: true });
-    setTimeout(() => el.classList.remove("check-focus"), 2200);
-  }
-
-  function dueCheck(due, from) {
-    if (!due) return { ok: false, msg: "Needs a new due date" };
-    if (!services.inspection.validISO(due) || !services.inspection.validISO(from || recordDay(today)))
-      return { ok: false, msg: "Enter a real calendar date" };
-    const n = daysBetween(from || recordDay(today), due);
-    if (n < 1) return { ok: false, msg: "Must be a future date" };
-    if (n < 7) return { ok: true, warn: true, msg: n + " day" + (n === 1 ? "" : "s") + " — unusually short" };
-    if (n > 180) return { ok: true, warn: true, msg: n + " days — unusually long" };
-    return { ok: true, msg: n + " days" };
-  }
-
-  function screenReinspect() {
     const r = reinsp(editor.state.reinspId);
-    if (!r) {
-      editor.state.screen = "cases";
-      return services.ui.screenCases();
-    }
-    const k = kase(r.caseId),
-      src = doc(r.sourceDocId);
-    if (!src) {
-      editor.state.screen = "cases";
-      return services.ui.screenCases();
-    }
-    const srcLabel = (DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
-    const closed = !!r.docId,
-      readOnly = closed || !r.draft;
-    const shown = (it) => worksheetItemShown({ r, it });
-    const rows = src.items
-      .filter(shown)
-      .map((it) => worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }))
-      .join("");
-    const done = doneItems(r).length,
-      open = openItems(r).length,
-      left = unchecked(r).length;
-    const activeCount = src.items.filter((it) => !it.withdrawn).length;
-    const recorded = activeCount - left,
-      withdrawn = src.items.length - activeCount;
-    const next = editor.state.riWalk ? nextWalkItem(r) : null;
-    const rowsShown = src.items.filter((it) => worksheetItemShown({ r, it })).length;
-    const cited = openItems(r).filter((i) => (r.results[i.id] || {}).cite);
-    const badDue = openItems(r).filter((i) => !dueCheck((r.results[i.id] || {}).due, r.date).ok);
-    const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
-    const referred = isReferredCase(r.caseId);
-    const walkPanel = worksheetWalkHTML({ r, readOnly, src, left, next, editableWalkItem, walkItemReady });
-    const verdict = worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred });
-
-    return services.ui.shell(
-      k.address,
-      `${k.number} · Reinspection · working off the ${srcLabel.toLowerCase()}`,
-      '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
-      worksheetVisitHeaderHTML({ walkIdentity, r, srcLabel, services, src, readOnly }) +
-        worksheetProgressHTML({ recorded, activeCount, left, withdrawn }) +
-        worksheetFiltersHTML({ done, open, left, cited, src }) +
-        worksheetBodyHTML({
-          walkPanel,
-          rowsShown,
-          src,
-          prior,
-          services,
-          left,
-          r,
-          rows,
-          readOnly,
-          worksheetChecks,
-          worksheetCheckPanel,
-          verdict,
-          closed,
-        }),
-    );
-  }
-
-  function docFromReinspection(r, type) {
-    if (reopenFollowupDraft(services, r)) return;
-    const src = doc(r.sourceDocId),
-      carry = openItems(r);
-    if (!followupDraftAllowed(services, r, type, src, carry)) return;
-    const nd = buildFollowupDraft(services, r, type, src);
-    workspace.DOCS.unshift(nd);
-    if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
-      workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
-      services.ui.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
-      return;
-    }
-    if (type === "citation" && !prepareFollowupCitations(services, r, src, nd, narrativeFor)) return;
-    r.docId = nd.id;
-    editor.state.docId = nd.id;
-    editor.state.screen = "write";
-    workspace.DIRTY = true;
-    services.authoring.saveDrafts();
+    editor.state.riFilter = "";
+    reinspectionClearWalk(services);
+    editor.WORK.walk = null;
     services.ui.render();
-    if (type === "citation") services.authoring.depositStep.openNext(nd);
-    const n = nd.items.filter((i) => i.cite).length,
-      cl = nd.items.filter((i) => i.done).length;
-    services.ui.toast(followupDraftMessage(type, carry, n, cl));
+    const check = reinspectionWorksheetChecks(services, r).find((c) => !c.soft) || reinspectionWorksheetChecks(services, r)[0];
+    target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
+  } else {
+    if (editor.state.screen === "reinspect") {
+      editor.state.riFilter = "";
+      reinspectionClearWalk(services);
+      editor.WORK.walk = null;
+    }
+    if (target.action === "contacts") editor.state.modal = "cc";
+    services.ui.render();
   }
+  if (target.action === "guidance") {
+    services.ui.toast(message);
+    return;
+  }
+  const el = document.querySelector(target.selector);
+  if (!el) {
+    services.ui.toast(message + " Open the existing case to review the retained record.");
+    return;
+  }
+  for (let parent = el.parentElement; parent; parent = parent.parentElement) if (parent.tagName === "DETAILS") parent.open = true;
+  el.classList.add("check-focus");
+  el.setAttribute("tabindex", el.getAttribute("tabindex") || "0");
+  el.scrollIntoView?.({ behavior: "smooth", block: "center" });
+  el.focus({ preventScroll: true });
+  setTimeout(() => el.classList.remove("check-focus"), 2200);
+}
+
+function reinspectionDueCheck(services, due, from) {
+  if (!due) return { ok: false, msg: "Needs a new due date" };
+  if (!services.inspection.validISO(due) || !services.inspection.validISO(from || recordDay(today)))
+    return { ok: false, msg: "Enter a real calendar date" };
+  const n = daysBetween(from || recordDay(today), due);
+  if (n < 1) return { ok: false, msg: "Must be a future date" };
+  if (n < 7) return { ok: true, warn: true, msg: n + " day" + (n === 1 ? "" : "s") + " — unusually short" };
+  if (n > 180) return { ok: true, warn: true, msg: n + " days — unusually long" };
+  return { ok: true, msg: n + " days" };
+}
+
+function reinspectionScreenReinspect(services) {
+  const r = reinsp(editor.state.reinspId);
+  if (!r) {
+    editor.state.screen = "cases";
+    return services.ui.screenCases();
+  }
+  const k = kase(r.caseId),
+    src = doc(r.sourceDocId);
+  if (!src) {
+    editor.state.screen = "cases";
+    return services.ui.screenCases();
+  }
+  const srcLabel = (DOC_TYPES.find((t) => t.id === src.type) || {}).label || src.type;
+  const closed = !!r.docId,
+    readOnly = closed || !r.draft;
+  const shown = (it) => worksheetItemShown({ r, it });
+  const rows = src.items
+    .filter(shown)
+    .map((it) => worksheetItemHTML({ it, src, r, readOnly, dueCheck: (...args) => reinspectionDueCheck(services, ...args), services }))
+    .join("");
+  const done = doneItems(r).length,
+    open = openItems(r).length,
+    left = unchecked(r).length;
+  const activeCount = src.items.filter((it) => !it.withdrawn).length;
+  const recorded = activeCount - left,
+    withdrawn = src.items.length - activeCount;
+  const next = editor.state.riWalk ? reinspectionNextWalkItem(services, r) : null;
+  const rowsShown = src.items.filter((it) => worksheetItemShown({ r, it })).length;
+  const cited = openItems(r).filter((i) => (r.results[i.id] || {}).cite);
+  const badDue = openItems(r).filter((i) => !reinspectionDueCheck(services, (r.results[i.id] || {}).due, r.date).ok);
+  const prior = reinspFor(r.caseId).filter((x) => x.id !== r.id && x.docId);
+  const referred = isReferredCase(r.caseId);
+  const walkPanel = worksheetWalkHTML({
+    r,
+    readOnly,
+    src,
+    left,
+    next,
+    editableWalkItem: (...args) => reinspectionEditableWalkItem(services, ...args),
+    walkItemReady: (...args) => reinspectionWalkItemReady(services, ...args),
+  });
+  const verdict = worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred });
+
+  return services.ui.shell(
+    k.address,
+    `${k.number} · Reinspection · working off the ${srcLabel.toLowerCase()}`,
+    '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
+    worksheetVisitHeaderHTML({ walkIdentity: (...args) => reinspectionWalkIdentity(services, ...args), r, srcLabel, services, src, readOnly }) +
+      worksheetProgressHTML({ recorded, activeCount, left, withdrawn }) +
+      worksheetFiltersHTML({ done, open, left, cited, src }) +
+      worksheetBodyHTML({
+        walkPanel,
+        rowsShown,
+        src,
+        prior,
+        services,
+        left,
+        r,
+        rows,
+        readOnly,
+        worksheetChecks: (...args) => reinspectionWorksheetChecks(services, ...args),
+        worksheetCheckPanel: (...args) => reinspectionWorksheetCheckPanel(services, ...args),
+        verdict,
+        closed,
+      }),
+  );
+}
+
+function reinspectionDocFromReinspection(services, r, type) {
+  if (reopenFollowupDraft(services, r)) return;
+  const src = doc(r.sourceDocId),
+    carry = openItems(r);
+  if (!followupDraftAllowed(services, r, type, src, carry)) return;
+  const nd = buildFollowupDraft(services, r, type, src);
+  workspace.DOCS.unshift(nd);
+  if (REFERRED_ONLY.indexOf(type) < 0 && isReferredCase(r.caseId)) {
+    workspace.DOCS = workspace.DOCS.filter((x) => x.id !== nd.id);
+    services.ui.toast("This case is with the City Attorney — only an updated referral or a compliance letter can be written now");
+    return;
+  }
+  if (type === "citation" && !prepareFollowupCitations(services, r, src, nd, (...args) => reinspectionNarrativeFor(services, ...args))) return;
+  r.docId = nd.id;
+  editor.state.docId = nd.id;
+  editor.state.screen = "write";
+  workspace.DIRTY = true;
+  services.authoring.saveDrafts();
+  services.ui.render();
+  if (type === "citation") services.authoring.depositStep.openNext(nd);
+  const n = nd.items.filter((i) => i.cite).length,
+    cl = nd.items.filter((i) => i.done).length;
+  services.ui.toast(followupDraftMessage(type, carry, n, cl));
+}
+
+export function createReinspection(services) {
   return {
-    walkIdentity,
-    clearWalk,
-    restoreWalkFor,
-    ensureWalkContext,
-    nextWalkItem,
-    focusWalkItem,
-    walkItemReady,
-    advanceWalk,
-    skipWalkDetails,
-    returnWalkDetails,
-    previousWalk,
-    editableWalkItem,
-    recordReinspectionOutcome,
-    undoWalkOutcome,
-    narrativeFor,
-    attachCheckTargets,
-    worksheetChecks,
-    highlightOpenChecks,
-    focusCheckTarget,
-    dueCheck,
-    checkRowHTML,
-    screenReinspect,
-    docFromReinspection,
-    focusWalkDetails,
-    worksheetCheckPanel,
+    walkIdentity: (...args) => reinspectionWalkIdentity(services, ...args),
+    clearWalk: (...args) => reinspectionClearWalk(services, ...args),
+    restoreWalkFor: (...args) => reinspectionRestoreWalkFor(services, ...args),
+    ensureWalkContext: (...args) => reinspectionEnsureWalkContext(services, ...args),
+    nextWalkItem: (...args) => reinspectionNextWalkItem(services, ...args),
+    focusWalkItem: (...args) => reinspectionFocusWalkItem(services, ...args),
+    walkItemReady: (...args) => reinspectionWalkItemReady(services, ...args),
+    advanceWalk: (...args) => reinspectionAdvanceWalk(services, ...args),
+    skipWalkDetails: (...args) => reinspectionSkipWalkDetails(services, ...args),
+    returnWalkDetails: (...args) => reinspectionReturnWalkDetails(services, ...args),
+    previousWalk: (...args) => reinspectionPreviousWalk(services, ...args),
+    editableWalkItem: (...args) => reinspectionEditableWalkItem(services, ...args),
+    recordReinspectionOutcome: (...args) => reinspectionRecordReinspectionOutcome(services, ...args),
+    undoWalkOutcome: (...args) => reinspectionUndoWalkOutcome(services, ...args),
+    narrativeFor: (...args) => reinspectionNarrativeFor(services, ...args),
+    attachCheckTargets: (...args) => reinspectionAttachCheckTargets(services, ...args),
+    worksheetChecks: (...args) => reinspectionWorksheetChecks(services, ...args),
+    highlightOpenChecks: (...args) => reinspectionHighlightOpenChecks(services, ...args),
+    focusCheckTarget: (...args) => reinspectionFocusCheckTarget(services, ...args),
+    dueCheck: (...args) => reinspectionDueCheck(services, ...args),
+    checkRowHTML: (...args) => reinspectionCheckRowHTML(services, ...args),
+    screenReinspect: (...args) => reinspectionScreenReinspect(services, ...args),
+    docFromReinspection: (...args) => reinspectionDocFromReinspection(services, ...args),
+    focusWalkDetails: (...args) => reinspectionFocusWalkDetails(services, ...args),
+    worksheetCheckPanel: (...args) => reinspectionWorksheetCheckPanel(services, ...args),
   };
 }
