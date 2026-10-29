@@ -4,45 +4,59 @@ import { standardStreetAddress, standardCityStateZip, addressProblem } from "./a
 import { ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 
+function validateCopyAddresses(services, k, normalized) {
+  for (let ix = 0; ix < ccList(k).length; ix++) {
+    const c = ccList(k)[ix];
+    if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) continue;
+    if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
+    const problem = addressProblem(c.name, c.addr, c.city);
+    if (problem) {
+      const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
+      return { message: "Copy " + (ix + 1) + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
+    }
+    normalized.push([c, String(c.name).trim(), standardStreetAddress(c.addr), standardCityStateZip(c.city)]);
+  }
+  return null;
+}
+
+function validateAgentAddress(a, requireAgent, entered, acceptedAgent) {
+  if ((requireAgent || entered) && !acceptedAgent) {
+    const problem = addressProblem(a.name, a.addr, a.city);
+    if (problem) {
+      const field = !String(a.name || "").trim() ? "name" : !standardStreetAddress(a.addr) ? "addr" : "city";
+      return { message: "Registered agent: " + problem, scope: "agent", index: 0, field, selector: '[data-agent="' + field + '"]' };
+    }
+  }
+  return null;
+}
+
+function normalizeRecipientAddresses(k, a, normalized, entered, acceptedAgent) {
+  normalized.forEach(([c, name, addr, city]) => {
+    c.name = name;
+    c.addr = addr;
+    c.city = city;
+  });
+  if (entered && !acceptedAgent) {
+    a.addr = standardStreetAddress(a.addr);
+    a.city = standardCityStateZip(a.city);
+    a.name = String(a.name).trim();
+    k.agent = a;
+  }
+}
+
 export function createRecipientWorkflow(services) {
   function validateAndStandardizeAddresses(k, requireAgent = false, normalize = true) {
     const parsedFault = services.addressParser.fault(k);
     if (parsedFault) return parsedFault;
     const normalized = [];
-    for (let ix = 0; ix < ccList(k).length; ix++) {
-      const c = ccList(k)[ix];
-      if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) continue;
-      if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
-      const problem = addressProblem(c.name, c.addr, c.city);
-      if (problem) {
-        const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
-        return { message: "Copy " + (ix + 1) + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
-      }
-      normalized.push([c, String(c.name).trim(), standardStreetAddress(c.addr), standardCityStateZip(c.city)]);
-    }
+    const copyFault = validateCopyAddresses(services, k, normalized);
+    if (copyFault) return copyFault;
     const a = k.agent || {},
       entered = [a.name, a.addr, a.city].some((v) => String(v || "").trim());
     const acceptedAgent = services.addressParser.accepted(a.addressParsed, [a.addr || "", a.city || ""]) && String(a.name || "").trim();
-    if ((requireAgent || entered) && !acceptedAgent) {
-      const problem = addressProblem(a.name, a.addr, a.city);
-      if (problem) {
-        const field = !String(a.name || "").trim() ? "name" : !standardStreetAddress(a.addr) ? "addr" : "city";
-        return { message: "Registered agent: " + problem, scope: "agent", index: 0, field, selector: '[data-agent="' + field + '"]' };
-      }
-    }
-    if (normalize) {
-      normalized.forEach(([c, name, addr, city]) => {
-        c.name = name;
-        c.addr = addr;
-        c.city = city;
-      });
-      if (entered && !acceptedAgent) {
-        a.addr = standardStreetAddress(a.addr);
-        a.city = standardCityStateZip(a.city);
-        a.name = String(a.name).trim();
-        k.agent = a;
-      }
-    }
+    const agentFault = validateAgentAddress(a, requireAgent, entered, acceptedAgent);
+    if (agentFault) return agentFault;
+    if (normalize) normalizeRecipientAddresses(k, a, normalized, entered, acceptedAgent);
     return null;
   }
 

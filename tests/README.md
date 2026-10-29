@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_recipient_validation_parity.js` | Unchanged public-owner assertions against maintained and retained recipient owners |
 | `audit_citation_edit_rules.js` | 5,306 retained-source field edits with real fees and interruption ordering |
 | `audit_deposit_completion_rules.js` | 3,036 retained-policy completion comparisons, mutations and service failures |
 | `audit_citation_charges_parity.js` | Existing charge/correction/amount assertions unchanged through retained public-owner parity |

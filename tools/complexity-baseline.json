@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 43,
+    "complexity": 42,
     "max-depth": 0,
     "max-lines-per-function": 102,
     "python": 15
@@ -111,7 +111,6 @@
     "app/modules/publication_workflow.js:createPublicationWorkflow#1:max-lines-per-function": 153,
     "app/modules/publication_workflow.js:createPublicationWorkflow#1/publishOnce#1:complexity": 55,
     "app/modules/publication_workflow.js:createPublicationWorkflow#1/publishOnce#1:max-lines-per-function": 122,
-    "app/modules/recipient_workflow.js:createRecipientWorkflow#1/validateAndStandardizeAddresses#1:complexity": 35,
     "app/modules/record_commit.js:createRecordCommit#1:max-lines-per-function": 86,
     "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:complexity": 38,
     "app/modules/record_commit.js:createRecordCommit#1/commitAmendment#1:max-lines-per-function": 83,

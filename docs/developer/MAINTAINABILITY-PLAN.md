@@ -1129,3 +1129,9 @@ Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 10
 Complete the same edit-phase increment by naming date/time normalization. Retained comparisons and existing owner checks pass.
 
 Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## recipient-validation-phases
+
+Name copy validation, agent validation and post-validation normalization. Preserve parser precedence, all-or-nothing normalization and field-specific refusal metadata. Retained public-owner checks, boundaries, seams, lint and format pass.
+
+Measured counts: {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
