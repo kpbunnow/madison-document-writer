@@ -1272,3 +1272,9 @@ Measured counts: {'complexity': 33, 'max-depth': 0, 'max-lines-per-function': 97
 Name the existing snow authoring/inspection defaults while leaving required-guard precedence and asynchronous letter-loading checkpoint intact. All1,824 comparisons retain draft/case identity, authoring11, inspection fallbacks, existing/new citation fields, comment facts, repeated preparation, helper reads and service failures. Existing writer-service listener audit, R33 snow, R36/R37 import regressions, fresh build, architecture/boundaries, seams, lint and format pass. Complexity32 to31; no rule, wording, authoring cutoff or release identity changes.
 
 Measured counts: {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## saved-work-focus-target
+
+Name the saved-work focus target lookup at the same post-response checkpoint. Preserve summary/id/case/dataset precedence, missing-target close fallback, disclosure state, live-context refusal, helper errors and disconnected-focus behavior. All364 real-DOM comparisons pass, plus existing catalog, shared comparison/preflight, saved-work HTML, R44 saved-work regression, fresh build, architecture/boundaries, seams, lint and formatting. Complexity31 to30 meets the numerical target; long-method, test migration, screen cleanup and final audit work remain.
+
+Measured counts: {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
