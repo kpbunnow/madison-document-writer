@@ -1648,3 +1648,7 @@ Added a frozen-original comparison of the tool form submit listener (`audit_tool
 ## notice-pagination-phases
 
 The existing real-Chromium comparison with the retained pagination algorithms (`audit_pagination_equivalence.js`) gained grouped rows, aligned extension language, voided sheets, empty tables, oversized blocks and many-row notices, compared exactly including measurement order. `paginate` (125 lines, complexity 23) is now a guard shell over module-level phases: a notice layout reader, page builder, language fill, row carry, row fill, closing fill and page numbering. Twelve deliberate mutations are caught, two of which exposed the missing empty-table and oversized-paragraph scenarios that were then added.
+
+## split-literal-ratchet
+
+`tools/markup_inventory.cjs` counts adjacent static string pieces joined with `+` in each application module and classifies the module as screen, print/issued (`document_render.js`, `browser_printing.js`) or approved wording (mailing rules and report metadata). `tools/markup-baseline.json` records 445 screen, 131 print/issued and 60 approved-wording sites, and `audit_markup_inventory.js` fails when a screen module gains a split literal or when a file falls below its recorded count without the baseline being lowered. Print/issued and approved-wording sites are listed but not ratcheted (D1). Converting the remaining screen sites to templates is a separate, owner-reviewed step because it touches the screen contract; until then the 445 sites are the recorded exceptions.
