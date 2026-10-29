@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_document_action_templates.js` | 1,536 retained case/action/service comparisons with branch non-vacuity guards |
 | `audit_report_presentation_templates.js` | 2,048 retained shared-presentation comparisons and defensive attribute encoding |
 | `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
 | `audit_report_filter_events.js` | 1,680 retained filter changes, listener checkpoint and lazy input guards |

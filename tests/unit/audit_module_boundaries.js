@@ -559,6 +559,7 @@ const scopedServices = {
   ],
   "address_parser.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
   "new_documents.js": [
+    "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",
     "./calendar.js",
