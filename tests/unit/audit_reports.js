@@ -515,7 +515,15 @@ const completion = require("../fixtures/report_exports.cjs")({ navigation: true,
       try {
         click($('button[data-act="clearFilters"]'));
         ok(
-          "reset filters read the current day " + JSON.stringify([ReportsState.S.F.from, ReportsState.S.F.to, ReportsState.S.F.asOf, newYear, String(new global.Date()), String(!!$('button[data-act="clearFilters"]'))]),
+          "reset filters read the current day " +
+            JSON.stringify([
+              ReportsState.S.F.from,
+              ReportsState.S.F.to,
+              ReportsState.S.F.asOf,
+              newYear,
+              String(new global.Date()),
+              String(!!$('button[data-act="clearFilters"]')),
+            ]),
           ReportsState.S.F.to === newYear && ReportsState.S.F.asOf === newYear && ReportsState.S.F.from === newYear.slice(0, 4) + "-01-01",
         );
       } finally {
