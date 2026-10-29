@@ -202,6 +202,12 @@ function depositRuleFault(context) {
 }
 
 /* Construction is inert; dependencies and the live date are read at operation time. */
+function normalizeCitationFieldValue(field, value) {
+  if (["courtDate", "issued", "violDate"].includes(field)) value = parseDate(value) || String(value || "").trim();
+  if (["courtTime", "violTime"].includes(field)) value = parseTime(value) || String(value || "").trim();
+  return value;
+}
+
 function editCitationOrdinance(services, d, id, c, value, phase) {
   if (phase === "input") {
     if (!Object.prototype.hasOwnProperty.call(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
@@ -308,8 +314,7 @@ export function createCitationWorkflow(services) {
     if (field === "ordOther") field = "ord";
     const c = d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
     if (!c) return;
-    if (["courtDate", "issued", "violDate"].includes(field)) value = parseDate(value) || String(value || "").trim();
-    if (["courtTime", "violTime"].includes(field)) value = parseTime(value) || String(value || "").trim();
+    value = normalizeCitationFieldValue(field, value);
     if (field === "ord") return editCitationOrdinance(services, d, id, c, value, phase);
     if (c[field] === value) return;
     if (rejectCitationFieldEdit(services, d, c, field, value)) return;

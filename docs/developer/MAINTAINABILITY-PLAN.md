@@ -1123,3 +1123,9 @@ Measured counts: {'complexity': 45, 'max-depth': 0, 'max-lines-per-function': 10
 Split ordinance input/commit, early refusal, mode, fee and approved-basis phases. Public editing and lazy interfaces stay unchanged. 5,306 comparisons against retained source plus existing citation workflow, boundaries, seams and lint pass.
 
 Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
+
+## citation-edit-normalization
+
+Complete the same edit-phase increment by naming date/time normalization. Retained comparisons and existing owner checks pass.
+
+Measured counts: {'complexity': 44, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 43, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15}.
