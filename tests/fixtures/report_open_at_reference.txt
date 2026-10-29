@@ -1,0 +1,3 @@
+c.caseType === "snow-10.28"
+    ? c.documents.some((d) => d.type === "citation" && versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
+    : noticeAt(c, date) && !["Closed", "Withdrawn"].includes(statusAt(c, date))
