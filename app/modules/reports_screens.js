@@ -223,6 +223,34 @@ function reportExportAboutRows(services, M, F, cases, filterSummary) {
     );
 }
 
+function reportExportCorrectionRows(services, M, F) {
+  const correctionRows = [
+    ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
+  ];
+  M.cases
+    .filter((c) => services.facts.caseOk(c, F))
+    .forEach((c) =>
+      (c.summary.corrections || [])
+        .filter((r) => services.facts.inPeriod(recordDay(r.at), F))
+        .forEach((r) =>
+          (r.changes || []).forEach((x) =>
+            correctionRows.push([
+              c.number,
+              r.at,
+              r.by,
+              r.docId,
+              r.replaces,
+              r.reason,
+              x.label,
+              services.humanCorrectionValue(x.before),
+              services.humanCorrectionValue(x.after),
+            ]),
+          ),
+        ),
+    );
+  return correctionRows;
+}
+
 export function createReportsScreens(services) {
   /* reports functions; direct dependencies use explicit shared state. */
 
@@ -1286,30 +1314,7 @@ export function createReportsScreens(services) {
     const citRows = reportExportCitationRows(services, M, F, A);
     const refRows = reportExportReferralRows(services, M, F, A);
     const about = reportExportAboutRows(services, M, F, cases, filterSummary);
-    const correctionRows = [
-      ["Case number", "Recorded at (UTC)", "Inspector", "New document", "Replaces", "Reason", "Field", "Previously issued", "Corrected value"],
-    ];
-    M.cases
-      .filter((c) => services.facts.caseOk(c, F))
-      .forEach((c) =>
-        (c.summary.corrections || [])
-          .filter((r) => services.facts.inPeriod(recordDay(r.at), F))
-          .forEach((r) =>
-            (r.changes || []).forEach((x) =>
-              correctionRows.push([
-                c.number,
-                r.at,
-                r.by,
-                r.docId,
-                r.replaces,
-                r.reason,
-                x.label,
-                services.humanCorrectionValue(x.before),
-                services.humanCorrectionValue(x.after),
-              ]),
-            ),
-          ),
-      );
+    const correctionRows = reportExportCorrectionRows(services, M, F);
     const sheets = [
       {
         name: "About",
