@@ -216,6 +216,12 @@ const assert = require("node:assert/strict"),
     }
     compare(x, !!random(2));
   }
+  const malformedOrdinal = fixture();
+  malformedOrdinal.items[0].o = '"><script>invalid</script>';
+  const safelyRendered = run(current, malformedOrdinal, true);
+  assert.equal(safelyRendered.error, undefined);
+  assert.ok(safelyRendered.result.includes("&quot;&gt;&lt;script&gt;invalid&lt;/script&gt;"), "scalar metadata escapes at the screen boundary");
+  assert.ok(!safelyRendered.result.includes("<script>"));
   assert.ok(nonempty > 150, "render real entries beyond empty or refused states");
   console.log(
     "PASS language presentation equivalence " +

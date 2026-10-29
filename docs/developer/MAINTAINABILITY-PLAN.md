@@ -1284,3 +1284,9 @@ Measured counts: {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97
 Split administration/browse screen composition and picker tree, group options and results into focused private phases. Preserve every output byte, native callback/state-read order, search/status/selection rules and retained draft text. All1,596 comparisons pass, including interrupted providers and live state mutations. Existing focus, R47 language and feature catalog regressions, fresh build, strict architecture/boundaries, seams, lint and formatting pass. Long functions97 to95; non-factory long functions43 to41. Numerical complexity30, depth0 and Python15 targets remain met.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
+
+## language-screen-templates
+
+Convert27 catalog/browser/picker/detail markup expressions to the shared screen-only escaping tag. Keep trusted owned renderer output and pre-escaped scoped adapter values explicit, preserving adapter read/call order. Scalars are stringified before escaping, retaining existing null/undefined textual fallback; malformed scalar metadata is encoded. All1,596 supported-source outputs and ordered effects remain byte-identical to retained functions, with new defensive-encoding assertions. Existing focus, R47/feature catalog, fresh build, architecture/boundaries, seams, lint and formatting pass. Strict boundary map allows only the shared screen HTML dependency; no print/stored wording or policy change.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
