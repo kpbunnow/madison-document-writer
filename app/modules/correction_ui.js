@@ -7,6 +7,89 @@ import { DOC_TYPES, OUTCOMES } from "./document_types.js";
 import { esc } from "./presentation_format.js";
 import { INSPECTORS } from "./data/inspectors.js";
 
+/* Record-action dialog (withdraw, note, follow-through). Builders take what they render from. */
+const RECORD_ACTION_KINDS = { void: "document.voided", recordnote: "document.annotated", reconcile: "document.reconciled" };
+const RECORD_ACTION_TITLES = { void: "Withdraw this document", recordnote: "Add a record note", reconcile: "Record follow-through" };
+const RECORD_ACTION_TEXTS = {
+  void:
+    "Use a correction for an error that can be fixed. Withdrawal ends this do" +
+    "cument without a replacement; the previous active document may become cu" +
+    "rrent. Nothing is deleted. Review any affected recipients and external r" +
+    "ecords.",
+  recordnote:
+    "Explain an error or clarification in an earlier record. This note does n" +
+    "ot change the issued document, deadlines, inspection results or report c" +
+    "ounts. Correct the latest document as well if it carries the same error.",
+  reconcile:
+    "Record completed notification and filing actions: recipients, date, deli" +
+    "very method and Accela / court / attorney references as applicable. This" +
+    " is your confirmation of work completed outside the program.",
+};
+
+function heldRecordAttempt(d, mode) {
+  return Object.values(editor.RECORD_ATTEMPTS).find(
+    (x) => x.cid === d.caseId && x.pendingAmendment.payload.docId === d.id && x.pendingAmendment.type === RECORD_ACTION_KINDS[mode],
+  );
+}
+
+function recordActionInspectors(d, held) {
+  return INSPECTORS.map(
+    (i) =>
+      '<option value="' +
+      `${esc(i.id)}` +
+      '" ' +
+      `${i.id === (held ? held.pendingAmendment.by : kase(d.caseId).inspectorId) ? "selected" : ""}` +
+      ">" +
+      `${esc(i.name)}` +
+      "</option>",
+  ).join("");
+}
+
+function recordActionExternal(d, mode, held, heldPayload, savedForm) {
+  return mode === "void" && (d.type === "citation" || isHistoryDoc(d) || specialType(d.type))
+    ? '<label class="f"><span>Court / City Attorney instructions or reference</' +
+        'span><textarea id="record-action-external" rows="2" ' +
+        `${held ? "disabled" : ""}` +
+        ">" +
+        `${heldPayload ? esc(heldPayload.externalReference || "") : esc(savedForm.external || "")}` +
+        "</textarea></label>"
+    : "";
+}
+
+function recordActionShell(d, mode, held) {
+  const heldPayload = held ? held.pendingAmendment.payload : null;
+  const savedForm = editor.WORK.recordForms[d.id + ":" + mode] || {};
+  return (
+    '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
+    '"><div class="modal-h"><h2>' +
+    `${RECORD_ACTION_TITLES[mode]}` +
+    '</h2></div><div class="modal-b"><p>' +
+    "".concat(
+      held ? "The previous save is awaiting confirmation. Retry its retained request before entering another change." : RECORD_ACTION_TEXTS[mode],
+    ) +
+    "</p>" +
+    "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
+    '<label class="f"><span>Inspector making this record change</span><select' +
+    ' id="record-action-inspector" ' +
+    `${held ? "disabled" : ""}` +
+    ">" +
+    "".concat(recordActionInspectors(d, held)) +
+    '</select></label><label class="f"><span>' +
+    "".concat(mode === "void" ? "Reason for withdrawal" : mode === "reconcile" ? "Completed actions and references" : "Record note") +
+    '</span><textarea id="record-action-text" rows="4" maxlength="4000" ' +
+    `${held ? "disabled" : ""}` +
+    ">" +
+    "".concat(heldPayload ? esc(heldPayload.reason || heldPayload.text || heldPayload.reference) : esc(savedForm.text || "")) +
+    "</textarea></label>" +
+    "".concat(recordActionExternal(d, mode, held, heldPayload, savedForm)) +
+    '</div><div class="modal-f"><button class="btn" data-close="modal">Cancel' +
+    '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
+    '</button><button class="btn btn-primary" id="record-action-go">' +
+    `${held ? "Confirm previous save" : mode === "void" ? "Confirm withdrawal" : "Save to case record"}` +
+    "</button></div></div></div>"
+  );
+}
+
 export function createCorrectionUI(services) {
   function changeText(v) {
     return v == null
@@ -161,75 +244,8 @@ export function createCorrectionUI(services) {
     const mode = editor.state.modal,
       d = doc(editor.state.docId);
     if (!d || !["void", "recordnote", "reconcile"].includes(mode)) return "";
-    const kinds = { void: "document.voided", recordnote: "document.annotated", reconcile: "document.reconciled" };
-    const held = Object.values(editor.RECORD_ATTEMPTS).find(
-      (x) => x.cid === d.caseId && x.pendingAmendment.payload.docId === d.id && x.pendingAmendment.type === kinds[mode],
-    );
-    const heldPayload = held ? held.pendingAmendment.payload : null;
-    const savedForm = editor.WORK.recordForms[d.id + ":" + mode] || {};
-    const titles = { void: "Withdraw this document", recordnote: "Add a record note", reconcile: "Record follow-through" };
-    const texts = {
-      void:
-        "Use a correction for an error that can be fixed. Withdrawal ends this do" +
-        "cument without a replacement; the previous active document may become cu" +
-        "rrent. Nothing is deleted. Review any affected recipients and external r" +
-        "ecords.",
-      recordnote:
-        "Explain an error or clarification in an earlier record. This note does n" +
-        "ot change the issued document, deadlines, inspection results or report c" +
-        "ounts. Correct the latest document as well if it carries the same error.",
-      reconcile:
-        "Record completed notification and filing actions: recipients, date, deli" +
-        "very method and Accela / court / attorney references as applicable. This" +
-        " is your confirmation of work completed outside the program.",
-    };
-    return (
-      '<div class="modal"><div class="modal-box" role="dialog" aria-modal="true' +
-      '"><div class="modal-h"><h2>' +
-      `${titles[mode]}` +
-      '</h2></div><div class="modal-b"><p>' +
-      "".concat(held ? "The previous save is awaiting confirmation. Retry its retained request before entering another change." : texts[mode]) +
-      "</p>" +
-      "".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : "") +
-      '<label class="f"><span>Inspector making this record change</span><select' +
-      ' id="record-action-inspector" ' +
-      `${held ? "disabled" : ""}` +
-      ">" +
-      "".concat(
-        INSPECTORS.map(
-          (i) =>
-            '<option value="' +
-            `${esc(i.id)}` +
-            '" ' +
-            `${i.id === (held ? held.pendingAmendment.by : kase(d.caseId).inspectorId) ? "selected" : ""}` +
-            ">" +
-            `${esc(i.name)}` +
-            "</option>",
-        ).join(""),
-      ) +
-      '</select></label><label class="f"><span>' +
-      "".concat(mode === "void" ? "Reason for withdrawal" : mode === "reconcile" ? "Completed actions and references" : "Record note") +
-      '</span><textarea id="record-action-text" rows="4" maxlength="4000" ' +
-      `${held ? "disabled" : ""}` +
-      ">" +
-      "".concat(heldPayload ? esc(heldPayload.reason || heldPayload.text || heldPayload.reference) : esc(savedForm.text || "")) +
-      "</textarea></label>" +
-      "".concat(
-        mode === "void" && (d.type === "citation" || isHistoryDoc(d) || specialType(d.type))
-          ? '<label class="f"><span>Court / City Attorney instructions or reference</' +
-              'span><textarea id="record-action-external" rows="2" ' +
-              `${held ? "disabled" : ""}` +
-              ">" +
-              `${heldPayload ? esc(heldPayload.externalReference || "") : esc(savedForm.external || "")}` +
-              "</textarea></label>"
-          : "",
-      ) +
-      '</div><div class="modal-f"><button class="btn" data-close="modal">Cancel' +
-      '</button><button class="btn" id="btn-savework">Save draft &amp; return to Workspace' +
-      '</button><button class="btn btn-primary" id="record-action-go">' +
-      `${held ? "Confirm previous save" : mode === "void" ? "Confirm withdrawal" : "Save to case record"}` +
-      "</button></div></div></div>"
-    );
+    const held = heldRecordAttempt(d, mode);
+    return recordActionShell(d, mode, held);
   }
 
   function correctionVisitEditor(d) {

@@ -7,77 +7,9 @@ import { startupState as startup } from "./startup_state.js";
    knows. Queued items stay queued on this device; they are never described as being in the shared folder. */
 
 import { app_savedworkContext, captureWork, saveDrafts, backupUnfinished, recoveryJobs } from "./app_core.js";
-import { savedCaseState } from "./saved_work.js";
+import { exitReview, plural } from "./exit_review.js";
 import { authFetch } from "./helper_transport.js";
 import { announceStop, helperStop, listenForStop, showStopped } from "./helper_stopped.js";
-
-const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
-
-/* Pure review of existing state. blocking: refuse to exit. unresolved: exit only with acknowledgment. */
-export function exitReview(R, busy = {}) {
-  const blocking = [],
-    unresolved = [];
-  if (busy.publication)
-    blocking.push({ text: "A document is being issued.", guidance: "Wait until its confirmation appears, then choose Exit Document Writer again." });
-  if (busy.filing)
-    blocking.push({
-      text: "A PDF is being filed or an email is being prepared.",
-      guidance: "Wait until the filing or email message appears, then choose Exit Document Writer again.",
-    });
-  if (!R.LOCAL_SAVE.ok)
-    blocking.push({
-      text: "Your work could not be saved on this device.",
-      guidance: "Open Saved work & connection, download a workspace backup and retry device saving before exiting.",
-    });
-  else if (R.LOCAL_SAVE.saving || R.draftTimer)
-    blocking.push({ text: "Device saving has not finished.", guidance: "Wait a moment, then choose Exit Document Writer again." });
-  for (const k of R.CASES || []) {
-    const st = R.caseState(k),
-      proof = R.recordIntegrity.status(k),
-      label = (k.number || "A case") + ": ";
-    if (st.pendingRecord || st.pendingDoc || proof.pendingTransaction) {
-      unresolved.push({
-        text: label + "save confirmation needed.",
-        guidance:
-          "The original attempt is kept on this device and has not been confirmed in the shared folder. Use Confirm original save in Saved work & connection now if you can; otherwise confirm it after Document Writer starts again.",
-      });
-      continue;
-    }
-    const s = savedCaseState(R, k);
-    if (s.action === "conflict")
-      unresolved.push({
-        text: label + "shared changes need review.",
-        guidance: "Your local work stays on this device. Review the differences after Document Writer starts again.",
-      });
-    else if (s.action === "pdf")
-      unresolved.push({
-        text: label + "issued PDF not yet filed.",
-        guidance: "Open the issued document after Document Writer starts again to finish its exact filing attempt.",
-      });
-    else if (!st.pendingSync && (s.action === "save" || (s.action === "storage" && R.caseUnsaved(k))))
-      unresolved.push({
-        text: label + "changes have not reached the shared folder.",
-        guidance: "They stay on this device. Use Save case to shared folder now, or after Document Writer starts again.",
-      });
-  }
-  if (R.PENDING.length)
-    unresolved.push({
-      text: plural(R.PENDING.length, "shared save") + " queued on this device.",
-      guidance: "They have not reached the shared folder. They stay queued on this device and are retried when Document Writer starts again.",
-    });
-  if (!Number.isInteger(R.HELPER?.outbox) || R.HELPER.outbox < 0)
-    unresolved.push({
-      text: "The local PDF outbox has not been checked.",
-      guidance: "Its transfer status is unknown. Check Saved work & connection before exiting, or review it after Document Writer starts again.",
-    });
-  else if (R.HELPER.outbox)
-    unresolved.push({
-      text: plural(R.HELPER.outbox, "PDF") + " waiting in the local outbox.",
-      guidance:
-        "They have not reached the shared folder. They stay on this device; transfer them from Saved work & connection after Document Writer starts again.",
-    });
-  return { blocking, unresolved };
-}
 
 function currentReview() {
   return exitReview(app_savedworkContext(), {
@@ -188,27 +120,20 @@ async function confirmExit(form) {
   }
 }
 
-async function requestExit(form) {
-  const alert = form.querySelector("[data-exit-error]"),
-    button = form.querySelector("[data-exit-confirm]");
-  button.disabled = true;
-  const kept = await flushDrafts();
-  if (!form.isConnected || !form.closest("dialog")?.open) return false;
-  const review = currentReview();
-  // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
-  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
-    await openExit(false);
-    return false;
+const superseded = (form) => !form.isConnected || !form.closest("dialog")?.open;
+
+const refusalText = (data) =>
+  (data.error || "Document Writer did not stop.") + (Array.isArray(data.reasons) && data.reasons.length ? " " + data.reasons.join(" ") : "");
+
+async function readShutdownReply(response) {
+  try {
+    return await response.json();
+  } catch (error) {
+    return {};
   }
-  alert.textContent = "Stopping Document Writer…";
-  await settleRecoveryCopy();
-  // Cancel/Escape or a different dialog may have superseded this request while device/recovery saving ran.
-  if (!form.isConnected || !form.closest("dialog")?.open) return false;
-  const finalReview = currentReview();
-  if (finalReview.blocking.length || JSON.stringify(finalReview.unresolved) !== JSON.stringify(review.unresolved)) {
-    await openExit(false);
-    return false;
-  }
+}
+
+async function sendShutdown(form, alert, button, review) {
   form.dataset.shutdownRequested = "true";
   const cancel = form.closest("dialog")?.querySelector("[data-utility-close]");
   if (cancel) cancel.disabled = true;
@@ -218,18 +143,12 @@ async function requestExit(form) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ force: review.unresolved.length > 0 }),
     });
-    let data = {};
-    try {
-      data = await response.json();
-    } catch (error) {
-      data = {};
-    }
+    const data = await readShutdownReply(response);
     if (response.ok && data.ok) {
       stopped();
       return true;
     }
-    alert.textContent =
-      (data.error || "Document Writer did not stop.") + (Array.isArray(data.reasons) && data.reasons.length ? " " + data.reasons.join(" ") : "");
+    alert.textContent = refusalText(data);
   } catch (error) {
     alert.textContent =
       "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. " +
@@ -239,6 +158,30 @@ async function requestExit(form) {
   if (cancel) cancel.disabled = false;
   button.disabled = false;
   return false;
+}
+
+async function requestExit(form) {
+  const alert = form.querySelector("[data-exit-error]"),
+    button = form.querySelector("[data-exit-confirm]");
+  button.disabled = true;
+  const kept = await flushDrafts();
+  if (superseded(form)) return false;
+  const review = currentReview();
+  // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
+  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
+    await openExit(false);
+    return false;
+  }
+  alert.textContent = "Stopping Document Writer…";
+  await settleRecoveryCopy();
+  // Cancel/Escape or a different dialog may have superseded this request while device/recovery saving ran.
+  if (superseded(form)) return false;
+  const finalReview = currentReview();
+  if (finalReview.blocking.length || JSON.stringify(finalReview.unresolved) !== JSON.stringify(review.unresolved)) {
+    await openExit(false);
+    return false;
+  }
+  return sendShutdown(form, alert, button, review);
 }
 
 export async function openExit(save = true) {

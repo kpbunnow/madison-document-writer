@@ -1554,3 +1554,36 @@ Added a frozen-original comparison of the PDF filing and email handler (`audit_p
 Added a frozen-original comparison of durable PDF operations (`audit_artifact_operation_rules.py`: 1,200 seeded sequences of two to four requests on real folders against the retained module). Between requests it applies disturbances: a dropped or unusable share, tampered, truncated, deleted or badly encoded receipts, same-named conflicting files, a symlinked or directory-shaped archive in either location and a share that is the same folder as the local outbox. It compares every result, error message, peer call and the exact files left behind. Eight mutations of the security checks (symlink and conflict refusals, receipt binding and encoding, cache retry, local-write refusal and the share-unavailable message) are caught; the comparison was rebuilt twice after mutations survived because the scenarios never replayed the same operation or never reached the unavailable-share path.
 
 `file_operation` (C901 18) is now an operation check, receipt reader, finish step and first-filing step with explicit state, keeping the lock, receipt, cache and retry order unchanged.
+## safety-action-phases
+
+Added a frozen-original comparison of the safety click handler before changing it (`audit_safety_event_rules.js`: 10,000 seeded events against the retained `safety_events_reference.txt`, 644 with interruptions swallowed into failure toasts), using the new shared `tests/fixtures/equivalence_harness.cjs` (compile, seeded generator, call recorder, listener capture). It compares attribute priority, every action's peer calls in order with the state they see, and failure toasts.
+
+The handler (complexity 38) is now an ordered table of workspace buttons followed by a per-case action table with a safety-check default; the case actions, evidence panel and unfiled-PDF search are module-level functions. Mutations (a changed probe argument, swapped steps, a changed grant test, a skipped dialog close, a narrowed transfer test) are caught; one survivor, an inherited-key guard on the action table, cannot be distinguished by the harness and is kept as defensive equivalence.
+
+## recovery-action-phases
+
+Added a frozen-original comparison of the working-draft recovery click handler before changing it (`audit_recovery_event_rules.js`: 10,000 seeded events against the retained `recovery_events_reference.txt`, 1,519 with interruptions). The handler (complexity 23) is now an ordered table of button predicates with module-level handlers for notes, filing retry, citation continuation and previous-draft export. Five deliberate mutations are caught.
+
+## catalog-review-action-phases
+
+Added a frozen-original comparison of the catalog review click handler before changing it (`audit_catalog_review_action_rules.js`: 10,000 seeded events against the retained `catalog_events_reference.txt`, 650 with interruptions). It covers the basis confirmation, validation order, the recorded review and its browser cache, retained-edit detection and failure handling. The seam also caught a duplicated peer read introduced during the first draft of the split.
+
+The handler (complexity 26, 104 lines) is now a short sequence over basis, read, fault, record and failure functions. Five deliberate mutations are caught.
+
+## exit-phases
+
+The pure exit review moved unchanged to `exit_review.js` (no services, state or DOM), and two frozen-original comparisons were added before its split: `audit_exit_review_rules.js` (12,000 seeded case, queue and outbox states against the retained function) and `audit_exit_request_rules.js` (3,000 seeded exit requests in a real JSDOM dialog with the app, transport and stop-page peers stubbed, against the retained module; it compares draft saving, the two review checks, supersession, the shutdown request and every failure path, with every peer call in order). The existing exit suite missed four of five deliberate mutations of the request path; the new comparison catches all of them.
+
+`exitReview` (complexity 24) is now busy, device-save, per-case, queue and outbox item builders assembled in the original order, and `requestExit` (24) a short sequence over supersession, review and shutdown phases.
+
+## record-verification-phases
+
+Added a frozen-original comparison of record verification before changing it (`audit_record_integrity_rules.js`: 6,000 genuine chains built with the module's own canonical form and digest, with tampering at every link and malformed or legacy input, against the retained `record_integrity_reference.txt`). It compares the exact verdict: failing event, expected and actual digests and last good commit time.
+
+`verifyIntegrity` (complexity 26) is now genesis, entry, commit and context checks that each return a failure verdict or null, assembled in the original order with one carried chain state. Five of six deliberate mutations are caught; the survivor (an already-known entry identity) is behavior-equivalent because the digest check fails with the same verdict.
+
+## record-action-dialog-phases
+
+Added a frozen-original comparison of the record-action dialog (`audit_record_action_modal_rules.js`: 6,000 seeded states, every mode, held attempt, saved form and error, with escaping, against the retained `correction_ui_reference.txt`). `recordActionModal` (complexity 25) is now a held-attempt lookup plus inspector, external-reference and shell builders. Four deliberate mutations are caught.
+
+Batch B7 result: complexity findings 11 → 4, long-function findings 71 → 64 (from the B6 baseline), covering the safety, recovery, catalog, exit, integrity and record-action handlers.
