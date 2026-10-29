@@ -449,6 +449,28 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
   assert.equal(s.state.screen, "import");
   assert.equal(s.WORK.entry.typed, "import");
   assert.equal(s.state.acc.id, "import");
+  // Identical local unfinished work does not require a replacement backup or confirmation.
+  reset();
+  Object.assign(s, {
+    CASES: copy(b.bundle.cases),
+    DOCS: copy(b.bundle.docs),
+    REINSP: copy(b.bundle.reinsp),
+    EVENTS: copy(b.bundle.events),
+    PENDING: copy(b.pending),
+    WORK: copy(b.bundle.work),
+  });
+  accept = false;
+  await api.restoreRecovery();
+  assert.equal(
+    calls.some((c) => Array.isArray(c) && c[1] === "/draft-backups/write"),
+    false,
+  );
+  assert.equal(
+    calls.some((c) => Array.isArray(c) && c[0] === "confirm"),
+    false,
+  );
+  assert.ok(calls.some((c) => Array.isArray(c) && c[0] === "set" && c[1] === "drafts"));
+  assert.equal(s.state.screen, "cases");
   console.log(
     JSON.stringify({
       passed: true,

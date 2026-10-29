@@ -32,27 +32,29 @@ export async function sha256(value) {
     hash = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
 }
+function legacyIntegrityStatus(record) {
+  const modern = (v) =>
+    v &&
+    typeof v === "object" &&
+    (Object.hasOwn(v, "integrity") ||
+      Object.hasOwn(v, "pricedOn") ||
+      Object.hasOwn(v, "policyVersionHash") ||
+      v.authoringVersion >= 7 ||
+      Object.values(v).some(modern));
+  if (modern(record))
+    return {
+      valid: false,
+      state: "downgraded",
+      eventId: "migration",
+      expected: "retained schema 5 and integrity",
+      actual: "removed or downgraded",
+      label: "Integrity record removed from a migrated case",
+    };
+  return { valid: true, legacy: true, anchored: false, label: "Legacy: integrity begins on migration" };
+}
+
 export async function verifyIntegrity(record) {
-  if ((record.schema || record.version || 1) < 5) {
-    const modern = (v) =>
-      v &&
-      typeof v === "object" &&
-      (Object.hasOwn(v, "integrity") ||
-        Object.hasOwn(v, "pricedOn") ||
-        Object.hasOwn(v, "policyVersionHash") ||
-        v.authoringVersion >= 7 ||
-        Object.values(v).some(modern));
-    if (modern(record))
-      return {
-        valid: false,
-        state: "downgraded",
-        eventId: "migration",
-        expected: "retained schema 5 and integrity",
-        actual: "removed or downgraded",
-        label: "Integrity record removed from a migrated case",
-      };
-    return { valid: true, legacy: true, anchored: false, label: "Legacy: integrity begins on migration" };
-  }
+  if ((record.schema || record.version || 1) < 5) return legacyIntegrityStatus(record);
   let last = "";
   const fail = (eventId, expected, actual) => ({
     valid: false,
