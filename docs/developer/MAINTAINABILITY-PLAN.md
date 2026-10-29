@@ -1538,3 +1538,7 @@ Added a frozen-original comparison of the build-time deposit reading (`audit_dep
 Added a frozen-original comparison of draft backup writes (`audit_backup_write_rules.py`: 500 seeded requests on real folders against the retained function text executed in its own namespace). It compares validation order and messages, the written snapshot, daily, weekly and replacement retention across folders of up to 90 snapshots spread over 500 days, unreadable and undeletable files, and the audit records. A first draft of the comparison never reached retention (one malformed file aborts it by design); the scenarios were rebuilt so retention runs, and the limit mutations are now caught.
 
 `backup_write` (C901 16) is now a request check, a pure retention selection (`_backups_to_keep`) and a trimming step (`_trim_backups`) around the same locked write. The one surviving mutation (the size of the newest-kept group) is behavior-equivalent because the fill step keeps the same newest files.
+
+## shared-record-route-table
+
+Added a frozen-original comparison of the shared-record POST handler (`audit_shared_records_route_rules.py`: 3,000 seeded requests against the retained method text, with a stand-in request object). It compares size and body checks, each route's helper and arguments, the probe file and the status and message of every failure. The handler (C901 12) now looks its route up in a table of small functions that resolve their helper when called, so patched helpers and the unknown-route default behave as before.

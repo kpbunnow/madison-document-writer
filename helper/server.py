@@ -1061,6 +1061,63 @@ def stop_serving(httpd, answered):
     httpd.shutdown()
 
 
+# Shared-record POST routes. Each looks its helper up when called, so the table never holds a stale function.
+def _shared_save_case(data):
+    return save_case(
+        case_dir(),
+        data.get("name"),
+        data.get("file"),
+        data.get("baseRevision", ""),
+        data.get("baseCase"),
+        data.get("idempotencyEvent", ""),
+        catalog_path(),
+        resource("catalog_manifest.json"),
+    )
+
+
+def _shared_save_summary(data):
+    return save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
+
+
+def _shared_probe(data):
+    with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
+        probe.write(b"Madison Document Writer connection check")
+        probe.flush()
+        os.fsync(probe.fileno())
+    return {"ok": True}
+
+
+def _shared_backup_write(data):
+    return backup_write(data)
+
+
+def _shared_backup_read(data):
+    return backup_read(data)
+
+
+def _shared_catalog_review(data):
+    return catalog_review(data)
+
+
+def _shared_artifact_status(data):
+    return artifact_status(data.get("items"))
+
+
+def _shared_sync_outbox(data):
+    return sync_outbox()
+
+
+SHARED_ROUTES = {
+    "/cases/save": _shared_save_case,
+    "/cases/summary": _shared_save_summary,
+    "/cases/probe": _shared_probe,
+    "/draft-backups/write": _shared_backup_write,
+    "/draft-backups/read": _shared_backup_read,
+    "/catalog/review": _shared_catalog_review,
+    "/artifact/status": _shared_artifact_status,
+}
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     timeout = 60  # a half-sent request must not hold a thread forever
 
@@ -1510,36 +1567,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict):
                 raise ValueError("Expected a JSON object")
-            if route == "/cases/save":
-                answer = save_case(
-                    case_dir(),
-                    data.get("name"),
-                    data.get("file"),
-                    data.get("baseRevision", ""),
-                    data.get("baseCase"),
-                    data.get("idempotencyEvent", ""),
-                    catalog_path(),
-                    resource("catalog_manifest.json"),
-                )
-            elif route == "/cases/summary":
-                answer = save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
-            elif route == "/cases/probe":
-                with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
-                    probe.write(b"Madison Document Writer connection check")
-                    probe.flush()
-                    os.fsync(probe.fileno())
-                answer = {"ok": True}
-            elif route == "/draft-backups/write":
-                answer = backup_write(data)
-            elif route == "/draft-backups/read":
-                answer = backup_read(data)
-            elif route == "/catalog/review":
-                answer = catalog_review(data)
-            elif route == "/artifact/status":
-                answer = artifact_status(data.get("items"))
-            else:
-                answer = sync_outbox()
-            return self._json(200, answer)
+            return self._json(200, SHARED_ROUTES.get(route, _shared_sync_outbox)(data))
         except (ValueError, TypeError) as error:
             return self._json(400, {"ok": False, "error": str(error)})
         except Exception as error:
