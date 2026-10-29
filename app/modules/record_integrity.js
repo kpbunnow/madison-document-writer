@@ -62,99 +62,99 @@ const integrityFailure = (last, eventId, expected, actual) => ({
   label: "This record was changed outside the program",
 });
 
-// Each check returns a failure verdict, or null when its link holds; `chain` carries what later checks need.
-async function checkGenesis(chain, record) {
-  const genesis = chain.record.integrity.genesis,
+// Each check returns a failure verdict, or null when its link holds; `walk` carries what later checks need.
+async function checkGenesis(walk, record) {
+  const genesis = walk.record.integrity.genesis,
     genesisBody = { ...genesis };
   delete genesisBody.hash;
   let actual = await sha256(canonicalJSON(genesisBody));
-  if (actual !== genesis.hash) return integrityFailure(chain.last, "genesis", genesis.hash, actual);
+  if (actual !== genesis.hash) return integrityFailure(walk.last, "genesis", genesis.hash, actual);
   const events = new Map(record.events.map((e) => [e.id, e]));
-  if (events.size !== record.events.length) return integrityFailure(chain.last, "duplicate event", "unique identities", "duplicate identity");
+  if (events.size !== record.events.length) return integrityFailure(walk.last, "duplicate event", "unique identities", "duplicate identity");
   actual = await sha256(canonicalJSON(genesis.eventIds.map((id) => events.get(id) ?? null)));
   if (actual !== genesis.historyHash)
-    return integrityFailure(chain.last, genesis.eventIds.find((id) => !events.has(id)) || "genesis history", genesis.historyHash, actual);
-  chain.genesis = genesis;
-  chain.events = events;
-  chain.head = genesis.hash;
-  chain.last = genesis.committedAt;
-  chain.known = new Set(genesis.eventIds);
+    return integrityFailure(walk.last, genesis.eventIds.find((id) => !events.has(id)) || "genesis history", genesis.historyHash, actual);
+  walk.genesis = genesis;
+  walk.events = events;
+  walk.head = genesis.hash;
+  walk.last = genesis.committedAt;
+  walk.known = new Set(genesis.eventIds);
   return null;
 }
 
-async function checkEntries(chain, entries) {
+async function checkEntries(walk, entries) {
   for (let n = 0; n < entries.length; n++) {
     const entry = entries[n];
-    const actual = await sha256(chain.head + canonicalJSON(chain.events.get(entry.eventId) ?? null));
-    if (chain.known.has(entry.eventId) || entry.seq !== n + 1 || entry.prevHash !== chain.head || entry.hash !== actual)
-      return integrityFailure(chain.last, entry.eventId, entry.hash, actual);
-    chain.known.add(entry.eventId);
-    chain.head = actual;
-    chain.last = entry.committedAt;
+    const actual = await sha256(walk.head + canonicalJSON(walk.events.get(entry.eventId) ?? null));
+    if (walk.known.has(entry.eventId) || entry.seq !== n + 1 || entry.prevHash !== walk.head || entry.hash !== actual)
+      return integrityFailure(walk.last, entry.eventId, entry.hash, actual);
+    walk.known.add(entry.eventId);
+    walk.head = actual;
+    walk.last = entry.committedAt;
   }
-  if (chain.known.size !== chain.events.size)
+  if (walk.known.size !== walk.events.size)
     return integrityFailure(
-      chain.last,
-      Array.from(chain.events.keys()).find((id) => !chain.known.has(id)) || "deleted event",
+      walk.last,
+      Array.from(walk.events.keys()).find((id) => !walk.known.has(id)) || "deleted event",
       "one commit per event",
       "missing event",
     );
   return null;
 }
 
-async function checkCommits(chain, stored) {
-  if (chain.head !== stored.headHash) return integrityFailure(chain.last, "head", stored.headHash, chain.head);
-  chain.previous = "0".repeat(64);
-  for (const commit of stored.commits) {
-    const actual = await sha256(chain.previous + canonicalJSON(commit.context));
-    if (commit.prevHash !== chain.previous || commit.hash !== actual) return integrityFailure(chain.last, "record commit", commit.hash, actual);
-    chain.previous = actual;
+async function checkCommits(walk, chain) {
+  if (walk.head !== chain.headHash) return integrityFailure(walk.last, "head", chain.headHash, walk.head);
+  walk.previous = "0".repeat(64);
+  for (const commit of chain.commits) {
+    const actual = await sha256(walk.previous + canonicalJSON(commit.context));
+    if (commit.prevHash !== walk.previous || commit.hash !== actual) return integrityFailure(walk.last, "record commit", commit.hash, actual);
+    walk.previous = actual;
   }
   return null;
 }
 
-async function checkContext(chain, record, stored) {
-  const context = stored.commits.at(-1).context,
+async function checkContext(walk, record, chain) {
+  const context = chain.commits.at(-1).context,
     order = record.events.map((e) => e.id);
   if (canonicalJSON(order) !== canonicalJSON(context.eventOrder))
     return integrityFailure(
-      chain.last,
+      walk.last,
       order.find((id, n) => id !== context.eventOrder[n]) || "deleted event",
       await sha256(canonicalJSON(context.eventOrder)),
       await sha256(canonicalJSON(order)),
     );
-  if (context.headHash !== chain.head || canonicalJSON(context.commitTimes) !== canonicalJSON(stored.entries.map((e) => e.committedAt)))
-    return integrityFailure(chain.last, "commit metadata", context.headHash, chain.head);
+  if (context.headHash !== walk.head || canonicalJSON(context.commitTimes) !== canonicalJSON(chain.entries.map((e) => e.committedAt)))
+    return integrityFailure(walk.last, "commit metadata", context.headHash, walk.head);
   const recordBody = { ...record };
   delete recordBody.integrity;
   const actual = await sha256(canonicalJSON(recordBody));
-  if (actual !== context.rootHash) return integrityFailure(chain.last, "case details or inspectors", context.rootHash, actual);
+  if (actual !== context.rootHash) return integrityFailure(walk.last, "case details or inspectors", context.rootHash, actual);
   return null;
 }
 
 export async function verifyIntegrity(record) {
   if ((record.schema || record.version || 1) < 5) return legacyIntegrityStatus(record);
-  const chain = { record, last: "" };
+  const walk = { record, last: "" };
   try {
-    const stored = record.integrity;
+    const chain = record.integrity;
     const failure =
-      (await checkGenesis(chain, record)) ||
-      (await checkEntries(chain, stored.entries)) ||
-      (await checkCommits(chain, stored)) ||
-      (await checkContext(chain, record, stored));
+      (await checkGenesis(walk, record)) ||
+      (await checkEntries(walk, chain.entries)) ||
+      (await checkCommits(walk, chain)) ||
+      (await checkContext(walk, record, chain));
     if (failure) return failure;
     return {
       valid: true,
       anchored: false,
       label: "Verified chain / not externally anchored",
-      headHash: chain.head,
-      commitHash: chain.previous,
-      lastGoodCommitTime: chain.last,
-      migrationDate: chain.genesis.committedAt,
-      legacyHistoryAsFound: chain.genesis.sourceSchema < 5,
+      headHash: walk.head,
+      commitHash: walk.previous,
+      lastGoodCommitTime: walk.last,
+      migrationDate: walk.genesis.committedAt,
+      legacyHistoryAsFound: walk.genesis.sourceSchema < 5,
     };
   } catch (error) {
-    return integrityFailure(chain.last, "integrity metadata", "complete verifiable chain", error.message);
+    return integrityFailure(walk.last, "integrity metadata", "complete verifiable chain", error.message);
   }
 }
 export function initRecordIntegrity(R) {

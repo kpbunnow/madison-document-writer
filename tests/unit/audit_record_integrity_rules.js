@@ -72,6 +72,7 @@ const TAMPERS = [
   (r) => (r.integrity.commits.at(-1).context.commitTimes = ["t"]),
   (r) => (r.case.note = "tampered"),
   (r) => r.inspectors.push({ id: "i2" }),
+  (r) => (r.integrity[pick(["genesis", "entries", "commits", "headHash"])] = pick([null, {}, [], "bad", 7])),
   (r) => delete r.integrity.genesis,
   (r) => delete r.integrity,
   (r) => (r.integrity.commits = []),
