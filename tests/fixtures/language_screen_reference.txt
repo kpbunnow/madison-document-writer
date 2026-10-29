@@ -1,0 +1,142 @@
+export function languageScreen(R) {
+  const admin = R.state.languageMode === "admin",
+    query = admin ? R.state.catalogAdminQ || "" : R.state.libFilter || "",
+    filter = admin ? R.state.catalogAdminStatus || "review" : R.state.libStatus || "approved";
+  const items = R.allItems().filter(
+    (i) => R.catalogVisible(i, filter) && languageMatches(R, i, query) && (admin || query || R.state.libCl < 0 || i.ci === R.state.libCl),
+  );
+  if (admin) {
+    const selected = R.catalogItem(R.state.catalogAdminKey),
+      context = "admin|" + (selected ? R.catalogKey(selected) : "");
+    return R.shell(
+      "Review catalog",
+      "Order language · versioned division review",
+      '<button class="btn" data-language-mode="browse">Browse language</button>',
+      '<div class="language-admin" data-language-context="' +
+        `${R.esc(context)}` +
+        '"><p>Review wording, ordinance sources and replacement relationships her' +
+        "e. Reviewer names are operator-supplied; shared-folder permissions gover" +
+        "n access. Existing drafts require deliberate adoption, and issued docume" +
+        "nts stay frozen.</p>" +
+        `${catalogState(R)}` +
+        '\n <div class="language-controls"><label class="f"><span>Find an entry</s' +
+        'pan><input type="search" id="catalog-filter" value="' +
+        `${R.esc(query)}` +
+        '" placeholder="Title, ordinance or wording"></label><label class="f"><sp' +
+        'an>Review status</span><select id="catalog-status">' +
+        `${languageFilterOptions(R, filter)}` +
+        '</select></label><button class="btn" data-language-refresh>Refresh revie' +
+        'w status</button></div>\n <div class="language-admin-layout"><section ari' +
+        'a-label="Catalog review entries"><p class="language-count" role="status"' +
+        ">" +
+        `${items.length}` +
+        ' matching entries</p><div class="language-admin-list">' +
+        "".concat(
+          items
+            .map(
+              (i) =>
+                '<button class="language-entry" data-catalog-open="' +
+                `${R.esc(R.catalogKey(i))}` +
+                '" aria-pressed="' +
+                `${selected && R.catalogKey(selected) === R.catalogKey(i) ? "true" : "false"}` +
+                '"><strong>' +
+                `${R.esc(i.t)}` +
+                "</strong><span>" +
+                `${R.esc(R.effectiveCatalog(i).s.join("; ") || "Ordinance needed")}` +
+                "</span>" +
+                `${languageBadge(R, i)}` +
+                "</button>",
+            )
+            .join("") || "<p>No entries match these filters.</p>",
+        ) +
+        '</div></section>\n <section class="language-review-entry" aria-label="Sel' +
+        'ected entry review">' +
+        "".concat(
+          selected
+            ? '<h2 id="catalog-entry-title" tabindex="-1">' +
+                `${R.esc(selected.t)}` +
+                "</h2>" +
+                `${languageBadge(R, selected)}` +
+                "" +
+                `${R.catalogReviewPanel(selected)}` +
+                ""
+            : "<h2>Select an entry to review</h2><p>The search list stays separate from" +
+                " the review form. Unsubmitted forms are retained on this device.</p>",
+        ) +
+        "</section></div></div>",
+    );
+  }
+  const groups = new Map();
+  for (const i of items) {
+    const key = i.ci + ":" + i.gi;
+    if (!groups.has(key)) groups.set(key, { title: i.cl + " · " + i.grp, items: [] });
+    groups.get(key).items.push(i);
+  }
+  return R.shell(
+    "Browse language",
+    "Order language · find language for the condition you observed",
+    '<button class="btn" data-language-mode="admin">Review catalog</button>',
+    '<div class="language-browser" data-language-context="browse"><p>Search a' +
+      "cross every checklist by ordinary terms, ordinance or wording. Approved " +
+      "language is shown by default. Standard sources and proposed or retired e" +
+      "ntries are available through the status filter.</p>" +
+      `${catalogState(R)}` +
+      '\n <div class="language-controls"><label class="f"><span>Search all order' +
+      ' language</span><input type="search" id="lib-filter" value="' +
+      `${R.esc(query)}` +
+      '" placeholder="For example: garbage, handrail, 27.05"></label><label cla' +
+      'ss="f"><span>Language status</span><select id="lib-status">' +
+      `${languageFilterOptions(R, filter)}` +
+      '</select></label><label class="f"><span>Browse checklist</span><select i' +
+      'd="lib-checklist"><option value="-1" ' +
+      `${R.state.libCl < 0 ? "selected" : ""}` +
+      ">All checklists</option>" +
+      "".concat(R.LIBRARY.map((c, ci) => `<option value="${ci}" ${ci === R.state.libCl ? "selected" : ""}>${R.esc(c.name)}</option>`).join("")) +
+      '</select></label><button class="btn" data-language-refresh>Refresh revie' +
+      'w status</button></div>\n <p class="language-count" role="status">' +
+      `${query ? "Search results across all checklists" : "Language entries"}` +
+      " · " +
+      `${items.length}` +
+      " matching " +
+      `${filter === "approved" ? "approved " : ""}` +
+      "entries</p>\n " +
+      "".concat(
+        [...groups.values()]
+          .map(
+            (g) =>
+              '<section class="language-group"><h2>' +
+              `${R.esc(g.title)}` +
+              "</h2>" +
+              "".concat(
+                g.items
+                  .map(
+                    (i) =>
+                      '<article class="language-row" data-language-key="' +
+                      `${R.esc(R.catalogKey(i))}` +
+                      '"><div class="language-row-heading"><h3>' +
+                      `${R.esc(i.t)}` +
+                      "</h3>" +
+                      `${languageBadge(R, i)}` +
+                      '</div><p class="language-ordinance">' +
+                      `${R.esc(R.effectiveCatalog(i).s.join("; ") || "Ordinance needed")}` +
+                      '</p><p class="language-preview">' +
+                      `${R.markBlanks(R.effectiveCatalog(i).a)}` +
+                      "</p>" +
+                      `${languageDetails(R, i)}` +
+                      "</article>",
+                  )
+                  .join(""),
+              ) +
+              "</section>",
+          )
+          .join("") ||
+          '<div class="empty"><h2>' +
+            `${filter === "approved" ? "No approved language matches" : "No matching language"}` +
+            "</h2><p>Try another term or status. No approval is inferred from bundled" +
+            " or proposed wording.</p>" +
+            "".concat(filter === "approved" ? '<button class="btn" data-language-standard>Include standard language</button>' : "") +
+            "</div>",
+      ) +
+      "</div>",
+  );
+}

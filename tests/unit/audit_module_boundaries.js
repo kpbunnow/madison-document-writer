@@ -15,6 +15,7 @@ const allowed = {
   "mailing_rules.js": [],
   "state.js": [],
   "screen_html.js": ["./presentation_format.js"],
+  "language_discovery.js": ["./screen_html.js"],
   "deferred_services.js": [],
   "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],

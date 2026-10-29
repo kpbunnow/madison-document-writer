@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 30,
     "max-depth": 0,
-    "max-lines-per-function": 97,
+    "max-lines-per-function": 94,
     "python": 15
   },
   "violations": {
@@ -13,8 +13,7 @@
     "app/modules/accela_import.js:createAccelaImport#1/accUnzip#1:complexity": 21,
     "app/modules/accela_import.js:createAccelaImport#1/baseLookupAccept#1:max-lines-per-function": 106,
     "app/modules/accela_import.js:createAccelaImport#1/findDatabaseCase#1:complexity": 22,
-    "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 456,
-    "app/modules/accessibility.js:createAccessibility#1/enhance#1:max-lines-per-function": 95,
+    "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 405,
     "app/modules/address_parser.js:initAddressParser#1:max-lines-per-function": 106,
     "app/modules/administration.js:initAdministration#1:max-lines-per-function": 183,
     "app/modules/administration.js:initAdministration#1/openLetter#1:max-lines-per-function": 83,
@@ -84,8 +83,6 @@
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
     "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 808,
     "app/modules/language_catalog.js:createLanguageCatalog#1/catalogReviewPanel#1:max-lines-per-function": 110,
-    "app/modules/language_discovery.js:languagePicker#1:max-lines-per-function": 154,
-    "app/modules/language_discovery.js:languageScreen#1:max-lines-per-function": 142,
     "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 243,
     "app/modules/navigation.js:initNavigation#1/screen#1:max-lines-per-function": 114,
     "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 1264,

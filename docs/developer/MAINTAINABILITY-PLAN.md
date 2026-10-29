@@ -1278,3 +1278,21 @@ Measured counts: {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97
 Name the saved-work focus target lookup at the same post-response checkpoint. Preserve summary/id/case/dataset precedence, missing-target close fallback, disclosure state, live-context refusal, helper errors and disconnected-focus behavior. All364 real-DOM comparisons pass, plus existing catalog, shared comparison/preflight, saved-work HTML, R44 saved-work regression, fresh build, architecture/boundaries, seams, lint and formatting. Complexity31 to30 meets the numerical target; long-method, test migration, screen cleanup and final audit work remain.
 
 Measured counts: {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## language-screen-phases
+
+Split administration/browse screen composition and picker tree, group options and results into focused private phases. Preserve every output byte, native callback/state-read order, search/status/selection rules and retained draft text. All1,596 comparisons pass, including interrupted providers and live state mutations. Existing focus, R47 language and feature catalog regressions, fresh build, strict architecture/boundaries, seams, lint and formatting pass. Long functions97 to95; non-factory long functions43 to41. Numerical complexity30, depth0 and Python15 targets remain met.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
+
+## language-screen-templates
+
+Convert27 catalog/browser/picker/detail markup expressions to the shared screen-only escaping tag. Keep trusted owned renderer output and pre-escaped scoped adapter values explicit, preserving adapter read/call order. Scalars are stringified before escaping, retaining existing null/undefined textual fallback; malformed scalar metadata is encoded. All1,596 supported-source outputs and ordered effects remain byte-identical to retained functions, with new defensive-encoding assertions. Existing focus, R47/feature catalog, fresh build, architecture/boundaries, seams, lint and formatting pass. Strict boundary map allows only the shared screen HTML dependency; no print/stored wording or policy change.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
+
+## accessibility-control-enhancement
+
+Move readonly/editable labels, unlabeled controls and table semantics into one private native-DOM phase at the same point between navigation and dialog/theme/paint handling. All172 comparisons retain exact DOM, themes, repeated dialog handling, early body/capability guards and partial failures. Existing full accessibility and R48 workflows, 1,596 language comparisons, fresh build, architecture/boundaries, seams, lint and format pass. Non-factory long methods41 to40; total95 to94. All four numerical targets are met on this prepared source; M5/M6 cleanup and final audit remain.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
