@@ -3,7 +3,7 @@
     "complexity": 11,
     "max-depth": 0,
     "max-lines-per-function": 71,
-    "python": 9
+    "python": 8
   },
   "violations": {
     "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 428,
@@ -88,7 +88,6 @@
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,
     "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 128,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 96,
-    "helper/artifact_store.py:file_operation:C901": 18,
     "helper/case_integrity.py:__init__:C901": 19,
     "helper/case_integrity.py:verify_record:C901": 20,
     "helper/case_lookup.py:run_query:C901": 29,
