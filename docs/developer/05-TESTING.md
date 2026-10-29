@@ -48,6 +48,10 @@ Release packaging: tools/package_release.py writes runtime-manifest.json for eve
 
 Automated axe does not establish WCAG conformance. City Windows, ACL/SMB/SQL, Outlook, native printing, staff tasks, legal and seasonal decisions remain in ACCEPTANCE-RECORD.md. Never mark those items accepted from automated checks.
 
+## Refactor equivalence seams
+
+Before refactoring a function that renders markup, builds a record, orders effects or reads peers, keep the original in `tests/fixtures/*_reference.txt` and add a comparison that drives seeded scenarios through both and compares results, thrown errors, the order of peer reads and calls, and state or DOM effects. Land it in its own commit on unchanged source, then refactor and prove its teeth with deliberate mutations (`MAINTAINABILITY-ASSESSMENT.md`, "Behavior-preserving method"). `tests/fixtures/equivalence_harness.cjs` supplies the compile, seeded generator, peer recorder and listener target.
+
 ## Source ownership and deployment evidence
 
 `tools/source-inventory.json` lists every maintained source-package file. Review and stage additions/deletions, then run `python3 tools/release_inputs.py --update-source-inventory` and review/stage the inventory diff. Unexpected maintained files refuse packaging; local credentials, environments, operational folders and caches are excluded before reading and cannot be registered. Links/reparse points in owned inputs are refused. This inventory also works in extracted source ZIPs without Git; root SHA256SUMS.txt is generated archive metadata, not maintained input. Uncommitted content changes still require fresh exact-byte verification and reviewed checkpoints.
