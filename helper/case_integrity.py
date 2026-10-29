@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+from plain_files import plain_json_files
 from reporting_reads import ordered_reads
 import sys
 
@@ -303,7 +304,7 @@ def reconstruct_registry(folder):
     root = Path(folder)
     if not root.is_dir():
         return
-    for path in sorted(root.glob("*.json")):
+    for path in sorted(plain_json_files(root)):
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
@@ -449,7 +450,7 @@ def anchor_daily(folder, external=None):
         if any(p["recovery"] for p in context.pending.values()):
             raise ValueError("Administrator must complete pending recovery before anchoring")
         heads = {}
-        for path in sorted(folder.glob("*.json")):
+        for path in sorted(plain_json_files(folder)):
             record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") != "madison-case-file":
                 continue

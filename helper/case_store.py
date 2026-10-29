@@ -14,6 +14,7 @@ from decimal import Decimal
 import hashlib
 import json
 import case_integrity
+from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file
 import citation_pricing
 import os
 import re
@@ -529,6 +530,8 @@ def safe_json_name(name):
         or not name.lower().endswith(".json")
         or name.startswith(".")
         or any(c in name for c in '\\/:*?"<>|')
+        or UNSAFE_NAME_CHARS.search(name)
+        or re.search(r"[\t\n\v\f\r]", name)
         or Path(name).name != name
         or len(name) > 220
         or name.endswith((" ", "."))
@@ -689,6 +692,7 @@ def remap(event, old_id, new_id):
 
 def read_case(folder, name):
     target = Path(folder) / safe_json_name(name)
+    require_plain_file(target)
     raw = target.read_bytes()
     value = json.loads(raw)
     return {"ok": True, "file": value, "integrity": case_integrity.verify_record(value, folder), "revision": digest(raw), "name": target.name}
@@ -762,7 +766,8 @@ def save_case(folder, name, incoming, base_revision="", base_case=None, idempote
 
 def _resolve_case_save_target(*, folder, name, number_key, number):
     target = folder / name
-    matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
+    require_plain_file(target)
+    matches = [p for p in plain_json_files(folder) if case_file_key(p) == number_key]
     if len(matches) > 1:
         raise ValueError("Multiple shared files have this case number. Resolve the duplicate files before saving")
     if matches:
@@ -770,7 +775,7 @@ def _resolve_case_save_target(*, folder, name, number_key, number):
     elif case_file_key(name) != number_key:
         raise ValueError("Case filename must end with the case number")
     if case_integrity.reconcile_publication(folder, number):
-        matches = [p for p in folder.glob("*.json") if case_file_key(p) == number_key]
+        matches = [p for p in plain_json_files(folder) if case_file_key(p) == number_key]
         if len(matches) != 1:
             raise ValueError("Pending transaction case identity is ambiguous")
         target = matches[0]
@@ -1112,7 +1117,7 @@ def citation_history(folder, exclude_number=""):
         raise OSError("The shared case folder is unavailable")
     context = case_integrity.VerificationContext(root)
     history, numbers = [], set()
-    for path in sorted(root.glob("*.json")):
+    for path in sorted(plain_json_files(root)):
         if path.name.startswith("_"):
             continue
         value = json.loads(path.read_text(encoding="utf-8"))
