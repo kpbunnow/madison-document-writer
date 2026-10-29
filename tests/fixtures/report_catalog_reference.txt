@@ -1,0 +1,414 @@
+[
+  {
+    id: "openCases",
+    n: 1,
+    label: "Open cases by area",
+    date: "asOf",
+    lede: "Cases with an issued notice or snow citation that remain open on the date chosen.",
+    run(M, F) {
+      const base = M.counted.filter((c) => caseOk(c, F, { asOf: F.asOf }) && openAt(c, F.asOf));
+      const g = groupBy(base, (c) => areaKey(c, F)),
+        keys = Array.from(g.keys()).sort(areaSort);
+      const age = (l) => cell(avg(l.map((c) => daysBetween(c.opened, F.asOf)).filter((x) => x != null)), null, "days");
+      const ref = (l) => count(l.filter((c) => statusAt(c, F.asOf) === "Referred"));
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = g.get(k).length;
+      });
+      return {
+        cols: ["Area", "Open cases", "Average age (days)", "Of which referred"],
+        rows: keys.map((k) => [areaLabel(k, F), count(g.get(k)), age(g.get(k)), ref(g.get(k))]),
+        total: ["All areas", count(base), age(base), ref(base)],
+        area: area,
+        points: base,
+      };
+    },
+  },
+  {
+    id: "byInspector",
+    n: 2,
+    label: "Cases by inspector",
+    date: "period",
+    lede: "Cases opened in the period, by the inspector on the case and the area.",
+    run(M, F) {
+      const base = M.counted.filter((c) => caseOk(c, F) && inPeriod(c.opened, F));
+      const keys = uniq(base.map((c) => areaKey(c, F))).sort(areaSort);
+      const g = groupBy(base, (c) => c.inspector || "—"),
+        names = Array.from(g.keys()).sort();
+      const across = (l) => keys.map((k) => count(l.filter((c) => areaKey(c, F) === k)));
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = base.filter((c) => areaKey(c, F) === k).length;
+      });
+      return {
+        cols: ["Inspector"].concat(
+          keys.map((k) => areaLabel(k, F)),
+          ["Total"],
+        ),
+        rows: names.map((nm) => [nm].concat(across(g.get(nm)), [count(g.get(nm))])),
+        total: ["All inspectors"].concat(across(base), [count(base)]),
+        area: area,
+        points: base,
+        matrix: true,
+      };
+    },
+  },
+  {
+    id: "openViolations",
+    n: 3,
+    label: "Open violations by area",
+    date: "asOf",
+    lede: "Violation items not corrected on the date chosen, on cases whose notice had been issued by then.",
+    run(M, F) {
+      const vs = [];
+      M.counted.forEach((c) => {
+        if (!caseOk(c, F, { asOf: F.asOf }) || !(c.noticeIssued <= F.asOf)) return;
+        c.violations.forEach((v) => {
+          const at = violationAt(v, F.asOf);
+          if (at && violOk(at, F) && violOpenAt(v, F.asOf)) vs.push(at);
+        });
+      });
+      const g = groupBy(vs, (v) => areaKey(v.c, F)),
+        keys = Array.from(g.keys()).sort(areaSort);
+      const top = (l) => {
+        let best = "",
+          n = 0;
+        groupBy(l, (v) => v.typeLabel).forEach((x, k) => {
+          if (x.length > n) {
+            n = x.length;
+            best = k;
+          }
+        });
+        return best ? best + " (" + n + ")" : "—";
+      };
+      const row = (label, l) => [label, count(l), cell(uniq(nos(l)).length, nos(l)), top(l)];
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = g.get(k).length;
+      });
+      return {
+        cols: ["Area", "Open violations", "Cases", "Most common violation"],
+        rows: keys.map((k) => row(areaLabel(k, F), g.get(k))),
+        total: row("All areas", vs),
+        area: area,
+        points: uniq(vs.map((v) => v.c)),
+      };
+    },
+  },
+  {
+    id: "allCases",
+    n: 4,
+    label: "All cases",
+    date: "period",
+    lede: "Cases opened in the period (by initial inspection date), and where they stand now.",
+    run(M, F) {
+      const base = M.counted.filter((c) => caseOk(c, F) && inPeriod(c.opened, F));
+      const g = groupBy(base, (c) => areaKey(c, F)),
+        keys = Array.from(g.keys()).sort(areaSort);
+      const closed = (c) => c.status === "Closed" || (c.caseType === "snow-10.28" && !!c.closedOn);
+      const row = (label, l) => [
+        label,
+        count(l),
+        count(l.filter((c) => !closed(c) && c.status !== "Withdrawn")),
+        count(l.filter(closed)),
+        count(l.filter((c) => c.status === "Withdrawn")),
+        count(l.filter((c) => c.citations.length > 0)),
+        count(l.filter((c) => c.referrals.length > 0)),
+      ];
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = g.get(k).length;
+      });
+      return {
+        cols: ["Area", "Cases", "Still open", "Closed", "Withdrawn", "Cited", "Referred"],
+        rows: keys.map((k) => row(areaLabel(k, F), g.get(k))),
+        total: row("All areas", base),
+        area: area,
+        points: base,
+      };
+    },
+  },
+  {
+    id: "allViolations",
+    n: 5,
+    label: "All violations",
+    date: "period",
+    lede: "Violation items on cases opened in the period, by type and area.",
+    run(M, F) {
+      const vs = [];
+      M.counted.forEach((c) => {
+        if (!caseOk(c, F) || !inPeriod(c.opened, F)) return;
+        c.violations.forEach((v) => {
+          if (!v.withdrawn && violOk(v, F)) vs.push(v);
+        });
+      });
+      const keys = uniq(vs.map((v) => areaKey(v.c, F))).sort(areaSort);
+      const g = groupBy(vs, (v) => v.typeLabel),
+        types = Array.from(g.keys()).sort((a, b) => g.get(b).length - g.get(a).length || (a < b ? -1 : 1));
+      const across = (l) => keys.map((k) => count(l.filter((v) => areaKey(v.c, F) === k)));
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = vs.filter((v) => areaKey(v.c, F) === k).length;
+      });
+      return {
+        cols: ["Violation type", "Total"].concat(keys.map((k) => areaLabel(k, F))),
+        rows: types.map((t) => [t, count(g.get(t))].concat(across(g.get(t)))),
+        total: ["All types", count(vs)].concat(across(vs)),
+        area: area,
+        points: uniq(vs.map((v) => v.c)),
+        matrix: true,
+      };
+    },
+  },
+  {
+    id: "daysToCompliance",
+    n: 6,
+    label: "Days to compliance",
+    date: "period",
+    lede: "From the initial inspection to the date each item was corrected, for cases opened in the period.",
+    run(M, F) {
+      const vs = [];
+      M.counted
+        .filter((c) => c.caseType !== "snow-10.28")
+        .forEach((c) => {
+          if (!caseOk(c, F) || !inPeriod(c.opened, F)) return;
+          c.violations.forEach((v) => {
+            if (!v.withdrawn && violOk(v, F)) vs.push(v);
+          });
+        });
+      const d = (v) => daysBetween(v.c.opened, v.doneOn);
+      const row = (label, l) => {
+        const done = l.filter((v) => v.done && d(v) != null),
+          open = l.filter((v) => !v.done),
+          ds = done.map(d);
+        return [
+          label,
+          count(l),
+          count(done),
+          cell(avg(ds), null, "days"),
+          cell(median(ds), null, "days"),
+          count(open),
+          cell(avg(open.map((v) => daysBetween(v.c.opened, TODAY)).filter((x) => x != null)), null, "days"),
+        ];
+      };
+      const g = groupBy(vs, (v) => v.typeLabel),
+        types = Array.from(g.keys()).sort((a, b) => g.get(b).length - g.get(a).length || (a < b ? -1 : 1));
+      return {
+        cols: ["Violation type", "Violations", "Corrected", "Average days", "Median days", "Still open", "Average age of open (days)"],
+        rows: types.map((t) => row(t, g.get(t))),
+        total: row("All types", vs),
+        area: null,
+        points: uniq(vs.map((v) => v.c)),
+      };
+    },
+  },
+  {
+    id: "repeatOwners",
+    n: 7,
+    label: "Repeat cases by owner",
+    date: "period",
+    lede: "Owners, recognized by mailing address, with two or more cases opened in the period.",
+    run(M, F) {
+      const base = M.counted.filter((c) => caseOk(c, F) && inPeriod(c.opened, F));
+      const g = groupBy(
+        base.filter((c) => c.ownerKey),
+        (c) => c.ownerKey,
+      );
+      const keys = Array.from(g.keys())
+        .filter((k) => g.get(k).length >= 2)
+        .sort((a, b) => g.get(b).length - g.get(a).length || (a < b ? -1 : 1));
+      const tail = (l) => [
+        count(l),
+        count(l.filter((c) => !["Closed", "Withdrawn"].includes(c.status))),
+        cell(uniq(l.map((c) => c.parcelKey || c.address)).length, nos(l)),
+      ];
+      const rows = keys.map((k) => [{ owner: k, text: uniq(g.get(k).map((c) => c.owner)).join("; ") }, ownerKeyLabel(k)].concat(tail(g.get(k))));
+      const none = base.filter((c) => !c.ownerKey);
+      if (none.length) rows.push({ dim: true, cells: ["Unmatched — no usable mailing address", ""].concat(tail(none)) });
+      return {
+        cols: ["Owner names seen", "Mailing address", "Cases", "Still open", "Properties"],
+        rows: rows,
+        total: null,
+        area: null,
+        points: [].concat(...keys.map((k) => g.get(k))),
+        note: keys.length
+          ? plural(keys.length, "owner") +
+            (" with more than one case. An address shared through a property manager g" +
+              "roups every owner that manager represents; the names column shows who is" +
+              " under each.")
+          : "",
+      };
+    },
+  },
+  {
+    id: "citations",
+    n: 8,
+    label: "Citations by ordinance",
+    date: "period",
+    lede: "Citations issued in the period, by the ordinance on the MC-2000 and the area. Voided citations are not counted.",
+    run(M, F) {
+      const cs = [];
+      M.counted.forEach((c) => {
+        if (!caseOk(c, F, { noViol: true, noInspector: true })) return;
+        c.citations.forEach((x) => {
+          if (!inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector)) return;
+          if (F.ord && x.ordinance !== F.ord) return;
+          if (F.vtype) {
+            const v = c.violations.find((v) => v.no === x.no);
+            if (!v || v.type !== F.vtype) return;
+          }
+          cs.push(x);
+        });
+      });
+      const keys = uniq(cs.map((x) => areaKey(x.c, F))).sort(areaSort);
+      const g = groupBy(cs, (x) => x.ordinance || "—"),
+        ords = Array.from(g.keys()).sort(ordSort);
+      const money = (l) =>
+        cell(
+          l.reduce((n, x) => n + (x.amount || 0), 0),
+          null,
+          "money",
+        );
+      const across = (l) => keys.map((k) => count(l.filter((y) => areaKey(y.c, F) === k)));
+      const area = {};
+      keys.forEach((k) => {
+        area[k] = cs.filter((x) => areaKey(x.c, F) === k).length;
+      });
+      return {
+        cols: ["Ordinance", "Citations"].concat(
+          keys.map((k) => areaLabel(k, F)),
+          ["Cash deposits"],
+        ),
+        rows: ords.map((o) => [o, count(g.get(o))].concat(across(g.get(o)), [money(g.get(o))])),
+        total: ["All ordinances", count(cs)].concat(across(cs), [money(cs)]),
+        area: area,
+        points: uniq(cs.map((x) => x.c)),
+        matrix: true,
+      };
+    },
+  },
+  {
+    id: "overriddenDeposits",
+    n: 11,
+    label: "Overridden deposits",
+    date: "period",
+    lede: "Exceptional determined deposits with a named administrator, reason, source and helper authorization.",
+    run(M, F) {
+      const list = [];
+      M.counted.forEach((c) => {
+        if (!caseOk(c, F, { noViol: true, noInspector: true })) return;
+        c.citations.forEach((x) => {
+          if (x.overrideBasis && inPeriod(x.issued, F) && (!F.inspector || x.by === F.inspector) && (!F.ord || x.ordinance === F.ord)) list.push(x);
+        });
+      });
+      return {
+        cols: ["Case", "Citation", "Ordinance", "Cash deposit", "Administrator", "Reason", "Source reference", "Authorized"],
+        rows: list.map((x) => [
+          x.c.number,
+          x.num,
+          x.ordinance,
+          cell(x.amount, null, "money"),
+          x.overrideBasis.administrator,
+          x.overrideBasis.reason,
+          x.overrideBasis.sourceReference,
+          fmtDate(recordDay(x.overrideBasis.approvedAt)),
+        ]),
+        total: ["Overridden deposits", count(list), "", "", "", "", "", ""],
+        points: uniq(list.map((x) => x.c)),
+        area: null,
+      };
+    },
+  },
+  {
+    id: "referrals",
+    n: 9,
+    label: "Referrals for prosecution",
+    date: "period",
+    lede: "Cases referred to the City Attorney in the period, with the owner as the referral printed it.",
+    run(M, F) {
+      const rs = [];
+      M.counted.forEach((c) => {
+        if (!caseOk(c, F, { noInspector: true })) return;
+        c.referrals.forEach((r) => {
+          if (inPeriod(r.issued, F) && (!F.inspector || r.by === F.inspector)) rs.push(r);
+        });
+      });
+      rs.sort((a, b) => (a.issued < b.issued ? 1 : -1));
+      const byOwner = groupBy(
+        M.counted.filter((c) => c.ownerKey),
+        (c) => c.ownerKey,
+      );
+      const rows = rs.map((r) => {
+        const all = r.ownerKey && byOwner.get(r.ownerKey);
+        return [
+          fmtDate(r.issued),
+          { kase: r.c.number },
+          r.c.address,
+          areaLabel(areaKey(r.c, F), F),
+          { owner: r.ownerKey, text: r.owner },
+          ownerKeyLabel(r.ownerKey),
+          all ? count(all) : cell(0, null),
+        ];
+      });
+      const area = {};
+      groupBy(rs, (r) => areaKey(r.c, F)).forEach((l, k) => {
+        area[k] = l.length;
+      });
+      return {
+        cols: ["Referred", "Case", "Address", "Area", "Owner", "Mailing address", "Owner’s cases, all time"],
+        rows: rows,
+        total: ["All referrals", count(rs), "", "", "", "", ""],
+        area: area,
+        points: uniq(rs.map((r) => r.c)),
+        list: true,
+      };
+    },
+  },
+  {
+    id: "documentActions",
+    n: 10,
+    label: "Document actions",
+    date: "period",
+    lede: "Issued actions by document family. Includes scoped orders before an Offi" + "cial Notice; one inspection may support several actions.",
+    run(M, F) {
+      const docs = [];
+      M.cases.forEach((c) => {
+        if (!caseOk(c, F, { noInspector: true, noNotice: true })) return;
+        c.documents
+          .filter((d) => !d.void && !d.superseded && inPeriod(d.issued, F) && (!F.inspector || d.by === F.inspector))
+          .forEach((d) => docs.push({ c, d }));
+      });
+      const g = groupBy(docs, (x) => (x.d.type === "referralUpdate" ? "Referral for Prosecution" : x.d.label)),
+        labels = Array.from(g.keys()).sort();
+      const area = {};
+      groupBy(docs, (x) => areaKey(x.c, F)).forEach((l, k) => (area[k] = l.length));
+      return {
+        cols: ["Document family", "Actions", "Cases"],
+        rows: labels.map((l) => [
+          l,
+          cell(
+            g.get(l).length,
+            g.get(l).map((x) => x.c.number),
+          ),
+          cell(
+            uniq(g.get(l).map((x) => x.c.number)).length,
+            g.get(l).map((x) => x.c.number),
+          ),
+        ]),
+        total: [
+          "All actions",
+          cell(
+            docs.length,
+            docs.map((x) => x.c.number),
+          ),
+          cell(
+            uniq(docs.map((x) => x.c.number)).length,
+            docs.map((x) => x.c.number),
+          ),
+        ],
+        area,
+        points: uniq(docs.map((x) => x.c)),
+      };
+    },
+  },
+]

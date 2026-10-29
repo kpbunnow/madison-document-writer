@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_report_catalog.js` | 11 inert definitions and 2,750 original-catalog comparisons using actual model/history services |
 | `audit_shared_preflight_rules.js` | 168 asynchronous retained-source scenarios for preflight and shared replacement |
 | `audit_shared_comparison_rules.js` | 5,000 retained-source field/history/checkpoint comparisons |
 | `audit_shared_comparison_parity.js` | Unchanged catalog public-owner comparisons against original and maintained source |
