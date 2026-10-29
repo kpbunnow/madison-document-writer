@@ -1260,3 +1260,9 @@ Measured counts: {'complexity': 35, 'max-depth': 0, 'max-lines-per-function': 97
 Separate workspace/catalog and recipient focus routes from worksheet/general field focusing. Preserve capture-before-context changes, live versus retained document queries, early returns, exact validation arguments, disclosure/focus/scroll and2200ms cleanup. All700 real-DOM comparisons retain partial state and interrupted effects; unchanged owner, 4,075 target and4,032 outcome comparisons, frozen worksheet/check HTML, architecture/boundaries, seams, lint and formatting pass. Complexity34 to33; no print, warning text or interface change.
 
 Measured counts: {'complexity': 34, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 33, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## case-save-serialization
+
+Deduplicate pre-merge and post-merge case serialization in one synchronous helper. Keep both existing try/catch boundaries, fresh case reads, failure wording, permission/merge/write/queue ordering and partial effects. All4,048 full retained-save comparisons and original refusal assertions pass, with architecture/boundaries, lint and formatting. Complexity33 to32, no new/worsened debt or public-interface/format/trust change.
+
+Measured counts: {'complexity': 33, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
