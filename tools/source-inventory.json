@@ -735,6 +735,7 @@
     "tests/unit/audit_inspection_facts.js",
     "tests/unit/audit_inspection_history_rules.js",
     "tests/unit/audit_integrity_classification_rules.js",
+    "tests/unit/audit_integrity_shape_rules.py",
     "tests/unit/audit_issuance_group_rules.py",
     "tests/unit/audit_language_action_rules.js",
     "tests/unit/audit_language_focus.js",

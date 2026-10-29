@@ -313,6 +313,14 @@ def reconstruct_registry(folder):
             continue  # reads expose failures; never repair corrupt files
 
 
+def _damaged_verdict(error, failure):
+    """The failed verdict for integrity metadata that cannot be read; a structure of the wrong kind is damage, not a crash."""
+    if str(error) == "Migration registry is damaged; contact an administrator":
+        return {**failure("migration registry", "valid registry", str(error)), "label": str(error), "state": "registry-damaged"}
+    detail = "malformed integrity metadata" if isinstance(error, AttributeError) else str(error) or type(error).__name__
+    return failure("integrity metadata", "complete verifiable chain", detail)
+
+
 def verify_record(record, folder=None, external=None, context=None):
     last = ""
 
@@ -414,10 +422,8 @@ def verify_record(record, folder=None, external=None, context=None):
             "migrationDate": genesis["committedAt"],
             "legacyHistoryAsFound": genesis["sourceSchema"] < 5,
         }
-    except (KeyError, TypeError, ValueError, IndexError, OSError) as error:
-        if str(error) == "Migration registry is damaged; contact an administrator":
-            return {**failure("migration registry", "valid registry", str(error)), "label": str(error), "state": "registry-damaged"}
-        return failure("integrity metadata", "complete verifiable chain", str(error) or type(error).__name__)
+    except (KeyError, TypeError, ValueError, IndexError, OSError, AttributeError) as error:
+        return _damaged_verdict(error, failure)
 
 
 def require_valid(record, folder=None, context=None):

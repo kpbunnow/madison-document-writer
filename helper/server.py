@@ -296,7 +296,8 @@ def read_index(read_workers=4):
                     continue
             summary["integrity"] = status
             by_number[number] = summary
-        except (OSError, ValueError, TypeError, KeyError) as error:
+        except (OSError, ValueError, TypeError, KeyError, AttributeError, IndexError, RecursionError) as error:
+            # One case file the reader cannot process never fails the whole index.
             out["unreadable"].append("%s (%s)" % (p.name, error))
     for number in duplicates:
         by_number.pop(number, None)
