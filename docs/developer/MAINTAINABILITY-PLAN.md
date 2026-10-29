@@ -1605,3 +1605,7 @@ Added a frozen-original comparison of the correction panel (`audit_correction_pa
 ## tools-screen-sections
 
 Added a frozen-original comparison of the Tools & settings screen (`audit_tools_screen_markup_rules.js`: every colour-theme state against the retained `navigation_reference.txt`, with the shell and icon peers recorded in order). `screen` (114 lines) now keeps its tool tables and static sections as module constants and builds the display and administrator sections in two functions; the icon calls happen in the original order. Deliberate mutations are caught.
+
+## catalog-review-panel-sections
+
+Added a frozen-original comparison of the catalog review panel (`audit_catalog_review_panel_markup_rules.js`: 6,000 seeded entries against the retained `catalog_review_panel_reference.txt`) covering every review status, open and closed forms, the rebase and error notices, replacement search, escaping and every peer read in order. `catalogReviewPanel` (110 lines) is now a shell over review-line, comparison, rebase-button, field and footer builders; the replacement options are still produced at their original position. Deliberate mutations are caught; the one survivor (`f.replacementQuery || ""`) is equivalent because `esc` renders `undefined` as empty.

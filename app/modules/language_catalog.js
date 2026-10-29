@@ -96,6 +96,94 @@ function savedWorkFocusTarget(dialog, summary, id, data) {
           : null;
 }
 
+/* Review panel sections, each a pure function of the entry, its latest review and the unsent form. */
+function reviewLine(r) {
+  return r
+    ? "<p>Reviewed " +
+        `${esc(r.at)}` +
+        " by " +
+        `${esc(r.reviewer)}` +
+        " · v" +
+        `${r.version}` +
+        " · source " +
+        `${esc(r.source)}` +
+        " · ordinance " +
+        `${esc(r.ordinances.join(", "))}` +
+        ". " +
+        `${r.replaces ? "Preferred over " + esc(r.replaces) : ""}` +
+        "</p>"
+    : "";
+}
+
+function reviewComparison(i, r, f) {
+  return r
+    ? "<details><summary>Compare bundled, reviewed and draft wording</summary><" +
+        "p><strong>Bundled:</strong> " +
+        `${esc(i.a)}` +
+        " · " +
+        `${esc(i.s.join("; "))}` +
+        "</p>\n      <p><strong>Current reviewed v" +
+        `${r.version}` +
+        ":</strong> " +
+        `${esc(r.wording)}` +
+        " · " +
+        `${esc(r.ordinances.join("; "))}` +
+        "</p>\n      <p><strong>Unsubmitted form:</strong> " +
+        `${esc(f.wording)}` +
+        " · " +
+        `${esc(f.ordinances)}` +
+        "</p></details>"
+    : "";
+}
+
+function rebaseButton(key, form, f, r) {
+  return form && f.baseVersion !== (r?.version || 0)
+    ? '<button class="btn btn-sm" data-catalog-rebase="' +
+        `${esc(key)}` +
+        '">Use current v' +
+        `${r?.version || 0}` +
+        " as review basis (keep entered values)</button>"
+    : "";
+}
+
+function reviewFields(key, f) {
+  return (
+    '\n    <label>Reviewer <input data-catalog-field="reviewer" data-catalog-key="' +
+    `${esc(key)}` +
+    '" value="' +
+    `${esc(f.reviewer)}` +
+    '"></label>\n    <label>Approved corrective action <textarea data-catalog-field="wording" data-catalog-key="' +
+    `${esc(key)}` +
+    '">' +
+    `${esc(f.wording)}` +
+    '</textarea></label>\n    <label>Ordinance reference(s), separated by semicolons <input data-catalog-field="ordinances" data-catalog-key="' +
+    `${esc(key)}` +
+    '" value="' +
+    `${esc(f.ordinances)}` +
+    '"></label>\n    <label>Source / authority for review <input data-catalog-field="source" data-catalog-key="' +
+    `${esc(key)}` +
+    '" value="' +
+    `${esc(f.source)}` +
+    '"></label>\n    <label>Find an entry to replace <input type="search" data-catalog-replacement-query="' +
+    `${esc(key)}` +
+    '" value="' +
+    `${esc(f.replacementQuery || "")}` +
+    '" placeholder="Search title, ordinance or status"></label>\n    <label>Entry replaced (optional) <select data-catalog-field="replaces" data-catalog-key="' +
+    `${esc(key)}` +
+    '">'
+  );
+}
+
+function reviewFooter(key) {
+  return (
+    '</select></label>\n    <button class="btn btn-sm" data-catalog-save="' +
+    `${esc(key)}` +
+    '" data-catalog-status="approved">Record approved version</button>\n    <button class="btn btn-sm" data-catalog-save="' +
+    `${esc(key)}` +
+    '" data-catalog-status="retired">Retire entry</button>\n    <p class="hint">Review is an immutable, versioned shared record. It changes future selection only. Existing drafts need deliberate revision.</p>\n  </details>'
+  );
+}
+
 export function createLanguageCatalog(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -282,9 +370,10 @@ export function createLanguageCatalog(services) {
       s = catalogStatus(i),
       r = s.review;
     const f = catalogForm(key, i, r);
+    const form = catalog.CATALOG_FORMS[key];
     return (
       '<details class="lib-guidance" ' +
-      `${catalog.CATALOG_FORMS[key]?.open ? "open" : ""}` +
+      `${form?.open ? "open" : ""}` +
       "><summary>Division review administration · " +
       `${esc(s.label)}` +
       "</summary>\n    <p>Source: " +
@@ -292,99 +381,20 @@ export function createLanguageCatalog(services) {
       "" +
       `${i.legacyKeys?.length ? " · overlaps " + esc(i.legacyKeys.join(", ")) : ""}` +
       ".</p>\n    " +
-      "".concat(
-        r
-          ? "<p>Reviewed " +
-              `${esc(r.at)}` +
-              " by " +
-              `${esc(r.reviewer)}` +
-              " · v" +
-              `${r.version}` +
-              " · source " +
-              `${esc(r.source)}` +
-              " · ordinance " +
-              `${esc(r.ordinances.join(", "))}` +
-              ". " +
-              `${r.replaces ? "Preferred over " + esc(r.replaces) : ""}` +
-              "</p>"
-          : "",
-      ) +
+      reviewLine(r) +
       "\n    " +
-      "".concat(
-        r
-          ? "<details><summary>Compare bundled, reviewed and draft wording</summary><" +
-              "p><strong>Bundled:</strong> " +
-              `${esc(i.a)}` +
-              " · " +
-              `${esc(i.s.join("; "))}` +
-              "</p>\n      <p><strong>Current reviewed v" +
-              `${r.version}` +
-              ":</strong> " +
-              `${esc(r.wording)}` +
-              " · " +
-              `${esc(r.ordinances.join("; "))}` +
-              "</p>\n      <p><strong>Unsubmitted form:</strong> " +
-              `${esc(f.wording)}` +
-              " · " +
-              `${esc(f.ordinances)}` +
-              "</p></details>"
-          : "",
-      ) +
+      reviewComparison(i, r, f) +
       "\n    " +
-      "".concat(catalog.CATALOG_FORMS[key]?.error ? `<p class="save-error" role="alert">${esc(catalog.CATALOG_FORMS[key].error)}</p>` : "") +
+      "".concat(form?.error ? `<p class="save-error" role="alert">${esc(form.error)}</p>` : "") +
       "\n    " +
+      rebaseButton(key, form, f, r) +
+      reviewFields(key, f) +
       "".concat(
-        catalog.CATALOG_FORMS[key] && f.baseVersion !== (r?.version || 0)
-          ? '<button class="btn btn-sm" data-catalog-rebase="' +
-              `${esc(key)}` +
-              '">Use current v' +
-              `${r?.version || 0}` +
-              " as review basis (keep entered values)</button>"
-          : "",
-      ) +
-      '\n    <label>Reviewer <input data-catalog-field="reviewer" data-catalog-k' +
-      'ey="' +
-      `${esc(key)}` +
-      '" value="' +
-      `${esc(f.reviewer)}` +
-      '"></label>\n    <label>Approved corrective action <textarea data-catalog-' +
-      'field="wording" data-catalog-key="' +
-      `${esc(key)}` +
-      '">' +
-      `${esc(f.wording)}` +
-      "</textarea></label>\n    <label>Ordinance reference(s), separated by semi" +
-      'colons <input data-catalog-field="ordinances" data-catalog-key="' +
-      `${esc(key)}` +
-      '" value="' +
-      `${esc(f.ordinances)}` +
-      '"></label>\n    <label>Source / authority for review <input data-catalog-' +
-      'field="source" data-catalog-key="' +
-      `${esc(key)}` +
-      '" value="' +
-      `${esc(f.source)}` +
-      '"></label>\n    <label>Find an entry to replace <input type="search" data' +
-      '-catalog-replacement-query="' +
-      `${esc(key)}` +
-      '" value="' +
-      `${esc(f.replacementQuery || "")}` +
-      '" placeholder="Search title, ordinance or status"></label>\n    <label>En' +
-      'try replaced (optional) <select data-catalog-field="replaces" data-catal' +
-      'og-key="' +
-      `${esc(key)}` +
-      '">' +
-      "".concat(
-        catalog.CATALOG_FORMS[key]?.open
+        form?.open
           ? catalogReplacementOptions(key, f.replaces, f.replacementQuery)
           : '<option value="' + esc(f.replaces) + '">Open to browse entries</option>',
       ) +
-      '</select></label>\n    <button class="btn btn-sm" data-catalog-save="' +
-      `${esc(key)}` +
-      '" data-catalog-status="approved">Record approved version</button>\n    <b' +
-      'utton class="btn btn-sm" data-catalog-save="' +
-      `${esc(key)}` +
-      '" data-catalog-status="retired">Retire entry</button>\n    <p class="hint' +
-      '">Review is an immutable, versioned shared record. It changes future sel' +
-      "ection only. Existing drafts need deliberate revision.</p>\n  </details>"
+      reviewFooter(key)
     );
   }
 
