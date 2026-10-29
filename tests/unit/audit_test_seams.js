@@ -13,6 +13,12 @@ assert.deepEqual(hookCandidates("const payload=String.raw`noticeHTML(d)`;", ["co
 assert.equal(classify('require("../fixtures/bundle_test.cjs")("payload");').harnessCalls, 1);
 const current = inventory();
 assert.deepEqual(current.hook.map((field) => field.key).sort(), retainedHooks, "review retained diagnostic changes explicitly");
-for (const [file, count] of Object.entries(current.legacy)) assert.ok(count <= (baseline[file] || 0), "new whole-application evaluation: " + file);
-for (const file of Object.keys(baseline)) assert.equal(current.legacy[file], baseline[file], "lower the baseline after migrating " + file);
+for (const [file, count] of Object.entries(current.legacy))
+  assert.ok(count <= (baseline[file]?.count || 0), "new whole-application evaluation: " + file);
+for (const file of Object.keys(baseline)) assert.equal(current.legacy[file], baseline[file].count, "lower the baseline after migrating " + file);
+for (const [file, entry] of Object.entries(baseline)) {
+  assert.ok(["integration", "migratable"].includes(entry.class), "classify " + file);
+  if (entry.class === "integration") assert.ok(entry.reason?.length >= 20, "an integration evaluator needs its reason: " + file);
+  else assert.ok(entry.owner?.length >= 10, "a migratable evaluator names its owner: " + file);
+}
 console.log("PASS test-seam inventory", current.counts);

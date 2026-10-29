@@ -1,69 +1,337 @@
 {
-  "tests/fixtures/bundle_test.cjs": 1,
-  "tests/fixtures/mk_summaries.js": 1,
-  "tests/fixtures/tagcheck.js": 1,
-  "tests/unit/audit_accessibility.js": 1,
-  "tests/unit/audit_authoring.js": 1,
-  "tests/unit/audit_corrections.js": 1,
-  "tests/unit/audit_desktop_exit.js": 1,
-  "tests/unit/audit_e2e.js": 1,
-  "tests/unit/audit_events.js": 1,
-  "tests/unit/audit_feature_accela_import.js": 7,
-  "tests/unit/audit_feature_citation_packets.js": 2,
-  "tests/unit/audit_feature_editor_screens.js": 5,
-  "tests/unit/audit_feature_extensions.js": 2,
-  "tests/unit/audit_feature_history_referrals.js": 6,
-  "tests/unit/audit_feature_worksheet_dates.js": 1,
-  "tests/unit/audit_final.js": 1,
-  "tests/unit/audit_func.js": 1,
-  "tests/unit/audit_import_r13.js": 1,
-  "tests/unit/audit_lifecycle.js": 1,
-  "tests/unit/audit_lookup.js": 1,
-  "tests/unit/audit_order_improvements.js": 1,
-  "tests/unit/audit_perm.js": 1,
-  "tests/unit/audit_properties.js": 1,
-  "tests/unit/audit_r20.js": 1,
-  "tests/unit/audit_r21.js": 1,
-  "tests/unit/audit_r22.js": 1,
-  "tests/unit/audit_r23.js": 1,
-  "tests/unit/audit_r25.js": 2,
-  "tests/unit/audit_r26.js": 1,
-  "tests/unit/audit_r28.js": 1,
-  "tests/unit/audit_r29.js": 1,
-  "tests/unit/audit_r30.js": 1,
-  "tests/unit/audit_r33_snow.js": 1,
-  "tests/unit/audit_r34.js": 1,
-  "tests/unit/audit_r35.js": 1,
-  "tests/unit/audit_r36.js": 1,
-  "tests/unit/audit_r37.js": 1,
-  "tests/unit/audit_r40.js": 1,
-  "tests/unit/audit_r41_queue.js": 1,
-  "tests/unit/audit_r42_editor.js": 1,
-  "tests/unit/audit_r43_review.js": 1,
-  "tests/unit/audit_r44_saved_work.js": 1,
-  "tests/unit/audit_r46_reinspection.js": 1,
-  "tests/unit/audit_r47_language.js": 1,
-  "tests/unit/audit_r50_editor_repaint.js": 1,
-  "tests/unit/audit_r53_workflow.js": 1,
-  "tests/unit/audit_r54_extensions.js": 1,
-  "tests/unit/audit_r56_citation_status.js": 1,
-  "tests/unit/audit_r59_charge_select.js": 1,
-  "tests/unit/audit_r59_editor_flow.js": 1,
-  "tests/unit/audit_r59_import_selection.js": 1,
-  "tests/unit/audit_r62_extensions.js": 1,
-  "tests/unit/audit_recipient_flow.js": 1,
-  "tests/unit/audit_release.js": 1,
-  "tests/unit/audit_resume.js": 1,
-  "tests/unit/audit_review.js": 1,
-  "tests/unit/audit_safety.js": 1,
-  "tests/unit/audit_snow_repaint.js": 1,
-  "tests/unit/audit_storage.js": 1,
-  "tests/unit/audit_summary.js": 1,
-  "tests/unit/audit_usability_phase1.js": 1,
-  "tests/unit/audit_usability_phase2.js": 1,
-  "tests/unit/audit_usability_phase3.js": 1,
-  "tests/unit/audit_valid.js": 1,
-  "tests/unit/audit_walkthrough.js": 1,
-  "tests/unit/audit_workflow_tools.js": 1,
-  "tests/unit/audit_workspace_queue.js": 1
+  "tests/fixtures/bundle_test.cjs": {
+    "count": 1,
+    "class": "integration",
+    "reason": "the shared harness that boots the whole application for other suites"
+  },
+  "tests/fixtures/mk_summaries.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, startReinspection, summarize)"
+  },
+  "tests/fixtures/tagcheck.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "boots the application to check rendered tag balance across screens"
+  },
+  "tests/unit/audit_accessibility.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "focus, dialogs and landmarks across booted screens"
+  },
+  "tests/unit/audit_authoring.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (applyDeposit, citationFaces, editCitation, issueDocument)"
+  },
+  "tests/unit/audit_corrections.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "correction lifecycle across editor, helper and records"
+  },
+  "tests/unit/audit_desktop_exit.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "desktop exit request, dialog and helper lifecycle"
+  },
+  "tests/unit/audit_e2e.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "end-to-end walkthrough of a case"
+  },
+  "tests/unit/audit_events.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "event registration and handling across all owners"
+  },
+  "tests/unit/audit_feature_accela_import.js": {
+    "count": 7,
+    "class": "migratable",
+    "owner": "Accela import: 23 private bindings of one owner"
+  },
+  "tests/unit/audit_feature_citation_packets.js": {
+    "count": 2,
+    "class": "integration",
+    "reason": "citation packet flow from editor through printing"
+  },
+  "tests/unit/audit_feature_editor_screens.js": {
+    "count": 5,
+    "class": "integration",
+    "reason": "editor screens driven through real events"
+  },
+  "tests/unit/audit_feature_extensions.js": {
+    "count": 2,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, scheduleDraftSave, startCorrection)"
+  },
+  "tests/unit/audit_feature_history_referrals.js": {
+    "count": 6,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (makePublication, scheduleDraftSave)"
+  },
+  "tests/unit/audit_feature_worksheet_dates.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "worksheet dates across editor, worksheet and issue flow"
+  },
+  "tests/unit/audit_final.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "end-to-end document lifecycle"
+  },
+  "tests/unit/audit_func.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "broad functional lifecycle of the booted application"
+  },
+  "tests/unit/audit_import_r13.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "Accela import: accelaPlan, acceptAccela, sqlReport"
+  },
+  "tests/unit/audit_lifecycle.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (accTime, citationFaces, issueDocument, newDoc)"
+  },
+  "tests/unit/audit_lookup.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "Accela import lookup: accelaPlan, acceptAccela, lookup hooks"
+  },
+  "tests/unit/audit_order_improvements.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, scheduleDraftSave)"
+  },
+  "tests/unit/audit_perm.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "permission, grant and storage lifecycle"
+  },
+  "tests/unit/audit_properties.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (applyDeposit, editCitation)"
+  },
+  "tests/unit/audit_r20.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (documentHTML, issueDocument, newDoc, openIssuedCopy)"
+  },
+  "tests/unit/audit_r21.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, recoverySharedState, scheduleDraftSave)"
+  },
+  "tests/unit/audit_r22.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, persistRecoveryState, recoverySharedState)"
+  },
+  "tests/unit/audit_r23.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "startup and device-save lifecycle in the booted application"
+  },
+  "tests/unit/audit_r25.js": {
+    "count": 2,
+    "class": "integration",
+    "reason": "startup and migration of stored work in the booted application"
+  },
+  "tests/unit/audit_r26.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, startReinspection, summarize)"
+  },
+  "tests/unit/audit_r28.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "case projection and shared state across owners"
+  },
+  "tests/unit/audit_r29.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "save, restore and shared change lifecycle"
+  },
+  "tests/unit/audit_r30.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "case file save and recovery lifecycle"
+  },
+  "tests/unit/audit_r33_snow.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, printJob, toggleLibraryItem)"
+  },
+  "tests/unit/audit_r34.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "startup, helper offline handling and storage in the booted application"
+  },
+  "tests/unit/audit_r35.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "case folder and workspace lifecycle"
+  },
+  "tests/unit/audit_r36.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "Accela import: accelaTable, accelaPlan, acceptAccela"
+  },
+  "tests/unit/audit_r37.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "Accela import lookup: findDatabaseCase, accelaPlan"
+  },
+  "tests/unit/audit_r40.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "shared case storage and conflict lifecycle"
+  },
+  "tests/unit/audit_r41_queue.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "queue and safety status across screens"
+  },
+  "tests/unit/audit_r42_editor.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "editor readiness through real events"
+  },
+  "tests/unit/audit_r43_review.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "review dialog and issue flow through real events"
+  },
+  "tests/unit/audit_r44_saved_work.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "saved-work states across storage and screens"
+  },
+  "tests/unit/audit_r46_reinspection.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "reinspection flow across worksheet, editor and issue"
+  },
+  "tests/unit/audit_r47_language.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "language catalog review across screens and shared records"
+  },
+  "tests/unit/audit_r50_editor_repaint.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "editor repaint and focus retention across owners"
+  },
+  "tests/unit/audit_r53_workflow.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "reminder, timeline and batch workflow through the booted UI"
+  },
+  "tests/unit/audit_r54_extensions.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (makeCorrectionAttempt, makePublication, startCorrection)"
+  },
+  "tests/unit/audit_r56_citation_status.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (newDoc, restoreDrafts)"
+  },
+  "tests/unit/audit_r59_charge_select.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (changeCharge, editCitation, makePublication, newDoc)"
+  },
+  "tests/unit/audit_r59_editor_flow.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "editor flow and review through real events"
+  },
+  "tests/unit/audit_r59_import_selection.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "Accela import: selection, accelaPanel"
+  },
+  "tests/unit/audit_r62_extensions.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, startCorrection, startReinspection)"
+  },
+  "tests/unit/audit_recipient_flow.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (citationFaces, documentHTML, newDoc, scheduleDraftSave)"
+  },
+  "tests/unit/audit_release.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (documentHTML, issueDocument, newDoc, startReinspection)"
+  },
+  "tests/unit/audit_resume.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "resume of unfinished work across startup, storage and screens"
+  },
+  "tests/unit/audit_review.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc)"
+  },
+  "tests/unit/audit_safety.js": {
+    "count": 1,
+    "class": "migratable",
+    "owner": "shared case comparison: compareSharedCase, resolvedCaseFields"
+  },
+  "tests/unit/audit_snow_repaint.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "cross-owner repaint of the snow editor in the booted application"
+  },
+  "tests/unit/audit_storage.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "storage lifecycle across device, folder and helper"
+  },
+  "tests/unit/audit_summary.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, startCorrection, startReinspection, summarize)"
+  },
+  "tests/unit/audit_usability_phase1.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "usability behaviors through real events across screens"
+  },
+  "tests/unit/audit_usability_phase2.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "readiness, review and notices through real events"
+  },
+  "tests/unit/audit_usability_phase3.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "lookup and readiness behaviors through real events"
+  },
+  "tests/unit/audit_valid.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc, paginate)"
+  },
+  "tests/unit/audit_walkthrough.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "staff walkthrough of the booted screens"
+  },
+  "tests/unit/audit_workflow_tools.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "workflow tools across storage, helper calls and screens"
+  },
+  "tests/unit/audit_workspace_queue.js": {
+    "count": 1,
+    "class": "integration",
+    "reason": "workspace queue across storage and screens"
+  }
 }
