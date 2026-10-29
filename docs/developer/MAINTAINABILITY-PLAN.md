@@ -1290,3 +1290,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97
 Convert27 catalog/browser/picker/detail markup expressions to the shared screen-only escaping tag. Keep trusted owned renderer output and pre-escaped scoped adapter values explicit, preserving adapter read/call order. Scalars are stringified before escaping, retaining existing null/undefined textual fallback; malformed scalar metadata is encoded. All1,596 supported-source outputs and ordered effects remain byte-identical to retained functions, with new defensive-encoding assertions. Existing focus, R47/feature catalog, fresh build, architecture/boundaries, seams, lint and formatting pass. Strict boundary map allows only the shared screen HTML dependency; no print/stored wording or policy change.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
+
+## accessibility-control-enhancement
+
+Move readonly/editable labels, unlabeled controls and table semantics into one private native-DOM phase at the same point between navigation and dialog/theme/paint handling. All172 comparisons retain exact DOM, themes, repeated dialog handling, early body/capability guards and partial failures. Existing full accessibility and R48 workflows, 1,596 language comparisons, fresh build, architecture/boundaries, seams, lint and format pass. Non-factory long methods41 to40; total95 to94. All four numerical targets are met on this prepared source; M5/M6 cleanup and final audit remain.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
