@@ -40,7 +40,7 @@ import { createReportCatalog } from "./report_catalog.js";
 import { createReportsServices } from "./reports_services.js";
 import { createReportsScreens } from "./reports_screens.js";
 import { createReportsViewContext } from "./reports_view_contexts.js";
-import { listenForStop, showStopped } from "./helper_stopped.js";
+import { listenForReportStop } from "./report_connection.js";
 
 import { ReportsState } from "./state.js";
 import { initDepositSchedule } from "./deposit_schedule.js";
@@ -615,9 +615,7 @@ export const restoreReportReturn = createReportReturn({
 });
 
 /* Exit Document Writer in a Writer window stops the helper: this window shows the same stopped state. */
-listenForStop(() =>
-  showStopped(["Exit Document Writer was used in a Writer window. Reports cannot read case records until Document Writer starts again."]),
-);
+listenForReportStop();
 if (!window.__NO_AUTOLOAD__)
   loadAll(false).then(() => {
     if (new URLSearchParams(location.search).has("return")) restoreReportReturn();

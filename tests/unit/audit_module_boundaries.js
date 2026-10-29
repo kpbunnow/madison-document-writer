@@ -495,6 +495,7 @@ const scopedServices = {
   "report_metadata.js": [],
   "report_navigation.js": [],
   "report_filter_events.js": [],
+  "report_connection.js": ["./helper_stopped.js"],
   "report_presentation.js": ["./contracts.js", "./screen_html.js"],
   "report_workbook_definitions.js": [],
   "report_return.js": ["./contracts.js"],

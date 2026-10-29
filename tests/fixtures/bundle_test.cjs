@@ -1,7 +1,7 @@
 const assert = require("assert/strict");
 const { JSDOM } = require("jsdom"),
   { builtPage, bundleSource } = require("./built_bundle.cjs");
-module.exports = function (code, stem = "app") {
+module.exports = function (code) {
   const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
     url: "http://127.0.0.1:8777/",
     pretendToBeVisual: true,
@@ -15,7 +15,7 @@ module.exports = function (code, stem = "app") {
     getSelection: () => dom.window.getSelection(),
   });
   dom.window.scrollTo = () => {};
-  const payload = stem === "reports" ? require("./reports_bundle.cjs").reportsBundleSource(builtPage(stem)) : bundleSource(builtPage(stem));
+  const payload = bundleSource(builtPage());
   eval(
     payload +
       "\n(async()=>{await new Promise(r=>setTimeout(r,40));" +
