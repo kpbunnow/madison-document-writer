@@ -371,17 +371,7 @@ function reportTableHeaderHTML(services, res, sort, isNum) {
   return res.cols
     .map(
       (h, ci) =>
-        '<th scope="col" aria-sort="' +
-        `${sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none"}` +
-        '" class="' +
-        `${isNum(ci) ? "n" : ""}` +
-        '"><button class="sort-button" data-report-sort="' +
-        `${ci}` +
-        '">' +
-        `${services.esc(h)}` +
-        "" +
-        `${sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : ""}` +
-        "</button></th>",
+        screen`<th scope="col" aria-sort="${raw(sort?.ci === ci ? (sort.dir === 1 ? "ascending" : "descending") : "none")}" class="${raw(isNum(ci) ? "n" : "")}"><button class="sort-button" data-report-sort="${String(ci)}">${raw(services.esc(h))}${raw(sort?.ci === ci ? (sort.dir === 1 ? " ↑" : " ↓") : "")}</button></th>`,
     )
     .join("");
 }
@@ -390,20 +380,14 @@ function reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max) {
   return rows
     .map(
       ({ row, ri }) =>
-        '<tr class="' +
-        `${row.dim ? "dim" : ""}` +
-        "" +
-        `${sel && sel.split(":")[0] === String(ri) ? " sel" : ""}` +
-        '">' +
-        "".concat(
+        screen`<tr class="${raw(row.dim ? "dim" : "")}${raw(sel && sel.split(":")[0] === String(ri) ? " sel" : "")}">${raw(
           cellsOf(row)
             .map((x, ci) => {
               const cell = cellHTML(x, ri, ci, max[ci], false);
               return ci === 0 ? cell.replace("<td", '<th scope="row"').replace("</td>", "</th>") : cell;
             })
             .join(""),
-        ) +
-        "</tr>",
+        )}</tr>`,
     )
     .join("");
 }
@@ -730,11 +714,9 @@ export function createReportsScreens(services) {
   function reportScreen(r) {
     if (r.date === "period" && ReportsState.S.F.from > ReportsState.S.F.to) {
       ReportsState.S.rep = null;
-      return (
-        topbar(r.label, r.lede, services.actions()) +
-        filtersBar(r.date) +
-        '<div class="content"><div class="banner alert">The start date must be on or before the end date.</div></div>'
-      );
+      return screen`${raw(
+        topbar(r.label, r.lede, services.actions()) + filtersBar(r.date),
+      )}<div class="content"><div class="banner alert">The start date must be on or before the end date.</div></div>`;
     }
 
     const res = r.run(ReportsState.S.M, ReportsState.S.F);
@@ -745,42 +727,17 @@ export function createReportsScreens(services) {
         : services.fmtDate(ReportsState.S.F.from) + " to " + services.fmtDate(ReportsState.S.F.to);
     const body = ReportsState.S.view === "map" ? mapPanel(r, res) : tablePanel(res, dateTxt);
     const primary = res.total && res.total.find((x) => x && typeof x === "object" && x.fmt === "int");
-    return (
-      topbar(r.n + ". " + r.label, r.lede, services.actions()) +
-      filtersBar(r.date) +
-      ('<div class="content">' +
-        "".concat(ReportsState.S.reportNotice ? `<div class="banner info" role="status">${services.esc(ReportsState.S.reportNotice)}</div>` : "") +
-        "" +
-        `${freshness()}` +
-        "" +
-        "".concat(
-          primary
-            ? '<div class="report-kpi"><strong>' +
-                `${services.fmtNum(primary.n)}` +
-                "</strong><span>" +
-                `${services.esc(res.cols[1] || "matching records")}` +
-                " · " +
-                `${services.esc(dateTxt)}` +
-                "</span></div>"
-            : "",
-        ) +
-        '\n      <div class="panel"><div class="panel-h"><div><h2>' +
-        `${services.esc(r.label)}` +
-        '</h2><div class="sub">' +
-        `${services.esc(dateTxt)}` +
-        "" +
-        `${services.esc(filterSummary())}` +
-        '</div></div>\n        <div class="seg" role="group" aria-label="View"><bu' +
-        'tton data-view="table" aria-pressed="' +
-        `${ReportsState.S.view === "table"}` +
-        '">Table</button><button data-view="map" aria-pressed="' +
-        `${ReportsState.S.view === "map"}` +
-        '">Map</button></div></div>\n        ' +
-        `${body}` +
-        "</div>\n      " +
-        `${ReportsState.S.drill ? drillPanel() : ""}` +
-        "</div>")
-    );
+    return screen`${raw(
+      topbar(r.n + ". " + r.label, r.lede, services.actions()) + filtersBar(r.date),
+    )}<div class="content">${raw(ReportsState.S.reportNotice ? screen`<div class="banner info" role="status">${raw(services.esc(ReportsState.S.reportNotice))}</div>` : "")}${raw(freshness())}${raw(
+      primary
+        ? screen`<div class="report-kpi"><strong>${String(services.fmtNum(primary.n))}</strong><span>${raw(services.esc(res.cols[1] || "matching records"))} · ${raw(services.esc(dateTxt))}</span></div>`
+        : "",
+    )}
+      <div class="panel"><div class="panel-h"><div><h2>${raw(services.esc(r.label))}</h2><div class="sub">${raw(services.esc(dateTxt))}${raw(services.esc(filterSummary()))}</div></div>
+        <div class="seg" role="group" aria-label="View"><button data-view="table" aria-pressed="${String(ReportsState.S.view === "table")}">Table</button><button data-view="map" aria-pressed="${String(ReportsState.S.view === "map")}">Map</button></div></div>
+        ${raw(body)}</div>
+      ${raw(ReportsState.S.drill ? drillPanel() : "")}</div>`;
   }
 
   function filterSummary() {
@@ -798,47 +755,29 @@ export function createReportsScreens(services) {
 
   function cellHTML(x, ri, ci, max, isTotal) {
     if (x == null) return "<td></td>";
-    if (typeof x === "string") return `<td>${services.esc(x)}</td>`;
+    if (typeof x === "string") return screen`<td>${raw(services.esc(x))}</td>`;
     if (x.kase)
-      return (
-        '<td><button class="linkish" data-case="' +
-        `${services.esc(x.kase)}` +
-        '">' +
-        `${services.esc(x.kase)}` +
-        '</button> <button class="linkish" data-writer="' +
-        `${services.esc(x.kase)}` +
-        '">Open case in Writer</button></td>'
-      );
+      return screen`<td><button class="linkish" data-case="${raw(services.esc(x.kase))}">${raw(services.esc(x.kase))}</button> <button class="linkish" data-writer="${raw(services.esc(x.kase))}">Open case in Writer</button></td>`;
     if (x.owner !== undefined)
-      return (
-        "<td>" +
-        "".concat(
-          x.owner
-            ? `<button class="linkish" data-owner="${services.esc(x.owner)}">${services.esc(x.text || "—")}</button>`
-            : services.esc(x.text || "—"),
-        ) +
-        "</td>"
-      );
+      return screen`<td>${raw(
+        x.owner
+          ? screen`<button class="linkish" data-owner="${raw(services.esc(x.owner))}">${raw(services.esc(x.text || "—"))}</button>`
+          : services.esc(x.text || "—"),
+      )}</td>`;
     const txt = x.fmt === "days" ? services.fmtDays(x.n) : x.fmt === "money" ? services.fmtMoney(x.n) : services.fmtNum(x.n);
     // the bar behind a count scales against the largest count in its column
     const bar =
       !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
     const inner =
       x.ids && x.ids.length && x.n
-        ? `<button data-drill="${ri}:${ci}" aria-label="${services.esc(txt)}, show the cases">${services.esc(txt)}</button>`
+        ? screen`<button data-drill="${String(ri)}:${String(ci)}" aria-label="${raw(services.esc(txt))}, show the cases">${raw(services.esc(txt))}</button>`
         : services.esc(txt);
-    return `<td class="n${x.n ? "" : " zero"}${bar}">${inner}</td>`;
+    return screen`<td class="n${raw(x.n ? "" : " zero")}${raw(bar)}">${raw(inner)}</td>`;
   }
 
   function tablePanel(res, dateTxt) {
     if (!res.rows.length)
-      return (
-        '<div class="empty">Nothing matches ' +
-        `${services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1))}` +
-        "" +
-        `${services.activeFilters() ? " with these filters" : ""}` +
-        ".</div>"
-      );
+      return screen`<div class="empty">Nothing matches ${raw(services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1)))}${raw(services.activeFilters() ? " with these filters" : "")}.</div>`;
     const cellsOf = (row) => row.cells || row;
     const isNum = (ci) =>
       res.rows.some((row) => {
@@ -860,79 +799,36 @@ export function createReportsScreens(services) {
       ReportsState.S.reportNotice = message;
       services.A11Y.notify(message);
     });
-    return (
-      '<div class="tw"><table class="rep"><caption class="sr-only">' +
-      `${services.esc(ReportsState.S.rep?.r?.label || "Report")}` +
-      " · " +
-      `${services.esc(dateTxt)}` +
-      "</caption><thead><tr>" +
-      "".concat(reportTableHeaderHTML(services, res, sort, isNum)) +
-      "</tr></thead><tbody>\n    " +
-      "".concat(reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max)) +
-      "\n    " +
-      "".concat(res.total ? `<tr class="total">${res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join("")}</tr>` : "") +
-      "\n  </tbody></table></div>" +
-      `${res.note ? `<div class="panel-b small">${services.esc(res.note)}</div>` : ""}` +
-      ""
-    );
+    return screen`<div class="tw"><table class="rep"><caption class="sr-only">${raw(services.esc(ReportsState.S.rep?.r?.label || "Report"))} · ${raw(services.esc(dateTxt))}</caption><thead><tr>${raw(reportTableHeaderHTML(services, res, sort, isNum))}</tr></thead><tbody>
+    ${raw(reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max))}
+    ${raw(res.total ? screen`<tr class="total">${raw(res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join(""))}</tr>` : "")}
+  </tbody></table></div>${raw(res.note ? screen`<div class="panel-b small">${raw(services.esc(res.note))}</div>` : "")}`;
   }
 
   function drillPanel() {
     const d = ReportsState.S.drill,
       list = d.ids.map((n) => ReportsState.S.M.byNo[n]).filter(Boolean);
-    return (
-      '<div class="panel" id="drill"><div class="panel-h"><div><h2>' +
-      `${services.esc(d.title)}` +
-      '</h2><div class="sub">' +
-      `${services.plural(list.length, "case")}` +
-      '</div></div>\n    <button class="btn" data-act="closeDrill">Close</button' +
-      "></div>" +
-      `${caseTable(list)}` +
-      "</div>"
-    );
+    return screen`<div class="panel" id="drill"><div class="panel-h"><div><h2>${raw(services.esc(d.title))}</h2><div class="sub">${String(services.plural(list.length, "case"))}</div></div>
+    <button class="btn" data-act="closeDrill">Close</button></div>${raw(caseTable(list))}</div>`;
   }
 
   function caseTable(list) {
-    return (
-      '<div class="tw"><table class="rep"><thead><tr><th>Case</th><th>Address</' +
-      "th><th>Area</th><th>Status</th><th>Opened</th><th>Inspector</th><th>Owne" +
-      "r</th><th>Integrity</th></tr></thead><tbody>\n    " +
-      "".concat(
-        list
-          .map(
-            (c) =>
-              '<tr><td><button class="linkish" data-case="' +
-              `${services.esc(c.number)}` +
-              '">' +
-              `${services.esc(c.number)}` +
-              '</button> <button class="linkish" data-writer="' +
-              `${services.esc(c.number)}` +
-              '">Open case in Writer</button></td><td>' +
-              `${services.esc(c.address)}` +
-              "</td>\n      <td>" +
-              `${services.esc(services.facts.areaLabel(services.facts.areaKey(c)))}` +
-              '</td><td><span class="st st-' +
-              `${services.esc(c.status)}` +
-              '">' +
-              `${services.esc(c.status)}` +
-              '</span></td><td class="n">' +
-              `${services.esc(services.fmtDate(c.opened))}` +
-              "</td>\n      <td>" +
-              `${services.esc(c.inspector)}` +
-              "</td><td>" +
-              "".concat(
-                c.ownerKey
-                  ? `<button class="linkish" data-owner="${services.esc(c.ownerKey)}">${services.esc(c.owner)}</button>`
-                  : services.esc(c.owner),
-              ) +
-              "</td><td>" +
-              `${services.esc(c.integrity?.label || "Shared integrity not checked")}` +
-              "</td></tr>",
-          )
-          .join(""),
-      ) +
-      "\n  </tbody></table></div>"
-    );
+    return screen`<div class="tw"><table class="rep"><thead><tr><th>Case</th><th>Address</th><th>Area</th><th>Status</th><th>Opened</th><th>Inspector</th><th>Owner</th><th>Integrity</th></tr></thead><tbody>
+    ${raw(
+      list
+        .map(
+          (c) =>
+            screen`<tr><td><button class="linkish" data-case="${raw(services.esc(c.number))}">${raw(services.esc(c.number))}</button> <button class="linkish" data-writer="${raw(services.esc(c.number))}">Open case in Writer</button></td><td>${raw(services.esc(c.address))}</td>
+      <td>${raw(services.esc(services.facts.areaLabel(services.facts.areaKey(c))))}</td><td><span class="st st-${raw(services.esc(c.status))}">${raw(services.esc(c.status))}</span></td><td class="n">${raw(services.esc(services.fmtDate(c.opened)))}</td>
+      <td>${raw(services.esc(c.inspector))}</td><td>${raw(
+        c.ownerKey
+          ? screen`<button class="linkish" data-owner="${raw(services.esc(c.ownerKey))}">${raw(services.esc(c.owner))}</button>`
+          : services.esc(c.owner),
+      )}</td><td>${raw(services.esc(c.integrity?.label || "Shared integrity not checked"))}</td></tr>`,
+        )
+        .join(""),
+    )}
+  </tbody></table></div>`;
   }
 
   function mapPanel(r, res) {

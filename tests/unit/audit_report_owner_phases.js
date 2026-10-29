@@ -180,6 +180,9 @@ const assert = require("node:assert/strict"),
         REPORTS: services.REPORTS,
         reportById: (id) => services.REPORTS.find((r) => r.id === id),
         SAVED_VIEWS: [],
+        fmtNum: services.fmtNum,
+        plural: services.plural,
+        areaKey: facts.areaKey,
       }),
       exports: {
         CRC_T: new Uint32Array(256),
@@ -226,6 +229,7 @@ const assert = require("node:assert/strict"),
       parcelNote: x.parcelNote,
     };
     const owner = api.createReportsScreens(services);
+    services.actions = () => owner.reportActions();
     assert.deepEqual(calls, [], "inert constructor");
     const out = {};
     for (const [key, fn] of Object.entries({
@@ -252,6 +256,16 @@ const assert = require("node:assert/strict"),
       cases: () => owner.caseTable(x.cases),
       cards: () => x.cases.map((c) => owner.caseCard(c)),
       data: () => owner.dataView(),
+      report: () => owner.reportScreen({ ...services.REPORTS[0], n: 1, label: "Report <&>", lede: "Scope <&>", date: "period" }),
+      invalidPeriod: () => {
+        const from = state.S.F.from;
+        state.S.F.from = "9999-12-31";
+        try {
+          return owner.reportScreen({ ...services.REPORTS[0], label: "Report <&>", lede: "Scope <&>", date: "period" });
+        } finally {
+          state.S.F.from = from;
+        }
+      },
     })) {
       try {
         out[key] = fn();
