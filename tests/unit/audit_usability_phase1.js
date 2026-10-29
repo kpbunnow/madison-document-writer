@@ -4,9 +4,8 @@ globalThis.MADISON_TEST_DATA = true;
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
 const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const { reportsBundleSource } = require("../fixtures/reports_bundle.cjs");
 const payload = bundleSource(builtPage()),
-  reportsSource = reportsBundleSource(builtPage("reports"));
+  reportsSource = bundleSource(builtPage("reports"));
 const dom = new JSDOM('<div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
   url: "http://127.0.0.1:8777/",
   pretendToBeVisual: true,
