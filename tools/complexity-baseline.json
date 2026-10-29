@@ -2,7 +2,7 @@
   "counts": {
     "complexity": 40,
     "max-depth": 0,
-    "max-lines-per-function": 101,
+    "max-lines-per-function": 100,
     "python": 15
   },
   "violations": {
@@ -114,8 +114,7 @@
     "app/modules/record_history.js:createRecordHistory#1:max-lines-per-function": 118,
     "app/modules/record_history.js:createRecordHistory#1/recordHistoryHTML#1:max-lines-per-function": 97,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 94,
-    "app/modules/record_integrity.js:verifyIntegrity#1:complexity": 27,
-    "app/modules/record_integrity.js:verifyIntegrity#1:max-lines-per-function": 90,
+    "app/modules/record_integrity.js:verifyIntegrity#1:complexity": 26,
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 241,
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1:max-lines-per-function": 93,
     "app/modules/recovery_events.js:createRecoveryEvents#1/registerWorkingActions#1/anonymous#1:complexity": 23,

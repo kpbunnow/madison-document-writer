@@ -1147,3 +1147,9 @@ Measured counts: {'complexity': 42, 'max-depth': 0, 'max-lines-per-function': 10
 Name local history refusal, draft comparison, staging, post-commit assignment and stale-selection checks. Await checkpoints and rollback authority remain in the coordinator. Existing tests pass against the original and refactored owners with boundaries, seams, lint and formatting.
 
 Measured counts: {'complexity': 41, 'max-depth': 0, 'max-lines-per-function': 102, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15}.
+
+## integrity-legacy-classification
+
+Separate legacy/downgraded classification from modern chain verification. Hashing, trust, fail metadata and asynchronous checkpoints are unchanged. 238 original-source comparisons and existing canonical/tamper/read-only tests pass; boundaries, seams, lint and formatting pass.
+
+Measured counts: {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 101, 'python': 15} → {'complexity': 40, 'max-depth': 0, 'max-lines-per-function': 100, 'python': 15}.
