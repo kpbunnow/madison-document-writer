@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 9,
+    "complexity": 8,
     "max-depth": 0,
-    "max-lines-per-function": 66,
+    "max-lines-per-function": 64,
     "python": 13
   },
   "violations": {
@@ -18,10 +18,7 @@
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
     "app/modules/case_loading.js:createCaseLoading#1:max-lines-per-function": 110,
     "app/modules/case_recovery.js:createCaseRecovery#1:max-lines-per-function": 163,
-    "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
-    "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
-    "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,
-    "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:max-lines-per-function": 104,
+    "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 276,
     "app/modules/citation_drafts.js:createCitationDrafts#1:max-lines-per-function": 92,
     "app/modules/citation_pricing.js:initCitationPricing#1:max-lines-per-function": 160,
     "app/modules/contact_events.js:createContactEvents#1:max-lines-per-function": 129,

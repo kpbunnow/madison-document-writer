@@ -1536,3 +1536,9 @@ The handler (complexity 38) is now an ordered table of workspace buttons followe
 ## recovery-action-phases
 
 Added a frozen-original comparison of the working-draft recovery click handler before changing it (`audit_recovery_event_rules.js`: 10,000 seeded events against the retained `recovery_events_reference.txt`, 1,519 with interruptions). The handler (complexity 23) is now an ordered table of button predicates with module-level handlers for notes, filing retry, citation continuation and previous-draft export. Five deliberate mutations are caught.
+
+## catalog-review-action-phases
+
+Added a frozen-original comparison of the catalog review click handler before changing it (`audit_catalog_review_action_rules.js`: 10,000 seeded events against the retained `catalog_events_reference.txt`, 650 with interruptions). It covers the basis confirmation, validation order, the recorded review and its browser cache, retained-edit detection and failure handling. The seam also caught a duplicated peer read introduced during the first draft of the split.
+
+The handler (complexity 26, 104 lines) is now a short sequence over basis, read, fault, record and failure functions. Five deliberate mutations are caught.
