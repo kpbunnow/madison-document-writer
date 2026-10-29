@@ -1,0 +1,42 @@
+def _post_shared_records(self, route):
+    try:
+        n = int(self.headers.get("Content-Length", "0"))
+        if not 0 < n <= MAX_BODY:
+            return self._json(413, {"ok": False, "error": "Invalid request size"})
+        data = json.loads(self.rfile.read(n).decode("utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("Expected a JSON object")
+        if route == "/cases/save":
+            answer = save_case(
+                case_dir(),
+                data.get("name"),
+                data.get("file"),
+                data.get("baseRevision", ""),
+                data.get("baseCase"),
+                data.get("idempotencyEvent", ""),
+                catalog_path(),
+                resource("catalog_manifest.json"),
+            )
+        elif route == "/cases/summary":
+            answer = save_summary(case_dir(), data.get("name"), data.get("revision"), data.get("summary"))
+        elif route == "/cases/probe":
+            with tempfile.NamedTemporaryFile(prefix="._dw-check-", dir=case_dir()) as probe:
+                probe.write(b"Madison Document Writer connection check")
+                probe.flush()
+                os.fsync(probe.fileno())
+            answer = {"ok": True}
+        elif route == "/draft-backups/write":
+            answer = backup_write(data)
+        elif route == "/draft-backups/read":
+            answer = backup_read(data)
+        elif route == "/catalog/review":
+            answer = catalog_review(data)
+        elif route == "/artifact/status":
+            answer = artifact_status(data.get("items"))
+        else:
+            answer = sync_outbox()
+        return self._json(200, answer)
+    except (ValueError, TypeError) as error:
+        return self._json(400, {"ok": False, "error": str(error)})
+    except Exception as error:
+        return self._json(503, {"ok": False, "error": str(error)})
