@@ -494,23 +494,22 @@ function reportOutlineCoverageHTML(services, a, M) {
         ${raw((a.notes || []).map((n) => screen`<div class="small" style="margin-top:6px">${raw(services.esc(n))}</div>`).join(""))}</li>`;
 }
 
-export function createReportsScreens(services) {
-  /* reports functions; direct dependencies use explicit shared state. */
+/* reports functions; direct dependencies use explicit shared state. */
 
-  function shell() {
-    const nav = reportNavigation(services.reports_reportpresentationContext());
-    const more = [
-      ["property", "Property"],
-      ["owner", "Owner"],
-      ["data", "Data and definitions"],
-      ["deposit", "Deposit schedule"],
-    ]
-      .map(
-        ([k, l]) =>
-          screen`<button class="rail-item" data-screen="${String(k)}" ${raw(ReportsState.S.screen === k ? 'aria-current="page"' : "")}><span>${raw(services.esc(l))}</span></button>`,
-      )
-      .join("");
-    return screen`<div class="app">
+function reportsScreenShell(services) {
+  const nav = reportNavigation(services.reports_reportpresentationContext());
+  const more = [
+    ["property", "Property"],
+    ["owner", "Owner"],
+    ["data", "Data and definitions"],
+    ["deposit", "Deposit schedule"],
+  ]
+    .map(
+      ([k, l]) =>
+        screen`<button class="rail-item" data-screen="${String(k)}" ${raw(ReportsState.S.screen === k ? 'aria-current="page"' : "")}><span>${raw(services.esc(l))}</span></button>`,
+    )
+    .join("");
+  return screen`<div class="app">
     <aside class="rail">
       <div class="rail-brand"><img class="rail-logo" src="${String(LOGO)}" alt="City of Madison Building Inspection"><div class="rail-sub">Reports</div></div>
       <nav><a class="rail-item" href="madison-document-writer.html">← Document Writer</a>${raw(nav)}<div class="rail-group">Look up</div>${raw(more)}</nav>
@@ -521,59 +520,62 @@ export function createReportsScreens(services) {
         ? screen`<div class="loading">${raw(services.esc(ReportsState.S.msg))}</div>`
         : ReportsState.S.phase === "error"
           ? screen`<div class="content"><div class="banner alert">${raw(services.esc(ReportsState.S.error))}</div><div><button class="btn btn-primary" data-act="reload">Try again</button></div></div>`
-          : screenFrame(),
+          : reportsScreenScreenFrame(services),
     )}</div></div>`;
-  }
+}
 
-  function screenFrame() {
-    if (ReportsState.S.screen === "deposit")
-      return screen`${raw(topbar("Deposit schedule", "Read the reviewed law in force on a selected date."))}<div class="content">${raw(services.depositSchedule.html())}</div>`;
-    const r = services.reportById(ReportsState.S.screen);
-    if (r) return reportScreen(r);
-    if (ReportsState.S.screen === "property")
-      return screen`${raw(
-        topbar(
-          "Property",
-          "Every case at a parcel or address, with its documents, visits and items.",
-          '<button class="btn" data-act="reload">Refresh data</button>',
-        ),
-      )}<div class="content">${raw(freshness())}${raw(propertyView())}</div>`;
-    if (ReportsState.S.screen === "owner")
-      return screen`${raw(
-        topbar(
-          "Owner",
-          "Every case under one mailing address, and every owner name seen there.",
-          '<button class="btn" data-act="reload">Refresh data</button>',
-        ),
-      )}<div class="content">${raw(freshness())}${raw(ownerView())}</div>`;
+function reportsScreenScreenFrame(services) {
+  if (ReportsState.S.screen === "deposit")
+    return screen`${raw(reportsScreenTopbar(services, "Deposit schedule", "Read the reviewed law in force on a selected date."))}<div class="content">${raw(services.depositSchedule.html())}</div>`;
+  const r = services.reportById(ReportsState.S.screen);
+  if (r) return reportsScreenReportScreen(services, r);
+  if (ReportsState.S.screen === "property")
     return screen`${raw(
-      topbar(
-        "Data and definitions",
-        "What the reports are built from, and how each term is counted.",
-        screen`<button class="btn" data-act="reload">Refresh data</button><button class="btn" data-act="refreshParcels">Check parcels again</button>`,
+      reportsScreenTopbar(
+        services,
+        "Property",
+        "Every case at a parcel or address, with its documents, visits and items.",
+        '<button class="btn" data-act="reload">Refresh data</button>',
       ),
-    )}<div class="content">${raw(dataView())}</div>`;
-  }
+    )}<div class="content">${raw(reportsScreenFreshness(services))}${raw(reportsScreenPropertyView(services))}</div>`;
+  if (ReportsState.S.screen === "owner")
+    return screen`${raw(
+      reportsScreenTopbar(
+        services,
+        "Owner",
+        "Every case under one mailing address, and every owner name seen there.",
+        '<button class="btn" data-act="reload">Refresh data</button>',
+      ),
+    )}<div class="content">${raw(reportsScreenFreshness(services))}${raw(reportsScreenOwnerView(services))}</div>`;
+  return screen`${raw(
+    reportsScreenTopbar(
+      services,
+      "Data and definitions",
+      "What the reports are built from, and how each term is counted.",
+      screen`<button class="btn" data-act="reload">Refresh data</button><button class="btn" data-act="refreshParcels">Check parcels again</button>`,
+    ),
+  )}<div class="content">${raw(reportsScreenDataView(services))}</div>`;
+}
 
-  function reportActions() {
-    return compactActions(services.reports_reportpresentationContext());
-  }
+function reportsScreenReportActions(services) {
+  return compactActions(services.reports_reportpresentationContext());
+}
 
-  function topbar(title, lede, acts) {
-    return screen`<header class="topbar"><div><h1>${raw(services.esc(title))}</h1><div class="lede">${raw(services.esc(lede))}</div></div><div class="topbar-actions">${raw(acts || "")}</div></header>`;
-  }
+function reportsScreenTopbar(services, title, lede, acts) {
+  return screen`<header class="topbar"><div><h1>${raw(services.esc(title))}</h1><div class="lede">${raw(services.esc(lede))}</div></div><div class="topbar-actions">${raw(acts || "")}</div></header>`;
+}
 
-  function filtersBar(dateMode) {
-    const F = ReportsState.S.F,
-      M = ReportsState.S.M;
-    const allAreas = services.facts.uniq(M.counted.map((c) => services.facts.areaKey(c, F))).sort(services.facts.areaSort);
-    const dates =
-      dateMode === "asOf"
-        ? screen`<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${raw(services.esc(F.asOf))}"></label>`
-        : screen`<label class="f"><span>From</span><input type="date" id="f-from" value="${raw(services.esc(F.from))}"></label>
+function reportsScreenFiltersBar(services, dateMode) {
+  const F = ReportsState.S.F,
+    M = ReportsState.S.M;
+  const allAreas = services.facts.uniq(M.counted.map((c) => services.facts.areaKey(c, F))).sort(services.facts.areaSort);
+  const dates =
+    dateMode === "asOf"
+      ? screen`<label class="f"><span>As of</span><input type="date" id="f-asOf" value="${raw(services.esc(F.asOf))}"></label>`
+      : screen`<label class="f"><span>From</span><input type="date" id="f-from" value="${raw(services.esc(F.from))}"></label>
       <label class="f"><span>To</span><input type="date" id="f-to" value="${raw(services.esc(F.to))}"></label>`;
-    const sel = (id, label, val, opts) => reportFilterSelect(services, id, label, val, opts);
-    return screen`<div class="filters">
+  const sel = (id, label, val, opts) => reportFilterSelect(services, id, label, val, opts);
+  return screen`<div class="filters">
     ${raw(dates)}<div class="quickdates"><span>Quick range</span><button data-period="month">This month</button><button data-period="year">This year</button><button data-period="all">All dates</button></div>
     <div class="f"><span>Area</span><div class="seg" role="group" aria-label="Area type">
       <button data-areatype="district" aria-pressed="${String(F.areaType === "district")}">Alder district</button>
@@ -593,115 +595,115 @@ export function createReportsScreens(services) {
     </div></details>
     ${raw(appliedFilters(services.reports_reportpresentationContext(), dateMode))}
   </div>`;
-  }
+}
 
-  function freshness() {
-    return coverage(services.reports_reportpresentationContext());
-  }
+function reportsScreenFreshness(services) {
+  return coverage(services.reports_reportpresentationContext());
+}
 
-  function reportScreen(r) {
-    if (r.date === "period" && ReportsState.S.F.from > ReportsState.S.F.to) {
-      ReportsState.S.rep = null;
-      return screen`${raw(
-        topbar(r.label, r.lede, services.actions()) + filtersBar(r.date),
-      )}<div class="content"><div class="banner alert">The start date must be on or before the end date.</div></div>`;
-    }
-
-    const res = r.run(ReportsState.S.M, ReportsState.S.F);
-    ReportsState.S.rep = { r: r, res: res };
-    const dateTxt =
-      r.date === "asOf"
-        ? "As of " + services.fmtDate(ReportsState.S.F.asOf)
-        : services.fmtDate(ReportsState.S.F.from) + " to " + services.fmtDate(ReportsState.S.F.to);
-    const body = ReportsState.S.view === "map" ? mapPanel(r, res) : tablePanel(res, dateTxt);
-    const primary = res.total && res.total.find((x) => x && typeof x === "object" && x.fmt === "int");
+function reportsScreenReportScreen(services, r) {
+  if (r.date === "period" && ReportsState.S.F.from > ReportsState.S.F.to) {
+    ReportsState.S.rep = null;
     return screen`${raw(
-      topbar(r.n + ". " + r.label, r.lede, services.actions()) + filtersBar(r.date),
-    )}<div class="content">${raw(ReportsState.S.reportNotice ? screen`<div class="banner info" role="status">${raw(services.esc(ReportsState.S.reportNotice))}</div>` : "")}${raw(freshness())}${raw(
-      primary
-        ? screen`<div class="report-kpi"><strong>${String(services.fmtNum(primary.n))}</strong><span>${raw(services.esc(res.cols[1] || "matching records"))} · ${raw(services.esc(dateTxt))}</span></div>`
-        : "",
-    )}
-      <div class="panel"><div class="panel-h"><div><h2>${raw(services.esc(r.label))}</h2><div class="sub">${raw(services.esc(dateTxt))}${raw(services.esc(filterSummary()))}</div></div>
+      reportsScreenTopbar(services, r.label, r.lede, services.actions()) + reportsScreenFiltersBar(services, r.date),
+    )}<div class="content"><div class="banner alert">The start date must be on or before the end date.</div></div>`;
+  }
+
+  const res = r.run(ReportsState.S.M, ReportsState.S.F);
+  ReportsState.S.rep = { r: r, res: res };
+  const dateTxt =
+    r.date === "asOf"
+      ? "As of " + services.fmtDate(ReportsState.S.F.asOf)
+      : services.fmtDate(ReportsState.S.F.from) + " to " + services.fmtDate(ReportsState.S.F.to);
+  const body = ReportsState.S.view === "map" ? reportsScreenMapPanel(services, r, res) : reportsScreenTablePanel(services, res, dateTxt);
+  const primary = res.total && res.total.find((x) => x && typeof x === "object" && x.fmt === "int");
+  return screen`${raw(
+    reportsScreenTopbar(services, r.n + ". " + r.label, r.lede, services.actions()) + reportsScreenFiltersBar(services, r.date),
+  )}<div class="content">${raw(ReportsState.S.reportNotice ? screen`<div class="banner info" role="status">${raw(services.esc(ReportsState.S.reportNotice))}</div>` : "")}${raw(reportsScreenFreshness(services))}${raw(
+    primary
+      ? screen`<div class="report-kpi"><strong>${String(services.fmtNum(primary.n))}</strong><span>${raw(services.esc(res.cols[1] || "matching records"))} · ${raw(services.esc(dateTxt))}</span></div>`
+      : "",
+  )}
+      <div class="panel"><div class="panel-h"><div><h2>${raw(services.esc(r.label))}</h2><div class="sub">${raw(services.esc(dateTxt))}${raw(services.esc(reportsScreenFilterSummary(services)))}</div></div>
         <div class="seg" role="group" aria-label="View"><button data-view="table" aria-pressed="${String(ReportsState.S.view === "table")}">Table</button><button data-view="map" aria-pressed="${String(ReportsState.S.view === "map")}">Map</button></div></div>
         ${raw(body)}</div>
-      ${raw(ReportsState.S.drill ? drillPanel() : "")}</div>`;
-  }
+      ${raw(ReportsState.S.drill ? reportsScreenDrillPanel(services) : "")}</div>`;
+}
 
-  function filterSummary() {
-    const F = ReportsState.S.F,
-      p = [];
-    if (F.areas.length) p.push(F.areas.map((a) => services.facts.areaLabel(a)).join(", "));
-    if (F.inspector) p.push(F.inspector);
-    if (F.vtype) p.push((ReportsState.S.M.types.find((t) => t.key === F.vtype) || {}).label || F.vtype);
-    if (F.ord) p.push(F.ord);
-    if (F.status) p.push(F.status === "open" ? "open cases" : F.status);
-    if (F.owner) p.push(services.facts.ownerKeyLabel(F.owner));
-    if (F.areaType === "district" && F.boundary === "atOpen") p.push("districts as they were when each case opened");
-    return p.length ? ". Filtered to " + p.join("; ") : "";
-  }
+function reportsScreenFilterSummary(services) {
+  const F = ReportsState.S.F,
+    p = [];
+  if (F.areas.length) p.push(F.areas.map((a) => services.facts.areaLabel(a)).join(", "));
+  if (F.inspector) p.push(F.inspector);
+  if (F.vtype) p.push((ReportsState.S.M.types.find((t) => t.key === F.vtype) || {}).label || F.vtype);
+  if (F.ord) p.push(F.ord);
+  if (F.status) p.push(F.status === "open" ? "open cases" : F.status);
+  if (F.owner) p.push(services.facts.ownerKeyLabel(F.owner));
+  if (F.areaType === "district" && F.boundary === "atOpen") p.push("districts as they were when each case opened");
+  return p.length ? ". Filtered to " + p.join("; ") : "";
+}
 
-  function cellHTML(x, ri, ci, max, isTotal) {
-    if (x == null) return "<td></td>";
-    if (typeof x === "string") return screen`<td>${raw(services.esc(x))}</td>`;
-    if (x.kase)
-      return screen`<td><button class="linkish" data-case="${raw(services.esc(x.kase))}">${raw(services.esc(x.kase))}</button> <button class="linkish" data-writer="${raw(services.esc(x.kase))}">Open case in Writer</button></td>`;
-    if (x.owner !== undefined)
-      return screen`<td>${raw(
-        x.owner
-          ? screen`<button class="linkish" data-owner="${raw(services.esc(x.owner))}">${raw(services.esc(x.text || "—"))}</button>`
-          : services.esc(x.text || "—"),
-      )}</td>`;
-    const txt = x.fmt === "days" ? services.fmtDays(x.n) : x.fmt === "money" ? services.fmtMoney(x.n) : services.fmtNum(x.n);
-    // the bar behind a count scales against the largest count in its column
-    const bar =
-      !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
-    const inner =
-      x.ids && x.ids.length && x.n
-        ? screen`<button data-drill="${String(ri)}:${String(ci)}" aria-label="${raw(services.esc(txt))}, show the cases">${raw(services.esc(txt))}</button>`
-        : services.esc(txt);
-    return screen`<td class="n${raw(x.n ? "" : " zero")}${raw(bar)}">${raw(inner)}</td>`;
-  }
+function reportsScreenCellHTML(services, x, ri, ci, max, isTotal) {
+  if (x == null) return "<td></td>";
+  if (typeof x === "string") return screen`<td>${raw(services.esc(x))}</td>`;
+  if (x.kase)
+    return screen`<td><button class="linkish" data-case="${raw(services.esc(x.kase))}">${raw(services.esc(x.kase))}</button> <button class="linkish" data-writer="${raw(services.esc(x.kase))}">Open case in Writer</button></td>`;
+  if (x.owner !== undefined)
+    return screen`<td>${raw(
+      x.owner
+        ? screen`<button class="linkish" data-owner="${raw(services.esc(x.owner))}">${raw(services.esc(x.text || "—"))}</button>`
+        : services.esc(x.text || "—"),
+    )}</td>`;
+  const txt = x.fmt === "days" ? services.fmtDays(x.n) : x.fmt === "money" ? services.fmtMoney(x.n) : services.fmtNum(x.n);
+  // the bar behind a count scales against the largest count in its column
+  const bar =
+    !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
+  const inner =
+    x.ids && x.ids.length && x.n
+      ? screen`<button data-drill="${String(ri)}:${String(ci)}" aria-label="${raw(services.esc(txt))}, show the cases">${raw(services.esc(txt))}</button>`
+      : services.esc(txt);
+  return screen`<td class="n${raw(x.n ? "" : " zero")}${raw(bar)}">${raw(inner)}</td>`;
+}
 
-  function tablePanel(res, dateTxt) {
-    if (!res.rows.length)
-      return screen`<div class="empty">Nothing matches ${raw(services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1)))}${raw(services.activeFilters() ? " with these filters" : "")}.</div>`;
-    const cellsOf = (row) => row.cells || row;
-    const isNum = (ci) =>
-      res.rows.some((row) => {
-        const c = cellsOf(row)[ci];
-        return c && typeof c === "object" && c.fmt;
-      });
-    const max = res.cols.map((_, ci) =>
-      Math.max(
-        0,
-        ...res.rows.map((row) => {
-          const c = cellsOf(row)[ci];
-          return c && c.fmt === "int" ? c.n || 0 : 0;
-        }),
-      ),
-    );
-    const sel = ReportsState.S.drill && ReportsState.S.drill.at,
-      sort = validSort(ReportsState.S.tableSort, ReportsState.S.screen);
-    const rows = orderedRows(res, sort, (message) => {
-      ReportsState.S.reportNotice = message;
-      services.A11Y.notify(message);
+function reportsScreenTablePanel(services, res, dateTxt) {
+  if (!res.rows.length)
+    return screen`<div class="empty">Nothing matches ${raw(services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1)))}${raw(services.activeFilters() ? " with these filters" : "")}.</div>`;
+  const cellsOf = (row) => row.cells || row;
+  const isNum = (ci) =>
+    res.rows.some((row) => {
+      const c = cellsOf(row)[ci];
+      return c && typeof c === "object" && c.fmt;
     });
-    return screen`<div class="tw"><table class="rep"><caption class="sr-only">${raw(services.esc(ReportsState.S.rep?.r?.label || "Report"))} · ${raw(services.esc(dateTxt))}</caption><thead><tr>${raw(reportTableHeaderHTML(services, res, sort, isNum))}</tr></thead><tbody>
-    ${raw(reportTableBodyHTML(rows, sel, cellsOf, cellHTML, max))}
-    ${raw(res.total ? screen`<tr class="total">${raw(res.total.map((x, ci) => cellHTML(x, "t", ci, 0, true)).join(""))}</tr>` : "")}
+  const max = res.cols.map((_, ci) =>
+    Math.max(
+      0,
+      ...res.rows.map((row) => {
+        const c = cellsOf(row)[ci];
+        return c && c.fmt === "int" ? c.n || 0 : 0;
+      }),
+    ),
+  );
+  const sel = ReportsState.S.drill && ReportsState.S.drill.at,
+    sort = validSort(ReportsState.S.tableSort, ReportsState.S.screen);
+  const rows = orderedRows(res, sort, (message) => {
+    ReportsState.S.reportNotice = message;
+    services.A11Y.notify(message);
+  });
+  return screen`<div class="tw"><table class="rep"><caption class="sr-only">${raw(services.esc(ReportsState.S.rep?.r?.label || "Report"))} · ${raw(services.esc(dateTxt))}</caption><thead><tr>${raw(reportTableHeaderHTML(services, res, sort, isNum))}</tr></thead><tbody>
+    ${raw(reportTableBodyHTML(rows, sel, cellsOf, (...args) => reportsScreenCellHTML(services, ...args), max))}
+    ${raw(res.total ? screen`<tr class="total">${raw(res.total.map((x, ci) => reportsScreenCellHTML(services, x, "t", ci, 0, true)).join(""))}</tr>` : "")}
   </tbody></table></div>${raw(res.note ? screen`<div class="panel-b small">${raw(services.esc(res.note))}</div>` : "")}`;
-  }
+}
 
-  function drillPanel() {
-    const d = ReportsState.S.drill,
-      list = d.ids.map((n) => ReportsState.S.M.byNo[n]).filter(Boolean);
-    return screen`<div class="panel" id="drill"><div class="panel-h"><div><h2>${raw(services.esc(d.title))}</h2><div class="sub">${String(services.plural(list.length, "case"))}</div></div>
-    <button class="btn" data-act="closeDrill">Close</button></div>${raw(caseTable(list))}</div>`;
-  }
+function reportsScreenDrillPanel(services) {
+  const d = ReportsState.S.drill,
+    list = d.ids.map((n) => ReportsState.S.M.byNo[n]).filter(Boolean);
+  return screen`<div class="panel" id="drill"><div class="panel-h"><div><h2>${raw(services.esc(d.title))}</h2><div class="sub">${String(services.plural(list.length, "case"))}</div></div>
+    <button class="btn" data-act="closeDrill">Close</button></div>${raw(reportsScreenCaseTable(services, list))}</div>`;
+}
 
-  function caseTable(list) {
-    return screen`<div class="tw"><table class="rep"><thead><tr><th>Case</th><th>Address</th><th>Area</th><th>Status</th><th>Opened</th><th>Inspector</th><th>Owner</th><th>Integrity</th></tr></thead><tbody>
+function reportsScreenCaseTable(services, list) {
+  return screen`<div class="tw"><table class="rep"><thead><tr><th>Case</th><th>Address</th><th>Area</th><th>Status</th><th>Opened</th><th>Inspector</th><th>Owner</th><th>Integrity</th></tr></thead><tbody>
     ${raw(
       list
         .map(
@@ -717,16 +719,16 @@ export function createReportsScreens(services) {
         .join(""),
     )}
   </tbody></table></div>`;
-  }
+}
 
-  function mapPanel(r, res) {
-    const pts = res.points.filter((c) => c.located),
-      off = res.points.length - pts.length;
-    const z = ReportsState.S.F.areaType === "zip",
-      shade = z
-        ? ReportsState.S.areas && ReportsState.S.areas.zips && ReportsState.S.M.zipField
-        : ReportsState.S.areas && ReportsState.S.areas.districts && ReportsState.S.M.distField;
-    return screen`<div class="legend">${raw(services.STATUSES.map((s) => screen`<span><i style="background:${String(services.STATUS_COL[s])}"></i>${String(s)}</span>`).join(""))}
+function reportsScreenMapPanel(services, r, res) {
+  const pts = res.points.filter((c) => c.located),
+    off = res.points.length - pts.length;
+  const z = ReportsState.S.F.areaType === "zip",
+    shade = z
+      ? ReportsState.S.areas && ReportsState.S.areas.zips && ReportsState.S.M.zipField
+      : ReportsState.S.areas && ReportsState.S.areas.districts && ReportsState.S.M.distField;
+  return screen`<div class="legend">${raw(services.STATUSES.map((s) => screen`<span><i style="background:${String(services.STATUS_COL[s])}"></i>${String(s)}</span>`).join(""))}
       <span>${String(services.plural(pts.length, "case"))} on the map${String(off ? ", " + services.fmtNum(off) + " not located" : "")}.</span>
       <span>${raw(
         res.area && shade
@@ -736,104 +738,103 @@ export function createReportsScreens(services) {
             : "",
       )}</span>
       <span class="seg" role="group" aria-label="Basemap"><button data-basemap="labels" aria-pressed="${String(ReportsState.S.basemap === "labels")}">Street names</button><button data-basemap="plain" aria-pressed="${String(ReportsState.S.basemap === "plain")}">No labels</button></span></div>
-    <div id="map" role="region" aria-label="Map of ${raw(services.esc(r.label))}"></div><details class="map-table-alternative"><summary>Table alternative: all matching records, including unlocated cases</summary>${raw(tablePanel(res, r.label))}</details>`;
-  }
+    <div id="map" role="region" aria-label="Map of ${raw(services.esc(r.label))}"></div><details class="map-table-alternative"><summary>Table alternative: all matching records, including unlocated cases</summary>${raw(reportsScreenTablePanel(services, res, r.label))}</details>`;
+}
 
-  function drawMap() {
-    const el = document.getElementById("map");
-    if (ReportsState.MAP) {
-      try {
-        ReportsState.MAP.remove();
-      } catch (e) {
-        /* An already removed map needs no further cleanup; its reference is cleared below. */
-      }
-      ReportsState.MAP = null;
-    }
-    const LF = window.L;
-    if (!el || !LF || !ReportsState.S.rep) return;
+function reportsScreenDrawMap(services) {
+  const el = document.getElementById("map");
+  if (ReportsState.MAP) {
     try {
-      const res = ReportsState.S.rep.res,
-        F = ReportsState.S.F;
-      ReportsState.MAP = LF.map(el, { preferCanvas: true }).setView([43.0747, -89.3842], 12);
-      LF.tileLayer(services.TILE[ReportsState.S.basemap], { maxZoom: 19, minZoom: 3, attribution: "City of Madison" }).addTo(ReportsState.MAP);
-      const fc =
-        F.areaType === "district" ? ReportsState.S.areas && ReportsState.S.areas.districts : ReportsState.S.areas && ReportsState.S.areas.zips;
-      const field = F.areaType === "district" ? ReportsState.S.M.distField : ReportsState.S.M.zipField;
-      if (fc && field && res.area) {
-        const mx = Math.max(
-          1,
-          ...Object.keys(res.area)
-            .filter((k) => k)
-            .map((k) => res.area[k]),
-        );
-        LF.geoJSON(fc, {
-          style: (f) => {
-            const id = services.facts.areaIdOf(f, field),
-              n = res.area[id] || 0,
-              picked = F.areas.indexOf(id) >= 0;
-            return {
-              color: picked ? "#0E3F5E" : "#14567F",
-              weight: picked ? 2.5 : 1,
-              fillColor: "#14567F",
-              fillOpacity: n ? 0.08 + 0.47 * (n / mx) : 0.02,
-            };
-          },
-          onEachFeature: (f, l) => {
-            const id = services.facts.areaIdOf(f, field);
-            l.bindTooltip(services.esc(services.facts.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
-            l.on("click", () => {
-              toggleArea(id);
-            });
-          },
-        }).addTo(ReportsState.MAP);
-      }
-      const pts = res.points.filter((c) => c.located);
-      pts.forEach((c) => {
-        LF.circleMarker([c.lat, c.lon], {
-          radius: 6,
-          color: "#fff",
-          weight: 1.5,
-          fillColor: services.STATUS_COL[c.status] || "#4E6376",
-          fillOpacity: 0.95,
-        })
-          .bindTooltip(services.esc(c.number + ", " + c.address + " (" + c.status + ")"))
-          .on("click", () => {
-            openCase(c.number);
-          })
-          .addTo(ReportsState.MAP);
-      });
-      if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
+      ReportsState.MAP.remove();
     } catch (e) {
-      el.innerHTML = screen`<div class="empty">The map could not be drawn (${raw(services.esc(e.message || e))}).</div>`;
+      /* An already removed map needs no further cleanup; its reference is cleared below. */
     }
+    ReportsState.MAP = null;
   }
-
-  function propertyHits(q) {
-    const t = String(q || "")
-      .trim()
-      .toUpperCase();
-    if (!t) return [];
-    const pk = normParcel(t);
-    return ReportsState.S.M.cases.filter(
-      (c) => (pk && c.parcelKey === pk) || c.number.toUpperCase() === t || (t.length >= 3 && c.address.toUpperCase().indexOf(t) >= 0),
-    );
+  const LF = window.L;
+  if (!el || !LF || !ReportsState.S.rep) return;
+  try {
+    const res = ReportsState.S.rep.res,
+      F = ReportsState.S.F;
+    ReportsState.MAP = LF.map(el, { preferCanvas: true }).setView([43.0747, -89.3842], 12);
+    LF.tileLayer(services.TILE[ReportsState.S.basemap], { maxZoom: 19, minZoom: 3, attribution: "City of Madison" }).addTo(ReportsState.MAP);
+    const fc = F.areaType === "district" ? ReportsState.S.areas && ReportsState.S.areas.districts : ReportsState.S.areas && ReportsState.S.areas.zips;
+    const field = F.areaType === "district" ? ReportsState.S.M.distField : ReportsState.S.M.zipField;
+    if (fc && field && res.area) {
+      const mx = Math.max(
+        1,
+        ...Object.keys(res.area)
+          .filter((k) => k)
+          .map((k) => res.area[k]),
+      );
+      LF.geoJSON(fc, {
+        style: (f) => {
+          const id = services.facts.areaIdOf(f, field),
+            n = res.area[id] || 0,
+            picked = F.areas.indexOf(id) >= 0;
+          return {
+            color: picked ? "#0E3F5E" : "#14567F",
+            weight: picked ? 2.5 : 1,
+            fillColor: "#14567F",
+            fillOpacity: n ? 0.08 + 0.47 * (n / mx) : 0.02,
+          };
+        },
+        onEachFeature: (f, l) => {
+          const id = services.facts.areaIdOf(f, field);
+          l.bindTooltip(services.esc(services.facts.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
+          l.on("click", () => {
+            reportsScreenToggleArea(services, id);
+          });
+        },
+      }).addTo(ReportsState.MAP);
+    }
+    const pts = res.points.filter((c) => c.located);
+    pts.forEach((c) => {
+      LF.circleMarker([c.lat, c.lon], {
+        radius: 6,
+        color: "#fff",
+        weight: 1.5,
+        fillColor: services.STATUS_COL[c.status] || "#4E6376",
+        fillOpacity: 0.95,
+      })
+        .bindTooltip(services.esc(c.number + ", " + c.address + " (" + c.status + ")"))
+        .on("click", () => {
+          reportsScreenOpenCase(services, c.number);
+        })
+        .addTo(ReportsState.MAP);
+    });
+    if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
+  } catch (e) {
+    el.innerHTML = screen`<div class="empty">The map could not be drawn (${raw(services.esc(e.message || e))}).</div>`;
   }
+}
 
-  function openCase(no) {
-    const c = ReportsState.S.M.byNo[no];
-    if (!c) return;
-    const q = c.parcelKey ? c.parcel : c.address;
-    ReportsState.S.screen = "property";
-    ReportsState.S.prop = { q: q, hits: propertyHits(q) };
-    ReportsState.S.drill = null;
-    services.render();
-    window.scrollTo(0, 0);
-  }
+function reportsScreenPropertyHits(services, q) {
+  const t = String(q || "")
+    .trim()
+    .toUpperCase();
+  if (!t) return [];
+  const pk = normParcel(t);
+  return ReportsState.S.M.cases.filter(
+    (c) => (pk && c.parcelKey === pk) || c.number.toUpperCase() === t || (t.length >= 3 && c.address.toUpperCase().indexOf(t) >= 0),
+  );
+}
 
-  function propertyView() {
-    const p = ReportsState.S.prop,
-      hits = p.hits;
-    return screen`<div class="panel"><div class="panel-b"><div class="search">
+function reportsScreenOpenCase(services, no) {
+  const c = ReportsState.S.M.byNo[no];
+  if (!c) return;
+  const q = c.parcelKey ? c.parcel : c.address;
+  ReportsState.S.screen = "property";
+  ReportsState.S.prop = { q: q, hits: reportsScreenPropertyHits(services, q) };
+  ReportsState.S.drill = null;
+  services.render();
+  window.scrollTo(0, 0);
+}
+
+function reportsScreenPropertyView(services) {
+  const p = ReportsState.S.prop,
+    hits = p.hits;
+  return screen`<div class="panel"><div class="panel-b"><div class="search">
       <input id="pv-q" type="search" value="${raw(services.esc(p.q))}" placeholder="Parcel number, address or case number" aria-label="Parcel number, address or case number">
       <button class="btn btn-primary" data-act="propGo">Find</button></div></div></div>
     ${raw(
@@ -841,14 +842,14 @@ export function createReportsScreens(services) {
         ? ""
         : !hits.length
           ? screen`<div class="empty">No case matches &ldquo;${raw(services.esc(p.q))}&rdquo;.</div>`
-          : hits.map(caseCard).join(""),
+          : hits.map((...args) => reportsScreenCaseCard(services, ...args)).join(""),
     )}`;
-  }
+}
 
-  function caseCard(c) {
-    const outc = { corrected: "Corrected", progress: "Progress made", none: "No change", noaccess: "No access" };
-    const ev = reportCaseTimeline(services, c);
-    return screen`<div class="card-case"><div class="cc-h"><div><h3>${raw(services.esc(c.address))}</h3><div class="small">Case ${raw(services.esc(c.number))} <button class="linkish" data-writer="${raw(services.esc(c.number))}">Open case in Writer</button>${raw(c.description ? ", " + services.esc(c.description) : "")}</div></div>
+function reportsScreenCaseCard(services, c) {
+  const outc = { corrected: "Corrected", progress: "Progress made", none: "No change", noaccess: "No access" };
+  const ev = reportCaseTimeline(services, c);
+  return screen`<div class="card-case"><div class="cc-h"><div><h3>${raw(services.esc(c.address))}</h3><div class="small">Case ${raw(services.esc(c.number))} <button class="linkish" data-writer="${raw(services.esc(c.number))}">Open case in Writer</button>${raw(c.description ? ", " + services.esc(c.description) : "")}</div></div>
       <div><span class="st st-${raw(services.esc(c.status))}">${raw(services.esc(c.status))}</span></div></div>
     ${raw(reportCaseMetadataHTML(services, c))}<ul class="timeline">${raw(
       ev.map((e) => screen`<li><span class="d">${raw(services.esc(services.fmtDate(e.d)))}</span><span>${raw(e.t)}</span></li>`).join("") ||
@@ -857,24 +858,22 @@ export function createReportsScreens(services) {
     <div class="tw"><table class="rep"><thead><tr><th class="n">Item</th><th>Violation</th><th>Type</th><th>Status</th><th class="n">Visits</th><th>Citations</th></tr></thead><tbody>
       ${raw(reportCaseViolationRowsHTML(services, c, outc) || '<tr><td colspan="6" class="small">No violation items on an issued notice</td></tr>')}
     </tbody></table></div></div>`;
-  }
+}
 
-  function ownerView() {
-    const o = ReportsState.S.own,
-      g = services.facts.groupBy(
-        ReportsState.S.M.cases.filter((c) => c.ownerKey),
-        (c) => c.ownerKey,
-      );
-    const q = String(o.q || "")
-      .trim()
-      .toUpperCase();
-    const matches = q
-      ? Array.from(g.keys()).filter(
-          (k) => k.indexOf(services.facts.normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0),
-        )
-      : [];
-    const sel = o.key && g.get(o.key);
-    return screen`<div class="panel"><div class="panel-b"><div class="search">
+function reportsScreenOwnerView(services) {
+  const o = ReportsState.S.own,
+    g = services.facts.groupBy(
+      ReportsState.S.M.cases.filter((c) => c.ownerKey),
+      (c) => c.ownerKey,
+    );
+  const q = String(o.q || "")
+    .trim()
+    .toUpperCase();
+  const matches = q
+    ? Array.from(g.keys()).filter((k) => k.indexOf(services.facts.normStreet(q)) >= 0 || g.get(k).some((c) => c.owner.toUpperCase().indexOf(q) >= 0))
+    : [];
+  const sel = o.key && g.get(o.key);
+  return screen`<div class="panel"><div class="panel-b"><div class="search">
       <input id="ow-q" type="search" value="${raw(services.esc(o.q))}" placeholder="Owner name or mailing address" aria-label="Owner name or mailing address">
       <button class="btn btn-primary" data-act="ownGo">Find</button></div>
     ${raw(
@@ -899,92 +898,193 @@ export function createReportsScreens(services) {
         ? screen`<div class="panel"><div class="panel-h"><div><h2>${raw(services.esc(services.facts.ownerKeyLabel(o.key)))}</h2>
         <div class="sub">${String(services.plural(sel.length, "case"))} at ${String(services.plural(services.facts.uniq(sel.map((c) => c.parcelKey || c.address)).length, "property", "properties"))}. Owner names seen: ${raw(services.esc(services.facts.uniq(sel.map((c) => c.owner)).join("; ")))}</div></div>
         <button class="btn" data-act="useOwner">Filter the reports to this owner</button></div>
-      ${raw(caseTable(sel))}</div>`
+      ${raw(reportsScreenCaseTable(services, sel))}</div>`
         : "",
     )}`;
-  }
+}
 
-  function dataView() {
-    const x = ReportsState.S.raw,
-      M = ReportsState.S.M,
-      a = ReportsState.S.areas || {};
-    const unlocated = M.counted.filter((c) => !c.located);
-    const li = (l) => reportCoverageListHTML(services, l);
-    const why = unlocatedReportCaseReason;
-    return screen`<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h2></div><div class="panel-b"><p>For missing, stale or excluded summaries: open Document Writer → Tools &amp; settings → Saved work and connection → Connection checks and technical details → Storage diagnostics → Rebuild reporting index. Resolve unreadable or integrity errors in the affected case before rebuilding; rebuilding does not repair history. Refresh Reports afterward.</p><details id="report-proof"><summary>Record proof and excluded files</summary>
+function reportsScreenDataView(services) {
+  const x = ReportsState.S.raw,
+    M = ReportsState.S.M,
+    a = ReportsState.S.areas || {};
+  const unlocated = M.counted.filter((c) => !c.located);
+  const li = (l) => reportCoverageListHTML(services, l);
+  const why = unlocatedReportCaseReason;
+  return screen`<div class="panel"><div class="panel-h"><h2>Coverage and next actions</h2></div><div class="panel-b"><p>For missing, stale or excluded summaries: open Document Writer → Tools &amp; settings → Saved work and connection → Connection checks and technical details → Storage diagnostics → Rebuild reporting index. Resolve unreadable or integrity errors in the affected case before rebuilding; rebuilding does not repair history. Refresh Reports afterward.</p><details id="report-proof"><summary>Record proof and excluded files</summary>
     <ul class="defs">
       ${raw(reportCoverageRowsHTML(services, x, M, unlocated, li, why))}${raw(reportOutlineCoverageHTML(services, a, M))}
     </ul></details></div></div>
   <div class="panel"><div class="panel-b"><details id="report-definitions"><summary>Data definitions</summary><ul class="defs">
     ${raw(services.DEFINITIONS.map((d) => screen`<li><b>${raw(services.esc(d[0]))}.</b> ${raw(services.esc(d[1]))}</li>`).join(""))}
   </ul></details></div></div>`;
-  }
+}
 
-  function crc32(u) {
-    let c = 0xffffffff;
-    for (let i = 0; i < u.length; i++) c = services.exports.CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
-    return (c ^ 0xffffffff) >>> 0;
-  }
+function reportsScreenCrc32(services, u) {
+  let c = 0xffffffff;
+  for (let i = 0; i < u.length; i++) c = services.exports.CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
 
-  function zipStore(files) {
-    const enc = new TextEncoder(),
-      parts = [],
-      central = [];
-    let off = 0;
-    files.forEach((f) => {
-      const nm = enc.encode(f.name),
-        d = typeof f.data === "string" ? enc.encode(f.data) : f.data,
-        crc = crc32(d);
-      const h = new DataView(new ArrayBuffer(30));
-      h.setUint32(0, 0x04034b50, true);
-      h.setUint16(4, 20, true);
-      h.setUint16(6, 0x0800, true);
-      h.setUint16(8, 0, true);
-      h.setUint16(10, 0, true);
-      h.setUint16(12, 0x21, true);
-      h.setUint32(14, crc, true);
-      h.setUint32(18, d.length, true);
-      h.setUint32(22, d.length, true);
-      h.setUint16(26, nm.length, true);
-      h.setUint16(28, 0, true);
-      parts.push(new Uint8Array(h.buffer), nm, d);
-      const c = new DataView(new ArrayBuffer(46));
-      c.setUint32(0, 0x02014b50, true);
-      c.setUint16(4, 20, true);
-      c.setUint16(6, 20, true);
-      c.setUint16(8, 0x0800, true);
-      c.setUint16(10, 0, true);
-      c.setUint16(12, 0, true);
-      c.setUint16(14, 0x21, true);
-      c.setUint32(16, crc, true);
-      c.setUint32(20, d.length, true);
-      c.setUint32(24, d.length, true);
-      c.setUint16(28, nm.length, true);
-      c.setUint32(42, off, true);
-      central.push(new Uint8Array(c.buffer), nm);
-      off += 30 + nm.length + d.length;
-    });
-    const size = central.reduce((n, p) => n + p.length, 0);
-    const e = new DataView(new ArrayBuffer(22));
-    e.setUint32(0, 0x06054b50, true);
-    e.setUint16(8, files.length, true);
-    e.setUint16(10, files.length, true);
-    e.setUint32(12, size, true);
-    e.setUint32(16, off, true);
-    const all = parts.concat(central, [new Uint8Array(e.buffer)]);
-    const out = new Uint8Array(all.reduce((n, p) => n + p.length, 0));
-    let o = 0;
-    all.forEach((p) => {
-      out.set(p, o);
-      o += p.length;
-    });
-    return out;
-  }
+function reportsScreenZipStore(services, files) {
+  const enc = new TextEncoder(),
+    parts = [],
+    central = [];
+  let off = 0;
+  files.forEach((f) => {
+    const nm = enc.encode(f.name),
+      d = typeof f.data === "string" ? enc.encode(f.data) : f.data,
+      crc = reportsScreenCrc32(services, d);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true);
+    h.setUint16(4, 20, true);
+    h.setUint16(6, 0x0800, true);
+    h.setUint16(8, 0, true);
+    h.setUint16(10, 0, true);
+    h.setUint16(12, 0x21, true);
+    h.setUint32(14, crc, true);
+    h.setUint32(18, d.length, true);
+    h.setUint32(22, d.length, true);
+    h.setUint16(26, nm.length, true);
+    h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), nm, d);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true);
+    c.setUint16(4, 20, true);
+    c.setUint16(6, 20, true);
+    c.setUint16(8, 0x0800, true);
+    c.setUint16(10, 0, true);
+    c.setUint16(12, 0, true);
+    c.setUint16(14, 0x21, true);
+    c.setUint32(16, crc, true);
+    c.setUint32(20, d.length, true);
+    c.setUint32(24, d.length, true);
+    c.setUint16(28, nm.length, true);
+    c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), nm);
+    off += 30 + nm.length + d.length;
+  });
+  const size = central.reduce((n, p) => n + p.length, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true);
+  e.setUint16(8, files.length, true);
+  e.setUint16(10, files.length, true);
+  e.setUint32(12, size, true);
+  e.setUint32(16, off, true);
+  const all = parts.concat(central, [new Uint8Array(e.buffer)]);
+  const out = new Uint8Array(all.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  all.forEach((p) => {
+    out.set(p, o);
+    o += p.length;
+  });
+  return out;
+}
 
-  function colName(i) {
-    return spreadsheetColumnName(i);
-  }
+function reportsScreenColName(services, i) {
+  return spreadsheetColumnName(i);
+}
 
+function reportsScreenSheetName(services, s, used) {
+  let n =
+    String(s)
+      .replace(/[\[\]:*?\/\\]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 31) || "Sheet";
+  const b = n;
+  let i = 2;
+  while (used[n.toLowerCase()]) {
+    n = b.slice(0, 28) + " " + i++;
+  }
+  used[n.toLowerCase()] = 1;
+  return n;
+}
+
+function reportsScreenExportSheets(services) {
+  const M = ReportsState.S.M,
+    F = ReportsState.S.F;
+  const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
+  const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
+  const casesRows = reportExportCaseRows(services, cases);
+  const vRows = reportExportViolationRows(services, cases, F, A);
+  const visitRows = reportExportVisitRows(services, cases, A);
+  const citRows = reportExportCitationRows(services, M, F, A);
+  const refRows = reportExportReferralRows(services, M, F, A);
+  const about = reportExportAboutRows(services, M, F, cases, (...args) => reportsScreenFilterSummary(services, ...args));
+  const correctionRows = reportExportCorrectionRows(services, M, F);
+  const sheets = [
+    {
+      name: "About",
+      rows: about,
+      opt: { boldRows: [0, about.findIndex((r) => r[0] === "Definitions"), about.findIndex((r) => r[0] === "Sheet scope")] },
+    },
+    { name: "Cases", rows: casesRows, opt: { header: true } },
+    { name: "Violations", rows: vRows, opt: { header: true } },
+    { name: "Visits", rows: visitRows, opt: { header: true } },
+    { name: "Citations", rows: citRows, opt: { header: true } },
+    { name: "Referrals", rows: refRows, opt: { header: true } },
+    { name: "Corrections", rows: correctionRows, opt: { header: true } },
+  ];
+  appendNumberedReportSheets(services, M, F, sheets);
+  return sheets;
+}
+
+function reportsScreenToggleArea(services, a) {
+  const i = ReportsState.S.F.areas.indexOf(a);
+  if (i >= 0) ReportsState.S.F.areas.splice(i, 1);
+  else ReportsState.S.F.areas.push(a);
+  ReportsState.S.savedId = "";
+  ReportsState.S.drill = null;
+  services.render();
+}
+
+function reportsScreenWorkbook(services, sheetXml, sheets) {
+  const used = {},
+    named = sheets.map((s) => Object.assign({}, s, { name: reportsScreenSheetName(services, s.name, used) }));
+  const x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const files = [
+    {
+      name: "[Content_Types].xml",
+      data: workbookContentTypesXML(named, x),
+    },
+    {
+      name: "_rels/.rels",
+      data:
+        x +
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+    },
+    {
+      name: "xl/workbook.xml",
+      data: workbookManifestXML(services, named, x),
+    },
+    {
+      name: "xl/_rels/workbook.xml.rels",
+      data: workbookRelationshipsXML(named, x),
+    },
+    { name: "xl/styles.xml", data: services.exports.STYLES },
+  ].concat(named.map((s, i) => ({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: sheetXml(s.rows, s.opt) })));
+  return { bytes: reportsScreenZipStore(services, files), names: named.map((s) => s.name) };
+}
+
+function reportsScreenExportWorkbook(services, sheetXml) {
+  if (ReportsState.S.F.from > ReportsState.S.F.to) {
+    alert("Choose a start date on or before the end date.");
+    return null;
+  }
+  const wb = reportsScreenWorkbook(services, sheetXml, reportsScreenExportSheets(services));
+  const blob = new Blob([wb.bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob),
+    a = document.createElement("a");
+  a.href = url;
+  a.download = "Building Inspection reports " + services.iso(new Date()) + ".xlsx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return wb;
+}
+
+export function createReportsScreens(services) {
   const sheetXml = createSpreadsheetSheet({
     get facts() {
       return services.facts;
@@ -994,134 +1094,35 @@ export function createReportsScreens(services) {
     },
   });
 
-  function sheetName(s, used) {
-    let n =
-      String(s)
-        .replace(/[\[\]:*?\/\\]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 31) || "Sheet";
-    const b = n;
-    let i = 2;
-    while (used[n.toLowerCase()]) {
-      n = b.slice(0, 28) + " " + i++;
-    }
-    used[n.toLowerCase()] = 1;
-    return n;
-  }
-
-  function workbook(sheets) {
-    const used = {},
-      named = sheets.map((s) => Object.assign({}, s, { name: sheetName(s.name, used) }));
-    const x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-    const files = [
-      {
-        name: "[Content_Types].xml",
-        data: workbookContentTypesXML(named, x),
-      },
-      {
-        name: "_rels/.rels",
-        data:
-          x +
-          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
-      },
-      {
-        name: "xl/workbook.xml",
-        data: workbookManifestXML(services, named, x),
-      },
-      {
-        name: "xl/_rels/workbook.xml.rels",
-        data: workbookRelationshipsXML(named, x),
-      },
-      { name: "xl/styles.xml", data: services.exports.STYLES },
-    ].concat(named.map((s, i) => ({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: sheetXml(s.rows, s.opt) })));
-    return { bytes: zipStore(files), names: named.map((s) => s.name) };
-  }
-
-  function exportSheets() {
-    const M = ReportsState.S.M,
-      F = ReportsState.S.F;
-    const cases = M.counted.filter((c) => services.facts.caseOk(c, F) && services.facts.inPeriod(c.opened, F));
-    const A = (c) => services.facts.areaLabel(services.facts.areaKey(c));
-    const casesRows = reportExportCaseRows(services, cases);
-    const vRows = reportExportViolationRows(services, cases, F, A);
-    const visitRows = reportExportVisitRows(services, cases, A);
-    const citRows = reportExportCitationRows(services, M, F, A);
-    const refRows = reportExportReferralRows(services, M, F, A);
-    const about = reportExportAboutRows(services, M, F, cases, filterSummary);
-    const correctionRows = reportExportCorrectionRows(services, M, F);
-    const sheets = [
-      {
-        name: "About",
-        rows: about,
-        opt: { boldRows: [0, about.findIndex((r) => r[0] === "Definitions"), about.findIndex((r) => r[0] === "Sheet scope")] },
-      },
-      { name: "Cases", rows: casesRows, opt: { header: true } },
-      { name: "Violations", rows: vRows, opt: { header: true } },
-      { name: "Visits", rows: visitRows, opt: { header: true } },
-      { name: "Citations", rows: citRows, opt: { header: true } },
-      { name: "Referrals", rows: refRows, opt: { header: true } },
-      { name: "Corrections", rows: correctionRows, opt: { header: true } },
-    ];
-    appendNumberedReportSheets(services, M, F, sheets);
-    return sheets;
-  }
-
-  function exportWorkbook() {
-    if (ReportsState.S.F.from > ReportsState.S.F.to) {
-      alert("Choose a start date on or before the end date.");
-      return null;
-    }
-    const wb = workbook(exportSheets());
-    const blob = new Blob([wb.bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob),
-      a = document.createElement("a");
-    a.href = url;
-    a.download = "Building Inspection reports " + services.iso(new Date()) + ".xlsx";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
-    return wb;
-  }
-
-  function toggleArea(a) {
-    const i = ReportsState.S.F.areas.indexOf(a);
-    if (i >= 0) ReportsState.S.F.areas.splice(i, 1);
-    else ReportsState.S.F.areas.push(a);
-    ReportsState.S.savedId = "";
-    ReportsState.S.drill = null;
-    services.render();
-  }
   return {
-    shell,
-    screenFrame,
-    reportActions,
-    topbar,
-    filtersBar,
-    freshness,
-    reportScreen,
-    filterSummary,
-    cellHTML,
-    tablePanel,
-    drillPanel,
-    caseTable,
-    mapPanel,
-    drawMap,
-    propertyHits,
-    openCase,
-    propertyView,
-    caseCard,
-    ownerView,
-    dataView,
-    crc32,
-    zipStore,
-    colName,
+    shell: (...args) => reportsScreenShell(services, ...args),
+    screenFrame: (...args) => reportsScreenScreenFrame(services, ...args),
+    reportActions: (...args) => reportsScreenReportActions(services, ...args),
+    topbar: (...args) => reportsScreenTopbar(services, ...args),
+    filtersBar: (...args) => reportsScreenFiltersBar(services, ...args),
+    freshness: (...args) => reportsScreenFreshness(services, ...args),
+    reportScreen: (...args) => reportsScreenReportScreen(services, ...args),
+    filterSummary: (...args) => reportsScreenFilterSummary(services, ...args),
+    cellHTML: (...args) => reportsScreenCellHTML(services, ...args),
+    tablePanel: (...args) => reportsScreenTablePanel(services, ...args),
+    drillPanel: (...args) => reportsScreenDrillPanel(services, ...args),
+    caseTable: (...args) => reportsScreenCaseTable(services, ...args),
+    mapPanel: (...args) => reportsScreenMapPanel(services, ...args),
+    drawMap: (...args) => reportsScreenDrawMap(services, ...args),
+    propertyHits: (...args) => reportsScreenPropertyHits(services, ...args),
+    openCase: (...args) => reportsScreenOpenCase(services, ...args),
+    propertyView: (...args) => reportsScreenPropertyView(services, ...args),
+    caseCard: (...args) => reportsScreenCaseCard(services, ...args),
+    ownerView: (...args) => reportsScreenOwnerView(services, ...args),
+    dataView: (...args) => reportsScreenDataView(services, ...args),
+    crc32: (...args) => reportsScreenCrc32(services, ...args),
+    zipStore: (...args) => reportsScreenZipStore(services, ...args),
+    colName: (...args) => reportsScreenColName(services, ...args),
     sheetXml,
-    sheetName,
-    workbook,
-    exportSheets,
-    exportWorkbook,
-    toggleArea,
+    sheetName: (...args) => reportsScreenSheetName(services, ...args),
+    workbook: (sheets) => reportsScreenWorkbook(services, sheetXml, sheets),
+    exportSheets: (...args) => reportsScreenExportSheets(services, ...args),
+    exportWorkbook: () => reportsScreenExportWorkbook(services, sheetXml),
+    toggleArea: (...args) => reportsScreenToggleArea(services, ...args),
   };
 }

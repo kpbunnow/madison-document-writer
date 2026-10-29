@@ -3,7 +3,8 @@ const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
   acorn = require("acorn"),
-  esbuild = require("esbuild");
+  esbuild = require("esbuild"),
+  { liftedSplice } = require("../fixtures/lifted_splice.cjs");
 (async () => {
   let active;
   function effect(name, args = []) {
@@ -34,7 +35,6 @@ const assert = require("node:assert/strict"),
     factory = acorn
       .parse(source, { ecmaVersion: 2022, sourceType: "module" })
       .body.find((n) => n.declaration?.id?.name === "createReinspection").declaration,
-    fn = factory.body.body.find((n) => n.id?.name === "recordReinspectionOutcome"),
     reference = fs.readFileSync("tests/fixtures/reinspection_outcome_reference.txt", "utf8");
   async function compile(contents) {
     const b = await esbuild.build({
@@ -58,7 +58,10 @@ const assert = require("node:assert/strict"),
     new Function("today", "document", "module", "exports", b.outputFiles[0].text)(new Date("2026-10-29T12:00:00Z"), dom, box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  const [current, legacy] = await Promise.all([
+    compile(source),
+    compile(liftedSplice(source, "reinspection", "recordReinspectionOutcome", reference)),
+  ]);
   function run(api, input) {
     const x = structuredClone(input),
       calls = [];

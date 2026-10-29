@@ -1,4 +1,5 @@
 const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
+const { bridgesFor } = require("../fixtures/lifted_splice.cjs");
 /* Exact worksheet snapshots protect outcomes, walkthrough stages, filters and retained/closed work. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -18,10 +19,11 @@ const assert = require("node:assert/strict"),
   );
   source =
     source.slice(0, ret.start) +
-    "const referenceScreenReinspect = ((services) => (" +
+    bridgesFor(source, "reinspection", reference) +
+    "\nconst referenceScreenReinspect = ((services) => (" +
     reference +
     "))(historicalServices);\n" +
-    source.slice(ret.start).replace("screenReinspect,", "screenReinspect,referenceScreenReinspect,");
+    source.slice(ret.start).replace("return {", "return {referenceScreenReinspect,");
   source = source.replace("export function createReinspection(services)", "export function createReinspection(services, historicalServices)");
   source +=
     '\nexport {WriterState} from "./state.js";export {validISO,parseTime} from "./calendar.js";export {INSPECTORS} from "./data/inspectors.js";';

@@ -3,7 +3,9 @@ const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
   acorn = require("acorn"),
-  esbuild = require("esbuild");
+  esbuild = require("esbuild"),
+  { bridgesFor } = require("../fixtures/lifted_splice.cjs");
+const referenceText = fs.readFileSync("tests/fixtures/report_sheet_xml_reference.txt", "utf8");
 (async () => {
   const source = fs.readFileSync("app/modules/reports_screens.js", "utf8"),
     factory = acorn
@@ -34,7 +36,7 @@ const assert = require("node:assert/strict"),
   }
   const [current, legacy] = await Promise.all([
     compile(source),
-    compile(source.slice(0, decl.start) + fs.readFileSync("tests/fixtures/report_sheet_xml_reference.txt", "utf8") + source.slice(decl.end)),
+    compile(source.slice(0, decl.start) + bridgesFor(source, "reportsScreen", referenceText) + "\n" + referenceText + source.slice(decl.end)),
   ]);
   for (const [i, name] of [
     [0, "A"],
