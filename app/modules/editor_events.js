@@ -8,6 +8,217 @@ import { clone } from "./record_values.js";
 import { emailList } from "./mailing_rules.js";
 import { validCaseNumber } from "../assets/shared.js";
 import { countBlanks } from "./presentation_format.js";
+/* Document field listeners. Each phase receives the owner's services explicitly, so reading one stays at the point of use. */
+
+/* Feature owners take an input first, in this order. Matching never reads a service; only the chosen route does. */
+const INPUT_DELEGATES = [
+  [(el) => el.id === "correction-action-date", (services, el) => services.events.correctionEvents.editActionDate(el)],
+  [
+    (el) => el.id === "correction-reason" || el.id === "correction-external",
+    (services, el) => services.events.correctionEvents.editCorrectionReason(el),
+  ],
+  [(el) => el.id === "case-search" || el.id === "folder-search", (services, el) => services.events.workspaceEvents.editSearch(el)],
+  [(el) => el.id === "pk-q", (services, el) => services.events.catalogEvents.editPickerSearch(el)],
+  // notes must not redraw on every keystroke or the caret jumps
+  [(el) => el.dataset && (el.dataset.cc || el.dataset.em || el.dataset.agent), (services, el) => services.events.contactEvents.editRecipient(el)],
+  [(el) => el.dataset && el.dataset.rinote, (services, el) => services.events.reinspectionEvents.editItemNote(el)],
+  [(el) => el.id === "lib-filter", (services, el) => services.events.catalogEvents.editLibrarySearch(el)],
+];
+
+function delegateInput(services, el) {
+  const route = INPUT_DELEGATES.find(([matches]) => matches(el));
+  if (route) route[1](services, el);
+  return !!route;
+}
+
+/* A draft edit invalidates a prior correction review and schedules the local save before the value is read. */
+function markDraftEdited(services, d, el) {
+  if (d.correction && el.id !== "correction-reviewed") {
+    d.correction.reviewed = false;
+    const reviewed = document.getElementById("correction-reviewed");
+    if (reviewed) reviewed.checked = false;
+  }
+  workspace.DIRTY = true;
+  services.actions.scheduleDraftSave();
+}
+
+function inputValue(el) {
+  return el.dataset.case === "number" ? el.textContent.trim() : el.isContentEditable ? el.innerText : el.value;
+}
+
+function assignCaseField(services, k, f, el, val) {
+  if (f === "ownerBlock") {
+    const o = services.actions.splitOwner(val);
+    k.owner = o.owner;
+    k.ownerAddr = o.addr;
+    services.ui.syncChip();
+  } else if (el.dataset.fmt === "date") {
+    k[f] = services.actions.parseDate(val) || String(val || "").trim();
+  } else if (el.dataset.fmt === "time") {
+    k[f] = services.actions.parseTime(val) || String(val || "").trim();
+  } else k[f] = val;
+}
+
+function editCaseField(services, el, d, val) {
+  const k = docCase(d),
+    f = el.dataset.case;
+  if (f === "number" && !validCaseNumber(el.textContent.trim())) {
+    el.setAttribute("aria-invalid", "true");
+    el.title = "Case number must use 3–80 letters, numbers or hyphens";
+    services.ui.toast(el.title);
+    return;
+  }
+  if (f === "number") {
+    el.removeAttribute("aria-invalid");
+    el.removeAttribute("title");
+  }
+  if (f === "number" && eventsFor(d.caseId).length) {
+    el.textContent = k.number;
+    services.ui.toast("The case number is fixed after the record starts");
+    return;
+  }
+  assignCaseField(services, k, f, el, val);
+  if (f === "number")
+    document.querySelectorAll(".document-workspace .n-foot .mono,.document-workspace .n-cont .r").forEach((foot) => (foot.textContent = val));
+  services.ui.syncChip();
+}
+
+function editDocumentField(services, el, d, val) {
+  if (el.dataset.fmt === "date") {
+    d[el.dataset.doc] = services.actions.parseDate(val) || String(val || "").trim();
+  } else d[el.dataset.doc] = val;
+  services.ui.syncChip();
+}
+
+function editItemDue(services, d, it, val) {
+  if (alignedExtension(d)) {
+    services.actions.newDocuments.setSpecialDue(d, it, val);
+    return;
+  }
+  const m = services.actions.MINDUE();
+  it.due = val;
+  services.actions.updateDueIndicators(d);
+  if (val && val < m && !services.actions.unchangedCorrectionValue(d, it.id, "due"))
+    services.ui.toast("Check this past due date before issuing. Your entry has been kept.");
+  services.ui.syncChip();
+}
+
+function editItemSections(services, it, val) {
+  if (!it.libraryKey) it.libraryKey = itemLibraryKey(it);
+  it.sections = val
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  delete it.lib;
+  services.ui.syncChip();
+}
+
+function editItemGroup(d, it, val) {
+  // rename only the contiguous run that shared the old heading, never
+  // every ungrouped item just because the old value was blank
+  const old = editor.groupOld,
+    ix = d.items.indexOf(it);
+  it.group = val;
+  if (old) {
+    for (let n = ix + 1; n < d.items.length && d.items[n].group === old; n++) d.items[n].group = val;
+    for (let n = ix - 1; n >= 0 && d.items[n].group === old; n--) d.items[n].group = val;
+  }
+  editor.groupOld = val;
+}
+
+function editItemText(services, it, val) {
+  it.text = val;
+  const b = countBlanks(val),
+    badge = document.querySelector('[data-blanks="' + it.id + '"]');
+  if (badge) {
+    badge.style.display = b ? "" : "none";
+    badge.textContent = b + " blank" + (b === 1 ? "" : "s");
+  }
+  services.ui.syncChip();
+}
+
+function editItemField(services, el, d, val) {
+  const f = el.dataset.field;
+  if (!f) return;
+  const it = d.items.find((i) => i.id === el.dataset.id);
+  if (!it) return;
+  if (alignedExtension(d)) services.actions.newDocuments.invalidateItemReview(d);
+  if (f === "due") return editItemDue(services, d, it, val);
+  if (f === "sections") return editItemSections(services, it, val);
+  if (f === "group") return editItemGroup(d, it, val);
+  if (f === "text") return editItemText(services, it, val);
+  it[f] = val;
+  services.ui.syncChip();
+}
+
+function onDocumentInput(services, e) {
+  const el = e.target;
+  if (delegateInput(services, el)) return;
+  const d = doc(editor.state.docId);
+  if (!d || services.actions.isLocked(d)) return;
+  markDraftEdited(services, d, el);
+  const val = inputValue(el);
+  if (el.dataset.case) return editCaseField(services, el, d, val);
+  if (el.dataset.doc) return editDocumentField(services, el, d, val);
+  if (el.dataset.cit) return services.events.citationEvents.editCitationInput(el, d, val);
+  editItemField(services, el, d, val);
+}
+
+/* A change route reports whether it took the event. Routes run in this order, so an earlier match wins. */
+const changeRoute = (matches, run) => (services, e, ds) => (matches(e, ds) ? (run(services, e, ds), true) : false);
+const targetIs =
+  (...ids) =>
+  (e) =>
+    ids.includes(e.target.id);
+
+function outcomeDetailsReinspection(e, ds) {
+  const rr = reinsp(editor.state.reinspId);
+  return rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked))) ? rr : null;
+}
+
+const CHANGE_ROUTES = [
+  changeRoute(targetIs("ri-walk-mode"), (services, e) => services.events.reinspectionEvents.changeWalkMode(e)),
+  changeRoute(targetIs("ri-followup-intent"), (services, e) => services.events.reinspectionEvents.changeFollowup(e)),
+  changeRoute(targetIs("lib-status", "pk-status"), (services, e) => services.events.catalogEvents.changeLibraryStatus(e)),
+  changeRoute(
+    (e, ds) => e.target.id === "correction-type" || ds.correctionOutcome,
+    (services, e) => services.events.correctionEvents.changeCorrection(e),
+  ),
+  changeRoute(targetIs("keep-adding"), (services, e) => services.events.catalogEvents.changeKeepAdding(e)),
+  changeRoute(targetIs("case-filter", "case-inspector"), (services, e) => services.events.workspaceEvents.changeCaseFilter(e)),
+  changeRoute(
+    (e) => (e.target.id === "acc-date" || e.target.id === "acc-time") && editor.state.acc,
+    (services, e) => services.events.importEvents.changeInspectionDateTime(e),
+  ),
+  changeRoute(
+    (e, ds) => ds.em,
+    (services, e) => services.events.contactEvents.changeEmail(e),
+  ),
+  (services, e, ds) => {
+    const rr = outcomeDetailsReinspection(e, ds);
+    if (!rr) return false;
+    services.events.reinspectionEvents.changeOutcomeDetails(ds, rr, e);
+    return true;
+  },
+  changeRoute(targetIs("ri-date"), (services, e) => services.events.reinspectionEvents.changeVisitDate(e)),
+  changeRoute(targetIs("ri-time"), (services, e) => services.events.reinspectionEvents.changeVisitTime(e)),
+  changeRoute(targetIs("ri-insp"), (services, e) => services.events.reinspectionEvents.changeInspector(e)),
+  changeRoute(targetIs("pk-grp"), (services, e) => services.events.catalogEvents.changePickerGroup(e)),
+];
+
+function onDocumentChange(services, e) {
+  const ds = e.target.dataset || {};
+  if (CHANGE_ROUTES.some((route) => route(services, e, ds))) return;
+  const d = doc(editor.state.docId);
+  if (!d) return;
+  if (ds.doc === "inspectorId" && !services.actions.isLocked(d)) {
+    d.inspectorId = e.target.value;
+    Object.values(d.cits || {}).forEach((c) => (c.deptId = docInsp(d).badge || ""));
+    workspace.DIRTY = true;
+    services.ui.refreshSheet();
+  }
+}
+
 export function createEditorEvents(services) {
   function registerBlankClicks(target = document) {
     return registerEventOnce(target, "editor.registerBlankClicks", "click", (e) => {
@@ -325,196 +536,11 @@ export function createEditorEvents(services) {
   };
 
   function registerDocumentInput(target = document) {
-    return registerEventOnce(target, "editor.registerDocumentInput", "input", (e) => {
-      const el = e.target;
-      if (el.id === "correction-action-date") {
-        return services.events.correctionEvents.editActionDate(el);
-      }
-      if (el.id === "correction-reason" || el.id === "correction-external") {
-        return services.events.correctionEvents.editCorrectionReason(el);
-      }
-      if (el.id === "case-search" || el.id === "folder-search") {
-        return services.events.workspaceEvents.editSearch(el);
-      }
-      if (el.id === "pk-q") {
-        return services.events.catalogEvents.editPickerSearch(el);
-      }
-      // notes must not redraw on every keystroke or the caret jumps
-      if (el.dataset && (el.dataset.cc || el.dataset.em || el.dataset.agent)) {
-        return services.events.contactEvents.editRecipient(el);
-      }
-      if (el.dataset && el.dataset.rinote) {
-        return services.events.reinspectionEvents.editItemNote(el);
-      }
-      if (el.id === "lib-filter") {
-        return services.events.catalogEvents.editLibrarySearch(el);
-      }
-
-      const d = doc(editor.state.docId);
-      if (!d || services.actions.isLocked(d)) return;
-      if (d.correction && el.id !== "correction-reviewed") {
-        d.correction.reviewed = false;
-        const reviewed = document.getElementById("correction-reviewed");
-        if (reviewed) reviewed.checked = false;
-      }
-      workspace.DIRTY = true;
-      services.actions.scheduleDraftSave();
-      const val = el.dataset.case === "number" ? el.textContent.trim() : el.isContentEditable ? el.innerText : el.value;
-
-      if (el.dataset.case) {
-        const k = docCase(d),
-          f = el.dataset.case;
-        if (f === "number" && !validCaseNumber(el.textContent.trim())) {
-          el.setAttribute("aria-invalid", "true");
-          el.title = "Case number must use 3–80 letters, numbers or hyphens";
-          services.ui.toast(el.title);
-          return;
-        }
-        if (f === "number") {
-          el.removeAttribute("aria-invalid");
-          el.removeAttribute("title");
-        }
-        if (f === "number" && eventsFor(d.caseId).length) {
-          el.textContent = k.number;
-          services.ui.toast("The case number is fixed after the record starts");
-          return;
-        }
-        if (f === "ownerBlock") {
-          const o = services.actions.splitOwner(val);
-          k.owner = o.owner;
-          k.ownerAddr = o.addr;
-          services.ui.syncChip();
-        } else if (el.dataset.fmt === "date") {
-          k[f] = services.actions.parseDate(val) || String(val || "").trim();
-        } else if (el.dataset.fmt === "time") {
-          k[f] = services.actions.parseTime(val) || String(val || "").trim();
-        } else k[f] = val;
-        if (f === "number")
-          document.querySelectorAll(".document-workspace .n-foot .mono,.document-workspace .n-cont .r").forEach((foot) => (foot.textContent = val));
-        services.ui.syncChip();
-        return;
-      }
-      if (el.dataset.doc) {
-        if (el.dataset.fmt === "date") {
-          d[el.dataset.doc] = services.actions.parseDate(val) || String(val || "").trim();
-        } else d[el.dataset.doc] = val;
-        services.ui.syncChip();
-        return;
-      }
-      if (el.dataset.cit) {
-        return services.events.citationEvents.editCitationInput(el, d, val);
-      }
-
-      const f = el.dataset.field;
-      if (!f) return;
-      const it = d.items.find((i) => i.id === el.dataset.id);
-      if (!it) return;
-      if (alignedExtension(d)) services.actions.newDocuments.invalidateItemReview(d);
-
-      if (f === "due") {
-        if (alignedExtension(d)) {
-          services.actions.newDocuments.setSpecialDue(d, it, val);
-          return;
-        }
-        const m = services.actions.MINDUE();
-        it.due = val;
-        services.actions.updateDueIndicators(d);
-        if (val && val < m && !services.actions.unchangedCorrectionValue(d, it.id, "due"))
-          services.ui.toast("Check this past due date before issuing. Your entry has been kept.");
-        services.ui.syncChip();
-        return;
-      }
-      if (f === "sections") {
-        if (!it.libraryKey) it.libraryKey = itemLibraryKey(it);
-        it.sections = val
-          .split("\n")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        delete it.lib;
-        services.ui.syncChip();
-        return;
-      }
-      if (f === "group") {
-        // rename only the contiguous run that shared the old heading, never
-        // every ungrouped item just because the old value was blank
-        const old = editor.groupOld,
-          ix = d.items.indexOf(it);
-        it.group = val;
-        if (old) {
-          for (let n = ix + 1; n < d.items.length && d.items[n].group === old; n++) d.items[n].group = val;
-          for (let n = ix - 1; n >= 0 && d.items[n].group === old; n--) d.items[n].group = val;
-        }
-        editor.groupOld = val;
-        return;
-      }
-      if (f === "text") {
-        it.text = val;
-        const b = countBlanks(val),
-          badge = document.querySelector('[data-blanks="' + it.id + '"]');
-        if (badge) {
-          badge.style.display = b ? "" : "none";
-          badge.textContent = b + " blank" + (b === 1 ? "" : "s");
-        }
-        services.ui.syncChip();
-        return;
-      }
-      it[f] = val;
-      services.ui.syncChip();
-    });
+    return registerEventOnce(target, "editor.registerDocumentInput", "input", (e) => onDocumentInput(services, e));
   }
 
   function registerDocumentChange(target = document) {
-    return registerEventOnce(target, "editor.registerDocumentChange", "change", (e) => {
-      if (e.target.id === "ri-walk-mode") {
-        return services.events.reinspectionEvents.changeWalkMode(e);
-      }
-      if (e.target.id === "ri-followup-intent") {
-        return services.events.reinspectionEvents.changeFollowup(e);
-      }
-      if (e.target.id === "lib-status" || e.target.id === "pk-status") {
-        return services.events.catalogEvents.changeLibraryStatus(e);
-      }
-      if (e.target.id === "correction-type" || (e.target.dataset || {}).correctionOutcome) {
-        return services.events.correctionEvents.changeCorrection(e);
-      }
-      if (e.target.id === "keep-adding") {
-        return services.events.catalogEvents.changeKeepAdding(e);
-      }
-      if (e.target.id === "case-filter" || e.target.id === "case-inspector") {
-        return services.events.workspaceEvents.changeCaseFilter(e);
-      }
-      if ((e.target.id === "acc-date" || e.target.id === "acc-time") && editor.state.acc) {
-        return services.events.importEvents.changeInspectionDateTime(e);
-      }
-      if (e.target.dataset && e.target.dataset.em) {
-        return services.events.contactEvents.changeEmail(e);
-      }
-      const rr = reinsp(editor.state.reinspId),
-        ds = e.target.dataset || {};
-      if (rr && rr.draft && !rr.docId && (ds.ridate || ds.ridue || (ds.ricite && (rr.importRule?.cite || !e.target.checked)))) {
-        return services.events.reinspectionEvents.changeOutcomeDetails(ds, rr, e);
-      }
-      if (e.target.id === "ri-date") {
-        return services.events.reinspectionEvents.changeVisitDate(e);
-      }
-      if (e.target.id === "ri-time") {
-        return services.events.reinspectionEvents.changeVisitTime(e);
-      }
-      if (e.target.id === "ri-insp") {
-        return services.events.reinspectionEvents.changeInspector(e);
-      }
-      if (e.target.id === "pk-grp") {
-        return services.events.catalogEvents.changePickerGroup(e);
-      }
-      const d = doc(editor.state.docId);
-      if (!d) return;
-      if (e.target.dataset && e.target.dataset.doc === "inspectorId" && !services.actions.isLocked(d)) {
-        d.inspectorId = e.target.value;
-        Object.values(d.cits || {}).forEach((c) => (c.deptId = docInsp(d).badge || ""));
-        workspace.DIRTY = true;
-        services.ui.refreshSheet();
-      }
-    });
+    return registerEventOnce(target, "editor.registerDocumentChange", "change", (e) => onDocumentChange(services, e));
   }
   return {
     registerBlankClicks,
