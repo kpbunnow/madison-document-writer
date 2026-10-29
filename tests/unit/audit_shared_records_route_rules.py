@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 import server
+from retained_wording import with_current_wording
 
 ROOT = Path(__file__).resolve().parents[2]
 NAMESPACE = server.__dict__.copy()
@@ -105,7 +106,7 @@ class SharedRecordsRoute(unittest.TestCase):
                         probe_left = sorted(p.name for p in folder.iterdir())
                 outcomes.append((result, handler.sent, probe_left))
                 trails.append([(n, [str(a).replace(str(folder), "ROOT") for a in args], kw) for n, args, kw in trail])
-            self.assertEqual(outcomes[1], outcomes[0], (index, shape, route))
+            self.assertEqual(outcomes[1], with_current_wording(outcomes[0]), (index, shape, route))
             self.assertEqual(trails[1], trails[0], (index, shape, route))
             reached.add(route if outcomes[0][1] and outcomes[0][1][0][0] == 200 else None)
             statuses.add(outcomes[0][1][0][0] if outcomes[0][1] else None)

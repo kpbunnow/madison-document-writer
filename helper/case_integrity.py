@@ -16,6 +16,12 @@ SETTINGS = Path(__file__).with_name("integrity-settings.json")
 ZERO = "0" * 64
 
 
+GENESIS_CONFLICT = (
+    "This case's migration history conflicts with the evidence the program retained for it, so it was not saved. "
+    "Your work is kept on this device. Ask an administrator to review the case before saving again."
+)
+
+
 def canonical(value):
     return rfc8785.dumps(value)
 
@@ -116,7 +122,7 @@ def register_migration(folder, record, file_name, reconstructed=False, recovery=
         if retained and retained[-1]["genesisHash"] == record["integrity"]["genesis"]["hash"]:
             return
         if retained and not recovery:
-            raise ValueError("Migration genesis conflict")
+            raise ValueError(GENESIS_CONFLICT)
         value["entries"].append(
             {
                 "caseNumber": number,
@@ -279,7 +285,7 @@ def publish_record(folder, target, record, previous=None, recovery=False):
     retained = [e for e in registry(folder)["entries"] if e["caseNumber"].casefold() == record["case"]["number"].casefold()]
     if not recovery and retained:
         if retained[-1]["genesisHash"] != record["integrity"]["genesis"]["hash"]:
-            raise ValueError("Migration genesis conflict")
+            raise ValueError(GENESIS_CONFLICT)
         atomic_write(target, encoded(record))
         return
     path = intent_path(folder, record["case"]["number"])
