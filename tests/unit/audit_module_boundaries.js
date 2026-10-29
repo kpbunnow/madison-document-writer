@@ -490,6 +490,7 @@ const scopedServices = {
     "./report_spreadsheet_sheet.js",
   ],
   "report_spreadsheet_sheet.js": [],
+  "report_catalog.js": ["../assets/shared.js"],
   "reports_view_contexts.js": ["./state.js"],
   "deposit_schedule.js": ["../assets/shared.js", "./citation_policy.js"],
   "accela_import.js": [
