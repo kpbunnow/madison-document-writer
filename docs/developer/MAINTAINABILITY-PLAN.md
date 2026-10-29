@@ -1296,3 +1296,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95
 Move readonly/editable labels, unlabeled controls and table semantics into one private native-DOM phase at the same point between navigation and dialog/theme/paint handling. All172 comparisons retain exact DOM, themes, repeated dialog handling, early body/capability guards and partial failures. Existing full accessibility and R48 workflows, 1,596 language comparisons, fresh build, architecture/boundaries, seams, lint and format pass. Non-factory long methods41 to40; total95 to94. All four numerical targets are met on this prepared source; M5/M6 cleanup and final audit remain.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## address-owner-test
+
+Migrated the R31 address workflow from the full application bundle to actual editor, address parser, integrity, live records and summary owners. All 11 assertion ASTs remain identical, including Python corpus agreement, explicit acceptance, unchanged owner name, ambiguous address refusal and summary version. Native identity/UI/persistence remain controlled service inputs; no production hooks, startup or universal registry. Recipient and record-helper owner suites pass. Legacy bundle evaluator inventory decreases from 74 to 73; 54 existing hooks remain for other consumers. Numerical targets remain met; migration and final audit remain unfinished.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.

@@ -410,6 +410,7 @@
     "tests/fixtures/accessibility_enhance_reference.txt",
     "tests/fixtures/address_corpus.json",
     "tests/fixtures/address_parser_reference.txt",
+    "tests/fixtures/address_workflow.cjs",
     "tests/fixtures/admin_override_reference.txt",
     "tests/fixtures/authoring_expectations.cjs",
     "tests/fixtures/authoring_reference.txt",
