@@ -84,6 +84,18 @@ function stageSharedReplacement(services, k, fresh) {
 }
 
 /* Named lazy adapters preserve review/preflight authority and live workspace references. */
+function savedWorkFocusTarget(dialog, summary, id, data) {
+  return summary
+    ? dialog.querySelector('[data-saved-detail="' + summary + '"] > summary')
+    : id
+      ? document.getElementById(id)
+      : data?.safetyCase
+        ? [...dialog.querySelectorAll("[data-safety-case]")].find((el) => el.dataset.safetyCase === data.safetyCase)
+        : data
+          ? [...dialog.querySelectorAll("button")].find((el) => Object.entries(data).every(([key, value]) => el.dataset[key] === value))
+          : null;
+}
+
 export function createLanguageCatalog(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -768,15 +780,7 @@ export function createLanguageCatalog(services) {
       summary = active?.matches("summary") ? active.parentElement.dataset.savedDetail : "";
     panel.outerHTML = savedWorkHTML(services.app_savedworkContext(), cid, health);
     for (const key of open) dialog.querySelector('[data-saved-detail="' + key + '"]')?.setAttribute("open", "");
-    const target = summary
-      ? dialog.querySelector('[data-saved-detail="' + summary + '"] > summary')
-      : id
-        ? document.getElementById(id)
-        : data?.safetyCase
-          ? [...dialog.querySelectorAll("[data-safety-case]")].find((el) => el.dataset.safetyCase === data.safetyCase)
-          : data
-            ? [...dialog.querySelectorAll("button")].find((el) => Object.entries(data).every(([key, value]) => el.dataset[key] === value))
-            : null;
+    const target = savedWorkFocusTarget(dialog, summary, id, data);
     if (active && !active.isConnected) (target || dialog.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
   }
 

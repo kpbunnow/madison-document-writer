@@ -17,6 +17,15 @@ import { CITATION_POLICY, formatDeposit, resolveCitationAmount } from "./citatio
 import { LIBRARY } from "./data/library.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
 const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
+function prepareSnowInspection(d) {
+  d.authoringVersion = 11;
+  d.caseType = SNOW_TYPE;
+  d.snow = d.snow || { snowfallDate: "", inches: "", condition: "", photographed: false, cornerNotCleared: false };
+  d.inspDate = d.inspDate || docCase(d).date || "";
+  d.inspTime = d.inspTime || docCase(d).time || "";
+  d.snowInspectionId = d.inspDate + "T" + d.inspTime;
+}
+
 export function initSnow(services) {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),
     letterLoaded = false,
@@ -91,12 +100,7 @@ export function initSnow(services) {
       void loadLetter().then((ok) => {
         if (ok && editor.state.docId === d.id) services.renderKeep();
       });
-    d.authoringVersion = 11;
-    d.caseType = SNOW_TYPE;
-    d.snow = d.snow || { snowfallDate: "", inches: "", condition: "", photographed: false, cornerNotCleared: false };
-    d.inspDate = d.inspDate || docCase(d).date || "";
-    d.inspTime = d.inspTime || docCase(d).time || "";
-    d.snowInspectionId = d.inspDate + "T" + d.inspTime;
+    prepareSnowInspection(d);
     if (d.items.length !== 1) return;
     const i = d.items[0];
     if (itemLibraryKey(i) !== SNOW_KEY) return;

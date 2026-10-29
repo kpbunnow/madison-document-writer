@@ -1,6 +1,6 @@
 {
   "counts": {
-    "complexity": 33,
+    "complexity": 30,
     "max-depth": 0,
     "max-lines-per-function": 97,
     "python": 15
@@ -31,7 +31,6 @@
     "app/modules/case_projection.js:summarizeRecord#1/anonymous#11/anonymous#1:complexity": 21,
     "app/modules/case_projection.js:summarizeRecord#1/anonymous#13:max-lines-per-function": 98,
     "app/modules/case_recovery.js:createCaseRecovery#1:max-lines-per-function": 163,
-    "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1:complexity": 21,
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 347,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1:max-lines-per-function": 106,
     "app/modules/catalog_events.js:createCatalogEvents#1/registerReviewActions#1/anonymous#1:complexity": 26,
@@ -83,9 +82,8 @@
     "app/modules/editor_screens.js:createEditorScreens#1:max-lines-per-function": 321,
     "app/modules/import_events.js:createImportEvents#1:max-lines-per-function": 156,
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
-    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 816,
+    "app/modules/language_catalog.js:createLanguageCatalog#1:max-lines-per-function": 808,
     "app/modules/language_catalog.js:createLanguageCatalog#1/catalogReviewPanel#1:max-lines-per-function": 110,
-    "app/modules/language_catalog.js:createLanguageCatalog#1/showSafety#1:complexity": 22,
     "app/modules/language_discovery.js:languagePicker#1:max-lines-per-function": 154,
     "app/modules/language_discovery.js:languageScreen#1:max-lines-per-function": 142,
     "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 243,
@@ -126,8 +124,7 @@
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:complexity": 38,
     "app/modules/safety_events.js:createSafetyEvents#1/registerSafetyActions#1/anonymous#1:max-lines-per-function": 111,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
-    "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 393,
-    "app/modules/snow_cases.js:initSnow#1/prepare#1:complexity": 22,
+    "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 388,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 94,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 99,
     "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 168,
