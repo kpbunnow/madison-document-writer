@@ -511,6 +511,17 @@ function attachContentCheckTargets(services, d, t, add, visit) {
       .forEach((i) => add(itemSelector(i.id, "doneOn"), "Item " + i.no + " compliance date"));
 }
 
+function recordedOutcomeResult(cur, outcome, r) {
+  return {
+    oc: outcome,
+    on: cur.on || r.date,
+    manualDate: !!cur.manualDate,
+    due: outcome === "corrected" ? "" : cur.due || "",
+    note: cur.note || "",
+    cite: outcome === "corrected" ? false : !!cur.cite,
+  };
+}
+
 export function createReinspection(services) {
   /* app functions; direct dependencies use explicit shared state. */
 
@@ -681,14 +692,7 @@ export function createReinspection(services) {
     const cur = r.results[id] || {};
     if (cur.oc === outcome) return false;
     const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
-    const result = {
-      oc: outcome,
-      on: cur.on || r.date,
-      manualDate: !!cur.manualDate,
-      due: outcome === "corrected" ? "" : cur.due || "",
-      note: cur.note || "",
-      cite: outcome === "corrected" ? false : !!cur.cite,
-    };
+    const result = recordedOutcomeResult(cur, outcome, r);
     if (editor.state.riWalk) editor.state.riWalkUndo = { context: walkIdentity(r), itemId: id, before, after: clone(result) };
     else editor.state.riWalkUndo = null;
     r.results[id] = result;

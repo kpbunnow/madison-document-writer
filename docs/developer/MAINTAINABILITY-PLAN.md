@@ -1248,3 +1248,9 @@ Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97
 Name identity/administrative and content/inspection target phases while retaining parcel refusal, first-match message precedence, case/source queries and Workspace fallback. All4,075 comparisons preserve selectors, labels/actions, alias returns, mutations and date-service interruptions. Existing reinspection owner, 1,026 worksheet HTML and 1,536 check HTML comparisons, architecture, boundaries, seams, lint and format pass. Complexity36 to35 with no new/worsened debt; no print or approved-wording change.
 
 Measured counts: {'complexity': 36, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 35, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## reinspection-outcome-result
+
+Name the outcome result construction without changing acceptance guards, walk context, undo capture, mutation, save/render or focus order. All4,032 retained-function comparisons cover result fields, missing/carried/withdrawn work, replaced data, quick/details modes, undo and interrupted effects. Existing public owner, 4,075 target comparisons, 1,026 worksheet/1,536 check HTML cases, scoped architecture, boundaries, seams, lint and formatting pass. Complexity35 to34, with no new/worsened findings.
+
+Measured counts: {'complexity': 35, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 34, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
