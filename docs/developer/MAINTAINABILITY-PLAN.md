@@ -1338,3 +1338,9 @@ Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94
 Converted 16 shell/frame/header/filter markup expressions to the shared escaping tag, retaining exact supported-source HTML and callback timing. Existing owner-phase corpus now also checks both date-filter modes, header action fragments and complete loading/error frames, in addition to workbook/table/card/coverage output. Its added header comparison caught a missing raw marker for owned actions; corrected before publication without changing any retained expectation. All 303 expanded comparisons, complete Reports workflow with 110 unchanged assertions and R48/R49 regressions pass. raw is limited to scoped preescaped values, approved fixed attributes and owned renderers; print output remains untouched. Numerical targets retained.
 
 Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
+
+## report-table-templates
+
+Converted 20 table/result/drill/case-table markup expressions to the shared screen tag, with raw restricted to owned fragments and existing escaping callbacks. Expanded the 303 original/current scenarios to complete report screens and invalid-period refusal output; all prior expectations and frozen references remain. The added complete-screen comparison caught a missing raw marker on combined owned header/filter output; corrected before publication. Complete Reports workflow with 110 retained assertions, R48/R49, module and strict architecture checks pass. Numeric targets retained; approved wording/spacing and frozen print renderers unchanged.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 94, 'python': 15}.
