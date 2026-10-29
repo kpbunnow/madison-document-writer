@@ -19,7 +19,11 @@ function normalized(x) {
 const current = parse(fs.readFileSync("app/modules/report_facts.js", "utf8")),
   original = parse(fs.readFileSync("tests/fixtures/report_facts_reference.txt", "utf8"));
 const decls = (t) => t.body.flatMap((n) => (n.declaration || n).declarations || []);
-assert.deepEqual(normalized(decls(current)), normalized(decls(original)), "all thirteen moved calculation expressions remain unchanged");
+assert.deepEqual(
+  normalized(decls(current)),
+  normalized([...decls(original), ...decls(parse(fs.readFileSync("tests/fixtures/report_lookup_facts_reference.txt", "utf8")))]),
+  "all fifteen moved calculation expressions remain unchanged",
+);
 const open = current.body.find((n) => n.declaration?.id?.name === "openAt").declaration;
 function unscoped(x) {
   if (Array.isArray(x)) return x.map(unscoped);

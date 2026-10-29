@@ -25,3 +25,47 @@ export function openAt(c, date, history) {
     ? c.documents.some((d) => d.type === "citation" && history.versionAt(d, date)) && (!c.closedOn || c.closedOn > date)
     : history.noticeAt(c, date) && !["Closed", "Withdrawn"].includes(history.statusAt(c, date));
 }
+
+export const STREET_WORDS = {
+  STREET: "ST",
+  STR: "ST",
+  AVENUE: "AVE",
+  AV: "AVE",
+  AVN: "AVE",
+  ROAD: "RD",
+  DRIVE: "DR",
+  DRV: "DR",
+  LANE: "LN",
+  COURT: "CT",
+  BOULEVARD: "BLVD",
+  BLV: "BLVD",
+  PLACE: "PL",
+  PARKWAY: "PKWY",
+  PKY: "PKWY",
+  CIRCLE: "CIR",
+  TERRACE: "TER",
+  TRAIL: "TRL",
+  HIGHWAY: "HWY",
+  SQUARE: "SQ",
+  CROSSING: "XING",
+  RIDGE: "RDG",
+  NORTH: "N",
+  SOUTH: "S",
+  EAST: "E",
+  WEST: "W",
+  NORTHEAST: "NE",
+  NORTHWEST: "NW",
+  SOUTHEAST: "SE",
+  SOUTHWEST: "SW",
+  APARTMENT: "UNIT",
+  APT: "UNIT",
+  SUITE: "UNIT",
+  STE: "UNIT",
+  RM: "UNIT",
+  ROOM: "UNIT",
+  FLOOR: "FL",
+};
+export const areaIdOf = (f, field) =>
+  String((f.properties || {})[field] == null ? "" : (f.properties || {})[field])
+    .trim()
+    .replace(/^0+(\d)/, "$1");
