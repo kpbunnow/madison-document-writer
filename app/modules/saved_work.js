@@ -11,6 +11,38 @@ export function localSaveText(R) {
           : "Device save not yet confirmed";
 }
 
+function savedSharedCaseState(R, k, connected, result) {
+  if (R.caseUnsaved(k))
+    return result(
+      connected ? "Shared save needed" : "Waiting for connection",
+      connected ? "Save case to shared folder" : "Connect shared folder",
+      connected ? "save" : "storage",
+      connected
+        ? "Case details or recorded actions differ from the last confirmed shared save."
+        : "Check the shared connection before saving case records.",
+    );
+  if (!connected)
+    return result(
+      "Waiting for connection",
+      "Connect shared folder",
+      "storage",
+      "Last confirmed shared save is retained; its current availability has not been checked.",
+    );
+  if (R.CASEDIR.helper && !R.COMMITTED.has(R.summaryName(k)))
+    return result(
+      "Shared copy needs check",
+      "Check shared record",
+      "check",
+      "The retained workspace has no confirmed shared read in this session. Che" + "ck the shared case before treating its copy as current.",
+    );
+  return result(
+    "Shared copy current",
+    "Check shared record",
+    "check",
+    "Matches the last confirmed shared save in this workspace. Check for later changes on the share.",
+  );
+}
+
 export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
   const st = R.caseState(k),
     proof = R.recordIntegrity.status(k),
@@ -71,35 +103,7 @@ export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
       "outbox",
       "Verified PDF bytes are in the local outbox. Transfer does not confirm delivery.",
     );
-  if (R.caseUnsaved(k))
-    return result(
-      connected ? "Shared save needed" : "Waiting for connection",
-      connected ? "Save case to shared folder" : "Connect shared folder",
-      connected ? "save" : "storage",
-      connected
-        ? "Case details or recorded actions differ from the last confirmed shared save."
-        : "Check the shared connection before saving case records.",
-    );
-  if (!connected)
-    return result(
-      "Waiting for connection",
-      "Connect shared folder",
-      "storage",
-      "Last confirmed shared save is retained; its current availability has not been checked.",
-    );
-  if (R.CASEDIR.helper && !R.COMMITTED.has(R.summaryName(k)))
-    return result(
-      "Shared copy needs check",
-      "Check shared record",
-      "check",
-      "The retained workspace has no confirmed shared read in this session. Che" + "ck the shared case before treating its copy as current.",
-    );
-  return result(
-    "Shared copy current",
-    "Check shared record",
-    "check",
-    "Matches the last confirmed shared save in this workspace. Check for later changes on the share.",
-  );
+  return savedSharedCaseState(R, k, connected, result);
 }
 
 function caseButton(R, k, s) {
