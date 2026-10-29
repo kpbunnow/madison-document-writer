@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_language_presentation_rules.js` | 1,596 retained full-screen comparisons plus existing focus and catalog workflows |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
 | `audit_check_focus_rules.js` | 700 retained DOM/state/timer comparisons plus existing worksheet and outcome checks |

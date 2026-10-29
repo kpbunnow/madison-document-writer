@@ -1278,3 +1278,9 @@ Measured counts: {'complexity': 32, 'max-depth': 0, 'max-lines-per-function': 97
 Name the saved-work focus target lookup at the same post-response checkpoint. Preserve summary/id/case/dataset precedence, missing-target close fallback, disclosure state, live-context refusal, helper errors and disconnected-focus behavior. All364 real-DOM comparisons pass, plus existing catalog, shared comparison/preflight, saved-work HTML, R44 saved-work regression, fresh build, architecture/boundaries, seams, lint and formatting. Complexity31 to30 meets the numerical target; long-method, test migration, screen cleanup and final audit work remain.
 
 Measured counts: {'complexity': 31, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15}.
+
+## language-screen-phases
+
+Split administration/browse screen composition and picker tree, group options and results into focused private phases. Preserve every output byte, native callback/state-read order, search/status/selection rules and retained draft text. All1,596 comparisons pass, including interrupted providers and live state mutations. Existing focus, R47 language and feature catalog regressions, fresh build, strict architecture/boundaries, seams, lint and formatting pass. Long functions97 to95; non-factory long functions43 to41. Numerical complexity30, depth0 and Python15 targets remain met.
+
+Measured counts: {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 97, 'python': 15} → {'complexity': 30, 'max-depth': 0, 'max-lines-per-function': 95, 'python': 15}.
