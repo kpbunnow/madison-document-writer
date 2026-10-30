@@ -14,6 +14,13 @@ import { INSPECTORS } from "./data/inspectors.js";
 /* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
    note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the
    approved print style hides notes on corrected rows, so these notes keep an explicit display. */
+/* A corrected item shows its confirmation date. A Reinspection Notice shows every due date as assigned, never as an input. */
+const dueIsFinal = (d, it) => it.done || d.type === "reinspectionNotice";
+const finalDueCell = (services, it) =>
+  it.done
+    ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
+    : `<span class="mono">${esc(services.fmtDate(it.due))}</span>`;
+
 export function createDocumentRenderer(services) {
   function historyNotesHTML(d, it) {
     return services
@@ -266,47 +273,45 @@ export function createDocumentRenderer(services) {
                         "</span>"
                   : d.type === "compliance"
                     ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
-                    : it.done
-                      ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
-                      : d.type === "reinspectionNotice"
-                        ? `<span class="mono">${esc(services.fmtDate(it.due))}</span>` // The assigned due date is printed as it stands and cannot be edited here.
-                        : simpleVacancy(d)
-                          ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
-                          : aligned &&
-                              d.type === "vacancyExtension" &&
-                              d.special?.deadlineMode === "conditional" &&
-                              d.special.affected?.includes(String(it.no))
-                            ? '<span class="conditional-due">Conditional — see conditions above</span>'
-                            : (dueSelection && it.dueExempt !== "snow-10.28"
-                                ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
-                                  esc(it.id) +
-                                  '" aria-label="Select item ' +
-                                  esc(num) +
-                                  ' for a shared due date" title="Select for a shared due date" ' +
-                                  (dueSelected.has(it.id) ? "checked" : "") +
-                                  ">"
-                                : "") +
-                              (affectedRows
-                                ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
-                                  '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
-                                  esc(String(it.no)) +
-                                  '" ' +
-                                  ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
-                                  ' aria-label="Item ' +
-                                  esc(num) +
-                                  ' is affected by this extension">Affected</label>'
-                                : "") +
-                              '<input type="date" class="d-in due-in" data-field="due" data-id="' +
-                              `${esc(it.id)}` +
-                              '" value="' +
-                              `${esc(it.due || "")}` +
-                              '" min="' +
-                              `${d.correction ? "" : services.MINDUE()}` +
-                              '" aria-label="Due date for item ' +
-                              `${esc(num)}` +
-                              '" ' +
-                              `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
-                              ">",
+                    : dueIsFinal(d, it)
+                      ? finalDueCell(services, it)
+                      : simpleVacancy(d)
+                        ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
+                        : aligned &&
+                            d.type === "vacancyExtension" &&
+                            d.special?.deadlineMode === "conditional" &&
+                            d.special.affected?.includes(String(it.no))
+                          ? '<span class="conditional-due">Conditional — see conditions above</span>'
+                          : (dueSelection && it.dueExempt !== "snow-10.28"
+                              ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+                                esc(it.id) +
+                                '" aria-label="Select item ' +
+                                esc(num) +
+                                ' for a shared due date" title="Select for a shared due date" ' +
+                                (dueSelected.has(it.id) ? "checked" : "") +
+                                ">"
+                              : "") +
+                            (affectedRows
+                              ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
+                                '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
+                                esc(String(it.no)) +
+                                '" ' +
+                                ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
+                                ' aria-label="Item ' +
+                                esc(num) +
+                                ' is affected by this extension">Affected</label>'
+                              : "") +
+                            '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+                            `${esc(it.id)}` +
+                            '" value="' +
+                            `${esc(it.due || "")}` +
+                            '" min="' +
+                            `${d.correction ? "" : services.MINDUE()}` +
+                            '" aria-label="Due date for item ' +
+                            `${esc(num)}` +
+                            '" ' +
+                            `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
+                            ">",
             ) +
             "\n        " +
             "".concat(

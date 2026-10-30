@@ -1,5 +1,6 @@
 /* Accela report reading against the retained module: constants, type/status rules, value readers, report-table
    parsing and workbook (zip and XML) reading, compared over seeded inputs including damaged and oversized files. */
+const { retainedAccelaImport } = require("../fixtures/retained_accela_import.cjs");
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
@@ -397,10 +398,7 @@ async function battery(api) {
 }
 
 (async () => {
-  const [current, legacy] = await Promise.all([
-    compile('export {createAccelaImport} from "./accela_import.js";'),
-    compile(fs.readFileSync("tests/fixtures/accela_import_reference.txt", "utf8")),
-  ]);
+  const [current, legacy] = await Promise.all([compile('export {createAccelaImport} from "./accela_import.js";'), compile(retainedAccelaImport())]);
   const [before, after] = [await battery(legacy), await battery(current)];
   assert.equal(after.length, before.length);
   for (let n = 0; n < before.length; n++) assert.equal(after[n], before[n], `report reading result ${n} differs from the retained module`);

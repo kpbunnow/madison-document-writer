@@ -983,6 +983,14 @@ function detailsShell(d, fields, review) {
 }
 
 /* Eligibility of a recorded inspection for a scoped action, and the lifecycle checks built on it. */
+/* Documents that give more time or update the item list; Reinspection Notice is offered only from its imported status. */
+const TIME_CHOICES = [
+  ["extension", "Extension", "time", "Allow more time for outstanding violations."],
+  ["reinspectionNotice", "Reinspection Notice", "time", "Update the item list after a reinspection; every due date stays as assigned."],
+  ["bestInterestExtension", "Best Interest Extension", "time", "Record a reviewed supervisory extension."],
+  ["vacancyExtension", "Vacancy Extension", "time", "Grant time subject to verified vacancy and conditions."],
+];
+
 // R62: on a referred case only Update for Case Referral and Compliance Letter are offered.
 function referredOnly(referred, list) {
   return referred ? list.filter((c) => ["referralUpdate", "compliance"].includes(c[0])) : list;
@@ -1225,10 +1233,7 @@ export function initNewDocuments(services) {
   function choices(r) {
     const referred = isReferredCase(r.caseId);
     return referredOnly(referred, [
-      ["extension", "Extension", "time", "Allow more time for outstanding violations."],
-      ["reinspectionNotice", "Reinspection Notice", "time", "Update the item list after a reinspection; every due date stays as assigned."],
-      ["bestInterestExtension", "Best Interest Extension", "time", "Record a reviewed supervisory extension."],
-      ["vacancyExtension", "Vacancy Extension", "time", "Grant time subject to verified vacancy and conditions."],
+      ...TIME_CHOICES,
       ["citation", "Citation", "enforcement", "Create court citations for selected charge items."],
       [
         referred ? "referralUpdate" : "referral",

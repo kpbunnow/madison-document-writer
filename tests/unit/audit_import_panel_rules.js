@@ -1,5 +1,6 @@
 /* Import review panel against the retained module: exact markup, every peer read and call in order, untouched
    state, and refusal on the first interrupted read, over seeded reports, cases, drafts and lookup states. */
+const { retainedAccelaImport } = require("../fixtures/retained_accela_import.cjs");
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
@@ -206,10 +207,7 @@ function run(api, sc, inspector) {
 }
 
 (async () => {
-  const [current, legacy] = await Promise.all([
-    compile('export {createAccelaImport} from "./accela_import.js";'),
-    compile(fs.readFileSync("tests/fixtures/accela_import_reference.txt", "utf8")),
-  ]);
+  const [current, legacy] = await Promise.all([compile('export {createAccelaImport} from "./accela_import.js";'), compile(retainedAccelaImport())]);
   const inspector = current.INSPECTORS.find((i) => i.name).name;
   const seen = new Set();
   let interrupted = 0,
