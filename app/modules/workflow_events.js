@@ -1,4 +1,6 @@
 import { workspaceState as workspace } from "./workspace_state.js";
+import { editorState as editor } from "./editor_state.js";
+import { importPromptHTML, importTarget, inspectorResultsHTML } from "./inspector_cases.js";
 /* Workflow event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { esc } from "./presentation_format.js";
@@ -42,6 +44,26 @@ async function submitSearch(services, form, data) {
   const result = await services.helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
   if (!form.isConnected) return;
   document.getElementById("global-search-results").innerHTML = searchResultsHTML(result);
+}
+
+async function submitInspectorCases(services, form, data) {
+  const inspector = data.get("inspector");
+  const result = await services.helperJSON("/cases/by-inspector?inspector=" + encodeURIComponent(inspector));
+  if (!form.isConnected) return;
+  document.getElementById("inspector-case-prompt").innerHTML = "";
+  document.getElementById("inspector-case-results").innerHTML = inspectorResultsHTML(result, inspector);
+}
+
+/* Continue a case from the inspector list by importing a new inspection result for it. */
+async function continueWithImport(services, number) {
+  const target = importTarget(number);
+  if (target.kind === "blocked") return;
+  document.getElementById("utility-dialog")?.close();
+  if (!(await services.navigation.navigate("import"))) return;
+  if (target.kind === "search") {
+    editor.WORK.entry["lookup-number"] = number;
+    services.render();
+  }
 }
 
 function submitReminderSettings(services, form, data) {
@@ -92,6 +114,7 @@ async function submitOutboxSync(services) {
 /* Forms handled here, by form id. */
 const TOOL_FORMS = {
   "global-search-form": submitSearch,
+  "inspector-cases-form": submitInspectorCases,
   "reminder-settings": submitReminderSettings,
   "reminder-email": submitReminderEmail,
   "batch-due-form": submitBatchDue,
@@ -119,7 +142,7 @@ export function createWorkflowEvents(services) {
   function registerToolActions(target = document) {
     return registerEventOnce(target, "workflow.registerToolActions", "click", async (e) => {
       const t = e.target.closest?.(
-        "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
+        "[data-global-search],[data-shared-offer],[data-global-open],[data-inspector-case],[data-inspector-import],[data-inspector-cancel],[data-reminders],[data-reminder-draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
       );
       if (!t) return;
       try {
@@ -128,7 +151,10 @@ export function createWorkflowEvents(services) {
         else if (t.dataset.globalOpen) {
           await services.writerOpenReportedCase({ number: t.dataset.globalOpen });
           document.getElementById("utility-dialog")?.close();
-        } else if (t.hasAttribute("data-reminders")) services.showReminders();
+        } else if (t.dataset.inspectorCase) document.getElementById("inspector-case-prompt").innerHTML = importPromptHTML(t.dataset.inspectorCase);
+        else if (t.hasAttribute("data-inspector-cancel")) document.getElementById("inspector-case-prompt").innerHTML = "";
+        else if (t.dataset.inspectorImport) await continueWithImport(services, t.dataset.inspectorImport);
+        else if (t.hasAttribute("data-reminders")) services.showReminders();
         else if (t.dataset.reminderDraft) services.showReminderDraft(t.dataset.reminderDraft);
         else if (t.dataset.reminderDismiss) {
           workspace.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);
