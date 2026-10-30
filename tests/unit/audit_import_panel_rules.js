@@ -276,7 +276,15 @@ function run(api, sc, inspector) {
     "Import inspection",
   ])
     assert.ok(seen.has(fragment), "scenarios reach: " + fragment);
-  console.log("PASS import panel matches the retained module over 6000 scenarios (" + interrupted + " interrupted, " + panels + " panels, " + described + " with a named reason)");
+  console.log(
+    "PASS import panel matches the retained module over 6000 scenarios (" +
+      interrupted +
+      " interrupted, " +
+      panels +
+      " panels, " +
+      described +
+      " with a named reason)",
+  );
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
