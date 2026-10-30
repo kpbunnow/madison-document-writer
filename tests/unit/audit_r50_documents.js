@@ -42,9 +42,15 @@ function validatePacket(layout) {
       const actual = await page.evaluate((metric) => fixedPrintFixtures(metric), metric);
       assert.equal(actual.styles, frozen.styles, "immutable approved stylesheet");
       assert.equal(actual.styles, baseline.styles, "retained baseline stylesheet");
-      assert.equal(actual.results.length, 69);
-      for (let n = 0; n < actual.results.length; n++) {
-        const item = actual.results[n],
+      // Reinspection Notice (owner request after R64) is a new document type: its variants are additional, and every retained
+      // variant must still match the frozen baseline byte for byte.
+      const added = actual.results.filter((x) => x.type === "reinspectionNotice");
+      const retained = actual.results.filter((x) => x.type !== "reinspectionNotice");
+      assert.equal(retained.length, 69);
+      assert.equal(added.length, actual.results.length - 69, "the only new variants belong to the Reinspection Notice");
+      assert.ok(added.length > 0 && added.every((x) => x.authored.includes("REINSPECTION")), "the Reinspection Notice is covered");
+      for (let n = 0; n < retained.length; n++) {
+        const item = retained[n],
           expected = baseline.results[n];
         assert.equal(item.type, expected.type);
         assert.equal(item.authoringVersion, expected.authoringVersion);

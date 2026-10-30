@@ -12,10 +12,12 @@ import build_manual
 
 ROOT = Path(__file__).resolve().parents[2]
 STAFF = ROOT / "docs/staff"
-# R62 (owner, Development 3): hidden import rows replace the earlier "cannot be imported" list.
+# R62 (owner, Development 3): hidden import rows replace the earlier "cannot be imported" list. Owner request after R64:
+# Reinspection and No Fee Reinspection results of a Reinspection are listed (Reinspection Notice).
 WARNING = (
-    "Scheduled, Pending, Completed, Inspection, No Violation, Reinspection and No Fee Reinspection results, Initial Inspection"
-    " results with No Entry, Assist inspections, undated rows and inspections already used on the case are not listed."
+    "Scheduled, Pending, Completed, Inspection and No Violation results, Reinspection and No Fee Reinspection results on any"
+    " inspection type other than a Reinspection, Initial Inspection results with No Entry, Assist inspections, undated rows"
+    " and inspections already used on the case are not listed."
 )
 
 
