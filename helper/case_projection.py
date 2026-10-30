@@ -31,6 +31,7 @@ METADATA = ("integrity", "build", "written", "sourceFile", "sourceRevision")
 STATUS_OF = {
     "notice": "Notice",
     "extension": "Extension",
+    "reinspectionNotice": "Reinspection",
     "citation": "Cited",
     "referral": "Referred",
     "referralUpdate": "Referred",
@@ -44,6 +45,7 @@ STATUS_OF = {
 DOC_LABELS = {
     "notice": "Official Notice",
     "extension": "Extension",
+    "reinspectionNotice": "Reinspection Notice",
     "citation": "Citation",
     "compliance": "Compliance Letter",
     "referral": "Referral for Prosecution",

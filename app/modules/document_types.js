@@ -54,6 +54,7 @@ export const DOC_TYPES = [
   { id: "extension", label: "Extension", ready: true, pfx: "EXTENSION" },
   { id: "citation", label: "Citation", ready: true, pfx: "CITATION" },
   { id: "reinspect", label: "Reinspection Notice", ready: false },
+  { id: "reinspectionNotice", label: "Reinspection Notice", ready: true, pfx: "REINSPECTION" },
   { id: "compliance", label: "Compliance Letter", ready: true, pfx: "COMPLIANCE" },
   /* the referral heading is too long to sit on the notice line, so it stacks
      above it as the division's own referrals do */
@@ -166,6 +167,7 @@ export const EVENT_TYPES = [
 export const STATUS_OF = {
   notice: "Notice",
   extension: "Extension",
+  reinspectionNotice: "Reinspection",
   citation: "Cited",
   referral: "Referred",
   referralUpdate: "Referred",

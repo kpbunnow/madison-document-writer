@@ -694,6 +694,7 @@ export function createReportsServices(services) {
       {
         notice: "Notice",
         extension: "Extension",
+        reinspectionNotice: "Reinspection",
         citation: "Cited",
         referral: "Referred",
         referralUpdate: "Referred",

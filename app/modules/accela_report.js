@@ -74,6 +74,7 @@ const RULE = {
     label: "Extension, Best Interest Extension or Vacancy Extension",
   },
   referralUpdate: { doc: "referralUpdate", label: "Update for Case Referral", needsReferral: true },
+  reinspectionNotice: { doc: "reinspectionNotice", label: "Reinspection Notice" },
 };
 
 const STATUS_RULES = {
@@ -94,6 +95,8 @@ const STATUS_RULES = {
     "no fee extension processing": RULE.extension,
     "no occupancy": RULE.noOccupancy,
     "no fee no occupancy": RULE.noOccupancy,
+    reinspection: RULE.reinspectionNotice,
+    "no fee reinspection": RULE.reinspectionNotice,
   },
   caReinspection: {
     compliance: { ...RULE.compliance, needsReferral: true },
@@ -119,12 +122,15 @@ export function statusRule(type, status) {
 
 /* R62: rows that never appear among import candidates (owner, Development 3). Statuses apply to every inspection
  type; No Entry is hidden only on an Initial Inspection and is otherwise a listed pair without a rule. */
-const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation", "reinspection", "no fee reinspection"]);
+const HIDDEN_STATUSES = new Set(["scheduled", "pending", "completed", "inspection", "no violation"]);
+/* A Reinspection or No Fee Reinspection result is a listed outcome of a Reinspection and stays hidden on other types. */
+const REINSPECTION_RESULTS = new Set(["reinspection", "no fee reinspection"]);
 
 export function hiddenImportRow(type, status) {
   if (/^assist$/.test(accNorm(type))) return "assist";
   const key = statusKey(status);
-  if (HIDDEN_STATUSES.has(key)) return key === "scheduled" ? "scheduled" : "notDone";
+  if (HIDDEN_STATUSES.has(key) || (REINSPECTION_RESULTS.has(key) && inspectionKind(type) !== "reinspection"))
+    return key === "scheduled" ? "scheduled" : "notDone";
   if (inspectionKind(type) === "initial" && key === "no entry") return "noEntry";
   return "";
 }

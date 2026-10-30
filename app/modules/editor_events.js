@@ -143,7 +143,7 @@ function editItemField(services, el, d, val) {
   const it = d.items.find((i) => i.id === el.dataset.id);
   if (!it) return;
   if (alignedExtension(d)) services.actions.newDocuments.invalidateItemReview(d);
-  if (f === "due") return editItemDue(services, d, it, val);
+  if (f === "due") return d.type === "reinspectionNotice" ? undefined : editItemDue(services, d, it, val);
   if (f === "sections") return editItemSections(services, it, val);
   if (f === "group") return editItemGroup(d, it, val);
   if (f === "text") return editItemText(services, it, val);
