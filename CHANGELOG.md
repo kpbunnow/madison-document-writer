@@ -1,310 +1,321 @@
 # Release changelog
 
-## Unreleased — Clearer disabled controls and restore note (development)
+## 2026-10-30 R64 — Release package
+
+Release package assigned on the owner's request after the maintainability plan (batches B1–B13), the bug-scan repairs and the interface clarifications below (helper 2026.10.30.65, build 65; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed.
+
+### Bug-scan repairs
+
+- A workspace backup with malformed integrity records is refused before anything is written. Case files that are links or not regular files are never read, listed, resolved, indexed or written through, and file names with control or bidirectional characters are dropped or refused.
+- Malformed case records and bad parcel requests are answered with plain 400 messages and write nothing; unreadable case files get one plain message. Malformed integrity metadata makes one case invalid instead of failing the whole Reports index.
+- The helper shows plain sentences instead of parser, Python or file-path text, and the migration conflict explains what happened and what to do. Reports reads today's date when asked, so a tab left open past midnight resets from the current day.
+- Release identity before this assignment was R63 (build 64); authoring, case schema, summary and backup versions are unchanged.
+
+### Clearer disabled controls and restore note
 
 - The Start button on the import review points at the blocker message that explains why it is disabled. "Apply date to selected items" waits until at least one item is selected and names the selected count it reads. Restoring a withdrawn document says up front that the restore must change something in the document. No domain rule, stored format or release identity (R63, helper build 64) changes.
 
-## Unreleased — Screen markup templates (development)
+### Screen markup templates
 
 - Convert every split string literal in the screen modules to `html` templates or single literals, with escaping and evaluation order unchanged, and ratchet screen modules at zero. Print renderers and approved-wording modules are untouched. No behavior, release identity (R63, helper build 64), stored format or print reference changes.
 
-## Unreleased — Maintainability plan concluded (development)
+### Maintainability plan concluded
 
 - Split the remaining long builders and handlers behind frozen-original comparisons that check output, error text, peer-call order and state effects; Python complexity findings fall from 13 to 5 and the long-function baseline from 92 to 48 findings.
 - Ratchet split string literals in screen modules, classify the 67 whole-application evaluators with a reason or owner, and record the accepted exceptions and the maintainability contract in MAINTAINABILITY-ASSESSMENT.md. No behavior, release identity (R63, helper build 64), stored format or print reference changes.
 
-## Unreleased — CI actions on Node 24 (development)
+### CI actions on Node 24
 
 - Move the full-gate workflow's pinned actions off the deprecated Node 20 runtime: checkout v7.0.1, setup-node v7.1.0, setup-python v7.1.0 and upload-artifact v7.0.2, each still pinned to a full commit SHA. Their workflow inputs, the pinned Node/Python/Chromium toolchain and the gate itself are unchanged. CI only; no program, identity or format change.
 
-## Unreleased — Screen dependency direction (development)
+### Screen dependency direction
 
 - Compose case-status facts, rolling citation history, Workspace presentation, language views, overlays and repaint orchestration through scoped lazy inputs. Define icons directly in ui_icons. Preserve all twelve original function bodies apart from dependency access.
 - Keep startup/listener positions, refusal barriers, live state, routing, disclosure/focus/caret and paint/enhancement order. Existing storage/helper/publication authority and frozen output remain unchanged.
 - Add independent screen-owner behavior/wiring checks and require an acyclic Writer and Reports graph. Complete the interface/startup architecture audit and reconcile current ownership, roadmap and source/test indexes. R63/build 64 and all formats remain unchanged.
 
-## Unreleased — Development verification policy
+### Development verification policy
 
 - Use targeted local checks before development PR submission; local full-gate and baseline runs are optional. Require the full GitHub gate and PR format on the current PR head before merge.
 - Let automatic merged-main verification continue asynchronously, report pending status/run links, and investigate failures when reported. Preserve exact-source full-gate evidence requirements for release packaging.
 
-## Unreleased — Shell presentation, print and storage boundaries (development)
+### Shell presentation, print and storage boundaries
 
 - Compose the screen frame through three lazy navigation/integrity/saved-work inputs, browser printing through six native/notification inputs, storage status through five capability/location/mode inputs and the write probe through five existing permission/helper/write/UI inputs. Constructors perform no work.
 - Preserve printable clone cleanup, field values, frozen CSS, popup/download/timer behavior, escaped live diagnostics and original probe grant/request/error/render order. Core exports actual operations; existing publication, storage and helper authority remains unchanged.
 - Add independent boundary tests and guards; update ownership and source/test indexes. Writer narrows from three cyclic modules to core/screens only, capped at two; Reports remains acyclic. R63/build 64 and all formats remain unchanged.
 
-## Unreleased — Record and helper adapters (development)
+### Record and helper adapters
 
 - Compose authenticated helper JSON requests and case-summary context through separate one-input integrity adapters. Preserve actual transport, GET/POST/error/verification order, projection facts and original write time.
 - Define sourceDocFor in live writer_queries and evid/appendEvent in record_event_log without UI imports. Preserve source precedence, original clock/random IDs, chronological fallback, explicit dates/actors and payload/state behavior; no stronger identity or trust guarantee.
 - Add independent tests/guards and update ownership, source/test indexes and roadmap. Shell is 57 lines smaller; Writer remains three cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Folder connection boundary (development)
+### Folder connection boundary
 
 - Compose folder linking/restoration/permission grants through nine lazy native/capability/handle-store/helper/notification/render inputs. Preserve synchronous picker invocation, helper priority, handle assignment/persistence/flush order, quiet grant semantics and existing partial failure state.
 - Core exports actual operations; the shell probe consumes the composed grant. Existing IndexedDB/helper/pending-write authority remains unchanged. All three moved and remaining shell bodies preserve logic apart from dependency access.
 - Add independent tests/guards and update ownership, source/test indexes and roadmap. Shell is 82 lines smaller; Writer remains three cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Writer startup boundary (development)
+### Writer startup boundary
 
 - Compose original bootStorage through fifteen explicit native/restore/readiness inputs. Preserve workspace lock lifetime/refusal UI, helper branches, exact restoration sequence/barrier and failure handling.
 - Keep invocation at the original registration checkpoint; remove the emptied case_files module. Startup construction performs no work. Writer cycle narrows from four modules to three; Reports remains acyclic.
 - Add independent lock/barrier/failure tests and tighten dependency guards; update ownership, source/test indexes and roadmap. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Workspace case actions and reinspection entry (development)
+### Workspace case actions and reinspection entry
 
 - Compose draft discard, unsaved-case classification and workspace case removal through four lazy notification/walk/save/render inputs. Preserve pending-save refusals, checkpoint comparisons, filtering/lookup and await/dispatch order.
 - Compose reinspection entry through twelve lazy day/feature/source/save/UI inputs. Preserve snow/integrity refusals, correction/draft/worksheet routing, imported result-date rules, source/head/identity and carried findings.
 - Add independent tests/guards and update ownership, source/test indexes and roadmap. Case files shrinks to the original startup function; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Local file and draft-save control boundaries (development)
+### Local file and draft-save control boundaries
 
 - Compose JSON download/picker controls through seven explicit native/notification/load inputs. Preserve MIME/raw text, click/remove order, four-second URL cleanup, cancellation/error messages and original loader dispatch.
 - Compose save-status/debounce controls through six lazy DOM/context/storage/save/timer inputs. Preserve dirty/change counters, 1.5-second replacement timer, unavailable-IDB path and original status presentation; actual persistence/startup guards remain in their owners.
 - Add independent tests/guards and update ownership, source/test indexes and roadmap. Case files is 72 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Case-folder and index workflow boundary (development)
+### Case-folder and index workflow boundary
 
 - Compose folder listing/opening and summary/index rebuilding through seven explicit lazy notification/permission/projection/write/render/integrity/load inputs. Preserve original metadata fallbacks, permission checks, verify-before-load dispatch and summary/rebuild failure handling.
 - Keep migration/shape rules, summary projection, helper verification/storage and startup in their existing owners. All four moved and remaining case-file function bodies preserve logic apart from dependency access.
 - Add independent tests/guards and update source/test indexes, ownership and roadmap. Case files is 129 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Address and recipient boundaries (development)
+### Address and recipient boundaries
 
 - Define existing street/city/state/ZIP formatting and field validation in address_format, with private postal capitalization. Preserve every parsing rule and message.
 - Compose recipient validation/normalization, previews and copy/email edits through two lazy parser/render inputs. Preserve accepted mailing lines, validation-before-normalization, correction case scoping and dirty/render order; case_files retains folder/save/startup work.
 - Add independent tests and import/ambient guards; update ownership, source/test indexes and roadmap. Case files is 202 lines smaller; Writer remains four cyclic modules and Reports acyclic. R63/build 64 and formats remain unchanged.
 
-## Unreleased — Writer utility ownership (development)
+### Writer utility ownership
 
 - Move fmtDate/longDate/fmtTime to presentation_format and splitOwner to mailing_rules; define rnd12 in record_ids and allItems in catalog_queries. Callers import defining owners directly; remove the emptied court_and_deposits module. All six function bodies remain unchanged.
 - Preserve UTC display/date/time output, owner-line trimming, native eight-byte random suffix and fallback/error behavior, catalog order/metadata and original shallow-copy semantics. No new numbering, randomness or uniqueness guarantee is introduced.
 - Add independent utility/boundary tests; update source/test indexes, ownership and remaining-work assessment. Writer remains four cyclic modules and Reports acyclic; R63/build 64 and stored formats remain unchanged.
 
-## Unreleased — Document readiness boundary (development)
+### Document readiness boundary
 
 - Compose document readiness through 14 explicit lazy day/address/feature-rule inputs. Preserve initial-citation preparation, every check/message/target and rule concatenation order; existing service/helper authority remains unchanged.
 - Move checks and their private import-status predicate out of court/deposits; screens use the actual composed operation. Remaining format/identity/catalog utilities have no UI dependency. Writer cycle narrows from five modules to four; Reports remains acyclic.
 - Add independent readiness/rule-order/refusal tests and tighten dependency guards; update ownership, test/source indexes and roadmap. Retain R63/build 64 and stored formats; no acceptance or deployment decision is changed.
 
-## Unreleased — Document feedback and approved-source boundaries (development)
+### Document feedback and approved-source boundaries
 
 - Compose notifications/undo and contextual corrective-detail editing through four lazy accessibility/lock/DOM/Event inputs. Preserve stale-document/item guards, text-node insertion, input event and close/focus order.
 - Compose approved block selection and frozen document sources through four lazy snow/initial-citation/body/block inputs. Preserve live/correction/frozen precedence, cloning, special-format signer cutoffs, court/copy defaults and existing capture time.
 - Add independent UI/source tests and boundary guards; update ownership, test/source indexes and roadmap. Court/deposits is 135 lines smaller. Writer retains five cyclic modules and Reports stays acyclic; R63/build 64 and formats remain unchanged.
 
-## Unreleased — Court scheduling and citation charge boundaries (development)
+### Court scheduling and citation charge boundaries
 
 - Separate next-court-date and citation-number operations through three lazy day/clock/random inputs, with unchanged calendar helpers and number-collision scan. Native Date.now/Math.random remain supplied at call time; no new numbering policy or uniqueness guarantee is introduced.
 - Define charge choices/basis metadata and fee/ordinance calculations in citation_charges; compose charge/deposit edits through three lazy pricing/date/DOM inputs. Preserve multi-versus-single-section reset semantics, retained correction basis, dollar/cent units and pricing/UI order.
 - Add independent calendar/number/currency/basis/retention tests and guards; update ownership, source/test indexes and roadmap. Court/deposits is 239 lines smaller; readiness/notifications/source freezing remain there. Writer retains five cyclic modules and Reports acyclic; retain R63/build 64 and formats.
 
-## Unreleased — Document printing and delivery boundaries (development)
+### Document printing and delivery boundaries
 
 - Separate fixed-frame print-job/filename preparation through eight lazy inputs and helper/archive/PDF/email coordination through 20 explicit native/UI/receipt/storage inputs. Keep original four-copy/deposit/mandatory-appearance checks, fixed print sizing and frame cleanup.
 - Preserve all nine moved and remaining court function bodies apart from dependency access: archived-byte identity/reuse, labeled reconstruction confirmation, snapshot-bound filing, receipt deduplication, local outbox and counter/save/refresh ordering. Helper trust and immutable original authority remain unchanged.
 - Add independent packet/frame/archive/email/filing/failure tests and guards; update ownership, source/test indexes and roadmap. Court/deposits is 328 lines smaller and loses direct screen/shell imports; Writer retains five cyclic modules and Reports acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Citation drafts, visit recording and working papers (development)
+### Citation drafts, visit recording and working papers
 
 - Finish separating issuance: citation_drafts owns preparation/recovery guards through 11 lazy inputs, visit_recording owns visit append/projection through five, and working_papers owns capture through four with direct unfinished-work/filing presentation. Move finalization dispatch into record_actions through its unchanged correction/publication delegates. Retire issuance_and_corrections without forwarding exports.
 - Preserve all eleven moved and four retained action bodies, citation/visit identity, source/inspection/charge metadata, dispatch/save/deposit order and typed/cleared/walk/recipient capture semantics. Preparation and visit recording do not gain helper/publication authority or stronger persistence acknowledgement.
 - Add independent draft/capture/visit/dispatch tests and stricter dependency guards. Writer narrows from six cyclic modules to five; Reports stays acyclic. Update ownership, source/test indexes and roadmap; retain R63/build 64 and stored formats.
 
-## Unreleased — Inspection history, correction UI and record actions (development)
+### Inspection history, correction UI and record actions
 
 - Separate live legacy/item-lineage history and historical capability predicates, with correction-history overlays through one lazy patch input. Separate correction/record-action presentation through three lazy inputs and retained record-action requests through five.
 - Preserve all 13 moved function bodies and the capability predicate, historical cutoffs, currency units/markup, record identity, exact retained-request retries and original confirmation/render/message order. Helper confirmation and immutable receipt authority remain unchanged.
 - Add independent retained-retry, refusal, UI locking/escaping and lineage/history tests and guards; update ownership, source/test indexes and roadmap. Issuance is 505 lines smaller; Writer remains six cyclic modules and Reports acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Recovery UI and document-history presentation (development)
+### Recovery UI and document-history presentation
 
 - Complete the recovery split: recovery_ui owns working controls, save-and-continue, backup file selection and status/modal presentation through 11 lazy inputs. Move catalog-form persistence to its one-input owner and define catalog keys there directly; retire draft_recovery without forwarding exports.
 - Move read-only document history and revision-print notes from issuance into record_history through one date-format input. Preserve all ten moved functions, markup, error/guard/dispatch order and stored identities; record actions and inspection-history calculations keep their existing authority.
 - Add independent control/picker/navigation/catalog/history/escaping tests and stricter import/cycle guards. Writer narrows from seven cyclic modules to six; Reports stays acyclic. Update current ownership, source/test indexes and roadmap; retain R63/build 64 and stored formats.
 
-## Unreleased — Worksheet workflow boundary (development)
+### Worksheet workflow boundary
 
 - Separate worksheet source/readiness queries and reopen/restore/discard transitions through eight lazy source/date/continuing-item/deadline/save/UI inputs. Define date-change and cleaned-visit operations directly in the same owner. Keep original carried/withdrawn/outcome/date/deadline rules and retained previous-draft semantics.
 - Preserve all seven moved and remaining recovery function bodies apart from dependency access, including save/render/message order. This does not change save acknowledgement or publication/helper authority.
 - Add independent worksheet/date/clone/transition/refusal tests and guards; update ownership, source/test indexes and roadmap. Recovery is 156 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Individual-case recovery boundary (development)
+### Individual-case recovery boundary
 
 - Separate backup listing/selection, shared comparison, validation and individual-case/import restoration through 18 lazy UI/shared/storage/recovery inputs. Define the shared-conflict predicate directly for recovery UI. Keep original stale-selection checkpoints, pre-replacement backup/confirmation, storage acknowledgement and restoration order.
 - Preserve all seven moved and remaining recovery function bodies apart from dependency access. Retain native single-transaction pending/draft writes and fallback rollback/refusal semantics; no broader asynchronous atomicity or trust guarantee is introduced.
 - Add independent validation/conflict/stale-selection/storage/rollback tests and guards; update ownership, source/test indexes and roadmap. Recovery is 277 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Automatic recovery backup boundary (development)
+### Automatic recovery backup boundary
 
 - Separate recovery workspace/case identities, case/import snapshots, helper writes and latest-state backup scheduling through ten lazy storage/identity/snapshot/helper/status/timer inputs. Keep original startup identity initialization, keys, 700 ms debounce, signatures, retry and serialized latest-state behavior.
 - Preserve all seven moved and remaining recovery function bodies apart from dependency access. Recovery status/dialogs and individual-case restore remain UI-owned; no new deep-clone, concurrent-direct-call or durable-queue guarantee is introduced.
 - Add independent storage/snapshot/retry/scheduling tests and guards; update ownership, source/test indexes and roadmap. Recovery is 168 lines smaller; Writer retains its seven-module component and Reports stays acyclic. Retain R63/build 64 and all stored formats.
 
-## Unreleased — Workspace backup coordination (development)
+### Workspace backup coordination
 
 - Separate whole-workspace backup download/restore through 11 lazy capture, date, integrity, storage and UI inputs. Keep the native file picker in recovery UI and preserve backup versions 1/2, validation, retained work/attempt/checkpoint/pending data and storage/integrity/projection/save order.
 - Add independent refusal and persistence-order coverage; update version-consumer validation to its defining owner without changing format identity. Module loading/construction performs no work. This is not a new atomic restore guarantee.
 - Update ownership, source/test indexes and roadmap. Recovery is 109 lines smaller; Writer retains its seven-module component and Reports stays acyclic. R63/build 64 and stored formats remain unchanged.
 
-## Unreleased — Case records and load/rollback boundary (development)
+### Case records and load/rollback boundary
 
 - Separate seven live replay/projection/checkpoint/export/merge operations into case_records with direct defining exports; compose case-file load and shared merge through five lazy integrity/UI/save adapters. Module loading and construction perform no startup or storage work.
 - Preserve all nine original bodies, identity remapping, event/correction conflicts, proof-before-load, case-detail reconciliation, rollback and original sequence high-water behavior, projection and refresh/save ordering. Helper integrity authority is unchanged.
 - Add independent failure/rollback tests and import guards; update ownership, development rules and indexes. Workspace shell is 199 lines smaller; Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Shared writes and case-save coordination boundaries (development)
+### Shared writes and case-save coordination boundaries
 
 - Separate folder/helper write access through six lazy inputs, held-save retry through 12 inputs and case-save orchestration through 14 inputs. Keep helper verification/revision authority, native permission/write/close ordering and reporting summaries unchanged.
 - Preserve all seven moved bodies, current-record retries, failed/new queue retention, serialization refusals, permission retries, verified response/later-edit handling and local save/summary order. Summary generation, merge/load validation and folder UI remain in their established owners.
 - Add independent failure/order/interface tests and import guards; update ownership, development rules and indexes. case_files is 278 lines smaller; Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Device database and draft persistence boundaries (development)
+### Device database and draft persistence boundaries
 
 - Separate IndexedDB connection/read/write access through two lazy inputs and draft snapshot/save/restore coordination through ten inputs. Keep the database/store names, transaction completion, required-read failures and connection retirement behavior.
 - Preserve all six moved bodies, startup restoration/lock ordering, generation-aware save chain, isolated write snapshots, backup timing and retained workspace/history/integrity restoration. Keep debounce/status presentation, folder/shared writes and helper validation in their existing owners.
 - Add independent failure/concurrency tests and import guards; update ownership, development rules, inventory and indexes. Writer remains a seven-module cycle and Reports stays acyclic; retain R63/build 64 and stored formats.
 
-## Unreleased — Correction preparation and workflow boundaries (development)
+### Correction preparation and workflow boundaries
 
 - Separate correction comparisons, eligibility/type rules, checks, visit patches and retained snapshots through six lazy inputs; separate opening/issuing corrections through 18 scoped adapters. Preserve all nine original bodies apart from dependency/scroll adapter access.
 - Retain item/case/revision lineage, historical authoring, recipient selection, stale-head/conflict and review guards, exact pending retry, shared confirmation before PDF/email and filing recovery. Helper/immutable receipt authority is unchanged.
 - Remove court/deposit checks’ direct issuance/history import; add independent tests/import guards and update ownership, assessment and indexes. Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Publication preparation and continuation boundaries (development)
+### Publication preparation and continuation boundaries
 
 - Separate lifecycle checks and publication snapshots through nine lazy inputs, and issuance/confirmation/PDF continuation through 17 inputs. Recovery backup/restore UI no longer owns publication.
 - Preserve all five moved bodies and issuance guard behavior, original event/group/snapshot identity, pending retries without repreparation, pre-render-before-commit and file-after-confirmation order, partial PDF failures and navigation/focus behavior. Shared confirmation/helper/immutable receipt authority is unchanged.
 - Add independent service/behavior tests and import guards; update ownership, assessment, inventory and indexes. Writer remains a seven-module cycle and Reports stays acyclic; retain R63/build 64 and stored formats.
 
-## Unreleased — Record save confirmation boundary (development)
+### Record save confirmation boundary
 
 - Isolate commitAmendment behind 11 lazy persistence/helper/projection/UI adapters, preserving its exact request, confirmation, failure and cleanup ordering. Publication, correction and recovery callers share the composed operation.
 - Retain durable pending attempts before helper requests, idempotent lost-response retry, definitive rejection handling, later local edits and shared group/correction identity. Helper validation and immutable PDF authority are unchanged.
 - Add independent failure/order/interface tests and import guards; update ownership, inventory and assessment. Writer remains a seven-module cycle and Reports stays acyclic. Retain R63/build 64 and stored formats.
 
-## Unreleased — Citation workflow and item-selection boundaries (development)
+### Citation workflow and item-selection boundaries
 
 - Compose citation editing/readiness/review through 16 lazy inputs and item selection through two. Preserve all eight function bodies, private declaration order, messages and markup apart from explicit dependency access.
 - Retain typed/committed charge phases, original correction deposits, manual/scheduled authority, mandatory-appearance hold, private wording/cache and item identities. Existing pricing, events, storage, publication and historical rendering keep their authority.
 - Retire the emptied case_timeline module without a forwarding barrel and narrow the Writer cycle guard from eight to seven modules; Reports stays acyclic. Add independent boundary/behavior tests and update current ownership, assessment and indexes. Retain R63/build-64 and all stored/format identities; no packaging or deployment.
 
-## Unreleased — Workspace task presentation boundary (development)
+### Workspace task presentation boundary
 
 - Separate workspace task generation through three lazy dependencies, preserving group order, count/list agreement, action links and existing record/artifact warnings. Delegate deposit completion to its unchanged citation calculation.
 - Keep task generation read-only and observe replacement workspace references. Remove case_timeline's issuance dependency and app_screens' timeline dependency; Writer retains its eight-module component and Reports stays acyclic.
 - Reduce case_timeline from 856 to 738 lines. Add independent tests/import guards and update ownership, assessment and indexes; retain R63/build-64, stored formats, existing assertions and publication authority.
 
-## Unreleased — Deadline planning and assignment boundary (development)
+### Deadline planning and assignment boundary
 
 - Separate batch deadline planning, assignment and presentation into a seven-dependency owner, with direct spacing/selection and live-context queries. Preserve all nine bodies apart from explicit dependency access, including draft/selection guards, atomic planning and deadline limits.
 - Keep event registration, later-edit-safe undo and durable workspace/save ordering in existing owners. No persistence, publication, historical format or rule changes.
 - Reduce case_timeline from 1,073 to 856 lines; Writer retains its eight-module component and Reports stays acyclic. Add independent tests/import guards and update ownership, assessment and indexes; retain R63/build-64 and all stored identities.
 
-## Unreleased — Writer handoff and readiness boundary (development)
+### Writer handoff and readiness boundary
 
 - Separate Writer readiness markers, Reports case opening and channel/URL handoff into a six-dependency owner. Preserve all four function bodies apart from explicit dependency access, including startup waits, local reconciliation, latest-request checks and channel reply guards.
 - Keep locking/restoration, preflight, helper validation and file loading in their existing owners; channel initialization and readiness settlement remain at the original startup positions. No new constructor side effects or channel protocol changes.
 - Reduce case_timeline from 1,178 to 1,073 lines and remove its workspace/screen imports plus case_files' timeline import. Writer still has an eight-module cyclic component; Reports stays acyclic. Add independent tests/guards and update ownership, assessment and indexes; keep R63/build-64 and all stored/format identities unchanged.
 
-## Unreleased — Retained PDF artifact boundary (development)
+### Retained PDF artifact boundary
 
 - Separate outbox listing/selection/printing and artifact-location refresh into a five-dependency PDF artifact service, with direct artifact-status/independence queries. Preserve all six function bodies apart from explicit dependency access.
 - Retain synchronous popup creation, authenticated original-byte reads, selection capture, stale/context/identity guards, partial-failure reporting, verification batches and object-URL lifetimes. Transfer and publication authority remain in their existing owners.
 - Reduce case_timeline from 1,360 to 1,178 lines, keep Writer's eight-module cycle and acyclic Reports, and add independent tests/import guards plus updated ownership, roadmap and indexes. Keep R63/build-64 and stored/format identities unchanged; no packaging or deployment.
 
-## Unreleased — Shared inspection facts (development)
+### Shared inspection facts
 
 - Move existing date/time parsing to calendar and inspection identity, date-source and reuse queries to an independent inspection_facts owner. Preserve all seven function bodies, frozen/correction precedence, blank times/dates and retained reuse evidence.
 - Import the defining owners directly and narrow the Accela import interface from 28 to 21 UI/peer adapters. No forwarding barrel, new service factory, record or authority change; Writer retains its eight-module cycle and Reports remains acyclic.
 - Add independent historical/live-state tests and dependency guards; update ownership, assessment and test/source indexes. Keep R63/build-64 and all stored/format identities unchanged; no packaging or deployment.
 
-## Unreleased — Cohesive case activity service (development)
+### Cohesive case activity service
 
 - Extract personal reminders and read-only case timeline presentation into a six-dependency activity owner. Preserve all seven function bodies, live date/state behavior, reminder IDs/filtering/dismissal, event ordering, export arrays and manual email-draft behavior.
 - Reduce case_timeline from 1,575 to 1,394 lines while keeping outbox/handoff/deadline/pricing responsibilities in place. Writer retains its eight-module cycle cap and Reports remains acyclic; no graph reduction is claimed for this cohesion increment.
 - Add independent behavior/interface guards and update ownership, assessment, roadmap, tests and source inventory. Preserve R63/build-64, stored/format identities, historical references and all existing assertions; no packaging or deployment.
 
-## Unreleased — Reinspection service boundary (development)
+### Reinspection service boundary
 
 - Compose worksheet/walkthrough and follow-up creation through named lazy dependencies. Preserve function bodies, live context/item guards, outcome/undo behavior, focus/save order, deadlines and historical observations.
 - Reduce the Writer dependency cycle from nine to eight modules; keep Reports acyclic. Add independent boundary checks and retain all existing assertions and historical references.
 - Update ownership, roadmap, test/source indexes and a remaining-maintainability assessment. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
 
-## Unreleased — Catalog and shared-case preflight boundary (development)
+### Catalog and shared-case preflight boundary
 
 - Compose catalog review, shared-case preflight/conflict actions and guarded workspace updates through named lazy adapters. Preserve original function bodies, stale/acknowledgement guards, explicit wording adoption, storage/integrity authority and durable save/rollback order.
 - Reduce the Writer dependency cycle from ten to nine modules; keep Reports acyclic. Add independent service checks and narrow dependency guards while retaining all existing assertions and historical references.
 - Update ownership, roadmap, test and source indexes. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
 
-## Unreleased — Reports boundaries and visual review (development)
+### Reports boundaries and visual review
 
 - Eliminate the five-module Reports dependency cycle through scoped, lazy service/screen/context constructors and explicit deposit adapters. Preserve verified data, function bodies, startup/listener order, cancellation, views, exports, maps and print behavior. Writer retains its ten-module cycle cap.
 - Add independent boundary checks and keep existing report assertions through scoped private-diagnostic loaders. Narrow cycle/import guards and update ownership, test and source indexes.
 - Review the documented PNG differences and preserve media-specific failure artifacts; exact image comparison remains strict and native/staff acceptance remains separate. No print/style/reference, release identity, packaging or deployment changes.
 
-## Unreleased — Writer import-service boundary (development)
+### Writer import-service boundary
 
 - Compose the complete Accela import workflow through named lazy UI/peer dependencies. Preserve parser/status rules, workbook/SQL paths, shared-record confirmation, stale-result and selection guards, cancellation, save/state order and original function bodies.
 - Reduce the retained Writer cycle from 11 to 10 modules; Reports remains 5. Add independent import boundary checks, narrow dependency/lint guards and retain existing import assertions and historical references. Production browser diagnostics use the composed service.
 - Update ownership, cleanup roadmap, test index and source inventory. Keep R63/build-64 and all record/format identities unchanged; no packaging or deployment.
 
-## Unreleased — Screen-shell/CSS cleanup (development)
+### Screen-shell/CSS cleanup
 
 - Complete owner-authorized consolidation Phase 8: establish a current Writer/Reports screen-shell reference from verified source, recording provenance and replacing historical per-release CSS reversal bookkeeping. Preserve every historical print/document reference and approved print stylesheet.
 - Remove 31 unused screen class families and the obsolete toast spinner animation. Retain live case-view/queue-primary styles missed by the old split-literal text scan; preserve surviving selector/declaration/cascade contracts and add runtime class checks.
 - Add synthetic DOM capture and before/after style, geometry and pixel comparison, including forced colors; update review/reference guidance and test/source indexes. No intentional visual redesign, release/format bump, authority change, packaging or deployment.
 
-## Unreleased — Document editor service (development)
+### Document editor service
 
 - Compose editor rendering/actions through named lazy UI/peer dependencies. Preserve original function/listener bodies, markup, first-service copy-listener order, synchronous routing, focus and save scheduling; core exports actual instance functions and retains existing disclosure-test mutability.
 - Reduce the retained Writer cycle from 12 to 11 modules and narrow dependency guards; Reports remains 5. Add independent editor checks and adapt the browser’s private readiness lookup without changing assertions. Existing diagnostic hooks, editor/disclosure/event tests and historical print references are retained.
 - Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, helper authorization, integrity/publication rules and acceptance holds remain unchanged.
 
-## Unreleased — Pagination and feature ownership (development)
+### Pagination and feature ownership
 
 - Isolate physical pagination behind page-size, snow and history services. Move follow-up document creation to reinspection and sheet/overlay/dialog refresh to editor_screens, with direct imports from their defining owners. Preserve all nine function bodies, focus/save order, historical print allowance and layout behavior.
 - Reduce the retained Writer cycle from 13 to 12 modules and narrow dependency guards; Reports remains 5. Add independent controlled-layout tests and retain the disclosure audit’s mutable pagination binding, existing private diagnostic hook and every historical/functional/print assertion.
 - Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, helper authorization, integrity/publication rules and acceptance holds remain unchanged.
 
-## Unreleased — Scoped Writer view contexts (development)
+### Scoped Writer view contexts
 
 - Construct saved-work, Workspace queue and language-discovery contexts through separate named lazy interfaces. Core exports their actual instance builders; preserve context field order, callback identities and call-time workspace references without a universal registry.
 - Reduce the retained Writer cycle from 14 to 13 modules and narrow dependency/global guards; Reports remains 5. Add standalone context tests for replaced references and retained presentation warnings, keeping all existing saved-work, exit, language, functional, event and print assertions.
 - Update ownership, cleanup roadmap, source inventory and test index. R63/build-64, authored/storage identities, integrity/storage/exit/catalog authority and acceptance holds remain unchanged.
 
-## Unreleased — Document renderer boundary (development)
+### Document renderer boundary
 
 - Compose notice/document/citation rendering through named lazy dependencies, removing UI and live-query imports from document_render. Core exports the actual instance functions; existing consumers import them there. Preserve all seven template bodies, authored markup and fixed-print/pagination/publication ownership.
 - Reduce the retained Writer cycle from 15 to 14 modules, keep Reports at 5, and narrow import/global guards. Add independent renderer checks; retain private diagnostic bindings through the existing test-only hook and preserve all property, historical, functional and print assertions.
 - Update ownership, cleanup roadmap, source inventory and test index. R63/build-64 and authored/storage identities, court wording, integrity rules and acceptance holds remain unchanged.
 
-## Unreleased — Remaining Writer feature-factory boundaries (development)
+### Remaining Writer feature-factory boundaries
 
 - Compose administrator tools, address preview/acceptance and new-document actions through named lazy UI/peer dependencies, retaining original initialization and click-listener order. The renderer obtains the unchanged historical affected-item predicate from the new-document service; the fixture factory receives explicit callbacks only under its existing test-build flag.
 - Reduce the retained Writer cycle from 19 to 15 modules and narrow dependency guards; Reports remains 5. Add independent tests for stale address responses, explicit acceptance, administrator receipt bindings, historical selection, live visit replacement and test-only composition; preserve all existing functional, service, event and print assertions.
 - Update ownership, cleanup roadmap, source inventory and test index. R63/build-64 and authored/storage identities, helper authorization, integrity/publication boundaries and acceptance holds remain unchanged.
 
-## Unreleased — Scoped Writer service dependencies (development)
+### Scoped Writer service dependencies
 
 - Replace UI/core back-imports in navigation, language actions, citation pricing, deposit completion, initial citations and snow-case handling with explicitly composed lazy interfaces. Preserve calculation/action bodies, initialization order, existing listener phases, readiness/save guards and synchronous user actions.
 - Reduce the retained Writer cycle from 25 to 19 modules and narrow the import/cycle guard; Reports remains at 5. Add independent service/composition tests covering delayed readiness, failed saves, stale navigation, changes during saving and citation guards; retain the historical functional, print and registration assertions.
 - Update ownership, cleanup status, test index and source inventory. R63/build-64 identity, authoring/storage formats and acceptance holds remain unchanged.
 
-## Unreleased — Record rules separated from UI/storage (development)
+### Record rules separated from UI/storage
 
 - Extract deterministic legacy migration, record shape/identity/correction-history checks, case merge/name rules, event replay, item carry-forward and summary derivation into four independent record owners. Callers import the defining owners directly; live loading, rollback, integrity verification, workspace mutation and I/O remain in their adapters.
 - Summaries receive explicit roster/library/case facts and cache metadata. Shared source resolution preserves frozen/correction precedence and legacy snow fallback; the existing direct classifier API retains its static catalog default. Historical authoring, correction rules, record IDs, report fields and browser schema-4/helper schema-5 migration boundaries are unchanged.
 - Standalone tests exercise the calculations with clock/randomness disabled and frozen inputs; import/lint guards prevent new UI/storage coupling. The independent helper projection, full corpus/captured-flow parity, event registration checkpoints and frozen print references are retained. Ownership docs and cleanup status are updated; R63/build-64 identity and acceptance holds are unchanged.
 
-## Unreleased — Feature-owned event handlers (development)
+### Feature-owned event handlers
 
 - Move the 60 core document/window handlers into 14 feature event owners, preserving explicit registration positions, capture phases, original condition order and document snapshots. Cross-feature action bodies have scoped interfaces; construction does not access later service/state declarations. Synchronous permission and other user-action calls remain synchronous.
 - Register each feature listener once per target/key, with retries after a failed registration. Tests cover registration order/state checkpoints, inert and lazy interfaces, repeated registration, exclusive routing, capture cancellation, synchronous permissions and preserved typing focus/caret. Existing historical assertions and print references are unchanged.
 - app_core drops from 3,049 to 1,249 lines. Event owners import only foundations and the registration helper, without growing the Writer/Reports dependency cycles. Ownership docs, cleanup roadmap, test index and source inventory are updated. Current R63/build-64 identity and authored/storage formats are unchanged; no release package or deployment is included.
 
-## Unreleased — Module cleanup: shared foundations (development)
+### Module cleanup: shared foundations
 
 - Extract document metadata, explicit authoring/item rules, live workspace queries, presentation formatting, calendar arithmetic, mailing facts and record-value helpers into seven independent owners. Callers import those owners directly. Service composition, workspace initialization and global listener/startup order stay in app_core; no persisted or installed names change.
 - Reviewed-library updates no longer import startup; the largest maintained Writer import cycle drops from 26 modules to 25. A static dependency inventory and foundation-layer/cycle checks guard against renewed coupling. No-DOM tests cover live restored arrays, frozen/correction precedence and historical format cutoffs; existing output and test references are unchanged.
