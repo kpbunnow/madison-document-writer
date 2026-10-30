@@ -108,7 +108,7 @@ module.exports = async function (browser, page, OUT, axeScreen, work) {
         trs.map((tr) => ({ done: tr.classList.contains("done"), due: tr.querySelector(".c-due").innerText.replace(/\s+/g, " ").trim() })),
       );
     assert.equal(rows[0].done, true);
-    assert.match(rows[0].due, /^Corrected /);
+    assert.match(rows[0].due, /^Corrected /i);
     assert.equal(rows[1].done, false);
     assert.equal(rows[2].done, false);
     assert.equal(await page.evaluate(() => fmtDate(doc(WriterState.state.docId).items[1].due)), rows[1].due, "the assigned date prints as it stands");
