@@ -188,6 +188,14 @@ const test = async () => {
     ),
     "each row's selection sits beside its due date and never prints",
   );
+  // Applying a date to nothing does nothing, so the button waits for a selection and names the count it reads.
+  assert.equal(panel.querySelector("#btn-bulkdue").disabled, true, "Apply waits until an item is selected");
+  assert.equal(panel.querySelector("#btn-bulkdue").getAttribute("aria-describedby"), "due-selected-text");
+  assert.equal(document.getElementById("due-selected-text").textContent, "0 of 4 items selected");
+  change(rowBoxes()[0], true);
+  assert.equal(document.getElementById("btn-bulkdue").disabled, false, "Apply is available once an item is selected");
+  change(rowBoxes()[0], false);
+  assert.equal(document.getElementById("btn-bulkdue").disabled, true, "Apply waits again when the selection is cleared");
   change(rowBoxes()[0], true);
   change(rowBoxes()[2], true);
   assert.deepEqual(d.dueWork.selected, ["u2-a", "u2-c"], "rows use the panel's selection state");

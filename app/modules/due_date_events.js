@@ -23,7 +23,11 @@ export function createDueDateEvents(services) {
     target.dueWork.selected = [...selected];
     // Notice rows select in the items table; keep the compact bar's count current without a repaint.
     const count = document.querySelector("[data-due-selected]");
-    if (count) count.textContent = services.dueSelectedText(services.dueContext(target, visit), selected);
+    const items = services.dueContext(target, visit);
+    if (count) count.textContent = services.dueSelectedText(items, selected);
+    // Applying a date to nothing does nothing: the button waits until an item is chosen.
+    const apply = document.getElementById("btn-bulkdue");
+    if (apply) apply.disabled = !items.some((i) => selected.has(i.id));
     workspaceState.DIRTY = true;
     services.saveDrafts();
   };

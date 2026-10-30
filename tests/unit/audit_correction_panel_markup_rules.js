@@ -34,7 +34,14 @@ function scenario() {
       },
     },
     nocorrection: chance(10),
-    source: { id: "src", caseId: "case", type, revision: pick([undefined, {}, { number: 2 }]), fromReinspId: pick(["visit", "", "gone"]) },
+    source: {
+      id: "src",
+      void: chance(4) ? true : undefined,
+      caseId: "case",
+      type,
+      revision: pick([undefined, {}, { number: 2 }]),
+      fromReinspId: pick(["visit", "", "gone"]),
+    },
     results: Object.fromEntries(
       items.map((it) => [it.srcItemId, pick([undefined, { oc: "open" }, { oc: "corrected" }, { oc: "open", carried: true }])]),
     ),
@@ -81,10 +88,19 @@ function run(api, sc) {
     compile(fs.readFileSync("tests/fixtures/correction_panel_reference.txt", "utf8")),
   ]);
   const seen = new Set();
+  let restoreNotes = 0;
   for (let n = 0; n < 6000; n++) {
     const sc = scenario();
-    const [before, after] = [run(legacy, sc), run(current, sc)];
+    const [before, shown] = [run(legacy, sc), run(current, sc)];
+    // One deliberate difference from the retained module: restoring a withdrawn document says up front that the
+    // restore must change something. The note appears exactly then; everything else must still be identical.
+    const note = '<p class=\\"hint\\">This restores a withdrawn document. A restore must change something in the document, not just its status.</p>';
+    const after = shown.split(note).join("");
     assert.equal(after, before, `correction panel scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
+    const shownValue = JSON.parse(shown).value || "";
+    const restoring = !!(shownValue && sc.source.void && !sc.nocorrection && sc.d.correction.targetId === "src");
+    assert.equal(shown.includes(note), restoring, `the restore note appears exactly when a withdrawn document is being restored (scenario ${n})`);
+    if (restoring) restoreNotes++;
     const html = JSON.parse(after).value || "";
     for (const f of [
       "revision 1",
@@ -120,7 +136,8 @@ function run(api, sc) {
     "empty",
   ])
     assert.ok(seen.has(f), "scenarios reach: " + f);
-  console.log("PASS correction panel matches the retained module over 6000 scenarios");
+  assert.ok(restoreNotes > 50, "scenarios reach the restore note");
+  console.log("PASS correction panel matches the retained module over 6000 scenarios (" + restoreNotes + " restores)");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
