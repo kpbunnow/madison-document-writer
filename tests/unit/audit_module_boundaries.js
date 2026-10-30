@@ -47,7 +47,14 @@ const allowed = {
   "citation_policy.js": ["./data/citation_policy.js"],
 };
 const scopedServices = {
-  "workflow_events.js": ["../assets/shared.js", "./event_registration.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
+  "workflow_events.js": [
+    "../assets/shared.js",
+    "./event_registration.js",
+    "./inspector_cases.js",
+    "./presentation_format.js",
+    "./workspace_state.js",
+    "./writer_queries.js",
+  ],
   "safety_events.js": [
     "./document_rules.js",
     "./editor_state.js",
@@ -503,6 +510,7 @@ const scopedServices = {
     "./saved_work.js",
     ,
     "./screen_html.js",
+    "./inspector_cases.js",
   ],
   "reports_services.js": [
     "./helper_stopped.js",
