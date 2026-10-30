@@ -132,7 +132,7 @@ const tests = async function () {
   ok(
     "Each waiting record shows its specific next action",
     markup.includes('data-case-sync="sync"') &&
-      markup.includes("File issued PDF") &&
+      markup.includes("Open document to file PDF") &&
       markup.includes("Confirm saved action") &&
       markup.includes('data-reinsp="soon"'),
   );

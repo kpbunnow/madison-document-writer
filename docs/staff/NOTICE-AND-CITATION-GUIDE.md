@@ -55,7 +55,7 @@ Review the complete letter and every associated court copy. Check the case ident
 | --- | --- |
 | Save confirmation needed | Confirm the retained original attempt; do not make a duplicate document |
 | Shared publication rejected | Read the current conflict, pricing, catalog or integrity check; review and resolve before retry |
-| Issued with PDF filing needed | Open the issued action and File issued PDF or review its original filing status |
+| Issued with PDF filing needed | Use Open document to file PDF, then File issued PDF in the document, or review its original filing status |
 | Waiting for connection | Keep the retained request/draft and follow Saved work & connection |
 
 **Original PDFs.** The filing process retains the exact prepared original and its receipt. Retry retrieves and files those same bytes when available. A marker that says previously filed is not enough if the actual original cannot be verified. Do not regenerate a different document as a substitute for missing original evidence. A draft PDF is visibly a draft and is not proof of issuance.
