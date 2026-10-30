@@ -49,7 +49,7 @@
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 331,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 97,
-    "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 96,
+    "app/modules/workflow_events.js:createWorkflowEvents#1:max-lines-per-function": 84,
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,
     "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 113,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 95,
