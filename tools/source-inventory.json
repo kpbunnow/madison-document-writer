@@ -937,6 +937,7 @@
     "tests/unit/audit_retained_source_rules.py",
     "tests/unit/audit_review.js",
     "tests/unit/audit_review_r12.py",
+    "tests/unit/audit_runtime_imports.py",
     "tests/unit/audit_safety.js",
     "tests/unit/audit_safety.py",
     "tests/unit/audit_safety_event_rules.js",

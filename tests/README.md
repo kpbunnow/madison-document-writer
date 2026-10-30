@@ -171,6 +171,7 @@ covers, or a new suite under its feature.
 | `audit_r62_extensions.js` | Authoring-16 Best Interest (worksheet Next due dates, no selection or safety) and Vacancy (no due dates, Scope and review date only) Extensions, family switching, historical formats |
 | `audit_r62_extensions_helper.py` | Helper enforcement of the authoring-16 extension rules and earlier-format requirements |
 | `audit_reinspection_notice_helper.py` | Reinspection Notice helper rules: accepted with every due date kept, past dates allowed here but not on an Extension, a changed or removed due date refused, an outstanding item required, refused on a referred case, event name matches the type, and the Reinspection status and label. |
+| `audit_runtime_imports.py` | The installed helper starts: every helper module a deployed Python file imports is itself in the deployment map (and required), and the server module imports from a folder holding only the deployed files. |
 | `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
 | `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Violation items, no conditional model) |
 
