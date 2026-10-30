@@ -1,6 +1,6 @@
 # R64 developer start guide
 
-Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity: the current release writes authoring version 16 with case schema 5, summary 6 and workspace backup 2, and every earlier authoring format remains readable and reprintable. version-notes.md documents the independent helperBuild counter.
+Madison Building Inspection Document Writer is an offline Windows browser application with a loopback Python helper. version.json owns release and protocol identity: the current release writes authoring version 16 with case schema 5, summary 6 and workspace backup 2, and every earlier authoring format remains readable and reprintable. VERSION-NOTES.md documents the independent helperBuild counter.
 
 ## Developer documents
 

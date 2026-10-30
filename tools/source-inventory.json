@@ -2,6 +2,8 @@
   "format": "madison-source-inventory",
   "version": 1,
   "files": [
+    ".github/CODEOWNERS",
+    ".github/dependabot.yml",
     ".github/pull_request_template.md",
     ".github/workflows/pr-format.yml",
     ".github/workflows/verify.yml",
@@ -12,6 +14,7 @@
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "README.md",
+    "SECURITY.md",
     "app/assets/LEAFLET-LICENSE.txt",
     "app/assets/NOTO-SANS-SC-LICENSE.txt",
     "app/assets/accessibility.css",
@@ -218,6 +221,7 @@
     "docs/developer/SCREEN-SHELL.md",
     "docs/developer/SCREEN-VISUAL-REVIEW.md",
     "docs/developer/TEST-SEAMS.md",
+    "docs/developer/VERSION-NOTES.md",
     "docs/history/CONSOLIDATION-2026-10-21.md",
     "docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md",
     "docs/history/POST-CONSOLIDATION-REVIEW.md",
@@ -1035,7 +1039,6 @@
     "tools/test_seams.cjs",
     "tools/verify_release.py",
     "tools/version_schema.py",
-    "version-notes.md",
     "version.json"
   ]
 }
