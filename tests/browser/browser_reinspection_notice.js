@@ -172,12 +172,15 @@ module.exports = async function (browser, page, OUT, axeScreen, work) {
       setup.dues,
     );
     assert.equal(event.payload.snapshot.type, "reinspectionNotice");
-    const summaryFile = path.join(
-      work,
-      "Case JSON Files",
-      "Reporting Index",
-      fs.readdirSync(path.join(work, "Case JSON Files", "Reporting Index")).find((n) => /QA-RN-001/.test(n)),
-    );
+    // Saving writes the summary only if the helper's own projection of the saved case equals the Writer's.
+    const saved = await page.evaluate(async () => ({ ok: await saveCaseFile("qa-rn-1"), why: WriterState.LASTWRITE?.why || "" }));
+    assert.equal(saved.ok, true, "case and summary saved: " + saved.why);
+    const indexFolder = path.join(work, "Case JSON Files", "Reporting Index");
+    const summaryName = fs
+      .readdirSync(indexFolder)
+      .find((n) => n.endsWith(".json") && JSON.parse(fs.readFileSync(path.join(indexFolder, n), "utf8")).case?.number === "QA-RN-001");
+    assert.ok(summaryName, "the Reporting Index summary exists");
+    const summaryFile = path.join(indexFolder, summaryName);
     const summary = JSON.parse(fs.readFileSync(summaryFile, "utf8"));
     assert.equal(summary.case.status, "Reinspection");
     assert.ok(summary.documents.some((d) => d.type === "reinspectionNotice" && d.label === "Reinspection Notice"));
