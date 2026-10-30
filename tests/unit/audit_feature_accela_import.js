@@ -1885,6 +1885,10 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     ["Reinspection", "No Occupancy", "noOccupancy"],
     ["Reinspection", "No Fee No Occupancy", "noOccupancy"],
     ["Reinspection", " no fee  no occupancy ", "noOccupancy"],
+    // Owner request after R62: these results of a Reinspection are importable and lead to the Reinspection Notice.
+    ["Reinspection", "Reinspection", "reinspectionNotice"],
+    ["Reinspection", "No Fee Reinspection", "reinspectionNotice"],
+    ["Reinspection", " no  fee reinspection ", "reinspectionNotice"],
     ["CA Reinspection", "Compliance", "compliance"],
     ["CA Reinspection", "Non Compliance", "referralUpdate"],
     ["CA Reinspection", "Non-Compliance", "referralUpdate"],
@@ -1902,13 +1906,20 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     "Inspection Type", "Inspection Date", "Inspection Status", "Inspection Time"];
   const row = (type, status, date = "2026-09-10") =>
     ["CB2026-262-00001", INSPECTORS[0].name, "100 TEST ST", "070822219101", "TEST OWNER", "100 TEST ST, MADISON, WI 53703", type, date, status, "09:00 AM"];
-  const hiddenStatuses = ["Scheduled", "Pending", "Completed", "Inspection", "No Violation", "Reinspection", "No Fee Reinspection", " no  fee reinspection "];
+  const hiddenStatuses = ["Scheduled", "Pending", "Completed", "Inspection", "No Violation"];
+  const reinspectionResults = ["Reinspection", "No Fee Reinspection", " no  fee reinspection "];
+  // Reinspection and No Fee Reinspection stay hidden on every type except a Reinspection, where they are listed.
   for (const type of ["Initial Inspection", "Reinspection", "CA Reinspection", "Complaint Inspection"])
-    for (const status of hiddenStatuses) {
+    for (const status of type === "Reinspection" ? hiddenStatuses : [...hiddenStatuses, ...reinspectionResults]) {
       const t = accelaTable([head, row(type, status)]);
       assert.equal(t.cases.length, 0, type + "/" + status + " hidden");
       assert.match(t.errors[0], /^No eligible completed inspection: the report returned only /, type + "/" + status);
     }
+  for (const status of reinspectionResults) {
+    const t = accelaTable([head, row("Reinspection", status)]);
+    assert.equal(t.cases.length, 1, "Reinspection/" + status + " is listed");
+    assert.equal(t.cases[0].rows[0].rule.doc, "reinspectionNotice", status);
+  }
   assert.match(accelaTable([head, row("Reinspection", "Scheduled")]).errors[0], /Scheduled rows/);
   assert.match(accelaTable([head, row("Reinspection", "No Violation")]).errors[0], /status is not an inspection result/);
   assert.match(accelaTable([head, row("Assist", "Official Notice")]).errors[0], /Assist rows/);

@@ -310,7 +310,12 @@ function worksheetCheckPanelHTML(list, checkRowHTML) {
 }
 
 function followupItemDue(it, res, type, hasHistory, cleared) {
-  return (hasHistory && type !== "compliance") || it.withdrawn ? "" : cleared || type === "compliance" ? it.due : res.due;
+  // A Reinspection Notice never changes a due date: every item keeps the date it was already assigned.
+  return (hasHistory && type !== "compliance") || it.withdrawn
+    ? ""
+    : cleared || type === "compliance" || type === "reinspectionNotice"
+      ? it.due
+      : res.due;
 }
 
 function followupDraftItem(services, r, type, hasHistory, pos, it) {
@@ -349,7 +354,7 @@ function followupDraftAllowed(services, r, type, src, carry) {
     services.ui.toast("Open a current reinspection worksheet first");
     return false;
   }
-  if (!["extension", "citation", "referral", "referralUpdate", "compliance"].includes(type)) {
+  if (!["extension", "citation", "referral", "referralUpdate", "compliance", "reinspectionNotice"].includes(type)) {
     services.ui.toast("Choose an available follow-up type.");
     return false;
   }
@@ -395,7 +400,7 @@ function buildFollowupDraft(services, r, type, src) {
     mailed: recordDay(today),
     cc: "",
     cits: {},
-    ...(hasHistory || type === "citation" ? { authoringVersion: 16 } : {}),
+    ...(hasHistory || type === "citation" || type === "reinspectionNotice" ? { authoringVersion: 16 } : {}),
     fromReinspId: r.id,
     fromDocId: src.id,
     expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),

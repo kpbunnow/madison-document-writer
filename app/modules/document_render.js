@@ -14,6 +14,13 @@ import { INSPECTORS } from "./data/inspectors.js";
 /* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
    note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the
    approved print style hides notes on corrected rows, so these notes keep an explicit display. */
+/* A corrected item shows its confirmation date. A Reinspection Notice shows every due date as assigned, never as an input. */
+const dueIsFinal = (d, it) => it.done || d.type === "reinspectionNotice";
+const finalDueCell = (services, it) =>
+  it.done
+    ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
+    : `<span class="mono">${esc(services.fmtDate(it.due))}</span>`;
+
 export function createDocumentRenderer(services) {
   function historyNotesHTML(d, it) {
     return services
@@ -266,8 +273,8 @@ export function createDocumentRenderer(services) {
                         "</span>"
                   : d.type === "compliance"
                     ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
-                    : it.done
-                      ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
+                    : dueIsFinal(d, it)
+                      ? finalDueCell(services, it)
                       : simpleVacancy(d)
                         ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
                         : aligned &&

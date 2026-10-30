@@ -50,11 +50,19 @@ assert.deepEqual(
   normalized(scopedLabel(priorLabel)),
   "area label retains its exact expression through a scoped filter read",
 );
+/* The one intentional change to the retained definitions: Reinspection joins the report statuses, after Notice. */
+function withReinspectionStatus(declarations) {
+  const statuses = declarations.find((d) => d.id.name === "STATUSES").init.elements;
+  assert.equal(statuses[0].value, "Notice");
+  assert.ok(!statuses.some((e) => e.value === "Reinspection"), "the retained original predates Reinspection");
+  statuses.splice(1, 0, { type: "Literal", value: "Reinspection" });
+  return declarations;
+}
 assert.deepEqual(
   normalized(decls(parse(fs.readFileSync("app/modules/report_metadata.js", "utf8")))),
   normalized([
     ...decls(parse(fs.readFileSync("tests/fixtures/report_metadata_reference.txt", "utf8"))),
-    ...decls(parse(fs.readFileSync("tests/fixtures/report_status_metadata_reference.txt", "utf8"))),
+    ...withReinspectionStatus(decls(parse(fs.readFileSync("tests/fixtures/report_status_metadata_reference.txt", "utf8")))),
   ]),
   "shared report definitions and workbook scope retain their exact expressions",
 );

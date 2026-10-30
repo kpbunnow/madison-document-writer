@@ -1683,7 +1683,7 @@ def _validate_publication_identity(*, event, record, check_date_window):
     payload, snap = (event["payload"], event["payload"]["snapshot"])
     kind = snap.get("type")
     if (
-        kind not in ("notice", "extension", "citation", "referral", "referralUpdate", "compliance", *SPECIAL_TYPES)
+        kind not in ("notice", "extension", "reinspectionNotice", "citation", "referral", "referralUpdate", "compliance", *SPECIAL_TYPES)
         or event["type"] != kind + ".issued"
     ):
         raise ValueError("The issued event and document type disagree")
@@ -1786,6 +1786,12 @@ def _validate_followup_outcomes(*, kind, items, source):
     for item, previous in zip(items, source["items"]):
         if previous.get("withdrawn") and (not item.get("withdrawn")) or (previous.get("done") and (not item.get("done"))):
             raise ValueError("Prior compliance and withdrawals must remain in later documents")
+    if kind == "reinspectionNotice":
+        # A Reinspection Notice is a status update: it never assigns, moves or removes a due date.
+        if all(i.get("done") or i.get("withdrawn") for i in items):
+            raise ValueError("A Reinspection Notice needs at least one outstanding item")
+        if any(not i.get("withdrawn") and (i.get("due") or "") != (p.get("due") or "") for i, p in zip(items, source["items"])):
+            raise ValueError("A Reinspection Notice keeps every due date as assigned")
 
 
 def _validate_new_citation_numbers(*, items, documents, snap):

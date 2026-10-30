@@ -6,6 +6,21 @@ import { orderedRows, validSort, rememberUI, restoreUI } from "./report_presenta
 import { html, raw } from "./screen_html.js";
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
+/* The status a document type gives a case when no later fact overrides it; No Occupancy keeps the case's own status. */
+const STATUS_AT_DATE = {
+  notice: "Notice",
+  extension: "Extension",
+  reinspectionNotice: "Reinspection",
+  citation: "Cited",
+  referral: "Referred",
+  referralUpdate: "Referred",
+  compliance: "Closed",
+  bestInterestExtension: "Best Interest Extension",
+  vacancyExtension: "Vacancy Extension",
+  summaryAbatement: "Summary Abatement",
+  nonSummaryAbatement: "Non-Summary Abatement",
+};
+
 function mergeParcelLookup(services, lk) {
   Object.assign(ReportsState.S.parcels, lk.parcels || {});
   ReportsState.S.parcelMissing = services.uniq(ReportsState.S.parcelMissing.filter((k) => !(lk.parcels || {})[k]).concat(lk.missing || []));
@@ -690,21 +705,7 @@ export function createReportsServices(services) {
     if (last.allWithdrawn) return "Withdrawn";
     if (docs.some((d) => d.type === "compliance")) return "Closed";
     if (docs.some((d) => d.type === "referral")) return "Referred";
-    return (
-      {
-        notice: "Notice",
-        extension: "Extension",
-        citation: "Cited",
-        referral: "Referred",
-        referralUpdate: "Referred",
-        compliance: "Closed",
-        bestInterestExtension: "Best Interest Extension",
-        vacancyExtension: "Vacancy Extension",
-        summaryAbatement: "Summary Abatement",
-        nonSummaryAbatement: "Non-Summary Abatement",
-        noOccupancy: c.status,
-      }[last.type] || last.type
-    );
+    return { ...STATUS_AT_DATE, noOccupancy: c.status }[last.type] || last.type;
   }
 
   function violationAt(v, date) {

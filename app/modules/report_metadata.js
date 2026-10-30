@@ -96,6 +96,7 @@ export const EXPORT_SCOPE = [
 
 export const STATUSES = [
   "Notice",
+  "Reinspection",
   "Extension",
   "Best Interest Extension",
   "Vacancy Extension",
