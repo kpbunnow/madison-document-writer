@@ -1,4 +1,4 @@
-# R65 current architecture
+# R66 current architecture
 
 The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the final architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 

@@ -1,5 +1,13 @@
 # Release changelog
 
+## 2026-10-30 R66 — Corrected release package
+
+Corrected package assigned on the owner's request after R65 could not start on an installed PC (helper 2026.10.30.67, build 67; authoring 16, case schema 5, summary 6, backup 2 unchanged). R65's runtime manifest did not list the new helper module open_cases.py, so the installed helper exited immediately with "local helper did not start". R66 carries it. Replace R65 with R66 everywhere; R65 must not be used. Everything else in R65 (the Reinspection Notice, open cases by inspector and the other changes below) is unchanged.
+
+### Release verification
+
+- A new test checks that every helper module a deployed file imports is itself deployed and that the server module imports from the deployed files alone, so this class of omission fails the gate. For this release the packaged deploy folder was also started and read at /dw-status before delivery.
+
 ## 2026-10-30 R65 — Release package
 
 Release package assigned on the owner's request after the development below (helper 2026.10.30.66, build 66; authoring 16, case schema 5, summary 6, backup 2 unchanged). No existing stored format changes. A new document type, the Reinspection Notice, is added to case files: an installation older than R65 that shares the same case folder cannot validate or print one, so install R65 on every PC that uses the shared folder before issuing a Reinspection Notice.

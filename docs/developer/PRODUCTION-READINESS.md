@@ -63,3 +63,5 @@ R63 is the first release package since R61. It adds S63-1 and S63-2 for startup 
 R64 adds S64-1 through S64-4 for case-folder links, plain error wording, the Reports date and the clarified controls. All remain OPEN; automated verification does not supply City, native or staff acceptance. R64 is a release candidate, not a deployment approval.
 
 R65 adds S65-1 through S65-3 for open cases by inspector and the Reinspection Notice (wording approval, print, mailing and filing). All remain OPEN. R65 is a release candidate, not a deployment approval.
+
+R66 replaces R65, which could not start on an installed PC, and adds S66-1 (installed start). S65-1 through S65-3 carry to R66 unchanged. R66 is a release candidate, not a deployment approval.
