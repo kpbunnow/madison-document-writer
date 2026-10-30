@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 import server
+from retained_wording import with_current_wording
 
 ROOT = Path(__file__).resolve().parents[2]
 NAMESPACE = server.__dict__.copy()
@@ -143,7 +144,7 @@ class PdfPost(unittest.TestCase):
                     normalised = json.loads(json.dumps(handler.sent).replace(temporary, "ROOT"))
                     outcomes.append((result, normalised, sorted(str(p.relative_to(root)) for p in root.rglob("*") if p.is_file())))
                     trails.append(trail)
-            self.assertEqual(outcomes[1], outcomes[0], (index, shape, email, mode))
+            self.assertEqual(outcomes[1], with_current_wording(outcomes[0]), (index, shape, email, mode))
             self.assertEqual(trails[1], trails[0], (index, shape, email, mode))
             if outcomes[0][1]:
                 statuses.add(outcomes[0][1][0][0])

@@ -207,7 +207,7 @@ function reportDaysToCompliance(services, cell, count) {
           cell(services.avg(ds), null, "days"),
           cell(services.median(ds), null, "days"),
           count(open),
-          cell(services.avg(open.map((v) => services.daysBetween(v.c.opened, services.TODAY)).filter((x) => x != null)), null, "days"),
+          cell(services.avg(open.map((v) => services.daysBetween(v.c.opened, services.currentDay())).filter((x) => x != null)), null, "days"),
         ];
       };
       const g = services.groupBy(vs, (v) => v.typeLabel),

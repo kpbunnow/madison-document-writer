@@ -1679,6 +1679,31 @@ The change was made by a scope-aware rewrite (eslint-scope): only function decla
 
 Eleven frozen-original comparisons spliced a retained inner function into the factory by AST position. They now use `tests/fixtures/lifted_splice.cjs`, which places the retained original in a wrapper with bridges to its moved siblings; scenarios, expected values and assertions are untouched. The per-function baseline was lowered.
 
+## fix-case-containment-and-filenames
+
+Bug-scan findings F4 and F5. `read_case` followed a symlink in the case folder, so a linked file outside the folder was returned as a case (a synthetic outside JSON file came back with HTTP 200 and a valid integrity status). New `helper/plain_files.py` defines a plain file as a regular file that is not a link or Windows reparse point. Case listing, search, resolution, the Reports index, save-target resolution, integrity scans and `read_case` now skip or refuse anything else with one plain message; a missing file keeps its own error. Listing helpers accept the folder doubles used by the retained-original comparisons, which are unchanged.
+
+`safe_name` (PDF names) now drops control and bidirectional characters, and `safe_json_name` (case names) refuses them and all whitespace controls; ordinary names, including accented and CJK ones, are unchanged. The new helper is added to the runtime manifest template. Native Windows junction and reparse behavior was not exercised.
 ## fix-backup-integrity-records
 
 A workspace backup whose `integrityRecords` held a non-object entry was written to the browser's `drafts` store before the integrity owner read it and failed, leaving durable invalid state that startup would meet again. `restoreWorkspaceBackup` now checks that `integrityRecords` is absent or an array of objects before any write. `audit_backup_integrity_records.js` refuses eight malformed shapes without a write and still restores the well-formed ones. It is separate from `audit_workspace_backup.js` because the parity suite runs that file against the retained original.
+
+## fix-malformed-input-handling
+
+Bug-scan findings F1, F2 and F3. `save_case` read nested event values to decide whether it needed the citation-pricing lock before `validate_case` ran, so a record with a string event, a string payload or a list snapshot raised `AttributeError` and the helper answered 503 with Python text; the Writer treats 5xx as a possibly committed write and keeps the attempt. The lock check now tolerates wrong shapes, so validation refuses the record first with a definitive 400. `validate_case` also requires issued events to carry an object snapshot and every inspector to be an object, in a small `_require_valid_event` so the complexity ratchet does not rise. `read_case` answers any unreadable file with one plain message and leaves it untouched, and `POST /reporting/parcels` answers a non-JSON or non-object body with 400. `audit_malformed_input_rules.py` drives 16 malformed records, 8 unreadable files and 7 bad parcel bodies through the real endpoints and checks that nothing is written; a case-store mutation fuzz now raises nothing but `ValueError`.
+
+## fix-integrity-shape-isolation
+
+Bug-scan finding N2. A schema-5 case whose `integrity.genesis` was a list, string or null (and which the migration registry had not seen) raised `AttributeError` inside `verify_record`; the exception was outside the verifier's handler and the Reports index loop, so `GET /reporting/index` failed with HTTP 500 for every case. `verify_record` now returns a failed verdict through `_damaged_verdict` (which also lowers its complexity by one), and the index reader isolates `AttributeError`, `IndexError` and `RecursionError` per file. `audit_integrity_shape_rules.py` plants eleven damaged cases beside a healthy one and requires the healthy case to be returned.
+
+## fix-plain-error-messages
+
+Bug-scan findings F7 and F8. About twenty helper responses returned `str(error)`, so people saw parser text, Python text and file paths. New `helper/public_errors.py` shows messages the program wrote as written, and replaces parser, Python-internal and path-bearing system errors with plain sentences; status codes are unchanged. The migration conflict now says what happened and what to do. The retained-handler comparisons for PDF posts and shared-record routes stay exact in status, calls and file effects and map only the two sentences that deliberately changed (`tests/fixtures/retained_wording.py`).
+
+## fix-reports-live-date
+
+Bug-scan finding F6. Reports captured `TODAY` at load, so a tab left open past midnight kept counting from the earlier day. A `currentDay()` read when asked is now handed to the three Reports service objects and used for Reset filters, open-case age and the closed-as-of test; the load-time constant only seeds the first view. `audit_reports_clock_wiring.js` checks the production wiring and `audit_reports.js` moves the clock to the next New Year.
+
+## Repair batch note
+
+These repairs (with the earlier backup-restore validation, F-N1, and the case-folder containment and file-name policy, F4 and F5, in the entries above) were delivered as one integration PR so the combined head had one full gate. Staff-visible wording changed in two places: the migration conflict message and the plain sentences above.

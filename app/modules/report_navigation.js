@@ -141,10 +141,11 @@ function dispatchReportActions(services, d) {
     return true;
   }
   if (a === "clearFilters") {
+    const day = services.currentDay();
     Object.assign(services.state.F, {
-      from: services.TODAY.slice(0, 4) + "-01-01",
-      to: services.TODAY,
-      asOf: services.TODAY,
+      from: day.slice(0, 4) + "-01-01",
+      to: day,
+      asOf: day,
       areaType: "district",
       boundary: "current",
       areas: [],

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+from plain_files import plain_json_files
 from reporting_reads import ordered_reads
 import sys
 
@@ -13,6 +14,12 @@ import rfc8785
 
 SETTINGS = Path(__file__).with_name("integrity-settings.json")
 ZERO = "0" * 64
+
+
+GENESIS_CONFLICT = (
+    "This case's migration history conflicts with the evidence the program retained for it, so it was not saved. "
+    "Your work is kept on this device. Ask an administrator to review the case before saving again."
+)
 
 
 def canonical(value):
@@ -115,7 +122,7 @@ def register_migration(folder, record, file_name, reconstructed=False, recovery=
         if retained and retained[-1]["genesisHash"] == record["integrity"]["genesis"]["hash"]:
             return
         if retained and not recovery:
-            raise ValueError("Migration genesis conflict")
+            raise ValueError(GENESIS_CONFLICT)
         value["entries"].append(
             {
                 "caseNumber": number,
@@ -278,7 +285,7 @@ def publish_record(folder, target, record, previous=None, recovery=False):
     retained = [e for e in registry(folder)["entries"] if e["caseNumber"].casefold() == record["case"]["number"].casefold()]
     if not recovery and retained:
         if retained[-1]["genesisHash"] != record["integrity"]["genesis"]["hash"]:
-            raise ValueError("Migration genesis conflict")
+            raise ValueError(GENESIS_CONFLICT)
         atomic_write(target, encoded(record))
         return
     path = intent_path(folder, record["case"]["number"])
@@ -303,13 +310,21 @@ def reconstruct_registry(folder):
     root = Path(folder)
     if not root.is_dir():
         return
-    for path in sorted(root.glob("*.json")):
+    for path in sorted(plain_json_files(root)):
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
                 register_migration(root, record, path.name, reconstructed=True)
         except (OSError, ValueError, KeyError, TypeError):
             continue  # reads expose failures; never repair corrupt files
+
+
+def _damaged_verdict(error, failure):
+    """The failed verdict for integrity metadata that cannot be read; a structure of the wrong kind is damage, not a crash."""
+    if str(error) == "Migration registry is damaged; contact an administrator":
+        return {**failure("migration registry", "valid registry", str(error)), "label": str(error), "state": "registry-damaged"}
+    detail = "malformed integrity metadata" if isinstance(error, AttributeError) else str(error) or type(error).__name__
+    return failure("integrity metadata", "complete verifiable chain", detail)
 
 
 def verify_record(record, folder=None, external=None, context=None):
@@ -413,10 +428,8 @@ def verify_record(record, folder=None, external=None, context=None):
             "migrationDate": genesis["committedAt"],
             "legacyHistoryAsFound": genesis["sourceSchema"] < 5,
         }
-    except (KeyError, TypeError, ValueError, IndexError, OSError) as error:
-        if str(error) == "Migration registry is damaged; contact an administrator":
-            return {**failure("migration registry", "valid registry", str(error)), "label": str(error), "state": "registry-damaged"}
-        return failure("integrity metadata", "complete verifiable chain", str(error) or type(error).__name__)
+    except (KeyError, TypeError, ValueError, IndexError, OSError, AttributeError) as error:
+        return _damaged_verdict(error, failure)
 
 
 def require_valid(record, folder=None, context=None):
@@ -449,7 +462,7 @@ def anchor_daily(folder, external=None):
         if any(p["recovery"] for p in context.pending.values()):
             raise ValueError("Administrator must complete pending recovery before anchoring")
         heads = {}
-        for path in sorted(folder.glob("*.json")):
+        for path in sorted(plain_json_files(folder)):
             record = json.loads(path.read_text(encoding="utf-8"))
             if record.get("format") != "madison-case-file":
                 continue
