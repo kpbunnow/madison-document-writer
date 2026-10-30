@@ -254,3 +254,14 @@ All R62 items remain OPEN.
 | S63-2 | Save and reopen shared views for Overridden deposits and Document actions in Reports | Both views save to the shared folder and reopen with their filters |
 
 All R63 items remain OPEN. S60–S62 and carried items remain OPEN.
+
+## R64 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S64-1 | On the City share, place a shortcut or junction named like a case file in the case folder, then open Search and Workspace | The link is not listed, resolved or opened, and no file outside the case folder is read |
+| S64-2 | Open a deliberately unreadable case file and a case with a conflicting migration history (administrator-prepared copies) | Each shows a plain sentence with a next step and no parser, Python or file-path text; the file is left unchanged |
+| S64-3 | Leave Reports open past midnight, then use Reset filters and read the open-case age | Both use the new day |
+| S64-4 | On an import with blockers, then in the due-date bar, then restoring a withdrawn document | The Start button is tied to its reason, Apply date waits for a selected item, and the restore screen states that a restore must change something |
+
+All R64 items remain OPEN. S60–S63 and carried items remain OPEN.
