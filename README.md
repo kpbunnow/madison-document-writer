@@ -3,3 +3,5 @@
 Start with docs/developer/00-START-HERE.md. Build and tests run directly from the maintained folders. version.json owns identity; docs/developer/VERSION-NOTES.md explains helperBuild. Generated output belongs under build/. First installation requires independent package verification; later updates are checked by the installed launcher against runtime-manifest.json. All City acceptance and legal holds remain open.
 
 Development and review: [CONTRIBUTING.md](CONTRIBUTING.md) and [the development standard](docs/developer/DEVELOPMENT-STANDARD.md).
+
+This program is licensed under the GNU General Public License, version 3 (see LICENSE). Vendored third-party components keep their own licenses.
