@@ -1,5 +1,9 @@
 # Release changelog
 
+## Unreleased — Clearer disabled controls and restore note (development)
+
+- The Start button on the import review points at the blocker message that explains why it is disabled. "Apply date to selected items" waits until at least one item is selected and names the selected count it reads. Restoring a withdrawn document says up front that the restore must change something in the document. No domain rule, stored format or release identity (R63, helper build 64) changes.
+
 ## Unreleased — Screen markup templates (development)
 
 - Convert every split string literal in the screen modules to `html` templates or single literals, with escaping and evaluation order unchanged, and ratchet screen modules at zero. Print renderers and approved-wording modules are untouched. No behavior, release identity (R63, helper build 64), stored format or print reference changes.

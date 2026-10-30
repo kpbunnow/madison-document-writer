@@ -213,12 +213,26 @@ function run(api, sc, inspector) {
   const inspector = current.INSPECTORS.find((i) => i.name).name;
   const seen = new Set();
   let interrupted = 0,
+    described = 0,
     panels = 0,
     chooser = 0;
   for (let n = 0; n < 6000; n++) {
     const sc = scenario(inspector);
-    const [before, after] = [run(legacy, sc, inspector), run(current, sc, inspector)];
+    const [before, shown] = [run(legacy, sc, inspector), run(current, sc, inspector)];
+    // One deliberate difference from the retained module: the Start button points at the blocker banner (when it is
+    // shown) so the reason travels with the disabled control. Everything else must still be identical.
+    const after = shown.replace(/(id=\\"acc-go\\"[^>]*?) aria-describedby=\\"acc-blockers\\"/, "$1");
     assert.equal(after, before, `import panel scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
+    const panelHtml = JSON.parse(shown).html || "";
+    if (panelHtml.includes('id="acc-go"')) {
+      const goButton = /<button[^>]*id="acc-go"[^>]*>/.exec(panelHtml)[0];
+      assert.equal(
+        goButton.includes('aria-describedby="acc-blockers"'),
+        panelHtml.includes('id="acc-blockers"'),
+        `button names its reason exactly when a reason is shown (scenario ${n})`,
+      );
+      if (panelHtml.includes('id="acc-blockers"')) described++;
+    }
     const parsed = JSON.parse(after);
     if (parsed.error) interrupted++;
     else if (parsed.html) panels++;
@@ -262,7 +276,15 @@ function run(api, sc, inspector) {
     "Import inspection",
   ])
     assert.ok(seen.has(fragment), "scenarios reach: " + fragment);
-  console.log("PASS import panel matches the retained module over 6000 scenarios (" + interrupted + " interrupted, " + panels + " panels)");
+  console.log(
+    "PASS import panel matches the retained module over 6000 scenarios (" +
+      interrupted +
+      " interrupted, " +
+      panels +
+      " panels, " +
+      described +
+      " with a named reason)",
+  );
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

@@ -162,7 +162,7 @@ export function createDeadlineAssignment(services) {
               .join("") +
             "</div>"
         : "",
-    )}<div class="editor-tools"><span data-due-selected>${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue">Apply date to selected items</button></div></div></section>`;
+    )}<div class="editor-tools"><span data-due-selected id="due-selected-text">${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue" aria-describedby="due-selected-text"${raw(items.some((i) => selected.has(i.id)) ? "" : " disabled")}>Apply date to selected items</button></div></div></section>`;
   }
 
   function assignDue(target, visit, value, ids) {
