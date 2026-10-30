@@ -266,12 +266,12 @@ All R63 items remain OPEN. S60–S62 and carried items remain OPEN.
 
 All R64 items remain OPEN. S60–S63 and carried items remain OPEN.
 
-## Development after R64 (not yet released) — OPEN
+## R65 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
 | --- | --- | --- |
-| DV-1 | On an administrator-prepared copy of the City case folder, open Search shared case records, choose an inspector, then Unassigned or former inspector, and select Continue case | Each list shows that inspector's cases that are not closed or withdrawn, soonest deadline first, with a note when case files could not be included; Continue case offers Import inspection with the case number ready and changes nothing until the import is completed |
-| DV-2 | Import a Reinspection with result Reinspection, then another with No Fee Reinspection, on cases with an issued notice and some corrected items | Each opens the worksheet and creates the Reinspection Notice with the approved wording (the division language reviewer approves it under L5), corrected items ruled through with their date and no due date changed |
-| DV-3 | Write a Reinspection Notice after the case's due dates have passed, print it, mail it and file its PDF | Past due dates print as assigned, no due date can be edited, and the printed layout and PDF filing are acceptable on City equipment |
+| S65-1 | On an administrator-prepared copy of the City case folder, open Search shared case records, choose an inspector, then Unassigned or former inspector, and select Continue case | Each list shows that inspector's cases that are not closed or withdrawn, soonest deadline first, with a note when case files could not be included; Continue case offers Import inspection with the case number ready and changes nothing until the import is completed |
+| S65-2 | Import a Reinspection with result Reinspection, then another with No Fee Reinspection, on cases with an issued notice and some corrected items | Each opens the worksheet and creates the Reinspection Notice with the approved wording (the division language reviewer approves it under L5), corrected items ruled through with their date and no due date changed |
+| S65-3 | Write a Reinspection Notice after the case's due dates have passed, print it, mail it and file its PDF | Past due dates print as assigned, no due date can be edited, and the printed layout and PDF filing are acceptable on City equipment |
 
-All items above remain OPEN; they belong to the next release the owner assigns.
+All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
