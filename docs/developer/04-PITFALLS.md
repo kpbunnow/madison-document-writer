@@ -1,4 +1,4 @@
-# R65 current pitfalls
+# R66 current pitfalls
 
 Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/.
 

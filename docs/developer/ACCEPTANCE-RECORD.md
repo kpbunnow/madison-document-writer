@@ -275,3 +275,11 @@ All R64 items remain OPEN. S60–S63 and carried items remain OPEN.
 | S65-3 | Write a Reinspection Notice after the case's due dates have passed, print it, mail it and file its PDF | Past due dates print as assigned, no due date can be edited, and the printed layout and PDF filing are acceptable on City equipment |
 
 All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
+
+## R66 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S66-1 | Install R66 over an installed R64 (or R65) copy from the shared release folder on a PC that uses the shared case folder, then double-click the Document Writer icon | The helper starts, Writer opens, the installed folder contains open_cases.py, and Search shared case records lists an inspector's open cases; no "local helper did not start" message |
+
+All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN.
