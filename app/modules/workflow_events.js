@@ -1,6 +1,5 @@
 import { workspaceState as workspace } from "./workspace_state.js";
-import { editorState as editor } from "./editor_state.js";
-import { importPromptHTML, importTarget, inspectorResultsHTML } from "./inspector_cases.js";
+import { importPromptHTML, importTarget, inspectorResultsHTML, prefillLookup } from "./inspector_cases.js";
 /* Workflow event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { esc } from "./presentation_format.js";
@@ -61,7 +60,7 @@ async function continueWithImport(services, number) {
   document.getElementById("utility-dialog")?.close();
   if (!(await services.navigation.navigate("import"))) return;
   if (target.kind === "search") {
-    editor.WORK.entry["lookup-number"] = number;
+    prefillLookup(number);
     services.render();
   }
 }

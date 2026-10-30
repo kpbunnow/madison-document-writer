@@ -80,6 +80,7 @@ const allowed = new Set([
   "calendar.js",
   "mailing_rules.js",
   "record_values.js",
+  "inspector_cases.js",
 ]);
 for (const name of Object.keys(graph.imports).filter((n) => n.endsWith("_events.js"))) {
   assert.ok(!graph.cycles.some((c) => c.includes(name)), name + " must not join a UI/startup cycle");

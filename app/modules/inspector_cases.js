@@ -52,6 +52,11 @@ export function importTarget(number, acc = editor.state.acc || editor.WORK.acc) 
   return { kind: "blocked", number: awaiting?.number || "", label: awaiting?.number || acc.fileName || "another inspection" };
 }
 
+/* Import inspection reads this saved entry for its case-number box. */
+export function prefillLookup(number) {
+  editor.WORK.entry["lookup-number"] = number;
+}
+
 export function importPromptHTML(number) {
   const target = importTarget(number);
   const open = html`<button class="btn" type="button" data-global-open="${number}">Open case without importing</button> <button class="btn" type="button" data-inspector-cancel>Back to list</button>`;

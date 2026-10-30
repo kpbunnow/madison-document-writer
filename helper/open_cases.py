@@ -70,6 +70,9 @@ def open_cases_for(index, inspector, roster_ids, today):
         "total": len(rows),
         "partial": len(rows) > MAX_ROWS,
         # Cases that exist in the folder but are not in the list because their summary could not be used.
-        "incomplete": len(index.get("missing", [])) + len(index.get("stale", [])) + len(index.get("unreadable", [])) + len(index.get("mismatched", [])),
+        "incomplete": len(index.get("missing", []))
+        + len(index.get("stale", []))
+        + len(index.get("unreadable", []))
+        + len(index.get("mismatched", [])),
         "readAt": index.get("readAt", ""),
     }
