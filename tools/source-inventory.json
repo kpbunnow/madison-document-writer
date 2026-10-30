@@ -587,6 +587,7 @@
     "tests/fixtures/reports_owner_phase_reference.txt",
     "tests/fixtures/retained_owner_parity.cjs",
     "tests/fixtures/retained_sources_reference.txt",
+    "tests/fixtures/retained_wording.py",
     "tests/fixtures/run_query_reference.txt",
     "tests/fixtures/safety_events_reference.txt",
     "tests/fixtures/safety_focus_reference.txt",

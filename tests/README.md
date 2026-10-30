@@ -283,6 +283,7 @@ covers, or a new suite under its feature.
 | `audit_case_containment.py` | Linked or non-regular entries in the case folder are never read, listed, resolved, indexed or written through; ordinary case files work as before. |
 | `audit_malformed_input_rules.py` | Wrong-shaped case records, unreadable case files and bad parcel requests are answered as plain 400s; refused records write nothing. |
 | `audit_integrity_shape_rules.py` | Wrong-shaped integrity metadata is an invalid verdict, and one unprocessable case file never fails the whole Reports index. |
+| `retained_wording.py` | Fixture helper: retained-handler comparisons stay exact except the two sentences that deliberately changed (plain error wording). |
 | `audit_public_errors_rules.py` | People see messages the program wrote, never parser or Python wording or file paths; the migration conflict explains itself. |
 | `audit_reports_clock_wiring.js` | Every Reports service getter named TODAY reads the current day through `currentDay()` when asked, not the page-load day. |
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
