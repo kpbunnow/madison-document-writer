@@ -65,6 +65,31 @@ async function continueWithImport(services, number) {
   }
 }
 
+const INSPECTOR_ACTIONS = ["data-inspector-case", "data-inspector-import", "data-inspector-cancel"];
+
+async function inspectorAction(services, t) {
+  const prompt = document.getElementById("inspector-case-prompt");
+  if (t.dataset.inspectorCase) prompt.innerHTML = importPromptHTML(t.dataset.inspectorCase);
+  else if (t.hasAttribute("data-inspector-cancel")) prompt.innerHTML = "";
+  else await continueWithImport(services, t.dataset.inspectorImport);
+}
+
+function exportTimelineJson(services) {
+  services.downloadFile(
+    "case-event-log.json",
+    JSON.stringify(
+      {
+        format: "madison-event-log-export",
+        version: 1,
+        caseNumber: kase(workspace.TIMELINE_CASE).number,
+        events: eventsFor(workspace.TIMELINE_CASE),
+      },
+      null,
+      2,
+    ),
+  );
+}
+
 function submitReminderSettings(services, form, data) {
   const prefs = workspace.WORKFLOW_PREFS.reminders;
   prefs.enabled = data.get("enabled") === "on";
@@ -150,9 +175,7 @@ export function createWorkflowEvents(services) {
         else if (t.dataset.globalOpen) {
           await services.writerOpenReportedCase({ number: t.dataset.globalOpen });
           document.getElementById("utility-dialog")?.close();
-        } else if (t.dataset.inspectorCase) document.getElementById("inspector-case-prompt").innerHTML = importPromptHTML(t.dataset.inspectorCase);
-        else if (t.hasAttribute("data-inspector-cancel")) document.getElementById("inspector-case-prompt").innerHTML = "";
-        else if (t.dataset.inspectorImport) await continueWithImport(services, t.dataset.inspectorImport);
+        } else if (INSPECTOR_ACTIONS.some((name) => t.hasAttribute(name))) await inspectorAction(services, t);
         else if (t.hasAttribute("data-reminders")) services.showReminders();
         else if (t.dataset.reminderDraft) services.showReminderDraft(t.dataset.reminderDraft);
         else if (t.dataset.reminderDismiss) {
@@ -170,20 +193,7 @@ export function createWorkflowEvents(services) {
             ]),
             "text/csv",
           );
-        else if (t.hasAttribute("data-timeline-json"))
-          services.downloadFile(
-            "case-event-log.json",
-            JSON.stringify(
-              {
-                format: "madison-event-log-export",
-                version: 1,
-                caseNumber: kase(workspace.TIMELINE_CASE).number,
-                events: eventsFor(workspace.TIMELINE_CASE),
-              },
-              null,
-              2,
-            ),
-          );
+        else if (t.hasAttribute("data-timeline-json")) exportTimelineJson(services);
         else if (t.hasAttribute("data-batch-due")) services.showBulkDue();
         else if (t.hasAttribute("data-outbox")) await services.showOutbox();
         else if (t.hasAttribute("data-outbox-print")) await services.printOutbox();
