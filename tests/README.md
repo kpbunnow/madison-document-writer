@@ -169,6 +169,7 @@ covers, or a new suite under its feature.
 | `audit_feature_extensions.js` | Feature suite: administrative family switching keeps each family's authoring version; Best Interest checks, correction of an issued Best Interest and explicit adoption |
 | `audit_r62_extensions.js` | Authoring-16 Best Interest (worksheet Next due dates, no selection or safety) and Vacancy (no due dates, Scope and review date only) Extensions, family switching, historical formats |
 | `audit_r62_extensions_helper.py` | Helper enforcement of the authoring-16 extension rules and earlier-format requirements |
+| `audit_reinspection_notice_helper.py` | Reinspection Notice helper rules: accepted with every due date kept, past dates allowed here but not on an Extension, a changed or removed due date refused, an outstanding item required, refused on a referred case, event name matches the type, and the Reinspection status and label. |
 | `audit_r61_best_interest.py` | Helper enforcement of Reasons plus explicit safety confirmation, retained deadlines/older-family review requirements and legacy classification aliases |
 | `audit_r54_extensions.js` | Authoring-12 shared extension layout against the R53 renderer; authoring-13 dated Best Interest and Vacancy Extensions (due dates in Violation items, no conditional model) |
 
@@ -454,6 +455,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |
 | `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
 | `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
+| `browser_reinspection_notice.js` | Reinspection Notice with the real helper: worksheet from the imported status, header and approved paragraph, ruled-through corrected item, due dates as text and not editable, past dates printed unchanged, helper refusal of a changed date, issue, and the Reinspection status in the summary the helper's own projection accepts. |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security
