@@ -15,10 +15,14 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([
-    compile(fs.readFileSync("app/modules/workspace_queue.js", "utf8")),
-    compile(fs.readFileSync("tests/fixtures/workspace_queue_reference.txt", "utf8")),
-  ]);
+  // The one intentional change: the queue button opens the document, so it no longer shares the editor's "File issued PDF" label.
+  function retainedOriginal() {
+    const source = fs.readFileSync("tests/fixtures/workspace_queue_reference.txt", "utf8"),
+      old = 'label = "File issued PDF";';
+    assert.equal(source.split(old).length, 2, "retained original carries the old queue label exactly once");
+    return source.replace(old, 'label = "Open document to file PDF";');
+  }
+  const [current, legacy] = await Promise.all([compile(fs.readFileSync("app/modules/workspace_queue.js", "utf8")), compile(retainedOriginal())]);
   function run(api, input) {
     const x = structuredClone(input),
       calls = [];

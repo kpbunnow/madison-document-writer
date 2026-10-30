@@ -55,7 +55,7 @@ function queuePDFAction(R, k, has, fact) {
   let action, label, reason, priority;
   if (has("filing")) {
     action = fact("filing").action;
-    label = "File issued PDF";
+    label = "Open document to file PDF";
     reason = "PDF filing needed for an issued document.";
     priority = 4;
   } else if (has("outbox")) {

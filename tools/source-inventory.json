@@ -193,6 +193,7 @@
     "app/modules/writer_handoff.js",
     "app/modules/writer_queries.js",
     "app/modules/writer_startup.js",
+    "docs/agents/README.md",
     "docs/developer/00-START-HERE.md",
     "docs/developer/01-ARCHITECTURE.md",
     "docs/developer/02-CODE-MAP.md",
