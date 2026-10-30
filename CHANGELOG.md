@@ -1,5 +1,28 @@
 # Release changelog
 
+## 2026-10-30 R65 — Release package
+
+Release package assigned on the owner's request after the development below (helper 2026.10.30.66, build 66; authoring 16, case schema 5, summary 6, backup 2 unchanged). No existing stored format changes. A new document type, the Reinspection Notice, is added to case files: an installation older than R65 that shares the same case folder cannot validate or print one, so install R65 on every PC that uses the shared folder before issuing a Reinspection Notice.
+
+### Reinspection Notice
+
+- Reinspection and No Fee Reinspection results of a Reinspection are now importable. They open the reinspection worksheet, and the document created from the Accela status is the Reinspection Notice, headed "REINSPECTION - Building Inspection Official Notice", with the owner-supplied approved paragraph (the same for both results). The inspector records item results as usual; corrected items print ruled through with their confirmation date.
+- Every due date stays exactly as assigned: it prints as text, cannot be edited, and a date that has already passed prints unchanged. The helper refuses a Reinspection Notice whose due dates differ from its source or that has no outstanding item, and it is refused on a case with the City Attorney. The case status becomes Reinspection (the case stays open) in Workspace and Reports. On other inspection types these results stay hidden.
+
+### Open cases by inspector
+
+- Search shared case records lists an inspector's open cases (or those with no assigned or a former inspector), soonest deadline first, using the Reports open-case rule and the verified Reporting Index summaries; the list says when case files could not be included. Selecting a case prompts to import a new inspection result and opens Import inspection with the case number ready. An import already waiting for the same case is continued; one for a different case must be finished first.
+
+### Interface and documentation
+
+- The Workspace queue button that opens an issued document with an unfiled PDF reads Open document to file PDF, so it no longer shares a name with the button that files the PDF. A guide for AI agents and automation (docs/agents/README.md) describes how the program runs, how to find controls and the safety rules.
+- Staff guides, the program manual and the developer records describe the new behavior; version notes moved to docs/developer/VERSION-NOTES.md.
+
+### Repository and tooling
+
+- The program is licensed under the GNU General Public License, version 3 (LICENSE); a security policy, code-owner file and Dependabot configuration were added. Development tools were updated: axe-core 4.14.0, prettier 3.9.10, typing-extensions 4.16.0 and exceptiongroup 1.3.1 (esbuild, ruff and jsdom updates were declined for separate review).
+- Release identity before this assignment was R64 (build 65); authoring, case schema, summary and backup versions are unchanged.
+
 ## 2026-10-30 R64 — Release package
 
 Release package assigned on the owner's request after the maintainability plan (batches B1–B13), the bug-scan repairs and the interface clarifications below (helper 2026.10.30.65, build 65; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed.

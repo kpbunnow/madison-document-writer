@@ -61,3 +61,5 @@ R61 Development 2 adds S61-1 through S61-5. All remain OPEN. The retained Best I
 R63 is the first release package since R61. It adds S63-1 and S63-2 for startup restoration and the two newly shareable report views. All remain OPEN. It is published against the retained R61 deployment manifest; packaging is not deployment approval.
 
 R64 adds S64-1 through S64-4 for case-folder links, plain error wording, the Reports date and the clarified controls. All remain OPEN; automated verification does not supply City, native or staff acceptance. R64 is a release candidate, not a deployment approval.
+
+R65 adds S65-1 through S65-3 for open cases by inspector and the Reinspection Notice (wording approval, print, mailing and filing). All remain OPEN. R65 is a release candidate, not a deployment approval.
