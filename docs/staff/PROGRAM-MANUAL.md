@@ -131,7 +131,9 @@ Each result shows an ordinance and a short corrective-action preview. Open Full 
 | Standard and retired | Reference scope including replaced or retired sources |
 | Selected on this notice | Sources already selected, even if their later status changes |
 
-Order language displays 27.05(2)(g)2 without changing its canonical charge identity or pricing.
+Order language shows section references without a trailing period, for example 27.05(2)(g)1 and 27.05(2)(h)3; this does not change the charge identity or pricing.
+
+Entries marked Draft · division review required, or missing an ordinance, cannot be selected until the division records an approved review under Order language → Review catalog; the picker shows them greyed out with their status. Picking the snow removal item on a new notice turns the draft into a snow removal citation (MGO 10.28); the picker stays open, and picking the snow item again restores the notice so other language can be added.
 
 Unreviewed proposed, incomplete, replaced, retired and unavailable sources cannot be newly selected. Find approved replacement locates an alternative; it does not change the draft. Review and use v… opens a comparison before adopting a new source version. Issued documents remain frozen.
 

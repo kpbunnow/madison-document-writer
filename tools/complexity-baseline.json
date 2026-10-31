@@ -15,7 +15,7 @@
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
     "app/modules/case_loading.js:createCaseLoading#1:max-lines-per-function": 110,
     "app/modules/case_recovery.js:createCaseRecovery#1:max-lines-per-function": 163,
-    "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 276,
+    "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 221,
     "app/modules/citation_drafts.js:createCitationDrafts#1:max-lines-per-function": 90,
     "app/modules/citation_pricing.js:initCitationPricing#1:max-lines-per-function": 160,
     "app/modules/contact_events.js:createContactEvents#1:max-lines-per-function": 111,
