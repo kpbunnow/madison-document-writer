@@ -48,6 +48,41 @@ class ReinspectionNoticeRules(unittest.TestCase):
             with self.subTest(due=new), self.assertRaisesRegex(ValueError, "keeps every due date as assigned"):
                 case_store.validate_history(value, historical(value))
 
+    def test_a_correction_keeps_every_due_date_too(self):
+        def corrected(due):
+            value = followup(initial(), "a", "reinspectionNotice")
+            value["events"][-1]["type"] = "reinspectionNotice.issued"
+            original = value["events"][-1]["payload"]["snapshot"]
+            snap = deepcopy(original)
+            snap.update(id="doc_a_r1", revision={"targetId": original["id"], "rootId": original["id"], "number": 1})
+            snap["items"][0]["note"] = "Corrected observation wording"
+            snap["items"][0]["due"] = due
+            value["events"].append(
+                {
+                    "id": "correction_a",
+                    "at": "2026-09-20T15:00:00Z",
+                    "by": "inspector_1",
+                    "type": "correction.issued",
+                    "payload": {
+                        "docId": snap["id"],
+                        "snapshot": snap,
+                        "replaces": original["id"],
+                        "baseEventId": value["events"][-1]["id"],
+                        "reason": "Correct the observation wording.",
+                        "changes": [{"path": "item.1.note"}],
+                        "reviewedAt": "2026-09-20T15:00:00Z",
+                    },
+                }
+            )
+            return value
+
+        kept = corrected("2026-10-30")
+        case_store.validate_history(kept, historical(kept))
+        for due in ("2026-11-15", ""):
+            value = corrected(due)
+            with self.subTest(due=due), self.assertRaisesRegex(ValueError, "keeps every due date as assigned"):
+                case_store.validate_history(value, historical(value))
+
     def test_it_needs_an_outstanding_item(self):
         value = followup(initial(), "a", "reinspectionNotice", outcome="corrected")
         value["events"][-1]["type"] = "reinspectionNotice.issued"

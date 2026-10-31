@@ -768,7 +768,6 @@ def validate_catalog_publication(current, incoming, catalog_file, manifest_file)
             _validate_catalog_selection(item=item, manifest=manifest, latest=latest, replacements=replacements)
 
 
-@logged("case-save")
 def _has_priced_citation(record):
     """Whether any event issues a priced citation. Wrong-shaped records answer no here; validation refuses them next."""
     events = record.get("events") if isinstance(record, dict) else None
@@ -783,6 +782,7 @@ def _has_priced_citation(record):
     return False
 
 
+@logged("case-save")
 def save_case(folder, name, incoming, base_revision="", base_case=None, idempotency_event="", catalog_file=None, manifest_file=None):
     # Different cases for one respondent share a pricing lock. The established
     # per-case lock still encloses merge/validate/write, and retries remain exact.
@@ -1205,6 +1205,13 @@ def _validate_correction_items(*, original, snap, same_type, record):
             raise ValueError("A citation correction must retain its original citation numbers")
 
 
+def _validate_reinspection_notice_correction(*, original, snap):
+    """A corrected Reinspection Notice still reports the due dates as assigned, as its first issue did."""
+    if original.get("type") == "reinspectionNotice" and snap.get("type") == "reinspectionNotice":
+        if any(not i.get("withdrawn") and (i.get("due") or "") != (o.get("due") or "") for i, o in zip(snap["items"], original["items"])):
+            raise ValueError("A Reinspection Notice keeps every due date as assigned")
+
+
 def _validate_correction_review(*, snap, target, original, payload, event):
     revision = snap.get("revision", {})
     if (
@@ -1252,6 +1259,7 @@ def _validate_history_correction(*, payload, documents, superseded, visits, snap
     same_type = snap.get("type") == original.get("type")
     _validate_scoped_correction(original=original, snap=snap)
     _validate_correction_items(original=original, snap=snap, same_type=same_type, record=record)
+    _validate_reinspection_notice_correction(original=original, snap=snap)
     _validate_correction_review(snap=snap, target=target, original=original, payload=payload, event=event)
     patch = payload.get("visitCorrection")
     if patch:
