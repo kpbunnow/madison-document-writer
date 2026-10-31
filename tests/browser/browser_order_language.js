@@ -25,17 +25,17 @@ module.exports = async function (browser, page) {
       WriterState.state.picker = true;
       render();
     };
-    // Each pick first refreshes the catalog review status from the helper; wait for its outcome, not a fixed time.
-    const settle = async (changed) => {
-      for (let n = 0; n < 100 && !changed(); n++) await new Promise((r) => setTimeout(r, 20));
-    };
-    const click = async (pick, changed = () => false) => {
+    // Each pick first refreshes the catalog review status from the helper and ends with a confirmation message, so wait
+    // for that message (or the expected change) rather than a fixed time; the runner can be slow.
+    const lastMessage = () => [...document.querySelectorAll("[data-message]")].map((m) => m.textContent.trim()).slice(-1)[0] || "";
+    const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+    const click = async (pick, done) => {
       const b = document.createElement("button");
       b.dataset.pick = pick;
       document.body.appendChild(b);
       b.click();
-      await settle(changed);
-      await new Promise((r) => setTimeout(r, 20));
+      // The confirmation message is the handler's last step, so nothing more needs waiting for once it shows.
+      for (let n = 0; n < 2000 && !done(); n++) await pause(10);
       b.remove();
       WriterState.state.picker = true;
     };
@@ -45,7 +45,7 @@ module.exports = async function (browser, page) {
     const failures = [];
     let usable = 0;
     const blocked = [];
-    for (const [ci, c] of LIBRARY.entries())
+    scan: for (const [ci, c] of LIBRARY.entries())
       for (const [gi, g] of c.groups.entries())
         for (const it of g.items) {
           if (c.code === "ENF_PM_PROPMAINT" && g.code === "SNOW") continue;
@@ -55,10 +55,19 @@ module.exports = async function (browser, page) {
             continue;
           }
           usable++;
-          const before = items().length;
-          await click(ci + ":" + gi + ":" + it.o, () => items().length === before + 1);
-          if (items().length !== before + 1) failures.push(c.code + "/" + g.code + "/" + it.o + " " + it.t);
-          else await click(ci + ":" + gi + ":" + it.o, () => items().length === before);
+          const before = items().length,
+            label = c.code + "/" + g.code + "/" + it.o + " " + it.t;
+          await click(ci + ":" + gi + ":" + it.o, () => items().length === before + 1 && lastMessage().startsWith("Added: " + it.t));
+          if (items().length !== before + 1) {
+            failures.push(label + " — " + lastMessage());
+            if (failures.length >= 3) break scan;
+            continue;
+          }
+          await click(ci + ":" + gi + ":" + it.o, () => items().length === before && lastMessage().startsWith("Removed: " + it.t));
+          if (items().length !== before) {
+            failures.push(label + " could not be removed — " + lastMessage());
+            if (failures.length >= 3) break scan;
+          }
         }
     const dotted = LIBRARY.flatMap((c) => c.groups.flatMap((g) => g.items.flatMap((i) => i.s.filter((s) => /\)\d+\.$/.test(s)))));
     // Snow: pick, undo, then ordinary language again.
