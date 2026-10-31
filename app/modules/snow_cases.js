@@ -18,6 +18,31 @@ import { LIBRARY } from "./data/library.js";
 import { DEFAULT_SNOW_LETTER } from "./data/snow_letter.js";
 import { html, raw } from "./screen_html.js";
 const SNOW_KEY = '["ENF_PM_PROPMAINT","SNOW",1]';
+/* Marks a new notice draft that became a snow citation because its snow item was picked, so picking it again undoes
+   that. Kept in the draft-only selection cache, which is never issued. */
+const PICKED = "snowPickedFromNotice";
+const mixed = "Snow removal cases cite only MGO 10.28. Create a separate case for other violations.";
+const WARNING = "There are no warnings given for this Ordinance violation.";
+const isCase = (k) => isSnowCase(k);
+const isSnowDraft = (d) => !!d && (d.caseType === SNOW_TYPE || isSnowCase(docCase(d)));
+const markPicked = (d) => {
+  if (d.type === "notice") (d.selectionCache = d.selectionCache || {})[PICKED] = true;
+};
+const clearPicked = (d) => {
+  if (d.selectionCache) delete d.selectionCache[PICKED];
+};
+/* The picker may still undo a snow item picked on this unissued draft. */
+function pickedDraft(d) {
+  return (
+    !!d &&
+    d.draft &&
+    !d.correction &&
+    !d.pendingAmendment &&
+    !!d.selectionCache?.[PICKED] &&
+    isSnowDraft(d) &&
+    !docsFor(d.caseId).some((x) => !x.draft)
+  );
+}
 function prepareSnowInspection(d) {
   d.authoringVersion = 11;
   d.caseType = SNOW_TYPE;
@@ -31,9 +56,6 @@ export function initSnow(services) {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),
     letterLoaded = false,
     loading = null;
-  const mixed = "Snow removal cases cite only MGO 10.28. Create a separate case for other violations.";
-  const WARNING = "There are no warnings given for this Ordinance violation.";
-  const isCase = (k) => isSnowCase(k);
   const is = (d) => !!d && (d.caseType === SNOW_TYPE || isCase(docCase(d)));
   const season = (day) => {
     const start = CITATION_POLICY.snowSeasonStartMonthDay || "07-01",
@@ -55,6 +77,7 @@ export function initSnow(services) {
   }
   function added(d, item) {
     if (itemLibraryKey(item) !== SNOW_KEY) return;
+    markPicked(d);
     kase(d.caseId).caseType = SNOW_TYPE;
     d.caseType = SNOW_TYPE;
     d.type = "citation";
@@ -76,6 +99,7 @@ export function initSnow(services) {
       d.type = "notice";
       d.cits = {};
     }
+    clearPicked(d);
   }
   function addDefault(d) {
     const src = libraryItem();
@@ -345,6 +369,7 @@ export function initSnow(services) {
     canAdd,
     added,
     removed,
+    pickedDraft,
     addDefault,
     prepare,
     checks,

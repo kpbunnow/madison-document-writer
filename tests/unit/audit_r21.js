@@ -28,9 +28,13 @@ const test = async () => {
   WriterState.CATALOG_VERIFIED = true;
   const all = allItems();
   assert.equal(all.length, 250);
-  assert.equal(all.filter((i) => i.p === "draft").length, 130);
-  assert.equal(all.filter((i) => !i.s.length).length, 10);
-  const pending = all.find((i) => i.p === "draft" && i.s.length && i.legacyKeys?.length);
+  // Owner decision 2026-10-31: the bundled draft entries with a section are approved for selection. The seven without
+  // a determinable section stay draft and unselectable.
+  assert.equal(all.filter((i) => i.p === "draft").length, 7);
+  assert.equal(all.filter((i) => !i.s.length).length, 7);
+  // The draft gate itself is unchanged, so restore draft status on one approved entry to keep exercising it.
+  const pending = all.find((i) => i.p !== "draft" && i.s.length && i.legacyKeys?.length);
+  pending.p = "draft";
   assert.equal(catalogStatus(pending).code, "review");
   const key = catalogKey(pending),
     legacy = pending.legacyKeys[0],

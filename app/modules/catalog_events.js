@@ -102,6 +102,89 @@ async function recordReview(services, review) {
   services.toast("Catalog review v" + response.event.version + " recorded. Existing drafts were not changed.");
 }
 
+/* ---------- picking order language onto a notice ----------
+   An unissued notice, or a new draft whose picked snow item can still be undone (the snow item turns the draft into a
+   snow citation; picking it again restores the notice). */
+const pickable = (services, d) => services.structEditable(d) || services.snow.pickedDraft(d);
+const BLOCKED_STATUS = ["review", "incomplete", "retired", "superseded", "unknown"];
+
+function pickStillCurrent(services, d, context) {
+  return (
+    editor.state.picker &&
+    editor.state.screen === context.screen &&
+    editor.state.docId === context.docId &&
+    doc(editor.state.docId) === d &&
+    pickable(services, d)
+  );
+}
+
+/* The library entry the button names, or null when it cannot be picked now (with the reason shown). */
+function pickSource(services, d, t) {
+  const [ci, gi, o] = t.dataset.pick.split(":").map(Number);
+  const raw = LIBRARY[ci]?.groups[gi]?.items.find((x) => x.o === o);
+  if (!raw) return null;
+  const indexed = { ...raw, ci, gi },
+    status = services.catalogStatus(indexed);
+  if (BLOCKED_STATUS.includes(status.code) && !d.items.some((it) => itemLibraryKey(it) === services.catalogKey(indexed))) {
+    services.toast(status.label + "; division review is needed.");
+    return null;
+  }
+  const src = services.catalogSelection(indexed),
+    key = JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o]);
+  if (!d.items.some((i) => itemLibraryKey(i) === key) && !services.snow.canAdd(d, key)) return null;
+  return { ci, gi, src };
+}
+
+function focusNewItem() {
+  // drop the cursor straight into the new corrective action
+  const cells = document.querySelectorAll('[data-field="text"]');
+  const last = cells[cells.length - 1];
+  if (!last) return;
+  last.focus();
+  const r = document.createRange();
+  r.selectNodeContents(last);
+  r.collapse(true);
+  const s = getSelection();
+  s.removeAllRanges();
+  s.addRange(r);
+  last.scrollIntoView({ block: "center" });
+}
+
+function afterPick(services, d, src, added) {
+  if (added && services.snow.pickedDraft(d)) {
+    // The picker stays open so the change of workflow can be undone right away.
+    services.refreshOverlay();
+    services.toast("Changed to a snow removal citation (MGO 10.28). To undo, pick the snow item again.");
+    return;
+  }
+  if (editor.state.keepAdding || !added) {
+    services.refreshOverlay();
+    services.toast((added ? "Added: " : "Removed: ") + src.t);
+    return;
+  }
+  editor.state.picker = false;
+  services.render();
+  focusNewItem();
+  services.toast("Added: " + src.t);
+}
+
+async function pickLibraryItem(services, d, t) {
+  if (!d || !pickable(services, d)) {
+    if (d) services.toast("Order language can be added only to an Official Notice draft that has not been issued.");
+    return;
+  }
+  const context = { docId: editor.state.docId, screen: editor.state.screen };
+  await services.refreshCatalog();
+  if (!pickStillCurrent(services, d, context)) return;
+  const picked = pickSource(services, d, t);
+  if (!picked) return;
+  const added = services.toggleLibraryItem(d, picked.ci, picked.gi, picked.src);
+  services.renumber(d);
+  workspace.DIRTY = true;
+  services.saveDrafts();
+  afterPick(services, d, picked.src, added);
+}
+
 export function createCatalogEvents(services) {
   function registerGuidanceToggle(target = document) {
     return registerEventOnce(
@@ -237,63 +320,7 @@ export function createCatalogEvents(services) {
     return;
   };
 
-  const pickItem = async (d, t) => {
-    if (!d || !services.structEditable(d)) return;
-    const selectionContext = { docId: editor.state.docId, screen: editor.state.screen };
-    await services.refreshCatalog();
-    if (
-      !editor.state.picker ||
-      editor.state.screen !== selectionContext.screen ||
-      editor.state.docId !== selectionContext.docId ||
-      doc(editor.state.docId) !== d ||
-      !services.structEditable(d)
-    )
-      return;
-    const [ci, gi, o] = t.dataset.pick.split(":").map(Number);
-    const raw = LIBRARY[ci]?.groups[gi]?.items.find((x) => x.o === o);
-    if (!raw) return;
-    const indexed = { ...raw, ci, gi },
-      status = services.catalogStatus(indexed);
-    if (
-      ["review", "incomplete", "retired", "superseded", "unknown"].includes(status.code) &&
-      !d.items.some((it) => itemLibraryKey(it) === services.catalogKey(indexed))
-    ) {
-      services.toast(status.label + "; division review is needed.");
-      return;
-    }
-    const src = services.catalogSelection(indexed);
-    if (
-      !d.items.some((i) => itemLibraryKey(i) === JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o])) &&
-      !services.snow.canAdd(d, JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o]))
-    )
-      return;
-    const added = services.toggleLibraryItem(d, ci, gi, src);
-    services.renumber(d);
-    workspace.DIRTY = true;
-    services.saveDrafts();
-    if (editor.state.keepAdding || !added) {
-      services.refreshOverlay();
-      services.toast((added ? "Added: " : "Removed: ") + src.t);
-      return;
-    }
-    editor.state.picker = false;
-    services.render();
-    // drop the cursor straight into the new corrective action
-    const cells = document.querySelectorAll('[data-field="text"]');
-    const last = cells[cells.length - 1];
-    if (last) {
-      last.focus();
-      const r = document.createRange();
-      r.selectNodeContents(last);
-      r.collapse(true);
-      const s = getSelection();
-      s.removeAllRanges();
-      s.addRange(r);
-      last.scrollIntoView({ block: "center" });
-    }
-    services.toast("Added: " + src.t);
-    return;
-  };
+  const pickItem = (d, t) => pickLibraryItem(services, d, t);
 
   const openPicker = (d) => {
     if (!services.structEditable(d)) return;
