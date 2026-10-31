@@ -7,9 +7,16 @@ import { emailList } from "./mailing_rules.js";
 import { project } from "./case_records.js";
 
 /* Original PDF filing phases. Each takes the owner's `services` and runs in the order the single filing used to. */
-function fileableJob(services, d, job) {
+/* A person pressing File issued PDF is told why nothing can be filed when the helper found no Chrome or Edge. */
+const NO_BROWSER_FOR_PDF =
+  "PDF filing needs Chrome or Microsoft Edge on this computer, and the helper did not find one. Ask IT to install it, then use File issued PDF again.";
+
+function fileableJob(services, d, job, explain) {
   if (!d) return null;
-  if (!startup.HELPER || !startup.HELPER.chrome) return null;
+  if (!startup.HELPER || !startup.HELPER.chrome) {
+    if (explain) services.toast(NO_BROWSER_FOR_PDF, { severity: "warning" });
+    return null;
+  }
   // named jb: the JSON reply inside the try block is already called j
   const jb = job && job.docId === d.id ? job : services.printJob(d);
   return !jb || !jb.html ? null : jb;
@@ -231,8 +238,8 @@ export function createDocumentDelivery(services) {
     return false;
   }
 
-  async function filePdf(d, job) {
-    const jb = fileableJob(services, d, job);
+  async function filePdf(d, job, explain) {
+    const jb = fileableJob(services, d, job, explain);
     if (!jb) return false;
     const operation = await filingOperation(services, d);
     services.toastHold("Filing " + jb.name + " — this takes a few seconds");

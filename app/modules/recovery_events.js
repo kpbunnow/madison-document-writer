@@ -33,7 +33,7 @@ function retryFiling(services, button) {
       services.ui.render();
       return;
     }
-    services.publication.filePdf(d, job).finally(() => services.ui.render());
+    services.publication.filePdf(d, job, true).finally(() => services.ui.render());
   }
 }
 

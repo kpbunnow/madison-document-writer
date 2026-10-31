@@ -15,12 +15,15 @@ import { documentSaveHTML, localSaveText } from "./saved_work.js";
 const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; edit their due dates in the item rows.";
 
 function editorActionsHTML({ d, locked, primary, services }) {
+  // One eligibility read: its sentence explains the missing Correct and Withdraw buttons.
+  const unavailable = locked && !d.pendingAmendment && !d.draft ? services.record.correctionEligibility(d) : "";
   const more =
     locked && !d.pendingAmendment
-      ? (!d.draft && !services.record.correctionEligibility(d)
+      ? (!d.draft && !unavailable
           ? html`<button class="btn" id="btn-correct">${d.void ? "Restore with correction" : "Correct document"}</button>` +
             (d.void ? "" : html`<button class="btn" id="btn-void">Withdraw…</button>`)
           : "") +
+        (unavailable ? html`<p class="hint" id="correct-unavailable">Correct and Withdraw are unavailable: ${unavailable}</p>` : "") +
         // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
         (workspace.CASEDIR
           ? html`<button class="btn" id="btn-savecase">Save case to shared folder</button>`

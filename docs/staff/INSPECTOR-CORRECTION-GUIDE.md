@@ -16,6 +16,8 @@ Choose the action that reflects what actually happened. Edit an unissued draft d
 
 **Withdraw an item.** Within correction, select withdrawal for an item entered in error and record a specific reason. Its original number remains. It is excluded from compliance credit. Do not delete it or label it corrected to remove it from the count.
 
+**When Correct and Withdraw are missing.** Open Document actions on the issued document. If Correct document and Withdraw are not offered, the same place states why (for example, an unfinished worksheet or document draft must be finished or discarded first, or a later document depends on this one). Resolve what it names and the buttons return.
+
 **Correct a visit.** Correct the recorded visit or follow-up type amends that same visit under the existing transition rules. It does not add another visit. If later dependent work makes an earlier direct correction unavailable, retain a record note and correct the current action as permitted.
 
 **Citation prices and dates.** An unchanged charge retains its original amount, basis and historical court costs. A changed charge needs its own current authorized pricing review. Citation numbers do not change as a substitute for the court's amendment process. The corrected mailing date is separate from the original action's issue date. Reports count the effective citation once while preserving the original and correction history.
