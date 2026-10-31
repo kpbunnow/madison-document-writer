@@ -56,7 +56,7 @@
     "helper/case_integrity.py:__init__:C901": 12,
     "helper/case_integrity.py:verify_record:C901": 19,
     "helper/case_store.py:file_lock:C901": 13,
-    "helper/launch.py:main:C901": 24,
+    "helper/launch.py:main:C901": 17,
     "helper/server.py:read_index:C901": 30
   }
 }

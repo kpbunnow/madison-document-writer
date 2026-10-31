@@ -8,6 +8,22 @@ HERE = Path(__file__).resolve().parent
 CREATE_NO_WINDOW = 0x08000000
 
 
+# Written by the launcher when the shared release failed verification; while it exists the helper pauses saves to the
+# shared folder. Removed by the next start that installs or confirms the shared release.
+UPDATE_BLOCKED = "update-blocked.json"
+
+
+def deployed_build(share):
+    """The helper build the shared deployment folder announces, or None when it cannot be read."""
+    import json
+
+    try:
+        build = json.loads((Path(share) / "runtime-manifest.json").read_text(encoding="utf-8"))["helperBuild"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return build if type(build) is int else None
+
+
 def no_window():
     """creationflags for every helper child process: never open a console window on Windows.
 

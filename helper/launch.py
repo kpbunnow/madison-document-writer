@@ -134,7 +134,8 @@ try:
     import desktop_launch
     from desktop_launch import say
     from runtime_paths import resource
-    from runtime_identity import VERSION
+    from runtime_identity import VERSION, HELPER_BUILD
+    from runtime_paths import UPDATE_BLOCKED, deployed_build
 
     MANIFEST = json.loads(resource("runtime-manifest.json").read_text(encoding="utf-8"))
     required = MANIFEST["required"]
@@ -155,6 +156,53 @@ class RestartInstalled(Exception):
     """A verified update replaced imported code; continue in a fresh installed process."""
 
 
+def shared_folder(local, source, share_file):
+    """The deployment folder this start checks: the --share argument, the folder this launcher was started from, or
+    the one remembered from an earlier start."""
+    if len(sys.argv) == 3 and sys.argv[1] == "--share":
+        share = Path(sys.argv[2]).resolve()
+        if share == local:
+            return Path(share_file.read_text(encoding="utf-8-sig").strip()) if share_file.exists() else None
+        return share
+    if source != local:
+        return source
+    if share_file.exists():
+        return Path(share_file.read_text(encoding="utf-8-sig").strip())
+    return None
+
+
+def needs_replacement(share, local):
+    """Whether a running helper of this release must make way: the shared folder announces a newer release, or the last
+    check of the shared release failed and the shared folder can now be checked again."""
+    if not share or not share.is_dir():
+        return False
+    deployed = deployed_build(share)
+    return (deployed is not None and deployed > HELPER_BUILD) or (local / UPDATE_BLOCKED).exists()
+
+
+def reuse_running_helper(local, share):
+    """A helper already answers on the port. Reuse it when it is this release and nothing newer is deployed; otherwise
+    ask it to stop (it refuses while it is working) so the newest release is installed. True when reused."""
+    try:
+        status = desktop_launch.local_status(timeout=3)
+    except Exception:
+        raise RuntimeError(desktop_launch.PORT_IN_USE)
+    current = status.get("version") == VERSION
+    if current and not needs_replacement(share, local):
+        say("Document Writer is already running. Opening the workspace.")
+        if not desktop_launch.open_app_window():
+            raise RuntimeError(desktop_launch.NO_BROWSER)
+        return True
+    reasons = desktop_launch.stop_running_helper()
+    if reasons:
+        # R57 and earlier helpers have no shutdown route; the dialog explains how to stop an older version by hand.
+        raise RuntimeError(desktop_launch.newer_release_busy(reasons) if current else desktop_launch.OLDER_HELPER)
+    if not desktop_launch.wait_until_stopped():
+        raise RuntimeError(desktop_launch.PORT_IN_USE)
+    say("Stopped the running copy of Document Writer to install the newest release.")
+    return False
+
+
 def main():
     if sys.version_info < (3, 10):
         raise RuntimeError("Python 3.10 or later is required.")
@@ -167,33 +215,12 @@ def main():
             occupied = True
     except OSError:
         occupied = False
-    if occupied:
-        try:
-            status = desktop_launch.local_status(timeout=3)
-        except Exception:
-            raise RuntimeError(desktop_launch.PORT_IN_USE)
-        if status.get("version") != VERSION:
-            # Never stop it from here: R57 and earlier helpers have no shutdown route, and a later helper's
-            # route requires the session token, which the launcher does not send. The dialog explains how.
-            raise RuntimeError(desktop_launch.OLDER_HELPER)
-        # A compatible helper is serving this release: never update under it; reuse it.
-        say("Document Writer is already running. Opening the workspace.")
-        if not desktop_launch.open_app_window():
-            raise RuntimeError(desktop_launch.NO_BROWSER)
+    share_file = local / "share.txt"
+    share = shared_folder(local, source, share_file)
+    if occupied and reuse_running_helper(local, share):
         return 0
     if install_release.recover(local):
         raise RuntimeError("An interrupted update was rolled back. Run the launcher again to start a consistent version.")
-    share_file = local / "share.txt"
-    if len(sys.argv) == 3 and sys.argv[1] == "--share":
-        share = Path(sys.argv[2]).resolve()
-        if share == local:
-            share = Path(share_file.read_text(encoding="utf-8-sig").strip()) if share_file.exists() else None
-    elif source != local:
-        share = source
-    elif share_file.exists():
-        share = Path(share_file.read_text(encoding="utf-8-sig").strip())
-    else:
-        share = None
     if share and share.is_dir():
         say("Checking the shared release before updating.")
         restart = False
@@ -204,12 +231,18 @@ def main():
                 install_release.install(Path(staging), local, names)
                 restart = approved != MANIFEST
             say("Installed release is current with the shared folder.")
+            (local / UPDATE_BLOCKED).unlink(missing_ok=True)
         except ValueError as error:
             say(str(error), WARNING)
             if not (local / "verified-install.json").is_file():
                 raise
-            # Existing semantics: keep the verified installed copy. A desktop launch tells the user after Writer opens.
-            startup_warnings.append(str(error).split("\n")[0] + " Document Writer has started with the version already installed.")
+            # Keep the verified installed copy so drafts can be opened, but pause shared saves until the shared release
+            # verifies. A desktop launch tells the user after Writer opens.
+            (local / UPDATE_BLOCKED).write_text(json.dumps({"reason": str(error).split("\n")[0]}), encoding="utf-8")
+            startup_warnings.append(
+                str(error).split("\n")[0]
+                + " Document Writer has started with the version already installed. Saving to the shared folder is paused until IT fixes the deployment folder."
+            )
         # Anchor settings are configured locally by IT and never copied from a share.
         share_file.write_text(str(share), encoding="utf-8")
         if restart:

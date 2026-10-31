@@ -394,6 +394,85 @@ class Desktop(unittest.TestCase):
         self.assertIn("Document Writer is already running", log)
         self.assertNotIn(TOKEN, log)
 
+    def test_a_running_helper_makes_way_for_a_newer_shared_release(self):
+        share = self.root / "share-newer"
+        share.mkdir()
+        manifest = share / "runtime-manifest.json"
+        current = {"ok": True, "version": launch.VERSION, "ready": True}
+        self.start_logging()
+
+        def attempt(status, stop=(), stopped=True, opened=True):
+            with (
+                patch.object(desktop_launch, "local_status", return_value=status),
+                patch.object(desktop_launch, "stop_running_helper", return_value=list(stop)) as asked,
+                patch.object(desktop_launch, "wait_until_stopped", return_value=stopped),
+                patch.object(desktop_launch, "open_app_window", return_value=opened),
+            ):
+                try:
+                    return launch.reuse_running_helper(self.local, share), asked.called
+                except RuntimeError as error:
+                    return str(error), asked.called
+
+        # Same release, nothing newer deployed: reuse it, ask nothing.
+        manifest.write_text(json.dumps({"helperBuild": launch.HELPER_BUILD}), encoding="utf-8")
+        self.assertEqual(attempt(current), (True, False))
+        self.assertFalse(launch.needs_replacement(None, self.local))
+        # A newer release on the share: ask the running helper to stop, then install and start the newest.
+        manifest.write_text(json.dumps({"helperBuild": launch.HELPER_BUILD + 1}), encoding="utf-8")
+        self.assertTrue(launch.needs_replacement(share, self.local))
+        self.assertEqual(attempt(current), (False, True))
+        # It refuses while working: say what it is doing and how to continue.
+        message, asked = attempt(current, stop=["A case record is being saved to the shared folder."])
+        self.assertTrue(asked)
+        self.assertIn("A newer version of Document Writer is on the shared folder", message)
+        self.assertIn("A case record is being saved", message)
+        self.assertEqual(attempt(current, stopped=False)[0], desktop_launch.PORT_IN_USE)
+        # An older helper that cannot be stopped keeps the existing instructions.
+        self.assertEqual(attempt({"ok": True, "version": "2026.10.01.40"}, stop=["no route"])[0], desktop_launch.OLDER_HELPER)
+        # After a failed verification the next start re-checks the shared release, even with the same build.
+        manifest.write_text(json.dumps({"helperBuild": launch.HELPER_BUILD}), encoding="utf-8")
+        (self.local / runtime_paths.UPDATE_BLOCKED).write_text("{}", encoding="utf-8")
+        self.assertEqual(attempt(current), (False, True))
+        (self.local / runtime_paths.UPDATE_BLOCKED).unlink()
+
+    def test_stop_request_carries_the_session_token_and_reports_refusals(self):
+        sent = []
+
+        class Connection:
+            def __init__(self, host, port, timeout):
+                self.target = (host, port)
+
+            def request(self, method, path, body=None, headers=None):
+                sent.append((self.target, method, path, body, headers))
+
+            def getresponse(self):
+                return reply
+
+            def close(self):
+                pass
+
+        class Reply:
+            def __init__(self, status, value):
+                self.status, self.value = status, value
+
+            def read(self, limit):
+                return json.dumps(self.value).encode()
+
+        self.start_logging()
+        with (
+            patch.object(desktop_launch.helper_session, "launch_token", return_value=TOKEN),
+            patch.object(desktop_launch.http.client, "HTTPConnection", Connection),
+        ):
+            reply = Reply(200, {"ok": True, "stopping": True})
+            self.assertEqual(desktop_launch.stop_running_helper(), [])
+            reply = Reply(409, {"ok": False, "reasons": ["A PDF is being made or filed."]})
+            self.assertEqual(desktop_launch.stop_running_helper(), ["A PDF is being made or filed."])
+        self.assertEqual(sent[0][:4], (("127.0.0.1", desktop_launch.PORT), "POST", "/helper/shutdown", b"{}"))
+        self.assertEqual(sent[0][4], {"Content-Type": "application/json", "X-DocWriter-Token": TOKEN})
+        with patch.object(desktop_launch.helper_session, "launch_token", side_effect=ValueError("no session")):
+            self.assertEqual(desktop_launch.stop_running_helper(), ["it could not be asked to stop"])
+        self.assertNotIn(TOKEN, self.log_text())
+
     def test_incompatible_helper_and_foreign_program_show_readable_dialogs(self):
         self.windowless()
         older = {"ok": True, "version": "2026.10.01.40", "ready": True}
@@ -515,6 +594,9 @@ class Desktop(unittest.TestCase):
         self.assertIn("started with the version already installed", text)
         self.assertEqual(flags & desktop_launch.MB_ICONWARNING, desktop_launch.MB_ICONWARNING)
         self.assertTrue((self.local / "update-diagnostic.txt").is_file())
+        # Shared saves stay paused until a later start verifies the shared release.
+        self.assertIn("Saving to the shared folder is paused", text)
+        self.assertIn("failed verification", json.loads((self.local / runtime_paths.UPDATE_BLOCKED).read_text())["reason"])
 
     def test_missing_installation_or_helper_failure_stops_with_a_dialog_and_no_token_in_the_log(self):
         self.windowless()

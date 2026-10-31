@@ -66,6 +66,11 @@ class HelperShutdown(unittest.TestCase):
             except ValueError:
                 return error.code, raw
 
+    def get(self, path):
+        request = urllib.request.Request(self.base + path, headers={"X-DocWriter-Token": server.SESSION_TOKEN})
+        with urllib.request.urlopen(request, timeout=10) as response:
+            return response.status, json.loads(response.read())
+
     def stops(self):
         self.thread.join(5)
         return not self.thread.is_alive()
@@ -192,6 +197,29 @@ class HelperShutdown(unittest.TestCase):
         self.assertFalse(server.begin_activity("QA"))
         self.assertEqual(server.ACTIVE_WORK, {})
 
+    def test_shared_writes_pause_for_a_newer_or_unverified_release(self):
+        share = self.root / "share"
+        share.mkdir()
+        with patch.object(server, "share_root", return_value=share):
+            self.assertEqual(server.release_gate(), "", "no manifest to compare")
+            (share / "runtime-manifest.json").write_text(json.dumps({"helperBuild": server.HELPER_BUILD}), encoding="utf-8")
+            self.assertEqual(server.release_gate(), "", "the same release")
+            (share / "runtime-manifest.json").write_text(json.dumps({"helperBuild": server.HELPER_BUILD + 1}), encoding="utf-8")
+            self.assertEqual(server.release_gate(), server.NEWER_RELEASE)
+            for route in sorted(server.RELEASE_GATED):
+                with self.subTest(route=route):
+                    status, body = self.post(route, b'{"x":1}')
+                    self.assertEqual((status, body["error"], body["updateRequired"]), (409, server.NEWER_RELEASE, True))
+            # Reads, local recovery copies and Exit still work.
+            self.assertNotIn("/draft-backups/write", server.RELEASE_GATED)
+            self.assertEqual(self.get("/dw-status")[0], 200)
+            (share / "runtime-manifest.json").write_text(json.dumps({"helperBuild": server.HELPER_BUILD}), encoding="utf-8")
+            (self.root / server.UPDATE_BLOCKED).write_text("{}", encoding="utf-8")
+            self.assertEqual(server.release_gate(), server.RELEASE_UNVERIFIED)
+            self.assertEqual(self.post("/cases/save", b'{"x":1}')[1]["error"], server.RELEASE_UNVERIFIED)
+            (self.root / server.UPDATE_BLOCKED).unlink()
+            self.assertEqual(server.release_gate(), "")
+
     def test_server_main_closes_the_socket_and_names_the_exit(self):
         source = (Path(server.__file__)).read_text(encoding="utf-8")
         main = source.split('if __name__ == "__main__":', 1)[1]
@@ -201,15 +229,25 @@ class HelperShutdown(unittest.TestCase):
         for word in ("taskkill", ".kill(", ".terminate(", "os.kill", "signal.SIG"):
             self.assertNotIn(word, source)
 
-    def test_launcher_never_stops_a_running_helper(self):
+    def test_launcher_stops_a_running_helper_only_through_the_authenticated_route(self):
+        """Owner decision (newest release required): opening Document Writer may ask a running helper to stop so the
+        newest release is installed. It asks only through the token-guarded shutdown route, which refuses while the
+        helper is working; nothing is ever killed."""
         import desktop_launch
 
         helper = Path(server.__file__).resolve().parent
+        self.assertNotIn("/helper/shutdown", (helper / "launch.py").read_text(encoding="utf-8"))
+        text = (helper / "desktop_launch.py").read_text(encoding="utf-8")
+        self.assertEqual(text.count("/helper/shutdown"), 1)
+        call = text.split("def stop_running_helper", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn('"X-DocWriter-Token": token', call)
+        self.assertIn("helper_session.launch_token()", call)
         for name in ("launch.py", "desktop_launch.py"):
-            text = (helper / name).read_text(encoding="utf-8")
-            self.assertNotIn("/helper/shutdown", text, name + " makes no token-less (or any) shutdown call")
             for word in ("taskkill", ".kill(", ".terminate(", "os.kill"):
-                self.assertNotIn(word, text)
+                self.assertNotIn(word, (helper / name).read_text(encoding="utf-8"))
+        # Without the token the route still refuses, so another local program cannot stop the helper.
+        self.assertEqual(self.post("/helper/shutdown", headers={"Content-Type": "application/json"})[0], 403)
+        self.assertTrue(self.thread.is_alive())
         # R57 and earlier helpers have no shutdown route: the dialog explains every way to stop one.
         for phrase in ("Exit Document Writer", "Start Document Writer.bat", "sign out of Windows", "contact IT"):
             self.assertIn(phrase, desktop_launch.OLDER_HELPER)
