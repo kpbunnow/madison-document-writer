@@ -401,6 +401,7 @@
     "tests/README.md",
     "tests/browser/audit_browser.js",
     "tests/browser/browser_desktop_exit.js",
+    "tests/browser/browser_order_language.js",
     "tests/browser/browser_r26.js",
     "tests/browser/browser_r30.js",
     "tests/browser/browser_r31.js",

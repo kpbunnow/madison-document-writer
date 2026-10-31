@@ -1435,6 +1435,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _get_case_open(self, route):
         try:
+            if not case_dir().is_dir():
+                # An unreachable share is not a missing case: say so, so the case is not taken to be deleted.
+                return self._json(503, {"ok": False, "error": "The shared case folder is unavailable"})
             return self._json(200, read_case(case_dir(), parse_qs(urlsplit(self.path).query).get("name", [""])[0]))
         except FileNotFoundError:
             return self._json(404, {"ok": False, "missing": True, "error": "Case file not found"})

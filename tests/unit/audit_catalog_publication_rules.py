@@ -107,6 +107,34 @@ class CatalogPublicationRules(unittest.TestCase):
         self.assertIn(("result", None), outcomes)
         self.assertGreaterEqual(len(outcomes), 8, "corpus must include validation, JSON and missing-file refusals")
 
+    def test_bundled_language_approved_by_the_owner_can_be_issued_and_the_rest_cannot(self):
+        """Owner decision 2026-10-31: every bundled draft entry that has a section is selectable, and the seven that
+        have none stay refused. Checked against the real bundled manifest and library, not a fixture."""
+        manifest_file = ROOT / "app/assets/catalog_manifest.json"
+        library = json.loads((ROOT / "app/assets/library.js").read_text(encoding="utf-8").split("=", 1)[1].rsplit(";", 1)[0])
+        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))["items"]
+        refused, accepted = [], 0
+        with tempfile.TemporaryDirectory() as folder:
+            reviews = Path(folder) / "reviews.json"
+            for category in library:
+                for group in category["groups"]:
+                    for entry in group["items"]:
+                        key = json.dumps([category["code"], group["code"], entry["o"]], separators=(",", ":"))
+                        notice = {"id": "n", "type": "notice.issued", "payload": {"snapshot": {"items": [{"libraryKey": key}]}}}
+                        try:
+                            case_store.validate_catalog_publication(None, {"events": [notice]}, reviews, manifest_file)
+                            accepted += 1
+                        except ValueError as error:
+                            self.assertIn("division review", str(error))
+                            refused.append(key)
+        self.assertEqual(accepted + len(refused), 250)
+        self.assertEqual(len(refused), 7)
+        self.assertTrue(all(manifest[key]["draft"] or not manifest[key]["ordinances"] for key in refused))
+        self.assertEqual(sum(1 for v in manifest.values() if v["draft"]), 7)
+        self.assertIn('["ENF_HSE","SMOKEDETECT",10]', manifest)
+        self.assertNotIn('["ENF_HSE","SMOKEDETECT",10]', refused)
+        self.assertIn('["ENF_HSE","SMOKEDETECT",20]', refused)
+
 
 if __name__ == "__main__":
     unittest.main()

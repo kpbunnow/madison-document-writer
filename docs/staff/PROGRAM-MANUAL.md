@@ -131,7 +131,9 @@ Each result shows an ordinance and a short corrective-action preview. Open Full 
 | Standard and retired | Reference scope including replaced or retired sources |
 | Selected on this notice | Sources already selected, even if their later status changes |
 
-Order language displays 27.05(2)(g)2 without changing its canonical charge identity or pricing.
+Order language shows section references without a trailing period, for example 27.05(2)(g)1 and 27.05(2)(h)3; this does not change the charge identity or pricing.
+
+All bundled order language can be selected except seven entries that still have no confirmed ordinance section (both carbon monoxide alarm entries, Occupancy Exceeds Permitted Use, Required permit inspections, Historic exterior work approval, Sleeping room without required egress and Unapproved room use). The owner approved the other formerly draft entries for selection on 2026-10-31, so they appear under Approved and standard, not under the default Approved language scope, which lists only entries with a recorded review. The seven are greyed out with their status until the division gives each its section and records an approved review under Order language → Review catalog. Picking the snow removal item on a new notice turns the draft into a snow removal citation (MGO 10.28); the picker stays open, and picking the snow item again restores the notice so other language can be added.
 
 Unreviewed proposed, incomplete, replaced, retired and unavailable sources cannot be newly selected. Find approved replacement locates an alternative; it does not change the draft. Review and use v… opens a comparison before adopting a new source version. Issued documents remain frozen.
 

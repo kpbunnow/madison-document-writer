@@ -110,6 +110,16 @@ class Containment(unittest.TestCase):
         self.assertEqual(code, 400)
         (self.cases / "folder - QA-003.json").rmdir()
 
+    def test_an_unreachable_share_is_not_reported_as_a_missing_case(self):
+        case_store.save_case(self.cases, NAME, record())
+        shutil.rmtree(self.cases)
+        code, out = self.request("/cases/open?name=" + urllib.parse.quote(NAME))
+        self.assertEqual((code, out), (503, {"ok": False, "error": "The shared case folder is unavailable"}))
+        self.assertNotIn("missing", out)
+        self.cases.mkdir()
+        code, out = self.request("/cases/open?name=" + urllib.parse.quote(NAME))
+        self.assertEqual((code, out["missing"], out["error"]), (404, True, "Case file not found"))
+
     def test_ordinary_case_files_still_work(self):
         case_store.save_case(self.cases, NAME, record())
         code, out = self.request("/cases/open?name=" + urllib.parse.quote(NAME))

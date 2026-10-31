@@ -32,14 +32,21 @@ const test = async function () {
   const restored = allItems(),
     catalog = restored.filter((i) => i.catalogId);
   ok("Full order library restores all 109 consolidated entries", catalog.length === 109 && restored.length === 250);
-  ok("Restored entries stay draft and block issuance", catalog.every((i) => i.p === "draft") && catalog.every((i) => i.a));
+  // Owner decision 2026-10-31: entries with a section are approved for selection; the five without one stay draft.
+  ok(
+    "Restored entries without a section stay draft and block issuance; the rest are approved for selection",
+    catalog.filter((i) => i.p === "draft").length === 5 &&
+      catalog.filter((i) => i.p === "draft").every((i) => !i.s.length) &&
+      catalog.filter((i) => i.p !== "draft").every((i) => i.s.length && i.approval) &&
+      catalog.every((i) => i.a),
+  );
   const entries = LIBRARY.flatMap((c) => c.groups.flatMap((g) => g.items.map((i) => ({ c, g, i }))));
   ok(
     "Legacy order library identities remain unchanged",
     entries.filter((x) => !x.i.catalogId).length === 141 &&
       new Set(entries.map((x) => libraryKey({ c: x.c.code, g: x.g.code, o: x.i.o }))).size === 250,
   );
-  const restoredEntry = entries.find((x) => x.i.catalogId);
+  const restoredEntry = entries.find((x) => x.i.catalogId && x.i.p === "draft");
   newDoc("k1", "notice");
   const libDraft = doc(WriterState.state.docId);
   toggleLibraryItem(libDraft, LIBRARY.indexOf(restoredEntry.c), restoredEntry.c.groups.indexOf(restoredEntry.g), restoredEntry.i);

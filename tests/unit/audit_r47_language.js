@@ -32,6 +32,9 @@ const test = async () => {
     console.log("PASS " + label);
     count++;
   };
+  // Owner decision 2026-10-31 approved the bundled drafts that have a section; the draft rules are unchanged, so STR06
+  // is restored to draft here to keep covering proposed-entry behaviour.
+  LIBRARY.forEach((c) => c.groups.forEach((g) => g.items.forEach((i) => i.catalogId === "STR06" && (i.p = "draft"))));
   const items = allItems(),
     a = items.find((i) => i.catalogId === "EXT15"),
     other = items.find((i) => i.catalogId === "STR06"),
