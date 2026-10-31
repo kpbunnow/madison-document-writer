@@ -426,6 +426,7 @@
     "tests/browser/browser_r62.js",
     "tests/browser/browser_reinspection_notice.js",
     "tests/browser/browser_startup.js",
+    "tests/browser/browser_violator.js",
     "tests/browser/screen_css.cjs",
     "tests/fixtures/README.md",
     "tests/fixtures/accela_import_reference.txt",
