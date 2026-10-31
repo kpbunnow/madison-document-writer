@@ -53,7 +53,10 @@ function refreshRecipientProblem(services, el, k, dd) {
 function changeCopyOwnerFor(services, e) {
   const dd = doc(editor.state.docId);
   if (!dd) return;
-  docCase(dd).copyOwner = !!e.target.checked;
+  // Copying the owner is the default and is stored only when turned off, so ticking the box again leaves no change.
+  const k = docCase(dd);
+  if (e.target.checked) delete k.copyOwner;
+  else k.copyOwner = false;
   workspace.DIRTY = true;
   services.scheduleDraftSave();
   services.render();
