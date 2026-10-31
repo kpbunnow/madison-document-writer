@@ -282,7 +282,7 @@ All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
 | --- | --- | --- |
 | S66-1 | Install R66 over an installed R64 (or R65) copy from the shared release folder on a PC that uses the shared case folder, then double-click the Document Writer icon | The helper starts, Writer opens, the installed folder contains open_cases.py, and Search shared case records lists an inspector's open cases; no "local helper did not start" message |
 
-All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN.
+All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN. The owner decided on 2026-10-31 not to publish R66 as a GitHub release; the next release supersedes it, and S66-1 carries to that release's installation over R64, R65 or R66.
 
 ## Violator contact acceptance (unreleased development) — OPEN
 
@@ -293,4 +293,4 @@ All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN.
 | SVIO-3 | Give a snow removal case a Violator | The owner stays the defendant and nothing changes on the snow documents |
 | SVIO-4 | Open a Violator case on a PC that still has the previous release | The Violator prints as an ordinary copy; every PC must have the new release before Violator cases are used |
 
-These items remain OPEN until the division records the result.
+SVIO-1 is APPROVED: the owner reported on 2026-10-31 that the City Attorney's Office and the division confirmed a notice and citation addressed to the Violator meets their practice. SVIO-2 to SVIO-4 remain OPEN until the division records the result.
