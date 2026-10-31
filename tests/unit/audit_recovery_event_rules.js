@@ -98,11 +98,17 @@ async function run(api, sc) {
   return JSON.stringify({ error, ui: state.state, button: button && button.disabled, calls });
 }
 
+/* The retained original with the one intentional change: the retry button asks filePdf to explain a missing Chrome or
+   Edge. Its source must carry the old call exactly once. */
+function retainedOriginal() {
+  const source = fs.readFileSync("tests/fixtures/recovery_events_reference.txt", "utf8"),
+    old = "services.publication.filePdf(d, job).finally(";
+  assert.equal(source.split(old).length, 2, "retained original carries the old call exactly once");
+  return source.replace(old, "services.publication.filePdf(d, job, true).finally(");
+}
+
 (async () => {
-  const [current, legacy] = await Promise.all([
-    compile('export {createRecoveryEvents} from "./recovery_events.js";'),
-    compile(fs.readFileSync("tests/fixtures/recovery_events_reference.txt", "utf8")),
-  ]);
+  const [current, legacy] = await Promise.all([compile('export {createRecoveryEvents} from "./recovery_events.js";'), compile(retainedOriginal())]);
   const seen = new Set();
   let interrupted = 0;
   for (let n = 0; n < 10000; n++) {

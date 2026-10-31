@@ -60,6 +60,8 @@ Review the complete letter and every associated court copy. Check the case ident
 
 **Original PDFs.** The filing process retains the exact prepared original and its receipt. Retry retrieves and files those same bytes when available. A marker that says previously filed is not enough if the actual original cannot be verified. Do not regenerate a different document as a substitute for missing original evidence. A draft PDF is visibly a draft and is not proof of issuance.
 
+**No Chrome or Edge.** PDF production needs Chrome or Microsoft Edge on the computer. If the helper did not find one, File issued PDF says so; ask IT to install it and use File issued PDF again. The issued case record is not affected.
+
 **Print and mail.** Verify every page in the actual viewer. Use the City-approved scaling and envelope/print settings established during acceptance. Inspect all four MC-2000 copies, long letters and snow continuation pages. The authoring-11 initial packet may have six pages. Do not remove a continuation merely to meet an old page-count expectation.
 
 **Email.** Select and verify the recipients in the issuance review. Outlook handoff opens a draft; inspect its subject, addresses, body and attachments and send under the division's procedure. Opening Outlook or successfully preparing the draft does not prove sending, receipt or service.

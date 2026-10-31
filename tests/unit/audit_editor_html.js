@@ -173,6 +173,17 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
     const actual = outcome(api.screenWrite);
     assert.equal(actual.error, undefined, JSON.stringify(input));
     assert.equal(typeof actual.html, "string");
+    // The one intentional change: when Correct and Withdraw are unavailable the sentence from the single eligibility
+    // read is shown. It appears only if that read happened and returned a reason; everything else must match exactly.
+    const unavailable = /<p class="hint" id="correct-unavailable">Correct and Withdraw are unavailable: [^<]*<\/p>/;
+    // An issued, locked document with no pending save and a reason from the eligibility read always shows it.
+    if (!input.missing && input.locked && !input.draft && !input.pending && !input.note && !input.busy && input.eligible)
+      assert.ok(unavailable.test(actual.html), "the reason Correct and Withdraw are unavailable is shown: " + JSON.stringify(input));
+    if (unavailable.test(actual.html)) {
+      assert.ok(actual.calls.includes("call:correctionEligibility") && input.eligible, "the note needs a reason from the eligibility read");
+      assert.equal((actual.html.match(/id="correct-unavailable"/g) || []).length, 1);
+      actual.html = actual.html.replace(unavailable, "");
+    }
     if (!input.missing && input.note && !input.invalid) assert.match(actual.html, /Confirm saved action/);
     if (!input.missing && input.pending && !input.note && !input.invalid) assert.match(actual.html, /Confirm save/);
     if (!input.missing && input.busy && !input.note && !input.pending && !input.invalid) assert.match(actual.html, /Finishing document save/);

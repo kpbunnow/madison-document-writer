@@ -74,7 +74,7 @@ function renderWorkspaceRow(row) {
       <button data-exportcase="${k.id}">Download case record</button><button data-timeline="${k.id}">Case timeline</button>
       ` +
     (st.visit?.draft
-      ? html`<button data-discardri="${st.visit.id}">Discard reinspection draft</button>`
+      ? html`<button data-reinsp="${k.id}">Continue reinspection</button><button data-discardri="${st.visit.id}">Discard reinspection draft</button>`
       : st.draft
         ? html`<button data-discard="${st.draft.id}">Discard document draft</button>`
         : "") +

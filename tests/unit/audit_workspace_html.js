@@ -12,7 +12,15 @@ const assert = require("node:assert/strict"),
   const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
     factory = ast.body.find((n) => n.declaration?.id.name === "createWorkspaceScreen").declaration,
     ret = factory.body.body.at(-1);
-  const reference = require("../fixtures/workspace_screen_reference.cjs").replace("function screenCases(", "function referenceScreenCases(");
+  // The retained original with the one intentional change: case details offer Continue reinspection beside Discard.
+  const discardOld = '`<button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`';
+  let retained = require("../fixtures/workspace_screen_reference.cjs");
+  assert.equal(retained.split(discardOld).length, 2, "retained original carries the Discard button exactly once");
+  retained = retained.replace(
+    discardOld,
+    '`<button data-reinsp="${esc(k.id)}">Continue reinspection</button><button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`',
+  );
+  const reference = retained.replace("function screenCases(", "function referenceScreenCases(");
   source = source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("screenCases }", "screenCases,referenceScreenCases }");
   source += '\nexport {WriterState} from "./state.js";export {esc} from "./presentation_format.js";';
   const compiled = await esbuild.build({

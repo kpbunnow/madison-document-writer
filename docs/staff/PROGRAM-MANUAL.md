@@ -186,7 +186,7 @@ Tools & settings → Review snow-letter content records the administrator, reaso
 
 **Group due dates on reinspection.** On an open reinspection worksheet with an extension or citation intent (or before choosing an intent), Assign due dates appears beside item review, outside collapsed Inspection checks. It lists the items still outstanding; select items, choose a date and Apply date to selected items. The selected-item count shows the scope within this reinspection only. Corrected, withdrawn and carried results are excluded. Undo restores the previous dates while the worksheet remains editable. The three-date limit and seven-day spacing apply.
 
-Open Reinspect from the case or import an eligible unused completed reinspection. Enter the actual physical inspection date and time and the responsible inspector. Review all items, which shows every item, is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
+Open Reinspect from the case or import an eligible unused completed reinspection. To return to an unfinished worksheet, use Continue reinspection in the case details (beside Discard reinspection draft) or the case's main action in Workspace. Enter the actual physical inspection date and time and the responsible inspector. Review all items, which shows every item, is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
 
 **One item at a time.** Choose One item at a time to bring the next unanswered item into focus; Review all items returns to the complete worksheet at any time. Four steps show progress: record the outcome, complete required details, continue to the next item, then review the inspection and permitted follow-up. The current item shows its original number, wording and original deadline. Choose 1 Corrected, 2 Progress made, 3 No change or 4 No access. Under After an outcome, Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date. Previous item goes back. Skip for now leaves details unfinished; Return to unfinished details finds them again. Keyboard shortcuts and tips, collapsed below, lists the keys. Nothing is recorded until you choose an outcome.
 
@@ -269,6 +269,8 @@ Review the complete letter and every associated court copy. Check the case ident
 
 **Original PDFs.** The filing process retains the exact prepared original and its receipt. Retry retrieves and files those same bytes when available. A marker that says previously filed is not enough if the actual original cannot be verified. Do not regenerate a different document as a substitute for missing original evidence. A draft PDF is visibly a draft and is not proof of issuance.
 
+**No Chrome or Edge.** PDF production needs Chrome or Microsoft Edge on the computer. If the helper did not find one, File issued PDF says so; ask IT to install it and use File issued PDF again. The issued case record is not affected.
+
 **Print and mail.** Verify every page in the actual viewer. Use the City-approved scaling and envelope/print settings established during acceptance. Inspect all four MC-2000 copies, long letters and snow continuation pages. The authoring-11 initial packet may have six pages. Do not remove a continuation merely to meet an old page-count expectation.
 
 In the editor, mailing addresses flow below the header to prevent overlap when interactive fields expand. Issued PDFs retain their existing approved left-window positioning. Native envelope and printer acceptance remains required.
@@ -288,6 +290,8 @@ Choose the action that reflects what actually happened. Edit an unissued draft d
 5. Confirm the correction's original PDF and complete outside amendment, mailing and recording steps under the actual procedure.
 
 **Withdraw an item.** Within correction, select withdrawal for an item entered in error and record a specific reason. Its original number remains. It is excluded from compliance credit. Do not delete it or label it corrected to remove it from the count.
+
+**When Correct and Withdraw are missing.** Open Document actions on the issued document. If Correct document and Withdraw are not offered, the same place states why (for example, an unfinished worksheet or document draft must be finished or discarded first, or a later document depends on this one). Resolve what it names and the buttons return.
 
 **Correct a visit.** Correct the recorded visit or follow-up type amends that same visit under the existing transition rules. It does not add another visit. If later dependent work makes an earlier direct correction unavailable, retain a record note and correct the current action as permitted.
 
