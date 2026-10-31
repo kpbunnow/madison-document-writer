@@ -39,6 +39,9 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     assert.equal(await page.locator("[data-catalog-save]").count(), 0);
     await mode("admin");
     await page.locator("#catalog-filter").fill("EXT15");
+    // The admin list defaults to Needs review. EXT15 was a draft when this test was written; the owner approved the
+    // bundled drafts for selection on 2026-10-31, so choose All language to review it (as the later step already does).
+    await page.locator("#catalog-status").selectOption("all");
     await page.locator("[data-catalog-open]").first().click();
     await field("reviewer").fill("SYNTHETIC R47 QA");
     await field("source").fill("Automated fixture only; no division approval is claimed.");
