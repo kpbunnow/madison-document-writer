@@ -65,3 +65,5 @@ R64 adds S64-1 through S64-4 for case-folder links, plain error wording, the Rep
 R65 adds S65-1 through S65-3 for open cases by inspector and the Reinspection Notice (wording approval, print, mailing and filing). All remain OPEN. R65 is a release candidate, not a deployment approval.
 
 R66 replaces R65, which could not start on an installed PC, and adds S66-1 (installed start). S65-1 through S65-3 carry to R66 unchanged. R66 is a release candidate, not a deployment approval.
+
+R67 replaces R64 to R66 (R66 was never published) and adds S67-1 (installed start and newest-release enforcement) with the Violator and order-language items SVIO-2, SVIO-4, OL-1 and OL-2. S65-1 through S65-3 and S66-1 carry to R67 unchanged. R67 is a release candidate, not a deployment approval.

@@ -1,5 +1,35 @@
 # Release changelog
 
+## 2026-10-31 R67 — Release package
+
+Release package assigned on the owner's request after the development below (helper 2026.10.31.68, build 68; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R66 was never published; R67 replaces R64, R65 and R66. Install R67 on every PC that uses the shared case folder and have everyone fully restart Document Writer (Exit Document Writer, then the desktop icon) the day it goes out: a PC still on an older release prints a Violator as an ordinary copy.
+
+### Violator contact
+
+- A recipient on the Copies list can be set to Violator. The Violator replaces the owner as the main contact: the mailing address block and, on a citation, the defendant. The owner prints under CC unless Also copy the property owner is cleared for that case. Only one Violator is allowed per case (choosing another demotes the first to a Copy), a Violator without a usable address is refused, and snow removal cases ignore the Violator and keep the owner. Repeat offenses are counted against the Violator's address, in both the Writer and the helper. The summary and Reports keep the owner key. Readiness checks about the mailing block lead to Recipients.
+
+### Newest release required
+
+- Opening Document Writer now installs the newest deployed release and refuses to continue on an older one. An out-of-date copy is blocked from saving to the shared case folder and told to restart; the launcher stops a running older helper through an authenticated shutdown request.
+
+### Integrity anchoring
+
+- Anchoring runs at most once per City day and writes complete digests, and verification reads only back to the newest complete digest, so the cost no longer grows with every save.
+
+### Order language
+
+- The owner approved the 123 bundled draft order-language entries that have an ordinance section for selection on 2026-10-31 (three had their section filled in: Unsecured Vacant Building 27.085(2)(a), Smoke Alarms 27.05(2)(w), Plumbing work without required approval 18.08). Seven entries with no determinable section stay blocked until the division supplies one. Approved entries appear under Approved and standard until the division records reviews.
+- Picking the snow removal item no longer traps a notice: the picker stays open, picking the item again restores the notice, and a refused pick says why. 34 section references no longer end with a period (for example 27.05(2)(g)1).
+
+### Helper and records
+
+- Case saves no longer lose their log record, legacy case-number migration intents are written on the right path, and Reinspection Notice due dates are corrected. Opening a case while the shared case folder is unreachable now says so (503) instead of reporting a missing case.
+- The interface explains when Chrome is missing for PDF filing and when Correct is unavailable, and a reinspection can be resumed from case details.
+
+### Release verification
+
+- The browser suite adds a test that adds and removes every selectable order-language entry on a notice. The acceptance record carries SVIO-1 (approved), SVIO-2 to SVIO-4 and OL-1/OL-2.
+
 ## 2026-10-30 R66 — Corrected release package
 
 Corrected package assigned on the owner's request after R65 could not start on an installed PC (helper 2026.10.30.67, build 67; authoring 16, case schema 5, summary 6, backup 2 unchanged). R65's runtime manifest did not list the new helper module open_cases.py, so the installed helper exited immediately with "local helper did not start". R66 carries it. Replace R65 with R66 everywhere; R65 must not be used. Everything else in R65 (the Reinspection Notice, open cases by inspector and the other changes below) is unchanged.

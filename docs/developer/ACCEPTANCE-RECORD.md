@@ -284,7 +284,15 @@ All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
 
 All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN. The owner decided on 2026-10-31 not to publish R66 as a GitHub release; the next release supersedes it, and S66-1 carries to that release's installation over R64, R65 or R66.
 
-## Violator contact acceptance (unreleased development) — OPEN
+## R67 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S67-1 | Install R67 from the shared release folder over R64, R65 or R66 on a PC that uses the shared case folder, double-click the Document Writer icon, then start a PC still on the older release against the same share | The helper starts and Writer opens; the older copy is told to restart and cannot save to the shared folder; the carried S66-1 result (open cases listed, no "local helper did not start") is confirmed on the same install |
+
+All R67 items remain OPEN. S65-1 through S65-3, S66-1 and carried items remain OPEN. The Violator and order-language items follow.
+
+## Violator contact and order language acceptance (shipped in R67) — OPEN
 
 | ID | City/staff check | Required result |
 | --- | --- | --- |
