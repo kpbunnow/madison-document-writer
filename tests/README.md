@@ -463,7 +463,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
 | `browser_reinspection_notice.js` | Reinspection Notice with the real helper: worksheet from the imported status, header and approved paragraph, ruled-through corrected item, due dates as text and not editable, past dates printed unchanged, helper refusal of a changed date, issue, and the Reinspection status in the summary the helper's own projection accepts. |
 | `browser_violator.js` | Violator contact in real Chromium: the Copies type in Recipients, one Violator per case, the mailing block and CC list, the owner-copy checkbox, a blank Violator refused, the citation defendant and snow cases keeping the owner. |
-| `browser_order_language.js` | Order language on a notice in real Chromium: every bundled entry that is not a draft or missing its ordinance can be added and removed, section references have no trailing period, and picking the snow item turns a new notice into a snow citation that picking it again undoes. |
+| `browser_order_language.js` | Order language on a notice in real Chromium: every bundled entry that is selectable (all but seven entries awaiting a section) can be added and removed, section references have no trailing period, and picking the snow item turns a new notice into a snow citation that picking it again undoes. |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security

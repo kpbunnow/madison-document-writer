@@ -44,12 +44,16 @@ module.exports = async function (browser, page) {
     WriterState.state.keepAdding = true;
     const failures = [];
     let usable = 0;
+    const blocked = [];
     for (const [ci, c] of LIBRARY.entries())
       for (const [gi, g] of c.groups.entries())
         for (const it of g.items) {
           if (c.code === "ENF_PM_PROPMAINT" && g.code === "SNOW") continue;
           const status = catalogStatus({ ...it, ci, gi }).code;
-          if (["review", "incomplete"].includes(status)) continue;
+          if (["review", "incomplete"].includes(status)) {
+            blocked.push(c.code + "/" + g.code + "/" + it.o);
+            continue;
+          }
           usable++;
           const before = items().length;
           await click(ci + ":" + gi + ":" + it.o, () => items().length === before + 1);
@@ -68,9 +72,19 @@ module.exports = async function (browser, page) {
     await click(snow, () => doc(WriterState.state.docId).type === "notice");
     const undone = { type: doc(WriterState.state.docId).type, caseType: kase("qa-ol-2").caseType || "", items: items().length };
     await click(cart, () => items().length === 1);
-    return { usable, failures, dotted, picked, undone, after: items().map((i) => i.title) };
+    return { usable, blocked, failures, dotted, picked, undone, after: items().map((i) => i.title) };
   });
-  assert.ok(result.usable >= 100, "the usable bundled language was exercised: " + result.usable);
+  assert.equal(result.usable, 242, "the usable bundled language was exercised");
+  // Owner decision 2026-10-31 approved the bundled drafts. These seven have no determinable section, so they stay blocked.
+  assert.deepEqual(result.blocked, [
+    "ENF_HSE/SMOKEDETECT/20",
+    "ENF_ZONE/OCCUPANCY/10",
+    "ENF_ORDER_CATALOG/ALARMS_AND_FIRE_SAFETY/68",
+    "ENF_ORDER_CATALOG/PERMITS_AND_APPROVALS/105",
+    "ENF_ORDER_CATALOG/PERMITS_AND_APPROVALS/107",
+    "ENF_ORDER_CATALOG/USE_AND_EGRESS/108",
+    "ENF_ORDER_CATALOG/USE_AND_EGRESS/109",
+  ]);
   assert.deepEqual(result.failures, [], "every usable entry can be added and removed");
   assert.deepEqual(result.dotted, [], "no section reference ends with a period");
   assert.deepEqual(result.picked, { type: "citation", caseType: "snow-10.28", picker: true }, "the picker stays open after the snow item");

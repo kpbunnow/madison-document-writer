@@ -573,7 +573,7 @@
       ]
     },
     "[\"ENF_HSE\",\"PORCHES\",50]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
@@ -605,25 +605,25 @@
       ]
     },
     "[\"ENF_HSE\",\"GM_INTERIOR\",50]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_HSE\",\"GM_INTERIOR\",60]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_HSE\",\"GM_INTERIOR\",70]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_HSE\",\"GM_EXTERIOR\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2",
         "29.07(1)"
@@ -636,7 +636,7 @@
       ]
     },
     "[\"ENF_HSE\",\"GM_EXTERIOR\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
@@ -679,7 +679,7 @@
       ]
     },
     "[\"ENF_HSE\",\"WINDOWS\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
@@ -698,14 +698,16 @@
       ]
     },
     "[\"ENF_HSE\",\"SECURITY\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_HSE\",\"SECURITY\",40]": {
-      "draft": true,
-      "ordinances": []
+      "draft": false,
+      "ordinances": [
+        "27.085(2)(a)"
+      ]
     },
     "[\"ENF_HSE\",\"ELECTRICAL\",10]": {
       "draft": false,
@@ -726,31 +728,31 @@
       ]
     },
     "[\"ENF_HSE\",\"ELECTRICAL\",40]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_HSE\",\"PLUMBING\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_HSE\",\"PLUMBING\",20]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_HSE\",\"PLUMBING\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(b)"
       ]
     },
     "[\"ENF_HSE\",\"HEATING\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
@@ -762,22 +764,24 @@
       ]
     },
     "[\"ENF_HSE\",\"HEATING\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)",
         "27.04(2)(b)"
       ]
     },
     "[\"ENF_HSE\",\"SMOKEDETECT\",10]": {
-      "draft": true,
-      "ordinances": []
+      "draft": false,
+      "ordinances": [
+        "27.05(2)(w)"
+      ]
     },
     "[\"ENF_HSE\",\"SMOKEDETECT\",20]": {
       "draft": true,
       "ordinances": []
     },
     "[\"ENF_HSE\",\"MOLD\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1",
         "27.05(2)(g)2"
@@ -802,7 +806,7 @@
       ]
     },
     "[\"ENF_HSE\",\"KEEPING\",20]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(c)"
       ]
@@ -856,7 +860,7 @@
       ]
     },
     "[\"ENF_ZONE\",\"LAWNPARKING\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "28.141(8)(a)"
       ]
@@ -866,405 +870,405 @@
       "ordinances": []
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",1]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",2]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",3]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",4]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",5]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",6]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",7]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",8]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)4"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",9]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)4"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)3"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",11]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",12]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"INTERIOR_SURFACES\",13]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",14]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",15]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",16]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",17]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)3"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",18]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)10"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",19]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)12"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",20]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",21]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(z)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",22]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)3"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"DOORS_AND_SECURITY\",23]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",24]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",25]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",26]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",27]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",28]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(h)5"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"WINDOWS\",29]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.051(4)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",30]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",31]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",32]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",33]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",34]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",35]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",36]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",37]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(i)",
         "27.04(2)(g)5"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",38]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "29.36(3)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",39]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ELECTRICAL_AND_LIGHTING\",40]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "19.09(1)",
         "27.04(2)(g)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",41]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",42]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",43]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",44]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",45]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",46]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",47]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",48]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(b)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",49]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",50]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(j)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",51]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PLUMBING_AND_WATER\",52]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",53]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",54]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",55]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",56]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(f)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",57]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",58]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",59]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",60]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",61]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(h)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"HEATING_AND_VENTILATION\",62]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"APPLIANCES\",63]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"APPLIANCES\",64]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"APPLIANCES\",65]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"APPLIANCES\",66]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(l)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ALARMS_AND_FIRE_SAFETY\",67]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(w)"
       ]
@@ -1274,219 +1278,221 @@
       "ordinances": []
     },
     "[\"ENF_ORDER_CATALOG\",\"ALARMS_AND_FIRE_SAFETY\",69]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(q)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ALARMS_AND_FIRE_SAFETY\",70]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(q)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ALARMS_AND_FIRE_SAFETY\",71]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"ALARMS_AND_FIRE_SAFETY\",72]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.04(2)(d)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",73]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2",
         "29.07(1)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",74]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",75]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1",
         "29.07(1)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",76]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",77]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",78]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",79]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"STRUCTURE_AND_STAIRS\",80]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(i)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",81]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",82]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",83]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(e)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",84]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(y)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",85]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(y)",
         "10.29"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",86]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",87]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",88]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",89]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)2"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",90]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(a)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",91]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(d)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",92]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(r)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",93]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(d)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",94]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(f)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",95]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(c)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"EXTERIOR_AND_SITE\",96]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "10.34(3)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",97]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.07(2)(a)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",98]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.07(2)(f)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",99]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.05(2)(g)1"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"SANITATION_AND_PESTS\",100]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "27.07(2)(d)",
         "27.05(3)(a)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",101]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "29.07(1)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",102]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "19.09(1)"
       ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",103]": {
-      "draft": true,
-      "ordinances": []
+      "draft": false,
+      "ordinances": [
+        "18.08"
+      ]
     },
     "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",104]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "30.01(6)(a)"
       ]
@@ -1496,7 +1502,7 @@
       "ordinances": []
     },
     "[\"ENF_ORDER_CATALOG\",\"PERMITS_AND_APPROVALS\",106]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "29.07(1)"
       ]
