@@ -19,7 +19,7 @@ def recover(folder, name, administrator, reason, confirmed=False):
         target = root / name
         if integrity.reconcile_publication(root, number, allow_recovery=True):
             result = json.loads(target.read_bytes())
-            integrity.anchor_after_save(root)
+            integrity.anchor_after_save(root, force=True)
             preserved = root / "_integrity" / "quarantine" / result["integrity"]["genesis"]["administrativeRecovery"]["quarantineFile"]
             return {"ok": True, "resumed": True, "quarantineFile": str(preserved), "integrity": integrity.require_valid(result, root)}
         raw = target.read_bytes()
@@ -58,7 +58,7 @@ def recover(folder, name, administrator, reason, confirmed=False):
         result["integrity"]["headHash"] = genesis["hash"]
         result = integrity.commit_record(result, result)
         integrity.publish_record(root, target, result, raw, recovery=True)
-        integrity.anchor_after_save(root)
+        integrity.anchor_after_save(root, force=True)
         return {"ok": True, "quarantineFile": str(preserved), "integrity": integrity.require_valid(result, root)}
 
 

@@ -185,6 +185,75 @@ class DurableStorage(unittest.TestCase):
             integrity.anchor_daily(root, external)
             self.assertTrue(integrity.verify_record(updated, root, external)["anchored"])
 
+    def test_automatic_anchoring_runs_once_per_city_day(self):
+        """Saves and the helper clock anchor at most once a City day; an explicit or administrator anchor still runs."""
+        with tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as ext:
+            root, external = Path(folder), Path(ext)
+            value = record()
+            value["schema"] = 5
+            name = "101 TEST - QA-001.json"
+            with patch.object(integrity, "protected_folder", return_value=external):
+                saved = store.save_case(root, name, value)
+                self.assertEqual(len(list(external.glob("*.sha256"))), 1, "the first save of the day anchors")
+                newer = copy.deepcopy(saved["file"])
+                newer["case"]["owner"] = "Second save the same day"
+                updated = store.save_case(root, name, newer, saved["revision"], saved["file"]["case"])
+                self.assertEqual(len(list(external.glob("*.sha256"))), 1, "later saves that day do not anchor again")
+                self.assertTrue(integrity.anchor_after_save(root)["skipped"])
+                self.assertTrue(store.read_case(root, name)["integrity"]["valid"])
+                # The next City day anchors again, including the change made after the first anchor.
+                with patch.object(
+                    store, "city_day", side_effect=lambda at=None: store.datetime.date(2999, 1, 1) if at is None else store.datetime.date(2000, 1, 1)
+                ):
+                    self.assertTrue(integrity.anchor_after_save(root)["anchored"])
+                self.assertEqual(len(list(external.glob("*.sha256"))), 2)
+                status = integrity.verify_record(updated["file"], root, external)
+                self.assertTrue(status["anchored"])
+                self.assertEqual(integrity.VerificationContext(root, external).anchors["qa-001"]["commitHash"], status["commitHash"])
+                # Administrator recovery forces an anchor whatever the day.
+                self.assertNotIn("skipped", integrity.anchor_after_save(root, force=True))
+
+    def test_complete_digest_carries_anchors_so_only_the_newest_receipt_is_read(self):
+        with tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as ext:
+            root, external = Path(folder), Path(ext)
+            first, second = record(), copy.deepcopy(record())
+            first["schema"] = second["schema"] = 5
+            second["case"].update(number="QA-002", id="case_b")
+            for event in second["events"]:
+                event["id"] = event["id"] + "_b"
+                for part in (event["payload"], event["payload"].get("snapshot", {})):
+                    if part.get("caseId") == first["case"]["id"]:
+                        part["caseId"] = "case_b"
+            a = store.save_case(root, "101 TEST - QA-001.json", first)["file"]
+            store.save_case(root, "102 TEST - QA-002.json", second)
+            integrity.anchor_daily(root, external)
+            # QA-001 leaves the folder; the next digest still anchors it.
+            moved = (root / "101 TEST - QA-001.json").read_bytes()
+            (root / "101 TEST - QA-001.json").unlink()
+            integrity.anchor_daily(root, external)
+            newest = max(external.glob("*.sha256"))
+            digest = json.loads((root / "_integrity" / json.loads(newest.read_text())["digestFile"]).read_bytes())
+            self.assertTrue(digest["complete"])
+            self.assertIn("qa-001", digest["entries"][0]["heads"])
+            self.assertTrue({"qa-001", "qa-002"} <= set(digest["known"]))
+            # Only the newest receipt is needed: the older receipt and its digest are no longer read.
+            for older in sorted(external.glob("*.sha256"))[:-1]:
+                stale = root / "_integrity" / json.loads(older.read_text())["digestFile"]
+                if stale.name != json.loads(newest.read_text())["digestFile"]:
+                    stale.write_text("{}")
+            context = integrity.VerificationContext(root, external)
+            self.assertEqual(context.anchors["qa-001"]["commitHash"], integrity.verify_record(a)["commitHash"])
+            # A rewritten QA-001 brought back later is still caught by the carried anchor.
+            (root / "101 TEST - QA-001.json").write_bytes(moved)
+            rewritten = copy.deepcopy(first)
+            rewritten["case"]["owner"] = "Whole file rewrite"
+            rewritten = integrity.commit_record(None, rewritten)
+            self.assertFalse(integrity.verify_record(rewritten, root, external)["valid"])
+            self.assertTrue(integrity.verify_record(a, root, external)["valid"])
+            # Tampering with the newest digest is still refused.
+            (root / "_integrity" / json.loads(newest.read_text())["digestFile"]).write_text("{}")
+            self.assertFalse(integrity.verify_record(a, root, external)["valid"])
+
     def test_global_recovery_and_metadata_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

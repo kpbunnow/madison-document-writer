@@ -158,30 +158,13 @@ class VerificationContext:
         for entry in self.value["entries"]:
             self.by_number.setdefault(entry["caseNumber"].casefold(), []).append(entry)
         self.anchors, self.known = {}, {e["caseNumber"].casefold() for e in self.value["entries"]}
-        external = external or protected_folder(folder)
-        seen = set()
-        for path in sorted(Path(external).glob("*.sha256"), reverse=True) if external else []:
-            receipt = json.loads(path.read_text(encoding="utf-8"))
-            name = receipt["digestFile"]
-            if Path(name).name != name:
-                raise ValueError("Invalid digest filename")
-            if name in seen:
-                continue
-            seen.add(name)
-            raw = (self.folder / "_integrity" / name).read_bytes()
-            if hash_bytes(raw) != receipt["sha256"]:
-                raise ValueError("Protected daily digest changed")
-            digest = json.loads(raw)
-            for entry in reversed(digest["entries"]):
-                if "registryHash" in entry:
-                    prefix = self.value["entries"][: entry["registryLength"]]
-                    if hash_bytes(canonical(prefix)) != entry["registryHash"]:
-                        raise ValueError("Anchored migration registry changed")
-                for number, head in entry["heads"].items():
-                    self.anchors.setdefault(number.casefold(), head)
-                    self.known.add(number.casefold())
+        self.complete_day = ""
+        self._read_receipts(external or protected_folder(folder))
         for path in (self.folder / "_integrity").glob("*.json"):
             if path.name in ("migrated.json", "anchor-status.json"):
+                continue
+            # Digests from before the newest complete digest's day are already carried in its known list.
+            if self.complete_day and path.name[:10] < self.complete_day:
                 continue
             digest = json.loads(path.read_text(encoding="utf-8"))
             for entry in digest.get("entries", []):
@@ -204,6 +187,38 @@ class VerificationContext:
         for path in (self.folder / "_integrity" / "transactions").glob("*.json"):
             intent = read_intent(path)
             self.pending[intent["record"]["case"]["number"].casefold()] = intent
+
+    def _read_receipts(self, external):
+        """Protected receipts, newest first. The newest complete digest carries every earlier anchor and known number
+        forward, so reading stops there; earlier receipts are read only until the first complete one."""
+        seen = set()
+        for path in sorted(Path(external).glob("*.sha256"), reverse=True) if external else []:
+            receipt = json.loads(path.read_text(encoding="utf-8"))
+            name = receipt["digestFile"]
+            if Path(name).name != name:
+                raise ValueError("Invalid digest filename")
+            if name in seen:
+                continue
+            seen.add(name)
+            raw = (self.folder / "_integrity" / name).read_bytes()
+            if hash_bytes(raw) != receipt["sha256"]:
+                raise ValueError("Protected daily digest changed")
+            digest = json.loads(raw)
+            for entry in reversed(digest["entries"]):
+                self._read_digest_entry(entry)
+            if digest.get("complete") is True:
+                self.known.update(n.casefold() for n in digest.get("known", []))
+                self.complete_day = digest["day"]
+                return
+
+    def _read_digest_entry(self, entry):
+        if "registryHash" in entry:
+            prefix = self.value["entries"][: entry["registryLength"]]
+            if hash_bytes(canonical(prefix)) != entry["registryHash"]:
+                raise ValueError("Anchored migration registry changed")
+        for number, head in entry["heads"].items():
+            self.anchors.setdefault(number.casefold(), head)
+            self.known.add(number.casefold())
 
     def retained(self, record):
         number = record["case"]["number"].casefold()
@@ -453,6 +468,16 @@ def require_valid(record, folder=None, context=None):
     return result
 
 
+def carry_forward(heads, context):
+    """A complete digest keeps the anchor of every case not present now and every known number, so a verification
+    reads only the newest receipt instead of the whole receipt history. Returns the known numbers."""
+    present = {number.casefold() for number in heads}
+    for number, head in sorted(context.anchors.items()):
+        if number not in present:
+            heads[number] = head
+    return sorted(context.known | present)
+
+
 def anchor_daily(folder, external=None):
     folder = Path(folder)
     external = external or protected_folder(folder)
@@ -478,6 +503,7 @@ def anchor_daily(folder, external=None):
                 "commitHash": status["commitHash"],
                 "seq": len(record["integrity"]["entries"]),
             }
+        known = carry_forward(heads, context)
         migrated = registry(folder)["entries"]
         registry_hash = hash_bytes(canonical(migrated))
         # Immutable snapshots keep every prior receipt valid if publication fails.
@@ -488,6 +514,8 @@ def anchor_daily(folder, external=None):
         digest = {
             "format": "madison-integrity-digest",
             "day": day,
+            "complete": True,
+            "known": known,
             "entries": [{"heads": heads, "registryHash": registry_hash, "registryLength": len(migrated)}],
         }
         raw = canonical(digest)
@@ -507,7 +535,22 @@ def anchor_daily(folder, external=None):
         return {"anchored": True, "day": day, "entries": 1, "digestFile": target.name}
 
 
-def anchor_after_save(folder):
+def anchored_today(folder):
+    """True when this City day already has a successful anchor; automatic anchoring then waits for the next day."""
+    from case_store import city_day
+
+    try:
+        status = json.loads((Path(folder) / "_integrity" / "anchor-status.json").read_text(encoding="utf-8"))
+        return status.get("anchored") is True and city_day(status["at"]) == city_day()
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        return False
+
+
+def anchor_after_save(folder, force=False):
+    """Daily anchoring after saves and on the helper's clock: at most one successful anchor per City day, so the
+    cost of verifying the share is paid once a day rather than on every save. Administrator recovery forces it."""
+    if not force and anchored_today(folder):
+        return {"anchored": True, "skipped": True, "reason": "Already anchored today"}
     try:
         result = anchor_daily(folder)
     except ValueError:
