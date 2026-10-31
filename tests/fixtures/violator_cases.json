@@ -1,0 +1,13 @@
+{
+  "note": "Shared by audit_violator_contact.js and audit_violator_pricing.py: the pricing respondent key is the Violator's mailing address on a non-snow case, otherwise the owner's.",
+  "cases": [
+    {"name": "owner only", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"]}, "key": "100 TEST ST|53703"},
+    {"name": "a copy is not a Violator", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"kind": "Copy", "name": "A COPY", "addr": "9 OTHER AVE", "city": "MADISON WI 53704"}]}, "key": "100 TEST ST|53703"},
+    {"name": "a copy without a type is a copy", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"name": "A COPY", "addr": "9 OTHER AVE", "city": "MADISON WI 53704"}]}, "key": "100 TEST ST|53703"},
+    {"name": "Violator replaces the owner", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"kind": "Violator", "name": "THE VIOLATOR", "addr": "55 SECOND ST", "city": "MADISON WI 53704"}]}, "key": "55 SECOND ST|53704"},
+    {"name": "Violator among copies", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"kind": "Copy", "name": "A COPY", "addr": "9 OTHER AVE", "city": "MADISON WI 53705"}, {"kind": "Violator", "name": "THE VIOLATOR", "addr": "55 SECOND ST", "city": "MADISON WI 53704"}]}, "key": "55 SECOND ST|53704"},
+    {"name": "snow removal cases ignore the Violator", "case": {"caseType": "snow-10.28", "owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"kind": "Violator", "name": "THE VIOLATOR", "addr": "55 SECOND ST", "city": "MADISON WI 53704"}]}, "key": "100 TEST ST|53703"},
+    {"name": "a Violator without a usable address has no key", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": [{"kind": "Violator", "name": "THE VIOLATOR", "addr": "", "city": ""}]}, "key": ""},
+    {"name": "malformed copy list is ignored", "case": {"owner": "SYNTHETIC OWNER", "ownerAddr": ["100 TEST ST", "MADISON WI 53703"], "ccList": ["x", null, 3]}, "key": "100 TEST ST|53703"}
+  ]
+}
