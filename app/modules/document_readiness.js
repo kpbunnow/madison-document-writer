@@ -5,7 +5,8 @@ import { specialType, isHistoryDoc } from "./document_rules.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
 import { docCase, docInsp } from "./writer_queries.js";
 import { validISO, parseTime, daysBetween } from "./calendar.js";
-import { isLLC, ownerLines } from "./mailing_rules.js";
+import { defendantName, isLLC } from "./mailing_rules.js";
+import { defendantLines } from "./defendant_contact.js";
 
 function readinessComp({ d }) {
   return d.type === "compliance";
@@ -60,7 +61,7 @@ function readinessNoSec({ live }) {
 }
 
 function readinessOwn({ d }) {
-  return ownerLines(docCase(d));
+  return defendantLines(docCase(d), !!d.draft);
 }
 
 function readinessAddrOk({ own }) {
@@ -372,7 +373,7 @@ const citationReadinessRules = [
   {
     id: "agent",
     ok: ({ noAgent }) => !noAgent,
-    message: ({ noAgent, d }) => (noAgent ? esc(docCase(d).owner) + " is a company — " + noAgent : "Registered agent recorded"),
+    message: ({ noAgent, d }) => (noAgent ? esc(defendantName(docCase(d))) + " is a company — " + noAgent : "Registered agent recorded"),
   },
 ];
 

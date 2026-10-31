@@ -5,7 +5,7 @@ import { editorState as editor } from "./editor_state.js";
 import { doc, kase, docCase } from "./writer_queries.js";
 import { iso } from "./calendar.js";
 import { DOC_TYPES } from "./document_types.js";
-import { emailList, ccList, isLLC, EMAIL_KINDS } from "./mailing_rules.js";
+import { emailList, ccList, copiesOwner, defendantName, isLLC, violatorOf, EMAIL_KINDS, VIOLATOR } from "./mailing_rules.js";
 import { esc, fmtDate } from "./presentation_format.js";
 import { recordDay, mailingMaxDay } from "../assets/shared.js";
 
@@ -32,7 +32,23 @@ function sendRecipientModal() {
       </div></div></div>`;
 }
 
-function recipientCopiesHTML({ cc, invalid, services }) {
+/* Copy or Violator. A snow removal case cites the property owner, so it offers only Copy. */
+function copyTypeSelect(c, ix, snow) {
+  const violator = c.kind === VIOLATOR;
+  return html`<select data-cc="${String(ix)}|kind" aria-label="Copy ${String(ix + 1)} type"><option value="Copy" ${raw(violator ? "" : "selected")}>Copy (printed under CC)</option>${raw(
+    snow && !violator ? "" : html`<option value="${VIOLATOR}" ${raw(violator ? "selected" : "")}>Violator (main contact and defendant)</option>`,
+  )}</select>`;
+}
+
+/* With a Violator set, the owner can still be copied; the case keeps that choice. */
+function violatorOwnerHTML(k) {
+  if (!violatorOf(k) || k.caseType === "snow-10.28") return "";
+  return html`<label class="rec-owner"><input type="checkbox" id="cc-copyowner" ${raw(copiesOwner(k) ? "checked" : "")}> Also copy the property owner${raw(
+    k.owner ? " (" + esc(k.owner) + ")" : "",
+  )}</label><p class="hint">The Violator replaces the property owner in the mailing address block and as the defendant on citations. The owner stays in the case record and Reports.</p>`;
+}
+
+function recipientCopiesHTML({ cc, invalid, services, snow }) {
   return cc.length
     ? cc
         .map(
@@ -40,6 +56,7 @@ function recipientCopiesHTML({ cc, invalid, services }) {
             html`<div class="rec">
         <div class="rec-n">${String(ix + 1)}</div>
         <div class="rec-f">
+          ${raw(copyTypeSelect(c, ix, snow))}
           <input type="text" data-cc="${String(ix)}|name" value="${raw(esc(c.name || ""))}" placeholder="Name" aria-label="Copy ${String(ix + 1)} name"${raw(invalid("copy", ix, "name"))}>
           <input type="text" data-cc="${String(ix)}|addr" value="${raw(esc(c.addr || ""))}" placeholder="Street number and name (123 Main St, Apt 4)" aria-label="Copy ${String(ix + 1)} street number and name"${raw(invalid("copy", ix, "addr"))}>
           <input type="text" data-cc="${String(ix)}|city" value="${raw(esc(c.city || ""))}" placeholder="City, ST ZIP (Madison, WI 53703)" aria-label="Copy ${String(ix + 1)} city, state and ZIP"${raw(invalid("copy", ix, "city"))}>
@@ -94,9 +111,10 @@ function recipientModal({ services }) {
       )}
 
       <h3 class="rec-h">Copies</h3>
-      <p class="hint">Printed at the foot of the document under &ldquo;CC:&rdquo;. Enter a numbered street address and city, state and ZIP; the print preview below shows the standardized lines.</p>
-      ${raw(recipientCopiesHTML({ cc, invalid, services }))}
+      <p class="hint">A copy is printed at the foot of the document under &ldquo;CC:&rdquo;. A contact marked Violator is the main contact instead: it is printed in the mailing address block and as the defendant on citations (one per case${raw(k.caseType === "snow-10.28" ? "; snow removal cases cite the property owner, so they offer only copies" : "")}). Enter a numbered street address and city, state and ZIP; the print preview below shows the standardized lines.</p>
+      ${raw(recipientCopiesHTML({ cc, invalid, services, snow: k.caseType === "snow-10.28" }))}
       <button class="btn btn-sm" id="btn-addcc">Add a copy</button>
+      ${raw(violatorOwnerHTML(k))}
 
       <h3 class="rec-h">Email recipients</h3>
       <p class="hint">Offered when you email a document. Recipients selected when finalizing are listed on that document.</p>
@@ -106,7 +124,7 @@ function recipientModal({ services }) {
       <h3 class="rec-h">Registered agent${raw(needAgent ? ' <span class="req">required</span>' : "")}</h3>
       <p class="hint">${raw(
         needAgent
-          ? esc(k.owner) + " reads as a company, so a citation cannot be served without an agent."
+          ? esc(defendantName(k)) + " reads as a company, so a citation cannot be served without an agent."
           : "Only needed when the owner is a company. Printed on the citation.",
       )}</p>
       <div class="rec"><div class="rec-n">&nbsp;</div><div class="rec-f">

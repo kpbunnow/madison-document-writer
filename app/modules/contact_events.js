@@ -2,7 +2,7 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Contact event ownership. Construction is inert; core registers at the original startup positions. */
 import { doc, kase, docCase } from "./writer_queries.js";
-import { emailList, isLLC, ccList } from "./mailing_rules.js";
+import { emailList, isLLC, ccList, setCopyKind } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 export function createContactEvents(services) {
   const openRecipients = () => {
@@ -92,7 +92,8 @@ export function createContactEvents(services) {
     if (el.dataset.cc) {
       const p = el.dataset.cc.split("|");
       k.ccList = ccList(k);
-      if (k.ccList[+p[0]]) k.ccList[+p[0]][p[1]] = el.value;
+      if (k.ccList[+p[0]] && p[1] === "kind") setCopyKind(k, +p[0], el.value);
+      else if (k.ccList[+p[0]]) k.ccList[+p[0]][p[1]] = el.value;
     } else if (el.dataset.em) {
       const p = el.dataset.em.split("|");
       k.emails = emailList(k);
@@ -125,7 +126,18 @@ export function createContactEvents(services) {
     }
     workspace.DIRTY = true;
     services.scheduleDraftSave();
+    // A type change can add or remove the owner-copy choice and the Violator on the document.
+    if (el.dataset.cc && el.dataset.cc.endsWith("|kind")) services.refreshOverlay();
     return;
+  };
+
+  const changeCopyOwner = (e) => {
+    const dd = doc(editor.state.docId);
+    if (!dd) return;
+    docCase(dd).copyOwner = !!e.target.checked;
+    workspace.DIRTY = true;
+    services.scheduleDraftSave();
+    services.render();
   };
 
   const changeEmail = (e) => {
@@ -140,5 +152,17 @@ export function createContactEvents(services) {
     }
     return;
   };
-  return { openRecipients, addCopy, addRecipient, removeCopy, removeRecipient, emailDocument, sendDocument, closeModal, editRecipient, changeEmail };
+  return {
+    openRecipients,
+    addCopy,
+    addRecipient,
+    removeCopy,
+    removeRecipient,
+    emailDocument,
+    sendDocument,
+    closeModal,
+    editRecipient,
+    changeEmail,
+    changeCopyOwner,
+  };
 }

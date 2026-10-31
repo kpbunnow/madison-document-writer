@@ -194,6 +194,7 @@ const CHANGE_ROUTES = [
     (e, ds) => ds.em,
     (services, e) => services.events.contactEvents.changeEmail(e),
   ),
+  changeRoute(targetIs("cc-copyowner"), (services, e) => services.events.contactEvents.changeCopyOwner(e)),
   (services, e, ds) => {
     const rr = outcomeDetailsReinspection(e, ds);
     if (!rr) return false;

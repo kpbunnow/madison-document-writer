@@ -1,5 +1,6 @@
 /* Browser interpretation of the exact generated policy also read by Python. */
 import { CITATION_POLICY as P } from "./data/citation_policy.js";
+import { violatorActive, violatorOf } from "./mailing_rules.js";
 export const CITATION_POLICY = P;
 export function canonicalOrdinance(value) {
   let t = String(value || "")
@@ -114,6 +115,13 @@ export function respondentKey(k) {
     .join(" ")
     .replace(/\bUNIT UNIT\b/g, "UNIT");
   return normalized + "|" + zip[1];
+}
+/* The respondent for citation pricing: the Violator's mailing address when one is set, otherwise the owner's. The case
+   summary and Reports keep using respondentKey (the property owner). Mirrored by citation_pricing.py defendant_key. */
+export function defendantKey(k) {
+  if (!violatorActive(k)) return respondentKey(k);
+  const v = violatorOf(k);
+  return respondentKey({ ownerAddr: [v.addr, v.city], ownerAddressParsed: v.addressParsed });
 }
 /* R34: property matching for site and site-season windows; mirrored exactly by citation_pricing.py. */
 function normalizedParcel(value) {

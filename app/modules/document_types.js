@@ -204,7 +204,19 @@ export const OC_WORD = { corrected: "Completed", none: "No change", progress: "P
 /* what may still be written once a case has gone to the City Attorney */
 export const REFERRED_ONLY = ["referralUpdate", "compliance"];
 
-export const CASE_CORRECTION_FIELDS = ["owner", "ownerAddr", "address", "siteCity", "parcel", "date", "time", "agent", "ccList", "emails"];
+export const CASE_CORRECTION_FIELDS = [
+  "owner",
+  "ownerAddr",
+  "address",
+  "siteCity",
+  "parcel",
+  "date",
+  "time",
+  "agent",
+  "ccList",
+  "copyOwner",
+  "emails",
+];
 
 export const FIELD_NAMES = {
   type: "Document type",
@@ -216,7 +228,8 @@ export const FIELD_NAMES = {
   date: "Initial inspection date",
   time: "Initial inspection time",
   agent: "Registered agent",
-  ccList: "Copies",
+  ccList: "Copies and Violator",
+  copyOwner: "Copy the property owner",
   emails: "Email recipients",
   mailed: "Mailed date",
   inspDate: "Inspection date",

@@ -18,7 +18,7 @@ import {
   policyAt,
   resolveCitationAmount,
   resolveOrdinance,
-  respondentKey,
+  defendantKey,
   tierLabel,
   tierOrdinal,
 } from "./citation_policy.js";
@@ -191,7 +191,7 @@ const depositRules = [
   },
 ];
 function scheduleRespondent(d, f) {
-  return !(d && f && f.window !== "site" && f.window?.kind !== "site-season" && !respondentKey(docCase(d)));
+  return !(d && f && f.window !== "site" && f.window?.kind !== "site-season" && !defendantKey(docCase(d)));
 }
 function depositRuleFault(context) {
   for (const rule of depositRules) {

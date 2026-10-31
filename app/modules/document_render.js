@@ -5,7 +5,8 @@ import { citeAllowed, frozenOf, hasOwnInsp, isHistoryDoc, alignedExtension, date
 import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./presentation_format.js";
 import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
 
-import { ccList, emailList, ownerLines } from "./mailing_rules.js";
+import { copiesOf, emailList, violatorActive } from "./mailing_rules.js";
+import { defendantLines, ownerCopy } from "./defendant_contact.js";
 
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
@@ -14,6 +15,16 @@ import { INSPECTORS } from "./data/inspectors.js";
 /* R62 (owner, Development 3): on authoring-16 referral, referral-update and compliance documents every observation
    note prints under the violation, oldest first, as on an Extension. Notes on corrected items print as well: the
    approved print style hides notes on corrected rows, so these notes keep an explicit display. */
+/* The mailing block comes from the Violator contact when one is set, so it is not edited on the document. */
+const mailingBlockEdit = (k, ce) => (violatorActive(k) ? "" : ce);
+const mailingBlockNote = (k) =>
+  violatorActive(k)
+    ? '<p class="hint no-print" id="mailing-from-violator">This address block is the Violator contact. Change it in Recipients; the property owner stays in the case record.</p>'
+    : "";
+/* A copy prints its name and address lines; the property owner copy brings its own lines. */
+const ccEntryLines = (services, c, draft) => c.lines || services.ccLines(c, draft);
+const ccRoleHTML = (c) => (c.agent ? '<div class="cc-role">Registered agent</div>' : c.owner ? '<div class="cc-role">Property owner</div>' : "");
+
 /* A corrected item shows its confirmation date. A Reinspection Notice shows every due date as assigned, never as an input. */
 const dueIsFinal = (d, it) => it.done || d.type === "reinspectionNotice";
 const finalDueCell = (services, it) =>
@@ -429,11 +440,12 @@ export function createDocumentRenderer(services) {
       `${esc(i.email)}` +
       '</div></dd>\n        </dl>\n      </div></div></div>\n\n    <div class="n-ow' +
       'ner"><div class="ed" ' +
-      `${ce}` +
+      `${mailingBlockEdit(k, ce)}` +
       ' data-case="ownerBlock" data-ph="Owner and mailing address" style="white' +
       '-space:pre-wrap">' +
-      `${esc(ownerLines(k).join("\n"))}` +
+      `${esc(defendantLines(k, !!d.draft).join("\n"))}` +
       "</div>" +
+      mailingBlockNote(k) +
       '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div' +
       ' class="n-winspace" aria-hidden="true"></div>\n\n    ' +
       `${services.revisionPrintNote(d)}` +
@@ -468,8 +480,8 @@ export function createDocumentRenderer(services) {
         (function () {
           // the agent is served a copy as a matter of course
           const ag = services.agentLines(k);
-          const cc = ccList(k)
-            .filter((c) => services.ccLines(c, !!d.draft).length)
+          const cc = [ownerCopy(k), ...copiesOf(k)]
+            .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
             .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
           const sent = d.emailedTo || [],
             draftMail = d.draft
@@ -489,12 +501,11 @@ export function createDocumentRenderer(services) {
                         .map(
                           (c) =>
                             '<div class="cc-one">' +
-                            `${services
-                              .ccLines(c, !!d.draft)
+                            `${ccEntryLines(services, c, !!d.draft)
                               .map((l) => `<div>${esc(l)}</div>`)
                               .join("")}` +
                             "" +
-                            `${c.agent ? '<div class="cc-role">Registered agent</div>' : ""}` +
+                            `${ccRoleHTML(c)}` +
                             "</div>",
                         )
                         .join(""),
@@ -602,7 +613,7 @@ export function createDocumentRenderer(services) {
         "s on hold until the division approves defendant instructions. Your draft" +
         " is retained.</p>"
       );
-    const addr = ownerLines(k).slice(1).join(", ");
+    const addr = defendantLines(k, !!d.draft).slice(1).join(", ");
     const face = (it, copy) => {
       const c = (d.cits || {})[it.id] || {};
       return (
@@ -663,7 +674,7 @@ export function createDocumentRenderer(services) {
         's"><span class="cit-lab">Defendant Name - Last</span><span class="cit-la' +
         'b">First</span><span class="cit-lab">MI</span></div>\n          <div clas' +
         's="v">' +
-        `${esc(ownerLines(k)[0] || "")}` +
+        `${esc(defendantLines(k, !!d.draft)[0] || "")}` +
         '</div></div>\n        <div class="cit-f"><div class="cit-cells"><span cla' +
         'ss="cit-lab">Street Address</span><span class="cit-lab">Post Office</spa' +
         'n><span class="cit-lab">State</span><span class="cit-lab">Zip Code</span' +

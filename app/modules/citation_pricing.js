@@ -12,7 +12,7 @@ import {
   canonicalOrdinance,
   cents,
   resolveCitationAmount,
-  respondentKey,
+  defendantKey,
   sameSite,
   siteBasis,
   tierLabel,
@@ -158,7 +158,7 @@ function priorRecordMatch(k, ordinanceEntry, respondent) {
   if (
     ordinanceEntry.window === "site" || siteSeason
       ? !sameSite(k, respondent)
-      : !respondentKey(respondent) || respondentKey(k) !== respondentKey(respondent)
+      : !defendantKey(respondent) || defendantKey(k) !== defendantKey(respondent)
   )
     return null;
   return { siteSeason, differentOwner };
