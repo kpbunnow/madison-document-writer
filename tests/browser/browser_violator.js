@@ -62,6 +62,13 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   assert.ok(text.slice(text.indexOf("CC:")).includes("SECOND PERSON"), "other copies stay copies");
   assert.ok(!text.slice(text.indexOf("CC:")).includes("SYNTHETIC VIOLATOR"), "the Violator is not repeated under CC");
   assert.equal(await page.locator("#mailing-from-violator").count(), 1, "the editor says where to change the block");
+  // Mailing-block checks lead to Recipients, where the Violator's address is edited, not to the read-only block.
+  const mailingTargets = await page.evaluate(() =>
+    checks(doc(WriterState.state.docId))
+      .slice(0, 2)
+      .map((c) => c.targets.map((t) => t.selector)),
+  );
+  assert.deepEqual(mailingTargets, [["#btn-cc"], ["#btn-cc"]]);
 
   // The checkbox removes the owner from the copies, for this case only.
   await page.locator(".editor-sections #btn-cc").click();
@@ -70,12 +77,21 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   text = await printed();
   assert.ok(!text.slice(text.indexOf("CC:")).includes("SYNTHETIC OWNER"), "the owner is not copied when unticked");
   assert.equal(await page.evaluate(() => kase("qa-vio-1").copyOwner), false);
+  // Ticking it again restores the default without leaving a stored change behind.
+  await page.locator(".editor-sections #btn-cc").click();
+  await page.locator("#cc-copyowner").check();
+  assert.equal(await page.evaluate(() => "copyOwner" in kase("qa-vio-1")), false);
+  await page.locator("#cc-copyowner").uncheck();
+  await page.locator("[data-close=modal]").click();
 
   // A Violator with no address is refused when the dialog closes.
   await page.locator(".editor-sections #btn-cc").click();
   await page.locator('[data-cc="0|addr"]').fill("");
   await page.locator("[data-close=modal]").click();
   assert.equal(await page.locator("#cc-address-error").count(), 1, "a blank Violator is refused");
+  await page.locator('[data-cc="0|addr"]').fill("NOT A STREET");
+  await page.locator("[data-close=modal]").click();
+  assert.match(await page.locator("#cc-address-error").innerText(), /Violator:/, "the problem names the Violator, not a copy number");
   await page.locator('[data-cc="0|addr"]').fill("55 SECOND ST");
   await page.locator("[data-close=modal]").click();
   assert.equal(await page.evaluate(() => WriterState.state.modal), null);

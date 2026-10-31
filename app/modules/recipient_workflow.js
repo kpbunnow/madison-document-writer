@@ -22,7 +22,8 @@ function validateCopyAddresses(services, k, normalized) {
     const problem = addressProblem(c.name, c.addr, c.city);
     if (problem) {
       const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
-      return { message: "Copy " + (ix + 1) + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
+      const label = c.kind === "Violator" ? "Violator" : "Copy " + (ix + 1);
+      return { message: label + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
     }
     normalized.push([c, String(c.name).trim(), standardStreetAddress(c.addr), standardCityStateZip(c.city)]);
   }

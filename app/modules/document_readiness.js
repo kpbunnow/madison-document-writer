@@ -5,7 +5,7 @@ import { specialType, isHistoryDoc } from "./document_rules.js";
 import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
 import { docCase, docInsp } from "./writer_queries.js";
 import { validISO, parseTime, daysBetween } from "./calendar.js";
-import { defendantName, isLLC } from "./mailing_rules.js";
+import { defendantName, isLLC, violatorActive } from "./mailing_rules.js";
 import { defendantLines } from "./defendant_contact.js";
 
 function readinessComp({ d }) {
@@ -258,9 +258,13 @@ const baseReadinessRules = [
 
 const itemTargets = (items, field) => items.map((i) => checkTarget(itemSelector(i.id, field), "Item " + i.no));
 
+/* The mailing block is edited on the document, or in Recipients when it comes from the Violator contact. */
+const mailingTarget = ({ d }) =>
+  violatorActive(docCase(d)) ? [checkTarget("#btn-cc", "Recipients")] : [checkTarget('[data-case="ownerBlock"]', "Mailing block")];
+
 const baseTargetRules = [
-  () => [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
-  () => [checkTarget('[data-case="ownerBlock"]', "Mailing block")],
+  mailingTarget,
+  mailingTarget,
   () => [checkTarget("#btn-add-top", "Violation Items")],
   ({ live }) =>
     itemTargets(
