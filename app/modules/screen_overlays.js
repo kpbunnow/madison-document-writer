@@ -50,7 +50,7 @@ function violatorHintHTML(k, cc) {
 /* With a Violator set, the owner can still be copied; the case keeps that choice. */
 function violatorOwnerHTML(k) {
   if (!violatorOf(k) || k.caseType === "snow-10.28") return "";
-  return html`<label class="rec-owner"><input type="checkbox" id="cc-copyowner" ${raw(copiesOwner(k) ? "checked" : "")}> Also copy the property owner${raw(
+  return html`<label class="sendrow rec-owner"><input type="checkbox" id="cc-copyowner" ${raw(copiesOwner(k) ? "checked" : "")}> Also copy the property owner${raw(
     k.owner ? " (" + esc(k.owner) + ")" : "",
   )}</label><p class="hint">The Violator replaces the property owner in the mailing address block and as the defendant on citations. The owner stays in the case record and Reports.</p>`;
 }
