@@ -41,7 +41,13 @@ const assert = require("node:assert/strict"),
   }
   const [current, legacy] = await Promise.all([
     compile(source),
-    compile(source.slice(0, fn.start) + fs.readFileSync("tests/fixtures/citation_prior_history_reference.txt", "utf8") + source.slice(fn.end)),
+    // The retained function keeps its original respondentKey binding; the module itself now imports defendantKey.
+    compile(
+      'import { respondentKey } from "./citation_policy.js";\n' +
+        source.slice(0, fn.start) +
+        fs.readFileSync("tests/fixtures/citation_prior_history_reference.txt", "utf8") +
+        source.slice(fn.end),
+    ),
   ]);
   let seed = 20261110,
     checked = 0;
@@ -141,7 +147,10 @@ const assert = require("node:assert/strict"),
     } catch (e) {
       error = [e.name, e.message];
     }
-    return { result, error, reads, calls: structuredClone(context.calls) };
+    // The one intentional change: the current matching also reads the case's ccList to see whether a Violator is the
+    // defendant. Those reads are removed from the current side only; every other read must still match in order.
+    const seen = composed === current ? reads.filter((r) => !/\.ccList$/.test(r)) : reads;
+    return { result, error, reads: seen, calls: structuredClone(context.calls) };
   }
   async function compare(x) {
     assert.deepEqual(await run(current, x), await run(legacy, x), "scenario " + checked++);

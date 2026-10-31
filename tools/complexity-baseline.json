@@ -18,7 +18,7 @@
     "app/modules/catalog_events.js:createCatalogEvents#1:max-lines-per-function": 276,
     "app/modules/citation_drafts.js:createCitationDrafts#1:max-lines-per-function": 90,
     "app/modules/citation_pricing.js:initCitationPricing#1:max-lines-per-function": 160,
-    "app/modules/contact_events.js:createContactEvents#1:max-lines-per-function": 129,
+    "app/modules/contact_events.js:createContactEvents#1:max-lines-per-function": 111,
     "app/modules/correction_events.js:createCorrectionEvents#1:max-lines-per-function": 155,
     "app/modules/correction_preparation.js:createCorrectionPreparation#1:max-lines-per-function": 233,
     "app/modules/correction_ui.js:createCorrectionUI#1:max-lines-per-function": 122,

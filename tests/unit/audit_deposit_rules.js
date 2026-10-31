@@ -12,7 +12,7 @@ const assert = require("node:assert/strict"),
   const built = await esbuild.build({
     stdin: {
       contents:
-        withHistoricalBindings(source) +
+        withHistoricalBindings(source, ["WriterState", "respondentKey"]) +
         "\nexport function reference(services){" +
         reference +
         '; return citationDepositFault;} export {WriterState} from "./state.js"; export {CITATION_POLICY} from "./citation_policy.js";',

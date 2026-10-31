@@ -40,6 +40,13 @@ function copyTypeSelect(c, ix, snow) {
   )}</select>`;
 }
 
+/* What marking a contact as Violator does; shown once there is a contact to mark. */
+function violatorHintHTML(k, cc) {
+  if (!cc.length) return "";
+  const snow = k.caseType === "snow-10.28";
+  return html`<p class="hint" id="violator-hint">Mark one contact Violator to make it the main contact: it is printed in the mailing address block and as the defendant on citations instead of the property owner, and is not printed under CC.${raw(snow ? " Snow removal cases cite the property owner, so they offer only copies." : "")}</p>`;
+}
+
 /* With a Violator set, the owner can still be copied; the case keeps that choice. */
 function violatorOwnerHTML(k) {
   if (!violatorOf(k) || k.caseType === "snow-10.28") return "";
@@ -111,10 +118,9 @@ function recipientModal({ services }) {
       )}
 
       <h3 class="rec-h">Copies</h3>
-      <p class="hint">A copy is printed at the foot of the document under &ldquo;CC:&rdquo;. A contact marked Violator is the main contact instead: it is printed in the mailing address block and as the defendant on citations (one per case${raw(k.caseType === "snow-10.28" ? "; snow removal cases cite the property owner, so they offer only copies" : "")}). Enter a numbered street address and city, state and ZIP; the print preview below shows the standardized lines.</p>
-      ${raw(recipientCopiesHTML({ cc, invalid, services, snow: k.caseType === "snow-10.28" }))}
-      <button class="btn btn-sm" id="btn-addcc">Add a copy</button>
-      ${raw(violatorOwnerHTML(k))}
+      <p class="hint">Printed at the foot of the document under &ldquo;CC:&rdquo;. Enter a numbered street address and city, state and ZIP; the print preview below shows the standardized lines.</p>
+      ${raw(violatorHintHTML(k, cc))}${raw(recipientCopiesHTML({ cc, invalid, services, snow: k.caseType === "snow-10.28" }))}
+      <button class="btn btn-sm" id="btn-addcc">Add a copy</button>${raw(violatorOwnerHTML(k))}
 
       <h3 class="rec-h">Email recipients</h3>
       <p class="hint">Offered when you email a document. Recipients selected when finalizing are listed on that document.</p>
