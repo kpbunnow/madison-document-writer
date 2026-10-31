@@ -1,3 +1,4 @@
+const { withoutViolatorAdditions } = require("../fixtures/violator_overlay.cjs");
 /* Complete overlay HTML, state and adapter access/failure parity against the retained owner. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -162,7 +163,8 @@ const assert = require("node:assert/strict"),
       fail: variant % 19 === 0 ? (i % 17) + 1 : 0,
     };
     const result = run(current, x);
-    assert.deepEqual(result, run(original, x), "overlay:" + i);
+    const retained = run(original, x);
+    assert.deepEqual({ ...result, value: withoutViolatorAdditions(result.value, retained.value) }, retained, "overlay:" + i);
     if (result.value) {
       rendered++;
       seen.add(x.modal);

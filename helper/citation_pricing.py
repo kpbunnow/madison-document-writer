@@ -178,6 +178,19 @@ def respondent_key(case):
     return street + "|" + zipcode[1]
 
 
+def defendant_key(case):
+    """The respondent for pricing: the Violator's mailing address when one is set on a non-snow case, otherwise the
+    owner's. Mirrors citation_policy.js defendantKey; the case summary keeps the owner key."""
+    copies = case.get("ccList") if isinstance(case.get("ccList"), list) else []
+    violator = next((c for c in copies if isinstance(c, dict) and c.get("kind") == "Violator"), None)
+    if violator is None or case.get("caseType") == "snow-10.28":
+        return respondent_key(case)
+    parsed = violator.get("addressParsed")
+    return respondent_key(
+        {"ownerAddr": [violator.get("addr", ""), violator.get("city", "")], "ownerAddressParsed": parsed if isinstance(parsed, dict) else {}}
+    )
+
+
 # R34: property matching for site and site-season windows; mirrors modules/citation_policy.js exactly.
 def normalized_parcel(value):
     digits = re.sub(r"[\s-]", "", "" if value is None else str(value))
@@ -245,7 +258,7 @@ def prior_offenses(entry, respondent, violation_date, history, staged=()):
         if entry["window"] == "site" or site_season:
             if not same_site(case, respondent):
                 continue
-        elif not respondent_key(respondent) or respondent_key(case) != respondent_key(respondent):
+        elif not defendant_key(respondent) or defendant_key(case) != defendant_key(respondent):
             continue
         for item in snap.get("items", []):
             if not item.get("cite") or item.get("withdrawn"):
@@ -397,7 +410,7 @@ def _validate_scheduled_deposit(*, entry, cit, case, observed, history, staged):
     if (
         entry["window"] != "site"
         and not (isinstance(entry["window"], dict) and entry["window"].get("kind") == "site-season")
-        and not respondent_key(case)
+        and not defendant_key(case)
     ):
         raise ValueError(("Scheduled pricing requires the respondent name and usable mailing address, or an approved manual basis"))
     counted = prior_offenses(entry, case, observed, history, staged)

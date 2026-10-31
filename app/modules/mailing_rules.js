@@ -22,6 +22,29 @@ export const EMAIL_KINDS = ["Property Owner", "Tenant", "Agent", "Other"];
 
 export const ccList = (k) => (k && k.ccList) || [];
 
+/* ---------- the Violator ----------
+   One contact on the copies list can be marked Violator. It is not a copy: it takes the owner's place as the main
+   contact in the mailing block and as the defendant on citations. Snow removal cases cite the property owner, so a
+   Violator is ignored there. The property owner is also copied unless the case says otherwise. */
+export const VIOLATOR = "Violator";
+const SNOW_CASE = "snow-10.28";
+export const violatorOf = (k) => ccList(k).find((c) => c && c.kind === VIOLATOR) || null;
+export const copiesOf = (k) => ccList(k).filter((c) => !(c && c.kind === VIOLATOR));
+export const violatorActive = (k) => !!violatorOf(k) && !!k && k.caseType !== SNOW_CASE;
+export const copiesOwner = (k) => !k || k.copyOwner !== false;
+/* Marking a contact Violator makes it the only one; the earlier Violator becomes an ordinary copy. */
+export function setCopyKind(k, ix, kind) {
+  const list = ccList(k);
+  if (!list[ix]) return;
+  if (kind === VIOLATOR)
+    list.forEach((c, n) => {
+      if (n !== ix && c && c.kind === VIOLATOR) c.kind = "Copy";
+    });
+  list[ix].kind = kind === VIOLATOR ? VIOLATOR : "Copy";
+}
+/* The name a citation or notice is addressed to. */
+export const defendantName = (k) => String((violatorActive(k) ? violatorOf(k).name : k && k.owner) || "").trim();
+
 export const emailList = (k) => (k && k.emails) || [];
 
 export const US_STATES = new Set(
@@ -53,7 +76,7 @@ export const STATE_NAMES = Object.fromEntries(
 
 /* Wisconsin requires a registered agent for service on a limited liability
    company, so a citation against one cannot go out without it. */
-export const isLLC = (k) => /\b(LLC|L\.L\.C|LLP|L\.L\.P|INC|INCORPORATED|CORP|CORPORATION|LTD)\b/i.test(String((k && k.owner) || ""));
+export const isLLC = (k) => /\b(LLC|L\.L\.C|LLP|L\.L\.P|INC|INCORPORATED|CORP|CORPORATION|LTD)\b/i.test(defendantName(k));
 
 export function splitOwner(text) {
   const ls = String(text || "")

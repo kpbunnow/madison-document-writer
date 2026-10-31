@@ -1,7 +1,13 @@
 /* Frozen functions retain explicit original bindings as production imports narrow.
    This is test composition only; reference bytes and assertions remain unchanged. */
 const acorn = require("acorn");
-const imports = { WriterState: "./state.js", esc: "./presentation_format.js" };
+const imports = {
+  WriterState: "./state.js",
+  esc: "./presentation_format.js",
+  respondentKey: "./citation_policy.js",
+  ownerLines: "./mailing_rules.js",
+  ccList: "./mailing_rules.js",
+};
 function withHistoricalBindings(source, names = ["WriterState"]) {
   const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" });
   const bound = new Set(

@@ -2,8 +2,63 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Contact event ownership. Construction is inert; core registers at the original startup positions. */
 import { doc, kase, docCase } from "./writer_queries.js";
-import { emailList, isLLC, ccList } from "./mailing_rules.js";
+import { emailList, isLLC, ccList, setCopyKind } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
+/* Apply one edited field to the case: a copy or Violator field, an email recipient or the registered agent.
+   Returns true when a copy's type changed. */
+function applyRecipientEdit(k, el) {
+  if (el.dataset.cc) {
+    const p = el.dataset.cc.split("|");
+    k.ccList = ccList(k);
+    if (k.ccList[+p[0]] && p[1] === "kind") {
+      setCopyKind(k, +p[0], el.value);
+      return true;
+    }
+    if (k.ccList[+p[0]]) k.ccList[+p[0]][p[1]] = el.value;
+  } else if (el.dataset.em) {
+    const p = el.dataset.em.split("|");
+    k.emails = emailList(k);
+    if (k.emails[+p[0]]) k.emails[+p[0]][p[1]] = el.value;
+  } else {
+    k.agent = k.agent || {};
+    k.agent[el.dataset.agent] = el.value;
+  }
+  return false;
+}
+
+/* Re-check the addresses after an edit once a problem has been shown, and keep the preview line current. */
+function refreshRecipientProblem(services, el, k, dd) {
+  const hadProblem = !!editor.state.ccProblem;
+  editor.state.ccProblem = hadProblem ? services.validateAndStandardizeAddresses(k, dd.type === "citation" && isLLC(k), false) : null;
+  const message = document.getElementById("cc-address-error");
+  if (message) {
+    if (editor.state.ccProblem)
+      message.querySelector("div").innerHTML = "<strong>Check this address:</strong> " + esc(editor.state.ccProblem.message);
+    else message.remove();
+  }
+  document.querySelectorAll('[aria-describedby="cc-address-error"]').forEach((field) => {
+    field.removeAttribute("aria-invalid");
+    field.removeAttribute("aria-describedby");
+  });
+  if (editor.state.ccProblem) {
+    const field = document.querySelector(editor.state.ccProblem.selector);
+    field?.setAttribute("aria-invalid", "true");
+    field?.setAttribute("aria-describedby", "cc-address-error");
+  }
+  const key = el.dataset.cc ? "copy|" + el.dataset.cc.split("|")[0] : "agent|0";
+  const preview = document.querySelector('[data-recipient-preview="' + key + '"]');
+  if (preview) preview.textContent = services.recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent);
+}
+
+function changeCopyOwnerFor(services, e) {
+  const dd = doc(editor.state.docId);
+  if (!dd) return;
+  docCase(dd).copyOwner = !!e.target.checked;
+  workspace.DIRTY = true;
+  services.scheduleDraftSave();
+  services.render();
+}
+
 export function createContactEvents(services) {
   const openRecipients = () => {
     editor.state.ccProblem = null;
@@ -89,44 +144,16 @@ export function createContactEvents(services) {
     const dd = doc(editor.state.docId);
     if (!dd) return;
     const k = docCase(dd);
-    if (el.dataset.cc) {
-      const p = el.dataset.cc.split("|");
-      k.ccList = ccList(k);
-      if (k.ccList[+p[0]]) k.ccList[+p[0]][p[1]] = el.value;
-    } else if (el.dataset.em) {
-      const p = el.dataset.em.split("|");
-      k.emails = emailList(k);
-      if (k.emails[+p[0]]) k.emails[+p[0]][p[1]] = el.value;
-    } else {
-      k.agent = k.agent || {};
-      k.agent[el.dataset.agent] = el.value;
-    }
-    if (el.dataset.cc || el.dataset.agent) {
-      const hadProblem = !!editor.state.ccProblem;
-      editor.state.ccProblem = hadProblem ? services.validateAndStandardizeAddresses(k, dd.type === "citation" && isLLC(k), false) : null;
-      const message = document.getElementById("cc-address-error");
-      if (message) {
-        if (editor.state.ccProblem)
-          message.querySelector("div").innerHTML = "<strong>Check this address:</strong> " + esc(editor.state.ccProblem.message);
-        else message.remove();
-      }
-      document.querySelectorAll('[aria-describedby="cc-address-error"]').forEach((field) => {
-        field.removeAttribute("aria-invalid");
-        field.removeAttribute("aria-describedby");
-      });
-      if (editor.state.ccProblem) {
-        const field = document.querySelector(editor.state.ccProblem.selector);
-        field?.setAttribute("aria-invalid", "true");
-        field?.setAttribute("aria-describedby", "cc-address-error");
-      }
-      const key = el.dataset.cc ? "copy|" + el.dataset.cc.split("|")[0] : "agent|0";
-      const preview = document.querySelector('[data-recipient-preview="' + key + '"]');
-      if (preview) preview.textContent = services.recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent);
-    }
+    const kindChanged = applyRecipientEdit(k, el);
+    if (el.dataset.cc || el.dataset.agent) refreshRecipientProblem(services, el, k, dd);
     workspace.DIRTY = true;
     services.scheduleDraftSave();
+    // A type change can add or remove the owner-copy choice and the Violator on the document.
+    if (kindChanged) services.refreshOverlay();
     return;
   };
+
+  const changeCopyOwner = (e) => changeCopyOwnerFor(services, e);
 
   const changeEmail = (e) => {
     const dd = doc(editor.state.docId);
@@ -140,5 +167,17 @@ export function createContactEvents(services) {
     }
     return;
   };
-  return { openRecipients, addCopy, addRecipient, removeCopy, removeRecipient, emailDocument, sendDocument, closeModal, editRecipient, changeEmail };
+  return {
+    openRecipients,
+    addCopy,
+    addRecipient,
+    removeCopy,
+    removeRecipient,
+    emailDocument,
+    sendDocument,
+    closeModal,
+    editRecipient,
+    changeEmail,
+    changeCopyOwner,
+  };
 }

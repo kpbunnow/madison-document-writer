@@ -13,6 +13,7 @@ const allowed = {
   "address_format.js": ["./mailing_rules.js"],
   "presentation_format.js": [],
   "mailing_rules.js": [],
+  "defendant_contact.js": ["./address_format.js", "./mailing_rules.js"],
   "state.js": [],
   "screen_html.js": ["./presentation_format.js"],
   "language_discovery.js": ["./screen_html.js"],
@@ -44,7 +45,7 @@ const allowed = {
     "./record_sources.js",
     "./case_file_rules.js",
   ],
-  "citation_policy.js": ["./data/citation_policy.js"],
+  "citation_policy.js": ["./data/citation_policy.js", "./mailing_rules.js"],
 };
 const scopedServices = {
   "workflow_events.js": [
@@ -226,6 +227,7 @@ const scopedServices = {
     "./writer_queries.js",
     "./calendar.js",
     "./mailing_rules.js",
+    "./defendant_contact.js",
   ],
   "document_feedback.js": ["./editor_state.js", "./writer_queries.js"],
   "document_sources.js": [
@@ -644,6 +646,7 @@ const scopedServices = {
     "./document_rules.js",
     "./document_types.js",
     "./mailing_rules.js",
+    "./defendant_contact.js",
     "./presentation_format.js",
   ],
   "app_view_contexts.js": [

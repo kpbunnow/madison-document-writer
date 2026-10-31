@@ -7,7 +7,17 @@ import { doc, docCase, kase } from "./writer_queries.js";
 function validateCopyAddresses(services, k, normalized) {
   for (let ix = 0; ix < ccList(k).length; ix++) {
     const c = ccList(k)[ix];
-    if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) continue;
+    if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) {
+      if (c.kind === "Violator")
+        return {
+          message: "Violator: enter the name and mailing address, or change the type to Copy.",
+          scope: "copy",
+          index: ix,
+          field: "name",
+          selector: '[data-cc="' + ix + '|name"]',
+        };
+      continue;
+    }
     if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
     const problem = addressProblem(c.name, c.addr, c.city);
     if (problem) {

@@ -283,3 +283,14 @@ All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
 | S66-1 | Install R66 over an installed R64 (or R65) copy from the shared release folder on a PC that uses the shared case folder, then double-click the Document Writer icon | The helper starts, Writer opens, the installed folder contains open_cases.py, and Search shared case records lists an inspector's open cases; no "local helper did not start" message |
 
 All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN.
+
+## Violator contact acceptance (unreleased development) — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| SVIO-1 | On a test case, open Recipients, add a copy, set its type to Violator, then print the Official Notice and a citation | The Violator replaces the owner as the mailing address block and as the defendant and address on the citation; the owner prints under CC unless Also copy the property owner is cleared; the City Attorney's Office and the division confirm that a notice and citation addressed to the Violator, not the owner, meets their practice |
+| SVIO-2 | Cite a second violation by the same Violator on a different case with a different owner | The repeat offense is counted against the Violator's address and the higher tier is priced |
+| SVIO-3 | Give a snow removal case a Violator | The owner stays the defendant and nothing changes on the snow documents |
+| SVIO-4 | Open a Violator case on a PC that still has the previous release | The Violator prints as an ordinary copy; every PC must have the new release before Violator cases are used |
+
+These items remain OPEN until the division records the result.

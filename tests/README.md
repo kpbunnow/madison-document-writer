@@ -90,6 +90,7 @@ covers, or a new suite under its feature.
 | `audit_policy_version_rules.py` | Every retained policy row plus 3,000 malformed version scenarios preserves exact refusals, date-call order, input data and compiled bytes. |
 | `audit_workflow_search_rules.py` | 3,000 search scenarios preserve exact output, errors, read/validation order, inputs and 5,000-file/100-result limits. |
 | `audit_open_cases.py` | Open cases by inspector: the Reports open rule (Closed/Withdrawn and filed snow cases are closed), assignment and the Unassigned choice, next-due ordering, incompleteness counts, limits, damaged summaries and the guarded read-only `/cases/by-inspector` route with plain refusals. |
+| `audit_violator_pricing.py` | Violator contact in the helper: the pricing respondent is the Violator's mailing address on a non-snow case (shared cases with the Writer), prior offenses follow the Violator and not the owner, snow cases ignore the Violator. |
 | `audit_citation_history_rules.py` | 3,000 synthetic scan traces preserve reads, guard order, exclusions and projection; unchanged real-store integrity tests remain. |
 | `audit_issuance_group_rules.py` | 3,000 atomic-group contexts and explicit reversed-event precedence preserve exact results, errors and inputs. |
 | `audit_visit_validation_rules.py` | 3,000 physical/release inspection contexts preserve exact refusals, dependency traces, dates and inputs. |
@@ -293,6 +294,7 @@ covers, or a new suite under its feature.
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
 | `audit_tool_form_submit_rules.js` | Tool form submits in real forms: search markup, reminder preferences, batch deadlines, outbox sync and failure handling against the retained module. |
 | `audit_inspector_cases.js` | The inspector picker in Search shared case records, its open-case list and incompleteness notes, escaping, the import prompt, Import inspection opening with the case number ready, continuing an import already awaiting review and refusing to replace one for another case. |
+| `audit_violator_contact.js` | Violator contact rules in the Writer: the Copies type, one Violator per case, snow exclusion, defendant lines, owner copy choice, company rule and pricing respondent from the shared cases. |
 | `audit_start_correction_rules.js` | Opening a correction: existing-draft shortcut, refusals, dropped fields, recipient merge and stored record against the retained module. |
 | `audit_snow_letter_review_rules.js` | Seasonal letter review form, submit rewriting and failure display against the retained module. |
 | `audit_printable_html_rules.js` | Printable HTML document, control substitution and missing-sheet notice against the retained module. |
@@ -460,6 +462,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_r61.js` | Real compliance PDFs, long-note preservation and signer-free Best Interest output |
 | `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
 | `browser_reinspection_notice.js` | Reinspection Notice with the real helper: worksheet from the imported status, header and approved paragraph, ruled-through corrected item, due dates as text and not editable, past dates printed unchanged, helper refusal of a changed date, issue, and the Reinspection status in the summary the helper's own projection accepts. |
+| `browser_violator.js` | Violator contact in real Chromium: the Copies type in Recipients, one Violator per case, the mailing block and CC list, the owner-copy checkbox, a blank Violator refused, the citation defendant and snow cases keeping the owner. |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 
 ## Release input security
