@@ -44,7 +44,8 @@ module.exports = async function (browser, page) {
     WriterState.state.keepAdding = true;
     const failures = [];
     let usable = 0;
-    const blocked = [];
+    const blocked = [],
+      reviewed = [];
     scan: for (const [ci, c] of LIBRARY.entries())
       for (const [gi, g] of c.groups.entries())
         for (const it of g.items) {
@@ -52,6 +53,12 @@ module.exports = async function (browser, page) {
           const status = catalogStatus({ ...it, ci, gi }).code;
           if (["review", "incomplete"].includes(status)) {
             blocked.push(c.code + "/" + g.code + "/" + it.o);
+            continue;
+          }
+          // An earlier suite in the same run records catalog reviews (for example it retires EXT15). A retired or
+          // replaced entry is refused on purpose, so it is not a failure to add it.
+          if (["retired", "superseded"].includes(status)) {
+            reviewed.push(c.code + "/" + g.code + "/" + it.o);
             continue;
           }
           usable++;
@@ -81,9 +88,11 @@ module.exports = async function (browser, page) {
     await click(snow, () => doc(WriterState.state.docId).type === "notice");
     const undone = { type: doc(WriterState.state.docId).type, caseType: kase("qa-ol-2").caseType || "", items: items().length };
     await click(cart, () => items().length === 1);
-    return { usable, blocked, failures, dotted, picked, undone, after: items().map((i) => i.title) };
+    return { usable, blocked, reviewed, failures, dotted, picked, undone, after: items().map((i) => i.title) };
   });
-  assert.equal(result.usable, 242, "the usable bundled language was exercised");
+  assert.equal(result.usable + result.reviewed.length, 242, "every selectable entry was either exercised or has a recorded retirement");
+  assert.ok(result.reviewed.length <= 3, "only entries another suite retired or replaced are skipped: " + result.reviewed);
+  assert.ok(result.usable >= 239, "the usable bundled language was exercised");
   // Owner decision 2026-10-31 approved the bundled drafts. These seven have no determinable section, so they stay blocked.
   assert.deepEqual(result.blocked, [
     "ENF_HSE/SMOKEDETECT/20",
