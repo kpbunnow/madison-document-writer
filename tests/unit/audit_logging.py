@@ -46,6 +46,17 @@ class LoggingTests(unittest.TestCase):
 
             self.assertEqual(save(), {"ok": True})
 
+    def test_a_case_save_and_its_failure_are_logged_as_case_save(self):
+        """The case-save record belongs to save_case itself, so a refused save is logged as a failed case-save."""
+        import case_store
+
+        events = []
+        with patch.object(helper, "record", lambda operation, status, *rest, **kw: events.append((operation, status))):
+            with tempfile.TemporaryDirectory() as directory, self.assertRaises(ValueError):
+                case_store.save_case(directory, "bad name.txt", {})
+            case_store._has_priced_citation({"events": []})
+        self.assertEqual(events, [("case-save", "start"), ("case-save", "failed")])
+
 
 if __name__ == "__main__":
     unittest.main()

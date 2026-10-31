@@ -248,7 +248,11 @@ def anchor_evidence(record, folder, external=None, context=None):
 
 
 def intent_path(folder, number):
-    return Path(folder) / "_integrity" / "transactions" / (hash_bytes(number.casefold().encode()) + ".json")
+    """One pending transaction per case, named from the normalized case number that read_intent checks against. A raw
+    number with doubled spaces or filename characters would otherwise leave an intent that can never be read back."""
+    from case_store import case_number_key
+
+    return Path(folder) / "_integrity" / "transactions" / (hash_bytes(case_number_key(number).casefold().encode()) + ".json")
 
 
 def read_intent(path):
