@@ -47,8 +47,8 @@ PORT_IN_USE = (
     "Port 8777 is already in use by another program, so Document Writer cannot start. "
     "Restart the computer and try again. If this keeps happening, ask IT to check which program uses port 8777."
 )
-# R57 and earlier helpers have no shutdown route; a later helper's route needs its session token, which the
-# launcher never uses. So the dialog tells the user how to stop the older helper; the launcher stops nothing itself.
+# R57 and earlier helpers have no shutdown route, and a helper that is working refuses to stop. When the launcher's
+# authenticated request to stop an older helper fails, the dialog tells the user how to stop it by hand.
 OLDER_HELPER = (
     "An older version of Document Writer is still running on this computer, so the update cannot be applied yet. "
     "Save your work, then stop the older version: if its Writer window offers Exit Document Writer in Tools & settings, "
@@ -364,6 +364,45 @@ def helper_version(timeout=2):
         return local_status(timeout).get("version")
     except (OSError, ValueError, http.client.HTTPException):
         return None  # Nothing listening yet, or a program that does not speak HTTP.
+
+
+def newer_release_busy(reasons):
+    return (
+        "A newer version of Document Writer is on the shared folder, but the copy running on this computer is still "
+        "working (" + " ".join(str(r) for r in reasons[:3]) + "). Let it finish, then double-click the Document Writer icon again."
+    )
+
+
+def stop_running_helper(timeout=5):
+    """Ask the helper on the port to exit, with this user's session token. [] when it agreed to stop, else its reasons.
+
+    The helper refuses while it is saving, filing or holding a shared lock, exactly as for Exit Document Writer."""
+    try:
+        token = helper_session.launch_token()
+        connection = http.client.HTTPConnection("127.0.0.1", PORT, timeout=timeout)
+        try:
+            connection.request("POST", "/helper/shutdown", body=b"{}", headers={"Content-Type": "application/json", "X-DocWriter-Token": token})
+            response = connection.getresponse()
+            value = json.loads(response.read(64 * 1024) or b"{}")
+        finally:
+            connection.close()
+    except Exception as error:  # Asking is best effort; the dialog explains how to stop it by hand.
+        LOGGER.warning("The running helper could not be asked to stop (%s).", type(error).__name__)
+        return ["it could not be asked to stop"]
+    if response.status == 200 and isinstance(value, dict) and value.get("ok"):
+        return []
+    reasons = value.get("reasons") if isinstance(value, dict) and isinstance(value.get("reasons"), list) else []
+    return reasons or ["it did not agree to stop"]
+
+
+def wait_until_stopped(timeout=15, interval=0.25):
+    """True once nothing answers on the port."""
+    deadline = time.monotonic() + timeout
+    while helper_version(timeout=1) is not None:
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(interval)
+    return True
 
 
 def wait_until_ready(process, version, timeout=READY_SECONDS, interval=0.25):

@@ -28,7 +28,7 @@ POST /reporting/parcels    {"ids": [...], "refresh": false}
 GET  /reporting/areas      alder district and ZIP outlines, where available
 """
 
-from runtime_paths import no_window, resource as _resource
+from runtime_paths import UPDATE_BLOCKED, deployed_build, no_window, resource as _resource
 
 import http.server, socketserver, json, os, stat, sys, subprocess, tempfile, shutil, threading, time
 from pathlib import Path
@@ -113,7 +113,34 @@ def resource(name):
 
 
 OUTDIR_NAME = "Documents To Be Mailed And Recorded"
-from runtime_identity import VERSION as HELPER_VERSION
+from runtime_identity import VERSION as HELPER_VERSION, HELPER_BUILD
+
+# Writes to the shared folder that an out-of-date or unverified copy must not make.
+RELEASE_GATED = {
+    "/cases/save",
+    "/cases/summary",
+    "/catalog/review",
+    "/administration/deposit-override",
+    "/administration/snow-letter",
+    "/reporting/views",
+}
+NEWER_RELEASE = (
+    "A newer version of Document Writer is on the shared folder, so this copy cannot save to it. Your work stays on "
+    "this computer. Exit Document Writer (Tools & settings), then open it again from the desktop icon to update."
+)
+RELEASE_UNVERIFIED = (
+    "Saving to the shared folder is paused because the shared program files failed verification when Document Writer "
+    "started. Your work stays on this computer. Tell IT; once the deployment folder is fixed, exit Document Writer and "
+    "open it again."
+)
+
+
+def release_gate():
+    """Why this helper must not write to the shared folder now, or "" when it may."""
+    if (HERE / UPDATE_BLOCKED).exists():
+        return RELEASE_UNVERIFIED
+    deployed = deployed_build(share_root())
+    return NEWER_RELEASE if deployed is not None and deployed > HELPER_BUILD else ""
 
 
 def share_root():
@@ -1291,6 +1318,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(403, {"ok": False, "error": "Forbidden" if route == "/session/bootstrap" else refused})
             if handler is Handler._post_shutdown:
                 return handler(self, route)
+            gate = release_gate() if route in RELEASE_GATED else ""
+            if gate:
+                return self._json(409, {"ok": False, "error": gate, "updateRequired": True})
             label = POST_ACTIVITY.get(route, OTHER_ACTIVITY)
             if not begin_activity(label):
                 return self._json(503, {"ok": False, "error": STOPPED_MESSAGE})
