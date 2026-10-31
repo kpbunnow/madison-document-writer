@@ -57,6 +57,22 @@ class IntegrityTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "changed outside"):
                 case_store.save_case(root, name, v)
 
+    def test_migrating_a_legacy_number_with_spacing_or_filename_characters(self):
+        """The pending transaction is named from the normalized number read_intent checks; a raw number with doubled
+        spaces or a slash once left an intent that could never be read, blocking every case on the share."""
+        for number in ("CB 2026  01", "CB/2026/01", "cb2026-000-00001"):
+            with self.subTest(number=number), tempfile.TemporaryDirectory() as directory:
+                folder = Path(directory)
+                legacy = {"format": "madison-case-file", "schema": 4, "case": {"id": "c1", "number": number}, "events": [], "inspectors": []}
+                name = "1 MAIN ST - " + case_store.case_number_key(number).upper().replace("/", "-") + ".json"
+                (folder / name).write_text(json.dumps(legacy))
+                base = case_store.digest((folder / name).read_bytes())
+                self.assertTrue(case_store.save_case(folder, name, dict(legacy, schema=5), base_revision=base)["ok"])
+                self.assertEqual(list((folder / "_integrity" / "transactions").glob("*.json")), [])
+                self.assertEqual(integrity.VerificationContext(folder).pending, {})
+                self.assertTrue(case_store.read_case(folder, name)["integrity"]["valid"])
+        self.assertEqual(integrity.intent_path("f", "CB2026-1").name, integrity.intent_path("f", "cb2026-1").name)
+
     def test_disjoint_annotations_with_clock_skew(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
