@@ -70,7 +70,7 @@ workspace_shell owns the composed screen frame; browser_printing, storage_status
 
 ## Helper storage, integrity and recovery
 
-The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.
+The helper owns case merge/validate/write under per-case locks and conservative pricing serialization. Migration publishes durable intent before a case and registry replacement. Recovery completes only a matching prior/planned revision and retains quarantined bytes. A request-scoped verification context checks event/record chains, migration evidence and protected anchors; it is never a cross-request trust cache. When IT configures a protected anchor folder, automatic anchoring (after a save, or on the helper's 15-minute clock) runs at most once per City day; administrator recovery and explicit anchoring still run immediately. Each digest is complete: it carries forward the anchor of every case no longer present and every known case number, so a verification reads only the newest protected receipt instead of the whole receipt history. Receipts written before complete digests are still read until the first complete one. Read-only Reports overlaps at most four file reads in batches of sixteen, with trust decisions on the consuming thread.
 
 ## PDF receipts and filing
 

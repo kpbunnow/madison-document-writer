@@ -1056,6 +1056,9 @@ def end_activity(label):
             del ACTIVE_WORK[label]
 
 
+ANCHOR_CLOCK_SECONDS = 900
+
+
 def run_anchor_once():
     """Register background integrity work before it can acquire a lock or write a diagnostic."""
     label = "Record integrity information is being updated."
@@ -1854,7 +1857,8 @@ if __name__ == "__main__":
                         return
                 except (OSError, ValueError):
                     pass
-                if STOPPING.wait(60):
+                # Anchoring itself happens at most once per City day; the clock only notices the new day.
+                if STOPPING.wait(ANCHOR_CLOCK_SECONDS):
                     return
 
         threading.Thread(target=anchor_clock, daemon=True).start()

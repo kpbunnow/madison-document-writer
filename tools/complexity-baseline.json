@@ -53,7 +53,7 @@
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,
     "app/modules/workspace_events.js:createWorkspaceEvents#1:max-lines-per-function": 113,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 95,
-    "helper/case_integrity.py:__init__:C901": 19,
+    "helper/case_integrity.py:__init__:C901": 12,
     "helper/case_integrity.py:verify_record:C901": 19,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 17,
