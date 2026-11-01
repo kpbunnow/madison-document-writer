@@ -4,18 +4,24 @@ import { standardStreetAddress, standardCityStateZip, addressProblem } from "./a
 import { ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 
-function validateCopyAddresses(services, k, normalized) {
+const emptyContact = (c) => !String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim();
+const blankViolatorFault = (ix) => ({
+  message: "Violator: enter the name and mailing address, or change the type to Copy.",
+  scope: "copy",
+  index: ix,
+  field: "name",
+  selector: '[data-cc="' + ix + '|name"]',
+});
+
+/* A blank Violator row is dropped when the Recipients dialog is closed, as a blank ordinary copy is ignored; the
+   readiness check (normalize false) still reports one that is left in a saved draft. */
+function validateCopyAddresses(services, k, normalized, blank, normalize) {
   for (let ix = 0; ix < ccList(k).length; ix++) {
     const c = ccList(k)[ix];
-    if (!String(c.name || "").trim() && !String(c.addr || "").trim() && !String(c.city || "").trim()) {
-      if (c.kind === "Violator")
-        return {
-          message: "Violator: enter the name and mailing address, or change the type to Copy.",
-          scope: "copy",
-          index: ix,
-          field: "name",
-          selector: '[data-cc="' + ix + '|name"]',
-        };
+    if (emptyContact(c)) {
+      if (c.kind !== "Violator") continue;
+      if (!normalize) return blankViolatorFault(ix);
+      blank.push(c);
       continue;
     }
     if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
@@ -41,7 +47,8 @@ function validateAgentAddress(a, requireAgent, entered, acceptedAgent) {
   return null;
 }
 
-function normalizeRecipientAddresses(k, a, normalized, entered, acceptedAgent) {
+function normalizeRecipientAddresses(k, a, normalized, blank, entered, acceptedAgent) {
+  if (blank.length) k.ccList = ccList(k).filter((c) => !blank.includes(c));
   normalized.forEach(([c, name, addr, city]) => {
     c.name = name;
     c.addr = addr;
@@ -59,15 +66,16 @@ export function createRecipientWorkflow(services) {
   function validateAndStandardizeAddresses(k, requireAgent = false, normalize = true) {
     const parsedFault = services.addressParser.fault(k);
     if (parsedFault) return parsedFault;
-    const normalized = [];
-    const copyFault = validateCopyAddresses(services, k, normalized);
+    const normalized = [],
+      blank = [];
+    const copyFault = validateCopyAddresses(services, k, normalized, blank, normalize);
     if (copyFault) return copyFault;
     const a = k.agent || {},
       entered = [a.name, a.addr, a.city].some((v) => String(v || "").trim());
     const acceptedAgent = services.addressParser.accepted(a.addressParsed, [a.addr || "", a.city || ""]) && String(a.name || "").trim();
     const agentFault = validateAgentAddress(a, requireAgent, entered, acceptedAgent);
     if (agentFault) return agentFault;
-    if (normalize) normalizeRecipientAddresses(k, a, normalized, entered, acceptedAgent);
+    if (normalize) normalizeRecipientAddresses(k, a, normalized, blank, entered, acceptedAgent);
     return null;
   }
 
