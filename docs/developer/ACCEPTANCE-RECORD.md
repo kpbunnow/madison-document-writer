@@ -284,6 +284,10 @@ All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
 
 All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN. The owner decided on 2026-10-31 not to publish R66 as a GitHub release; the next release supersedes it, and S66-1 carries to that release's installation over R64, R65 or R66.
 
+## Anchor folder create-only check (synthetic analog, 2026-11-01) — C6 still OPEN
+
+C6 (create-only anchor permissions) needs the City's anchor location and its real permissions. A Linux analog was run on synthetic data: an ext4 directory with the append-only attribute accepts new files and refuses rename and delete, which is the permission set C6 describes. Before the fix `anchor_daily` failed there, because the receipt was written to a temporary file and renamed, and it left an unremovable temporary file. After the fix (`create_only_write`) the anchor succeeded and the receipt verified; an altered or truncated copy of the retained history was reported not valid. `audit_r40_storage.py` covers the refused-rename case without special privileges. The analog does not restrict changes to a receipt's contents, so the City must still prove that a normal client can neither modify nor delete a receipt. The anchor folder should receive only `*.sha256` receipts, one per anchor.
+
 ## R67 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

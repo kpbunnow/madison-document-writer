@@ -193,8 +193,11 @@ class VerificationContext:
         forward, so reading stops there; earlier receipts are read only until the first complete one."""
         seen = set()
         for path in sorted(Path(external).glob("*.sha256"), reverse=True) if external else []:
-            receipt = json.loads(path.read_text(encoding="utf-8"))
-            name = receipt["digestFile"]
+            try:
+                receipt = json.loads(path.read_text(encoding="utf-8"))
+                name = receipt["digestFile"]
+            except (ValueError, KeyError, TypeError) as exc:
+                raise ValueError("Protected receipt " + path.name + " is incomplete or damaged; IT must remove it") from exc
             if Path(name).name != name:
                 raise ValueError("Invalid digest filename")
             if name in seen:
@@ -484,7 +487,7 @@ def anchor_daily(folder, external=None):
     if not external:
         return {"anchored": False, "reason": "IT-controlled anchor folder is not configured or available"}
     external = Path(external)
-    from case_store import file_lock, atomic_write
+    from case_store import file_lock, atomic_write, create_only_write
 
     with file_lock(folder, "integrity-anchor"):
         context = VerificationContext(folder, external)
@@ -531,7 +534,8 @@ def anchor_daily(folder, external=None):
             return {"anchored": True, "day": day, "entries": 1, "digestFile": target.name}
         # Timestamp sorts new receipt generations before older ones; UUID prevents collision.
         receipt = external / (datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S%f") + "-" + identity + ".sha256")
-        atomic_write(receipt, expected)
+        # The anchor folder may let this account add files but not rename or delete them, so no temporary file is used.
+        create_only_write(receipt, expected)
         return {"anchored": True, "day": day, "entries": 1, "digestFile": target.name}
 
 
