@@ -170,20 +170,58 @@ class DurableStorage(unittest.TestCase):
             newer = copy.deepcopy(saved["file"])
             newer["case"]["owner"] = "Valid append"
             updated = store.save_case(root, name, newer, saved["revision"], saved["file"]["case"])["file"]
-            real = store.atomic_write
-
-            def fail(path, raw):
-                if Path(path).parent == external:
-                    raise OSError("receipt unavailable")
-                return real(path, raw)
-
-            with patch.object(store, "atomic_write", side_effect=fail):
+            with patch.object(store, "create_only_write", side_effect=OSError("receipt unavailable")):
                 with self.assertRaises(OSError):
                     integrity.anchor_daily(root, external)
             self.assertEqual(before, {p.name: p.read_bytes() for p in external.glob("*.sha256")})
             self.assertTrue(integrity.verify_record(updated, root, external)["valid"])
             integrity.anchor_daily(root, external)
             self.assertTrue(integrity.verify_record(updated, root, external)["anchored"])
+
+    def test_anchor_folder_that_allows_only_creating_files(self):
+        """A protected anchor folder may let the account add files but not rename, replace or delete them (acceptance
+        item C6). The receipt must be created in place with no temporary file, and a receipt left incomplete is
+        reported in plain words rather than as a parser error."""
+        with tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as ext:
+            root, external = Path(folder), Path(ext)
+            value = record()
+            value["schema"] = 5
+            saved = store.save_case(root, "101 TEST - QA-001.json", value)
+
+            def inside(*paths):
+                return any(external in Path(str(p)).parents for p in paths)
+
+            def refuse(real):
+                def guarded(*args, **kwargs):
+                    if inside(*[a for a in args if isinstance(a, (str, os.PathLike))]):
+                        raise PermissionError(1, "Operation not permitted")
+                    return real(*args, **kwargs)
+
+                return guarded
+
+            real_unlink = Path.unlink
+
+            def unlink(self, *args, **kwargs):
+                if inside(self):
+                    raise PermissionError(1, "Operation not permitted")
+                return real_unlink(self, *args, **kwargs)
+
+            with (
+                patch.object(os, "replace", refuse(os.replace)),
+                patch.object(os, "rename", refuse(os.rename)),
+                patch.object(os, "link", refuse(os.link)),
+                patch.object(Path, "unlink", unlink),
+            ):
+                self.assertTrue(integrity.anchor_daily(root, external)["anchored"])
+            names = [p.name for p in external.iterdir()]
+            self.assertEqual(len(names), 1)
+            self.assertTrue(names[0].endswith(".sha256"), "no temporary file is left in the anchor folder")
+            self.assertTrue(integrity.verify_record(saved["file"], root, external)["anchored"])
+            with self.assertRaises(FileExistsError):
+                store.create_only_write(external / names[0], b"{}")
+            (external / "2999-01-01-000000000000-x.sha256").write_bytes(b'{"digestFile"')
+            with self.assertRaisesRegex(ValueError, "incomplete or damaged; IT must remove it"):
+                integrity.VerificationContext(root, external)
 
     def test_automatic_anchoring_runs_once_per_city_day(self):
         """Saves and the helper clock anchor at most once a City day; an explicit or administrator anchor still runs."""
