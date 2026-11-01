@@ -41,6 +41,14 @@ module.exports = async function (browser, page) {
     };
     const items = () => doc(WriterState.state.docId).items;
     newCase("qa-ol-1", "QA-OL-001");
+    // Owner decision 2026-11-01: the picker opens on Approved and standard, so approved-for-selection language is listed
+    // before the division records any catalog review.
+    const defaultScope = WriterState.state.pickerStatus;
+    WriterState.state.q = "erosion";
+    render();
+    const erosionListed = document.querySelectorAll("[data-pick]").length;
+    WriterState.state.q = "";
+    render();
     WriterState.state.keepAdding = true;
     const failures = [];
     let usable = 0;
@@ -88,8 +96,10 @@ module.exports = async function (browser, page) {
     await click(snow, () => doc(WriterState.state.docId).type === "notice");
     const undone = { type: doc(WriterState.state.docId).type, caseType: kase("qa-ol-2").caseType || "", items: items().length };
     await click(cart, () => items().length === 1);
-    return { usable, blocked, reviewed, failures, dotted, picked, undone, after: items().map((i) => i.title) };
+    return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after: items().map((i) => i.title) };
   });
+  assert.equal(result.defaultScope, "usable", "the picker opens on Approved and standard");
+  assert.ok(result.erosionListed > 0, "erosion language is listed at the default scope");
   assert.equal(result.usable + result.reviewed.length, 242, "every selectable entry was either exercised or has a recorded retirement");
   assert.ok(result.reviewed.length <= 3, "only entries another suite retired or replaced are skipped: " + result.reviewed);
   assert.ok(result.usable >= 239, "the usable bundled language was exercised");

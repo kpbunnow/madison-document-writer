@@ -325,7 +325,7 @@ export function createCatalogEvents(services) {
   const openPicker = (d) => {
     if (!services.structEditable(d)) return;
     if (editor.state.pickerDoc !== d.id) {
-      editor.state.pickerStatus = "approved";
+      editor.state.pickerStatus = "usable";
       editor.state.cl = -1;
       editor.state.grp = 0;
       editor.state.pickerDoc = d.id;
