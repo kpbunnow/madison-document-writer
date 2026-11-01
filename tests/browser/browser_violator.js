@@ -114,5 +114,21 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   });
   assert.equal(snow.key, "100 TEST ST|53703");
   assert.equal(snow.active, false);
+
+  // A Violator row with nothing entered is dropped when Recipients is closed, as a blank ordinary copy is ignored, and
+  // the owner is the main contact again. The readiness check still reports one left in a saved draft.
+  await page.locator(".editor-sections #btn-cc").click();
+  for (const field of ["name", "addr", "city"]) await page.locator('[data-cc="0|' + field + '"]').fill("");
+  assert.equal(
+    await page.evaluate(() => !!validateAndStandardizeAddresses(kase("qa-vio-1"), false, false)),
+    true,
+    "readiness still reports a blank Violator",
+  );
+  await page.locator("[data-close=modal]").click();
+  assert.equal(await page.locator("#cc-address-error").count(), 0, "a blank Violator is dropped, not refused");
+  assert.equal(await page.evaluate(() => WriterState.state.modal), null);
+  kinds = await page.evaluate(() => kase("qa-vio-1").ccList.map((c) => c.kind));
+  assert.deepEqual(kinds, ["Copy"], "only the blank Violator row was removed");
+  assert.ok((await printed()).includes("100 TEST ST"), "the owner is the main contact again");
   return { passed: true, mainContact: true, ownerCopy: true, oneViolator: true, blankRefused: true, snowKeepsOwner: true };
 };
