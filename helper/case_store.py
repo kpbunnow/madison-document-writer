@@ -635,6 +635,26 @@ def atomic_write(target, body):
         Path(temporary).unlink(missing_ok=True)
 
 
+def create_only_write(target, body):
+    """Add one new file to a folder where this account may create files but not rename or delete them (the
+    protected anchor folder). It never replaces a file and uses no temporary name, because renaming or removing
+    a temporary file is exactly what such a folder refuses. The body is written in one call; a file left
+    incomplete by a failure is removed when the folder allows it."""
+    target = Path(target)
+    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o644)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(body)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except BaseException:
+        try:
+            target.unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
+
+
 def publish_new(target, body):
     """Publish a complete file at a new name, never replacing one that appeared meanwhile.
 

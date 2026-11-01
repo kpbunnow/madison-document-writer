@@ -119,14 +119,14 @@ Use a correction after issuance. Do not renumber or delete historical items to h
 
 ## 6 Find select and review order language
 
-Order language (Browse language) and the Select for this notice picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
+Order language (Browse language) and the Select for this notice picker use Approved and standard by default (owner decision 2026-11-01), so bundled language that the owner approved for selection but the division has not yet reviewed is listed. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
 
 Each result shows an ordinance and a short corrective-action preview. Open Full wording and guidance for complete text, fill-ins, retained draft wording and review provenance. Check the status before selecting. “Review status from cache · refreshing” identifies retained browser review information while the helper checks it. “Review status from cache · refresh unavailable” means that check could not finish. A cached label does not grant approval or bypass the helper's publication checks; reconnect and refresh when current review confirmation is needed.
 
 | Scope or status | Meaning for use |
 | --- | --- |
-| Approved language | Formally recorded approved entries; the default discovery scope |
-| Approved and standard | Deliberate broader scope; standard entries retain selection eligibility but have no recorded formal approval |
+| Approved language | Entries with a formally recorded approved review; a narrower scope |
+| Approved and standard | The default discovery scope: approved entries plus standard entries, which keep selection eligibility but have no recorded formal review |
 | Needs review | Proposed or incomplete entries for review; not a shortcut to selection |
 | Standard and retired | Reference scope including replaced or retired sources |
 | Selected on this notice | Sources already selected, even if their later status changes |
@@ -479,7 +479,7 @@ Preserve work first. Keep the active tab open when device saving is uncertain, d
 | Lookup finds only Scheduled or Assist records | Confirm the source inspection was actually completed; use the division's report procedure, not a fabricated date |
 | SQL or certificate error | Give IT the safe error code and time; check approved network, account, database and certificate configuration |
 | Import says the inspection is already used | Continue its retained case/document or use correction; do not change the time to bypass matching |
-| No Approved language results | Clear search; check review status. Use Approved and standard only deliberately under division policy |
+| No language results | Clear search; check the status scope. Approved language shows only entries with a recorded formal review, so switch to Approved and standard if you chose the narrower scope |
 | An unfilled bubble blocks issue | Open the linked item, enter the actual missing detail and review the completed sentence |
 | Too many deadlines | Review outstanding items and reduce to the permitted distinct dates; do not relabel compliance or withdrawal |
 | Deposit needs review or history changed | Complete the affected charge and authorized source; refresh shared history and review the tier again |

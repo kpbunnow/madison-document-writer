@@ -77,7 +77,7 @@ export function languageScreen(R) {
     "Order language · find language for the condition you observed",
     '<button class="btn" data-language-mode="admin">Review catalog</button>',
     '<div class="language-browser" data-language-context="browse"><p>Search a' +
-      "cross every checklist by ordinary terms, ordinance or wording. Approved " +
+      "cross every checklist by ordinary terms, ordinance or wording. Approved and standard " +
       "language is shown by default. Standard sources and proposed or retired e" +
       "ntries are available through the status filter.</p>" +
       `${catalogState(R)}` +

@@ -35,7 +35,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
       };
     });
     await page.locator('[data-nav="library"]').click();
-    assert.equal(await page.locator("#lib-status").inputValue(), "approved");
+    // Owner decision 2026-11-01: Browse language opens on Approved and standard.
+    assert.equal(await page.locator("#lib-status").inputValue(), "usable");
     assert.equal(await page.locator("[data-catalog-save]").count(), 0);
     await mode("admin");
     await page.locator("#catalog-filter").fill("EXT15");
@@ -66,6 +67,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await themes("r47-admin-review");
     await page.screenshot({ path: path.join(OUT, "r47-admin-review.png"), fullPage: true });
     await mode("browse");
+    // The one formally approved entry shows under the narrower Approved language scope; the default is wider.
+    await page.locator("#lib-status").selectOption("approved");
     await page.locator("#lib-filter").fill("garbage");
     assert.equal(await page.locator(".language-row").count(), 1);
     assert.equal(await page.locator("[data-catalog-save]").count(), 0);
@@ -127,7 +130,10 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
       newDoc("r47-case", "notice");
     });
     await page.locator("#btn-add-top").click();
-    assert.equal(await page.locator("#pk-status").inputValue(), "approved");
+    // Owner decision 2026-11-01: the picker opens on Approved and standard.
+    assert.equal(await page.locator("#pk-status").inputValue(), "usable");
+    // The rest of this flow checks the formally approved entry, so narrow to Approved language as it always did.
+    await page.locator("#pk-status").selectOption("approved");
     await page.locator("#pk-q").fill("garbage");
     await page.locator('[data-pick="' + entry.pick + '"]').focus();
     await page.keyboard.press("Enter");

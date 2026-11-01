@@ -284,6 +284,10 @@ All R65 items remain OPEN. S60–S64 and carried items remain OPEN.
 
 All R66 items remain OPEN. S65-1 through S65-3 and carried items remain OPEN. The owner decided on 2026-10-31 not to publish R66 as a GitHub release; the next release supersedes it, and S66-1 carries to that release's installation over R64, R65 or R66.
 
+## Anchor folder create-only check (synthetic analog, 2026-11-01) — C6 still OPEN
+
+C6 (create-only anchor permissions) needs the City's anchor location and its real permissions. A Linux analog was run on synthetic data: an ext4 directory with the append-only attribute accepts new files and refuses rename and delete, which is the permission set C6 describes. Before the fix `anchor_daily` failed there, because the receipt was written to a temporary file and renamed, and it left an unremovable temporary file. After the fix (`create_only_write`) the anchor succeeded and the receipt verified; an altered or truncated copy of the retained history was reported not valid. `audit_r40_storage.py` covers the refused-rename case without special privileges. The analog does not restrict changes to a receipt's contents, so the City must still prove that a normal client can neither modify nor delete a receipt. The anchor folder should receive only `*.sha256` receipts, one per anchor.
+
 ## R67 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
@@ -300,7 +304,7 @@ All R67 items remain OPEN. S65-1 through S65-3, S66-1 and carried items remain O
 | SVIO-2 | Cite a second violation by the same Violator on a different case with a different owner, using a charge whose repeat count follows the person (for example 10.05(15)), or for a charge counted by property (for example erosion control 37.07) two cases at the same property | The repeat offense is counted against the Violator's address (or, for a property-counted charge, the same property) and the higher tier is priced |
 | SVIO-3 | Give a snow removal case a Violator | The owner stays the defendant and nothing changes on the snow documents |
 | SVIO-4 | Open a Violator case on a PC that still has the previous release | The Violator prints as an ordinary copy; every PC must have the new release before Violator cases are used |
-| OL-1 | Division language reviewer reviews the bundled order language the owner approved for selection on 2026-10-31 (123 entries; three have a section filled in: Unsecured Vacant Building 27.085(2)(a), Smoke Alarms 27.05(2)(w), Plumbing work without required approval 18.08) | The reviewer confirms or corrects the wording and sections, and records approved reviews under Order language → Review catalog so the entries appear in the default Approved language scope |
+| OL-1 | Division language reviewer reviews the bundled order language the owner approved for selection on 2026-10-31 (123 entries; three have a section filled in: Unsecured Vacant Building 27.085(2)(a), Smoke Alarms 27.05(2)(w), Plumbing work without required approval 18.08) | The reviewer confirms or corrects the wording and sections, and records approved reviews under Order language → Review catalog so the entries also appear in the narrower Approved language scope |
 | OL-2 | Division supplies the ordinance section for the seven entries still blocked (both carbon monoxide alarm entries, Occupancy Exceeds Permitted Use, Required permit inspections, Historic exterior work approval, Sleeping room without required egress, Unapproved room use) | Each entry has a confirmed section and an approved review, and can then be selected |
 
 SVIO-1 is APPROVED: the owner reported on 2026-10-31 that the City Attorney's Office and the division confirmed a notice and citation addressed to the Violator meets their practice. The owner chose how to close the rest on 2026-10-31:
