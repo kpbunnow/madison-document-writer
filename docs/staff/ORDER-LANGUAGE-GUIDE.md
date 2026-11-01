@@ -6,14 +6,14 @@ Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruc
 
 ## 6 Find select and review order language
 
-Order language (Browse language) and the Select for this notice picker use Approved language by default. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
+Order language (Browse language) and the Select for this notice picker use Approved and standard by default (owner decision 2026-11-01), so bundled language that the owner approved for selection but the division has not yet reviewed is listed. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. Multiple terms narrow the results. Trash, garbage, rubbish and refuse are related search terms; handrail, railing and banister are also related.
 
 Each result shows an ordinance and a short corrective-action preview. Open Full wording and guidance for complete text, fill-ins, retained draft wording and review provenance. Check the status before selecting.
 
 | Scope or status | Meaning for use |
 | --- | --- |
-| Approved language | Formally recorded approved entries; the default discovery scope |
-| Approved and standard | Deliberate broader scope; standard entries retain selection eligibility but have no recorded formal approval |
+| Approved language | Entries with a formally recorded approved review; a narrower scope |
+| Approved and standard | The default discovery scope: approved entries plus standard entries, which keep selection eligibility but have no recorded formal review |
 | Needs review | Proposed or incomplete entries for review; not a shortcut to selection |
 | Standard and retired | Reference scope including replaced or retired sources |
 | Selected on this notice | Sources already selected, even if their later status changes |

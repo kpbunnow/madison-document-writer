@@ -36,7 +36,7 @@ function languageBrowseScreen(R, items, query, filter) {
     "Browse language",
     "Order language · find language for the condition you observed",
     '<button class="btn" data-language-mode="admin">Review catalog</button>',
-    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Approved language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
+    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Approved and standard language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
  <div class="language-controls"><label class="f"><span>Search all order language</span><input type="search" id="lib-filter" value="${raw(R.esc(query))}" placeholder="For example: garbage, handrail, 27.05"></label><label class="f"><span>Language status</span><select id="lib-status">${raw(languageFilterOptions(R, filter))}</select></label><label class="f"><span>Browse checklist</span><select id="lib-checklist"><option value="-1" ${String(R.state.libCl < 0 ? "selected" : "")}>All checklists</option>${raw(R.LIBRARY.map((c, ci) => screen`<option value="${String(ci)}" ${String(ci === R.state.libCl ? "selected" : "")}>${raw(R.esc(c.name))}</option>`).join(""))}</select></label><button class="btn" data-language-refresh>Refresh review status</button></div>
  <p class="language-count" role="status">${String(query ? "Search results across all checklists" : "Language entries")} · ${String(items.length)} matching ${String(filter === "approved" ? "approved " : "")}entries</p>
  ${raw(
@@ -202,7 +202,7 @@ const catalogState = (R) =>
 export function languageScreen(R) {
   const admin = R.state.languageMode === "admin",
     query = admin ? R.state.catalogAdminQ || "" : R.state.libFilter || "",
-    filter = admin ? R.state.catalogAdminStatus || "review" : R.state.libStatus || "approved";
+    filter = admin ? R.state.catalogAdminStatus || "review" : R.state.libStatus || "usable";
   const items = R.allItems().filter(
     (i) => R.catalogVisible(i, filter) && languageMatches(R, i, query) && (admin || query || R.state.libCl < 0 || i.ci === R.state.libCl),
   );
@@ -214,7 +214,7 @@ export function languagePicker(R) {
   const current = R.doc(R.state.docId),
     all = R.allItems(),
     q = R.state.q.trim(),
-    filter = R.state.pickerStatus || "approved",
+    filter = R.state.pickerStatus || "usable",
     selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter));
   const items = all.filter((i) => visible(i) && languageMatches(R, i, q) && (q || R.state.cl < 0 || (i.ci === R.state.cl && i.gi === R.state.grp)));
