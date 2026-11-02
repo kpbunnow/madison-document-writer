@@ -85,7 +85,7 @@ export function openCaseCardHTML(state = openList) {
   const waiting = editor.state.acc;
   const off = !!busy || !!waiting;
   let body;
-  if (state.loading || (!state.inspectors && !state.error)) body = '<p role="status">Loading inspectors…</p>';
+  if (state.loading || (!state.inspectors && !state.error)) body = '<p role="status">Loading inspectors… the first load can take up to a minute.</p>';
   else if (state.error) body = openCaseProblemHTML(state.error, "open-cases-retry");
   else if (!state.inspectors.length) body = openCaseProblemHTML("No inspector has open cases.", "open-cases-retry");
   else
@@ -111,13 +111,13 @@ let serial = 0;
 const redraw = (services) => editor.state.screen === "import" && services.render();
 const BAD_ANSWER = "The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.";
 
-async function loadInspectors(services) {
+async function loadInspectors(services, refresh = false) {
   if (openList.loading) return;
   openList.loading = true;
   openList.error = "";
   const mine = ++serial;
   try {
-    const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", {}));
+    const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", refresh ? { refresh: true } : {}));
     if (mine !== serial) return;
     if (!Array.isArray(result.inspectors)) throw new Error(BAD_ANSWER);
     openList.inspectors = result.inspectors;
@@ -180,7 +180,7 @@ export function createOpenCaseList(services) {
     openList.casesError = "";
     if (openList.inspectors?.length) return showCases(services, openList.selected);
     openList.inspectors = null;
-    return loadInspectors(services);
+    return loadInspectors(services, true);
   };
   return {
     /* The card for the Import screen; it starts the first load. */

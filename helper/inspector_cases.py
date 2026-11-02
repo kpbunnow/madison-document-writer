@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import threading
+import time
 from helper_logging import logged
 import case_lookup
 from case_lookup import CaseLookupError, HERE
@@ -23,6 +24,10 @@ MAX_INSPECTORS = 200
 MAX_CASES = 3000
 LIST_WAIT = 90
 LIST_QUERY_TIMEOUT = 60
+# The inspector list changes rarely and takes several seconds on the City database, so a good answer is kept in memory
+# for this long; Try again on the screen asks for a fresh one.
+CACHE_SECONDS = 1800
+_cache = {"root": None, "at": 0.0, "answer": None, "source": None}
 INSPECTOR_FIELDS = ("UserId", "InspectorName", "OpenCases")
 CASE_FIELDS = (
     "AssignedInspector UserId CaseNumber ShortAddress ParcelNumber OwnerName RecordCategory CaseDescription Status DateOpened "
@@ -112,9 +117,7 @@ def _run(root, fields, query):
         LISTS.release()
 
 
-@logged("lookup")
-def inspectors(root):
-    cfg, names, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql")
+def _checked_people(answer):
     people, seen = [], set()
     for row in _rows(answer, INSPECTOR_FIELDS, MAX_INSPECTORS):
         uid = user_id(row["UserId"] if isinstance(row["UserId"], str) else "")
@@ -123,10 +126,30 @@ def inspectors(root):
         if uid.casefold() in seen or not isinstance(count, str) or not count.isdigit():
             raise CaseLookupError("The report query returned an invalid inspector list.")
         seen.add(uid.casefold())
-        if not excluded(names, uid, name):
-            people.append({"id": uid, "name": name, "openCases": int(count)})
+        people.append({"id": uid, "name": name, "openCases": int(count)})
+    return people
+
+
+def _list_answer(root, refresh):
+    """The checked inspector list and where it came from: the kept one, or a fresh query when asked or expired. Only a
+    list that passed every check is kept."""
+    kept = _cache["answer"] is not None and _cache["root"] == str(root) and time.monotonic() - _cache["at"] < CACHE_SECONDS
+    if kept and not refresh:
+        return _cache["answer"], _cache["source"]
+    cfg, _, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql")
+    source = _source(cfg, answer, "inspector_list.sql")
+    people = _checked_people(answer)
+    _cache.update(root=str(root), at=time.monotonic(), answer=people, source=source)
+    return people, source
+
+
+@logged("lookup")
+def inspectors(root, refresh=False):
+    names = exclusions(root)
+    everyone, source = _list_answer(root, refresh)
+    people = [p for p in everyone if not excluded(names, p["id"], p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
-    return {"ok": True, "inspectors": people, "source": _source(cfg, answer, "inspector_list.sql")}
+    return {"ok": True, "inspectors": people, "source": source}
 
 
 @logged("lookup")

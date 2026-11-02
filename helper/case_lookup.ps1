@@ -32,7 +32,8 @@ try {
     $cmd = $conn.CreateCommand()
     # The inspector queries read more tables than a one-case lookup, so the caller may ask for a longer wait.
     $cmd.CommandTimeout = 20
-    if ($request.commandTimeout -is [int] -and $request.commandTimeout -ge 5 -and $request.commandTimeout -le 120) { $cmd.CommandTimeout = [int]$request.commandTimeout }
+    $wait = 0
+    if ([int]::TryParse([string]$request.commandTimeout, [ref]$wait) -and $wait -ge 5 -and $wait -le 120) { $cmd.CommandTimeout = $wait }
     # Only these three fixed files can run; the caller picks one by name and never supplies SQL.
     $operation = 'read_fixed_query'
     $mode = [string]$request.mode
