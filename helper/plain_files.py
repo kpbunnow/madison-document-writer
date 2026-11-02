@@ -76,7 +76,11 @@ def read_plain_bytes(path):
             if error.errno == errno.ELOOP:
                 raise ValueError(LINKED_MESSAGE) from None
             raise
-    with os.fdopen(fd, "rb") as stream:
-        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
             raise ValueError(LINKED_MESSAGE)
-        return stream.read()
+        # Keep ownership even if stream construction fails; fdopen does not always close a supplied descriptor.
+        with os.fdopen(fd, "rb", closefd=False) as stream:
+            return stream.read()
+    finally:
+        os.close(fd)

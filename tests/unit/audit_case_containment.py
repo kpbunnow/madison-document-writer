@@ -35,6 +35,33 @@ def record(number="QA-001", case_id="case_a"):
 
 
 class Containment(unittest.TestCase):
+    def test_descriptors_close_when_a_read_is_refused_or_stream_creation_fails(self):
+        target = self.cases / "directory.json"
+        target.mkdir()
+        opened = []
+        original = os.open
+
+        def tracked(path, *args, **kwargs):
+            fd = original(path, *args, **kwargs)
+            opened.append(fd)
+            return fd
+
+        with patch.object(plain_files.os, "open", side_effect=tracked):
+            with self.assertRaises(ValueError):
+                plain_files.read_plain_bytes(target)
+        with self.assertRaises(OSError):
+            os.fstat(opened[-1])
+        target.rmdir()
+        target.write_bytes(b"ordinary file")
+        with (
+            patch.object(plain_files.os, "open", side_effect=tracked),
+            patch.object(plain_files.os, "fdopen", side_effect=RuntimeError("stream failed")),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "stream failed"):
+                plain_files.read_plain_bytes(target)
+        with self.assertRaises(OSError):
+            os.fstat(opened[-1])
+
     def test_replacement_before_open_never_follows_the_new_link(self):
         target = self.cases / "race.json"
         target.write_text("{}")
