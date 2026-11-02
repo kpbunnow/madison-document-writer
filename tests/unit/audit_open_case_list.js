@@ -90,7 +90,11 @@ const row = (number, extra = {}) => ({
   const card = (state) => m.openCaseCardHTML(state);
   assert.match(card({ inspectors: null, loading: true }), /Loading inspectors/);
   assert.match(card({ inspectors: null, error: "No permission." }), /No permission\..*open-cases-retry/s);
-  assert.match(card({ inspectors: [], loading: false, error: "" }), /No inspector has open cases/);
+  assert.match(
+    card({ inspectors: [], loading: false, error: "" }),
+    /No inspector has open cases.*open-cases-retry/s,
+    "an empty list can be tried again",
+  );
   const picker = card({ ...loaded, selected: "JSMITH" });
   assert.match(picker, /<option value="JSMITH" selected>Jordan Smith \(2\)<\/option>/);
   assert.match(picker, /id="open-cases-search"/);
@@ -155,6 +159,17 @@ const row = (number, extra = {}) => ({
   await slow;
   assert.equal(openList.casesFor, "JSMITH", "the stale answer is ignored");
   assert.ok(renders > 0);
+  // An answer the list cannot use is an error, not an empty list; an empty list can be reloaded.
+  openList.inspectors = null;
+  openList.error = "";
+  const broken = m.createOpenCaseList({ helperJSON: async () => ({ ok: true }), render: () => {}, findDatabaseCase: async () => {} });
+  await broken.loadInspectors();
+  assert.match(openList.error, /cannot use/);
+  assert.equal(openList.inspectors, null);
+  openList.error = "";
+  openList.inspectors = [];
+  await owner.retry();
+  assert.equal(openList.inspectors.length, 1, "Try again on an empty list loads it again");
   console.log("PASS open case list");
 })().catch((error) => {
   console.error(error);

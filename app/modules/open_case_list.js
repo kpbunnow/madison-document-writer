@@ -87,7 +87,7 @@ export function openCaseCardHTML(state = openList) {
   let body;
   if (state.loading || (!state.inspectors && !state.error)) body = '<p role="status">Loading inspectors…</p>';
   else if (state.error) body = openCaseProblemHTML(state.error, "open-cases-retry");
-  else if (!state.inspectors.length) body = "<p>No inspector has open cases.</p>";
+  else if (!state.inspectors.length) body = openCaseProblemHTML("No inspector has open cases.", "open-cases-retry");
   else
     body =
       openCasePickerHTML(state, state.casesLoading) +
@@ -120,7 +120,9 @@ export function createOpenCaseList(services) {
     try {
       const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", {}));
       if (mine !== serial) return;
-      openList.inspectors = Array.isArray(result.inspectors) ? result.inspectors : [];
+      if (!Array.isArray(result.inspectors))
+        throw new Error("The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.");
+      openList.inspectors = result.inspectors;
     } catch (error) {
       if (mine === serial) openList.error = error.message || "The inspector list could not be loaded.";
     } finally {
@@ -145,7 +147,9 @@ export function createOpenCaseList(services) {
     try {
       const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
       if (mine !== serial) return;
-      openList.cases = Array.isArray(result.cases) ? result.cases : [];
+      if (!Array.isArray(result.cases))
+        throw new Error("The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.");
+      openList.cases = result.cases;
       openList.casesFor = id;
       openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
     } catch (error) {
@@ -162,7 +166,10 @@ export function createOpenCaseList(services) {
   const retry = () => {
     openList.error = "";
     openList.casesError = "";
-    if (openList.inspectors === null) return loadInspectors();
+    if (!openList.inspectors?.length) {
+      openList.inspectors = null;
+      return loadInspectors();
+    }
     return showCases(openList.selected);
   };
   const refresh = () => showCases(openList.casesFor || openList.selected);
