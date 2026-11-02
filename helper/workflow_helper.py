@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 from case_store import atomic_write, case_number_key, file_lock, validate_case
-from plain_files import plain_json_files
+from plain_files import plain_json_files, read_plain_bytes
 
 REPORTS = {
     "openCases",
@@ -48,7 +48,7 @@ def search_cases(folder, query):
         try:
             if path.stat().st_size > 32 * 1024 * 1024:
                 raise ValueError("Oversize record")
-            record = json.loads(path.read_bytes())
+            record = json.loads(read_plain_bytes(path))
             validate_case(record, legacy=True)
             case = record["case"]
             number = case_number_key(case["number"])

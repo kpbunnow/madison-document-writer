@@ -42,7 +42,7 @@ import secrets
 import hmac
 import helper_session
 import case_integrity
-from plain_files import UNSAFE_NAME_CHARS, plain_json_files
+from plain_files import UNSAFE_NAME_CHARS, plain_json_files, read_plain_bytes
 from public_errors import public_message
 import case_projection
 from reporting_reads import ordered_reads
@@ -272,7 +272,7 @@ def read_index(read_workers=4):
             try:
                 matches = files.get(case_number_key(summary["case"].get("number")), [])
                 if len(matches) == 1:
-                    raw = matches[0].read_bytes()
+                    raw = read_plain_bytes(matches[0])
             except (OSError, ValueError, TypeError, KeyError) as problem:
                 error = problem
         return path, summary, raw, error

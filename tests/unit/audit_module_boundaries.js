@@ -329,6 +329,7 @@ const scopedServices = {
     "./startup_state.js",
   ],
   "workspace_backup.js": [
+    "./record_integrity.js",
     "./workspace_state.js",
     "./editor_state.js",
     "../assets/shared.js",

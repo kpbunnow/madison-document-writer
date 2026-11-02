@@ -14,7 +14,7 @@ from decimal import Decimal
 import hashlib
 import json
 import case_integrity
-from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file
+from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file, read_plain_bytes
 import citation_pricing
 import os
 import re
@@ -702,10 +702,10 @@ def _require_valid_event(event, seen):
     seen.add(event["id"])
     if not isinstance(event.get("type"), str) or not event["type"].strip() or not isinstance(event.get("payload", {}), dict):
         raise ValueError("Invalid event")
+    snapshot = event.get("payload", {}).get("snapshot", {})
+    if not isinstance(snapshot, dict):
+        raise ValueError("Invalid event")
     if event["type"].endswith(".issued"):
-        snapshot = event.get("payload", {}).get("snapshot", {})
-        if not isinstance(snapshot, dict):
-            raise ValueError("Invalid event")
         if snapshot.get("draft"):
             raise ValueError("A working draft cannot be published to the shared record")
 
@@ -724,8 +724,7 @@ UNREADABLE_CASE = "This case file could not be read as a Madison case record. It
 
 def read_case(folder, name):
     target = Path(folder) / safe_json_name(name)
-    require_plain_file(target)
-    raw = target.read_bytes()
+    raw = read_plain_bytes(target)
     try:
         value = json.loads(raw)
         if not isinstance(value, dict):
@@ -936,7 +935,7 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
     with file_lock(folder, "case:" + number_key):
         target = _resolve_case_save_target(folder=folder, name=name, number_key=number_key, number=number)
         output = json.loads(json.dumps(incoming))
-        previous = target.read_bytes() if target.exists() else None
+        previous = read_plain_bytes(target) if target.exists() else None
         current = None
         if previous is None and (not incoming.get("events")):
             case_number_key(number, strict=True)
@@ -954,17 +953,7 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
             )
             if already_committed is not None:
                 return already_committed
-        cross_case = (
-            citation_history(folder, number_key)["history"]
-            if any(
-                (
-                    e.get("payload", {}).get("snapshot", {}).get("authoringVersion", 0) >= 6
-                    and e.get("payload", {}).get("snapshot", {}).get("type") == "citation"
-                    for e in output.get("events", [])
-                )
-            )
-            else []
-        )
+        cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output) else []
         validate_history(output, {e["id"] for e in current.get("events", [])} if previous is not None else set(), cross_case, folder)
         if output.get("schema", 1) >= 5:
             output = case_integrity.commit_record(current if previous is not None else None, output)
@@ -1167,7 +1156,7 @@ def citation_history(folder, exclude_number=""):
     for path in sorted(plain_json_files(root)):
         if path.name.startswith("_"):
             continue
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads(read_plain_bytes(path).decode("utf-8"))
         validate_case(value, legacy=True)
         case_integrity.require_valid(value, folder, context)
         number = case_number_key(value["case"]["number"])

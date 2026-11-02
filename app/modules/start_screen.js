@@ -12,6 +12,8 @@ export function chooseStartScreen() {
     workspace.DOCS.some((d) => d.draft) ||
     workspace.REINSP.some((r) => r.draft) ||
     workspace.PENDING.length > 0 ||
+    Object.values(editor.RECORD_ATTEMPTS || {}).some((attempt) => attempt.pendingAmendment) ||
+    Object.values(editor.WORK?.recordForms || {}).some((form) => form.text || form.external) ||
     !!editor.state.acc ||
     !!editor.WORK?.acc ||
     !!String(editor.WORK?.entry?.["lookup-number"] || "").trim();

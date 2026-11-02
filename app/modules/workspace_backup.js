@@ -7,6 +7,7 @@ import { clone } from "./record_values.js";
 import { SCHEMA } from "./document_types.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
+import { canonicalJSON, verifyIntegrity } from "./record_integrity.js";
 
 function requireEmptyWorkspaceForBackup(services) {
   if (workspace.CASES.length || services.hasSetupWork() || Object.values(editor.WORK.recordForms || {}).some((x) => x.text || x.external))
@@ -18,7 +19,17 @@ function integrityRecordFault(records) {
   if (records === undefined) return "";
   if (!Array.isArray(records) || records.some((x) => !x || typeof x !== "object" || Array.isArray(x)))
     return "The backup has invalid integrity records.";
+  try {
+    canonicalJSON(records);
+  } catch (error) {
+    return "The backup has invalid integrity records.";
+  }
   return "";
+}
+
+async function requireRestorableIntegrity(records) {
+  // Do not install proofs until persistence succeeds. Invalid verdicts remain restorable as read-only evidence.
+  for (const record of records || []) await verifyIntegrity(record);
 }
 
 function validateWorkspaceBackupRecords(b, value) {
@@ -97,6 +108,8 @@ export function createWorkspaceBackup(services) {
     if (!Array.isArray(b.cases) || !Array.isArray(b.docs) || !Array.isArray(b.reinsp) || !b.events || badIds(b))
       throw new Error("The backup has invalid working records.");
     const ids = validateWorkspaceBackupRecords(b, value);
+    await requireRestorableIntegrity(b.integrityRecords);
+    requireEmptyWorkspaceForBackup(services);
     const merged = {
       ...services.draftBundle(),
       cases: workspace.CASES.concat(b.cases),

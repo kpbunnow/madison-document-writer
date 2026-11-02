@@ -53,7 +53,7 @@ covers, or a new suite under its feature.
 | `audit_shared_case_storage_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
 | `audit_case_save_workflow_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
 | `audit_draft_persistence_parity.js` | Existing storage public-owner suite unchanged through retained-module parity |
-| `audit_backup_integrity_records.js` | A workspace backup with malformed integrity records is refused before any write; well-formed records restore as before. |
+| `audit_backup_integrity_records.js` | A workspace backup with malformed integrity records, invalid Unicode or non-finite values is refused before any write; real integrity preflight leaves live proofs untouched. |
 | `audit_workspace_backup_parity.js` | Unchanged public-owner validation, identity, write, integrity and replacement assertions against retained module |
 | `audit_workspace_tasks_parity.js` | Unchanged public-owner task suite against maintained and retained module implementations |
 | `audit_workspace_queue_rules.js` | Queue action priority, derived flags, aliases, task association, ordering and interrupted context services |
@@ -141,8 +141,8 @@ covers, or a new suite under its feature.
 | `audit_inspection_facts.js` | Independent date/time parsing and inspection queries, historical/blank-source precedence, retained reuse evidence, case scoping and live workspace replacement |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_inspector_cases.py` | Open cases by assigned inspector: the two fixed queries keep the report's open-case rules and bind only a user ID, row and field validation, the administrator's exclusion file, one list at a time, the Windows transport and the local HTTP boundary |
-| `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped markup, card states, and the owner against a substitute helper (loads once, stale answers ignored, a pending import blocks Import) |
-| `audit_start_screen.js` | Where Document Writer opens: Import inspection when the helper reports the City case lookup, unless a draft, worksheet, pending case file, awaiting import or saved case number needs attention |
+| `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped markup, card states, and the owner against a substitute helper (loads once, stale answers ignored, overlapping inspector/case requests settle independently, a pending import blocks Import) |
+| `audit_start_screen.js` | Where Document Writer opens: Import inspection when the helper reports the City case lookup, unless a draft, worksheet, pending case file, record confirmation/form, awaiting import or saved case number needs attention |
 | `audit_stranded_import.js` | A case with no document, draft or recorded event (for example after a new import's notice draft was discarded) can start its notice again from its Initial Inspection; a case with anything issued, drafted or recorded still refuses it |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
@@ -289,11 +289,11 @@ covers, or a new suite under its feature.
 | `audit_correction_panel_markup_rules.js` | 6,000 seeded corrections compare the correction panel markup (locked and unlocked drafts, every document family, the recorded-visit editor, the change table, errors, escaping) and every peer read and call with the retained module. |
 | `lifted_splice.cjs` | Fixture helper: runs a retained original function beside the module-level functions lifted out of a factory. |
 | `audit_filename_policy.py` | File names from case data drop or refuse control and bidirectional characters; ordinary names are unchanged. |
-| `audit_case_containment.py` | Linked or non-regular entries in the case folder are never read, listed, resolved, indexed or written through; ordinary case files work as before. |
+| `audit_case_containment.py` | Linked or non-regular case entries are refused, including replacement before/after opening; reads use the same checked handle, with modeled Windows reparse/share flags. |
 | `audit_malformed_input_rules.py` | Wrong-shaped case records, unreadable case files and bad parcel requests are answered as plain 400s; refused records write nothing. |
 | `audit_integrity_shape_rules.py` | Wrong-shaped integrity metadata is an invalid verdict, and one unprocessable case file never fails the whole Reports index. |
 | `retained_wording.py` | Fixture helper: retained-handler comparisons stay exact except the two sentences that deliberately changed (plain error wording). |
-| `audit_public_errors_rules.py` | People see messages the program wrote, never parser or Python wording or file paths; the migration conflict explains itself. |
+| `audit_public_errors_rules.py` | People see messages the program wrote, never parser or Python wording or file paths; the migration conflict explains itself; post-save anchoring damage retains a successful save and generic errors do not promise that no write occurred. |
 | `audit_reports_clock_wiring.js` | Every Reports service getter named TODAY reads the current day through `currentDay()` when asked, not the page-load day. |
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
 | `audit_tool_form_submit_rules.js` | Tool form submits in real forms: search markup, reminder preferences, batch deadlines, outbox sync and failure handling against the retained module. |

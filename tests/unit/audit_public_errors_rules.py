@@ -3,7 +3,6 @@ crafted OSErrors pass through unchanged, everything else becomes one plain sente
 what happened and what to do."""
 
 import json
-import os
 from pathlib import Path
 import tempfile
 import threading
@@ -18,6 +17,10 @@ import server
 
 
 class PublicMessages(unittest.TestCase):
+    def test_generic_failures_do_not_claim_that_no_write_happened(self):
+        for error in (AttributeError("after write"), json.JSONDecodeError("bad response", "", 0)):
+            self.assertNotIn("Nothing was changed", public_errors.public_message(error))
+
     def test_messages_the_program_wrote_are_shown_as_written(self):
         self.assertEqual(public_errors.public_message(ValueError("Invalid case filename")), "Invalid case filename")
         self.assertEqual(public_errors.public_message(OSError("The shared case folder is unavailable")), "The shared case folder is unavailable")
@@ -59,6 +62,29 @@ class PublicMessages(unittest.TestCase):
 
 
 class Endpoints(unittest.TestCase):
+    def test_anchoring_damage_does_not_turn_a_committed_save_into_a_refusal(self):
+        # The malformed sibling appears after startup. The first anchor must warn without undoing an acknowledged save.
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            cases, anchors = root / "cases", root / "anchors"
+            cases.mkdir()
+            anchors.mkdir()
+            (cases / "damaged.json").write_text("null")
+            value = {"format": "madison-case-file", "schema": 5, "case": {"id": "c1", "number": "QA-900"}, "events": [], "inspectors": []}
+            body = json.dumps({"name": "TEST - QA-900.json", "file": value}).encode()
+            request = urllib.request.Request(
+                self.base + "/cases/save", data=body, headers={"Content-Type": "application/json", "X-DocWriter-Token": server.SESSION_TOKEN}
+            )
+            with patch.object(server, "case_dir", return_value=cases), patch.object(case_integrity, "protected_folder", return_value=anchors):
+                with urllib.request.urlopen(request, timeout=20) as response:
+                    out = json.loads(response.read())
+                self.assertTrue(case_integrity.verify_record(out["file"], cases)["valid"])
+            self.assertTrue(out["ok"])
+            self.assertTrue((cases / "TEST - QA-900.json").is_file())
+            status = json.loads((cases / "_integrity" / "anchor-status.json").read_text())
+            self.assertFalse(status["anchored"])
+            self.assertIn("pending", status["reason"])
+
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory()

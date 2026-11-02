@@ -1707,3 +1707,16 @@ Bug-scan finding F6. Reports captured `TODAY` at load, so a tab left open past m
 ## Repair batch note
 
 These repairs (with the earlier backup-restore validation, F-N1, and the case-folder containment and file-name policy, F4 and F5, in the entries above) were delivered as one integration PR so the combined head had one full gate. Staff-visible wording changed in two places: the migration conflict message and the plain sentences above.
+
+
+## Review repair continuation after PR #399
+
+Related owner-authorized fixes retain R68/helper build 69 and every independent format. Inspector and case-list reads use separate generations so overlapping refreshes clear their own busy flags; the inspector refresh repaints immediately. Startup keeps Workspace for a pending record confirmation or saved record-action form. Backup imports validate canonical JSON and run the real integrity verifier without installing proofs before persisting; invalid integrity verdicts remain restorable as read-only evidence.
+
+All event snapshots are shape-checked before pricing decisions, and merged pricing inspection reuses the safe predicate. Generic helper errors make no unsupported no-write promise. Post-save anchoring metadata failures remain visible as a pending anchor diagnostic without rejecting an already committed record.
+
+Case-file reads now open and verify the same handle. POSIX uses O_NOFOLLOW and a regular-file fstat; Windows opens the reparse point itself, checks its handle attributes and denies deletion until closing the read handle. Open, merge, search, Reports source reads, migration reconstruction and anchoring use this primitive. Tests cover replacement before/after opening and model Windows reparse rejection, sharing flags and handle ownership; these models do not establish native City/SMB acceptance.
+
+The development-only minimatch override pins 11.0.1 to remove GHSA-g3hv-75wg-m249 while retaining ESLint 10.13.0. The supported Node 24 runtime satisfies its engine range. Frozen installation and npm audit pass with zero reported vulnerabilities; 55,796 comparisons against minimatch 10.2.6 preserve project-path matching for the exercised lint glob options. No dependency is added to deployed application code.
+
+Existing regression suites gain the reproduced failure cases; no historical assertion, approved print reference, legal policy or release identity is replaced. Exact-head GitHub Full gate and PR format remain required before delivery. Packaging and deployment are outside this fix.

@@ -38,6 +38,9 @@ def with_second_event(mutate):
 
 
 MALFORMED = {
+    "non-issued snapshot is a list": lambda r: r["events"][1].update(type="case.opened", payload={"snapshot": []}),
+    "non-issued snapshot is a string": lambda r: r["events"][1].update(type="case.opened", payload={"snapshot": "x"}),
+    "non-issued snapshot is null": lambda r: r["events"][1].update(type="case.opened", payload={"snapshot": None}),
     "event is a string": lambda r: r["events"].__setitem__(1, "text"),
     "event is a number": lambda r: r["events"].__setitem__(1, 5),
     "event is null": lambda r: r["events"].__setitem__(1, None),
