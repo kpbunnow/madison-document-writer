@@ -61,6 +61,8 @@ import { createWorkspaceEvents } from "./workspace_events.js";
 import { createCitationEvents } from "./citation_events.js";
 import { createDueDateEvents } from "./due_date_events.js";
 import { createImportEvents } from "./import_events.js";
+import { createOpenCaseList } from "./open_case_list.js";
+import { createOpenCaseEvents } from "./open_case_events.js";
 import { createReinspectionEvents } from "./reinspection_events.js";
 import { createEditorEvents } from "./editor_events.js";
 import { createSpecialDocumentEvents } from "./special_document_events.js";
@@ -478,7 +480,7 @@ const appScreens = createAppScreens(
       restoreWorkControls: () => restoreWorkControls,
       scheduleDraftSave: () => scheduleDraftSave,
       screenCases: () => screenCases,
-      screenImport: () => screenImport,
+      screenImport: () => importScreen,
       screenLibrary: () => screenLibrary,
       screenReinspect: () => screenReinspect,
       screenWrite: () => screenWrite,
@@ -1655,6 +1657,16 @@ const dueDateEvents = createDueDateEvents(
     toastUndo: () => toastUndo,
   }),
 );
+const openCaseList = createOpenCaseList(
+  deferredServices({
+    helperJSON: () => helperJSON,
+    render: () => render,
+    findDatabaseCase: () => findDatabaseCase,
+  }),
+);
+/* The Import inspection screen with the open-case list above the case-number lookup. */
+const importScreen = () => screenImport(openCaseList.card());
+const openCaseEvents = createOpenCaseEvents(deferredServices({ openCaseList: () => openCaseList }, ["openCaseList"]));
 const importEvents = createImportEvents(
   deferredServices({
     accelaFromShare: () => accelaFromShare,
@@ -2273,6 +2285,9 @@ WriterState.ACC_SELECTION_SERIAL = 0;
 
 importEvents.registerLookupSubmit();
 importEvents.registerLookupClicks();
+openCaseEvents.registerOpenCaseSubmit();
+openCaseEvents.registerOpenCaseInputs();
+openCaseEvents.registerOpenCaseClicks();
 
 importEvents.registerLookupDrop();
 

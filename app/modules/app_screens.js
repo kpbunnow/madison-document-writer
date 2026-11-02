@@ -64,13 +64,17 @@ function keepImportDisclosures(services, sameImport) {
   };
 }
 
+const KEPT_IMPORT_INPUTS = ["lookup-number", "open-cases-search"];
+
 /** Capture now; restore after enhancement. @returns {RestoreRepaint} */
 function keepImportCaret(services, active) {
   const importFocus =
-    editor.state.screen === "import" && active?.id === "lookup-number" ? { start: active.selectionStart, end: active.selectionEnd } : null;
+    editor.state.screen === "import" && KEPT_IMPORT_INPUTS.includes(active?.id)
+      ? { id: active.id, start: active.selectionStart, end: active.selectionEnd }
+      : null;
   return () => {
     if (importFocus) {
-      const input = services.document.getElementById("lookup-number");
+      const input = services.document.getElementById(importFocus.id);
       if (input) {
         input.focus({ preventScroll: true });
         if (Number.isInteger(importFocus.start) && Number.isInteger(importFocus.end)) input.setSelectionRange(importFocus.start, importFocus.end);

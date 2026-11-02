@@ -961,13 +961,13 @@ export function createAccelaImport(services) {
     inp.click();
   }
 
-  function screenImport() {
+  function screenImport(before = "") {
     const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
     return services.shell(
       "Import inspection",
       "Bring in case details",
       '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
-      html`<div style="max-width:980px">\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="card import-alternative"><summary>Import an SSRS Excel report instead</summary><div class="card-b"><div class="acc-drop" id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.</p><button class="btn" id="acc-pick" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>Load Accela report</button></div></div></details>\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
+      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="card import-alternative"><summary>Import an SSRS Excel report instead</summary><div class="card-b"><div class="acc-drop" id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.</p><button class="btn" id="acc-pick" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>Load Accela report</button></div></div></details>\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
     );
   }
 
