@@ -108,3 +108,18 @@ Closed cases, existing drafts, pending issue confirmations, unreadable shared fi
 ## Approved server configuration
 
 The SQL server must also appear in the trusted-connections.json allowlist. A certificate workaround does not authorize another server. Ask the release owner to make any required allowlist change in a new release; inspectors must not alter it or bypass the refusal.
+
+## Open cases by inspector (administrators)
+
+The helper can list the open enforcement cases assigned to one inspector. It uses the same SQL server and the signed-in Windows account as the case lookup, with two fixed read-only queries taken from the division's Open_Enforcement_Cases report (kept in `F:\Common\Kyle\SSRS Reports`): `inspector_list.sql` for the people who have open cases and `inspector_cases.sql` for one person's cases. The report's open-case rules are unchanged: record numbers starting CB, an assigned inspector, and a status that does not contain Close or Compliance and is not No Violation, Void or Withdrawn. A change to those rules in the report reaches the program only in a new release.
+
+The Windows account that runs the lookup also needs read access to BI_ENF_WORKFLOW and BI_ENF_WORKFLOW_HISTORY, which the one-case lookup does not read.
+
+To keep people off the inspector list (supervisors or staff who do not do inspections), create `Case Lookup/excluded-inspectors.json` on the shared folder, using the supplied `excluded-inspectors.example.json`:
+
+```json
+{ "exclude": ["Pat%Example", "ADMIN1"] }
+```
+
+Each entry is a person's display name or Accela user ID, matched without regard to case; `%` stands for any text, so `Pat%Example` also matches a middle name. Without the file everyone with an open case is listed. An invalid file stops the list with a message naming it.
+

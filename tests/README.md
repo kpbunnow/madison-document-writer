@@ -140,6 +140,7 @@ covers, or a new suite under its feature.
 | `audit_import_r13.js`, `audit_import_r13.py` | Case routing, retained inspection identity, reuse refused at the store |
 | `audit_inspection_facts.js` | Independent date/time parsing and inspection queries, historical/blank-source precedence, retained reuse evidence, case scoping and live workspace replacement |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
+| `audit_inspector_cases.py` | Open cases by assigned inspector: the two fixed queries keep the report's open-case rules and bind only a user ID, row and field validation, the administrator's exclusion file, one list at a time, the Windows transport and the local HTTP boundary |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
 | `audit_r38.py`, `audit_r39.py` | Lookup query matches the live report query; error 207 reporting |

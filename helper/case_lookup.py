@@ -218,7 +218,21 @@ def _failure_message(answer):
     return message
 
 
+def _list_failure_message(answer):
+    """Failures of the inspector list queries: they read more views and return more rows than one case."""
+    if answer.get("category") == "limit":
+        return "The open-case list is too large to load. Ask IT to check the report query."
+    return _failure_message(answer).replace(
+        "BI_ENF_RECORD and BI_ENF_INSPECTION", "BI_ENF_RECORD, BI_ENF_INSPECTION, BI_ENF_WORKFLOW and BI_ENF_WORKFLOW_HISTORY"
+    )
+
+
 def run_query(cfg, number):
+    return run_script(cfg, {"caseNumber": number})
+
+
+def run_script(cfg, fields, wait=40):
+    """Run the Windows helper script for one fixed query; fields carry only the allowlisted mode and parameters."""
     if os.name != "nt":
         raise CaseLookupError("Direct lookup runs on a City Windows computer. The SSRS Excel report import remains available.")
     exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
@@ -226,14 +240,14 @@ def run_query(cfg, number):
         raise CaseLookupError("Windows PowerShell is unavailable. Ask IT to enable the approved lookup helper.")
     request = dict(cfg)
     request.setdefault("trustServerCertificate", False)
-    request["caseNumber"] = number
+    request.update(fields)
     try:
         run = subprocess.run(
             [str(exe), "-NoLogo", "-NoProfile", "-NonInteractive", "-File", str(HERE / "case_lookup.ps1")],
             input=json.dumps(request),
             encoding="utf-8",
             capture_output=True,
-            timeout=40,
+            timeout=wait,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
     except subprocess.TimeoutExpired:
@@ -251,7 +265,7 @@ def run_query(cfg, number):
     if not isinstance(answer, dict):
         raise CaseLookupError("The lookup helper returned an invalid response.")
     if run.returncode or not answer.get("ok"):
-        raise CaseLookupError(_failure_message(answer))
+        raise CaseLookupError(_list_failure_message(answer) if fields.get("mode") else _failure_message(answer))
     return answer
 
 

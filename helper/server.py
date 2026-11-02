@@ -57,6 +57,7 @@ import open_cases
 from helper_logging import logged, record
 from datetime import datetime, timezone
 from case_lookup import lookup as lookup_case, CaseLookupError
+import inspector_cases
 from case_store import (
     read_case,
     save_case,
@@ -1615,6 +1616,27 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception:
             return self._json(503, {"ok": False, "error": "Case lookup is unavailable. Check the installation and retry; your work is kept."})
 
+    def _post_inspector_cases(self, route):
+        """The inspector list (empty body) or one inspector's open cases ({"inspector": user id}); read-only."""
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if not 0 < n <= 2048:
+                return self._json(413, {"ok": False, "error": "Invalid request size"})
+            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            if route == "/inspector-cases/list":
+                if data != {}:
+                    raise ValueError("Expected an empty request")
+                return self._json(200, inspector_cases.inspectors(share_root()))
+            if not isinstance(data, dict) or set(data) != {"inspector"}:
+                raise ValueError("Expected only an inspector")
+            return self._json(200, inspector_cases.open_cases(share_root(), data["inspector"]))
+        except CaseLookupError as error:
+            return self._json(error.status, {"ok": False, "error": public_message(error)})
+        except (ValueError, TypeError):
+            return self._json(400, {"ok": False, "error": "Invalid open-case request"})
+        except Exception:
+            return self._json(503, {"ok": False, "error": "The open-case list is unavailable. Check the installation and retry; your work is kept."})
+
     def _post_shared_records(self, route):
         try:
             n = int(self.headers.get("Content-Length", "0"))
@@ -1803,6 +1825,8 @@ POST_ROUTES = {
     "/email/reminder": Handler._post_workflow,
     "/address/parse": Handler._post_address_parse,
     "/case-lookup": Handler._post_case_lookup,
+    "/inspector-cases/list": Handler._post_inspector_cases,
+    "/inspector-cases/cases": Handler._post_inspector_cases,
     "/cases/save": Handler._post_shared_records,
     "/cases/summary": Handler._post_shared_records,
     "/cases/probe": Handler._post_shared_records,

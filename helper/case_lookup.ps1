@@ -30,19 +30,36 @@ try {
     $conn.Open()
     $operation = 'create_sql_command'
     $cmd = $conn.CreateCommand()
+    # The inspector queries read more tables than a one-case lookup, so the caller may ask for a longer wait.
     $cmd.CommandTimeout = 20
+    if ($request.commandTimeout -is [int] -and $request.commandTimeout -ge 5 -and $request.commandTimeout -le 120) { $cmd.CommandTimeout = [int]$request.commandTimeout }
+    # Only these three fixed files can run; the caller picks one by name and never supplies SQL.
     $operation = 'read_fixed_query'
-    $cmd.CommandText = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'case_lookup.sql'))
-    $operation = 'bind_case_number'
-    $param = $cmd.Parameters.Add('@CaseNumber', [System.Data.SqlDbType]::NVarChar, 80)
-    $param.Value = [string]$request.caseNumber
+    $mode = [string]$request.mode
+    if ($mode -eq 'inspector_list') { $queryFile = 'inspector_list.sql' }
+    elseif ($mode -eq 'inspector_cases') { $queryFile = 'inspector_cases.sql' }
+    elseif ($mode -eq '') { $queryFile = 'case_lookup.sql' }
+    else { throw 'LOOKUP_MODE' }
+    $cmd.CommandText = [IO.File]::ReadAllText((Join-Path $PSScriptRoot $queryFile))
+    if ($mode -eq 'inspector_cases') {
+        $operation = 'bind_user_id'
+        $param = $cmd.Parameters.Add('@UserId', [System.Data.SqlDbType]::NVarChar, 64)
+        $param.Value = [string]$request.userId
+    } elseif ($mode -eq '') {
+        $operation = 'bind_case_number'
+        $param = $cmd.Parameters.Add('@CaseNumber', [System.Data.SqlDbType]::NVarChar, 80)
+        $param.Value = [string]$request.caseNumber
+    }
     $operation = 'execute_read_only_query'
     $reader = $cmd.ExecuteReader()
     $rows = New-Object 'System.Collections.Generic.List[object]'
     $chars = 0
+    $rowLimit = 1000
+    $charLimit = 1000000
+    if ($mode -ne '') { $rowLimit = 3000; $charLimit = 4000000 }
     $operation = 'read_query_results'
     while ($reader.Read()) {
-        if ($rows.Count -ge 1000) { throw 'LOOKUP_LIMIT' }
+        if ($rows.Count -ge $rowLimit) { throw 'LOOKUP_LIMIT' }
         $row = [ordered]@{}
         for ($i = 0; $i -lt $reader.FieldCount; $i++) {
             $value = $null
@@ -52,7 +69,7 @@ try {
                 elseif ($raw -is [timespan]) { $value = $raw.ToString('hh\:mm\:ss') }
                 else { $value = [Convert]::ToString($raw, [Globalization.CultureInfo]::InvariantCulture) }
                 $chars += $value.Length
-                if ($chars -gt 1000000 -or $value.Length -gt 65536) { throw 'LOOKUP_LIMIT' }
+                if ($chars -gt $charLimit -or $value.Length -gt 65536) { throw 'LOOKUP_LIMIT' }
             }
             $row[$reader.GetName($i)] = $value
         }
