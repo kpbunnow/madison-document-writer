@@ -1624,9 +1624,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(413, {"ok": False, "error": "Invalid request size"})
             data = json.loads(self.rfile.read(n).decode("utf-8"))
             if route == "/inspector-cases/list":
-                if data != {}:
-                    raise ValueError("Expected an empty request")
-                return self._json(200, inspector_cases.inspectors(share_root()))
+                if data not in ({}, {"refresh": True}):
+                    raise ValueError("Expected an empty request or refresh")
+                return self._json(200, inspector_cases.inspectors(share_root(), refresh=bool(data)))
             if not isinstance(data, dict) or set(data) != {"inspector"}:
                 raise ValueError("Expected only an inspector")
             return self._json(200, inspector_cases.open_cases(share_root(), data["inspector"]))

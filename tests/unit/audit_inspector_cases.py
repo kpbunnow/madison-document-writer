@@ -55,6 +55,7 @@ class InspectorCaseTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        cases._cache.update(root=None, at=0.0, answer=None, source=None)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -80,7 +81,12 @@ class InspectorCaseTests(unittest.TestCase):
             self.assertNotRegex(sql.upper(), r"\b(INSERT|UPDATE|DELETE|DROP|EXEC|MERGE|ALTER|CREATE)\b")
             # The report's hard-coded staff names are an administrator setting now, not source.
             self.assertNotIn("Duncan", sql)
+        # Names come from the two workflow views only, for people with open cases; the slow inspection-view scan is gone.
+        self.assertNotIn("BI_ENF_INSPECTION", listing)
+        self.assertIn("WHERE UserId IN (SELECT UserId FROM Assigned)", listing)
+        self.assertNotIn("UserNames", detail)
         script = (lookup.HERE / "case_lookup.ps1").read_text()
+        self.assertIn("[int]::TryParse([string]$request.commandTimeout, [ref]$wait)", script)
         self.assertIn("$mode -eq 'inspector_list'", script)
         self.assertIn("$mode -eq 'inspector_cases'", script)
         self.assertIn("$cmd.Parameters.Add('@UserId', [System.Data.SqlDbType]::NVarChar, 64)", script)
@@ -98,6 +104,28 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(len(result["source"]["querySha256"]), 64)
         self.assertEqual(run.call_args.args[1], {"mode": "inspector_list", "commandTimeout": cases.LIST_QUERY_TIMEOUT})
         self.assertEqual(run.call_args.args[2], cases.LIST_WAIT)
+
+    def test_inspector_list_is_kept_for_a_while_and_try_again_refreshes_it(self):
+        self.excluding(["ADMIN1"])
+        rows = [person("ASMITH", "Alex Smith", "4"), person("ADMIN1", "Admin One", "1")]
+        with patch.object(lookup, "run_script", return_value=self.answer(rows)) as run:
+            first = cases.inspectors(self.root)
+            again = cases.inspectors(self.root)
+            self.assertEqual(run.call_count, 1, "the second open uses the kept list")
+            self.assertEqual(again["inspectors"], first["inspectors"])
+            self.assertEqual(again["source"]["retrievedAt"], first["source"]["retrievedAt"])
+            self.excluding([])
+            self.assertEqual([p["id"] for p in cases.inspectors(self.root)["inspectors"]], ["ADMIN1", "ASMITH"], "exclusions apply to the kept list")
+            self.assertEqual(run.call_count, 1)
+            cases.inspectors(self.root, refresh=True)
+            self.assertEqual(run.call_count, 2, "Try again asks for a fresh list")
+            with patch.object(cases.time, "monotonic", return_value=cases._cache["at"] + cases.CACHE_SECONDS + 1):
+                cases.inspectors(self.root)
+            self.assertEqual(run.call_count, 3, "an expired list is queried again")
+            other = Path(tempfile.mkdtemp())
+            (other / "Case Lookup").mkdir()
+            cases.inspectors(other)
+            self.assertEqual(run.call_count, 4, "a different shared folder never uses another's list")
 
     def test_bad_lists_are_refused(self):
         bad = [
@@ -229,11 +257,15 @@ class HttpInspectorCaseTests(unittest.TestCase):
                 self.assertEqual(post("/inspector-cases/list", {}, "https://other.example")[0], 403)
                 self.assertEqual(post("/inspector-cases/list", {}, ctype="text/plain")[0], 403)
                 self.assertEqual(post("/inspector-cases/list", {"sql": "SELECT 1"})[0], 400)
+                self.assertEqual(post("/inspector-cases/list", {"refresh": False})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {"inspector": "A", "sql": "SELECT 1"})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {"inspector": "A" * 3000})[0], 413)
                 self.assertFalse(listing.called or detail.called)
                 self.assertEqual(post("/inspector-cases/list", {})[0], 200)
+                self.assertFalse(listing.call_args.kwargs["refresh"])
+                self.assertEqual(post("/inspector-cases/list", {"refresh": True})[0], 200)
+                self.assertTrue(listing.call_args.kwargs["refresh"])
                 self.assertEqual(post("/inspector-cases/cases", {"inspector": "JSMITH"})[0], 200)
                 self.assertEqual(detail.call_args.args[1], "JSMITH")
             with patch.object(server.inspector_cases, "open_cases", side_effect=lookup.CaseLookupError("Choose an inspector from the list.", 400)):

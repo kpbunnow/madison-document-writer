@@ -1,30 +1,13 @@
 -- Fixed read-only query: the open enforcement cases assigned to one user ID (@UserId).
 -- Derived from the division's Open_Enforcement_Cases report (DataSet1, last modified 2026-11-01). The report
 -- selects by display name; this selects by Accela user ID, and the hard-coded staff exclusions are applied by
--- the helper from the administrator's excludeInspectors setting. The columns after DateOpened add the parcel,
--- owner, record category and the latest inspection so the list can say what an import will find.
--- The open-case rules in the WHERE clause must stay identical to inspector_list.sql.
-WITH UserNames AS (
-    SELECT UserId, MAX(FullName) AS FullName
-    FROM (
-        SELECT LTRIM(RTRIM(INSPECTOR_USERID))        AS UserId,
-               LTRIM(RTRIM([INSPECTOR_NAME_FML#]))   AS FullName
-        FROM AccelaReporting.dbo.BI_ENF_INSPECTION
-        UNION ALL
-        SELECT LTRIM(RTRIM([ASSIGNED_USERID#])),
-               LTRIM(RTRIM([ASSIGNED_NAME_FML#]))
-        FROM AccelaReporting.dbo.BI_ENF_WORKFLOW
-        UNION ALL
-        SELECT LTRIM(RTRIM([ASSIGNED_USERID#])),
-               LTRIM(RTRIM([ASSIGNED_NAME_FML#]))
-        FROM AccelaReporting.dbo.BI_ENF_WORKFLOW_HISTORY
-    ) AS src
-    WHERE UserId IS NOT NULL AND UserId <> ''
-      AND FullName IS NOT NULL AND FullName <> ''
-    GROUP BY UserId
-)
+-- the helper from the administrator's excludeInspectors setting.
+-- There is no name lookup here: the screen already has the person's name from the inspector list, and rebuilding
+-- it scanned three views on every load. AssignedInspector is the user ID.
+-- The columns after DateOpened add the parcel, owner, record category and the latest inspection so the list can say
+-- what an import will find. The open-case rules in the WHERE clause must stay identical to inspector_list.sql.
 SELECT
-    COALESCE(un.FullName, LTRIM(RTRIM(r.ASSIGNED_USERID))) AS AssignedInspector,
+    LTRIM(RTRIM(r.ASSIGNED_USERID))        AS AssignedInspector,
     LTRIM(RTRIM(r.ASSIGNED_USERID))        AS UserId,
     r.RECORD_ID                            AS CaseNumber,
     CASE WHEN CHARINDEX(',', r.[ADDR_FULL_LINE#]) > 0
@@ -43,8 +26,6 @@ SELECT
     li.INSP_DATE_INSPECTION                AS LatestInspectionDate,
     li.INSP_DATE_SCHEDULED                 AS LatestScheduledDate
 FROM AccelaReporting.dbo.BI_ENF_RECORD AS r
-LEFT JOIN UserNames AS un
-       ON un.UserId = LTRIM(RTRIM(r.ASSIGNED_USERID))
 OUTER APPLY (
     SELECT TOP 1 i.INSPECTION_TYPE, i.INSP_STATUS, i.INSP_DATE_INSPECTION, i.INSP_DATE_SCHEDULED
     FROM AccelaReporting.dbo.BI_ENF_INSPECTION AS i
