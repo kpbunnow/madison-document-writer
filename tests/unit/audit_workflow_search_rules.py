@@ -68,7 +68,11 @@ class WorkflowSearchRules(unittest.TestCase):
             return original_validate(record, **kwargs)
 
         NAMESPACE.update(Path=path, validate_case=validate)
-        with patch.object(workflow_helper, "Path", path), patch.object(workflow_helper, "validate_case", validate):
+        with (
+            patch.object(workflow_helper, "Path", path),
+            patch.object(workflow_helper, "validate_case", validate),
+            patch.object(workflow_helper, "read_plain_bytes", lambda file: file.read_bytes()),
+        ):
             for index in range(3000):
                 record = workflow_fixtures.WorkflowToolsTests().case()
                 if index % 3:

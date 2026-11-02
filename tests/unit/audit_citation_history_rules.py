@@ -76,6 +76,8 @@ class CitationHistoryRules(unittest.TestCase):
         with (
             patch.object(case_store, "Path", path),
             patch.object(case_store, "validate_case", validate),
+            # This corpus models read ordering with File doubles; real handle safety is tested in audit_case_containment.
+            patch.object(case_store, "read_plain_bytes", lambda file: file.read_text(encoding="utf-8").encode("utf-8")),
             patch.object(case_store.case_integrity, "VerificationContext", make_context),
             patch.object(case_store.case_integrity, "require_valid", verify),
         ):
