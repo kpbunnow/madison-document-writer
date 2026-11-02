@@ -57,7 +57,7 @@ for (const statement of tree.body) {
   else if (statement.type === "IfStatement" && source.slice(statement.start, statement.end).includes("bootStorage()")) checkpoint = "bootStorage";
   else if (e?.type === "CallExpression" && e.callee.name === "render") checkpoint = "render";
 }
-assert.equal(expected.length, 60);
+assert.equal(expected.length, 64);
 assert.deepEqual(
   registrations,
   expected.map(({ owner, name, checkpoint }) => ({ owner, name, checkpoint })),
@@ -150,7 +150,7 @@ class Target {
   );
   for (const collection of [owners, make(unavailable)])
     for (const row of expected) assert.equal(collection[row.owner][row.name](row.target === "window" ? windowTarget : documentTarget), false);
-  assert.equal(documentTarget.calls.length + windowTarget.calls.length, 60, "repeated factory/registration must not duplicate handlers");
+  assert.equal(documentTarget.calls.length + windowTarget.calls.length, 64, "repeated factory/registration must not duplicate handlers");
   const retry = new Target();
   retry.addEventListener = () => {
     throw new Error("synthetic registration failure");

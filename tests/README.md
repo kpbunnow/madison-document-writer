@@ -141,6 +141,7 @@ covers, or a new suite under its feature.
 | `audit_inspection_facts.js` | Independent date/time parsing and inspection queries, historical/blank-source precedence, retained reuse evidence, case scoping and live workspace replacement |
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_inspector_cases.py` | Open cases by assigned inspector: the two fixed queries keep the report's open-case rules and bind only a user ID, row and field validation, the administrator's exclusion file, one list at a time, the Windows transport and the local HTTP boundary |
+| `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped markup, card states, and the owner against a substitute helper (loads once, stale answers ignored, a pending import blocks Import) |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
 | `audit_r38.py`, `audit_r39.py` | Lookup query matches the live report query; error 207 reporting |
@@ -464,6 +465,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_r62.js` | Greyed unavailable import results, authoring-16 notes under the violation with long-note pagination, authoring-16 Vacancy editor and print |
 | `browser_reinspection_notice.js` | Reinspection Notice with the real helper: worksheet from the imported status, header and approved paragraph, ruled-through corrected item, due dates as text and not editable, past dates printed unchanged, helper refusal of a changed date, issue, and the Reinspection status in the summary the helper's own projection accepts. |
 | `browser_violator.js` | Violator contact in real Chromium: the Copies type in Recipients, one Violator per case, the mailing block and CC list, the owner-copy checkbox, a half-filled Violator refused and a completely blank Violator dropped, the citation defendant and snow cases keeping the owner. |
+| `browser_open_case_list.js` | Open cases by inspector in real Chromium: inspector picker, list, search that keeps focus, a failed load that keeps the earlier list, and Import filling the case number and starting the existing lookup (stand-in helper responses) |
 | `browser_order_language.js` | Order language on a notice in real Chromium: every bundled entry that is selectable (all but seven entries awaiting a section) can be added and removed, section references have no trailing period, and picking the snow item turns a new notice into a snow citation that picking it again undoes. |
 | `browser_desktop_exit.js` | Last: Exit Document Writer against a separate real `server.py` process with Writer and Reports open; refusal during publication, the process exits, the port closes and both pages show the stopped state |
 

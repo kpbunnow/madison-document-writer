@@ -231,8 +231,8 @@ if (process.argv[2] === "reports") {
     assert.equal(document.querySelector("[data-shared-offer]"), null);
     WriterState.state.caseInspector = "";
     const lookup = new JSDOM(lookupCard()).window.document;
-    assert.equal(text(lookup.querySelector(".lookup-card h2")), "Find Accela inspection");
-    assert.equal(text(lookup.querySelector("#lookup-form button[type=submit]")), "Find Accela inspection");
+    assert.equal(text(lookup.querySelector(".lookup-card h2")), "Find Case Inspections");
+    assert.equal(text(lookup.querySelector("#lookup-form button[type=submit]")), "Find Case Inspections");
     assert.equal(text(lookup.querySelector("#lookup-form label span")), "Case number");
 
     // ITEM 12. Writer's Reports entry: Back to Reports with a return context, otherwise Open Reports in a new tab.

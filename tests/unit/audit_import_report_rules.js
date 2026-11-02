@@ -421,7 +421,7 @@ async function battery(api) {
     "not 12 digits",
     "Unexpected case response",
     "Several completed inspections",
-    "Find Accela inspection",
+    "Find Case Inspections",
     "aborted",
   ])
     assert.ok(text.includes(fragment), "scenarios reach: " + fragment);
