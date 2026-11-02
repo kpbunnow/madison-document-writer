@@ -1,0 +1,51 @@
+/* Where Document Writer opens: Import inspection on a PC that can reach the City case database (the helper reports
+   caseLookup), unless something needs attention, in which case the Workspace start is kept. */
+const assert = require("node:assert/strict");
+const path = require("node:path");
+const esbuild = require("esbuild");
+
+(async () => {
+  const built = await esbuild.build({
+    stdin: {
+      contents:
+        'export {chooseStartScreen} from "./app/modules/start_screen.js"; export {WriterState} from "./app/modules/state.js"; export {editorState} from "./app/modules/editor_state.js"; export {startupState} from "./app/modules/startup_state.js";',
+      resolveDir: path.resolve("."),
+    },
+    bundle: true,
+    write: false,
+    format: "cjs",
+  });
+  const box = { exports: {} };
+  new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
+  const { chooseStartScreen, WriterState: s, startupState } = box.exports;
+  const fresh = (change = {}) => {
+    Object.assign(s, { DOCS: [], REINSP: [], PENDING: [], WORK: { entry: {}, acc: null }, state: { screen: "cases", acc: null } });
+    startupState.HELPER = { ok: true, caseLookup: true };
+    change.helper?.(startupState);
+    change.state?.(s);
+    return chooseStartScreen();
+  };
+  assert.equal(fresh(), true);
+  assert.equal(s.state.screen, "import", "a PC with the City lookup and nothing unfinished opens on Import inspection");
+
+  const stays = (label, change) => {
+    assert.equal(fresh(change), false, label);
+    assert.equal(s.state.screen, "cases", label);
+  };
+  stays("no helper", { helper: (st) => (st.HELPER = null) });
+  stays("no City lookup on this PC", { helper: (st) => (st.HELPER = { ok: true, caseLookup: false }) });
+  stays("an older helper that does not report it", { helper: (st) => (st.HELPER = { ok: true }) });
+  stays("an unfinished draft", { state: (w) => w.DOCS.push({ id: "d", draft: true }) });
+  stays("an unfinished worksheet", { state: (w) => w.REINSP.push({ id: "r", draft: true }) });
+  stays("a case file waiting to reach the share", { state: (w) => w.PENDING.push({ name: "x.json" }) });
+  stays("an import awaiting review", { state: (w) => (w.state.acc = { cases: [{}] }) });
+  stays("a saved import review", { state: (w) => (w.WORK.acc = { cases: [{}] }) });
+  stays("a saved case number", { state: (w) => (w.WORK.entry["lookup-number"] = "CB2026-241-00001") });
+  assert.equal(fresh({ state: (w) => w.DOCS.push({ id: "issued", draft: false }) }), true, "issued documents are not unfinished work");
+  assert.equal(fresh({ state: (w) => (w.state.screen = "library") }), false, "a screen restored elsewhere is kept");
+  assert.equal(s.state.screen, "library");
+  console.log("PASS start screen");
+})().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

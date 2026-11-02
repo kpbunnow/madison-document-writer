@@ -63,6 +63,7 @@ import { createDueDateEvents } from "./due_date_events.js";
 import { createImportEvents } from "./import_events.js";
 import { createOpenCaseList } from "./open_case_list.js";
 import { createOpenCaseEvents } from "./open_case_events.js";
+import { chooseStartScreen } from "./start_screen.js";
 import { createReinspectionEvents } from "./reinspection_events.js";
 import { createEditorEvents } from "./editor_events.js";
 import { createSpecialDocumentEvents } from "./special_document_events.js";
@@ -2364,6 +2365,7 @@ const writerStartup = createWriterStartup(
       initWriterHandoff: () => initWriterHandoff,
       markWriterReady: () => markWriterReady,
       markWriterFailed: () => markWriterFailed,
+      chooseStartScreen: () => chooseStartScreen,
       refreshArtifactLocations: () => refreshArtifactLocations,
       refreshCatalog: () => refreshCatalog,
       recordIntegrity: () => recordIntegrity,

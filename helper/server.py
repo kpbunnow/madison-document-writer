@@ -1500,6 +1500,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "outbox": 0,
             "chrome": bool(find_chrome()),
             "outlook": bool(find_outlook()),
+            # The City case database lookup runs only on Windows; the program then opens on Import inspection.
+            "caseLookup": os.name == "nt",
         }
         try:
             folder = case_dir()

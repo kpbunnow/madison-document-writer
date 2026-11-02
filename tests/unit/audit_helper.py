@@ -4,6 +4,7 @@
 import concurrent.futures
 import copy
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -338,6 +339,7 @@ class HTTPTests(unittest.TestCase):
         status, info = self.request("/dw-status")
         self.assertEqual(status, 200)
         self.assertTrue(info["caseStore"])
+        self.assertEqual(info["caseLookup"], os.name == "nt", "the program opens on Import inspection only where the City lookup runs")
 
     def test_real_save_open_list_summary(self):
         status, saved = self.request("/cases/save", {"name": "101 TEST LANE - QA-001.json", "file": record()})

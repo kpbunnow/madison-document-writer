@@ -40,6 +40,7 @@ export function createWriterStartup(services) {
       await services.recordIntegrity.refresh();
       await services.refreshArtifactLocations();
       await services.flushPending();
+      services.chooseStartScreen();
       services.markWriterReady();
       if (startup.HELPER) services.scheduleRecoveryBackup();
     } catch (error) {
