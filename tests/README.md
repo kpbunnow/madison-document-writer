@@ -142,6 +142,7 @@ covers, or a new suite under its feature.
 | `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
 | `audit_inspector_cases.py` | Open cases by assigned inspector: the two fixed queries keep the report's open-case rules and bind only a user ID, row and field validation, the administrator's exclusion file, one list at a time, the Windows transport and the local HTTP boundary |
 | `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped markup, card states, and the owner against a substitute helper (loads once, stale answers ignored, a pending import blocks Import) |
+| `audit_stranded_import.js` | A case with no document, draft or recorded event (for example after a new import's notice draft was discarded) can start its notice again from its Initial Inspection; a case with anything issued, drafted or recorded still refuses it |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
 | `audit_r38.py`, `audit_r39.py` | Lookup query matches the live report query; error 207 reporting |

@@ -197,11 +197,17 @@ function issuedInspectionChronology({ row, p, INITIAL_EXISTS, src }) {
     p.blockers.push("Select a reinspection on or after the latest issued document’s inspection.");
 }
 
+/* A case with no document, draft or recorded event is only its saved details, for example after the notice draft of a
+   new import was discarded. Importing its Initial Inspection starts the notice again instead of being refused. */
+const strandedCase = (k) => !docsFor(k.id).length && !eventsFor(k.id).length;
+
 function existingImportWork({ k, services, p, src, row, INITIAL_EXISTS }) {
   // A used inspection is never a candidate (importCandidates), so it cannot be the selected row here.
   const unfinished = draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id);
   if (unfinished) p.blockers.push("This case has unfinished work. Choose Continue existing case before importing another inspection.");
-  else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
+  else if (strandedCase(k)) {
+    if (row && row.typeKey !== "initial") p.blockers.push("This case has no notice yet. Import its Initial Inspection result to start the notice.");
+  } else if (!src) p.blockers.push("This case already exists. Choose Continue existing case to finish and issue its Official Notice first.");
   else if (services.caseState(k).closed)
     p.blockers.push("This case is completed. Choose Continue existing case; new observations require a new case.");
   else if (row) {
@@ -238,7 +244,7 @@ function importReferralReadiness({ k, p, row }) {
 }
 
 function importInitialReadiness({ k, p, row, INITIAL_EXISTS }) {
-  if (k && !p.refresh && row?.typeKey === "initial" && !p.blockers.includes(INITIAL_EXISTS)) p.blockers.push(INITIAL_EXISTS);
+  if (k && !p.refresh && row?.typeKey === "initial" && !strandedCase(k) && !p.blockers.includes(INITIAL_EXISTS)) p.blockers.push(INITIAL_EXISTS);
 }
 
 function snowImportOrigin({ k, src, services, p }) {
