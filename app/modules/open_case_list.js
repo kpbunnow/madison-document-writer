@@ -36,22 +36,22 @@ export function filterOpenCases(cases, query) {
   });
 }
 
-function latestText(c) {
+function openCaseLatestText(c) {
   const { type, status, date, scheduled } = c.latest;
   if (!type && !status) return "No inspection result yet";
   const when = date ? fmtDate(date) : scheduled ? "scheduled " + fmtDate(scheduled) : "";
   return [type, status, when].filter(Boolean).join(" · ");
 }
 
-function rowHTML(c, off) {
-  return html`<li class="open-case"><div><strong>${c.caseNumber}</strong> · ${c.address || "No address"} · ${c.owner || "No owner listed"}</div><div class="hint">${c.status}${c.dateOpened ? " · Opened " + fmtDate(c.dateOpened) : ""} · Latest inspection: ${latestText(c)}</div>${raw(c.description ? html`<div class="hint">${c.description}</div>` : "")}<button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></li>`;
+function openCaseRowHTML(c, off) {
+  return html`<li class="open-case"><div><strong>${c.caseNumber}</strong> · ${c.address || "No address"} · ${c.owner || "No owner listed"}</div><div class="hint">${c.status}${c.dateOpened ? " · Opened " + fmtDate(c.dateOpened) : ""} · Latest inspection: ${openCaseLatestText(c)}</div>${raw(c.description ? html`<div class="hint">${c.description}</div>` : "")}<button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></li>`;
 }
 
 export function openCaseRowsHTML(state, off) {
   const shown = filterOpenCases(state.cases || [], state.query);
   if (!shown.length)
     return html`<p class="hint">${state.cases && state.cases.length ? "No open case matches this search." : "This inspector has no open cases."}</p>`;
-  return '<ul class="open-case-list">' + shown.map((c) => rowHTML(c, off)).join("") + "</ul>";
+  return '<ul class="open-case-list">' + shown.map((c) => openCaseRowHTML(c, off)).join("") + "</ul>";
 }
 
 export function openCaseCountText(state) {
@@ -66,19 +66,19 @@ export function openCaseCountText(state) {
   );
 }
 
-function pickerHTML(state, busy) {
+function openCasePickerHTML(state, busy) {
   const options = state.inspectors
     .map((p) => html`<option value="${p.id}" ${raw(p.id === state.selected ? "selected" : "")}>${p.name} (${p.openCases})</option>`)
     .join("");
   return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button>${raw(state.cases ? '<button class="btn" type="button" id="open-cases-refresh">Refresh</button>' : "")}</form>`;
 }
 
-function listHTML(state, off) {
+function openCaseListHTML(state, off) {
   if (!state.cases) return "";
   return html`<label class="f"><span>Search these cases</span><input type="search" id="open-cases-search" value="${state.query}" autocomplete="off" placeholder="Case number, address, owner, parcel or words from the description"></label><p id="open-cases-count" class="hint" role="status">${openCaseCountText(state)}</p><div id="open-cases-results">${raw(openCaseRowsHTML(state, off))}</div>`;
 }
 
-function problemHTML(message, retry) {
+function openCaseProblemHTML(message, retry) {
   return html`<div class="banner alert"><div>${message} <button class="btn btn-sm" type="button" id="${retry}">Try again</button></div></div>`;
 }
 
@@ -88,20 +88,20 @@ export function openCaseCardHTML(state = openList) {
   const off = !!busy || !!waiting;
   let body;
   if (state.loading || (!state.inspectors && !state.error)) body = '<p role="status">Loading inspectors…</p>';
-  else if (state.error) body = problemHTML(state.error, "open-cases-retry");
+  else if (state.error) body = openCaseProblemHTML(state.error, "open-cases-retry");
   else if (!state.inspectors.length) body = "<p>No inspector has open cases.</p>";
   else
     body =
-      pickerHTML(state, state.casesLoading) +
-      (state.casesError ? problemHTML(state.casesError, "open-cases-retry") : "") +
+      openCasePickerHTML(state, state.casesLoading) +
+      (state.casesError ? openCaseProblemHTML(state.casesError, "open-cases-retry") : "") +
       (waiting
         ? '<div class="banner warn"><div>An import is waiting for review below. Finish or cancel it before choosing another case.</div></div>'
         : "") +
-      listHTML(state, off);
+      openCaseListHTML(state, off);
   return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then choose Import for a case. The import then works exactly as it does for a case number.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
 }
 
-function withLimit(promise) {
+function openCaseWithLimit(promise) {
   let timer;
   const limit = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error("The list took too long to load. Check the City network and try again.")), WAIT_MS);
@@ -120,7 +120,7 @@ export function createOpenCaseList(services) {
     openList.error = "";
     const mine = ++serial;
     try {
-      const result = await withLimit(services.helperJSON("/inspector-cases/list", {}));
+      const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", {}));
       if (mine !== serial) return;
       openList.inspectors = Array.isArray(result.inspectors) ? result.inspectors : [];
     } catch (error) {
@@ -145,7 +145,7 @@ export function createOpenCaseList(services) {
     const mine = ++serial;
     redraw();
     try {
-      const result = await withLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
+      const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
       if (mine !== serial) return;
       openList.cases = Array.isArray(result.cases) ? result.cases : [];
       openList.casesFor = id;

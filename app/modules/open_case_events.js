@@ -12,10 +12,13 @@ export function createOpenCaseEvents(services) {
     });
   }
 
-  function registerOpenCaseInputs(target = document) {
-    registerEventOnce(target, "openCases.registerChange", "change", (e) => {
+  function registerOpenCaseChange(target = document) {
+    return registerEventOnce(target, "openCases.registerChange", "change", (e) => {
       if (e.target.id === "open-cases-inspector") list().select(e.target.value);
     });
+  }
+
+  function registerOpenCaseSearch(target = document) {
     return registerEventOnce(target, "openCases.registerSearch", "input", (e) => {
       if (e.target.id === "open-cases-search") list().search(e.target.value);
     });
@@ -31,5 +34,5 @@ export function createOpenCaseEvents(services) {
     });
   }
 
-  return { registerOpenCaseSubmit, registerOpenCaseInputs, registerOpenCaseClicks };
+  return { registerOpenCaseSubmit, registerOpenCaseChange, registerOpenCaseSearch, registerOpenCaseClicks };
 }

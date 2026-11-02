@@ -2286,7 +2286,8 @@ WriterState.ACC_SELECTION_SERIAL = 0;
 importEvents.registerLookupSubmit();
 importEvents.registerLookupClicks();
 openCaseEvents.registerOpenCaseSubmit();
-openCaseEvents.registerOpenCaseInputs();
+openCaseEvents.registerOpenCaseChange();
+openCaseEvents.registerOpenCaseSearch();
 openCaseEvents.registerOpenCaseClicks();
 
 importEvents.registerLookupDrop();

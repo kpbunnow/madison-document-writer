@@ -251,6 +251,38 @@
       "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
     },
     {
+      "owner": "openCase",
+      "name": "registerOpenCaseSubmit",
+      "target": "document",
+      "type": "submit",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "openCase",
+      "name": "registerOpenCaseChange",
+      "target": "document",
+      "type": "change",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "openCase",
+      "name": "registerOpenCaseSearch",
+      "target": "document",
+      "type": "input",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
+      "owner": "openCase",
+      "name": "registerOpenCaseClicks",
+      "target": "document",
+      "type": "click",
+      "capture": false,
+      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
+    },
+    {
       "owner": "import",
       "name": "registerLookupDrop",
       "target": "document",
