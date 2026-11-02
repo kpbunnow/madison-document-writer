@@ -14,6 +14,8 @@ Preserve issued snapshots, event/item/root/visit identities, action chronology, 
 
 Inspection imports use the unchanged fixed read-only SQL query or division SSRS Excel. Both paths use the inspection-type/status matrix in accela_import.js:
 
+**Open cases by inspector (owner request 2026-11-02).** `helper/inspector_cases.py` runs two fixed read-only queries (`inspector_list.sql`, `inspector_cases.sql`) through `case_lookup.ps1` modes `inspector_list` and `inspector_cases` on the already trusted SQL server, as the signed-in Windows user. They come from the division's Open_Enforcement_Cases report; the open-case WHERE rules must stay identical in both files and the user ID is the only bound parameter. The inspector is selected by Accela user ID, not display name. People named in the optional `Case Lookup/excluded-inspectors.json` never appear and their cases are refused. Routes: `POST /inspector-cases/list` (empty body) and `POST /inspector-cases/cases` (`{"inspector": id}`); both are read-only and not release-gated. The list only supplies a case number; the case-number lookup (`case_lookup.lookup`) still produces the import rows, so the inspection type/status matrix, reuse checks and snow handling are unchanged. The SQL cannot be run in the cloud environment; only the City acceptance checks exercise the real server.
+
 | Inspection type | Statuses that decide a document |
 | --- | --- |
 | Initial Inspection | Official Notice, Citation, No Occupancy, Abatement Summary, Abatement Non-Summary |
