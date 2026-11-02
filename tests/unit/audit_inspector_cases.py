@@ -32,21 +32,7 @@ def person(uid="JSMITH", name="Jordan Smith", count="3"):
 
 def case_row(number="CB2026-241-00001", uid="JSMITH", **extra):
     row = dict.fromkeys(cases.CASE_FIELDS, None)
-    row.update(
-        AssignedInspector="Jordan Smith",
-        UserId=uid,
-        CaseNumber=number,
-        ShortAddress="101 TEST ST",
-        ParcelNumber="070822219105",
-        OwnerName="SYNTHETIC OWNER",
-        RecordCategory="Building Code",
-        CaseDescription="Synthetic description",
-        Status="Open",
-        DateOpened="2026-09-30T00:00:00",
-        LatestInspectionType="Initial Inspection",
-        LatestInspectionStatus="Violations Found",
-        LatestInspectionDate="2026-10-01T00:00:00",
-    )
+    row.update(UserId=uid, CaseNumber=number, ShortAddress="101 TEST ST", CaseDescription="Synthetic description")
     row.update(extra)
     return row
 
@@ -85,6 +71,9 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertNotIn("BI_ENF_INSPECTION", listing)
         self.assertIn("WHERE UserId IN (SELECT UserId FROM Assigned)", listing)
         self.assertNotIn("UserNames", detail)
+        # Only what the list shows is selected: no owner, parcel, status, dates or inspection columns.
+        for gone in ("OUTER APPLY", "BI_ENF_INSPECTION", "PARCEL_OWNER", "APO_PARCEL", "RECORD_STATUS AS", "INSPECTION_TYPE"):
+            self.assertNotIn(gone, detail)
         script = (lookup.HERE / "case_lookup.ps1").read_text()
         self.assertIn("[int]::TryParse([string]$request.commandTimeout, [ref]$wait)", script)
         self.assertIn("$mode -eq 'inspector_list'", script)
@@ -144,20 +133,17 @@ class InspectorCaseTests(unittest.TestCase):
                 cases.inspectors(self.root)
 
     def test_open_cases_are_normalized(self):
-        rows = [case_row(), case_row("CB2026-241-00002", ShortAddress="  2 TEST   AVE ", LatestInspectionType=None, DateOpened=None), case_row()]
+        rows = [case_row(), case_row("CB2026-241-00002", ShortAddress="  2 TEST   AVE ", CaseDescription=None), case_row()]
         with patch.object(lookup, "run_script", return_value=self.answer(rows)) as run:
             result = cases.open_cases(self.root, " JSMITH ")
         self.assertEqual(run.call_args.args[1], {"mode": "inspector_cases", "userId": "JSMITH", "commandTimeout": cases.LIST_QUERY_TIMEOUT})
-        self.assertEqual(result["inspector"], {"id": "JSMITH", "name": "Jordan Smith"})
+        self.assertEqual(result["inspector"], {"id": "JSMITH"})
         self.assertEqual([c["caseNumber"] for c in result["cases"]], ["CB2026-241-00001", "CB2026-241-00002"])
         first, second = result["cases"]
-        self.assertEqual(first["dateOpened"], "2026-09-30")
-        self.assertEqual(first["latest"], {"type": "Initial Inspection", "status": "Violations Found", "date": "2026-10-01", "scheduled": ""})
-        self.assertEqual(second["address"], "2 TEST AVE")
-        self.assertEqual(second["dateOpened"], "")
-        self.assertEqual(second["latest"]["type"], "")
+        self.assertEqual(first, {"caseNumber": "CB2026-241-00001", "address": "101 TEST ST", "description": "Synthetic description"})
+        self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": ""})
         with patch.object(lookup, "run_script", return_value=self.answer([])):
-            self.assertEqual(cases.open_cases(self.root, "JSMITH")["inspector"], {"id": "JSMITH", "name": "JSMITH"})
+            self.assertEqual(cases.open_cases(self.root, "JSMITH")["cases"], [])
 
     def test_open_cases_refuse_wrong_inspector_columns_values_and_excluded_people(self):
         for value in ["", "a b", "x" * 65, None, 7, "A;DROP"]:
@@ -167,8 +153,8 @@ class InspectorCaseTests(unittest.TestCase):
         wrong = [
             [case_row(uid="OTHER")],
             [case_row("bad number!")],
-            [case_row(CaseDescription="x" * 1001)],
-            [case_row(Status=5)],
+            [case_row(CaseDescription="x" * 2001)],
+            [case_row(CaseDescription=5)],
             [{"CaseNumber": "CB1-1-1"}],
             [case_row(f"CB2026-241-{n:05d}") for n in range(cases.MAX_CASES + 1)],
         ]

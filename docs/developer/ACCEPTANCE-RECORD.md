@@ -348,6 +348,7 @@ The Import inspection screen lists an inspector's open enforcement cases from tw
 | OCL-6 | Unplug the network or use an account without database access, then open the screen and choose Try again | A plain message appears (no permission, or timed out) and the case-number lookup below still works |
 | OCL-7 | Choose Import while another import is waiting for review below, and while a lookup is running | Import is unavailable with a note to finish or cancel the other import first |
 | OCL-8 | Import a new case's Initial Inspection, discard its notice draft from case details, then import the same Initial Inspection again | The import starts a new notice for the same case (no delete of the case and no "Continue existing case" loop). A case that has an issued document, a draft or a recorded event still refuses a second Initial Inspection |
+| OCL-9 | Close a case in Accela, then use Refresh open cases and later Refresh inspector list | The closed case leaves the list once the reporting database has caught up with Accela (note how long that takes; if it never leaves, report it) |
 
 The owner decided on 2026-11-02 to keep the Excel/CSV import available for now and remove it in a later release only after OCL-1 to OCL-7 pass on a real PC.
 

@@ -4,7 +4,6 @@
    talks to the helper and to the screen. */
 import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
-import { fmtDate } from "./presentation_format.js";
 import { html, raw } from "./screen_html.js";
 
 /* In-session only: nothing here is saved to a draft, a backup or the shared folder. */
@@ -34,22 +33,19 @@ export function filterOpenCases(cases, query) {
   });
 }
 
-function openCaseLatestText(c) {
-  const { type, status, date, scheduled } = c.latest;
-  if (!type && !status) return "No inspection result yet";
-  const when = date ? fmtDate(date) : scheduled ? "scheduled " + fmtDate(scheduled) : "";
-  return [type, status, when].filter(Boolean).join(" · ");
-}
-
 function openCaseRowHTML(c, off) {
-  return html`<li class="open-case"><div><strong>${c.caseNumber}</strong> · ${c.address || "No address"}</div>${raw(c.description ? html`<div class="hint">${c.description}</div>` : "")}<div class="hint">Latest inspection: ${openCaseLatestText(c)}</div><button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></li>`;
+  return html`<tr class="open-case"><td>${c.caseNumber}</td><td>${c.address}</td><td>${c.description}</td><td><button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></td></tr>`;
 }
 
 export function openCaseRowsHTML(state, off) {
   const shown = filterOpenCases(state.cases || [], state.query);
   if (!shown.length)
     return html`<p class="hint">${state.cases && state.cases.length ? "No open case matches this search." : "This inspector has no open cases."}</p>`;
-  return '<ul class="open-case-list">' + shown.map((c) => openCaseRowHTML(c, off)).join("") + "</ul>";
+  return (
+    '<table class="open-case-table"><thead><tr><th scope="col">Case number</th><th scope="col">Address</th><th scope="col">Description</th><th scope="col"><span class="sr-only">Import</span></th></tr></thead><tbody>' +
+    shown.map((c) => openCaseRowHTML(c, off)).join("") +
+    "</tbody></table>"
+  );
 }
 
 export function openCaseCountText(state) {
@@ -68,7 +64,7 @@ function openCasePickerHTML(state, busy) {
   const options = state.inspectors
     .map((p) => html`<option value="${p.id}" ${raw(p.id === state.selected ? "selected" : "")}>${p.name} (${p.openCases})</option>`)
     .join("");
-  return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button>${raw(state.cases ? '<button class="btn" type="button" id="open-cases-refresh">Refresh</button>' : "")}</form>`;
+  return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button><button class="btn" type="button" id="open-cases-refresh" ${raw(busy || !state.selected ? "disabled" : "")}>Refresh open cases</button><button class="btn" type="button" id="open-cases-refresh-inspectors" ${raw(busy ? "disabled" : "")}>Refresh inspector list</button></form>`;
 }
 
 function openCaseListHTML(state, off) {
@@ -176,11 +172,13 @@ export function createOpenCaseList(services) {
     if (openList.inspectors === null && !openList.loading && !openList.error) queueMicrotask(() => loadInspectors(services));
   };
   const retry = () => {
-    openList.error = "";
+    if (openList.error || !openList.inspectors?.length) {
+      openList.error = "";
+      if (!openList.inspectors?.length) openList.inspectors = null;
+      return loadInspectors(services, true);
+    }
     openList.casesError = "";
-    if (openList.inspectors?.length) return showCases(services, openList.selected);
-    openList.inspectors = null;
-    return loadInspectors(services, true);
+    return showCases(services, openList.selected);
   };
   return {
     /* The card for the Import screen; it starts the first load. */
@@ -193,9 +191,11 @@ export function createOpenCaseList(services) {
     showCases: (id) => showCases(services, id),
     select: (id) => {
       openList.selected = id;
+      document.getElementById("open-cases-refresh")?.toggleAttribute("disabled", !id);
     },
     retry,
-    refresh: () => showCases(services, openList.casesFor || openList.selected),
+    refresh: () => showCases(services, openList.selected || openList.casesFor),
+    refreshInspectors: () => loadInspectors(services, true),
     search,
     pick: (number) => pick(services, number),
   };
