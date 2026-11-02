@@ -990,6 +990,7 @@
     "tests/unit/audit_startup_state.js",
     "tests/unit/audit_storage.js",
     "tests/unit/audit_storage_status_rules.js",
+    "tests/unit/audit_stranded_import.js",
     "tests/unit/audit_suite_classes.py",
     "tests/unit/audit_suite_process.py",
     "tests/unit/audit_summary.js",

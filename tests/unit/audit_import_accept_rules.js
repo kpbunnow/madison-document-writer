@@ -75,12 +75,18 @@ function scenario(inspector) {
     pick(["09:05", "14:30", ""]),
   ]);
   const existing = chance(2);
+  const draft = existing ? pick(["", "", "notice", "refresh"]) : "",
+    worksheet = existing ? pick(["", "", "open", "refresh"]) : "";
+  // An existing case with no issued document, draft or event is the stranded case, which importing its Initial
+  // Inspection now restarts (a deliberate change from the retained module, tested separately); only a case with
+  // unfinished work still has no issued document here.
+  const noSrc = chance(4) && !!(draft || worksheet);
   return {
     grid: [HEAD, ...rows],
     existing,
-    draft: existing ? pick(["", "", "notice", "refresh"]) : "",
-    worksheet: existing ? pick(["", "", "open", "refresh"]) : "",
-    noSrc: chance(4),
+    draft,
+    worksheet,
+    noSrc,
     snow: chance(6),
     snowImport: chance(6),
     closed: chance(8),
