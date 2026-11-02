@@ -107,96 +107,96 @@ function openCaseWithLimit(promise) {
   return Promise.race([promise, limit]).finally(() => clearTimeout(timer));
 }
 
+let serial = 0;
+const redraw = (services) => editor.state.screen === "import" && services.render();
+const BAD_ANSWER = "The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.";
+
+async function loadInspectors(services) {
+  if (openList.loading) return;
+  openList.loading = true;
+  openList.error = "";
+  const mine = ++serial;
+  try {
+    const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", {}));
+    if (mine !== serial) return;
+    if (!Array.isArray(result.inspectors)) throw new Error(BAD_ANSWER);
+    openList.inspectors = result.inspectors;
+  } catch (error) {
+    if (mine === serial) openList.error = error.message || "The inspector list could not be loaded.";
+  } finally {
+    if (mine === serial) openList.loading = false;
+    redraw(services);
+  }
+}
+
+async function showCases(services, id) {
+  openList.selected = id;
+  if (!id || openList.casesLoading) return;
+  openList.casesLoading = true;
+  openList.casesError = "";
+  openList.query = "";
+  const mine = ++serial;
+  redraw(services);
+  try {
+    const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
+    if (mine !== serial) return;
+    if (!Array.isArray(result.cases)) throw new Error(BAD_ANSWER);
+    openList.cases = result.cases;
+    openList.casesFor = id;
+    openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  } catch (error) {
+    if (mine === serial) openList.casesError = error.message || "The open cases could not be loaded.";
+  } finally {
+    if (mine === serial) openList.casesLoading = false;
+    redraw(services);
+  }
+}
+
+/* Typing filters in place so the search box keeps focus. */
+function search(value) {
+  openList.query = value;
+  const results = document.getElementById("open-cases-results"),
+    count = document.getElementById("open-cases-count");
+  if (results) results.innerHTML = openCaseRowsHTML(openList, !!imports.LOOKUP_BUSY || !!editor.state.acc);
+  if (count) count.textContent = openCaseCountText(openList);
+}
+
+async function pick(services, number) {
+  if (imports.LOOKUP_BUSY || editor.state.acc) return;
+  editor.WORK.entry["lookup-number"] = number;
+  imports.LOOKUP_ERROR = "";
+  services.render();
+  document.getElementById("lookup-form")?.scrollIntoView?.({ block: "center" });
+  await services.findDatabaseCase();
+}
+
 export function createOpenCaseList(services) {
-  let serial = 0;
-  const onImport = () => editor.state.screen === "import";
-  const redraw = () => onImport() && services.render();
-
-  async function loadInspectors() {
-    if (openList.loading) return;
-    openList.loading = true;
-    openList.error = "";
-    const mine = ++serial;
-    try {
-      const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", {}));
-      if (mine !== serial) return;
-      if (!Array.isArray(result.inspectors))
-        throw new Error("The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.");
-      openList.inspectors = result.inspectors;
-    } catch (error) {
-      if (mine === serial) openList.error = error.message || "The inspector list could not be loaded.";
-    } finally {
-      if (mine === serial) openList.loading = false;
-      redraw();
-    }
-  }
-
   /* Called while the Import screen draws: load once, never in a loop (an error waits for Try again). */
-  function ensure() {
-    if (openList.inspectors === null && !openList.loading && !openList.error) queueMicrotask(loadInspectors);
-  }
-
-  async function showCases(id) {
-    openList.selected = id;
-    if (!id || openList.casesLoading) return;
-    openList.casesLoading = true;
-    openList.casesError = "";
-    openList.query = "";
-    const mine = ++serial;
-    redraw();
-    try {
-      const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
-      if (mine !== serial) return;
-      if (!Array.isArray(result.cases))
-        throw new Error("The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.");
-      openList.cases = result.cases;
-      openList.casesFor = id;
-      openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    } catch (error) {
-      if (mine === serial) openList.casesError = error.message || "The open cases could not be loaded.";
-    } finally {
-      if (mine === serial) openList.casesLoading = false;
-      redraw();
-    }
-  }
-
-  const select = (id) => {
-    openList.selected = id;
+  const ensure = () => {
+    if (openList.inspectors === null && !openList.loading && !openList.error) queueMicrotask(() => loadInspectors(services));
   };
   const retry = () => {
     openList.error = "";
     openList.casesError = "";
-    if (!openList.inspectors?.length) {
-      openList.inspectors = null;
-      return loadInspectors();
-    }
-    return showCases(openList.selected);
+    if (openList.inspectors?.length) return showCases(services, openList.selected);
+    openList.inspectors = null;
+    return loadInspectors(services);
   };
-  const refresh = () => showCases(openList.casesFor || openList.selected);
-
-  /* Typing filters in place so the search box keeps focus. */
-  function search(value) {
-    openList.query = value;
-    const results = document.getElementById("open-cases-results"),
-      count = document.getElementById("open-cases-count");
-    if (results) results.innerHTML = openCaseRowsHTML(openList, !!imports.LOOKUP_BUSY || !!editor.state.acc);
-    if (count) count.textContent = openCaseCountText(openList);
-  }
-
-  async function pick(number) {
-    if (imports.LOOKUP_BUSY || editor.state.acc) return;
-    editor.WORK.entry["lookup-number"] = number;
-    imports.LOOKUP_ERROR = "";
-    services.render();
-    document.getElementById("lookup-form")?.scrollIntoView?.({ block: "center" });
-    await services.findDatabaseCase();
-  }
-
-  /* The card for the Import screen; it starts the first load. */
-  const card = () => {
-    ensure();
-    return openCaseCardHTML();
+  return {
+    /* The card for the Import screen; it starts the first load. */
+    card: () => {
+      ensure();
+      return openCaseCardHTML();
+    },
+    ensure,
+    loadInspectors: () => loadInspectors(services),
+    showCases: (id) => showCases(services, id),
+    select: (id) => {
+      openList.selected = id;
+    },
+    retry,
+    refresh: () => showCases(services, openList.casesFor || openList.selected),
+    search,
+    pick: (number) => pick(services, number),
   };
-
-  return { card, ensure, loadInspectors, showCases, select, retry, refresh, search, pick };
 }
