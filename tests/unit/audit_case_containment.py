@@ -35,6 +35,7 @@ def record(number="QA-001", case_id="case_a"):
 
 
 class Containment(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "POSIX descriptor injection; Windows handle flags are modeled separately")
     def test_descriptors_close_when_a_read_is_refused_or_stream_creation_fails(self):
         target = self.cases / "directory.json"
         target.mkdir()
@@ -62,6 +63,7 @@ class Containment(unittest.TestCase):
         with self.assertRaises(OSError):
             os.fstat(opened[-1])
 
+    @unittest.skipIf(os.name == "nt", "POSIX open injection; Windows handle flags are modeled separately")
     def test_replacement_before_open_never_follows_the_new_link(self):
         target = self.cases / "race.json"
         target.write_text("{}")
@@ -79,6 +81,7 @@ class Containment(unittest.TestCase):
             with self.assertRaises(ValueError):
                 case_store.read_case(self.cases, target.name)
 
+    @unittest.skipIf(os.name == "nt", "POSIX fstat injection; Windows denies delete sharing until the handle closes")
     def test_replacement_after_open_reads_only_the_verified_handle(self):
         target = self.cases / "race.json"
         target.write_text('{"original":true}')
