@@ -1,5 +1,27 @@
 # Release changelog
 
+## 2026-11-02 R68 — Release package
+
+Release package assigned on the owner's request after the development below (helper 2026.11.02.69, build 69; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R68 upgrades R67, which the owner confirmed installs and updates correctly. Install it on every PC that uses the shared case folder and have everyone fully restart Document Writer (Exit Document Writer, then the desktop icon); a PC left on R67 is told to restart and cannot save to the shared folder.
+
+### Open cases by inspector
+
+- Import inspection opens with an Open cases by inspector card above the case-number lookup. Choose an inspector, then Show open cases. The list shows each open enforcement case's case number, address, description and the latest inspection's type, status and date; the search box narrows it by case number, address or description as you type, and Refresh reloads it and shows when it was loaded. Choose Import on a case to fill the case number and run Find Case Inspections for it, so the import rules, reuse checks and snow handling are unchanged. Import is unavailable while a lookup runs or another import waits for review. A failure shows a plain message with Try again, and the case-number lookup stays available. The list is not saved.
+- The lookup button and heading are renamed from Find Accela inspection to Find Case Inspections; the function is unchanged.
+- The helper runs two fixed read-only queries taken from the division's Open_Enforcement_Cases report on the already trusted SQL server, as the signed-in Windows account (the account also needs read access to BI_ENF_WORKFLOW and BI_ENF_WORKFLOW_HISTORY). The inspector is chosen by Accela user ID. An optional shared file, Case Lookup/excluded-inspectors.json, lists staff (names or user IDs, % as a wildcard) who never appear. The Excel/CSV import stays available as a fallback until the City confirms the list on a real PC.
+
+### Corrections and decisions
+
+- Anchor receipts are now written without a temporary file, so an anchor folder that lets the account create files but not rename or delete them works (acceptance item C6); an unreadable receipt stops verification with a message that IT must remove it.
+- Browse language and the Select for this notice picker open on Approved and standard, so the bundled language the owner approved for selection is listed before the division records reviews.
+- A completely blank Violator row is dropped when Recipients is closed; a partly filled Violator row is still refused with a message naming the Violator.
+- A case left with only its saved details (no document, draft or recorded event), for example after a new import's notice draft was discarded, can start its notice again from its Initial Inspection instead of being refused.
+- Staff guides, the program manual and the repeat-offense wording now say that charges counted by property (for example erosion control under MGO chapter 37) still count repeats by property.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. The real inspector queries cannot run in the development environment; the City acceptance items OCL-1 to OCL-8 exercise them. Development tools (hypothesis, PyYAML, vulture, eslint) were updated; none ships in the program.
+
 ## 2026-10-31 R67 — Release package
 
 Release package assigned on the owner's request after the development below (helper 2026.10.31.68, build 68; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R66 was never published; R67 replaces R64, R65 and R66. Install R67 on every PC that uses the shared case folder and have everyone fully restart Document Writer (Exit Document Writer, then the desktop icon) the day it goes out: a PC still on an older release prints a Violator as an ordinary copy.
