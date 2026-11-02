@@ -23,6 +23,7 @@ const fields = [
     "restoreCaseFolder",
     "initWriterHandoff",
     "markWriterReady",
+    "chooseStartScreen",
     "markWriterFailed",
     "refreshArtifactLocations",
     "refreshCatalog",
@@ -75,6 +76,7 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
     "integrity",
     "refreshArtifactLocations",
     "flushPending",
+    "chooseStartScreen",
     "markWriterReady",
     "scheduleRecoveryBackup",
   ];

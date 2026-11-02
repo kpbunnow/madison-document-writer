@@ -1757,6 +1757,7 @@ async function axeThemes(page, screen) {
     ["browser_violator.js", "browser page OUT axeScreen"],
     ["browser_order_language.js", "browser page"],
     ["browser_open_case_list.js", "browser page context OUT axeScreen"],
+    ["browser_start_screen.js", "browser page"],
     // Last: Exit Document Writer stops a separate helper it starts itself; the audit helper keeps running.
     ["browser_desktop_exit.js", "browser OUT axeScreen work"],
   ];
