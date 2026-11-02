@@ -30,6 +30,7 @@ export function createOpenCaseEvents(services) {
       if (!button) return;
       if (button.dataset.openCasePick) list().pick(button.dataset.openCasePick);
       else if (button.id === "open-cases-refresh") list().refresh();
+      else if (button.id === "open-cases-refresh-inspectors") list().refreshInspectors();
       else if (button.id === "open-cases-retry") list().retry();
     });
   }

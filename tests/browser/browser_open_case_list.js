@@ -6,24 +6,16 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
   const row = (number, extra = {}) => ({
     caseNumber: number,
     address: "101 TEST ST",
-    parcel: "070822219105",
-    owner: "SYNTHETIC OWNER",
-    category: "Building Code",
     description: "Roof and gutters",
-    status: "Open",
-    dateOpened: "2026-09-30",
-    latest: { type: "Initial Inspection", status: "Violations Found", date: "2026-10-01", scheduled: "" },
     ...extra,
   });
   const cases = [
     row("CB2026-241-60001"),
     row("CB2026-241-60002", {
       address: "22 OAK AVE",
-      owner: "OTHER OWNER",
       description: "Porch rail",
-      latest: { type: "", status: "", date: "", scheduled: "" },
     }),
-    row("CB2026-241-60003", { address: "9 ELM CT", parcel: "070822219999" }),
+    row("CB2026-241-60003", { address: "9 ELM CT" }),
   ];
   const requests = [];
   await context.route("**/inspector-cases/list", async (route) => {
@@ -85,9 +77,22 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     await page.locator(".open-case").first().waitFor();
     assert.equal(await page.locator(".open-case").count(), 3);
     assert.match(await page.locator("#open-cases-count").innerText(), /^3 open cases for Jordan Smith\. Loaded /);
-    assert.match(await page.locator(".open-case").nth(1).innerText(), /No inspection result yet/);
-    assert.ok(!/SYNTHETIC OWNER|Opened/.test(await page.locator("#open-cases-results").innerText()), "owner and opened date are not listed");
-    assert.match(await page.locator(".open-case").first().innerText(), /Latest inspection: Initial Inspection · Violations Found · 10\/01\/2026/);
+    // Three columns in the requested order, all in the same cell format, and nothing about the latest inspection.
+    assert.deepEqual(await page.locator("#open-cases-results thead th").allInnerTexts(), ["Case number", "Address", "Description", "Import"]);
+    const firstCells = await page.locator(".open-case").first().locator("td").allInnerTexts();
+    assert.deepEqual(firstCells.slice(0, 3), ["CB2026-241-60001", "101 TEST ST", "Roof and gutters"]);
+    assert.ok(
+      !/Latest inspection|Opened|OWNER/i.test(await page.locator("#open-cases-results").innerText()),
+      "no inspection, date or owner is listed",
+    );
+    // Both lists can be reloaded.
+    assert.equal(await page.locator("#open-cases-refresh").isEnabled(), true);
+    assert.equal(await page.locator("#open-cases-refresh-inspectors").isEnabled(), true);
+    await page.locator("#open-cases-refresh").click();
+    await page.waitForFunction(
+      () => document.querySelectorAll("#open-cases-results .open-case").length === 3 && !document.querySelector("#open-cases-refresh[disabled]"),
+    );
+    assert.equal(requests.filter((r) => r[0] === "cases").length, 2, "Refresh open cases asks the helper again");
     await axeScreen(page, "open-case-list");
 
     // Search narrows the list while the box keeps focus.
@@ -120,6 +125,11 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     assert.equal(await page.locator("#open-cases-search").count(), 1, "the list stays available after a failed lookup");
     assert.deepEqual(requests.slice(0, 2), [["list"], ["cases", "JSMITH"]]);
     assert.equal(requests.filter((r) => r[0] === "list").length, 1, "the inspector list loads once per session");
+    await page.locator("#open-cases-refresh-inspectors").click();
+    await page.waitForFunction(
+      () => document.querySelector("#open-cases-refresh-inspectors") && !document.querySelector("#open-cases-refresh-inspectors[disabled]"),
+    );
+    assert.equal(requests.filter((r) => r[0] === "list").length, 2, "Refresh inspector list asks the helper again");
   } finally {
     await context.unroute("**/inspector-cases/list");
     await context.unroute("**/inspector-cases/cases");

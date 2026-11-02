@@ -29,10 +29,7 @@ LIST_QUERY_TIMEOUT = 60
 CACHE_SECONDS = 1800
 _cache = {"root": None, "at": 0.0, "answer": None, "source": None}
 INSPECTOR_FIELDS = ("UserId", "InspectorName", "OpenCases")
-CASE_FIELDS = (
-    "AssignedInspector UserId CaseNumber ShortAddress ParcelNumber OwnerName RecordCategory CaseDescription Status DateOpened "
-    "LatestInspectionType LatestInspectionStatus LatestInspectionDate LatestScheduledDate"
-).split()
+CASE_FIELDS = ("UserId", "CaseNumber", "ShortAddress", "CaseDescription")
 
 
 def user_id(value):
@@ -74,11 +71,6 @@ def _text(row, field, limit=2000):
     if not isinstance(value, str) or len(value) > limit or any(ord(c) < 32 and c not in "\t\r\n" for c in value):
         raise CaseLookupError("The report query returned an invalid field value.")
     return " ".join(value.split())
-
-
-def _day(value):
-    """The date part of an ISO timestamp, or empty when the value is missing or not a date."""
-    return value[:10] if re.fullmatch(r"\d{4}-\d{2}-\d{2}(T.*)?", value or "") else ""
 
 
 def _rows(answer, fields, limit):
@@ -156,6 +148,8 @@ def inspectors(root, refresh=False):
 def open_cases(root, value):
     uid = user_id(value)
     cfg, names, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql")
+    if excluded(names, uid, uid):
+        raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
     cases, seen = [], set()
     for row in _rows(answer, CASE_FIELDS, MAX_CASES):
         number = case_lookup.case_number(row["CaseNumber"] if isinstance(row["CaseNumber"], str) else "")
@@ -163,32 +157,12 @@ def open_cases(root, value):
             continue
         if _text(row, "UserId", 64).casefold() != uid.casefold():
             raise CaseLookupError("The database returned a case for a different inspector. Nothing was loaded.")
-        name = _text(row, "AssignedInspector", 200) or uid
-        if excluded(names, uid, name):
-            raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
         seen.add(number)
         cases.append(
             {
                 "caseNumber": number,
                 "address": _text(row, "ShortAddress", 300),
-                "parcel": _text(row, "ParcelNumber", 64),
-                "owner": _text(row, "OwnerName", 300),
-                "category": _text(row, "RecordCategory", 200),
-                "description": _text(row, "CaseDescription", 1000),
-                "status": _text(row, "Status", 200),
-                "dateOpened": _day(_text(row, "DateOpened", 40)),
-                "latest": {
-                    "type": _text(row, "LatestInspectionType", 200),
-                    "status": _text(row, "LatestInspectionStatus", 200),
-                    "date": _day(_text(row, "LatestInspectionDate", 40)),
-                    "scheduled": _day(_text(row, "LatestScheduledDate", 40)),
-                },
+                "description": _text(row, "CaseDescription", 2000),
             }
         )
-    name = _text(answer["rows"][0], "AssignedInspector", 200) if cases else ""
-    return {
-        "ok": True,
-        "inspector": {"id": uid, "name": name or uid},
-        "cases": cases,
-        "source": _source(cfg, answer, "inspector_cases.sql"),
-    }
+    return {"ok": True, "inspector": {"id": uid}, "cases": cases, "source": _source(cfg, answer, "inspector_cases.sql")}

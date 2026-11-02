@@ -23,13 +23,7 @@ async function load() {
 const row = (number, extra = {}) => ({
   caseNumber: number,
   address: "101 TEST ST",
-  parcel: "070822219105",
-  owner: "SYNTHETIC OWNER",
-  category: "Building Code",
   description: "Roof and gutters",
-  status: "Open",
-  dateOpened: "2026-09-30",
-  latest: { type: "Initial Inspection", status: "Violations Found", date: "2026-10-01", scheduled: "" },
   ...extra,
 });
 
@@ -41,14 +35,12 @@ const row = (number, extra = {}) => ({
   WriterState.LOOKUP_BUSY = false;
   WriterState.LOOKUP_ERROR = "";
 
-  // Search: every term must appear in the case number, address or description (not the owner, parcel or status).
+  // Search: every term must appear in the case number, address or description.
   const cases = [
     row("CB2026-241-00001"),
     row("CB2026-241-00002", {
       address: "22 OAK AVE",
-      owner: "OTHER OWNER",
       description: "Porch rail",
-      latest: { type: "", status: "", date: "", scheduled: "2026-11-10" },
     }),
   ];
   assert.equal(m.filterOpenCases(cases, "").length, 2);
@@ -60,22 +52,24 @@ const row = (number, extra = {}) => ({
     m.filterOpenCases(cases, "  ROOF   gutters ").map((c) => c.caseNumber),
     ["CB2026-241-00001"],
   );
-  assert.deepEqual(m.filterOpenCases(cases, "violations found"), [], "the latest inspection is shown but not searched");
-  assert.deepEqual(m.filterOpenCases(cases, "other owner"), [], "the owner is not shown or searched");
   assert.deepEqual(m.filterOpenCases(cases, "roof porch"), []);
-  assert.deepEqual(m.filterOpenCases(cases, "070822219105"), [], "the parcel is not searched");
 
-  // Rows escape every value, show the latest inspection and offer Import unless something is running.
+  // Rows escape every value, show case number, address and description in that order, and offer Import unless something is running.
   const nasty = row("CB2026-241-00003", { address: '<img src=x onerror="alert(1)">', description: "<script>x</script>" });
   const markup = m.openCaseRowsHTML({ cases: [nasty, cases[1]], query: "" }, false);
   assert.ok(!markup.includes("<img") && !markup.includes("<script"), "values are escaped");
-  assert.ok(
-    !/SYNTHETIC OWNER|OTHER OWNER|Opened|070822219105/.test(markup),
-    "rows show only case number, address, description and the latest inspection",
+  assert.match(
+    markup,
+    /<th scope="col">Case number<\/th><th scope="col">Address<\/th><th scope="col">Description<\/th>/,
+    "columns in the requested order",
   );
+  assert.match(
+    markup,
+    /<td>CB2026-241-00003<\/td><td>&lt;img[^<]*<\/td><td>&lt;script&gt;x&lt;\/script&gt;<\/td><td><button/,
+    "the same cell format for all three fields",
+  );
+  assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
   assert.match(markup, /data-open-case-pick="CB2026-241-00003"/);
-  assert.match(markup, /Latest inspection: Initial Inspection · Violations Found · 10\/01\/2026/);
-  assert.match(markup, /Latest inspection: No inspection result yet/);
   assert.ok(!/disabled/.test(markup));
   assert.match(m.openCaseRowsHTML({ cases: [nasty], query: "" }, true), /disabled/);
   assert.match(m.openCaseRowsHTML({ cases: [nasty], query: "zzz" }, false), /No open case matches this search/);
@@ -159,6 +153,29 @@ const row = (number, extra = {}) => ({
   await slow;
   assert.equal(openList.casesFor, "JSMITH", "the stale answer is ignored");
   assert.ok(renders > 0);
+  // Refresh: both lists can be reloaded; the inspector list asks the helper for a fresh one, and a failed reload can be retried.
+  const askedList = calls.filter((c) => c[0] === "/inspector-cases/list").length;
+  await owner.refreshInspectors();
+  assert.deepEqual(calls.filter((c) => c[0] === "/inspector-cases/list").at(-1), ["/inspector-cases/list", { refresh: true }]);
+  assert.equal(calls.filter((c) => c[0] === "/inspector-cases/list").length, askedList + 1);
+  openList.selected = "JSMITH";
+  const before = calls.length;
+  await owner.refresh();
+  assert.deepEqual(calls.at(-1), ["/inspector-cases/cases", { inspector: "JSMITH" }]);
+  assert.equal(calls.length, before + 1, "Refresh open cases reloads only the cases");
+  const idle = card({ ...loaded, selected: "" });
+  assert.match(idle, /id="open-cases-refresh"[^>]*disabled/, "no inspector chosen: nothing to refresh yet");
+  assert.match(idle, /id="open-cases-refresh-inspectors"/);
+  assert.ok(!/id="open-cases-refresh-inspectors"[^>]*disabled/.test(idle));
+  assert.ok(!/id="open-cases-refresh"[^>]*disabled/.test(card({ ...loaded, selected: "JSMITH" })));
+  openList.error = "The list took too long to load.";
+  await owner.retry();
+  assert.equal(
+    calls.filter((c) => c[0] === "/inspector-cases/list").length,
+    askedList + 2,
+    "Try again after a failed list reload loads the list again",
+  );
+  assert.equal(openList.error, "");
   // An answer the list cannot use is an error, not an empty list; an empty list can be reloaded.
   openList.inspectors = null;
   openList.error = "";
