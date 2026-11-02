@@ -325,3 +325,20 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-3:** everything constructible passed: the Reinspection Notice shows due dates as text only, the issued PDF prints the assigned date unchanged, and the Issue check refuses a new notice whose due date is today or earlier. The past-due state itself needs real elapsed time, which is why S65-3 now asks for a copy of a case whose dates have passed.
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
+
+## Open cases by inspector acceptance (next release) — OPEN
+
+The Import inspection screen lists an inspector's open enforcement cases from two fixed read-only queries taken from the division's Open_Enforcement_Cases report (helper/inspector_list.sql and inspector_cases.sql). The SQL cannot run in the development environment, so these checks need a City PC and the real server.
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| OCL-1 | On a City PC signed in as an inspector, open Import inspection and wait for the inspector list | The inspectors with open cases appear with their case counts, without a permission or timeout message; if a permission message names BI_ENF_WORKFLOW or BI_ENF_WORKFLOW_HISTORY, IT grants read access and the check is repeated |
+| OCL-2 | Choose an inspector with many open cases; record the time to load the inspector list and the case list, and the number of rows | Both load in an acceptable time (the helper waits up to 60 seconds for each query) and the case count matches Accela and the Open_Enforcement_Cases report for that inspector |
+| OCL-3 | Compare the real record statuses in the list with the report: look for any status containing Compliance (for example Non-Compliance) that should be open | The report's rule (a status containing Close or Compliance, or No Violation, Void or Withdrawn, is not open) matches the division's intent; if not, the division decides the change and it is made in both SQL files |
+| OCL-4 | Create Case Lookup/excluded-inspectors.json from the supplied example listing the staff who must not appear | Those people are missing from the inspector list; with no file everyone with an open case is listed; an invalid file stops the list with a message naming the file |
+| OCL-5 | Search the list by case number, address and description; choose Import on a case with an Initial Inspection result, one with a Reinspection result and a snow case | The search narrows the list as you type without losing the cursor; Import runs Find Case Inspections for that case number and the import then behaves exactly as when the number is typed |
+| OCL-6 | Unplug the network or use an account without database access, then open the screen and choose Try again | A plain message appears (no permission, or timed out) and the case-number lookup below still works |
+| OCL-7 | Choose Import while another import is waiting for review below, and while a lookup is running | Import is unavailable with a note to finish or cancel the other import first |
+
+The owner decided on 2026-11-02 to keep the Excel/CSV import available for now and remove it in a later release only after OCL-1 to OCL-7 pass on a real PC.
+
