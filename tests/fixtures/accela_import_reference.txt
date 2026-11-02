@@ -1276,7 +1276,7 @@ export function createAccelaImport(services) {
         acc.source?.kind === "sql"
           ? "<p>Retrieved " +
               `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
-              ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
+              ". This is a saved snapshot; use Find Case Inspections again to refresh it.</p>"
           : "",
       ) +
       "" +
@@ -1379,7 +1379,7 @@ export function createAccelaImport(services) {
 
   function lookupCard() {
     return (
-      '<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><s' +
+      '<div class="card lookup-card"><div class="card-h"><h2>Find Case Inspections</h2><s' +
       'pan class="pill">City database</span></div><div class="card-b">\n  <p>Ent' +
       "er the case number to retrieve its property, owner and inspection detail" +
       's.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="' +
@@ -1393,7 +1393,7 @@ export function createAccelaImport(services) {
       '></label>\n    <button class="btn btn-primary" type="submit" ' +
       `${imports.LOOKUP_BUSY ? "disabled" : ""}` +
       ">" +
-      `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection"}` +
+      `${imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Case Inspections"}` +
       "</button>\n    " +
       "".concat(
         imports.LOOKUP_BUSY

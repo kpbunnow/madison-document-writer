@@ -398,7 +398,7 @@ function applyImportRule(target, rule) {
 }
 
 function lookupCard() {
-  return html`<div class="card lookup-card"><div class="card-h"><h2>Find Accela inspection</h2><span class="pill">City database</span></div><div class="card-b">\n  <p>Enter the case number to retrieve its property, owner and inspection details.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="${raw(imports.LOOKUP_BUSY)}">\n    <label class="f"><span>Case number</span><input type="text" id="lookup-number" maxlength="80" autocomplete="off" spellcheck="false" placeholder="CB2026-000-00000" value="${editor.WORK.entry["lookup-number"] || ""}" ${raw(imports.LOOKUP_BUSY ? "readonly" : "")}></label>\n    <button class="btn btn-primary" type="submit" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>${raw(imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Accela inspection")}</button>\n    ${raw(
+  return html`<div class="card lookup-card"><div class="card-h"><h2>Find Case Inspections</h2><span class="pill">City database</span></div><div class="card-b">\n  <p>Enter the case number to retrieve its property, owner and inspection details.</p>\n  <form id="lookup-form" class="lookup-row" aria-busy="${raw(imports.LOOKUP_BUSY)}">\n    <label class="f"><span>Case number</span><input type="text" id="lookup-number" maxlength="80" autocomplete="off" spellcheck="false" placeholder="CB2026-000-00000" value="${editor.WORK.entry["lookup-number"] || ""}" ${raw(imports.LOOKUP_BUSY ? "readonly" : "")}></label>\n    <button class="btn btn-primary" type="submit" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>${raw(imports.LOOKUP_BUSY ? "Finding inspection…" : "Find Case Inspections")}</button>\n    ${raw(
     "".concat(
       imports.LOOKUP_BUSY
         ? '<button class="btn" type="button" id="lookup-cancel">Cancel lookup</button>'
@@ -781,7 +781,7 @@ function importSourceDetails(acc, p) {
       acc.source?.kind === "sql"
         ? "<p>Retrieved " +
             `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
-            ". This is a saved snapshot; use Find Accela inspection again to refresh it.</p>"
+            ". This is a saved snapshot; use Find Case Inspections again to refresh it.</p>"
         : "",
     ),
   )}${raw((p.notes || []).map((n) => `<p>${esc(n)}</p>`).join(""))}<p>The inspection type and its result status decide the document: an Initial Inspection with Official Notice, Citation, No Occupancy or an Abatement result; a Reinspection with CA Referral (City Attorney Referral), Compliance, Citation, Extension Processing, No Fee Extension Processing, No Occupancy, No Fee No Occupancy, Reinspection or No Fee Reinspection (a Reinspection Notice); a CA Reinspection with Compliance or Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, Completed, Inspection, No Violation, Reinspection or No Fee Reinspection on any type other than a Reinspection, an Initial Inspection with No Entry), Assist inspections, undated rows and inspections already used on the case are not listed; other combinations are listed as not available. Blank inspection times stay blank until explicitly corrected.</p></details>`;

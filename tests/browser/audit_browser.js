@@ -1255,7 +1255,7 @@ async function axeThemes(page, screen) {
   await page.locator("#lookup-number").fill(sqlNumber);
   await axeScreen(page, "case-lookup");
   await page.screenshot({ path: path.join(OUT, "case-lookup.png"), fullPage: true });
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction((n) => WriterState.CASES.some((k) => k.number === n) && WriterState.state.screen === "write", sqlNumber);
   assert.equal(await page.evaluate((n) => WriterState.CASES.filter((k) => k.number === n).length, sqlNumber), 1);
   const lookupId = await page.evaluate((n) => WriterState.CASES.find((k) => k.number === n).id, sqlNumber);
@@ -1269,7 +1269,7 @@ async function axeThemes(page, screen) {
     { ...sqlRow, InspectionDate: "2026-09-19T00:00:00", InspectionType: "Reinspection", InspectionStatus: "Extension Processing" },
   ];
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.source?.kind === "sql" && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.evaluate(() => WriterState.state.acc.sel), null);
   await page.locator("#btn-savework").click();
@@ -1280,7 +1280,7 @@ async function axeThemes(page, screen) {
   await axeScreen(page, "lookup-resumed");
   await page.screenshot({ path: path.join(OUT, "lookup-resumed.png"), fullPage: true });
   lookupError = "Synthetic connection failure; retry is available.";
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.getByText(lookupError, { exact: true }).waitFor();
   assert.equal(await page.evaluate(() => WriterState.state.acc.cases[0].rows.length), 2);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -1292,7 +1292,7 @@ async function axeThemes(page, screen) {
   // R13 duplicate routing and newest issued source, through real UI and helper.
   lookupError = "";
   lookupRows = [sqlRow];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   // R62: a used inspection is hidden and its selection cleared, so wait for the review rather than a selection.
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   // R53: searching the same inspection again is either refused as already used or, while its draft is unissued,
@@ -1331,7 +1331,7 @@ async function axeThemes(page, screen) {
   await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.locator("#acc-go").isDisabled(), true);
   await axeScreen(page, "duplicate-inspection");
@@ -1345,7 +1345,7 @@ async function axeThemes(page, screen) {
       InspectionTime: "14:30:00",
     },
   ];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.cases[0].rows[0].typeKey === "reinspection" && !WriterState.LOOKUP_BUSY);
   await page.locator("#acc-go").click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect");
@@ -1371,11 +1371,11 @@ async function axeThemes(page, screen) {
   await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
   await page.locator("#lookup-number").fill(sqlNumber);
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
   assert.equal(await page.locator("#acc-go").isDisabled(), true, "Issued reinspection cannot be reused");
   lookupRows = [{ ...lookupRows[0], InspectionDate: "2026-09-20T00:00:00", InspectionTime: "11:15:00" }];
-  await page.locator("#lookup-form").getByRole("button", { name: "Find Accela inspection", exact: true }).click();
+  await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.acc?.cases[0].rows[0].date === "2026-09-20" && !WriterState.LOOKUP_BUSY);
   await page.locator("#acc-go").click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect");

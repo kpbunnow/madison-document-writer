@@ -29,9 +29,7 @@ export function filterOpenCases(cases, query) {
     .filter(Boolean);
   if (!terms.length) return cases;
   return cases.filter((c) => {
-    const text = [c.caseNumber, c.address, c.owner, c.parcel, c.description, c.status, c.category, c.latest.type, c.latest.status]
-      .join(" ")
-      .toLowerCase();
+    const text = [c.caseNumber, c.address, c.description].join(" ").toLowerCase();
     return terms.every((term) => text.includes(term));
   });
 }
@@ -44,7 +42,7 @@ function openCaseLatestText(c) {
 }
 
 function openCaseRowHTML(c, off) {
-  return html`<li class="open-case"><div><strong>${c.caseNumber}</strong> · ${c.address || "No address"} · ${c.owner || "No owner listed"}</div><div class="hint">${c.status}${c.dateOpened ? " · Opened " + fmtDate(c.dateOpened) : ""} · Latest inspection: ${openCaseLatestText(c)}</div>${raw(c.description ? html`<div class="hint">${c.description}</div>` : "")}<button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></li>`;
+  return html`<li class="open-case"><div><strong>${c.caseNumber}</strong> · ${c.address || "No address"}</div>${raw(c.description ? html`<div class="hint">${c.description}</div>` : "")}<div class="hint">Latest inspection: ${openCaseLatestText(c)}</div><button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></li>`;
 }
 
 export function openCaseRowsHTML(state, off) {
@@ -75,7 +73,7 @@ function openCasePickerHTML(state, busy) {
 
 function openCaseListHTML(state, off) {
   if (!state.cases) return "";
-  return html`<label class="f"><span>Search these cases</span><input type="search" id="open-cases-search" value="${state.query}" autocomplete="off" placeholder="Case number, address, owner, parcel or words from the description"></label><p id="open-cases-count" class="hint" role="status">${openCaseCountText(state)}</p><div id="open-cases-results">${raw(openCaseRowsHTML(state, off))}</div>`;
+  return html`<label class="f"><span>Search these cases</span><input type="search" id="open-cases-search" value="${state.query}" autocomplete="off" placeholder="Case number, address or description"></label><p id="open-cases-count" class="hint" role="status">${openCaseCountText(state)}</p><div id="open-cases-results">${raw(openCaseRowsHTML(state, off))}</div>`;
 }
 
 function openCaseProblemHTML(message, retry) {

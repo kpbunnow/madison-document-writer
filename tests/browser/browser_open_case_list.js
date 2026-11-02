@@ -72,6 +72,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     assert.equal(await page.locator(".open-case").count(), 3);
     assert.match(await page.locator("#open-cases-count").innerText(), /^3 open cases for Jordan Smith\. Loaded /);
     assert.match(await page.locator(".open-case").nth(1).innerText(), /No inspection result yet/);
+    assert.ok(!/SYNTHETIC OWNER|Opened/.test(await page.locator("#open-cases-results").innerText()), "owner and opened date are not listed");
     assert.match(await page.locator(".open-case").first().innerText(), /Latest inspection: Initial Inspection · Violations Found · 10\/01\/2026/);
     await axeScreen(page, "open-case-list");
 
@@ -83,7 +84,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     assert.equal(await page.evaluate(() => document.activeElement.id), "open-cases-search");
     await page.locator("#open-cases-search").fill("zzzz");
     assert.match(await page.locator("#open-cases-results").innerText(), /No open case matches this search/);
-    await page.locator("#open-cases-search").fill("070822219999");
+    await page.locator("#open-cases-search").fill("elm");
     assert.equal(await page.locator(".open-case").count(), 1);
     await page.locator("#open-cases-search").fill("");
     assert.equal(await page.locator(".open-case").count(), 3);

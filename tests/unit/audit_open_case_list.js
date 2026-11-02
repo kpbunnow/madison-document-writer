@@ -41,7 +41,7 @@ const row = (number, extra = {}) => ({
   WriterState.LOOKUP_BUSY = false;
   WriterState.LOOKUP_ERROR = "";
 
-  // Search: every term must appear in the case number, address, owner, parcel, description, status or latest inspection.
+  // Search: every term must appear in the case number, address or description (not the owner, parcel or status).
   const cases = [
     row("CB2026-241-00001"),
     row("CB2026-241-00002", {
@@ -60,17 +60,19 @@ const row = (number, extra = {}) => ({
     m.filterOpenCases(cases, "  ROOF   gutters ").map((c) => c.caseNumber),
     ["CB2026-241-00001"],
   );
-  assert.deepEqual(
-    m.filterOpenCases(cases, "violations found").map((c) => c.caseNumber),
-    ["CB2026-241-00001"],
-  );
+  assert.deepEqual(m.filterOpenCases(cases, "violations found"), [], "the latest inspection is shown but not searched");
+  assert.deepEqual(m.filterOpenCases(cases, "other owner"), [], "the owner is not shown or searched");
   assert.deepEqual(m.filterOpenCases(cases, "roof porch"), []);
-  assert.deepEqual(m.filterOpenCases(cases, "070822219105").length, 2);
+  assert.deepEqual(m.filterOpenCases(cases, "070822219105"), [], "the parcel is not searched");
 
   // Rows escape every value, show the latest inspection and offer Import unless something is running.
   const nasty = row("CB2026-241-00003", { address: '<img src=x onerror="alert(1)">', description: "<script>x</script>" });
   const markup = m.openCaseRowsHTML({ cases: [nasty, cases[1]], query: "" }, false);
   assert.ok(!markup.includes("<img") && !markup.includes("<script"), "values are escaped");
+  assert.ok(
+    !/SYNTHETIC OWNER|OTHER OWNER|Opened|070822219105/.test(markup),
+    "rows show only case number, address, description and the latest inspection",
+  );
   assert.match(markup, /data-open-case-pick="CB2026-241-00003"/);
   assert.match(markup, /Latest inspection: Initial Inspection · Violations Found · 10\/01\/2026/);
   assert.match(markup, /Latest inspection: No inspection result yet/);
