@@ -294,7 +294,7 @@ C6 (create-only anchor permissions) needs the City's anchor location and its rea
 | --- | --- | --- |
 | S67-1 | Install R67 from the shared release folder over R64, R65 or R66 on a PC that uses the shared case folder, double-click the Document Writer icon, then start a PC still on the older release against the same share | The helper starts and Writer opens; the older copy is told to restart and cannot save to the shared folder; the carried S66-1 result (open cases listed, no "local helper did not start") is confirmed on the same install |
 
-All R67 items remain OPEN. S65-1 through S65-3, S66-1 and carried items remain OPEN. The Violator and order-language items follow.
+The owner confirmed on 2026-11-02 that Part B of the test checklist works correctly on the installed R67: S67-1 (install over the earlier release; the older copy told to restart and blocked from saving), S66-1 (open cases listed, no "local helper did not start") and SVIO-4 (program and helper versions Match). Those three are CONFIRMED. S65-1 through S65-3 and the other carried items remain OPEN. The Violator and order-language items follow.
 
 ## Violator contact and order language acceptance (shipped in R67) — OPEN
 
@@ -313,7 +313,7 @@ SVIO-1 is APPROVED: the owner reported on 2026-10-31 that the City Attorney's Of
 - **SVIO-3 (snow cases keep the owner): CLOSED on the automated tests.** Violator is not offered on a snow removal case, and the browser and helper tests confirm the owner stays the defendant.
 - **SVIO-4 (every PC updated before Violator cases are used): OPEN, rollout step.** Deploy R67 and have everyone fully restart Document Writer once (Exit Document Writer, then the desktop icon) the day it goes out. IT may confirm each PC's helper version under Tools & settings → Saved work & connection → Connection checks and technical details → Open connection checks: Program/helper versions should read Match, and the technical details name the program release (2026-10-31 R67) and the helper (2026.10.31.68). From R67 on, opening Document Writer installs the newest release and an out-of-date copy cannot save to the shared folder.
 
-SVIO-2 and SVIO-4 stay OPEN until the division records the result.
+OL-1 is CONFIRMED: the owner confirmed on 2026-11-02 that the 123 bundled order-language entries approved for selection are acceptable. Any formal review records the division enters under Order language → Review catalog live in the shared folder and are not visible to the development environment. SVIO-4's per-PC version check is CONFIRMED on R67 (above); SVIO-2 stays OPEN until the division records a real-data result, and OL-2 stays OPEN.
 
 ### Supporting evidence from independent source testing (2026-10-31, not acceptance)
 
@@ -326,7 +326,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
-## Open cases by inspector acceptance (next release) — OPEN
+## R68 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S68-1 | Install R68 from the shared release folder over R67 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R67 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-02 R68 and helper 2026.11.02.69 with Program/helper versions Match; the R67 copy is told to restart and cannot save to the shared folder |
+
+All R68 items remain OPEN. The open-case list items OCL-1 to OCL-8 below, SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items remain OPEN. OL-1 is CONFIRMED (below).
+
+## Open cases by inspector acceptance (shipped in R68) — OPEN
 
 The Import inspection screen lists an inspector's open enforcement cases from two fixed read-only queries taken from the division's Open_Enforcement_Cases report (helper/inspector_list.sql and inspector_cases.sql). The SQL cannot run in the development environment, so these checks need a City PC and the real server.
 
