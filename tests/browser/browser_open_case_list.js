@@ -61,7 +61,21 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     // An earlier visit may have left the card on an error (the test helper cannot reach SQL); Try again reloads it.
     const select = page.locator("#open-cases-inspector");
     if (!(await select.count())) {
-      await page.locator("#open-cases-retry").waitFor();
+      const ready = await page
+        .locator("#open-cases-retry")
+        .waitFor({ timeout: 15000 })
+        .then(
+          () => true,
+          () => false,
+        );
+      if (!ready)
+        throw new Error(
+          "The open-case card had neither inspectors nor a retry: " +
+            (await page
+              .locator("#open-cases")
+              .innerText()
+              .catch(() => "(no card)")),
+        );
       await page.locator("#open-cases-retry").click();
     }
     await select.waitFor();
