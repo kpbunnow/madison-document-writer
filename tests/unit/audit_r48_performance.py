@@ -58,6 +58,7 @@ class Responsiveness(unittest.TestCase):
                     delay_total = 0.0
                     counter = threading.Lock()
                     real = Path.read_bytes
+                    real_plain = server.read_plain_bytes
                     real_text = Path.read_text
 
                     def pause(path):
@@ -78,6 +79,10 @@ class Responsiveness(unittest.TestCase):
                         pause(path)
                         return real(path)
 
+                    def plain_read(path):
+                        pause(path)
+                        return real_plain(path)
+
                     def text(path, *args, **kwargs):
                         pause(path)
                         return real_text(path, *args, **kwargs)
@@ -85,6 +90,8 @@ class Responsiveness(unittest.TestCase):
                     start = time.perf_counter()
                     with (
                         patch.object(Path, "read_bytes", read),
+                        patch.object(server, "read_plain_bytes", plain_read),
+                        patch.object(integrity, "read_plain_bytes", plain_read),
                         patch.object(Path, "read_text", text),
                         patch.object(server, "case_dir", return_value=root),
                     ):
@@ -119,7 +126,7 @@ class Responsiveness(unittest.TestCase):
                     "profile": {
                         "perFileMs": {"0.5": 0.8, "2": 0.15, "8": 0.05},
                         "scope": (
-                            "Every shared-fixture Path.read_bytes/read_text call, including reque"
+                            "Every shared-fixture byte/text and secure-reader call, including reque"
                             "st evidence; local application settings reads are excluded. Illustra"
                             "tive healthy LAN plus tail latency; not measured City SMB. OS schedu"
                             "ling overhead included. Directory enumeration latency is not injecte"

@@ -33,6 +33,7 @@ class MeasuredReporting(unittest.TestCase):
                         active = 0
                         peak = 0
                         real_bytes = Path.read_bytes
+                        real_plain = server.read_plain_bytes
                         real_text = Path.read_text
 
                         def before(path):
@@ -61,6 +62,13 @@ class MeasuredReporting(unittest.TestCase):
                             finally:
                                 after(counted)
 
+                        def plain_read(path):
+                            counted = before(path)
+                            try:
+                                return real_plain(path)
+                            finally:
+                                after(counted)
+
                         def text_read(path, *args, **kwargs):
                             counted = before(path)
                             try:
@@ -71,6 +79,8 @@ class MeasuredReporting(unittest.TestCase):
                         start = time.perf_counter()
                         with (
                             patch.object(Path, "read_bytes", byte_read),
+                            patch.object(server, "read_plain_bytes", plain_read),
+                            patch.object(integrity, "read_plain_bytes", plain_read),
                             patch.object(Path, "read_text", text_read),
                             patch.object(server, "case_dir", return_value=root),
                         ):
