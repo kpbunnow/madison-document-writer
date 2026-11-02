@@ -19,7 +19,14 @@ const esbuild = require("esbuild");
   new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
   const { chooseStartScreen, WriterState: s, startupState } = box.exports;
   const fresh = (change = {}) => {
-    Object.assign(s, { DOCS: [], REINSP: [], PENDING: [], WORK: { entry: {}, acc: null }, state: { screen: "cases", acc: null } });
+    Object.assign(s, {
+      DOCS: [],
+      REINSP: [],
+      PENDING: [],
+      RECORD_ATTEMPTS: {},
+      WORK: { entry: {}, acc: null },
+      state: { screen: "cases", acc: null },
+    });
     startupState.HELPER = { ok: true, caseLookup: true };
     change.helper?.(startupState);
     change.state?.(s);
@@ -38,6 +45,14 @@ const esbuild = require("esbuild");
   stays("an unfinished draft", { state: (w) => w.DOCS.push({ id: "d", draft: true }) });
   stays("an unfinished worksheet", { state: (w) => w.REINSP.push({ id: "r", draft: true }) });
   stays("a case file waiting to reach the share", { state: (w) => w.PENDING.push({ name: "x.json" }) });
+  stays("a pending record confirmation", {
+    state: (w) => {
+      w.DOCS.push({ id: "issued", draft: false });
+      w.RECORD_ATTEMPTS.note = { cid: "case1", pendingAmendment: { type: "document.annotated", payload: { docId: "issued" } } };
+    },
+  });
+  stays("a saved record-note form", { state: (w) => (w.WORK.recordForms = { "issued:recordnote": { text: "Unsubmitted note" } }) });
+  stays("a saved external reference", { state: (w) => (w.WORK.recordForms = { "issued:reconcile": { external: "Court reference" } }) });
   stays("an import awaiting review", { state: (w) => (w.state.acc = { cases: [{}] }) });
   stays("a saved import review", { state: (w) => (w.WORK.acc = { cases: [{}] }) });
   stays("a saved case number", { state: (w) => (w.WORK.entry["lookup-number"] = "CB2026-241-00001") });

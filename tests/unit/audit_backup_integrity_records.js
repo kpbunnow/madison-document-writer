@@ -43,11 +43,39 @@ function backup(integrityRecords) {
     toast: () => {},
   };
   const owner = api.createWorkspaceBackup(services);
-  for (const bad of [[null], ["text"], [[]], [7], "records", {}, [{ ok: 1 }, null], 0]) {
+  for (const bad of [[null], ["text"], [[]], [7], "records", {}, [{ ok: 1 }, null], 0, [{ note: "\ud800" }], [{ n: Infinity }]]) {
     reset();
     await assert.rejects(owner.restoreWorkspaceBackup(backup(bad)), /invalid integrity records/, JSON.stringify(bad));
     assert.deepEqual(writes, [], "nothing is written for " + JSON.stringify(bad));
     assert.deepEqual(restored, []);
+  }
+  // Exercise the actual integrity owner: malformed input cannot reach the persistent store or live proofs.
+  const real = await compile('export {initRecordIntegrity} from "./record_integrity.js";');
+  const integrity = real.initRecordIntegrity({ state: {} });
+  const actualOwner = api.createWorkspaceBackup({ ...services, recordIntegrity: integrity });
+  reset();
+  await assert.rejects(actualOwner.restoreWorkspaceBackup(backup([{ note: "\ud800" }])), /invalid integrity records/);
+  assert.deepEqual(writes, []);
+  assert.deepEqual(integrity.snapshot(), []);
+  // A real WebCrypto await must not let newly entered work be overwritten by the pending restore.
+  reset();
+  let releaseDigest;
+  const digestGate = new Promise((resolve) => (releaseDigest = resolve));
+  const digest = crypto.subtle.digest;
+  crypto.subtle.digest = async (...args) => {
+    await digestGate;
+    return digest.apply(crypto.subtle, args);
+  };
+  try {
+    const pending = actualOwner.restoreWorkspaceBackup(backup([{ schema: 5, case: { number: "QA-001" }, events: [], integrity: { genesis: {} } }]));
+    await new Promise((resolve) => setImmediate(resolve));
+    api.WriterState.CASES.push({ id: "new-work", number: "QA-002" });
+    releaseDigest();
+    await assert.rejects(pending, /empty workspace/);
+    assert.deepEqual(writes, []);
+    assert.equal(api.WriterState.CASES[0].id, "new-work");
+  } finally {
+    crypto.subtle.digest = digest;
   }
   for (const good of [undefined, [], [{ case: { number: "BLD2026-00001" } }], [{ retained: "proof" }]]) {
     reset();

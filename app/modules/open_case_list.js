@@ -103,7 +103,8 @@ function openCaseWithLimit(promise) {
   return Promise.race([promise, limit]).finally(() => clearTimeout(timer));
 }
 
-let serial = 0;
+let inspectorSerial = 0,
+  caseSerial = 0;
 const redraw = (services) => editor.state.screen === "import" && services.render();
 const BAD_ANSWER = "The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.";
 
@@ -111,16 +112,17 @@ async function loadInspectors(services, refresh = false) {
   if (openList.loading) return;
   openList.loading = true;
   openList.error = "";
-  const mine = ++serial;
+  const mine = ++inspectorSerial;
+  redraw(services);
   try {
     const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/list", refresh ? { refresh: true } : {}));
-    if (mine !== serial) return;
+    if (mine !== inspectorSerial) return;
     if (!Array.isArray(result.inspectors)) throw new Error(BAD_ANSWER);
     openList.inspectors = result.inspectors;
   } catch (error) {
-    if (mine === serial) openList.error = error.message || "The inspector list could not be loaded.";
+    if (mine === inspectorSerial) openList.error = error.message || "The inspector list could not be loaded.";
   } finally {
-    if (mine === serial) openList.loading = false;
+    if (mine === inspectorSerial) openList.loading = false;
     redraw(services);
   }
 }
@@ -131,19 +133,19 @@ async function showCases(services, id) {
   openList.casesLoading = true;
   openList.casesError = "";
   openList.query = "";
-  const mine = ++serial;
+  const mine = ++caseSerial;
   redraw(services);
   try {
     const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/cases", { inspector: id }));
-    if (mine !== serial) return;
+    if (mine !== caseSerial) return;
     if (!Array.isArray(result.cases)) throw new Error(BAD_ANSWER);
     openList.cases = result.cases;
     openList.casesFor = id;
     openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   } catch (error) {
-    if (mine === serial) openList.casesError = error.message || "The open cases could not be loaded.";
+    if (mine === caseSerial) openList.casesError = error.message || "The open cases could not be loaded.";
   } finally {
-    if (mine === serial) openList.casesLoading = false;
+    if (mine === caseSerial) openList.casesLoading = false;
     redraw(services);
   }
 }

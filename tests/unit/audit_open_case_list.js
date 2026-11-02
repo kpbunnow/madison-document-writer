@@ -158,6 +158,26 @@ const row = (number, extra = {}) => ({
   await owner.refreshInspectors();
   assert.deepEqual(calls.filter((c) => c[0] === "/inspector-cases/list").at(-1), ["/inspector-cases/list", { refresh: true }]);
   assert.equal(calls.filter((c) => c[0] === "/inspector-cases/list").length, askedList + 1);
+  // Different list types must not cancel each other's completion or strand their loading flags.
+  let finishInspectors, finishCases;
+  const overlapping = m.createOpenCaseList({
+    ...services,
+    helperJSON: (url) =>
+      new Promise((resolve) => {
+        if (url.endsWith("/list")) finishInspectors = resolve;
+        else finishCases = resolve;
+      }),
+  });
+  const people = overlapping.refreshInspectors();
+  const assigned = overlapping.showCases("JSMITH");
+  finishCases({ cases });
+  await assigned;
+  finishInspectors({ inspectors: [{ id: "JSMITH", name: "Jordan Smith", openCases: 2 }] });
+  await people;
+  assert.equal(openList.loading, false);
+  assert.equal(openList.casesLoading, false);
+  assert.equal(openList.casesFor, "JSMITH");
+  assert.equal(openList.inspectors.length, 1);
   openList.selected = "JSMITH";
   const before = calls.length;
   await owner.refresh();

@@ -6,8 +6,8 @@ can expose where files live, so they become one plain sentence. Nothing here cha
 
 import json
 
-UNEXPECTED = "The helper could not process this request. Nothing was changed. Ask an administrator to check the helper."
-UNREADABLE = "The request or file could not be read. Nothing was changed."
+UNEXPECTED = "The helper could not confirm this request. Keep your work and retry the original action, or ask an administrator to check the helper."
+UNREADABLE = "The request or file could not be read. Keep your work and ask an administrator to review it."
 UNREACHABLE = "A file or folder could not be reached. Check that the shared case folder is connected, then try again."
 
 

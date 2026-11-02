@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-from plain_files import plain_json_files
+from plain_files import plain_json_files, read_plain_bytes
 from reporting_reads import ordered_reads
 import sys
 
@@ -288,7 +288,7 @@ def reconcile_publication(folder, number, allow_recovery=False):
     if intent["recovery"] and not allow_recovery:
         raise ValueError("An administrator must resume the pending record recovery before saving")
     target = Path(folder) / intent["fileName"]
-    raw = target.read_bytes() if target.exists() else None
+    raw = read_plain_bytes(target) if target.exists() else None
     actual = hash_bytes(raw) if raw is not None else ""
     planned = encoded(intent["record"])
     if actual not in (intent["previousRevision"], hash_bytes(planned)):
@@ -334,7 +334,7 @@ def reconstruct_registry(folder):
         return
     for path in sorted(plain_json_files(root)):
         try:
-            record = json.loads(path.read_text(encoding="utf-8"))
+            record = json.loads(read_plain_bytes(path).decode("utf-8"))
             if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
                 register_migration(root, record, path.name, reconstructed=True)
         except (OSError, ValueError, KeyError, TypeError):
@@ -495,7 +495,7 @@ def anchor_daily(folder, external=None):
             raise ValueError("Administrator must complete pending recovery before anchoring")
         heads = {}
         for path in sorted(plain_json_files(folder)):
-            record = json.loads(path.read_text(encoding="utf-8"))
+            record = json.loads(read_plain_bytes(path).decode("utf-8"))
             if record.get("format") != "madison-case-file":
                 continue
             status = require_valid(record, folder, context)
@@ -559,7 +559,7 @@ def anchor_after_save(folder, force=False):
         result = anchor_daily(folder)
     except ValueError:
         result = {"anchored": False, "reason": "Integrity anchoring needs administrator review; protected evidence was preserved"}
-    except (OSError, RuntimeError):
+    except (OSError, RuntimeError, AttributeError, TypeError, KeyError, IndexError, RecursionError):
         result = {"anchored": False, "reason": "Protected anchoring is pending; contact IT if it continues"}
     try:
         from case_store import atomic_write

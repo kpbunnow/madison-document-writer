@@ -8,6 +8,10 @@ import shutil
 import tempfile
 import threading
 import unittest
+import ctypes
+import sys
+from types import SimpleNamespace
+from unittest.mock import Mock
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -15,6 +19,7 @@ from unittest.mock import patch
 
 import case_store
 import server
+import plain_files
 
 NAME = "101 TEST LANE - QA-001.json"
 
@@ -30,6 +35,39 @@ def record(number="QA-001", case_id="case_a"):
 
 
 class Containment(unittest.TestCase):
+    def test_replacement_before_open_never_follows_the_new_link(self):
+        target = self.cases / "race.json"
+        target.write_text("{}")
+        outside = self.outside / "race.json"
+        outside.write_text('{"private":"synthetic"}')
+        original = os.open
+
+        def replace_then_open(path, *args, **kwargs):
+            if Path(path) == target:
+                target.unlink()
+                target.symlink_to(outside)
+            return original(path, *args, **kwargs)
+
+        with patch.object(plain_files.os, "open", side_effect=replace_then_open):
+            with self.assertRaises(ValueError):
+                case_store.read_case(self.cases, target.name)
+
+    def test_replacement_after_open_reads_only_the_verified_handle(self):
+        target = self.cases / "race.json"
+        target.write_text('{"original":true}')
+        outside = self.outside / "race.json"
+        outside.write_text('{"private":"synthetic"}')
+        original = os.fstat
+
+        def replace_after_open(fd):
+            info = original(fd)
+            target.unlink()
+            target.symlink_to(outside)
+            return info
+
+        with patch.object(plain_files.os, "fstat", side_effect=replace_after_open):
+            self.assertEqual(json.loads(plain_files.read_plain_bytes(target)), {"original": True})
+
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory()
@@ -129,6 +167,40 @@ class Containment(unittest.TestCase):
         self.assertEqual(code, 200)
         code, out = self.request("/cases/list")
         self.assertEqual([f["name"] for f in out["files"]], [NAME])
+
+
+@unittest.skipIf(os.name == "nt", "non-Windows API model; native Windows uses the actual implementation")
+class WindowsReadHandle(unittest.TestCase):
+    def test_reparse_and_directory_handles_are_refused_and_closed(self):
+        for flags in (plain_files.REPARSE_POINT, 0x10):
+            kernel = SimpleNamespace(CreateFileW=Mock(return_value=123), GetFileInformationByHandleEx=Mock(), CloseHandle=Mock())
+
+            def information(handle, kind, attributes, size):
+                attributes[0] = flags
+                return True
+
+            kernel.GetFileInformationByHandleEx.side_effect = information
+            bridge = SimpleNamespace(open_osfhandle=Mock())
+            with patch.object(ctypes, "WinDLL", return_value=kernel, create=True), patch.dict(sys.modules, {"msvcrt": bridge}):
+                with self.assertRaises(ValueError):
+                    plain_files._windows_read_fd("case.json")
+            kernel.CloseHandle.assert_called_once_with(123)
+            bridge.open_osfhandle.assert_not_called()
+            args = kernel.CreateFileW.call_args.args
+            self.assertEqual(args[2], 3, "no FILE_SHARE_DELETE while a case read is active")
+            self.assertTrue(args[5] & 0x00200000, "open the reparse point itself, never its target")
+
+    def test_regular_handle_is_transferred_to_the_file_descriptor(self):
+        kernel = SimpleNamespace(CreateFileW=Mock(return_value=123), GetFileInformationByHandleEx=Mock(return_value=True), CloseHandle=Mock())
+        bridge = SimpleNamespace(open_osfhandle=Mock(return_value=42))
+        with (
+            patch.object(ctypes, "WinDLL", return_value=kernel, create=True),
+            patch.object(os, "O_BINARY", 0, create=True),
+            patch.dict(sys.modules, {"msvcrt": bridge}),
+        ):
+            self.assertEqual(plain_files._windows_read_fd("case.json"), 42)
+        kernel.CloseHandle.assert_not_called()
+        bridge.open_osfhandle.assert_called_once()
 
 
 if __name__ == "__main__":
