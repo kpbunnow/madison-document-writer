@@ -326,6 +326,14 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R70 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S70-1 | Install R70 from the shared release folder over R69 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R69 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-03 R70 and helper 2026.11.03.71 with Program/helper versions Match; the R69 copy is told to restart and cannot save to the shared folder |
+
+All R70 items remain OPEN. The open-case list items OCL-1 to OCL-14 below (OCL-11 to OCL-14 are new in R70), S69-2 (opens on Import), SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items remain OPEN. S69-1 is superseded by S70-1.
+
 ## R69 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
@@ -343,7 +351,7 @@ All R69 items remain OPEN. The open-case list items OCL-1 to OCL-10 below (inclu
 
 All R68 items remain OPEN. The open-case list items OCL-1 to OCL-8 below, SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items remain OPEN. OL-1 is CONFIRMED (below).
 
-## Open cases by inspector acceptance (shipped in R68, revised in R69) — OPEN
+## Open cases by inspector acceptance (shipped in R68, revised in R69 and R70) — OPEN
 
 The Import inspection screen lists an inspector's open enforcement cases from two fixed read-only queries taken from the division's Open_Enforcement_Cases report (helper/inspector_list.sql and inspector_cases.sql). The SQL cannot run in the development environment, so these checks need a City PC and the real server.
 
