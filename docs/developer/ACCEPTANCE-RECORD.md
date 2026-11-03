@@ -326,6 +326,14 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R72 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S72-1 | Install R72 from the shared release folder over R71 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R71 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-03 R72 and helper 2026.11.03.73 with Program/helper versions Match; the R71 copy is told to restart and cannot save to the shared folder |
+
+All R72 items remain OPEN, together with OCL-15 to OCL-17 (open-case list), the R71 items and the carried items. S71-1 is superseded by S72-1.
+
 ## R71 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
