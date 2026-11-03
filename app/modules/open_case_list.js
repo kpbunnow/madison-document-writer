@@ -149,7 +149,21 @@ async function fillNames(services, refresh) {
     list.forEach((p) => {
       if (shownById(p) && full.get(p.id.toLowerCase())) p.name = full.get(p.id.toLowerCase());
     });
-    list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    const excluded = new Set((result.excluded || []).map((id) => String(id).toLowerCase()));
+    if (excluded.size) {
+      openList.inspectors = list.filter((p) => !excluded.has(p.id.toLowerCase()));
+      if (excluded.has(openList.selected.toLowerCase()) || excluded.has((openList.casesFor || "").toLowerCase())) {
+        if (excluded.has(openList.selected.toLowerCase())) openList.selected = "";
+        ++caseSerial;
+        openList.cases = null;
+        openList.casesFor = null;
+        openList.casesLoading = false;
+        openList.casesError = "";
+        openList.query = "";
+        openList.loadedAt = "";
+      }
+    }
+    openList.inspectors.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
     redraw(services);
   } catch {
     /* the user IDs stay */

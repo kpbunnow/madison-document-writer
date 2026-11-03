@@ -116,14 +116,105 @@ class InspectorCaseTests(unittest.TestCase):
             first = cases.inspectors(self.root)
             self.assertIn({"id": "JQP", "name": "JQP", "openCases": 2}, first["inspectors"])
             filled = cases.inspector_names(self.root)
-            self.assertEqual(filled, {"ok": True, "names": [{"id": "JQP", "name": "Jamie Q Public"}]})
+            self.assertEqual(filled, {"ok": True, "names": [{"id": "JQP", "name": "Jamie Q Public"}], "excluded": ["HID"]})
             self.assertEqual([c.args[1]["mode"] for c in script.call_args_list], ["inspector_list", "inspector_names"])
             self.assertEqual(script.call_args_list[1].args[1]["commandTimeout"], cases.LIST_QUERY_TIMEOUT)
             later = cases.inspectors(self.root)
             self.assertIn("Jamie Q Public", [p["name"] for p in later["inspectors"]])
             self.assertEqual(script.call_count, 2, "the kept list now carries the full name")
-            self.assertEqual(cases.inspector_names(self.root), {"ok": True, "names": []})
-            self.assertEqual(script.call_count, 2, "nobody is left without a name, so the slower query is not run again")
+            self.assertEqual(cases.inspector_names(self.root), filled)
+            self.assertEqual(script.call_count, 2, "repeat responses use cached names without rerunning the slow query")
+
+    def test_repeated_name_responses_are_complete_for_clients_that_loaded_ids(self):
+        rows = [person("JQP", "JQP", "2")]
+        named = [{"UserId": "JQP", "InspectorName": "Jamie Public"}]
+        with patch.object(lookup, "run_script", side_effect=[self.answer(rows), self.answer(named)]) as run:
+            first_client = cases.inspectors(self.root)
+            second_client = cases.inspectors(self.root)
+            expected = {"ok": True, "names": [{"id": "JQP", "name": "Jamie Public"}]}
+            self.assertEqual(cases.inspector_names(self.root), expected)
+            self.assertEqual(cases.inspector_names(self.root), expected)
+            self.assertEqual(first_client["inspectors"][0]["name"], "JQP", "returned lists are snapshots")
+            self.assertEqual(second_client["inspectors"][0]["name"], "JQP")
+            self.assertEqual(run.call_count, 2)
+
+    def test_explicit_refresh_still_refreshes_deferred_names(self):
+        rows = [person("JQP", "JQP", "2")]
+        named = [{"UserId": "JQP", "InspectorName": "Jamie Public"}]
+        renamed = [{"UserId": "JQP", "InspectorName": "Jamie Changed"}]
+        with patch.object(lookup, "run_script", side_effect=[self.answer(rows), self.answer(named), self.answer(rows), self.answer(renamed)]) as run:
+            cases.inspectors(self.root)
+            cases.inspector_names(self.root)
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "Jamie Public")
+            refreshed = cases.inspectors(self.root, refresh=True)
+            self.assertEqual(refreshed["inspectors"][0]["name"], "JQP", "fresh fallback IDs trigger the browser's deferred refresh")
+            self.assertEqual(cases.inspector_names(self.root, refresh=True)["names"][0]["name"], "Jamie Changed")
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "Jamie Changed")
+            self.assertEqual(run.call_count, 4)
+
+    def test_background_names_do_not_hold_the_foreground_case_list_slot(self):
+        entered, release = threading.Event(), threading.Event()
+        outcomes = []
+        rows = [person("JQP", "JQP", "2")]
+
+        def run(cfg, request, wait=None):
+            if request["mode"] == "inspector_list":
+                return self.answer(rows)
+            if request["mode"] == "inspector_names":
+                entered.set()
+                if not release.wait(5):
+                    raise RuntimeError("test did not release name query")
+                return self.answer([{"UserId": "JQP", "InspectorName": "Jamie Public"}])
+            return self.answer([case_row(uid="JQP")])
+
+        def names():
+            try:
+                outcomes.append(cases.inspector_names(self.root))
+            except Exception as error:
+                outcomes.append(error)
+
+        with patch.object(lookup, "run_script", side_effect=run):
+            cases.inspectors(self.root)
+            thread = threading.Thread(target=names)
+            thread.start()
+            try:
+                self.assertTrue(entered.wait(5))
+                self.assertEqual(len(cases.open_cases(self.root, "JQP")["cases"]), 1)
+                with self.assertRaises(lookup.CaseLookupError) as error:
+                    cases.inspector_names(self.root, refresh=True)
+                self.assertEqual(error.exception.status, 429, "background queries remain bounded")
+            finally:
+                release.set()
+                thread.join(5)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(outcomes[0]["names"][0]["name"], "Jamie Public")
+
+    def test_resolved_full_name_exclusions_remove_ids_from_current_and_future_lists(self):
+        self.excluding(["Hidden%"])
+        rows = [person("HID", "HID", "1")]
+        named = [{"UserId": "HID", "InspectorName": "Hidden Person"}]
+        with patch.object(lookup, "run_script", side_effect=[self.answer(rows), self.answer(named)]):
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["id"], "HID")
+            resolved = cases.inspector_names(self.root)
+            self.assertEqual(resolved.get("excluded"), ["HID"])
+            self.assertEqual(resolved["names"], [])
+            self.assertEqual(cases.inspectors(self.root)["inspectors"], [])
+            with self.assertRaises(lookup.CaseLookupError) as error:
+                cases.open_cases(self.root, "HID")
+            self.assertEqual(error.exception.status, 403)
+
+    def test_name_database_identity_is_checked_before_cache_or_list_changes(self):
+        rows = [person("JQP", "JQP", "2")]
+        wrong = {"rows": [{"UserId": "JQP", "InspectorName": "Wrong Database"}], "database": "OtherDatabase"}
+        with (
+            patch.object(lookup, "settings", return_value={**lookup.DEFAULTS, "database": "AccelaReporting"}),
+            patch.object(lookup, "run_script", side_effect=[self.answer(rows), wrong]),
+        ):
+            cases.inspectors(self.root)
+            with self.assertRaisesRegex(lookup.CaseLookupError, "identity"):
+                cases.inspector_names(self.root)
+            self.assertIsNone(cases._names["found"])
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "JQP")
 
     def test_a_bad_name_row_is_refused_and_a_failed_name_lookup_leaves_the_list_alone(self):
         rows = [person("JQP", "JQP", "2")]
