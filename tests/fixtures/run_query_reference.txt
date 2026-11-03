@@ -1,6 +1,6 @@
 def run_query(cfg, number):
     if os.name != "nt":
-        raise CaseLookupError("Direct lookup runs on a City Windows computer. The SSRS Excel report import remains available.")
+        raise CaseLookupError("Direct lookup runs on a City Windows computer.")
     exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
     if not exe.is_file():
         raise CaseLookupError("Windows PowerShell is unavailable. Ask IT to enable the approved lookup helper.")
@@ -47,8 +47,7 @@ def run_query(cfg, number):
                 "The lookup query names a column the case database does not have (SQL"
                 "_QUERY_207). The installed case_lookup.sql does not match the BI_ENF"
                 "_RECORD/BI_ENF_INSPECTION views; ask IT to compare it with the worki"
-                "ng SSRS report. This is not a connection problem. Excel import remai"
-                "ns available."
+                "ng SSRS report. This is not a connection problem."
             )
         elif num in (208, 4060, 4064) or category == "database":
             message = "The case tables were not found in the selected database. Ask IT to set the database in Case Lookup/settings.json."
@@ -105,7 +104,7 @@ def run_query(cfg, number):
             message = (
                 "The SQL connection failed ("
                 + diagnostic
-                + "). Ask IT to use this code to check the SQL client error. Excel import remains available."
+                + "). Ask IT to use this code to check the SQL client error."
             )
         # Stage and argument are stable, allowlisted labels. Full provider
         # text stays in the local diagnostic file and is never sent to the UI.

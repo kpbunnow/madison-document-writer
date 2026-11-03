@@ -29,6 +29,7 @@ Record Category Snow Removal selects the snow workflow and preloads its 10.28 it
 
 The source query has no permanent inspection ID. Matching uses case, type, actual date and normalized time, with conservative handling of missing historical time. Do not alter time to bypass a reuse warning. See CASE-LOOKUP-GUIDE.md for SQL setup and diagnostic codes.
 
+
 ## Connection and deployment
 
 Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, stop the running program (Exit Document Writer in Tools & settings; for an older version without it, close its command window or sign out of Windows), and double-click the Document Writer icon again. Confirm the build and helper versions match the install guide. The launcher requires `case_lookup.py`, `case_lookup.ps1` and `case_lookup.sql` in addition to the prior core runtime. Windows PowerShell 5.1 and the Windows .NET Framework System.Data provider are used; no additional Python/ODBC package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
@@ -45,20 +46,20 @@ Connect timeout is 8 seconds, query timeout 20 seconds and helper process limit 
 
 The shipped `case_lookup.sql` is the exact SELECT extracted from the uploaded RDL. Its WHERE clause uses typed `@CaseNumber`; user input is never inserted into SQL or a command string. The original RDL is retained under `source/reference` for maintenance.
 
-| SQL field                                         | Import behavior                                                                             |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| CaseNumber                                        | Exact case identity, normalized to uppercase                                                |
-| SiteAddress                                       | Street address plus separately retained city/state/ZIP                                      |
-| OwnerName / OwnerAddress                          | Current owner and mailing address                                                           |
-| ParcelNumber                                      | Text, preserving leading zeros; existing formatting rules apply                             |
-| CaseDescription                                   | Imported as supplied                                                                        |
-| HistoricDistrictName                              | District name, matching the report's displayed field                                        |
-| HistoricDistrict / IndividualLandmark             | Consistency checks; a Yes flag with missing corresponding name blocks lookup import         |
-| Landmark                                          | Retained for the existing landmark document checks                                          |
-| InspectionDate / InspectionTime                   | Completed inspection date and separate time; midnight date placeholders do not imply a time |
-| InspectionScheduledDate                           | Never substituted for an actual inspection date                                             |
-| InspectionType / InspectionStatus / InspectorName | Existing eligibility and roster checks                                                      |
-| DetailedDescription / ZoningDistrict              | Not retained in the imported case, as directed by the division                              |
+| SQL field | Import behavior |
+|---|---|
+| CaseNumber | Exact case identity, normalized to uppercase |
+| SiteAddress | Street address plus separately retained city/state/ZIP |
+| OwnerName / OwnerAddress | Current owner and mailing address |
+| ParcelNumber | Text, preserving leading zeros; existing formatting rules apply |
+| CaseDescription | Imported as supplied |
+| HistoricDistrictName | District name, matching the report's displayed field |
+| HistoricDistrict / IndividualLandmark | Consistency checks; a Yes flag with missing corresponding name blocks lookup import |
+| Landmark | Retained for the existing landmark document checks |
+| InspectionDate / InspectionTime | Completed inspection date and separate time; midnight date placeholders do not imply a time |
+| InspectionScheduledDate | Never substituted for an actual inspection date |
+| InspectionType / InspectionStatus / InspectorName | Existing eligibility and roster checks |
+| DetailedDescription / ZoningDistrict | Not retained in the imported case, as directed by the division |
 
 Accepted case metadata includes `accela.source`: retrieval timestamp, actual SQL database, configured server and query SHA-256. Issued documents retain their frozen source facts. Refresh does not backdate or rewrite an issued document; use the correction workflow for changes to issued evidence. This is a read-only database integration, not an Accela upload or filing confirmation.
 
@@ -85,18 +86,18 @@ The preferred fix is for the PC to trust the SQL server's certificate authority.
 
 This setting makes the client accept the certificate presented by the server without verifying its issuer or identity. A fake server on the network could impersonate SQL Server and receive the connection attempt, including Windows integrated authentication. Use it only if you accept that risk and only on a trusted network. To restore normal certificate validation, delete `case-lookup-local-settings.json`, then stop Document Writer (Exit Document Writer) and start it again from the desktop icon. Do not add this setting to the shared `Case Lookup/settings.json`; the program rejects it there.
 
-| Displayed error                                       | What IT should check                                                                                                                                                                                                                                                                                                                                                                        |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TLS_CERTIFICATE`                                     | The SQL certificate chain or name did not validate. The preferred fix is a trusted chain and matching server name; the optional per-computer setting above bypasses validation if you accept that risk.                                                                                                                                                                                     |
-| `SQL_NETWORK`                                         | City network/VPN, DNS, firewall route and SQL service availability for the approved server.                                                                                                                                                                                                                                                                                                 |
-| `WINDOWS_AUTH`                                        | The signed-in Windows account and its SELECT access to both source objects.                                                                                                                                                                                                                                                                                                                 |
-| Missing tables/database message                       | Set the approved database name in the shared `Case Lookup/settings.json`; do not guess the database.                                                                                                                                                                                                                                                                                        |
-| `SQL_CONNECT_<number>_STATE_<state>`                  | Give IT the complete diagnostic code and approximate time so they can match it to SQL/client logs.                                                                                                                                                                                                                                                                                          |
-| `SQL_CONNECT_TYPE_<type>_HR_<hresult>_WIN32_<number>` | Give IT the full code and approximate time. The exception type/HRESULT/native code helps identify a PowerShell, .NET, network or Windows-level failure.                                                                                                                                                                                                                                     |
-| `SQL_CONNECT_..._OP_<operation>_ARG_<name>`           | The operation/argument labels narrow down the helper call. After one failed lookup, give IT the full code and the local file `%LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt`. It contains full provider messages and stack details and may include server, database, account or local path names; review it and send it only to IT. The next failed lookup replaces this file. |
-| `SCRIPT_POLICY`                                       | Ask IT to approve the delivered helper under City policy. Do not bypass PowerShell policy.                                                                                                                                                                                                                                                                                                  |
-| `HELPER_RUNTIME`                                      | Ask IT to confirm the complete deployment and Windows PowerShell/.NET SQL support.                                                                                                                                                                                                                                                                                                          |
-| Script/helper returned no data                        | Confirm the complete deployment is installed and PowerShell is permitted by City policy.                                                                                                                                                                                                                                                                                                    |
+| Displayed error | What IT should check |
+|---|---|
+| `TLS_CERTIFICATE` | The SQL certificate chain or name did not validate. The preferred fix is a trusted chain and matching server name; the optional per-computer setting above bypasses validation if you accept that risk. |
+| `SQL_NETWORK` | City network/VPN, DNS, firewall route and SQL service availability for the approved server. |
+| `WINDOWS_AUTH` | The signed-in Windows account and its SELECT access to both source objects. |
+| Missing tables/database message | Set the approved database name in the shared `Case Lookup/settings.json`; do not guess the database. |
+| `SQL_CONNECT_<number>_STATE_<state>` | Give IT the complete diagnostic code and approximate time so they can match it to SQL/client logs. |
+| `SQL_CONNECT_TYPE_<type>_HR_<hresult>_WIN32_<number>` | Give IT the full code and approximate time. The exception type/HRESULT/native code helps identify a PowerShell, .NET, network or Windows-level failure. |
+| `SQL_CONNECT_..._OP_<operation>_ARG_<name>` | The operation/argument labels narrow down the helper call. After one failed lookup, give IT the full code and the local file `%LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt`. It contains full provider messages and stack details and may include server, database, account or local path names; review it and send it only to IT. The next failed lookup replaces this file. |
+| `SCRIPT_POLICY` | Ask IT to approve the delivered helper under City policy. Do not bypass PowerShell policy. |
+| `HELPER_RUNTIME` | Ask IT to confirm the complete deployment and Windows PowerShell/.NET SQL support. |
+| Script/helper returned no data | Confirm the complete deployment is installed and PowerShell is permitted by City policy. |
 
 When direct lookup is unavailable (not a City Windows computer, disabled by the administrator, or the SQL connection fails), no case can be imported until it is restored; ask IT. The optional profile setting keeps encryption but skips validating the SQL server's identity.
 
@@ -123,3 +124,4 @@ To keep people off the inspector list (supervisors or staff who do not do inspec
 ```
 
 Each entry is a person's display name or Accela user ID, matched without regard to case; `%` stands for any text, so `Pat%Example` also matches a middle name. Without the file everyone with an open case is listed. An invalid file stops the list with a message naming it.
+
