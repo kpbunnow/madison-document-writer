@@ -1,5 +1,25 @@
 # Release changelog
 
+## 2026-11-03 R71 — Release package
+
+Release package assigned on the owner's request after R70 (helper 2026.11.03.72, build 72; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R71 upgrades R70.
+
+### Notice items
+
+- A new Sort by due date button sits right after Apply date to selected items on a new Official Notice draft. It puts the violation items in due-date order, soonest first, inside each location heading (a notice with no headings sorts as a whole). Undated items go last, equal dates keep their order, the item numbers follow, and Undo in the message restores the earlier order. It is not offered on a reinspection worksheet or on a draft that cannot reorder its items.
+
+### Shared case records
+
+- A case whose file was deleted from the shared folder for good, but whose number the migration registry still retains, could never be saved again (the save was refused with "This case's migration history conflicts with the evidence the program retained"). The next save now restarts the case's history automatically, at the owner's direction, without administrator approval. Nothing retained is deleted: the old registry entry and any external anchor stay, the new history records the prior anchored commit, and the case's integrity label ends "history restarted <date> because the case file was missing". A file for that number that is on the share but cannot be used (a link, for example) still refuses the save, and a present file whose history differs from the registry still conflicts.
+
+### Removed
+
+- The unreachable shared-record search is removed from the program and the helper (the Search shared case records dialog, the helper's search and by-inspector routes, and helper/open_cases.py, which is no longer installed). Nothing visible to staff changes; every case still comes in through Import inspection.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. The history restart was tested in scratch folders on Linux only (with and without an external anchor); it has not been run against a Windows share or the City's anchor folder, which RESTART-1 covers.
+
 ## 2026-11-03 R70 — Release package
 
 Release package assigned on the owner's request after the first City test of R69 (helper 2026.11.03.71, build 71; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R70 upgrades R69.
