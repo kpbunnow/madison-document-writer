@@ -353,7 +353,11 @@ class InspectorCaseTests(unittest.TestCase):
             listed = [p["name"] for p in cases.inspectors(self.root)["inspectors"]]
             self.assertEqual(listed, ["Alex Smith", "Gregg Mayer", "Pat Price"], "only the four are removed; look-alike names stay")
             self.excluding(["Alex Smith"])
-            self.assertEqual([p["name"] for p in cases.inspectors(self.root)["inspectors"]], ["Gregg Mayer", "Pat Price"], "an administrator's entry adds to the four")
+            self.assertEqual(
+                [p["name"] for p in cases.inspectors(self.root)["inspectors"]],
+                ["Gregg Mayer", "Pat Price"],
+                "an administrator's entry adds to the four",
+            )
 
     def test_one_list_runs_at_a_time(self):
         self.assertTrue(cases.LISTS.acquire(blocking=False))
