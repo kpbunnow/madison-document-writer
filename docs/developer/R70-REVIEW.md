@@ -5,6 +5,7 @@ Release 2026-11-03 R70, helper 2026.11.03.71 (build 71), authoring 16; case sche
 ## Contents since R69
 
 - **Import list polish** (PR #403): full inspector names through a second background query (`inspector_names.sql`, route `POST /inspector-cases/names`); the case number as the import control with no-wrap case number and address; the Search shared case records entries removed; documents opened from Import start at their top. The shared-search dialog code remains unreachable until a reviewed cleanup.
+- **Inspector name reliability** (PR #404, owner): the name query has its own bounded slot so choosing an inspector while names load no longer returns 429; the raw list responses stay snapshots and the name cache enriches later lists, so repeat name replies stay complete; resolved exclusions remove current picker entries, clear an excluded selection and its cases, and invalidate pending case responses. R70 packages main after this repair; the local gate was run on that exact source.
 
 ## Identity and publication
 

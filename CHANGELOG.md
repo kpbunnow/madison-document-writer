@@ -7,6 +7,7 @@ Release package assigned on the owner's request after the first City test of R69
 ### Import list
 
 - Inspectors whose name is not in the workflow tables were shown by user ID. They are still listed at once, and a second query now fills in their full names a few seconds later (the user ID stays if that query is slow or fails). The helper keeps the names with the list.
+- Looking up the full names no longer blocks choosing an inspector (they load in their own slot instead of holding the list), a repeated names reply stays complete, and a person the administrator excludes disappears from the picker, clears a selection already made and discards a case list still loading (PR #404, the owner's review of the name loading).
 - The case number is now the control that imports a case; the separate Import column is gone. Case number and address stay on one line and only the description wraps.
 - A document or worksheet opened from the Import screen starts at its top instead of at the Import page's scroll position.
 
