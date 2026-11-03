@@ -78,9 +78,13 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     assert.equal(await page.locator(".open-case").count(), 3);
     assert.match(await page.locator("#open-cases-count").innerText(), /^3 open cases for Jordan Smith\. Loaded /);
     // Three columns in the requested order, all in the same cell format, and nothing about the latest inspection.
-    assert.deepEqual(await page.locator("#open-cases-results thead th").allInnerTexts(), ["Case number", "Address", "Description", "Import"]);
+    assert.deepEqual(await page.locator("#open-cases-results thead th").allInnerTexts(), ["Case number", "Address", "Description"]);
     const firstCells = await page.locator(".open-case").first().locator("td").allInnerTexts();
-    assert.deepEqual(firstCells.slice(0, 3), ["CB2026-241-60001", "101 TEST ST", "Roof and gutters"]);
+    assert.deepEqual(firstCells, ["CB2026-241-60001", "101 TEST ST", "Roof and gutters"]);
+    // The case number is the import control; case number and address never wrap, the description may.
+    const whiteSpace = await page.locator(".open-case").first().locator("td").evaluateAll((cells) => cells.map((c) => getComputedStyle(c).whiteSpace));
+    assert.deepEqual(whiteSpace, ["nowrap", "nowrap", "normal"]);
+    assert.equal(await page.locator(".open-case").first().locator("td").first().locator("button[data-open-case-pick]").count(), 1);
     assert.ok(
       !/Latest inspection|Opened|OWNER/i.test(await page.locator("#open-cases-results").innerText()),
       "no inspection, date or owner is listed",
@@ -117,7 +121,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     await page.getByRole("button", { name: "Show open cases", exact: true }).click();
     await page.waitForFunction(() => !document.querySelector("#open-cases .banner.alert"));
 
-    // Import only fills the case number and starts the existing lookup.
+    // Selecting the case number only fills it in and starts the existing lookup.
     await page.locator('[data-open-case-pick="CB2026-241-60002"]').click();
     await page.getByText("Stand-in lookup answer for the test.").waitFor();
     assert.deepEqual(lookups, ["CB2026-241-60002"]);
