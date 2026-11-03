@@ -1,5 +1,24 @@
 # Release changelog
 
+## 2026-11-03 R72 — Release package
+
+Release package assigned on the owner's request after R71 (helper 2026.11.03.73, build 73; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R72 upgrades R71.
+
+### Inspector open cases
+
+- Each open case is its own bubble. Selecting a bubble looks the case up (Find case inspections), clears the previously selected case and its inspections, and the case number is no longer underlined.
+- Inspection details are shorter: the inspector on the first line, then the inspection type, date and status on the second, showing only the returned values.
+- A new Due column at the right of each bubble shows the soonest outstanding due date on the last document issued for the case (notice, extension, citation or any other issued document with deadlines). Cases with no order issued are blank and are listed first, then the list runs from most overdue to furthest away. The date is as current as the case's last save to the shared folder; if the shared case folder cannot be read the list says due dates are not available.
+- Alice Duncan-Graves, Gregg May, Jessica Price and Phil Grupe are always left off the inspector list, in addition to any names an administrator excludes.
+
+### Maintenance
+
+- Table styles moved into the reviewed screen CSS, shared cache and report-grid code consolidated, and retired shared-search test scaffolding removed. No visible change.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. The due-date column and the bubble behavior have not been exercised against the City's live data; OCL-15 to OCL-17 cover them.
+
 ## 2026-11-03 R71 — Release package
 
 Release package assigned on the owner's request after R70 (helper 2026.11.03.72, build 72; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R71 upgrades R70.
