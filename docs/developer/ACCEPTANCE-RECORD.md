@@ -326,6 +326,12 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## Notice item sorting (next release) — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| SORT-1 | On a new Official Notice draft with several violation items and different due dates, choose Sort by due date (beside Apply date to selected items); repeat on a notice that has location headings; then choose Undo | Without headings the whole notice is in due-date order, soonest first, undated last, and the item numbers follow; with headings each heading's items sort among themselves and the headings stay in place; sorting again says the items are already in order; Undo restores the earlier order |
+
 ## R70 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

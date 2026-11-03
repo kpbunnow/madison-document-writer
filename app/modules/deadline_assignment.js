@@ -24,6 +24,31 @@ export function dueDateSpacingConflicts(items) {
   return conflicts;
 }
 
+const SORT_BUTTON =
+  '<button class="btn" id="btn-sortdue" title="Put the violation items in due-date order, soonest first, within each location heading">Sort by due date</button>';
+
+/* Violation items sorted by due date, soonest first, inside each location heading: a heading is shared by the run of
+   neighbouring items that carry the same group text, so a heading stays where it is and only its items reorder. A notice
+   with no headings is one run. Items without a due date follow the dated ones in their run, and items with equal dates
+   keep their order. Returns a new array; the items themselves are the same objects. */
+export function orderByDue(items) {
+  const ordered = [];
+  for (let start = 0; start < items.length;) {
+    const heading = String(items[start].group || "").trim();
+    let end = start;
+    while (end < items.length && String(items[end].group || "").trim() === heading) end++;
+    const run = items.slice(start, end).map((item, index) => ({ item, index }));
+    run.sort((a, b) => {
+      const x = validISO(a.item.due) ? a.item.due : "",
+        y = validISO(b.item.due) ? b.item.due : "";
+      return x && y ? (x < y ? -1 : x > y ? 1 : a.index - b.index) : x ? -1 : y ? 1 : a.index - b.index;
+    });
+    ordered.push(...run.map((entry) => entry.item));
+    start = end;
+  }
+  return ordered;
+}
+
 export function dueContext(target, visit) {
   if (visit) {
     const src = doc(target.sourceDocId);
@@ -162,7 +187,7 @@ export function createDeadlineAssignment(services) {
               .join("") +
             "</div>"
         : "",
-    )}<div class="editor-tools"><span data-due-selected id="due-selected-text">${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue" aria-describedby="due-selected-text"${raw(items.some((i) => selected.has(i.id)) ? "" : " disabled")}>Apply date to selected items</button></div></div></section>`;
+    )}<div class="editor-tools"><span data-due-selected id="due-selected-text">${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue" aria-describedby="due-selected-text"${raw(items.some((i) => selected.has(i.id)) ? "" : " disabled")}>Apply date to selected items</button>${raw(visit ? "" : SORT_BUTTON)}</div></div></section>`;
   }
 
   function assignDue(target, visit, value, ids) {

@@ -247,6 +247,33 @@ const test = async () => {
     "Clear selection clears every row",
   );
   assert.deepEqual(d.dueWork.selected, []);
+  // Sort by due date sits beside Apply date, puts the notice in due-date order (soonest first) and Undo restores it.
+  const sortButton = document.getElementById("btn-sortdue");
+  assert.equal(sortButton.textContent, "Sort by due date");
+  assert.equal(sortButton.parentElement, document.getElementById("btn-bulkdue").parentElement, "beside Apply date");
+  assert.ok(sortButton.closest(".no-print"), "never prints");
+  sortButton.click();
+  assert.deepEqual(
+    d.items.map((i) => i.id),
+    ["u2-a", "u2-c", "u2-b", "u2-d"],
+    "dates A, A, B, C in due-date order",
+  );
+  assert.deepEqual(
+    d.items.map((i) => i.no),
+    ["1", "2", "3", "4"],
+    "numbers follow the new order",
+  );
+  assert.deepEqual(
+    [...document.querySelectorAll(".desk [data-row]")].map((row) => row.dataset.row),
+    ["u2-a", "u2-c", "u2-b", "u2-d"],
+    "the notice shows the new order",
+  );
+  WriterState.undoFn();
+  assert.deepEqual(
+    d.items.map((i) => i.id),
+    ["u2-a", "u2-b", "u2-c", "u2-d"],
+    "Undo restores the earlier order",
+  );
   // Row selection is confined to editable new-notice drafts.
   const quiet = (x) => {
     const root = document.createElement("div");

@@ -1,6 +1,44 @@
 /* DueDate event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { workspaceState } from "./workspace_state.js";
+/* Sort by due date: soonest first inside each location heading (one run of items if there are none). Item numbers follow
+   the new order; Undo restores the earlier order. Only a new Official Notice draft may reorder its items. */
+function sortByDue(services, target, visit) {
+  if (!target || visit || !services.structEditable(target)) {
+    services.toast("Items can be sorted on a new Official Notice draft.");
+    return;
+  }
+  const before = target.items.slice(),
+    after = services.orderByDue(before);
+  if (after.every((item, ix) => item === before[ix])) {
+    services.toast("The items are already in due-date order.");
+    return;
+  }
+  target.items = after;
+  services.renumber(target);
+  workspaceState.DIRTY = true;
+  services.saveDrafts();
+  services.render();
+  services.toastUndo("Items sorted by due date, soonest first.", () => {
+    const active = services.activeDueTarget();
+    if (
+      active.target !== target ||
+      active.visit ||
+      !services.structEditable(target) ||
+      target.items.length !== before.length ||
+      target.items.some((item, ix) => item !== after[ix])
+    ) {
+      services.toast("This draft changed. Sort again to reorder the items.");
+      return;
+    }
+    target.items = before;
+    services.renumber(target);
+    workspaceState.DIRTY = true;
+    services.saveDrafts();
+    services.render();
+  });
+}
+
 export function createDueDateEvents(services) {
   const editBulkDate = (el) => {
     const { target } = services.activeDueTarget();
@@ -34,9 +72,10 @@ export function createDueDateEvents(services) {
 
   function registerBulkAssignment(target = document) {
     return registerEventOnce(target, "dueDate.registerBulkAssignment", "click", (e) => {
-      const el = e.target.closest("[data-due-all],#btn-bulkdue");
+      const el = e.target.closest("[data-due-all],#btn-bulkdue,#btn-sortdue");
       if (!el) return;
       const { target, visit } = services.activeDueTarget();
+      if (el.id === "btn-sortdue") return sortByDue(services, target, visit);
       if (!target || (!visit && services.isLocked(target)) || (visit && (!target.draft || target.docId))) return;
       target.dueWork = target.dueWork || {};
       if (el.dataset.dueAll !== undefined) {
