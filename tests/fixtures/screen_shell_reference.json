@@ -27,7 +27,7 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "9a1f85170ef9a5a00d50243b148431161701c8bab9afc77ec80bb49da06e6beb"
+      "normalizedShellSha256": "a14a0ca77b12cf4f76faaf9681e8aecf4d38b898580de9db0f50572e33ca5d96"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
@@ -46,6 +46,21 @@
         },
         "madison-reports.html": {
           "before": "4e3772d199d58f41d60b216d11d9e6cc1a7b1bb24d98956bcc67d9d35f6bf08e",
+          "after": "9902589704a9ed097f8ace3ff939debf0d940938f9ce881f77816266f96b60ff"
+        }
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "sourceCommit": "59669f5879800d77a837cb7f1547e3e4ee4a5ced",
+      "scope": "Owner-requested due date column in the inspector open-case bubbles",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "9a1f85170ef9a5a00d50243b148431161701c8bab9afc77ec80bb49da06e6beb",
+          "after": "a14a0ca77b12cf4f76faaf9681e8aecf4d38b898580de9db0f50572e33ca5d96"
+        },
+        "madison-reports.html": {
+          "before": "9902589704a9ed097f8ace3ff939debf0d940938f9ce881f77816266f96b60ff",
           "after": "9902589704a9ed097f8ace3ff939debf0d940938f9ce881f77816266f96b60ff"
         }
       }

@@ -14,8 +14,9 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     row("CB2026-241-60002", {
       address: "22 OAK AVE",
       description: "Porch rail",
+      dueDate: "2026-10-01",
     }),
-    row("CB2026-241-60003", { address: "9 ELM CT" }),
+    row("CB2026-241-60003", { address: "9 ELM CT", dueDate: "2026-12-15" }),
   ];
   const requests = [];
   await context.route("**/inspector-cases/list", async (route) => {
@@ -34,7 +35,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     const inspector = route.request().postDataJSON().inspector;
     requests.push(["cases", inspector]);
     if (inspector === "BAD") return route.fulfill({ status: 503, json: { ok: false, error: "Your Windows account cannot read the case database." } });
-    await route.fulfill({ json: { ok: true, inspector: { id: inspector, name: "Jordan Smith" }, cases } });
+    await route.fulfill({ json: { ok: true, inspector: { id: inspector, name: "Jordan Smith" }, cases, dueDates: true } });
   });
   const lookups = [];
   await context.route("**/case-lookup", async (route) => {
@@ -84,22 +85,44 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
       "BUTTON.true",
       "a bubble in the inspection-result style",
     );
-    assert.deepEqual(await bubble.locator("> span").allInnerTexts(), ["CB2026-241-60001 · 101 TEST ST", "Roof and gutters"]);
+    assert.deepEqual(await bubble.locator(".open-case-main > span").allInnerTexts(), ["CB2026-241-60001 · 101 TEST ST", "Roof and gutters"]);
     assert.equal(
       await bubble
-        .locator("> span")
+        .locator(".open-case-main > span")
         .first()
         .evaluate((el) => getComputedStyle(el).whiteSpace),
       "nowrap",
     );
     assert.notEqual(
       await bubble
-        .locator("> span")
+        .locator(".open-case-main > span")
         .nth(1)
         .evaluate((el) => getComputedStyle(el).whiteSpace),
       "nowrap",
       "the description may wrap",
     );
+    // The soonest due date is its own column to the right of the description; blank when no order has been issued.
+    const due = await page.locator(".open-case").evaluateAll((els) =>
+      els.map((el) => {
+        const main = el.querySelector(".open-case-main").getBoundingClientRect(),
+          col = el.querySelector(".open-case-due").getBoundingClientRect();
+        return {
+          text: el.querySelector(".open-case-due").innerText.replace(/\s+/g, " ").trim(),
+          right: col.left >= main.right - 1,
+          align: Math.round(col.right),
+        };
+      }),
+    );
+    assert.deepEqual(
+      due.map((d) => d.text),
+      ["", "Due 10/01/2026", "Due 12/15/2026"],
+      "no order first, then past due to furthest away",
+    );
+    assert.ok(
+      due.every((d) => d.right),
+      "the due column sits to the right of the case",
+    );
+    assert.equal(new Set(due.map((d) => d.align)).size, 1, "the due columns line up");
     assert.equal(await bubble.locator("strong").evaluate((el) => getComputedStyle(el).textDecorationLine), "none", "no underline on the case number");
     assert.equal(await page.locator("#open-cases-results table, #open-cases-results th").count(), 0, "no table");
     const edges = await page.locator(".open-case").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));

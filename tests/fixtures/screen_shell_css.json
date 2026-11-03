@@ -43,10 +43,10 @@
   "files": {
     "writer.css": {
       "beforeSha256": "3afe2a3508525dd85dee074604b3bd773066f03a72ae6c5634cf44abb0e3332e",
-      "afterSha256": "8625c00727e8005174fa6ecbcb716d9ca1508a5e9294cb0c4413bddee6e2d176",
+      "afterSha256": "a8fccdb3a07e829522f46ffaf72b11e7210008cd52f3b750b166b11ef00f7234",
       "beforeBytes": 70008,
-      "afterBytes": 66500,
-      "retainedRulesSha256": "87b4078747a2b00e1a60241903734176b79bb439dfebdf97de2e58c41b558397"
+      "afterBytes": 67137,
+      "retainedRulesSha256": "bf37dae262c4e70fcf52d51acf47c8c8168dcefd9d48d1d033e86209e147cf03"
     },
     "reports.css": {
       "beforeSha256": "fb46f14e014ee8aa8928676c72280faf6022eb0d79132e51dd1a00d5323953d4",
@@ -699,6 +699,18 @@
           "beforeSha256": "aee7103aad8e93158553610b88e878c2008f48643d71794a9fb7ced609a513b8",
           "afterSha256": "ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921",
           "unchangedRulesSha256": "cab391ebcbfa53e820c824a6a97a4d8882126d6744a89b30cad3a7a8a0ade842"
+        }
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "sourceCommit": "59669f5",
+      "scope": "Owner-requested due date column in the inspector open-case bubbles",
+      "rules": {
+        "writer.css": {
+          "beforeSha256": "8625c00727e8005174fa6ecbcb716d9ca1508a5e9294cb0c4413bddee6e2d176",
+          "afterSha256": "a8fccdb3a07e829522f46ffaf72b11e7210008cd52f3b750b166b11ef00f7234",
+          "unchangedRulesSha256": "87b4078747a2b00e1a60241903734176b79bb439dfebdf97de2e58c41b558397"
         }
       }
     }
