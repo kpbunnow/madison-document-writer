@@ -35,6 +35,19 @@ function validatePacket(layout) {
     await page.goto("http://127.0.0.1:" + server.address().port + "/");
     await page.waitForFunction(() => typeof WriterState.state !== "undefined");
     await page.evaluate(() => document.fonts.ready);
+    // These are historical issued fixtures: retain the instructions from their independent golden, rather than
+    // freezing today's approved default into a newly assembled old-format citation. Every golden assertion stays.
+    const historicalInstructions = baseline.results
+      .find((x) => x.type === "citation")
+      .authored.match(/<div class="cit-inst">[\s\S]*?<\/div>\s*([\s\S]*?)\s*<div class="cit-inst-c">/)[1];
+    assert.ok(historicalInstructions.includes("fax or telephone on or before"));
+    await page.evaluate((instructions) => {
+      const liveFreeze = freezeSources;
+      window.__restoreCurrentInstructions = () => {
+        freezeSources = liveFreeze;
+      };
+      freezeSources = (d) => ({ ...liveFreeze(d), ...(d.type === "citation" ? { courtInstructions: instructions } : {}) });
+    }, historicalInstructions);
     await page.evaluate(fs.readFileSync(path.join(root, "tests/fixtures/reference/r51-print-fixture-payload.js"), "utf8"));
     const checks = [],
       metrics = [];
@@ -82,6 +95,23 @@ function validatePacket(layout) {
     }
     assert.equal(metrics.find((x) => x.metric === "compact").covers, 1, "compact host font metrics produce one snow cover");
     assert.equal(metrics.find((x) => x.metric === "expanded").covers, 2, "expanded host font metrics produce two snow covers");
+    await page.evaluate(() => window.__restoreCurrentInstructions());
+    const currentInstructions = await page.evaluate(() => {
+      const d = clone(WriterState.DOCS[0]);
+      d.authoringVersion = 16;
+      delete d.frozen;
+      d.frozen = freezeSources(d);
+      const job = printJob(d);
+      return { instructions: d.frozen.courtInstructions, html: job.html, layout: inspectPrintPacket(job.html) };
+    });
+    assert.ok(
+      currentInstructions.instructions.includes(
+        "plea of guilty, no contest, or not guilty via email, regular mail, the court’s website or fax on or before",
+      ),
+    );
+    assert.ok(currentInstructions.html.includes("the court’s website or fax on or before"));
+    assert.ok(!currentInstructions.html.includes("fax or telephone on or before"));
+    validatePacket(currentInstructions.layout);
     for (const damage of ["missing-copy", "overflow", "clipping"]) {
       const layout = await page.evaluate((damage) => {
         const doc = new DOMParser().parseFromString(window.__r51LastSnow, "text/html");
