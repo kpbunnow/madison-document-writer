@@ -134,24 +134,19 @@ function workspaceCaseTableHTML({ moreViews, count, filtered, activeLabel, query
       table ||
         html`<tr><td colspan="5"><div class="empty">${query || editor.state.caseInspector ? "No cases match these filters." : "No cases in this view."}` +
           html` <button class="lnk" data-queue-reset>Clear search and inspector</button> <button class="lnk" id="case-showall">View all cases</button>` +
-          // The shared search opens with this workspace query prefilled; it is not submitted automatically.
-          (query
-            ? html` <button class="btn btn-sm" data-shared-offer>Search shared case records for “${String(editor.state.caseQ || "").trim()}”</button>`
-            : "") +
           "</div></td></tr>",
     )}</tbody></table></div>` +
-    html`<div class="case-count">${workspace.CASES.length} cases on this device. Use Search shared case records for records outside this workspace.` +
+    html`<div class="case-count">${workspace.CASES.length} cases on this device. Use Import inspection to bring in a case that is not here.` +
     html`${importCount ? " An import is waiting for review above." : ""}</div>`
   );
 }
 
 function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreViews, filtered, query, table, importCount, services }) {
   return (
-    html`<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start or find case work</h2></div><div class="card-b grid g2">` +
+    html`<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start case work</h2></div><div class="card-b">` +
     html`<div><button class="btn btn-primary" data-nav="import">${raw(uiIcon("import"))} Import inspection</button>` +
-    html`<p class="hint">Start new work from an unused Accela inspection.</p></div>` +
-    html`<div><button class="btn" data-global-search>${raw(uiIcon("search"))} Search shared case records</button>` +
-    html`<p class="hint">Find an existing case by number, address, owner, citation or parcel.</p></div></div></section>` +
+    html`<p class="hint">Choose an open case by inspector, or enter a case number, to start new work from an unused inspection.</p></div>` +
+    `</div></section>` +
     importResumePanel() +
     (workspace.PREFLIGHT_NOTICE ? html`<div class="banner info" role="status">${workspace.PREFLIGHT_NOTICE}</div>` : "") +
     html`

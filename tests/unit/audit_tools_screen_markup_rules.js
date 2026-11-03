@@ -39,13 +39,11 @@ function run(api, sc) {
     if (parsed.value)
       for (const f of [
         "selected",
-        "Search shared case records",
         "Exit Document Writer",
         "Administrator tools",
         "Program instructions",
         "Color theme",
         "Keyboard shortcuts",
-        "[icon:search]",
         "[icon:tools]",
       ])
         if (parsed.value.includes(f)) seen.add(f);
@@ -53,13 +51,11 @@ function run(api, sc) {
   }
   for (const f of [
     "selected",
-    "Search shared case records",
     "Exit Document Writer",
     "Administrator tools",
     "Program instructions",
     "Color theme",
     "Keyboard shortcuts",
-    "[icon:search]",
     "[icon:tools]",
     "interrupted",
   ])

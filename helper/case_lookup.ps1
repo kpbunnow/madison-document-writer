@@ -34,11 +34,12 @@ try {
     $cmd.CommandTimeout = 20
     $wait = 0
     if ([int]::TryParse([string]$request.commandTimeout, [ref]$wait) -and $wait -ge 5 -and $wait -le 120) { $cmd.CommandTimeout = $wait }
-    # Only these three fixed files can run; the caller picks one by name and never supplies SQL.
+    # Only these four fixed files can run; the caller picks one by name and never supplies SQL.
     $operation = 'read_fixed_query'
     $mode = [string]$request.mode
     if ($mode -eq 'inspector_list') { $queryFile = 'inspector_list.sql' }
     elseif ($mode -eq 'inspector_cases') { $queryFile = 'inspector_cases.sql' }
+    elseif ($mode -eq 'inspector_names') { $queryFile = 'inspector_names.sql' }
     elseif ($mode -eq '') { $queryFile = 'case_lookup.sql' }
     else { throw 'LOOKUP_MODE' }
     $cmd.CommandText = [IO.File]::ReadAllText((Join-Path $PSScriptRoot $queryFile))

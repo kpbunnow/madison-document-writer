@@ -295,6 +295,8 @@ export function createAppScreens(services) {
     if (editor.state.screen !== "cases") editor.state.issuedCase = "";
     const appRoot = services.document.getElementById("app"),
       sameImport = editor.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
+    // A document or worksheet opened from the Import screen starts at its top, not at the Import page's scroll position.
+    const openedFromImport = appRoot?.dataset?.renderScreen === "import" && ["write", "reinspect"].includes(editor.state.screen);
     const importDisclosures = keepImportDisclosures(services, sameImport);
     const languageFocus = rememberLanguageFocus(services.app_languagediscoveryContext());
     const { previous, actions, active } = repaintContext(services);
@@ -314,6 +316,7 @@ export function createAppScreens(services) {
     services.document.getElementById("app").innerHTML = screenHTML(services);
     liveField.swap();
     if (appRoot?.dataset) appRoot.dataset.renderScreen = editor.state.screen;
+    if (openedFromImport) services.window.scrollTo(0, 0);
     services.document.getElementById("overlay").innerHTML = services.overlayHTML();
     if (editor.state.screen === "write") {
       services.paginate();
