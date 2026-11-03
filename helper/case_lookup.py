@@ -93,7 +93,7 @@ def settings(root):
     if local_app_data:
         cfg["trustServerCertificate"] = _local_certificate_setting(local_app_data)
     if not cfg["enabled"]:
-        raise CaseLookupError("Direct case lookup is disabled by the administrator. Use an Excel report.")
+        raise CaseLookupError("Direct case lookup is disabled by the administrator.")
     return cfg
 
 
@@ -119,8 +119,7 @@ FAILURE_MESSAGES = [
             "The lookup query names a column the case database does not have (SQL"
             "_QUERY_207). The installed case_lookup.sql does not match the BI_ENF"
             "_RECORD/BI_ENF_INSPECTION views; ask IT to compare it with the worki"
-            "ng SSRS report. This is not a connection problem. Excel import remai"
-            "ns available."
+            "ng SSRS report. This is not a connection problem."
         ),
     ),
     (
@@ -205,7 +204,7 @@ def _failure_message(answer):
         message = (
             "The SQL connection failed ("
             + _connect_diagnostic(answer, num, state, operation, argument_name)
-            + "). Ask IT to use this code to check the SQL client error. Excel import remains available."
+            + "). Ask IT to use this code to check the SQL client error."
         )
     # Stage and argument are stable, allowlisted labels. Full provider
     # text stays in the local diagnostic file and is never sent to the UI.
@@ -234,7 +233,7 @@ def run_query(cfg, number):
 def run_script(cfg, fields, wait=40):
     """Run the Windows helper script for one fixed query; fields carry only the allowlisted mode and parameters."""
     if os.name != "nt":
-        raise CaseLookupError("Direct lookup runs on a City Windows computer. The SSRS Excel report import remains available.")
+        raise CaseLookupError("Direct lookup runs on a City Windows computer.")
     exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
     if not exe.is_file():
         raise CaseLookupError("Windows PowerShell is unavailable. Ask IT to enable the approved lookup helper.")

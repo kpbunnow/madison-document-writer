@@ -1,4 +1,4 @@
-/* Real production UI using actual SSRS-format workbook bytes. */
+/* Real production UI using stored SSRS-format report grids (the spreadsheet import was removed in R69). */
 const path = require("path"),
   assert = require("assert/strict"),
   fs = require("fs");
@@ -37,11 +37,27 @@ module.exports = async (browser, page, OUT, axeScreen) => {
         helperJSON = async (route) => (route === "/cases/list" ? { files: [] } : { ok: true });
         render();
       });
-      if (!(await page.locator(".import-alternative").evaluate((el) => el.open))) await page.locator(".import-alternative > summary").click();
-      const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.locator("#acc-pick").click()]);
-      await chooser.setFiles(
-        path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/r50-import-fixtures", status + ".xlsx"),
+      const grid = JSON.parse(
+        fs.readFileSync(
+          path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/r50-import-fixtures", status + ".grid.json"),
+          "utf8",
+        ),
       );
+      await page.evaluate(async (g) => {
+        const t = accelaTable(g);
+        WriterState.state.acc = {
+          fileName: "",
+          errors: t.errors,
+          notes: t.notes,
+          cases: t.cases,
+          caseIx: 0,
+          sel: t.cases.length ? t.cases[0].sel : null,
+          manualDate: "",
+          manualTime: "",
+        };
+        await accelaFromShare();
+        render();
+      }, grid);
       await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
       await page.locator("#acc-go").waitFor();
       // R53: an Initial Inspection with status Compliance has no document rule and is refused.

@@ -34,7 +34,7 @@ export function createImportEvents(services) {
           services.confirmDatabaseCase();
           return;
         }
-        if (button.matches("[data-nav],#acc-pick,#acc-cancel,#btn-savework")) services.cancelCaseLookup();
+        if (button.matches("[data-nav],#acc-cancel,#btn-savework")) services.cancelCaseLookup();
         if (button.id === "acc-go") {
           e.preventDefault();
           e.stopImmediatePropagation();
@@ -44,23 +44,6 @@ export function createImportEvents(services) {
       true,
     );
   }
-
-  function registerLookupDrop(target = document) {
-    return registerEventOnce(
-      target,
-      "import.registerLookupDrop",
-      "drop",
-      (e) => {
-        if (e.target.closest?.("#acc-drop")) services.cancelCaseLookup();
-      },
-      true,
-    );
-  }
-
-  const pickWorkbook = () => {
-    services.pickAccelaFile();
-    return;
-  };
 
   const cancelImport = () => {
     editor.state.acc = null;
@@ -121,33 +104,6 @@ export function createImportEvents(services) {
     return;
   };
 
-  function registerDragOver(target = document) {
-    return registerEventOnce(target, "import.registerDragOver", "dragover", (e) => {
-      const z = e.target.closest && e.target.closest("#acc-drop");
-      if (!z) return;
-      e.preventDefault();
-      z.classList.add("over");
-    });
-  }
-
-  function registerDragLeave(target = document) {
-    return registerEventOnce(target, "import.registerDragLeave", "dragleave", (e) => {
-      const z = e.target.closest && e.target.closest("#acc-drop");
-      if (z) z.classList.remove("over");
-    });
-  }
-
-  function registerFileDrop(target = document) {
-    return registerEventOnce(target, "import.registerFileDrop", "drop", (e) => {
-      const z = e.target.closest && e.target.closest("#acc-drop");
-      if (!z) return;
-      e.preventDefault();
-      z.classList.remove("over");
-      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (f) services.readAccelaFile(f);
-    });
-  }
-
   const changeInspectionDateTime = (e) => {
     editor.state.acc[e.target.id === "acc-date" ? "manualDate" : "manualTime"] = e.target.value;
     services.scheduleDraftSave();
@@ -157,15 +113,10 @@ export function createImportEvents(services) {
   return {
     registerLookupSubmit,
     registerLookupClicks,
-    registerLookupDrop,
-    pickWorkbook,
     cancelImport,
     acceptImport,
     selectCase,
     selectInspection,
-    registerDragOver,
-    registerDragLeave,
-    registerFileDrop,
     changeInspectionDateTime,
   };
 }

@@ -3,19 +3,13 @@ import { parseTime, parseDate, iso } from "./calendar.js";
 
 /* ---------- import ---------- */
 /* ---------- Accela report import ----------
- The SSRS report exports one .xlsx per case, one row per inspection, with
- the case columns repeated on every row. It is read here in the browser with
- no library: the ZIP is walked by hand, entries are inflated with the
- browser's own DecompressionStream, and the sheet is parsed with DOMParser.
- The table is found by its header text, never by position — adding the
- Inspector Name column moved every later column. An Excel re-save turns the
- report's inline strings into shared strings and may turn dates into text,
- so both forms read the same. The Detailed Description and Zoning District
- columns are recognised and never read (division, 09/18/2026). */
-
-export const ACC_MAX = 5 * 1024 * 1024;
-
-export const ACC_EXPANDED_MAX = 32 * 1024 * 1024;
+ The case lookup returns one row per inspection, with the case columns
+ repeated on every row, and the rows are arranged as a table with a header
+ row. The table is found by its header text, never by position — adding the
+ Inspector Name column moved every later column. Dates may arrive as text or
+ as spreadsheet serial numbers, so both forms read the same. The Detailed
+ Description and Zoning District columns are recognised and never read
+ (division, 09/18/2026). The spreadsheet file import was removed in R69. */
 
 export const ACC_COLS = {
   number: "case number",
@@ -139,31 +133,6 @@ export const accStatusEligible = (status, type) => !statusRule(type, status).err
 
 export const ACC_CASEFIELDS = ["caseType", "address", "historic", "landmark", "parcel", "description", "owner", "ownerAddr"];
 
-export const accXml = (t) => {
-  const x = new DOMParser().parseFromString(t, "application/xml");
-  if (x.getElementsByTagName("parsererror").length) throw new Error("the workbook is damaged");
-  return x;
-};
-
-export const accAll = (n, tag) => Array.prototype.slice.call(n.getElementsByTagNameNS("*", tag));
-
-export const accKids = (n, tag) => Array.prototype.filter.call(n.childNodes, (c) => c.localName === tag);
-
-/* text of a string item: every run's <t>, not the phonetic guide */
-export const accText = (n) =>
-  accAll(n, "t")
-    .filter((t) => !(t.parentNode && t.parentNode.localName === "rPh"))
-    .map((t) => t.textContent)
-    .join("");
-
-export const accColIx = (ref) => {
-  const m = /^([A-Z]+)/i.exec(ref || "");
-  if (!m) return -1;
-  let n = 0;
-  for (const ch of m[1].toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
-  return n - 1;
-};
-
 export const accStr = (v) => (v === undefined || v === null ? "" : String(v).replace(/\r\n?/g, "\n").trim());
 
 export const accNorm = (v) => accStr(v).replace(/\s+/g, " ").toLowerCase();
@@ -199,153 +168,6 @@ export const SQL_COLUMNS = {
   time: "InspectionTime",
   recordCategory: "RecordCategory",
 };
-
-export async function accInflate(bytes, limit = ACC_EXPANDED_MAX) {
-  const ds = new DecompressionStream("deflate-raw");
-  const w = ds.writable.getWriter();
-  w.write(bytes).catch(() => {});
-  w.close().catch(() => {});
-  const rd = ds.readable.getReader(),
-    parts = [];
-  let n = 0;
-  for (;;) {
-    const x = await rd.read();
-    if (x.done) break;
-    n += x.value.length;
-    if (n > limit) {
-      await rd.cancel();
-      throw new Error("The expanded workbook is too large. Export a report for one case.");
-    }
-    parts.push(x.value);
-  }
-  const out = new Uint8Array(n);
-  let o = 0;
-  parts.forEach((p) => {
-    out.set(p, o);
-    o += p.length;
-  });
-  return out;
-}
-
-const zipFail = (m) => {
-  throw new Error(m);
-};
-
-function zipDirectory(u8, dv) {
-  if (u8.length < 22 || dv.getUint32(0, true) !== 0x04034b50) zipFail("it is not an Excel .xlsx file");
-  let e = -1;
-  for (let p = u8.length - 22; p >= Math.max(0, u8.length - 65557); p--)
-    if (dv.getUint32(p, true) === 0x06054b50) {
-      e = p;
-      break;
-    }
-  if (e < 0) zipFail("the file is incomplete or damaged");
-  const count = dv.getUint16(e + 10, true),
-    cdOff = dv.getUint32(e + 16, true);
-  if (cdOff === 0xffffffff || cdOff >= u8.length) zipFail("the file is incomplete or damaged");
-  return { count, cdOff };
-}
-
-function zipHeader(u8, dv, dec, p) {
-  if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) zipFail("the file is incomplete or damaged");
-  const method = dv.getUint16(p + 10, true),
-    csize = dv.getUint32(p + 20, true),
-    usize = dv.getUint32(p + 24, true);
-  const nlen = dv.getUint16(p + 28, true),
-    xlen = dv.getUint16(p + 30, true),
-    clen = dv.getUint16(p + 32, true);
-  const lho = dv.getUint32(p + 42, true);
-  const name = dec.decode(u8.subarray(p + 46, p + 46 + nlen));
-  return { method, csize, usize, lho, name, next: p + 46 + nlen + xlen + clen };
-}
-
-async function zipContent(u8, dv, h, total) {
-  if (h.usize > ACC_EXPANDED_MAX - total) zipFail("The expanded workbook is too large. Export a report for one case.");
-  if (h.lho + 30 > u8.length || dv.getUint32(h.lho, true) !== 0x04034b50) zipFail("the file is incomplete or damaged");
-  const start = h.lho + 30 + dv.getUint16(h.lho + 26, true) + dv.getUint16(h.lho + 28, true);
-  if (start + h.csize > u8.length) zipFail("the file is incomplete or damaged");
-  const raw = u8.subarray(start, start + h.csize);
-  if (h.method === 0) return raw;
-  if (h.method !== 8) zipFail("the file uses a compression this program cannot read");
-  try {
-    return await accInflate(raw, ACC_EXPANDED_MAX - total);
-  } catch (err) {
-    return zipFail(/expanded workbook/.test(err.message) ? err.message : "the file is incomplete or damaged");
-  }
-}
-
-async function accUnzip(buf, want) {
-  const u8 = new Uint8Array(buf),
-    dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
-  const { count, cdOff } = zipDirectory(u8, dv);
-  const dec = new TextDecoder("utf-8"),
-    out = {};
-  let p = cdOff,
-    total = 0;
-  for (let n = 0; n < count; n++) {
-    const h = zipHeader(u8, dv, dec, p);
-    p = h.next;
-    if (!want(h.name)) continue;
-    const bytes = await zipContent(u8, dv, h, total);
-    total += bytes.length;
-    if (total > ACC_EXPANDED_MAX) zipFail("The expanded workbook is too large. Export a report for one case.");
-    out[h.name] = dec.decode(bytes);
-  }
-  return out;
-}
-
-export async function readXlsx(buf) {
-  const files = await accUnzip(buf, (n) => /^xl\/(workbook\.xml|_rels\/workbook\.xml\.rels|sharedStrings\.xml|worksheets\/[^/]+\.xml)$/i.test(n));
-  const key = (n) => Object.keys(files).find((k) => k.toLowerCase() === n.toLowerCase());
-  if (!key("xl/workbook.xml")) throw new Error("it is not an Excel workbook");
-  const wb = accXml(files[key("xl/workbook.xml")]);
-  if (accAll(wb, "workbookPr").some((p) => /^(1|true)$/i.test(p.getAttribute("date1904") || "")))
-    throw new Error("This workbook uses the 1904 date system. Export the SSRS report again using the standard 1900 date system.");
-  const sheet = accAll(wb, "sheet")[0];
-  if (!sheet) throw new Error("the workbook has no sheets");
-  let rid = "";
-  Array.prototype.forEach.call(sheet.attributes, (a) => {
-    if (a.localName === "id" && a.name !== "sheetId") rid = a.value;
-  });
-  let target = "";
-  if (key("xl/_rels/workbook.xml.rels")) {
-    const rel = accAll(accXml(files[key("xl/_rels/workbook.xml.rels")]), "Relationship").find((r) => r.getAttribute("Id") === rid);
-    if (rel) target = rel.getAttribute("Target") || "";
-  }
-  let path = target.charAt(0) === "/" ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
-  if (!target || !key(path))
-    path =
-      Object.keys(files)
-        .filter((n) => /^xl\/worksheets\//i.test(n))
-        .sort()[0] || "";
-  if (!path || !key(path)) throw new Error("the workbook has no readable sheet");
-  const sst = key("xl/sharedStrings.xml") ? accAll(accXml(files[key("xl/sharedStrings.xml")]), "si").map(accText) : [];
-  const ws = accXml(files[key(path)]);
-  const rows = [];
-  accAll(ws, "row").forEach((rw) => {
-    const row = [];
-    let next = 0;
-    accKids(rw, "c").forEach((c) => {
-      const r = c.getAttribute("r"),
-        ix = r ? accColIx(r) : next;
-      next = ix + 1;
-      const t = c.getAttribute("t") || "",
-        v = accKids(c, "v")[0],
-        vt = v ? v.textContent : "";
-      let val;
-      if (t === "s") val = sst[+vt] !== undefined ? sst[+vt] : "";
-      else if (t === "inlineStr") {
-        const is = accKids(c, "is")[0];
-        val = is ? accText(is) : "";
-      } else if (t === "str" || t === "e") val = vt;
-      else if (t === "b") val = vt === "1" ? "TRUE" : "FALSE";
-      else val = vt === "" ? "" : Number(vt);
-      if (ix >= 0) row[ix] = val;
-    });
-    rows.push(row);
-  });
-  return rows;
-}
 
 export function accSerial(v) {
   if (typeof v !== "number" || !isFinite(v) || v <= 0) return null;

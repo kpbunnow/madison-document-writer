@@ -46,7 +46,7 @@ class R38(unittest.TestCase):
             self.assertIn("SQL_QUERY_207", message)
             self.assertIn("not a connection problem", message)
             self.assertNotIn("SQL connection failed", message)
-            self.assertIn("Excel import remains available", message)
+            self.assertNotIn("Excel", message)
 
 
 if __name__ == "__main__":

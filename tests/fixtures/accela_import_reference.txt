@@ -1270,7 +1270,7 @@ export function createAccelaImport(services) {
       ) +
       '\n    <details class="import-source"><summary>Source and import details</' +
       "summary><p>" +
-      `${esc(acc.fileName || "SSRS Excel report")}` +
+      `${esc(acc.fileName || "Accela case lookup")}` +
       "</p>" +
       "".concat(
         acc.source?.kind === "sql"

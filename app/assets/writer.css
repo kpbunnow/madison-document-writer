@@ -2276,16 +2276,6 @@ tr.dragging td {
   vertical-align: top;
 }
 
-.acc-drop {
-  border: 2px dashed var(--rule);
-  border-radius: 8px;
-  padding: 22px;
-  text-align: center;
-}
-.acc-drop.over {
-  border-color: var(--civic);
-  background: var(--civic-tint);
-}
 .acc-go {
   display: flex;
   gap: 10px;

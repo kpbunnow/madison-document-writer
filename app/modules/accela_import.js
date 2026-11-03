@@ -10,8 +10,6 @@ import { clearProhibitedCitations } from "./document_rules.js";
 import { parseTime, validISO, nowISO } from "./calendar.js";
 import { esc } from "./presentation_format.js";
 import {
-  ACC_MAX,
-  ACC_EXPANDED_MAX,
   ACC_COLS,
   ACC_REQUIRED,
   ACC_LABEL,
@@ -20,19 +18,12 @@ import {
   hiddenImportRow,
   accStatusEligible,
   ACC_CASEFIELDS,
-  accXml,
-  accAll,
-  accKids,
-  accText,
-  accColIx,
   accStr,
   accNorm,
   accHM,
   accTime,
   accInspector,
   SQL_COLUMNS,
-  accInflate,
-  readXlsx,
   accSerial,
   accWhen,
   accParcel,
@@ -782,7 +773,7 @@ function caseChangeDetails(k, p) {
 }
 
 function importSourceDetails(acc, p) {
-  return html`<details class="import-source"><summary>Source and import details</summary><p>${acc.fileName || "SSRS Excel report"}</p>${raw(
+  return html`<details class="import-source"><summary>Source and import details</summary><p>${acc.fileName || "Accela case lookup"}</p>${raw(
     "".concat(
       acc.source?.kind === "sql"
         ? "<p>Retrieved " +
@@ -810,7 +801,7 @@ function importPanelHTML(services, acc, p) {
 }
 
 export function createAccelaImport(services) {
-  /* Accela inspection import: report columns, type/status rules, XLSX reading, report parsing, import candidates,
+  /* Accela inspection import: report columns, type/status rules, report parsing, import candidates,
    the review plan and panel, the direct database lookup and acceptance. */
 
   const LOOKUP_READY = new WeakSet();
@@ -840,51 +831,6 @@ export function createAccelaImport(services) {
     snowImportReadiness({ snowCase, p, k, src, services, row });
     importCaseDifferences({ k, p, services, row, c, accNorm });
     return p;
-  }
-
-  async function readAccelaFile(file) {
-    if (!file || editor.state.screen !== "import") return;
-    cancelCaseLookup();
-    const serial = imports.LOOKUP_SERIAL;
-    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import";
-    imports.LOOKUP_ERROR = "";
-    imports.LOOKUP_BUSY = true;
-    services.render();
-    try {
-      if (file.size > ACC_MAX) throw new Error("That file is " + Math.round(file.size / 1048576) + " MB — an Accela report is a few KB.");
-      const grid = await readXlsx(await file.arrayBuffer());
-      if (!active()) return;
-      const t = accelaTable(grid);
-      const acc = {
-        fileName: file.name,
-        errors: t.errors,
-        notes: t.notes,
-        cases: t.cases,
-        caseIx: 0,
-        sel: t.cases.length ? t.cases[0].sel : null,
-        manualDate: "",
-        manualTime: "",
-      };
-      editor.state.acc = acc;
-      await accelaFromShare(active);
-      if (!active()) return;
-      services.scheduleDraftSave();
-      services.toast(t.errors.length ? "The report could not be imported" : "Report read — review the inspection");
-    } catch (err) {
-      if (active()) {
-        editor.state.acc = {
-          fileName: file.name,
-          errors: ["That file could not be read — " + (err.message || "it is not an Excel .xlsx file") + ". Nothing was imported."],
-          cases: [],
-        };
-        services.scheduleDraftSave();
-      }
-    } finally {
-      if (serial === imports.LOOKUP_SERIAL) {
-        imports.LOOKUP_BUSY = false;
-        if (editor.state.screen === "import") services.render();
-      }
-    }
   }
 
   async function accelaFromShare(isCurrent = () => true) {
@@ -956,24 +902,13 @@ export function createAccelaImport(services) {
     return importPanelHTML(services, acc, accelaPlan(acc));
   }
 
-  function pickAccelaFile() {
-    const inp = document.createElement("input");
-    inp.type = "file";
-    inp.accept = ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    inp.onchange = () => {
-      const file = inp.files && inp.files[0];
-      if (file) readAccelaFile(file);
-    };
-    inp.click();
-  }
-
   function screenImport(before = "") {
     const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
     return services.shell(
       "Import inspection",
       "Bring in case details",
       '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
-      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="card import-alternative"><summary>Import an SSRS Excel report instead</summary><div class="card-b"><div class="acc-drop" id="acc-drop"><p>Load or drop the Accela case report exported as .xlsx.</p><button class="btn" id="acc-pick" ${raw(imports.LOOKUP_BUSY ? "disabled" : "")}>Load Accela report</button></div></div></details>\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
+      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
     );
   }
 
@@ -1194,8 +1129,6 @@ export function createAccelaImport(services) {
     return result;
   }
   return {
-    ACC_MAX,
-    ACC_EXPANDED_MAX,
     ACC_COLS,
     ACC_REQUIRED,
     ACC_LABEL,
@@ -1204,11 +1137,6 @@ export function createAccelaImport(services) {
     hiddenImportRow,
     accStatusEligible,
     ACC_CASEFIELDS,
-    accXml,
-    accAll,
-    accKids,
-    accText,
-    accColIx,
     accStr,
     accNorm,
     accTime,
@@ -1217,10 +1145,8 @@ export function createAccelaImport(services) {
     SQL_COLUMNS,
     accelaTable,
     baseLookupPlan,
-    readAccelaFile,
     accelaFromShare,
     baseLookupAccept,
-    pickAccelaFile,
     screenImport,
     openImportWorkspace,
     lookupCard,
@@ -1232,8 +1158,6 @@ export function createAccelaImport(services) {
     accelaPlan,
     acceptAccela,
     accHM,
-    accInflate,
-    readXlsx,
     accSerial,
     accWhen,
     accParcel,
