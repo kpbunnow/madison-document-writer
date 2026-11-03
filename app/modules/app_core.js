@@ -47,7 +47,14 @@ import { createRecordCommit } from "./record_commit.js";
 import { createCitationWorkflow } from "./citation_workflow.js";
 import { createItemSelection } from "./item_selection.js";
 import { createWorkspaceTasks } from "./workspace_tasks.js";
-import { createDeadlineAssignment, activeDueTarget, dueContext, dueSelectedText, dueDateSpacingConflicts } from "./deadline_assignment.js";
+import {
+  createDeadlineAssignment,
+  activeDueTarget,
+  dueContext,
+  dueSelectedText,
+  dueDateSpacingConflicts,
+  orderByDue,
+} from "./deadline_assignment.js";
 import { createWriterHandoff } from "./writer_handoff.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
@@ -1639,9 +1646,12 @@ const dueDateEvents = createDueDateEvents(
     dueContext: () => dueContext,
     dueSelectedText: () => dueSelectedText,
     isLocked: () => isLocked,
+    orderByDue: () => orderByDue,
     render: () => render,
+    renumber: () => renumber,
     saveDrafts: () => saveDrafts,
     scheduleDraftSave: () => scheduleDraftSave,
+    structEditable: () => structEditable,
     toast: () => toast,
     toastUndo: () => toastUndo,
   }),
