@@ -17,6 +17,7 @@ import case_lookup
 from case_lookup import CaseLookupError, HERE
 
 LISTS = threading.BoundedSemaphore(1)
+NAMES = threading.BoundedSemaphore(1)
 EXCLUSIONS = "excluded-inspectors.json"
 EXCLUSION_HELP = 'Case Lookup/excluded-inspectors.json is invalid. Use the supplied example: {"exclude": ["name or user ID", ...]}.'
 USER_ID = re.compile(r"[A-Za-z0-9._@-]{1,64}")
@@ -104,12 +105,13 @@ def _source(cfg, answer, query):
 def _run(root, fields, query):
     cfg = case_lookup.settings(root)
     names = exclusions(root)
-    if not LISTS.acquire(blocking=False):
+    slot = NAMES if fields.get("mode") == "inspector_names" else LISTS
+    if not slot.acquire(blocking=False):
         raise CaseLookupError("An open-case list is already loading. Wait for it to finish and retry.", 429)
     try:
         return cfg, names, case_lookup.run_script(cfg, dict(fields, commandTimeout=LIST_QUERY_TIMEOUT), LIST_WAIT)
     finally:
-        LISTS.release()
+        slot.release()
 
 
 def _checked_people(answer):
@@ -138,11 +140,23 @@ def _list_answer(root, refresh):
     return people, source
 
 
+def _kept_names(root):
+    if _names["found"] is not None and _names["root"] == str(root) and time.monotonic() - _names["at"] < CACHE_SECONDS:
+        return _names["found"]
+    return {}
+
+
+def _display_person(person, found):
+    name = found.get(person["id"].casefold(), person["name"]) if person["name"].casefold() == person["id"].casefold() else person["name"]
+    return {**person, "name": name}
+
+
 @logged("lookup")
 def inspectors(root, refresh=False):
     names = exclusions(root)
     everyone, source = _list_answer(root, refresh)
-    people = [p for p in everyone if not excluded(names, p["id"], p["name"])]
+    displayed = [_display_person(p, _kept_names(root)) for p in everyone]
+    people = [p for p in displayed if not excluded(names, p["id"], p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
     return {"ok": True, "inspectors": people, "source": source}
 
@@ -152,7 +166,8 @@ def _name_map(root, refresh):
     kept = _names["found"] is not None and _names["root"] == str(root) and time.monotonic() - _names["at"] < CACHE_SECONDS
     if kept and not refresh:
         return _names["found"]
-    _, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql")
+    cfg, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql")
+    _source(cfg, answer, "inspector_names.sql")
     found = {}
     for row in _rows(answer, NAME_FIELDS, MAX_NAMES):
         uid = user_id(row["UserId"] if isinstance(row["UserId"], str) else "")
@@ -166,27 +181,29 @@ def _name_map(root, refresh):
 @logged("lookup")
 def inspector_names(root, refresh=False):
     """Full names for the listed people who are shown by user ID, so the list does not wait for the slower query. The
-    kept inspector list takes the names too, so the next list already shows them."""
+    cached name map also enriches subsequent inspector lists without mutating prior responses."""
     excluded_names = exclusions(root)
     people, _ = _list_answer(root, False)
     unnamed = [p for p in people if p["name"].casefold() == p["id"].casefold()]
-    resolved = []
+    resolved, removed = [], []
     if unnamed:
         found = _name_map(root, refresh)
         for person in unnamed:
             name = found.get(person["id"].casefold())
-            if name and not excluded(excluded_names, person["id"], name):
-                person["name"] = name
+            if excluded(excluded_names, person["id"], name):
+                removed.append(person["id"])
+            elif name:
                 resolved.append({"id": person["id"], "name": name})
-    return {"ok": True, "names": resolved}
+    return {"ok": True, "names": resolved, **({"excluded": removed} if removed else {})}
 
 
 @logged("lookup")
 def open_cases(root, value):
     uid = user_id(value)
-    cfg, names, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql")
-    if excluded(names, uid, uid):
+    names = exclusions(root)
+    if excluded(names, uid, _kept_names(root).get(uid.casefold(), uid)):
         raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
+    cfg, _, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql")
     cases, seen = [], set()
     for row in _rows(answer, CASE_FIELDS, MAX_CASES):
         number = case_lookup.case_number(row["CaseNumber"] if isinstance(row["CaseNumber"], str) else "")
