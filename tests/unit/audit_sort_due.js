@@ -41,6 +41,19 @@ const ids = (list) => list.map((i) => i.id).join(",");
   m.orderByDue(input);
   assert.equal(ids(input), "r1,r2", "the input array is not changed");
 
+  // The panel only offers sorting where the handler can reorder structural items.
+  let structureAllowed = true;
+  const panel = m.createDeadlineAssignment({
+    snow: { is: () => false },
+    isLocked: () => false,
+    structEditable: () => structureAllowed,
+    MINDUE: () => "2026-11-04",
+  });
+  const notice = { type: "notice", draft: true, items: [item("panel", day(2))] };
+  assert.match(panel.duePanel(notice, false), /id="btn-sortdue"/);
+  structureAllowed = false;
+  assert.doesNotMatch(panel.duePanel(notice, false), /id="btn-sortdue"/, "a non-reorderable notice must not offer an action that always refuses");
+
   // The handler.
   const dom = new JSDOM('<button id="btn-sortdue">Sort by due date</button>');
   const target = { items: [item("t1", day(9)), item("t2", day(1)), item("t3", "")] };

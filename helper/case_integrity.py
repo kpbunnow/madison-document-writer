@@ -315,6 +315,19 @@ def read_intent(path):
     return value
 
 
+def _automatic_restart_intent(intent):
+    """Only a missing-file restart can resume without administrator recovery approval."""
+    note = intent["record"]["integrity"]["genesis"].get("administrativeRecovery", {})
+    return (
+        intent["recovery"]
+        and not intent["previousRevision"]
+        and not intent["previousRecordHash"]
+        and note.get("automatic") is True
+        and note.get("missingCaseFile") is True
+        and note.get("administrator") == "automatic"
+    )
+
+
 def reconcile_publication(folder, number, allow_recovery=False):
     """Caller owns the case lock. Complete only the exact durable planned write."""
     from case_store import atomic_write, encoded
@@ -323,7 +336,7 @@ def reconcile_publication(folder, number, allow_recovery=False):
     if not path.exists():
         return False
     intent = read_intent(path)
-    if intent["recovery"] and not allow_recovery:
+    if intent["recovery"] and not allow_recovery and not _automatic_restart_intent(intent):
         raise ValueError("An administrator must resume the pending record recovery before saving")
     target = Path(folder) / intent["fileName"]
     raw = read_plain_bytes(target) if target.exists() else None

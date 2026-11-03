@@ -74,6 +74,74 @@ class CaseRestart(unittest.TestCase):
             self.assertFalse(case_store.read_case(root, name)["integrity"]["historyRestarted"])
             self.assertIsNone(integrity.automatic_restart(root, "CB2099-001-99999"))
 
+    def test_interrupted_automatic_restart_retries_the_same_transaction(self):
+        for stage in ("case", "registry", "completion"):
+            for anchored in (False, True):
+                with self.subTest(stage=stage, anchored=anchored), tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as external:
+                    root = Path(folder)
+                    guard = Path(external) if anchored else None
+                    value, name = saved(root, guard)
+                    (root / name).unlink()
+                    real_write, real_unlink = case_store.atomic_write, Path.unlink
+
+                    def write(path, raw):
+                        if stage == "case" and Path(path).name == name or stage == "registry" and Path(path).name == "migrated.json":
+                            raise OSError("synthetic interrupted restart")
+                        return real_write(path, raw)
+
+                    def unlink(path, *args, **kwargs):
+                        if stage == "completion" and path.parent.name == "transactions":
+                            raise OSError("synthetic interrupted completion")
+                        return real_unlink(path, *args, **kwargs)
+
+                    with patch.object(integrity, "protected_folder", return_value=guard):
+                        with patch.object(case_store, "atomic_write", side_effect=write), patch.object(Path, "unlink", unlink):
+                            with self.assertRaises(OSError):
+                                case_store.save_case(root, name, copy.deepcopy(value))
+                        intent = integrity.intent_path(root, value["case"]["number"])
+                        planned = integrity.read_intent(intent)["record"]
+                        again = case_store.save_case(root, name, copy.deepcopy(value))
+                        self.assertEqual(
+                            again["file"]["integrity"]["genesis"], planned["integrity"]["genesis"], "retry preserves the planned restart identity"
+                        )
+                        self.assertFalse(intent.exists())
+                        self.assertEqual(len(integrity.registry(root)["entries"]), 2)
+                        self.assertTrue(case_store.read_case(root, name)["integrity"]["valid"])
+                        self.assertTrue(case_store.read_case(root, name)["integrity"]["historyRestarted"])
+
+    def test_interrupted_administrator_recovery_still_needs_explicit_approval(self):
+        import integrity_admin
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            value, name = saved(root)
+            bad = json.loads((root / name).read_text())
+            bad["case"]["owner"] = "Synthetic outside edit"
+            (root / name).write_bytes(case_store.encoded(bad))
+            real_write = case_store.atomic_write
+
+            def write(path, raw):
+                if Path(path).name == name:
+                    raise OSError("synthetic interrupted administrator recovery")
+                return real_write(path, raw)
+
+            with patch.object(integrity, "protected_folder", return_value=None):
+                with patch.object(case_store, "atomic_write", side_effect=write):
+                    with self.assertRaises(OSError):
+                        integrity_admin.recover(root, name, "Test administrator", "Independently reviewed the retained synthetic case.", True)
+                intent = integrity.intent_path(root, value["case"]["number"])
+                planned = intent.read_bytes()
+                before = (root / name).read_bytes()
+                with self.assertRaisesRegex(ValueError, "administrator must resume"):
+                    case_store.save_case(root, name, value)
+                self.assertEqual(intent.read_bytes(), planned)
+                self.assertEqual((root / name).read_bytes(), before)
+                result = integrity_admin.recover(root, name, "Test administrator", "Independently reviewed the retained synthetic case.", True)
+                self.assertTrue(result["resumed"])
+                self.assertTrue(result["integrity"]["valid"])
+                self.assertTrue(Path(result["quarantineFile"]).exists())
+                self.assertFalse(intent.exists())
+
     @unittest.skipIf(os.name == "nt", "a symbolic link stands in for a link or placeholder the program must not use")
     def test_an_entry_for_the_number_that_cannot_be_used_is_never_hidden_by_a_restart(self):
         with tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as elsewhere:
