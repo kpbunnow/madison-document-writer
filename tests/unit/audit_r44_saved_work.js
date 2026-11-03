@@ -164,7 +164,7 @@ const test = async () => {
   render();
   assert.equal(
     document.querySelectorAll(".tools-section .tool-action").length,
-    10,
+    9,
     "Tools retains one saved-work entry, open case and dedicated order-language review",
   );
   for (const sel of ["#btn-workbackup", "#btn-recovery", "#btn-workrestore", "[data-outbox]", "[data-setup-health]", "#btn-storage"])

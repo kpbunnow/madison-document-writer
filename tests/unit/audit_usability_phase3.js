@@ -201,28 +201,14 @@ if (process.argv[2] === "reports") {
     const search = document.getElementById("case-search");
     assert.equal(text(search.closest("label").querySelector(".sr-only")), "Search this workspace");
     assert.equal(search.placeholder, "Search this workspace…");
-    assert.equal(text(document.querySelector(".workspace-start [data-global-search]")), "Search shared case records");
-    assert.match(text(document.querySelector(".case-count")), /Use Search shared case records for records outside this workspace\./);
+    assert.equal(document.querySelector("[data-global-search]"), null, "the shared-record search entry is removed; everything is imported");
+    assert.match(text(document.querySelector(".case-count")), /Use Import inspection to bring in a case that is not here\./);
     assert.equal(document.querySelector("[data-shared-offer]"), null, "no offer while workspace results are shown");
     WriterState.state.caseQ = "  QA-NOT-HERE-77 ";
     render();
     assert.match(text(document.querySelector(".case-table .empty")), /^No cases match these filters\./);
-    const offer = document.querySelector(".case-table .empty [data-shared-offer]");
-    assert.equal(text(offer), "Search shared case records for “QA-NOT-HERE-77”");
-    assert.equal(document.querySelectorAll("[data-global-search]").length, 1, "the Workspace entry stays the only data-global-search control");
+    assert.equal(document.querySelector("[data-shared-offer]"), null, "an empty search offers no shared search");
     fetches = 0;
-    offer.click();
-    await tick();
-    const dialog = document.getElementById("utility-dialog");
-    assert.ok(dialog, "shared search opens");
-    assert.equal(text(dialog.querySelector("h2")), "Search shared case records");
-    const query = dialog.querySelector("#global-search-form input[name=query]");
-    assert.equal(query.value.trim(), "QA-NOT-HERE-77", "the workspace query is retained");
-    assert.equal(text(dialog.querySelector("#global-search-form button[type=submit]")), "Search shared case records");
-    assert.equal(dialog.querySelector("#global-search-results").textContent, "", "the shared search is not submitted automatically");
-    assert.equal(fetches, 0, "no shared search request until the inspector submits");
-    dialog.close?.();
-    dialog.remove();
     // An inspector filter alone (no query) offers no shared search.
     WriterState.state.caseQ = "";
     WriterState.state.caseInspector = "no-such-inspector";
@@ -267,7 +253,6 @@ if (process.argv[2] === "reports") {
       assert.equal(text(document.querySelector(selector + " strong")), label);
     }
     for (const selector of [
-      "[data-global-search]",
       "[data-reminders]",
       "[data-batch-due]",
       ".tool-action[data-sync-safety]",
@@ -275,7 +260,7 @@ if (process.argv[2] === "reports") {
       "[data-a11y-theme]",
     ])
       assert.equal(admin.contains(document.querySelector(selector)), false, selector + " stays with everyday tools");
-    assert.equal(document.querySelectorAll(".tools-section .tool-action").length, 10);
+    assert.equal(document.querySelectorAll(".tools-section .tool-action").length, 9);
     assert.equal(
       sections.map((s) => text(s.querySelector("h2, summary"))).join(" | "),
       "Cases & planning | Saved work & connection | Program instructions | Display & help | Administrator tools",

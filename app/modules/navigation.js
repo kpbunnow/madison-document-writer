@@ -188,7 +188,7 @@ export function initNavigation(services) {
       "Tools & settings",
       "Building Inspection",
       `<button class="btn" data-nav="cases">Back to Workspace</button>`,
-      html`<p class="tools-intro">Find a shared case, manage saved files, or check your connection. Daily case work stays in Workspace.</p>${raw(
+      html`<p class="tools-intro">Manage reminders, saved files and your connection. Daily case work stays in Workspace.</p>${raw(
         "".concat(
           TOOL_GROUPS.map(
             ([title, items], index) =>

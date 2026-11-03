@@ -232,7 +232,6 @@ async function axeThemes(page, screen) {
   assert.equal(await page.locator(".writer-navigation .rail-item").count(), 4);
   assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("h1")), true);
   for (const selector of [
-    "[data-global-search]",
     "[data-reminders]",
     "[data-batch-due]",
     "[data-openfile]",
@@ -1535,15 +1534,8 @@ async function axeThemes(page, screen) {
   assert.equal(fs.existsSync(path.join(lockDir, lockName)), false);
   assert.equal(fs.readdirSync(path.join(work, "Case JSON Files", "_lock-administration")).filter((n) => n.endsWith(".json")).length, 1);
   await page.keyboard.press("Escape");
-  // R24 global shared search, reminders, timeline and draft-only batch actions.
-  await page.locator("[data-global-search]").click();
-  await page.locator("#global-search-form [name=query]").fill("REVIEWED OWNER");
-  await page.locator("#global-search-form button[type=submit]").click();
-  await page.locator('[data-global-open="QA-RESOLVE"]').waitFor();
-  await axeScreen(page, "global-search");
-  await axeThemes(page, "global-search");
-  await page.locator('[data-global-open="QA-RESOLVE"]').click();
-  await page.waitForFunction(() => WriterState.state.caseQ === "QA-RESOLVE");
+  // The shared-record search entry was removed in R69 (everything is imported); reminders, timeline and draft-only batch actions follow.
+  assert.equal(await page.locator("[data-global-search], [data-shared-offer]").count(), 0);
   await page.evaluate(() => {
     WriterState.state.caseQ = "QA-001";
     WriterState.state.caseFilter = "all";

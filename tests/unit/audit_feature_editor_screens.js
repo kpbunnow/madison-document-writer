@@ -18,7 +18,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   console.log('PASS audit_r60_review_fixes.js: Workspace stays the current destination while importing');
 `);
   },
-  "audit_r60_development.js: one Workspace import entry and global search": () => {
+  "audit_r60_development.js: one Workspace import entry and no shared-record search": () => {
     globalThis.MADISON_TEST_DATA = true;
     globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
     require("../fixtures/bundle_test.cjs")(`
@@ -31,7 +31,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   WriterState.state.screen = 'cases'; render();
   assert.equal(document.querySelector('.writer-navigation [data-nav="import"]'), null);
   assert.equal(document.querySelectorAll('.workspace-start [data-nav="import"]').length, 1);
-  assert.equal(document.querySelectorAll('.workspace-start [data-global-search]').length, 1);
+  assert.equal(document.querySelectorAll('[data-global-search]').length, 0, 'the shared-record search entry is removed; everything is imported');
   const loadedCases=WriterState.CASES;WriterState.CASES=[];render();
   assert.equal(document.querySelectorAll('#app [data-nav="import"]').length,1,'one import entry in an empty Workspace');
   WriterState.CASES=loadedCases;

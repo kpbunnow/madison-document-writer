@@ -145,7 +145,7 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
   return (
     html`<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start case work</h2></div><div class="card-b">` +
     html`<div><button class="btn btn-primary" data-nav="import">${raw(uiIcon("import"))} Import inspection</button>` +
-    html`<p class="hint">Choose an inspector's open case, or enter a case number, to start new work from an unused inspection.</p></div>` +
+    html`<p class="hint">Choose an open case by inspector, or enter a case number, to start new work from an unused inspection.</p></div>` +
     `</div></section>` +
     importResumePanel() +
     (workspace.PREFLIGHT_NOTICE ? html`<div class="banner info" role="status">${workspace.PREFLIGHT_NOTICE}</div>` : "") +

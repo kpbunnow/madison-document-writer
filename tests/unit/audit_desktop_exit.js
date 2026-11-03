@@ -142,7 +142,7 @@ if (process.argv[2] === "reports") {
     assert.equal(squash(exits[0]), "Exit Document Writer");
     assert.equal(squash(exits[0].closest(".tools-section").querySelector("h2")), "Saved work & connection");
     assert.match(squash(exits[0].closest("[data-tools-exit]")), /Closing a window does not stop it/);
-    assert.equal(document.querySelectorAll(".tools-section .tool-action").length, 10);
+    assert.equal(document.querySelectorAll(".tools-section .tool-action").length, 9);
     assert.equal(document.querySelectorAll(".writer-navigation .rail-item").length, 4);
     assert.equal(document.querySelector(".rail-foot [data-exit-writer]"), null);
 

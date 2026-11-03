@@ -322,6 +322,7 @@
     "helper/inspector_cases.py",
     "helper/inspector_cases.sql",
     "helper/inspector_list.sql",
+    "helper/inspector_names.sql",
     "helper/install_release.py",
     "helper/install_runtime.py",
     "helper/integrity_admin.py",
