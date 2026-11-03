@@ -33,13 +33,10 @@ export function filterOpenCases(cases, query) {
   });
 }
 
-const NOWRAP = "white-space:nowrap;vertical-align:top";
-const LINK = "background:none;border:0;padding:0;font:inherit;color:var(--civic);text-decoration:underline;cursor:pointer;white-space:nowrap";
-
 /* The case number is the control: choosing it imports the case. Case number and address stay on one line; only the
    description wraps. */
 function openCaseRowHTML(c, off) {
-  return html`<tr class="open-case"><td style="${NOWRAP}"><button type="button" style="${LINK}" data-open-case-pick="${c.caseNumber}" title="Import inspection for ${c.caseNumber}" ${raw(off ? "disabled" : "")}>${c.caseNumber}</button></td><td style="${NOWRAP}">${c.address}</td><td style="vertical-align:top">${c.description}</td></tr>`;
+  return html`<tr class="open-case"><td class="open-case-nowrap"><button type="button" class="open-case-pick" data-open-case-pick="${c.caseNumber}" title="Import inspection for ${c.caseNumber}" ${raw(off ? "disabled" : "")}>${c.caseNumber}</button></td><td class="open-case-nowrap">${c.address}</td><td>${c.description}</td></tr>`;
 }
 
 export function openCaseRowsHTML(state, off) {

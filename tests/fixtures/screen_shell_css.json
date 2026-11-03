@@ -32,7 +32,9 @@
     "case-extra",
     "editor-preview-frame",
     "editor-initial-options",
-    "spacer"
+    "spacer",
+    "acc-drop",
+    "import-alternative"
   ],
   "retainedClasses": [
     "case-view",
@@ -41,10 +43,10 @@
   "files": {
     "writer.css": {
       "beforeSha256": "3afe2a3508525dd85dee074604b3bd773066f03a72ae6c5634cf44abb0e3332e",
-      "afterSha256": "f5b135695512f7c7672ef9ecda1a1e0515ae900f0ec4686328251c897d547957",
+      "afterSha256": "8625c00727e8005174fa6ecbcb716d9ca1508a5e9294cb0c4413bddee6e2d176",
       "beforeBytes": 70008,
-      "afterBytes": 66302,
-      "retainedRulesSha256": "69d718a2526e7d07b1ebbd1612c5e9d61f1462270e21726260cce687815293ba"
+      "afterBytes": 66500,
+      "retainedRulesSha256": "87b4078747a2b00e1a60241903734176b79bb439dfebdf97de2e58c41b558397"
     },
     "reports.css": {
       "beforeSha256": "fb46f14e014ee8aa8928676c72280faf6022eb0d79132e51dd1a00d5323953d4",
@@ -62,10 +64,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "aee7103aad8e93158553610b88e878c2008f48643d71794a9fb7ced609a513b8",
+      "afterSha256": "ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921",
       "beforeBytes": 48561,
-      "afterBytes": 47088,
-      "retainedRulesSha256": "bde1fa116b4951df73b8755e30bc618ad67d42002a4c7a28d6dde03fa4f1b76c"
+      "afterBytes": 47055,
+      "retainedRulesSha256": "cab391ebcbfa53e820c824a6a97a4d8882126d6744a89b30cad3a7a8a0ade842"
     }
   },
   "selectorChanges": [
@@ -680,6 +682,25 @@
       ],
       "retainedSelectors": [],
       "declarationsSha256": "8f6d507015dbb1ebb5d3c6a18994858802d2c61e8a25235297a6574e54bb6bcf"
+    }
+  ],
+  "reviews": [
+    {
+      "date": "2026-11-03",
+      "sourceCommit": "1a8c5335accc365815220b092cc35bea06189a56",
+      "scope": "Owner-requested import table style extraction and retired spreadsheet styles",
+      "rules": {
+        "writer.css": {
+          "beforeSha256": "f5b135695512f7c7672ef9ecda1a1e0515ae900f0ec4686328251c897d547957",
+          "afterSha256": "8625c00727e8005174fa6ecbcb716d9ca1508a5e9294cb0c4413bddee6e2d176",
+          "unchangedRulesSha256": "5c6f0ce42ee0b8af3e9b828ad84b8252934b93dd15ca4a009c835b8132835b20"
+        },
+        "ui-refresh.css": {
+          "beforeSha256": "aee7103aad8e93158553610b88e878c2008f48643d71794a9fb7ced609a513b8",
+          "afterSha256": "ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921",
+          "unchangedRulesSha256": "cab391ebcbfa53e820c824a6a97a4d8882126d6744a89b30cad3a7a8a0ade842"
+        }
+      }
     }
   ]
 }
