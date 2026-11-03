@@ -53,7 +53,10 @@ def protected_folder(folder):
         return None
 
 
-def commit_record(current, record):
+def commit_record(current, record, restart=None):
+    """The chained record. `restart` (see automatic_restart) starts a new history for a case whose file is gone but whose
+    number is retained; its genesis names the prior anchored commit and genesis hashes, so verification can tell it
+    from a replaced or forged history."""
     result = copy.deepcopy(record)
     result["schema"] = 5
     prior = copy.deepcopy(current.get("integrity")) if current and current.get("schema") == 5 else None
@@ -66,6 +69,17 @@ def commit_record(current, record):
             "historyHash": hash_bytes(canonical(old)),
             "notice": "History as found; integrity is proven from migration forward.",
         }
+        if restart:
+            genesis["administrativeRecovery"] = {
+                "administrator": "automatic",
+                "reason": "The case file was missing from the shared folder, so the program restarted the case history.",
+                "quarantineFile": "",
+                "priorFileSha256": "",
+                "priorAnchoredCommitHash": restart["priorAnchoredCommitHash"],
+                "priorGenesisHashes": restart["priorGenesisHashes"],
+                "missingCaseFile": True,
+                "automatic": True,
+            }
         genesis["hash"] = hash_bytes(canonical(genesis))
         prior = {"genesis": genesis, "entries": [], "commits": []}
     known = set(prior["genesis"]["eventIds"]) | {x["eventId"] for x in prior["entries"]}
@@ -89,6 +103,30 @@ def commit_record(current, record):
     prior["headHash"] = head
     result["integrity"] = prior
     return result
+
+
+def automatic_restart(folder, number):
+    """The note for restarting the history of a case whose file is gone, or None when the number is not retained.
+
+    A case file that was deleted for good leaves the number in the migration registry (and perhaps an external anchor).
+    The save then starts a new history instead of being refused forever. Nothing retained is deleted: the old registry
+    entries and anchors stay, and the new genesis names the prior anchored commit and the prior genesis hashes so the
+    restart is permanent, visible evidence. If any entry for the number is on the share but cannot be used (a link, for
+    example), nothing is restarted; a second history beside it would hide the first."""
+    from case_store import case_file_key, case_number_key
+    from plain_files import LINKED_MESSAGE
+
+    key = case_number_key(number)
+    if any(case_file_key(p) == key for p in Path(folder).glob("*.json")):
+        raise ValueError(LINKED_MESSAGE)
+    context = VerificationContext(folder, protected_folder(folder))
+    entries = context.by_number.get(number.casefold(), [])
+    if not entries:
+        return None
+    if intent_path(folder, number).exists():
+        raise ValueError("Complete the pending integrity transaction before another save")
+    anchored = context.anchors.get(number.casefold())
+    return {"priorAnchoredCommitHash": anchored["commitHash"] if anchored else "", "priorGenesisHashes": [e["genesisHash"] for e in entries]}
 
 
 def registry(folder):
@@ -435,15 +473,20 @@ def verify_record(record, folder=None, external=None, context=None):
         ):
             return failure("anchored head", anchored_case["commitHash"], previous)
         pending = bool(context and record["case"]["number"].casefold() in context.pending)
+        restarted = genesis.get("administrativeRecovery", {}).get("automatic") is True
+        base = (
+            "Verified chain; migration completion pending — retry saving"
+            if pending
+            else "Verified / anchored"
+            if anchored
+            else "Verified chain / not externally anchored"
+        )
         return {
             "valid": True,
             "anchored": anchored,
             "pendingTransaction": pending,
-            "label": "Verified chain; migration completion pending — retry saving"
-            if pending
-            else "Verified / anchored"
-            if anchored
-            else "Verified chain / not externally anchored",
+            "historyRestarted": restarted,
+            "label": base + ("; history restarted " + genesis["committedAt"][:10] + " because the case file was missing" if restarted else ""),
             "headHash": head,
             "commitHash": previous,
             "lastGoodCommitTime": last,
