@@ -768,7 +768,6 @@
     "tests/unit/audit_imports_state.js",
     "tests/unit/audit_inspection_facts.js",
     "tests/unit/audit_inspection_history_rules.js",
-    "tests/unit/audit_inspector_cases.js",
     "tests/unit/audit_inspector_cases.py",
     "tests/unit/audit_integrity_classification_rules.js",
     "tests/unit/audit_integrity_shape_rules.py",

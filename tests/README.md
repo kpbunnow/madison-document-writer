@@ -88,8 +88,6 @@ covers, or a new suite under its feature.
 | `audit_policy_compilation_rules.py` | 128 varied compilation contexts preserve build-formatted policy bytes, refusals, reads, interpretation and temporary-policy cleanup. |
 | `audit_retained_source_rules.py` | 3,000 retained-source scenarios preserve exact refusals, UTF-8 read order, source bytes and complete compiled policy bytes. |
 | `audit_policy_version_rules.py` | Every retained policy row plus 3,000 malformed version scenarios preserves exact refusals, date-call order, input data and compiled bytes. |
-| `audit_workflow_search_rules.py` | 3,000 search scenarios preserve exact output, errors, read/validation order, inputs and 5,000-file/100-result limits. |
-| `audit_open_cases.py` | Open cases by inspector: the Reports open rule (Closed/Withdrawn and filed snow cases are closed), assignment and the Unassigned choice, next-due ordering, incompleteness counts, limits, damaged summaries and the guarded read-only `/cases/by-inspector` route with plain refusals. |
 | `audit_violator_pricing.py` | Violator contact in the helper: the pricing respondent is the Violator's mailing address on a non-snow case (shared cases with the Writer), prior offenses follow the Violator and not the owner, snow cases ignore the Violator. |
 | `audit_citation_history_rules.py` | 3,000 synthetic scan traces preserve reads, guard order, exclusions and projection; unchanged real-store integrity tests remain. |
 | `audit_issuance_group_rules.py` | 3,000 atomic-group contexts and explicit reversed-event precedence preserve exact results, errors and inputs. |
@@ -297,7 +295,6 @@ covers, or a new suite under its feature.
 | `audit_reports_clock_wiring.js` | Every Reports service getter named TODAY reads the current day through `currentDay()` when asked, not the page-load day. |
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
 | `audit_tool_form_submit_rules.js` | Tool form submits in real forms: search markup, reminder preferences, batch deadlines, outbox sync and failure handling against the retained module. |
-| `audit_inspector_cases.js` | The inspector picker in Search shared case records, its open-case list and incompleteness notes, escaping, the import prompt, Import inspection opening with the case number ready, continuing an import already awaiting review and refusing to replace one for another case. |
 | `audit_violator_contact.js` | Violator contact rules in the Writer: the Copies type, one Violator per case, snow exclusion, defendant lines, owner copy choice, company rule and pricing respondent from the shared cases. |
 | `audit_start_correction_rules.js` | Opening a correction: existing-draft shortcut, refusals, dropped fields, recipient merge and stored record against the retained module. |
 | `audit_snow_letter_review_rules.js` | Seasonal letter review form, submit rewriting and failure display against the retained module. |
@@ -405,7 +402,7 @@ covers, or a new suite under its feature.
 | `audit_writer_view_contexts.js` | Three independent scoped view contexts; lazy identity-preserving composition, restored references, field order and presentation guards |
 | `audit_writer_services.js` | Six independent scoped service owners; lazy exact interfaces, retained initialization/listener order, readiness/save/stale-navigation races and citation guards |
 | `audit_module_boundaries.js` | Foundation dependency layers and cycle caps; no-DOM loading, live restored-state queries and historical source/authoring rules |
-| `audit_workflow_tools.js`, `audit_workflow_tools.py` | Search, selected PDF filing, shared views, reminders |
+| `audit_workflow_tools.js`, `audit_workflow_tools.py` | Selected PDF filing, shared views, reminders |
 | `audit_r50_calendar.js`, `audit_r32_day_boundary.js` | Chicago calendar and midnight boundaries |
 | `audit_r43_review.js` | Inline completion, multiple charges, focus |
 
