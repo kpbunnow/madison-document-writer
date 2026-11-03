@@ -1,52 +1,19 @@
 import { workspaceState as workspace } from "./workspace_state.js";
 /* Workflow event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { esc } from "./presentation_format.js";
 import { downloadText, csvText } from "../assets/shared.js";
 import { kase, eventsFor } from "./writer_queries.js";
 export function createWorkflowEvents(services) {
   function registerToolForms(target = document) {
     return registerEventOnce(target, "workflow.registerToolForms", "submit", async (e) => {
       const form = e.target;
-      if (!["global-search-form", "reminder-settings", "reminder-email", "batch-due-form", "outbox-form"].includes(form.id)) return;
+      if (!["reminder-settings", "reminder-email", "batch-due-form", "outbox-form"].includes(form.id)) return;
       e.preventDefault();
       const submit = form.querySelector("button[type=submit]");
       submit.disabled = true;
       try {
         const data = new FormData(form);
-        if (form.id === "global-search-form") {
-          const result = await services.helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
-          if (!form.isConnected) return;
-          document.getElementById("global-search-results").innerHTML =
-            "<p>" +
-            `${result.hits.length}` +
-            " matching cases. " +
-            `${result.unreadable}` +
-            " unreadable files. " +
-            `${result.partial ? "Results limited; refine your search." : ""}` +
-            "</p><ul>" +
-            "".concat(
-              result.hits
-                .map(
-                  (hit) =>
-                    "<li>" +
-                    `${esc(hit.number)}` +
-                    " · " +
-                    `${esc(hit.address)}` +
-                    " · " +
-                    `${esc(hit.owner)}` +
-                    " " +
-                    "".concat(
-                      hit.duplicate
-                        ? "Duplicate identity; administrator review needed"
-                        : `<button class="btn" data-global-open="${esc(hit.number)}">Open current case</button>`,
-                    ) +
-                    "</li>",
-                )
-                .join(""),
-            ) +
-            "</ul>";
-        } else if (form.id === "reminder-settings") {
+        if (form.id === "reminder-settings") {
           const prefs = workspace.WORKFLOW_PREFS.reminders;
           prefs.enabled = data.get("enabled") === "on";
           prefs.days = Math.min(30, Math.max(1, Number(data.get("days")) || 7));
@@ -95,18 +62,13 @@ export function createWorkflowEvents(services) {
   function registerToolActions(target = document) {
     return registerEventOnce(target, "workflow.registerToolActions", "click", async (e) => {
       const t = e.target.closest?.(
-        "[data-global-search],[data-shared-offer],[data-global-open],[data-reminders],[data-reminder-" +
+        "[data-reminders],[data-reminder-" +
           "draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data" +
           "-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
       );
       if (!t) return;
       try {
-        // The no-results offer opens the same shared search with the workspace query prefilled.
-        if (t.hasAttribute("data-global-search") || t.hasAttribute("data-shared-offer")) await services.globalSearch();
-        else if (t.dataset.globalOpen) {
-          await services.writerOpenReportedCase({ number: t.dataset.globalOpen });
-          document.getElementById("utility-dialog")?.close();
-        } else if (t.hasAttribute("data-reminders")) services.showReminders();
+        if (t.hasAttribute("data-reminders")) services.showReminders();
         else if (t.dataset.reminderDraft) services.showReminderDraft(t.dataset.reminderDraft);
         else if (t.dataset.reminderDismiss) {
           workspace.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);

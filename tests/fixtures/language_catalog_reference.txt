@@ -877,18 +877,7 @@ export function createLanguageCatalog(services) {
       .toLowerCase();
   }
 
-  async function globalSearch() {
-    services.navigation.utilityContext();
-    services.A11Y.utility(
-      "Search shared case records",
-      '<form id="global-search-form"><label>Case, address, owner or citation nu' +
-        'mber <input type="search" name="query" required minlength="2" maxlength=' +
-        '"200" value="' +
-        `${esc(editor.state.caseQ)}` +
-        '"></label><button class="btn" type="submit">Search shared case records</button>' +
-        '</form><div id="global-search-results" aria-live="polite"></div>',
-    );
-  }
+
   return {
     catalogReview,
     catalogStatus,
@@ -917,7 +906,6 @@ export function createLanguageCatalog(services) {
     showLock,
     saveWorkflowPrefs,
     caseSearchText,
-    globalSearch,
     catalogReplacement,
     readSharedCase,
     localCaseWork,
