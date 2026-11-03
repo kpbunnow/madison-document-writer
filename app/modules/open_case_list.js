@@ -18,6 +18,7 @@ export const openList = {
   casesError: "",
   query: "",
   loadedAt: "",
+  picked: "",
 };
 const WAIT_MS = 100000;
 
@@ -33,24 +34,20 @@ export function filterOpenCases(cases, query) {
   });
 }
 
-const NOWRAP = "white-space:nowrap;vertical-align:top";
-const LINK = "background:none;border:0;padding:0;font:inherit;color:var(--civic);text-decoration:underline;cursor:pointer;white-space:nowrap";
-
-/* The case number is the control: choosing it imports the case. Case number and address stay on one line; only the
-   description wraps. */
-function openCaseRowHTML(c, off) {
-  return html`<tr class="open-case"><td style="${NOWRAP}"><button type="button" style="${LINK}" data-open-case-pick="${c.caseNumber}" title="Import inspection for ${c.caseNumber}" ${raw(off ? "disabled" : "")}>${c.caseNumber}</button></td><td style="${NOWRAP}">${c.address}</td><td style="vertical-align:top">${c.description}</td></tr>`;
+/* Each open case is its own bubble, in the same style as an inspection result: the case number and address on one line
+   (they never wrap), the description below (it wraps). Selecting a bubble looks that case up; the bubble of the case
+   being looked up or reviewed is shown selected. */
+function openCaseBubbleHTML(c, picked) {
+  const selected = picked === c.caseNumber;
+  return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span style="white-space:nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></button>`;
 }
 
-export function openCaseRowsHTML(state, off) {
+export function openCaseRowsHTML(state) {
   const shown = filterOpenCases(state.cases || [], state.query);
   if (!shown.length)
     return html`<p class="hint">${state.cases && state.cases.length ? "No open case matches this search." : "This inspector has no open cases."}</p>`;
-  return (
-    '<table class="open-case-table"><thead><tr><th scope="col">Case number</th><th scope="col">Address</th><th scope="col">Description</th></tr></thead><tbody>' +
-    shown.map((c) => openCaseRowHTML(c, off)).join("") +
-    "</tbody></table>"
-  );
+  const picked = editor.state.acc || imports.LOOKUP_BUSY ? state.picked : "";
+  return '<div class="open-case-list" role="group" aria-label="Open cases">' + shown.map((c) => openCaseBubbleHTML(c, picked)).join("") + "</div>";
 }
 
 export function openCaseCountText(state) {
@@ -72,9 +69,9 @@ function openCasePickerHTML(state, busy) {
   return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button><button class="btn" type="button" id="open-cases-refresh" ${raw(busy || !state.selected ? "disabled" : "")}>Refresh open cases</button><button class="btn" type="button" id="open-cases-refresh-inspectors" ${raw(busy ? "disabled" : "")}>Refresh inspector list</button></form>`;
 }
 
-function openCaseListHTML(state, off) {
+function openCaseListHTML(state) {
   if (!state.cases) return "";
-  return html`<label class="f"><span>Search these cases</span><input type="search" id="open-cases-search" value="${state.query}" autocomplete="off" placeholder="Case number, address or description"></label><p id="open-cases-count" class="hint" role="status">${openCaseCountText(state)}</p><div id="open-cases-results">${raw(openCaseRowsHTML(state, off))}</div>`;
+  return html`<label class="f"><span>Search these cases</span><input type="search" id="open-cases-search" value="${state.query}" autocomplete="off" placeholder="Case number, address or description"></label><p id="open-cases-count" class="hint" role="status">${openCaseCountText(state)}</p><div id="open-cases-results">${raw(openCaseRowsHTML(state))}</div>`;
 }
 
 function openCaseProblemHTML(message, retry) {
@@ -82,9 +79,6 @@ function openCaseProblemHTML(message, retry) {
 }
 
 export function openCaseCardHTML(state = openList) {
-  const busy = state.casesLoading || imports.LOOKUP_BUSY;
-  const waiting = editor.state.acc;
-  const off = !!busy || !!waiting;
   let body;
   if (state.loading || (!state.inspectors && !state.error)) body = '<p role="status">Loading inspectors… the first load can take up to a minute.</p>';
   else if (state.error) body = openCaseProblemHTML(state.error, "open-cases-retry");
@@ -93,11 +87,8 @@ export function openCaseCardHTML(state = openList) {
     body =
       openCasePickerHTML(state, state.casesLoading) +
       (state.casesError ? openCaseProblemHTML(state.casesError, "open-cases-retry") : "") +
-      (waiting
-        ? '<div class="banner warn"><div>An import is waiting for review below. Finish or cancel it before choosing another case.</div></div>'
-        : "") +
-      openCaseListHTML(state, off);
-  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then select a case number to import it. The import then works exactly as it does for a case number typed below.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
+      openCaseListHTML(state);
+  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then select a case. Selecting a case clears the earlier one and looks it up, exactly as for a case number typed below.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
 }
 
 function openCaseWithLimit(promise) {
@@ -198,12 +189,17 @@ function search(value) {
   openList.query = value;
   const results = document.getElementById("open-cases-results"),
     count = document.getElementById("open-cases-count");
-  if (results) results.innerHTML = openCaseRowsHTML(openList, !!imports.LOOKUP_BUSY || !!editor.state.acc);
+  if (results) results.innerHTML = openCaseRowsHTML(openList);
   if (count) count.textContent = openCaseCountText(openList);
 }
 
+/* Selecting a case, each time: stop a lookup still running, clear the previous case's inspections and selection, then look
+   up the chosen case exactly as if its number had been typed. */
 async function pick(services, number) {
-  if (imports.LOOKUP_BUSY || editor.state.acc) return;
+  services.cancelCaseLookup();
+  editor.state.acc = null;
+  editor.WORK.acc = null;
+  openList.picked = number;
   editor.WORK.entry["lookup-number"] = number;
   imports.LOOKUP_ERROR = "";
   services.render();

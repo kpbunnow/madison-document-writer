@@ -1122,19 +1122,14 @@ export function createAccelaImport(services) {
           ) +
           "</div></div>"
         : "";
-    // R59: four labelled facts per candidate; selection is shown by the highlighted, pressed state only.
+    // The inspector on the first line, then type, date and status on one line; values only, without labels.
     const when = (x) => (x.date ? services.fmtDate(x.date) + (x.time ? " at " + services.fmtTime(x.time) : " · time not supplied") : "not supplied");
+    const fact = (label, value) => '<span data-import-field="' + label + '"><strong>' + esc(value || "not supplied") + "</strong></span>";
     const summary = (x) =>
-      [
-        ["Inspection type", x.type],
-        ["Date", when(x)],
-        ["Inspector", x.inspectorName],
-        ["Status", x.status],
-      ]
-        .map(
-          ([label, value]) => '<span data-import-field="' + label + '">' + label + ": <strong>" + esc(value || "not supplied") + "</strong></span>",
-        )
-        .join("");
+      fact("Inspector", x.inspectorName) +
+      '<span class="import-facts">' +
+      [fact("Inspection type", x.type), fact("Date", when(x)), fact("Status", x.status)].join(" · ") +
+      "</span>";
     const blockerId = "acc-blockers";
     const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
     const inspections =

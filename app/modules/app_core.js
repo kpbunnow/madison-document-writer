@@ -1658,6 +1658,7 @@ const dueDateEvents = createDueDateEvents(
 );
 const openCaseList = createOpenCaseList(
   deferredServices({
+    cancelCaseLookup: () => cancelCaseLookup,
     helperJSON: () => helperJSON,
     render: () => render,
     findDatabaseCase: () => findDatabaseCase,

@@ -658,17 +658,17 @@ function reportCasePicker(acc) {
     : "";
 }
 
-// R59: four labelled facts per candidate; selection is shown by the highlighted, pressed state only.
+// The facts of one candidate: the inspector on the first line, then the inspection type, date and status on one line.
+// Only the returned values are shown, without labels.
 function inspectionSummary(services, x) {
   const when = x.date ? services.fmtDate(x.date) + (x.time ? " at " + services.fmtTime(x.time) : " · time not supplied") : "not supplied";
-  return [
-    ["Inspection type", x.type],
-    ["Date", when],
-    ["Inspector", x.inspectorName],
-    ["Status", x.status],
-  ]
-    .map(([label, value]) => '<span data-import-field="' + label + '">' + label + ": <strong>" + esc(value || "not supplied") + "</strong></span>")
-    .join("");
+  const fact = (label, value) => '<span data-import-field="' + label + '"><strong>' + esc(value || "not supplied") + "</strong></span>";
+  return (
+    fact("Inspector", x.inspectorName) +
+    '<span class="import-facts">' +
+    [fact("Inspection type", x.type), fact("Date", when), fact("Status", x.status)].join(" · ") +
+    "</span>"
+  );
 }
 
 const BLOCKERS_ID = "acc-blockers";

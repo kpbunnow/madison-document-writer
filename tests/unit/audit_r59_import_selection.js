@@ -118,11 +118,16 @@ const tests = async function () {
       !document.querySelector('[data-accsel="' + index(initial) + '"]') &&
       !document.getElementById("app").textContent.includes(fmtDate(used)),
   );
-  const labels = ["Inspection type", "Date", "Inspector", "Status"];
+  // The inspector is the first line; the type, date and status share the second line; only values are shown.
+  const labels = ["Inspector", "Inspection type", "Date", "Status"];
   ok(
-    "Each candidate shows the four labelled facts",
+    "Each candidate shows the inspector, then type, date and status, as values without labels",
     buttons().every((b) => stableJSON([...b.querySelectorAll("[data-import-field]")].map((f) => f.dataset.importField)) === stableJSON(labels)) &&
-      buttons().every((b) => labels.every((l) => b.textContent.includes(l + ": "))),
+      buttons().every((b) => labels.every((l) => !b.textContent.includes(l + ":") && !b.textContent.includes(l + " "))) &&
+      buttons().every(
+        (b) => b.children.length === 2 && b.children[0].dataset.importField === "Inspector" && b.children[1].matches(".import-facts"),
+      ) &&
+      buttons().every((b) => b.children[1].querySelectorAll("[data-import-field]").length === 3),
   );
   const facts = (b) =>
     Object.fromEntries([...b.querySelectorAll("[data-import-field]")].map((f) => [f.dataset.importField, f.querySelector("strong").textContent]));
