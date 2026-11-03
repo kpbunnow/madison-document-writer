@@ -955,7 +955,7 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
                 return already_committed
         cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output) else []
         validate_history(output, {e["id"] for e in current.get("events", [])} if previous is not None else set(), cross_case, folder)
-        restart = case_integrity.restart_approval(folder, number) if output.get("schema", 1) >= 5 and previous is None else None
+        restart = case_integrity.automatic_restart(folder, number) if output.get("schema", 1) >= 5 and previous is None else None
         if output.get("schema", 1) >= 5:
             output = case_integrity.commit_record(current if previous is not None else None, output, restart=restart)
         raw = _publish_validated_case(
@@ -968,8 +968,6 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
             target=target,
             restart=restart is not None,
         )
-        if restart:
-            case_integrity.consume_restart(folder, number)
         case_integrity.anchor_after_save(folder)
         return {"ok": True, "file": output, "revision": digest(raw), "name": target.name}
 

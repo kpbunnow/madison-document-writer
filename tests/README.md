@@ -242,7 +242,7 @@ covers, or a new suite under its feature.
 | `audit_helper.py` | Real filesystem and HTTP store regressions |
 | `audit_contracts.js` | Exact event and store contracts |
 | `audit_r31_integrity.js`, `audit_r31_integrity.py`, `audit_r32_integrity.py` | Canonical hashing, tamper detection, migration, anchors, downgrade refusal |
-| `audit_case_restart.py` | A case whose file is gone for good: the clearer refusal, the administrator's offline restart approval (unanchored and anchored), refusals, a changed registry or another case number not accepted, and one approval restarting one case once |
+| `audit_case_restart.py` | A case whose file is gone for good restarts its history on the next save, with and without an external anchor: the registry keeps both entries, the new genesis names the prior commit, the label says the history restarted, a restart never repeats, an unusable entry for the number (link) refuses the save, and normal cases are unchanged |
 | `audit_r40_cache.js`, `audit_r40_storage.py` | Proof cache eviction, durable failures, lock recovery |
 | `audit_utf8_io.py` | Case, integrity, tool and policy text is UTF-8 under a simulated Windows CP1252 default (including the deposit provenance check); no implicit encodings in helper/, tools/ or policy/ |
 | `audit_pdf_publication.py` | Outbox transfer and direct filing share one per-name lock, never replace different bytes, keep the outbox copy on conflict |

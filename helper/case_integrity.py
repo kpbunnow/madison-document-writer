@@ -17,15 +17,9 @@ ZERO = "0" * 64
 
 
 GENESIS_CONFLICT = (
-    "This case number was saved on the shared folder before, but its case file is missing or is a different record, "
-    "so this save was refused to protect the history. Your work is kept on this device. "
-    "Ask an administrator to restore the case file or to approve a restart of this case before saving again."
+    "This case's migration history conflicts with the evidence the program retained for it, so it was not saved. "
+    "Your work is kept on this device. Ask an administrator to review the case before saving again."
 )
-RESTART_MISMATCH = (
-    "The administrator's approval to restart this case no longer matches the shared folder, so it was not saved. "
-    "Your work is kept on this device. Ask an administrator to approve the restart again."
-)
-RESTART_FORMAT = "madison-integrity-restart"
 
 
 def canonical(value):
@@ -60,9 +54,9 @@ def protected_folder(folder):
 
 
 def commit_record(current, record, restart=None):
-    """The chained record. `restart` is a validated administrator approval (see restart_approval): a case whose file is
-    gone but whose number is retained starts a new history whose genesis names the administrator and the prior
-    anchored commit, so verification can tell it from a replaced or forged history."""
+    """The chained record. `restart` (see automatic_restart) starts a new history for a case whose file is gone but whose
+    number is retained; its genesis names the prior anchored commit and genesis hashes, so verification can tell it
+    from a replaced or forged history."""
     result = copy.deepcopy(record)
     result["schema"] = 5
     prior = copy.deepcopy(current.get("integrity")) if current and current.get("schema") == 5 else None
@@ -77,12 +71,14 @@ def commit_record(current, record, restart=None):
         }
         if restart:
             genesis["administrativeRecovery"] = {
-                "administrator": restart["administrator"],
-                "reason": restart["reason"],
+                "administrator": "automatic",
+                "reason": "The case file was missing from the shared folder, so the program restarted the case history.",
                 "quarantineFile": "",
                 "priorFileSha256": "",
                 "priorAnchoredCommitHash": restart["priorAnchoredCommitHash"],
+                "priorGenesisHashes": restart["priorGenesisHashes"],
                 "missingCaseFile": True,
+                "automatic": True,
             }
         genesis["hash"] = hash_bytes(canonical(genesis))
         prior = {"genesis": genesis, "entries": [], "commits": []}
@@ -109,43 +105,28 @@ def commit_record(current, record, restart=None):
     return result
 
 
-def restart_path(folder, number):
-    from case_store import case_number_key
+def automatic_restart(folder, number):
+    """The note for restarting the history of a case whose file is gone, or None when the number is not retained.
 
-    return Path(folder) / "_integrity" / "restarts" / (hash_bytes(case_number_key(number).casefold().encode()) + ".json")
+    A case file that was deleted for good leaves the number in the migration registry (and perhaps an external anchor).
+    The save then starts a new history instead of being refused forever. Nothing retained is deleted: the old registry
+    entries and anchors stay, and the new genesis names the prior anchored commit and the prior genesis hashes so the
+    restart is permanent, visible evidence. If any entry for the number is on the share but cannot be used (a link, for
+    example), nothing is restarted; a second history beside it would hide the first."""
+    from case_store import case_file_key, case_number_key
+    from plain_files import LINKED_MESSAGE
 
-
-def restart_approval(folder, number):
-    """The administrator's approval to restart one case whose file is missing, or None. The caller owns the case lock
-    and has found no case file. The approval is bound to the registry entries and anchored commit it was given for."""
-    path = restart_path(folder, number)
-    if not path.exists():
+    key = case_number_key(number)
+    if any(case_file_key(p) == key for p in Path(folder).glob("*.json")):
+        raise ValueError(LINKED_MESSAGE)
+    context = VerificationContext(folder, protected_folder(folder))
+    entries = context.by_number.get(number.casefold(), [])
+    if not entries:
         return None
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-        context = VerificationContext(folder, protected_folder(folder))
-        entries = context.by_number.get(number.casefold(), [])
-        anchored = context.anchors.get(number.casefold())
-        valid = (
-            value.get("format") == RESTART_FORMAT
-            and str(value["caseNumber"]).casefold() == number.casefold()
-            and isinstance(value["administrator"], str)
-            and isinstance(value["reason"], str)
-            and value["registryEntries"] == entries
-            and value["priorAnchoredCommitHash"] == (anchored["commitHash"] if anchored else "")
-        )
-    except (OSError, ValueError, KeyError, TypeError, AttributeError):
-        valid = False
-    if not valid:
-        raise ValueError(RESTART_MISMATCH)
-    return value
-
-
-def consume_restart(folder, number):
-    """Retire a used approval so one approval restarts one case once; the file is kept as the audit record."""
-    path = restart_path(folder, number)
-    if path.exists():
-        path.replace(path.with_name(path.name + ".used-" + stamp().replace(":", "")))
+    if intent_path(folder, number).exists():
+        raise ValueError("Complete the pending integrity transaction before another save")
+    anchored = context.anchors.get(number.casefold())
+    return {"priorAnchoredCommitHash": anchored["commitHash"] if anchored else "", "priorGenesisHashes": [e["genesisHash"] for e in entries]}
 
 
 def registry(folder):
@@ -492,15 +473,20 @@ def verify_record(record, folder=None, external=None, context=None):
         ):
             return failure("anchored head", anchored_case["commitHash"], previous)
         pending = bool(context and record["case"]["number"].casefold() in context.pending)
+        restarted = genesis.get("administrativeRecovery", {}).get("automatic") is True
+        base = (
+            "Verified chain; migration completion pending — retry saving"
+            if pending
+            else "Verified / anchored"
+            if anchored
+            else "Verified chain / not externally anchored"
+        )
         return {
             "valid": True,
             "anchored": anchored,
             "pendingTransaction": pending,
-            "label": "Verified chain; migration completion pending — retry saving"
-            if pending
-            else "Verified / anchored"
-            if anchored
-            else "Verified chain / not externally anchored",
+            "historyRestarted": restarted,
+            "label": base + ("; history restarted " + genesis["committedAt"][:10] + " because the case file was missing" if restarted else ""),
             "headHash": head,
             "commitHash": previous,
             "lastGoodCommitTime": last,
