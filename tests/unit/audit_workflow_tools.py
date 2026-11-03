@@ -70,19 +70,6 @@ class WorkflowToolsTests(unittest.TestCase):
             "inspectors": [],
         }
 
-    def test_readonly_search_citations_historical_details_duplicates(self):
-        raw = json.dumps(self.case())
-        p = self.cases / "Current street - QA-SEARCH.json"
-        p.write_text(raw)
-        for query in ("cit-4321", "former owner", "former address", "current street"):
-            found = workflow.search_cases(self.cases, query)
-            self.assertEqual(len(found["hits"]), 1)
-        self.assertEqual(p.read_text(), raw)
-        (self.cases / "Duplicate - QA-SEARCH.json").write_text(raw)
-        self.assertTrue(workflow.search_cases(self.cases, "cit-4321")["hits"][0]["duplicate"])
-        (self.cases / "unreadable.json").write_text("{")
-        self.assertEqual(workflow.search_cases(self.cases, "current")["unreadable"], 1)
-
     def pdf(self, name, raw=b"%PDF-1.4\nTest bytes"):
         directory = self.local / server.OUTDIR_NAME
         directory.mkdir(exist_ok=True)

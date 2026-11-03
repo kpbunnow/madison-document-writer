@@ -1,12 +1,12 @@
-"""Read-only search and optional operational aids; never rewrite issued records."""
+"""Shared report views and optional operational aids; never rewrite issued records."""
 
 from helper_logging import logged
 import hashlib
 import json
 from pathlib import Path
 import re
-from case_store import atomic_write, case_number_key, file_lock, validate_case
-from plain_files import plain_json_files, read_plain_bytes
+from case_store import atomic_write, file_lock
+from plain_files import plain_json_files
 
 REPORTS = {
     "openCases",
@@ -22,54 +22,6 @@ REPORTS = {
     "documentActions",
 }
 FILTERS = {"from", "to", "asOf", "areaType", "boundary", "areas", "inspector", "vtype", "ord", "status", "owner"}
-
-
-def _case_search_terms(record, case):
-    text = [case.get(k, "") for k in ("number", "address", "owner", "parcel")]
-    for event in record["events"]:
-        snap = event.get("payload", {}).get("snapshot", {})
-        if isinstance(snap, dict):
-            frozen = snap.get("frozen", {}).get("case", {})
-            text.extend(frozen.get(k, "") for k in ("address", "owner"))
-            text.extend(c.get("num", "") for c in snap.get("cits", {}).values() if isinstance(c, dict))
-    return text
-
-
-@logged("search")
-def search_cases(folder, query):
-    if not Path(folder).is_dir():
-        raise OSError("Shared case folder unavailable")
-    if not isinstance(query, str) or not 2 <= len(query.strip()) <= 200:
-        raise ValueError("Search needs 2–200 characters")
-    query = query.strip().casefold()
-    files = sorted(p for p in plain_json_files(Path(folder)) if not p.name.startswith("_"))
-    hits, unreadable, numbers = [], 0, {}
-    for path in files[:5000]:
-        try:
-            if path.stat().st_size > 32 * 1024 * 1024:
-                raise ValueError("Oversize record")
-            record = json.loads(read_plain_bytes(path))
-            validate_case(record, legacy=True)
-            case = record["case"]
-            number = case_number_key(case["number"])
-            if not path.stem.casefold().endswith(" - " + number):
-                raise ValueError("Identity mismatch")
-            numbers[number] = numbers.get(number, 0) + 1
-            text = _case_search_terms(record, case)
-            if query in " ".join(map(str, text)).casefold():
-                hits.append(
-                    {
-                        "number": case["number"],
-                        "address": case.get("address", ""),
-                        "owner": case.get("owner", ""),
-                        "eventCount": len(record["events"]),
-                    }
-                )
-        except (OSError, ValueError, TypeError, KeyError, AttributeError):
-            unreadable += 1
-    for hit in hits:
-        hit["duplicate"] = numbers.get(case_number_key(hit["number"]), 0) > 1
-    return {"ok": True, "hits": hits[:100], "unreadable": unreadable, "partial": len(files) > 5000 or len(hits) > 100}
 
 
 def validate_view(view):

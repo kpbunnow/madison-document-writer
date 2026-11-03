@@ -716,7 +716,6 @@ export let {
   showLock,
   saveWorkflowPrefs,
   caseSearchText,
-  globalSearch,
 } = languageCatalog;
 const { resolvedCaseFields } = languageCatalog;
 
@@ -1532,7 +1531,6 @@ const workflowEvents = createWorkflowEvents(
     {
       checkHelper: () => checkHelper,
       downloadFile: () => downloadFile,
-      globalSearch: () => globalSearch,
       helperJSON: () => helperJSON,
       navigation: () => navigation,
       persistWorkspacePatch: () => persistWorkspacePatch,

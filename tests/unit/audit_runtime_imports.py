@@ -42,7 +42,6 @@ class RuntimeImports(unittest.TestCase):
             for module in sorted(local_imports(path)):
                 with self.subTest(importer=target, module=module):
                     self.assertIn(module + ".py", deployed, target + " imports " + module + ", which the deployment does not carry")
-        self.assertIn("open_cases.py", required)
 
     def test_deployment_map_names_existing_source_files(self):
         for target, source in TEMPLATE["deploy"].items():

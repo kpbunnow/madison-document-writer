@@ -53,7 +53,6 @@ import render_security
 import trusted_connections
 import operations_helper
 import workflow_helper
-import open_cases
 from helper_logging import logged, record
 from datetime import datetime, timezone
 from case_lookup import lookup as lookup_case, CaseLookupError
@@ -69,7 +68,6 @@ from case_store import (
     case_file_key,
     citation_history,
     held_lock_kinds,
-    city_day,
 )
 
 SESSION_TOKEN = secrets.token_urlsafe(32)
@@ -1376,9 +1374,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _get_workflow_reads(self, route):
         try:
-            if route == "/cases/search":
-                result = workflow_helper.search_cases(case_dir(), parse_qs(urlsplit(self.path).query).get("q", [""])[0])
-            elif route == "/outbox/list":
+            if route == "/outbox/list":
                 result = workflow_helper.outbox_files(sys.modules[__name__])
             else:
                 result = workflow_helper.shared_views(case_dir())
@@ -1420,19 +1416,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, {"ok": True, "files": sorted(files, key=lambda p: p["mod"], reverse=True)})
         except Exception as error:
             return self._json(503, {"ok": False, "error": public_message(error)})
-
-    def _get_cases_by_inspector(self, route):
-        try:
-            inspector = parse_qs(urlsplit(self.path).query).get("inspector", [""])[0]
-            roster = {i["id"] for i in case_projection.tables()[0]["inspectors"]}
-            index = read_index()
-            if not index.get("ok"):
-                return self._json(503, {"ok": False, "error": "The shared case folder could not be read"})
-            return self._json(200, open_cases.open_cases_for(index, inspector, roster, city_day().isoformat()))
-        except ValueError as error:
-            return self._json(400, {"ok": False, "error": public_message(error)})
-        except Exception as error:
-            return self._json(500, {"ok": False, "error": public_message(error)})
 
     def _get_case_open(self, route):
         try:
@@ -1804,14 +1787,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 # a mistyped method name fails at import.
 GET_ROUTES = {
     "/locks/status": Handler._get_lock_status,
-    "/cases/search": Handler._get_workflow_reads,
     "/outbox/list": Handler._get_workflow_reads,
     "/reporting/views": Handler._get_workflow_reads,
     "/administration/snow-letter": Handler._get_snow_letter,
     "/citations/history": Handler._get_citation_history,
     "/cases/list": Handler._get_case_list,
     "/cases/open": Handler._get_case_open,
-    "/cases/by-inspector": Handler._get_cases_by_inspector,
     "/cases/resolve": Handler._get_case_resolve,
     "/dw-status": Handler._get_status,
     "/draft-backups/list": Handler._get_backup_list,
