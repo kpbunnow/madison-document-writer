@@ -62,9 +62,26 @@ const row = (number, extra = {}) => ({
   assert.ok(!/<table|<th |<td |underline|>Import</.test(markup), "no table, underlined link or Import button");
   assert.match(
     markup,
-    /<button type="button" class="import-inspection open-case" data-open-case-pick="CB2026-241-00003" aria-pressed="false"><span class="open-case-nowrap"><strong>CB2026-241-00003<\/strong> · &lt;img[^<]*<\/span><span>&lt;script&gt;x&lt;\/script&gt;<\/span><\/button>/,
-    "number and address on a no-wrap line, the description below",
+    /<button type="button" class="import-inspection open-case" data-open-case-pick="CB2026-241-00003" aria-pressed="false"><span class="open-case-main"><span class="open-case-nowrap"><strong>CB2026-241-00003<\/strong> · &lt;img[^<]*<\/span><span>&lt;script&gt;x&lt;\/script&gt;<\/span><\/span><span class="open-case-due"><\/span><\/button>/,
+    "number and address on a no-wrap line, the description below, an empty due column when there is no due date",
   );
+  // The due date is its own column on the right, shown as month/day/year with a Due label; anything else leaves it blank.
+  const dated = m.openCaseRowsHTML({
+    cases: [
+      row("CB2026-241-00004", { dueDate: "2026-11-20" }),
+      row("CB2026-241-00005", { dueDate: "soon" }),
+      row("CB2026-241-00006", { dueDate: "" }),
+    ],
+    query: "",
+  });
+  assert.match(
+    dated,
+    /data-open-case-pick="CB2026-241-00004"[\s\S]*?<span class="open-case-due"><span class="open-case-due-label">Due<\/span><strong>11\/20\/2026<\/strong><\/span>/,
+    "a due date is shown as 11/20/2026 under a Due label",
+  );
+  assert.equal((dated.match(/open-case-due-label/g) || []).length, 1, "only the case with a valid due date has one");
+  assert.equal((dated.match(/<span class="open-case-due"><\/span>/g) || []).length, 2, "the others stay blank");
+  assert.ok(dated.indexOf("CB2026-241-00004") < dated.indexOf("CB2026-241-00005"), "the list keeps the order the helper sent");
   assert.equal((markup.match(/data-open-case-pick=/g) || []).length, 2, "one bubble per case");
   assert.ok(!markup.includes(" style="), "styling belongs to the reviewed screen stylesheet");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
@@ -86,6 +103,10 @@ const row = (number, extra = {}) => ({
   const loaded = { inspectors: [{ id: "JSMITH", name: "Jordan Smith", openCases: 2 }], cases, casesFor: "JSMITH", loadedAt: "2:14 PM", query: "" };
   assert.equal(m.openCaseCountText(loaded), "2 open cases for Jordan Smith. Loaded 2:14 PM.");
   assert.equal(m.openCaseCountText({ ...loaded, query: "oak" }), "1 of 2 open cases for Jordan Smith. Loaded 2:14 PM.");
+  assert.equal(
+    m.openCaseCountText({ ...loaded, dueUnavailable: true }),
+    "2 open cases for Jordan Smith. Loaded 2:14 PM. Due dates are not available right now.",
+  );
 
   // Card states.
   const card = (state) => m.openCaseCardHTML(state);
@@ -261,6 +282,24 @@ const row = (number, extra = {}) => ({
   await new Promise((resolve) => setTimeout(resolve, 10));
   assert.equal(openList.inspectors[0].name, "JQP", "a failed name step leaves the user ID in place");
   assert.equal(openList.error, "", "and is not shown as an error");
+  // The helper says when due dates could not be read; the list then says so instead of looking like nothing is due.
+  const dueState = (dueDates) =>
+    m.createOpenCaseList({
+      ...services,
+      helperJSON: async () => ({
+        cases: [row("CB2026-241-00007", dueDates === false ? {} : { dueDate: "2026-11-20" })],
+        ...(dueDates === undefined ? {} : { dueDates }),
+      }),
+    });
+  await dueState(false).showCases("JSMITH");
+  assert.equal(openList.dueUnavailable, true, "dueDates false is reported");
+  assert.match(
+    m.openCaseCountText({ ...openList, inspectors: [{ id: "JSMITH", name: "Jordan Smith" }], casesFor: "JSMITH" }),
+    /Due dates are not available right now\./,
+  );
+  await dueState(true).showCases("JSMITH");
+  assert.equal(openList.dueUnavailable, false, "readable due dates clear the note");
+  assert.equal(openList.cases[0].dueDate, "2026-11-20");
   // Different list types must not cancel each other's completion or strand their loading flags.
   let finishInspectors, finishCases;
   const overlapping = m.createOpenCaseList({

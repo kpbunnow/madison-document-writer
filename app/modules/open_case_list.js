@@ -16,6 +16,7 @@ export const openList = {
   casesFor: null,
   casesLoading: false,
   casesError: "",
+  dueUnavailable: false,
   query: "",
   loadedAt: "",
   picked: "",
@@ -34,12 +35,18 @@ export function filterOpenCases(cases, query) {
   });
 }
 
+const usDate = (iso) => iso.slice(5, 7) + "/" + iso.slice(8, 10) + "/" + iso.slice(0, 4);
+
 /* Each open case is its own bubble, in the same style as an inspection result: the case number and address on one line
-   (they never wrap), the description below (it wraps). Selecting a bubble looks that case up; the bubble of the case
-   being looked up or reviewed is shown selected. */
+   (they never wrap) with the description below (it wraps), and the soonest due date of the case's last issued document
+   in its own column on the right (blank when no order has been issued). Selecting a bubble looks that case up; the
+   bubble of the case being looked up or reviewed is shown selected. */
 function openCaseBubbleHTML(c, picked) {
   const selected = picked === c.caseNumber;
-  return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span class="open-case-nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></button>`;
+  const due = /^\d{4}-\d{2}-\d{2}$/.test(c.dueDate || "")
+    ? html`<span class="open-case-due-label">Due</span><strong>${usDate(c.dueDate)}</strong>`
+    : "";
+  return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span class="open-case-main"><span class="open-case-nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></span><span class="open-case-due">${raw(due)}</span></button>`;
 }
 
 export function openCaseRowsHTML(state) {
@@ -62,7 +69,8 @@ export function openCaseCountText(state) {
     (shown === total ? total + " open " + (total === 1 ? "case" : "cases") : shown + " of " + total + " open cases") +
     " for " +
     who +
-    (state.loadedAt ? ". Loaded " + state.loadedAt + "." : ".")
+    (state.loadedAt ? ". Loaded " + state.loadedAt + "." : ".") +
+    (state.dueUnavailable ? " Due dates are not available right now." : "")
   );
 }
 
@@ -178,6 +186,7 @@ async function showCases(services, id) {
     if (mine !== caseSerial) return;
     if (!Array.isArray(result.cases)) throw new Error(BAD_ANSWER);
     openList.cases = result.cases;
+    openList.dueUnavailable = result.dueDates === false;
     openList.casesFor = id;
     openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   } catch (error) {

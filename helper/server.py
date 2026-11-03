@@ -1616,7 +1616,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(200, inspector_cases.inspectors(share_root(), refresh=bool(data)))
             if not isinstance(data, dict) or set(data) != {"inspector"}:
                 raise ValueError("Expected only an inspector")
-            return self._json(200, inspector_cases.open_cases(share_root(), data["inspector"]))
+            return self._json(200, inspector_cases.open_cases(share_root(), data["inspector"], case_dir()))
         except CaseLookupError as error:
             return self._json(error.status, {"ok": False, "error": public_message(error)})
         except (ValueError, TypeError):

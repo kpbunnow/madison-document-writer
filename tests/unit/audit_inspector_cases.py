@@ -298,10 +298,92 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(result["inspector"], {"id": "JSMITH"})
         self.assertEqual([c["caseNumber"] for c in result["cases"]], ["CB2026-241-00001", "CB2026-241-00002"])
         first, second = result["cases"]
-        self.assertEqual(first, {"caseNumber": "CB2026-241-00001", "address": "101 TEST ST", "description": "Synthetic description"})
-        self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": ""})
+        self.assertEqual(first, {"caseNumber": "CB2026-241-00001", "address": "101 TEST ST", "description": "Synthetic description", "dueDate": ""})
+        self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": "", "dueDate": ""})
+        self.assertFalse(result["dueDates"], "no case folder was given, so due dates are not available")
         with patch.object(lookup, "run_script", return_value=self.answer([])):
             self.assertEqual(cases.open_cases(self.root, "JSMITH")["cases"], [])
+
+    def summary(self, number, *dues, **extra):
+        """A Reporting Index summary whose violation items carry the given due dates (one item each)."""
+        items = [{"no": str(n + 1), "due": due, "done": False, "withdrawn": False} for n, due in enumerate(dues)]
+        value = {"format": "madison-case-summary", "case": {"number": number}, "violations": items}
+        value.update(extra)
+        return value
+
+    def write_summary(self, number, value, name=None):
+        folder = self.root / "Case JSON Files" / "Reporting Index"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / (name or number + ".json")).write_text(value if isinstance(value, str) else json.dumps(value))
+
+    def test_the_soonest_outstanding_due_date_of_the_last_issued_document_is_the_due_date(self):
+        today = "2026-11-03"
+        self.assertEqual(cases.next_due(self.summary("A", "2026-12-20", "2026-11-20", "2026-12-01")), "2026-11-20", "the soonest of the items")
+        self.assertEqual(cases.next_due(self.summary("A", "2026-10-01", "2026-12-01")), "2026-10-01", "a past-due date counts and leads")
+        done = self.summary("A", "2026-11-05", "2026-12-01")
+        done["violations"][0]["done"] = True
+        self.assertEqual(cases.next_due(done), "2026-12-01", "a corrected item no longer counts")
+        done["violations"][1]["withdrawn"] = True
+        self.assertEqual(cases.next_due(done), "", "nothing outstanding means no due date")
+        for bad in ("", "soon", "2026-13-45", "12/01/2026", None, 5):
+            self.assertEqual(cases.next_due(self.summary("A", bad)), "", repr(bad))
+        self.assertEqual(cases.next_due({"violations": "not a list"}), "")
+        self.assertEqual(cases.next_due({}), "", today)
+
+    def test_due_dates_are_read_only_from_the_listed_cases_usable_summaries(self):
+        self.write_summary("CB2026-241-00001", self.summary("CB2026-241-00001", "2026-12-01", "2026-11-10"))
+        self.write_summary("CB2026-241-00002", self.summary("CB2026-241-00002", "2026-11-04"), name="cb2026-241-00002.json")
+        self.write_summary("CB2026-241-00003", self.summary("CB2026-241-00099", "2026-11-05"))
+        self.write_summary("CB2026-241-00004", "{ not json")
+        self.write_summary("CB2026-241-00005", self.summary("CB2026-241-00005", "2026-11-06", format="something-else"))
+        self.write_summary("CB2026-241-00006", self.summary("CB2026-241-00006", "2026-11-07", note="x" * (cases.MAX_SUMMARY_BYTES + 1)))
+        self.write_summary("CB2026-241-00008", self.summary("CB2026-241-00008", "2026-11-08"))
+        found = cases.due_dates(
+            self.root / "Case JSON Files",
+            [
+                "CB2026-241-00001",
+                "CB2026-241-00002",
+                "CB2026-241-00003",
+                "CB2026-241-00004",
+                "CB2026-241-00005",
+                "CB2026-241-00006",
+                "CB2026-241-00007",
+            ],
+        )
+        self.assertEqual(
+            found,
+            {"CB2026-241-00001": "2026-11-10", "CB2026-241-00002": "2026-11-04"},
+            "mismatched, damaged, foreign, oversize and unlisted summaries give none",
+        )
+        self.assertEqual(cases.due_dates(self.root / "nowhere", ["CB2026-241-00001"]), None, "an unreachable case folder is reported, not guessed")
+        self.assertEqual(cases.due_dates(self.root, ["CB2026-241-00001"]), {}, "no Reporting Index means no due dates")
+
+    def test_open_cases_carry_their_due_date_and_sort_blanks_first_then_past_due_to_furthest(self):
+        names = ["CB2026-241-00001", "CB2026-241-00002", "CB2026-241-00003", "CB2026-241-00004", "CB2026-241-00005"]
+        rows = [case_row(n) for n in names]
+        self.write_summary(names[0], self.summary(names[0], "2026-12-15"))
+        self.write_summary(names[1], self.summary(names[1], "2026-10-01"))
+        self.write_summary(names[3], self.summary(names[3], "2026-11-20", "2026-11-05"))
+        self.write_summary(names[4], self.summary(names[4]))
+        with patch.object(lookup, "run_script", return_value=self.answer(rows)):
+            result = cases.open_cases(self.root, "JSMITH", self.root / "Case JSON Files")
+        self.assertTrue(result["dueDates"])
+        self.assertEqual(
+            [(c["caseNumber"], c["dueDate"]) for c in result["cases"]],
+            [
+                ("CB2026-241-00003", ""),
+                ("CB2026-241-00005", ""),
+                ("CB2026-241-00002", "2026-10-01"),
+                ("CB2026-241-00004", "2026-11-05"),
+                ("CB2026-241-00001", "2026-12-15"),
+            ],
+            "no order first (in the database's order), then past due to furthest away",
+        )
+        with patch.object(lookup, "run_script", return_value=self.answer(rows)):
+            unreachable = cases.open_cases(self.root, "JSMITH", self.root / "nowhere")
+        self.assertFalse(unreachable["dueDates"])
+        self.assertEqual([c["caseNumber"] for c in unreachable["cases"]], names, "without due dates the database's order stays")
+        self.assertTrue(all(c["dueDate"] == "" for c in unreachable["cases"]))
 
     def test_open_cases_refuse_wrong_inspector_columns_values_and_excluded_people(self):
         for value in ["", "a b", "x" * 65, None, 7, "A;DROP"]:

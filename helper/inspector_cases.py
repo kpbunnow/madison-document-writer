@@ -15,6 +15,8 @@ import time
 from helper_logging import logged
 import case_lookup
 from case_lookup import CaseLookupError, HERE
+from plain_files import plain_json_files, read_plain_bytes
+from reporting_reads import ordered_reads
 
 LISTS = threading.BoundedSemaphore(1)
 NAMES = threading.BoundedSemaphore(1)
@@ -32,6 +34,9 @@ CACHE_SECONDS = 1800
 _cache = {"root": None, "at": 0.0, "answer": None, "source": None}
 INSPECTOR_FIELDS = ("UserId", "InspectorName", "OpenCases")
 CASE_FIELDS = ("UserId", "CaseNumber", "ShortAddress", "CaseDescription")
+SUMMARY_DIR = "Reporting Index"
+MAX_SUMMARY_BYTES = 8 * 1024 * 1024
+SUMMARY_READERS = 4
 NAME_FIELDS = ("UserId", "InspectorName")
 _names = {"root": None, "at": 0.0, "found": None}
 
@@ -219,8 +224,58 @@ def inspector_names(root, refresh=False):
     return {"ok": True, "names": resolved, **({"excluded": removed} if removed else {})}
 
 
+def next_due(summary):
+    """The soonest due date still outstanding among the violation items a case summary carries. A summary's items and
+    due dates are those of the last issued document that has items (notice, reinspection notice, extension and so on),
+    so this is that document's soonest outstanding deadline."""
+    days = []
+    for item in summary.get("violations", []):
+        due = item.get("due") if isinstance(item, dict) and not item.get("done") and not item.get("withdrawn") else None
+        if isinstance(due, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", due):
+            try:
+                datetime.date.fromisoformat(due)
+            except ValueError:
+                continue
+            days.append(due)
+    return min(days) if days else ""
+
+
+def _summary_due(path, number):
+    """One case's soonest outstanding due date from its Reporting Index summary, or "" for any file that cannot be used."""
+    try:
+        raw = read_plain_bytes(path)
+        summary = json.loads(raw) if len(raw) <= MAX_SUMMARY_BYTES else None
+    except (OSError, ValueError):
+        return ""
+    case = summary.get("case") if isinstance(summary, dict) else None
+    if (
+        not isinstance(summary, dict)
+        or summary.get("format") != "madison-case-summary"
+        or not isinstance(case, dict)
+        or str(case.get("number", "")).casefold() != number.casefold()
+    ):
+        return ""
+    try:
+        return next_due(summary)
+    except (TypeError, AttributeError):
+        return ""
+
+
+def due_dates(case_dir, numbers):
+    """Due dates by upper-case case number, read only from the listed cases' own summaries; None when the shared case
+    folder cannot be read. A case with no usable summary, or no outstanding item with a date, has no entry."""
+    folder = Path(case_dir) / SUMMARY_DIR
+    if not Path(case_dir).is_dir():
+        return None
+    files = {p.name.casefold(): p for p in plain_json_files(folder)} if folder.is_dir() else {}
+    wanted = [(n, files.get(n.casefold() + ".json")) for n in numbers]
+    paths = [(n, p) for n, p in wanted if p is not None]
+    found = ordered_reads(paths, lambda pair: (pair[0], _summary_due(pair[1], pair[0])), SUMMARY_READERS)
+    return {number.upper(): due for number, due in found if due}
+
+
 @logged("lookup")
-def open_cases(root, value):
+def open_cases(root, value, case_dir=None):
     uid = user_id(value)
     names = exclusions(root)
     if excluded(names, uid, _kept_names(root).get(uid.casefold(), uid)):
@@ -241,4 +296,15 @@ def open_cases(root, value):
                 "description": _text(row, "CaseDescription", 2000),
             }
         )
-    return {"ok": True, "inspector": {"id": uid}, "cases": cases, "source": _source(cfg, answer, "inspector_cases.sql")}
+    dues = due_dates(case_dir, [c["caseNumber"] for c in cases]) if case_dir is not None else None
+    for case in cases:
+        case["dueDate"] = (dues or {}).get(case["caseNumber"].upper(), "")
+    # Cases with no due date come first (they still need an order), then the soonest, with past-due dates leading the dated ones.
+    cases.sort(key=lambda c: (c["dueDate"] != "", c["dueDate"]))
+    return {
+        "ok": True,
+        "inspector": {"id": uid},
+        "cases": cases,
+        "dueDates": dues is not None,
+        "source": _source(cfg, answer, "inspector_cases.sql"),
+    }
