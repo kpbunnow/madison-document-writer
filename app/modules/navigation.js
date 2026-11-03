@@ -8,7 +8,6 @@ const TOOL_GROUPS = [
   [
     "Cases & planning",
     [
-      ["Search shared case records", "Find shared records by case number, address, owner, citation or parcel.", "data-global-search", "search"],
       ["Reminders", "Choose upcoming deadlines and personal reinspection plans.", "data-reminders", "calendar"],
       ["Batch draft due dates", "Assign deadlines across selected items in unfinished original notices.", "data-batch-due", "calendar"],
     ],

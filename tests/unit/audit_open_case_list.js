@@ -65,9 +65,10 @@ const row = (number, extra = {}) => ({
   );
   assert.match(
     markup,
-    /<td>CB2026-241-00003<\/td><td>&lt;img[^<]*<\/td><td>&lt;script&gt;x&lt;\/script&gt;<\/td><td><button/,
-    "the same cell format for all three fields",
+    /<td style="white-space:nowrap;vertical-align:top"><button [^>]*data-open-case-pick="CB2026-241-00003"[^>]*>CB2026-241-00003<\/button><\/td><td style="white-space:nowrap;vertical-align:top">&lt;img[^<]*<\/td><td style="vertical-align:top">&lt;script&gt;x&lt;\/script&gt;<\/td><\/tr>/,
+    "the case number is the control; case number and address stay on one line; the description wraps",
   );
+  assert.ok(!/Import<\/(button|span)>/.test(markup) && !/<th scope="col"><span/.test(markup), "there is no separate Import column");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
   assert.match(markup, /data-open-case-pick="CB2026-241-00003"/);
   assert.ok(!/disabled/.test(markup));
@@ -158,6 +159,55 @@ const row = (number, extra = {}) => ({
   await owner.refreshInspectors();
   assert.deepEqual(calls.filter((c) => c[0] === "/inspector-cases/list").at(-1), ["/inspector-cases/list", { refresh: true }]);
   assert.equal(calls.filter((c) => c[0] === "/inspector-cases/list").length, askedList + 1);
+  // People shown by user ID get their full names from a second step that never delays the list.
+  const named = [];
+  const idsFirst = m.createOpenCaseList({
+    ...services,
+    helperJSON: async (url, body) => {
+      named.push(url);
+      if (url === "/inspector-cases/list")
+        return {
+          inspectors: [
+            { id: "JQP", name: "JQP", openCases: 2 },
+            { id: "ASMITH", name: "Alex Smith", openCases: 1 },
+          ],
+        };
+      if (url === "/inspector-cases/names") return { names: [{ id: "JQP", name: "Jamie Q Public" }] };
+      throw new Error("unexpected " + url + JSON.stringify(body));
+    },
+  });
+  openList.inspectors = null;
+  await idsFirst.loadInspectors();
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.deepEqual(named, ["/inspector-cases/list", "/inspector-cases/names"]);
+  assert.deepEqual(
+    openList.inspectors.map((p) => p.name),
+    ["Alex Smith", "Jamie Q Public"],
+    "full name replaces the user ID and the list stays sorted by name",
+  );
+  const noNames = [];
+  const allNamed = m.createOpenCaseList({
+    ...services,
+    helperJSON: async (url) => {
+      noNames.push(url);
+      return { inspectors: [{ id: "ASMITH", name: "Alex Smith", openCases: 1 }] };
+    },
+  });
+  openList.inspectors = null;
+  await allNamed.loadInspectors();
+  assert.deepEqual(noNames, ["/inspector-cases/list"], "nobody is shown by user ID, so no second step");
+  const failing = m.createOpenCaseList({
+    ...services,
+    helperJSON: async (url) => {
+      if (url === "/inspector-cases/names") throw new Error("timed out");
+      return { inspectors: [{ id: "JQP", name: "JQP", openCases: 2 }] };
+    },
+  });
+  openList.inspectors = null;
+  await failing.loadInspectors();
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(openList.inspectors[0].name, "JQP", "a failed name step leaves the user ID in place");
+  assert.equal(openList.error, "", "and is not shown as an error");
   // Different list types must not cancel each other's completion or strand their loading flags.
   let finishInspectors, finishCases;
   const overlapping = m.createOpenCaseList({

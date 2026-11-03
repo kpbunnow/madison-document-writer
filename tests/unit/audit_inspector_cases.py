@@ -42,6 +42,7 @@ class InspectorCaseTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         cases._cache.update(root=None, at=0.0, answer=None, source=None)
+        cases._names.update(root=None, at=0.0, found=None)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -78,6 +79,11 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertIn("[int]::TryParse([string]$request.commandTimeout, [ref]$wait)", script)
         self.assertIn("$mode -eq 'inspector_list'", script)
         self.assertIn("$mode -eq 'inspector_cases'", script)
+        self.assertIn("$mode -eq 'inspector_names'", script)
+        names_sql = (lookup.HERE / "inspector_names.sql").read_text()
+        self.assertNotIn("@", names_sql)
+        self.assertNotRegex(names_sql.upper(), r"\b(INSERT|UPDATE|DELETE|DROP|EXEC|MERGE|ALTER|CREATE)\b")
+        self.assertIn("BI_ENF_INSPECTION", names_sql)
         self.assertIn("$cmd.Parameters.Add('@UserId', [System.Data.SqlDbType]::NVarChar, 64)", script)
         self.assertIn("throw 'LOOKUP_MODE'", script)
 
@@ -93,6 +99,45 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(len(result["source"]["querySha256"]), 64)
         self.assertEqual(run.call_args.args[1], {"mode": "inspector_list", "commandTimeout": cases.LIST_QUERY_TIMEOUT})
         self.assertEqual(run.call_args.args[2], cases.LIST_WAIT)
+
+    def test_people_shown_by_user_id_get_full_names_in_a_second_step_and_the_kept_list_learns_them(self):
+        self.excluding(["Hidden%"])
+        rows = [person("ASMITH", "Alex Smith", "4"), person("JQP", "JQP", "2"), person("HID", "HID", "1")]
+        named = [
+            {"UserId": "jqp", "InspectorName": "Jamie Q Public"},
+            {"UserId": "HID", "InspectorName": "Hidden Person"},
+            {"UserId": "OTHER", "InspectorName": "Not Listed"},
+        ]
+
+        def run(cfg, request, wait=None):
+            return self.answer(rows if request["mode"] == "inspector_list" else named)
+
+        with patch.object(lookup, "run_script", side_effect=run) as script:
+            first = cases.inspectors(self.root)
+            self.assertIn({"id": "JQP", "name": "JQP", "openCases": 2}, first["inspectors"])
+            filled = cases.inspector_names(self.root)
+            self.assertEqual(filled, {"ok": True, "names": [{"id": "JQP", "name": "Jamie Q Public"}]})
+            self.assertEqual([c.args[1]["mode"] for c in script.call_args_list], ["inspector_list", "inspector_names"])
+            self.assertEqual(script.call_args_list[1].args[1]["commandTimeout"], cases.LIST_QUERY_TIMEOUT)
+            later = cases.inspectors(self.root)
+            self.assertIn("Jamie Q Public", [p["name"] for p in later["inspectors"]])
+            self.assertEqual(script.call_count, 2, "the kept list now carries the full name")
+            self.assertEqual(cases.inspector_names(self.root), {"ok": True, "names": []})
+            self.assertEqual(script.call_count, 2, "nobody is left without a name, so the slower query is not run again")
+
+    def test_a_bad_name_row_is_refused_and_a_failed_name_lookup_leaves_the_list_alone(self):
+        rows = [person("JQP", "JQP", "2")]
+        for bad in ([{"UserId": "JQP"}], [{"UserId": "J QP", "InspectorName": "x"}], [{"UserId": "JQP", "InspectorName": "a\x01b"}]):
+            cases._cache.update(root=None, at=0.0, answer=None, source=None)
+            cases._names.update(root=None, at=0.0, found=None)
+
+            def run(cfg, request, wait=None, bad=bad):
+                return self.answer(rows if request["mode"] == "inspector_list" else bad)
+
+            with patch.object(lookup, "run_script", side_effect=run):
+                with self.assertRaises(lookup.CaseLookupError):
+                    cases.inspector_names(self.root)
+                self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "JQP")
 
     def test_inspector_list_is_kept_for_a_while_and_try_again_refreshes_it(self):
         self.excluding(["ADMIN1"])
@@ -244,6 +289,8 @@ class HttpInspectorCaseTests(unittest.TestCase):
                 self.assertEqual(post("/inspector-cases/list", {}, ctype="text/plain")[0], 403)
                 self.assertEqual(post("/inspector-cases/list", {"sql": "SELECT 1"})[0], 400)
                 self.assertEqual(post("/inspector-cases/list", {"refresh": False})[0], 400)
+                self.assertEqual(post("/inspector-cases/names", {"sql": "SELECT 1"})[0], 400)
+                self.assertEqual(post("/inspector-cases/names", {"refresh": False})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {"inspector": "A", "sql": "SELECT 1"})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {})[0], 400)
                 self.assertEqual(post("/inspector-cases/cases", {"inspector": "A" * 3000})[0], 413)

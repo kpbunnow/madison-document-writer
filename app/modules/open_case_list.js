@@ -33,8 +33,13 @@ export function filterOpenCases(cases, query) {
   });
 }
 
+const NOWRAP = "white-space:nowrap;vertical-align:top";
+const LINK = "background:none;border:0;padding:0;font:inherit;color:var(--civic);text-decoration:underline;cursor:pointer;white-space:nowrap";
+
+/* The case number is the control: choosing it imports the case. Case number and address stay on one line; only the
+   description wraps. */
 function openCaseRowHTML(c, off) {
-  return html`<tr class="open-case"><td>${c.caseNumber}</td><td>${c.address}</td><td>${c.description}</td><td><button class="btn btn-sm" type="button" data-open-case-pick="${c.caseNumber}" aria-label="Import inspection for ${c.caseNumber}, ${c.address}" ${raw(off ? "disabled" : "")}>Import</button></td></tr>`;
+  return html`<tr class="open-case"><td style="${NOWRAP}"><button type="button" style="${LINK}" data-open-case-pick="${c.caseNumber}" title="Import inspection for ${c.caseNumber}" ${raw(off ? "disabled" : "")}>${c.caseNumber}</button></td><td style="${NOWRAP}">${c.address}</td><td style="vertical-align:top">${c.description}</td></tr>`;
 }
 
 export function openCaseRowsHTML(state, off) {
@@ -42,7 +47,7 @@ export function openCaseRowsHTML(state, off) {
   if (!shown.length)
     return html`<p class="hint">${state.cases && state.cases.length ? "No open case matches this search." : "This inspector has no open cases."}</p>`;
   return (
-    '<table class="open-case-table"><thead><tr><th scope="col">Case number</th><th scope="col">Address</th><th scope="col">Description</th><th scope="col"><span class="sr-only">Import</span></th></tr></thead><tbody>' +
+    '<table class="open-case-table"><thead><tr><th scope="col">Case number</th><th scope="col">Address</th><th scope="col">Description</th></tr></thead><tbody>' +
     shown.map((c) => openCaseRowHTML(c, off)).join("") +
     "</tbody></table>"
   );
@@ -92,7 +97,7 @@ export function openCaseCardHTML(state = openList) {
         ? '<div class="banner warn"><div>An import is waiting for review below. Finish or cancel it before choosing another case.</div></div>'
         : "") +
       openCaseListHTML(state, off);
-  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then choose Import for a case. The import then works exactly as it does for a case number.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
+  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then select a case number to import it. The import then works exactly as it does for a case number typed below.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
 }
 
 function openCaseWithLimit(promise) {
@@ -104,7 +109,8 @@ function openCaseWithLimit(promise) {
 }
 
 let inspectorSerial = 0,
-  caseSerial = 0;
+  caseSerial = 0,
+  nameSerial = 0;
 const redraw = (services) => editor.state.screen === "import" && services.render();
 const BAD_ANSWER = "The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.";
 
@@ -119,11 +125,34 @@ async function loadInspectors(services, refresh = false) {
     if (mine !== inspectorSerial) return;
     if (!Array.isArray(result.inspectors)) throw new Error(BAD_ANSWER);
     openList.inspectors = result.inspectors;
+    fillNames(services, refresh);
   } catch (error) {
     if (mine === inspectorSerial) openList.error = error.message || "The inspector list could not be loaded.";
   } finally {
     if (mine === inspectorSerial) openList.loading = false;
     redraw(services);
+  }
+}
+
+/* People whose name is not in the workflow views arrive shown by user ID. Their full names come from a slower second
+   query that runs after the list is on screen; if it fails the user ID simply stays. */
+const shownById = (p) => String(p.name).toLowerCase() === String(p.id).toLowerCase();
+
+async function fillNames(services, refresh) {
+  if (!openList.inspectors?.some(shownById)) return;
+  const mine = ++nameSerial,
+    list = openList.inspectors;
+  try {
+    const result = await openCaseWithLimit(services.helperJSON("/inspector-cases/names", refresh ? { refresh: true } : {}));
+    if (mine !== nameSerial || list !== openList.inspectors || !Array.isArray(result.names)) return;
+    const full = new Map(result.names.map((n) => [String(n.id).toLowerCase(), n.name]));
+    list.forEach((p) => {
+      if (shownById(p) && full.get(p.id.toLowerCase())) p.name = full.get(p.id.toLowerCase());
+    });
+    list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    redraw(services);
+  } catch {
+    /* the user IDs stay */
   }
 }
 

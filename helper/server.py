@@ -1625,9 +1625,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not 0 < n <= 2048:
                 return self._json(413, {"ok": False, "error": "Invalid request size"})
             data = json.loads(self.rfile.read(n).decode("utf-8"))
-            if route == "/inspector-cases/list":
+            if route in ("/inspector-cases/list", "/inspector-cases/names"):
                 if data not in ({}, {"refresh": True}):
                     raise ValueError("Expected an empty request or refresh")
+                if route == "/inspector-cases/names":
+                    return self._json(200, inspector_cases.inspector_names(share_root(), refresh=bool(data)))
                 return self._json(200, inspector_cases.inspectors(share_root(), refresh=bool(data)))
             if not isinstance(data, dict) or set(data) != {"inspector"}:
                 raise ValueError("Expected only an inspector")
@@ -1829,6 +1831,7 @@ POST_ROUTES = {
     "/case-lookup": Handler._post_case_lookup,
     "/inspector-cases/list": Handler._post_inspector_cases,
     "/inspector-cases/cases": Handler._post_inspector_cases,
+    "/inspector-cases/names": Handler._post_inspector_cases,
     "/cases/save": Handler._post_shared_records,
     "/cases/summary": Handler._post_shared_records,
     "/cases/probe": Handler._post_shared_records,

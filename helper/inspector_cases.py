@@ -22,6 +22,7 @@ EXCLUSION_HELP = 'Case Lookup/excluded-inspectors.json is invalid. Use the suppl
 USER_ID = re.compile(r"[A-Za-z0-9._@-]{1,64}")
 MAX_INSPECTORS = 200
 MAX_CASES = 3000
+MAX_NAMES = 3000
 LIST_WAIT = 90
 LIST_QUERY_TIMEOUT = 60
 # The inspector list changes rarely and takes several seconds on the City database, so a good answer is kept in memory
@@ -30,6 +31,8 @@ CACHE_SECONDS = 1800
 _cache = {"root": None, "at": 0.0, "answer": None, "source": None}
 INSPECTOR_FIELDS = ("UserId", "InspectorName", "OpenCases")
 CASE_FIELDS = ("UserId", "CaseNumber", "ShortAddress", "CaseDescription")
+NAME_FIELDS = ("UserId", "InspectorName")
+_names = {"root": None, "at": 0.0, "found": None}
 
 
 def user_id(value):
@@ -142,6 +145,40 @@ def inspectors(root, refresh=False):
     people = [p for p in everyone if not excluded(names, p["id"], p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
     return {"ok": True, "inspectors": people, "source": source}
+
+
+def _name_map(root, refresh):
+    """User ID (lower case) to full name from the inspection view, kept like the list. Only checked rows are kept."""
+    kept = _names["found"] is not None and _names["root"] == str(root) and time.monotonic() - _names["at"] < CACHE_SECONDS
+    if kept and not refresh:
+        return _names["found"]
+    _, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql")
+    found = {}
+    for row in _rows(answer, NAME_FIELDS, MAX_NAMES):
+        uid = user_id(row["UserId"] if isinstance(row["UserId"], str) else "")
+        name = _text(row, "InspectorName", 200)
+        if name:
+            found[uid.casefold()] = name
+    _names.update(root=str(root), at=time.monotonic(), found=found)
+    return found
+
+
+@logged("lookup")
+def inspector_names(root, refresh=False):
+    """Full names for the listed people who are shown by user ID, so the list does not wait for the slower query. The
+    kept inspector list takes the names too, so the next list already shows them."""
+    excluded_names = exclusions(root)
+    people, _ = _list_answer(root, False)
+    unnamed = [p for p in people if p["name"].casefold() == p["id"].casefold()]
+    resolved = []
+    if unnamed:
+        found = _name_map(root, refresh)
+        for person in unnamed:
+            name = found.get(person["id"].casefold())
+            if name and not excluded(excluded_names, person["id"], name):
+                person["name"] = name
+                resolved.append({"id": person["id"], "name": name})
+    return {"ok": True, "names": resolved}
 
 
 @logged("lookup")
