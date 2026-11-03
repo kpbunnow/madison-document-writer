@@ -1,5 +1,23 @@
 # Release changelog
 
+## 2026-11-03 R70 — Release package
+
+Release package assigned on the owner's request after the first City test of R69 (helper 2026.11.03.71, build 71; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R70 upgrades R69.
+
+### Import list
+
+- Inspectors whose name is not in the workflow tables were shown by user ID. They are still listed at once, and a second query now fills in their full names a few seconds later (the user ID stays if that query is slow or fails). The helper keeps the names with the list.
+- The case number is now the control that imports a case; the separate Import column is gone. Case number and address stay on one line and only the description wraps.
+- A document or worksheet opened from the Import screen starts at its top instead of at the Import page's scroll position.
+
+### Removed
+
+- Search shared case records is removed from Tools & settings, the Workspace start area and the empty-search offer; every case comes in through Import inspection. The Tools list now has nine actions.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. The name query cannot run in the development environment; City acceptance items OCL-11 to OCL-14 exercise it.
+
 ## 2026-11-03 R69 — Release package
 
 Release package assigned on the owner's request after the first City test of R68 (helper 2026.11.03.70, build 70; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R69 upgrades R68.
