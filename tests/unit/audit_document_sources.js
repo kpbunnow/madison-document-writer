@@ -266,6 +266,21 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   const defaults = sources.freezeSources({ ...d, frozen: undefined });
   assert.deepEqual(defaults.courtCopies, CIT_COPIES);
   assert.equal(defaults.courtInstructions, CIT_INSTRUCTIONS);
+  assert.ok(
+    defaults.courtInstructions.includes("plea of guilty, no contest, or not guilty via email, regular mail, the court’s website or fax on or before"),
+  );
+  assert.ok(!defaults.courtInstructions.includes("fax or telephone on or before"));
+  assert.ok(
+    defaults.courtInstructions.includes("the court will schedule a telephone pretrial conference"),
+    "telephone pretrial instructions are retained",
+  );
+  const issuedInstructions =
+    "<p>You may enter a plea of guilty, no contest, or not guilty via email, regular mail, fax or telephone on or before the assigned court date.</p>";
+  assert.equal(
+    sources.freezeSources({ ...d, frozen: { ...d.frozen, courtInstructions: issuedInstructions } }).courtInstructions,
+    issuedInstructions,
+    "issued instructions retain their exact historical wording",
+  );
   assert.deepEqual(defaults.courtContact, COURT_CONTACT);
   assert.equal(defaults.case.owner, "Live owner");
   s.CASES = [{ id: "c", owner: "Replaced owner" }];

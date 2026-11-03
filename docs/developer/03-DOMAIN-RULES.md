@@ -6,6 +6,8 @@ These are the rules the program enforces now, grouped by feature. Rules confirme
 
 Legal wording, ordinance interpretation, court schedules, numbering, authority, seasonal policy and language approval belong to the division. The mandatory-appearance hold remains enforced in Writer and helper until approved distinct defendant instructions are supplied. Historical frozen reprints remain unchanged. Current approved document and court wording (notice blocks, document bodies, court details, copies, instructions and contact) is data in app/assets/approved_language.json; change it only with the division's language approval (L5). Issued documents keep their frozen copies.
 
+The owner approved a citation plea-instruction change on 2026-11-03: pleas may be entered via email, regular mail, the court’s website or fax; telephone is removed as a plea-entry method. Telephone pretrial-conference instructions remain. New/default court instructions use this wording, while issued documents retain their frozen instructions.
+
 ## Issued records and identities
 
 Preserve issued snapshots, event/item/root/visit identities, action chronology, correction lineage, withdrawals versus compliance, deadline limits, initial notice/citation atomic publication and legacy readers. Device saving is not issuance; a filed marker is not PDF proof; an Outlook draft is not delivery. A pending publication confirms its retained request before another action. Every document keeps the authoring version it was issued with; earlier versions are unchanged and corrections render in the source's format.
