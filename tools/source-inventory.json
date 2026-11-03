@@ -601,6 +601,7 @@
     "tests/fixtures/report_facts_reference.txt",
     "tests/fixtures/report_filter_event_reference.txt",
     "tests/fixtures/report_filter_reference.txt",
+    "tests/fixtures/report_grid_loader.cjs",
     "tests/fixtures/report_loading_reference.txt",
     "tests/fixtures/report_lookup_facts_reference.txt",
     "tests/fixtures/report_metadata_reference.txt",

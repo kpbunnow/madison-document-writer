@@ -14,17 +14,10 @@ const dom = new JSDOM("<body></body>");
 const FORMS = ["reminder-settings", "reminder-email", "batch-due-form", "outbox-form", "other-form"];
 
 function scenario() {
-  const hits = Array.from({ length: random(4) }, (_, n) => ({
-    number: "BLD-" + n + pick(["", "<x>"]),
-    address: pick(["1 Main <St>", "2 Oak & Elm"]),
-    owner: pick(["Pat", "A&B"]),
-    duplicate: chance(3),
-  }));
   return {
     id: pick(FORMS),
     submit: !chance(8),
     connected: !chance(5),
-    query: pick(["weeds & more", "x y", ""]),
     enabled: chance(2),
     days: pick(["", "0", "5", "45", "abc", "7", "-3"]),
     plans: pick([
@@ -44,7 +37,6 @@ function scenario() {
       { id: "d1", v: 1 },
       { id: "d2", v: 1 },
     ],
-    search: { hits, unreadable: random(3), partial: chance(3) },
     outbox: { moved: random(4), conflicts: Array.from({ length: random(3) }, (_, n) => "c" + n) },
     throwAt: pick(["", "", "", "helper", "persist", "outbox"]),
     fail: chance(6) ? 1 + random(14) : 0,
@@ -55,7 +47,7 @@ async function run(api, sc) {
   const x = structuredClone(sc),
     calls = [],
     document = dom.window.document;
-  document.body.innerHTML = '<dialog id="utility-dialog"></dialog><div id="global-search-results"></div>';
+  document.body.innerHTML = '<dialog id="utility-dialog"></dialog>';
   globalThis.document = document;
   globalThis.FormData = dom.window.FormData;
   document.getElementById("utility-dialog").close = () => calls.push("dialog.close");
@@ -65,7 +57,6 @@ async function run(api, sc) {
   const form = document.createElement("form");
   form.id = x.id;
   form.innerHTML =
-    field("query", x.query) +
     (x.enabled ? '<input name="enabled" value="on">' : "") +
     field("days", x.days) +
     x.plans.map(([k, v]) => field(k, v)).join("") +
@@ -81,7 +72,7 @@ async function run(api, sc) {
     helperJSON: async (url) => {
       drop();
       if (x.throwAt === "helper") throw new Error("helper <down>");
-      return url.startsWith("/cases/search") ? x.search : url === "/outbox/batch-sync" ? { result: x.outbox } : {};
+      return url === "/outbox/batch-sync" ? { result: x.outbox } : {};
     },
     validISO: (v) => /^\d{4}-\d{2}-\d{2}$/.test(v),
     planBulkDue: (changes, due) => new Map(changes.map((c) => [c.docId, { id: c.docId, v: 2, due }])),
@@ -114,7 +105,6 @@ async function run(api, sc) {
     calls,
     prefs,
     docs: api.WriterState.DOCS,
-    results: document.getElementById("global-search-results").innerHTML,
     disabled: form.querySelector("button")?.disabled,
   });
 }

@@ -39,7 +39,7 @@ export function filterOpenCases(cases, query) {
    being looked up or reviewed is shown selected. */
 function openCaseBubbleHTML(c, picked) {
   const selected = picked === c.caseNumber;
-  return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span style="white-space:nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></button>`;
+  return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span class="open-case-nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></button>`;
 }
 
 export function openCaseRowsHTML(state) {
@@ -47,7 +47,11 @@ export function openCaseRowsHTML(state) {
   if (!shown.length)
     return html`<p class="hint">${state.cases && state.cases.length ? "No open case matches this search." : "This inspector has no open cases."}</p>`;
   const picked = editor.state.acc || imports.LOOKUP_BUSY ? state.picked : "";
-  return '<div class="open-case-list" role="group" aria-label="Open cases">' + shown.map((c) => openCaseBubbleHTML(c, picked)).join("") + "</div>";
+  return (
+    '<div class="open-case-table open-case-list" role="group" aria-label="Open cases">' +
+    shown.map((c) => openCaseBubbleHTML(c, picked)).join("") +
+    "</div>"
+  );
 }
 
 export function openCaseCountText(state) {

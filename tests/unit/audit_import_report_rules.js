@@ -1,14 +1,9 @@
 /* Accela report reading against the retained module: constants, type/status rules, value readers, report-table
-   parsing and workbook (zip and XML) reading, compared over seeded inputs including damaged and oversized files. */
+   parsing, compared over seeded values and report grids. Spreadsheet ZIP/XML reading was retired in R69. */
 const { retainedAccelaImport } = require("../fixtures/retained_accela_import.cjs");
 const assert = require("node:assert/strict"),
-  fs = require("node:fs"),
   path = require("node:path"),
-  zlib = require("node:zlib"),
-  esbuild = require("esbuild"),
-  { JSDOM } = require("jsdom");
-
-global.DOMParser = new JSDOM("").window.DOMParser;
+  esbuild = require("esbuild");
 
 async function compile(contents) {
   const build = await esbuild.build({
@@ -40,124 +35,6 @@ const random = (n) => {
   },
   pick = (values) => values[random(values.length)],
   chance = (n) => random(n) === 0;
-
-const crc = (b) => {
-  let c,
-    cr = 0xffffffff;
-  for (let i = 0; i < b.length; i++) {
-    c = (cr ^ b[i]) & 0xff;
-    for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xedb88320 : c >>> 1;
-    cr = (cr >>> 8) ^ c;
-  }
-  return (cr ^ 0xffffffff) >>> 0;
-};
-
-function zip(files, stored) {
-  const locals = [],
-    cds = [];
-  let off = 0;
-  for (const name of Object.keys(files)) {
-    const data = Buffer.from(files[name], "utf8"),
-      st = stored.includes(name),
-      body = st ? data : zlib.deflateRawSync(data),
-      nm = Buffer.from(name, "utf8");
-    const lh = Buffer.alloc(30);
-    lh.writeUInt32LE(0x04034b50, 0);
-    lh.writeUInt16LE(20, 4);
-    lh.writeUInt16LE(st ? 0 : 8, 8);
-    lh.writeUInt32LE(crc(data), 14);
-    lh.writeUInt32LE(body.length, 18);
-    lh.writeUInt32LE(data.length, 22);
-    lh.writeUInt16LE(nm.length, 26);
-    const ch = Buffer.alloc(46);
-    ch.writeUInt32LE(0x02014b50, 0);
-    ch.writeUInt16LE(20, 4);
-    ch.writeUInt16LE(20, 6);
-    ch.writeUInt16LE(st ? 0 : 8, 10);
-    ch.writeUInt32LE(crc(data), 16);
-    ch.writeUInt32LE(body.length, 20);
-    ch.writeUInt32LE(data.length, 24);
-    ch.writeUInt16LE(nm.length, 28);
-    ch.writeUInt32LE(off, 42);
-    locals.push(lh, nm, body);
-    cds.push(ch, nm);
-    off += 30 + nm.length + body.length;
-  }
-  const cd = Buffer.concat(cds),
-    e = Buffer.alloc(22);
-  e.writeUInt32LE(0x06054b50, 0);
-  e.writeUInt16LE(Object.keys(files).length, 8);
-  e.writeUInt16LE(Object.keys(files).length, 10);
-  e.writeUInt32LE(cd.length, 12);
-  e.writeUInt32LE(off, 16);
-  return Buffer.concat(locals.concat([cd, e]));
-}
-
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const colName = (i) => {
-  let s = "";
-  i++;
-  while (i > 0) {
-    const m = (i - 1) % 26;
-    s = String.fromCharCode(65 + m) + s;
-    i = Math.floor((i - 1) / 26);
-  }
-  return s;
-};
-
-function workbook(grid) {
-  const shared = chance(2),
-    sst = [],
-    si = (s) => (sst.includes(s) ? sst.indexOf(s) : sst.push(s) - 1);
-  const cell = (ref, v) => {
-    if (v === undefined || v === null) return "";
-    if (typeof v === "number") return `<c r="${ref}"><v>${v}</v></c>`;
-    if (typeof v === "boolean") return `<c r="${ref}" t="b"><v>${v ? 1 : 0}</v></c>`;
-    if (shared) return `<c r="${ref}" t="s"><v>${si(v)}</v></c>`;
-    return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
-  };
-  const rows = grid.map((r, n) => (!r ? "" : `<row r="${n + 1}">${r.map((v, i) => cell(colName(i) + (n + 1), v)).join("")}</row>`));
-  const files = {
-    "xl/workbook.xml": `<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${chance(8) ? '<workbookPr date1904="1"/>' : ""}${chance(12) ? "<sheets></sheets>" : '<sheets><sheet name="S" sheetId="1" r:id="rId9"/></sheets>'}</workbook>`,
-    "xl/_rels/workbook.xml.rels": `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="${chance(6) ? "rId1" : "rId9"}" Type="x" Target="worksheets/data.xml"/></Relationships>`,
-    "xl/worksheets/data.xml": `<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows.join("")}</sheetData></worksheet>`,
-  };
-  if (chance(10)) delete files["xl/_rels/workbook.xml.rels"];
-  if (chance(25)) files["xl/worksheets/data.xml"] = pick(["<worksheet><broken", "", '<worksheet xmlns="x"><sheetData></sheetData></worksheet>']);
-  if (chance(25)) delete files["xl/workbook.xml"];
-  if (shared)
-    files["xl/sharedStrings.xml"] =
-      '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-      sst
-        .map((s) =>
-          s.length > 3 && chance(3)
-            ? `<si><r><t>${esc(s.slice(0, 3))}</t></r><r><t>${esc(s.slice(3))}</t></r><rPh><t>X</t></rPh></si>`
-            : `<si><t>${esc(s)}</t></si>`,
-        )
-        .join("") +
-      "</sst>";
-  let bytes = zip(files, chance(3) ? ["xl/worksheets/data.xml"] : []);
-  if (chance(10)) bytes = bytes.subarray(0, random(bytes.length));
-  if (chance(10)) {
-    bytes = Buffer.from(bytes);
-    bytes[random(bytes.length)] ^= 0xff;
-  }
-  if (chance(8)) {
-    // Forge the first central-directory entry to sit exactly on a size boundary.
-    bytes = Buffer.from(bytes);
-    const cd = bytes.lastIndexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
-    const first = bytes.indexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]));
-    if (first >= 0 && cd >= 0 && first + 46 <= bytes.length) {
-      if (chance(2)) bytes.writeUInt32LE(32 * 1024 * 1024, first + 24);
-      else {
-        const start = bytes.readUInt32LE(first + 42) + 30 + bytes.readUInt16LE(first + 28);
-        bytes.writeUInt32LE(bytes.length - start, first + 20);
-      }
-    }
-  }
-  if (chance(40)) bytes = Buffer.from("not a workbook at all");
-  return bytes;
-}
 
 const TYPES = [
   "Initial Inspection",
@@ -400,7 +277,49 @@ async function battery(api) {
   return out.map(show);
 }
 
+async function compareGridLoaders() {
+  const { createReportGridLoader } = require("../fixtures/report_grid_loader.cjs");
+  const retained =
+    'async function loadGrid(b, name) {\n      WriterState.state.screen = "import";\n      cancelCaseLookup();\n      const t = accelaTable(b.grid);\n      WriterState.state.acc = {\n        fileName: name || "",\n        errors: t.errors,\n        notes: t.notes,\n        cases: t.cases,\n        caseIx: 0,\n        sel: t.cases.length ? t.cases[0].sel : null,\n        manualDate: "",\n        manualTime: "",\n      };\n      await accelaFromShare();\n      return WriterState.state.acc;\n    }';
+  async function run(create, failure, empty, replace) {
+    const writer = { state: { screen: "cases", acc: "before" } },
+      calls = [];
+    const cancel = () => {
+      calls.push(["cancel", writer.state.screen]);
+      if (failure === "cancel") throw new Error("cancel");
+    };
+    const table = (grid) => {
+      calls.push(["table", grid]);
+      if (failure === "table") throw new Error("table");
+      return { cases: empty ? [] : [{ sel: "selected" }], errors: [], notes: ["note"] };
+    };
+    const share = async () => {
+      calls.push(["share", structuredClone(writer.state.acc)]);
+      await Promise.resolve();
+      if (replace) writer.state = { screen: "other", acc: "replacement" };
+      if (failure === "share") throw new Error("share");
+    };
+    const load = create(writer, cancel, table, share);
+    const outcome = await attempt(() => load({ grid: [["case"]] }, "fixture"));
+    return JSON.stringify({ outcome, state: writer.state, calls });
+  }
+  const before = (writer, cancel, table, share) =>
+    new Function("WriterState", "cancelCaseLookup", "accelaTable", "accelaFromShare", retained + ";return loadGrid;")(writer, cancel, table, share);
+  const after = (writer, cancel, table, share) =>
+    createReportGridLoader({ getState: () => writer.state, cancelLookup: cancel, readTable: table, readShare: share });
+  for (const failure of ["", "cancel", "table", "share"])
+    for (const empty of [false, true])
+      for (const replace of [false, true]) {
+        assert.equal(
+          await run(after, failure, empty, replace),
+          await run(before, failure, empty, replace),
+          "shared grid loader preserves original order, partial effects, errors and live state",
+        );
+      }
+}
+
 (async () => {
+  await compareGridLoaders();
   const [current, legacy] = await Promise.all([compile('export {createAccelaImport} from "./accela_import.js";'), compile(retainedAccelaImport())]);
   const [before, after] = [await battery(legacy), await battery(current)];
   assert.equal(after.length, before.length);

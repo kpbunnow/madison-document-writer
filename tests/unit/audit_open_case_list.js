@@ -62,10 +62,11 @@ const row = (number, extra = {}) => ({
   assert.ok(!/<table|<th |<td |underline|>Import</.test(markup), "no table, underlined link or Import button");
   assert.match(
     markup,
-    /<button type="button" class="import-inspection open-case" data-open-case-pick="CB2026-241-00003" aria-pressed="false"><span style="white-space:nowrap"><strong>CB2026-241-00003<\/strong> · &lt;img[^<]*<\/span><span>&lt;script&gt;x&lt;\/script&gt;<\/span><\/button>/,
+    /<button type="button" class="import-inspection open-case" data-open-case-pick="CB2026-241-00003" aria-pressed="false"><span class="open-case-nowrap"><strong>CB2026-241-00003<\/strong> · &lt;img[^<]*<\/span><span>&lt;script&gt;x&lt;\/script&gt;<\/span><\/button>/,
     "number and address on a no-wrap line, the description below",
   );
   assert.equal((markup.match(/data-open-case-pick=/g) || []).length, 2, "one bubble per case");
+  assert.ok(!markup.includes(" style="), "styling belongs to the reviewed screen stylesheet");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
   assert.ok(!/disabled/.test(markup), "a bubble can always be selected");
   // The bubble of the case being looked up or reviewed is shown selected; none otherwise.

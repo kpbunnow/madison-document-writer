@@ -1747,7 +1747,6 @@
 
 /* R45 import continuity, screen only. */
 @media screen {
-  .import-alternative > summary,
   .import-workflow > summary,
   .import-source > summary,
   .import-changes > summary {
