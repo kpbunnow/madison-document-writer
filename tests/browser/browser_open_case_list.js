@@ -77,18 +77,36 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     await page.locator(".open-case").first().waitFor();
     assert.equal(await page.locator(".open-case").count(), 3);
     assert.match(await page.locator("#open-cases-count").innerText(), /^3 open cases for Jordan Smith\. Loaded /);
-    // Three columns in the requested order, all in the same cell format, and nothing about the latest inspection.
-    assert.deepEqual(await page.locator("#open-cases-results thead th").allInnerTexts(), ["Case number", "Address", "Description"]);
-    const firstCells = await page.locator(".open-case").first().locator("td").allInnerTexts();
-    assert.deepEqual(firstCells, ["CB2026-241-60001", "101 TEST ST", "Roof and gutters"]);
-    // The case number is the import control; case number and address never wrap, the description may.
-    const whiteSpace = await page
-      .locator(".open-case")
-      .first()
-      .locator("td")
-      .evaluateAll((cells) => cells.map((c) => getComputedStyle(c).whiteSpace));
-    assert.deepEqual(whiteSpace, ["nowrap", "nowrap", "normal"]);
-    assert.equal(await page.locator(".open-case").first().locator("td").first().locator("button[data-open-case-pick]").count(), 1);
+    // Each case is its own bubble: case number and address on one line that never wraps, the description below.
+    const bubble = page.locator(".open-case").first();
+    assert.equal(
+      await bubble.evaluate((el) => el.tagName + "." + el.classList.contains("import-inspection")),
+      "BUTTON.true",
+      "a bubble in the inspection-result style",
+    );
+    assert.deepEqual(await bubble.locator("> span").allInnerTexts(), ["CB2026-241-60001 · 101 TEST ST", "Roof and gutters"]);
+    assert.equal(
+      await bubble
+        .locator("> span")
+        .first()
+        .evaluate((el) => getComputedStyle(el).whiteSpace),
+      "nowrap",
+    );
+    assert.notEqual(
+      await bubble
+        .locator("> span")
+        .nth(1)
+        .evaluate((el) => getComputedStyle(el).whiteSpace),
+      "nowrap",
+      "the description may wrap",
+    );
+    assert.equal(await bubble.locator("strong").evaluate((el) => getComputedStyle(el).textDecorationLine), "none", "no underline on the case number");
+    assert.equal(await page.locator("#open-cases-results table, #open-cases-results th").count(), 0, "no table");
+    const edges = await page.locator(".open-case").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+    assert.ok(
+      edges.every((top, n) => n === 0 || top > edges[n - 1]),
+      "the bubbles are stacked, each in its own box",
+    );
     assert.ok(
       !/Latest inspection|Opened|OWNER/i.test(await page.locator("#open-cases-results").innerText()),
       "no inspection, date or owner is listed",
@@ -125,11 +143,21 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     await page.getByRole("button", { name: "Show open cases", exact: true }).click();
     await page.waitForFunction(() => !document.querySelector("#open-cases .banner.alert"));
 
-    // Selecting the case number only fills it in and starts the existing lookup.
+    // Selecting a bubble fills the case number in and starts the lookup; selecting another clears the first and looks the new one up.
     await page.locator('[data-open-case-pick="CB2026-241-60002"]').click();
     await page.getByText("Stand-in lookup answer for the test.").waitFor();
     assert.deepEqual(lookups, ["CB2026-241-60002"]);
     assert.equal(await page.locator("#lookup-number").inputValue(), "CB2026-241-60002");
+    await page.evaluate(() => {
+      WriterState.state.acc = { cases: [], errors: [], fileName: "an earlier case" };
+      WriterState.WORK.acc = WriterState.state.acc;
+      render();
+    });
+    await page.locator('[data-open-case-pick="CB2026-241-60001"]').click();
+    await page.waitForFunction(() => WriterState.state.acc === null && document.getElementById("lookup-number").value === "CB2026-241-60001");
+    await page.getByText("Stand-in lookup answer for the test.").waitFor();
+    assert.deepEqual(lookups, ["CB2026-241-60002", "CB2026-241-60001"], "each selection looks up its own case");
+    assert.equal(await page.locator("#lookup-number").inputValue(), "CB2026-241-60001");
     assert.equal(await page.locator("#open-cases-search").count(), 1, "the list stays available after a failed lookup");
     assert.deepEqual(requests.slice(0, 2), [["list"], ["cases", "JSMITH"]]);
     assert.equal(requests.filter((r) => r[0] === "list").length, 1, "the inspector list loads once per session");

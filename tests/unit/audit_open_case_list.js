@@ -54,28 +54,33 @@ const row = (number, extra = {}) => ({
   );
   assert.deepEqual(m.filterOpenCases(cases, "roof porch"), []);
 
-  // Rows escape every value, show case number, address and description in that order, and offer Import unless something is running.
+  // Each case is its own bubble (the inspection-result style): case number and address on one line that never wraps, the
+  // description below, every value escaped, no table, no Import button and no underlined link.
   const nasty = row("CB2026-241-00003", { address: '<img src=x onerror="alert(1)">', description: "<script>x</script>" });
-  const markup = m.openCaseRowsHTML({ cases: [nasty, cases[1]], query: "" }, false);
+  const markup = m.openCaseRowsHTML({ cases: [nasty, cases[1]], query: "" });
   assert.ok(!markup.includes("<img") && !markup.includes("<script"), "values are escaped");
+  assert.ok(!/<table|<th |<td |underline|>Import</.test(markup), "no table, underlined link or Import button");
   assert.match(
     markup,
-    /<th scope="col">Case number<\/th><th scope="col">Address<\/th><th scope="col">Description<\/th>/,
-    "columns in the requested order",
+    /<button type="button" class="import-inspection open-case" data-open-case-pick="CB2026-241-00003" aria-pressed="false"><span class="open-case-nowrap"><strong>CB2026-241-00003<\/strong> · &lt;img[^<]*<\/span><span>&lt;script&gt;x&lt;\/script&gt;<\/span><\/button>/,
+    "number and address on a no-wrap line, the description below",
   );
-  assert.match(
-    markup,
-    /<td class="open-case-nowrap"><button [^>]*data-open-case-pick="CB2026-241-00003"[^>]*>CB2026-241-00003<\/button><\/td><td class="open-case-nowrap">&lt;img[^<]*<\/td><td>&lt;script&gt;x&lt;\/script&gt;<\/td><\/tr>/,
-    "the case number is the control; case number and address stay on one line; the description wraps",
-  );
-  assert.ok(!markup.includes(" style="), "table styling belongs to the reviewed screen stylesheet");
-  assert.ok(!/Import<\/(button|span)>/.test(markup) && !/<th scope="col"><span/.test(markup), "there is no separate Import column");
+  assert.equal((markup.match(/data-open-case-pick=/g) || []).length, 2, "one bubble per case");
+  assert.ok(!markup.includes(" style="), "styling belongs to the reviewed screen stylesheet");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
-  assert.match(markup, /data-open-case-pick="CB2026-241-00003"/);
-  assert.ok(!/disabled/.test(markup));
-  assert.match(m.openCaseRowsHTML({ cases: [nasty], query: "" }, true), /disabled/);
-  assert.match(m.openCaseRowsHTML({ cases: [nasty], query: "zzz" }, false), /No open case matches this search/);
-  assert.match(m.openCaseRowsHTML({ cases: [], query: "" }, false), /has no open cases/);
+  assert.ok(!/disabled/.test(markup), "a bubble can always be selected");
+  // The bubble of the case being looked up or reviewed is shown selected; none otherwise.
+  const pickedState = { cases: [nasty, cases[1]], query: "", picked: "CB2026-241-00003" };
+  assert.ok(!/is-selected/.test(m.openCaseRowsHTML(pickedState)), "no selection while nothing is running or waiting");
+  WriterState.LOOKUP_BUSY = true;
+  assert.match(
+    m.openCaseRowsHTML(pickedState),
+    /import-inspection open-case is-selected" data-open-case-pick="CB2026-241-00003" aria-pressed="true"/,
+  );
+  assert.equal((m.openCaseRowsHTML(pickedState).match(/is-selected/g) || []).length, 1, "only that case is selected");
+  WriterState.LOOKUP_BUSY = false;
+  assert.match(m.openCaseRowsHTML({ cases: [nasty], query: "zzz" }), /No open case matches this search/);
+  assert.match(m.openCaseRowsHTML({ cases: [], query: "" }), /has no open cases/);
 
   // Counts name the inspector and the load time.
   const loaded = { inspectors: [{ id: "JSMITH", name: "Jordan Smith", openCases: 2 }], cases, casesFor: "JSMITH", loadedAt: "2:14 PM", query: "" };
@@ -98,17 +103,18 @@ const row = (number, extra = {}) => ({
   assert.ok(!/disabled/.test(picker.replace(/<button[^>]*type="submit"[^>]*>/, "")), "nothing is disabled while idle");
   editorState.acc = { cases: [{}] };
   WriterState.state.acc = { cases: [{}] };
-  assert.match(card(loaded), /An import is waiting for review below/);
-  assert.match(card(loaded), /data-open-case-pick="CB2026-241-00001"[^>]*disabled/);
+  assert.ok(
+    !/An import is waiting|disabled="/.test(card(loaded).replace(/<button[^>]*type="submit"[^>]*>/, "")),
+    "a waiting import does not lock the list",
+  );
   WriterState.state.acc = null;
-  WriterState.LOOKUP_BUSY = true;
-  assert.match(card(loaded), /data-open-case-pick="CB2026-241-00001"[^>]*disabled/);
-  WriterState.LOOKUP_BUSY = false;
+  editorState.acc = null;
 
   // The owner: load once, show cases, ignore stale answers, report errors, and pick through the existing lookup.
   const calls = [];
   let renders = 0,
-    found = 0;
+    found = 0,
+    cancelled = 0;
   const gate = {};
   const services = {
     helperJSON: async (url, body) => {
@@ -119,6 +125,7 @@ const row = (number, extra = {}) => ({
       return { cases: body.inspector === "SLOW" ? [row("CB-SLOW-1")] : cases };
     },
     render: () => renders++,
+    cancelCaseLookup: () => cancelled++,
     findDatabaseCase: async () => found++,
   };
   global.document = { getElementById: () => null };
@@ -141,11 +148,22 @@ const row = (number, extra = {}) => ({
   await owner.pick("CB2026-241-00002");
   assert.equal(WriterState.WORK.entry["lookup-number"], "CB2026-241-00002");
   assert.equal(found, 1, "picking runs the existing lookup");
-  WriterState.state.acc = { cases: [{}] };
+  assert.equal(cancelled, 1, "a lookup still running is stopped first");
+  assert.equal(openList.picked, "CB2026-241-00002");
+  // Every new selection clears the previous case's inspections and runs its own lookup, even while one is waiting.
+  WriterState.state.acc = { cases: [{ number: "CB2026-241-00002" }] };
+  WriterState.WORK.acc = WriterState.state.acc;
+  WriterState.LOOKUP_ERROR = "An earlier problem.";
   await owner.pick("CB2026-241-00001");
-  assert.equal(found, 1, "a pending import blocks picking");
-  assert.equal(WriterState.WORK.entry["lookup-number"], "CB2026-241-00002");
-  WriterState.state.acc = null;
+  assert.equal(found, 2, "a second selection looks up the new case");
+  assert.equal(cancelled, 2);
+  assert.equal(WriterState.state.acc, null, "the previous case's inspections are cleared");
+  assert.equal(WriterState.WORK.acc, null);
+  assert.equal(WriterState.LOOKUP_ERROR, "", "an earlier error is cleared");
+  assert.equal(WriterState.WORK.entry["lookup-number"], "CB2026-241-00001");
+  assert.equal(openList.picked, "CB2026-241-00001", "only the new case is selected");
+  await owner.pick("CB2026-241-00001");
+  assert.equal(found, 3, "selecting the same case again looks it up again");
   // A newer request supersedes a slower earlier one.
   const slow = owner.showCases("SLOW");
   await new Promise((resolve) => setTimeout(resolve, 5));
