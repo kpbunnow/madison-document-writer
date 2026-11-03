@@ -326,7 +326,16 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
-## Notice item sorting (next release) — OPEN
+## R71 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S71-1 | Install R71 from the shared release folder over R70 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R70 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-03 R71 and helper 2026.11.03.72 with Program/helper versions Match; the R70 copy is told to restart and cannot save to the shared folder |
+| RESTART-1 | On an inspector's PC, issue an Official Notice for a case whose case file was deleted from the shared folder but whose number was saved before (for example CB2026-139-01924) | The notice issues instead of being refused; the case opens afterwards with the integrity label ending "history restarted <date> because the case file was missing"; a case whose file still exists is unaffected |
+
+All R71 items remain OPEN, together with SORT-1 (below), OCL-1 to OCL-14, S69-2, SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items. S70-1 is superseded by S71-1.
+
+## Notice item sorting (shipped in R71) — OPEN
 
 | ID | City/staff check | Required result |
 | --- | --- | --- |

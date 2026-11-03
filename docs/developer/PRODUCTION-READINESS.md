@@ -73,3 +73,5 @@ R68 upgrades R67 (confirmed working on City PCs) and adds S68-1 (installed updat
 R69 upgrades R68 and adds S69-1 (installed update) and S69-2 (opens on Import inspection) with the open-case list checks OCL-1 to OCL-10 (OCL-10: no Excel card). SVIO-2, SVIO-4 per PC, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R69 is a release candidate, not a deployment approval.
 
 R70 upgrades R69 and adds S70-1 (installed update) with the import-list checks OCL-11 to OCL-14 (full inspector names, no wrapping, documents open at the top, no shared-record search). OCL-1 to OCL-10, S69-2, SVIO-2, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R70 is a release candidate, not a deployment approval.
+
+R71 upgrades R70 and adds S71-1 (installed update), SORT-1 (Sort by due date) and RESTART-1 (a deleted case file restarts its history). OCL-1 to OCL-14, S69-2, SVIO-2, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R71 is a release candidate, not a deployment approval.
