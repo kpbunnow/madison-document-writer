@@ -117,7 +117,7 @@ The helper can list the open enforcement cases assigned to one inspector. It use
 
 The Windows account that runs the lookup also needs read access to BI_ENF_WORKFLOW and BI_ENF_WORKFLOW_HISTORY, which the one-case lookup does not read.
 
-To keep people off the inspector list (supervisors or staff who do not do inspections), create `Case Lookup/excluded-inspectors.json` on the shared folder, using the supplied `excluded-inspectors.example.json`:
+Four staff are always left off the inspector list because the division does not want them listed: Alice Duncan-Graves, Gregg May, Jessica Price and Phil Grupe (matched by name, so a middle initial or a spaced hyphen still matches). To keep people off the inspector list (supervisors or staff who do not do inspections), create `Case Lookup/excluded-inspectors.json` on the shared folder, using the supplied `excluded-inspectors.example.json`:
 
 ```json
 { "exclude": ["Pat%Example", "ADMIN1"] }
