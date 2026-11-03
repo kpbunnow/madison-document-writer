@@ -185,6 +185,40 @@ const row = (number, extra = {}) => ({
     ["Alex Smith", "Jamie Q Public"],
     "full name replaces the user ID and the list stays sorted by name",
   );
+  // A late full-name exclusion removes the picker entry and invalidates an in-flight case answer.
+  let finishNames, finishExcludedCases;
+  const excluding = m.createOpenCaseList({
+    ...services,
+    helperJSON: (url) => {
+      if (url.endsWith("/list")) return Promise.resolve({ inspectors: [{ id: "HID", name: "HID", openCases: 1 }] });
+      return new Promise((resolve) => {
+        if (url.endsWith("/names")) finishNames = resolve;
+        else finishExcludedCases = resolve;
+      });
+    },
+  });
+  await excluding.loadInspectors();
+  const excludedCases = excluding.showCases("HID");
+  finishNames({ names: [], excluded: ["hid"] });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.deepEqual(openList.inspectors, []);
+  assert.equal(openList.selected, "");
+  assert.equal(openList.cases, null);
+  assert.equal(openList.casesLoading, false);
+  finishExcludedCases({ cases });
+  await excludedCases;
+  assert.equal(openList.cases, null, "an answer for a newly excluded person cannot repopulate the list");
+  // A name answer belonging to a previous inspector list cannot rename or remove its replacement.
+  await excluding.loadInspectors();
+  const staleNames = finishNames;
+  await idsFirst.refreshInspectors();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  staleNames({ names: [{ id: "JQP", name: "Wrong old name" }], excluded: ["ASMITH"] });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.deepEqual(
+    openList.inspectors.map((p) => p.name),
+    ["Alex Smith", "Jamie Q Public"],
+  );
   const noNames = [];
   const allNamed = m.createOpenCaseList({
     ...services,
