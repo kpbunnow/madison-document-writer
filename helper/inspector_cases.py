@@ -248,7 +248,12 @@ def _summary_due(path, number):
     except (OSError, ValueError):
         return ""
     case = summary.get("case") if isinstance(summary, dict) else None
-    if summary.get("format") != "madison-case-summary" or not isinstance(case, dict) or str(case.get("number", "")).casefold() != number.casefold():
+    if (
+        not isinstance(summary, dict)
+        or summary.get("format") != "madison-case-summary"
+        or not isinstance(case, dict)
+        or str(case.get("number", "")).casefold() != number.casefold()
+    ):
         return ""
     try:
         return next_due(summary)
