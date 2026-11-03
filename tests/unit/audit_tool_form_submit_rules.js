@@ -1,5 +1,5 @@
 /* Tool form submits against the retained module in real forms: form selection, the five handlers' peer calls in
-   order, search result markup, reminder preferences, batch deadlines, outbox sync, failure toasts and the button
+   order, reminder preferences, batch deadlines, outbox sync, failure toasts and the button
    being re-enabled only while connected. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -11,7 +11,7 @@ globalThis.__TEST_BUILD__ = true;
 const { random, pick, chance } = prng(20262009);
 const dom = new JSDOM("<body></body>");
 
-const FORMS = ["global-search-form", "reminder-settings", "reminder-email", "batch-due-form", "outbox-form", "other-form"];
+const FORMS = ["reminder-settings", "reminder-email", "batch-due-form", "outbox-form", "other-form"];
 
 function scenario() {
   const hits = Array.from({ length: random(4) }, (_, n) => ({
@@ -125,10 +125,6 @@ async function run(api, sc) {
     compile(fs.readFileSync("tests/fixtures/workflow_events_reference.txt", "utf8")),
   ]);
   const wanted = [
-    "matching cases",
-    "Results limited",
-    "Duplicate identity",
-    "data-global-open",
     '"days":30',
     '"days":1',
     '"days":7',

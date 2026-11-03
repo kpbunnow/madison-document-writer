@@ -1,79 +1,8 @@
 import { workspaceState as workspace } from "./workspace_state.js";
-import { importPromptHTML, importTarget, inspectorResultsHTML, prefillLookup } from "./inspector_cases.js";
 /* Workflow event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
-import { esc } from "./presentation_format.js";
 import { downloadText, csvText } from "../assets/shared.js";
 import { kase, eventsFor } from "./writer_queries.js";
-/* Result list for a shared-case search. */
-function searchResultsHTML(result) {
-  return (
-    "<p>" +
-    `${result.hits.length}` +
-    " matching cases. " +
-    `${result.unreadable}` +
-    " unreadable files. " +
-    `${result.partial ? "Results limited; refine your search." : ""}` +
-    "</p><ul>" +
-    "".concat(
-      result.hits
-        .map(
-          (hit) =>
-            "<li>" +
-            `${esc(hit.number)}` +
-            " · " +
-            `${esc(hit.address)}` +
-            " · " +
-            `${esc(hit.owner)}` +
-            " " +
-            "".concat(
-              hit.duplicate
-                ? "Duplicate identity; administrator review needed"
-                : `<button class="btn" data-global-open="${esc(hit.number)}">Open current case</button>`,
-            ) +
-            "</li>",
-        )
-        .join(""),
-    ) +
-    "</ul>"
-  );
-}
-
-async function submitSearch(services, form, data) {
-  const result = await services.helperJSON("/cases/search?q=" + encodeURIComponent(data.get("query")));
-  if (!form.isConnected) return;
-  document.getElementById("global-search-results").innerHTML = searchResultsHTML(result);
-}
-
-async function submitInspectorCases(services, form, data) {
-  const inspector = data.get("inspector");
-  const result = await services.helperJSON("/cases/by-inspector?inspector=" + encodeURIComponent(inspector));
-  if (!form.isConnected) return;
-  document.getElementById("inspector-case-prompt").innerHTML = "";
-  document.getElementById("inspector-case-results").innerHTML = inspectorResultsHTML(result, inspector);
-}
-
-/* Continue a case from the inspector list by importing a new inspection result for it. */
-async function continueWithImport(services, number) {
-  const target = importTarget(number);
-  if (target.kind === "blocked") return;
-  document.getElementById("utility-dialog")?.close();
-  if (!(await services.navigation.navigate("import"))) return;
-  if (target.kind === "search") {
-    prefillLookup(number);
-    services.render();
-  }
-}
-
-const INSPECTOR_ACTIONS = ["data-inspector-case", "data-inspector-import", "data-inspector-cancel"];
-
-async function inspectorAction(services, t) {
-  const prompt = document.getElementById("inspector-case-prompt");
-  if (t.dataset.inspectorCase) prompt.innerHTML = importPromptHTML(t.dataset.inspectorCase);
-  else if (t.hasAttribute("data-inspector-cancel")) prompt.innerHTML = "";
-  else await continueWithImport(services, t.dataset.inspectorImport);
-}
-
 function exportTimelineJson(services) {
   services.downloadFile(
     "case-event-log.json",
@@ -137,8 +66,6 @@ async function submitOutboxSync(services) {
 
 /* Forms handled here, by form id. */
 const TOOL_FORMS = {
-  "global-search-form": submitSearch,
-  "inspector-cases-form": submitInspectorCases,
   "reminder-settings": submitReminderSettings,
   "reminder-email": submitReminderEmail,
   "batch-due-form": submitBatchDue,
@@ -166,17 +93,11 @@ export function createWorkflowEvents(services) {
   function registerToolActions(target = document) {
     return registerEventOnce(target, "workflow.registerToolActions", "click", async (e) => {
       const t = e.target.closest?.(
-        "[data-global-search],[data-shared-offer],[data-global-open],[data-inspector-case],[data-inspector-import],[data-inspector-cancel],[data-reminders],[data-reminder-draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
+        "[data-reminders],[data-reminder-draft],[data-reminder-dismiss],[data-timeline],[data-timeline-csv],[data-timeline-json],[data-batch-due],[data-outbox],[data-outbox-print]",
       );
       if (!t) return;
       try {
-        // The no-results offer opens the same shared search with the workspace query prefilled.
-        if (t.hasAttribute("data-global-search") || t.hasAttribute("data-shared-offer")) await services.globalSearch();
-        else if (t.dataset.globalOpen) {
-          await services.writerOpenReportedCase({ number: t.dataset.globalOpen });
-          document.getElementById("utility-dialog")?.close();
-        } else if (INSPECTOR_ACTIONS.some((name) => t.hasAttribute(name))) await inspectorAction(services, t);
-        else if (t.hasAttribute("data-reminders")) services.showReminders();
+        if (t.hasAttribute("data-reminders")) services.showReminders();
         else if (t.dataset.reminderDraft) services.showReminderDraft(t.dataset.reminderDraft);
         else if (t.dataset.reminderDismiss) {
           workspace.WORKFLOW_PREFS.reminders.dismissed.push(t.dataset.reminderDismiss);

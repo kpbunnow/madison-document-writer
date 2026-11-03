@@ -10,7 +10,6 @@ import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
 import { savedCaseState, savedWorkHTML } from "./saved_work.js";
 import { html, raw } from "./screen_html.js";
-import { inspectorPickerHTML } from "./inspector_cases.js";
 
 function mergeComparedCaseFields(fields, merged, a, b) {
   for (const field of new Set([...Object.keys(a), ...Object.keys(merged)])) {
@@ -804,14 +803,6 @@ function languageCatalogCaseSearchText(services, k) {
     .toLowerCase();
 }
 
-async function languageCatalogGlobalSearch(services) {
-  services.navigation.utilityContext();
-  services.A11Y.utility(
-    "Search shared case records",
-    html`<form id="global-search-form"><label>Case, address, owner or citation number <input type="search" name="query" required minlength="2" maxlength="200" value="${editor.state.caseQ}"></label><button class="btn" type="submit">Search shared case records</button></form><div id="global-search-results" aria-live="polite"></div>${raw(inspectorPickerHTML())}`,
-  );
-}
-
 export function createLanguageCatalog(services) {
   let catalogReadSequence = 0;
   async function refreshCatalog() {
@@ -868,7 +859,6 @@ export function createLanguageCatalog(services) {
     showLock: (...args) => languageCatalogShowLock(services, ...args),
     saveWorkflowPrefs: (...args) => languageCatalogSaveWorkflowPrefs(services, ...args),
     caseSearchText: (...args) => languageCatalogCaseSearchText(services, ...args),
-    globalSearch: (...args) => languageCatalogGlobalSearch(services, ...args),
     catalogReplacement: (...args) => languageCatalogCatalogReplacement(services, ...args),
     readSharedCase: (...args) => languageCatalogReadSharedCase(services, ...args),
     localCaseWork: (...args) => languageCatalogLocalCaseWork(services, ...args),
