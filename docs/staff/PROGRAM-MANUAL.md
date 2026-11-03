@@ -92,7 +92,7 @@ The imported inspection's **Inspection Type** and **Inspection Status** decide t
 
 **Review an existing case.** Check the case number, address, selected inspection and proposed property or owner changes. Expand source details if needed. Choose Continue existing case to open its retained draft, worksheet or latest effective issued source without importing the proposed changes. Choose Import inspection only for an eligible unused physical inspection after the shared preflight succeeds. Existing unfinished work and reused observations must be resolved first.
 
-**Excel alternative.** Open the SSRS Excel alternative and select the division's exported inspection report. Review the same identity and completed-inspection facts and confirm explicitly. CSV paste and manual case creation are not provided. Use the actual Inspection Time column; a missing time stays blank and a scheduled date does not substitute for an actual inspection date.
+**No spreadsheet import.** The SSRS Excel report import was removed in R69; every import now comes from the case database through Open cases by inspector or Find Case Inspections. CSV paste and manual case creation are not provided. Use the actual Inspection Time column; a missing time stays blank and a scheduled date does not substitute for an actual inspection date.
 
 Record Category Snow Removal selects the snow workflow and preloads its 10.28 item. The new-case workflow selector is an additional deliberate choice, not a way to bypass missing or reused inspection facts. Existing case and file identities remain stable.
 
