@@ -17,9 +17,15 @@ ZERO = "0" * 64
 
 
 GENESIS_CONFLICT = (
-    "This case's migration history conflicts with the evidence the program retained for it, so it was not saved. "
-    "Your work is kept on this device. Ask an administrator to review the case before saving again."
+    "This case number was saved on the shared folder before, but its case file is missing or is a different record, "
+    "so this save was refused to protect the history. Your work is kept on this device. "
+    "Ask an administrator to restore the case file or to approve a restart of this case before saving again."
 )
+RESTART_MISMATCH = (
+    "The administrator's approval to restart this case no longer matches the shared folder, so it was not saved. "
+    "Your work is kept on this device. Ask an administrator to approve the restart again."
+)
+RESTART_FORMAT = "madison-integrity-restart"
 
 
 def canonical(value):
@@ -53,7 +59,10 @@ def protected_folder(folder):
         return None
 
 
-def commit_record(current, record):
+def commit_record(current, record, restart=None):
+    """The chained record. `restart` is a validated administrator approval (see restart_approval): a case whose file is
+    gone but whose number is retained starts a new history whose genesis names the administrator and the prior
+    anchored commit, so verification can tell it from a replaced or forged history."""
     result = copy.deepcopy(record)
     result["schema"] = 5
     prior = copy.deepcopy(current.get("integrity")) if current and current.get("schema") == 5 else None
@@ -66,6 +75,15 @@ def commit_record(current, record):
             "historyHash": hash_bytes(canonical(old)),
             "notice": "History as found; integrity is proven from migration forward.",
         }
+        if restart:
+            genesis["administrativeRecovery"] = {
+                "administrator": restart["administrator"],
+                "reason": restart["reason"],
+                "quarantineFile": "",
+                "priorFileSha256": "",
+                "priorAnchoredCommitHash": restart["priorAnchoredCommitHash"],
+                "missingCaseFile": True,
+            }
         genesis["hash"] = hash_bytes(canonical(genesis))
         prior = {"genesis": genesis, "entries": [], "commits": []}
     known = set(prior["genesis"]["eventIds"]) | {x["eventId"] for x in prior["entries"]}
@@ -89,6 +107,45 @@ def commit_record(current, record):
     prior["headHash"] = head
     result["integrity"] = prior
     return result
+
+
+def restart_path(folder, number):
+    from case_store import case_number_key
+
+    return Path(folder) / "_integrity" / "restarts" / (hash_bytes(case_number_key(number).casefold().encode()) + ".json")
+
+
+def restart_approval(folder, number):
+    """The administrator's approval to restart one case whose file is missing, or None. The caller owns the case lock
+    and has found no case file. The approval is bound to the registry entries and anchored commit it was given for."""
+    path = restart_path(folder, number)
+    if not path.exists():
+        return None
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        context = VerificationContext(folder, protected_folder(folder))
+        entries = context.by_number.get(number.casefold(), [])
+        anchored = context.anchors.get(number.casefold())
+        valid = (
+            value.get("format") == RESTART_FORMAT
+            and str(value["caseNumber"]).casefold() == number.casefold()
+            and isinstance(value["administrator"], str)
+            and isinstance(value["reason"], str)
+            and value["registryEntries"] == entries
+            and value["priorAnchoredCommitHash"] == (anchored["commitHash"] if anchored else "")
+        )
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        valid = False
+    if not valid:
+        raise ValueError(RESTART_MISMATCH)
+    return value
+
+
+def consume_restart(folder, number):
+    """Retire a used approval so one approval restarts one case once; the file is kept as the audit record."""
+    path = restart_path(folder, number)
+    if path.exists():
+        path.replace(path.with_name(path.name + ".used-" + stamp().replace(":", "")))
 
 
 def registry(folder):
