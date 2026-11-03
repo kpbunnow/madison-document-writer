@@ -2276,15 +2276,22 @@ tr.dragging td {
   vertical-align: top;
 }
 
-.acc-drop {
-  border: 2px dashed var(--rule);
-  border-radius: 8px;
-  padding: 22px;
-  text-align: center;
+/* Import list: preserve the former inline cell and case-number control styling. */
+.open-case-table td {
+  vertical-align: top;
 }
-.acc-drop.over {
-  border-color: var(--civic);
-  background: var(--civic-tint);
+.open-case-table .open-case-nowrap {
+  white-space: nowrap;
+}
+.open-case-table .open-case-pick {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--civic);
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .acc-go {
   display: flex;

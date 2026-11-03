@@ -127,23 +127,34 @@ def _checked_people(answer):
     return people
 
 
+def _cached(cache, root, key):
+    """A checked value kept for this share and lifetime; empty results are cached too."""
+    if cache[key] is not None and cache["root"] == str(root) and time.monotonic() - cache["at"] < CACHE_SECONDS:
+        return cache[key]
+    return None
+
+
+def _keep(cache, root, **values):
+    """Publish only after the caller has validated its complete query result."""
+    cache.update(root=str(root), at=time.monotonic(), **values)
+
+
 def _list_answer(root, refresh):
     """The checked inspector list and where it came from: the kept one, or a fresh query when asked or expired. Only a
     list that passed every check is kept."""
-    kept = _cache["answer"] is not None and _cache["root"] == str(root) and time.monotonic() - _cache["at"] < CACHE_SECONDS
-    if kept and not refresh:
-        return _cache["answer"], _cache["source"]
+    kept = _cached(_cache, root, "answer")
+    if kept is not None and not refresh:
+        return kept, _cache["source"]
     cfg, _, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql")
     source = _source(cfg, answer, "inspector_list.sql")
     people = _checked_people(answer)
-    _cache.update(root=str(root), at=time.monotonic(), answer=people, source=source)
+    _keep(_cache, root, answer=people, source=source)
     return people, source
 
 
 def _kept_names(root):
-    if _names["found"] is not None and _names["root"] == str(root) and time.monotonic() - _names["at"] < CACHE_SECONDS:
-        return _names["found"]
-    return {}
+    kept = _cached(_names, root, "found")
+    return kept if kept is not None else {}
 
 
 def _display_person(person, found):
@@ -164,9 +175,9 @@ def inspectors(root, refresh=False):
 
 def _name_map(root, refresh):
     """User ID (lower case) to full name from the inspection view, kept like the list. Only checked rows are kept."""
-    kept = _names["found"] is not None and _names["root"] == str(root) and time.monotonic() - _names["at"] < CACHE_SECONDS
-    if kept and not refresh:
-        return _names["found"]
+    kept = _cached(_names, root, "found")
+    if kept is not None and not refresh:
+        return kept
     cfg, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql")
     _source(cfg, answer, "inspector_names.sql")
     found = {}
@@ -175,7 +186,7 @@ def _name_map(root, refresh):
         name = _text(row, "InspectorName", 200)
         if name:
             found[uid.casefold()] = name
-    _names.update(root=str(root), at=time.monotonic(), found=found)
+    _keep(_names, root, found=found)
     return found
 
 

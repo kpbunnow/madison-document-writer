@@ -54,6 +54,28 @@ class InspectorCaseTests(unittest.TestCase):
     def answer(self, rows):
         return {"ok": True, "rows": rows, "database": "AccelaReporting"}
 
+    def test_shared_cache_rule_matches_the_retained_expiry_expression(self):
+        for key in ("answer", "found"):
+            for value in (None, [], {}, {"person": "Name"}):
+                for same_root in (False, True):
+                    for age in (-1, 0, cases.CACHE_SECONDS - 1, cases.CACHE_SECONDS, cases.CACHE_SECONDS + 1):
+                        cache = {key: value, "root": str(self.root) if same_root else "other", "at": 100.0}
+                        clock_calls = []
+
+                        def clock():
+                            clock_calls.append(True)
+                            return 100.0 + age
+
+                        with patch.object(cases.time, "monotonic", side_effect=clock):
+                            actual = cases._cached(cache, self.root, key)
+                        retained = cache[key] is not None and cache["root"] == str(self.root) and age < cases.CACHE_SECONDS
+                        self.assertIs(actual, value if retained else None)
+                        self.assertEqual(len(clock_calls), int(value is not None and same_root))
+        cache = {"root": None, "at": 0, "found": None}
+        with patch.object(cases.time, "monotonic", return_value=123):
+            cases._keep(cache, self.root, found={})
+        self.assertEqual(cache, {"root": str(self.root), "at": 123, "found": {}})
+
     def test_queries_keep_the_reports_open_case_rules_and_bind_only_a_user_id(self):
         listing = (lookup.HERE / "inspector_list.sql").read_text()
         detail = (lookup.HERE / "inspector_cases.sql").read_text()
