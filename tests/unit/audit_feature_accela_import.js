@@ -74,23 +74,12 @@ require("../fixtures/scenarios.cjs").run(__filename, {
       JSON.parse(
         fs.readFileSync(path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/import-grids", name + ".grid.json"), "utf8"),
       );
-    async function loadGrid(b, name) {
-      WriterState.state.screen = "import";
-      cancelCaseLookup();
-      const t = accelaTable(b.grid);
-      WriterState.state.acc = {
-        fileName: name || "",
-        errors: t.errors,
-        notes: t.notes,
-        cases: t.cases,
-        caseIx: 0,
-        sel: t.cases.length ? t.cases[0].sel : null,
-        manualDate: "",
-        manualTime: "",
-      };
-      await accelaFromShare();
-      return WriterState.state.acc;
-    }
+    const loadGrid = require("../fixtures/report_grid_loader.cjs").createReportGridLoader({
+      getState: () => WriterState.state,
+      cancelLookup: () => cancelCaseLookup(),
+      readTable: (grid) => accelaTable(grid),
+      readShare: () => accelaFromShare(),
+    });
     const H15 = [
       "Case Number",
       "Inspector Name",
@@ -818,23 +807,12 @@ require("../fixtures/scenarios.cjs").run(__filename, {
         WriterState.WORK = { entry: {}, acc: null, recordForms: {} };
         helperJSON = async () => ({ files: [] });
       };
-      async function loadGrid(b, name) {
-        WriterState.state.screen = "import";
-        cancelCaseLookup();
-        const t = accelaTable(b.grid);
-        WriterState.state.acc = {
-          fileName: name || "",
-          errors: t.errors,
-          notes: t.notes,
-          cases: t.cases,
-          caseIx: 0,
-          sel: t.cases.length ? t.cases[0].sel : null,
-          manualDate: "",
-          manualTime: "",
-        };
-        await accelaFromShare();
-        return WriterState.state.acc;
-      }
+      const loadGrid = require("../fixtures/report_grid_loader.cjs").createReportGridLoader({
+        getState: () => WriterState.state,
+        cancelLookup: () => cancelCaseLookup(),
+        readTable: (grid) => accelaTable(grid),
+        readShare: () => accelaFromShare(),
+      });
       const load = (name) =>
         loadGrid(
           {
@@ -1068,23 +1046,12 @@ require("../fixtures/scenarios.cjs").run(__filename, {
         InspectorName: "Robert Ales",
         RecordCategory: "",
       };
-      async function loadGrid(b, name) {
-        WriterState.state.screen = "import";
-        cancelCaseLookup();
-        const t = accelaTable(b.grid);
-        WriterState.state.acc = {
-          fileName: name || "",
-          errors: t.errors,
-          notes: t.notes,
-          cases: t.cases,
-          caseIx: 0,
-          sel: t.cases.length ? t.cases[0].sel : null,
-          manualDate: "",
-          manualTime: "",
-        };
-        await accelaFromShare();
-        return WriterState.state.acc;
-      }
+      const loadGrid = require("../fixtures/report_grid_loader.cjs").createReportGridLoader({
+        getState: () => WriterState.state,
+        cancelLookup: () => cancelCaseLookup(),
+        readTable: (grid) => accelaTable(grid),
+        readShare: () => accelaFromShare(),
+      });
       const report = (status, extra = {}) =>
         sqlReport({ ok: true, caseNumber: number, source: { kind: "sql" }, rows: [{ ...row, InspectionStatus: status, ...extra }] }, number);
       const reset = () => {
