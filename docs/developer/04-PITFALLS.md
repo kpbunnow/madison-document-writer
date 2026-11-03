@@ -17,7 +17,7 @@ Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/
 
 ## Records, integrity and recovery
 
-- Never skip integrity/history/publication checks, regenerate genesis, overwrite protected anchors or publish a migration registry ahead of a recoverable case write.
+- A case number the registry retains whose file is missing restarts its history automatically on the next save (owner decision 2026-11-03; see 03-DOMAIN-RULES). Never skip integrity/history/publication checks, regenerate genesis, overwrite protected anchors or publish a migration registry ahead of a recoverable case write.
 - Write anchor receipts only with `create_only_write` (create new, write once, no temporary file). The protected anchor folder may let the account add files but not rename, replace or delete them, so `atomic_write` (temporary file, then rename) fails there and leaves an unremovable temporary file. A receipt that cannot be parsed fails verification closed with a message that IT must remove it.
 - Write anchor receipts only with `create_only_write` (create new, write once, no temporary file). The protected anchor folder may let the account add files but not rename, replace or delete them, so `atomic_write` (temporary file, then rename) fails there and leaves an unremovable temporary file. A receipt that cannot be parsed fails verification closed with a message that IT must remove it.
 - Never infer orphaned-lock ownership from age. Recovery requires the inspected token, verified stopped ownership, named administrator and reason.
