@@ -1,0 +1,36 @@
+[
+  [
+    "Case Number",
+    "Inspector Name",
+    "Site Address",
+    "Historic District",
+    "Landmark",
+    "Parcel Number",
+    "Case Description",
+    "Owner Name",
+    "Owner Address",
+    "Inspection Type",
+    "Inspection Date",
+    "Inspection Status",
+    "Inspection Time",
+    "Case Type",
+    "Record Category"
+  ],
+  [
+    "CB2026-280-00045",
+    "Robert Ales",
+    "4500 SYNTHETIC LANE, MADISON WI 53703",
+    "No",
+    "",
+    "070913125237",
+    "Synthetic import acceptance fixture",
+    "SYNTHETIC OWNER",
+    "4500 SYNTHETIC LANE\nMADISON WI 53703",
+    "Initial Inspection",
+    "2026-09-18",
+    "Citation",
+    "",
+    "Code Violation",
+    ""
+  ]
+]

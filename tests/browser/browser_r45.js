@@ -1,12 +1,9 @@
-/* Production import UI with actual XLSX bytes and bounded synthetic lookup/shared responses. */
+/* Production import UI with stored report grids (the spreadsheet import was removed in R69) and bounded synthetic lookup/shared responses. */
 const fs = require("fs"),
   path = require("path"),
   assert = require("assert/strict");
 module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
   const viewport = page.viewportSize();
-  const openExcel = async () => {
-    if (!(await page.locator(".import-alternative").evaluate((el) => el.open))) await page.locator(".import-alternative > summary").click();
-  };
   await page.evaluate(() => {
     window.__r45Saved = {
       CASES: WriterState.CASES,
@@ -52,18 +49,32 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator("#lookup-number").fill("");
     await axeScreen(page, "r45-import-start");
     await page.screenshot({ path: path.join(OUT, "r45-import-start.png"), fullPage: true });
-    assert.equal(await page.locator(".import-alternative").evaluate((el) => el.open), false);
-    await page.locator(".import-alternative > summary").focus();
-    await page.keyboard.press("Enter");
-    assert.equal(await page.locator(".import-alternative").evaluate((el) => el.open), true);
+    assert.equal(await page.locator(".import-alternative").count(), 0);
+    assert.equal(await page.locator("#acc-pick").count(), 0);
     const upload = async (name) => {
-      await openExcel();
-      await page.locator("#acc-pick").focus();
-      await page.evaluate(() => render());
-      assert.equal(await page.locator(".import-alternative").evaluate((el) => el.open), true);
-      assert.equal(await page.evaluate(() => document.activeElement.id), "acc-pick");
-      const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.locator("#acc-pick").click()]);
-      await chooser.setFiles(path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/r45-import-fixtures", name + ".xlsx"));
+      const grid = JSON.parse(
+        fs.readFileSync(
+          path.join(require("path").resolve(__dirname, "../.."), "tests/fixtures/reference/r45-import-fixtures", name + ".grid.json"),
+          "utf8",
+        ),
+      );
+      await page.evaluate(async (g) => {
+        WriterState.state.screen = "import";
+        cancelCaseLookup();
+        const t = accelaTable(g);
+        WriterState.state.acc = {
+          fileName: "",
+          errors: t.errors,
+          notes: t.notes,
+          cases: t.cases,
+          caseIx: 0,
+          sel: t.cases.length ? t.cases[0].sel : null,
+          manualDate: "",
+          manualTime: "",
+        };
+        await accelaFromShare();
+        render();
+      }, grid);
       await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
     };
     await upload("multiple");
@@ -93,7 +104,6 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator(".writer-navigation [data-nav=cases]").click();
     await page.waitForFunction(() => WriterState.state.screen === "cases");
     await page.locator(".workspace-start [data-nav=import]").click();
-    await openExcel();
     await upload("multiple");
     assert.equal(await page.locator("[data-import-workspace]").innerText(), "Continue existing case");
     await axeScreen(page, "r45-existing-draft");
@@ -106,7 +116,6 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       await page.waitForFunction(() => WriterState.state.screen === "cases");
       await page.locator(".workspace-start [data-nav=import]").click();
       await page.locator("#acc-cancel").click();
-      await openExcel();
       await upload(name);
       assert.match(await page.locator(".acc").innerText(), new RegExp(name.split("-")[0], "i"));
       assert.equal(await page.locator("[data-accsel]").count(), 0);
@@ -114,7 +123,6 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       await page.screenshot({ path: path.join(OUT, "r45-" + name + ".png"), fullPage: true });
     }
     await page.locator("#acc-cancel").click();
-    await openExcel();
     await upload("snow");
     await page.evaluate(() => {
       WriterState.CASES = [];
@@ -147,8 +155,8 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     const result = {
       passed: true,
       checks: [
-        "prominent direct lookup and compact Excel alternative",
-        "actual XLSX eligible choice with no arbitrary default",
+        "prominent direct lookup and no spreadsheet alternative",
+        "stored report grid eligible choice with no arbitrary default",
         "keyboard choice and phone overflow",
         "retained draft opens directly through preflight",
         "Scheduled Assist and Pending explanations",

@@ -48,5 +48,5 @@ def settings(root):
             raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
         cfg["trustServerCertificate"] = trust_certificate
     if not cfg["enabled"]:
-        raise CaseLookupError("Direct case lookup is disabled by the administrator. Use an Excel report.")
+        raise CaseLookupError("Direct case lookup is disabled by the administrator.")
     return cfg

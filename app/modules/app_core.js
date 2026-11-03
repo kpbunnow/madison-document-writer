@@ -749,8 +749,6 @@ const accelaImport = createAccelaImport(
   ),
 );
 export const {
-  ACC_MAX,
-  ACC_EXPANDED_MAX,
   ACC_COLS,
   ACC_REQUIRED,
   ACC_LABEL,
@@ -759,11 +757,6 @@ export const {
   hiddenImportRow,
   accStatusEligible,
   ACC_CASEFIELDS,
-  accXml,
-  accAll,
-  accKids,
-  accText,
-  accColIx,
   accStr,
   accNorm,
   accTime,
@@ -772,10 +765,8 @@ export const {
   SQL_COLUMNS,
   accelaTable,
   baseLookupPlan,
-  readAccelaFile,
   accelaFromShare,
   baseLookupAccept,
-  pickAccelaFile,
   screenImport,
   openImportWorkspace,
   lookupCard,
@@ -787,8 +778,7 @@ export const {
   accelaPlan,
   acceptAccela,
 } = accelaImport;
-const { accHM, accInflate, readXlsx, accSerial, accWhen, accParcel, applyImportRule, accelaPanel, sqlReport, lookupPlanSignature, lookupCanOpen } =
-  accelaImport;
+const { accHM, accSerial, accWhen, accParcel, applyImportRule, accelaPanel, sqlReport, lookupPlanSignature, lookupCanOpen } = accelaImport;
 
 const caseActivity = createCaseActivity(
   deferredServices(
@@ -1677,9 +1667,7 @@ const importEvents = createImportEvents(
     confirmDatabaseCase: () => confirmDatabaseCase,
     findDatabaseCase: () => findDatabaseCase,
     openImportWorkspace: () => openImportWorkspace,
-    pickAccelaFile: () => pickAccelaFile,
     preflightCase: () => preflightCase,
-    readAccelaFile: () => readAccelaFile,
     render: () => render,
     renderKeep: () => renderKeep,
     saveDrafts: () => saveDrafts,
@@ -2291,8 +2279,6 @@ openCaseEvents.registerOpenCaseChange();
 openCaseEvents.registerOpenCaseSearch();
 openCaseEvents.registerOpenCaseClicks();
 
-importEvents.registerLookupDrop();
-
 utilityEvents.registerCheckLinks();
 // Run after editing handlers, without replacing the active input or losing its caret.
 utilityEvents.registerInputChecks();
@@ -2349,9 +2335,6 @@ editorEvents.registerReviewCommands();
 workspaceEvents.registerWorkspaceClicks();
 
 /* the Accela report can be dropped on the import card */
-importEvents.registerDragOver();
-importEvents.registerDragLeave();
-importEvents.registerFileDrop();
 
 /* Durable workspace recovery starts before the application becomes editable. */
 if (document.documentElement) document.documentElement.lang = "en";
@@ -2422,7 +2405,6 @@ if (__TEST_BUILD__)
     LOOKUP_READY,
     accelaTable,
     baseLookupPlan,
-    readAccelaFile,
     baseLookupAccept,
     openImportWorkspace,
     lookupCard,
@@ -2433,8 +2415,6 @@ if (__TEST_BUILD__)
     accelaPlan,
     acceptAccela,
     accHM,
-    accInflate,
-    readXlsx,
     accSerial,
     accWhen,
     accParcel,

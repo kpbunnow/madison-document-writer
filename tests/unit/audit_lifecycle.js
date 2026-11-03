@@ -363,7 +363,10 @@ const test = async function () {
     "Manual case and CSV entry options removed",
     !document.getElementById("m-go") && !document.getElementById("imp-go") && !document.getElementById("imp-csv"),
   );
-  ok("Import screen exposes the SSRS report flow", !!document.getElementById("acc-pick"));
+  ok(
+    "Import screen exposes the case lookup flow and no spreadsheet loader",
+    !!document.getElementById("lookup-number") && !document.getElementById("acc-pick"),
+  );
   render = () => {};
   fresh();
   n = notice(1);

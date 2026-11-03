@@ -298,8 +298,22 @@ async function attempt(fn) {
 async function battery(api) {
   const out = [];
   const owner = api.createAccelaImport(new Proxy({}, { get: (_, k) => assert.fail("pure surface used a peer: " + String(k)) }));
-  out.push(Object.keys(owner));
-  for (const key of ["ACC_MAX", "ACC_EXPANDED_MAX", "ACC_COLS", "ACC_REQUIRED", "ACC_CASEFIELDS", "SQL_COLUMNS"]) out.push(owner[key]);
+  // The spreadsheet file import was removed (owner-approved, R69); the retained original still carries it.
+  const REMOVED = new Set([
+    "ACC_MAX",
+    "ACC_EXPANDED_MAX",
+    "accXml",
+    "accAll",
+    "accKids",
+    "accText",
+    "accColIx",
+    "accInflate",
+    "readXlsx",
+    "readAccelaFile",
+    "pickAccelaFile",
+  ]);
+  out.push(Object.keys(owner).filter((k) => !REMOVED.has(k)));
+  for (const key of ["ACC_COLS", "ACC_REQUIRED", "ACC_CASEFIELDS", "SQL_COLUMNS"]) out.push(owner[key]);
   out.push(Object.keys(owner.ACC_COLS).map(owner.ACC_LABEL));
   seed = 7777;
   for (let n = 0; n < 4000; n++) {
@@ -322,7 +336,6 @@ async function battery(api) {
       owner.accSerial(v),
       owner.accWhen(v, w),
       owner.accParcel(v),
-      owner.accColIx(pick(["A", "AB", "ab1", "", "7", undefined])),
       owner.accHM(pick([0, 59, 60, 725, 1439])),
       owner.accInspector(pick(NAMES)),
     ]);
@@ -384,16 +397,6 @@ async function battery(api) {
     out.push([api.WriterState.LOOKUP_BUSY, api.WriterState.LOOKUP_SERIAL, api.WriterState.LOOKUP_CONTROLLER]);
   }
   for (let n = 0; n < 2500; n++) out.push(owner.accelaTable(grid()));
-  for (let n = 0; n < 500; n++) {
-    const g = grid(),
-      bytes = workbook(g);
-    out.push(await attempt(() => owner.readXlsx(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.length))));
-  }
-  for (let n = 0; n < 60; n++) {
-    const raw = zlib.deflateRawSync(Buffer.from("x".repeat(random(5000))));
-    out.push(await attempt(async () => Buffer.from(await owner.accInflate(new Uint8Array(raw), pick([10, 100, 1000, 100000]))).toString().length));
-    out.push(await attempt(async () => Buffer.from(await owner.accInflate(new Uint8Array(raw.subarray(0, random(raw.length + 1)))), "utf8").length));
-  }
   return out.map(show);
 }
 
@@ -412,11 +415,6 @@ async function battery(api) {
     "Scheduled rows",
     "Assist rows",
     "rows without an inspection date",
-    "it is not an Excel .xlsx file",
-    "the file is incomplete or damaged",
-    "1904 date system",
-    "the workbook has no sheets",
-    "The expanded workbook is too large",
     '"conflicts":[{',
     "not 12 digits",
     "Unexpected case response",
@@ -425,9 +423,7 @@ async function battery(api) {
     "aborted",
   ])
     assert.ok(text.includes(fragment), "scenarios reach: " + fragment);
-  const parsed = before.filter((r) => r.startsWith('{"value":[['));
-  assert.ok(parsed.length > 100, "workbooks that read cleanly: " + parsed.length);
-  console.log("PASS report reading matches the retained module over " + before.length + " comparisons (" + parsed.length + " clean workbooks)");
+  console.log("PASS report reading matches the retained module over " + before.length + " comparisons");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

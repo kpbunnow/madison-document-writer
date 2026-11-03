@@ -38,8 +38,8 @@ function renderStartup(services) {
 /** Capture now; restore after enhancement. @returns {RestoreRepaint} */
 function keepImportDisclosures(services, sameImport) {
   const importDisclosures = sameImport
-    ? [...services.document.querySelectorAll(".import-alternative,.import-workflow")].map((el) => ({
-        selector: el.classList.contains("import-alternative") ? ".import-alternative" : ".import-workflow",
+    ? [...services.document.querySelectorAll(".import-workflow")].map((el) => ({
+        selector: ".import-workflow",
         open: el.open,
         focus: el.contains(services.document.activeElement)
           ? services.document.activeElement.tagName === "SUMMARY"

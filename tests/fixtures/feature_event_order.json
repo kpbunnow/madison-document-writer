@@ -283,14 +283,6 @@
       "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
     },
     {
-      "owner": "import",
-      "name": "registerLookupDrop",
-      "target": "document",
-      "type": "drop",
-      "capture": true,
-      "checkpoint": "WriterState.ACC_SELECTION_SERIAL"
-    },
-    {
       "owner": "utility",
       "name": "registerCheckLinks",
       "target": "document",
@@ -431,30 +423,6 @@
       "name": "registerWorkspaceClicks",
       "target": "document",
       "type": "click",
-      "capture": false,
-      "checkpoint": "WriterState.groupOld"
-    },
-    {
-      "owner": "import",
-      "name": "registerDragOver",
-      "target": "document",
-      "type": "dragover",
-      "capture": false,
-      "checkpoint": "WriterState.groupOld"
-    },
-    {
-      "owner": "import",
-      "name": "registerDragLeave",
-      "target": "document",
-      "type": "dragleave",
-      "capture": false,
-      "checkpoint": "WriterState.groupOld"
-    },
-    {
-      "owner": "import",
-      "name": "registerFileDrop",
-      "target": "document",
-      "type": "drop",
       "capture": false,
       "checkpoint": "WriterState.groupOld"
     },

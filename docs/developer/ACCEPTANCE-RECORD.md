@@ -349,8 +349,9 @@ The Import inspection screen lists an inspector's open enforcement cases from tw
 | OCL-7 | Choose Import while another import is waiting for review below, and while a lookup is running | Import is unavailable with a note to finish or cancel the other import first |
 | OCL-8 | Import a new case's Initial Inspection, discard its notice draft from case details, then import the same Initial Inspection again | The import starts a new notice for the same case (no delete of the case and no "Continue existing case" loop). A case that has an issued document, a draft or a recorded event still refuses a second Initial Inspection |
 | OCL-9 | Close a case in Accela, then use Refresh open cases and later Refresh inspector list | The closed case leaves the list once the reporting database has caught up with Accela (note how long that takes; if it never leaves, report it) |
+| OCL-10 | Open Import inspection on a City PC | Only the open-case list and Find Case Inspections are offered; there is no Excel/SSRS file card, no Load Accela report button and no drop area |
 
-The owner decided on 2026-11-02 to keep the Excel/CSV import available for now and remove it in a later release only after OCL-1 to OCL-7 pass on a real PC.
+The owner first decided on 2026-11-02 to keep the Excel/CSV import until OCL-1 to OCL-7 passed, then approved its removal after the first City test of R68. The Import an SSRS Excel report function is removed from main for R69; historical rows above that mention Excel record what was accepted for earlier releases.
 
 ### Supporting evidence from the 2026-11-01 run of the test checklist (not acceptance)
 

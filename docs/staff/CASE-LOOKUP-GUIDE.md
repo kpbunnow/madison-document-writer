@@ -21,7 +21,7 @@ The imported inspection's **Inspection Type** and **Inspection Status** decide t
 
 **Review an existing case.** Check the case number, address, selected inspection and proposed property or owner changes. Expand source details if needed. Choose Continue existing case to open its retained draft, worksheet or latest effective issued source without importing the proposed changes. Choose Import inspection only for an eligible unused later physical inspection after the shared preflight succeeds. Existing unfinished work and reused observations must be resolved first.
 
-**Excel alternative.** Open the SSRS Excel alternative and select the division's exported inspection report. Review the same identity and completed-inspection facts and confirm explicitly. CSV paste and manual case creation are not provided. Use the actual Inspection Time column; a missing time stays blank and a scheduled date does not substitute for an actual inspection date.
+**No spreadsheet import.** The SSRS Excel report import was removed in R69; every import now comes from the case database through Open cases by inspector or Find Case Inspections. CSV paste and manual case creation are not provided. Use the actual Inspection Time column; a missing time stays blank and a scheduled date does not substitute for an actual inspection date.
 
 Record Category Snow Removal selects the snow workflow and preloads its 10.28 item. The new-case workflow selector is an additional deliberate choice, not a way to bypass missing or reused inspection facts. Existing case and file identities remain stable.
 
@@ -99,13 +99,13 @@ This setting makes the client accept the certificate presented by the server wit
 | `HELPER_RUNTIME` | Ask IT to confirm the complete deployment and Windows PowerShell/.NET SQL support. |
 | Script/helper returned no data | Confirm the complete deployment is installed and PowerShell is permitted by City policy. |
 
-The SSRS Excel report import remains available while direct lookup is unavailable. The optional profile setting keeps encryption but skips validating the SQL server's identity.
+When direct lookup is unavailable (not a City Windows computer, disabled by the administrator, or the SQL connection fails), no case can be imported until it is restored; ask IT. The optional profile setting keeps encryption but skips validating the SQL server's identity.
 
 ## Inspection identity and retained provenance
 
 The source query supplies no stable inspection ID. Within a case, the importer matches inspection type, actual date and normalized time; it never uses mutable status or owner details as identity. An initial inspection belongs to the case's single original notice. Imported drafts, worksheets and issued snapshots retain `importInspection` as additive metadata. Historical documents/visits without that metadata use their stored inspection date/time; missing historical time conservatively blocks same-day reuse. Two known, different times remain distinct visits. Do not change an inspection's time to work around a duplicate block; open the existing record and use correction when appropriate.
 
-Closed cases, existing drafts, pending issue confirmations, unreadable shared files and conflicting records do not start a new worksheet. Direct lookup and helper-backed Excel import recheck shared history before confirmation. Failed checks leave existing work intact. The shared helper also rejects reuse of a retained imported inspection when publishing a visit.
+Closed cases, existing drafts, pending issue confirmations, unreadable shared files and conflicting records do not start a new worksheet. Direct lookup rechecks shared history before confirmation. Failed checks leave existing work intact. The shared helper also rejects reuse of a retained imported inspection when publishing a visit.
 
 ## Approved server configuration
 
