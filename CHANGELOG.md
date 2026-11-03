@@ -1,5 +1,31 @@
 # Release changelog
 
+## 2026-11-03 R69 — Release package
+
+Release package assigned on the owner's request after the first City test of R68 (helper 2026.11.03.70, build 70; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R69 upgrades R68.
+
+### Open cases by inspector
+
+- The inspector list is faster: names now come only from the workflow tables for people with open cases, and the checked list is kept for 30 minutes in the helper. The first load can still take up to a minute, so the screen says so.
+- Two new buttons, Refresh inspector list and Refresh open cases, reload from the database. A closed case leaves the list once the reporting database has caught up with Accela.
+- The open cases are shown as a table with Case number, Address and Description in the same formatting. The latest inspection details are no longer shown; Import still runs Find Case Inspections for the chosen case.
+
+### Start screen
+
+- On a City PC, Document Writer opens on Import inspection and starts loading the inspector list. It opens on the Workspace instead when a draft, worksheet, pending item or typed case number needs attention.
+
+### Removed
+
+- The Import an SSRS Excel report instead function is removed (the file card, drag and drop, and the spreadsheet reader). Every import comes from the case database; the helper no longer tells staff to use an Excel report.
+
+### Corrections from review
+
+- Overlapping inspector and case requests no longer leave the loading state stuck; startup keeps pending record actions visible; malformed backup integrity input fails before anything is saved; malformed non-issued snapshots return a definite validation failure; damaged anchoring metadata cannot reject a save that is already committed; case files are read through the same verified handle so a link swapped in after the check cannot be followed. The development-only minimatch dependency is pinned at 11.0.1.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. The real inspector queries cannot run in the development environment; City acceptance items OCL-1 to OCL-10 and S69-2 exercise them.
+
 ## 2026-11-02 R68 — Release package
 
 Release package assigned on the owner's request after the development below (helper 2026.11.02.69, build 69; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R68 upgrades R67, which the owner confirmed installs and updates correctly. Install it on every PC that uses the shared case folder and have everyone fully restart Document Writer (Exit Document Writer, then the desktop icon); a PC left on R67 is told to restart and cannot save to the shared folder.

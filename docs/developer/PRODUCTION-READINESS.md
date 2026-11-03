@@ -69,3 +69,5 @@ R66 replaces R65, which could not start on an installed PC, and adds S66-1 (inst
 R67 replaces R64 to R66 (R66 was never published) and adds S67-1 (installed start and newest-release enforcement) with the Violator and order-language items SVIO-2, SVIO-4, OL-1 and OL-2. S65-1 through S65-3 and S66-1 carry to R67 unchanged. R67 is a release candidate, not a deployment approval.
 
 R68 upgrades R67 (confirmed working on City PCs) and adds S68-1 (installed update) with the open-case list checks OCL-1 to OCL-8. SVIO-2, SVIO-4 per PC, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R68 is a release candidate, not a deployment approval.
+
+R69 upgrades R68 and adds S69-1 (installed update) and S69-2 (opens on Import inspection) with the open-case list checks OCL-1 to OCL-10 (OCL-10: no Excel card). SVIO-2, SVIO-4 per PC, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R69 is a release candidate, not a deployment approval.
