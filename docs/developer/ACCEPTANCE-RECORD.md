@@ -326,6 +326,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R69 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S69-1 | Install R69 from the shared release folder over R68 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R68 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-03 R69 and helper 2026.11.03.70 with Program/helper versions Match; the R68 copy is told to restart and cannot save to the shared folder |
+| S69-2 | On a City PC with no draft, worksheet or pending item, open Document Writer; then leave a draft and open it again | The first start lands on Import inspection and the inspector list begins loading at once; with a draft, worksheet, pending item or typed case number the Workspace opens instead |
+
+All R69 items remain OPEN. The open-case list items OCL-1 to OCL-10 below (including the new Refresh buttons, the three-column case table and the removal of the Excel card), SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items remain OPEN. S68-1 is superseded by S69-1.
+
 ## R68 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
@@ -334,7 +343,7 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 
 All R68 items remain OPEN. The open-case list items OCL-1 to OCL-8 below, SVIO-2 (real data), OL-2, S65-1 through S65-3 and the carried items remain OPEN. OL-1 is CONFIRMED (below).
 
-## Open cases by inspector acceptance (shipped in R68) — OPEN
+## Open cases by inspector acceptance (shipped in R68, revised in R69) — OPEN
 
 The Import inspection screen lists an inspector's open enforcement cases from two fixed read-only queries taken from the division's Open_Enforcement_Cases report (helper/inspector_list.sql and inspector_cases.sql). The SQL cannot run in the development environment, so these checks need a City PC and the real server.
 
