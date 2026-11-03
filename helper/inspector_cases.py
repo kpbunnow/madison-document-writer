@@ -155,7 +155,8 @@ def _display_person(person, found):
 def inspectors(root, refresh=False):
     names = exclusions(root)
     everyone, source = _list_answer(root, refresh)
-    displayed = [_display_person(p, _kept_names(root)) for p in everyone]
+    found = {} if refresh else _kept_names(root)
+    displayed = [_display_person(p, found) for p in everyone]
     people = [p for p in displayed if not excluded(names, p["id"], p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
     return {"ok": True, "inspectors": people, "source": source}

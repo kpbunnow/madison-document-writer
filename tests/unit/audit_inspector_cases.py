@@ -138,6 +138,20 @@ class InspectorCaseTests(unittest.TestCase):
             self.assertEqual(second_client["inspectors"][0]["name"], "JQP")
             self.assertEqual(run.call_count, 2)
 
+    def test_explicit_refresh_still_refreshes_deferred_names(self):
+        rows = [person("JQP", "JQP", "2")]
+        named = [{"UserId": "JQP", "InspectorName": "Jamie Public"}]
+        renamed = [{"UserId": "JQP", "InspectorName": "Jamie Changed"}]
+        with patch.object(lookup, "run_script", side_effect=[self.answer(rows), self.answer(named), self.answer(rows), self.answer(renamed)]) as run:
+            cases.inspectors(self.root)
+            cases.inspector_names(self.root)
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "Jamie Public")
+            refreshed = cases.inspectors(self.root, refresh=True)
+            self.assertEqual(refreshed["inspectors"][0]["name"], "JQP", "fresh fallback IDs trigger the browser's deferred refresh")
+            self.assertEqual(cases.inspector_names(self.root, refresh=True)["names"][0]["name"], "Jamie Changed")
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "Jamie Changed")
+            self.assertEqual(run.call_count, 4)
+
     def test_background_names_do_not_hold_the_foreground_case_list_slot(self):
         entered, release = threading.Event(), threading.Event()
         outcomes = []
