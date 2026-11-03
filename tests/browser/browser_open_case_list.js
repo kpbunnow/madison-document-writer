@@ -82,7 +82,11 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     const firstCells = await page.locator(".open-case").first().locator("td").allInnerTexts();
     assert.deepEqual(firstCells, ["CB2026-241-60001", "101 TEST ST", "Roof and gutters"]);
     // The case number is the import control; case number and address never wrap, the description may.
-    const whiteSpace = await page.locator(".open-case").first().locator("td").evaluateAll((cells) => cells.map((c) => getComputedStyle(c).whiteSpace));
+    const whiteSpace = await page
+      .locator(".open-case")
+      .first()
+      .locator("td")
+      .evaluateAll((cells) => cells.map((c) => getComputedStyle(c).whiteSpace));
     assert.deepEqual(whiteSpace, ["nowrap", "nowrap", "normal"]);
     assert.equal(await page.locator(".open-case").first().locator("td").first().locator("button[data-open-case-pick]").count(), 1);
     assert.ok(

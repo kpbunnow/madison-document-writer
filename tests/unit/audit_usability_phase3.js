@@ -252,13 +252,7 @@ if (process.argv[2] === "reports") {
       assert.ok(admin.contains(document.querySelector(selector)), selector + " is inside Administrator tools");
       assert.equal(text(document.querySelector(selector + " strong")), label);
     }
-    for (const selector of [
-      "[data-reminders]",
-      "[data-batch-due]",
-      ".tool-action[data-sync-safety]",
-      "[data-openfile]",
-      "[data-a11y-theme]",
-    ])
+    for (const selector of ["[data-reminders]", "[data-batch-due]", ".tool-action[data-sync-safety]", "[data-openfile]", "[data-a11y-theme]"])
       assert.equal(admin.contains(document.querySelector(selector)), false, selector + " stays with everyday tools");
     assert.equal(document.querySelectorAll(".tools-section .tool-action").length, 9);
     assert.equal(
