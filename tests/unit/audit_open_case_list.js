@@ -65,9 +65,10 @@ const row = (number, extra = {}) => ({
   );
   assert.match(
     markup,
-    /<td style="white-space:nowrap;vertical-align:top"><button [^>]*data-open-case-pick="CB2026-241-00003"[^>]*>CB2026-241-00003<\/button><\/td><td style="white-space:nowrap;vertical-align:top">&lt;img[^<]*<\/td><td style="vertical-align:top">&lt;script&gt;x&lt;\/script&gt;<\/td><\/tr>/,
+    /<td class="open-case-nowrap"><button [^>]*data-open-case-pick="CB2026-241-00003"[^>]*>CB2026-241-00003<\/button><\/td><td class="open-case-nowrap">&lt;img[^<]*<\/td><td>&lt;script&gt;x&lt;\/script&gt;<\/td><\/tr>/,
     "the case number is the control; case number and address stay on one line; the description wraps",
   );
+  assert.ok(!markup.includes(" style="), "table styling belongs to the reviewed screen stylesheet");
   assert.ok(!/Import<\/(button|span)>/.test(markup) && !/<th scope="col"><span/.test(markup), "there is no separate Import column");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");
   assert.match(markup, /data-open-case-pick="CB2026-241-00003"/);

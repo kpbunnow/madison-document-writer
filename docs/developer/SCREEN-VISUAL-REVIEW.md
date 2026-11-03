@@ -89,3 +89,13 @@ The table identifies the saved pair by the media mode whose image hashes matched
 | 228 | r47-all-language | active | 16 | 255 | Input caret |
 | 229 | r47-all-language-high | active | 16 | 255 | Input caret |
 | 230 | r47-all-language-system-dark | active | 16 | 255 | Input caret |
+
+## Import table maintenance review — 2026-11-03
+
+The owner requested extraction of the open-case table's inline no-wrap/link styles and removal of retired spreadsheet styles. The before source is clean main `1a8c5335accc365815220b092cc35bea06189a56` (R71). Its normal production browser audit passed and captured 288 synthetic screens; local Node 24.19.0, Python 3.12.14 and Chromium 154.0.8037.57 were used.
+
+The candidate moves identical declarations to `writer.css`, removes `.acc-drop` (including `.over`) and the inactive `.import-alternative > summary` selector, and retains the active selectors in that mixed group. A semantic comparison excluding only those retired selectors and the new table rules confirms every unrelated declaration and cascade position is unchanged. The CSS decision reference records the before/after hashes and common surviving-rule digest; the shell reference records the reviewed new hashes while retaining original provenance and payload/release-only normalization.
+
+The normal/forced-color replay completed 576 checks with zero computed-style or geometry differences and 53 PNG mismatches. The same-CSS control replayed the 46 affected snapshots (92 checks), also with zero style/geometry differences and 50 PNG mismatches. These small native painting differences are disclosed; the broad replay is not claimed as exact PNG parity. A separate paired-markup replay removes the old inline declarations and applies the actual new classes in six captured-table variants (desktop/mobile, light/dark, disabled and focus). All 12 normal/forced-color checks have exact style, geometry and PNG parity.
+
+The existing browser assertion for no-wrap cells remains unchanged. Screen-reference and stylesheet guards, the layout contract and open-case owner tests pass. Approved print CSS, historical print/document goldens, wording, release identities and legal/City/native acceptance are unchanged. Comparison evidence is retained outside source in the development workspace; the PR records actual outcomes and the combined GitHub gate.

@@ -27,11 +27,28 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "44ee2ffc11017b39da4bb70ab3153841884554642947bd71cc1ed533e87fc8b8"
+      "normalizedShellSha256": "9a1f85170ef9a5a00d50243b148431161701c8bab9afc77ec80bb49da06e6beb"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
-      "normalizedShellSha256": "4e3772d199d58f41d60b216d11d9e6cc1a7b1bb24d98956bcc67d9d35f6bf08e"
+      "normalizedShellSha256": "9902589704a9ed097f8ace3ff939debf0d940938f9ce881f77816266f96b60ff"
     }
-  }
+  },
+  "reviews": [
+    {
+      "date": "2026-11-03",
+      "sourceCommit": "1a8c5335accc365815220b092cc35bea06189a56",
+      "scope": "Owner-requested import table style extraction and retired spreadsheet CSS removal",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "44ee2ffc11017b39da4bb70ab3153841884554642947bd71cc1ed533e87fc8b8",
+          "after": "9a1f85170ef9a5a00d50243b148431161701c8bab9afc77ec80bb49da06e6beb"
+        },
+        "madison-reports.html": {
+          "before": "4e3772d199d58f41d60b216d11d9e6cc1a7b1bb24d98956bcc67d9d35f6bf08e",
+          "after": "9902589704a9ed097f8ace3ff939debf0d940938f9ce881f77816266f96b60ff"
+        }
+      }
+    }
+  ]
 }
