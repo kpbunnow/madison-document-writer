@@ -52,8 +52,18 @@ def _pattern(entry):
     return re.compile("".join(".*" if c == "%" else re.escape(c) for c in entry.strip()), re.IGNORECASE | re.DOTALL)
 
 
+# Staff the division does not want listed as inspectors (owner direction 2026-11-03). They are matched like the
+# administrator's entries (case-insensitive, % for any text) so a middle initial or a spaced hyphen still matches.
+DEFAULT_EXCLUDED = ("Alice%Duncan%Graves", "Gregg%May", "Jessica%Price", "Phil%Grupe")
+
+
 def exclusions(root):
-    """The administrator's list of people who never appear (Case Lookup/excluded-inspectors.json), or none."""
+    """The people who never appear: the division's built-in list plus the administrator's additions in
+    Case Lookup/excluded-inspectors.json."""
+    return list(DEFAULT_EXCLUDED) + _administrator_exclusions(root)
+
+
+def _administrator_exclusions(root):
     path = Path(root) / "Case Lookup" / EXCLUSIONS
     try:
         data = json.loads(path.read_text(encoding="utf-8-sig"))

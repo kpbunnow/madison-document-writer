@@ -387,6 +387,7 @@ The Import inspection screen lists an inspector's open enforcement cases from tw
 | OCL-13 | Import an Initial Inspection from a case near the bottom of a long list | The notice opens at its top, at Violation Items, without scrolling back up |
 | OCL-14 | Look for Search shared case records in the menu, Workspace and Tools & settings | It is gone; every case comes in through Import inspection |
 | OCL-15 | On Import inspection select a case's bubble, then select a different case's bubble while the first one's inspections are showing (and once while its lookup is still running) | Each case is in its own bubble with no underline; each selection runs Find Case Inspections for that case; the earlier case's inspections and selection are cleared; only the chosen bubble is highlighted; the inspection result shows the inspector on the first line and the type, date and status on a second line with no labels |
+| OCL-16 | Open the inspector list on a City PC | Alice Duncan-Graves, Gregg May, Jessica Price and Phil Grupe do not appear, including when they were first shown by user ID and their names filled in afterwards; every other inspector with open cases still does |
 
 The owner first decided on 2026-11-02 to keep the Excel/CSV import until OCL-1 to OCL-7 passed, then approved its removal after the first City test of R68. The Import an SSRS Excel report function is removed from main for R69; historical rows above that mention Excel record what was accepted for earlier releases.
 

@@ -327,14 +327,37 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(error.exception.status, 403)
 
     def test_exclusion_file_is_validated(self):
-        self.assertEqual(cases.exclusions(self.root), [])
+        self.assertEqual(cases.exclusions(self.root), list(cases.DEFAULT_EXCLUDED), "without a file only the division's built-in list applies")
         for value in ["Pat", [""], [5], ["x" * 129], ["a\nb"], ["x"] * 101, "not json", '{"exclude": [], "extra": 1}', "[]"]:
             self.excluding(value)
             with self.subTest(value=str(value)[:20]), self.assertRaisesRegex(lookup.CaseLookupError, "excluded-inspectors.json"):
                 cases.exclusions(self.root)
         self.excluding(["Alice%Example"])
-        self.assertEqual(cases.exclusions(self.root), ["Alice%Example"])
+        self.assertEqual(cases.exclusions(self.root), list(cases.DEFAULT_EXCLUDED) + ["Alice%Example"], "the administrator's entries are added")
         self.assertEqual(lookup.settings(self.root)["server"], "sqlelam", "the SQL settings file is unchanged")
+
+    def test_the_divisions_four_excluded_staff_never_appear_whatever_the_name_form(self):
+        rows = [
+            person("ADUNCAN", "Alice Duncan-Graves"),
+            person("ADUNCAN2", "Alice Duncan- Graves"),
+            person("ADUNCAN3", "Alice M Duncan Graves"),
+            person("GMAY", "Gregg May"),
+            person("GMAY2", "GREGG A. MAY"),
+            person("JPRICE", "Jessica Price"),
+            person("PGRUPE", "Phil Grupe"),
+            person("ASMITH", "Alex Smith"),
+            person("MAYER", "Gregg Mayer"),
+            person("PPRICE", "Pat Price"),
+        ]
+        with patch.object(lookup, "run_script", return_value=self.answer(rows)):
+            listed = [p["name"] for p in cases.inspectors(self.root)["inspectors"]]
+            self.assertEqual(listed, ["Alex Smith", "Gregg Mayer", "Pat Price"], "only the four are removed; look-alike names stay")
+            self.excluding(["Alex Smith"])
+            self.assertEqual(
+                [p["name"] for p in cases.inspectors(self.root)["inspectors"]],
+                ["Gregg Mayer", "Pat Price"],
+                "an administrator's entry adds to the four",
+            )
 
     def test_one_list_runs_at_a_time(self):
         self.assertTrue(cases.LISTS.acquire(blocking=False))
