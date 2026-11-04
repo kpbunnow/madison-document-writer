@@ -326,6 +326,17 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R73 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S73-1 | Install R73 from the shared release folder over R72 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R72 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-04 R73 and helper 2026.11.04.74 with Program/helper versions Match; the R72 copy is told to restart and cannot save to the shared folder |
+| PO-1 | In Recipients add a Copy and a Violator whose mailing address is a PO Box (for example PO Box 123, Madison, WI 53701), then a malformed one (no city/state/ZIP); print the notice and a citation | The PO Box lines are accepted and print as the mailing block/CC; the malformed one is refused with a message; the registered agent still needs a street address |
+| LVL-1 | On a citation, choose Automatic, then First, Second and Third violation level (with the approved source and reason) and Automatic again; compare to the configured schedule | Each level prices from the City's schedule; manual levels require the source/reason; Automatic clears the override; issued records and corrections are unchanged |
+| DISC-1 | Import a new case, add a Copy and an email recipient, discard the notice draft, write a new notice for the same case; repeat on a case that has an issued document | The new notice starts with default recipients; the case with an issued document keeps its recipients |
+
+All R73 items remain OPEN, together with the R72 items and the carried items. S72-1 is superseded by S73-1.
+
 ## R72 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

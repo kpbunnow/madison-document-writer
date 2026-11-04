@@ -1,5 +1,23 @@
 # Release changelog
 
+## 2026-11-04 R73 — Release package
+
+Release package assigned on the owner's request after R72 (helper 2026.11.04.74, build 74; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R73 upgrades R72.
+
+### Recipients and citations
+
+- A manually entered Copy or Violator address now accepts a PO Box mailing line as well as a numbered street; the recipient name and the city, state and ZIP are still required. The registered-agent fallback remains street-only.
+- Citation pricing offers Automatic, First, Second and Third violation levels. A manual level needs the existing approved source and reason and uses the configured schedule; Automatic clears the override. Issued records and correction pricing are unchanged.
+- Discarding the only draft of a case that was never issued or saved clears its copies, email recipients and owner-copy choice, so the next notice for that case starts with default recipients. A case with any document, event, saved checkpoint or other draft keeps them.
+
+### Worksheets
+
+- When an action is unavailable because nothing is outstanding, the reason now says whether a result is still needed on every violation item or every item is already corrected or withdrawn (it used to say only "No outstanding items for this action.").
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. PO Box recipients and the violation-level dropdown have not been exercised against City data or printing; PO-1 and LVL-1 cover them.
+
 ## 2026-11-03 R72 — Release package
 
 Release package assigned on the owner's request after R71 (helper 2026.11.03.73, build 73; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R72 upgrades R71.
