@@ -118,7 +118,7 @@ function recipientModal({ services }) {
       )}
 
       <h3 class="rec-h">Copies</h3>
-      <p class="hint">Printed at the foot of the document under &ldquo;CC:&rdquo;. Enter a numbered street address and city, state and ZIP; the print preview below shows the standardized lines.</p>
+      <p class="hint">Printed at the foot of the document under &ldquo;CC:&rdquo;. Enter a numbered street address or PO Box and city, state and ZIP; the print preview below shows the standardized lines.</p>
       ${raw(violatorHintHTML(k, cc))}${raw(recipientCopiesHTML({ cc, invalid, services, snow: k.caseType === "snow-10.28" }))}
       <button class="btn btn-sm" id="btn-addcc">Add a copy</button>${raw(violatorOwnerHTML(k))}
 

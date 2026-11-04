@@ -1,5 +1,5 @@
 const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
-const { withoutViolatorAdditions } = require("../fixtures/violator_overlay.cjs");
+const { withoutViolatorAdditions, withPoBoxRecipientControls } = require("../fixtures/violator_overlay.cjs");
 /* Exact modal HTML snapshots protect recipient, storage, workspace removal and finalization sections. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -13,7 +13,10 @@ const assert = require("node:assert/strict"),
   const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
     factory = ast.body.find((n) => n.declaration?.id.name === "createScreenOverlays").declaration,
     ret = factory.body.body.at(-1);
-  const reference = require("../fixtures/overlay_screen_reference.cjs").replace("function modalHTML(", "function referenceModal(");
+  const reference = withPoBoxRecipientControls(require("../fixtures/overlay_screen_reference.cjs")).replace(
+    "function modalHTML(",
+    "function referenceModal(",
+  );
   source =
     source.slice(0, ret.start) +
     reference +
