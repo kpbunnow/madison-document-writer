@@ -47,7 +47,7 @@ function refreshRecipientProblem(services, el, k, dd) {
   }
   const key = el.dataset.cc ? "copy|" + el.dataset.cc.split("|")[0] : "agent|0";
   const preview = document.querySelector('[data-recipient-preview="' + key + '"]');
-  if (preview) preview.textContent = services.recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent);
+  if (preview) preview.textContent = services.recipientPreview(el.dataset.cc ? ccList(k)[+el.dataset.cc.split("|")[0]] : k.agent, !!el.dataset.cc);
 }
 
 function changeCopyOwnerFor(services, e) {

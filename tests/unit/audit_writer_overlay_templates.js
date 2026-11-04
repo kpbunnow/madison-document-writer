@@ -1,4 +1,4 @@
-const { withoutViolatorAdditions } = require("../fixtures/violator_overlay.cjs");
+const { withoutViolatorAdditions, withPoBoxRecipientControls } = require("../fixtures/violator_overlay.cjs");
 /* Complete overlay HTML, state and adapter access/failure parity against the retained owner. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -26,7 +26,7 @@ const assert = require("node:assert/strict"),
   }
   const [current, original] = await Promise.all([
     load(fs.readFileSync("app/modules/screen_overlays.js", "utf8")),
-    load(fs.readFileSync("tests/fixtures/writer_overlay_reference.txt", "utf8")),
+    load(withPoBoxRecipientControls(fs.readFileSync("tests/fixtures/writer_overlay_reference.txt", "utf8"))),
   ]);
   function run(api, x) {
     const calls = [];

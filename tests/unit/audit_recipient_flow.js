@@ -179,6 +179,26 @@ const test = () => {
     "registered agent is standardized on the citation form itself",
     face.querySelector(".cit-agent .agent")?.textContent.includes("456 W Lake Ave Ste 12"),
   );
+  for (const kind of ["Copy", "Violator"]) {
+    k.ccList = [{ name: "Mailing Recipient", kind, addr: "p.o. box 123", city: "madison wisconsin 53703" }];
+    const raw = JSON.stringify(k);
+    ok(kind + " PO Box passes nonmutating readiness", validateAndStandardizeAddresses(k, false, false) === null && JSON.stringify(k) === raw);
+    ok(kind + " PO Box preview", recipientPreview(k.ccList[0]) === "Printed as: PO BOX 123 · Madison, WI 53703");
+    ok(
+      kind + " PO Box normalizes without a parser acknowledgement",
+      validateAndStandardizeAddresses(k) === null && k.ccList[0].addr === "PO BOX 123",
+    );
+  }
+  for (const addr of ["PO Box", "PO Box @@@", "PO Box 123, Madison WI 53703", "Main Street"]) {
+    k.ccList = [{ name: "Recipient", addr, city: "Madison WI 53703" }];
+    ok("Malformed mailbox remains refused: " + addr, validateAndStandardizeAddresses(k)?.field === "addr");
+  }
+  k.ccList = [{ name: "Recipient", addr: "post office box 45A", city: "bad" }];
+  ok("PO Box still requires a valid locality", validateAndStandardizeAddresses(k)?.field === "city");
+  k.agent = { name: "Agent", addr: "PO BOX 123", city: "Madison WI 53703" };
+  k.ccList = [];
+  ok("Registered-agent street validation remains strict", validateAndStandardizeAddresses(k, true)?.scope === "agent");
+  ok("Registered-agent preview retains strict mode", recipientPreview(k.agent, false) === "");
   scheduleDraftSave = originalSchedule;
   console.log("Recipient flow checks: " + count + " assertions, " + failures.length + " failures.");
   if (failures.length) process.exit(1);

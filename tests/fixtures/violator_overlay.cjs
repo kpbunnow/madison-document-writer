@@ -17,4 +17,18 @@ function withoutViolatorAdditions(actual, retained) {
   return actual.replace(SELECT, "").replace(HINT, "").replace(OWNER, "");
 }
 
-module.exports = { withoutViolatorAdditions };
+/* Apply only the owner-requested mailing-control changes to retained source.
+   Reference files and all remaining output/service comparisons stay intact. */
+function withPoBoxRecipientControls(reference) {
+  const oldPlaceholder = "Street number and name (123 Main St, Apt 4)";
+  const oldAgentPreview = "services.recipientPreview(k.agent || {})";
+  assert.equal(reference.split(oldPlaceholder).length, 3, "copy and agent placeholders retained");
+  assert.equal(reference.split(oldAgentPreview).length, 2, "one registered-agent preview");
+  return reference
+    .replace(oldPlaceholder, "Street address or PO Box (PO BOX 123)")
+    .replace(' street number and name"', ' street address or PO Box"')
+    .replace(" address and city, state and ZIP;", " address or PO Box and city, state and ZIP;")
+    .replace(oldAgentPreview, "services.recipientPreview(k.agent || {}, false)");
+}
+
+module.exports = { withoutViolatorAdditions, withPoBoxRecipientControls };
