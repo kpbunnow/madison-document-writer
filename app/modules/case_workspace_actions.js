@@ -4,6 +4,17 @@ import { caseDetails, stableJSON } from "./record_values.js";
 import { caseFileName } from "./case_file_rules.js";
 import { doc, docsFor, eventsFor, reinsp } from "./writer_queries.js";
 
+// a case that exists only as the draft just discarded (nothing issued, no events, no saved checkpoint, no other
+// draft) starts over, so its copies and email recipients do not leak into the next notice written for it
+function forgetRecipientsOfUnstartedCase(caseId) {
+  const k = caseId && workspace.CASES.find((c) => c.id === caseId);
+  if (!k || docsFor(caseId).length || eventsFor(caseId).length || workspace.SAVE_CHECKPOINTS[caseId]) return;
+  if (workspace.DOCS.some((x) => x.caseId === caseId) || workspace.REINSP.some((x) => x.caseId === caseId)) return;
+  delete k.ccList;
+  delete k.emails;
+  delete k.copyOwner;
+}
+
 export function createCaseWorkspaceActions(services) {
   async function discardDraft(id) {
     const d = doc(id);
@@ -22,6 +33,7 @@ export function createCaseWorkspaceActions(services) {
     workspace.REINSP.forEach((r) => {
       if (r.draft && r.docId === id) r.docId = null;
     });
+    forgetRecipientsOfUnstartedCase(d?.caseId);
     await services.saveDrafts();
     services.render();
   }

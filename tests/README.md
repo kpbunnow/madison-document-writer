@@ -376,7 +376,7 @@ covers, or a new suite under its feature.
 | `audit_record_helper_adapters.js` | Independent authenticated JSON/summary adapters, verification/errors/projection parity and direct event/source-query ordering |
 | `audit_folder_connections.js` | Independent folder linking/restoration/grants; synchronous picker, helper priority, persistence/flush order, quiet permission and partial failures |
 | `audit_writer_startup.js` | Independent startup owner; original invocation, lock lifetime/refusal UI, restore/readiness barriers, helper branches and every-stage failure order |
-| `audit_case_work_actions.js` | Independent case/draft actions and reinspection entry; pending/risk/save order, workspace removal, routing and imported/carried date/source identity |
+| `audit_case_work_actions.js` | Independent case/draft actions and reinspection entry; pending/risk/save order, workspace removal, recipients starting over when a never-issued case's only draft is discarded, routing and imported/carried date/source identity |
 | `audit_local_work_controls.js` | Independent local JSON and draft-save controls; debounce/status/counter paths, file picker failures and download/URL cleanup ordering |
 | `audit_case_folder_workflow.js` | Independent folder/index owner; permission/partial listings, verify-before-load dispatch, summary input/failure status and rebuild refusal/write counts |
 | `audit_recipient_workflow.js` | Independent postal formatting and two-input recipient workflow; validation-before-normalization, accepted lines, parser replacement and correction/live-case copy/email edits |
