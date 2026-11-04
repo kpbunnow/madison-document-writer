@@ -36,6 +36,7 @@ import {
   originalNotice,
   recordHead,
   recordNow,
+  unchecked,
   reinsp,
   reinspFor,
 } from "./writer_queries.js";
@@ -1017,6 +1018,11 @@ function statusFault(r, type) {
     return "The Accela status is Citation, but no item is marked for citation. Mark the items to cite, or correct the status in Accela and import this inspection again.";
   return "";
 }
+function nothingOutstanding(r) {
+  return unchecked(r).length
+    ? "Mark a result on every violation item of the worksheet first; none is outstanding yet."
+    : "Every violation item on this inspection is already corrected or withdrawn.";
+}
 function eligibility(r, type) {
   const fault = statusFault(r, type);
   if (fault) return fault;
@@ -1033,7 +1039,7 @@ function eligibility(r, type) {
     return "This inspection already has a primary follow-up. Add a compatible scoped order.";
   if (referred && !["referralUpdate", "compliance"].includes(type)) return REFERRED_MESSAGE;
   if (type === "compliance" && open.length) return "Some violation items remain outstanding.";
-  if (!supplemental({ type }) && type !== "compliance" && !open.length) return "No outstanding items for this action.";
+  if (!supplemental({ type }) && type !== "compliance" && !open.length) return nothingOutstanding(r);
   if (type === "citation" && !open.some((i) => r.results[i.id]?.cite)) return "Select the outstanding items to cite on the worksheet.";
   return "";
 }

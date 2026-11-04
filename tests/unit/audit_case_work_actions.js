@@ -163,6 +163,33 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     calls.map((x) => x[0]),
     ["save", "render"],
   );
+  // discarding the only draft of a case that was never issued or saved starts its recipients over
+  const withCopies = () => Object.assign(s.CASES[0], { ccList: [{ name: "V" }], emails: ["a@b.c"], copyOwner: false, savedAt: undefined });
+  reset();
+  withCopies();
+  s.DOCS = [{ id: "d", draft: true, caseId: "c" }];
+  await actions.discardDraft("d");
+  assert.deepEqual([s.CASES[0].ccList, s.CASES[0].emails, s.CASES[0].copyOwner], [undefined, undefined, undefined]);
+  for (const keep of [
+    () =>
+      (s.DOCS = [
+        { id: "d", draft: true, caseId: "c" },
+        { id: "i", draft: false, caseId: "c" },
+      ]),
+    () =>
+      (s.DOCS = [
+        { id: "d", draft: true, caseId: "c" },
+        { id: "d2", draft: true, caseId: "c" },
+      ]),
+    () => ((s.DOCS = [{ id: "d", draft: true, caseId: "c" }]), (s.EVENTS.c = [{ id: "e", at: "2026-09-01" }])),
+    () => ((s.DOCS = [{ id: "d", draft: true, caseId: "c" }]), (s.SAVE_CHECKPOINTS.c = { case: {}, events: [] })),
+  ]) {
+    reset();
+    withCopies();
+    keep();
+    await actions.discardDraft("d");
+    assert.deepEqual(s.CASES[0].emails, ["a@b.c"]);
+  }
   reset();
   s.REINSP = [{ id: "r", draft: true }];
   s.state.reinspId = "r";
