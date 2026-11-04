@@ -46,6 +46,29 @@ def policy_snapshots():
 
 
 class CitationPricingRules(unittest.TestCase):
+    def test_documented_manual_levels_and_po_box_respondents_are_verified(self):
+        template = next(s for s in policy_snapshots() if next(iter(s["cits"].values()))["ord"] == "18.08")
+        for level, base in ((1, 200), (2, 500), (3, 1000)):
+            snap = copy.deepcopy(template)
+            snap["frozen"]["case"]["ccList"] = [
+                {"kind": "Violator", "name": "Synthetic respondent", "addr": "PO BOX 123", "city": "Madison WI 53703"}
+            ]
+            cit = next(iter(snap["cits"].values()))
+            cit.update(
+                tier=citation_pricing.tier_label(level),
+                tierOverride=str(level),
+                tierOverrideSource="Synthetic approved court decision",
+                base=str(base),
+                depositMode="schedule",
+            )
+            fees = citation_pricing.assessment_cents(base * 100, 4800, at="2026-10-11")
+            cit.update(cc="48.00", amount=f"{fees['total'] / 100:.2f}", assessments=fees)
+            self.assertEqual(citation_pricing.defendant_key(snap["frozen"]["case"]), "PO BOX 123|53703")
+            self.assertIsNone(citation_pricing.validate_pricing(snap, []))
+            cit.pop("tierOverrideSource")
+            with self.assertRaisesRegex(ValueError, "recorded source"):
+                citation_pricing.validate_pricing(snap, [])
+
     def test_policy_and_generated_pricing_contexts(self):
         rng = random.Random(20261028)
         corpus = list(policy_snapshots())

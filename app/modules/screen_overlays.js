@@ -65,7 +65,7 @@ function recipientCopiesHTML({ cc, invalid, services, snow }) {
         <div class="rec-f">
           ${raw(copyTypeSelect(c, ix, snow))}
           <input type="text" data-cc="${String(ix)}|name" value="${raw(esc(c.name || ""))}" placeholder="Name" aria-label="Copy ${String(ix + 1)} name"${raw(invalid("copy", ix, "name"))}>
-          <input type="text" data-cc="${String(ix)}|addr" value="${raw(esc(c.addr || ""))}" placeholder="Street number and name (123 Main St, Apt 4)" aria-label="Copy ${String(ix + 1)} street number and name"${raw(invalid("copy", ix, "addr"))}>
+          <input type="text" data-cc="${String(ix)}|addr" value="${raw(esc(c.addr || ""))}" placeholder="Street address or PO Box (PO BOX 123)" aria-label="Copy ${String(ix + 1)} street address or PO Box"${raw(invalid("copy", ix, "addr"))}>
           <input type="text" data-cc="${String(ix)}|city" value="${raw(esc(c.city || ""))}" placeholder="City, ST ZIP (Madison, WI 53703)" aria-label="Copy ${String(ix + 1)} city, state and ZIP"${raw(invalid("copy", ix, "city"))}>
           <p class="rec-preview" data-recipient-preview="copy|${String(ix)}">${raw(esc(services.recipientPreview(c)))}</p><button class="btn btn-sm" data-parse-address="copy|${String(ix)}">Preview standardized copy address</button>
         </div>
@@ -137,7 +137,7 @@ function recipientModal({ services }) {
         <input type="text" data-agent="name" value="${raw(esc((k.agent || {}).name || ""))}" placeholder="Agent name" aria-label="Registered agent name"${raw(invalid("agent", 0, "name"))}>
         <input type="text" data-agent="addr" value="${raw(esc((k.agent || {}).addr || ""))}" placeholder="Street number and name (123 Main St, Apt 4)" aria-label="Registered agent street number and name"${raw(invalid("agent", 0, "addr"))}>
         <input type="text" data-agent="city" value="${raw(esc((k.agent || {}).city || ""))}" placeholder="City, ST ZIP (Madison, WI 53703)" aria-label="Registered agent city, state and ZIP"${raw(invalid("agent", 0, "city"))}>
-        <p class="rec-preview" data-recipient-preview="agent|0">${raw(esc(services.recipientPreview(k.agent || {})))}</p><button class="btn btn-sm" data-parse-address="agent|0">Preview standardized agent address</button>
+        <p class="rec-preview" data-recipient-preview="agent|0">${raw(esc(services.recipientPreview(k.agent || {}, false)))}</p><button class="btn btn-sm" data-parse-address="agent|0">Preview standardized agent address</button>
       </div><div style="width:34px"></div></div>
       </div><div class="modal-f"><button class="btn btn-primary" data-close="modal">Done</button></div></div></div>`;
 }

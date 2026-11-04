@@ -35,7 +35,12 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, old] = await Promise.all([load(source), load(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  // Owner-approved UI change: replace only the old numeric tier control in the retained presentation.
+  // The new control is checked independently; all remaining HTML/state/effect assertions stay exact.
+  const oldTierControl = `field(i, c, "tierOverride", "Approved tier override", "number", 'min="1" step="1"')`;
+  assert.equal(reference.split(oldTierControl).length, 2);
+  const reviewedReference = reference.replace(oldTierControl, "offenseLevelSelect(i, c)");
+  const [current, old] = await Promise.all([load(source), load(source.slice(0, fn.start) + reviewedReference + source.slice(fn.end))]);
   function run(api, x) {
     const calls = [];
     let count = 0;

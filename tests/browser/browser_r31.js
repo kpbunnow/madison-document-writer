@@ -168,6 +168,74 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   assert.match(await reports.locator("body").innerText(), /\$48\.00/);
   await axeScreen(reports, "r31-dated-schedule");
   await reports.close();
+  // Current draft UI: mailbox recipients and documented manual schedule levels.
+  await page.bringToFront();
+  await page.evaluate(() => {
+    window.__recipientLevelBefore = {
+      CASES: WriterState.CASES.slice(),
+      DOCS: WriterState.DOCS.slice(),
+      state: { ...WriterState.state },
+      WORK: clone(WriterState.WORK),
+    };
+    const stamp = recordDay(today),
+      id = "qa-mailbox-levels";
+    WriterState.CASES.push({
+      id,
+      number: "QA-MAILBOX-LEVELS",
+      address: "100 SYNTHETIC ST",
+      owner: "SYNTHETIC OWNER",
+      ownerAddr: ["100 TEST ST", "Madison WI 53703"],
+      inspectorId: "i4",
+      date: addDays(stamp, -2),
+      time: "09:00",
+      ccList: [{ name: "SYNTHETIC RECIPIENT", addr: "", city: "" }],
+    });
+    WriterState.state.modal = null;
+    newDoc(id, "notice");
+    const d = doc(WriterState.state.docId);
+    d.importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
+    d.items = [
+      {
+        id: "mailbox-item",
+        no: "1",
+        title: "Synthetic permit",
+        text: "Obtain the required permit.",
+        sections: ["18.08"],
+        cite: true,
+        due: addDays(stamp, 21),
+      },
+    ];
+    initialCitations.prepare(d);
+    render();
+  });
+  await page.locator(".editor-sections #btn-cc").click();
+  await page.locator('[data-cc="0|addr"]').fill("p.o. box 123");
+  await page.locator('[data-cc="0|city"]').fill("madison wisconsin 53703");
+  await page.locator('.modal [data-close="modal"]').click();
+  assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).ccList[0].addr), "PO BOX 123");
+  await page.locator(".editor-sections #btn-cc").click();
+  await page.locator('[data-cc="0|kind"]').selectOption("Violator");
+  await page.locator('.modal [data-close="modal"]').click();
+  assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).ccList[0].kind), "Violator");
+  await page.locator('[data-review-details="pricing"] > summary').click();
+  const level = page.locator('[data-review-cit="mailbox-item|offenseLevel"]');
+  assert.equal(await level.inputValue(), "");
+  await level.selectOption("2");
+  await page.locator('[data-review-cit="mailbox-item|tierOverrideSource"]').fill("Synthetic court-approved offense level decision");
+  await page.locator('[data-review-cit="mailbox-item|tierOverrideSource"]').press("Tab");
+  await page.waitForFunction(() => doc(WriterState.state.docId).cits["mailbox-item"].base === 500);
+  await level.selectOption("3");
+  await page.waitForFunction(() => doc(WriterState.state.docId).cits["mailbox-item"].base === 1000);
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).cits["mailbox-item"].amount), "1331.00");
+  await axeScreen(page, "recipient-po-box-manual-level");
+  await level.selectOption("");
+  await page.waitForFunction(() => doc(WriterState.state.docId).cits["mailbox-item"].base === 200);
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).cits["mailbox-item"].tierOverrideSource), undefined);
+  await page.evaluate(() => {
+    Object.assign(WriterState, window.__recipientLevelBefore);
+    delete window.__recipientLevelBefore;
+    render();
+  });
   const result = {
     passed: true,
     requiredStep: true,
@@ -178,6 +246,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     schema: 5,
     tamperReadOnly: true,
     addressPreviewAccepted: true,
+    poBoxCopiesAndViolators: true,
+    manualViolationLevels: true,
     datedSchedule: true,
     actualWindowsExecution: false,
   };

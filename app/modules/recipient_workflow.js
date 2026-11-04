@@ -1,6 +1,6 @@
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
-import { standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
+import { standardMailingAddress, standardStreetAddress, standardCityStateZip, addressProblem } from "./address_format.js";
 import { ccList, emailList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 
@@ -25,13 +25,13 @@ function validateCopyAddresses(services, k, normalized, blank, normalize) {
       continue;
     }
     if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]) && String(c.name || "").trim()) continue;
-    const problem = addressProblem(c.name, c.addr, c.city);
+    const problem = addressProblem(c.name, c.addr, c.city, true);
     if (problem) {
-      const field = !String(c.name || "").trim() ? "name" : !standardStreetAddress(c.addr) ? "addr" : "city";
+      const field = !String(c.name || "").trim() ? "name" : !standardMailingAddress(c.addr) ? "addr" : "city";
       const label = c.kind === "Violator" ? "Violator" : "Copy " + (ix + 1);
       return { message: label + ": " + problem, scope: "copy", index: ix, field, selector: '[data-cc="' + ix + "|" + field + '"]' };
     }
-    normalized.push([c, String(c.name).trim(), standardStreetAddress(c.addr), standardCityStateZip(c.city)]);
+    normalized.push([c, String(c.name).trim(), standardMailingAddress(c.addr), standardCityStateZip(c.city)]);
   }
   return null;
 }
@@ -79,10 +79,10 @@ export function createRecipientWorkflow(services) {
     return null;
   }
 
-  function recipientPreview(c) {
+  function recipientPreview(c, allowPoBox = true) {
     if (services.addressParser.accepted(c.addressParsed, [c.addr || "", c.city || ""]))
       return "Accepted mailing lines: " + [c.addr, c.city].join(" · ");
-    const street = standardStreetAddress(c.addr),
+    const street = allowPoBox ? standardMailingAddress(c.addr) : standardStreetAddress(c.addr),
       city = standardCityStateZip(c.city);
     return street && city ? "Printed as: " + street + " · " + city : "";
   }

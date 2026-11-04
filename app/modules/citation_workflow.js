@@ -539,11 +539,34 @@ function depositAmountFields(i, c, mode, determined) {
         reviewField(i, c, "cc", "Court costs", "number", 'min="15" max="48" step="0.01" ' + (mode === "schedule" || determined ? "readonly" : ""));
 }
 
+function offenseLevelSelect(i, c) {
+  const retained = /^[1-9]\d*$/.test(String(c.tierOverride || "")) && Number(c.tierOverride) > 3;
+  const options = [
+    ["", "Automatic — from citation history"],
+    ["1", "First violation"],
+    ["2", "Second violation"],
+    ["3", "Third violation"],
+  ];
+  return html`<label class="f"><span>Violation level</span><select data-review-cit="${raw(dep_esc(i.id))}|offenseLevel" aria-label="Violation level for item ${raw(dep_esc(i.no))}" ${raw(c.historicalDeposit ? "disabled" : "")}>${raw(options.map(([value, label]) => html`<option value="${value}" ${raw(String(c.tierOverride || "") === value ? "selected" : "")}>${label}</option>`).join(""))}${raw(retained ? html`<option value="${String(c.tierOverride)}" selected disabled>Existing approved level ${String(c.tierOverride)}</option>` : "")}</select><span class="hint">For a manual level, enter its approved source or reason below to apply the scheduled amount.</span></label>`;
+}
+
+function editOffenseLevel(services, d, c, value) {
+  if (!d.draft || d.pendingAmendment || c.historicalDeposit || services.isLocked(d)) return;
+  if (!["", "1", "2", "3"].includes(value)) return;
+  if (value) c.tierOverride = value;
+  else {
+    delete c.tierOverride;
+    delete c.tierOverrideSource;
+  }
+  services.citationPricing.refresh(d);
+  if (d.correction) d.correction.reviewed = false;
+}
+
 function depositTierFields(i, c, mode) {
   const esc = dep_esc;
   return mode === "schedule"
     ? reviewField(i, c, "tier", "Computed offense tier", "text", "readonly") +
-        reviewField(i, c, "tierOverride", "Approved tier override", "number", 'min="1" step="1"') +
+        offenseLevelSelect(i, c) +
         reviewField(i, c, "tierOverrideSource", "Tier override — approved source")
     : html`<label class="f"><span>Offense tier</span><select data-review-cit="${raw(esc(i.id))}|tier" aria-label="Offense tier for item ${raw(esc(i.no))}">${raw(["1st", "2nd", "3rd+"].map((t) => html`<option value="${String(t)}" ${raw(c.tier === t ? "selected" : "")}>${String(t)}</option>`).join(""))}</select></label>${raw(reviewField(i, c, "depositSource", "Approved source / reason"))}`;
 }
@@ -653,6 +676,7 @@ export function createCitationWorkflow(services) {
     if (field === "ordOther") field = "ord";
     const c = d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
     if (!c) return;
+    if (field === "offenseLevel") return editOffenseLevel(services, d, c, String(value || ""));
     value = normalizeCitationFieldValue(field, value);
     if (field === "ord") return editCitationOrdinance(services, d, id, c, value, phase);
     if (c[field] === value) return;

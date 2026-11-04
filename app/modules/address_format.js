@@ -63,6 +63,14 @@ export function standardStreetAddress(value) {
   return formatted;
 }
 
+/* Mailing lines for copies and Violators may use a PO Box instead of a numbered street. */
+export function standardMailingAddress(value) {
+  const box = String(value || "")
+    .trim()
+    .match(/^(?:P\.?\s*O\.?|POST\s+OFFICE)\s*BOX\s+([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)$/i);
+  return box && /\d/.test(box[1]) ? "PO BOX " + box[1].toUpperCase() : standardStreetAddress(value);
+}
+
 export function standardCityStateZip(value) {
   const raw = String(value || "")
     .trim()
@@ -99,9 +107,12 @@ export function standardCityStateZip(value) {
   );
 }
 
-export function addressProblem(name, street, city) {
+export function addressProblem(name, street, city, allowPoBox = false) {
   if (!String(name || "").trim()) return "Enter the recipient name.";
-  if (!standardStreetAddress(street)) return "Enter a street address with a street number and name (for example, 123 Main St).";
+  if (!(allowPoBox ? standardMailingAddress(street) : standardStreetAddress(street)))
+    return allowPoBox
+      ? "Enter a street address with a street number and name, or a PO Box number (for example, PO BOX 123)."
+      : "Enter a street address with a street number and name (for example, 123 Main St).";
   if (!standardCityStateZip(city))
     return "Enter city, a complete state name or two-letter abbreviation, and ZIP (for example, Madison, WI 53703). Check ambiguous or unsupported state text.";
   return "";
