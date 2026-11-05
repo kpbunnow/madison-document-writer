@@ -185,7 +185,78 @@ module.exports = async function (browser, page, OUT, axeScreen, work) {
     assert.equal(summary.case.status, "Reinspection");
     assert.ok(summary.documents.some((d) => d.type === "reinspectionNotice" && d.label === "Reinspection Notice"));
     assert.equal(await page.evaluate(() => caseState(kase("qa-rn-1")).label), "Reinspection", "Workspace shows the Reinspection status");
-    return { passed: true, header: true, approvedParagraph: true, fixedDueDates: true, helperRefusesChangedDue: true, status: "Reinspection" };
+    // MCR-009: once the assigned dates have passed (the review clock is moved three weeks on, so one outstanding item
+    // is past due and another is due today), the Reinspection Notice still issues with every date unchanged.
+    const lateSetup = await page.evaluate(async () => {
+      WriterState.state.modal = null;
+      const id = "qa-rn-2",
+        stamp = recordDay(today);
+      WriterState.CASES.push({
+        id,
+        number: "QA-RN-002",
+        address: "1502 EXAMPLE AVENUE",
+        parcel: "070822219104",
+        owner: "SYNTHETIC OWNER",
+        ownerAddr: ["2500 EXAMPLE AVENUE", "MADISON WI 53703"],
+        inspectorId: "i4",
+        date: addDays(stamp, -45),
+        time: "10:15",
+        emails: [],
+      });
+      newDoc(id, "notice");
+      const notice = doc(WriterState.state.docId);
+      const dues = [addDays(stamp, 14), addDays(stamp, 21), addDays(stamp, 21)];
+      notice.items = dues.map((due, n) => ({
+        id: uid("x"),
+        no: String(n + 1),
+        sections: ["27.05(2)(c)"],
+        title: "Exterior repair " + (n + 1),
+        text: "Repair the damaged exterior finish at location " + (n + 1) + ".",
+        due,
+        done: false,
+        doneOn: "",
+      }));
+      if (!(await publishDocument(notice))) throw new Error("QA late notice failed: " + WriterState.state.amendmentError);
+      startReinspection(id);
+      const r = reinsp(WriterState.state.reinspId);
+      r.time = "11:25";
+      const outcomes = ["none", "corrected", "progress"];
+      doc(notice.id).items.forEach((i, n) => (r.results[i.id] = { oc: outcomes[n], on: r.date, note: "Synthetic observation.", cite: false }));
+      const rule = { ...accelaImport.statusRule("Reinspection", "Reinspection"), status: "Reinspection" };
+      r.importRule = rule;
+      r.followupIntent = rule.doc;
+      render();
+      return { dues, stamp };
+    });
+    await page.locator("[data-create-action]").click();
+    await page.waitForFunction(() => WriterState.state.screen === "write");
+    const late = await page.evaluate(async ({ dues, stamp }) => {
+      const realToday = today;
+      try {
+        today = new Date(new Date(addDays(stamp, 21) + "T12:00:00").getTime());
+        const d = doc(WriterState.state.docId);
+        const blockers = checks(d)
+          .filter((c) => !c.ok && !c.soft)
+          .map((c) => c.t);
+        const ok = await publishDocument(d);
+        return { ok, blockers, error: String(WriterState.state.amendmentError || ""), dues, type: d.type, printed: d.items.map((i) => i.due) };
+      } finally {
+        today = realToday;
+      }
+    }, lateSetup);
+    assert.equal(late.type, "reinspectionNotice");
+    assert.deepEqual(late.blockers, [], "no blocker for retained past-due or due-today dates");
+    assert.equal(late.ok, true, "the late Reinspection Notice issues: " + late.error);
+    assert.deepEqual(late.printed, late.dues, "every retained due date is unchanged");
+    return {
+      passed: true,
+      header: true,
+      approvedParagraph: true,
+      fixedDueDates: true,
+      helperRefusesChangedDue: true,
+      status: "Reinspection",
+      pastDueIssues: true,
+    };
   } finally {
     await print.close();
   }
