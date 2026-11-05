@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from gate_stages import read_stage, run_identity
+from gate_stages import assemble, browser_results, read_stage, run_identity
 
 
 class StageEvidence(unittest.TestCase):
@@ -135,6 +135,69 @@ class StageEvidence(unittest.TestCase):
             self.assertEqual(run_identity(), {"run": "local-fresh-id", "attempt": "1"})
         with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ID": "55", "GITHUB_RUN_ATTEMPT": "3"}, clear=True):
             self.assertEqual(run_identity(), {"run": "55", "attempt": "3"})
+
+    def test_assembler_refuses_different_actual_browsers_before_publishing_evidence(self):
+        first = {"toolchain": {**self.toolchain, "chromium": "145.0"}}
+        second = {"toolchain": {**self.toolchain, "chromium": "146.0"}}
+        with (
+            patch("gate_stages.run_identity", return_value=self.identity),
+            patch("gate_stages.source_inventory"),
+            patch("gate_stages.fingerprint", return_value=self.inputs),
+            patch("gate_stages.source_provenance", return_value=self.provenance),
+            patch("gate_stages.toolchain", return_value=self.toolchain),
+            patch("gate_stages.read_stage", side_effect=[first, second]),
+            patch("gate_stages.verify") as verify,
+        ):
+            with self.assertRaisesRegex(ValueError, "different browser/toolchain"):
+                assemble(self.root, lambda *args: None, self.root / "regression", self.root / "browser")
+            verify.assert_not_called()
+        self.assertFalse((self.root / "build/verification/latest/verification.json").exists())
+
+    def test_browser_evidence_must_match_production_and_include_passing_accessibility(self):
+        folder = self.root / "build/verification/latest/browser"
+        folder.mkdir(parents=True)
+        generated = self.root / "build/generated"
+        generated.mkdir(parents=True)
+        (generated / "RELEASE").write_text("synthetic release", encoding="utf-8")
+        checks = [{"screen": "synthetic", "violations": []}]
+        browser = {
+            "passed": True,
+            "mode": "full",
+            "productionBuild": True,
+            "runtimeHashes": {"production": "hash"},
+            "release": "synthetic release",
+            "errors": [],
+            "cspViolations": [],
+            "axe": checks,
+        }
+        axe = {"passed": True, "checks": checks}
+
+        def read(browser_data, axe_data):
+            (folder / "browser-results.json").write_text(json.dumps(browser_data), encoding="utf-8")
+            (folder / "axe-results.json").write_text(json.dumps(axe_data), encoding="utf-8")
+            return browser_results(self.root)
+
+        with patch("gate_stages.runtime_hashes", return_value={"production": "hash"}):
+            self.assertEqual(read(browser, axe), (browser, axe))
+            for change in [
+                {"passed": False},
+                {"mode": "fast"},
+                {"productionBuild": False},
+                {"runtimeHashes": {"production": "stale"}},
+                {"release": "other release"},
+                {"errors": ["page error"]},
+                {"cspViolations": ["CSP error"]},
+                {"axe": []},
+            ]:
+                with self.subTest(change=change), self.assertRaises(ValueError):
+                    read({**browser, **change}, axe)
+            for bad_axe in [
+                {"passed": False, "checks": checks},
+                {"passed": True, "checks": []},
+                {"passed": True, "checks": [{"screen": "synthetic", "violations": ["violation"]}]},
+            ]:
+                with self.subTest(axe=bad_axe), self.assertRaises(ValueError):
+                    read(browser, bad_axe)
 
 
 if __name__ == "__main__":
