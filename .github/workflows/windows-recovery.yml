@@ -35,9 +35,13 @@ concurrency:
 
 jobs:
   windows-recovery:
-    name: Windows recovery
+    name: Windows recovery (${{ matrix.python }})
     runs-on: windows-2022
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12.10', '3.14.10']
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/playwright-browsers
@@ -57,7 +61,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: '3.12.14'
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - name: Install frozen dependencies and pinned browser
@@ -79,7 +83,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: windows-recovery-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: windows-recovery-${{ matrix.python }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/windows-recovery/
           retention-days: 14
           if-no-files-found: error
