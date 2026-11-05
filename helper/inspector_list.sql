@@ -7,7 +7,7 @@
 -- is shown by user ID.
 WITH Assigned AS (
     SELECT LTRIM(RTRIM(r.ASSIGNED_USERID)) AS UserId, COUNT(*) AS OpenCases
-    FROM AccelaReporting.dbo.BI_ENF_RECORD AS r
+    FROM dbo.BI_ENF_RECORD AS r
     WHERE r.RECORD_ID LIKE 'CB%'
       AND LTRIM(RTRIM(r.ASSIGNED_USERID)) <> ''
       AND r.RECORD_STATUS NOT LIKE '%Close%'
@@ -20,11 +20,11 @@ WorkflowNames AS (
     FROM (
         SELECT LTRIM(RTRIM([ASSIGNED_USERID#]))      AS UserId,
                LTRIM(RTRIM([ASSIGNED_NAME_FML#]))    AS FullName
-        FROM AccelaReporting.dbo.BI_ENF_WORKFLOW
+        FROM dbo.BI_ENF_WORKFLOW
         UNION ALL
         SELECT LTRIM(RTRIM([ASSIGNED_USERID#])),
                LTRIM(RTRIM([ASSIGNED_NAME_FML#]))
-        FROM AccelaReporting.dbo.BI_ENF_WORKFLOW_HISTORY
+        FROM dbo.BI_ENF_WORKFLOW_HISTORY
     ) AS src
     WHERE UserId IN (SELECT UserId FROM Assigned)
       AND FullName IS NOT NULL AND FullName <> ''

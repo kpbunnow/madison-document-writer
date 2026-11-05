@@ -27,6 +27,28 @@ class LookupTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def database(self, name):
+        (self.root / "Case Lookup").mkdir(exist_ok=True)
+        (self.root / "Case Lookup/settings.json").write_text(json.dumps({"database": name}), encoding="utf-8")
+
+    def test_database_default_is_explicit_for_missing_blank_and_example_settings(self):
+        self.assertEqual(lookup.settings(self.root)["database"], "AccelaReporting")
+        for value in ("", "   ", "City Case Data"):
+            self.database(value)
+            self.assertEqual(lookup.settings(self.root)["database"], value if value.strip() else "AccelaReporting")
+        example = json.loads((lookup.HERE.parent / "app/assets/case-lookup-settings.example.json").read_text(encoding="utf-8"))
+        self.assertEqual(example["database"], "AccelaReporting")
+
+    def test_every_fixed_query_uses_the_connection_database(self):
+        identifier = r'(?:\[[^\]]+\]|"[^"]+"|[A-Za-z_][A-Za-z_0-9$]*)'
+        files = sorted(lookup.HERE.glob("*.sql"))
+        self.assertGreaterEqual(len(files), 4)
+        for file in files:
+            with self.subTest(query=file.name):
+                query = "\n".join(line for line in file.read_text(encoding="utf-8").splitlines() if not line.lstrip().startswith("--"))
+                self.assertNotRegex(query, identifier + r"\s*\.\s*" + identifier + r"\s*\.\s*" + identifier)
+                self.assertNotRegex(query.upper(), r"\b(USE|INSERT|UPDATE|DELETE|DROP|EXEC|MERGE|ALTER|CREATE)\b")
+
     def test_query_is_exact_rdl_select(self):
         root = ET.parse(lookup.HERE.parent / "tests/fixtures/reference/Document-Generator-Import.rdl").getroot()
         sql = next(e.text for e in root.iter() if e.tag.endswith("}CommandText"))
@@ -93,6 +115,7 @@ class LookupTests(unittest.TestCase):
         self.assertEqual(lookup.case_number(" cb2026-241-00001 "), "CB2026-241-00001")
 
     def test_response_preserves_rows_and_provenance(self):
+        self.database("CityData")
         self.row["InspectionDate"] = "2026-09-18T00:00:00"
         self.row["ParcelNumber"] = "070913125237"
         self.row["OwnerName"] = "O’NEIL & SONS"
@@ -104,10 +127,12 @@ class LookupTests(unittest.TestCase):
             self.assertEqual(run.call_args.args[1], "CB2026-241-00001")
 
     def test_empty_result_is_not_failure(self):
+        self.database("CityData")
         with patch.object(lookup, "run_query", return_value={"rows": [], "database": "CityData"}):
             self.assertEqual(lookup.lookup(self.root, "QA-1")["rows"], [])
 
     def test_wrong_case_missing_fields_database_and_size_rejected(self):
+        self.database("CityData")
         for data in [
             {"rows": [self.row], "database": "CityData"},
             {"rows": [{}], "database": "CityData"},

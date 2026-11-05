@@ -13,7 +13,7 @@ SELECT
          ELSE r.[ADDR_FULL_LINE#]
     END                                    AS ShortAddress,
     r.DESCRIPTION                          AS CaseDescription
-FROM AccelaReporting.dbo.BI_ENF_RECORD AS r
+FROM dbo.BI_ENF_RECORD AS r
 WHERE r.RECORD_ID LIKE 'CB%'
   AND LTRIM(RTRIM(r.ASSIGNED_USERID)) <> ''
   AND r.RECORD_STATUS NOT LIKE '%Close%'

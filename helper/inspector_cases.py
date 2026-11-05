@@ -120,8 +120,7 @@ def _source(cfg, answer, query):
     }
 
 
-def _run(root, fields, query):
-    cfg = case_lookup.settings(root)
+def _run(root, fields, query, cfg):
     names = exclusions(root)
     slot = NAMES if fields.get("mode") == "inspector_names" else LISTS
     if not slot.acquire(blocking=False):
@@ -145,9 +144,20 @@ def _checked_people(answer):
     return people
 
 
-def _cached(cache, root, key):
+def _configuration(cfg):
+    """Only validated connection settings reach the cache; no credentials are accepted by settings()."""
+    return tuple(sorted(cfg.items()))
+
+
+def _cached(cache, root, key, cfg):
     """A checked value kept for this share and lifetime; empty results are cached too."""
-    if cache[key] is not None and cache["root"] == str(root) and time.monotonic() - cache["at"] < CACHE_SECONDS:
+    cache = cache.copy()
+    if (
+        cache[key] is not None
+        and cache["root"] == str(root)
+        and cache.get("configuration") == _configuration(cfg)
+        and time.monotonic() - cache["at"] < CACHE_SECONDS
+    ):
         return cache[key]
     return None
 
@@ -157,31 +167,32 @@ def _keep(cache, root, **values):
     cache.update(root=str(root), at=time.monotonic(), **values)
 
 
-def _list_answer(root, refresh):
+def _list_answer(root, refresh, cfg):
     """The checked inspector list and where it came from: the kept one, or a fresh query when asked or expired. Only a
     list that passed every check is kept."""
-    kept = _cached(_cache, root, "answer")
+    entry = _cache.copy()
+    kept = _cached(entry, root, "answer", cfg)
     if kept is not None and not refresh:
-        return kept, _cache["source"]
-    cfg, _, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql")
+        return kept, entry["source"]
+    cfg, _, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql", cfg)
     source = _source(cfg, answer, "inspector_list.sql")
     people = _checked_people(answer)
-    _keep(_cache, root, answer=people, source=source)
+    _keep(_cache, root, answer=people, source=source, configuration=_configuration(cfg))
     return people, source
 
 
-def _kept_names(root):
-    kept = _cached(_names, root, "found")
+def _kept_names(root, cfg):
+    kept = _cached(_names, root, "found", cfg)
     return kept if kept is not None else {}
 
 
-def _known_names(root, uid):
+def _known_names(root, uid, cfg):
     """Every name this helper holds for a user ID: the checked workflow list's name and the deferred lookup's, so an
     exclusion by full name applies to case requests exactly as it does to the picker."""
     names = [uid]
-    listed = _cached(_cache, root, "answer") or []
+    listed = _cached(_cache, root, "answer", cfg) or []
     names += [p["name"] for p in listed if p["id"].casefold() == uid.casefold() and p["name"].casefold() != uid.casefold()]
-    deferred = _kept_names(root).get(uid.casefold())
+    deferred = _kept_names(root, cfg).get(uid.casefold())
     return names + ([deferred] if deferred else [])
 
 
@@ -192,21 +203,22 @@ def _display_person(person, found):
 
 @logged("lookup")
 def inspectors(root, refresh=False):
+    cfg = case_lookup.settings(root)
     names = exclusions(root)
-    everyone, source = _list_answer(root, refresh)
-    found = {} if refresh else _kept_names(root)
+    everyone, source = _list_answer(root, refresh, cfg)
+    found = {} if refresh else _kept_names(root, cfg)
     displayed = [_display_person(p, found) for p in everyone]
     people = [p for p in displayed if not excluded(names, p["id"], p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
     return {"ok": True, "inspectors": people, "source": source}
 
 
-def _name_map(root, refresh):
+def _name_map(root, refresh, cfg):
     """User ID (lower case) to full name from the inspection view, kept like the list. Only checked rows are kept."""
-    kept = _cached(_names, root, "found")
+    kept = _cached(_names, root, "found", cfg)
     if kept is not None and not refresh:
         return kept
-    cfg, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql")
+    cfg, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql", cfg)
     _source(cfg, answer, "inspector_names.sql")
     found = {}
     for row in _rows(answer, NAME_FIELDS, MAX_NAMES):
@@ -214,7 +226,7 @@ def _name_map(root, refresh):
         name = _text(row, "InspectorName", 200)
         if name:
             found[uid.casefold()] = name
-    _keep(_names, root, found=found)
+    _keep(_names, root, found=found, configuration=_configuration(cfg))
     return found
 
 
@@ -222,12 +234,13 @@ def _name_map(root, refresh):
 def inspector_names(root, refresh=False):
     """Full names for the listed people who are shown by user ID, so the list does not wait for the slower query. The
     cached name map also enriches subsequent inspector lists without mutating prior responses."""
+    cfg = case_lookup.settings(root)
     excluded_names = exclusions(root)
-    people, _ = _list_answer(root, False)
+    people, _ = _list_answer(root, False, cfg)
     unnamed = [p for p in people if p["name"].casefold() == p["id"].casefold()]
     resolved, removed = [], []
     if unnamed:
-        found = _name_map(root, refresh)
+        found = _name_map(root, refresh, cfg)
         for person in unnamed:
             name = found.get(person["id"].casefold())
             if excluded(excluded_names, person["id"], name):
@@ -325,10 +338,11 @@ def due_dates(case_dir, numbers):
 @logged("lookup")
 def open_cases(root, value, case_dir=None):
     uid = user_id(value)
+    cfg = case_lookup.settings(root)
     names = exclusions(root)
-    if any(excluded(names, uid, name) for name in _known_names(root, uid)):
+    if any(excluded(names, uid, name) for name in _known_names(root, uid, cfg)):
         raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
-    cfg, _, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql")
+    cfg, _, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql", cfg)
     cases, seen = [], set()
     for row in _rows(answer, CASE_FIELDS, MAX_CASES):
         number = case_lookup.case_number(row["CaseNumber"] if isinstance(row["CaseNumber"], str) else "")
