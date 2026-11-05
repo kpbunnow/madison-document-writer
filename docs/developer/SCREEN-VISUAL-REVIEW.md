@@ -14,11 +14,11 @@ All 47 retained before/after pairs were inspected using bounding-box crops, diff
 
 The same 47 captured synthetic DOM snapshots were replayed in normal and forced-color modes, using the retained pre-cleanup pages and the current post-cleanup CSS. Application JavaScript is not executed in this replay. No application stylesheet or screen reference changed in the Reports increment. The second run used the identical before CSS on both sides. Runs were serial on Chromium 145.0.7632.6.
 
-| Check                               | Before/after CSS | Identical before CSS control |
-| ----------------------------------- | ---------------: | ---------------------------: |
-| Screen/media combinations           |               94 |                           94 |
-| Computed-style/geometry differences |                0 |                            0 |
-| Exact PNG mismatches                |               50 |                           52 |
+| Check | Before/after CSS | Identical before CSS control |
+| --- | ---: | ---: |
+| Screen/media combinations | 94 | 94 |
+| Computed-style/geometry differences | 0 | 0 |
+| Exact PNG mismatches | 50 | 52 |
 
 All 50 before/after mismatch cases also failed the same-CSS control. Forty-nine had identical paired image hashes in both runs. The control's two additional failures and the changing caret result demonstrate capture variability; they are not a pixel-parity pass. Every failed row's separate before/after image was verified against its report hash, and all 94 artifact prefixes were unique in each run.
 
@@ -40,55 +40,55 @@ Use the workflow in [SCREEN-SHELL.md](SCREEN-SHELL.md), with the original 47 aff
 
 The table identifies the saved pair by the media mode whose image hashes matched the original report. It does not imply that overwritten mode images were inspected.
 
-| Snapshot | Screen                          | Forced colors | Changed pixels | Maximum RGB delta | Inspection                |
-| -------- | ------------------------------- | ------------- | -------------: | ----------------: | ------------------------- |
-| 023      | review                          | none          |             63 |                 1 | Rounded-edge antialiasing |
-| 024      | correction-review               | none          |             25 |                 1 | Rounded-edge antialiasing |
-| 028      | reports                         | none          |             16 |                 2 | Rounded-edge antialiasing |
-| 029      | reports-dark                    | none          |             13 |                 2 | Rounded-edge antialiasing |
-| 031      | reports-system-dark             | active        |              8 |                 1 | Rounded-edge antialiasing |
-| 032      | reports-openCases               | none          |             37 |                 2 | Rounded-edge antialiasing |
-| 033      | reports-byInspector             | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 034      | reports-openViolations          | none          |             16 |                 2 | Rounded-edge antialiasing |
-| 035      | reports-allCases                | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 036      | reports-allViolations           | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 037      | reports-daysToCompliance        | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 038      | reports-repeatOwners            | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 039      | reports-citations               | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 040      | reports-overriddenDeposits      | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 041      | reports-referrals               | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 042      | reports-documentActions         | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 053      | required-deposit-step           | none          |             19 |                 1 | Rounded-edge antialiasing |
-| 075      | conflict-review                 | active        |             16 |               255 | Input caret               |
-| 086      | csv-openCases                   | none          |             27 |                 2 | Rounded-edge antialiasing |
-| 087      | csv-byInspector                 | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 088      | csv-openViolations              | none          |             27 |                 2 | Rounded-edge antialiasing |
-| 089      | csv-allCases                    | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 090      | csv-allViolations               | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 091      | csv-daysToCompliance            | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 092      | csv-repeatOwners                | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 093      | csv-citations                   | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 094      | csv-overriddenDeposits          | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 095      | csv-referrals                   | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 096      | csv-documentActions             | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 097      | shared-report-views             | active        |              5 |                 2 | Rounded-edge antialiasing |
-| 126      | r33-overridden-deposits         | none          |             40 |                 2 | Rounded-edge antialiasing |
-| 129      | r32-measurement-dialog          | none          |             17 |                 1 | Rounded-edge antialiasing |
-| 135      | r31-address-preview             | none          |             78 |                 1 | Rounded-edge antialiasing |
-| 197      | r48-common-reports-system-dark  | active        |             18 |                 1 | Rounded-edge antialiasing |
-| 202      | r48-applied-filters             | none          |             85 |                 2 | Rounded-edge antialiasing |
-| 203      | r48-applied-filters-dark        | none          |             72 |                 2 | Rounded-edge antialiasing |
-| 205      | r48-applied-filters-system-dark | active        |             33 |                 1 | Rounded-edge antialiasing |
-| 207      | r48-map-table-alternative       | active        |              5 |                 2 | Rounded-edge antialiasing |
-| 217      | r48-deposit-phone               | active        |             14 |               255 | Input caret               |
-| 218      | r48-reports-phone               | none          |              7 |                 1 | Rounded-edge antialiasing |
-| 219      | r47-admin-review                | none          |             11 |                 2 | Rounded-edge antialiasing |
-| 220      | r47-admin-review-dark           | none          |             10 |                 1 | Rounded-edge antialiasing |
-| 222      | r47-admin-review-dark           | none          |             10 |                 1 | Rounded-edge antialiasing |
-| 227      | r47-all-language                | active        |             16 |               255 | Input caret               |
-| 228      | r47-all-language                | active        |             16 |               255 | Input caret               |
-| 229      | r47-all-language-high           | active        |             16 |               255 | Input caret               |
-| 230      | r47-all-language-system-dark    | active        |             16 |               255 | Input caret               |
+| Snapshot | Screen | Forced colors | Changed pixels | Maximum RGB delta | Inspection |
+| --- | --- | --- | ---: | ---: | --- |
+| 023 | review | none | 63 | 1 | Rounded-edge antialiasing |
+| 024 | correction-review | none | 25 | 1 | Rounded-edge antialiasing |
+| 028 | reports | none | 16 | 2 | Rounded-edge antialiasing |
+| 029 | reports-dark | none | 13 | 2 | Rounded-edge antialiasing |
+| 031 | reports-system-dark | active | 8 | 1 | Rounded-edge antialiasing |
+| 032 | reports-openCases | none | 37 | 2 | Rounded-edge antialiasing |
+| 033 | reports-byInspector | none | 40 | 2 | Rounded-edge antialiasing |
+| 034 | reports-openViolations | none | 16 | 2 | Rounded-edge antialiasing |
+| 035 | reports-allCases | none | 40 | 2 | Rounded-edge antialiasing |
+| 036 | reports-allViolations | none | 40 | 2 | Rounded-edge antialiasing |
+| 037 | reports-daysToCompliance | none | 40 | 2 | Rounded-edge antialiasing |
+| 038 | reports-repeatOwners | none | 40 | 2 | Rounded-edge antialiasing |
+| 039 | reports-citations | none | 40 | 2 | Rounded-edge antialiasing |
+| 040 | reports-overriddenDeposits | none | 40 | 2 | Rounded-edge antialiasing |
+| 041 | reports-referrals | none | 40 | 2 | Rounded-edge antialiasing |
+| 042 | reports-documentActions | none | 40 | 2 | Rounded-edge antialiasing |
+| 053 | required-deposit-step | none | 19 | 1 | Rounded-edge antialiasing |
+| 075 | conflict-review | active | 16 | 255 | Input caret |
+| 086 | csv-openCases | none | 27 | 2 | Rounded-edge antialiasing |
+| 087 | csv-byInspector | none | 40 | 2 | Rounded-edge antialiasing |
+| 088 | csv-openViolations | none | 27 | 2 | Rounded-edge antialiasing |
+| 089 | csv-allCases | none | 40 | 2 | Rounded-edge antialiasing |
+| 090 | csv-allViolations | none | 40 | 2 | Rounded-edge antialiasing |
+| 091 | csv-daysToCompliance | none | 40 | 2 | Rounded-edge antialiasing |
+| 092 | csv-repeatOwners | none | 40 | 2 | Rounded-edge antialiasing |
+| 093 | csv-citations | none | 40 | 2 | Rounded-edge antialiasing |
+| 094 | csv-overriddenDeposits | none | 40 | 2 | Rounded-edge antialiasing |
+| 095 | csv-referrals | none | 40 | 2 | Rounded-edge antialiasing |
+| 096 | csv-documentActions | none | 40 | 2 | Rounded-edge antialiasing |
+| 097 | shared-report-views | active | 5 | 2 | Rounded-edge antialiasing |
+| 126 | r33-overridden-deposits | none | 40 | 2 | Rounded-edge antialiasing |
+| 129 | r32-measurement-dialog | none | 17 | 1 | Rounded-edge antialiasing |
+| 135 | r31-address-preview | none | 78 | 1 | Rounded-edge antialiasing |
+| 197 | r48-common-reports-system-dark | active | 18 | 1 | Rounded-edge antialiasing |
+| 202 | r48-applied-filters | none | 85 | 2 | Rounded-edge antialiasing |
+| 203 | r48-applied-filters-dark | none | 72 | 2 | Rounded-edge antialiasing |
+| 205 | r48-applied-filters-system-dark | active | 33 | 1 | Rounded-edge antialiasing |
+| 207 | r48-map-table-alternative | active | 5 | 2 | Rounded-edge antialiasing |
+| 217 | r48-deposit-phone | active | 14 | 255 | Input caret |
+| 218 | r48-reports-phone | none | 7 | 1 | Rounded-edge antialiasing |
+| 219 | r47-admin-review | none | 11 | 2 | Rounded-edge antialiasing |
+| 220 | r47-admin-review-dark | none | 10 | 1 | Rounded-edge antialiasing |
+| 222 | r47-admin-review-dark | none | 10 | 1 | Rounded-edge antialiasing |
+| 227 | r47-all-language | active | 16 | 255 | Input caret |
+| 228 | r47-all-language | active | 16 | 255 | Input caret |
+| 229 | r47-all-language-high | active | 16 | 255 | Input caret |
+| 230 | r47-all-language-system-dark | active | 16 | 255 | Input caret |
 
 ## Import table maintenance review — 2026-11-03
 
