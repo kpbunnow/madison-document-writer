@@ -171,7 +171,7 @@ function keepFieldFocus(services, sameDocument, previous, active, editingDoc, sn
         if (fieldFocus.start !== null && typeof field.setSelectionRange === "function")
           try {
             field.setSelectionRange(fieldFocus.start, fieldFocus.end);
-          } catch (error) {
+          } catch {
             // Date and select controls have no text selection; focus alone is restored.
           }
       }
@@ -246,7 +246,7 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
             restored.setEnd(caret.end, caret.endOffset);
             selection.removeAllRanges();
             selection.addRange(restored);
-          } catch (error) {
+          } catch {
             // A browser may normalize a selection; the editing node and its text remain intact.
           }
         }

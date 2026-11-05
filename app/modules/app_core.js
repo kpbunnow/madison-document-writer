@@ -2173,7 +2173,7 @@ try {
     WriterState.CATALOG_FROM_CACHE = true;
   }
   WriterState.CATALOG_FORMS = JSON.parse(localStorage.getItem("madison-catalog-forms-v1") || "{}") || {};
-} catch (e) {
+} catch {
   /* Cached review metadata is optional; fresh helper review verification still governs issuance. */
 }
 
@@ -2219,7 +2219,7 @@ try {
       };
     }
   }
-} catch (error) {
+} catch {
   /* An optional local preference cannot change case records or issued documents. */
 }
 WriterState.state.caseFilter = WriterState.WORKFLOW_PREFS.filter;

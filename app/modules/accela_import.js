@@ -898,7 +898,7 @@ export function createAccelaImport(services) {
         workspace.DIRTY = keep.dirty;
         editor.state.docId = keep.docId;
       }
-    } catch (err) {
+    } catch {
       if (active()) {
         acc.shareError = "The existing case file could not be read. Reconnect the share and retry.";
         services.toast(acc.shareError);

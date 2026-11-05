@@ -26,7 +26,7 @@ export function createFolderConnections(services) {
       );
       services.render();
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
@@ -47,7 +47,7 @@ export function createFolderConnections(services) {
     try {
       const p = await h.queryPermission({ mode: "readwrite" });
       workspace.NEEDGRANT = p !== "granted";
-    } catch (e) {
+    } catch {
       workspace.NEEDGRANT = true;
     }
     services.render();
@@ -64,7 +64,7 @@ export function createFolderConnections(services) {
       }
       if (!quiet) services.render();
       return !workspace.NEEDGRANT;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

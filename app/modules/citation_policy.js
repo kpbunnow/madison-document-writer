@@ -259,7 +259,7 @@ export function resolveCitationAmount({ ordinance, libraryItem = "", tier = 1, d
   let f;
   try {
     f = amountSchedule(o, libraryItem, entryId, date, measurements);
-  } catch (e) {
+  } catch {
     return { kind: "needs-basis", reason: "Enter a valid pricing date." };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !Number.isFinite(Date.parse(date + "T00:00:00Z")))

@@ -97,7 +97,7 @@ async function fileIssued(services, issuedDocs, preparedJobs, sendEmail) {
         filed = false;
         services.toast("Document issued. Use File issued PDF to produce its copy.");
       } else if (sendEmail) await services.emailDocument(issued, clone(issued.emailedTo), true, job);
-    } catch (e) {
+    } catch {
       filed = false;
       services.toast("Document issued; its PDF needs a retry. Use File issued PDF.");
     }

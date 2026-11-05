@@ -14,7 +14,7 @@ export function orderedRows(res, sort, onFailure = () => {}) {
           a.ri - b.ri
         );
       });
-  } catch (error) {
+  } catch {
     onFailure("The report could not be sorted. Showing the default order.");
     return res.rows.map((row, ri) => ({ row, ri }));
   }

@@ -92,7 +92,7 @@ export function createPdfArtifacts(services) {
                     viewer.focus();
                     viewer.print();
                   }
-                } catch (error) {
+                } catch {
                   services.toast("Use the opened PDF viewer’s Print control.", { severity: "warning" });
                 }
               }, 1200);

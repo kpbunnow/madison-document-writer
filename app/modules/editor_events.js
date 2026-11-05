@@ -251,7 +251,7 @@ export function createEditorEvents(services) {
       tr.classList.add("dragging");
       try {
         g.setPointerCapture(e.pointerId);
-      } catch (err) {
+      } catch {
         /* Pointer capture is optional; ordinary pointer movement still supports this interaction. */
       }
     });
@@ -321,7 +321,7 @@ export function createEditorEvents(services) {
       if (typeof el.showPicker === "function") {
         try {
           el.showPicker();
-        } catch (err) {
+        } catch {
           /* The browser can refuse its optional picker; typed dates remain available. */
         }
       }

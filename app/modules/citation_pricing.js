@@ -97,7 +97,7 @@ function refreshDraftManualPrice(services, d, c) {
       if (c.depositMode === "total") delete c.assessments;
       c.pricedOn = at;
       c.policyVersionHash = CITATION_POLICY.versionHash;
-    } catch (error) {
+    } catch {
       /* The date check identifies incomplete dates. */
     }
   }
@@ -286,7 +286,7 @@ export function initCitationPricing(services) {
           shared = data.history;
           loadedAt = Date.now();
           return true;
-        } catch (e) {
+        } catch {
           return false;
         } finally {
           busy = null;

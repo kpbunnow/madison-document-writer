@@ -29,7 +29,7 @@ export function createCaseLoading(services) {
     let f;
     try {
       f = JSON.parse(text);
-    } catch (err) {
+    } catch {
       services.toast("That file is not readable JSON");
       return null;
     }
@@ -120,7 +120,7 @@ export function createCaseLoading(services) {
     let f;
     try {
       f = migrate(JSON.parse(text));
-    } catch (err) {
+    } catch {
       throw new Error("The existing case file is unreadable; it has not been overwritten");
     }
     const fault = caseFileFault(f);

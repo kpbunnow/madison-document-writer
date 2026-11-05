@@ -57,7 +57,7 @@ function requireRelatedRecoveryWork(b, k, cid) {
           try {
             const file = JSON.parse(p.body);
             return caseFileFault(file) || file.case.id !== cid || file.case.number !== k.number;
-          } catch (e) {
+          } catch {
             return true;
           }
         })(),
@@ -233,7 +233,7 @@ export function createCaseRecovery(services) {
           tx.onerror = () => resolve(false);
           tx.onabort = () => resolve(false);
         });
-      } catch (e) {
+      } catch {
         return false;
       }
     }

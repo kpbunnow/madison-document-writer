@@ -124,7 +124,7 @@ export function createBrowserPrinting(services) {
     let w = null;
     try {
       w = services.window.open(url, "_blank");
-    } catch (err) {
+    } catch {
       w = null;
     }
     if (w) {
@@ -136,13 +136,13 @@ export function createBrowserPrinting(services) {
         try {
           w.focus();
           w.print();
-        } catch (err) {
+        } catch {
           /* The browser may refuse printing; the original PDF and manual print command remain available. */
         }
       };
       try {
         w.addEventListener("load", go);
-      } catch (err) {
+      } catch {
         /* The explicit print command remains available if the browser refuses the optional load listener. */
       }
       services.setTimeout(go, 1200);

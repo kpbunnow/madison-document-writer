@@ -387,7 +387,7 @@ ReportsState.SAVED_VIEWS = [];
 try {
   const data = JSON.parse(localStorage.getItem(REPORT_VIEWS_KEY) || "[]");
   if (Array.isArray(data)) ReportsState.SAVED_VIEWS = data.filter((x) => x && x.version === 1 && x.name && x.report && x.filters).slice(0, 40);
-} catch (e) {
+} catch {
   /* Malformed optional local preferences are ignored; default report filters remain available. */
 }
 ReportsState.S.dateMode = "fixed";

@@ -17,7 +17,7 @@ export function createAutomaticRecovery(services) {
         services.localStorage.setItem(services.RECOVERY_WORKSPACE_KEY, id);
       }
       return id;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -30,7 +30,7 @@ export function createAutomaticRecovery(services) {
         services.localStorage.setItem(services.RECOVERY_CASE_KEYS, JSON.stringify(map));
       }
       return map[cid];
-    } catch (e) {
+    } catch {
       return null;
     }
   }

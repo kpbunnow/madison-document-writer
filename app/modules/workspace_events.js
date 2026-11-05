@@ -684,7 +684,7 @@ export function createWorkspaceEvents(services) {
       if (next.setSelectionRange)
         try {
           next.setSelectionRange(cursor, cursor);
-        } catch (err) {
+        } catch {
           /* Some controls cannot restore a selection range; their values and focus remain intact. */
         }
     }

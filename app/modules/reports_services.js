@@ -277,7 +277,7 @@ export function createReportsServices(services) {
           ReportsState.SAVED_VIEWS = next;
           applyReportView(view.id);
           document.getElementById("utility-dialog")?.close();
-        } catch (error) {
+        } catch {
           ReportsState.SAVED_VIEWS = previous;
           services.A11Y.notify("Could not store the shared view on this device", { severity: "error" });
         }
@@ -401,7 +401,7 @@ export function createReportsServices(services) {
       ReportsState.S.savedId = view.id;
       ReportsState.S.reportNotice = "Saved view " + view.name + ".";
       services.render();
-    } catch (e) {
+    } catch {
       ReportsState.S.reportNotice = "Could not store a saved view in this browser.";
       services.render();
     }
@@ -448,7 +448,7 @@ export function createReportsServices(services) {
     const next = ReportsState.SAVED_VIEWS.filter((v) => v.id !== x.id);
     try {
       localStorage.setItem(services.REPORT_VIEWS_KEY, JSON.stringify(next));
-    } catch (e) {
+    } catch {
       ReportsState.S.reportNotice = "Could not remove this saved view from this browser.";
       services.render();
       return;
@@ -504,7 +504,7 @@ export function createReportsServices(services) {
           sort: validSort(ReportsState.S.tableSort, ReportsState.S.screen),
         }),
       );
-    } catch (e) {
+    } catch {
       /* Return preferences are optional; the explicit handoff still opens and verifies the shared case. */
     }
     ReportsState.S.reportNotice = "Contacting the Writer for " + number + "…";
@@ -533,7 +533,7 @@ export function createReportsServices(services) {
     let j = null;
     try {
       j = await r.json();
-    } catch (e) {
+    } catch {
       throw new Error("The helper answered " + r.status + " without readable report data. Refresh or contact IT.");
     }
     if (!j || !r.ok) throw new Error((j && j.error) || url + " answered " + r.status + " with nothing readable");
