@@ -39,13 +39,17 @@ const usDate = (iso) => iso.slice(5, 7) + "/" + iso.slice(8, 10) + "/" + iso.sli
 
 /* Each open case is its own bubble, in the same style as an inspection result: the case number and address on one line
    (they never wrap) with the description below (it wraps), and the soonest due date of the case's last issued document
-   in its own column on the right (blank when no order has been issued). Selecting a bubble looks that case up; the
+   in its own column on the right (blank when no order has been issued, "Not confirmed" when it cannot be verified). Selecting a bubble looks that case up; the
    bubble of the case being looked up or reviewed is shown selected. */
 function openCaseBubbleHTML(c, picked) {
   const selected = picked === c.caseNumber;
+  // A date the helper could not confirm against the verified case (stale, orphaned or unreadable summary) is shown as
+  // such, never as a blank that would read as "no order issued".
   const due = /^\d{4}-\d{2}-\d{2}$/.test(c.dueDate || "")
     ? html`<span class="open-case-due-label">Due</span><strong>${usDate(c.dueDate)}</strong>`
-    : "";
+    : c.dueState === "unknown"
+      ? '<span class="open-case-due-label">Due</span><span>Not confirmed</span>'
+      : "";
   return html`<button type="button" class="import-inspection open-case${raw(selected ? " is-selected" : "")}" data-open-case-pick="${c.caseNumber}" aria-pressed="${String(selected)}"><span class="open-case-main"><span class="open-case-nowrap"><strong>${c.caseNumber}</strong> · ${c.address}</span><span>${c.description}</span></span><span class="open-case-due">${raw(due)}</span></button>`;
 }
 

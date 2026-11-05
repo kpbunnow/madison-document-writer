@@ -1702,6 +1702,10 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
     source = _validated_visit_source(visit=visit, documents=documents, superseded=superseded, voided=voided, visits=visits)
     _validate_visit_import(visit=visit, visits=visits, documents=documents)
     _validate_visit_outcomes(record=record, visit=visit, source=source, visits=visits)
+    # A new visit is an observation already made: it cannot fall after the day it is recorded (historical events keep
+    # the evidence they were saved with).
+    if check_date_window and calendar_date(visit.get("date")) and visit["date"] > city_day(at).isoformat():
+        raise ValueError("The inspection date cannot be after the day it is recorded")
 
 
 def _validate_publication_identity(*, event, record, check_date_window):
@@ -2036,9 +2040,37 @@ def _validate_cash_citation(*, amount, c, mode, check_date_window, snap, issued,
                 raise ValueError("Scheduled deposit does not match the selected ordinance and tier; use an approved base or total with its source")
 
 
+def _validate_due_spacing(*, snap, items, original):
+    """Distinct outstanding due dates on a new notice, extension or citation are at least seven days apart. A correction
+    may keep a pair of dates it already had; any date it changes must respect the spacing."""
+    if snap.get("type") not in ("notice", "extension", "citation") or _is_snow(snap):
+        return
+    kept = {i.get("id"): i.get("due") for i in (original or {}).get("items", [])}
+    by_date = {}
+    for item in items:
+        if not item.get("done") and not item.get("withdrawn") and calendar_date(item.get("due")):
+            by_date.setdefault(item["due"], []).append(item)
+    dates = sorted(by_date)
+    for earlier, later in zip(dates, dates[1:]):
+        if (datetime.date.fromisoformat(later) - datetime.date.fromisoformat(earlier)).days >= 7:
+            continue
+        pair = by_date[earlier] + by_date[later]
+        if original is not None and all(kept.get(i.get("id")) == i.get("due") for i in pair):
+            continue
+        raise ValueError("Keep distinct due dates at least seven days apart")
+
+
+def _is_snow(snap):
+    import snow_rules
+
+    return snow_rules.is_snow(snap)
+
+
 def validate_authoring(snap, at=None, check_date_window=True, original=None):
     """New R4 writes only; historical records retain their original evidence."""
     items = _validate_authoring_document(snap=snap, check_date_window=check_date_window, at=at)
+    if check_date_window:
+        _validate_due_spacing(snap=snap, items=items, original=original)
     if snap.get("type") in SPECIAL_TYPES:
         validate_special_fields(snap, at, check_date_window)
     if snap.get("type") != "citation":

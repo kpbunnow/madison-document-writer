@@ -13,7 +13,10 @@ import re
 import threading
 import time
 from helper_logging import logged
+import case_integrity
 import case_lookup
+import case_projection
+import case_store
 from case_lookup import CaseLookupError, HERE
 from plain_files import plain_json_files, read_plain_bytes
 from reporting_reads import ordered_reads
@@ -172,6 +175,16 @@ def _kept_names(root):
     return kept if kept is not None else {}
 
 
+def _known_names(root, uid):
+    """Every name this helper holds for a user ID: the checked workflow list's name and the deferred lookup's, so an
+    exclusion by full name applies to case requests exactly as it does to the picker."""
+    names = [uid]
+    listed = _cached(_cache, root, "answer") or []
+    names += [p["name"] for p in listed if p["id"].casefold() == uid.casefold() and p["name"].casefold() != uid.casefold()]
+    deferred = _kept_names(root).get(uid.casefold())
+    return names + ([deferred] if deferred else [])
+
+
 def _display_person(person, found):
     name = found.get(person["id"].casefold(), person["name"]) if person["name"].casefold() == person["id"].casefold() else person["name"]
     return {**person, "name": name}
@@ -240,45 +253,78 @@ def next_due(summary):
     return min(days) if days else ""
 
 
-def _summary_due(path, number):
-    """One case's soonest outstanding due date from its Reporting Index summary, or "" for any file that cannot be used."""
+def _read_json(path):
+    raw = read_plain_bytes(path)
+    if len(raw) > MAX_SUMMARY_BYTES:
+        raise ValueError("too large")
+    return raw, json.loads(raw)
+
+
+def _verified_due(case_dir, number, summary_path, case_paths, context):
+    """("due", date), ("none", "") or ("unknown", "") for one listed case. A date is used only from a summary that
+    names the current revision of its single case file, whose integrity verifies and whose projection equals the
+    summary: the same authority Reports uses. A case never saved to the share has no order ("none"); anything else
+    that cannot be confirmed (missing, stale, orphaned, unreadable or mismatched summary) is "unknown", never "none"."""
+    if summary_path is None and not case_paths:
+        return "none", ""
+    if summary_path is None or len(case_paths) != 1 or context is None:
+        return "unknown", ""
     try:
-        raw = read_plain_bytes(path)
-        summary = json.loads(raw) if len(raw) <= MAX_SUMMARY_BYTES else None
-    except (OSError, ValueError):
-        return ""
-    case = summary.get("case") if isinstance(summary, dict) else None
-    if (
-        not isinstance(summary, dict)
-        or summary.get("format") != "madison-case-summary"
-        or not isinstance(case, dict)
-        or str(case.get("number", "")).casefold() != number.casefold()
-    ):
-        return ""
-    try:
-        return next_due(summary)
-    except (TypeError, AttributeError):
-        return ""
+        _, summary = _read_json(summary_path)
+        case = summary.get("case") if isinstance(summary, dict) else None
+        if (
+            not isinstance(summary, dict)
+            or summary.get("format") != "madison-case-summary"
+            or not isinstance(case, dict)
+            or str(case.get("number", "")).casefold() != number.casefold()
+        ):
+            return "unknown", ""
+        raw, record = _read_json(case_paths[0])
+        if not isinstance(record, dict) or summary.get("sourceRevision") != hashlib.sha256(raw).hexdigest():
+            return "unknown", ""
+        if not case_integrity.verify_record(record, Path(case_dir), context=context)["valid"]:
+            return "unknown", ""
+        if not case_projection.used_by_reports(summary) or case_projection.mismatched_fields(summary, record):
+            return "unknown", ""
+        due = next_due(summary)
+    except Exception:  # one unusable case never fails the list; it is reported as unknown
+        return "unknown", ""
+    return ("due", due) if due else ("none", "")
 
 
 def due_dates(case_dir, numbers):
-    """Due dates by upper-case case number, read only from the listed cases' own summaries; None when the shared case
-    folder cannot be read. A case with no usable summary, or no outstanding item with a date, has no entry."""
+    """Verified due-date states by upper-case case number, read only for the listed cases; None when the shared case
+    folder cannot be read. Each value is (state, date) with state "due", "none" or "unknown"."""
     folder = Path(case_dir) / SUMMARY_DIR
     if not Path(case_dir).is_dir():
         return None
-    files = {p.name.casefold(): p for p in plain_json_files(folder)} if folder.is_dir() else {}
-    wanted = [(n, files.get(n.casefold() + ".json")) for n in numbers]
-    paths = [(n, p) for n, p in wanted if p is not None]
-    found = ordered_reads(paths, lambda pair: (pair[0], _summary_due(pair[1], pair[0])), SUMMARY_READERS)
-    return {number.upper(): due for number, due in found if due}
+    summaries = {p.name.casefold(): p for p in plain_json_files(folder)} if folder.is_dir() else {}
+    wanted = {case_store.case_number_key(n) for n in numbers}
+    cases = {}
+    for path in plain_json_files(Path(case_dir)):
+        key = case_store.case_file_key(path)
+        if key in wanted and not path.name.startswith("_"):
+            cases.setdefault(key, []).append(path)
+    try:
+        context = case_integrity.VerificationContext(Path(case_dir))
+    except (OSError, ValueError, TypeError, KeyError):
+        context = None
+    found = ordered_reads(
+        list(numbers),
+        lambda n: (
+            n,
+            _verified_due(case_dir, n, summaries.get(n.casefold() + ".json"), cases.get(case_store.case_number_key(n), []), context),
+        ),
+        SUMMARY_READERS,
+    )
+    return {number.upper(): state for number, state in found}
 
 
 @logged("lookup")
 def open_cases(root, value, case_dir=None):
     uid = user_id(value)
     names = exclusions(root)
-    if excluded(names, uid, _kept_names(root).get(uid.casefold(), uid)):
+    if any(excluded(names, uid, name) for name in _known_names(root, uid)):
         raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
     cfg, _, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql")
     cases, seen = [], set()
@@ -298,9 +344,12 @@ def open_cases(root, value, case_dir=None):
         )
     dues = due_dates(case_dir, [c["caseNumber"] for c in cases]) if case_dir is not None else None
     for case in cases:
-        case["dueDate"] = (dues or {}).get(case["caseNumber"].upper(), "")
-    # Cases with no due date come first (they still need an order), then the soonest, with past-due dates leading the dated ones.
-    cases.sort(key=lambda c: (c["dueDate"] != "", c["dueDate"]))
+        state, due = (dues or {}).get(case["caseNumber"].upper(), ("unknown", ""))
+        case["dueDate"], case["dueState"] = due, state
+    # Cases with no order come first (they still need one), then the soonest, with past-due dates leading the dated
+    # ones; cases whose due date could not be confirmed follow.
+    rank = {"none": 0, "due": 1, "unknown": 2}
+    cases.sort(key=lambda c: (rank[c["dueState"]], c["dueDate"]))
     return {
         "ok": True,
         "inspector": {"id": uid},

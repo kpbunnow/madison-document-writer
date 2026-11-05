@@ -58,3 +58,5 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
             or not initial <= result["on"] <= date
         ):
             raise ValueError("An inspection outcome or result date is invalid")
+    if check_date_window and calendar_date(visit.get("date")) and visit["date"] > city_day(at).isoformat():
+        raise ValueError("The inspection date cannot be after the day it is recorded")
