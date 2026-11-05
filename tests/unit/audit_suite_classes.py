@@ -6,7 +6,7 @@ import re
 import tempfile
 import unittest
 
-from suite_classes import local_closure, uses_browser, order_pooled
+from suite_classes import local_closure, uses_browser, order_pooled, pooled_phases
 
 ROOT = Path(__file__).resolve().parents[2]
 OLD_RULE = re.compile(r"chromium|playwright|DW_BROWSER")
@@ -31,6 +31,17 @@ class SuiteClasses(unittest.TestCase):
 
     def suites(self):
         return [p for p in sorted((ROOT / "tests/unit").glob("audit_*")) if p.suffix in {".js", ".py"}]
+
+    def test_javascript_corpus_producers_finish_before_python_consumers(self):
+        suites = [
+            Path(n) for n in ["audit_properties_helper.py", "audit_new.js", "audit_properties.js", "audit_unknown.future", "audit_properties.js"]
+        ]
+        phases = pooled_phases(iter(suites))
+        self.assertCountEqual([s for phase in phases for s in phase], suites)
+        self.assertTrue(all(s.suffix != ".py" for s in phases[0]))
+        self.assertEqual(phases[1], [Path("audit_properties_helper.py")])
+        self.assertIn(Path("audit_properties.js"), phases[0])
+        self.assertEqual(pooled_phases([]), [[], []])
 
     def test_every_suite_the_text_rule_serialized_stays_serial(self):
         for suite in self.suites():
