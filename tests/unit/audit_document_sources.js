@@ -81,8 +81,10 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
         assert.equal(title, "Add corrective-action detail");
         const dialog = dom.window.document.createElement("dialog");
         dialog.id = "utility-dialog";
+        dialog.setAttribute("open", "");
         dialog.innerHTML = "<button data-utility-close>Close</button>" + html;
         dialog.close = () => {
+          dialog.removeAttribute("open");
           dialog.dispatchEvent(new dom.window.Event("close"));
         };
         dom.window.document.body.append(dialog);

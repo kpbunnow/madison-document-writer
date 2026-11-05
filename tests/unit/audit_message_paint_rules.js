@@ -116,6 +116,7 @@ const assert = require("node:assert/strict"),
     await Promise.resolve();
     frame();
     dom.window.close();
+    await new Promise((resolve) => setImmediate(resolve));
     return frames;
   }
   let checked = 0;
