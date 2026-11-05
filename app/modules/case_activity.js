@@ -12,7 +12,7 @@ export function timelineCategory(type) {
     ? type === "correction.issued"
       ? "corrected"
       : "issued"
-    : type.includes("withdraw")
+    : type === "document.voided" || type.includes("withdraw")
       ? "withdrawn"
       : type.includes("filed")
         ? "filed"

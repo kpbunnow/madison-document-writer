@@ -15,6 +15,36 @@ function forgetRecipientsOfUnstartedCase(caseId) {
   delete k.copyOwner;
 }
 
+const formDoc = (key) => key.slice(0, key.lastIndexOf(":"));
+
+// A record note, withdrawal review or follow-through form with text belongs to its document's case.
+function unfinishedRecordForm(caseId) {
+  return Object.entries(editor.WORK.recordForms || {}).some(([key, form]) => doc(formDoc(key))?.caseId === caseId && (form.text || form.external));
+}
+
+// Read before anything is removed: the case's documents (for their record forms) and whether the selected worksheet
+// or the retained walkthrough (context case|visit|document) belongs to it.
+function caseOwnership(cid) {
+  return {
+    docIds: new Set(docsFor(cid).map((d) => d.id)),
+    ownsWalk: reinsp(editor.state.reinspId)?.caseId === cid || String(editor.WORK.walk?.context || "").split("|")[0] === cid,
+  };
+}
+
+function forgetWalk(services) {
+  services.clearWalk();
+  editor.WORK.walk = null;
+  editor.state.reinspId = null;
+}
+
+// Removing a case discards its documents' record forms (the removal has been confirmed); other cases' forms stay.
+function dropRecordForms(docIds) {
+  const forms = editor.WORK.recordForms || {};
+  Object.keys(forms).forEach((key) => {
+    if (docIds.has(formDoc(key))) delete forms[key];
+  });
+}
+
 export function createCaseWorkspaceActions(services) {
   async function discardDraft(id) {
     const d = doc(id);
@@ -45,6 +75,7 @@ export function createCaseWorkspaceActions(services) {
     const evs = eventsFor(k.id);
     const drafts = workspace.DOCS.some((d) => d.draft && d.caseId === k.id) || workspace.REINSP.some((r) => r.draft && r.caseId === k.id);
     if (drafts) return "unfinished drafts";
+    if (unfinishedRecordForm(k.id)) return "unfinished record notes";
     if (!evs.length && !workspace.SAVE_CHECKPOINTS[k.id]) return "case details saved only on this device";
     if (!k.savedAt) return "issued documents never written to the share";
     const checkpoint = workspace.SAVE_CHECKPOINTS[k.id];
@@ -67,13 +98,12 @@ export function createCaseWorkspaceActions(services) {
       services.toast("Confirm pending record saves before removing this case from this workspace.");
       return false;
     }
+    const { docIds, ownsWalk } = caseOwnership(cid);
     workspace.CASES = workspace.CASES.filter((c) => c.id !== cid);
     workspace.DOCS = workspace.DOCS.filter((d) => d.caseId !== cid);
     workspace.REINSP = workspace.REINSP.filter((r) => r.caseId !== cid);
-    if (reinsp(editor.state.reinspId)?.caseId === cid) {
-      services.clearWalk();
-      editor.WORK.walk = null;
-    }
+    if (ownsWalk) forgetWalk(services);
+    dropRecordForms(docIds);
     delete workspace.EVENTS[cid];
     if (editor.state.docId && !doc(editor.state.docId)) editor.state.docId = null;
     services.saveDrafts();

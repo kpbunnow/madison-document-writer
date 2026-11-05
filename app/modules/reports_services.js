@@ -113,10 +113,16 @@ function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, ver
   cases.push(c);
 }
 
+/* Reports count a case with an issued notice, or a snow case that has or ever had an issued citation. */
+function reportCounted(c) {
+  return c.noticeIssued || (c.caseType === "snow-10.28" && (c.citations.length > 0 || c.documents.some((d) => d.type === "citation")));
+}
+
+/* A snow case counts while it has a current citation; as of an earlier day it counts if a citation was effective that
+   day, even if it was withdrawn later (a later withdrawal must not rewrite an earlier count). */
 function reportSnowNoticeIncluded(c, opt, versionAt) {
-  if (!c.citations.length) return false;
-  if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
-  return true;
+  if (opt && opt.asOf) return c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf));
+  return c.citations.length > 0;
 }
 
 function reportStandardNoticeIncluded(c, opt, noticeAt) {
@@ -613,7 +619,7 @@ export function createReportsServices(services) {
     cases.forEach((c) => {
       byNo[c.number] = c;
     });
-    const counted = cases.filter((c) => c.noticeIssued || (c.caseType === "snow-10.28" && c.citations.length));
+    const counted = cases.filter(reportCounted);
     const types = {};
     counted.forEach((c) =>
       c.violations.forEach((v) => {

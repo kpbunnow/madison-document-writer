@@ -7,6 +7,17 @@ import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor } from "./writer_queries.js";
 import { project } from "./case_records.js";
 
+/* The fields an import-only recovery owns: the case-number lookup entry and the retained import review. Everything else
+   in the working context belongs to cases already in the workspace. */
+const IMPORT_FIELDS = ["acc", "entry"];
+function importOnlyWork(current, saved) {
+  const work = clone(current || {});
+  IMPORT_FIELDS.forEach((field) => {
+    if (saved && saved[field] !== undefined) work[field] = clone(saved[field]);
+    else delete work[field];
+  });
+  return work;
+}
 export function recoverySharedConflict(value) {
   return ["invalid", "history-conflict", "conflict", "shared-history"].includes(value?.kind);
 }
@@ -255,7 +266,8 @@ export function createCaseRecovery(services) {
       const k = b.bundle.cases[0];
       if (!k) {
         if (services.hasSetupWork()) throw new Error("Import recovery needs an empty import form.");
-        const staged = { ...services.draftBundle(), work: clone(b.bundle.work) };
+        // Only the import's own fields come back; other cases' record forms and walkthrough progress stay as they are.
+        const staged = { ...services.draftBundle(), work: importOnlyWork(editor.WORK, b.bundle.work) };
         if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the imported work.");
         editor.WORK = staged.work;
         editor.state.acc = editor.WORK.acc || null;

@@ -449,6 +449,26 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
   assert.equal(s.state.screen, "import");
   assert.equal(s.WORK.entry.typed, "import");
   assert.equal(s.state.acc.id, "import");
+  // MCR-005: an import-only restore keeps other cases' record notes and walkthrough progress, in memory and in the
+  // persisted bundle, and an old backup cannot bring back its own stale forms or walkthrough.
+  reset();
+  s.WORK = {
+    recordForms: { "other_doc:recordnote": { text: "Synthetic unfinished note on an unrelated case" } },
+    walk: { context: "other_case|other_visit|other_doc" },
+  };
+  b.bundle = {
+    cases: [],
+    docs: [],
+    reinsp: [],
+    events: {},
+    work: { entry: { typed: "import" }, acc: { id: "import" }, recordForms: { "stale:recordnote": { text: "old" } }, walk: { context: "stale" } },
+  };
+  await api.restoreRecovery();
+  assert.deepEqual(Object.keys(s.WORK.recordForms), ["other_doc:recordnote"]);
+  assert.equal(s.WORK.walk.context, "other_case|other_visit|other_doc");
+  assert.equal(s.WORK.entry.typed, "import");
+  const persisted = calls.filter((c) => Array.isArray(c) && c[0] === "set" && c[1] === "drafts").at(-1);
+  assert.ok(persisted, "the import is persisted before the live context changes");
   // Identical local unfinished work does not require a replacement backup or confirmation.
   reset();
   Object.assign(s, {

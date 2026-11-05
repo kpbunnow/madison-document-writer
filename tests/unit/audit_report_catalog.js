@@ -155,6 +155,81 @@ const assert = require("node:assert/strict"),
       checked++;
     }
   }
+  // Code-review corrections (2026-11-05). A synthetic snow case: one citation issued January 5.
+  const snow = (i, extra = {}) => ({
+    summaryVersion: 6,
+    case: {
+      id: "s" + i,
+      number: "QA-SNOW-" + i,
+      caseType: "snow-10.28",
+      address: "200 SNOW ST",
+      owner: "Snow Owner",
+      ownerAddr: ["200 SNOW ST", "MADISON WI 53703"],
+      opened: "2026-01-05",
+      status: "Cited – snow",
+      closedOn: "",
+      inspector: "Inspector",
+      zip: "53703",
+      ...extra.case,
+    },
+    violations: [],
+    citations: extra.citations || [{ no: "1", ordinance: "10.28", issued: "2026-01-05", amount: 197, by: "Inspector", num: "QS" + i }],
+    referrals: [],
+    documents: extra.documents || [{ id: "cit" + i, type: "citation", issued: "2026-01-05", effectiveFrom: "2026-01-05", by: "Inspector" }],
+    visits: [],
+  });
+  const runReport = (id, summaries, F) => {
+    ReportsState.S = { parcelMissing: [] };
+    const M = model.buildModel(summaries, {}, {});
+    ReportsState.S.F = F;
+    return current.find((r) => r.id === id).run(M, F);
+  };
+  const filters = (extra) => ({
+    from: "2026-01-01",
+    to: "2026-12-31",
+    asOf: "2026-01-06",
+    areaType: "zip",
+    boundary: "current",
+    areas: [],
+    inspector: "",
+    ord: "",
+    vtype: "",
+    status: "",
+    owner: "",
+    ...extra,
+  });
+  // MCR-010: withdrawing the only snow citation on January 10 does not remove the case from a January 6 count.
+  const issued = runReport("openCases", [snow(1)], filters());
+  const withdrawn = snow(1, {
+    citations: [],
+    documents: [
+      {
+        id: "cit1",
+        type: "citation",
+        issued: "2026-01-05",
+        effectiveFrom: "2026-01-05",
+        effectiveTo: "2026-01-10",
+        void: true,
+        voidAt: "2026-01-10",
+      },
+    ],
+  });
+  assert.equal(issued.total[1].n, 1, "open as of January 6 before the withdrawal");
+  assert.equal(runReport("openCases", [withdrawn], filters()).total[1].n, 1, "still open as of January 6 after the withdrawal");
+  assert.equal(runReport("openCases", [withdrawn], filters({ asOf: "2026-01-11" })).total[1].n, 0, "not open after the withdrawal day");
+  assert.equal(runReport("openCases", [withdrawn], filters({ asOf: "2026-01-04" })).total[1].n, 0, "not open before it was issued");
+  // MCR-011: snow cases closed on filing are not still open in Repeat cases by owner, as in All cases.
+  const closed = [snow(2, { case: { closedOn: "2026-01-06" } }), snow(3, { case: { closedOn: "2026-01-06" } })];
+  const repeat = runReport("repeatOwners", closed, filters({ asOf: "2026-10-29" }));
+  const repeatRow = repeat.rows.find((r) => r[1] && String(r[1]).length);
+  assert.equal(repeat.rows[0][2].n, 2, "two cases for the owner");
+  assert.equal(repeat.rows[0][3].n, 0, "neither filed snow case is still open");
+  assert.ok(repeatRow);
+  const all = runReport("allCases", closed, filters({ asOf: "2026-10-29" }));
+  assert.equal(all.total[2].n, 0, "All cases agrees: none still open");
+  const mixed = runReport("repeatOwners", [closed[0], snow(4)], filters({ asOf: "2026-10-29" }));
+  assert.equal(mixed.rows[0][3].n, 1, "an unfiled snow case stays open");
+  console.log("PASS snow as-of withdrawal (MCR-010) and repeat-owner filing closure (MCR-011)");
   console.log("PASS independent report catalog: 11 inert definitions, " + checked + " real-model comparisons and exact metadata");
 })().catch((e) => {
   console.error(e);

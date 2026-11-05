@@ -167,6 +167,8 @@ for (const p of props) {
   assert.equal(timelineCategory("document.issued"), "issued");
   assert.equal(timelineCategory("correction.issued"), "corrected");
   assert.equal(timelineCategory("item.withdrawn"), "withdrawn");
+  // MCR-012: the stored event for Withdraw in the document actions is document.voided.
+  assert.equal(timelineCategory("document.voided"), "withdrawn");
   assert.equal(timelineCategory("pdf.filed"), "filed");
   assert.equal(timelineCategory("visit.recorded"), "recorded");
   assert.equal(timelineCategory("note.added"), "other");

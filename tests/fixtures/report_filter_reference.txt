@@ -1,8 +1,9 @@
 function caseOk(c, F, opt) {
     if (!(opt && opt.noNotice)) {
       if (c.caseType === "snow-10.28") {
-        if (!c.citations.length) return false;
-        if (opt && opt.asOf && !c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
+        if (opt && opt.asOf) {
+          if (!c.documents.some((d) => d.type === "citation" && versionAt(d, opt.asOf))) return false;
+        } else if (!c.citations.length) return false;
       } else {
         if (!c.noticeIssued) return false;
         if (opt && opt.asOf) {
