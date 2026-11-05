@@ -144,7 +144,9 @@ def main(argv=None):
     parser.add_argument("target", type=Path, help="The shared deployment folder")
     parser.add_argument("--yes", action="store_true", help="Apply without asking (for scripted use)")
     args = parser.parse_args(argv)
-    source, target = Path(__file__).resolve().parent, args.target.resolve()
+    # Keep the final target component intact so plan's link/reparse check sees the path the owner supplied.
+    # Resolving here follows a linked deployment root before that check can refuse it.
+    source, target = Path(__file__).resolve().parent, args.target.absolute()
     if source == target:
         raise SystemExit("Run this from the extracted new release, not from the deployment folder itself.")
     retire, wanted = plan(source, target)
