@@ -146,7 +146,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     # Keep the final target component intact so plan's link/reparse check sees the path the owner supplied.
     # Resolving here follows a linked deployment root before that check can refuse it.
-    source, target = Path(__file__).resolve().parent, Path(os.path.abspath(args.target))
+    source, target = Path(__file__).resolve().parent, args.target.absolute()
     if source == target:
         raise SystemExit("Run this from the extracted new release, not from the deployment folder itself.")
     retire, wanted = plan(source, target)
