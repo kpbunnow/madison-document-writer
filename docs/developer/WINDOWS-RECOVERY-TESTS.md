@@ -6,6 +6,8 @@ The Windows recovery workflow runs on actual GitHub-hosted Windows Server 2022 e
 
 The workflow runs for changes to runtime source, build/policy/dependency inputs, its harness and shared fixture inputs, on PRs and main; it can also be dispatched manually. This includes low-level workspace database/startup owners and new runtime modules without maintaining a fragile list of individual filenames. Its checkout uses the exact source head and preserves source bytes. The ordinary required Full gate and PR format remain unchanged. A delivery affecting these scenarios also needs Windows recovery to pass on its exact head before merging.
 
+The workflow first installs the bundled cp314 parser offline into an isolated temporary target, then loads it in a fresh isolated interpreter and checks a PO Box. It verifies the loaded packages came from that target, rather than accepting globally installed development dependencies. The child exits before target cleanup so Windows can release its loaded extension DLL.
+
 After frozen dependency installation and a production build, run:
 
 ```powershell

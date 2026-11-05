@@ -79,6 +79,25 @@ jobs:
           npx playwright install chromium
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "PYTHON=$((Get-Command python).Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Verify bundled CPython 3.14 parser installs offline
+        run: |
+          @'
+          from pathlib import Path
+          import shutil, subprocess, sys, tempfile
+          helper = Path('helper').resolve()
+          sys.path.insert(0, str(helper))
+          import install_runtime
+          with tempfile.TemporaryDirectory(prefix='dw-offline-parser-') as folder:
+              root = Path(folder)
+              shutil.copytree(helper / 'vendor/wheels', root / 'vendor/wheels')
+              shutil.copy2(helper / 'requirements-runtime.txt', root / 'requirements-runtime.txt')
+              result = install_runtime.install(root)
+              assert result['available'], result
+              check = "import sys; from pathlib import Path; site=Path(sys.argv[1]); sys.path.insert(0,str(site)); import pycrfsuite,usaddress; assert Path(pycrfsuite.__file__).resolve().is_relative_to(site); assert Path(usaddress.__file__).resolve().is_relative_to(site); assert usaddress.tag('PO Box 42, Madison WI 53703')[0]['USPSBoxID']=='42'"
+              subprocess.run([sys.executable, '-I', '-c', check, str(root / 'vendor/site')], check=True)
+          print('Bundled cp314 parser installed offline and loaded from its isolated target; PO Box parsing passed.')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build unchanged production runtime
         run: python tools/build.py
       - name: Exercise forced termination, NTFS and isolated SMB interruption
