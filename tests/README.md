@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
 | `audit_citation_review_templates.js` | 4,096 complete retained citation review cards with exact state, peer reads, ordered effects and interruptions |
 | `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
@@ -113,7 +114,7 @@ covers, or a new suite under its feature.
 | `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |
 | `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
 | `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
-| `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
+| `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable and recipient input/caret, native contact edits, validation/model/lock boundaries, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |

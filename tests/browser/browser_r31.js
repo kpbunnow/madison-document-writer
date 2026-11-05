@@ -209,7 +209,9 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     render();
   });
   await page.locator(".editor-sections #btn-cc").click();
-  await page.locator('[data-cc="0|addr"]').fill("p.o. box 123");
+  await page.locator('[data-cc="0|addr"]').focus();
+  await page.evaluate(() => render()); // A passive refresh must not detach the focused recipient input.
+  await page.keyboard.insertText("p.o. box 123");
   await page.locator('[data-cc="0|city"]').fill("madison wisconsin 53703");
   await page.locator('.modal [data-close="modal"]').click();
   assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).ccList[0].addr), "PO BOX 123");
