@@ -210,6 +210,31 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
   retainDue = true;
   assert.equal(find(checks(d), /Due dates are in the future/).ok, true);
   retainDue = false;
+  // MCR-009: a Reinspection Notice keeps every assigned due date, past or today, so nothing blocks issuance;
+  // a missing or impossible retained date still blocks, and an Official Notice or Extension still needs a future date
+  for (const due of ["2026-10-01", "2026-10-27", "2027-12-01"]) {
+    d = doc();
+    d.type = "reinspectionNotice";
+    d.items = [
+      { ...item(), due },
+      { ...item(), id: "j", no: 2, due: "2026-10-02", done: true },
+    ];
+    rows = checks(d);
+    assert.equal(find(rows, /Due dates are kept as already assigned/).ok, true);
+    assert.ok(!rows.some((c) => /today or in the past|more than six months|less than a week/.test(c.t)), due);
+  }
+  d = doc();
+  d.type = "reinspectionNotice";
+  d.items[0].due = "";
+  assert.equal(find(checks(d), /no due date/).ok, false);
+  d.items[0].due = "2026-02-30";
+  assert.equal(find(checks(d), /not a real calendar date/).ok, false);
+  for (const type of ["notice", "extension"]) {
+    d = doc();
+    d.type = type;
+    d.items[0].due = "2026-10-01";
+    assert.equal(find(checks(d), /today or in the past/).ok, false, type);
+  }
   d = doc();
   d.items[0].due = "2026-02-30";
   assert.equal(find(checks(d), /not a real calendar date/).ok, false);
