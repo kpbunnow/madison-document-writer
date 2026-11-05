@@ -112,6 +112,8 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, draft.id);
     assert.equal(await page.evaluate(() => WriterState.DOCS.length), 1);
     for (const name of ["scheduled-only", "assist-only", "pending-only"]) {
+      // A review left open in the import window is closed with Exit before navigating away.
+      if (await page.locator("#acc-exit").count()) await page.locator("#acc-exit").click();
       await page.locator(".writer-navigation [data-nav=cases]").click();
       await page.waitForFunction(() => WriterState.state.screen === "cases");
       await page.locator(".workspace-start [data-nav=import]").click();
@@ -144,7 +146,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator("#lookup-number").fill("CB2026-280-00046");
     await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
     await page.waitForFunction(() => typeof window.__r45Lookup === "function");
-    await page.locator("#lookup-cancel").click();
+    await page.locator("#acc-exit").click(); // Exit in the import window cancels the running lookup
     await page.locator("[data-nav=cases]").first().click();
     await page.evaluate(() =>
       window.__r45Lookup({ ok: true, json: async () => ({ ok: true, caseNumber: "CB2026-280-00046", source: { kind: "sql" }, rows: [] }) }),

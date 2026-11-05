@@ -603,7 +603,9 @@ require("../fixtures/scenarios.cjs").run(__filename, {
         const app = document.getElementById("app");
         const bad = [...document.querySelector(".acc").querySelectorAll("img,b,i,script")];
         ok("nothing from the report becomes markup in the panel", !bad.length, bad.map((e) => e.outerHTML).join(" "));
-        ok("the inspector blocker quotes the name as text", app.textContent.includes("<script>x</script>"));
+        // The review is drawn in the import window (overlay) since 2026-11-05.
+        const review = document.getElementById("overlay");
+        ok("the inspector blocker quotes the name as text", (app.textContent + review.textContent).includes("<script>x</script>"));
       }
 
       H("Refused reports");
