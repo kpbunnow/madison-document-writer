@@ -44,8 +44,14 @@ function readinessNoDue({ noDates, live }) {
   return noDates ? 0 : live.filter((i) => !i.due).length;
 }
 
-function readinessPast({ noDates, live, services, d }) {
-  return noDates
+/* A Reinspection Notice reports the reinspection and prints every due date already assigned, including ones that have
+   passed; it never assigns a deadline, so the checks that police a newly assigned date do not apply to it. */
+function readinessKeepsDates({ d }) {
+  return d.type === "reinspectionNotice";
+}
+
+function readinessPast({ noDates, keepsDates, live, services, d }) {
+  return noDates || keepsDates
     ? 0
     : live.filter(
         (i) => i.due && validISO(i.due) && !services.unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(services.today), i.due) < 1,
@@ -113,14 +119,14 @@ function readinessNoBase({ d, cited, services }) {
       }).length;
 }
 
-function readinessTight({ noDates, live, services }) {
-  return noDates
+function readinessTight({ noDates, keepsDates, live, services }) {
+  return noDates || keepsDates
     ? 0
     : live.filter((i) => i.due && daysBetween(recordDay(services.today), i.due) > 0 && daysBetween(recordDay(services.today), i.due) < 7).length;
 }
 
-function readinessFar({ noDates, live, services, d }) {
-  return noDates
+function readinessFar({ noDates, keepsDates, live, services, d }) {
+  return noDates || keepsDates
     ? 0
     : live.filter((i) => i.due && !services.unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(services.today), i.due) > 180).length;
 }
@@ -134,6 +140,7 @@ function readinessContext(d, services) {
   context.comp = readinessComp(context);
   context.special = readinessSpecial(context);
   context.noDates = readinessNoDates(context);
+  context.keepsDates = readinessKeepsDates(context);
   context.live = readinessLive(context);
   context.noComply = readinessNoComply(context);
   context.notAllDone = readinessNotAllDone(context);
@@ -216,7 +223,12 @@ const baseReadinessRules = [
   {
     id: "past-due",
     ok: ({ past }) => past === 0,
-    message: ({ past }) => (past ? past + " due date" + (past === 1 ? " is" : "s are") + " today or in the past" : "Due dates are in the future"),
+    message: ({ past, keepsDates }) =>
+      past
+        ? past + " due date" + (past === 1 ? " is" : "s are") + " today or in the past"
+        : keepsDates
+          ? "Due dates are kept as already assigned"
+          : "Due dates are in the future",
   },
   {
     id: "invalid-due",
@@ -242,8 +254,12 @@ const baseReadinessRules = [
   {
     id: "far-due",
     ok: ({ far }) => far === 0,
-    message: ({ far }) =>
-      far ? far + " due date" + (far === 1 ? " is" : "s are") + " more than six months out" : "Due dates fall in a normal range",
+    message: ({ far, keepsDates }) =>
+      far
+        ? far + " due date" + (far === 1 ? " is" : "s are") + " more than six months out"
+        : keepsDates
+          ? "Due dates are kept as already assigned"
+          : "Due dates fall in a normal range",
   },
   {
     id: "short-due",
