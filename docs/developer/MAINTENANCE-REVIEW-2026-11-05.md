@@ -30,7 +30,7 @@ Clearing now performs case removals without intermediate draft writes, prevents 
 
 Repeated confirmations share the same in-flight clear, and its pending autosave timer is cancelled before temporary state changes. A composed failure test showed that two independent refused clears otherwise restored different snapshots and lost live cases. The regression now verifies one write, cancelled autosave, retained work for both callers and a successful retry after refusal.
 
-Targeted regression coverage includes a successful composed clear, refused persistence with retained work, failed session-marker acknowledgement, target links, a changed deployment plan and an existing archive. Existing tests for recovery, inspector exclusions/verified dues, helper visit/spacing/mandatory drafts, report facts/model/catalog, readiness, record-form cleanup, timeline and desktop exit remain applicable.
+Targeted regression coverage includes a successful composed clear, refused persistence with retained work, failed session-marker acknowledgement, target links, a changed deployment plan and an existing archive. A command-line regression also caught the target being resolved before the root link/reparse check; the entry point now preserves that component for verification and refuses it before writes. Existing tests for recovery, inspector exclusions/verified dues, helper visit/spacing/mandatory drafts, report facts/model/catalog, readiness, record-form cleanup, timeline and desktop exit remain applicable.
 
 ## Evidence and limits
 
