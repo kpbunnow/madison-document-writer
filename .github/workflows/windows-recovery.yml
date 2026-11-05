@@ -1,0 +1,95 @@
+name: Windows interruption and recovery
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/windows-recovery.yml'
+      - 'tests/windows/**'
+      - 'tests/unit/audit_r28_helper.py'
+      - 'tests/unit/audit_workflow.py'
+      - 'app/**'
+      - 'helper/**'
+      - 'policy/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements-dev.txt'
+      - 'version.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-recovery.yml'
+      - 'tests/windows/**'
+      - 'tests/unit/audit_r28_helper.py'
+      - 'tests/unit/audit_workflow.py'
+      - 'app/**'
+      - 'helper/**'
+      - 'policy/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements-dev.txt'
+      - 'version.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-recovery-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-recovery:
+    name: Windows recovery (${{ matrix.python }})
+    runs-on: windows-2022
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12.10', '3.14.10']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/playwright-browsers
+    steps:
+      - name: Preserve source bytes on Windows
+        run: git config --global core.autocrlf false
+      - name: Check out the reviewed head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          cache: npm
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install frozen dependencies and pinned browser
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --require-hashes -r requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npx playwright install chromium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "PYTHON=$((Get-Command python).Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build unchanged production runtime
+        run: python tools/build.py
+      - name: Exercise forced termination, NTFS and isolated SMB interruption
+        run: python tests/windows/interruption_recovery.py --require-windows --output build/windows-recovery/filesystem.json
+      - name: Exercise persistent Chromium and verify combined native evidence
+        run: node tests/windows/browser_recovery.cjs --require-windows
+      - name: Retain native evidence and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-recovery-${{ matrix.python }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/windows-recovery/
+          retention-days: 14
+          if-no-files-found: error

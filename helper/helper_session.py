@@ -37,7 +37,14 @@ def windows_privacy(path, create=False):
     )
     subprocess.run(
         [str(exe), "-NoProfile", "-NonInteractive", "-Command", command],
-        env={**os.environ, "DW_SESSION_FILE": str(path), "DW_SESSION_CREATE": "1" if create else "0"},
+        env={
+            **os.environ,
+            # A PowerShell 7 parent can supply incompatible Security cmdlets to Windows PowerShell 5.1.
+            # Load only the modules belonging to the known system executable; retain the same private DACL checks.
+            "PSModulePath": str(exe.parent / "Modules"),
+            "DW_SESSION_FILE": str(path),
+            "DW_SESSION_CREATE": "1" if create else "0",
+        },
         capture_output=True,
         check=True,
         timeout=15,
