@@ -1,6 +1,6 @@
 # Windows interruption and recovery tests
 
-The Windows recovery workflow runs on actual GitHub-hosted Windows Server 2022 executors, using pinned Node/Playwright and two explicitly pinned supported Python versions: 3.12.10 and 3.14.10. Python 3.12.14 has no published Windows binary in the official Actions distribution; the ordinary Linux Full gate retains that pin. Each Windows version must pass all thirteen filesystem/process and seven browser scenarios, and artifacts include the Python version to prevent collisions. It uses only synthetic cases, disposable local profiles and a temporary loopback SMB share granted to the current runner account. It does not connect to City servers or change City acceptance decisions. It does not package or deploy a release.
+The Windows recovery workflow runs on actual GitHub-hosted Windows Server 2022 executors, using pinned Node/Playwright and Python 3.14.10. The project requires Python 3.14 or later; the earlier 3.12 matrix entry is retired with that support contract. Each Windows version must pass all thirteen filesystem/process and seven browser scenarios, and artifacts include the Python version to prevent collisions. It uses only synthetic cases, disposable local profiles and a temporary loopback SMB share granted to the current runner account. It does not connect to City servers or change City acceptance decisions. It does not package or deploy a release.
 
 ## Run and evidence
 

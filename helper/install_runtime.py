@@ -17,8 +17,8 @@ def install(root):
     lock = root / "requirements-runtime.txt"
     if sys.platform != "win32":
         return {"available": False, "reason": "Offline Windows installer is not exercised on this platform"}
-    if not (3, 10) <= sys.version_info[:2] <= (3, 14) or platform.machine().lower() not in ("amd64", "x86_64"):
-        return {"available": False, "reason": "Address parser supports Windows x64 CPython 3.10 through 3.14"}
+    if sys.version_info[:2] != (3, 14) or platform.machine().lower() not in ("amd64", "x86_64"):
+        return {"available": False, "reason": "Address parser supports Windows x64 CPython 3.14 only; other versions are not yet supported"}
     identity = {"lock": hashlib.sha256(lock.read_bytes()).hexdigest(), "python": list(sys.version_info[:2])}
     marker = site / ".installed-runtime.json"
     try:

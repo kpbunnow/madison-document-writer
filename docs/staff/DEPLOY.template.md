@@ -5,7 +5,7 @@ Release **{{RELEASE}}** · helper **{{HELPER_VERSION}}**. This guide is generate
 ## 1. Requirements
 
 - Windows, 64-bit.
-- Python {{PYTHON_RANGE}} on each PC, installed with the standard Windows installer (it provides `pythonw.exe`, which starts Document Writer without a command window). These are the versions the bundled address-parser wheels cover. Other Python 3 versions still run the program, with the address parser reported as unavailable.
+- Python 3.14 or later on each PC, installed with the standard 64-bit Windows installer and the `py` launcher (it provides `pythonw.exe`, which starts Document Writer without a command window). The bundled address parser supports Windows x64 CPython {{PYTHON_RANGE}} only. Later interpreter versions report the parser as not yet supported and retain the basic standardizer; Python 3.13 and earlier cannot start the program. IT must install Python 3.14 on every PC before deploying a release containing this requirement.
 - Chrome or Microsoft Edge.
 - Classic Outlook for the email handoff. New Outlook has not been tested.
 - For case lookup: Windows PowerShell 5.1, approved script execution, City SQL read access and a trusted SQL certificate. See `CASE-LOOKUP-GUIDE.md`.

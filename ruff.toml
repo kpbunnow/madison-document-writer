@@ -1,4 +1,4 @@
 line-length = 150
-target-version = "py310"
+target-version = "py314"
 extend-exclude = ["helper/vendor", "build", "dist", "archive", "node_modules"]
 cache-dir = "build/ruff-cache"

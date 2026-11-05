@@ -8,7 +8,7 @@ checkout; `$RUNTIME` below stands for that folder.
 
 ## Setup
 
-Use Node.js, Python 3.12, Chromium and pdftotext (poppler-utils, required by the gate's manual
+Use Node.js, Python 3.14.10 (minimum 3.14), Chromium and pdftotext (poppler-utils, required by the gate's manual
 check); regenerating the manual also needs pandoc. Dependency versions are pinned by
 `package-lock.json` and hash-checked `requirements-dev.txt`. Recorded cloud
 environments: the R53 import used Node 24.19.0, Python 3.12.14 and system
@@ -20,7 +20,7 @@ environment's allowed domains must include `cdn.playwright.dev` and
 `playwright.download.prss.microsoft.com` for that download.
 
 ```sh
-python3 -m venv "$RUNTIME/venv"
+python3.14 -m venv "$RUNTIME/venv"
 export PATH="$RUNTIME/venv/bin:$PATH"
 npm ci --cache "$RUNTIME/npm-cache"
 python3 -m pip install --require-hashes -r requirements-dev.txt

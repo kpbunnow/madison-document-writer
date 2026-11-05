@@ -7,17 +7,22 @@ echo Document Writer (diagnostics). This window shows start-up progress.
 echo Closing this window stops a Document Writer helper started from it.
 set "DW_LAUNCH=%~dp0launch.py"
 if exist "%LOCALAPPDATA%\MadisonDocWriter\verified-install.json" set "DW_LAUNCH=%LOCALAPPDATA%\MadisonDocWriter\launch.py"
-py -3 -c "import sys;sys.exit(0 if sys.version_info >= (3,10) else 1)" >nul 2>nul
+py -3.14 -c "import sys;sys.exit(0 if sys.version_info >= (3,14) else 1)" >nul 2>nul
+if errorlevel 1 goto try_default_py
+py -3.14 -B "%DW_LAUNCH%" --share "%~dp0."
+goto finished
+:try_default_py
+py -3 -c "import sys;sys.exit(0 if sys.version_info >= (3,14) else 1)" >nul 2>nul
 if errorlevel 1 goto try_python
 py -3 -B "%DW_LAUNCH%" --share "%~dp0."
 goto finished
 :try_python
-python -c "import sys;sys.exit(0 if sys.version_info >= (3,10) else 1)" >nul 2>nul
+python -c "import sys;sys.exit(0 if sys.version_info >= (3,14) else 1)" >nul 2>nul
 if errorlevel 1 goto missing_python
 python -B "%DW_LAUNCH%" --share "%~dp0."
 goto finished
 :missing_python
-echo Python 3.10 or later was not found. Ask IT to install Python and enable its launcher.
+echo Python 3.14 or later was not found. Ask IT to install Python 3.14 and enable its launcher.
 pause
 exit /b 1
 :finished

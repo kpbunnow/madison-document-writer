@@ -244,8 +244,8 @@ def find_pythonw(executable=None):
     if not candidate.is_file():
         return None, "pythonw.exe was not found beside " + current.name
     expected = tuple(sys.version_info[:2])
-    if expected < (3, 10):
-        return None, "Python 3.10 or later is required"
+    if expected < (3, 14):
+        return None, "Python 3.14 or later is required"
     check = "import sys; raise SystemExit(0 if tuple(sys.version_info[:2]) == %r else 3)" % (expected,)
     try:
         result = subprocess.run([str(candidate), "-I", "-c", check], capture_output=True, timeout=20, creationflags=no_window())

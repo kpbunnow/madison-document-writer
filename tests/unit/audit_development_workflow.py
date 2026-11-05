@@ -16,6 +16,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class DevelopmentWorkflow(unittest.TestCase):
+    def test_every_project_python_job_uses_the_314_toolchain(self):
+        for name in ("verify.yml", "pr-format.yml", "windows-recovery.yml"):
+            for job in self.workflow(name)["jobs"].values():
+                pins = [s["with"]["python-version"] for s in job["steps"] if "setup-python@" in s.get("uses", "")]
+                self.assertEqual(len(pins), 1, name)
+                for pin in pins:
+                    if "matrix.python" in pin:
+                        self.assertEqual(job["strategy"]["matrix"]["python"], ["3.14.10"])
+                    else:
+                        self.assertEqual(pin, "3.14.10", name)
+
     def workflow(self, name):
         # GitHub uses YAML's event key "on"; BaseLoader avoids YAML 1.1's boolean coercion of that key.
         return yaml.load((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
@@ -51,7 +62,7 @@ class DevelopmentWorkflow(unittest.TestCase):
     def test_pr_title_is_data_and_missing_sections_fail(self):
         workflow = self.workflow("pr-format.yml")
         self.assertNotIn("pull_request_target", workflow["on"])
-        command = workflow["jobs"]["pr-format"]["steps"][0]["run"]
+        command = next(s["run"] for s in workflow["jobs"]["pr-format"]["steps"] if "run" in s)
         self.assertNotIn("${{", command, "untrusted titles must be passed as environment data, never shell interpolation")
         script = command.split("python3 - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
         body = (ROOT / ".github/pull_request_template.md").read_text(encoding="utf-8")

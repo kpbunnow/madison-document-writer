@@ -27,6 +27,8 @@ Release-by-release history is in CHANGELOG.md, the release reviews and docs/hist
 
 Build directly from app/, helper/, policy/, tools/, tests/ and docs/. Generated modules, policies, identity, bundles, evidence and caches belong under build/. No flat source staging tree or source mapping exists. The Windows deployment and installed filenames remain stable.
 
+Use Python 3.14 or later for development; CI pins 3.14.10. Windows installation requires the 64-bit interpreter and `py` launcher; bundled address-parser wheels currently support CPython 3.14 only.
+
 From a clean source copy:
 
     npm ci

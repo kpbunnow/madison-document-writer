@@ -39,6 +39,7 @@ Do not replace L1 with test wording. If the City elects a restricted pilot, reco
 
 | ID | Procedure | Required result |
 | --- | --- | --- |
+| PY-1 | On a City PC with 64-bit Python 3.14 and the py launcher, start the helper and confirm address-parser availability; on a PC with only 3.12 or 3.13 run the diagnostic launcher | Python 3.14 starts with the bundled parser; older-only PCs show the Python 3.14 or later message and start nothing. OPEN until IT records evidence |
 | C1 | Install complete deploy offline on each Python/browser configuration; relaunch after an old helper | Application and helper match the current release identity; optional parser state explained; no missing runtime files |
 | C2 | Two PCs open the same test case and publish conflicting changes simultaneously | One current committed history; stale client reviews conflict; no silent overwrite or duplicate action |
 | C3 | Change counted citation history/tier on PC B while PC A prepares a charge | A refreshes/reviews changed tier before publication; no stale price accepted |

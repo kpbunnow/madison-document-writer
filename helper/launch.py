@@ -204,8 +204,8 @@ def reuse_running_helper(local, share):
 
 
 def main():
-    if sys.version_info < (3, 10):
-        raise RuntimeError("Python 3.10 or later is required.")
+    if sys.version_info < (3, 14):
+        raise RuntimeError("Python 3.14 or later is required.")
     source = Path(__file__).resolve().parent
     local = Path(os.environ["LOCALAPPDATA"]) / "MadisonDocWriter"
     local.mkdir(parents=True, exist_ok=True)
