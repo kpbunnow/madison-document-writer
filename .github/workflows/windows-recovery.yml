@@ -5,25 +5,31 @@ on:
     paths:
       - '.github/workflows/windows-recovery.yml'
       - 'tests/windows/**'
+      - 'tests/unit/audit_r28_helper.py'
+      - 'tests/unit/audit_workflow.py'
+      - 'app/**'
       - 'helper/**'
-      - 'app/modules/*recovery*'
-      - 'app/modules/*storage*'
-      - 'app/modules/*pending*'
-      - 'app/modules/*persistence*'
-      - 'app/modules/session_close.js'
-      - 'app/modules/workspace_backup.js'
+      - 'policy/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements-dev.txt'
+      - 'version.json'
   push:
     branches: [main]
     paths:
       - '.github/workflows/windows-recovery.yml'
       - 'tests/windows/**'
+      - 'tests/unit/audit_r28_helper.py'
+      - 'tests/unit/audit_workflow.py'
+      - 'app/**'
       - 'helper/**'
-      - 'app/modules/*recovery*'
-      - 'app/modules/*storage*'
-      - 'app/modules/*pending*'
-      - 'app/modules/*persistence*'
-      - 'app/modules/session_close.js'
-      - 'app/modules/workspace_backup.js'
+      - 'policy/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements-dev.txt'
+      - 'version.json'
   workflow_dispatch:
 
 permissions:
