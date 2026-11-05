@@ -46,6 +46,12 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - name: Install document tools
         run: |
+          # Bound idle mirror connections for this job, including Playwright's later apt invocation.
+          sudo tee /etc/apt/apt.conf.d/80-document-writer-ci > /dev/null <<'APT'
+          Acquire::Retries "3";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          APT
           sudo apt-get update
           sudo apt-get install --yes pandoc poppler-utils
       - name: Install frozen dependencies
