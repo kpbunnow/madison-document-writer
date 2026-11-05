@@ -6,7 +6,7 @@ import { startupState as startup } from "./startup_state.js";
    The helper refuses (409) while it is doing work it knows about; this review adds what only this window
    knows. Queued items stay queued on this device; they are never described as being in the shared folder. */
 
-import { app_savedworkContext, captureWork, saveDrafts, backupUnfinished, recoveryJobs } from "./app_core.js";
+import { app_savedworkContext, captureWork, saveDrafts, backupUnfinished, recoveryJobs, exitWorkspaceClear } from "./app_core.js";
 import { exitReview, plural } from "./exit_review.js";
 import { authFetch } from "./helper_transport.js";
 import { announceStop, helperStop, listenForStop, showStopped } from "./helper_stopped.js";
@@ -40,7 +40,7 @@ function exitDialogHTML(R, review) {
             : '<label><input type="checkbox" name="acknowledged" required> I understand these items stay on this device until Document Writer starts again.</label>') +
           "</section>"
       : "",
-  )}<p role="alert" data-exit-error></p>${raw(
+  )}${raw(blocked ? "" : exitWorkspaceClear.html())}<p role="alert" data-exit-error></p>${raw(
     blocked
       ? '<button class="btn" type="button" data-exit-recheck>Check again</button>'
       : '<button class="btn btn-primary" type="submit" data-exit-confirm>Exit Document Writer</button>',
@@ -65,6 +65,16 @@ async function settleRecoveryCopy() {
     await backupUnfinished(recoveryJobs());
   } catch (error) {
     /* Device drafts are the primary copy; a recovery copy is written again after the next start. */
+  }
+}
+
+/* The workspace is cleared when Document Writer closes (owner request 2026-11-05), once the helper has stopped. Device
+   storage does not need the helper. A failure keeps the work and is reported on the stopped page by the next start. */
+async function clearOnClose() {
+  try {
+    await exitWorkspaceClear.clear();
+  } catch (error) {
+    /* The next start finds the session still open and offers to clear it. */
   }
 }
 
@@ -140,6 +150,7 @@ async function sendShutdown(form, alert, button, review) {
     });
     const data = await readShutdownReply(response);
     if (response.ok && data.ok) {
+      await clearOnClose();
       stopped();
       return true;
     }
@@ -162,7 +173,7 @@ async function requestExit(form) {
   if (superseded(form)) return false;
   const review = currentReview();
   // Work may have started or appeared after the dialog opened: show the current review instead of exiting.
-  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked)) {
+  if (!kept || review.blocking.length || (review.unresolved.length && !form.elements.acknowledged?.checked) || !exitWorkspaceClear.confirmed(form)) {
     await openExit(false);
     return false;
   }

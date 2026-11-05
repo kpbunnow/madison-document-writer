@@ -40,6 +40,8 @@ export function createWriterStartup(services) {
       await services.recordIntegrity.refresh();
       await services.refreshArtifactLocations();
       await services.flushPending();
+      // The workspace is cleared each time Document Writer closes; a session that ended without Exit is cleared now.
+      await services.startSession();
       services.chooseStartScreen();
       services.markWriterReady();
       if (startup.HELPER) services.scheduleRecoveryBackup();
