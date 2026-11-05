@@ -1,5 +1,31 @@
 # Release changelog
 
+## 2026-11-05 R74 — Release package
+
+Release package assigned on the owner's request after R73 (helper 2026.11.05.75, build 75; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R74 upgrades R73.
+
+### Import inspection
+
+- Selecting an open case, or choosing Find Case Inspections, opens an import window over the page that looks up the case's inspections. A single eligible inspection is shown with "One inspection is available" and is imported only after it is confirmed (it no longer opens a draft by itself); with several, one is chosen and confirmed. Exit stops a running lookup and returns to the open cases or the case-number box (the typed number is kept); Save draft & return to Workspace is in the window.
+- Open-case due dates are shown only when they match the saved, verified case; otherwise the column says Not confirmed and those cases follow the dated ones.
+- An inspector excluded by full name is refused for case lists as well as hidden from the picker.
+
+### Workspace cleared on close
+
+- Exit Document Writer clears the workspace (cases, drafts, worksheets, notes, import work) after the program stops; unfinished work is listed with Download workspace backup and must be confirmed. If Document Writer was closed without Exit, the next start clears saved work and offers unfinished work for clearing. Queued shared saves and PDF transfers, and a case with a pending save confirmation, are kept; a page reload clears nothing. Clearing is serialized and a refused device save keeps the work.
+
+### Corrections from the code review of 2026-11-04
+
+- A Reinspection Notice issues when outstanding items are past due or due today, with their dates unchanged.
+- The helper refuses a new visit dated after its recording day and new notices/extensions/citations whose distinct due dates are less than seven days apart; a scheduled mandatory-appearance citation draft can be backed up without a deposit.
+- Removing a case clears its own record notes and walkthrough, so an emptied workspace can restore a backup; restoring an import no longer overwrites other cases' notes or walkthrough.
+- Reports: a later withdrawal no longer changes an earlier snow open count; Repeat cases by owner no longer counts filed snow cases as open; the timeline's Withdrawn filter includes document withdrawals.
+- Deployment preparation verifies the release before writing, refuses linked roots, keeps replaced files and rolls back a failed update.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. None of these changes has been exercised on City PCs, the City share or the City database; OCL-18, CLR-1, CLR-2 and the carried items cover them.
+
 ## 2026-11-04 R73 — Release package
 
 Release package assigned on the owner's request after R72 (helper 2026.11.04.74, build 74; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R73 upgrades R72.

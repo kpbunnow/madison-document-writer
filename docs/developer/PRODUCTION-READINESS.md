@@ -79,3 +79,5 @@ R71 upgrades R70 and adds S71-1 (installed update), SORT-1 (Sort by due date) an
 R72 upgrades R71 and adds S72-1 (installed update), OCL-15 to OCL-17 (bubbles, excluded staff, Due column). SORT-1, RESTART-1, S71-1, OCL-1 to OCL-14, S69-2, SVIO-2, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R72 is a release candidate, not a deployment approval.
 
 R73 upgrades R72 and adds S73-1 (installed update), PO-1 (PO Box recipients), LVL-1 (citation violation levels) and DISC-1 (recipients after a draft discard). S72-1, OCL-15 to OCL-17, SORT-1, RESTART-1, S71-1, OCL-1 to OCL-14, S69-2, SVIO-2, OL-2, S65-1 through S65-3 and the carried City items remain OPEN. R73 is a release candidate, not a deployment approval.
+
+R74 upgrades R73 and adds S74-1 (installed update), OCL-18 (import window), CLR-1 and CLR-2 (workspace cleared on close). S73-1, PO-1, LVL-1, DISC-1, S72-1, OCL-15 to OCL-17, SORT-1, RESTART-1, OCL-1 to OCL-14, S69-2, S65-3, SVIO-2, OL-2, D53 and the carried City items remain OPEN. R74 is a release candidate, not a deployment approval.
