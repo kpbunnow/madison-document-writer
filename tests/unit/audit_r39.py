@@ -36,6 +36,8 @@ class R39(unittest.TestCase):
             tempfile.TemporaryDirectory() as folder,
             patch.object(lookup, "run_query", return_value={"ok": True, "rows": [row], "database": "CityData"}),
         ):
+            (Path(folder) / "Case Lookup").mkdir()
+            (Path(folder) / "Case Lookup/settings.json").write_text('{"database":"CityData"}', encoding="utf-8")
             answer = lookup.lookup(Path(folder), "CB2026-005-00048")
         self.assertEqual(answer["rows"][0]["RecordCategory"], "Snow Removal")
 
