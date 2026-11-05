@@ -44,6 +44,7 @@ const specs = {
       "checkRowHTML",
       "checks",
       "correctionDiffHTML",
+      "importWindowHTML",
       "initialCitations",
       "pickerHTML",
       "recipientPreview",

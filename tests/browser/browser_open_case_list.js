@@ -166,21 +166,24 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
     await page.getByRole("button", { name: "Show open cases", exact: true }).click();
     await page.waitForFunction(() => !document.querySelector("#open-cases .banner.alert"));
 
-    // Selecting a bubble fills the case number in and starts the lookup; selecting another clears the first and looks the new one up.
+    // Selecting a bubble opens the import window and looks that case up there; Exit closes it and returns to the
+    // open cases, and selecting another case looks the new one up.
     await page.locator('[data-open-case-pick="CB2026-241-60002"]').click();
-    await page.getByText("Stand-in lookup answer for the test.").waitFor();
+    await page.locator("[data-import-dialog]").getByText("Stand-in lookup answer for the test.").waitFor();
+    assert.match(await page.locator("[data-import-dialog] h2").innerText(), /CB2026-241-60002/);
     assert.deepEqual(lookups, ["CB2026-241-60002"]);
     assert.equal(await page.locator("#lookup-number").inputValue(), "CB2026-241-60002");
-    await page.evaluate(() => {
-      WriterState.state.acc = { cases: [], errors: [], fileName: "an earlier case" };
-      WriterState.WORK.acc = WriterState.state.acc;
-      render();
-    });
+    await axeScreen(page, "import-window-from-open-case");
+    await page.locator("#acc-exit").click();
+    await page.locator("[data-import-dialog]").waitFor({ state: "detached" });
+    assert.equal(await page.locator(".open-case").count(), 3, "Exit returns to the open cases");
     await page.locator('[data-open-case-pick="CB2026-241-60001"]').click();
     await page.waitForFunction(() => WriterState.state.acc === null && document.getElementById("lookup-number").value === "CB2026-241-60001");
-    await page.getByText("Stand-in lookup answer for the test.").waitFor();
+    await page.locator("[data-import-dialog]").getByText("Stand-in lookup answer for the test.").waitFor();
     assert.deepEqual(lookups, ["CB2026-241-60002", "CB2026-241-60001"], "each selection looks up its own case");
     assert.equal(await page.locator("#lookup-number").inputValue(), "CB2026-241-60001");
+    await page.locator("#acc-exit").click();
+    await page.locator("[data-import-dialog]").waitFor({ state: "detached" });
     assert.equal(await page.locator("#open-cases-search").count(), 1, "the list stays available after a failed lookup");
     assert.deepEqual(requests.slice(0, 2), [["list"], ["cases", "JSMITH"]]);
     assert.equal(requests.filter((r) => r[0] === "list").length, 1, "the inspector list loads once per session");

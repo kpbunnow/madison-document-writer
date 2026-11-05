@@ -68,11 +68,16 @@ module.exports = async (browser, page, OUT, axeScreen) => {
       assert.equal(await page.locator("#acc-go").isEnabled(), true, status);
       await axeScreen(page, "r50-import-" + status);
       // The import page is scrolled down to the confirm button; the document it opens must start at its top.
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      // The review is in the import window now, so the page behind it is made tall enough to scroll.
+      await page.evaluate(() => {
+        document.getElementById("app").style.minHeight = "3000px";
+        window.scrollTo(0, document.documentElement.scrollHeight);
+      });
       assert.ok(await page.evaluate(() => window.scrollY > 0), "the import page is scrolled before confirming");
       await page.locator("#acc-go").click();
       await page.waitForFunction(() => WriterState.state.screen === "write" && WriterState.DOCS.length === 1);
       assert.equal(await page.evaluate(() => window.scrollY), 0, status + " opens the document at its top");
+      await page.evaluate(() => (document.getElementById("app").style.minHeight = ""));
       assert.equal(await page.evaluate(() => kase(doc(WriterState.state.docId).caseId).time), "");
     }
     const result = {

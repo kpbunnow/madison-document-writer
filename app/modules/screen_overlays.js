@@ -302,7 +302,13 @@ export function createScreenOverlays(services) {
   }
 
   function overlayHTML() {
-    return editor.state.modal ? modalHTML() : editor.state.picker ? services.pickerHTML() : "";
+    return editor.state.modal
+      ? modalHTML()
+      : editor.state.picker
+        ? services.pickerHTML()
+        : editor.state.screen === "import"
+          ? services.importWindowHTML()
+          : "";
   }
   return { overlayHTML };
 }

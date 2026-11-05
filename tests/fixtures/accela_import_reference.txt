@@ -1397,12 +1397,7 @@ export function createAccelaImport(services) {
             ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
             : "",
       ) +
-      '\n  </form>\n  <p class="hint">Uses your Windows account. A single eligibl' +
-      "e initial inspection opens a draft notice when all checks pass. Multiple" +
-      " or later results open for review. Your search and review can be saved f" +
-      'or later.</p>\n  <div role="status" aria-live="polite">' +
-      "".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : "") +
-      "</div>\n  </div></div>"
+      '\n  </form>\n  <p class="hint">Uses your Windows account. The available inspections open in a window: review the inspection, then confirm the import, or choose Exit to return. Your search and review can be saved for later.</p>\n  </div></div>'
     );
   }
 
@@ -1574,14 +1569,7 @@ export function createAccelaImport(services) {
       editor.WORK.acc = clone(acc);
       if (!(await services.saveDrafts()))
         throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
-      if (active() && !acc.shareError && lookupCanOpen(acc)) {
-        LOOKUP_READY.add(acc);
-        try {
-          acceptAccela();
-        } finally {
-          LOOKUP_READY.delete(acc);
-        }
-      } else if (active()) services.toast("Case retrieved — review the inspection and details");
+      if (active()) services.toast(lookupCanOpen(acc) ? "One inspection is available — review it and confirm the import" : "Case retrieved — review the inspection and details");
     } catch (error) {
       if (active())
         imports.LOOKUP_ERROR =
