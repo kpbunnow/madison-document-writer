@@ -650,7 +650,7 @@ async function axeThemes(page, screen) {
     if (statement.type !== "ImportDeclaration") continue;
     for (const item of statement.specifiers) {
       if (item.type !== "ImportSpecifier") continue;
-      const original = item.imported.name;
+      const original = item.imported.name ?? item.imported.value;
       if (original !== item.local.name) fixtureBindings.push("const " + item.local.name + "=" + original + ";");
     }
   }
