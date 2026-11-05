@@ -67,7 +67,7 @@ async function stopHelper() {
   await stopped;
 }
 async function startHelper(port) {
-  helper = spawn(python, ["-u", path.join(work, "server.py")], {
+  helper = spawn(python, ["-u", path.join(work, "recovery-server.py")], {
     cwd: work,
     env: {
       ...process.env,
@@ -161,6 +161,10 @@ async function snapshot(page) {
     fs.copyFileSync(path.join(ROOT, input), target);
   }
   fs.cpSync(path.join(ROOT, "helper/vendor"), path.join(work, "vendor"), { recursive: true });
+  fs.writeFileSync(
+    path.join(work, "recovery-server.py"),
+    "import runpy,subprocess,sys\ntry:\n    runpy.run_path('server.py', run_name='__main__')\nexcept subprocess.CalledProcessError as error:\n    sys.stderr.buffer.write(error.stderr or b'')\n    raise\n",
+  );
   fs.mkdirSync(path.join(work, "Case JSON Files"));
   const fixtureFile = path.join(work, "fixture.json");
   execFileSync(python, [path.join(ROOT, "tests/windows/interruption_recovery.py"), "--fixture-output", fixtureFile], { cwd: ROOT, stdio: "pipe" });
