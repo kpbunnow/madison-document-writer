@@ -30,6 +30,13 @@ def order_pooled(suites):
     return sorted(suites, key=lambda suite: (-POOLED_SECONDS.get(suite.name, 0), suite.name))
 
 
+def pooled_phases(suites):
+    """JavaScript produces the shared property corpus consumed by Python. Keep the language barrier explicit, then
+    optimize independent work inside each phase; neither an unknown suite nor a duplicate may disappear."""
+    suites = list(suites)
+    return [order_pooled(s for s in suites if s.suffix != ".py"), order_pooled(s for s in suites if s.suffix == ".py")]
+
+
 def _resolve(base, request):
     target = (base.parent / request).resolve()
     for candidate in (target, target.with_name(target.name + ".js"), target.with_name(target.name + ".cjs"), target / "index.js"):
