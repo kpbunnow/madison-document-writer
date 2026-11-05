@@ -13,6 +13,8 @@ class RecordCategory(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        (self.root / "Case Lookup").mkdir()
+        (self.root / "Case Lookup/settings.json").write_text('{"database":"CityData"}', encoding="utf-8")
         self.row = dict.fromkeys(lookup.FIELDS, "")
         self.row.update(CaseNumber="CB2026-005-00048", SiteAddress="2714 WILLARD AVE", OwnerName="TEST OWNER")
 
