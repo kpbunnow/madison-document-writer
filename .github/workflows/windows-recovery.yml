@@ -93,8 +93,8 @@ jobs:
               shutil.copy2(helper / 'requirements-runtime.txt', root / 'requirements-runtime.txt')
               result = install_runtime.install(root)
               assert result['available'], result
-              check = "import sys; from pathlib import Path; site=Path(sys.argv[1]); sys.path.insert(0,str(site)); import pycrfsuite,usaddress; assert Path(pycrfsuite.__file__).resolve().is_relative_to(site); assert Path(usaddress.__file__).resolve().is_relative_to(site); assert usaddress.tag('PO Box 42, Madison WI 53703')[0]['USPSBoxID']=='42'"
-              subprocess.run([sys.executable, '-I', '-c', check, str(root / 'vendor/site')], check=True)
+              check = "import sys; from pathlib import Path; site=Path(sys.argv[1]).resolve(); sys.path.insert(0,str(site)); import pycrfsuite,usaddress; assert Path(pycrfsuite.__file__).resolve().is_relative_to(site), (pycrfsuite.__file__,str(site)); assert Path(usaddress.__file__).resolve().is_relative_to(site), (usaddress.__file__,str(site)); assert usaddress.tag('PO Box 42, Madison WI 53703')[0]['USPSBoxID']=='42'"
+              subprocess.run([sys.executable, '-I', '-c', check, str(root / 'vendor/site')], check=True, timeout=30)
           print('Bundled cp314 parser installed offline and loaded from its isolated target; PO Box parsing passed.')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
