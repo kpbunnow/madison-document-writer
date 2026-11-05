@@ -25,7 +25,16 @@ export function unfinishedWork(caseUnsaved) {
 const hasWorkspace = () => workspace.CASES.length > 0 || !!editor.state.acc || !!editor.WORK?.acc || Object.keys(editor.WORK?.entry || {}).length > 0;
 
 /* Remove every case from the workspace (removeCase keeps one with a pending save confirmation), and the import work. */
-export async function clearWorkspace({ removeCase, saveDrafts }) {
+let clearing = null;
+export function clearWorkspace(services) {
+  if (!clearing)
+    clearing = clearWorkspaceOnce(services).finally(() => {
+      clearing = null;
+    });
+  return clearing;
+}
+
+async function clearWorkspaceOnce({ removeCase, saveDrafts }) {
   const before = {
     cases: workspace.CASES,
     docs: workspace.DOCS,
@@ -34,6 +43,9 @@ export async function clearWorkspace({ removeCase, saveDrafts }) {
     work: editor.WORK,
     state: { ...editor.state },
   };
+  // A scheduled autosave would capture the temporary cleared workspace while its final write is pending.
+  clearTimeout(editor.draftTimer);
+  editor.draftTimer = null;
   editor.WORK = clone(editor.WORK);
   workspace.EVENTS = { ...workspace.EVENTS };
   try {
