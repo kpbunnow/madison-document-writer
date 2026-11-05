@@ -241,7 +241,7 @@ function reportRepeatOwners(services, cell, nos, count) {
         .sort((a, b) => g.get(b).length - g.get(a).length || (a < b ? -1 : 1));
       const tail = (l) => [
         count(l),
-        count(l.filter((c) => !["Closed", "Withdrawn"].includes(c.status))),
+        count(l.filter((c) => !["Closed", "Withdrawn"].includes(c.status) && !(c.caseType === "snow-10.28" && !!c.closedOn))),
         cell(services.uniq(l.map((c) => c.parcelKey || c.address)).length, nos(l)),
       ];
       const rows = keys.map((k) =>

@@ -235,6 +235,41 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     calls.map((x) => x[0]),
     ["save"],
   );
+  // MCR-001: removing a case discards its own documents' record forms but keeps other cases' forms, and an
+  // unfinished record note makes a case risky to remove.
+  reset();
+  s.CASES.push({ id: "other", number: "BI-OTHER" });
+  s.DOCS = [
+    { id: "d", caseId: "c" },
+    { id: "other-doc", caseId: "other" },
+  ];
+  s.WORK.recordForms = { "d:recordnote": { text: "unfinished" }, "other-doc:recordnote": { text: "keep" } };
+  s.SAVE_CHECKPOINTS.c = { case: copy(s.CASES[0]), events: [] };
+  assert.equal(actions.caseUnsaved(s.CASES[0]), "unfinished record notes");
+  actions.removeCase("c");
+  assert.deepEqual(Object.keys(s.WORK.recordForms), ["other-doc:recordnote"]);
+  // MCR-004: the selected worksheet and retained walkthrough of the removed case are cleared; another case's are kept.
+  reset();
+  s.CASES.push({ id: "other", number: "BI-OTHER" });
+  s.REINSP = [
+    { id: "visit", caseId: "c" },
+    { id: "other-visit", caseId: "other" },
+  ];
+  s.state.reinspId = "visit";
+  s.WORK.walk = { context: "c|visit|d" };
+  actions.removeCase("c");
+  assert.equal(s.WORK.walk, null);
+  assert.equal(s.state.reinspId, null);
+  assert.ok(calls.some((x) => x[0] === "clearWalk"));
+  reset();
+  s.CASES.push({ id: "other", number: "BI-OTHER" });
+  s.REINSP = [{ id: "other-visit", caseId: "other" }];
+  s.state.reinspId = "other-visit";
+  s.WORK.walk = { context: "other|other-visit|od" };
+  actions.removeCase("c");
+  assert.equal(s.WORK.walk.context, "other|other-visit|od");
+  assert.equal(s.state.reinspId, "other-visit");
+  assert.ok(!calls.some((x) => x[0] === "clearWalk"));
   reset();
   k = s.CASES[0];
   s.SAVE_CHECKPOINTS.c = { case: copy(k), events: [] };

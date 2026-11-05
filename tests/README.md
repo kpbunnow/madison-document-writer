@@ -39,7 +39,7 @@ covers, or a new suite under its feature.
 | `audit_report_navigation.js` | 5,100 retained click comparisons and unchanged complete Reports, R48 and mismatch suites |
 | `audit_report_facts.js` | Source-body parity, scoped live filters, date and number facts, metadata and typed cells. |
 | `audit_report_return.js` | 389 original-return comparisons, 13 unchanged calculation ASTs and 2,750 real-model catalog comparisons |
-| `audit_report_catalog.js` | 11 inert definitions and 2,750 original-catalog comparisons using actual model/history services |
+| `audit_report_catalog.js` | 11 inert definitions and 2,750 original-catalog comparisons using actual model/history services; snow as-of withdrawal and repeat-owner filing closure (MCR-010, MCR-011) |
 | `audit_shared_preflight_rules.js` | 168 asynchronous retained-source scenarios for preflight and shared replacement |
 | `audit_shared_comparison_rules.js` | 5,000 retained-source field/history/checkpoint comparisons |
 | `audit_shared_comparison_parity.js` | Unchanged catalog public-owner comparisons against original and maintained source |
@@ -367,7 +367,7 @@ covers, or a new suite under its feature.
 | `audit_import_service.js` | Independent import-service loading, lazy composition, shared-read/cancellation/confirmation guards and retained live state |
 | `audit_catalog_service.js` | Independent catalog/preflight composition, stale review retention, durable patch serialization/failure cleanup and authority guards |
 | `audit_reinspection_service.js` | Independent worksheet/walkthrough composition, live state, outcome/undo guards and save/render/focus order |
-| `audit_case_activity.js` | Six-input reminder/timeline service, live date/state, scope/escaping and read-only event ordering |
+| `audit_case_activity.js` | Six-input reminder/timeline service, live date/state, scope/escaping and read-only event ordering; document.voided in the Withdrawn filter (MCR-012) |
 | `audit_pdf_artifacts.js` | Five-input retained PDF owner, stale/context/identity guards, partial failures, synchronous popup timing, authenticated captured original-byte reads and download fallback |
 | `audit_writer_handoff.js` | Six-input readiness/Reports handoff owner, restoration waits/failures, restored local work, stale shared requests, file validation and channel/URL behavior |
 | `audit_deadline_assignment.js` | Seven-input deadline owner, atomic batch/assignment refusals, spacing/count and live selection/worksheet guards, escaped presentation and indicators |
@@ -377,7 +377,7 @@ covers, or a new suite under its feature.
 | `audit_record_helper_adapters.js` | Independent authenticated JSON/summary adapters, verification/errors/projection parity and direct event/source-query ordering |
 | `audit_folder_connections.js` | Independent folder linking/restoration/grants; synchronous picker, helper priority, persistence/flush order, quiet permission and partial failures |
 | `audit_writer_startup.js` | Independent startup owner; original invocation, lock lifetime/refusal UI, restore/readiness barriers, helper branches and every-stage failure order |
-| `audit_case_work_actions.js` | Independent case/draft actions and reinspection entry; pending/risk/save order, workspace removal, recipients starting over when a never-issued case's only draft is discarded, routing and imported/carried date/source identity |
+| `audit_case_work_actions.js` | Independent case/draft actions and reinspection entry; pending/risk/save order, workspace removal, recipients starting over when a never-issued case's only draft is discarded, routing and imported/carried date/source identity; removal clears only that case's record forms and its own worksheet/walkthrough, and unfinished notes make it risky (MCR-001, MCR-004) |
 | `audit_local_work_controls.js` | Independent local JSON and draft-save controls; debounce/status/counter paths, file picker failures and download/URL cleanup ordering |
 | `audit_case_folder_workflow.js` | Independent folder/index owner; permission/partial listings, verify-before-load dispatch, summary input/failure status and rebuild refusal/write counts |
 | `audit_recipient_workflow.js` | Independent postal formatting and two-input recipient workflow; validation-before-normalization, accepted lines, parser replacement and correction/live-case copy/email edits |
@@ -390,7 +390,7 @@ covers, or a new suite under its feature.
 | `audit_record_workflows.js` | Independent inspection history/correction UI/record actions; retained request retries, validation/locking/escaping, item lineage, legacy cutoffs and immutable history overlays |
 | `audit_recovery_history.js` | Independent recovery UI/catalog forms/document-history owners; lazy interfaces, control/navigation/picker failures, escaped status/history, catalog persistence and revision-print semantics |
 | `audit_worksheet_workflow.js` | Independent eight-input worksheet owner; outcome/date/deadline/carried/withdrawn rules, date/copy cleanup, unissued visits, reversible retained drafts and discard refusals |
-| `audit_case_recovery.js` | Independent 18-input case recovery owner; selection/shared/validation refusals, backup-before-confirmation, storage completion/error/abort, fallback rollback and unrelated/import work retention |
+| `audit_case_recovery.js` | Independent 18-input case recovery owner; selection/shared/validation refusals, backup-before-confirmation, storage completion/error/abort, fallback rollback and unrelated/import work retention; import-only restore keeps other cases' notes and walkthrough (MCR-005) |
 | `audit_automatic_recovery.js` | Independent ten-input automatic backup owner; identity/storage failures, scoped case/import snapshots, signatures/retries, debounce and serialized latest queued state |
 | `audit_workspace_backup.js` | Independent 11-input whole-workspace backup owner; lazy wiring, capture/export, validation/refusals, awaited storage/integrity/live replacement order, retained work and legacy defaults |
 | `audit_case_workspace.js` | Independent live record operations and five-input loader; identity/conflict/checkpoint/history semantics, partial-load rollback, sequence high-water, proof gating and shared merge refusals |
