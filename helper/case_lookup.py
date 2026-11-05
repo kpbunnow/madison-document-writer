@@ -14,7 +14,7 @@ import trusted_connections
 HERE = Path(__file__).resolve().parent
 LIMIT = 5 * 1024 * 1024
 LOOKUPS = threading.BoundedSemaphore(1)
-DEFAULTS = {"server": "sqlelam", "database": "", "enabled": True}
+DEFAULTS = {"server": "sqlelam", "database": "AccelaReporting", "enabled": True}
 LOCAL_TLS_SETTINGS = "case-lookup-local-settings.json"
 FIELDS = (
     "CaseNumber SiteAddress ParcelNumber OwnerName OwnerAddress CaseDescription "
@@ -52,6 +52,8 @@ def _checked_settings(raw):
             raise ValueError()
         if not isinstance(cfg["database"], str) or len(cfg["database"]) > 128 or any(ord(c) < 32 for c in cfg["database"]):
             raise ValueError()
+        if not cfg["database"].strip():
+            cfg["database"] = DEFAULTS["database"]
     except (ValueError, TypeError):
         raise CaseLookupError(("Case Lookup/settings.json is invalid. Use the supplied example; allowed settings are server, database and enabled."))
     return cfg

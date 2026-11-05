@@ -57,12 +57,115 @@ class InspectorCaseTests(unittest.TestCase):
     def answer(self, rows):
         return {"ok": True, "rows": rows, "database": "AccelaReporting"}
 
+    def configure(self, **settings):
+        (self.root / "Case Lookup").mkdir(exist_ok=True)
+        (self.root / "Case Lookup/settings.json").write_text(json.dumps(settings), encoding="utf-8")
+
+    def configured_answer(self, cfg, request, wait=None):
+        mode = request.get("mode", "case_lookup")
+        if mode == "inspector_list":
+            rows = [person("JQP", "JQP", "2")]
+        elif mode == "inspector_names":
+            rows = [{"UserId": "JQP", "InspectorName": cfg["database"] + " NAME"}]
+        else:
+            rows = []
+        return {"ok": True, "rows": rows, "database": cfg["database"]}
+
+    def test_all_four_queries_receive_the_same_configured_database(self):
+        self.configure(database="City Case Data")
+        with patch.object(lookup, "run_script", side_effect=self.configured_answer) as run:
+            self.assertEqual(cases.inspectors(self.root)["source"]["database"], "City Case Data")
+            self.assertEqual(cases.inspector_names(self.root)["names"], [{"id": "JQP", "name": "City Case Data NAME"}])
+            self.assertEqual(cases.open_cases(self.root, "JQP")["source"]["database"], "City Case Data")
+            self.assertEqual(lookup.lookup(self.root, "CB2026-241-00001")["source"]["database"], "City Case Data")
+        self.assertEqual(
+            [c.args[1].get("mode", "case_lookup") for c in run.call_args_list],
+            ["inspector_list", "inspector_names", "inspector_cases", "case_lookup"],
+        )
+        self.assertTrue(all(c.args[0]["database"] == "City Case Data" for c in run.call_args_list))
+
+    def test_database_change_never_reuses_old_lists_names_or_exclusions(self):
+        self.excluding(["First NAME"])
+        self.configure(database="First")
+        with patch.object(lookup, "run_script", side_effect=self.configured_answer) as run:
+            first = cases.inspectors(self.root)
+            self.assertEqual(cases.inspector_names(self.root)["excluded"], ["JQP"])
+            self.configure(database="Second")
+            # Direct case requests must not use a full-name exclusion learned from another database.
+            self.assertEqual(cases.open_cases(self.root, "JQP")["source"]["database"], "Second")
+            second = cases.inspectors(self.root)
+            self.assertEqual(second["source"]["database"], "Second")
+            self.assertEqual(second["inspectors"][0]["name"], "JQP", "No deferred name from the old source")
+            self.assertEqual(cases.inspector_names(self.root)["names"], [{"id": "JQP", "name": "Second NAME"}])
+            self.assertEqual(cases.inspectors(self.root)["inspectors"][0]["name"], "Second NAME")
+            self.assertEqual(run.call_count, 5)
+            self.assertEqual(first["source"]["database"], "First")
+            self.assertEqual(first["inspectors"][0]["name"], "JQP", "Prior responses are not mutated")
+
+    def test_warm_caches_never_bypass_disabled_or_malformed_settings(self):
+        self.configure(database="First")
+        with patch.object(lookup, "run_script", side_effect=self.configured_answer) as run:
+            cases.inspector_names(self.root)
+            self.assertEqual(run.call_count, 2)
+            for settings in ({"database": "First", "enabled": False}, {"database": 7}):
+                self.configure(**settings)
+                for function in (cases.inspectors, cases.inspector_names):
+                    with self.subTest(settings=settings, function=function.__name__), self.assertRaises(lookup.CaseLookupError):
+                        function(self.root)
+            self.assertEqual(run.call_count, 2, "Invalid configuration never queries or serves a cached response")
+
+    def test_server_and_tls_changes_invalidate_both_cache_families(self):
+        base = {**lookup.DEFAULTS, "trustServerCertificate": False}
+        for change in ({"server": "synthetic-other.example.test"}, {"trustServerCertificate": True}):
+            with self.subTest(change=change):
+                cases._cache.update(root=None, answer=None)
+                cases._names.update(root=None, found=None)
+                cfg = dict(base)
+                with (
+                    patch.object(lookup, "settings", side_effect=lambda root: dict(cfg)),
+                    patch.object(lookup, "run_script", side_effect=self.configured_answer) as run,
+                ):
+                    cases.inspector_names(self.root)
+                    cases.inspector_names(self.root)
+                    self.assertEqual(run.call_count, 2, "Matching settings retain both results")
+                    cfg.update(change)
+                    cases.inspector_names(self.root)
+                    self.assertEqual(run.call_count, 4, "Both query families reload for the new validated settings")
+
+    def test_one_name_request_keeps_its_validated_settings_snapshot(self):
+        self.configure(database="First")
+
+        def run(cfg, request, wait=None):
+            if request["mode"] == "inspector_list":
+                self.configure(database="Second")
+            return self.configured_answer(cfg, request, wait)
+
+        with patch.object(lookup, "run_script", side_effect=run) as script:
+            self.assertEqual(cases.inspector_names(self.root)["names"], [{"id": "JQP", "name": "First NAME"}])
+            self.assertEqual([c.args[0]["database"] for c in script.call_args_list], ["First", "First"])
+            self.assertEqual(cases.inspectors(self.root)["source"]["database"], "Second")
+
+    def test_cached_list_and_provenance_are_one_snapshot(self):
+        self.configure(database="First")
+        with patch.object(lookup, "run_script", side_effect=self.configured_answer):
+            first = cases.inspectors(self.root)
+        at = cases._cache["at"]
+
+        def overwrite():
+            cases._cache.update(answer=[{"id": "OTHER", "name": "Other", "openCases": 1}], source={"database": "Other"})
+            return at + 1
+
+        with patch.object(cases.time, "monotonic", side_effect=overwrite), patch.object(lookup, "run_script") as run:
+            again = cases._list_answer(self.root, False, lookup.settings(self.root))
+            self.assertEqual(again, (first["inspectors"], first["source"]), "A concurrent cache replacement cannot change the paired source")
+            run.assert_not_called()
+
     def test_shared_cache_rule_matches_the_retained_expiry_expression(self):
         for key in ("answer", "found"):
             for value in (None, [], {}, {"person": "Name"}):
                 for same_root in (False, True):
                     for age in (-1, 0, cases.CACHE_SECONDS - 1, cases.CACHE_SECONDS, cases.CACHE_SECONDS + 1):
-                        cache = {key: value, "root": str(self.root) if same_root else "other", "at": 100.0}
+                        cache = {key: value, "root": str(self.root) if same_root else "other", "at": 100.0, "configuration": ()}
                         clock_calls = []
 
                         def clock():
@@ -70,7 +173,7 @@ class InspectorCaseTests(unittest.TestCase):
                             return 100.0 + age
 
                         with patch.object(cases.time, "monotonic", side_effect=clock):
-                            actual = cases._cached(cache, self.root, key)
+                            actual = cases._cached(cache, self.root, key, {})
                         retained = cache[key] is not None and cache["root"] == str(self.root) and age < cases.CACHE_SECONDS
                         self.assertIs(actual, value if retained else None)
                         self.assertEqual(len(clock_calls), int(value is not None and same_root))

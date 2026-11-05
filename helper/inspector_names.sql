@@ -6,7 +6,7 @@ SELECT UserId, MAX(FullName) AS InspectorName
 FROM (
     SELECT LTRIM(RTRIM(INSPECTOR_USERID))        AS UserId,
            LTRIM(RTRIM([INSPECTOR_NAME_FML#]))   AS FullName
-    FROM AccelaReporting.dbo.BI_ENF_INSPECTION
+    FROM dbo.BI_ENF_INSPECTION
 ) AS src
 WHERE UserId IS NOT NULL AND UserId <> ''
   AND FullName IS NOT NULL AND FullName <> ''

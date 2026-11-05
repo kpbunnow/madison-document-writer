@@ -31,6 +31,8 @@ Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/
 
 ## Security and connections
 
+Keep every fixed case-database query relative to the configured connection database. Do not restore a database prefix to inspector SQL or rely on an account's default catalog. Inspector list/name cache entries must match the newly validated connection settings; a cached response never bypasses disabled/malformed settings or mixes names/provenance from another source.
+
 - Never trust shared configuration to select a new outbound host, SQL server or integrity anchor. Change the allowlist in trusted-connections.json in a new release built by the release owner.
 - Never obtain a session token from a public page or include it in logs, reports or shared files. Keep user-profile bootstrap access private; reload through the original profile after restart.
 

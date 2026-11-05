@@ -39,6 +39,7 @@ Do not replace L1 with test wording. If the City elects a restricted pilot, reco
 
 | ID | Procedure | Required result |
 | --- | --- | --- |
+| SQL-2 | Configure an approved test database and verify case lookup, inspector list, open cases and deferred inspector names; change settings with warm caches, then disable lookup | Every query uses the configured database; missing/blank defaults explicitly to AccelaReporting; prior-source lists/names are not reused and disabled lookup refuses. OPEN until City SQL evidence is recorded |
 | PY-1 | On a City PC with 64-bit Python 3.14 and the py launcher, run the verified shared diagnostic launcher to migrate the desktop shortcut, then start from the icon and confirm address-parser availability; on a PC with only 3.12 or 3.13 run the diagnostic launcher | Python 3.14 starts with the bundled parser; older-only PCs show the Python 3.14 or later message and start nothing. OPEN until IT records evidence |
 | C1 | Install complete deploy offline on each Python/browser configuration; relaunch after an old helper | Application and helper match the current release identity; optional parser state explained; no missing runtime files |
 | C2 | Two PCs open the same test case and publish conflicting changes simultaneously | One current committed history; stale client reviews conflict; no silent overwrite or duplicate action |
