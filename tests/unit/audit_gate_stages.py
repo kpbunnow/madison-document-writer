@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from gate_stages import assemble, browser_results, read_stage, run_identity
+from gate_stages import assemble, browser_results, read_stage, reviewed_provenance, run_identity, seal_stage
 
 
 class StageEvidence(unittest.TestCase):
@@ -152,6 +152,28 @@ class StageEvidence(unittest.TestCase):
                 assemble(self.root, lambda *args: None, self.root / "regression", self.root / "browser")
             verify.assert_not_called()
         self.assertFalse((self.root / "build/verification/latest/verification.json").exists())
+
+    def test_unavailable_or_uncertain_git_provenance_cannot_publish_a_stage_receipt(self):
+        for change in [
+            {"sourceClean": None},
+            {"sourceClean": False},
+            {"sourceClean": 1},
+            {"sourceCommit": None},
+            {"sourceCommit": ""},
+            {"sourceCommit": "not-a-commit"},
+        ]:
+            with (
+                self.subTest(change=change),
+                patch("gate_stages.source_provenance", return_value={**self.provenance, **change}),
+                patch("gate_stages.fingerprint", return_value=self.inputs),
+                patch("gate_stages.toolchain") as toolchain,
+            ):
+                with self.assertRaisesRegex(ValueError, "identified commit.*clean"):
+                    reviewed_provenance(self.root, self.inputs)
+                with self.assertRaisesRegex(ValueError, "identified commit.*clean"):
+                    seal_stage(self.root, "regression", "145.0")
+                toolchain.assert_not_called()
+        self.assertFalse((self.root / "build/verification/latest/stage-regression.json").exists())
 
     def test_browser_evidence_must_match_production_and_include_passing_accessibility(self):
         folder = self.root / "build/verification/latest/browser"

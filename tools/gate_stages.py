@@ -43,6 +43,13 @@ def runtime_hashes(root):
     }
 
 
+def reviewed_provenance(root, inputs):
+    provenance = source_provenance(root, inputs)
+    if provenance["sourceClean"] is not True or not re.fullmatch(r"[0-9a-f]{40}", str(provenance["sourceCommit"])):
+        raise ValueError("Isolated gate evidence requires an identified commit and a clean reviewed source tree")
+    return provenance
+
+
 def browser_results(root):
     folder = root / "build/verification/latest/browser"
     browser = json.loads((folder / "browser-results.json").read_text(encoding="utf-8"))
@@ -79,9 +86,7 @@ def payload_files(root, stage):
 
 def seal_stage(root, stage, chromium):
     inputs = fingerprint(root)
-    provenance = source_provenance(root, inputs)
-    if provenance["sourceClean"] is False:
-        raise ValueError("Isolated gate evidence requires a clean reviewed source tree")
+    provenance = reviewed_provenance(root, inputs)
     receipt = {
         "stage": stage,
         "mode": "full",
@@ -179,9 +184,7 @@ def assemble(root, runner, regression, browser_folder):
     runner([sys.executable, "tools/build.py"], "assembly-build.log", {**os.environ, "DW_TEST_BUILD": "0"})
     source_inventory(root)
     inputs = fingerprint(root)
-    provenance, common = source_provenance(root, inputs), toolchain(root)
-    if provenance["sourceClean"] is False:
-        raise ValueError("Cannot assemble gate evidence for changed source")
+    provenance, common = reviewed_provenance(root, inputs), toolchain(root)
     regression_meta = read_stage(regression, "regression", inputs, provenance, common, identity)
     browser_meta = read_stage(browser_folder, "browser", inputs, provenance, common, identity)
     if regression_meta["toolchain"] != browser_meta["toolchain"]:
