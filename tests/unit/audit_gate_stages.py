@@ -19,7 +19,7 @@ class StageEvidence(unittest.TestCase):
         self.inputs = {"source.py": "reviewed-source-hash", "build/dist/production.html": "reviewed-runtime-hash"}
         self.provenance = {"sourceCommit": "a" * 40, "sourceClean": True, "verifiedInputsSha256": "digest"}
         self.toolchain = {
-            "python": "3.12.14",
+            "python": "3.14.10",
             "node": "v24.19.0",
             "playwright": "1.58.2",
             "browserSource": "pinned-playwright",

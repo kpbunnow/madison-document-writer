@@ -115,6 +115,35 @@ class Desktop(unittest.TestCase):
 
     # ---------------------------------------------------------------- shortcut
 
+    def test_launcher_minimum_refuses_313_and_accepts_314(self):
+        with patch.object(launch.sys, "version_info", (3, 13, 9)):
+            with self.assertRaisesRegex(RuntimeError, "Python 3.14 or later is required"):
+                launch.main()
+        with (
+            patch.object(launch.sys, "version_info", (3, 14, 10)),
+            patch.object(launch.socket, "create_connection", side_effect=OSError),
+            patch.object(launch, "shared_folder", side_effect=RuntimeError("minimum accepted")),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "minimum accepted"):
+                launch.main()
+
+    def test_pythonw_minimum_and_batch_probe_order(self):
+        python = self.root / "python.exe"
+        pythonw = self.root / "pythonw.exe"
+        pythonw.touch()
+        with patch.object(desktop_launch.sys, "version_info", (3, 13)), patch.object(desktop_launch.subprocess, "run") as run:
+            self.assertEqual(desktop_launch.find_pythonw(python), (None, "Python 3.14 or later is required"))
+            run.assert_not_called()
+        with patch.object(desktop_launch.sys, "version_info", (3, 14)), patch.object(desktop_launch.subprocess, "run") as run:
+            run.return_value.returncode = 0
+            self.assertEqual(desktop_launch.find_pythonw(python), (pythonw, None))
+            self.assertIn("(3, 14)", run.call_args.args[0][-1])
+        batch = (ROOT / "helper/Start_Document_Writer.bat").read_text(encoding="utf-8")
+        probes = [line for line in batch.splitlines() if ' -c "import sys;' in line]
+        self.assertEqual([line.split(" -c ")[0] for line in probes], ["py -3.14", "py -3", "python"])
+        self.assertTrue(all("sys.version_info >= (3,14)" in line for line in probes))
+        self.assertIn("Python 3.14 or later was not found. Ask IT to install Python 3.14 and enable its launcher.", batch)
+
     def test_shortcut_fields_quote_spaces_apostrophes_and_unc_paths(self):
         for local in [
             r"C:\Users\Pat O'Brien\AppData\Local\MadisonDocWriter",

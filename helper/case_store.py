@@ -468,7 +468,7 @@ def parse_instant(at):
     if not isinstance(at, str) or not at.strip():
         raise ValueError("Timestamp must be ISO date/time text")
     text = at.strip().replace("Z", "+00:00")
-    # Python 3.10 accepts only three or six fractional-second digits.
+    # Retain the historical normalization to microseconds, independent of the interpreter's ISO parser.
     text = re.sub(r"(\d{2}:\d{2}:\d{2})[.,](\d+)", lambda m: m[1] + "." + (m[2] + "000000")[:6], text)
     try:
         instant = datetime.datetime.fromisoformat(text)

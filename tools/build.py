@@ -177,7 +177,7 @@ def render_deploy_guide():
         "PACKAGE_NAME": package_name(release),
         "RELEASE_NUMBER": release.split()[-1],
         "HELPER_VERSION": helper,
-        "PYTHON_RANGE": "3.%d–3.%d" % (tags[0], tags[-1]),
+        "PYTHON_RANGE": "3.%d" % tags[0] if len(tags) == 1 else "3.%d–3.%d" % (tags[0], tags[-1]),
         "FILE_LIST": "\n".join("- `" + name + "`" for name in required),
         "SNOW_SEASON": "%d–%s" % (year, str(year + 1)[-2:]),
         "SNOW_SETTINGS": "\n".join("   - " + labels[k] + ": **" + str(value(meta[k])) + "** (`" + k + "`)" for k in snow),

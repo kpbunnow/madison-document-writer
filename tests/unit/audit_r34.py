@@ -201,7 +201,8 @@ class R34(unittest.TestCase):
         self.assertEqual(set(re.findall(r"\bR\d{2,3}\b", guide.replace("R51-ACCEPTANCE-RECORD.md", "City acceptance record"))), {release.split()[-1]})
         self.assertEqual(set(re.findall(r"\b20\d\d\.\d\d\.\d\d\.\d+\b", guide)), {helper})
         self.assertNotIn("{{", guide)
-        self.assertIn("Python 3.10–3.14", guide)
+        self.assertIn("Python 3.14 or later", guide)
+        self.assertIn("Windows x64 CPython 3.14 only", guide)
         self.assertNotIn("snowOneCitationPerCase", guide)
         self.assertTrue((Path(os.environ["DW_REPO_ROOT"]) / "CHANGELOG.md").read_text().startswith("# Release changelog"))
         anchor = json.loads((ROOT / "app/assets/integrity-settings.example.json").read_text())["anchorFolder"]
