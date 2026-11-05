@@ -186,6 +186,27 @@ const assert = require("node:assert/strict"),
     }
   }
   await assert.rejects(() => markSessionClosed(async () => false), /session/i);
+  // Repeated confirmation must share one clear. Otherwise two refused writes can restore snapshots in the wrong
+  // order and lose the first caller's live cases. A pending autosave must not persist the temporary cleared state.
+  reset([safe]);
+  Object.assign(s, { EVENTS: {}, RECORD_ATTEMPTS: {}, SAVE_CHECKPOINTS: {} });
+  let autosaves = 0;
+  s.draftTimer = setTimeout(() => autosaves++, 0);
+  const pendingWrites = [];
+  const pendingSave = () => new Promise((resolve) => pendingWrites.push(resolve));
+  const actions = createCaseWorkspaceActions({ saveDrafts: pendingSave, clearWalk() {}, toast() {} });
+  const pendingServices = { removeCase: actions.removeCase, saveDrafts: pendingSave };
+  const firstClear = clearWorkspace(pendingServices),
+    secondClear = clearWorkspace(pendingServices);
+  assert.equal(pendingWrites.length, 1, "repeated confirmation shares the in-flight clear");
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.equal(autosaves, 0, "a queued autosave cannot persist the temporary cleared state");
+  const firstRefusal = assert.rejects(firstClear, /could not.*clear/i),
+    secondRefusal = assert.rejects(secondClear, /could not.*clear/i);
+  pendingWrites[0](false);
+  await Promise.all([firstRefusal, secondRefusal]);
+  assert.deepEqual(s.CASES, [safe], "both callers retain the same original workspace on failure");
+  assert.equal(await clearWorkspace({ removeCase: actions.removeCase, saveDrafts: async () => true }), 0, "a refused clear can be retried");
   console.log("PASS workspace cleared on close: Exit confirmation, startup after an unclean close, held cases and queued saves kept");
 })().catch((error) => {
   console.error(error);
