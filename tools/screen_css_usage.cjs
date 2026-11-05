@@ -35,11 +35,8 @@ module.exports = { literalRuns, classReferences, scanModules };
 
 /* Semantic contract of surviving rules, preserving cascade/group/declaration order. */
 function styleContract(source, removedClasses, removeLegacySpin = false) {
-  const { JSDOM } = require("jsdom");
-  const dom = new JSDOM("<style></style>");
-  const style = dom.window.document.querySelector("style");
-  style.textContent = source;
-  if (!style.sheet) throw new Error("Stylesheet did not parse");
+  // Retain the exact parser used to establish the frozen CSS contract, independently of jsdom's browser emulation.
+  const sheet = require("rrweb-cssom").parse(source);
   const declarations = (s) => Array.from({ length: s.length }, (_, i) => [s[i], s.getPropertyValue(s[i]), s.getPropertyPriority(s[i])]);
   function rules(list) {
     return [...list].flatMap((r) => {
@@ -58,8 +55,6 @@ function styleContract(source, removedClasses, removeLegacySpin = false) {
       return [[r.type, r.keyText || "", r.style ? declarations(r.style) : r.cssText]];
     });
   }
-  const value = JSON.stringify(rules(style.sheet.cssRules));
-  dom.window.close();
-  return value;
+  return JSON.stringify(rules(sheet.cssRules));
 }
 module.exports.styleContract = styleContract;
