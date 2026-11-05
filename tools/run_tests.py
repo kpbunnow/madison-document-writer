@@ -14,7 +14,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
-from suite_classes import uses_browser
+from suite_classes import pooled_phases, uses_browser
 from suite_process import run_suite_process
 
 os.environ["TZ"] = "America/Chicago"
@@ -157,7 +157,9 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
         pooled = [s for s in suites if s not in performance and s not in chromium and s not in after_pool]
         workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            finished = dict(zip(pooled, pool.map(run_suite, pooled)))
+            finished = {}
+            for phase in pooled_phases(pooled):
+                finished.update(zip(phase, pool.map(run_suite, phase)))
         with ThreadPoolExecutor(max_workers=2) as pool:
             projection = [pool.submit(run_suite, suite) for suite in after_pool]
             for suite in chromium:

@@ -11,6 +11,31 @@ from pathlib import Path
 BROWSER = re.compile(r"chromium|playwright|DW_BROWSER")
 REQUIRE = re.compile(r"""require\(\s*["'](\.{1,2}/[^"']+)["']\s*\)""")
 
+# Scheduling hints from the November 2026 full-gate timings, in seconds. They affect only dispatch order, never
+# discovery, pass/fail, timeouts or browser/performance classification. Unknown/new suites still run in full.
+POOLED_SECONDS = {
+    "audit_exit_request_rules.js": 30,
+    "audit_policy_compilation_rules.py": 27,
+    "audit_printable_html_rules.js": 24,
+    "audit_message_paint_rules.js": 23,
+    "audit_snow_letter_review_rules.js": 21,
+    "audit_case_projection_phases.py": 20,
+    "audit_properties_helper.py": 16,
+    "audit_scoped_edit_rules.js": 5,
+}
+
+
+def order_pooled(suites):
+    """Dispatch longer independent suites first so a late long test does not leave the other worker idle."""
+    return sorted(suites, key=lambda suite: (-POOLED_SECONDS.get(suite.name, 0), suite.name))
+
+
+def pooled_phases(suites):
+    """JavaScript produces the shared property corpus consumed by Python. Keep the language barrier explicit, then
+    optimize independent work inside each phase; neither an unknown suite nor a duplicate may disappear."""
+    suites = list(suites)
+    return [order_pooled(s for s in suites if s.suffix != ".py"), order_pooled(s for s in suites if s.suffix == ".py")]
+
 
 def _resolve(base, request):
     target = (base.parent / request).resolve()
