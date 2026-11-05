@@ -114,7 +114,7 @@ covers, or a new suite under its feature.
 | `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |
 | `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
 | `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
-| `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable node/caret, action focus, and route changes before/after markup |
+| `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable and recipient input/caret, native contact edits, validation/model/lock boundaries, action focus, and route changes before/after markup |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
