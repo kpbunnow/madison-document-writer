@@ -198,6 +198,19 @@ class UpdateRecovery(unittest.TestCase):
                 move.assert_not_called()
             self.assertEqual((outside / "retained.json").read_text(encoding="utf-8"), "private operational bytes")
 
+    def test_command_line_target_link_is_refused_without_resolving_it_first(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, target = self.deployment(root)
+            linked = root / "linked-deployment"
+            linked.symlink_to(target, target_is_directory=True)
+            before = self.snapshot(target)
+            with patch.object(prepare_deployment, "__file__", str(source / "prepare_deployment.py")):
+                with self.assertRaisesRegex(ValueError, "link|reparse"):
+                    prepare_deployment.main([str(linked), "--yes"])
+            self.assertEqual(self.snapshot(target), before)
+            self.assertEqual(list(root.glob("*-retired-*")), [])
+
     def test_target_changes_after_plan_are_refused_before_copying(self):
         with tempfile.TemporaryDirectory() as directory:
             source, target = self.deployment(Path(directory))
