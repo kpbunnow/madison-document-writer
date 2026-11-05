@@ -75,7 +75,7 @@ export function createDocumentDelivery(services) {
       const r = await services.authFetch("/dw-status", { cache: "no-store" });
       if (!r.ok) throw 0;
       startup.HELPER = await r.json();
-    } catch (e) {
+    } catch {
       startup.HELPER = null;
     }
     return startup.HELPER;
@@ -170,7 +170,7 @@ export function createDocumentDelivery(services) {
       }
       services.toast("Could not open the email — " + ((j && j.error) || "unknown reason"));
       return false;
-    } catch (e) {
+    } catch {
       services.toast("Could not reach the local helper to send the email");
       return false;
     } finally {
@@ -216,7 +216,7 @@ export function createDocumentDelivery(services) {
           return true;
         }
         services.toast("Exact issued PDF unavailable: " + (reply.error || "verification failed"));
-      } catch (e) {
+      } catch {
         services.toast("Exact issued PDF unavailable: the local helper or archive could not be reached.");
       }
     } else
@@ -252,7 +252,7 @@ export function createDocumentDelivery(services) {
       }
       services.toast("Could not write the PDF — " + ((j && j.error) || "unknown reason"));
       return false;
-    } catch (e) {
+    } catch {
       services.toast("PDF filing needed. The helper response is uncertain. Use File issued PDF to retry the same original.");
       return false;
     } finally {

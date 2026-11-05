@@ -746,7 +746,7 @@ function reportsScreenDrawMap(services) {
   if (ReportsState.MAP) {
     try {
       ReportsState.MAP.remove();
-    } catch (e) {
+    } catch {
       /* An already removed map needs no further cleanup; its reference is cleared below. */
     }
     ReportsState.MAP = null;

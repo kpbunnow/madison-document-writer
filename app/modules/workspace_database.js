@@ -15,7 +15,7 @@ export function createWorkspaceDatabase(services) {
         db.onversionchange = () => {
           try {
             db.close();
-          } catch (e) {
+          } catch {
             /* The connection is already being retired; clear its reference even when close reports an error. */
           }
           workspace.IDBCONN = null;
@@ -58,7 +58,7 @@ export function createWorkspaceDatabase(services) {
         tx.onerror = () => rej(tx.error);
         tx.onabort = () => rej(tx.error);
       });
-    } catch (e) {
+    } catch {
       workspace.IDBCONN = null;
       return false;
     }

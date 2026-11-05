@@ -51,7 +51,7 @@ async function flushDrafts() {
   try {
     captureWork();
     return await saveDrafts();
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -63,7 +63,7 @@ async function settleRecoveryCopy() {
   if (!startup.HELPER || recovery.RECOVERY_BUSY) return;
   try {
     await backupUnfinished(recoveryJobs());
-  } catch (error) {
+  } catch {
     /* Device drafts are the primary copy; a recovery copy is written again after the next start. */
   }
 }
@@ -136,7 +136,7 @@ const refusalText = (data) =>
 async function readShutdownReply(response) {
   try {
     return await response.json();
-  } catch (error) {
+  } catch {
     return {};
   }
 }
@@ -158,7 +158,7 @@ async function sendShutdown(form, alert, button, review) {
       return true;
     }
     alert.textContent = refusalText(data);
-  } catch (error) {
+  } catch {
     alert.textContent =
       "Document Writer did not answer, so it may already have stopped. Drafts saved on this device are kept. To start again, double-click Document Writer on the desktop.";
   }

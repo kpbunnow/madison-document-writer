@@ -10,7 +10,7 @@ export function createCatalogForms(services) {
   function keepCatalogForms() {
     try {
       services.localStorage.setItem("madison-catalog-forms-v1", JSON.stringify(catalog.CATALOG_FORMS));
-    } catch (e) {
+    } catch {
       catalog.CATALOG_ERROR = "Review form could not be stored on this device.";
     }
   }

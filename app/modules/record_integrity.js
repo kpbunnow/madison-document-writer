@@ -226,7 +226,7 @@ export function initRecordIntegrity(R) {
           const k = queue.shift();
           try {
             await R.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number));
-          } catch (error) {
+          } catch {
             const s = status(k);
             if (records.has(k.number)) statuses.set(k.number, { ...s, label: s.valid ? "Cached proof / shared check unavailable" : s.label });
           }

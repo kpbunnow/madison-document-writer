@@ -21,7 +21,7 @@ function integrityRecordFault(records) {
     return "The backup has invalid integrity records.";
   try {
     canonicalJSON(records);
-  } catch (error) {
+  } catch {
     return "The backup has invalid integrity records.";
   }
   return "";
@@ -68,7 +68,7 @@ function validateWorkspaceBackupRecords(b, value) {
     let file;
     try {
       file = JSON.parse(p.body);
-    } catch (e) {
+    } catch {
       throw new Error("Invalid pending case file.");
     }
     if (!ids.has(p.cid) || file.case?.id !== p.cid || caseFileFault(file)) throw new Error("Invalid pending case record.");

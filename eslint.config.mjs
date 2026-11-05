@@ -1,7 +1,7 @@
 import globals from "globals";
 const rules = {
   "no-empty": ["error", { allowEmptyCatch: false }],
-  "no-unused-vars": ["error", { args: "none", caughtErrors: "none" }],
+  "no-unused-vars": ["error", { args: "none", caughtErrors: "all" }],
   "no-func-assign": "error",
   "no-undef": "error",
 };

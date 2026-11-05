@@ -100,7 +100,7 @@ export function createCaseFolderWorkflow(services) {
             const f = await h.getFile();
             size = f.size;
             mod = f.lastModified;
-          } catch (e) {
+          } catch {
             /* Unreadable optional directory metadata stays unknown; opening and saving still validate actual bytes. */
           }
           out.push({ name: name, size: size, mod: mod });
@@ -122,7 +122,7 @@ export function createCaseFolderWorkflow(services) {
         record = JSON.parse(raw);
       if (record.schema >= 5) await services.recordIntegrity.verify(record);
       services.loadCaseFile(raw);
-    } catch (e) {
+    } catch {
       services.toast("Could not open " + name);
     }
   }

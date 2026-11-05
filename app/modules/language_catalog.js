@@ -784,7 +784,7 @@ function languageCatalogSaveWorkflowPrefs(services) {
   workspace.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
   try {
     localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(workspace.WORKFLOW_PREFS));
-  } catch (error) {
+  } catch {
     services.toast("Could not save workspace preferences", { severity: "error" });
   }
 }
@@ -820,7 +820,7 @@ export function createLanguageCatalog(services) {
       catalog.CATALOG_AT = nowISO();
       try {
         localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events }));
-      } catch (e) {
+      } catch {
         catalog.CATALOG_ERROR = "Current reviews verified, but this browser could not cache them for later outages.";
       }
     } catch (e) {

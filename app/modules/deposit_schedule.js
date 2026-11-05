@@ -173,7 +173,7 @@ export function initDepositSchedule(services) {
     let p;
     try {
       p = policyAt(date);
-    } catch (e) {
+    } catch {
       return invalidDateHTML(services, date);
     }
     const entries = matchingEntries(p, query);

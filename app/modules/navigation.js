@@ -118,7 +118,7 @@ export function initNavigation(services) {
       const revision = editor.LOCAL_CHANGED;
       try {
         saved = await services.saveDrafts();
-      } catch (error) {
+      } catch {
         saved = false;
       }
       if (!saved || editor.LOCAL_CHANGED <= revision + 1) break;

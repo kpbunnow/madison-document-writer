@@ -20,7 +20,7 @@ export function createReportReturn(services) {
       services.state.reportNotice = "Returned to the saved report context.";
       services.render();
       return true;
-    } catch (e) {
+    } catch {
       /* A missing optional return preference does not affect report records or filters. */
       return false;
     }

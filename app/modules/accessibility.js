@@ -92,7 +92,7 @@ export function createAccessibility() {
     const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
     if (Array.isArray(stored)) history = stored.filter((m) => m && typeof m.text === "string").slice(-200);
     theme = localStorage.getItem("madison-theme-v1") || "system";
-  } catch (error) {
+  } catch {
     /* Optional local message history and theme may be unavailable; defaults remain usable. */
   }
   function setTheme(value) {
@@ -100,7 +100,7 @@ export function createAccessibility() {
     if (document.documentElement) document.documentElement.dataset.theme = theme;
     try {
       localStorage.setItem("madison-theme-v1", theme);
-    } catch (error) {
+    } catch {
       /* The selected theme applies to this tab even if storing the preference is unavailable. */
     }
   }
@@ -254,7 +254,7 @@ export function createAccessibility() {
     history = history.slice(-200);
     try {
       localStorage.setItem(historyKey, JSON.stringify(history));
-    } catch (error) {
+    } catch {
       /* Messages remain visible and announced in this tab if optional history storage fails. */
     }
     requestPaint();
@@ -432,7 +432,7 @@ export function createAccessibility() {
   const engaged = (b) => {
     try {
       return b.matches(":hover") || b.contains(document.activeElement);
-    } catch (e) {
+    } catch {
       return b.contains(document.activeElement);
     }
   };
@@ -449,7 +449,7 @@ export function createAccessibility() {
         history = history.slice(-200);
         try {
           localStorage.setItem(historyKey, JSON.stringify(history));
-        } catch (e) {
+        } catch {
           /* Optional history storage; the warning was already shown and announced. */
         }
       }

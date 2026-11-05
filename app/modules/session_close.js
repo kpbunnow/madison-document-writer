@@ -82,7 +82,7 @@ async function previousSessionOpen({ idbGet, idbSet, instance }) {
   let previous = null;
   try {
     previous = await idbGet(SESSION_KEY);
-  } catch (error) {
+  } catch {
     previous = null;
   }
   await idbSet(SESSION_KEY, { open: true, instance: current, at: nowISO() });

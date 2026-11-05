@@ -48,7 +48,7 @@ export function initAddressParser(services) {
     let result;
     try {
       result = await services.helperJSON("/address/parse", { raw: c.raw });
-    } catch (error) {
+    } catch {
       services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }

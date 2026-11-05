@@ -40,13 +40,13 @@ export function createPendingCaseSaves(services) {
       if (p.cid && workspaceState.CASES.some((k) => k.id === p.cid)) {
         try {
           await services.mergeSharedFile(p.cid, p.name);
-        } catch (err) {
+        } catch {
           still.push(p);
           continue;
         }
         try {
           body = JSON.stringify(services.caseFile(p.cid), null, 2);
-        } catch (err) {
+        } catch {
           body = p.body;
         }
       }

@@ -39,7 +39,7 @@ export function listenForStop(onStopped) {
     helperStop.channel.onmessage = (event) => {
       if (event.data?.kind === "stopped" && helperStop.instance && event.data.instance === helperStop.instance && !helperStop.stopped) onStopped();
     };
-  } catch (error) {
+  } catch {
     helperStop.channel = null; /* Without a channel, other windows show their own connection errors instead. */
   }
   return helperStop.channel;
@@ -48,7 +48,7 @@ export function listenForStop(onStopped) {
 export function announceStop() {
   try {
     if (helperStop.instance) helperStop.channel?.postMessage({ kind: "stopped", instance: helperStop.instance });
-  } catch (error) {
+  } catch {
     /* Other windows then report the lost connection on their next request. */
   }
 }

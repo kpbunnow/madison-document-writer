@@ -143,7 +143,7 @@ export function createCorrectionWorkflow(services) {
       const job = services.printJob(issued);
       if (!(await services.filePdf(issued, job))) services.toast("Correction saved. Use File issued PDF to produce its copy.");
       else if (sendEmail) await services.emailDocument(issued, clone(issued.emailedTo), true, job);
-    } catch (e) {
+    } catch {
       services.toast("Correction saved; PDF filing needs a retry.");
     }
     services.render();

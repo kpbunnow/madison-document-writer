@@ -68,7 +68,7 @@ function failReview(services, review, message) {
 function cacheCatalogEvents() {
   try {
     localStorage.setItem("madison-catalog-events-v1", JSON.stringify({ at: catalog.CATALOG_AT, events: catalog.CATALOG_EVENTS }));
-  } catch (error) {
+  } catch {
     catalog.CATALOG_ERROR = "Review recorded on the share, but this browser could not cache it.";
   }
 }
