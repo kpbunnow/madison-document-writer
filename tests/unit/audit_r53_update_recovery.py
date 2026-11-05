@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 from unittest import mock
 
@@ -122,6 +123,66 @@ class UpdateRecovery(unittest.TestCase):
             for data in ["Case JSON Files/case.json", "Orders/order.pdf", "Reporting GIS/settings.json"]:
                 self.assertEqual((target / data).read_text(), "operational")
             self.assertEqual(len(manifest["files"]), len(wanted) - 1)
+
+    def deployment(self, root):
+        source = built_deploy(root / "new")
+        target = root / "Document Writer"
+        shutil.copytree(source, target)
+        (target / "launch.py").write_text("# previous launcher\n")
+        (target / "Case JSON Files").mkdir()
+        (target / "Case JSON Files/synthetic.json").write_text("operational")
+        return source, target
+
+    def snapshot(self, folder):
+        return {p.relative_to(folder).as_posix(): p.read_bytes() for p in sorted(folder.rglob("*")) if p.is_file()}
+
+    def test_damaged_release_changes_nothing(self):
+        # MCR-013: the release is verified before the target is touched.
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = self.deployment(Path(directory))
+            (source / "launch.py").write_text("# damaged after the manifest was written\n")
+            before = self.snapshot(target)
+            with self.assertRaises(Exception):
+                prepare_deployment.plan(source, target)
+            with self.assertRaises(Exception):
+                prepare_deployment.apply(source, target, [], ["launch.py", "runtime-manifest.json"], stamp="test")
+            self.assertEqual(self.snapshot(target), before)
+            self.assertFalse((target.parent / "Document Writer-retired-test").exists())
+
+    def test_manifest_cannot_list_operational_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = self.deployment(Path(directory))
+            (source / "Case JSON Files").mkdir()
+            (source / "Case JSON Files/synthetic.json").write_text("replacement")
+            deploy_manifest.write_manifest(source)
+            before = self.snapshot(target)
+            with self.assertRaises(ValueError):  # refused by verification before any write
+                prepare_deployment.plan(source, target)
+            self.assertEqual(self.snapshot(target), before)
+
+    def test_replaced_files_are_kept_and_failure_rolls_back(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = self.deployment(Path(directory))
+            (target / "old_tool.py").write_text("retire me")
+            before = self.snapshot(target)
+            retire, wanted = prepare_deployment.plan(source, target)
+            real_copy, calls = shutil.copy2, []
+
+            def failing_copy(src, dst, *args, **kwargs):
+                calls.append(dst)
+                if len(calls) == 3:
+                    raise OSError("synthetic interruption while copying")
+                return real_copy(src, dst, *args, **kwargs)
+
+            with patch.object(prepare_deployment.shutil, "copy2", failing_copy), self.assertRaisesRegex(OSError, "synthetic interruption"):
+                prepare_deployment.apply(source, target, retire, wanted, stamp="failed")
+            self.assertEqual(self.snapshot(target), before, "the previous deployment is put back")
+            archive, manifest = prepare_deployment.apply(source, target, retire, wanted, stamp="ok")
+            self.assertEqual((archive / "replaced-by-this-release/launch.py").read_text(), "# previous launcher\n")
+            self.assertEqual((archive / "old_tool.py").read_text(), "retire me")
+            self.assertEqual((target / "Case JSON Files/synthetic.json").read_text(), "operational")
+            self.assertEqual((target / "launch.py").read_bytes(), (source / "launch.py").read_bytes())
+            self.assertTrue(manifest["files"])
 
 
 if __name__ == "__main__":

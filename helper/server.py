@@ -777,9 +777,22 @@ def backup_location(workspace, case):
     return BACKUP_ROOT / workspace / case
 
 
+def _mandatory_draft(c):
+    """A scheduled mandatory-appearance charge carries no deposit by rule; the schedule, not the flag, decides."""
+    if c.get("mandatoryAppearance") is not True or c.get("amount") not in ("", None):
+        return False
+    priced = c.get("pricedOn")
+    entry = citation_pricing.resolve(
+        c.get("ord", ""), "", c.get("scheduleEntryId", "") or "", at=priced if isinstance(priced, str) and len(priced) == 10 else None
+    )
+    return bool(entry) and (entry.get("rule") or {}).get("kind") == "mandatory"
+
+
 def validate_draft_deposits(value):
     if isinstance(value, dict):
         for c in value.get("cits", {}).values() if isinstance(value.get("cits"), dict) else []:
+            if isinstance(c, dict) and _mandatory_draft(c):
+                continue
             if not isinstance(c, dict) or citation_pricing.cents(c.get("amount")) is None or citation_pricing.cents(c.get("amount")) <= 0:
                 raise ValueError("Citation needs deposit before saving its draft; retain it as a deposit request")
         for child in value.values():
@@ -1259,11 +1272,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # is supplied to an unauthenticated page or written to the runtime file.
             value = re.sub(
                 r"(<script>)(\s*\(function\(\)\{var B=.*?)(</script>)",
-                lambda m: m[1]
-                + "window.__DW_SESSION_READY__.then(function(){"
-                + m[2]
-                + "}).catch(function(error){document.getElementById('app').textContent=error.message;});"
-                + m[3],
+                lambda m: (
+                    m[1]
+                    + "window.__DW_SESSION_READY__.then(function(){"
+                    + m[2]
+                    + "}).catch(function(error){document.getElementById('app').textContent=error.message;});"
+                    + m[3]
+                ),
                 value,
                 count=1,
                 flags=re.S,

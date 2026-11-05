@@ -14,6 +14,9 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import case_lookup as lookup
+import case_projection
+import case_store
+from audit_workflow import initial
 import inspector_cases as cases
 import server
 
@@ -298,8 +301,17 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(result["inspector"], {"id": "JSMITH"})
         self.assertEqual([c["caseNumber"] for c in result["cases"]], ["CB2026-241-00001", "CB2026-241-00002"])
         first, second = result["cases"]
-        self.assertEqual(first, {"caseNumber": "CB2026-241-00001", "address": "101 TEST ST", "description": "Synthetic description", "dueDate": ""})
-        self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": "", "dueDate": ""})
+        self.assertEqual(
+            first,
+            {
+                "caseNumber": "CB2026-241-00001",
+                "address": "101 TEST ST",
+                "description": "Synthetic description",
+                "dueDate": "",
+                "dueState": "unknown",
+            },
+        )
+        self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": "", "dueDate": "", "dueState": "unknown"})
         self.assertFalse(result["dueDates"], "no case folder was given, so due dates are not available")
         with patch.object(lookup, "run_script", return_value=self.answer([])):
             self.assertEqual(cases.open_cases(self.root, "JSMITH")["cases"], [])
@@ -330,60 +342,92 @@ class InspectorCaseTests(unittest.TestCase):
         self.assertEqual(cases.next_due({"violations": "not a list"}), "")
         self.assertEqual(cases.next_due({}), "", today)
 
-    def test_due_dates_are_read_only_from_the_listed_cases_usable_summaries(self):
-        self.write_summary("CB2026-241-00001", self.summary("CB2026-241-00001", "2026-12-01", "2026-11-10"))
-        self.write_summary("CB2026-241-00002", self.summary("CB2026-241-00002", "2026-11-04"), name="cb2026-241-00002.json")
-        self.write_summary("CB2026-241-00003", self.summary("CB2026-241-00099", "2026-11-05"))
-        self.write_summary("CB2026-241-00004", "{ not json")
-        self.write_summary("CB2026-241-00005", self.summary("CB2026-241-00005", "2026-11-06", format="something-else"))
-        self.write_summary("CB2026-241-00006", self.summary("CB2026-241-00006", "2026-11-07", note="x" * (cases.MAX_SUMMARY_BYTES + 1)))
-        self.write_summary("CB2026-241-00008", self.summary("CB2026-241-00008", "2026-11-08"))
-        found = cases.due_dates(
-            self.root / "Case JSON Files",
-            [
-                "CB2026-241-00001",
-                "CB2026-241-00002",
-                "CB2026-241-00003",
-                "CB2026-241-00004",
-                "CB2026-241-00005",
-                "CB2026-241-00006",
-                "CB2026-241-00007",
-            ],
-        )
+    def write_case(self, number, *dues, done=(), summary=True):
+        """A saved, verified case whose notice items carry the given due dates, and (unless asked not to) the summary the
+        Writer writes for it through the store, which checks it against the case."""
+        value = initial()
+        value["case"]["number"] = number
+        snap = value["events"][0]["payload"]["snapshot"]
+        snap["frozen"]["case"]["number"] = number
+        first = snap["items"][0]
+        snap["items"] = [
+            dict(first, id=f"item_{n}", no=str(n + 1), due=due, done=n in done, doneOn="2026-08-01" if n in done else "")
+            for n, due in enumerate(dues or ["2026-10-30"])
+        ]
+        folder = self.root / "Case JSON Files"
+        folder.mkdir(parents=True, exist_ok=True)
+        saved = case_store.save_case(folder, "101 TEST LANE - " + number + ".json", value)
+        if summary:
+            record_value = case_store.read_case(folder, saved["name"])["file"]
+            projected = dict(case_projection.projected(record_value)[0], format="madison-case-summary")
+            self.assertTrue(case_store.save_summary(folder, saved["name"], saved["revision"], projected)["ok"])
+        return folder / saved["name"]
+
+    def index_file(self, number):
+        return self.root / "Case JSON Files" / "Reporting Index" / (number.lower() + ".json")
+
+    def test_due_dates_come_only_from_verified_current_summaries(self):
+        # MCR-002: a date is shown only from a summary that names the current case revision, whose case verifies and
+        # whose projection equals the summary. Anything that cannot be confirmed is "unknown", never "no order".
+        n = ["CB2026-241-%05d" % i for i in range(1, 9)]
+        self.write_case(n[0], "2026-12-01", "2026-11-10")
+        self.write_case(n[1], "2026-11-04", "2026-11-20", done=(0,))
+        self.write_case(n[2], "2026-11-05", summary=False)  # case saved, summary never written
+        stale = self.write_case(n[3], "2026-11-06")
+        record_value = json.loads(stale.read_text())
+        stale.write_text(json.dumps(record_value, indent=1))  # newer bytes: the summary's revision no longer matches
+        self.write_case(n[4], "2026-11-07")
+        self.index_file(n[4]).write_text(self.index_file(n[4]).read_text().replace("2026-11-07", "2026-11-09"))  # disagrees
+        self.write_summary(n[5], self.summary(n[5], "2026-10-01"))  # orphan: no case file at all
+        self.write_case(n[6], "2026-11-08")
+        self.index_file(n[6]).write_text("{ not json")
+        found = cases.due_dates(self.root / "Case JSON Files", n)
         self.assertEqual(
             found,
-            {"CB2026-241-00001": "2026-11-10", "CB2026-241-00002": "2026-11-04"},
-            "mismatched, damaged, foreign, oversize and unlisted summaries give none",
+            {
+                n[0]: ("due", "2026-11-10"),
+                n[1]: ("due", "2026-11-20"),
+                n[2]: ("unknown", ""),
+                n[3]: ("unknown", ""),
+                n[4]: ("unknown", ""),
+                n[5]: ("unknown", ""),
+                n[6]: ("unknown", ""),
+                n[7]: ("none", ""),
+            },
         )
-        self.assertEqual(cases.due_dates(self.root / "nowhere", ["CB2026-241-00001"]), None, "an unreachable case folder is reported, not guessed")
-        self.assertEqual(cases.due_dates(self.root, ["CB2026-241-00001"]), {}, "no Reporting Index means no due dates")
+        self.assertEqual(cases.due_dates(self.root / "nowhere", [n[0]]), None, "an unreachable case folder is reported, not guessed")
+        withdrawn = self.write_case("CB2026-241-00010", "2026-11-10", done=(0,))
+        self.assertTrue(withdrawn.exists())
+        self.assertEqual(cases.due_dates(self.root / "Case JSON Files", ["CB2026-241-00010"]), {"CB2026-241-00010": ("none", "")})
 
-    def test_open_cases_carry_their_due_date_and_sort_blanks_first_then_past_due_to_furthest(self):
-        names = ["CB2026-241-00001", "CB2026-241-00002", "CB2026-241-00003", "CB2026-241-00004", "CB2026-241-00005"]
+    def test_open_cases_sort_no_order_first_then_past_due_to_furthest_then_unknown(self):
+        names = ["CB2026-241-%05d" % i for i in range(1, 7)]
         rows = [case_row(n) for n in names]
-        self.write_summary(names[0], self.summary(names[0], "2026-12-15"))
-        self.write_summary(names[1], self.summary(names[1], "2026-10-01"))
-        self.write_summary(names[3], self.summary(names[3], "2026-11-20", "2026-11-05"))
-        self.write_summary(names[4], self.summary(names[4]))
+        self.write_case(names[0], "2026-12-15")
+        self.write_case(names[1], "2026-10-01")
+        self.write_case(names[3], "2026-11-20", "2026-11-05")
+        self.write_case(names[4], "2026-11-06", done=(0,))
+        self.write_summary(names[5], self.summary(names[5], "2026-09-01"))  # orphaned summary
         with patch.object(lookup, "run_script", return_value=self.answer(rows)):
             result = cases.open_cases(self.root, "JSMITH", self.root / "Case JSON Files")
         self.assertTrue(result["dueDates"])
         self.assertEqual(
-            [(c["caseNumber"], c["dueDate"]) for c in result["cases"]],
+            [(c["caseNumber"], c["dueState"], c["dueDate"]) for c in result["cases"]],
             [
-                ("CB2026-241-00003", ""),
-                ("CB2026-241-00005", ""),
-                ("CB2026-241-00002", "2026-10-01"),
-                ("CB2026-241-00004", "2026-11-05"),
-                ("CB2026-241-00001", "2026-12-15"),
+                ("CB2026-241-00003", "none", ""),
+                ("CB2026-241-00005", "none", ""),
+                ("CB2026-241-00002", "due", "2026-10-01"),
+                ("CB2026-241-00004", "due", "2026-11-05"),
+                ("CB2026-241-00001", "due", "2026-12-15"),
+                ("CB2026-241-00006", "unknown", ""),
             ],
-            "no order first (in the database's order), then past due to furthest away",
+            "no order first (in the database's order), then past due to furthest away, then unconfirmed",
         )
         with patch.object(lookup, "run_script", return_value=self.answer(rows)):
             unreachable = cases.open_cases(self.root, "JSMITH", self.root / "nowhere")
         self.assertFalse(unreachable["dueDates"])
         self.assertEqual([c["caseNumber"] for c in unreachable["cases"]], names, "without due dates the database's order stays")
-        self.assertTrue(all(c["dueDate"] == "" for c in unreachable["cases"]))
+        self.assertTrue(all(c["dueDate"] == "" and c["dueState"] == "unknown" for c in unreachable["cases"]))
 
     def test_open_cases_refuse_wrong_inspector_columns_values_and_excluded_people(self):
         for value in ["", "a b", "x" * 65, None, 7, "A;DROP"]:
@@ -417,6 +461,23 @@ class InspectorCaseTests(unittest.TestCase):
         self.excluding(["Alice%Example"])
         self.assertEqual(cases.exclusions(self.root), list(cases.DEFAULT_EXCLUDED) + ["Alice%Example"], "the administrator's entries are added")
         self.assertEqual(lookup.settings(self.root)["server"], "sqlelam", "the SQL settings file is unchanged")
+
+    def test_case_requests_apply_name_exclusions_from_the_checked_workflow_list(self):
+        # MCR-003: a full workflow name that matches an exclusion refuses the case list, even when no deferred name
+        # lookup ran, and an exclusion added after the list was loaded applies to the next request.
+        with patch.object(lookup, "run_script", return_value=self.answer([person("QA_HIDDEN", "Synthetic Excluded Person"), person()])):
+            listed = cases.inspectors(self.root)["inspectors"]
+            self.assertEqual(sorted(p["id"] for p in listed), ["JSMITH", "QA_HIDDEN"])
+        self.excluding(["Synthetic%Excluded%Person"])
+        with patch.object(lookup, "run_script", return_value=self.answer([case_row(uid="QA_HIDDEN")])) as run:
+            with self.assertRaises(lookup.CaseLookupError) as error:
+                cases.open_cases(self.root, "qa_hidden")
+            self.assertEqual(error.exception.status, 403)
+            run.assert_not_called()
+        with patch.object(lookup, "run_script", return_value=self.answer([case_row()])):
+            self.assertEqual(len(cases.open_cases(self.root, "JSMITH")["cases"]), 1, "a person who is not excluded still loads")
+        with patch.object(lookup, "run_script", return_value=self.answer([case_row(uid="NOBODY")])):
+            self.assertEqual(len(cases.open_cases(self.root, "NOBODY")["cases"]), 1, "an unknown name does not match an exclusion")
 
     def test_the_divisions_four_excluded_staff_never_appear_whatever_the_name_form(self):
         rows = [

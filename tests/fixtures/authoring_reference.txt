@@ -16,6 +16,8 @@ def validate_authoring(snap, at=None, check_date_window=True, original=None):
         "mailed"
     ] <= (mailing_max_day(snap.get("type"), at) if check_date_window else "9999-12-31"):
         raise ValueError(mailing_message(snap.get("type")))
+    if check_date_window:
+        _validate_due_spacing(snap=snap, items=items, original=original)
     if snap.get("type") in SPECIAL_TYPES:
         validate_special_fields(snap, at, check_date_window)
     if snap.get("type") != "citation":

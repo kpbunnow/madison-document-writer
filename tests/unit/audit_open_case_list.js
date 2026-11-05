@@ -82,6 +82,16 @@ const row = (number, extra = {}) => ({
   assert.equal((dated.match(/open-case-due-label/g) || []).length, 1, "only the case with a valid due date has one");
   assert.equal((dated.match(/<span class="open-case-due"><\/span>/g) || []).length, 2, "the others stay blank");
   assert.ok(dated.indexOf("CB2026-241-00004") < dated.indexOf("CB2026-241-00005"), "the list keeps the order the helper sent");
+  // MCR-002: a due date the helper could not confirm reads "Not confirmed", never a blank that means "no order".
+  const unconfirmed = m.openCaseRowsHTML({
+    cases: [row("CB2026-241-00008", { dueDate: "", dueState: "unknown" }), row("CB2026-241-00009", { dueDate: "", dueState: "none" })],
+    query: "",
+  });
+  assert.match(
+    unconfirmed,
+    /data-open-case-pick="CB2026-241-00008"[\s\S]*?<span class="open-case-due"><span class="open-case-due-label">Due<\/span><span>Not confirmed<\/span><\/span>/,
+  );
+  assert.match(unconfirmed, /data-open-case-pick="CB2026-241-00009"[\s\S]*?<span class="open-case-due"><\/span>/, "no order stays blank");
   assert.equal((markup.match(/data-open-case-pick=/g) || []).length, 2, "one bubble per case");
   assert.ok(!markup.includes(" style="), "styling belongs to the reviewed screen stylesheet");
   assert.ok(!/Latest inspection|Violations Found/.test(markup), "the latest inspection is not shown");

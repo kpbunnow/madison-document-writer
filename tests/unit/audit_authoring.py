@@ -39,7 +39,9 @@ class AuthoringStoreTests(unittest.TestCase):
         value = self.notice()
         snap = value["events"][0]["payload"]["snapshot"]
         original = snap["items"][0]
-        snap["items"] = [dict(copy.deepcopy(original), id=f"item_{n}", no=str(n), due=f"2026-10-{20 + n}") for n in range(1, 5)]
+        # four distinct dates a week apart, so only the three-date limit refuses them
+        dues = ["2026-10-21", "2026-10-28", "2026-11-04", "2026-11-11"]
+        snap["items"] = [dict(copy.deepcopy(original), id=f"item_{n}", no=str(n), due=dues[n - 1]) for n in range(1, 5)]
         with self.assertRaisesRegex(ValueError, "three distinct"):
             self.save(value)
         snap["items"][3]["due"] = snap["items"][0]["due"]
