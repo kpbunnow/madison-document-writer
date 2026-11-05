@@ -6,7 +6,7 @@ const { chromium } = require("playwright");
   const built = await esbuild.build({
     stdin: {
       contents:
-        'import {createAppScreens} from "./app/modules/app_screens.js"; import {WriterState} from "./app/modules/state.js"; window.audit={createAppScreens,WriterState};',
+        'import {createAppScreens} from "./app/modules/app_screens.js"; import {createContactEvents} from "./app/modules/contact_events.js"; import {WriterState} from "./app/modules/state.js"; window.audit={createAppScreens,createContactEvents,WriterState};',
       resolveDir: process.cwd(),
     },
     bundle: true,
@@ -90,6 +90,121 @@ const { chromium } = require("playwright");
       return { kept, caret, actions, redirected, routeAfterWalk: document.querySelector("h1").textContent === "Cases" };
     });
     assert.deepEqual(result, { kept: true, caret: [2, 6], actions: true, redirected: true, routeAfterWalk: true });
+    // A passive history/helper repaint can arrive after focus but before the next native input event.
+    // Use real contact handlers and keyboard input; a detached/replaced field must not swallow the edit.
+    for (const [attribute, key] of [
+      ["cc", "0|addr"],
+      ["cc", "0|city"],
+      ["agent", "addr"],
+      ["em", "0|addr"],
+    ]) {
+      await page.evaluate(
+        ({ attribute, key }) => {
+          const { createAppScreens, createContactEvents, WriterState: s } = window.audit;
+          s.state = { screen: "write", docId: "recipient-draft", modal: "cc", picker: false };
+          s.CASES = [{ id: "recipient-case", ccList: [{ name: "Synthetic", addr: "", city: "" }], agent: { addr: "" }, emails: [{ addr: "" }] }];
+          s.DOCS = [{ id: "recipient-draft", caseId: "recipient-case", draft: true, items: [] }];
+          const noop = () => {};
+          const read = () =>
+            attribute === "cc" ? s.CASES[0].ccList[0][key.split("|")[1]] : attribute === "em" ? s.CASES[0].emails[0].addr : s.CASES[0].agent.addr;
+          const write = (value) => {
+            const target = attribute === "cc" ? s.CASES[0].ccList[0] : attribute === "em" ? s.CASES[0].emails[0] : s.CASES[0].agent;
+            target[attribute === "cc" ? key.split("|")[1] : "addr"] = value;
+          };
+          const services = {
+            document,
+            window,
+            location,
+            IDB_OK: true,
+            A11Y: { rememberFocus: noop, enhance: noop },
+            app_languagediscoveryContext: () => ({ state: s.state }),
+            isLocked: () => false,
+            ensureWalkContext: noop,
+            screenWrite: () => '<div class="document-workspace" data-editor-doc="recipient-draft"></div>',
+            overlayHTML: () =>
+              '<div class="modal"><input type="' +
+              (attribute === "em" ? "email" : "text") +
+              '" data-' +
+              attribute +
+              '="' +
+              key +
+              '" value="' +
+              read() +
+              '"></div>',
+            paginate: noop,
+            editorEnhance: noop,
+            restoreWorkControls: noop,
+            updateSaveStatus: noop,
+            enhanceDialog: noop,
+            highlightOpenChecks: noop,
+            validateAndStandardizeAddresses: () => null,
+            recipientPreview: () => "",
+            scheduleDraftSave: noop,
+          };
+          const contacts = createContactEvents(services);
+          if (window.recipientInput) document.removeEventListener("input", window.recipientInput);
+          window.recipientInput = (event) => contacts.editRecipient(event.target);
+          document.addEventListener("input", window.recipientInput);
+          const screens = createAppScreens(services);
+          screens.render();
+          const field = document.querySelector("#overlay input");
+          field.focus();
+          window.recipientProbe = { screens, services, field, read, write, s };
+          screens.render();
+        },
+        { attribute, key },
+      );
+      const entered = attribute === "em" ? "test@example.test" : "PO BOX 123";
+      await page.keyboard.insertText(entered);
+      assert.deepEqual(
+        await page.evaluate(() => ({ value: recipientProbe.read(), same: recipientProbe.field === document.activeElement })),
+        { value: entered, same: true },
+        attribute + ": passive refresh must retain the active field and native input",
+      );
+      await page.evaluate(() => {
+        const field = recipientProbe.field;
+        if (field.type !== "email") field.setSelectionRange(3, 6);
+        recipientProbe.screens.render();
+      });
+      assert.deepEqual(
+        await page.evaluate(() => [document.activeElement.selectionStart, document.activeElement.selectionEnd]),
+        attribute === "em" ? [null, null] : [3, 6],
+      );
+      const updated = await page.evaluate(() => {
+        const { screens, services, field, write } = recipientProbe;
+        const markup = services.overlayHTML;
+        services.overlayHTML = () => markup().replace("<input", '<input aria-invalid="true"');
+        screens.render();
+        const invalid = field.isConnected && field.getAttribute("aria-invalid") === "true";
+        write("UPDATED BY MODEL");
+        screens.render();
+        return { invalid, replaced: !field.isConnected, value: document.querySelector("#overlay input").value };
+      });
+      assert.deepEqual(
+        updated,
+        { invalid: true, replaced: true, value: "UPDATED BY MODEL" },
+        "validation attributes update, and new model values win",
+      );
+      const locked = await page.evaluate(() => {
+        const field = document.querySelector("#overlay input");
+        field.focus();
+        recipientProbe.services.isLocked = () => true;
+        recipientProbe.screens.render();
+        recipientProbe.services.isLocked = () => false;
+        return !field.isConnected;
+      });
+      assert.equal(locked, true, "a locked document must use fresh controls");
+      const changed = await page.evaluate(() => {
+        const { screens, s } = recipientProbe;
+        const field = document.querySelector("#overlay input");
+        field.focus();
+        s.state.docId = "another-draft";
+        s.DOCS.push({ id: "another-draft", caseId: "recipient-case", draft: true, items: [] });
+        screens.render();
+        return !field.isConnected;
+      });
+      assert.equal(changed, true, "navigation must not transplant an old recipient field");
+    }
     console.log("PASS real-browser repaint keepers and live route reads");
   } finally {
     await browser.close();
