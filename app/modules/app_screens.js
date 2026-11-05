@@ -265,7 +265,7 @@ function keepRecipientField(services, editingDoc, active) {
     !active.disabled &&
     !active.readOnly &&
     ["cc", "agent", "em"].find((key) => active.hasAttribute("data-" + key));
-  if (!key || services.isLocked(editingDoc)) return null;
+  if (!key || services.isLocked(editingDoc)) return { swap() {}, restore() {} };
   const docId = editor.state.docId,
     identity = active.dataset[key],
     start = active.selectionStart,
@@ -363,7 +363,7 @@ export function createAppScreens(services) {
     if (appRoot?.dataset) appRoot.dataset.renderScreen = editor.state.screen;
     if (openedFromImport) services.window.scrollTo(0, 0);
     services.document.getElementById("overlay").innerHTML = services.overlayHTML();
-    recipientField?.swap();
+    recipientField.swap();
     if (editor.state.screen === "write") {
       services.paginate();
       services.editorEnhance();
@@ -388,7 +388,7 @@ export function createAppScreens(services) {
     }
     restoreLanguageFocus(services.app_languagediscoveryContext(), languageFocus);
     liveField.restore();
-    recipientField?.restore();
+    recipientField.restore();
   }
 
   function renderKeep() {
