@@ -77,7 +77,11 @@ class DevelopmentWorkflow(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_browser_cache_is_exact_and_never_skips_installation_or_verification(self):
-        steps = self.workflow("verify.yml")["jobs"]["stages"]["steps"]
+        workflow = self.workflow("verify.yml")
+        browser_path = workflow["jobs"]["stages"]["env"]["PLAYWRIGHT_BROWSERS_PATH"]
+        self.assertNotRegex(browser_path, r"(?:^|/)\.{1,2}(?:/|$)", "actions/cache refuses dot or parent path components")
+        self.assertEqual(browser_path, workflow["jobs"]["full-gate"]["env"]["PLAYWRIGHT_BROWSERS_PATH"])
+        steps = workflow["jobs"]["stages"]["steps"]
         cache = next(s for s in steps if s.get("uses", "").startswith("actions/cache@"))
         for part in ("runner.os", "runner.arch", "steps.playwright.outputs.version", "hashFiles('package-lock.json')"):
             self.assertIn(part, cache["with"]["key"])

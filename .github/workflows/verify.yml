@@ -26,7 +26,7 @@ jobs:
       TZ: America/Chicago
       PYTHONDONTWRITEBYTECODE: '1'
       DW_TEST_WORKERS: '2'
-      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/../madison-browsers
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/playwright-browsers
     steps:
       - name: Check out the reviewed head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -96,7 +96,7 @@ jobs:
       TZ: America/Chicago
       PYTHONDONTWRITEBYTECODE: '1'
       DW_TEST_WORKERS: '2'
-      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/../madison-browsers
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/playwright-browsers
     steps:
       - name: Require every verification stage to succeed
         env:
