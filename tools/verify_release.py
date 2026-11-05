@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import argparse
 from release_evidence import fingerprint, source_provenance
 from release_inputs import deployment_inputs, source_inventory
 
@@ -26,6 +27,9 @@ for name in [
     "browser/browser-results.json",
     "browser/axe-results.json",
     "timings.json",
+    "stage-regression.json",
+    "stage-browser.json",
+    "stage-evidence.json",
 ]:
     (OUT / name).unlink(missing_ok=True)
 stage_times = []
@@ -43,6 +47,23 @@ def run(command, name, env=None):
     if not passed:
         raise SystemExit("Verification failed. Read " + str(OUT / name))
     print("PASS " + name, flush=True)
+
+
+if sys.argv[1:]:
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--stage", choices=["regression", "browser"])
+    modes.add_argument("--assemble", nargs=2, type=Path, metavar=("REGRESSION_ARTIFACT", "BROWSER_ARTIFACT"))
+    args = parser.parse_args()
+    if FAST:
+        raise SystemExit("Isolated CI stages require full coverage; DW_FAST is not supported")
+    from gate_stages import execute_stage, assemble
+
+    if args.stage:
+        execute_stage(ROOT, run, args.stage)
+    else:
+        assemble(ROOT, run, *args.assemble)
+    raise SystemExit(0)
 
 
 run([sys.executable, "tools/check_format.py"], "format.log")

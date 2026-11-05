@@ -77,7 +77,11 @@ class DevelopmentWorkflow(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_browser_cache_is_exact_and_never_skips_installation_or_verification(self):
-        steps = self.workflow("verify.yml")["jobs"]["full-gate"]["steps"]
+        workflow = self.workflow("verify.yml")
+        browser_path = workflow["jobs"]["stages"]["env"]["PLAYWRIGHT_BROWSERS_PATH"]
+        self.assertNotRegex(browser_path, r"(?:^|/)\.{1,2}(?:/|$)", "actions/cache refuses dot or parent path components")
+        self.assertEqual(browser_path, workflow["jobs"]["full-gate"]["env"]["PLAYWRIGHT_BROWSERS_PATH"])
+        steps = workflow["jobs"]["stages"]["steps"]
         cache = next(s for s in steps if s.get("uses", "").startswith("actions/cache@"))
         for part in ("runner.os", "runner.arch", "steps.playwright.outputs.version", "hashFiles('package-lock.json')"):
             self.assertIn(part, cache["with"]["key"])
@@ -86,6 +90,34 @@ class DevelopmentWorkflow(unittest.TestCase):
         gate = next(s for s in steps if "python tools/verify_release.py" in s.get("run", ""))
         self.assertNotIn("if", install, "a cache hit never skips OS dependency/browser installation checks")
         self.assertNotIn("if", gate, "cached binaries are not cached passing results")
+
+    def test_full_gate_cannot_succeed_after_a_failed_cancelled_or_skipped_stage(self):
+        workflow = self.workflow("verify.yml")
+        workers = workflow["jobs"]["stages"]
+        self.assertEqual(workers["strategy"]["matrix"]["stage"], ["regression", "browser"])
+        self.assertEqual(workers["strategy"]["fail-fast"], "false")
+        gate = workflow["jobs"]["full-gate"]
+        self.assertEqual(gate["needs"], "stages")
+        self.assertEqual(gate["if"], "always()")
+        guard = gate["steps"][0]
+        self.assertEqual(guard["env"]["STAGE_RESULT"], "${{ needs.stages.result }}")
+        for status in ["success", "failure", "cancelled", "skipped", ""]:
+            with self.subTest(status=status):
+                result = subprocess.run(
+                    ["bash", "-c", guard["run"]], env={**os.environ, "STAGE_RESULT": status}, capture_output=True, encoding="utf-8"
+                )
+                self.assertEqual(result.returncode == 0, status == "success")
+        downloads = [s for s in gate["steps"] if "download-artifact@" in s.get("uses", "")]
+        self.assertEqual(len(downloads), 2)
+        for step in downloads:
+            self.assertIn("github.run_id", step["with"]["name"])
+            self.assertIn("github.run_attempt", step["with"]["name"])
+        for job in workflow["jobs"].values():
+            self.assertNotIn("continue-on-error", job)
+            for step in job["steps"]:
+                self.assertNotIn("continue-on-error", step)
+                if "uses" in step:
+                    self.assertRegex(step["uses"], r"^actions/[a-z-]+@[0-9a-f]{40}$")
 
     def test_source_archive_without_git_keeps_content_provenance(self):
         with tempfile.TemporaryDirectory() as folder:
