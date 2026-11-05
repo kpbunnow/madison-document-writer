@@ -20,6 +20,7 @@ const STUBS = {
 export const captureWork = () => globalThis.__stub.call("captureWork");
 export const saveDrafts = () => globalThis.__stub.call("saveDrafts");
 export const backupUnfinished = (jobs) => globalThis.__stub.call("backupUnfinished", jobs);
+export const exitWorkspaceClear = { html: () => "", confirmed: () => true, clear: async () => undefined };
 export const recoveryJobs = () => globalThis.__stub.call("recoveryJobs");`,
   "./helper_transport.js": `export const authFetch = (url, options) => globalThis.__stub.call("authFetch", url, options);`,
   "./helper_stopped.js": `export const helperStop = { stopped: false };

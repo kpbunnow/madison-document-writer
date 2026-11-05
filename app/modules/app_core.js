@@ -71,6 +71,7 @@ import { createImportEvents } from "./import_events.js";
 import { createOpenCaseList } from "./open_case_list.js";
 import { createOpenCaseEvents } from "./open_case_events.js";
 import { chooseStartScreen } from "./start_screen.js";
+import { startSession as beginSession, clearWorkspace, exitClearConfirmed, exitClearHTML, markSessionClosed } from "./session_close.js";
 import { createReinspectionEvents } from "./reinspection_events.js";
 import { createEditorEvents } from "./editor_events.js";
 import { createSpecialDocumentEvents } from "./special_document_events.js";
@@ -2347,6 +2348,18 @@ workspaceEvents.registerWorkspaceClicks();
 
 /* Durable workspace recovery starts before the application becomes editable. */
 if (document.documentElement) document.documentElement.lang = "en";
+/* Exit Document Writer clears the workspace (owner request 2026-11-05): its dialog section, its confirmation and the
+   clearing itself, run after the helper has stopped. */
+const helperInstance = () => document.querySelector('meta[name="docwriter-instance"]')?.content || "";
+const startSession = () => beginSession({ idbGet, idbSet, caseUnsaved, removeCase, saveDrafts, A11Y, render, toast, instance: helperInstance });
+export const exitWorkspaceClear = {
+  html: () => exitClearHTML(caseUnsaved),
+  confirmed: (form) => exitClearConfirmed(form, caseUnsaved),
+  clear: async () => {
+    await clearWorkspace({ removeCase, saveDrafts });
+    await markSessionClosed(idbSet);
+  },
+};
 const writerStartup = createWriterStartup(
   deferredServices(
     {
@@ -2358,6 +2371,7 @@ const writerStartup = createWriterStartup(
       markWriterReady: () => markWriterReady,
       markWriterFailed: () => markWriterFailed,
       chooseStartScreen: () => chooseStartScreen,
+      startSession: () => startSession,
       refreshArtifactLocations: () => refreshArtifactLocations,
       refreshCatalog: () => refreshCatalog,
       recordIntegrity: () => recordIntegrity,

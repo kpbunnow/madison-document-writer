@@ -31,6 +31,7 @@ const fields = [
     "restoreDrafts",
     "restorePending",
     "flushPending",
+    "startSession",
     "checkHelper",
     "scheduleRecoveryBackup",
   ],
@@ -76,6 +77,8 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
     "integrity",
     "refreshArtifactLocations",
     "flushPending",
+    // The workspace left by a session that ended without Exit is cleared before the start screen is chosen.
+    "startSession",
     "chooseStartScreen",
     "markWriterReady",
     "scheduleRecoveryBackup",
@@ -140,7 +143,7 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
     calls.map((c) => c[0]),
     order.filter((n) => !["refreshCatalog", "scheduleRecoveryBackup"].includes(n)),
   );
-  for (const checkpoint of ["restoreCaseFolder", "restorePending", "restoreDrafts", "integrity", "flushPending"]) {
+  for (const checkpoint of ["restoreCaseFolder", "restorePending", "restoreDrafts", "integrity", "flushPending", "startSession"]) {
     reset();
     pause = checkpoint;
     let done = false;
@@ -148,7 +151,7 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
     for (let i = 0; i < 10; i++) await Promise.resolve();
     assert.equal(done, false);
     assert.equal(calls.at(-1)[0], checkpoint);
-    assert.equal(s.WORKSPACE_RESTORED, ["integrity", "flushPending"].includes(checkpoint));
+    assert.equal(s.WORKSPACE_RESTORED, ["integrity", "flushPending", "startSession"].includes(checkpoint));
     assert.ok(!calls.some((c) => c[0] === "markWriterReady"));
     release();
     await pending;

@@ -258,7 +258,12 @@ if (process.argv[2] === "reports") {
       status: 409,
       body: { ok: false, error: "Document Writer is still working, so it was not stopped.", reasons: ["A PDF is being made or filed."] },
     });
+    // Exit clears the workspace (owner request 2026-11-05): unfinished work is listed and must be confirmed too.
+    assert.match(squash(dialog().querySelector("[data-exit-clear]")), /Exit removes the cases, drafts, worksheets and notes from this workspace/);
+    assert.match(squash(dialog().querySelector("[data-clear-unfinished]")), /QA-EXIT/);
+    assert.ok(dialog().querySelector('input[name="clearUnfinished"]').required);
     dialog().querySelector('input[name="acknowledged"]').checked = true;
+    dialog().querySelector('input[name="clearUnfinished"]').checked = true;
     order.length = 0;
     submit();
     await until(() => shutdowns.length === 1, "the shutdown request");
@@ -293,6 +298,7 @@ if (process.argv[2] === "reports") {
     answer = () => ({ status: 200, body: { ok: true, stopping: true } });
     await openExit();
     dialog().querySelector('input[name="acknowledged"]').checked = true;
+    dialog().querySelector('input[name="clearUnfinished"]').checked = true;
     shutdowns.length = 0;
     let released = 0,
       handoffClosed = 0;
@@ -319,6 +325,12 @@ if (process.argv[2] === "reports") {
     assert.equal(released, 1, "the stopped page releases the workspace for a new Writer");
     assert.equal(handoffClosed, 1, "the stopped page no longer handles Reports requests");
     assert.equal(WriterState.WRITER_CHANNEL, null);
+    // The workspace was cleared after the helper stopped; the case whose save confirmation is pending is kept.
+    assert.deepEqual(
+      WriterState.CASES.map((c) => c.number),
+      ["QA-EXIT"],
+    );
+    assert.ok(WriterState.DOCS.every((x) => x.caseId === k.id));
     render();
     assert.ok(document.querySelector("[data-helper-stopped]"), "a later render does not replace the stopped state");
     await assert.rejects(realAuthFetch("/cases/list"), /Document Writer has stopped/, "no helper request after the stop");
