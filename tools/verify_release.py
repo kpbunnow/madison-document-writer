@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 from release_evidence import fingerprint, source_provenance
 from release_inputs import deployment_inputs, source_inventory
 
@@ -18,14 +19,28 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Consolidation Phase 2 (T3): a new run invalidates all previous gate evidence first. DW_FAST=1 runs the same stages
 # with reduced coverage and writes only fast-verification.json, never release evidence.
 FAST = os.environ.get("DW_FAST") == "1"
-for name in ["verification.json", "repository.json", "fast-verification.json", "browser/browser-results.json", "browser/axe-results.json"]:
+for name in [
+    "verification.json",
+    "repository.json",
+    "fast-verification.json",
+    "browser/browser-results.json",
+    "browser/axe-results.json",
+    "timings.json",
+]:
     (OUT / name).unlink(missing_ok=True)
+stage_times = []
 
 
 def run(command, name, env=None):
-    with (OUT / name).open("w", encoding="utf-8") as log:
-        result = subprocess.run(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
-    if result.returncode:
+    started, passed = time.perf_counter(), False
+    try:
+        with (OUT / name).open("w", encoding="utf-8") as log:
+            result = subprocess.run(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
+        passed = result.returncode == 0
+    finally:
+        stage_times.append({"stage": name.removesuffix(".log"), "elapsedMs": round((time.perf_counter() - started) * 1000), "passed": passed})
+        (OUT / "timings.json").write_text(json.dumps({"mode": "fast" if FAST else "full", "stages": stage_times}, indent=2) + "\n", encoding="utf-8")
+    if not passed:
         raise SystemExit("Verification failed. Read " + str(OUT / name))
     print("PASS " + name, flush=True)
 

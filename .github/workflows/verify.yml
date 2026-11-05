@@ -44,10 +44,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes pandoc poppler-utils
-      - name: Install frozen dependencies and pinned Chromium
+      - name: Install frozen dependencies
         run: |
           npm ci
           python -m pip install --require-hashes -r requirements-dev.txt
+      - name: Read the pinned Playwright version
+        id: playwright
+        run: node -e "console.log('version=' + require('playwright/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Cache the pinned Chromium download
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: chromium-${{ runner.os }}-${{ runner.arch }}-playwright-${{ steps.playwright.outputs.version }}-${{ hashFiles('package-lock.json') }}
+      - name: Install pinned Chromium and its system dependencies
+        run: |
           npx playwright install --with-deps chromium
       - name: Run the full gate
         run: python tools/verify_release.py

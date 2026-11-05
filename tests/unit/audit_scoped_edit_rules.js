@@ -27,9 +27,12 @@ const assert = require("node:assert/strict"),
         },
       ],
     });
+    // Compile the identical bundle once; each invocation still executes its module initializers with fresh exports,
+    // WriterState, closures and date. Re-parsing the whole bundle for each scenario adds no isolation.
+    const instantiate = new Function("document", "today", "module", "exports", built.outputFiles[0].text);
     return (document) => {
       const box = { exports: {} };
-      new Function("document", "today", "module", "exports", built.outputFiles[0].text)(document, new Date("2026-10-28T12:00:00Z"), box, box.exports);
+      instantiate(document, new Date("2026-10-28T12:00:00Z"), box, box.exports);
       return box.exports;
     };
   }
@@ -37,6 +40,14 @@ const assert = require("node:assert/strict"),
   const dom = new JSDOM(
     '<div id="r26-details"><details open></details></div><input data-special="reviewed" type="checkbox" checked><input data-special="noSafety" type="checkbox" checked>',
   );
+  for (const compose of [current, legacy]) {
+    const first = compose(dom.window.document),
+      second = compose(dom.window.document);
+    assert.notEqual(first.WriterState, second.WriterState, "every scenario has independent module state");
+    assert.notEqual(first.initNewDocuments, second.initNewDocuments, "module closures are recreated");
+    first.WriterState.CASES = [{ id: "isolation-sentinel" }];
+    assert.deepEqual(second.WriterState, {}, "fresh module state cannot inherit another scenario's records");
+  }
   let seed = 20261101,
     checked = 0;
   const random = (n) => {

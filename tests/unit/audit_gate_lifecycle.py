@@ -1,8 +1,10 @@
 """Consolidation review: failed preflight invalidates evidence; timer teardown preserves completion and failures."""
 
 import json
+import ast
 import os
 from pathlib import Path
+from unittest import mock
 import shutil
 import subprocess
 import sys
@@ -13,6 +15,37 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class GateLifecycle(unittest.TestCase):
+    def test_stage_timings_record_success_and_failure_without_changing_fail_closed_behavior(self):
+        source = ast.parse((ROOT / "tools/verify_release.py").read_text(encoding="utf-8"))
+        run = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == "run")
+        with tempfile.TemporaryDirectory() as folder:
+            clock, process = mock.Mock(), mock.Mock()
+            clock.perf_counter.side_effect = [10, 10.125, 20, 20.5]
+            process.run.side_effect = [subprocess.CompletedProcess([], 0), subprocess.CompletedProcess([], 1)]
+            scope = {
+                "OUT": Path(folder),
+                "ROOT": ROOT,
+                "FAST": False,
+                "stage_times": [],
+                "time": clock,
+                "subprocess": process,
+                "json": json,
+                "print": mock.Mock(),
+            }
+            exec(compile(ast.Module(body=[run], type_ignores=[]), "real-verification-stage", "exec"), scope)
+            scope["run"](["synthetic-pass"], "format.log")
+            with self.assertRaisesRegex(SystemExit, "Verification failed"):
+                scope["run"](["synthetic-fail"], "regression.log")
+            report = json.loads((Path(folder) / "timings.json").read_text(encoding="utf-8"))
+            self.assertEqual(
+                report,
+                {
+                    "mode": "full",
+                    "stages": [{"stage": "format", "elapsedMs": 125, "passed": True}, {"stage": "regression", "elapsedMs": 500, "passed": False}],
+                },
+            )
+            self.assertEqual(process.run.call_count, 2)
+
     def test_failed_preflight_invalidates_evidence_but_diagnostics_are_read_only(self):
         for mode, args in (("full", []), ("fast", []), ("full", ["--check-browser-only"])):
             with self.subTest(mode=mode, args=args), tempfile.TemporaryDirectory() as tmp:
