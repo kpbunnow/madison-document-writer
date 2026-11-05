@@ -22,7 +22,7 @@ def source_provenance(root, inputs):
             ["git", "status", "--porcelain", "--untracked-files=normal"], cwd=root, capture_output=True, encoding="utf-8", check=True, timeout=5
         ).stdout
         result.update(sourceCommit=commit, sourceClean=not status.strip())
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         pass
     return result
 

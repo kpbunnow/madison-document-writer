@@ -19,7 +19,7 @@ def deployed_build(share):
 
     try:
         build = json.loads((Path(share) / "runtime-manifest.json").read_text(encoding="utf-8"))["helperBuild"]
-    except (OSError, ValueError, KeyError, TypeError):
+    except OSError, ValueError, KeyError, TypeError:
         return None
     return build if type(build) is int else None
 

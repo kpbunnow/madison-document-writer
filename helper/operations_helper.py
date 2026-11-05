@@ -54,7 +54,7 @@ def health(server, probe=False):
     try:
         manifest = json.loads(server.resource("catalog_manifest.json").read_text(encoding="utf-8"))
         catalog = manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
-    except (OSError, ValueError):
+    except OSError, ValueError:
         catalog = False
     try:
         case_lookup.settings(share)
@@ -124,7 +124,7 @@ def lock_status(folder, number="", resource=""):
         host = str(meta.get("host", "Unknown computer"))[:200]
         pid = int(meta.get("pid", 0))
         created = float(meta.get("at", stat.st_mtime))
-    except (ValueError, TypeError, AttributeError):
+    except ValueError, TypeError, AttributeError:
         host, pid, created = "Unreadable lock metadata", 0, stat.st_mtime
     local = host.casefold() in {socket.gethostname().casefold(), os.environ.get("COMPUTERNAME", "").casefold()}
     return {

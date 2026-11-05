@@ -519,7 +519,7 @@ def encoded(record):
 def event_order(event):
     try:
         stamp = parse_instant(event.get("at")).timestamp()
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         stamp = 0
     return stamp, event["id"]
 
@@ -575,7 +575,7 @@ def file_lock(folder, key, wait=5):
                 path.unlink()
             elif identity is None and json.loads(path.read_text(encoding="utf-8")).get("owner") == owner:
                 path.unlink()
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pass
 
     while True:
@@ -618,7 +618,7 @@ def file_lock(folder, key, wait=5):
         try:
             if json.loads(path.read_text(encoding="utf-8")).get("owner") == owner:
                 path.unlink(missing_ok=True)
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pass
 
 
@@ -730,7 +730,7 @@ def read_case(folder, name):
         if not isinstance(value, dict):
             raise ValueError("not a case record")
         integrity = case_integrity.verify_record(value, folder)
-    except (ValueError, RecursionError, TypeError, AttributeError, KeyError):
+    except ValueError, RecursionError, TypeError, AttributeError, KeyError:
         raise ValueError(UNREADABLE_CASE) from None
     return {"ok": True, "file": value, "integrity": integrity, "revision": digest(raw), "name": target.name}
 
@@ -1536,7 +1536,7 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
 def calendar_date(value):
     try:
         return isinstance(value, str) and datetime.date.fromisoformat(value).isoformat() == value
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return False
 
 

@@ -233,7 +233,7 @@ def season_start(day, start_month_day="07-01"):
 def within_window(prior_date, violation_date, window):
     try:
         previous, anchor = date.fromisoformat(prior_date), date.fromisoformat(violation_date)
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return False
     if previous > anchor:
         return False

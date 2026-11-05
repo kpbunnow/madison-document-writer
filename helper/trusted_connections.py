@@ -27,7 +27,7 @@ def approved_gis(url):
             and not value.password
             and value.port in (None, 443)
         )
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         raise ValueError(message) from None
     if not allowed:
         raise ValueError(message)

@@ -63,7 +63,7 @@ def shared_views(folder):
             if path.stat().st_size > 16384:
                 continue
             views.append(validate_view(json.loads(path.read_bytes())))
-        except (OSError, ValueError, TypeError):
+        except OSError, ValueError, TypeError:
             continue
     return {"ok": True, "views": views}
 

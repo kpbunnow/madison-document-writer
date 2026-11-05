@@ -24,7 +24,7 @@ def install(root):
     try:
         if marker.exists() and json.loads(marker.read_text(encoding="utf-8")) == identity:
             return {"available": True, "cached": True}
-    except (ValueError, OSError):
+    except ValueError, OSError:
         pass
     if site.exists():
         shutil.rmtree(site)

@@ -122,7 +122,7 @@ def _disturb(root, kind):
     elif kind == "symlink" and receipts:
         try:
             raw = base64.b64decode(json.loads(receipts[0].read_bytes())["pdf"])
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             raw = b"%PDF-same"
         (root / "elsewhere.pdf").write_bytes(raw)
         folder = root / "share" / FakeServer.OUTDIR_NAME

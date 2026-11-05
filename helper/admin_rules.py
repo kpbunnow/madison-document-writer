@@ -86,7 +86,7 @@ def verify_override(folder, snap, citation):
     path = Path(folder) / "_administration/deposit-overrides" / (basis["authorizationId"] + ".json")
     try:
         receipt = json.loads(path.read_text(encoding="utf-8"))
-    except (ValueError, OSError):
+    except ValueError, OSError:
         raise ValueError("Administrator override authorization receipt is missing or damaged") from None
     if receipt != basis:
         raise ValueError("Administrator override receipt does not match this citation")

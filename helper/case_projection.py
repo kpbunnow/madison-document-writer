@@ -1050,7 +1050,7 @@ def json_text(value):
 def same_json(a, b):
     try:
         return json_text(a) == json_text(b)
-    except (rfc8785.CanonicalizationError, TypeError, ValueError):
+    except rfc8785.CanonicalizationError, TypeError, ValueError:
         return False
 
 

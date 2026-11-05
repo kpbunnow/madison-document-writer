@@ -36,7 +36,7 @@ def validate_letter(letter, review_required=False):
     if review_required or letter.get("reviewedOn"):
         try:
             date.fromisoformat(letter["reviewedOn"])
-        except (ValueError, TypeError, KeyError):
+        except ValueError, TypeError, KeyError:
             raise ValueError("Enter the seasonal-content review date") from None
     if (
         not isinstance(letter.get("sites"), list)
@@ -79,7 +79,7 @@ def _validate_snow_observations(facts, snap):
     try:
         fall = date.fromisoformat(facts["snowfallDate"])
         inspected = date.fromisoformat(snap["inspDate"])
-    except (KeyError, TypeError, ValueError):
+    except KeyError, TypeError, ValueError:
         raise ValueError("Enter the snowfall date and inspection date") from None
     value = facts.get("inches")
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:

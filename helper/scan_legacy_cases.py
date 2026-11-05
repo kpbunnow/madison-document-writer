@@ -20,7 +20,7 @@ def scan(folder):
                 rows.append({"file": path.name, "number": number, "key": key, "issue": "Legacy spelling; preserved"})
             else:
                 rows.append({"file": path.name, "number": number, "key": key, "issue": ""})
-        except (OSError, ValueError, KeyError, TypeError):
+        except OSError, ValueError, KeyError, TypeError:
             rows.append({"file": path.name, "number": "", "key": "", "issue": "Unreadable record or invalid number; review required"})
     counts = {}
     for row in rows:

@@ -362,7 +362,7 @@ def helper_version(timeout=2):
     """The version a helper on the port reports through its public readiness route, or None."""
     try:
         return local_status(timeout).get("version")
-    except (OSError, ValueError, http.client.HTTPException):
+    except OSError, ValueError, http.client.HTTPException:
         return None  # Nothing listening yet, or a program that does not speak HTTP.
 
 

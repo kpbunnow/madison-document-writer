@@ -49,7 +49,7 @@ def protected_folder(folder):
         if not path.is_absolute() or path.resolve() == Path(folder).resolve() or Path(folder).resolve() in path.resolve().parents:
             return None
         return path if path.is_dir() else None
-    except (OSError, ValueError, KeyError, TypeError):
+    except OSError, ValueError, KeyError, TypeError:
         return None
 
 
@@ -211,7 +211,7 @@ class VerificationContext:
         def read_summary(path):
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
+            except OSError, ValueError:
                 return None
 
         for summary in ordered_reads(sorted((self.folder / "Reporting Index").glob("*.json")), read_summary, summary_workers):
@@ -388,7 +388,7 @@ def reconstruct_registry(folder):
             record = json.loads(read_plain_bytes(path).decode("utf-8"))
             if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
                 register_migration(root, record, path.name, reconstructed=True)
-        except (OSError, ValueError, KeyError, TypeError):
+        except OSError, ValueError, KeyError, TypeError:
             continue  # reads expose failures; never repair corrupt files
 
 
@@ -602,7 +602,7 @@ def anchored_today(folder):
     try:
         status = json.loads((Path(folder) / "_integrity" / "anchor-status.json").read_text(encoding="utf-8"))
         return status.get("anchored") is True and city_day(status["at"]) == city_day()
-    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+    except OSError, ValueError, TypeError, KeyError, AttributeError:
         return False
 
 
@@ -615,7 +615,7 @@ def anchor_after_save(folder, force=False):
         result = anchor_daily(folder)
     except ValueError:
         result = {"anchored": False, "reason": "Integrity anchoring needs administrator review; protected evidence was preserved"}
-    except (OSError, RuntimeError, AttributeError, TypeError, KeyError, IndexError, RecursionError):
+    except OSError, RuntimeError, AttributeError, TypeError, KeyError, IndexError, RecursionError:
         result = {"anchored": False, "reason": "Protected anchoring is pending; contact IT if it continues"}
     try:
         from case_store import atomic_write
@@ -635,7 +635,7 @@ def anchor_health(folder):
     if folder:
         try:
             registry(folder)
-        except (ValueError, OSError):
+        except ValueError, OSError:
             return "Migration registry is damaged; contact an administrator"
     if not SETTINGS.exists():
         return "WARNING: no external anchor configured; the migration registry is on the same share. IT must choose a protected destination"
@@ -644,7 +644,7 @@ def anchor_health(folder):
             status = json.loads((Path(folder) / "_integrity/anchor-status.json").read_text(encoding="utf-8"))
             if not status.get("anchored"):
                 return status.get("reason", "Anchoring needs administrator review")
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pass
         return "Configured and reachable"
     return "Configured destination unavailable or invalid; not externally anchored"
