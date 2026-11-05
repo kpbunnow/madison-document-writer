@@ -14,6 +14,7 @@ previous deployment is put back.
 
 import argparse
 import datetime
+import os
 import shutil
 import sys
 import tempfile
@@ -21,9 +22,33 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from verified_update import DATA_DIRS, DATA_FILES, safe_relative, stage_update  # noqa: E402
+from verified_update import DATA_DIRS, DATA_FILES, _is_link, safe_relative, stage_update  # noqa: E402
 
 PREVIOUS = Path("replaced-by-this-release")
+OPERATIONAL_ROOTS = {name.casefold() for name in DATA_DIRS | DATA_FILES}
+
+
+def _operational(name):
+    return Path(name).parts[0].casefold() in OPERATIONAL_ROOTS
+
+
+def _enumeration_error(error):
+    raise error
+
+
+def _checked_target(target):
+    """Do not follow a program-directory link/junction while retiring, copying or rolling back files. Operational
+    roots are deliberately neither traversed nor installed; parents above the deployment are not inspected."""
+    if _is_link(target):
+        raise ValueError("The deployment target is a link or reparse point")
+    for current, directories, files in os.walk(target, followlinks=False, onerror=_enumeration_error):
+        current = Path(current)
+        if current == target:
+            directories[:] = [name for name in directories if not _operational(name)]
+            files = [name for name in files if not _operational(name)]
+        for name in directories + files:
+            if _is_link(current / name):
+                raise ValueError("The deployment contains a link or reparse point: " + str((current / name).relative_to(target)))
 
 
 def _checked_release(source):
@@ -35,7 +60,7 @@ def _checked_release(source):
         manifest = stage_update(source, Path(tmp) / "stage", Path(tmp) / "local")
     names = [safe_relative(name) for name in manifest["files"]]
     for name in names:
-        if Path(name).parts[0] in DATA_DIRS or name in DATA_FILES:
+        if _operational(name):
             raise ValueError("The release manifest lists an operational path: " + name)
     return set(names)
 
@@ -43,9 +68,10 @@ def _checked_release(source):
 def plan(source, target):
     """Return (items to retire, files to copy) for applying source's verified manifest to target."""
     wanted = _checked_release(source) | {"runtime-manifest.json"}
+    _checked_target(target)
     retire = []
     for item in sorted(target.iterdir()) if target.exists() else []:
-        if item.name in DATA_DIRS or item.name in DATA_FILES:
+        if _operational(item.name):
             continue
         if item.is_dir():
             for f in sorted(item.rglob("*")):
@@ -72,9 +98,15 @@ def _restore(target, archive, journal):
 
 
 def apply(source, target, retire, wanted, stamp=None):
-    _checked_release(source)
+    expected_retire, expected_wanted = plan(source, target)
+    if sorted(retire) != sorted(expected_retire) or sorted(wanted) != expected_wanted:
+        raise ValueError("The deployment plan changed; review a fresh plan before applying")
     stamp = stamp or datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     archive = target.parent / (target.name + "-retired-" + stamp)
+    if archive.exists() or archive.is_symlink():
+        raise ValueError("The deployment archive already exists; choose a fresh archive")
+    if any(Path(rel).parts[0].casefold() == str(PREVIOUS).casefold() for rel in retire):
+        raise ValueError("A retired item conflicts with the reserved archive path")
     journal = []
     try:
         for rel in retire:

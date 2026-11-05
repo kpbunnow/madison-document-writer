@@ -7,7 +7,11 @@ const assert = require("node:assert/strict"),
 (async () => {
   const dir = path.resolve("app/modules");
   const built = await esbuild.build({
-    stdin: { contents: "export * from './session_close.js';export {WriterState} from './state.js';", resolveDir: dir },
+    stdin: {
+      contents:
+        "export * from './session_close.js';export {WriterState} from './state.js';export {createCaseWorkspaceActions} from './case_workspace_actions.js';export {createWorkingPapers} from './working_papers.js';export {createDraftPersistence} from './draft_persistence.js';",
+      resolveDir: dir,
+    },
     bundle: true,
     format: "cjs",
     write: false,
@@ -48,7 +52,10 @@ const assert = require("node:assert/strict"),
       if (id === "held") return false; // a pending save confirmation keeps the case
       s.CASES = s.CASES.filter((k) => k.id !== id);
     },
-    saveDrafts: async () => calls.push(["save"]),
+    saveDrafts: async () => {
+      calls.push(["save"]);
+      return true;
+    },
     idbGet: async (key) => store[key],
     idbSet: async (key, value) => {
       store[key] = value;
@@ -135,6 +142,50 @@ const assert = require("node:assert/strict"),
   assert.match(dialogs[0].body, /BI-RISKY: unfinished drafts/);
   assert.match(dialogs[0].body, /name="clearUnfinished" required/);
   assert.match(dialogs[0].body, /data-workbackup/);
+  // Use the actual capture/save/removal owners: clearing must not recapture the still-visible import input,
+  // and one refused IndexedDB write must preserve all live work and the earlier durable bundle.
+  const { createCaseWorkspaceActions, createWorkingPapers, createDraftPersistence } = box.exports;
+  for (const accepted of [true, false]) {
+    reset([safe]);
+    Object.assign(s, {
+      WRITER_ACCESS: true,
+      WORKSPACE_RESTORED: true,
+      LOCAL_SAVE_CHAIN: Promise.resolve(),
+      LOCAL_CHANGED: 0,
+      LOCAL_SAVE: {},
+      RECORD_ATTEMPTS: {},
+      SAVE_CHECKPOINTS: {},
+      EVENTS: {},
+    });
+    s.state.screen = "import";
+    s.WORK.entry = { "lookup-number": "QA-RETAINED" };
+    const before = structuredClone({ cases: s.CASES, work: s.WORK });
+    const captured = createWorkingPapers({ document: { getElementById: () => ({ value: "QA-RETAINED" }) }, ENTRY_IDS: ["lookup-number"] });
+    const writes = [];
+    const persistence = createDraftPersistence({
+      captureWork: captured.captureWork,
+      updateSaveStatus() {},
+      recordIntegrity: { snapshot: () => ({}) },
+      scheduleRecoveryBackup() {},
+      idbSet: async (_, value) => {
+        writes.push(value);
+        return accepted;
+      },
+    });
+    const actions = createCaseWorkspaceActions({ saveDrafts: persistence.saveDrafts, clearWalk() {}, toast() {} });
+    const clear = () => clearWorkspace({ removeCase: actions.removeCase, saveDrafts: persistence.saveDrafts });
+    if (accepted) {
+      assert.equal(await clear(), 0);
+      assert.deepEqual(writes.at(-1).work.entry, {}, "the import DOM cannot resurrect cleared work");
+      assert.equal(writes.length, 1, "the complete clear is one acknowledged draft write");
+    } else {
+      await assert.rejects(clear, /could not.*clear/i);
+      assert.deepEqual(s.CASES, before.cases);
+      assert.deepEqual(s.WORK, before.work);
+      assert.equal(s.state.screen, "import");
+    }
+  }
+  await assert.rejects(() => markSessionClosed(async () => false), /session/i);
   console.log("PASS workspace cleared on close: Exit confirmation, startup after an unclean close, held cases and queued saves kept");
 })().catch((error) => {
   console.error(error);

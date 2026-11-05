@@ -366,6 +366,15 @@ class InspectorCaseTests(unittest.TestCase):
     def index_file(self, number):
         return self.root / "Case JSON Files" / "Reporting Index" / (number.lower() + ".json")
 
+    def test_linked_case_without_summary_is_unknown_not_no_order(self):
+        folder = self.root / "Case JSON Files"
+        folder.mkdir()
+        number = "CB2026-241-00001"
+        outside = self.root / "outside.json"
+        outside.write_text("do not read", encoding="utf-8")
+        (folder / ("TEST ROAD - " + number + ".json")).symlink_to(outside)
+        self.assertEqual(cases.due_dates(folder, [number])[number], ("unknown", ""))
+
     def test_due_dates_come_only_from_verified_current_summaries(self):
         # MCR-002: a date is shown only from a summary that names the current case revision, whose case verifies and
         # whose projection equals the summary. Anything that cannot be confirmed is "unknown", never "no order".

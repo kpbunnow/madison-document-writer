@@ -93,7 +93,7 @@ export function createCaseWorkspaceActions(services) {
     return newest > k.savedAt ? "changes made since the last save" : "";
   }
 
-  function removeCase(cid) {
+  function removeCase(cid, { persist = true } = {}) {
     if (Object.values(editor.RECORD_ATTEMPTS).some((x) => x.cid === cid) || docsFor(cid).some((x) => x.pendingAmendment)) {
       services.toast("Confirm pending record saves before removing this case from this workspace.");
       return false;
@@ -106,7 +106,7 @@ export function createCaseWorkspaceActions(services) {
     dropRecordForms(docIds);
     delete workspace.EVENTS[cid];
     if (editor.state.docId && !doc(editor.state.docId)) editor.state.docId = null;
-    services.saveDrafts();
+    if (persist) services.saveDrafts();
   }
 
   function clearCases(which) {

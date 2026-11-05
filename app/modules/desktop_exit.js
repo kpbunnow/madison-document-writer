@@ -70,16 +70,19 @@ async function settleRecoveryCopy() {
 
 /* The workspace is cleared when Document Writer closes (owner request 2026-11-05), once the helper has stopped. Device
    storage does not need the helper. A failure keeps the work and is reported on the stopped page by the next start. */
+let clearFailure = "";
 async function clearOnClose() {
+  clearFailure = "";
   try {
     await exitWorkspaceClear.clear();
   } catch (error) {
-    /* The next start finds the session still open and offers to clear it. */
+    clearFailure = error.message || "This device could not save the workspace clear. Reopen Document Writer to review your work.";
   }
 }
 
 function stoppedDetails() {
   const details = ["Drafts saved on this device stay on this device."];
+  if (clearFailure) details.push(clearFailure);
   const queued = [];
   if (workspace.PENDING.length) queued.push(plural(workspace.PENDING.length, "shared save"));
   if (startup.HELPER?.outbox) queued.push(plural(startup.HELPER.outbox, "PDF transfer"));
