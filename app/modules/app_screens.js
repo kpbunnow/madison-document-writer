@@ -255,6 +255,50 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
   };
 }
 
+/** Keep a focused recipient control through a passive repaint, never through a changed context or model value. */
+function keepRecipientField(services, editingDoc, active) {
+  const key =
+    editor.state.modal === "cc" &&
+    editingDoc &&
+    active?.tagName === "INPUT" &&
+    active?.closest?.("#overlay .modal") &&
+    !active.disabled &&
+    !active.readOnly &&
+    ["cc", "agent", "em"].find((key) => active.hasAttribute("data-" + key));
+  if (!key || services.isLocked(editingDoc)) return { swap() {}, restore() {} };
+  const docId = editor.state.docId,
+    identity = active.dataset[key],
+    start = active.selectionStart,
+    end = active.selectionEnd;
+  let kept = false;
+  return {
+    swap() {
+      const current = doc(docId);
+      if (editor.state.modal !== "cc" || editor.state.docId !== docId || !current || services.isLocked(current)) return;
+      const replacement = [...services.document.querySelectorAll("#overlay [data-" + key + "]")].find(
+        (field) => field.dataset[key] === identity && field.tagName === active.tagName && field.type === active.type,
+      );
+      if (
+        !replacement ||
+        replacement.disabled ||
+        replacement.readOnly ||
+        replacement.value !== active.value ||
+        replacement.checked !== active.checked
+      )
+        return;
+      for (const attribute of [...active.attributes]) active.removeAttribute(attribute.name);
+      for (const attribute of replacement.attributes) active.setAttribute(attribute.name, attribute.value);
+      replacement.replaceWith(active);
+      kept = true;
+    },
+    restore() {
+      if (!kept || !active.isConnected) return;
+      active.focus({ preventScroll: true });
+      if (typeof start === "number" && typeof active.setSelectionRange === "function") active.setSelectionRange(start, end);
+    },
+  };
+}
+
 function screenHTML(services) {
   switch (editor.state.screen) {
     case "cases":
@@ -305,6 +349,7 @@ export function createAppScreens(services) {
     const sameDocument = editor.state.screen === "write" && previous?.dataset.editorDoc === editor.state.docId;
     const editingDoc = sameDocument ? doc(editor.state.docId) : null;
     const liveField = keepLiveField(services, editingDoc, previous, active, appRoot);
+    const recipientField = keepRecipientField(services, editingDoc, active);
     const openDetails = keepOpenDetails(services, sameDocument, previous);
     const openPricing = keepOpenPricing(services, sameDocument, previous);
     const snowFocus = keepSnowFocus(services, sameDocument, previous, active);
@@ -318,6 +363,7 @@ export function createAppScreens(services) {
     if (appRoot?.dataset) appRoot.dataset.renderScreen = editor.state.screen;
     if (openedFromImport) services.window.scrollTo(0, 0);
     services.document.getElementById("overlay").innerHTML = services.overlayHTML();
+    recipientField.swap();
     if (editor.state.screen === "write") {
       services.paginate();
       services.editorEnhance();
@@ -342,6 +388,7 @@ export function createAppScreens(services) {
     }
     restoreLanguageFocus(services.app_languagediscoveryContext(), languageFocus);
     liveField.restore();
+    recipientField.restore();
   }
 
   function renderKeep() {
