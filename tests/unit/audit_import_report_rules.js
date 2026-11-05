@@ -189,7 +189,9 @@ async function battery(api) {
     "readAccelaFile",
     "pickAccelaFile",
   ]);
-  out.push(Object.keys(owner).filter((k) => !REMOVED.has(k)));
+  // The import window (owner-approved, 2026-11-05) adds its overlay renderer; the retained original has no window.
+  const ADDED = new Set(["importWindowHTML"]);
+  out.push(Object.keys(owner).filter((k) => !REMOVED.has(k) && !ADDED.has(k)));
   for (const key of ["ACC_COLS", "ACC_REQUIRED", "ACC_CASEFIELDS", "SQL_COLUMNS"]) out.push(owner[key]);
   out.push(Object.keys(owner.ACC_COLS).map(owner.ACC_LABEL));
   seed = 7777;

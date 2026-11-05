@@ -403,7 +403,7 @@ function lookupCard() {
           ? '<button class="btn" type="button" id="acc-cancel">Clear search</button>'
           : "",
     ),
-  )}\n  </form>\n  <p class="hint">Uses your Windows account. A single eligible initial inspection opens a draft notice when all checks pass. Multiple or later results open for review. Your search and review can be saved for later.</p>\n  <div role="status" aria-live="polite">${raw("".concat(imports.LOOKUP_ERROR ? `<div class="banner alert"><div>${esc(imports.LOOKUP_ERROR)}</div></div>` : ""))}</div>\n  </div></div>`;
+  )}\n  </form>\n  <p class="hint">Uses your Windows account. The available inspections open in a window: review the inspection, then confirm the import, or choose Exit to return. Your search and review can be saved for later.</p>\n  </div></div>`;
 }
 
 function cancelCaseLookup() {
@@ -800,6 +800,27 @@ function importPanelHTML(services, acc, p) {
   return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${k?.address || p.f.address}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : ""))}\n    ${raw(caseChangeDetails(k, p))}\n    ${raw(importSourceDetails(acc, p))}\n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "")}${raw(visibleBlockers.length ? ' aria-describedby="' + BLOCKERS_ID + '"' : "")}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
 }
 
+/* The import window: opened by selecting an open case or by Find Case Inspections, it shows the lookup while it runs,
+   its failure, or the available inspections with the import confirmation. Exit cancels a running lookup, clears the
+   retrieved case and returns to the open cases and the case-number entry. */
+const SINGLE_INSPECTION = '<p class="hint">One inspection is available. Review it and confirm the import.</p>';
+
+function importDialogBody(review) {
+  if (editor.state.acc) return review();
+  if (imports.LOOKUP_BUSY) return '<p role="status" aria-live="polite">Finding the available inspections…</p>';
+  return html`<div role="status" aria-live="polite"><div class="banner alert"><div>${imports.LOOKUP_ERROR}</div></div></div>`;
+}
+
+const importDialogOpen = () => !!(imports.LOOKUP_BUSY || imports.LOOKUP_ERROR || editor.state.acc);
+const SAVE_WORK = '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>';
+
+function importDialogHTML(review) {
+  if (!importDialogOpen()) return "";
+  const acc = editor.state.acc,
+    number = acc?.cases?.[acc.caseIx || 0]?.number || editor.WORK.entry["lookup-number"] || "";
+  return html`<div class="modal import-dialog" data-import-dialog><div class="modal-box" role="dialog" aria-modal="true"><div class="modal-h"><h2>Inspections for ${number || "this case"}</h2></div><div class="modal-b">${raw(importDialogBody(review))}</div><div class="modal-f">${raw(SAVE_WORK)}<button class="btn" type="button" id="acc-exit">Exit</button></div></div></div>`;
+}
+
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, report parsing, import candidates,
    the review plan and panel, the direct database lookup and acceptance. */
@@ -902,13 +923,18 @@ export function createAccelaImport(services) {
     return importPanelHTML(services, acc, accelaPlan(acc));
   }
 
+  // The import window is drawn in the page's dialog layer (overlay), above the Import inspection screen.
+  function importWindowHTML() {
+    return importDialogHTML(() => (lookupCanOpen(editor.state.acc) ? SINGLE_INSPECTION : "") + accelaPanel());
+  }
+
   function screenImport(before = "") {
     const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
     return services.shell(
       "Import inspection",
       "Bring in case details",
-      '<button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button>',
-      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      ${raw(editor.state.acc ? accelaPanel() : "")}\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
+      importDialogOpen() ? "" : SAVE_WORK, // while the import window is open it carries this action
+      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
     );
   }
 
@@ -1015,14 +1041,11 @@ export function createAccelaImport(services) {
     editor.WORK.acc = clone(acc);
     if (!(await services.saveDrafts()))
       throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
-    if (active() && !acc.shareError && lookupCanOpen(acc)) {
-      LOOKUP_READY.add(acc);
-      try {
-        acceptAccela();
-      } finally {
-        LOOKUP_READY.delete(acc);
-      }
-    } else if (active()) services.toast("Case retrieved — review the inspection and details");
+    // Every result opens in the import window for review; nothing is imported until the inspector confirms it.
+    if (active())
+      services.toast(
+        lookupCanOpen(acc) ? "One inspection is available — review it and confirm the import" : "Case retrieved — review the inspection and details",
+      );
   }
 
   async function findDatabaseCase() {
@@ -1148,6 +1171,7 @@ export function createAccelaImport(services) {
     accelaFromShare,
     baseLookupAccept,
     screenImport,
+    importWindowHTML,
     openImportWorkspace,
     lookupCard,
     cancelCaseLookup,

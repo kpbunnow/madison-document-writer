@@ -98,8 +98,10 @@ const test = async function () {
   helperJSON = async () => ({ ok: true, files: [] });
   global.fetch = async () => ({ ok: true, json: async () => response() });
   await findDatabaseCase();
+  ok("Find case opens the review window and creates nothing yet", WriterState.CASES.length === 0 && !!WriterState.state.acc);
+  await confirmDatabaseCase();
   ok(
-    "Find case creates exactly one draft and no issued event",
+    "Confirming the single inspection creates exactly one draft and no issued event",
     WriterState.CASES.length === 1 && WriterState.DOCS.length === 1 && WriterState.DOCS[0].draft && eventsFor(WriterState.CASES[0].id).length === 0,
   );
   ok("Accepted lookup retains database and query provenance", WriterState.CASES[0].accela.source.database === "CityData");

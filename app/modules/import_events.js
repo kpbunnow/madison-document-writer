@@ -2,6 +2,17 @@ import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 /* Import event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
+// The import window's Exit: stop a running lookup, drop the retrieved case and its message, and return to the open
+// cases and the case-number entry; the number stays in the field so it can be corrected and searched again.
+function exitImportWindow(services) {
+  services.cancelCaseLookup();
+  editor.state.acc = null;
+  editor.WORK.acc = null;
+  imports.LOOKUP_ERROR = "";
+  services.render();
+  services.saveDrafts();
+}
+
 export function createImportEvents(services) {
   function registerLookupSubmit(target = document) {
     return registerEventOnce(target, "import.registerLookupSubmit", "submit", (e) => {
@@ -30,6 +41,7 @@ export function createImportEvents(services) {
           services.render();
           return;
         }
+        if (button.id === "acc-exit") return exitImportWindow(services);
         if (button.id === "lookup-recheck") {
           services.confirmDatabaseCase();
           return;
@@ -52,7 +64,6 @@ export function createImportEvents(services) {
     imports.LOOKUP_ERROR = "";
     services.render();
     services.saveDrafts();
-    return;
   };
 
   const acceptImport = () => {

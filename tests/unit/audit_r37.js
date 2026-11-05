@@ -68,10 +68,13 @@ const test = async () => {
   assert.deepEqual(plan.blockers, []);
   assert.equal(plan.next, "snow");
   assert.ok(lookupCanOpen(acc));
-  // Find case advances in one step to the snow citation draft with the 10.28 item.
+  // Find case opens the import window; confirming the one inspection advances to the snow citation draft with the
+  // 10.28 item.
   reset();
   global.fetch = async () => ({ ok: true, json: async () => response([row]) });
   await findDatabaseCase();
+  assert.equal(WriterState.CASES.length, 0, "nothing is imported before the inspector confirms");
+  await confirmDatabaseCase();
   assert.equal(WriterState.CASES.length, 1);
   assert.equal(WriterState.CASES[0].caseType, "snow-10.28");
   assert.equal(WriterState.DOCS.length, 1);

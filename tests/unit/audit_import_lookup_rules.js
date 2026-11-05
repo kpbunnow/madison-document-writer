@@ -289,12 +289,14 @@ async function run(api, sc, inspector) {
     const parsed = JSON.parse(after);
     if (parsed.error) interrupted++;
     if (parsed.docs.length) opened++;
-    if (parsed.calls.some((c) => c.startsWith('toast(["Case retrieved'))) reviewed++;
+    if (parsed.calls.some((c) => c.startsWith('toast(["Case retrieved') || c.startsWith('toast(["One inspection is available'))) reviewed++;
     if (parsed.lookup[1].includes("timed out")) timedOut++;
     seen.add(parsed.lookup[1].slice(0, 40));
     for (const call of parsed.calls) seen.add(call.split("(")[0].replace(/^get /, ""));
   }
-  for (const name of ["captureWork", "saveDrafts", "helperJSON", "loadCaseFile", "COMMITTED.set", "scheduleDraftSave", "toast", "render", "newDoc"])
+  // Owner change 2026-11-05: a lookup only retrieves the case for the import window; nothing is imported, and no
+  // document is started, until the inspector confirms it there (confirmation is covered by the acceptance suite).
+  for (const name of ["captureWork", "saveDrafts", "helperJSON", "loadCaseFile", "COMMITTED.set", "toast", "render"])
     assert.ok(seen.has(name), "scenarios reach " + name);
   for (const text of [
     "Enter a complete case number",
@@ -310,7 +312,7 @@ async function run(api, sc, inspector) {
       "scenarios reach: " + text,
     );
   assert.ok(
-    interrupted > 50 && opened > 30 && reviewed > 100 && timedOut > 50,
+    interrupted > 50 && opened === 0 && reviewed > 100 && timedOut > 50,
     `coverage: ${interrupted} interrupted, ${opened} opened, ${reviewed} reviewed, ${timedOut} timed out`,
   );
   console.log(
