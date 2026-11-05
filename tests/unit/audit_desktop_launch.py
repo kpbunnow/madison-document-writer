@@ -310,6 +310,24 @@ class Desktop(unittest.TestCase):
                 self.assertIs(kwargs["stderr"], subprocess.DEVNULL)
                 self.assertTrue(kwargs["close_fds"])
                 self.assertFalse(kwargs["start_new_session"])
+
+    def test_session_privacy_uses_matching_system_powershell_modules(self):
+        inherited = "synthetic-powershell-7-modules;synthetic-user-modules"
+        system = str(self.root / "Windows")
+        with patch.dict(os.environ, {"SystemRoot": system, "PSModulePath": inherited}):
+            for create in (False, True):
+                with patch.object(helper_session.subprocess, "run") as run:
+                    helper_session.windows_privacy(self.root / "session.json", create=create)
+                command = run.call_args.args[0]
+                options = run.call_args.kwargs
+                expected = Path(system) / "System32/WindowsPowerShell/v1.0"
+                self.assertEqual(command[0], str(expected / "powershell.exe"))
+                self.assertEqual(options["env"]["PSModulePath"], str(expected / "Modules"))
+                self.assertEqual(os.environ["PSModulePath"], inherited, "Only the privacy subprocess environment changes")
+                self.assertEqual(options["env"]["DW_SESSION_CREATE"], "1" if create else "0")
+                self.assertIn("SetAccessRuleProtection($true,$false)", command[-1])
+                self.assertIn("S-1-5-18", command[-1])
+                self.assertTrue(options["check"])
                 self.assertEqual(popen.call_args.args[0], [sys.executable, "-B", str(self.local / "server.py")])
                 self.assertEqual(kwargs["env"], {"DW_PORT": "8777"})
         self.assertEqual(seen, {"pip": NO_WINDOW, "acl": NO_WINDOW, "pdf": NO_WINDOW, "outlook": NO_WINDOW})
