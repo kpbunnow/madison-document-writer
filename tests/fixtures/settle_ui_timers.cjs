@@ -46,8 +46,16 @@ global.clearInterval = function (handle) {
   return native.clearInterval(handle);
 };
 
-async function drain() {
+async function drain(window) {
   for (let round = 0; round < 10000; round++) {
+    // jsdom 31 uses an owned interval for a pending focus/rendering update. Let that real frame finish and
+    // clear itself before testing for leaked application intervals; do not cancel or ignore any interval.
+    if (window?.document && typeof window.requestAnimationFrame === "function") {
+      await new Promise((resolve) => {
+        // A closed jsdom window returns zero without scheduling a callback.
+        if (window.requestAnimationFrame(resolve) === 0) resolve();
+      });
+    }
     await new Promise((resolve) => native.setImmediate(resolve));
     // Unreferenced timers never keep the process alive, so they are neither waited for nor run.
     const live = [...pending.entries()].filter(([handle]) => !handle.hasRef || handle.hasRef());
@@ -71,7 +79,7 @@ async function drain() {
 /* completion: the suite's eval result. A rejection is not handled here, so it still fails the suite. */
 function settle(completion, window) {
   return Promise.resolve(completion)
-    .then(drain)
+    .then(() => drain(window))
     .then(() => window?.close?.());
 }
 

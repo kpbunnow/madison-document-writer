@@ -506,3 +506,5 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 ## Native Windows interruption and recovery
 
 `tests/windows/interruption_recovery.py` and `tests/windows/browser_recovery.cjs` run actual process-death, NTFS, loopback SMB and persistent-profile recovery tests through the Windows recovery workflow. They supplement the complete required gate; portable runs are explicitly not native evidence. See [Windows recovery tests](../docs/developer/WINDOWS-RECOVERY-TESTS.md) for scenarios, evidence requirements and City/hardware acceptance limits.
+
+`audit_ui_timer_settlement.js` runs isolated positive and negative teardown checks: real DOM focus/render completion, every short/long callback, leaked application-interval refusal, callback failure and completion rejection. It preserves the original timer guard while adapting to jsdom31's pending rendering interval.
