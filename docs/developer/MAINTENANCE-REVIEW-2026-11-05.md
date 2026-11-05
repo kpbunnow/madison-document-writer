@@ -28,6 +28,8 @@ The new close-session workflow could repopulate its cleared import entry from th
 
 Clearing now performs case removals without intermediate draft writes, prevents stale editing controls from being captured, and persists the final clear once. A refused write restores live cases, documents, events, forms and view context and leaves the prior durable bundle in place. The session is marked closed only after clearing succeeds and its own marker write acknowledges. Startup clearing displays errors in its existing dialog; Exit displays a clear failure on the stopped page. Pending record confirmations, queued shared writes and the outbox remain protected.
 
+Repeated confirmations share the same in-flight clear, and its pending autosave timer is cancelled before temporary state changes. A composed failure test showed that two independent refused clears otherwise restored different snapshots and lost live cases. The regression now verifies one write, cancelled autosave, retained work for both callers and a successful retry after refusal.
+
 Targeted regression coverage includes a successful composed clear, refused persistence with retained work, failed session-marker acknowledgement, target links, a changed deployment plan and an existing archive. Existing tests for recovery, inspector exclusions/verified dues, helper visit/spacing/mandatory drafts, report facts/model/catalog, readiness, record-form cleanup, timeline and desktop exit remain applicable.
 
 ## Evidence and limits
