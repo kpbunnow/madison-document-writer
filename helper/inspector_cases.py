@@ -301,7 +301,9 @@ def due_dates(case_dir, numbers):
     summaries = {p.name.casefold(): p for p in plain_json_files(folder)} if folder.is_dir() else {}
     wanted = {case_store.case_number_key(n) for n in numbers}
     cases = {}
-    for path in plain_json_files(Path(case_dir)):
+    # A linked/non-regular case entry is still evidence that this is not a never-saved case. Include its name so the
+    # no-follow reader reports unknown, rather than silently treating the skipped entry as "no order".
+    for path in Path(case_dir).glob("*.json"):
         key = case_store.case_file_key(path)
         if key in wanted and not path.name.startswith("_"):
             cases.setdefault(key, []).append(path)

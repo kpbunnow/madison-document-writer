@@ -2,6 +2,7 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { nowISO } from "./calendar.js";
 import { html, raw } from "./screen_html.js";
+import { clone } from "./record_values.js";
 
 /* Owner request 2026-11-05: the workspace is cleared every time Document Writer closes. Exit Document Writer clears it
    after the helper stops; a session that ended without Exit (window closed, PC shut down) is cleared at the next start.
@@ -25,18 +26,40 @@ const hasWorkspace = () => workspace.CASES.length > 0 || !!editor.state.acc || !
 
 /* Remove every case from the workspace (removeCase keeps one with a pending save confirmation), and the import work. */
 export async function clearWorkspace({ removeCase, saveDrafts }) {
-  workspace.CASES.slice().forEach((k) => removeCase(k.id));
-  editor.state.acc = null;
-  editor.WORK.acc = null;
-  editor.WORK.entry = {};
-  editor.state.docId = null;
-  editor.state.reinspId = null;
-  await saveDrafts();
-  return workspace.CASES.length;
+  const before = {
+    cases: workspace.CASES,
+    docs: workspace.DOCS,
+    reinsp: workspace.REINSP,
+    events: workspace.EVENTS,
+    work: editor.WORK,
+    state: { ...editor.state },
+  };
+  editor.WORK = clone(editor.WORK);
+  workspace.EVENTS = { ...workspace.EVENTS };
+  try {
+    // Hide stale editing controls from captureWork before the single final draft snapshot. Individual removals
+    // must not publish intermediate clears: a refused final write must leave the old durable workspace intact.
+    Object.assign(editor.state, { screen: "cases", modal: null, acc: null });
+    workspace.CASES.slice().forEach((k) => removeCase(k.id, { persist: false }));
+    editor.state.docId = null;
+    editor.state.reinspId = null;
+    editor.WORK.acc = null;
+    editor.WORK.entry = {};
+    if (!(await saveDrafts())) throw new Error("This device could not save the workspace clear. Your work was kept; try again or download a backup.");
+    return workspace.CASES.length;
+  } catch (error) {
+    workspace.CASES = before.cases;
+    workspace.DOCS = before.docs;
+    workspace.REINSP = before.reinsp;
+    workspace.EVENTS = before.events;
+    editor.WORK = before.work;
+    Object.assign(editor.state, before.state);
+    throw error;
+  }
 }
 
 export async function markSessionClosed(idbSet) {
-  await idbSet(SESSION_KEY, { open: false, at: nowISO() });
+  if (!(await idbSet(SESSION_KEY, { open: false, at: nowISO() }))) throw new Error("This device could not save the closed session marker.");
 }
 
 /* At start: did the last session end without Exit? A session belongs to one run of the helper (its instance, served in
@@ -96,10 +119,14 @@ function offerStartupClear(services, items) {
   form.onsubmit = async (event) => {
     event.preventDefault();
     if (!form.elements.clearUnfinished?.checked) return;
-    const kept = await clearWorkspace(services);
-    document.getElementById("utility-dialog")?.close();
-    editor.state.screen = "cases";
-    services.render();
-    services.toast(kept ? kept + " case(s) with a pending save confirmation were kept." : "The workspace was cleared.");
+    try {
+      const kept = await clearWorkspace(services);
+      document.getElementById("utility-dialog")?.close();
+      editor.state.screen = "cases";
+      services.render();
+      services.toast(kept ? kept + " case(s) with a pending save confirmation were kept." : "The workspace was cleared.");
+    } catch (error) {
+      form.querySelector("[data-startup-clear-error]").textContent = error.message;
+    }
   };
 }

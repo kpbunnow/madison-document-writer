@@ -184,6 +184,43 @@ class UpdateRecovery(unittest.TestCase):
             self.assertEqual((target / "launch.py").read_bytes(), (source / "launch.py").read_bytes())
             self.assertTrue(manifest["files"])
 
+    def test_target_directory_links_are_refused_before_any_file_moves(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, target = self.deployment(root)
+            outside = root / "operational"
+            outside.mkdir()
+            (outside / "retained.json").write_text("private operational bytes", encoding="utf-8")
+            (target / "unexpected-link").symlink_to(outside, target_is_directory=True)
+            with patch.object(prepare_deployment.shutil, "move") as move:
+                with self.assertRaisesRegex(ValueError, "link|reparse"):
+                    prepare_deployment.plan(source, target)
+                move.assert_not_called()
+            self.assertEqual((outside / "retained.json").read_text(encoding="utf-8"), "private operational bytes")
+
+    def test_target_changes_after_plan_are_refused_before_copying(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = self.deployment(Path(directory))
+            retire, wanted = prepare_deployment.plan(source, target)
+            (target / "new-unlisted.py").write_text("appeared after planning", encoding="utf-8")
+            before = self.snapshot(target)
+            with self.assertRaisesRegex(ValueError, "plan"):
+                prepare_deployment.apply(source, target, retire, wanted, stamp="stale")
+            self.assertEqual(self.snapshot(target), before)
+
+    def test_existing_archive_is_never_reused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = self.deployment(Path(directory))
+            retire, wanted = prepare_deployment.plan(source, target)
+            archive = target.parent / (target.name + "-retired-same")
+            archive.mkdir()
+            (archive / "retained.txt").write_text("previous archive", encoding="utf-8")
+            before = self.snapshot(target)
+            with self.assertRaisesRegex(ValueError, "archive"):
+                prepare_deployment.apply(source, target, retire, wanted, stamp="same")
+            self.assertEqual(self.snapshot(target), before)
+            self.assertEqual((archive / "retained.txt").read_text(encoding="utf-8"), "previous archive")
+
 
 if __name__ == "__main__":
     unittest.main()
