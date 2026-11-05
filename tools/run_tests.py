@@ -14,7 +14,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from release_evidence import fingerprint
-from suite_classes import uses_browser
+from suite_classes import order_pooled, uses_browser
 from suite_process import run_suite_process
 
 os.environ["TZ"] = "America/Chicago"
@@ -154,7 +154,7 @@ with tempfile.TemporaryDirectory(prefix="madison-production-") as production:
             performance = []
         chromium = [s for s in suites if s not in performance and uses_browser(s)]
         after_pool = [s for s in suites if s.name == "audit_case_projection.py"]
-        pooled = [s for s in suites if s not in performance and s not in chromium and s not in after_pool]
+        pooled = order_pooled([s for s in suites if s not in performance and s not in chromium and s not in after_pool])
         workers = int(os.environ.get("DW_TEST_WORKERS") or min(4, os.cpu_count() or 1))
         with ThreadPoolExecutor(max_workers=workers) as pool:
             finished = dict(zip(pooled, pool.map(run_suite, pooled)))

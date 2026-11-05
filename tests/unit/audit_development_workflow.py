@@ -76,6 +76,17 @@ class DevelopmentWorkflow(unittest.TestCase):
             self.assertEqual(run.returncode, 0, run.stderr)
             self.assertFalse(marker.exists())
 
+    def test_browser_cache_is_exact_and_never_skips_installation_or_verification(self):
+        steps = self.workflow("verify.yml")["jobs"]["full-gate"]["steps"]
+        cache = next(s for s in steps if s.get("uses", "").startswith("actions/cache@"))
+        for part in ("runner.os", "runner.arch", "steps.playwright.outputs.version", "hashFiles('package-lock.json')"):
+            self.assertIn(part, cache["with"]["key"])
+        self.assertNotIn("restore-keys", cache["with"], "no fallback to another browser or dependency lock")
+        install = next(s for s in steps if "npx playwright install --with-deps chromium" in s.get("run", ""))
+        gate = next(s for s in steps if "python tools/verify_release.py" in s.get("run", ""))
+        self.assertNotIn("if", install, "a cache hit never skips OS dependency/browser installation checks")
+        self.assertNotIn("if", gate, "cached binaries are not cached passing results")
+
     def test_source_archive_without_git_keeps_content_provenance(self):
         with tempfile.TemporaryDirectory() as folder:
             first = source_provenance(Path(folder), {"file": "hash-a"})
