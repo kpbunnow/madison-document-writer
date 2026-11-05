@@ -502,3 +502,7 @@ code; each scenario label starts with the former name. Release reviews cite them
 R31 deposit and R32 pricing regressions compose real pricing, deposit/edit, court, initial-citation, editor and citation-face owners through `citation_deposit_workflow.cjs`; all41 original assertion ASTs remain unchanged, including Python3872-row parity and frozen historical face bytes. Native UI/save and non-snow/ordinary-draft adapters remain controlled.
 
 R33 court/mandatory-appearance/library correction now shares the focused citation composition, with real snapshot ownership and explicit retained standalone-citation body scope; all15 original assertion ASTs remain unchanged.
+
+## Native Windows interruption and recovery
+
+`tests/windows/interruption_recovery.py` and `tests/windows/browser_recovery.cjs` run actual process-death, NTFS, loopback SMB and persistent-profile recovery tests through the Windows recovery workflow. They supplement the complete required gate; portable runs are explicitly not native evidence. See [Windows recovery tests](../docs/developer/WINDOWS-RECOVERY-TESTS.md) for scenarios, evidence requirements and City/hardware acceptance limits.
