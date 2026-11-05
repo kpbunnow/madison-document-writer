@@ -1,6 +1,6 @@
 # Windows interruption and recovery tests
 
-The Windows recovery workflow runs on actual GitHub-hosted Windows Server 2022 executors, using pinned Node/Playwright and two explicitly pinned supported Python versions: 3.12.10 and 3.14.10. Python 3.12.14 has no published Windows binary in the official Actions distribution; the ordinary Linux Full gate retains that pin. Each Windows version must pass all twelve filesystem/process and seven browser scenarios, and artifacts include the Python version to prevent collisions. It uses only synthetic cases, disposable local profiles and a temporary loopback SMB share granted to the current runner account. It does not connect to City servers or change City acceptance decisions. It does not package or deploy a release.
+The Windows recovery workflow runs on actual GitHub-hosted Windows Server 2022 executors, using pinned Node/Playwright and two explicitly pinned supported Python versions: 3.12.10 and 3.14.10. Python 3.12.14 has no published Windows binary in the official Actions distribution; the ordinary Linux Full gate retains that pin. Each Windows version must pass all thirteen filesystem/process and seven browser scenarios, and artifacts include the Python version to prevent collisions. It uses only synthetic cases, disposable local profiles and a temporary loopback SMB share granted to the current runner account. It does not connect to City servers or change City acceptance decisions. It does not package or deploy a release.
 
 ## Run and evidence
 
@@ -26,6 +26,7 @@ The filesystem harness stops child processes at barriers around real production 
 | Boundary | Required outcome |
 | --- | --- |
 | Migration after durable intent, after case replacement, after registry replacement | Token-bound administrator lock recovery and retry preserve the planned genesis, exact issued history, UTF-8 wording and unique event IDs; no pending intent remains |
+| First publication of a new protected record after durable intent | The empty baseline resumes safely with the same planned genesis and exact issuance identities |
 | Existing case before and after atomic replacement | A pre-replacement crash retains prior bytes; a lost-acknowledgement retry never duplicates or alters issuance |
 | Install after journal, first/middle file replacement, and committed journal removal | Fresh-process recovery restores the complete previous install before commit, or retains the complete new install after commit; private state survives and recovery is idempotent |
 | Native NTFS handle denies delete sharing | Replacement refuses without damaging the prior case; closing the actual handle permits a valid retry |

@@ -133,7 +133,7 @@ def worker(config):
 
     os.replace = replace_at
     if mode == "publish":
-        return case_store.save_case(folder, NAME, fixture(), idempotency_event="initial_citation_event")
+        return case_store.save_case(folder, NAME, fixture())
     if mode == "append":
         return save_request(folder, config["request"])
     raise ValueError("Unknown synthetic worker mode")
@@ -317,13 +317,18 @@ def run(root, results, native):
     children = []
     share = None
     try:
-        for phase in ("intent", "after-case", "registry", "before-case", "append-after-case"):
+        for phase in ("new-intent", "intent", "after-case", "registry", "before-case", "append-after-case"):
             folder = root / phase
             folder.mkdir()
             mode = "append" if phase.startswith("before") or phase.startswith("append") else "publish"
+            if mode == "publish" and phase != "new-intent":
+                legacy = fixture()
+                legacy["schema"] = 4
+                case_store.save_case(folder, NAME, legacy)
             request = append_request(folder) if mode == "append" else None
             old = (folder / NAME).read_bytes() if request else None
-            config = {"mode": mode, "phase": "after-case" if phase == "append-after-case" else phase, "folder": str(folder), "request": request}
+            selected = "after-case" if phase == "append-after-case" else "intent" if phase == "new-intent" else phase
+            config = {"mode": mode, "phase": selected, "folder": str(folder), "request": request}
             child = Child(root, config)
             children.append(child)
             child.ready()
@@ -399,6 +404,8 @@ def run(root, results, native):
             assert len({e["id"] for e in saved["file"]["events"]}) == len(expected)
             if genesis:
                 assert saved["file"]["integrity"]["genesis"]["hash"] == genesis, "Recovery must not regenerate genesis"
+                if phase != "new-intent":
+                    assert saved["file"]["integrity"]["genesis"]["sourceSchema"] == 4, "Exercise real existing-record migration"
             assert not case_integrity.intent_path(folder, "QA-LIFE").exists()
             results.append({"scenario": "forced-case-" + phase, "passed": True})
     finally:

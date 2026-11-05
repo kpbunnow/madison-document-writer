@@ -321,7 +321,9 @@ async function snapshot(page) {
       "forced-install-commit",
       "native-NTFS-delete-sharing-refusal-and-retry",
       "native-live-PID-protection-token-refusal-and-orphan-recovery",
-      ...["intent", "after-case", "registry", "before-case", "append-after-case", "SMB-disconnect-before-publish"].map((s) => "forced-case-" + s),
+      ...["new-intent", "intent", "after-case", "registry", "before-case", "append-after-case", "SMB-disconnect-before-publish"].map(
+        (s) => "forced-case-" + s,
+      ),
     ];
     assert.equal(filesystem.mode, "native-windows");
     assert.equal(filesystem.osName, "nt");
@@ -341,7 +343,7 @@ async function snapshot(page) {
       sourceCommit: report.sourceCommit,
       identity: report.identity,
       runtimeHashes,
-      filesystemChecks: 12,
+      filesystemChecks: 13,
       browserChecks: 7,
       filesystemPlatform: filesystem.platform,
       browserVersion: report.browserVersion,
