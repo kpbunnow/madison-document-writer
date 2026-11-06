@@ -45,7 +45,7 @@ import case_integrity
 from plain_files import UNSAFE_NAME_CHARS, plain_json_files, read_plain_bytes
 from public_errors import public_message
 import case_projection
-from reporting_reads import ordered_reads
+from reporting_reads import ordered_reads, SummaryInputs
 import citation_pricing
 import sys
 import artifact_store
@@ -248,19 +248,18 @@ def read_index(read_workers=4):
     for path in sorted(plain_json_files(cd)):
         if not path.name.startswith("_"):
             files.setdefault(case_file_key(path), []).append(path)
+    inputs = SummaryInputs(lambda path: path.read_bytes())
     try:
-        context = case_integrity.VerificationContext(cd, summary_workers=read_workers)
+        context = case_integrity.VerificationContext(cd, summary_workers=read_workers, summary_reader=inputs.read_context)
     except (OSError, ValueError, TypeError, KeyError) as error:
         out.update(ok=False, error="Retained integrity evidence could not be verified: " + str(error))
         return out
-    idx = cd / INDEX_DIR_NAME
 
     def read_input(path):
         # Speculative reads only. Identity, duplicate, revision and chain checks
         # remain in their original order on this request's consuming thread.
         try:
-            summary_raw = path.read_bytes()
-            summary = json.loads(summary_raw)
+            summary_raw, summary = inputs.read(path)
         except (OSError, ValueError, TypeError, KeyError) as error:
             return path, None, None, error
         if isinstance(summary, dict):
@@ -275,7 +274,7 @@ def read_index(read_workers=4):
                 error = problem
         return path, summary, raw, error
 
-    for p, summary, raw, read_error in ordered_reads(sorted(idx.glob("*.json")), read_input, read_workers):
+    for p, summary, raw, read_error in ordered_reads(sorted(context.summary_paths), read_input, read_workers):
         try:
             if summary is None and read_error:
                 raise read_error

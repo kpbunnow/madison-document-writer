@@ -2,6 +2,8 @@
 
 The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the final architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 
+Reports and inspector due-date reads share bounded summary inputs and a complete directory inventory only within one operation. `VerificationContext` retains the same evidence authority; every current case is still read and independently verified. Summary projection computes continuing-item state once per call in both mirrors. See [REPORT-READ-PERFORMANCE.md](REPORT-READ-PERFORMANCE.md) for bounds, encoding/link behavior, measured costs and verification contracts.
+
 ## Runtime overview
 
 Writer and Reports are browser applications served by a helper bound to 127.0.0.1. IndexedDB retains private drafts and pending operations; integrity-protected JSON and immutable PDF receipts live in configured operational folders. Reports is read-only against case history. The Reporting Index is a cache: the helper serves a summary only when it equals its projection of the verified case, and writes only summaries that do. No central service is introduced.

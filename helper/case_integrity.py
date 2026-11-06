@@ -189,7 +189,7 @@ def has_modern_evidence(value):
 class VerificationContext:
     """One operation's retained evidence; never cached across requests or saves."""
 
-    def __init__(self, folder, external=None, *, summary_workers=1):
+    def __init__(self, folder, external=None, *, summary_workers=1, summary_reader=None):
         self.folder = Path(folder)
         self.value = registry(folder)
         self.by_number = {}
@@ -214,7 +214,8 @@ class VerificationContext:
             except OSError, ValueError:
                 return None
 
-        for summary in ordered_reads(sorted((self.folder / "Reporting Index").glob("*.json")), read_summary, summary_workers):
+        self.summary_paths = list((self.folder / "Reporting Index").glob("*.json"))
+        for summary in ordered_reads(sorted(self.summary_paths), summary_reader or read_summary, summary_workers):
             if not isinstance(summary, dict):
                 continue
             meta = summary.get("integrity")
@@ -415,7 +416,7 @@ def verify_record(record, folder=None, external=None, context=None):
         }
 
     try:
-        external = external or (protected_folder(folder) if folder else None)
+        # Context construction resolves settings once; an existing context already owns this operation's evidence.
         context = context or (VerificationContext(folder, external) if folder else None)
         anchored_case, known = anchor_evidence(record, folder, external, context)
         if record.get("schema", record.get("version", 1)) < 5 or not record.get("integrity"):

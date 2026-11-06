@@ -89,7 +89,7 @@ class MeasuredReporting(unittest.TestCase):
                         samples.append(elapsed)
                         counts.append(reads)
                         self.assertEqual(len(value["summaries"]), count)
-                        self.assertEqual(reads["summary"], count * 2)
+                        self.assertEqual(reads["summary"], count)  # Both worker modes retain one-read inputs and independent full proofs.
                         self.assertEqual(reads["case"], count)
                         self.assertLessEqual(peak, workers)
                         self.assertTrue(all(s["integrity"]["valid"] for s in value["summaries"]))

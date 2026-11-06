@@ -18,8 +18,8 @@ import case_lookup
 import case_projection
 import case_store
 from case_lookup import CaseLookupError, HERE
-from plain_files import plain_json_files, read_plain_bytes
-from reporting_reads import ordered_reads
+from plain_files import is_plain_file, read_plain_bytes
+from reporting_reads import ordered_reads, SummaryInputs
 
 LISTS = threading.BoundedSemaphore(1)
 NAMES = threading.BoundedSemaphore(1)
@@ -266,14 +266,16 @@ def next_due(summary):
     return min(days) if days else ""
 
 
-def _read_json(path):
+def _read_json(path, inputs=None):
+    if inputs is not None:
+        return inputs.read(path, max_bytes=MAX_SUMMARY_BYTES)
     raw = read_plain_bytes(path)
     if len(raw) > MAX_SUMMARY_BYTES:
         raise ValueError("too large")
     return raw, json.loads(raw)
 
 
-def _verified_due(case_dir, number, summary_path, case_paths, context):
+def _verified_due(case_dir, number, summary_path, case_paths, context, inputs=None):
     """("due", date), ("none", "") or ("unknown", "") for one listed case. A date is used only from a summary that
     names the current revision of its single case file, whose integrity verifies and whose projection equals the
     summary: the same authority Reports uses. A case never saved to the share has no order ("none"); anything else
@@ -283,7 +285,7 @@ def _verified_due(case_dir, number, summary_path, case_paths, context):
     if summary_path is None or len(case_paths) != 1 or context is None:
         return "unknown", ""
     try:
-        _, summary = _read_json(summary_path)
+        _, summary = _read_json(summary_path, inputs)
         case = summary.get("case") if isinstance(summary, dict) else None
         if (
             not isinstance(summary, dict)
@@ -311,7 +313,8 @@ def due_dates(case_dir, numbers):
     folder = Path(case_dir) / SUMMARY_DIR
     if not Path(case_dir).is_dir():
         return None
-    summaries = {p.name.casefold(): p for p in plain_json_files(folder)} if folder.is_dir() else {}
+    if not numbers:
+        return {}
     wanted = {case_store.case_number_key(n) for n in numbers}
     cases = {}
     # A linked/non-regular case entry is still evidence that this is not a never-saved case. Include its name so the
@@ -321,14 +324,19 @@ def due_dates(case_dir, numbers):
         if key in wanted and not path.name.startswith("_"):
             cases.setdefault(key, []).append(path)
     try:
-        context = case_integrity.VerificationContext(Path(case_dir))
+        inputs = SummaryInputs(read_plain_bytes)
+        context = case_integrity.VerificationContext(Path(case_dir), summary_workers=SUMMARY_READERS, summary_reader=inputs.read_context)
+        summary_paths = context.summary_paths
     except OSError, ValueError, TypeError, KeyError:
         context = None
+        # Presence still distinguishes an orphaned summary from a never-saved case when other evidence is damaged.
+        summary_paths = list(folder.glob("*.json")) if folder.is_dir() else []
+    summaries = {p.name.casefold(): p for p in summary_paths if is_plain_file(p)}
     found = ordered_reads(
         list(numbers),
         lambda n: (
             n,
-            _verified_due(case_dir, n, summaries.get(n.casefold() + ".json"), cases.get(case_store.case_number_key(n), []), context),
+            _verified_due(case_dir, n, summaries.get(n.casefold() + ".json"), cases.get(case_store.case_number_key(n), []), context, inputs),
         ),
         SUMMARY_READERS,
     )
