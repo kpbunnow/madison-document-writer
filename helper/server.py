@@ -194,7 +194,7 @@ def settings():
     f = gis_dir() / "settings.json"
     try:
         return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return {}
 
 
@@ -438,7 +438,7 @@ def read_cache():
                 if isinstance(entry, dict) and isinstance(entry.get("history"), list) and all(isinstance(h, dict) for h in entry["history"])
             }
             return c
-    except (OSError, ValueError):
+    except OSError, ValueError:
         pass
     return {"format": "madison-parcel-cache", "parcels": {}, "missing": {}}
 
@@ -898,7 +898,7 @@ def backup_list():
                         "included": payload.get("included", []),
                     }
                 )
-            except (OSError, ValueError, AttributeError):
+            except OSError, ValueError, AttributeError:
                 rows.append(
                     {"workspace": path.parent.parent.name, "case": path.parent.name, "name": path.name, "at": "", "error": "Unreadable backup"}
                 )
@@ -1203,7 +1203,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         value = self.headers.get(name, "")
         try:
             return hmac.compare_digest(value.encode("ascii"), expected.encode("ascii"))
-        except (UnicodeError, TypeError):
+        except UnicodeError, TypeError:
             return False
 
     def _has_token(self):
@@ -1358,7 +1358,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(size))
             if not isinstance(data, dict) or set(data) - {"force"} or type(data.get("force", False)) is not bool:
                 raise ValueError("Invalid shutdown request")
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid shutdown request"})
         reasons = agree_to_stop()
         if reasons:
@@ -1413,7 +1413,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def _get_citation_history(self, route):
         try:
             return self._json(200, citation_history(case_dir()))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Shared citation history is incomplete. Resolve unreadable or duplicate case records."})
         except OSError:
             return self._json(503, {"ok": False, "error": "Shared citation history unavailable"})
@@ -1504,14 +1504,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             folder = case_dir()
             status.update(caseDir=str(folder), caseReachable=folder.is_dir())
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pass
         try:
             dest = out_dir()
             status.update(
                 out=str(dest), outReachable=dest.is_dir(), outLocal=dest == HERE / OUTDIR_NAME and share_root() != HERE, outbox=outbox_count()
             )
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pass
         status.update(operations_helper.health(sys.modules[__name__]))
         return self._json(200, status)
@@ -1533,7 +1533,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 16 or json.loads(self.rfile.read(size)) != {}:
                 raise ValueError("Invalid bootstrap request")
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid bootstrap request"})
         return self._json(200, {"ok": True, "token": SESSION_TOKEN, "bootstrap": SESSION_BOOTSTRAP})
 
@@ -1560,7 +1560,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, result)
         except (ValueError, TypeError, KeyError) as error:
             return self._json(400, {"ok": False, "error": public_message(error)})
-        except (OSError, RuntimeError):
+        except OSError, RuntimeError:
             return self._json(503, {"ok": False, "error": "Shared case folder unavailable; no lock released"})
 
     def _post_workflow(self, route):
@@ -1585,7 +1585,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, result)
         except (ValueError, TypeError, KeyError) as error:
             return self._json(400, {"ok": False, "error": public_message(error)})
-        except (OSError, RuntimeError):
+        except OSError, RuntimeError:
             return self._json(503, {"ok": False, "error": "Operation unavailable; local work kept"})
 
     def _post_address_parse(self, route):
@@ -1597,7 +1597,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not isinstance(data, dict) or set(data) != {"raw"}:
                 raise ValueError("Expected only a raw mailing address")
             return self._json(200, {"ok": True, **address_parser.parse_address(data["raw"])})
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid local address parse request"})
 
     def _post_case_lookup(self, route):
@@ -1611,7 +1611,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, lookup_case(share_root(), data["caseNumber"]))
         except CaseLookupError as error:
             return self._json(error.status, {"ok": False, "error": public_message(error)})
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid case lookup request"})
         except Exception:
             return self._json(503, {"ok": False, "error": "Case lookup is unavailable. Check the installation and retry; your work is kept."})
@@ -1634,7 +1634,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, inspector_cases.open_cases(share_root(), data["inspector"], case_dir()))
         except CaseLookupError as error:
             return self._json(error.status, {"ok": False, "error": public_message(error)})
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid open-case request"})
         except Exception:
             return self._json(503, {"ok": False, "error": "The open-case list is unavailable. Check the installation and retry; your work is kept."})
@@ -1883,7 +1883,7 @@ if __name__ == "__main__":
                 try:
                     if not run_anchor_once():
                         return
-                except (OSError, ValueError):
+                except OSError, ValueError:
                     pass
                 # Anchoring itself happens at most once per City day; the clock only notices the new day.
                 if STOPPING.wait(ANCHOR_CLOCK_SECONDS):

@@ -54,7 +54,7 @@ def _checked_settings(raw):
             raise ValueError()
         if not cfg["database"].strip():
             cfg["database"] = DEFAULTS["database"]
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         raise CaseLookupError(("Case Lookup/settings.json is invalid. Use the supplied example; allowed settings are server, database and enabled."))
     return cfg
 
@@ -68,7 +68,7 @@ def _local_certificate_setting(local_app_data):
         local_data = {}
     except OSError:
         raise CaseLookupError("The local SQL certificate setting cannot be read. Remove it or check access.")
-    except (ValueError, UnicodeError):
+    except ValueError, UnicodeError:
         raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
     try:
         if not isinstance(local_data, dict) or set(local_data) - {"trustServerCertificate"}:
@@ -76,7 +76,7 @@ def _local_certificate_setting(local_app_data):
         trust_certificate = local_data.get("trustServerCertificate", False)
         if type(trust_certificate) is not bool:
             raise ValueError()
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
     return trust_certificate
 

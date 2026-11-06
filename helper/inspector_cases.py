@@ -72,7 +72,7 @@ def _administrator_exclusions(root):
         data = json.loads(path.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         return []
-    except (OSError, ValueError, UnicodeError):
+    except OSError, ValueError, UnicodeError:
         raise CaseLookupError(EXCLUSION_HELP) from None
     names = data.get("exclude") if isinstance(data, dict) and set(data) == {"exclude"} else None
     if not isinstance(names, list) or len(names) > 100:
@@ -322,7 +322,7 @@ def due_dates(case_dir, numbers):
             cases.setdefault(key, []).append(path)
     try:
         context = case_integrity.VerificationContext(Path(case_dir))
-    except (OSError, ValueError, TypeError, KeyError):
+    except OSError, ValueError, TypeError, KeyError:
         context = None
     found = ordered_reads(
         list(numbers),

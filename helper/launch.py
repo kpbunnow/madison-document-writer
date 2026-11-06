@@ -40,7 +40,7 @@ def signing_era_install(local, pin):
     try:
         with open(pin, encoding="utf-8") as handle:
             build = json.load(handle).get("helperBuild")
-    except (OSError, ValueError, AttributeError):
+    except OSError, ValueError, AttributeError:
         return False  # An unreadable pin is reported by the installed launcher's own checks.
     return type(build) is not int or build < FIRST_UNSIGNED_BUILD
 
@@ -54,7 +54,7 @@ def handoff_log(local, text):
 
         with open(os.path.join(folder, "launcher.log"), "a", encoding="utf-8") as stream:
             stream.write(time.strftime("%Y-%m-%d %H:%M:%S") + " INFO Shared launcher: " + text + "\n")
-    except (OSError, ValueError):
+    except OSError, ValueError:
         pass
 
 
