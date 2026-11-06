@@ -110,13 +110,19 @@ export const exitClearConfirmed = (form, caseUnsaved) => !unfinishedWork(caseUns
 /* At start, after the drafts are restored: clear what a session left behind when it ended without Exit. Saved work is
    cleared at once; unfinished work waits for the inspector's confirmation in a dialog. */
 export async function startSession(services) {
-  if (!(await previousSessionOpen(services)) || !hasWorkspace()) return;
-  const items = unfinishedWork(services.caseUnsaved);
-  if (!items.length) {
-    await clearWorkspace(services);
-    return;
+  // Clearing the last session's workspace must never stop Document Writer from starting: any failure keeps the work
+  // and says so once the screen is up.
+  try {
+    if (!(await previousSessionOpen(services)) || !hasWorkspace()) return;
+    const items = unfinishedWork(services.caseUnsaved);
+    if (!items.length) {
+      await clearWorkspace(services);
+      return;
+    }
+    setTimeout(() => offerStartupClear(services, items), 0);
+  } catch {
+    setTimeout(() => services.toast("The workspace left from the last session could not be cleared. Your work was kept on this device."), 0);
   }
-  setTimeout(() => offerStartupClear(services, items), 0);
 }
 
 function offerStartupClear(services, items) {

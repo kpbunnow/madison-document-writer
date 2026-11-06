@@ -207,6 +207,21 @@ const assert = require("node:assert/strict"),
   await Promise.all([firstRefusal, secondRefusal]);
   assert.deepEqual(s.CASES, [safe], "both callers retain the same original workspace on failure");
   assert.equal(await clearWorkspace({ removeCase: actions.removeCase, saveDrafts: async () => true }), 0, "a refused clear can be retried");
+  // A refused clear at start keeps the work and never stops the program from starting: startSession does not throw.
+  reset([safe]);
+  store.session = { open: true, instance: "run-1" };
+  const refusing = { ...services(), saveDrafts: async () => false };
+  await startSession(refusing);
+  assert.equal(s.CASES.length, 1, "the work is kept");
+  await new Promise((r) => setTimeout(r, 5));
+  assert.ok(
+    calls.some((c) => c[0] === "toast" && /could not be cleared/.test(c[1])),
+    "the inspector is told",
+  );
+  reset([safe]);
+  store.session = { open: true, instance: "run-1" };
+  await startSession({ ...services(), idbSet: async () => Promise.reject(new Error("storage refused")) });
+  assert.equal(s.CASES.length, 1, "a storage rejection does not stop startup either");
   console.log("PASS workspace cleared on close: Exit confirmation, startup after an unclean close, held cases and queued saves kept");
 })().catch((error) => {
   console.error(error);
