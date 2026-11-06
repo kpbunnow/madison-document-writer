@@ -166,7 +166,6 @@ def out_dir():
 
 # ---------------------------------------------------------------- reporting
 CASE_DIR_NAME = "Case JSON Files"
-INDEX_DIR_NAME = "Reporting Index"
 GIS_DIR_NAME = "Reporting GIS"
 # The city's public parcel layer. Each parcel carries its alder district and
 # building district; outSR=4326 returns latitude and longitude.
