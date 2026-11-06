@@ -8,7 +8,7 @@ import sys
 import types
 import unittest
 from unittest.mock import patch
-from compare_reporting_reads import HARNESS, compare, fixture_hash, measure, run_worker, verify_source_modules
+from compare_reporting_reads import HARNESS, compare, fixture_hash, measure, run_worker, source_identity, verify_source_modules
 
 
 def run(after=False):
@@ -34,6 +34,18 @@ def pairs():
 
 
 class Comparisons(unittest.TestCase):
+    def test_runtime_inputs_are_part_of_source_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "build/dist").mkdir(parents=True)
+            runtime = root / "build/dist/writer.html"
+            runtime.write_text("before", encoding="utf-8")
+            before = source_identity(root)
+            runtime.write_text("after", encoding="utf-8")
+            after = source_identity(root)
+            self.assertIsNone(before["sourceCommit"], "extracted sources must not inherit the harness commit")
+            self.assertNotEqual(before["verifiedInputsSha256"], after["verifiedInputsSha256"])
+
     def test_actual_read_metrics_and_execution_classes(self):
         import case_integrity
         from audit_r49_readiness import fixture

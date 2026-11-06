@@ -192,8 +192,7 @@ def compare(pairs):
 
 
 def source_identity(source):
-    from project_layout import fingerprint
-    from release_evidence import source_provenance
+    from release_evidence import fingerprint, source_provenance
 
     inputs = fingerprint(source)
     return {"root": str(source), **source_provenance(source, inputs)}
