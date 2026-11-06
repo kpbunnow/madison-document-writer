@@ -119,6 +119,7 @@ async function run(api, sc) {
     recordIntegrity: { status: () => ({}) },
   };
   Object.assign(state, {
+    CASES: context.CASES,
     WORK: { entry: {} },
     state: { publicationBusy: x.publication ? "doc" : null },
     AMENDMENT_BUSY: false,
@@ -198,9 +199,15 @@ async function run(api, sc) {
 }
 
 (async () => {
+  // This suite's clear adapter has an empty workspace. Only its obsolete retained-success text changes.
+  const oldText = 'const details = ["Drafts saved on this device stay on this device."];',
+    reference = fs.readFileSync("tests/fixtures/desktop_exit_reference.txt", "utf8");
+  assert.equal(reference.split(oldText).length, 2);
   const [current, legacy] = await Promise.all([
     compile('export {openExit} from "./desktop_exit.js"; export {WriterState} from "./state.js";'),
-    compile(fs.readFileSync("tests/fixtures/desktop_exit_reference.txt", "utf8") + '\nexport {WriterState} from "./state.js";'),
+    compile(
+      reference.replace(oldText, 'const details = ["The workspace was cleared from this device."];') + '\nexport {WriterState} from "./state.js";',
+    ),
   ]);
   let interrupted = 0,
     stopped = 0,

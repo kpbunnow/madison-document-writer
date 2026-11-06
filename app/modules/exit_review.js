@@ -42,7 +42,7 @@ function caseItem(R, k) {
   if (s.action === "conflict")
     return {
       text: label + "shared changes need review.",
-      guidance: "Your local work stays on this device. Review the differences after Document Writer starts again.",
+      guidance: "Review the differences before exiting, or download a workspace backup before confirming workspace clearing.",
     };
   if (s.action === "pdf")
     return {
@@ -52,7 +52,7 @@ function caseItem(R, k) {
   if (!st.pendingSync && (s.action === "save" || (s.action === "storage" && R.caseUnsaved(k))))
     return {
       text: label + "changes have not reached the shared folder.",
-      guidance: "They stay on this device. Use Save case to shared folder now, or after Document Writer starts again.",
+      guidance: "Use Save case to shared folder or download a workspace backup before confirming removal of this local-only work.",
     };
   return null;
 }

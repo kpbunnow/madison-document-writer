@@ -98,6 +98,8 @@ if (process.argv[2] === "reports") {
   assert.equal(/sendBeacon|addEventListener\("(?:pagehide|unload)"/.test(src), false, "no window-closing request");
   const test = async () => {
     await new Promise((r) => setTimeout(r, 40));
+    const failedClearScenario = process.argv[2] === "clear-failed";
+    let failClearWrite = false;
     scheduleRecoveryBackup = () => {};
     scheduleDraftSave = () => {};
     const order = [],
@@ -105,7 +107,7 @@ if (process.argv[2] === "reports") {
     let answer = () => ({ status: 200, body: { ok: true, stopping: true } });
     idbSet = async () => {
       order.push("device save");
-      return true;
+      return !failClearWrite;
     };
     const realAuthFetch = authFetch;
     authFetch = async (url, options = {}) => {
@@ -113,6 +115,7 @@ if (process.argv[2] === "reports") {
         order.push("shutdown");
         shutdowns.push(JSON.parse(options.body));
         const { status, body, error } = answer();
+        if (failedClearScenario && status === 200 && body?.ok) failClearWrite = true;
         if (error) throw error;
         return { ok: status >= 200 && status < 300, status, json: async () => body };
       }
@@ -154,7 +157,8 @@ if (process.argv[2] === "reports") {
     assert.equal(squash(dialog().querySelector("#utility-title")), "Exit Document Writer");
     const intro = squash(dialog().querySelector("form"));
     assert.match(intro, /This window and any other open Writer or Reports windows lose their connection/);
-    assert.match(intro, /Drafts saved on this device stay on this device/);
+    assert.match(intro, /Exit clears the workspace after the helper stops/);
+    assert.doesNotMatch(intro, /Drafts saved on this device stay on this device/);
     assert.match(intro, /Queued shared saves and PDF transfers stay queued on this device and resume when Document Writer starts again/);
     assert.match(intro, /They are not in the shared folder until then/);
     assert.match(intro, /double-click Document Writer on the desktop/);
@@ -225,7 +229,7 @@ if (process.argv[2] === "reports") {
     assert.match(squash(dialog().querySelector("[data-exit-blocking]")), /could not be saved on this device.*download a workspace backup/);
     idbSet = async () => {
       order.push("device save");
-      return true;
+      return !failClearWrite;
     };
 
     // Queued and unconfirmed work: listed from existing state, needs acknowledgment, never called saved.
@@ -311,13 +315,25 @@ if (process.argv[2] === "reports") {
         handoffClosed++;
       },
     };
+    const beforeClear = { cases: WriterState.CASES.map((c) => c.id), docs: WriterState.DOCS.map((d) => d.id) };
     submit();
     await until(() => document.querySelector("[data-helper-stopped]"), "the stopped page");
     assert.equal(shutdowns.length, 1);
     assert.equal(dialog(), null);
     assertStoppedMessage(document.querySelector("[data-helper-stopped]"));
     const page = squash(document.querySelector("[data-helper-stopped]"));
-    assert.match(page, /Drafts saved on this device stay on this device/);
+    if (failedClearScenario) {
+      assert.match(page, /The workspace could not be cleared\. Your work was kept on this device/);
+      assert.deepEqual(
+        WriterState.CASES.map((c) => c.id),
+        beforeClear.cases,
+      );
+      assert.deepEqual(
+        WriterState.DOCS.map((d) => d.id),
+        beforeClear.docs,
+      );
+    } else assert.match(page, /1 case awaiting save confirmation was kept on this device\. Other workspace work was cleared/);
+    assert.doesNotMatch(page, /Drafts saved on this device stay on this device/);
     assert.match(page, /1 shared save and 2 PDF transfers remain queued on this device\. They have not reached the shared folder/);
     assert.deepEqual(channel.sent, [{ kind: "stopped", instance: "synthetic-current-helper" }], "only windows of this helper instance are told");
     assert.equal(WriterState.HELPER, null);
@@ -326,16 +342,25 @@ if (process.argv[2] === "reports") {
     assert.equal(handoffClosed, 1, "the stopped page no longer handles Reports requests");
     assert.equal(WriterState.WRITER_CHANNEL, null);
     // The workspace was cleared after the helper stopped; the case whose save confirmation is pending is kept.
-    assert.deepEqual(
-      WriterState.CASES.map((c) => c.number),
-      ["QA-EXIT"],
-    );
-    assert.ok(WriterState.DOCS.every((x) => x.caseId === k.id));
+    if (!failedClearScenario) {
+      assert.deepEqual(
+        WriterState.CASES.map((c) => c.number),
+        ["QA-EXIT"],
+      );
+      assert.ok(WriterState.DOCS.every((x) => x.caseId === k.id));
+    }
     render();
     assert.ok(document.querySelector("[data-helper-stopped]"), "a later render does not replace the stopped state");
     await assert.rejects(realAuthFetch("/cases/list"), /Document Writer has stopped/, "no helper request after the stop");
-    console.log("PASS Exit Document Writer saves drafts, lists unresolved work, refuses active work and shows the stopped state");
-    require("child_process").execFileSync(process.execPath, [__filename, "reports"], { stdio: "inherit" });
+    console.log(
+      failedClearScenario
+        ? "PASS failed Exit clear reports retained work and restores every case/document"
+        : "PASS Exit Document Writer saves drafts, lists unresolved work, refuses active work and shows the stopped state",
+    );
+    if (!failedClearScenario) {
+      require("child_process").execFileSync(process.execPath, [__filename, "clear-failed"], { stdio: "inherit" });
+      require("child_process").execFileSync(process.execPath, [__filename, "reports"], { stdio: "inherit" });
+    }
     process.exit(0);
   };
   eval(src + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
