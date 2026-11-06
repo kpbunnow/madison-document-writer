@@ -28,12 +28,12 @@ export function cleanVisit(r) {
 
 // Worksheet queries/validation and retained draft transitions; peer/UI/persistence adapters stay supplied.
 export function createWorksheetWorkflow(services) {
-  function unissuedVisitFor(cid) {
-    const src = services.sourceDocFor(cid);
+  function unissuedVisitFor(cid, documents = docsFor(cid)) {
+    const src = services.sourceDocFor(cid, documents);
     if (!src) return null;
     return (
       reinspFor(cid)
-        .filter((r) => !r.draft && r.sourceDocId === src.id && !docsFor(cid).some((d) => !d.draft && d.fromReinspId === r.id))
+        .filter((r) => !r.draft && r.sourceDocId === src.id && !documents.some((d) => !d.draft && d.fromReinspId === r.id))
         .slice(-1)[0] || null
     );
   }

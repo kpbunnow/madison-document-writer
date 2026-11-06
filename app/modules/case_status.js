@@ -68,12 +68,12 @@ function caseStatusLabel(services, k, { current, last, restrictions, numberIssue
 }
 
 export function createCaseStatus(services) {
-  function caseState(k) {
-    const current = sourceDocFor(k.id),
-      draft = draftDocFor(k.id),
-      visit = draftReinspFor(k.id) || services.unissuedVisitFor(k.id),
-      last = docsFor(k.id).find((d) => !d.draft && !d.superseded);
-    const live = docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded);
+  function caseState(k, documents = docsFor(k.id)) {
+    const current = sourceDocFor(k.id, documents),
+      draft = draftDocFor(k.id, documents),
+      visit = draftReinspFor(k.id) || services.unissuedVisitFor(k.id, documents),
+      last = documents.find((d) => !d.draft && !d.superseded);
+    const live = documents.filter((d) => !d.draft && !d.void && !d.superseded);
     const withdrawn = !!current && current.items.length > 0 && current.items.every((i) => i.withdrawn);
     const restrictions = activeRestrictions(live),
       vacancy = live.find((d) => d.type === "vacancyExtension"),
@@ -81,7 +81,7 @@ export function createCaseStatus(services) {
     const closed = caseIsClosed(services, k, { current, last, restrictions, withdrawn });
     const { due, days, late, soon } = caseDeadlineFacts(services, current, closed);
     const pendingRecord = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === k.id) || null;
-    const pendingDoc = docsFor(k.id).find((d) => d.pendingAmendment) || null;
+    const pendingDoc = documents.find((d) => d.pendingAmendment) || null;
     const pendingSync = workspace.PENDING.some((p) => p.cid === k.id || (!!caseFileName(k) && p.name === caseFileName(k)));
     const filingDoc = live.find((d) => independentArtifact(d) && !effectiveFiled(d)) || null;
     const artifactIssue = live.find((d) => ["artifact conflict", "missing or unavailable"].includes(pdfTransferState(d))) || null;
