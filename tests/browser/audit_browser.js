@@ -480,8 +480,11 @@ async function axeThemes(page, screen) {
   await axeScreen(page, "review");
   await page.screenshot({ path: path.join(OUT, "review.png"), fullPage: true });
   await page.locator("#fin-go").click();
+  // Earlier successful receipts do not mean the current filing and its summary write have finished.
   await page.waitForFunction(
     () =>
+      !WriterState.state.publicationBusy &&
+      WriterState.FILING_ACTIVE === 0 &&
       WriterState.LASTWRITE &&
       WriterState.LASTWRITE.ok &&
       WriterState.LASTINDEX &&
