@@ -647,26 +647,27 @@ async function axeThemes(page, screen) {
   assert.equal(mobileJob.html, desktopJob.html, "PDF HTML must not depend on viewport size");
   // Build all document types from one real issued notice, using synthetic data.
   const fixtureSource = fs.readFileSync(path.join(ROOT, "app/modules/test_fixtures.js"), "utf8"),
-    fixtureTS = require("typescript"),
-    fixtureAST = fixtureTS.createSourceFile("test_fixtures.js", fixtureSource, fixtureTS.ScriptTarget.Latest, true, fixtureTS.ScriptKind.JS);
+    fixtureAST = require("acorn").parse(fixtureSource, { ecmaVersion: 2022, sourceType: "module" });
   const fixtureBindings = [];
-  for (const statement of fixtureAST.statements) {
-    if (!fixtureTS.isImportDeclaration(statement)) continue;
-    const named = statement.importClause?.namedBindings;
-    if (named && fixtureTS.isNamedImports(named))
-      for (const item of named.elements) {
-        const original = item.propertyName?.text || item.name.text;
-        if (original !== item.name.text) fixtureBindings.push("const " + item.name.text + "=" + original + ";");
-      }
+  for (const statement of fixtureAST.body) {
+    if (statement.type !== "ImportDeclaration") continue;
+    for (const item of statement.specifiers) {
+      if (item.type !== "ImportSpecifier") continue;
+      const original = item.imported.name ?? item.imported.value;
+      if (original !== item.local.name) fixtureBindings.push("const " + item.local.name + "=" + original + ";");
+    }
   }
-  const fixtureFunction = fixtureAST.statements.find(
-    (statement) => fixtureTS.isFunctionDeclaration(statement) && statement.name?.text === "initTestFixtures",
+  const fixtureFunction = fixtureAST.body.find(
+    (statement) =>
+      statement.type === "ExportNamedDeclaration" &&
+      statement.declaration?.type === "FunctionDeclaration" &&
+      statement.declaration.id?.name === "initTestFixtures",
   );
   assert.ok(fixtureFunction, "Explicit layout fixture owner");
   const layoutFixtures =
     fixtureBindings.join("\n") +
     "\n" +
-    fixtureFunction.getText(fixtureAST).replace(/^export\s+function\s+initTestFixtures\b/, "function initLayoutFixtures");
+    fixtureSource.slice(fixtureFunction.start, fixtureFunction.end).replace(/^export\s+function\s+initTestFixtures\b/, "function initLayoutFixtures");
   await page.evaluate(
     "(()=>{" +
       layoutFixtures +
