@@ -98,12 +98,14 @@ module.exports = async function (browser, OUT, axeScreen, work) {
     await dialog.locator("[data-exit-confirm]").waitFor();
     assert.equal(await dialog.locator("[data-exit-blocking]").count(), 0);
     assert.match(await dialog.innerText(), /any other open Writer or Reports windows lose their connection/);
+    assert.match(await dialog.innerText(), /Exit clears the workspace after the helper stops/);
     assert.equal((await dialog.locator("[data-utility-close]").innerText()).trim(), "Cancel");
     await axeScreen(writer, "exit-dialog");
     assert.ok(await answers(base), "the helper still runs while the dialog is open");
 
     await dialog.locator("[data-exit-confirm]").click();
     await writer.locator("[data-helper-stopped]").waitFor({ timeout: 15000 });
+    assert.match(await writer.locator("[data-helper-stopped]").innerText(), /The workspace was cleared from this device/);
     assert.equal((await writer.locator("[data-helper-stopped] h1").innerText()).trim(), "Document Writer has stopped");
     assert.match(
       await writer.locator("[data-helper-stopped]").innerText(),

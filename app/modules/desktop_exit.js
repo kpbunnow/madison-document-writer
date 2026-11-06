@@ -25,7 +25,7 @@ function itemsHTML(R, items) {
 
 function exitDialogHTML(R, review) {
   const blocked = review.blocking.length > 0;
-  return html`<form id="exit-writer-form" data-exit-writer-form><p>Exit stops Document Writer on this computer. This window and any other open Writer or Reports windows lose their connection until Document Writer is started again.</p><ul><li>Drafts saved on this device stay on this device.</li><li>Queued shared saves and PDF transfers stay queued on this device and resume when Document Writer starts again. They are not in the shared folder until then.</li><li>To start again, double-click Document Writer on the desktop.</li></ul>${raw(
+  return html`<form id="exit-writer-form" data-exit-writer-form><p>Exit stops Document Writer on this computer. This window and any other open Writer or Reports windows lose their connection until Document Writer is started again.</p><ul><li>Exit clears the workspace after the helper stops. Save or download a workspace backup before confirming removal of unfinished work.</li><li>Queued shared saves and PDF transfers stay queued on this device and resume when Document Writer starts again. They are not in the shared folder until then.</li><li>To start again, double-click Document Writer on the desktop.</li></ul>${raw(
     blocked
       ? '<section aria-labelledby="exit-blocking-title" data-exit-blocking><h3 id="exit-blocking-title">Finish this first</h3>' +
           itemsHTML(R, review.blocking) +
@@ -37,7 +37,7 @@ function exitDialogHTML(R, review) {
           itemsHTML(R, review.unresolved) +
           (blocked
             ? ""
-            : '<label><input type="checkbox" name="acknowledged" required> I understand these items stay on this device until Document Writer starts again.</label>') +
+            : '<label><input type="checkbox" name="acknowledged" required> I have reviewed these unresolved items and the workspace-clearing information in this dialog.</label>') +
           "</section>"
       : "",
   )}${raw(blocked ? "" : exitWorkspaceClear.html())}<p role="alert" data-exit-error></p>${raw(
@@ -81,8 +81,16 @@ async function clearOnClose() {
 }
 
 function stoppedDetails() {
-  const details = ["Drafts saved on this device stay on this device."];
-  if (clearFailure) details.push(clearFailure);
+  const details = [];
+  if (clearFailure) details.push("The workspace could not be cleared. Your work was kept on this device.", clearFailure);
+  else if (workspace.CASES.length)
+    details.push(
+      plural(workspace.CASES.length, "case") +
+        " awaiting save confirmation " +
+        (workspace.CASES.length === 1 ? "was" : "were") +
+        " kept on this device. Other workspace work was cleared.",
+    );
+  else details.push("The workspace was cleared from this device.");
   const queued = [];
   if (workspace.PENDING.length) queued.push(plural(workspace.PENDING.length, "shared save"));
   if (startup.HELPER?.outbox) queued.push(plural(startup.HELPER.outbox, "PDF transfer"));

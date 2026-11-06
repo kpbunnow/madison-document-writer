@@ -65,10 +65,22 @@ function run(exitReview, sc) {
 }
 
 (async () => {
-  const [current, legacy] = await Promise.all([
-    compile('export {exitReview} from "./exit_review.js";'),
-    compile(fs.readFileSync("tests/fixtures/exit_review_reference.txt", "utf8")),
-  ]);
+  // Intentional Round 11 wording correction only. Keep the retained file and every effect/order assertion intact.
+  let reference = fs.readFileSync("tests/fixtures/exit_review_reference.txt", "utf8");
+  for (const [oldText, newText] of [
+    [
+      "Your local work stays on this device. Review the differences after Document Writer starts again.",
+      "Review the differences before exiting, or download a workspace backup before confirming workspace clearing.",
+    ],
+    [
+      "They stay on this device. Use Save case to shared folder now, or after Document Writer starts again.",
+      "Use Save case to shared folder or download a workspace backup before confirming removal of this local-only work.",
+    ],
+  ]) {
+    assert.equal(reference.split(oldText).length, 2);
+    reference = reference.replace(oldText, newText);
+  }
+  const [current, legacy] = await Promise.all([compile('export {exitReview} from "./exit_review.js";'), compile(reference)]);
   const seen = new Set();
   let interrupted = 0;
   for (let n = 0; n < 12000; n++) {
