@@ -1,6 +1,76 @@
 /* Startup must restore real IndexedDB before user navigation or saving can replace private work. */
 const assert = require("assert/strict");
 
+async function largeWorkspace(page, context) {
+  // Isolate browser restoration/rendering from City/SMB latency. Earlier startup checks use the real helper.
+  await context.route("**/dw-status", (route) => route.fulfill({ status: 503, json: { error: "Synthetic disconnected helper" } }));
+  const expected = await page.evaluate(async () => {
+    const cases = [],
+      docs = [],
+      events = {};
+    for (let n = 0; n < 1000; n++) {
+      const id = "large-startup-" + n;
+      cases.push({
+        id,
+        number: "CB2026-100-" + String(n).padStart(5, "0"),
+        address: n + " EXAMPLE ST",
+        owner: "SYNTHETIC OWNER",
+        inspectorId: "i4",
+        date: "2026-01-02",
+      });
+      const draft = {
+        id: id + "-draft",
+        caseId: id,
+        type: "notice",
+        draft: true,
+        created: "2026-01-03",
+        mailed: "2026-01-03",
+        items: [{ id: id + "-item", no: "1", title: "Wall", text: "Retained private wording " + n, sections: ["27.05(2)(c)"] }],
+        cits: {},
+      };
+      docs.push(draft);
+      events[id] = [0, 1, 2].map((q) => ({
+        id: id + "-event-" + q,
+        type: "notice.issued",
+        at: "2026-01-0" + (q + 3) + "T12:00:00Z",
+        by: "i4",
+        payload: { snapshot: { ...draft, id: id + "-issued-" + q, draft: false } },
+      }));
+    }
+    const bundle = {
+      cases,
+      docs,
+      events,
+      reinsp: [],
+      integrityRecords: [],
+      work: { entry: { "lookup-number": "LARGE-RETAIN" }, recordForms: {} },
+      recordAttempts: {},
+      checkpoints: {},
+      seq: 10000,
+    };
+    if (!(await idbSet("drafts", bundle))) throw Error("Large synthetic workspace seed failed");
+    return JSON.stringify(await idbGet("drafts", true));
+  });
+  await page.reload();
+  await page.waitForFunction(() => WriterState.WRITER_READY === true);
+  const actual = await page.evaluate(async () => ({
+    cases: WriterState.CASES.length,
+    documents: WriterState.DOCS.length,
+    firstDraft: WriterState.DOCS[0].items[0].text,
+    retained: JSON.stringify(await idbGet("drafts", true)),
+  }));
+  assert.equal(actual.cases, 1000);
+  assert.equal(actual.documents, 4000);
+  assert.equal(actual.firstDraft, "Retained private wording 999");
+  assert.equal(await page.locator("tr[data-queue-case]").count(), 1000);
+  assert.equal(actual.retained, expected, "large restoration must not rewrite or drop retained drafts/history");
+  await page.locator("#case-search").fill("CB2026-100-00999");
+  assert.equal(await page.locator("tr[data-queue-case]").count(), 1);
+  await page.locator('[data-open="large-startup-999-draft"]').last().click();
+  await page.waitForFunction(() => WriterState.state.docId === "large-startup-999-draft");
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Retained private wording 999");
+}
+
 module.exports = async function (browser, hostPage, OUT, axeScreen) {
   const context = await browser.newContext({ timezoneId: "America/Chicago", viewport: { width: 1400, height: 1000 } });
   const errors = [];
@@ -92,10 +162,19 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await Promise.all([page.waitForEvent("domcontentloaded"), page.getByRole("button", { name: "Reload and retry" }).click()]);
     await page.waitForFunction(() => WriterState.WRITER_READY === true);
     assert.deepEqual(await retained(), expected, "retry restores the original draft after storage becomes available");
+    await largeWorkspace(page, context);
     assert.deepEqual(errors, [], "storage failure and retry are handled without uncaught browser errors");
   } finally {
     release?.();
     await context.close();
   }
-  return { passed: true, retainedDrafts: 1, earlySaveRefused: true, failedReadRefused: true, retryRestored: true };
+  return {
+    passed: true,
+    retainedDrafts: 1,
+    largeWorkspaceCases: 1000,
+    largeWorkspaceDocuments: 4000,
+    earlySaveRefused: true,
+    failedReadRefused: true,
+    retryRestored: true,
+  };
 };

@@ -39,12 +39,23 @@ export const reinsp = (id) => workspaceState.REINSP.find((r) => r.id === id);
 
 export const docsFor = (cid) => workspaceState.DOCS.filter((d) => d.caseId === cid);
 
+/* Operation-local grouping for a synchronous Workspace calculation. Never retain it across renders or awaits.
+   Buckets preserve document order and references; callers receive independent arrays just like docsFor. */
+export function groupCaseDocuments(documents) {
+  const groups = new Map();
+  for (const d of documents) {
+    if (!groups.has(d.caseId)) groups.set(d.caseId, []);
+    groups.get(d.caseId).push(d);
+  }
+  return (cid) => (cid === cid ? (groups.get(cid) || []).slice() : []);
+}
+
 export const reinspFor = (cid) => workspaceState.REINSP.filter((r) => r.caseId === cid);
 
 /* the document a reinspection is walked against: the newest one with items,
    which is the original notice on the first return visit and the extension
    after that */
-export const draftDocFor = (cid) => docsFor(cid).find((d) => d.draft) || null;
+export const draftDocFor = (cid, documents = docsFor(cid)) => documents.find((d) => d.draft) || null;
 
 export const draftReinspFor = (cid) => workspaceState.REINSP.find((r) => r.draft && r.caseId === cid) || null;
 
@@ -96,9 +107,9 @@ export const correctionSource = (d) => (d && d.correction ? doc(d.correction.tar
 
 export const recordNow = (cid) => new Date(Math.max(Date.now(), ...eventsFor(cid).map((e) => Date.parse(e.at) + 1))).toISOString();
 
-export function sourceDocFor(cid) {
+export function sourceDocFor(cid, documents = docsFor(cid)) {
   // Only a document that has actually been issued can be reinspected: it is
   // the numbered list the owner received. DOCS is newest first.
-  const w = docsFor(cid).filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
+  const w = documents.filter((d) => !d.draft && !d.void && !d.superseded && d.items.length);
   return w.find((d) => !supplemental(d)) || w[0] || null;
 }

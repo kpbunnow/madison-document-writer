@@ -3,7 +3,7 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { caseFileName } from "./case_file_rules.js";
-import { docsFor, doneItems, unchecked, insp } from "./writer_queries.js";
+import { docsFor, groupCaseDocuments, doneItems, unchecked, insp } from "./writer_queries.js";
 import { DOC_TYPES } from "./document_types.js";
 import { fmtDate } from "./presentation_format.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
@@ -53,9 +53,8 @@ function workspaceDueHTML({ st }) {
     : html`<span class="muted">—</span>`;
 }
 
-function renderWorkspaceRow(row) {
-  const { k, st, proof } = row,
-    documents = docsFor(k.id);
+function renderWorkspaceRow(row, documents = docsFor(row.k.id)) {
+  const { k, st, proof } = row;
   const secondary = row.facts.filter((t) => !["open", "drafts"].includes(t.key));
   // Attribute fragments are produced by the workspace task owner, which escapes their values.
   const detailActions = secondary
@@ -180,8 +179,9 @@ function workspaceContentHTML({ activeLabel, quickViews, count, orphan, moreView
 export function createWorkspaceScreen(services) {
   function revealIssuedCase(cid) {
     const s = editor.state,
-      rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k) })),
-      row = workspaceQueue(rows, services.workspaceTasks(rows), services.app_workspacequeueContext()).find((r) => r.k.id === cid);
+      documentsFor = groupCaseDocuments(workspace.DOCS),
+      rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k, documentsFor(k.id)) })),
+      row = workspaceQueue(rows, services.workspaceTasks(rows, documentsFor), services.app_workspacequeueContext()).find((r) => r.k.id === cid);
     if (!row) return false;
     const before = [s.caseFilter, s.caseQ, s.caseInspector].join("|"),
       query = String(s.caseQ || "")
@@ -207,8 +207,9 @@ export function createWorkspaceScreen(services) {
   }
 
   function screenCases() {
-    const rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k) })),
-      tasks = services.workspaceTasks(rows);
+    const documentsFor = groupCaseDocuments(workspace.DOCS),
+      rows = workspace.CASES.map((k) => ({ k, st: services.caseState(k, documentsFor(k.id)) })),
+      tasks = services.workspaceTasks(rows, documentsFor);
     // Retire legacy metric selection into the workspace views.
     if (editor.state.metric) {
       editor.state.caseFilter =
@@ -243,7 +244,7 @@ export function createWorkspaceScreen(services) {
         (!query || services.caseSearchText(row.k).includes(query)) &&
         (!editor.state.caseInspector || row.k.inspectorId === editor.state.caseInspector),
     );
-    const table = filtered.map((row) => renderWorkspaceRow(row)).join("");
+    const table = filtered.map((row) => renderWorkspaceRow(row, documentsFor(row.k.id))).join("");
     const importCount = tasks.find((t) => t.key === "imports").count;
     // Pending operations without a loaded case must remain reachable.
     const orphan = workspace.PENDING.filter((p) => !workspace.CASES.some((k) => k.id === p.cid || caseFileName(k) === p.name));

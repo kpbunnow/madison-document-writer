@@ -2,21 +2,21 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Workspace task presentation consumes existing record and artifact facts; no action or persistence authority. */
 import { DOC_TYPES } from "./document_types.js";
-import { docsFor, effectiveFiled, kase } from "./writer_queries.js";
+import { docsFor, groupCaseDocuments, effectiveFiled, kase } from "./writer_queries.js";
 import { independentArtifact, pdfTransferState } from "./pdf_artifacts.js";
 import { esc as dep_esc } from "./presentation_format.js";
 
-function unfiledTaskItems(rows, caseTask) {
+function unfiledTaskItems(rows, caseTask, documentsFor = docsFor) {
   return rows.flatMap((x) =>
-    docsFor(x.k.id)
+    documentsFor(x.k.id)
       .filter((d) => independentArtifact(d) && !effectiveFiled(d))
       .map((d) => caseTask(x, "File " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF", `data-open="${dep_esc(d.id)}"`)),
   );
 }
 
-function localArtifactTaskItems(rows, caseTask) {
+function localArtifactTaskItems(rows, caseTask, documentsFor = docsFor) {
   return rows.flatMap((x) =>
-    docsFor(x.k.id)
+    documentsFor(x.k.id)
       .filter(
         (d) =>
           independentArtifact(d) &&
@@ -36,9 +36,9 @@ function localArtifactTaskItems(rows, caseTask) {
   );
 }
 
-function artifactIssueTaskItems(rows, caseTask) {
+function artifactIssueTaskItems(rows, caseTask, documentsFor = docsFor) {
   return rows.flatMap((x) =>
-    docsFor(x.k.id)
+    documentsFor(x.k.id)
       .filter(
         (d) =>
           independentArtifact(d) &&
@@ -64,18 +64,18 @@ function artifactIssueTaskItems(rows, caseTask) {
 
 /* Construction reads no services or workspace state and registers no listeners. */
 export function createWorkspaceTasks(services) {
-  function workspaceTasks(rows) {
+  function workspaceTasks(rows, documentsFor = groupCaseDocuments(workspace.DOCS)) {
     const task = (key, label, unit, items) => ({ key, label, unit, items, count: items.length });
     const caseTask = (x, text, action) => ({ cid: x.k.id, label: x.k.number + " · " + x.k.address + " · " + text, action });
     const open = rows.filter((x) => !x.st.closed),
       drafts = rows.filter((x) => x.st.draft || x.st.visit);
     const needsDeposit = rows.flatMap((x) =>
-      docsFor(x.k.id)
+      documentsFor(x.k.id)
         .filter((d) => d.draft && !services.depositComplete(d))
         .map((d) => caseTask(x, "Citation needs deposit", `data-open="${dep_esc(d.id)}"`)),
     );
     const pendingDocs = rows.flatMap((x) =>
-      docsFor(x.k.id)
+      documentsFor(x.k.id)
         .filter((d) => d.pendingAmendment)
         .map((d) => caseTask(x, "Document save confirmation", `data-open="${dep_esc(d.id)}"`)),
     );
@@ -84,9 +84,9 @@ export function createWorkspaceTasks(services) {
         .filter(([, a]) => a.cid === x.k.id)
         .map(([id]) => caseTask(x, "Record save confirmation", `data-resumerecord="${dep_esc(id)}"`)),
     );
-    const unfiled = unfiledTaskItems(rows, caseTask);
-    const local = localArtifactTaskItems(rows, caseTask);
-    const issues = artifactIssueTaskItems(rows, caseTask);
+    const unfiled = unfiledTaskItems(rows, caseTask, documentsFor);
+    const local = localArtifactTaskItems(rows, caseTask, documentsFor);
+    const issues = artifactIssueTaskItems(rows, caseTask, documentsFor);
     return [
       task("deposit", "Citation needs deposit", "documents", needsDeposit),
       task(
