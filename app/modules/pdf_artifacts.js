@@ -8,6 +8,26 @@ import { esc as dep_esc } from "./presentation_format.js";
 import { authFetch } from "./helper_transport.js";
 import { html, raw } from "./screen_html.js";
 
+function closeUnusedViewers(viewers) {
+  for (const viewer of viewers)
+    try {
+      viewer?.close();
+    } catch {
+      /* A browser refusal must not prevent cleanup of the other unused viewers. */
+    }
+}
+
+function openOutboxViewers(count) {
+  const viewers = [];
+  try {
+    for (let n = 0; n < count; n++) viewers.push(window.open("about:blank", "_blank"));
+    return viewers;
+  } catch (error) {
+    closeUnusedViewers(viewers);
+    throw error;
+  }
+}
+
 export function pdfTransferState(d) {
   if (deliveredByCitation(d)) return "included in citation PDF";
   if (!effectiveFiled(d)) return "unfiled";
@@ -27,6 +47,14 @@ export function pdfTransferState(d) {
 
 export function independentArtifact(d) {
   return !d.draft && !d.void && !d.superseded && !deliveredByCitation(d);
+}
+
+function selectedOutbox() {
+  const form = document.getElementById("outbox-form");
+  return [...form.querySelectorAll("[name=pdf]:checked")]
+    .map((el) => workspace.OUTBOX_FILES[Number(el.value)])
+    .filter(Boolean)
+    .map(({ name, sha256 }) => ({ name, sha256 }));
 }
 
 /* Inert construction: dependencies and browser/state objects are read only by operations. */
@@ -58,20 +86,13 @@ export function createPdfArtifacts(services) {
     );
   }
 
-  function selectedOutbox() {
-    const form = document.getElementById("outbox-form");
-    return [...form.querySelectorAll("[name=pdf]:checked")]
-      .map((el) => workspace.OUTBOX_FILES[Number(el.value)])
-      .filter(Boolean)
-      .map(({ name, sha256 }) => ({ name, sha256 }));
-  }
-
   async function printOutbox() {
     const items = selectedOutbox();
     if (!items.length || items.length > 20) throw new Error("Select 1–20 PDFs to print");
-    const viewers = items.map(() => window.open("about:blank", "_blank"));
+    const viewers = openOutboxViewers(items.length);
     for (let n = 0; n < items.length; n++) {
       const item = items[n];
+      let url;
       try {
         const response = await authFetch("/outbox/read", {
           method: "POST",
@@ -80,8 +101,8 @@ export function createPdfArtifacts(services) {
         });
         if (!response.ok) throw new Error((await response.json()).error || "Could not read PDF");
         const blob = await response.blob(),
-          url = URL.createObjectURL(blob),
           viewer = viewers[n];
+        url = URL.createObjectURL(blob);
         if (viewer) {
           viewer.addEventListener(
             "load",
@@ -106,9 +127,12 @@ export function createPdfArtifacts(services) {
           link.download = item.name;
           link.click();
         }
-        setTimeout(() => URL.revokeObjectURL(url), 120000);
+        const retainedUrl = url;
+        setTimeout(() => URL.revokeObjectURL(retainedUrl), 120000);
       } catch (error) {
-        viewers[n]?.close();
+        if (url) URL.revokeObjectURL(url);
+        // Earlier PDFs were handed to the user; only the failed/unprocessed viewers are unused.
+        closeUnusedViewers(viewers.slice(n));
         throw error;
       }
     }

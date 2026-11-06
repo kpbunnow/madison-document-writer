@@ -239,6 +239,53 @@ const deferred = () => {
     fetchReply = async () => ({ ok: false, status: 500, json: async () => ({ error: "Retained bytes unavailable" }) });
     await assert.rejects(api.printOutbox(), /Retained bytes unavailable/);
     assert.equal(popupEvents.at(-1), "close");
+    // A failed batch must not abandon its not-yet-used blank tabs.
+    select(3);
+    const closed = [];
+    let opened = 0;
+    global.window.open = () => {
+      const index = opened++;
+      return { close: () => closed.push(index) };
+    };
+    await assert.rejects(api.printOutbox(), /Retained bytes unavailable/);
+    assert.deepEqual(closed, [0, 1, 2]);
+    // Opening a later viewer may throw before any fetch; close earlier blank tabs too.
+    closed.length = 0;
+    opened = 0;
+    global.window.open = () => {
+      if (opened++ === 1) throw Error("Viewer refused");
+      return { close: () => closed.push(0) };
+    };
+    await assert.rejects(api.printOutbox(), /Viewer refused/);
+    assert.deepEqual(closed, [0]);
+    // Failure after allocating bytes must revoke them rather than lose their cleanup timer.
+    select(1);
+    global.window.open = () => ({
+      addEventListener() {},
+      location: {
+        set href(value) {
+          throw Error("Navigation refused");
+        },
+      },
+      close: () => closed.push(0),
+    });
+    fetchReply = async () => ({ ok: true, blob: async () => ({ retained: true }) });
+    const previousUrl = urlSerial;
+    await assert.rejects(api.printOutbox(), /Navigation refused/);
+    assert.ok(popupEvents.includes("revoke blob:retained-" + (previousUrl + 1)));
+    // A later failure leaves the successfully opened PDF alone and closes every remaining blank.
+    select(3);
+    opened = 0;
+    closed.length = 0;
+    global.window.open = () => {
+      const index = opened++;
+      return { location: {}, addEventListener() {}, close: () => closed.push(index) };
+    };
+    let reads = 0;
+    fetchReply = async () =>
+      ++reads === 1 ? { ok: true, blob: async () => ({ retained: true }) } : { ok: false, json: async () => ({ error: "Later PDF unavailable" }) };
+    await assert.rejects(api.printOutbox(), /Later PDF unavailable/);
+    assert.deepEqual(closed, [1, 2]);
     for (const count of [0, 21]) {
       select(count);
       global.window.open = () => assert.fail("invalid selection opened a popup");
