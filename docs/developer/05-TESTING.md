@@ -173,3 +173,5 @@ The retained saved-work audit exposes private storageBar only inside its evaluat
 
 
 `audit_screen_dependencies.js` checks independent inert construction and exact lazy composition for six screen/fact owners, live case/day/citation-window facts, Workspace filter relaxation/escaped live listings/row focus, overlay priority, stopped/locked/restoration barriers, route dispatch, enhancement order, input focus/caret and dirty-save/scroll behavior. `audit_module_boundaries.js` now rejects every Writer/Reports cycle. Existing R13 and HTML tag-check assertions use the public overlay wrapper for the same final-modal state; no private API is added. Registration/startup, Workspace/language/saved-work and production/historical tests retain their existing assertions.
+
+Before/after performance diagnostics follow [BEFORE-AFTER-VERIFICATION.md](BEFORE-AFTER-VERIFICATION.md): matched hashed inputs/results, alternating paired rounds and separate CPU attribution. Diagnostics never replace the full exact-head GitHub merge gate.

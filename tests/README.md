@@ -115,6 +115,7 @@ covers, or a new suite under its feature.
 | `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
 | `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable and recipient input/caret, native contact edits, validation/model/lock boundaries, action focus, and route changes before/after markup |
+| `audit_benchmark_comparison.js`, `audit_benchmark_comparison.py` | Paired before/after statistics and A/A control; immutable raw evidence, matched fixture/results/environment, rejection of missing work/proofs or altered fixtures, actual five-case read/proof metrics and serial/pooled execution classification |
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
