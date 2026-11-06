@@ -791,7 +791,10 @@ def violation_row(ctx, it):
     done, done_on = outcome["done"], outcome["done_on"]
     x = next((i for i in items(last_items) if jstr(jor(get(i, "no"), "")) == no), UNDEF) if last_items is not None else None
     if truthy(x):
-        projected = next((i for i in continuing_items(last_items, visits) if jstr(get(i, "no")) == no), None)
+        # One summary's rows share this result, first computed at the original validation checkpoint.
+        if "continuing_items" not in ctx:
+            ctx["continuing_items"] = continuing_items(last_items, visits)
+        projected = next((i for i in ctx["continuing_items"] if jstr(get(i, "no")) == no), None)
         projected = x if projected is None else projected
         done = truthy(get(projected, "done"))
         done_on = jor(get(projected, "doneOn"), done_on) if truthy(get(projected, "done")) else ""

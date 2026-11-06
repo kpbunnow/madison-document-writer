@@ -435,6 +435,8 @@ covers, or a new suite under its feature.
 | --- | --- |
 | `audit_r48_performance.py`, `audit_r49_performance.py` | Index verification latency with unchanged read counts |
 | `audit_r49_readiness.py` | Bounded read concurrency and independent proofs |
+| `audit_reporting_inputs.py` | Bounded operation-local summary inputs, encoding/error/no-follow parity, retained downgrade evidence, fresh tamper detection, empty-list no-scan, one settings/inventory read and full case proofs |
+| `audit_projection_work.js`, `audit_projection_work.py` | One continuing-item calculation per 25/100-item summary against retained output, with unchanged source history and fresh changed-visit results |
 
 ## Release-wide regressions
 

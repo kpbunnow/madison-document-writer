@@ -322,7 +322,9 @@ function violationRow(ctx, it) {
   let { done, doneOn } = outcome;
   const x = lastItems && lastItems.items.find((i) => String(i.no || "") === no);
   if (x) {
-    const projected = continuingItemsForVisits(lastItems, visits).find((i) => String(i.no) === no) || x;
+    // The context belongs to one summary; preserve the first computation's place in validation order.
+    if (!Object.hasOwn(ctx, "continuingItems")) ctx.continuingItems = continuingItemsForVisits(lastItems, visits);
+    const projected = ctx.continuingItems.find((i) => String(i.no) === no) || x;
     done = !!projected.done;
     doneOn = projected.done ? projected.doneOn || doneOn : "";
   }

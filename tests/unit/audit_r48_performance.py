@@ -98,7 +98,7 @@ class Responsiveness(unittest.TestCase):
                         result = server.read_index()
                     elapsed = time.perf_counter() - start
                     self.assertEqual(len(result["summaries"]), count)
-                    self.assertEqual(reads["summary"], count * 2)
+                    self.assertEqual(reads["summary"], count)  # One captured input serves context and Reports; every case proof still runs.
                     self.assertEqual(reads["case"], count)
                     self.assertFalse(result["stale"] or result["missing"] or result["unreadable"])
                     results.append(
