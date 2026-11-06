@@ -190,7 +190,9 @@ def _known_names(root, uid, cfg):
     """Every name this helper holds for a user ID: the checked workflow list's name and the deferred lookup's, so an
     exclusion by full name applies to case requests exactly as it does to the picker."""
     names = [uid]
-    listed = _cached(_cache, root, "answer", cfg) or []
+    # The checked workflow list is the authority for full names; when it has expired it is read again, so an exclusion
+    # by name never depends on a recent picker visit. If it cannot be read, the request is refused rather than guessed.
+    listed = _list_answer(root, False, cfg)[0]
     names += [p["name"] for p in listed if p["id"].casefold() == uid.casefold() and p["name"].casefold() != uid.casefold()]
     deferred = _kept_names(root, cfg).get(uid.casefold())
     return names + ([deferred] if deferred else [])

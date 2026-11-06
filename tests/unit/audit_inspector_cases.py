@@ -57,6 +57,14 @@ class InspectorCaseTests(unittest.TestCase):
     def answer(self, rows):
         return {"ok": True, "rows": rows, "database": "AccelaReporting"}
 
+    def listed(self, rows):
+        """A stand-in database: the inspector list query answers with one inspector, every other query with `rows`."""
+
+        def answer(cfg, request, wait=None):
+            return self.answer([person()] if request.get("mode") == "inspector_list" else rows)
+
+        return answer
+
     def configure(self, **settings):
         (self.root / "Case Lookup").mkdir(exist_ok=True)
         (self.root / "Case Lookup/settings.json").write_text(json.dumps(settings), encoding="utf-8")
@@ -398,7 +406,7 @@ class InspectorCaseTests(unittest.TestCase):
 
     def test_open_cases_are_normalized(self):
         rows = [case_row(), case_row("CB2026-241-00002", ShortAddress="  2 TEST   AVE ", CaseDescription=None), case_row()]
-        with patch.object(lookup, "run_script", return_value=self.answer(rows)) as run:
+        with patch.object(lookup, "run_script", side_effect=self.listed(rows)) as run:
             result = cases.open_cases(self.root, " JSMITH ")
         self.assertEqual(run.call_args.args[1], {"mode": "inspector_cases", "userId": "JSMITH", "commandTimeout": cases.LIST_QUERY_TIMEOUT})
         self.assertEqual(result["inspector"], {"id": "JSMITH"})
@@ -416,7 +424,7 @@ class InspectorCaseTests(unittest.TestCase):
         )
         self.assertEqual(second, {"caseNumber": "CB2026-241-00002", "address": "2 TEST AVE", "description": "", "dueDate": "", "dueState": "unknown"})
         self.assertFalse(result["dueDates"], "no case folder was given, so due dates are not available")
-        with patch.object(lookup, "run_script", return_value=self.answer([])):
+        with patch.object(lookup, "run_script", side_effect=self.listed([])):
             self.assertEqual(cases.open_cases(self.root, "JSMITH")["cases"], [])
 
     def summary(self, number, *dues, **extra):
@@ -520,7 +528,7 @@ class InspectorCaseTests(unittest.TestCase):
         self.write_case(names[3], "2026-11-20", "2026-11-05")
         self.write_case(names[4], "2026-11-06", done=(0,))
         self.write_summary(names[5], self.summary(names[5], "2026-09-01"))  # orphaned summary
-        with patch.object(lookup, "run_script", return_value=self.answer(rows)):
+        with patch.object(lookup, "run_script", side_effect=self.listed(rows)):
             result = cases.open_cases(self.root, "JSMITH", self.root / "Case JSON Files")
         self.assertTrue(result["dueDates"])
         self.assertEqual(
@@ -535,7 +543,7 @@ class InspectorCaseTests(unittest.TestCase):
             ],
             "no order first (in the database's order), then past due to furthest away, then unconfirmed",
         )
-        with patch.object(lookup, "run_script", return_value=self.answer(rows)):
+        with patch.object(lookup, "run_script", side_effect=self.listed(rows)):
             unreachable = cases.open_cases(self.root, "JSMITH", self.root / "nowhere")
         self.assertFalse(unreachable["dueDates"])
         self.assertEqual([c["caseNumber"] for c in unreachable["cases"]], names, "without due dates the database's order stays")
@@ -555,11 +563,11 @@ class InspectorCaseTests(unittest.TestCase):
             [case_row(f"CB2026-241-{n:05d}") for n in range(cases.MAX_CASES + 1)],
         ]
         for rows in wrong:
-            with self.subTest(rows=str(rows)[:40]), patch.object(lookup, "run_script", return_value=self.answer(rows)):
+            with self.subTest(rows=str(rows)[:40]), patch.object(lookup, "run_script", side_effect=self.listed(rows)):
                 with self.assertRaises(lookup.CaseLookupError):
                     cases.open_cases(self.root, "JSMITH")
         self.excluding(["jsmith"])
-        with patch.object(lookup, "run_script", return_value=self.answer([case_row()])):
+        with patch.object(lookup, "run_script", side_effect=self.listed([case_row()])):
             with self.assertRaises(lookup.CaseLookupError) as error:
                 cases.open_cases(self.root, "JSMITH")
         self.assertEqual(error.exception.status, 403)
@@ -586,10 +594,33 @@ class InspectorCaseTests(unittest.TestCase):
                 cases.open_cases(self.root, "qa_hidden")
             self.assertEqual(error.exception.status, 403)
             run.assert_not_called()
-        with patch.object(lookup, "run_script", return_value=self.answer([case_row()])):
+        with patch.object(lookup, "run_script", side_effect=self.listed([case_row()])):
             self.assertEqual(len(cases.open_cases(self.root, "JSMITH")["cases"]), 1, "a person who is not excluded still loads")
-        with patch.object(lookup, "run_script", return_value=self.answer([case_row(uid="NOBODY")])):
+        with patch.object(lookup, "run_script", side_effect=self.listed([case_row(uid="NOBODY")])):
             self.assertEqual(len(cases.open_cases(self.root, "NOBODY")["cases"]), 1, "an unknown name does not match an exclusion")
+
+    def test_a_cold_list_cache_still_applies_name_exclusions_to_case_requests(self):
+        # The workflow list is read again when it has expired or was never loaded (a stale tab, a crafted request), so a
+        # name exclusion never depends on a recent picker visit; if the list cannot be read the request is refused.
+        self.excluding(["Synthetic%Excluded%Person"])
+        calls = []
+
+        def database(cfg, request, wait=None):
+            calls.append(request["mode"])
+            if request["mode"] == "inspector_list":
+                return self.answer([person("QA_HIDDEN", "Synthetic Excluded Person"), person()])
+            return self.answer([case_row(uid="QA_HIDDEN")])
+
+        with patch.object(lookup, "run_script", side_effect=database):
+            with self.assertRaises(lookup.CaseLookupError) as error:
+                cases.open_cases(self.root, "QA_HIDDEN")
+            self.assertEqual(error.exception.status, 403)
+            self.assertEqual(calls, ["inspector_list"], "the list was read, the cases never were")
+        cases._cache.update(root=None, at=0.0, answer=None, source=None)
+        with patch.object(lookup, "run_script", side_effect=lookup.CaseLookupError("offline")) as run:
+            with self.assertRaises(lookup.CaseLookupError):
+                cases.open_cases(self.root, "JSMITH")
+            self.assertEqual(run.call_count, 1, "an unreadable list refuses the request instead of guessing")
 
     def test_the_divisions_four_excluded_staff_never_appear_whatever_the_name_form(self):
         rows = [
