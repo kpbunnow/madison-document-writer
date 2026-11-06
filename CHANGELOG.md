@@ -1,5 +1,34 @@
 # Release changelog
 
+## 2026-11-06 R75 — Release package
+
+Release package assigned on the owner's request after R74 (helper 2026.11.06.76, build 76; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R75 upgrades R74. **R75 needs Python 3.14 or later on every PC** (see the first item).
+
+### Python 3.14 is now required
+
+- Document Writer, its launchers and its installer now require **Python 3.14 or later** (64-bit, with the `py` launcher). A PC with an earlier Python shows "Python 3.14 or later was not found. Ask IT to install Python 3.14 and enable its launcher." and does not start. The Windows diagnostic batch file prefers `py -3.14`.
+- Only the Python 3.14 address-parser component ships. Python 3.15 runs the program, but without the address parser (the older standardizer is used) until its component is published; 3.15 is reported as not yet supported for the parser.
+
+### Case database
+
+- All four lookups (case lookup, inspector list, inspector names, open cases) now read the database named in `Case Lookup/settings.json`; a missing or blank database means `AccelaReporting`. Open-case lists and kept names are cached per configuration, so changing the setting never serves stale results. If your login's default database was different from `AccelaReporting` for the case-number lookup, set `database` in `settings.json` (see CASE-LOOKUP-GUIDE).
+- An inspector excluded by full name is refused for case lists even when the inspector list has expired from the helper's memory; if the list cannot be read the request is refused.
+
+### Workspace and exit
+
+- Clearing a past session's workspace at start can no longer stop Document Writer from starting: if it cannot be cleared, the work is kept and a notice says so.
+- Exit Document Writer states accurately what was cleared and what was kept (cases awaiting save confirmation, queued saves and PDF transfers), and its confirmation now covers the clearing information.
+- A failed PDF hand-off no longer leaves an unused PDF or blank viewer windows behind, and a recipient field keeps what you typed through screen refreshes.
+
+### Speed and reliability
+
+- Workspace, Reports and open-case calculations reuse their inputs within one operation (document grouping, summary reads), with the same results.
+- Deployment preparation refuses linked folders even when run from the command line, and Windows private-session checks no longer pick up PowerShell 7 modules.
+
+### Release verification
+
+- The full local gate (on Python 3.14) and GitHub's Full gate and Windows recovery checks passed on the exact release head. None of this has been exercised on City PCs; PY-1, SQL-2 and the carried items cover it.
+
 ## 2026-11-05 R74 — Release package
 
 Release package assigned on the owner's request after R73 (helper 2026.11.05.75, build 75; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R74 upgrades R73.

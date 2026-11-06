@@ -328,6 +328,16 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R75 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S75-1 | Install R75 from the shared release folder over R74 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R74 against the same share | The helper starts and Writer opens; Tools & settings → Connection checks shows program 2026-11-06 R75 and helper 2026.11.06.76 with Program/helper versions Match; the R74 copy is told to restart and cannot save to the shared folder |
+| PY-1 | On a City PC with Python 3.14 (64-bit, `py` launcher) start Document Writer; on a PC with only Python 3.12 or 3.13 run the start batch file | With 3.14 the helper starts and Tools & settings shows the Local address parser available; with an earlier Python the message "Python 3.14 or later was not found. Ask IT to install Python 3.14 and enable its launcher." appears and nothing starts |
+| SQL-2 | With the City `Case Lookup/settings.json` (and again with the database line removed), open Import inspection, load an inspector's open cases and look up a case number | The inspector list, open cases and case lookup all work against the configured database (AccelaReporting when none is set); if the case-number lookup now fails where it worked before, set `database` in settings.json |
+
+All R75 items remain OPEN, together with the R74 items and the carried items. S74-1 is superseded by S75-1. Rollout: install Python 3.14 on every PC before R75.
+
 ## R74 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
