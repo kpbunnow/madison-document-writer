@@ -1013,6 +1013,7 @@
     "tests/unit/audit_test_seams.js",
     "tests/unit/audit_tool_form_submit_rules.js",
     "tests/unit/audit_tools_screen_markup_rules.js",
+    "tests/unit/audit_ui_timer_settlement.js",
     "tests/unit/audit_usability_phase1.js",
     "tests/unit/audit_usability_phase2.js",
     "tests/unit/audit_usability_phase3.js",

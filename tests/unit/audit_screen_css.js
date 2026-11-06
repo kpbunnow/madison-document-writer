@@ -6,6 +6,19 @@ const assert = require("assert/strict"),
 const { classReferences, scanModules, styleContract } = require("../../tools/screen_css_usage.cjs");
 const inventory = require("../fixtures/screen_shell_css.json"),
   root = path.resolve(__dirname, "../..");
+// Parser maintenance must preserve the contract's sensitivity, as well as its frozen hashes below.
+const contractProbe =
+  ".first { color: red; padding: 1px !important; } .second { display: block; } @media print { .print { margin: 0; } } @keyframes pulse { from { opacity: 0; } to { opacity: 1; } }";
+for (const changed of [
+  contractProbe.replace(".first", ".other"),
+  contractProbe.replace("color: red", "background: red"),
+  contractProbe.replace("color: red", "color: blue"),
+  contractProbe.replace(" !important", ""),
+  contractProbe.replace("color: red; padding: 1px !important;", "padding: 1px !important; color: red;"),
+  contractProbe.replace("@media print", "@media screen"),
+  contractProbe.replace("opacity: 0", "opacity: 0.5"),
+])
+  assert.notEqual(styleContract(changed, []), styleContract(contractProbe, []), "Changed CSS semantics must still change the contract");
 assert.deepEqual(
   classReferences("const html = value + '<label class=\"case' + '-view\"><button class=\"queue-pri' + 'mary\">';", ["case-view", "queue-primary"]),
   ["case-view", "queue-primary"],

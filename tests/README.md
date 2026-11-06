@@ -17,6 +17,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
 | `audit_citation_review_templates.js` | 4,096 complete retained citation review cards with exact state, peer reads, ordered effects and interruptions |
 | `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
@@ -506,3 +507,5 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 ## Native Windows interruption and recovery
 
 `tests/windows/interruption_recovery.py` and `tests/windows/browser_recovery.cjs` run actual process-death, NTFS, loopback SMB and persistent-profile recovery tests through the Windows recovery workflow. They supplement the complete required gate; portable runs are explicitly not native evidence. See [Windows recovery tests](../docs/developer/WINDOWS-RECOVERY-TESTS.md) for scenarios, evidence requirements and City/hardware acceptance limits.
+
+`audit_ui_timer_settlement.js` runs isolated positive and negative teardown checks: real DOM focus/render completion, every short/long callback, leaked application-interval refusal, callback failure and completion rejection. It preserves the original timer guard while adapting to jsdom31's pending rendering interval.

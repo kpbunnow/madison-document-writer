@@ -87,7 +87,15 @@ function run(api, sc) {
       error = [e.name, e.message];
     }
     const form = document.getElementById("admin-snow-letter-form");
-    return JSON.stringify({ error, calls, html: document.getElementById("host").innerHTML, alert: form?.querySelector("[role=alert]").textContent });
+    const result = JSON.stringify({
+      error,
+      calls,
+      html: document.getElementById("host").innerHTML,
+      alert: form?.querySelector("[role=alert]").textContent,
+    });
+    dom.window.close();
+    await new Promise((resolve) => setImmediate(resolve));
+    return result;
   })();
 }
 

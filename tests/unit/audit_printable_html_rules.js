@@ -67,7 +67,9 @@ function run(api, sc) {
   } catch (e) {
     error = [e.name, e.message];
   }
-  return JSON.stringify({ value, error, calls });
+  const result = JSON.stringify({ value, error, calls });
+  dom.window.close();
+  return result;
 }
 
 (async () => {
@@ -83,6 +85,8 @@ function run(api, sc) {
     assert.equal(after, before, `printable HTML scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     for (const f of wanted) if (after.includes(f)) seen.add(f);
     if (JSON.parse(after).value === "") seen.add("none");
+    // Each pair still owns fresh windows. Drain their queued load/cleanup work before creating the next pair.
+    await new Promise((resolve) => setImmediate(resolve));
   }
   for (const f of [...wanted, "none"]) assert.ok(seen.has(f), "scenarios reach: " + f);
   console.log("PASS printable HTML matches the retained module over 1500 scenarios");
