@@ -6,6 +6,13 @@ import { docCase, docInsp, eventsFor, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { project } from "./case_records.js";
 
+function issuedArtifact(d) {
+  if (!d || d.draft) return null;
+  const events = eventsFor(d.caseId).filter((ev) => ev.type === "document.filed" && (ev.payload || {}).docId === d.id);
+  const p = (events.at(-1) || {}).payload || {};
+  return p.sha256 && p.filename ? { filename: p.filename, sha256: p.sha256, docId: d.id } : null;
+}
+
 /* Original PDF filing phases. Each takes the owner's `services` and runs in the order the single filing used to. */
 /* A person pressing File issued PDF is told why nothing can be filed when the helper found no Chrome or Edge. */
 const NO_BROWSER_FOR_PDF =
@@ -178,17 +185,11 @@ export function createDocumentDelivery(services) {
     }
   }
 
-  function issuedArtifact(d) {
-    if (!d || d.draft) return null;
-    const events = eventsFor(d.caseId).filter((ev) => ev.type === "document.filed" && (ev.payload || {}).docId === d.id);
-    const p = (events.at(-1) || {}).payload || {};
-    return p.sha256 && p.filename ? { filename: p.filename, sha256: p.sha256, docId: d.id } : null;
-  }
-
   async function openIssuedCopy(d) {
     if (!d || d.draft) return false;
     const artifact = issuedArtifact(d);
     if (artifact && startup.HELPER) {
+      let url;
       try {
         const response = await services.authFetch("/artifact/read", {
           method: "POST",
@@ -198,7 +199,7 @@ export function createDocumentDelivery(services) {
         const reply = await response.json();
         if (reply.ok) {
           const bytes = Uint8Array.from(services.atob(reply.pdf), (c) => c.charCodeAt(0));
-          const url = services.URL.createObjectURL(new services.Blob([bytes], { type: "application/pdf" }));
+          url = services.URL.createObjectURL(new services.Blob([bytes], { type: "application/pdf" }));
           const windowCopy = services.window.open(url, "_blank");
           if (windowCopy) {
             services.toast("Opened the verified archived PDF. Print it from the PDF viewer.");
@@ -217,6 +218,8 @@ export function createDocumentDelivery(services) {
         }
         services.toast("Exact issued PDF unavailable: " + (reply.error || "verification failed"));
       } catch {
+        // A refused popup/download must not orphan the allocated PDF before its normal cleanup is scheduled.
+        if (url) services.URL.revokeObjectURL(url);
         services.toast("Exact issued PDF unavailable: the local helper or archive could not be reached.");
       }
     } else

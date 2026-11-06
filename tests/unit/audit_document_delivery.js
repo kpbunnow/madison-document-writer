@@ -167,6 +167,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
       return {
         open(url, target) {
           calls.push(["open", url, target]);
+          if (popup === "throw") throw Error("Viewer refused");
           return popup ? {} : null;
         },
       };
@@ -346,6 +347,21 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
   popup = false;
   assert.equal(await delivery.openIssuedCopy(d), true);
   assert.ok(calls.some((c) => Array.isArray(c) && c[0] === "download" && c[1] === "archived.pdf"));
+  reset();
+  archived();
+  popup = "throw";
+  assert.equal(await delivery.openIssuedCopy(d), false);
+  assert.ok(
+    calls.some((c) => Array.isArray(c) && c[0] === "revoke" && c[1] === "blob:synthetic"),
+    "failed viewer must release PDF bytes",
+  );
+  // Failed opening is repeatable without retaining any of the allocated PDF objects.
+  for (let n = 0; n < 200; n++) {
+    calls = [];
+    assert.equal(await delivery.openIssuedCopy(d), false);
+    assert.equal(calls.filter((c) => c === "blob").length, 1);
+    assert.equal(calls.filter((c) => Array.isArray(c) && c[0] === "revoke").length, 1);
+  }
   reset();
   confirmCopy = false;
   assert.equal(await delivery.openIssuedCopy(d), false);

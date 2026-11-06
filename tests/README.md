@@ -372,7 +372,7 @@ covers, or a new suite under its feature.
 | `audit_catalog_service.js` | Independent catalog/preflight composition, stale review retention, durable patch serialization/failure cleanup and authority guards |
 | `audit_reinspection_service.js` | Independent worksheet/walkthrough composition, live state, outcome/undo guards and save/render/focus order |
 | `audit_case_activity.js` | Six-input reminder/timeline service, live date/state, scope/escaping and read-only event ordering; document.voided in the Withdrawn filter (MCR-012) |
-| `audit_pdf_artifacts.js` | Five-input retained PDF owner, stale/context/identity guards, partial failures, synchronous popup timing, authenticated captured original-byte reads and download fallback |
+| `audit_pdf_artifacts.js` | Five-input retained PDF owner, stale/context/identity guards, partial failures, synchronous popup timing, authenticated captured original-byte reads and download fallback; failed batches close unused viewers and revoke unhanded bytes while preserving successful earlier PDFs |
 | `audit_writer_handoff.js` | Six-input readiness/Reports handoff owner, restoration waits/failures, restored local work, stale shared requests, file validation and channel/URL behavior |
 | `audit_deadline_assignment.js` | Seven-input deadline owner, atomic batch/assignment refusals, spacing/count and live selection/worksheet guards, escaped presentation and indicators |
 | `audit_workspace_tasks.js` | Three-input read-only task owner, group/count agreement, delegated policy, artifact truth, action escaping, frozen inputs and live workspace replacement |
@@ -389,7 +389,7 @@ covers, or a new suite under its feature.
 | `audit_document_readiness.js` | Independently composed readiness; preparation/delegate/target order, live-day/correction exceptions, family filtering, address/inspection/import/citation refusals and mandatory amount exemption, Reinspection Notice keeping past-due and due-today dates (MCR-009) |
 | `audit_document_sources.js` | Independent notification/undo/placeholder and approved-source owners; stale edit guards, text/event/focus order, source precedence/cloning, approved blocks and historical signer/court defaults |
 | `audit_citation_charges.js` | Independent court scheduling/numbering and charge/deposit editing; holiday/day/clock/collision behavior, currency, basis clearing and retained correction metadata |
-| `audit_document_delivery.js` | Independent printing/delivery owners; frame/packet guards, archived original and email identity/reuse, snapshot-bound filing, receipts/outbox, fallback and counter failures |
+| `audit_document_delivery.js` | Independent printing/delivery owners; frame/packet guards, archived original and email identity/reuse, snapshot-bound filing, receipts/outbox, fallback and counter failures; 200 refused viewer opens each release their allocated blob |
 | `audit_working_papers.js` | Independent citation drafts/visit recording/work capture; draft identities and guards, append/projection/save order, typed/cleared/walk/recipient retention and finalization dispatch |
 | `audit_record_workflows.js` | Independent inspection history/correction UI/record actions; retained request retries, validation/locking/escaping, item lineage, legacy cutoffs and immutable history overlays |
 | `audit_recovery_history.js` | Independent recovery UI/catalog forms/document-history owners; lazy interfaces, control/navigation/picker failures, escaped status/history, catalog persistence and revision-print semantics |
@@ -456,6 +456,7 @@ workflow. Each receives the arguments named in its row.
 | Suite | Covers |
 | --- | --- |
 | `browser_startup.js` | Real IndexedDB startup restoration barrier, deferred navigation/early-save refusal, read-failure screen and reload recovery; two startup accessibility screens |
+| `browser_long_session.js` | 120 production open/edit/print-layout-preview/review/close cycles; exactly-once edits, post-GC DOM/document/listener/heap bounds, live timers/intervals/object URLs, layout-frame teardown and real IndexedDB save/reload of final edits; restored Workspace accessibility |
 | `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
 | `browser_r30.js`, `browser_r31.js`, `browser_r32.js` | Pricing and deposits through the loopback helper |
