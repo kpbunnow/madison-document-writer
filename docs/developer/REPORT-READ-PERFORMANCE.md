@@ -44,3 +44,7 @@ An alternative whole-object canonical comparison was measured and was slightly s
 The two existing measured index suites intentionally strengthen their physical-summary-read expectations from `count * 2` to `count`, reflecting this owner-requested I/O contract. Every case-count, proof, anchored-history, mismatch, concurrency, order and latency assertion remains. No frozen reference or expected hash changes.
 
 The required exact-head GitHub Full gate, PR format and applicable Windows recovery still govern merge. Source identity, stored formats, issued history, legal wording, dependencies, native acceptance and release trust are unchanged. No release assignment, packaging or deployment is included.
+
+## Repeatable paired verification
+
+[Before/after verification](BEFORE-AFTER-VERIFICATION.md) documents the maintained comparator for independently built helper roots. It uses fresh processes and identical temporary record bytes, alternating order, equal warmups, full result/proof checks and separate local/synthetic-latency results. The measurements above remain the initial observations; do not present them as a new run.

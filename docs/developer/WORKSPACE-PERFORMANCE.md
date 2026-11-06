@@ -29,7 +29,7 @@ python3 tools/build.py
 node tools/profile_workspace_opening.cjs candidate
 ```
 
-The diagnostic creates only isolated browser profiles and synthetic IndexedDB workspaces, serves the existing production HTML on loopback, and writes JSON timings plus a Chromium CPU profile under `build/workspace-profile/`. It checks restored case/document/worksheet counts, displayed row count, retained draft text and browser errors. The JSON records the Git commit/clean state, production HTML hash, Node and Chromium versions. This is profiling evidence, never Full-gate or release approval.
+The diagnostic creates only isolated browser profiles and synthetic IndexedDB workspaces, serves the existing production HTML on loopback, and writes JSON timings plus a Chromium CPU profile under `build/workspace-profile/`. It checks restored case/document/worksheet counts, displayed row count, retained draft text and browser errors. The JSON records the harness Git commit/clean state separately from the supplied production HTML hash, Node and Chromium versions. This is profiling evidence, never Full-gate or release approval.
 
 Optional environment variables:
 
@@ -44,3 +44,7 @@ Keep measured browser runs serial. Retain raw trials and CPU profiles; compare i
 The existing exact Workspace HTML and case-status parity suites remain unchanged. A real production-browser startup scenario restores 1,000 cases/4,000 documents from IndexedDB, checks that durable bytes remain unchanged, filters to a case and opens its private draft. Earlier startup scenarios retain the real helper, readiness/save barrier, failed-read refusal, reload/retry and accessibility checks.
 
 The complete exact-head GitHub Full gate, PR format and applicable native recovery checks remain required before merge. Release/format identities, issued history, approved wording, frozen screen/print references, dependency locks and City acceptance remain unchanged. No release packaging or deployment is part of this work.
+
+## Paired verification
+
+Use [Before/after verification](BEFORE-AFTER-VERIFICATION.md) for alternating paired rounds, identical hashed fixtures/results, equal warmups and CPU sampling separated from timing. The initial measurements above remain historical observations; fresh paired results are documented with their actual input hashes and completed evidence.

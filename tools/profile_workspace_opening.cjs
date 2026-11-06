@@ -12,11 +12,36 @@ const out = path.resolve(process.env.DW_PROFILE_OUTPUT || path.join(root, "build
   label = process.argv[2] || "workspace";
 assert.match(label, /^[a-zA-Z0-9_][a-zA-Z0-9_-]*$/, "Use a plain output label");
 fs.mkdirSync(out, { recursive: true });
+for (const extension of ["json", "cpuprofile"]) fs.rmSync(path.join(out, label + "." + extension), { force: true });
 const htmlFile = path.resolve(process.env.DW_PROFILE_HTML || path.join(root, "build/dist/madison-document-writer.html"));
-const html = fs.readFileSync(htmlFile);
+const html = Buffer.from(require("../tests/fixtures/built_bundle.cjs").assertProductionPage(htmlFile));
 const hash = require("crypto").createHash("sha256").update(html).digest("hex");
+const harnessHash = () =>
+  require("crypto")
+    .createHash("sha256")
+    .update(
+      JSON.stringify(
+        ["tools/profile_workspace_opening.cjs", "tools/compare_workspace_opening.cjs", "tests/fixtures/built_bundle.cjs", "package-lock.json"].map(
+          (name) => [
+            name,
+            require("crypto")
+              .createHash("sha256")
+              .update(fs.readFileSync(path.join(root, name)))
+              .digest("hex"),
+          ],
+        ),
+      ),
+    )
+    .digest("hex");
+const harnessSha256 = harnessHash();
 const sizes = process.env.PROFILE_SIZES ? process.env.PROFILE_SIZES.split(",").map(Number) : [100, 1000, 3000];
 assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <= 10000), "Profile sizes must be whole numbers from 1 to 10000");
+const trialCount = Number(process.env.PROFILE_TRIALS || 3),
+  warmups = Number(process.env.PROFILE_WARMUP || 0);
+const cpuSampling = process.env.PROFILE_CPU !== "0";
+assert.ok(Number.isInteger(trialCount) && trialCount >= 3 && trialCount <= 25);
+assert.ok(Number.isInteger(warmups) && warmups >= 0 && warmups <= 5);
+assert.equal(new Set(sizes).size, sizes.length, "Duplicate workload sizes are not comparable");
 (async () => {
   const server = http.createServer((req, res) => {
     if (req.url !== "/" && req.url !== "/madison-document-writer.html") {
@@ -36,6 +61,12 @@ assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <
     browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
     for (const count of sizes) {
       const context = await browser.newContext({ timezoneId: "America/Chicago", viewport: { width: 1400, height: 1000 } });
+      await context.addInitScript(() => {
+        window.profileDigest = async (value) =>
+          [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)))]
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+      });
       const page = await context.newPage();
       const errors = [];
       page.on("pageerror", (e) => errors.push(e.message));
@@ -105,12 +136,13 @@ assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <
           seq: count * 10,
         };
         if (!(await idbSet("drafts", bundle))) throw Error("Seed write failed");
-        return { cases: count, drafts: docs.length, events: count * 3, bytes: JSON.stringify(bundle).length };
+        const raw = JSON.stringify(bundle);
+        return { cases: count, drafts: docs.length, events: count * 3, bytes: raw.length, fixtureSha256: await window.profileDigest(raw) };
       }, count);
       const client = await context.newCDPSession(page),
         trials = [];
-      for (let run = 0; run < 3; run++) {
-        if (count === sizes.at(-1) && run === 1) {
+      for (let run = -warmups; run < trialCount; run++) {
+        if (cpuSampling && count === sizes.at(-1) && run === 1) {
           await client.send("Profiler.enable");
           await client.send("Profiler.start");
         }
@@ -130,14 +162,17 @@ assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <
             rows: document.querySelectorAll("[data-queue-case]").length,
             renderMs,
             firstText: WriterState.DOCS.find((d) => d.draft)?.items[0].text,
+            durableSha256: await window.profileDigest(JSON.stringify(await idbGet("drafts", true))),
+            resultSha256: await window.profileDigest(JSON.stringify([WriterState.CASES, WriterState.DOCS, WriterState.REINSP, WriterState.EVENTS])),
           };
         });
         assert.equal(observed.cases, count);
         assert.equal(observed.docs, count * 4);
         assert.equal(observed.rows, count);
         assert.equal(observed.firstText, "Private wording " + (count - 1));
-        trials.push({ readyMs: ready, ...observed });
-        if (count === sizes.at(-1) && run === 1) {
+        assert.equal(observed.durableSha256, seeded.fixtureSha256, "Opening must preserve all durable fixture bytes");
+        if (run >= 0) trials.push({ readyMs: ready, ...observed });
+        if (cpuSampling && count === sizes.at(-1) && run === 1) {
           const { profile } = await client.send("Profiler.stop");
           fs.writeFileSync(out + "/" + label + ".cpuprofile", JSON.stringify(profile));
         }
@@ -147,6 +182,7 @@ assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <
       console.log(label, count, JSON.stringify(trials));
       await context.close();
     }
+    assert.equal(harnessHash(), harnessSha256, "Profiling harness changed during the run");
     fs.writeFileSync(
       out + "/" + label + ".json",
       JSON.stringify(
@@ -154,9 +190,19 @@ assert.ok(sizes.length && sizes.every((n) => Number.isInteger(n) && n > 0 && n <
           label,
           fixture:
             "Synthetic retained IndexedDB drafts + three issued snapshots per case; helper unavailable; real production Chromium startup/render, no City/SMB timing",
-          source: require("child_process").execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
-          sourceClean: require("child_process").execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim() === "",
+          harnessSource: require("child_process").execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
+          harnessSourceClean: require("child_process").execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim() === "",
           htmlSha256: hash,
+          harnessSha256,
+          htmlFile,
+          cpuSampling,
+          trialCount,
+          warmups,
+          platform: process.platform,
+          architecture: process.arch,
+          playwright: require("playwright/package.json").version,
+          viewport: { width: 1400, height: 1000 },
+          timezone: "America/Chicago",
           node: process.version,
           browser: browser.version(),
           results,
