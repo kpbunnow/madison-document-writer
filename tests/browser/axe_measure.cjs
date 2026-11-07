@@ -3,7 +3,8 @@
    font checks. This measures the painted result instead: the element's own text is made transparent, the pixels under
    the text box are captured from the real page, and the text color (with ancestor opacity) is composited over every
    pixel. Nothing is dismissed here: each item gets a measured ratio and a verdict for a human to read. */
-const STYLE = "[data-axe-hide],[data-axe-hide] *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}";
+const STYLE =
+  "[data-axe-hide],[data-axe-hide] *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}";
 
 module.exports = async function measureContrast(page, nodes) {
   await page.evaluate((css) => {
@@ -26,7 +27,8 @@ module.exports = async function measureContrast(page, nodes) {
       const el = document.querySelector(sel);
       const saved = [scrollX, scrollY];
       const r = el?.getBoundingClientRect();
-      if (el && r && (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth)) el.scrollIntoView({ block: "center", inline: "center" });
+      if (el && r && (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth))
+        el.scrollIntoView({ block: "center", inline: "center" });
       return saved;
     }, selector);
     const info = await page.evaluate((sel) => {
@@ -38,7 +40,7 @@ module.exports = async function measureContrast(page, nodes) {
       for (let n = el; n && n.nodeType === 1; n = n.parentElement) opacity *= parseFloat(getComputedStyle(n).opacity);
       const range = document.createRange();
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      let box = null;
+      const rects = [];
       for (let t = walker.nextNode(); t; t = walker.nextNode()) {
         if (!t.nodeValue.trim()) continue;
         const parent = t.parentElement;
@@ -46,24 +48,35 @@ module.exports = async function measureContrast(page, nodes) {
         range.selectNodeContents(t);
         for (const r of range.getClientRects()) {
           if (!r.width || !r.height) continue;
-          box = box
-            ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) }
-            : { l: r.left, t: r.top, r: r.right, b: r.bottom };
+          rects.push({ l: r.left, t: r.top, r: r.right, b: r.bottom });
         }
       }
-      if (!box) return { skipped: "no text box" };
-      const clip = {
-        x: Math.max(0, Math.floor(box.l)),
-        y: Math.max(0, Math.floor(box.t)),
-        width: Math.ceil(Math.min(box.r, innerWidth)) - Math.max(0, Math.floor(box.l)),
-        height: Math.ceil(Math.min(box.b, innerHeight)) - Math.max(0, Math.floor(box.t)),
-      };
-      if (clip.width < 1 || clip.height < 1) return { skipped: "outside viewport" };
+      if (!rects.length) return { skipped: "no text box" };
+      const clips = rects
+        .slice(0, 12)
+        .map((box) => ({
+          x: Math.max(0, Math.floor(box.l)),
+          y: Math.max(0, Math.floor(box.t)),
+          width: Math.ceil(Math.min(box.r, innerWidth)) - Math.max(0, Math.floor(box.l)),
+          height: Math.ceil(Math.min(box.b, innerHeight)) - Math.max(0, Math.floor(box.t)),
+        }))
+        .filter((c) => c.width >= 1 && c.height >= 1);
+      if (!clips.length) return { skipped: "outside viewport" };
+      const clip = clips[0];
       // Who is painted on top of the text box? Sample its center and corners.
       const cover = new Set();
-      for (const [fx, fy] of [[0.5, 0.5], [0.1, 0.2], [0.9, 0.2], [0.1, 0.8], [0.9, 0.8]]) {
+      for (const [fx, fy] of [
+        [0.5, 0.5],
+        [0.1, 0.2],
+        [0.9, 0.2],
+        [0.1, 0.8],
+        [0.9, 0.8],
+      ]) {
         const top = document.elementFromPoint(clip.x + clip.width * fx, clip.y + clip.height * fy);
-        if (top && top !== el && !el.contains(top) && !top.contains(el)) cover.add(top.tagName.toLowerCase() + (top.className && typeof top.className === "string" ? "." + top.className.trim().split(/\s+/).join(".") : ""));
+        if (top && top !== el && !el.contains(top) && !top.contains(el))
+          cover.add(
+            top.tagName.toLowerCase() + (top.className && typeof top.className === "string" ? "." + top.className.trim().split(/\s+/).join(".") : ""),
+          );
       }
       const size = parseFloat(cs.fontSize),
         weight = parseInt(cs.fontWeight, 10) || 400;
@@ -74,7 +87,7 @@ module.exports = async function measureContrast(page, nodes) {
         size,
         weight,
         large: size >= 24 || (size >= 18.66 && weight >= 700),
-        clip,
+        clips,
         coveredBy: [...cover],
         label: cs.backgroundImage !== "none" ? "gradient/image" : "",
       };
@@ -85,45 +98,70 @@ module.exports = async function measureContrast(page, nodes) {
       continue;
     }
     await page.evaluate((sel) => document.querySelector(sel).setAttribute("data-axe-hide", ""), selector);
-    let png;
+    const pngs = [];
     try {
-      png = await page.screenshot({ clip: info.clip, animations: "disabled" });
+      for (const clip of info.clips) pngs.push(await page.screenshot({ clip, animations: "disabled" }));
     } finally {
       await page.evaluate((sel) => document.querySelector(sel)?.removeAttribute("data-axe-hide"), selector);
     }
     await page.evaluate(([x, y]) => scrollTo(x, y), scroll);
-    const stats = await aux.evaluate(
-      async ({ b64, fg, opacity }) => {
-        const bitmap = await createImageBitmap(await (await fetch("data:image/png;base64," + b64)).blob());
-        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        ctx.drawImage(bitmap, 0, 0);
-        const data = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
-        const lum = (r, g, b) => {
-          const f = [r, g, b].map((v) => v / 255).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
-          return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2];
-        };
-        const alpha = (fg[3] === undefined ? 1 : fg[3]) * opacity;
-        const ratios = [];
-        const modes = new Map();
-        for (let i = 0; i < data.length; i += 4) {
-          const bg = [data[i], data[i + 1], data[i + 2]];
-          const mix = [0, 1, 2].map((k) => fg[k] * alpha + bg[k] * (1 - alpha));
-          const a = lum(...mix) + 0.05,
-            b = lum(...bg) + 0.05;
-          ratios.push(Math.max(a, b) / Math.min(a, b));
-          const key = bg.join(",");
-          modes.set(key, (modes.get(key) || 0) + 1);
-        }
-        ratios.sort((x, y) => x - y);
-        const mode = [...modes.entries()].sort((x, y) => y[1] - x[1])[0][0];
-        return { min: ratios[0], p5: ratios[Math.floor(ratios.length * 0.05)], median: ratios[Math.floor(ratios.length / 2)], mode, pixels: ratios.length };
-      },
-      { b64: png.toString("base64"), fg: info.fg, opacity: info.opacity },
-    );
+    const parts = [];
+    for (const png of pngs)
+      parts.push(
+        await aux.evaluate(
+          async ({ b64, fg, opacity }) => {
+            const bitmap = await createImageBitmap(await (await fetch("data:image/png;base64," + b64)).blob());
+            const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            ctx.drawImage(bitmap, 0, 0);
+            const data = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
+            const lum = (r, g, b) => {
+              const f = [r, g, b].map((v) => v / 255).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+              return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2];
+            };
+            const alpha = (fg[3] === undefined ? 1 : fg[3]) * opacity;
+            const ratios = [];
+            const modes = new Map();
+            for (let i = 0; i < data.length; i += 4) {
+              const bg = [data[i], data[i + 1], data[i + 2]];
+              const mix = [0, 1, 2].map((k) => fg[k] * alpha + bg[k] * (1 - alpha));
+              const a = lum(...mix) + 0.05,
+                b = lum(...bg) + 0.05;
+              ratios.push(Math.max(a, b) / Math.min(a, b));
+              const key = bg.join(",");
+              modes.set(key, (modes.get(key) || 0) + 1);
+            }
+            ratios.sort((x, y) => x - y);
+            const mode = [...modes.entries()].sort((x, y) => y[1] - x[1])[0][0];
+            return {
+              min: ratios[0],
+              p5: ratios[Math.floor(ratios.length * 0.05)],
+              median: ratios[Math.floor(ratios.length / 2)],
+              mode,
+              pixels: ratios.length,
+            };
+          },
+          { b64: png.toString("base64"), fg: info.fg, opacity: info.opacity },
+        ),
+      );
+    // The worst text line decides: a multi-line element is measured line by line.
+    const worst = parts.reduce((a, b) => (b.min < a.min ? b : a));
+    const stats = { ...worst, p5: Math.min(...parts.map((x) => x.p5)), lines: parts.length };
     const need = info.large ? 3 : 4.5;
     const verdict = stats.min >= need ? "pass" : stats.p5 >= need ? "edge-pixels-only" : "below-minimum";
-    out.push({ selector, text: info.text, size: info.size, weight: info.weight, large: info.large, need, fg: info.fg, opacity: info.opacity, coveredBy: info.coveredBy, ...stats, verdict });
+    out.push({
+      selector,
+      text: info.text,
+      size: info.size,
+      weight: info.weight,
+      large: info.large,
+      need,
+      fg: info.fg,
+      opacity: info.opacity,
+      coveredBy: info.coveredBy,
+      ...stats,
+      verdict,
+    });
   }
   await aux.context().close();
   await page.bringToFront();
