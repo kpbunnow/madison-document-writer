@@ -45,16 +45,26 @@ module.exports = async function measureContrast(page, nodes, shots) {
         if (!t.nodeValue.trim()) continue;
         const parent = t.parentElement;
         if (parent.closest("[aria-hidden='true'], [hidden]") && !el.closest("[aria-hidden='true']")) continue;
+        // Each text node is judged with the color, opacity and size of the element that actually paints it.
+        const ps = getComputedStyle(parent);
+        let po = 1;
+        for (let n = parent; n && n.nodeType === 1; n = n.parentElement) po *= parseFloat(getComputedStyle(n).opacity);
+        const psize = parseFloat(ps.fontSize),
+          pweight = parseInt(ps.fontWeight, 10) || 400;
+        const style = { fg: rgba(ps.color), opacity: po, size: psize, weight: pweight, large: psize >= 24 || (psize >= 18.66 && pweight >= 700) };
         range.selectNodeContents(t);
         for (const r of range.getClientRects()) {
           if (!r.width || !r.height) continue;
-          rects.push({ l: r.left, t: r.top, r: r.right, b: r.bottom });
+          rects.push({ l: r.left, t: r.top, r: r.right, b: r.bottom, ...style });
         }
       }
       if (!rects.length) return { skipped: "no text box" };
       const clips = rects
         .slice(0, 12)
         .map((box) => ({
+          fg: box.fg,
+          opacity: box.opacity,
+          large: box.large,
           x: Math.max(0, Math.floor(box.l)),
           y: Math.max(0, Math.floor(box.t)),
           width: Math.ceil(Math.min(box.r, innerWidth)) - Math.max(0, Math.floor(box.l)),
@@ -152,13 +162,17 @@ module.exports = async function measureContrast(page, nodes, shots) {
               pixels: ratios.length,
             };
           },
-          { b64: png.toString("base64"), fg: info.fg, opacity: info.opacity },
+          { b64: png.toString("base64"), fg: info.clips[parts.length].fg, opacity: info.clips[parts.length].opacity },
         ),
       );
     // The worst text line decides: a multi-line element is measured line by line.
-    const worst = parts.reduce((a, b) => (b.min < a.min ? b : a));
-    const stats = { ...worst, p5: Math.min(...parts.map((x) => x.p5)), lines: parts.length };
-    const need = info.large ? 3 : 4.5;
+    const needs = info.clips.map((c) => (c.large ? 3 : 4.5));
+    const margin = parts.map((x, i) => x.min / needs[i]);
+    const at = margin.indexOf(Math.min(...margin));
+    const stats = { ...parts[at], p5: Math.min(...parts.map((x, i) => (x.p5 / needs[i]) * needs[at])), lines: parts.length };
+    const need = needs[at];
+    info.fg = info.clips[at].fg;
+    info.opacity = info.clips[at].opacity;
     const verdict = stats.min >= need ? "pass" : stats.p5 >= need ? "edge-pixels-only" : "below-minimum";
     let shot;
     if (shots && context && verdict !== "pass") {
