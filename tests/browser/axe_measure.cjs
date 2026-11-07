@@ -14,12 +14,21 @@ module.exports = async function measureContrast(page, nodes) {
       document.head.append(style);
     }
   }, STYLE);
+  // The app's CSP blocks data: fetches, so pixels are decoded in a blank helper page of the same browser context.
+  const aux = await (await page.context().browser().newContext()).newPage();
   const out = [];
   const seen = new Set();
   for (const node of nodes) {
     const selector = node.target.length === 1 ? node.target[0] : null;
     if (!selector || seen.has(selector)) continue;
     seen.add(selector);
+    const scroll = await page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      const saved = [scrollX, scrollY];
+      const r = el?.getBoundingClientRect();
+      if (el && r && (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth)) el.scrollIntoView({ block: "center", inline: "center" });
+      return saved;
+    }, selector);
     const info = await page.evaluate((sel) => {
       const el = document.querySelector(sel);
       if (!el) return { skipped: "not found" };
@@ -71,6 +80,7 @@ module.exports = async function measureContrast(page, nodes) {
       };
     }, selector);
     if (info.skipped) {
+      await page.evaluate(([x, y]) => scrollTo(x, y), scroll);
       out.push({ selector, skipped: info.skipped });
       continue;
     }
@@ -81,7 +91,8 @@ module.exports = async function measureContrast(page, nodes) {
     } finally {
       await page.evaluate((sel) => document.querySelector(sel)?.removeAttribute("data-axe-hide"), selector);
     }
-    const stats = await page.evaluate(
+    await page.evaluate(([x, y]) => scrollTo(x, y), scroll);
+    const stats = await aux.evaluate(
       async ({ b64, fg, opacity }) => {
         const bitmap = await createImageBitmap(await (await fetch("data:image/png;base64," + b64)).blob());
         const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -114,5 +125,7 @@ module.exports = async function measureContrast(page, nodes) {
     const verdict = stats.min >= need ? "pass" : stats.p5 >= need ? "edge-pixels-only" : "below-minimum";
     out.push({ selector, text: info.text, size: info.size, weight: info.weight, large: info.large, need, fg: info.fg, opacity: info.opacity, coveredBy: info.coveredBy, ...stats, verdict });
   }
+  await aux.context().close();
+  await page.bringToFront();
   return out;
 };
