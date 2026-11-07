@@ -127,7 +127,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       // must be legible when shown: their dimmed look once measured 2.75-3.8:1 on the white paper.
       if (width > 860) await page.locator(".sheet tr:has(.grip)").first().hover();
       const controls = await page.evaluate(() =>
-        [...document.querySelectorAll(".sheet .grip, .sheet .gbtn:not(:disabled), .sheet .rm")].map((e) => ({
+        [...document.querySelector(".sheet tr:has(.grip)").querySelectorAll(".grip, .gbtn:not(:disabled), .rm")].map((e) => ({
           name: e.getAttribute("aria-label") || e.className,
           color: getComputedStyle(e).color,
           opacity: parseFloat(getComputedStyle(e).opacity),
