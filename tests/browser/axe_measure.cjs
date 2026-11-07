@@ -160,8 +160,16 @@ module.exports = async function measureContrast(page, nodes, shots) {
     const stats = { ...worst, p5: Math.min(...parts.map((x) => x.p5)), lines: parts.length };
     const need = info.large ? 3 : 4.5;
     const verdict = stats.min >= need ? "pass" : stats.p5 >= need ? "edge-pixels-only" : "below-minimum";
+    let shot;
+    if (shots && context && verdict !== "pass") {
+      const fs = require("node:fs");
+      shot = shots.label.replace(/[^\w-]+/g, "_") + "-" + out.length + ".png";
+      fs.mkdirSync(shots.dir, { recursive: true });
+      fs.writeFileSync(require("node:path").join(shots.dir, shot), context);
+    }
     out.push({
       selector,
+      shot,
       text: info.text,
       size: info.size,
       weight: info.weight,
