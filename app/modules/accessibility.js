@@ -1,4 +1,5 @@
 import { html, raw } from "./screen_html.js";
+import { enhanceCharacterCounts } from "./character_count.js";
 function messageMarkup(m, callbacks, safe) {
   return (
     '<div class="toast message-' +
@@ -74,6 +75,8 @@ function enhanceDocumentControls() {
     });
   });
 }
+
+const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
 
 export function createAccessibility() {
   const messages = [],
@@ -428,7 +431,6 @@ export function createAccessibility() {
     bannerSeen = new Map(),
     bannerCleared = new Set();
   const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
-  const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
   const engaged = (b) => {
     try {
       return b.matches(":hover") || b.contains(document.activeElement);
@@ -472,6 +474,7 @@ export function createAccessibility() {
       Promise.resolve().then(() => {
         queued = false;
         enhance(false);
+        enhanceCharacterCounts(document);
         bannerSweep();
       });
     }).observe(document.body, { childList: true, subtree: true });

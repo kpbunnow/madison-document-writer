@@ -2302,3 +2302,152 @@
     font-weight: 700;
   }
 }
+/* R75 accessibility review: screen typography, focus and pointer targets. Official document/print styles stay fixed. */
+@media screen {
+  :root {
+    --display: var(--sans);
+    --focus: #174f82;
+    --type-title: 1.5rem;
+    --type-title-narrow: 1.25rem;
+    --type-h2: 1.125rem;
+    --type-h3: 1rem;
+    --type-body: 1rem;
+    --type-label: 0.875rem;
+    --type-table: 0.875rem;
+    --type-table-head: 0.875rem;
+    --type-table-num: 0.875rem;
+    --type-button: 0.875rem;
+    --type-button-sm: 0.875rem;
+    --type-hint: 0.875rem;
+    --type-error: 0.875rem;
+    --type-small: 0.8125rem;
+    --type-badge: 0.75rem;
+    --type-chip: 0.875rem;
+  }
+  body {
+    line-height: var(--type-body-lh);
+  }
+  .rail {
+    --focus: #ffdd75;
+  }
+  [data-theme="dark"] {
+    --focus: #ffdd75;
+  }
+  [data-theme="high"] {
+    --focus: #000;
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-theme="system"] {
+      --focus: #ffdd75;
+    }
+  }
+  /* Paper remains white in every theme, so its editing controls need a dark ring. */
+  .sheet,
+  .cit {
+    --focus: #174f82;
+  }
+  :root :focus-visible {
+    outline-color: var(--focus);
+  }
+  .sheet tr:focus-within .rm:focus-visible {
+    outline-color: var(--focus);
+  }
+  :is(input, select, textarea):not(.desk *):not(.sheet *):not(.cit *) {
+    font-family: var(--sans);
+    font-size: var(--type-body);
+    line-height: var(--type-body-lh);
+    max-width: 100%;
+  }
+  :is(button, input, select, textarea, summary):not(.desk *):not(.sheet *):not(.cit *) {
+    scroll-margin-block: 6rem;
+  }
+  .btn,
+  .btn.btn-sm {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .case-table .lnk {
+    font-size: var(--type-button);
+  }
+  .rail-sub,
+  .rail-foot,
+  .rail-foot .build,
+  .rail-foot #save-status,
+  .rail-group {
+    font-size: var(--type-small);
+  }
+  .tool-action strong {
+    font-size: var(--type-h3);
+  }
+  .tool-action > span > span,
+  .topbar .lede,
+  .fresh {
+    font-size: var(--type-hint);
+  }
+  .rail-item {
+    font-size: var(--type-body);
+  }
+  .utility-dialog h2 {
+    font-size: var(--type-h2);
+  }
+  .utility-dialog :is(input, select, textarea) {
+    min-width: 0;
+  }
+  .main :is(input[type="checkbox"], input[type="radio"]),
+  .utility-dialog :is(input[type="checkbox"], input[type="radio"]),
+  #overlay :is(input[type="checkbox"], input[type="radio"]) {
+    min-width: 24px;
+    min-height: 24px;
+  }
+  .main .due-pick {
+    width: 24px;
+    height: 24px;
+  }
+  .utility-dialog :is(button, select, summary) {
+    min-height: 32px;
+  }
+  .writer-navigation .rail-item {
+    font-size: var(--type-body);
+  }
+  .editor-mobile-save {
+    font-size: var(--type-small);
+  }
+  @media (max-width: 760px) {
+    body:has(.document-workspace) .rail nav.writer-navigation {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow: visible;
+    }
+    body:has(.document-workspace) .writer-navigation .rail-item {
+      width: 100%;
+      white-space: normal;
+      min-width: 0;
+    }
+    .document-workspace .editor-sections {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+    .document-workspace .editor-sections button {
+      flex: 1 1 auto;
+      white-space: normal;
+      min-width: 0;
+    }
+    .document-workspace {
+      padding-bottom: calc(10rem + env(safe-area-inset-bottom));
+    }
+    .document-workspace :focus {
+      scroll-margin-block: 10rem;
+    }
+    html {
+      scroll-padding-bottom: 10rem;
+    }
+  }
+  @media (forced-colors: active) {
+    :root,
+    .rail,
+    .sheet,
+    .cit {
+      --focus: Highlight;
+    }
+  }
+}
