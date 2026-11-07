@@ -33,6 +33,8 @@ The supplied `r75-verification-findings-2026-11-06.md` describes a synthetic Lin
 
 These changes deliberately increase text size and alter screen layout. They are not a CSS/PNG parity cleanup. Current screen-shell and stylesheet decision references are updated with explicit before/after provenance; historical print/document references, approved print CSS, identities, records, security and legal wording are unchanged.
 
+- Gave the named Reports applied-filters and initial-citation-preview containers a group role through the existing screen accessibility observer. Generic divs previously carried names that assistive technology could ignore. Frozen markup templates remain unchanged; both roles are checked in the real observer regression, and Reports is checked in Chromium.
+
 ## WCAG 2.2 AA review coverage and limits
 
 This is an accessibility engineering review, not a declaration of complete WCAG conformance. Automated rules cover only part of each criterion. The City still needs assistive-technology and actual staff workflow acceptance, including imported/issued documents, native PDF delivery and Windows display settings.
@@ -54,6 +56,8 @@ The clean R75 baseline passed the complete production browser audit with 292 axe
 The 12-state diagnostic replay covers Workspace, editor, correction review, recipients, Reports/data/open cases, administrator review, mobile Tools/saved work/notice/citation and the open-case list. No document-body horizontal overflow or clipped measured screen controls was found at captured viewports. Representative before/after screenshots were inspected. Body text changed 14px to 16px; heading focus changed from no outline to a solid contrasting ring. The stock strict comparison correctly stops at the first changed Workspace screen (geometry and pixels differ). It was not relaxed, and its result is not reported as parity. The stylesheet's original 47,055-byte prefix still hashes to `ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921`; all new CSS is inside an appended screen-only block.
 
 Focused checks passed: unchanged accessibility enhancement equivalence (172 comparisons), open-case behavior, new character-count unit checks, existing typography workflow and the new production accessibility workflow. Its initial isolated run retained exactly 120 DOM listeners before and after 20 closed counter dialogs (2 documents / 1,731 nodes on each side); the regression enforces collection with a small bound. Full-gate results belong to the exact reviewed PR head, not this baseline or an earlier local build. The PR records final outcomes and any failures.
+
+The initial candidate's axe output included 293 manual-review rule occurrences: label-content-name-mismatch (126), color-contrast (96) and aria-prohibited-attr (71). These are rule/checkpoint occurrences, not 293 confirmed defects. A seven-state captured-DOM follow-up retained full node details outside source. Sampled name mismatches are icon-only × dismissal controls with explicit descriptive names; decorative arrows have no textual contrast content; some one-character report links and overlapping/shaded backgrounds cannot be assessed automatically. The named generic-div warning exposed the group-role issue corrected above. Remaining contrast/announcement interpretation still requires human/City review; zero automated violations must not be read as zero manual-review items.
 
 ## Simplification recommendations
 

@@ -78,6 +78,12 @@ function enhanceDocumentControls() {
 
 const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
 
+const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
+function enhanceScreenGroups() {
+  // ARIA names on generic divs need a semantic role. Keep this screen-only DOM enhancement outside stored/print markup.
+  document.querySelectorAll(".applied-filters[aria-label], .initial-citation-previews[aria-label]").forEach((el) => el.setAttribute("role", "group"));
+}
+
 export function createAccessibility() {
   const messages = [],
     callbacks = new Map(),
@@ -430,7 +436,6 @@ export function createAccessibility() {
   const BANNER_MS = 15000,
     bannerSeen = new Map(),
     bannerCleared = new Set();
-  const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
   const engaged = (b) => {
     try {
       return b.matches(":hover") || b.contains(document.activeElement);
@@ -475,6 +480,7 @@ export function createAccessibility() {
         queued = false;
         enhance(false);
         enhanceCharacterCounts(document);
+        enhanceScreenGroups();
         bannerSweep();
       });
     }).observe(document.body, { childList: true, subtree: true });

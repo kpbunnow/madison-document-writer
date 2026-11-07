@@ -220,6 +220,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     assert.equal(await reports.evaluate(() => getComputedStyle(document.body).fontFamily), checks.find((c) => c.family).family);
     await reports.setViewportSize({ width: 320, height: 900 });
     assert.equal(await reports.evaluate(() => document.scrollingElement.scrollWidth <= innerWidth), true);
+    assert.equal(await reports.locator('.applied-filters[aria-label="Applied filters"]').getAttribute("role"), "group");
     await axeScreen(reports, "accessibility-reports-320");
     assert.deepEqual(errors, []);
     const result = { passed: true, checks, relativeTextResize: resized, keyboardTargets: 32, counterDialogs: 20, before, after, errors };
