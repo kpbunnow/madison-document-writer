@@ -18,7 +18,8 @@ const work = fs.mkdtempSync(path.join(os.tmpdir(), "madison-browser-"));
 let server, browser, auditPage, coreTimer;
 const coreStarted = performance.now();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const axeResults = [];
+const axeResults = [],
+  detail = [];
 const { inspectScreenCSS } = require("./screen_css.cjs");
 // These citation artifacts include an Official Notice cover. Assert the full required paragraphs in the PDF,
 // not just their headings or the HTML source: an incomplete capture must fail verification.
@@ -49,12 +50,27 @@ async function axeScreen(page, screen) {
     passes: result.passes.length,
     incomplete: result.incomplete.map((v) => v.id),
   };
+  // Optional evidence capture (DW_AXE_DETAIL=1): the full node-level manual-review items for each checkpoint.
+  if (process.env.DW_AXE_DETAIL)
+    detail.push({
+      screen,
+      theme: await page.evaluate(() => document.documentElement.dataset.theme || ""),
+      incomplete: result.incomplete.map((v) => ({
+        id: v.id,
+        nodes: v.nodes.map((n) => ({
+          target: n.target,
+          html: n.html.slice(0, 300),
+          messages: [...n.any, ...n.all, ...n.none].map((c) => ({ id: c.id, message: c.message, data: c.data })),
+        })),
+      })),
+    });
   await inspectScreenCSS(page, screen, OUT);
   axeResults.push(report);
   fs.writeFileSync(
     path.join(OUT, "axe-results.json"),
     JSON.stringify({ passed: axeResults.every((x) => !x.violations.length), checks: axeResults }, null, 2),
   );
+  if (process.env.DW_AXE_DETAIL) fs.writeFileSync(path.join(OUT, "axe-incomplete-detail.json"), JSON.stringify(detail));
   if (!process.env.DW_COLLECT_AXE) assert.equal(report.violations.length, 0, screen + " axe violations: " + JSON.stringify(report.violations));
 }
 // R59: a confirmed issuance returns to Workspace with the issued case row highlighted and focused; reopen a document from it.
