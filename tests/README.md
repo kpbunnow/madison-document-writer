@@ -357,6 +357,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_character_count.js` | Native maxlength feedback, stable accessible names and descriptions, one listener per field, moved/restored fields and unchanged over-limit values |
 | `audit_accessibility.js` | Alerts, message history, labels, landmarks |
 | `audit_workspace_queue.js`, `audit_r41_queue.js` | Workspace queue, filters, recovery actions |
 | `audit_usability_phase1.js` | R56 usability: Inspection section only when actionable, special check links, save/removal wording, quick views and More views that keep search and inspector until Clear search and inspector, issued-document Save case to shared folder when connected or Download workspace backup with Connect shared folder when not, Done-only Recipients, recovery groups, report export labels |
@@ -457,6 +458,7 @@ workflow. Each receives the arguments named in its row.
 | Suite | Covers |
 | --- | --- |
 | `browser_startup.js` | Real IndexedDB startup restoration barrier, deferred navigation/early-save refusal, read-failure screen and reload recovery; two startup accessibility screens |
+| `browser_accessibility.js` | Theme/forced-color focus, keyboard obscuration, relative typography, 320px reflow, 200% text resize/spacing, textarea feedback and dialog-listener lifetime |
 | `browser_long_session.js` | 120 production open/edit/print-layout-preview/review/close cycles; exactly-once edits, post-GC DOM/document/listener/heap bounds, live timers/intervals/object URLs, layout-frame teardown and real IndexedDB save/reload of final edits; restored Workspace accessibility |
 | `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |

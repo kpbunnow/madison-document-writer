@@ -1745,6 +1745,7 @@ async function axeThemes(page, screen) {
   const browserSuites = [
     ["browser_startup.js", "browser page OUT axeScreen"],
     ["browser_long_session.js", "browser page OUT axeScreen"],
+    ["browser_accessibility.js", "browser page OUT axeScreen"],
     ["browser_r26.js", "browser page context OUT axeScreen"],
     ["browser_r30.js", "browser page OUT axeScreen"],
     ["browser_r33.js", "browser page OUT axeScreen work base"],

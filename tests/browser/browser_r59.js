@@ -1,22 +1,23 @@
-/* R59 production screen styles: shared type tokens across Writer screens and the Reports chrome, reflow at narrow
+/* Current production screen styles (R59 baseline, owner-requested R75 readable relative type scale): shared type tokens across Writer screens and the Reports chrome, reflow at narrow
    widths and 200% zoom, the selected inspection candidate and the issued case row in every theme, including forced
    colors. Only synthetic state is introduced and restored. */
 const path = require("path"),
   assert = require("assert/strict");
 const TOKENS = {
-  "--type-title": "24px",
-  "--type-title-narrow": "20px",
-  "--type-h2": "18px",
-  "--type-h3": "15px",
-  "--type-body": "14px",
-  "--type-label": "12px",
-  "--type-table": "14px",
-  "--type-table-head": "12px",
-  "--type-table-num": "13.5px",
-  "--type-button": "13px",
-  "--type-button-sm": "12px",
-  "--type-hint": "13px",
-  "--type-badge": "11.5px",
+  "--type-title": "1.5rem",
+  "--type-title-narrow": "1.25rem",
+  "--type-h2": "1.125rem",
+  "--type-h3": "1rem",
+  "--type-body": "1rem",
+  "--type-label": "0.875rem",
+  "--type-table": "0.875rem",
+  "--type-table-head": "0.875rem",
+  "--type-table-num": "0.875rem",
+  "--type-button": "0.875rem",
+  "--type-button-sm": "0.875rem",
+  "--type-hint": "0.875rem",
+  "--type-small": "0.8125rem",
+  "--type-badge": "0.75rem",
 };
 // Equivalent elements, each expected at one token wherever it appears.
 const ROLES = {
@@ -30,6 +31,7 @@ const ROLES = {
   button: [".btn:not(.btn-sm)", "--type-button"],
   smallButton: [".btn.btn-sm", "--type-button-sm"],
   hint: [".hint", "--type-hint"],
+  secondary: [".case-table .mono, .topbar .crumb, .quickdates span, .attention-eyebrow, .rail-item .ix, .ri-walk-panel kbd", "--type-small"],
 };
 async function measure(page, screen) {
   return page.evaluate(
@@ -40,7 +42,14 @@ async function measure(page, screen) {
         const sizes = [...document.querySelectorAll(selector)]
           .filter((el) => !el.closest(".sheet") && el.getClientRects().length)
           .map((el) => getComputedStyle(el).fontSize);
-        if (sizes.length) out.roles[role] = { sizes: [...new Set(sizes)], token: root.getPropertyValue(token).trim() };
+        if (sizes.length)
+          out.roles[role] = {
+            sizes: [...new Set(sizes)],
+            token: (() => {
+              const value = root.getPropertyValue(token).trim();
+              return (value.endsWith("rem") ? parseFloat(value) * parseFloat(root.fontSize) : parseFloat(value)) + "px";
+            })(),
+          };
       }
       for (const el of document.querySelectorAll(".topbar h1, .btn, label.f > span, th, .card-h h2"))
         if (

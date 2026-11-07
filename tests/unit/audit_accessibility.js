@@ -60,6 +60,19 @@ const test = async () => {
   document.activeElement.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert.equal(WriterState.state.picker, false);
   assert.equal(document.activeElement.id, "btn-add-top");
+  const groups = document.createElement("div");
+  groups.innerHTML =
+    '<div class="applied-filters" aria-label="Applied filters"></div><div class="initial-citation-previews" aria-label="Initial citation previews"></div><div class="unrelated" aria-label="Untouched"></div>';
+  document.body.append(groups);
+  // Drive the real native observer queue, without changing synchronous enhancement/renderer contracts.
+  await Promise.resolve();
+  await Promise.resolve();
+  for (const el of groups.querySelectorAll(".applied-filters,.initial-citation-previews")) {
+    assert.equal(el.getAttribute("role"), "group", "named screen groups have a valid semantic role");
+    assert.ok(el.getAttribute("aria-label"));
+  }
+  assert.equal(groups.querySelector(".unrelated").getAttribute("role"), null);
+  groups.remove();
   A11Y.setTheme("high");
   assert.equal(document.documentElement.dataset.theme, "high");
   WriterState.state.screen = "tools";

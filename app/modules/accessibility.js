@@ -1,4 +1,5 @@
 import { html, raw } from "./screen_html.js";
+import { enhanceCharacterCounts } from "./character_count.js";
 function messageMarkup(m, callbacks, safe) {
   return (
     '<div class="toast message-' +
@@ -73,6 +74,14 @@ function enhanceDocumentControls() {
       if (el?.tagName === "TH") el.scope = "row";
     });
   });
+}
+
+const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
+
+const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
+function enhanceScreenGroups() {
+  // ARIA names on generic divs need a semantic role. Keep this screen-only DOM enhancement outside stored/print markup.
+  document.querySelectorAll(".applied-filters[aria-label], .initial-citation-previews[aria-label]").forEach((el) => el.setAttribute("role", "group"));
 }
 
 export function createAccessibility() {
@@ -427,8 +436,6 @@ export function createAccessibility() {
   const BANNER_MS = 15000,
     bannerSeen = new Map(),
     bannerCleared = new Set();
-  const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
-  const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
   const engaged = (b) => {
     try {
       return b.matches(":hover") || b.contains(document.activeElement);
@@ -472,6 +479,8 @@ export function createAccessibility() {
       Promise.resolve().then(() => {
         queued = false;
         enhance(false);
+        enhanceCharacterCounts(document);
+        enhanceScreenGroups();
         bannerSweep();
       });
     }).observe(document.body, { childList: true, subtree: true });

@@ -104,7 +104,7 @@ export function openCaseCardHTML(state = openList) {
       openCasePickerHTML(state, state.casesLoading) +
       (state.casesError ? openCaseProblemHTML(state.casesError, "open-cases-retry") : "") +
       openCaseListHTML(state);
-  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then select a case. Selecting a case clears the earlier one and looks it up, exactly as for a case number typed below.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
+  return html`<div class="card open-cases-card" id="open-cases"><div class="card-h"><h2>Open cases by inspector</h2><span class="pill">City database</span></div><div class="card-b"><p>Choose an inspector, then select a case. Selecting a case clears the earlier one and looks it up, exactly as for a case number typed below. Choosing another case while a lookup is running cancels that lookup and starts the new one.</p><div aria-live="polite">${raw(body)}</div></div></div>`;
 }
 
 function openCaseWithLimit(promise) {
