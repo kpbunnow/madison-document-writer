@@ -2384,6 +2384,21 @@
   .fresh {
     font-size: var(--type-hint);
   }
+  .case-table .mono,
+  .topbar .crumb,
+  body:has(.document-workspace) .topbar .crumb,
+  .quickdates span,
+  .attention-eyebrow,
+  .rail-item .ix,
+  .ri-walk-panel kbd {
+    font-size: var(--type-small);
+  }
+  .case-table td::before {
+    font-size: var(--type-label);
+  }
+  .ri-item.ri-walk-current::before {
+    font-size: var(--type-badge);
+  }
   .rail-item {
     font-size: var(--type-body);
   }

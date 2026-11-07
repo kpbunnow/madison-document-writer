@@ -25,7 +25,7 @@ The supplied `r75-verification-findings-2026-11-06.md` describes a synthetic Lin
 
 ## Implemented screen improvements
 
-- A shared Segoe UI / Arial / sans-serif family and relative scale for Writer and Reports screen chrome: body and form controls 1rem (normally 16px), labels/buttons/table text and hints .875rem (14px), secondary metadata .8125rem (13px), badges .75rem (12px), headings 1–1.5rem. All scale with the user's root font size. Document/paper typography and intentional monospace identifiers remain purpose-specific.
+- A shared Segoe UI / Arial / sans-serif family and relative scale for Writer and Reports screen chrome: body and form controls 1rem (normally 16px), labels/buttons/table text and hints .875rem (14px), secondary metadata .8125rem (13px), badges .75rem (12px), headings 1–1.5rem. Case identifiers, breadcrumbs, quick-date labels and keyboard hints also use the relative secondary scale. All scale with the user's root font size. Document/paper typography and intentional monospace identifiers remain purpose-specific.
 - Defined the missing `--focus` variable: previously a focused editor heading computed no outline; pale button rings had insufficient contrast on light surfaces. Dark/light/paper contexts now receive contrasting rings, and forced colors use the operating system's Highlight color.
 - Extended minimum 24px checkbox/radio targets to utility/overlay controls. Existing due-date checkboxes were already 24px; no improvement to their original size is claimed.
 - Wrapped mobile navigation into visible choices and the editor section menu onto multiple rows. No destination or command is removed. Added focus scroll clearance and bottom space for the fixed mobile action bar.

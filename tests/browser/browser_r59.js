@@ -16,6 +16,7 @@ const TOKENS = {
   "--type-button": "0.875rem",
   "--type-button-sm": "0.875rem",
   "--type-hint": "0.875rem",
+  "--type-small": "0.8125rem",
   "--type-badge": "0.75rem",
 };
 // Equivalent elements, each expected at one token wherever it appears.
@@ -30,6 +31,7 @@ const ROLES = {
   button: [".btn:not(.btn-sm)", "--type-button"],
   smallButton: [".btn.btn-sm", "--type-button-sm"],
   hint: [".hint", "--type-hint"],
+  secondary: [".case-table .mono, .topbar .crumb, .quickdates span, .attention-eyebrow, .rail-item .ix, .ri-walk-panel kbd", "--type-small"],
 };
 async function measure(page, screen) {
   return page.evaluate(

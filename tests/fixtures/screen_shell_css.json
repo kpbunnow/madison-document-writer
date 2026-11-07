@@ -64,10 +64,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "2c5654cb4c65e1d88f141608482c6680044abb5d165a2e820b7548be77196d6a",
+      "afterSha256": "386f6d77e1cfb8b437de6b396d78629866f01e1a98a99acbd2126d29474a0c88",
       "beforeBytes": 48561,
-      "afterBytes": 50603,
-      "retainedRulesSha256": "76dc7711a1ced3ce131f6e1a9bd1f03dd66f5ddde106b6c2af386cdaa74c3bfa"
+      "afterBytes": 50951,
+      "retainedRulesSha256": "9f2f422fada66ab156e1edff24c66a212ea940bb8b258c5be7f194fcfa45642b"
     }
   },
   "selectorChanges": [
@@ -721,7 +721,7 @@
       "rules": {
         "ui-refresh.css": {
           "beforeSha256": "ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921",
-          "afterSha256": "2c5654cb4c65e1d88f141608482c6680044abb5d165a2e820b7548be77196d6a",
+          "afterSha256": "386f6d77e1cfb8b437de6b396d78629866f01e1a98a99acbd2126d29474a0c88",
           "unchangedRulesSha256": "cab391ebcbfa53e820c824a6a97a4d8882126d6744a89b30cad3a7a8a0ade842",
           "unchangedPrefixBytes": 47055
         }
