@@ -4,7 +4,7 @@
    the text box are captured from the real page, and the text color (with ancestor opacity) is composited over every
    pixel. Nothing is dismissed here: each item gets a measured ratio and a verdict for a human to read. */
 const STYLE =
-  "[data-axe-hide],[data-axe-hide] *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}";
+  "[data-axe-hide],[data-axe-hide] *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important;text-decoration:none!important;text-decoration-color:transparent!important}";
 
 module.exports = async function measureContrast(page, nodes, shots) {
   await page.evaluate((css) => {
