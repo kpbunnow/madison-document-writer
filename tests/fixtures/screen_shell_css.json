@@ -64,10 +64,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "386f6d77e1cfb8b437de6b396d78629866f01e1a98a99acbd2126d29474a0c88",
+      "afterSha256": "d46616aaea03209d976cf9deb31545e332b2eb17eb86bcd504ee49e0d6bd1ad1",
       "beforeBytes": 48561,
-      "afterBytes": 50951,
-      "retainedRulesSha256": "9f2f422fada66ab156e1edff24c66a212ea940bb8b258c5be7f194fcfa45642b"
+      "afterBytes": 51724,
+      "retainedRulesSha256": "5ddf214cb4a7173afe016f38269daf31c46617af4455f3a4de0e7b5dbda239bf"
     }
   },
   "selectorChanges": [
@@ -727,6 +727,20 @@
         }
       },
       "evidence": "docs/developer/R75-ACCESSIBILITY-REVIEW.md"
+    },
+    {
+      "date": "2026-11-07",
+      "sourceCommit": "791228dbd43ecf87b55c4d4de7cd8947c40febd3",
+      "scope": "Accessibility follow-up: enabled row controls shown at full strength (were .6/.75 opacity, 2.75-3.8:1) and a lighter dark-theme Reports count link (4.31:1 to 5.3:1). Append-only inside the existing screen block; preserves all 47,055 original stylesheet bytes. Reviewed visible differences, not parity.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "386f6d77e1cfb8b437de6b396d78629866f01e1a98a99acbd2126d29474a0c88",
+          "afterSha256": "d46616aaea03209d976cf9deb31545e332b2eb17eb86bcd504ee49e0d6bd1ad1",
+          "unchangedRulesSha256": "9f2f422fada66ab156e1edff24c66a212ea940bb8b258c5be7f194fcfa45642b",
+          "unchangedPrefixBytes": 47055
+        }
+      },
+      "evidence": "docs/developer/R75-ACCESSIBILITY-FOLLOWUP.md"
     }
   ]
 }

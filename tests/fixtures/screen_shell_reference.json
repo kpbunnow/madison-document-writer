@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "a7cf7a5a8356d24d94216e4d756b7d8b22a52e71cf2c9206923a7b723d4cc1dd"
+      "normalizedShellSha256": "eea734b4c2e14bdb9890e979fe4765ad5e7e6c1052fcc2404886ede34e581566"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
-      "normalizedShellSha256": "c5d9f8d1d7cb38a5a3e92e2bb847036ab76e0f7f9bab37f463f55200fded5681"
+      "normalizedShellSha256": "36ce6bf597d13b82bb526adc117ab6fbef4a951a9750baa1adc7a62603188edf"
     }
   },
   "reviews": [
@@ -80,6 +80,22 @@
         }
       },
       "evidence": "docs/developer/R75-ACCESSIBILITY-REVIEW.md"
+    },
+    {
+      "date": "2026-11-07",
+      "sourceCommit": "791228dbd43ecf87b55c4d4de7cd8947c40febd3",
+      "scope": "Accessibility follow-up: legible enabled row controls and dark-theme Reports count links; official print unchanged",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "a7cf7a5a8356d24d94216e4d756b7d8b22a52e71cf2c9206923a7b723d4cc1dd",
+          "after": "eea734b4c2e14bdb9890e979fe4765ad5e7e6c1052fcc2404886ede34e581566"
+        },
+        "madison-reports.html": {
+          "before": "c5d9f8d1d7cb38a5a3e92e2bb847036ab76e0f7f9bab37f463f55200fded5681",
+          "after": "36ce6bf597d13b82bb526adc117ab6fbef4a951a9750baa1adc7a62603188edf"
+        }
+      },
+      "evidence": "docs/developer/R75-ACCESSIBILITY-FOLLOWUP.md"
     }
   ]
 }
