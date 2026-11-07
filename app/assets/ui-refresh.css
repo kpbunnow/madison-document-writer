@@ -2349,6 +2349,30 @@
   :root :focus-visible {
     outline-color: var(--focus);
   }
+  /* Row controls are revealed by hover; the dimmed look measured 2.75-3.8:1 on paper. Enabled controls show at full
+     strength (disabled ones stay dim, which is the cue and is exempt from contrast). */
+  :root tr:hover .grip,
+  :root tr:hover .gbtn:not(:disabled),
+  :root tr:hover .rm,
+  :root tr.dragging .grip {
+    opacity: 1;
+  }
+  @media (max-width: 860px) {
+    :root .grip,
+    :root .gbtn:not(:disabled),
+    :root .rm {
+      opacity: 1;
+    }
+  }
+  /* Dark Reports: the count link measured 4.31:1 on its shaded bar; this lighter link color gives 5.3:1. */
+  :root[data-theme="dark"] table.rep td.n button {
+    color: #cde8ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="system"] table.rep td.n button {
+      color: #cde8ff;
+    }
+  }
   .sheet tr:focus-within .rm:focus-visible {
     outline-color: var(--focus);
   }

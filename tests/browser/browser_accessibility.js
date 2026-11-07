@@ -123,6 +123,25 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
         );
       }
       assert.ok(result.pick.every((b) => b.width >= 24 && b.height >= 24));
+      // Row controls (reorder, location heading, remove) are shown on hover or always on narrow screens. Enabled ones
+      // must be legible when shown: their dimmed look once measured 2.75-3.8:1 on the white paper.
+      if (width > 860) await page.locator(".sheet tr:has(.grip)").first().hover();
+      const controls = await page.evaluate(() =>
+        [...document.querySelector(".sheet tr:has(.grip)").querySelectorAll(".grip, .gbtn:not(:disabled), .rm")].map((e) => ({
+          name: e.getAttribute("aria-label") || e.className,
+          color: getComputedStyle(e).color,
+          opacity: parseFloat(getComputedStyle(e).opacity),
+        })),
+      );
+      assert.ok(controls.length >= 3, "the editor shows row controls");
+      for (const c of controls) {
+        const [r, g, b] = c.color.match(/[\d.]+/g).map(Number);
+        const over = (v) => Math.round(v * c.opacity + 255 * (1 - c.opacity));
+        assert.ok(
+          contrast(`rgb(${over(r)}, ${over(g)}, ${over(b)})`, "rgb(255, 255, 255)") >= 4.5,
+          width + "px: row control too faint: " + JSON.stringify(c),
+        );
+      }
       checks.push(result);
     }
     await axeScreen(page, "accessibility-editor-320");
@@ -221,6 +240,34 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await reports.setViewportSize({ width: 320, height: 900 });
     assert.equal(await reports.evaluate(() => document.scrollingElement.scrollWidth <= innerWidth), true);
     assert.equal(await reports.locator('.applied-filters[aria-label="Applied filters"]').getAttribute("role"), "group");
+    // The shaded bar behind a Reports count must keep its drill-down link legible in every theme (dark measured 4.31:1).
+    for (const [theme, scheme] of [
+      ["light", "light"],
+      ["dark", "dark"],
+      ["high", "light"],
+      ["system", "dark"],
+      ["system", "light"],
+    ]) {
+      await reports.emulateMedia({ colorScheme: scheme });
+      const pair = await reports.evaluate((t) => {
+        document.documentElement.dataset.theme = t;
+        const table = document.createElement("table");
+        table.className = "rep";
+        table.innerHTML = '<tbody><tr><td class="n bar"><button type="button">12</button></td></tr></tbody>';
+        document.body.append(table);
+        const probe = document.createElement("span");
+        probe.style.background = "var(--civic-bar)";
+        table.append(probe);
+        const out = { link: getComputedStyle(table.querySelector("button")).color, bar: getComputedStyle(probe).backgroundColor };
+        table.remove();
+        return out;
+      }, theme);
+      assert.ok(contrast(pair.link, pair.bar) >= 4.5, "Reports count link on its bar, " + theme + "/" + scheme + ": " + JSON.stringify(pair));
+    }
+    await reports.emulateMedia({ colorScheme: "light" });
+    await reports.evaluate(() => {
+      delete document.documentElement.dataset.theme;
+    });
     await axeScreen(reports, "accessibility-reports-320");
     assert.deepEqual(errors, []);
     const result = { passed: true, checks, relativeTextResize: resized, keyboardTargets: 32, counterDialogs: 20, before, after, errors };

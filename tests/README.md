@@ -458,7 +458,8 @@ workflow. Each receives the arguments named in its row.
 | Suite | Covers |
 | --- | --- |
 | `browser_startup.js` | Real IndexedDB startup restoration barrier, deferred navigation/early-save refusal, read-failure screen and reload recovery; two startup accessibility screens |
-| `browser_accessibility.js` | Theme/forced-color focus, keyboard obscuration, relative typography, 320px reflow, 200% text resize/spacing, textarea feedback and dialog-listener lifetime |
+| `browser_accessibility.js` | Theme/forced-color focus, keyboard obscuration, relative typography, 320px reflow, 200% text resize/spacing, textarea feedback, dialog-listener lifetime, 4.5:1 row controls and Reports count links in every theme |
+| `axe_measure.cjs` (helper, `DW_AXE_DETAIL=1` only) | Evidence capture for axe manual-review contrast items: painted-pixel measurement and failure screenshots; asserts nothing |
 | `browser_long_session.js` | 120 production open/edit/print-layout-preview/review/close cycles; exactly-once edits, post-GC DOM/document/listener/heap bounds, live timers/intervals/object URLs, layout-frame teardown and real IndexedDB save/reload of final edits; restored Workspace accessibility |
 | `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
