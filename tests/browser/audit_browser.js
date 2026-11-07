@@ -66,7 +66,10 @@ async function axeScreen(page, screen) {
     });
   if (process.env.DW_AXE_DETAIL) {
     const contrast = result.incomplete.filter((v) => v.id === "color-contrast").flatMap((v) => v.nodes);
-    detail.at(-1).measured = await require("./axe_measure.cjs")(page, contrast);
+    detail.at(-1).measured = await require("./axe_measure.cjs")(page, contrast, {
+      dir: path.join(OUT, "contrast-shots"),
+      label: screen + "-" + detail.at(-1).theme,
+    });
   }
   await inspectScreenCSS(page, screen, OUT);
   axeResults.push(report);

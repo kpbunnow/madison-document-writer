@@ -6,7 +6,7 @@
 const STYLE =
   "[data-axe-hide],[data-axe-hide] *{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}";
 
-module.exports = async function measureContrast(page, nodes) {
+module.exports = async function measureContrast(page, nodes, shots) {
   await page.evaluate((css) => {
     if (!document.getElementById("axe-hide-style")) {
       const style = document.createElement("style");
@@ -103,6 +103,17 @@ module.exports = async function measureContrast(page, nodes) {
       for (const clip of info.clips) pngs.push(await page.screenshot({ clip, animations: "disabled" }));
     } finally {
       await page.evaluate((sel) => document.querySelector(sel)?.removeAttribute("data-axe-hide"), selector);
+    }
+    let context = null;
+    if (shots) {
+      const size = page.viewportSize() || { width: 1280, height: 900 };
+      const c = info.clips[0];
+      const x = Math.max(0, c.x - 24),
+        y = Math.max(0, c.y - 16);
+      context = await page.screenshot({
+        clip: { x, y, width: Math.min(size.width - x, c.width + 48), height: Math.min(size.height - y, c.height + 32) },
+        animations: "disabled",
+      });
     }
     await page.evaluate(([x, y]) => scrollTo(x, y), scroll);
     const parts = [];
