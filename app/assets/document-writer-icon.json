@@ -1,7 +1,7 @@
 {
   "source": "document-writer-icon.svg",
-  "sourceSha256": "21c3d6178bbf26c6426a7460403dd638d8218f79960e20a6c5f2e2921dbc1bb0",
-  "renderer": "Chromium 145.0.7632.6",
+  "sourceSha256": "fe925f9256c0f8b2de64201bce535608da8cb50e6b4ada40fcc58b948bd04d72",
+  "renderer": "Chromium 141.0.7390.37",
   "sizes": [
     16,
     32,
@@ -9,5 +9,5 @@
     256
   ],
   "icon": "document-writer.ico",
-  "iconSha256": "4ff8d00561e62958d9c83f222aba371eea12be11066e01a9971485445c784df2"
+  "iconSha256": "29b9de5bbc7e32a41e7344e72c48b576da1b251b7999a68ea065fb0359255742"
 }

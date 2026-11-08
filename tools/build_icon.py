@@ -4,7 +4,8 @@
     python3 tools/build_icon.py --check   re-render and confirm the committed bytes are reproduced
 
 The SVG is rasterized by the pinned Playwright Chromium (tools/rasterize_icon.cjs; DW_BROWSER selects another
-compatible Chromium). Shapes with class="detail" are hidden at 16 and 32 px so the small sizes stay bold.
+compatible Chromium). Shapes with class="detail" are hidden at 16 and 32 px so the small sizes stay bold, and shapes with class="simple"
+(the bold small-size drawing) are hidden from 48 px up.
 The ICO holds PNG-compressed 16, 32, 48 and 256 px images (supported by Windows Vista and later). The
 outputs are committed build inputs; app/assets/document-writer-icon.json records the SVG digest they came from.
 """
@@ -31,6 +32,8 @@ def variant(svg, size):
     svg = svg.replace('width="256" height="256"', 'width="%d" height="%d"' % (size, size), 1)
     if size < DETAIL_FROM:
         svg = svg.replace("<title>", "<style>.detail{display:none}</style><title>", 1)
+    else:
+        svg = svg.replace("<title>", "<style>.simple{display:none}</style><title>", 1)
     return svg
 
 
