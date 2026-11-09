@@ -166,10 +166,13 @@ function scheduleTable(services, visible) {
 }
 
 export function initDepositSchedule(services) {
-  let date = recordDay(new Date()),
+  /* Until a date is chosen the schedule follows the current day, read when the screen is drawn: a page left open
+     past midnight must not keep showing yesterday's schedule as today's. */
+  let chosen = null,
     query = "",
     page = 0;
   function html() {
+    const date = chosen ?? recordDay(new Date());
     let p;
     try {
       p = policyAt(date);
@@ -188,7 +191,7 @@ export function initDepositSchedule(services) {
   }
   document.addEventListener("change", (e) => {
     if (e.target.id === "deposit-schedule-date") {
-      date = e.target.value;
+      chosen = e.target.value;
       page = 0;
       services.render();
     }
