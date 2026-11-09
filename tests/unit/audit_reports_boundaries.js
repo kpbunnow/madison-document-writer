@@ -138,6 +138,26 @@ for (const [name, factory] of Object.entries(owners)) {
       ],
     );
     assert.equal(renders, 0);
+    // The schedule date follows the current day until one is chosen: a page open past midnight shows the new day.
+    const RealDate = Date,
+      at = (stamp) =>
+        (global.Date = class extends RealDate {
+          constructor(...args) {
+            super(...(args.length ? args : [stamp]));
+          }
+        });
+    try {
+      at("2026-11-09T18:00:00Z");
+      assert.match(deposit.html(), /id="deposit-schedule-date" type="date" value="2026-11-09"/);
+      at("2026-11-10T18:00:00Z");
+      assert.match(deposit.html(), /id="deposit-schedule-date" type="date" value="2026-11-10"/, "the default date is read when drawn");
+      events[0][1]({ target: { id: "deposit-schedule-date", value: "2026-10-25" } });
+      at("2026-11-11T18:00:00Z");
+      assert.match(deposit.html(), /id="deposit-schedule-date" type="date" value="2026-10-25"/, "a chosen date is kept");
+      renders--;
+    } finally {
+      global.Date = RealDate;
+    }
     events[0][1]({ target: { id: "deposit-schedule-date", value: "2026-10-25" } });
     events[1][1]({ target: { id: "deposit-schedule-search", value: "tree" } });
     assert.equal(renders, 2);
