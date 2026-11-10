@@ -413,7 +413,7 @@ export function createEditorEvents(services) {
     workspace.DIRTY = true;
     services.ui.refreshSheet();
     services.ui.toastUndo("Removed item — " + (gone.title || "untitled"), () => {
-      if (!itemLibraryKey(gone) || !d.items.some((i) => itemLibraryKey(i) === itemLibraryKey(gone))) {
+      if (!d.items.some((i) => i.id === gone.id)) {
         d.items.splice(ix, 0, gone);
         services.actions.renumber(d);
         workspace.DIRTY = true;
