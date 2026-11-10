@@ -127,6 +127,15 @@ module.exports = async function (browser, page) {
     items()[1].text += " at the rear of the building";
     items()[2].group = "Unit 2";
     repeated.warningsAfterEdit = soft();
+    const beforeRemoval = JSON.stringify(items());
+    WriterState.state.picker = false;
+    render();
+    document.querySelector('[data-del="' + items()[1].id + '"]').click();
+    repeated.removedOne = items().length === 2;
+    // Notifications paint asynchronously; wait for the actual Undo control rather than a fixed delay.
+    for (let n = 0; n < 2000 && !document.querySelector("[data-message-undo]"); n++) await pause(10);
+    document.querySelector("[data-message-undo]").click();
+    repeated.undoRestored = JSON.stringify(items()) === beforeRemoval;
     return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
   });
   assert.equal(result.defaultScope, "usable", "the picker opens on Approved and standard");
@@ -162,6 +171,8 @@ module.exports = async function (browser, page) {
       warnings: 2,
       blocking: 0,
       warningsAfterEdit: 0,
+      removedOne: true,
+      undoRestored: true,
     },
     "an entry can be added again; copies are separate items, removed from Violation Items, and identical copies only warn",
   );

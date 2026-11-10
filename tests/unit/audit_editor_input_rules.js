@@ -300,6 +300,41 @@ function run(api, sc, listenerName, dom, targetKey) {
 
 (async () => {
   const [actual, legacy] = await Promise.all([compile(source), compile(legacySource)]);
+  // Repeated library entries have separate item identities. Undo restores the removed copy,
+  // including its private edits and position, without duplicating an item already restored.
+  for (const index of [0, 1, 2]) {
+    const items = [0, 1, 2].map((n) => ({
+      id: "copy-" + n,
+      no: String(n + 1),
+      libraryKey: "same-entry",
+      text: "Location " + n,
+      due: "2026-12-0" + (n + 1),
+    }));
+    const before = clone(items);
+    const d = { draft: true, items: items.slice() };
+    let undo,
+      saves = 0;
+    const events = actual.createEditorEvents({
+      actions: {
+        structEditable: () => true,
+        renumber: (doc) => doc.items.forEach((item, n) => (item.no = String(n + 1))),
+        saveDrafts: () => saves++,
+      },
+      ui: { refreshSheet() {}, toastUndo: (_, callback) => (undo = callback) },
+    });
+    events.deleteItem(d, { dataset: { del: items[index].id } });
+    assert.equal(d.items.length, 2, "only the chosen copy is removed");
+    undo();
+    assert.deepEqual(d.items, before, "Undo restores the exact edited copy in its original position among same-entry items");
+    assert.deepEqual(
+      d.items.map((i) => i.no),
+      ["1", "2", "3"],
+    );
+    assert.equal(saves, 1, "the restoration is saved");
+    undo();
+    assert.equal(d.items.length, 3, "replaying Undo cannot duplicate an existing item identity");
+    assert.equal(saves, 1);
+  }
   const dom = new JSDOM("<!doctype html><body></body>", { url: "http://127.0.0.1/" });
   const previous = global.document;
   const seen = new Set();
