@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R77 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S77-1 | Install R77 from the shared release folder over R76 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R76 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R76 PC is told to restart and cannot save to the share |
+| S77-2 | On a City PC, open an Official Notice, search 27.04(2)(g), add an entry, press Add again twice, edit each copy, remove one with its × and Undo it, then issue; build a Citation from the notice | Only 27.04(2)(g) entries are listed with related sections folded; the card reads "On this notice ×3"; the identical-wording warning clears after the edit and never blocks issuing; Undo restores that copy; the citation shows each copy as a separate charge with its own deposit and repeat-offense count; headings and ordinance tags read clearly at 125–150% scaling and in dark and high-contrast themes |
+
+All R77 items remain OPEN, together with the R76 items, SSRS-1 to SSRS-7 and the carried items. S76-1 is superseded by S77-1.
+
 ## R76 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

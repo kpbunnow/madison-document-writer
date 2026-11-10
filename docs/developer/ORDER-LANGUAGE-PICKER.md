@@ -1,7 +1,6 @@
 # Order-language picker: search and grouping (2026-11-10)
 
-Owner direction 2026-11-10, after a review of how inspectors add violation items to an Official Notice. Development under
-the R76 identity; ships with the next assigned release. Evidence for the screen-reference review entries of the same date.
+Owner direction 2026-11-10, after a review of how inspectors add violation items to an Official Notice. Shipped in R77. Evidence for the screen-reference review entries of the same date.
 
 ## Problems found
 

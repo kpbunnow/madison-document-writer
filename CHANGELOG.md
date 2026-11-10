@@ -1,5 +1,24 @@
 # Release changelog
 
+## 2026-11-10 R77 — Release package
+
+Release package assigned on the owner's request after R76 (helper 2026.11.10.78, build 78; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R77 upgrades R76. Every PC still needs Python 3.14.
+
+### Order language: search, grouping and repeated entries
+
+- **Ordinance search is exact.** Typing 27.04(2)(g) lists only the entries that cite 27.04(2)(g) or a narrower part such as 27.04(2)(g)5 (14 entries; the old search returned 28 mixed results). Parent and sibling sections, such as 27.04(2) and 27.04(2)(c), sit in a closed "Show related sections" fold under the results. Digits inside wording no longer match.
+- **Word search ranks and understands more.** Title matches come first, words match from their start, and "smoke detector", "outlet/receptacle" and "debris" find the entries staff expect.
+- **Results are grouped under headings.** Each checklist and group has its own sticky heading. Consolidated Order Language comes first, and the earlier checklists are labelled as such in the results and in the group list. Each entry leads with its ordinance. An earlier-checklist entry notes when Consolidated Order Language has language for the same ordinance.
+- **Status badges appear only on Review catalog.** The picker and Browse language no longer show "Standard · formal approval not recorded" on every entry.
+- **An entry can be added more than once.** Once an entry is on the notice its card shows Add again, which adds another stock copy as its own numbered item to edit. The card reads "On this notice ×N"; a copy is removed with its × in Violation Items. The snow removal item can still be added only once.
+- **Identical copies are warned about, not blocked.** If two items repeat the same wording word for word, the notice check asks for a location or an edit so the owner can tell them apart; issuing is not blocked.
+- **Copies carry onto citations and extensions.** On a citation each copy is a separate charge with its own deposit, and the repeat-offense count already applies. The helper no longer refuses an original notice that contains the same library entry twice.
+- **Undo restores the right copy.** Undoing the removal of one copy of a repeated entry now puts that copy back; before, it was refused whenever another copy of the same entry remained.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S77-1 and S77-2.
+
 ## 2026-11-10 R76 — Release package
 
 Release package assigned on the owner's request after R75 (helper 2026.11.10.77, build 77; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R76 upgrades R75. Every PC still needs Python 3.14.
