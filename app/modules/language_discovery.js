@@ -164,7 +164,7 @@ function selectedLabel(copies) {
 // Another copy with the stock language (owner direction 2026-11-10); not for the snow item or an entry needing review.
 function addAgainButton(R, i, pick, show) {
   return show && R.LIBRARY[i.ci].groups[i.gi].code !== "SNOW"
-    ? screen`<button type="button" class="btn btn-sm language-add-again" data-pick-again="${pick}" aria-label="Add another copy of ${raw(R.esc(i.t))}">Add again</button>`
+    ? screen`<button type="button" class="btn btn-sm language-add-again" data-pick-again="${pick}" aria-label="Add again: another copy of ${raw(R.esc(i.t))}">Add again</button>`
     : "";
 }
 
