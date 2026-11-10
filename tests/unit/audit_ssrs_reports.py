@@ -200,6 +200,40 @@ class Xml(unittest.TestCase):
         empty = b'<?xml version="1.0" encoding="utf-8"?><Report Name="DocumenGeneratorImport" xmlns="DocumenGeneratorImport"><Tablix1><Details_Collection /></Tablix1></Report>'
         self.assertEqual(ssrs.rows(empty, ssrs.CASE_REPORT, 1000), [])
 
+    def test_alternate_encodings_cannot_bypass_the_dtd_guard(self):
+        xml = '<?xml version="1.0" encoding="ENCODING"?><!DOCTYPE Report [<!ENTITY owner "SYNTHETIC OWNER">]><Report xmlns="DocumenGeneratorImport" Name="DocumenGeneratorImport"><Tablix1><Details_Collection><Details CaseNumber="QA-1" OwnerName="&owner;" /></Details_Collection></Tablix1></Report>'
+        for encoding, declaration in (
+            ("utf-8", "utf-8"),
+            ("utf-16-le", "utf-16"),
+            ("utf-16-be", "utf-16"),
+            ("utf-16", "utf-16"),
+            ("utf-32-le", "utf-32"),
+            ("utf-32", "utf-32"),
+        ):
+            with self.subTest(encoding=encoding), patch.object(ssrs.ET, "fromstring", wraps=ssrs.ET.fromstring) as parse:
+                with self.assertRaises(ssrs.ReportError):
+                    ssrs.rows(xml.replace("ENCODING", declaration).encode(encoding), ssrs.CASE_REPORT, 1000)
+                parse.assert_not_called()
+        # UTF-8 exports retain real non-ASCII text, including the optional UTF-8 BOM.
+        valid = CASE_XML.replace(b'OwnerName="EXAMPLE OWNER LLC"', 'OwnerName="SYNTHETIC JOSÉ — OWNER"'.encode("utf-8"))
+        for raw in (valid, b"\xef\xbb\xbf" + valid):
+            self.assertEqual(ssrs.rows(raw, ssrs.CASE_REPORT, 1000)[0]["OwnerName"], "SYNTHETIC JOSÉ — OWNER")
+
+    def test_changed_data_row_names_or_namespaces_are_not_empty_or_partial_results(self):
+        for raw, report in ((CASE_XML, ssrs.CASE_REPORT), (OPEN_XML, ssrs.OPEN_CASES_REPORT)):
+            for replacement, count in ((b"<RenamedRow ", -1), (b'<Details xmlns="Other" ', -1), (b"<RenamedRow ", 1)):
+                changed = raw.replace(b"<Details ", replacement, count)
+                with self.subTest(report=report, replacement=replacement, count=count), self.assertRaisesRegex(ssrs.ReportError, "SSRS_LAYOUT"):
+                    ssrs.rows(changed, report, 20000)
+            qualified = raw.replace(b"<Details ", b'<RenamedRow xmlns:field="urn:changed" ').replace(b"CaseNumber=", b"field:CaseNumber=")
+            with self.subTest(report=report, qualified=True), self.assertRaisesRegex(ssrs.ReportError, "SSRS_LAYOUT"):
+                ssrs.rows(qualified, report, 20000)
+        # A genuinely empty export must remain empty, including SSRS omitting empty containers.
+        for report in (ssrs.CASE_REPORT, ssrs.OPEN_CASES_REPORT):
+            for content in ("", "<Tablix1/>", "<Tablix1><Details_Collection/></Tablix1>"):
+                empty = ('<Report xmlns="' + report + '" Name="' + report + '">' + content + "</Report>").encode("utf-8")
+                self.assertEqual(ssrs.rows(empty, report, 1000), [])
+
     def test_case_and_open_case_renders_send_only_the_validated_value(self):
         with patch.object(ssrs, "fetch", return_value=CASE_XML) as fetch:
             ssrs.case_rows("CB2026-313-04591")
