@@ -328,7 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
-## Live import from the City SSRS reports (development after R75, ships with the next assigned release) — OPEN
+## R76 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S76-1 | Install R76 from the shared release folder over R75 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R75 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match and the three Case lookup / Report server rows; the R75 PC is told to restart and cannot save to the share |
+
+All R76 items remain OPEN, together with SSRS-1 to SSRS-7 below, the R75 items (SQL-2 superseded) and the carried items. S75-1 is superseded by S76-1.
+
+## Live import from the City SSRS reports (shipped in R76) — OPEN
 
 Owner direction 2026-11-10: switch Import inspection from the direct SQL lookup to the division's live reports at once, with no SQL fallback; the owner deploys and tests personally. None of the items below has been exercised against the real report server; automated tests use synthetic report exports and a scripted PowerShell.
 
