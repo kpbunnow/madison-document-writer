@@ -163,7 +163,7 @@ class InspectorCaseTests(unittest.TestCase):
                 cases.inspectors(self.root, refresh=True)
             with self.assertRaisesRegex(lookup.CaseLookupError, "SSRS_LAYOUT"):
                 cases.open_cases(self.root, "Casey Sample")
-        self.assertEqual(cases.inspectors(self.root), previous, "only the prior verified cached list remains")
+            self.assertEqual(cases.inspectors(self.root), previous, "only the prior verified cached list remains")
 
     def test_open_cases_are_rendered_for_the_listed_name_and_normalized(self):
         rows = [case_row(), case_row("CB2026-241-00002", ShortAddress="  2 TEST   AVE ", CaseDescription=None), case_row()]
