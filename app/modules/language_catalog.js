@@ -743,16 +743,16 @@ async function languageCatalogShowHealth(services, probe = false) {
     ["Share and case folder writable", check(h.shareWritable)],
     ["Chrome / Edge PDF renderer", check(h.chrome)],
     ["Outlook draft handoff", check(h.outlook)],
-    ["SQL lookup configuration", check(h.lookupConfigured)],
-    ["SQL Windows support", check(h.lookupPlatform)],
-    ["SQL connection", h.lookupConnection || "Not tested"],
+    ["Case lookup configuration", check(h.lookupConfigured)],
+    ["Case lookup Windows support", check(h.lookupPlatform)],
+    ["Report server connection", h.lookupConnection || "Not tested"],
     ["Catalog manifest", check(h.catalogManifest)],
     ["Program/helper versions", h.versionMatch && h.version === services.navigation.helperVersion() ? "Match" : "Mismatch or helper unavailable"],
     ["Checked at", h.checkedAt || "Unavailable"],
   ];
   services.A11Y.utility(
     "Connection & setup",
-    html`<table><caption>Connection and installation checks</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>${raw("".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")))}</tbody></table><p>${raw("".concat(esc(h.error || "SQL connection is tested by an explicit case lookup. No case content is included in these diagnostics.")))}</p><button class="btn" data-health-probe>Test share write access</button> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><label>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">${raw("".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))))}</textarea></label>`,
+    html`<table><caption>Connection and installation checks</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>${raw("".concat(fields.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${esc(value)}</td></tr>`).join("")))}</tbody></table><p>${raw("".concat(esc(h.error || "The report server connection is tested by an explicit case lookup. No case content is included in these diagnostics.")))}</p><button class="btn" data-health-probe>Test share write access</button> <button class="btn" data-diagnostics-copy>Copy diagnostics</button><label>IT diagnostics <textarea id="it-diagnostics" readonly rows="8">${raw("".concat(esc(JSON.stringify({ program: BUILD, helper: h.version, checks: Object.fromEntries(fields) }, null, 2))))}</textarea></label>`,
   );
 }
 

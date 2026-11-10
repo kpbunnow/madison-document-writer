@@ -333,7 +333,7 @@ Open Saved work & connection from Tools & settings, below Workspace, or from the
 
 Repeated unresolved messages appear once. Dismissing an alert does not clear its underlying case state. Message history in Tools retains dismissed messages. Case-specific integrity evidence is read-only for inspectors.
 
-Expand Backups and recovery. Recovery on this device holds Recover an unfinished case and Create recovery copy on this device; Download or restore a workspace holds Download workspace backup and Restore workspace backup (into an empty workspace). Expand Connection checks and technical details for helper/share/SQL information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
+Expand Backups and recovery. Recovery on this device holds Recover an unfinished case and Create recovery copy on this device; Download or restore a workspace holds Download workspace backup and Restore workspace backup (into an empty workspace). Expand Connection checks and technical details for helper, share and case lookup information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
 
 ## 15 Back up restore and recover safely
 

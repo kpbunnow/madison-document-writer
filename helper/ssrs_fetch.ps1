@@ -21,11 +21,15 @@ try {
     $operation = 'render_report'
     $response = Invoke-WebRequest -Uri $url -UseDefaultCredentials -UseBasicParsing -MaximumRedirection 0 -TimeoutSec $timeout -ErrorAction Stop
     $operation = 'read_report'
+    # A redirect that was not raised as an error is still refused: only the report itself is accepted.
+    if ([int]$response.StatusCode -ge 300) { throw 'SSRS_REDIRECT' }
     $bytes = $response.RawContentStream.ToArray()
     if ($bytes.Length -gt $limit) { throw 'SSRS_LIMIT' }
-    $contentType = [string]$response.Headers['Content-Type']
-    $out = @{ok=$true; status=[int]$response.StatusCode; contentType=$contentType; body=[Convert]::ToBase64String($bytes)} | ConvertTo-Json -Compress
-    [Console]::Out.Write($out)
+    # The body is written directly, not through the JSON cmdlet, whose Windows PowerShell 5.1 serializer limits
+    # string length; base64 needs no escaping.
+    [Console]::Out.Write('{"ok":true,"status":' + [int]$response.StatusCode + ',"body":"')
+    [Console]::Out.Write([Convert]::ToBase64String($bytes))
+    [Console]::Out.Write('"}')
 } catch {
     $errorRecord = $_
     $exception = $_.Exception
@@ -36,6 +40,7 @@ try {
     while ($exception) {
         if ($exception.Message -eq 'SSRS_LIMIT') { $category = 'limit' }
         if ($exception.Message -eq 'SSRS_URL') { $category = 'request' }
+        if ($exception.Message -eq 'SSRS_REDIRECT') { $category = 'redirect' }
         if ($exception -is [System.Net.WebException]) {
             $webStatus = [string]$exception.Status
             if ($exception.Response -ne $null) {

@@ -188,6 +188,10 @@ const test = async () => {
   assert.equal(await oldHealth, false);
   assert.equal(shown.length, 1);
   assert.ok(shown[0].body.includes("<td>Match</td>"));
+  // The live import reads the City report server, so the setup rows no longer name SQL.
+  for (const label of ["Case lookup configuration", "Case lookup Windows support", "Report server connection"])
+    assert.ok(shown[0].body.includes('<th scope="row">' + label + "</th>"), label);
+  assert.ok(!/SQL/.test(shown[0].body), "no SQL wording in the setup checks");
   assert.equal(WriterState.SAFETY_HEALTH.checkedAt, "NEW");
   const stale = deferred();
   helperJSON = () => stale.promise;

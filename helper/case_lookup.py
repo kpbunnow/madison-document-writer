@@ -136,7 +136,7 @@ def lookup(root, value):
                 raise CaseLookupError("The case report returned unexpected columns. Ask the report administrator to check the report.")
             if any(v is not None and not isinstance(v, str) for v in row.values()):
                 raise CaseLookupError("The case report returned an invalid field value.")
-            if case_number(row["CaseNumber"]) != number:
+            if not isinstance(row["CaseNumber"], str) or case_number(row["CaseNumber"]) != number:
                 raise CaseLookupError("The report returned a different case number. Nothing was imported.")
             clean.append(
                 {
