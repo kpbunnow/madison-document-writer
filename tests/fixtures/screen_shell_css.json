@@ -64,10 +64,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "d46616aaea03209d976cf9deb31545e332b2eb17eb86bcd504ee49e0d6bd1ad1",
+      "afterSha256": "cb6cea79d69bd1cd275215a1aa6a930d97901bed8895ea5e227eccdb765aa821",
       "beforeBytes": 48561,
-      "afterBytes": 51724,
-      "retainedRulesSha256": "5ddf214cb4a7173afe016f38269daf31c46617af4455f3a4de0e7b5dbda239bf"
+      "afterBytes": 54072,
+      "retainedRulesSha256": "bfd849d964fe860002cb0c23bd753650df337387f0214b950a07897a6ce6ef01"
     }
   },
   "selectorChanges": [
@@ -741,6 +741,20 @@
         }
       },
       "evidence": "docs/developer/R75-ACCESSIBILITY-FOLLOWUP.md"
+    },
+    {
+      "date": "2026-11-10",
+      "sourceCommit": "41cdf31e3b94d4dd2832d6ead75b08a5e471f20a",
+      "scope": "Order-language picker and browser (owner direction 2026-11-10): sticky checklist/group headings, larger ordinance tags, entry heading row, overlap and unavailable notes, related-sections fold, stronger picker checklist headings and an Earlier checklists label. No new colours. Append-only new screen block after the R75 block; preserves all 51,724 earlier stylesheet bytes. Reviewed visible differences, not parity.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "d46616aaea03209d976cf9deb31545e332b2eb17eb86bcd504ee49e0d6bd1ad1",
+          "afterSha256": "cb6cea79d69bd1cd275215a1aa6a930d97901bed8895ea5e227eccdb765aa821",
+          "unchangedRulesSha256": "5ddf214cb4a7173afe016f38269daf31c46617af4455f3a4de0e7b5dbda239bf",
+          "unchangedPrefixBytes": 51724
+        }
+      },
+      "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
     }
   ]
 }

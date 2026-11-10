@@ -72,7 +72,11 @@ const test = async () => {
   }
   WriterState.state.libFilter = "";
   WriterState.state.libStatus = "usable";
-  ok("Standard sources remain explicitly available and truthfully labeled", screenLibrary().includes("formal approval not recorded"));
+  // Owner decision 2026-11-10: status badges appear only on Review catalog; standard sources stay listed on Browse language.
+  ok(
+    "Standard sources remain available on Browse language without a status badge",
+    screenLibrary().includes('data-language-key="') && !screenLibrary().includes("formal approval not recorded"),
+  );
   WriterState.state.libStatus = "review";
   ok(
     "Needs review exposes proposed without claiming approval",
