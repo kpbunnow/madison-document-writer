@@ -31,7 +31,9 @@ covers, or a new suite under its feature.
 | `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
 | `audit_report_filter_events.js` | 1,680 retained filter changes, listener checkpoint and lazy input guards |
 | `audit_accessibility_enhance_rules.js` | 172 retained native DOM comparisons plus complete accessibility and Reports workflows |
-| `audit_language_presentation_rules.js` | 1,596 retained full-screen comparisons plus existing focus and catalog workflows |
+| `audit_language_presentation_rules.js` | 1,596 full-screen comparisons with the retained Browse language and picker screens (references updated 2026-11-10 for the grouped layout) plus existing focus and catalog workflows |
+| `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
+| `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
 | `audit_check_focus_rules.js` | 700 retained DOM/state/timer comparisons plus existing worksheet and outcome checks |

@@ -2490,3 +2490,102 @@
     }
   }
 }
+/* Order-language picker and browser (2026-11-10): results grouped under checklist and group headings, the cited ordinance
+   at the front of each entry, and clearer checklist headings in the picker's list of groups. No new colours. */
+@media screen {
+  .language-group-h {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    margin: 18px 0 10px;
+    padding: 8px 2px 8px;
+    background: var(--surface);
+    border-bottom: 2px solid var(--civic);
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .language-pick-group:first-child .language-group-h,
+  .language-group:first-of-type .language-group-h {
+    margin-top: 0;
+  }
+  .language-group-cl {
+    flex-basis: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .language-group-h .n {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .language-entry-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 9px;
+    margin-bottom: 6px;
+  }
+  .language-entry-head .cite-sec {
+    width: auto;
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    padding: 2px 8px;
+  }
+  .language-entry-head h3,
+  .language-entry-head h4 {
+    margin: 0;
+  }
+  .language-also,
+  .language-unavailable {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .language-unavailable {
+    font-weight: 600;
+  }
+  .language-related {
+    margin-top: 18px;
+  }
+  .language-related-list > summary {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 2px;
+  }
+  .picker-tree .tree-cl {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--ink);
+    padding: 14px 10px 6px;
+    border-top: 1px solid var(--rule);
+  }
+  .picker-tree .tree-cl:first-of-type {
+    border-top: 0;
+  }
+  .picker-tree .tree-earlier {
+    margin: 18px 10px 0;
+    padding-top: 10px;
+    border-top: 2px solid var(--rule);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+}

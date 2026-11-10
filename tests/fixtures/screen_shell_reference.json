@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "eea734b4c2e14bdb9890e979fe4765ad5e7e6c1052fcc2404886ede34e581566"
+      "normalizedShellSha256": "e5b5c85d85450e460229049b0fdf052b0c272d7573f57526e29f9e1e85aaf960"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
-      "normalizedShellSha256": "36ce6bf597d13b82bb526adc117ab6fbef4a951a9750baa1adc7a62603188edf"
+      "normalizedShellSha256": "a615af467d43836cf8a78ae794a01683be8a38f3105398b2ef5017459c61349a"
     }
   },
   "reviews": [
@@ -96,6 +96,22 @@
         }
       },
       "evidence": "docs/developer/R75-ACCESSIBILITY-FOLLOWUP.md"
+    },
+    {
+      "date": "2026-11-10",
+      "sourceCommit": "41cdf31e3b94d4dd2832d6ead75b08a5e471f20a",
+      "scope": "Order-language picker and browser: grouped result headings, prominent ordinance tags, clearer checklist headings with Consolidated first, related-section fold; screen-only, append-only stylesheet block. Official print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "eea734b4c2e14bdb9890e979fe4765ad5e7e6c1052fcc2404886ede34e581566",
+          "after": "e5b5c85d85450e460229049b0fdf052b0c272d7573f57526e29f9e1e85aaf960"
+        },
+        "madison-reports.html": {
+          "before": "36ce6bf597d13b82bb526adc117ab6fbef4a951a9750baa1adc7a62603188edf",
+          "after": "a615af467d43836cf8a78ae794a01683be8a38f3105398b2ef5017459c61349a"
+        }
+      },
+      "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
     }
   ]
 }
