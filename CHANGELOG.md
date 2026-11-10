@@ -1,5 +1,26 @@
 # Release changelog
 
+## 2026-11-10 R76 — Release package
+
+Release package assigned on the owner's request after R75 (helper 2026.11.10.77, build 77; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R76 upgrades R75. Every PC still needs Python 3.14.
+
+### Import inspection reads the live Accela reports
+
+- Open cases by inspector and Find Case Inspections now read the division's two SSRS reports on entreports.cityofmadison.com — DocumenGeneratorImport for one case and OpenEnforcementCases_BI for the open cases — with each person's own Windows sign-in. The PC must be on the City network or VPN, and each person needs access to the Enforcement reports in the Reports portal.
+- The direct SQL connection is gone: no SQL permission, SQL client or certificate workaround is needed. The `server` and `database` lines in `Case Lookup/settings.json` are ignored; `enabled` still turns lookup off.
+- Inspectors appear by the full name the open-case report prints. The report decides which cases are open; a change saved to a report applies at once, as long as its name, parameters and column names stay the same.
+- Lookup problems show an `SSRS_` code that says what to check (for example `SSRS_403`: no permission to run the report). CASE-LOOKUP-GUIDE lists every code. Answers that are not the expected report data (a sign-in page, another report, a changed row layout, a document type declaration) are refused and nothing is imported.
+- Tools & settings → Connection & setup now reads Case lookup configuration, Case lookup Windows support and Report server connection.
+
+### Other changes
+
+- The Reports deposit schedule follows the current day until a date is chosen, so a Reports page left open past midnight no longer shows yesterday's schedule.
+- New desktop icon (Extension / Official Notice artwork).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Nothing here has been run against the real report server; SSRS-1 to SSRS-7 and S76-1 cover it.
+
 ## 2026-11-06 R75 — Release package
 
 Release package assigned on the owner's request after R74 (helper 2026.11.06.76, build 76; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R75 upgrades R74. **R75 needs Python 3.14 or later on every PC** (see the first item).

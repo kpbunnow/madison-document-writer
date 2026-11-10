@@ -87,3 +87,5 @@ Pending next assigned release: Python 3.14 is the minimum for the program and de
 Pending next assigned release: all four fixed case-database queries follow the configured connection database; missing or blank settings select AccelaReporting explicitly. Cached inspector lists/names are bound to validated connection settings, and new requests revalidate configuration before cache use. SQL-2 remains OPEN for actual City database/account evidence. No new trusted server or authentication mode is introduced.
 
 R75 upgrades R74 and adds S75-1 (installed update), PY-1 (Python 3.14 on every PC) and SQL-2 (all four queries follow the configured database). S74-1, OCL-18, CLR-1, CLR-2 and the carried City items remain OPEN. R75 is a release candidate, not a deployment approval; IT must install Python 3.14 on every PC first.
+
+R76 upgrades R75 and replaces the direct SQL lookup with the live SSRS reports (SSRS-1 to SSRS-7, superseding SQL-2) and adds S76-1 (installed update). PY-1 and the carried City items remain OPEN. R76 is a release candidate, not a deployment approval.
