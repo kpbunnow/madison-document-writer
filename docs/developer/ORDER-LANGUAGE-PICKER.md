@@ -21,7 +21,10 @@ the R76 identity; ships with the next assigned release. Evidence for the screen-
 3. Ordinance searches show exact matches, with related sections behind a "show related" option.
 6. Status badges only on the Review catalog screen.
 
-(Decisions 4 and 5, adding an item more than once, are a separate change.)
+4. An entry can be added more than once on notices, and so on the extensions and citations that carry its items; on a citation each copy is its own charge and deposit and counts toward the repeat-offense tier.
+5. Identical copies are only a warning.
+
+Decisions 4 and 5 shipped as a separate change: Add again in the picker (not a new control on the printed item rows, whose layout is fixed by the approved print references).
 
 ## What changed
 

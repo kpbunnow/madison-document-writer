@@ -321,10 +321,37 @@ function dueDateChecks(services, d, out, check) {
   }
 }
 
-function noticeLibraryCheck(d, check) {
+/* An entry may be added more than once (owner direction 2026-11-10). Copies that still read word for word alike are only
+   a warning, so the owner can tell them apart. */
+const sameWording = (i) =>
+  JSON.stringify([
+    itemLibraryKey(i),
+    String(i.group || ""),
+    (i.sections || []).join(";"),
+    String(i.text || "")
+      .replace(/\s+/g, " ")
+      .trim(),
+  ]);
+function noticeLibraryCheck(d, out) {
   if (d.type !== "notice" || d.correction) return;
-  const keys = d.items.map(itemLibraryKey).filter(Boolean);
-  check(new Set(keys).size === keys.length, "Each library item can appear only once on an original notice. Remove duplicate items.");
+  const seen = new Map(),
+    alike = [];
+  for (const i of d.items.filter((x) => itemLibraryKey(x) && !x.withdrawn)) {
+    const first = seen.get(sameWording(i));
+    if (first) alike.push([first, i]);
+    else seen.set(sameWording(i), i);
+  }
+  for (const [first, copy] of alike)
+    out.push({
+      ok: false,
+      soft: true,
+      t:
+        "Items " +
+        first.no +
+        " and " +
+        copy.no +
+        " repeat the same language word for word. Add a location or edit one so the owner can tell them apart.",
+    });
 }
 
 function depositRequestMessage(services, i, request) {
@@ -702,7 +729,7 @@ export function createCitationWorkflow(services) {
     const out = [],
       collect = checkCollector(out);
     dueDateChecks(services, d, out, collect.check);
-    noticeLibraryCheck(d, collect.check);
+    noticeLibraryCheck(d, out);
     citationDocumentChecks(services, d, out, collect);
     return out;
   }

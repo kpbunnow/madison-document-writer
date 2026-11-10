@@ -338,8 +338,19 @@ export function createCitationWorkflow(services) {
       });
     }
     if (d.type === "notice" && !d.correction) {
-      const keys = d.items.map(itemLibraryKey).filter(Boolean);
-      check(new Set(keys).size === keys.length, "Each library item can appear only once on an original notice. Remove duplicate items.");
+      // Owner direction 2026-11-10: an entry may be added more than once; word-for-word copies are only a warning.
+      const alike = new Map();
+      for (const i of d.items.filter((x) => itemLibraryKey(x) && !x.withdrawn)) {
+        const key = JSON.stringify([itemLibraryKey(i), String(i.group || ""), (i.sections || []).join(";"), String(i.text || "").replace(/\s+/g, " ").trim()]);
+        const first = alike.get(key);
+        if (first)
+          out.push({
+            ok: false,
+            soft: true,
+            t: "Items " + first.no + " and " + i.no + " repeat the same language word for word. Add a location or edit one so the owner can tell them apart.",
+          });
+        else alike.set(key, i);
+      }
     }
     if (d.type === "citation") check(depositComplete(d), "Citation needs deposit. Complete the required deposit step.");
     if (d.type === "citation")

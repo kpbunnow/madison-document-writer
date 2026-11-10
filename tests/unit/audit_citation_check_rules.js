@@ -195,7 +195,7 @@ function run(api, sc) {
     "Use no more than three distinct due dates for outstanding items.",
     "Keep distinct due dates at least seven days apart.",
     "Distinct due dates are at least seven days apart.",
-    "Each library item can appear only once on an original notice. Remove duplicate items.",
+    "repeat the same language word for word.",
     "Citation needs deposit. Complete the required deposit step.",
     "Shared citation history has been checked.",
     "History fault",
