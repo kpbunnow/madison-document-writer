@@ -31,8 +31,8 @@ module.exports = async function (browser, page) {
     const pause = (ms) => new Promise((r) => setTimeout(r, ms));
     const click = async (pick, done, again = false) => {
       const b = document.createElement("button");
-      b.dataset.pick = pick;
       if (again) b.dataset.pickAgain = pick;
+      else b.dataset.pick = pick;
       document.body.appendChild(b);
       b.click();
       // The confirmation message is the handler's last step, so nothing more needs waiting for once it shows.

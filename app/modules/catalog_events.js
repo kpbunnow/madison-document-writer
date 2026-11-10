@@ -120,7 +120,7 @@ function pickStillCurrent(services, d, context) {
 
 /* The library entry the button names, or null when it cannot be picked now (with the reason shown). */
 function pickSource(services, d, t) {
-  const [ci, gi, o] = t.dataset.pick.split(":").map(Number);
+  const [ci, gi, o] = (t.dataset.pick || t.dataset.pickAgain).split(":").map(Number);
   const raw = LIBRARY[ci]?.groups[gi]?.items.find((x) => x.o === o);
   if (!raw) return null;
   const indexed = { ...raw, ci, gi },
