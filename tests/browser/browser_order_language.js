@@ -132,6 +132,8 @@ module.exports = async function (browser, page) {
     render();
     document.querySelector('[data-del="' + items()[1].id + '"]').click();
     repeated.removedOne = items().length === 2;
+    // Notifications paint asynchronously; wait for the actual Undo control rather than a fixed delay.
+    for (let n = 0; n < 2000 && !document.querySelector("[data-message-undo]"); n++) await pause(10);
     document.querySelector("[data-message-undo]").click();
     repeated.undoRestored = JSON.stringify(items()) === beforeRemoval;
     return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
