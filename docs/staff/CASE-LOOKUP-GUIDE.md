@@ -81,7 +81,9 @@ On a City PC, for at least two inspector accounts: load the inspector list and c
 | `SSRS_NETWORK` | City network or VPN, DNS and the report server's availability. |
 | `SSRS_TLS` | The report server's certificate was not trusted by the PC. |
 | `SSRS_REDIRECT` | The report server sent the request elsewhere; the program refuses redirects. Check the server address. |
-| `SSRS_NOT_XML` | A web page came back instead of data, usually a sign-in or error page. Open the report in the portal on that PC. |
+| `SSRS_NOT_XML` | The answer is not valid UTF-8 report XML, or a web page came back instead of data (usually a sign-in or error page). Open the report in the portal on that PC and check its XML export. |
+| `SSRS_DTD` | The XML contained a document type or entity declaration. The report data was refused; ask the report administrator to check the export. |
+| `SSRS_LAYOUT` | A data row has an unexpected element name or namespace. Nothing was loaded; restore the report’s expected Details rows and column names. |
 | `SSRS_WRONG_REPORT` | The XML came from a different report. The report's name must stay exactly as above. |
 | `SSRS_LIMIT` | The answer exceeded the size limits. Check the report for duplicate or unexpected rows. |
 | `SCRIPT_POLICY` | Ask IT to approve the delivered helper under City policy. Do not bypass PowerShell policy. |

@@ -132,28 +132,43 @@ def fetch(url, wait):
     return _body(_answer(run))
 
 
-NOT_DATA = "The report server returned a web page instead of the report data (SSRS_NOT_XML). Check that you can open the report in the Reports portal, then retry."
+NOT_DATA = "The report server did not return valid UTF-8 report XML (SSRS_NOT_XML). It may be a sign-in or error page. Check that you can open the report in the Reports portal, then retry."
+
+
+def _xml_root(raw):
+    """The reports export UTF-8. Validate that encoding before scanning declarations or invoking the XML parser."""
+    if not isinstance(raw, bytes) or len(raw) > MAX_BYTES:
+        raise ReportError(CATEGORY_MESSAGES["limit"])
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeError:
+        raise ReportError(NOT_DATA) from None
+    head = text.lstrip()[:512].lower()
+    # NUL is invalid XML text, but a byte parser can interpret it as BOM-free UTF-16/32 and bypass a bytewise DTD scan.
+    if "\x00" in text or not head.startswith("<") or "<html" in head or "<!doctype html" in head:
+        raise ReportError(NOT_DATA)
+    if re.search(r"<!\s*(doctype|entity)", text, re.IGNORECASE):
+        raise ReportError("The report answer contained a document type declaration and was refused (SSRS_DTD).")
+    try:
+        return ET.fromstring(raw)
+    except ET.ParseError:
+        raise ReportError(NOT_DATA) from None
 
 
 def rows(raw, report, limit):
     """The detail rows of one report's XML export: a list of {column: text}. A column SSRS leaves out is a NULL value."""
-    if not isinstance(raw, bytes) or len(raw) > MAX_BYTES:
-        raise ReportError(CATEGORY_MESSAGES["limit"])
-    text = raw[3:] if raw.startswith(b"\xef\xbb\xbf") else raw
-    head = text.lstrip()[:512].lower()
-    if not head.startswith(b"<") or b"<html" in head or b"<!doctype html" in head:
-        raise ReportError(NOT_DATA)
-    if re.search(rb"<!\s*(doctype|entity)", text, re.IGNORECASE):
-        raise ReportError("The report answer contained a document type declaration and was refused (SSRS_DTD).")
-    try:
-        root = ET.fromstring(text)
-    except ET.ParseError:
-        raise ReportError(NOT_DATA) from None
+    root = _xml_root(raw)
     namespace = "{" + report + "}"
     if root.tag != namespace + "Report" or root.get("Name") != report:
         raise ReportError("The report server returned a different report (SSRS_WRONG_REPORT). Nothing was loaded; ask the report administrator.")
     found = []
-    for element in root.iter(namespace + "Details"):
+    for element in root.iter():
+        if element.tag != namespace + "Details":
+            # A renamed/foreign row must not silently disappear, producing an empty or incomplete case list.
+            # Empty exports may omit their containers, so absence of Details alone is not an error.
+            if any(key.rsplit("}", 1)[-1] in ("CaseNumber", "AssignedInspector") for key in element.attrib):
+                raise ReportError("The report's data row layout changed (SSRS_LAYOUT). Nothing was loaded; ask the report administrator.")
+            continue
         if len(found) >= limit:
             raise ReportError(CATEGORY_MESSAGES["limit"])
         found.append({key: value for key, value in element.attrib.items() if "}" not in key})
