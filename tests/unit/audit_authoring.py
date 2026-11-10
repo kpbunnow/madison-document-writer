@@ -47,13 +47,14 @@ class AuthoringStoreTests(unittest.TestCase):
         snap["items"][3]["due"] = snap["items"][0]["due"]
         self.assertEqual(len(self.save(value)["events"]), 1)
 
-    def test_duplicate_library_items_cannot_issue(self):
+    def test_repeated_library_items_issue_as_separate_items(self):
+        # Owner direction 2026-11-10: an entry may be added more than once; each copy is its own numbered item.
         value = self.notice()
         items = value["events"][0]["payload"]["snapshot"]["items"]
         items[0]["libraryKey"] = '["A","B",1]'
-        items.append(dict(items[0], id="second", no="2"))
-        with self.assertRaisesRegex(ValueError, "duplicate library"):
-            self.save(value)
+        items.append(dict(copy.deepcopy(items[0]), id="second", no="2"))
+        saved = self.save(value)["events"][0]["payload"]["snapshot"]["items"]
+        self.assertEqual([(i["id"], i["libraryKey"]) for i in saved[-2:]], [(items[0]["id"], '["A","B",1]'), ("second", '["A","B",1]')])
 
     def test_approved_total_round_trips(self):
         value = self.citation()

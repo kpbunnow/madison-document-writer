@@ -120,7 +120,7 @@ function pickStillCurrent(services, d, context) {
 
 /* The library entry the button names, or null when it cannot be picked now (with the reason shown). */
 function pickSource(services, d, t) {
-  const [ci, gi, o] = t.dataset.pick.split(":").map(Number);
+  const [ci, gi, o] = (t.dataset.pick || t.dataset.pickAgain).split(":").map(Number);
   const raw = LIBRARY[ci]?.groups[gi]?.items.find((x) => x.o === o);
   if (!raw) return null;
   const indexed = { ...raw, ci, gi },
@@ -133,6 +133,21 @@ function pickSource(services, d, t) {
     key = JSON.stringify([LIBRARY[ci].code, LIBRARY[ci].groups[gi].code, src.o]);
   if (!d.items.some((i) => itemLibraryKey(i) === key) && !services.snow.canAdd(d, key)) return null;
   return { ci, gi, src };
+}
+
+/* Another copy of an entry already on the notice (owner direction 2026-11-10): not the snow item, which turns the draft
+   into a snow citation, and not an entry that now needs review. */
+function repeatable(services, d, picked) {
+  const group = LIBRARY[picked.ci].groups[picked.gi];
+  if (group.code === "SNOW") {
+    services.toast("The snow removal item can be added only once.");
+    return false;
+  }
+  if (BLOCKED_STATUS.includes(services.catalogStatus({ ...picked.src, ci: picked.ci, gi: picked.gi }).code)) {
+    services.toast("This entry needs division review before another copy can be added.");
+    return false;
+  }
+  return true;
 }
 
 function focusNewItem() {
@@ -150,7 +165,7 @@ function focusNewItem() {
   last.scrollIntoView({ block: "center" });
 }
 
-function afterPick(services, d, src, added) {
+function afterPick(services, d, src, added, again = false) {
   if (added && services.snow.pickedDraft(d)) {
     // The picker stays open so the change of workflow can be undone right away.
     services.refreshOverlay();
@@ -159,13 +174,13 @@ function afterPick(services, d, src, added) {
   }
   if (editor.state.keepAdding || !added) {
     services.refreshOverlay();
-    services.toast((added ? "Added: " : "Removed: ") + src.t);
+    services.toast((added ? (again ? "Added another copy: " : "Added: ") : "Removed: ") + src.t);
     return;
   }
   editor.state.picker = false;
   services.render();
   focusNewItem();
-  services.toast("Added: " + src.t);
+  services.toast((again ? "Added another copy: " : "Added: ") + src.t);
 }
 
 async function pickLibraryItem(services, d, t) {
@@ -178,11 +193,18 @@ async function pickLibraryItem(services, d, t) {
   if (!pickStillCurrent(services, d, context)) return;
   const picked = pickSource(services, d, t);
   if (!picked) return;
-  const added = services.toggleLibraryItem(d, picked.ci, picked.gi, picked.src);
+  const again = t.hasAttribute("data-pick-again");
+  if (again && !repeatable(services, d, picked)) return;
+  const added = services.toggleLibraryItem(d, picked.ci, picked.gi, picked.src, again);
+  if (added === null) {
+    services.toast("This entry is on the notice more than once. Remove the copy you no longer need with its × in Violation Items.");
+    services.refreshOverlay();
+    return;
+  }
   services.renumber(d);
   workspace.DIRTY = true;
   services.saveDrafts();
-  afterPick(services, d, picked.src, added);
+  afterPick(services, d, picked.src, added, again);
 }
 
 export function createCatalogEvents(services) {

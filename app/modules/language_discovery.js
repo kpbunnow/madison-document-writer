@@ -155,13 +155,28 @@ function languagePickerGroupOptions(R, all, visible, q) {
     .join("");
 }
 
+// What a selected entry's card says: once, or on the notice several times (each copy removed in Violation Items).
+function selectedLabel(copies) {
+  if (copies > 1) return screen`<span class="added-label">On this notice ×${String(copies)} · remove copies in Violation Items</span>`;
+  return copies ? '<span class="added-label">Selected · remove from notice</span>' : "";
+}
+
+// Another copy with the stock language (owner direction 2026-11-10); not for the snow item or an entry needing review.
+function addAgainButton(R, i, pick, show) {
+  return show && R.LIBRARY[i.ci].groups[i.gi].code !== "SNOW"
+    ? screen`<button type="button" class="btn btn-sm language-add-again" data-pick-again="${pick}" aria-label="Add again: another copy of ${raw(R.esc(i.t))}">Add again</button>`
+    : "";
+}
+
 function languagePickerCard(R, i, selected, current, equivalent) {
   const key = R.catalogKey(i),
+    copies = (current?.items || []).filter((it) => R.itemLibraryKey(it) === key).length,
     added = selected.has(key),
     working = current?.items.find((it) => R.itemLibraryKey(it) === key) || current?.selectionCache?.[key],
     e = R.effectiveCatalog(i),
-    blocked = BLOCKED.includes(R.catalogStatus(i).code);
-  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${String(i.ci)}:${String(i.gi)}:${String(i.o)}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(added ? '<span class="added-label">Selected · remove from notice</span>' : "")}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button>${raw(languageDetails(R, i, working))}</article>`;
+    blocked = BLOCKED.includes(R.catalogStatus(i).code),
+    pick = String(i.ci) + ":" + String(i.gi) + ":" + String(i.o);
+  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button>${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(languageDetails(R, i, working))}</article>`;
 }
 
 function languagePickerResults(R, found, ranked, selected, current, filter) {
@@ -296,6 +311,7 @@ function currentContext(R, picker) {
 function languageControlSelector(R, active) {
   let selector = "";
   for (const a of [
+    "data-pick-again",
     "data-pick",
     "data-catalog-open",
     "data-catalog-field",

@@ -1,7 +1,7 @@
 /* Order language on a notice in real Chromium. Synthetic only. Every bundled entry that is not a draft or missing its
    ordinance can be added through the picker and removed again; section references print without a trailing period;
    picking the snow item turns a new notice into a snow citation and picking it again restores the notice, after which
-   ordinary language can be added. */
+   ordinary language can be added. An entry can be added again as a separate copy (owner direction 2026-11-10). */
 const assert = require("assert/strict");
 module.exports = async function (browser, page) {
   const result = await page.evaluate(async () => {
@@ -29,9 +29,10 @@ module.exports = async function (browser, page) {
     // for that message (or the expected change) rather than a fixed time; the runner can be slow.
     const lastMessage = () => [...document.querySelectorAll("[data-message]")].map((m) => m.textContent.trim()).slice(-1)[0] || "";
     const pause = (ms) => new Promise((r) => setTimeout(r, ms));
-    const click = async (pick, done) => {
+    const click = async (pick, done, again = false) => {
       const b = document.createElement("button");
-      b.dataset.pick = pick;
+      if (again) b.dataset.pickAgain = pick;
+      else b.dataset.pick = pick;
       document.body.appendChild(b);
       b.click();
       // The confirmation message is the handler's last step, so nothing more needs waiting for once it shows.
@@ -96,7 +97,37 @@ module.exports = async function (browser, page) {
     await click(snow, () => doc(WriterState.state.docId).type === "notice");
     const undone = { type: doc(WriterState.state.docId).type, caseType: kase("qa-ol-2").caseType || "", items: items().length };
     await click(cart, () => items().length === 1);
-    return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after: items().map((i) => i.title) };
+    const after = items().map((i) => i.title);
+    // Owner direction 2026-11-10: Add again adds another copy with the stock language; an entry on the notice more than
+    // once is removed from Violation Items, not toggled off in the picker; identical copies are only a warning.
+    newCase("qa-ol-3", "QA-OL-003");
+    WriterState.state.keepAdding = true;
+    const again = (pick, done) => click(pick, done, true);
+    const repeated = {};
+    await click(cart, () => items().length === 1);
+    // Show every entry, so the card of the selected one is on screen whatever group an earlier step left open.
+    Object.assign(WriterState.state, { picker: true, q: "", cl: -1, pickerStatus: "usable" });
+    render();
+    repeated.offered = !!document.querySelector('[data-pick-again="' + cart + '"]');
+    repeated.snowOffered = !!document.querySelector('[data-pick-again="' + snow + '"]');
+    await again(cart, () => items().length === 2 && lastMessage().startsWith("Added another copy: "));
+    await again(cart, () => items().length === 3);
+    repeated.copies = items().length;
+    repeated.distinct = new Set(items().map((i) => i.id)).size;
+    repeated.stock = items().every((i) => i.text === items()[0].text);
+    Object.assign(WriterState.state, { picker: true, q: "", cl: -1 });
+    render();
+    repeated.label = document.querySelector("[data-language-key] .added-label")?.textContent || "";
+    await click(cart, () => /more than once/.test(lastMessage()));
+    repeated.kept = items().length;
+    renumber(doc(WriterState.state.docId));
+    const soft = () => checks(doc(WriterState.state.docId)).filter((c) => c.soft && /word for word/.test(c.t)).length;
+    repeated.warnings = soft();
+    repeated.blocking = blockers(doc(WriterState.state.docId)).filter((c) => /only once|word for word/.test(c.t)).length;
+    items()[1].text += " at the rear of the building";
+    items()[2].group = "Unit 2";
+    repeated.warningsAfterEdit = soft();
+    return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
   });
   assert.equal(result.defaultScope, "usable", "the picker opens on Approved and standard");
   assert.ok(result.erosionListed > 0, "erosion language is listed at the default scope");
@@ -118,5 +149,21 @@ module.exports = async function (browser, page) {
   assert.deepEqual(result.picked, { type: "citation", caseType: "snow-10.28", picker: true }, "the picker stays open after the snow item");
   assert.deepEqual(result.undone, { type: "notice", caseType: "", items: 0 }, "picking the snow item again restores the notice");
   assert.deepEqual(result.after, ["Cart Late Removal"]);
-  return { passed: true, usableEntries: result.usable, snowUndo: true, sectionsWithoutPeriod: true };
+  assert.deepEqual(
+    result.repeated,
+    {
+      offered: true,
+      snowOffered: false,
+      copies: 3,
+      distinct: 3,
+      stock: true,
+      label: "On this notice ×3 · remove copies in Violation Items",
+      kept: 3,
+      warnings: 2,
+      blocking: 0,
+      warningsAfterEdit: 0,
+    },
+    "an entry can be added again; copies are separate items, removed from Violation Items, and identical copies only warn",
+  );
+  return { passed: true, usableEntries: result.usable, snowUndo: true, sectionsWithoutPeriod: true, repeatedItems: true };
 };

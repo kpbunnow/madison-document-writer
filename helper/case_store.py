@@ -1868,14 +1868,7 @@ def _validate_authoring_document(*, snap, check_date_window, at):
     live = [i for i in items if not i.get("done") and (not i.get("withdrawn"))]
     if snap.get("type") in ("notice", "extension", "citation") and len({i.get("due") for i in live if i.get("due")}) > 3:
         raise ValueError("A notice may have no more than three distinct outstanding due dates")
-    if snap.get("type") == "notice" and (not snap.get("revision")):
-        keys = [
-            i.get("libraryKey") or (json.dumps([i["lib"].get(k) for k in ("c", "g", "o")], separators=(",", ":")) if i.get("lib") else "")
-            for i in items
-        ]
-        keys = [k for k in keys if k]
-        if len(keys) != len(set(keys)):
-            raise ValueError("An original notice cannot contain duplicate library items")
+    # A library entry may appear on a notice more than once (owner direction 2026-11-10); each copy is its own item.
     if not calendar_date(snap.get("mailed")) or not (snap.get("inspDate") or snap.get("frozen", {}).get("case", {}).get("date", "")) <= snap[
         "mailed"
     ] <= (mailing_max_day(snap.get("type"), at) if check_date_window else "9999-12-31"):
