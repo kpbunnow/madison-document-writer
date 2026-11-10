@@ -1,8 +1,10 @@
-"""Open enforcement cases by assigned inspector: fixed, read-only queries run as the signed-in Windows user.
+"""Open enforcement cases by assigned inspector, from the division's OpenEnforcementCases_BI SSRS report.
 
-Two queries (inspector_list.sql and inspector_cases.sql) come from the division's Open_Enforcement_Cases report. The
-inspector is chosen from the first list and sent back as an Accela user ID; no SQL or free text reaches the database.
-Picking a case on the list only supplies a case number to the existing case lookup (case_lookup.lookup).
+The report is rendered as XML by the signed-in Windows user (ssrs_reports). Rendered without a parameter it lists every
+inspector's open cases; the helper counts them for the inspector list. One inspector's cases are rendered with the
+report's own Inspector parameter, using the name exactly as the report printed it. The report owns the open-case rule;
+the helper applies the division's and the administrator's exclusions. Picking a case on the list only supplies a case
+number to the case lookup (case_lookup.lookup).
 """
 
 import datetime
@@ -17,37 +19,32 @@ import case_integrity
 import case_lookup
 import case_projection
 import case_store
-from case_lookup import CaseLookupError, HERE
+import ssrs_reports
+from case_lookup import CaseLookupError
 from plain_files import is_plain_file, read_plain_bytes
 from reporting_reads import ordered_reads, SummaryInputs
 
 LISTS = threading.BoundedSemaphore(1)
-NAMES = threading.BoundedSemaphore(1)
 EXCLUSIONS = "excluded-inspectors.json"
 EXCLUSION_HELP = 'Case Lookup/excluded-inspectors.json is invalid. Use the supplied example: {"exclude": ["name or user ID", ...]}.'
-USER_ID = re.compile(r"[A-Za-z0-9._@-]{1,64}")
 MAX_INSPECTORS = 200
 MAX_CASES = 3000
-MAX_NAMES = 3000
 LIST_WAIT = 90
-LIST_QUERY_TIMEOUT = 60
-# The inspector list changes rarely and takes several seconds on the City database, so a good answer is kept in memory
-# for this long; Try again on the screen asks for a fresh one.
+# The inspector list changes rarely and the full report takes several seconds to render, so a good answer is kept in
+# memory for this long; Try again and Refresh inspector list ask for a fresh one.
 CACHE_SECONDS = 1800
 _cache = {"root": None, "at": 0.0, "answer": None, "source": None}
-INSPECTOR_FIELDS = ("UserId", "InspectorName", "OpenCases")
-CASE_FIELDS = ("UserId", "CaseNumber", "ShortAddress", "CaseDescription")
 SUMMARY_DIR = "Reporting Index"
 MAX_SUMMARY_BYTES = 8 * 1024 * 1024
 SUMMARY_READERS = 4
-NAME_FIELDS = ("UserId", "InspectorName")
-_names = {"root": None, "at": 0.0, "found": None}
+NOT_LISTED = "Choose an inspector from the list. If the inspector is missing, choose Refresh inspector list."
 
 
-def user_id(value):
-    if not isinstance(value, str) or not USER_ID.fullmatch(value.strip()):
+def inspector_name(value):
+    """An inspector as the report names them: printable text of 1 to 128 characters."""
+    if not isinstance(value, str) or not 1 <= len(value.strip()) <= 128 or any(ord(c) < 32 or ord(c) == 127 for c in value):
         raise CaseLookupError("Choose an inspector from the list.", 400)
-    return value.strip()
+    return " ".join(value.split())
 
 
 def _pattern(entry):
@@ -82,8 +79,8 @@ def _administrator_exclusions(root):
     return names
 
 
-def excluded(names, uid, name):
-    return any(_pattern(entry).fullmatch(value) for entry in names for value in (uid, name or ""))
+def excluded(names, name):
+    return any(_pattern(entry).fullmatch(name) for entry in names)
 
 
 def _text(row, field, limit=2000):
@@ -91,116 +88,83 @@ def _text(row, field, limit=2000):
     if value is None:
         return ""
     if not isinstance(value, str) or len(value) > limit or any(ord(c) < 32 and c not in "\t\r\n" for c in value):
-        raise CaseLookupError("The report query returned an invalid field value.")
+        raise CaseLookupError("The open-case report returned an invalid field value.")
     return " ".join(value.split())
 
 
-def _rows(answer, fields, limit):
-    rows = answer.get("rows")
-    if not isinstance(rows, list) or len(rows) > limit:
-        raise CaseLookupError("The report returned an invalid or oversized list.")
-    for row in rows:
-        if not isinstance(row, dict) or any(f not in row for f in fields):
-            raise CaseLookupError("The report query returned unexpected columns. Ask IT to reinstall the complete release.")
-    return rows
+def _report(inspector=None):
+    """The open-case report's rows (all inspectors, or one), one render at a time."""
+    if not LISTS.acquire(blocking=False):
+        raise CaseLookupError("An open-case list is already loading. Wait for it to finish and retry.", 429)
+    try:
+        return ssrs_reports.open_case_rows(inspector, LIST_WAIT)
+    except ssrs_reports.ReportError as error:
+        raise CaseLookupError(str(error), error.status) from None
+    finally:
+        LISTS.release()
 
 
-def _source(cfg, answer, query):
-    database = answer.get("database")
-    if not isinstance(database, str) or not database or len(database) > 128:
-        raise CaseLookupError("The database identity could not be verified. Nothing was loaded.")
-    if cfg["database"] and cfg["database"].casefold() != database.casefold():
-        raise CaseLookupError("The database identity did not match the shared setting. Nothing was loaded.")
+def _source():
     return {
-        "kind": "sql",
-        "server": cfg["server"],
-        "database": database,
+        **ssrs_reports.source(ssrs_reports.OPEN_CASES_REPORT),
         "retrievedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "querySha256": hashlib.sha256((HERE / query).read_bytes()).hexdigest(),
     }
 
 
-def _run(root, fields, query, cfg):
-    names = exclusions(root)
-    slot = NAMES if fields.get("mode") == "inspector_names" else LISTS
-    if not slot.acquire(blocking=False):
-        raise CaseLookupError("An open-case list is already loading. Wait for it to finish and retry.", 429)
-    try:
-        return cfg, names, case_lookup.run_script(cfg, dict(fields, commandTimeout=LIST_QUERY_TIMEOUT), LIST_WAIT)
-    finally:
-        slot.release()
+def _checked_cases(rows):
+    """(name as printed, case number, row) for every report row, refusing a row without a usable inspector or case. The
+    printed name is kept exactly: it is the value the report's Inspector parameter accepts."""
+    found = []
+    for row in rows:
+        printed, number = row.get("AssignedInspector"), row.get("CaseNumber")
+        if not isinstance(printed, str) or not printed.strip() or not isinstance(number, str):
+            raise CaseLookupError("The open-case report returned a row without an inspector or case number. Nothing was loaded.")
+        try:
+            inspector_name(printed)
+            found.append((printed, case_lookup.case_number(number), row))
+        except CaseLookupError:
+            raise CaseLookupError("The open-case report returned an invalid inspector or case number. Nothing was loaded.") from None
+    return found
 
 
-def _checked_people(answer):
-    people, seen = [], set()
-    for row in _rows(answer, INSPECTOR_FIELDS, MAX_INSPECTORS):
-        uid = user_id(row["UserId"] if isinstance(row["UserId"], str) else "")
-        name = _text(row, "InspectorName", 200) or uid
-        count = row["OpenCases"]
-        if uid.casefold() in seen or not isinstance(count, str) or not count.isdigit():
-            raise CaseLookupError("The report query returned an invalid inspector list.")
-        seen.add(uid.casefold())
-        people.append({"id": uid, "name": name, "openCases": int(count)})
-    return people
+def _key(name):
+    return inspector_name(name).casefold()
+
+
+def _people(rows):
+    """The inspector list: each assigned inspector once, with the number of distinct open cases. The id is the name as
+    the report printed it; the name shown has its spacing tidied."""
+    counts, printed = {}, {}
+    for name, number, _ in _checked_cases(rows):
+        key = _key(name)
+        printed.setdefault(key, name)
+        counts.setdefault(key, set()).add(number)
+    if len(printed) > MAX_INSPECTORS:
+        raise CaseLookupError("The open-case report lists more inspectors than the program can show. Ask the report administrator.")
+    return [{"id": printed[key], "name": inspector_name(printed[key]), "openCases": len(counts[key])} for key in printed]
 
 
 def _configuration(cfg):
-    """Only validated connection settings reach the cache; no credentials are accepted by settings()."""
+    """Only validated settings reach the cache; no credentials are accepted by settings()."""
     return tuple(sorted(cfg.items()))
 
 
-def _cached(cache, root, key, cfg):
-    """A checked value kept for this share and lifetime; empty results are cached too."""
-    cache = cache.copy()
-    if (
-        cache[key] is not None
-        and cache["root"] == str(root)
-        and cache.get("configuration") == _configuration(cfg)
-        and time.monotonic() - cache["at"] < CACHE_SECONDS
-    ):
-        return cache[key]
-    return None
-
-
-def _keep(cache, root, **values):
-    """Publish only after the caller has validated its complete query result."""
-    cache.update(root=str(root), at=time.monotonic(), **values)
-
-
 def _list_answer(root, refresh, cfg):
-    """The checked inspector list and where it came from: the kept one, or a fresh query when asked or expired. Only a
+    """The checked inspector list and where it came from: the kept one, or a fresh render when asked or expired. Only a
     list that passed every check is kept."""
     entry = _cache.copy()
-    kept = _cached(entry, root, "answer", cfg)
-    if kept is not None and not refresh:
-        return kept, entry["source"]
-    cfg, _, answer = _run(root, {"mode": "inspector_list"}, "inspector_list.sql", cfg)
-    source = _source(cfg, answer, "inspector_list.sql")
-    people = _checked_people(answer)
-    _keep(_cache, root, answer=people, source=source, configuration=_configuration(cfg))
+    if (
+        not refresh
+        and entry["answer"] is not None
+        and entry["root"] == str(root)
+        and entry.get("configuration") == _configuration(cfg)
+        and time.monotonic() - entry["at"] < CACHE_SECONDS
+    ):
+        return entry["answer"], entry["source"]
+    people = _people(_report())
+    source = _source()
+    _cache.update(root=str(root), at=time.monotonic(), answer=people, source=source, configuration=_configuration(cfg))
     return people, source
-
-
-def _kept_names(root, cfg):
-    kept = _cached(_names, root, "found", cfg)
-    return kept if kept is not None else {}
-
-
-def _known_names(root, uid, cfg):
-    """Every name this helper holds for a user ID: the checked workflow list's name and the deferred lookup's, so an
-    exclusion by full name applies to case requests exactly as it does to the picker."""
-    names = [uid]
-    # The checked workflow list is the authority for full names; when it has expired it is read again, so an exclusion
-    # by name never depends on a recent picker visit. If it cannot be read, the request is refused rather than guessed.
-    listed = _list_answer(root, False, cfg)[0]
-    names += [p["name"] for p in listed if p["id"].casefold() == uid.casefold() and p["name"].casefold() != uid.casefold()]
-    deferred = _kept_names(root, cfg).get(uid.casefold())
-    return names + ([deferred] if deferred else [])
-
-
-def _display_person(person, found):
-    name = found.get(person["id"].casefold(), person["name"]) if person["name"].casefold() == person["id"].casefold() else person["name"]
-    return {**person, "name": name}
 
 
 @logged("lookup")
@@ -208,48 +172,17 @@ def inspectors(root, refresh=False):
     cfg = case_lookup.settings(root)
     names = exclusions(root)
     everyone, source = _list_answer(root, refresh, cfg)
-    found = {} if refresh else _kept_names(root, cfg)
-    displayed = [_display_person(p, found) for p in everyone]
-    people = [p for p in displayed if not excluded(names, p["id"], p["name"])]
+    people = [dict(p) for p in everyone if not excluded(names, p["name"])]
     people.sort(key=lambda p: p["name"].casefold())
     return {"ok": True, "inspectors": people, "source": source}
 
 
-def _name_map(root, refresh, cfg):
-    """User ID (lower case) to full name from the inspection view, kept like the list. Only checked rows are kept."""
-    kept = _cached(_names, root, "found", cfg)
-    if kept is not None and not refresh:
-        return kept
-    cfg, _, answer = _run(root, {"mode": "inspector_names"}, "inspector_names.sql", cfg)
-    _source(cfg, answer, "inspector_names.sql")
-    found = {}
-    for row in _rows(answer, NAME_FIELDS, MAX_NAMES):
-        uid = user_id(row["UserId"] if isinstance(row["UserId"], str) else "")
-        name = _text(row, "InspectorName", 200)
-        if name:
-            found[uid.casefold()] = name
-    _keep(_names, root, found=found, configuration=_configuration(cfg))
-    return found
-
-
 @logged("lookup")
 def inspector_names(root, refresh=False):
-    """Full names for the listed people who are shown by user ID, so the list does not wait for the slower query. The
-    cached name map also enriches subsequent inspector lists without mutating prior responses."""
-    cfg = case_lookup.settings(root)
-    excluded_names = exclusions(root)
-    people, _ = _list_answer(root, False, cfg)
-    unnamed = [p for p in people if p["name"].casefold() == p["id"].casefold()]
-    resolved, removed = [], []
-    if unnamed:
-        found = _name_map(root, refresh, cfg)
-        for person in unnamed:
-            name = found.get(person["id"].casefold())
-            if excluded(excluded_names, person["id"], name):
-                removed.append(person["id"])
-            elif name:
-                resolved.append({"id": person["id"], "name": name})
-    return {"ok": True, "names": resolved, **({"excluded": removed} if removed else {})}
+    """The report prints every inspector's full name, so no second name lookup is needed. Kept so a page that still
+    asks receives a complete, empty answer."""
+    case_lookup.settings(root)
+    return {"ok": True, "names": []}
 
 
 def next_due(summary):
@@ -347,19 +280,22 @@ def due_dates(case_dir, numbers):
 
 @logged("lookup")
 def open_cases(root, value, case_dir=None):
-    uid = user_id(value)
+    name = inspector_name(value)
     cfg = case_lookup.settings(root)
-    names = exclusions(root)
-    if any(excluded(names, uid, name) for name in _known_names(root, uid, cfg)):
+    if excluded(exclusions(root), name):
         raise CaseLookupError("This inspector is not available for case lists. Choose another inspector.", 403)
-    cfg, _, answer = _run(root, {"mode": "inspector_cases", "userId": uid}, "inspector_cases.sql", cfg)
+    listed = next((p["id"] for p in _list_answer(root, False, cfg)[0] if _key(p["id"]) == name.casefold()), None)
+    if listed is None:
+        raise CaseLookupError(NOT_LISTED, 400)
     cases, seen = [], set()
-    for row in _rows(answer, CASE_FIELDS, MAX_CASES):
-        number = case_lookup.case_number(row["CaseNumber"] if isinstance(row["CaseNumber"], str) else "")
+    rows = _report(listed)
+    if len(rows) > MAX_CASES:
+        raise CaseLookupError("The open-case report returned too many cases for one inspector. Ask the report administrator.")
+    for assigned, number, row in _checked_cases(rows):
+        if _key(assigned) != _key(listed):
+            raise CaseLookupError("The report returned a case for a different inspector. Nothing was loaded.")
         if number in seen:
             continue
-        if _text(row, "UserId", 64).casefold() != uid.casefold():
-            raise CaseLookupError("The database returned a case for a different inspector. Nothing was loaded.")
         seen.add(number)
         cases.append(
             {
@@ -378,8 +314,8 @@ def open_cases(root, value, case_dir=None):
     cases.sort(key=lambda c: (rank[c["dueState"]], c["dueDate"]))
     return {
         "ok": True,
-        "inspector": {"id": uid},
+        "inspector": {"id": listed},
         "cases": cases,
         "dueDates": dues is not None,
-        "source": _source(cfg, answer, "inspector_cases.sql"),
+        "source": _source(),
     }

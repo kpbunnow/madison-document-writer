@@ -6,7 +6,6 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-import case_lookup
 import case_store
 import release_evidence
 import server
@@ -20,16 +19,6 @@ class ReviewTests(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
-
-    def test_malformed_local_sql_settings(self):
-        folder = self.root / "MadisonDocWriter"
-        folder.mkdir()
-        for raw in (b"{bad json", b"\xff\xfe", b"[]"):
-            (folder / case_lookup.LOCAL_TLS_SETTINGS).write_bytes(raw)
-            with patch.dict(case_lookup.os.environ, {"LOCALAPPDATA": str(self.root)}):
-                with self.assertRaisesRegex(case_lookup.CaseLookupError, "local SQL certificate setting is invalid") as ctx:
-                    case_lookup.settings(self.root)
-                self.assertEqual(ctx.exception.status, 503)
 
     def test_case_number_casing_cannot_create_parallel_file(self):
         name = "101 TEST LANE - QA-001.json"

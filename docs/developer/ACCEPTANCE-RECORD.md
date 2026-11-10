@@ -328,6 +328,22 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## Live import from the City SSRS reports (development after R75, ships with the next assigned release) — OPEN
+
+Owner direction 2026-11-10: switch Import inspection from the direct SQL lookup to the division's live reports at once, with no SQL fallback; the owner deploys and tests personally. None of the items below has been exercised against the real report server; automated tests use synthetic report exports and a scripted PowerShell.
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| SSRS-1 | On a City PC (on the network, then over VPN) open Import inspection and wait for the inspector list | Every inspector in OpenEnforcementCases_BI appears once by full name with the same number of open cases as the report run for everyone; the four excluded staff and any administrator exclusions are missing; record the load time |
+| SSRS-2 | Choose two inspectors with many cases, then Refresh open cases and Refresh inspector list | Each list matches the report run for that inspector (case number, short address, description); Due dates and search work as before; record the time for each |
+| SSRS-3 | Select an open case and type a case number in Find Case Inspections: an Initial Inspection case, a case with several inspections, a Snow Removal case, a case with a historic district or landmark zoning, a case with no inspections | Each matches DocumenGeneratorImport for that case number: property, owner, parcel, historic/landmark fields, completed inspection date/time/status and inspector; Snow Removal opens the snow workflow; nothing is imported until confirmed |
+| SSRS-4 | Repeat SSRS-1 and SSRS-3 under a second inspector's Windows account, and under an account without access to the Enforcement report folder | The same data for the second inspector; the account without access sees a plain SSRS_401 or SSRS_403 message and the case-number box still works |
+| SSRS-5 | Disconnect from the network or VPN, then look up a case and load the list | A plain SSRS_NETWORK or "did not answer in time" message; no console window flashes during any lookup; `%LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt` records the failure |
+| SSRS-6 | Close a case in Accela, then Refresh open cases | The case leaves the list once the report shows it closed (note how long) |
+| SSRS-7 | With the existing shared `Case Lookup/settings.json` (server and database lines from earlier releases) start the program, then set `{"enabled": false}` | The old file still works; disabled stops lookup and lists with the disabled message |
+
+SQL-2, S50D, SQL-R53 and the SQL parts of I1 and OCL-1/OCL-6 are superseded by SSRS-1 to SSRS-7 once this ships: the program no longer connects to SQL Server, ships no SQL query or certificate workaround, and needs no SQL permission or SQL client on the PC.
+
 ## R75 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

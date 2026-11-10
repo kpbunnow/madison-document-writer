@@ -55,6 +55,8 @@ def fetch_json(url, timeout=25):
         return json.loads(raw.decode("utf-8"))
 
 
-def approved_sql(server):
-    if not isinstance(server, str) or server.casefold() not in {s.casefold() for s in policy()["sqlServers"]}:
-        raise ValueError(("Case Lookup server must be in the verified release SQL allowlist, including when certificate validation is bypassed."))
+def approved_ssrs(host):
+    """The report server the live import reads, named only by the verified release."""
+    if not isinstance(host, str) or host.casefold() not in {h.casefold() for h in policy()["ssrsHosts"]}:
+        raise ValueError("The report server must be in the verified release SSRS allowlist.")
+    return host.lower()

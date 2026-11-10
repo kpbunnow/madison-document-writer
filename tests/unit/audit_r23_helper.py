@@ -185,7 +185,7 @@ class R23Tests(unittest.TestCase):
             self.assertIn(release.split()[-1], (source / name).read_text().splitlines()[0])
         self.assertIn("calendar_policy.json", launch.REQUIRED)
         self.assertIn("city-timezone.tzif", launch.REQUIRED)
-        for name in ["helper/case_lookup.ps1", "helper/case_lookup.py", "docs/staff/CASE-LOOKUP-GUIDE.md"]:
+        for name in ["helper/ssrs_fetch.ps1", "helper/ssrs_reports.py", "docs/staff/CASE-LOOKUP-GUIDE.md"]:
             text = (source / name).read_text()
             self.assertNotIn("MadisonDocumentWriter", text)
             self.assertIn("MadisonDocWriter", text)

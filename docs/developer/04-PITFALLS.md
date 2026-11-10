@@ -31,9 +31,9 @@ Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/
 
 ## Security and connections
 
-Keep every fixed case-database query relative to the configured connection database. Do not restore a database prefix to inspector SQL or rely on an account's default catalog. Inspector list/name cache entries must match the newly validated connection settings; a cached response never bypasses disabled/malformed settings or mixes names/provenance from another source.
+The live import reads two SSRS reports by fixed path, parameter and column names (`ssrs_reports.py`). A report renamed, re-parameterized or with renamed text boxes fails loudly (SSRS_404, rsInvalidReportParameter, missing columns); keep the program's names and the report definitions in tests/fixtures/reference in step. SSRS leaves NULL columns out of its XML: treat an absent attribute as blank, never as an error by itself. Never add a credential, a certificate bypass or a redirect-following fetch.
 
-- Never trust shared configuration to select a new outbound host, SQL server or integrity anchor. Change the allowlist in trusted-connections.json in a new release built by the release owner.
+- Never trust shared configuration to select a new outbound host, report server or integrity anchor. Change the allowlist in trusted-connections.json in a new release built by the release owner.
 - Never obtain a session token from a public page or include it in logs, reports or shared files. Keep user-profile bootstrap access private; reload through the original profile after restart.
 
 ## Installation and packaging
@@ -51,5 +51,5 @@ Keep every fixed case-database query relative to the configured connection datab
 
 ## Testing
 
-- Never run concurrent Chromium jobs during a measured browser performance gate. JSDOM cannot prove layout, SQL text equality cannot prove City connectivity, and mocked Outlook cannot prove native delivery.
+- Never run concurrent Chromium jobs during a measured browser performance gate. JSDOM cannot prove layout, synthetic report exports cannot prove City connectivity, and mocked Outlook cannot prove native delivery.
 - Keep each feature-suite scenario self-contained: it runs in its own process (tests/fixtures/scenarios.cjs), so it cannot rely on state from another scenario. A browser launch in a shared helper is still found by tools/suite_classes.py; keep its rule when moving browser calls.

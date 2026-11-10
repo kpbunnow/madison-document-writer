@@ -8,7 +8,7 @@ Release **{{RELEASE}}** · helper **{{HELPER_VERSION}}**. This guide is generate
 - Python 3.14 or later on each PC, installed with the standard 64-bit Windows installer and the `py` launcher (it provides `pythonw.exe`, which starts Document Writer without a command window). The bundled address parser supports Windows x64 CPython {{PYTHON_RANGE}} only. Later interpreter versions report the parser as not yet supported and retain the basic standardizer; Python 3.13 and earlier cannot start the program. IT must install Python 3.14 on every PC before deploying a release containing this requirement.
 - Chrome or Microsoft Edge.
 - Classic Outlook for the email handoff. New Outlook has not been tested.
-- For case lookup: Windows PowerShell 5.1, approved script execution, City SQL read access and a trusted SQL certificate. See `CASE-LOOKUP-GUIDE.md`.
+- For case lookup: Windows PowerShell 5.1, approved script execution, the City network or VPN, and each person's access to the Enforcement reports on entreports.cityofmadison.com. See `CASE-LOOKUP-GUIDE.md`.
 - City GIS access for live Reports enrichment. Writing documents does not need GIS.
 - Inspectors do not need Node.js or npm.
 
@@ -96,7 +96,7 @@ Complete the carried-forward **{{RELEASE_NUMBER}}-ACCEPTANCE-RECORD.md** before 
 - [ ] Integrity anchor receipts written, and protected from change or deletion.
 - [ ] PDF filing and printing of all four citation copies.
 - [ ] Outlook draft handoff.
-- [ ] SQL case lookup returns a case (no `SQL_QUERY_207` or connection error), and a Snow Removal case opens as a snow citation.
+- [ ] Case lookup returns a case from the live report (no `SSRS_` error), the inspector list loads, and a Snow Removal case opens as a snow citation.
 - [ ] Backup and restore.
 
 ## 8. Pilot and rollout
@@ -146,7 +146,7 @@ This release has **no signing key**. Every PC checks the shared deployment again
 
 **Building a release (release owner).** With the pinned development dependencies installed, run the complete gate with `python3 tools/verify_release.py`, then `python3 tools/package_release.py --output ../release --published-manifest <last-approved-deploy>/runtime-manifest.json` from the source root, from committed source. The published manifest is the one retained from the last approved published release; packaging refuses changed content under a reused release identity, reused release or helper-build numbers and calendar rollback. `--first-publication` is only for a genuinely first program publication. The packager writes the manifest for every deployed file and rechecks the finished deploy folder with the installer's own verifier before writing the archives.
 
-**Connections.** `trusted-connections.json` permits GIS HTTPS hosts maps.cityofmadison.com and opendata.arcgis.com, and SQL server sqlelam. GIS redirects must stay on the original approved host; credentials, HTTP/file URLs, unapproved ports and responses above 20 MB are refused. A certificate workaround cannot authorize an off-list SQL server. Allowlist changes are made by the release owner in a new release, not through writable share settings.
+**Connections.** `trusted-connections.json` permits GIS HTTPS hosts maps.cityofmadison.com and opendata.arcgis.com, and the report server entreports.cityofmadison.com. GIS redirects must stay on the original approved host; credentials, HTTP/file URLs, unapproved ports and responses above 20 MB are refused. A certificate workaround cannot authorize an off-list SQL server. Allowlist changes are made by the release owner in a new release, not through writable share settings.
 
 **Integrity anchor settings.** IT supplies `integrity-settings.json` locally in each installed program folder. The launcher never imports it from the share, including on a fresh PC.
 
@@ -160,6 +160,6 @@ Before a first installation, obtain the deploy ZIP's SHA-256 from the release ow
 
 **PCs installed with a version that required a signing key.** Those versions accept only signed releases, which this release no longer uses. On each such PC, IT stops the helper (closes its command window, or signs the inspector out of Windows) and renames `%LOCALAPPDATA%\MadisonDocWriter` (keep its `integrity-settings.json` to restore afterwards), then performs a first installation. Drafts stored in the browser are not affected.
 
-The SQL server in the share's `Case Lookup/settings.json` must exactly match an allowlist entry in `trusted-connections.json`. The shipped entry is `sqlelam`; a fully qualified name is a different value and needs an allowlist update in a new release.
+The report server is named only by `trusted-connections.json` (`ssrsHosts`, shipped `entreports.cityofmadison.com`); the share's `Case Lookup/settings.json` cannot choose it, and its `server`/`database` lines from earlier releases are ignored. Any change needs an allowlist update in a new release.
 
 Native City acceptance remains open in the acceptance record at the release package top level.

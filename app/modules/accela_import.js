@@ -34,6 +34,10 @@ import { authFetch } from "./helper_transport.js";
 import { recordDay, validCaseNumber } from "../assets/shared.js";
 import { html, raw } from "./screen_html.js";
 
+/* A live lookup result: the City SSRS case report ("ssrs"), or the direct SQL lookup of releases before it ("sql"),
+   which a review saved on this device may still hold. */
+const liveSource = (source) => source?.kind === "ssrs" || source?.kind === "sql";
+
 /* Lazy dependencies preserve the complete import workflow without starting Writer. */
 function importedCaseFields({ c, accParcel, p }) {
   const r = c.raw,
@@ -414,7 +418,7 @@ function cancelCaseLookup() {
 }
 
 function sqlReport(result, number) {
-  if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || result.source?.kind !== "sql")
+  if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || !liveSource(result.source))
     throw new Error("Unexpected case response. Nothing was imported.");
   if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
   const keys = Object.keys(ACC_COLS);
@@ -775,7 +779,7 @@ function caseChangeDetails(k, p) {
 function importSourceDetails(acc, p) {
   return html`<details class="import-source"><summary>Source and import details</summary><p>${acc.fileName || "Accela case lookup"}</p>${raw(
     "".concat(
-      acc.source?.kind === "sql"
+      liveSource(acc.source)
         ? "<p>Retrieved " +
             `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
             ". This is a saved snapshot; use Find Case Inspections again to refresh it.</p>"
@@ -823,7 +827,7 @@ function importDialogHTML(review) {
 
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, report parsing, import candidates,
-   the review plan and panel, the direct database lookup and acceptance. */
+   the review plan and panel, the live case report lookup and acceptance. */
 
   const LOOKUP_READY = new WeakSet();
 
@@ -1100,7 +1104,7 @@ export function createAccelaImport(services) {
     const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
     services.render();
     try {
-      if (workspace.CASEDIR?.helper || acc.source?.kind === "sql") {
+      if (workspace.CASEDIR?.helper || liveSource(acc.source)) {
         if (!(await checkLookupShared(acc, active)) || !active()) return;
       } else {
         await accelaFromShare(active);
@@ -1139,11 +1143,11 @@ export function createAccelaImport(services) {
   }
 
   function acceptAccela() {
-    if ((editor.state.acc?.source?.kind === "sql" || workspace.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
+    if ((liveSource(editor.state.acc?.source) || workspace.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
       services.toast("Check the shared record before confirming this lookup.");
       return null;
     }
-    const direct = editor.state.acc?.source?.kind === "sql";
+    const direct = liveSource(editor.state.acc?.source);
     const result = baseLookupAccept();
     if (result && direct) {
       delete editor.WORK.entry["lookup-number"];

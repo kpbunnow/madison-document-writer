@@ -1,4 +1,4 @@
-"R39: the lookup query is the division's live SSRS report query, which sources Record Category from r.RECORD_TYPE_CATEGORY."
+"R39: the live case report sources Record Category from r.RECORD_TYPE_CATEGORY, and the lookup passes it through."
 
 import tempfile
 import unittest
@@ -15,9 +15,8 @@ class R39(unittest.TestCase):
     def report(self):
         return ET.parse(RDL).getroot()
 
-    def test_query_is_the_live_report_query(self):
+    def test_report_query_sources_record_category(self):
         sql = next(e.text for e in self.report().iter() if e.tag.endswith("}CommandText"))
-        self.assertEqual((lookup.HERE / "case_lookup.sql").read_text().strip(), sql.strip())
         self.assertIn("r.RECORD_TYPE_CATEGORY         AS RecordCategory,", sql)
 
     def test_report_field_and_last_visible_column(self):

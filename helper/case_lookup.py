@@ -1,27 +1,39 @@
-"""Read-only, fixed-query Windows case lookup. No caller-supplied SQL or credentials."""
+"""Read-only live case lookup from the division's SSRS case report, run as the signed-in Windows user.
+
+The report (DocumenGeneratorImport) is rendered as XML through ssrs_reports; no SQL, credential or report address is
+taken from a request or from the writable share. Its columns become the same fields the import has always used.
+"""
 
 import datetime
-import hashlib
 import json
-import os
 from pathlib import Path
 import re
-import subprocess
 import threading
 from helper_logging import logged
-import trusted_connections
+import ssrs_reports
 
 HERE = Path(__file__).resolve().parent
 LIMIT = 5 * 1024 * 1024
 LOOKUPS = threading.BoundedSemaphore(1)
-DEFAULTS = {"server": "sqlelam", "database": "AccelaReporting", "enabled": True}
-LOCAL_TLS_SETTINGS = "case-lookup-local-settings.json"
+DEFAULTS = {"enabled": True}
+# Settings an earlier release used for its direct SQL connection. They are accepted so an existing shared settings file
+# keeps working, and ignored: the report server comes only from the verified release.
+RETIRED_SETTINGS = ("server", "database")
 FIELDS = (
     "CaseNumber SiteAddress ParcelNumber OwnerName OwnerAddress CaseDescription "
     "DetailedDescription ZoningDistrict HistoricDistrict HistoricDistrictName "
     "IndividualLandmark Landmark InspectionDate InspectionScheduledDate "
     "InspectionType InspectionStatus InspectionTime InspectorName"
 ).split()
+# The report query's historic-district rules (Document-Generator-Import.rdl): zoning code fragment to district name.
+HISTORIC_DISTRICTS = (
+    ("HIS-MH", "Mansion Hill"),
+    ("HIS-TL", "Third Lake Ridge"),
+    ("HIS-UH", "University Heights"),
+    ("HIS-MB", "Marquette Bungalows"),
+    ("HIS-FS", "First Settlement"),
+)
+LANDMARK_ZONING = "HIS-L"
 
 
 class CaseLookupError(Exception):
@@ -43,42 +55,16 @@ def _read_shared_settings(root):
 def _checked_settings(raw):
     try:
         data = json.loads(raw)
-        if not isinstance(data, dict) or set(data) - set(DEFAULTS):
+        if not isinstance(data, dict) or set(data) - set(DEFAULTS) - set(RETIRED_SETTINGS):
             raise ValueError()
-        cfg = dict(DEFAULTS, **data)
+        if any(not isinstance(data[key], str) or len(data[key]) > 128 for key in RETIRED_SETTINGS if key in data):
+            raise ValueError()
+        cfg = dict(DEFAULTS, **{key: value for key, value in data.items() if key in DEFAULTS})
         if type(cfg["enabled"]) is not bool:
             raise ValueError()
-        if not isinstance(cfg["server"], str) or not re.fullmatch(r"[A-Za-z0-9_.\\,:-]{1,128}", cfg["server"]):
-            raise ValueError()
-        if not isinstance(cfg["database"], str) or len(cfg["database"]) > 128 or any(ord(c) < 32 for c in cfg["database"]):
-            raise ValueError()
-        if not cfg["database"].strip():
-            cfg["database"] = DEFAULTS["database"]
     except ValueError, TypeError:
-        raise CaseLookupError(("Case Lookup/settings.json is invalid. Use the supplied example; allowed settings are server, database and enabled."))
+        raise CaseLookupError("Case Lookup/settings.json is invalid. Use the supplied example; the only setting is enabled (true or false).")
     return cfg
-
-
-def _local_certificate_setting(local_app_data):
-    """The per-user choice to skip server identity validation; absent means validate."""
-    local_path = Path(local_app_data) / "MadisonDocWriter" / LOCAL_TLS_SETTINGS
-    try:
-        local_data = json.loads(local_path.read_text(encoding="utf-8-sig"))
-    except FileNotFoundError:
-        local_data = {}
-    except OSError:
-        raise CaseLookupError("The local SQL certificate setting cannot be read. Remove it or check access.")
-    except ValueError, UnicodeError:
-        raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
-    try:
-        if not isinstance(local_data, dict) or set(local_data) - {"trustServerCertificate"}:
-            raise ValueError()
-        trust_certificate = local_data.get("trustServerCertificate", False)
-        if type(trust_certificate) is not bool:
-            raise ValueError()
-    except ValueError, TypeError:
-        raise CaseLookupError("The local SQL certificate setting is invalid. Use only the boolean key trustServerCertificate.")
-    return trust_certificate
 
 
 def settings(root):
@@ -87,13 +73,9 @@ def settings(root):
         raise CaseLookupError("The shared program folder is unavailable. Reconnect to the City network and retry.")
     cfg = _checked_settings(_read_shared_settings(root))
     try:
-        trusted_connections.approved_sql(cfg["server"])
+        cfg["server"] = ssrs_reports.trusted_connections.approved_ssrs(ssrs_reports.HOST)
     except ValueError as error:
         raise CaseLookupError(str(error)) from None
-    cfg["trustServerCertificate"] = False
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    if local_app_data:
-        cfg["trustServerCertificate"] = _local_certificate_setting(local_app_data)
     if not cfg["enabled"]:
         raise CaseLookupError("Direct case lookup is disabled by the administrator.")
     return cfg
@@ -108,166 +90,33 @@ def case_number(value):
     return value
 
 
-# First match wins: provider numbers and categories map to fixed, allowlisted guidance.
-FAILURE_MESSAGES = [
-    (lambda category, num: category == "limit", "This case exceeds the lookup size limit. Ask IT to check duplicate or unusually large report rows."),
-    (
-        lambda category, num: num in (18456, 229, 916),
-        ("Your Windows account cannot read the case database. Ask IT to check your read permissions on BI_ENF_RECORD and BI_ENF_INSPECTION."),
-    ),
-    (
-        lambda category, num: num == 207,
-        (
-            "The lookup query names a column the case database does not have (SQL"
-            "_QUERY_207). The installed case_lookup.sql does not match the BI_ENF"
-            "_RECORD/BI_ENF_INSPECTION views; ask IT to compare it with the worki"
-            "ng SSRS report. This is not a connection problem."
-        ),
-    ),
-    (
-        lambda category, num: num in (208, 4060, 4064) or category == "database",
-        "The case tables were not found in the selected database. Ask IT to set the database in Case Lookup/settings.json.",
-    ),
-    (lambda category, num: num == -2 or category == "timeout", "The database lookup timed out. Check the City network and retry."),
-    (
-        lambda category, num: category == "tls_certificate",
-        (
-            "The SQL server certificate is not trusted (TLS_CERTIFICATE). The sec"
-            "ure fix is a trusted certificate chain and matching server name. If "
-            "you accept skipping server identity validation, see the per-user wor"
-            "karound in CASE-LOOKUP-GUIDE.md."
-        ),
-    ),
-    (
-        lambda category, num: category == "authentication",
-        (
-            "SQL rejected the signed-in Windows account (WINDOWS_AUTH). Ask IT to"
-            " verify the account’s database access and the City network connectio"
-            "n."
-        ),
-    ),
-    (
-        lambda category, num: category == "network",
-        ("The City SQL server could not be reached (SQL_NETWORK). Check the City network, approved server name and SQL service, then retry."),
-    ),
-    (
-        lambda category, num: category == "script_policy",
-        (
-            "Windows blocked the lookup helper (SCRIPT_POLICY). Ask IT to approve"
-            " the lookup helper under City policy; do not bypass PowerShell polic"
-            "y."
-        ),
-    ),
-    (
-        lambda category, num: category == "helper_runtime",
-        (
-            "The lookup helper could not load its Windows SQL runtime (HELPER_RUN"
-            "TIME). Ask IT to install the complete deployment and confirm Windows"
-            " PowerShell/.NET support."
-        ),
-    ),
-]
+def zoning_flags(zoning):
+    """HistoricDistrict, HistoricDistrictName and IndividualLandmark from a zoning district, as the report query sets them."""
+    code = (zoning or "").upper()
+    name = next((district for fragment, district in HISTORIC_DISTRICTS if fragment in code), None)
+    return ("Yes" if name else "No"), name, ("Yes" if LANDMARK_ZONING in code else "No")
 
 
-def _connect_diagnostic(answer, num, state, operation, argument_name):
-    """A code built only from allowlisted labels and numbers; provider text never reaches the UI."""
-    diagnostic = "SQL_CONNECT"
-    if type(num) is int:
-        diagnostic += "_" + str(num)
-    if type(state) is int:
-        diagnostic += "_STATE_" + str(state)
-    exception_type = answer.get("exceptionType")
-    if isinstance(exception_type, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9.]{0,79}", exception_type):
-        diagnostic += "_TYPE_" + exception_type.replace(".", "_")
-    hresult = answer.get("hresult")
-    if type(hresult) is int and -(2**31) <= hresult < 2**31:
-        diagnostic += "_HR_0x" + format(hresult & 0xFFFFFFFF, "08X")
-    native_code = answer.get("nativeCode")
-    if type(native_code) is int and 0 <= native_code <= 65535:
-        diagnostic += "_WIN32_" + str(native_code)
-    if isinstance(operation, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", operation):
-        diagnostic += "_OP_" + operation
-    if isinstance(argument_name, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", argument_name):
-        diagnostic += "_ARG_" + argument_name
-    return diagnostic
-
-
-def _failure_message(answer):
-    category, num = answer.get("category"), answer.get("number")
-    state = answer.get("state")
-    operation = answer.get("operation")
-    argument_name = answer.get("argumentName")
-    diagnostic_file = answer.get("diagnosticFile")
-    for applies, text in FAILURE_MESSAGES:
-        if applies(category, num):
-            message = text
-            break
-    else:
-        message = (
-            "The SQL connection failed ("
-            + _connect_diagnostic(answer, num, state, operation, argument_name)
-            + "). Ask IT to use this code to check the SQL client error."
-        )
-    # Stage and argument are stable, allowlisted labels. Full provider
-    # text stays in the local diagnostic file and is never sent to the UI.
-    if isinstance(operation, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", operation) and "_OP_" not in message:
-        message += " Failed operation: " + operation + "."
-    if isinstance(argument_name, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", argument_name) and "_ARG_" not in message:
-        message += " Argument: " + argument_name + "."
-    if isinstance(diagnostic_file, str) and diagnostic_file:
-        message += r" Full local details: %LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt."
-    return message
-
-
-def _list_failure_message(answer):
-    """Failures of the inspector list queries: they read more views and return more rows than one case."""
-    if answer.get("category") == "limit":
-        return "The open-case list is too large to load. Ask IT to check the report query."
-    return _failure_message(answer).replace(
-        "BI_ENF_RECORD and BI_ENF_INSPECTION", "BI_ENF_RECORD, BI_ENF_INSPECTION, BI_ENF_WORKFLOW and BI_ENF_WORKFLOW_HISTORY"
-    )
+def report_row(columns):
+    """One report row as the lookup fields. A column the report leaves out is NULL (None)."""
+    row = {field: columns.get(field) for field in FIELDS}
+    historic, district, landmark = zoning_flags(columns.get("ZoningDistrict"))
+    row["HistoricDistrict"] = historic
+    row["HistoricDistrictName"] = columns.get("HistoricDistrictName") or district
+    row["IndividualLandmark"] = landmark
+    row["InspectionScheduledDate"] = None  # not printed by the report and not used by the import
+    if columns.get("RecordCategory"):
+        row["RecordCategory"] = columns["RecordCategory"]
+    return row
 
 
 def run_query(cfg, number):
-    return run_script(cfg, {"caseNumber": number})
-
-
-def run_script(cfg, fields, wait=40):
-    """Run the Windows helper script for one fixed query; fields carry only the allowlisted mode and parameters."""
-    if os.name != "nt":
-        raise CaseLookupError("Direct lookup runs on a City Windows computer.")
-    exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
-    if not exe.is_file():
-        raise CaseLookupError("Windows PowerShell is unavailable. Ask IT to enable the approved lookup helper.")
-    request = dict(cfg)
-    request.setdefault("trustServerCertificate", False)
-    request.update(fields)
+    """The report's rows for one case number, as lookup fields."""
     try:
-        run = subprocess.run(
-            [str(exe), "-NoLogo", "-NoProfile", "-NonInteractive", "-File", str(HERE / "case_lookup.ps1")],
-            input=json.dumps(request),
-            encoding="utf-8",
-            capture_output=True,
-            timeout=wait,
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
-    except subprocess.TimeoutExpired:
-        raise CaseLookupError("The case lookup timed out. Check the City network and retry. Your work has been kept.")
-    except OSError:
-        raise CaseLookupError(("The Windows lookup helper could not start. Ask IT to check the installation and application policy."))
-    if len(run.stdout.encode("utf-8")) > LIMIT:
-        raise CaseLookupError("The database returned too much data for one case. Ask IT to check the report query.")
-    try:
-        answer = json.loads(run.stdout.lstrip("\ufeff"))
-    except ValueError:
-        raise CaseLookupError(
-            ("The Windows lookup helper did not return data. Ask IT to check PowerShell script policy and the complete installation.")
-        )
-    if not isinstance(answer, dict):
-        raise CaseLookupError("The lookup helper returned an invalid response.")
-    if run.returncode or not answer.get("ok"):
-        raise CaseLookupError(_list_failure_message(answer) if fields.get("mode") else _failure_message(answer))
-    return answer
+        found = ssrs_reports.case_rows(number)
+    except ssrs_reports.ReportError as error:
+        raise CaseLookupError(str(error), error.status) from None
+    return {"ok": True, "rows": [report_row(columns) for columns in found]}
 
 
 @logged("lookup")
@@ -284,11 +133,11 @@ def lookup(root, value):
         clean = []
         for row in rows:
             if not isinstance(row, dict) or any(f not in row for f in FIELDS):
-                raise CaseLookupError("The report query returned unexpected columns. Ask IT to reinstall the complete release.")
+                raise CaseLookupError("The case report returned unexpected columns. Ask the report administrator to check the report.")
             if any(v is not None and not isinstance(v, str) for v in row.values()):
-                raise CaseLookupError("The report query returned an invalid field value.")
+                raise CaseLookupError("The case report returned an invalid field value.")
             if case_number(row["CaseNumber"]) != number:
-                raise CaseLookupError("The database returned a different case number. Nothing was imported.")
+                raise CaseLookupError("The report returned a different case number. Nothing was imported.")
             clean.append(
                 {
                     **{f: row[f] for f in FIELDS},
@@ -299,21 +148,13 @@ def lookup(root, value):
             )
         if len(json.dumps(clean).encode("utf-8")) > LIMIT:
             raise CaseLookupError("The case response is too large. Nothing was imported.")
-        database = answer.get("database")
-        if not isinstance(database, str) or not database or len(database) > 128:
-            raise CaseLookupError("The database identity could not be verified. Nothing was imported.")
-        if cfg["database"] and cfg["database"].casefold() != database.casefold():
-            raise CaseLookupError("The database identity did not match the shared setting. Nothing was imported.")
         return {
             "ok": True,
             "caseNumber": number,
             "rows": clean,
             "source": {
-                "kind": "sql",
-                "server": cfg["server"],
-                "database": database,
+                **ssrs_reports.source(ssrs_reports.CASE_REPORT),
                 "retrievedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "querySha256": hashlib.sha256((HERE / "case_lookup.sql").read_bytes()).hexdigest(),
             },
         }
     finally:

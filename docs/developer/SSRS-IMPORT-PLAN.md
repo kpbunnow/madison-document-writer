@@ -1,7 +1,7 @@
-# Live-data import through SSRS — development plan (draft, not yet approved)
+# Live-data import through SSRS — development plan
 
-Status: proposal written 2026-11-10 against main `4240722` (R75 identity). Nothing here is implemented. It becomes the
-development prompt once the owner answers the questions in section 8.
+Status: written 2026-11-10 against main `4240722` (R75 identity) and implemented the same day on owner direction (section 8).
+Where the implementation differs from the first draft, section 9 says so.
 
 ## 1. Goal
 
@@ -115,6 +115,28 @@ window; a snow case; a case with a landmark; that a case closed in Accela leaves
 Helper behavior changes; no case schema, authoring, summary or backup change. Release identity only when the owner
 assigns one.
 
-## 8. Questions for the owner
+## 8. Owner answers (2026-11-10)
 
-See the conversation of 2026-11-10; answers are recorded here before work starts.
+1. Switch over at once; no duplicate SQL path. The owner deploys and tests personally.
+2. Live data is needed for inspectors' work. Use each person's own Windows login; staff are on the City network directly or over VPN.
+3. The open-cases report definition was supplied (`tests/fixtures/reference/OpenEnforcementCases_BI.rdl`).
+4. Work out the three fields the case report does not print in the program.
+5. XML exports of both reports were supplied. They hold real data and are not committed; synthetic fixtures with the same
+   structure are in `tests/fixtures/ssrs/`.
+6. Both reports run live (no cache or snapshot).
+7. The owner owns the reports.
+
+## 9. As implemented
+
+- The SQL lookup, its four queries, the SQL allowlist entry and the per-user certificate workaround are removed;
+  `trusted-connections.json` lists `ssrsHosts` instead of `sqlServers`. Shared settings accept only `enabled`; the earlier
+  `server` and `database` keys are accepted and ignored so an existing file keeps working.
+- The open-case report has no user-ID column, so an inspector is identified by the name the report prints
+  (`AssignedInspector`). The list renders the report once for everyone and counts distinct cases per name; one inspector's
+  cases are rendered with the report's `Inspector` parameter using that exact name, and a name not on the current list is
+  refused. `/inspector-cases/names` returns no names (the report already has them).
+- The report owns the open-case rule; the helper does not re-check statuses (owner answer 7).
+- The fetch uses `Invoke-WebRequest -UseDefaultCredentials -UseBasicParsing -MaximumRedirection 0` with TLS 1.2, reads
+  the raw bytes, and returns base64 JSON; failures carry only an allowlisted category, HTTP status and SSRS `rs…` code.
+- The setup panel's labels still read "SQL lookup configuration", "SQL Windows support" and "SQL connection"; they are
+  guarded by retained-module equivalence tests and are left for a separate change.

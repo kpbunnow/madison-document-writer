@@ -141,8 +141,8 @@ async function loadInspectors(services, refresh = false) {
   }
 }
 
-/* People whose name is not in the workflow views arrive shown by user ID. Their full names come from a slower second
-   query that runs after the list is on screen; if it fails the user ID simply stays. */
+/* The open-case report names each inspector in full (or by user ID when Accela has no name), so the helper answers this
+   follow-up request with no names; it is kept for compatibility and changes nothing on screen. */
 const shownById = (p) => String(p.name).toLowerCase() === String(p.id).toLowerCase();
 
 async function fillNames(services, refresh) {

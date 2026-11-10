@@ -1,0 +1,768 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report MustUnderstand="df" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" xmlns:am="http://schemas.microsoft.com/sqlserver/reporting/authoringmetadata">
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>d22d4d93-475e-4461-a987-06365bc59190</rd:ReportID>
+  <am:AuthoringMetadata>
+    <am:CreatedBy>
+      <am:Name>MSRB</am:Name>
+      <am:Version>15.1.30001.02</am:Version>
+    </am:CreatedBy>
+    <am:UpdatedBy>
+      <am:Name>MSRB</am:Name>
+      <am:Version>15.1.30001.02</am:Version>
+    </am:UpdatedBy>
+    <am:LastModifiedTimestamp>2026-11-06T18:26:54.4186669Z</am:LastModifiedTimestamp>
+  </am:AuthoringMetadata>
+  <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <rd:SecurityType>Integrated</rd:SecurityType>
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=SQLELAM;Initial Catalog=AccelaReporting</ConnectString>
+        <IntegratedSecurity>true</IntegratedSecurity>
+      </ConnectionProperties>
+      <rd:DataSourceID>f216b2b0-f974-430d-b52b-53ab4917a888</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@Inspector">
+            <Value>=Parameters!Inspector.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>WITH UserNames AS (
+    SELECT UserId, MAX(FullName) AS FullName
+    FROM (
+        SELECT LTRIM(RTRIM(p.USER_NAME)) AS UserId,
+               LTRIM(RTRIM(ISNULL(p.FNAME,'') + ' '
+                 + CASE WHEN NULLIF(p.MNAME,'') IS NOT NULL THEN p.MNAME + ' ' ELSE '' END
+                 + ISNULL(p.LNAME,''))) AS FullName
+        FROM dbo.PUSER AS p
+        WHERE p.SERV_PROV_CODE = 'MADISON' AND p.USER_NAME NOT LIKE 'PUBLICUSER%'
+        UNION ALL
+        SELECT LTRIM(RTRIM(p.GA_USER_ID)),
+               LTRIM(RTRIM(ISNULL(p.FNAME,'') + ' '
+                 + CASE WHEN NULLIF(p.MNAME,'') IS NOT NULL THEN p.MNAME + ' ' ELSE '' END
+                 + ISNULL(p.LNAME,'')))
+        FROM dbo.PUSER AS p
+        WHERE p.SERV_PROV_CODE = 'MADISON' AND p.USER_NAME NOT LIKE 'PUBLICUSER%'
+    ) AS src
+    WHERE UserId &lt;&gt; '' AND FullName &lt;&gt; ''
+    GROUP BY UserId
+),
+CaseComment AS (
+    SELECT SERV_PROV_CODE, B1_PER_ID1, B1_PER_ID2, B1_PER_ID3, CommentText
+    FROM (
+        SELECT c.SERV_PROV_CODE, c.B1_PER_ID1, c.B1_PER_ID2, c.B1_PER_ID3,
+               LTRIM(RTRIM(COALESCE(NULLIF(LTRIM(RTRIM(c.[TEXT])), ''),
+                                    CAST(c.CLOBTEXT AS nvarchar(max))))) AS CommentText,
+               ROW_NUMBER() OVER (
+                   PARTITION BY c.SERV_PROV_CODE, c.B1_PER_ID1, c.B1_PER_ID2, c.B1_PER_ID3
+                   ORDER BY CASE WHEN c.COMMENT_TYPE = 'Inspection Request Comment' THEN 0 ELSE 1 END,
+                            c.G6_ACT_NUM ASC) AS rn
+        FROM dbo.BACTIVITY_COMMENT AS c
+        WHERE c.SERV_PROV_CODE = 'MADISON'
+          AND COALESCE(NULLIF(LTRIM(RTRIM(c.[TEXT])), ''),
+                       CAST(c.CLOBTEXT AS nvarchar(max))) IS NOT NULL
+    ) AS x
+    WHERE rn = 1
+),
+EnfCases AS (
+    SELECT
+        A.B1_ALT_ID                          AS RECORD_ID,
+        ISNULL(A.B1_APPL_STATUS, '')         AS RECORD_STATUS,
+        A.REC_DATE                           AS DATE_OPENED_ORIGINAL,
+        LTRIM(RTRIM(D.B1_ASGN_STAFF))        AS ASSIGNED_USERID,
+        COALESCE(cc.CommentText, ISNULL(B.B1_WORK_DESC, '')) AS CASE_DESCRIPTION,
+        (SELECT TOP 1
+                ISNULL(RTRIM(CAST(y.b1_hse_nbr_start AS CHAR)), '')
+              + (CASE WHEN ISNULL(y.b1_hse_frac_nbr_start,'') &lt;&gt; '' THEN ' ' + y.b1_hse_frac_nbr_start ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_str_dir,'')            &lt;&gt; '' THEN ' ' + y.b1_str_dir            ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_str_name,'')           &lt;&gt; '' THEN ' ' + y.b1_str_name           ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_str_suffix,'')         &lt;&gt; '' THEN ' ' + y.b1_str_suffix         ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_str_suffix_dir,'')     &lt;&gt; '' THEN ' ' + y.b1_str_suffix_dir     ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_unit_type,'') = '' AND ISNULL(y.b1_unit_start,'') &lt;&gt; ''
+                      THEN ', #' + y.b1_unit_start ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_unit_type,'') &lt;&gt; ''
+                      THEN ', ' + y.b1_unit_type + ' ' + ISNULL(y.b1_unit_start,'') ELSE '' END)
+              + (CASE WHEN ISNULL(y.b1_situs_city,'')  = '' THEN '' ELSE ', ' + y.b1_situs_city  END)
+              + (CASE WHEN ISNULL(y.b1_situs_state,'') = '' THEN '' ELSE ', ' + y.b1_situs_state END)
+              + ' ' + ISNULL(y.b1_situs_zip,'')
+         FROM dbo.B3ADDRES AS y
+         WHERE y.SERV_PROV_CODE = A.SERV_PROV_CODE
+           AND y.B1_PER_ID1 = A.B1_PER_ID1
+           AND y.B1_PER_ID2 = A.B1_PER_ID2
+           AND y.B1_PER_ID3 = A.B1_PER_ID3
+         ORDER BY ISNULL(NULLIF(y.b1_primary_addr_flg,''),'N') DESC, y.b1_address_nbr
+        )                                    AS ADDR_FULL_LINE
+    FROM dbo.B1PERMIT AS A
+    LEFT JOIN dbo.BWORKDES AS B
+           ON  B.SERV_PROV_CODE = A.SERV_PROV_CODE
+           AND B.B1_PER_ID1 = A.B1_PER_ID1
+           AND B.B1_PER_ID2 = A.B1_PER_ID2
+           AND B.B1_PER_ID3 = A.B1_PER_ID3
+    JOIN dbo.BPERMIT_DETAIL AS D
+           ON  D.SERV_PROV_CODE = A.SERV_PROV_CODE
+           AND D.B1_PER_ID1 = A.B1_PER_ID1
+           AND D.B1_PER_ID2 = A.B1_PER_ID2
+           AND D.B1_PER_ID3 = A.B1_PER_ID3
+    LEFT JOIN CaseComment AS cc
+           ON  cc.SERV_PROV_CODE = A.SERV_PROV_CODE
+           AND cc.B1_PER_ID1 = A.B1_PER_ID1
+           AND cc.B1_PER_ID2 = A.B1_PER_ID2
+           AND cc.B1_PER_ID3 = A.B1_PER_ID3
+    WHERE (A.B1_APPL_STATUS NOT IN ('VOID','VOIDED') OR A.B1_APPL_STATUS IS NULL)
+      AND (A.B1_APPL_CLASS = 'COMPLETE' OR NULLIF(A.B1_APPL_CLASS,'') IS NULL)
+      AND A.REC_STATUS = 'A'
+      AND A.SERV_PROV_CODE = 'MADISON'
+      AND ((A.B1_PER_GROUP = 'ENFORCEMENT' AND A.B1_PER_TYPE = 'BUILDING INSPECTION')
+        OR (A.B1_PER_GROUP = 'Permitting'  AND A.B1_PER_TYPE = 'Zoning'))
+      AND A.B1_ALT_ID LIKE 'CB%'
+      AND NULLIF(LTRIM(RTRIM(D.B1_ASGN_STAFF)), '') IS NOT NULL
+)
+SELECT
+    COALESCE(un.FullName, e.ASSIGNED_USERID)  AS AssignedInspector,
+    e.RECORD_ID                               AS CaseNumber,
+    CASE WHEN CHARINDEX(',', e.ADDR_FULL_LINE) &gt; 0
+         THEN LTRIM(RTRIM(LEFT(e.ADDR_FULL_LINE, CHARINDEX(',', e.ADDR_FULL_LINE) - 1)))
+         ELSE e.ADDR_FULL_LINE END            AS ShortAddress,
+    e.CASE_DESCRIPTION                        AS CaseDescription,
+    e.RECORD_STATUS                           AS Status,
+    e.DATE_OPENED_ORIGINAL                    AS DateOpened
+FROM EnfCases AS e
+LEFT JOIN UserNames AS un ON un.UserId = e.ASSIGNED_USERID
+WHERE e.RECORD_STATUS NOT LIKE '%Close%'
+  AND e.RECORD_STATUS NOT LIKE '%Compliance%'
+  AND e.RECORD_STATUS NOT IN ('No Violation', 'Void', 'Withdrawn')
+  AND COALESCE(un.FullName, e.ASSIGNED_USERID) IN (@Inspector)
+ORDER BY AssignedInspector, e.DATE_OPENED_ORIGINAL;
+-- END OF QUERY</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="AssignedInspector">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>AssignedInspector</DataField>
+        </Field>
+        <Field Name="CaseNumber">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>CaseNumber</DataField>
+        </Field>
+        <Field Name="ShortAddress">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>ShortAddress</DataField>
+        </Field>
+        <Field Name="CaseDescription">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>CaseDescription</DataField>
+        </Field>
+        <Field Name="Status">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Status</DataField>
+        </Field>
+        <Field Name="DateOpened">
+          <rd:TypeName>System.DateTime</rd:TypeName>
+          <DataField>DateOpened</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="InspectorList">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+        <CommandText>WITH UserNames AS (
+    SELECT UserId, MAX(FullName) AS FullName
+    FROM (
+        SELECT LTRIM(RTRIM(p.USER_NAME)) AS UserId,
+               LTRIM(RTRIM(ISNULL(p.FNAME,'') + ' '
+                 + CASE WHEN NULLIF(p.MNAME,'') IS NOT NULL THEN p.MNAME + ' ' ELSE '' END
+                 + ISNULL(p.LNAME,''))) AS FullName
+        FROM dbo.PUSER AS p
+        WHERE p.SERV_PROV_CODE = 'MADISON' AND p.USER_NAME NOT LIKE 'PUBLICUSER%'
+        UNION ALL
+        SELECT LTRIM(RTRIM(p.GA_USER_ID)),
+               LTRIM(RTRIM(ISNULL(p.FNAME,'') + ' '
+                 + CASE WHEN NULLIF(p.MNAME,'') IS NOT NULL THEN p.MNAME + ' ' ELSE '' END
+                 + ISNULL(p.LNAME,'')))
+        FROM dbo.PUSER AS p
+        WHERE p.SERV_PROV_CODE = 'MADISON' AND p.USER_NAME NOT LIKE 'PUBLICUSER%'
+    ) AS src
+    WHERE UserId &lt;&gt; '' AND FullName &lt;&gt; ''
+    GROUP BY UserId
+),
+EnfCases AS (
+    SELECT
+        A.B1_ALT_ID                          AS RECORD_ID,
+        ISNULL(A.B1_APPL_STATUS, '')         AS RECORD_STATUS,
+        LTRIM(RTRIM(D.B1_ASGN_STAFF))        AS ASSIGNED_USERID
+    FROM dbo.B1PERMIT AS A
+    JOIN dbo.BPERMIT_DETAIL AS D
+           ON  D.SERV_PROV_CODE = A.SERV_PROV_CODE
+           AND D.B1_PER_ID1 = A.B1_PER_ID1
+           AND D.B1_PER_ID2 = A.B1_PER_ID2
+           AND D.B1_PER_ID3 = A.B1_PER_ID3
+    WHERE (A.B1_APPL_STATUS NOT IN ('VOID','VOIDED') OR A.B1_APPL_STATUS IS NULL)
+      AND (A.B1_APPL_CLASS = 'COMPLETE' OR NULLIF(A.B1_APPL_CLASS,'') IS NULL)
+      AND A.REC_STATUS = 'A'
+      AND A.SERV_PROV_CODE = 'MADISON'
+      AND ((A.B1_PER_GROUP = 'ENFORCEMENT' AND A.B1_PER_TYPE = 'BUILDING INSPECTION')
+        OR (A.B1_PER_GROUP = 'Permitting'  AND A.B1_PER_TYPE = 'Zoning'))
+      AND A.B1_ALT_ID LIKE 'CB%'
+      AND NULLIF(LTRIM(RTRIM(D.B1_ASGN_STAFF)), '') IS NOT NULL
+)
+SELECT DISTINCT COALESCE(un.FullName, e.ASSIGNED_USERID) AS Inspector
+FROM EnfCases AS e
+LEFT JOIN UserNames AS un ON un.UserId = e.ASSIGNED_USERID
+WHERE e.RECORD_STATUS NOT LIKE '%Close%'
+  AND e.RECORD_STATUS NOT LIKE '%Compliance%'
+  AND e.RECORD_STATUS NOT IN ('No Violation', 'Void', 'Withdrawn')
+ORDER BY Inspector;</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="Inspector">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Inspector</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>1.56713in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.53935in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.15741in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>6.33333in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.29514in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox1">
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Assigned Inspector</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Case Number</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox5">
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Short Address</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Case Description</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox7">
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Status</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Date Opened</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.29514in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="AssignedInspector">
+                          <rd:DefaultName>AssignedInspector</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!AssignedInspector.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="CaseNumber">
+                          <rd:DefaultName>CaseNumber</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!CaseNumber.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ShortAddress">
+                          <rd:DefaultName>ShortAddress</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!ShortAddress.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="CaseDescription">
+                          <rd:DefaultName>CaseDescription</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!CaseDescription.Value</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Status">
+                          <rd:DefaultName>Status</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Status.Value</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="DateOpened">
+                          <rd:DefaultName>DateOpened</rd:DefaultName>
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!DateOpened.Value</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                    <Format>d</Format>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                </TablixMember>
+                <TablixMember>
+                  <Group Name="Details" />
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet1</DataSetName>
+            <Height>0.59028in</Height>
+            <Width>13.59722in</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>2.25in</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>14.91667in</Width>
+      <Page>
+        <PageFooter>
+          <Height>0.45in</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="ExecutionTime">
+              <rd:DefaultName>ExecutionTime</rd:DefaultName>
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
+                      <Style />
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.2in</Top>
+              <Left>4in</Left>
+              <Height>0.25in</Height>
+              <Width>2in</Width>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageFooter>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="Inspector">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>InspectorList</DataSetName>
+          <ValueField>Inspector</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Inspector</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>InspectorList</DataSetName>
+          <ValueField>Inspector</ValueField>
+          <LabelField>Inspector</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+  </ReportParameters>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>4</NumberOfColumns>
+      <NumberOfRows>2</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>Inspector</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
+</Report>
