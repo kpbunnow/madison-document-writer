@@ -72,7 +72,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await page.locator("#lib-filter").fill("garbage");
     assert.equal(await page.locator(".language-row").count(), 1);
     assert.equal(await page.locator("[data-catalog-save]").count(), 0);
-    assert.match(await page.locator(".language-row").innerText(), /Approved/i);
+    // Owner decision 2026-11-10: status badges appear only on Review catalog; Browse language lists the entry without one.
+    assert.equal(await page.locator(".language-row .tag.ok, .language-row .tag.warn").count(), 0);
     const search = page.locator("#lib-filter");
     await search.evaluate((el) => el.setSelectionRange(3, 3));
     await page.evaluate(() => refreshCatalog());
