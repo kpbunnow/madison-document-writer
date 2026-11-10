@@ -78,13 +78,43 @@ def _failure(answer):
     return ReportError(message)
 
 
-def fetch(url, wait):
-    """Bytes of one report render. Runs only on Windows, as the signed-in user, through the fixed PowerShell script."""
+def _powershell():
     if os.name != "nt":
         raise ReportError("The live report lookup runs on a City Windows computer.")
     exe = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
     if not exe.is_file():
         raise ReportError("Windows PowerShell is unavailable. Ask IT to enable the approved report helper.")
+    return exe
+
+
+def _answer(run):
+    """The helper script's JSON answer, or the failure it reports."""
+    if len(run.stdout) > MAX_BYTES * 2:
+        raise ReportError(CATEGORY_MESSAGES["limit"])
+    try:
+        answer = json.loads(run.stdout.lstrip("\ufeff"))
+    except ValueError:
+        raise ReportError("The Windows report helper did not return data. Ask IT to check PowerShell script policy and the complete installation.")
+    if not isinstance(answer, dict):
+        raise ReportError("The report helper returned an invalid response.")
+    if run.returncode or answer.get("ok") is not True:
+        raise _failure(answer)
+    return answer
+
+
+def _body(answer):
+    try:
+        body = base64.b64decode(answer.get("body") or "", validate=True)
+    except ValueError, TypeError:
+        raise ReportError("The report helper returned an invalid response.")
+    if len(body) > MAX_BYTES:
+        raise ReportError(CATEGORY_MESSAGES["limit"])
+    return body
+
+
+def fetch(url, wait):
+    """Bytes of one report render. Runs only on Windows, as the signed-in user, through the fixed PowerShell script."""
+    exe = _powershell()
     request = {"url": url, "timeoutSeconds": wait, "maxBytes": MAX_BYTES}
     try:
         run = subprocess.run(
@@ -99,23 +129,7 @@ def fetch(url, wait):
         raise ReportError("The report server did not answer in time. Check the City network or VPN and retry; your work has been kept.")
     except OSError:
         raise ReportError("The Windows report helper could not start. Ask IT to check the installation and application policy.")
-    if len(run.stdout) > MAX_BYTES * 2:
-        raise ReportError(CATEGORY_MESSAGES["limit"])
-    try:
-        answer = json.loads(run.stdout.lstrip("\ufeff"))
-    except ValueError:
-        raise ReportError("The Windows report helper did not return data. Ask IT to check PowerShell script policy and the complete installation.")
-    if not isinstance(answer, dict):
-        raise ReportError("The report helper returned an invalid response.")
-    if run.returncode or answer.get("ok") is not True:
-        raise _failure(answer)
-    try:
-        body = base64.b64decode(answer.get("body") or "", validate=True)
-    except ValueError, TypeError:
-        raise ReportError("The report helper returned an invalid response.")
-    if len(body) > MAX_BYTES:
-        raise ReportError(CATEGORY_MESSAGES["limit"])
-    return body
+    return _body(_answer(run))
 
 
 NOT_DATA = "The report server returned a web page instead of the report data (SSRS_NOT_XML). Check that you can open the report in the Reports portal, then retry."
