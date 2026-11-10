@@ -137,6 +137,6 @@ assigns one.
   refused. `/inspector-cases/names` returns no names (the report already has them).
 - The report owns the open-case rule; the helper does not re-check statuses (owner answer 7).
 - The fetch uses `Invoke-WebRequest -UseDefaultCredentials -UseBasicParsing -MaximumRedirection 0` with TLS 1.2, reads
-  the raw bytes, and returns base64 JSON; failures carry only an allowlisted category, HTTP status and SSRS `rs…` code.
-- The setup panel's labels still read "SQL lookup configuration", "SQL Windows support" and "SQL connection"; they are
-  guarded by retained-module equivalence tests and are left for a separate change.
+  the raw bytes, refuses any 3xx answer, and writes the base64 body directly (not through ConvertTo-Json); failures carry only an allowlisted category, HTTP status and SSRS `rs…` code.
+- The setup panel rows read "Case lookup configuration", "Case lookup Windows support" and "Report server connection"
+  (renamed from their SQL labels in the final sweep before the release).

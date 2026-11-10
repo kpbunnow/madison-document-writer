@@ -152,6 +152,9 @@ class Fetch(unittest.TestCase):
         self.assertIn("-MaximumRedirection 0", ps)
         self.assertIn("[Net.SecurityProtocolType]::Tls12", ps)
         self.assertIn("RawContentStream", ps)
+        self.assertIn("if ([int]$response.StatusCode -ge 300) { throw 'SSRS_REDIRECT' }", ps)
+        success = ps.split("$operation = 'read_report'")[1].split("} catch {")[0]
+        self.assertNotIn("ConvertTo-Json", success, "a large report body must not pass through the 5.1 JSON serializer")
         self.assertIn("case-lookup-diagnostic.txt", ps)
         for forbidden in (
             "Invoke-Expression",
@@ -292,6 +295,12 @@ class CaseReportFields(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             with patch.object(ssrs, "fetch", return_value=CASE_XML), self.assertRaisesRegex(case_lookup.CaseLookupError, "different case"):
                 case_lookup.lookup(Path(folder), "CB2026-313-04592")
+            no_number = CASE_XML.replace(b'CaseNumber="CB2026-313-04591" InspectorName=""', b'InspectorName=""')
+            with patch.object(ssrs, "fetch", return_value=no_number), self.assertRaises(case_lookup.CaseLookupError) as error:
+                case_lookup.lookup(Path(folder), "CB2026-313-04591")
+            self.assertEqual(
+                (error.exception.status, str(error.exception)), (503, "The report returned a different case number. Nothing was imported.")
+            )
             with patch.object(ssrs, "fetch", side_effect=ssrs.ReportError("offline")), self.assertRaisesRegex(case_lookup.CaseLookupError, "offline"):
                 case_lookup.lookup(Path(folder), "CB2026-313-04591")
             self.assertTrue(case_lookup.LOOKUPS.acquire(blocking=False))
