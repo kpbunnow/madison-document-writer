@@ -69,20 +69,21 @@ class TrustedConnections(unittest.TestCase):
             install_release.install(fresh_stage, fresh, list(manifest["files"]) + ["runtime-manifest.json", "verified-install.json"])
             self.assertFalse((fresh / "integrity-settings.json").exists(), "A fresh installation never imports the share-only anchor settings")
 
-    def test_unapproved_sql_with_or_without_workaround(self):
-        for bypass in [False, True]:
-            with tempfile.TemporaryDirectory() as folder:
-                root = Path(folder)
-                (root / "Case Lookup").mkdir()
-                (root / "Case Lookup/settings.json").write_text(json.dumps({"server": "attacker.invalid"}))
-                local = root / "MadisonDocWriter"
-                local.mkdir()
-                (local / "case-lookup-local-settings.json").write_text(json.dumps({"trustServerCertificate": bypass}))
-                with (
-                    patch.dict(case_lookup.os.environ, {"LOCALAPPDATA": str(root)}),
-                    self.assertRaisesRegex(case_lookup.CaseLookupError, "allowlist"),
-                ):
-                    case_lookup.settings(root)
+    def test_unapproved_report_server_is_refused_before_any_request(self):
+        import ssrs_reports
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "Case Lookup").mkdir()
+            (root / "Case Lookup/settings.json").write_text(json.dumps({"server": "attacker.invalid"}))
+            self.assertEqual(case_lookup.settings(root)["server"], "entreports.cityofmadison.com", "the share cannot choose the server")
+            with (
+                patch.object(ssrs_reports, "HOST", "attacker.invalid"),
+                patch.object(ssrs_reports, "fetch") as fetch,
+                self.assertRaisesRegex(case_lookup.CaseLookupError, "allowlist"),
+            ):
+                case_lookup.lookup(root, "CB2026-001-00001")
+            fetch.assert_not_called()
 
 
 if __name__ == "__main__":

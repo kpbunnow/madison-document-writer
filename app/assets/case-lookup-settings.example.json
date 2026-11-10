@@ -1,5 +1,3 @@
 {
-  "server": "sqlelam",
-  "database": "AccelaReporting",
   "enabled": true
 }

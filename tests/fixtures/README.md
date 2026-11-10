@@ -9,7 +9,8 @@ source distributions and never in inspector deployment folders.
 | reference/R51-authored-print-golden.json | Exact authored print content, pagination and court copies; audit_r50_documents.js |
 | reference/R50-Frozen-Print-Style.json, R51-R50-parity.json | Approved print stylesheet and normalized shell parity; repository/layout regressions |
 | reference/R53-extension-rendering.json | Regular/historical special extension rendering; R54 regressions |
-| reference/Document-Generator-Import.rdl | Fixed SQL/query provenance; audit_lookup.py and audit_r39.py |
+| reference/Document-Generator-Import.rdl, reference/OpenEnforcementCases_BI.rdl | Definitions of the two live SSRS reports (parameters, historic-district rules, Record Category); audit_ssrs_reports.py and audit_r39.py |
+| ssrs/case-report.xml, ssrs/open-cases-report.xml | Synthetic XML exports with the real reports' structure (BOM, omitted NULL columns, encoded newlines); never real data; audit_ssrs_reports.py and audit_inspector_cases.py |
 | reference/r45-import-fixtures/, r50-import-fixtures/ | Synthetic workbook bytes; import/browser regressions |
 | reference/*-print-fixture-payload.js | Test drivers for authored print baselines; retain with their baseline consumers |
 | reference/Order-Language-Library-Source.xlsx | Original order-language source provenance; preserve original and hash pending a separate consumer/provenance inventory. The division Word templates moved to docs/history/division-templates/ (Consolidation Phase 3) |

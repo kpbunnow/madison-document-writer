@@ -1496,7 +1496,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "outbox": 0,
             "chrome": bool(find_chrome()),
             "outlook": bool(find_outlook()),
-            # The City case database lookup runs only on Windows; the program then opens on Import inspection.
+            # The City case report lookup runs only on Windows; the program then opens on Import inspection.
             "caseLookup": os.name == "nt",
         }
         try:
@@ -1615,7 +1615,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(503, {"ok": False, "error": "Case lookup is unavailable. Check the installation and retry; your work is kept."})
 
     def _post_inspector_cases(self, route):
-        """The inspector list (empty body) or one inspector's open cases ({"inspector": user id}); read-only."""
+        """The inspector list (empty body) or one inspector's open cases ({"inspector": name as listed}); read-only."""
         try:
             n = int(self.headers.get("Content-Length", "0"))
             if not 0 < n <= 2048:

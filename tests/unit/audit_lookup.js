@@ -67,6 +67,22 @@ const test = async function () {
   ok("Completed date and time retained; scheduled date never substituted", p.date === "2026-09-18" && p.time === "09:05");
   ok("Ignored detailed description not retained", !JSON.stringify(acc).includes("Not imported"));
   ok("Clean initial case qualifies for one-step notice", lookupCanOpen(acc));
+  // The live SSRS case report: the same rows, with its own provenance; a saved SQL review still opens.
+  const report = {
+    kind: "ssrs",
+    server: "entreports.cityofmadison.com",
+    report: "/Prod/Local/Building Inspection/Enforcement/DocumenGeneratorImport",
+    retrievedAt: "2026-11-10T15:00:00Z",
+  };
+  const live = sqlReport({ ...response(), source: report }, number);
+  ok("SSRS case report accepted with its provenance", live.source.kind === "ssrs" && accelaPlan(live).date === "2026-09-18" && lookupCanOpen(live));
+  let unknown = "";
+  try {
+    sqlReport({ ...response(), source: { kind: "file" } }, number);
+  } catch (e) {
+    unknown = e.message;
+  }
+  ok("A result without a live source is refused", /Unexpected case response/.test(unknown));
   acc = sqlReport(
     response([row, { ...row, InspectionDate: "2026-09-19T00:00:00", InspectionType: "Reinspection", InspectionStatus: "Extension Processing" }]),
     number,

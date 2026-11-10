@@ -342,8 +342,8 @@ class Desktop(unittest.TestCase):
                 self.assertEqual(popen.call_args.args[0], [sys.executable, "-B", str(self.local / "server.py")])
                 self.assertEqual(kwargs["env"], {"DW_PORT": "8777"})
         self.assertEqual(seen, {"pip": NO_WINDOW, "acl": NO_WINDOW, "pdf": NO_WINDOW, "outlook": NO_WINDOW})
-        # case_lookup runs only on Windows and already uses the Windows constant.
-        self.assertIn("creationflags=subprocess.CREATE_NO_WINDOW", (ROOT / "helper/case_lookup.py").read_text(encoding="utf-8"))
+        # The report fetch runs only on Windows and already uses the Windows constant.
+        self.assertIn("creationflags=subprocess.CREATE_NO_WINDOW", (ROOT / "helper/ssrs_reports.py").read_text(encoding="utf-8"))
 
     def test_session_privacy_uses_matching_system_powershell_modules(self):
         inherited = "synthetic-powershell-7-modules;synthetic-user-modules"

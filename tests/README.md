@@ -141,15 +141,16 @@ covers, or a new suite under its feature.
 | `audit_feature_accela_import.js` | Feature suite: workbook parsing and columns, type/status routing and case rules, candidate selection, stale state and repaint (former `audit_import`, `audit_r45_import`, `audit_r50_import`, `audit_r50_import_repaint`, `audit_r53_status_rules`, `audit_r62_import_rules`, `audit_status_own_property`) |
 | `audit_import_r13.js`, `audit_import_r13.py` | Case routing, retained inspection identity, reuse refused at the store |
 | `audit_inspection_facts.js` | Independent date/time parsing and inspection queries, historical/blank-source precedence, retained reuse evidence, case scoping and live workspace replacement |
-| `audit_lookup.js`, `audit_lookup.py` | SQL lookup results into the lifecycle; fixed query, settings and transport errors |
-| `audit_inspector_cases.py` | Open cases by assigned inspector: the two fixed queries keep the report's open-case rules and bind only a user ID, row and field validation, the administrator's exclusion file, one list at a time, the Windows transport and the local HTTP boundary; due dates only from verified current summaries with unknown kept apart from no order (MCR-002); name exclusions applied to case requests from the checked workflow list (MCR-003) |
+| `audit_lookup.js`, `audit_lookup.py` | Case lookup results into the lifecycle; answer validation, one lookup at a time and the HTTP boundary |
+| `audit_ssrs_reports.py` | Live SSRS reports: fixed render URLs and the release allowlist, the Windows PowerShell fetch (scripted) and every failure message, XML checks (wrong report, web page, DTD, size, BOM, NULL columns), historic/landmark fields worked out from zoning, settings, and the removed SQL files |
+| `audit_inspector_cases.py` | Open cases by assigned inspector from the OpenEnforcementCases_BI report: the list counted from the full report and kept for 30 minutes, one inspector rendered by the report's own name, row and field validation, the division's and administrator's exclusions, verified due dates, one list at a time and the HTTP boundary |
 | `audit_mcr_helper_validation.py` | Code-review store corrections: a new ordinary visit cannot be after its recording day (MCR-006), a scheduled mandatory-appearance citation draft backs up without a deposit while money charges still need one (MCR-007), and new notices/extensions/citations keep distinct due dates seven days apart, corrections keeping existing pairs (MCR-008) |
 | `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped bubble markup (no table, no underline, no-wrap case number and address), selection highlight, card states, every new selection clearing the earlier case and its inspections, the due column and the helper's order kept, the unavailable note, and the owner against a substitute helper (loads once, stale answers ignored, overlapping inspector/case requests settle independently, a pending import blocks Import) |
 | `audit_start_screen.js` | Where Document Writer opens: Import inspection when the helper reports the City case lookup, unless a draft, worksheet, pending case file, record confirmation/form, awaiting import or saved case number needs attention |
 | `audit_stranded_import.js` | A case with no document, draft or recorded event (for example after a new import's notice draft was discarded) can start its notice again from its Initial Inspection; a case with anything issued, drafted or recorded still refuses it |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
-| `audit_r38.py`, `audit_r39.py` | Lookup query matches the live report query; error 207 reporting |
+| `audit_r39.py` | The live case report sources Record Category from RECORD_TYPE_CATEGORY |
 | `audit_r56_citation_status.js` | Citation → Official Notice (and reinspection Citation → Compliance) re-import clears stale citation marks and draft citation/deposit data, also after save and reopen; an existing mark stays removable |
 | `audit_r59_import_selection.js`, `audit_r59_import_reuse.py` | Four labelled facts per inspection candidate, highlighted pressed selection, a used candidate selectable with its blocker, stale shared checks ignored; the store refuses a new document reusing an imported inspection and accepts a CA Reinspection visit identity |
 
@@ -309,8 +310,6 @@ covers, or a new suite under its feature.
 | `audit_catalog_review_panel_markup_rules.js` | Catalog review panel markup, notices, replacement search and peer-call order against the retained module. |
 | `audit_tools_screen_markup_rules.js` | Every colour-theme state compares the Tools & settings screen markup and its shell and icon peer calls with the retained module. |
 | `audit_verified_update_rules.py` | 1,500 seeded shared deployments on real folders compare verified update staging (manifest limits, version and build pins, downgrade refusal, path rules, links and stray files, size and checksum recheck, staged files and pin, failure diagnostics) with the retained module. |
-| `audit_lookup_query_rules.py` | 6,000 scripted PowerShell answers compare the Windows case-lookup query (refusals before the call, each failure category and number, the allowlisted diagnostic code, appended operation and argument text and the exact request sent) with the retained function. |
-| `audit_lookup_settings_rules.py` | 1,500 seeded shared and per-user settings folders compare the case-lookup configuration (shared folder and file, allowed keys and values, approved server, certificate setting and disabled switch) with the retained function. |
 | `audit_new_document_click_rules.js` | 8,000 seeded click events compare scoped new-document actions with the retained module: attribute priority, the draft, worksheet and case effects of each action, every peer read and call in order and refusal at each interrupted call. |
 | `audit_recovery_event_rules.js` | 10,000 seeded working-draft recovery clicks compare id and attribute priority, every action's peer calls in order with the state they see, filing retries and refusal at each interrupted call with the retained module. |
 | `audit_catalog_review_action_rules.js` | 10,000 seeded catalog review clicks compare the basis confirmation, field validation order, the recorded review and its cache, retained-edit detection, failures and refusal at each interrupted call with the retained module. |
@@ -336,7 +335,7 @@ covers, or a new suite under its feature.
 | Suite | Covers |
 | --- | --- |
 | `audit_r50_session.py`, `audit_r50_session_browser.js` | Session token, bootstrap and helper restart |
-| `audit_r50_connections.py` | GIS/SQL allowlists, redirects, anchor settings |
+| `audit_r50_connections.py` | GIS/SSRS allowlists, redirects, anchor settings |
 | `audit_r50_low_security.py`, `audit_r50_renderer.py` | Renderer containment, embedded-only resources, planted paths |
 | `audit_func.js` | Output escaping and injection |
 | `audit_logging.py` | Logs exclude case data and rotate |
