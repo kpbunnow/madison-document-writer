@@ -91,3 +91,5 @@ R75 upgrades R74 and adds S75-1 (installed update), PY-1 (Python 3.14 on every P
 R76 upgrades R75 and replaces the direct SQL lookup with the live SSRS reports (SSRS-1 to SSRS-7, superseding SQL-2) and adds S76-1 (installed update). PY-1 and the carried City items remain OPEN. R76 is a release candidate, not a deployment approval.
 
 R77 upgrades R76 and adds the order-language search, grouping and repeated-entry changes (S77-2) and the installed update check (S77-1, superseding S76-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R77 is a release candidate, not a deployment approval.
+
+R78 upgrades R77 with the document-first Workspace, Violation Categories picker, compact editor header, owner-CC cleanup, DFI registered-agent link and search highlighting (S78-2, S78-3) and the installed update check (S78-1, superseding S77-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R78 is a release candidate, not a deployment approval.
