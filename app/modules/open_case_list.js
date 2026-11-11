@@ -5,6 +5,7 @@
 import { editorState as editor } from "./editor_state.js";
 import { importsState as imports } from "./imports_state.js";
 import { html, raw } from "./screen_html.js";
+import { enhanceSearchResults } from "./search_highlighting.js";
 
 /* In-session only: nothing here is saved to a draft, a backup or the shared folder. */
 export const openList = {
@@ -206,7 +207,10 @@ function search(value) {
   openList.query = value;
   const results = document.getElementById("open-cases-results"),
     count = document.getElementById("open-cases-count");
-  if (results) results.innerHTML = openCaseRowsHTML(openList);
+  if (results) {
+    results.innerHTML = openCaseRowsHTML(openList);
+    enhanceSearchResults(document.body);
+  }
   if (count) count.textContent = openCaseCountText(openList);
 }
 

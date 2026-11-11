@@ -136,6 +136,14 @@ module.exports = async function (browser, page) {
     for (let n = 0; n < 2000 && !document.querySelector("[data-message-undo]"); n++) await pause(10);
     document.querySelector("[data-message-undo]").click();
     repeated.undoRestored = JSON.stringify(items()) === beforeRemoval;
+    WriterState.state.q = "trash";
+    WriterState.state.picker = true;
+    render();
+    repeated.highlighted = !!document.querySelector(".picker-list mark[data-search-match]");
+    repeated.printClean = !/<mark(?:\s|>)/i.test(printJob(doc(WriterState.state.docId)).html);
+    WriterState.state.q = "";
+    render();
+    repeated.cleared = !document.querySelector(".picker-list mark[data-search-match]");
     return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
   });
   assert.equal(result.defaultScope, "usable", "the picker opens on Approved and standard");
@@ -173,6 +181,9 @@ module.exports = async function (browser, page) {
       warningsAfterEdit: 0,
       removedOne: true,
       undoRestored: true,
+      highlighted: true,
+      printClean: true,
+      cleared: true,
     },
     "an entry can be added again; copies are separate items, removed from Violation Items, and identical copies only warn",
   );

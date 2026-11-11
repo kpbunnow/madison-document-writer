@@ -259,6 +259,21 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   frozen.blocks[0].text = "changed";
   frozen.courtCopies[0].name = "changed";
   assert.equal(d.frozen.case.nested.x, 1);
+  const duplicateOwner = {
+    ...d,
+    frozen: {
+      ...d.frozen,
+      case: {
+        ...d.frozen.case,
+        ownerAddr: ["100 TEST ST", "100 test st", "MADISON WI 53703"],
+        ccList: [{ kind: "Violator", name: "VIOLATOR", addr: "5 OTHER ST", city: "MADISON WI 53704" }],
+      },
+    },
+  };
+  const duplicateBefore = copy(duplicateOwner);
+  assert.deepEqual(sources.freezeSources(duplicateOwner).ownerCopyLines, ["Frozen owner", "100 TEST ST", "MADISON WI 53703"]);
+  assert.deepEqual(duplicateOwner, duplicateBefore, "the frozen corrected CC is separate from raw owner facts");
+  assert.equal(Object.hasOwn(frozen, "ownerCopyLines"), false, "ordinary snapshots retain their existing shape");
   assert.equal(d.frozen.court.nested.x, 1);
   assert.equal(blocks[0].text, "approved");
   assert.equal(d.frozen.courtCopies[0].name, "old copy");

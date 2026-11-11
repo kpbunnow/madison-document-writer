@@ -132,6 +132,14 @@ const assert = require("node:assert/strict"),
     flags = options;
     const expected = run(api.referenceModal),
       actual = run(api.actualModal);
+    // Owner-requested additive UI (2026-11-11). Keep the frozen modal reference intact and compare every original
+    // byte/state/service call, with the independently specified DFI link required in each Recipients variant.
+    const lookup =
+      '<p><a href="https://apps.dfi.wi.gov/apps/corpsearch/search.aspx" target="_blank" rel="noopener noreferrer">Look up a registered agent at Wisconsin DFI (opens in a new tab)</a></p>';
+    if (flags.modal === "cc") {
+      assert.equal(actual.html.split(lookup).length - 1, 1, "Recipients offers exactly one safe DFI lookup link");
+      expected.html = expected.html.replace(/(<h3 class="rec-h">Registered agent.*?<\/h3>)/, "$1\n      " + lookup);
+    }
     const measured = { ...actual, html: withoutViolatorAdditions(actual.html, expected.html) };
     assert.deepEqual(measured, expected, JSON.stringify(flags));
     assert.equal(typeof actual.html, "string", "each modal snapshot renders successfully");

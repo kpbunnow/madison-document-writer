@@ -20,7 +20,7 @@ const INSPECTORS=[
   {id:"i19",name:"SCOTT SHEARER",title:"CODE ENFORCEMENT OFFICER II",phone:"(608) 266-4907",email:"sshearer@cityofmadison.com",badge:"5372"},
   {id:"i20",name:"TERRY SMITH",title:"PLUMBING / HVAC INSPECTOR",phone:"(608) 266-4567",email:"tjsmith@cityofmadison.com",badge:"5513"},
   {id:"i21",name:"JOE SPONEM",title:"CODE ENFORCEMENT OFFICER II",phone:"(608) 266-4504",email:"jsponem@cityofmadison.com",badge:"6051"},
-  {id:"i22",name:"STEPHEN SUNDSTROM",title:"BUILDING INSPECTOR",phone:"(608) 267-8745",email:"ssundstrom@cityofmadison.com",badge:""},
+  {id:"i22",name:"STEPHEN SUNDSTROM",title:"BUILDING INSPECTOR",phone:"(608) 267-8745",email:"ssundstrom@cityofmadison.com",badge:"5603"},
   {id:"i23",name:"SEAN SUTTER",title:"PLUMBING / HVAC INSPECTOR",phone:"(608) 266-4346",email:"ssutter@cityofmadison.com",badge:"5028"},
   {id:"i24",name:"THANE SUTTER",title:"ELECTRIC / HVAC INSPECTOR",phone:"(608) 266-4565",email:"tsutter@cityofmadison.com",badge:"5508"},
   {id:"i25",name:"CHRIS TOURDOT",title:"CITY SEALER",phone:"(608) 246-4515",email:"ctourdot@cityofmadison.com",badge:"1403"},

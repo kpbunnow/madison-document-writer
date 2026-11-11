@@ -1,5 +1,12 @@
 # Release changelog
 
+## Unreleased development after R77
+
+- Stephen Sundstrom's current inspector badge is 5603.
+- Recipients links to Wisconsin DFI's registered-agent search in a new tab.
+- New property-owner CCs beside a Violator omit consecutive duplicate address lines while retaining distinct mailing details, raw case facts and earlier issued output.
+- Screen search results highlight matching text across case lists, order language, Reports lookups and the deposit schedule. Order-language aliases and ordinance searches retain their existing matching/ranking rules.
+
 ## 2026-11-10 R77 — Release package
 
 Release package assigned on the owner's request after R76 (helper 2026.11.10.78, build 78; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R77 upgrades R76. Every PC still needs Python 3.14.

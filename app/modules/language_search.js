@@ -88,9 +88,19 @@ function fields(R, item) {
 }
 
 // The score of one word: the heaviest field holding a word that starts with it (or an alias); 0 when none does.
-function termScore(weighted, term) {
+function termChoices(term) {
   const singular = term.length > 4 && term.endsWith("s") ? term.slice(0, -1) : term;
-  const choices = ALIASES.find((group) => group.includes(singular)) || [term, singular];
+  return ALIASES.find((group) => group.includes(singular)) || [term, singular];
+}
+
+/* Screen highlighting uses the same ordinary-term aliases as matching; eligibility/ranking is unchanged. */
+export function languageHighlightTerms(query) {
+  const { sections, terms } = parseQuery(query);
+  return [...sections, ...terms.flatMap(termChoices)];
+}
+
+function termScore(weighted, term) {
+  const choices = termChoices(term);
   let best = 0;
   for (const [weight, list] of weighted) if (weight > best && list.some((w) => choices.some((c) => w.startsWith(c)))) best = weight;
   return best;

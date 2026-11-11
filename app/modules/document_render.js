@@ -6,7 +6,7 @@ import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./pres
 import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
 
 import { copiesOf, emailList, violatorActive } from "./mailing_rules.js";
-import { defendantLines, ownerCopy } from "./defendant_contact.js";
+import { defendantLines, ownerCopy, cleanOwnerCopyLines } from "./defendant_contact.js";
 
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
@@ -480,7 +480,10 @@ export function createDocumentRenderer(services) {
         (function () {
           // the agent is served a copy as a matter of course
           const ag = services.agentLines(k);
-          const cc = [ownerCopy(k), ...copiesOf(k)]
+          // Old issued snapshots retain their original lines; new snapshots freeze the cleaned owner CC separately.
+          const retainedOwnerLines = frozenOf(d)?.ownerCopyLines;
+          const ownerLines = d.draft ? cleanOwnerCopyLines(k) : Array.isArray(retainedOwnerLines) ? retainedOwnerLines : undefined;
+          const cc = [ownerCopy(k, ownerLines), ...copiesOf(k)]
             .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
             .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
           const sent = d.emailedTo || [],

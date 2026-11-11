@@ -13,6 +13,8 @@ runs in its own process with a fresh bundle, DOM, state, storage and mocks
 appears under "Release-wide regressions". Add a new scenario to the feature suite it
 covers, or a new suite under its feature.
 
+`audit_search_highlighting.js` checks screen-only highlighting across nine search surfaces, including order-language aliases/ordinances, literal/Unicode safety, query clearing/repeated enhancement, focus and control/listener preservation. The order-language and Violator production-browser scenarios cover real highlighted results, print exclusion, the DFI lookup link, duplicate owner-CC cleanup and retained historical output. Helper authoring tests validate the optional frozen owner-CC fact.
+
 ## Maintainability
 
 | Suite | Covers |

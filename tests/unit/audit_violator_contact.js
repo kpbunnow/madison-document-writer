@@ -9,7 +9,7 @@ const assert = require("node:assert/strict"),
 (async () => {
   const api = await compile(
     'export {violatorOf, copiesOf, violatorActive, copiesOwner, setCopyKind, defendantName, isLLC, ownerLines} from "./mailing_rules.js";' +
-      'export {defendantLines, ownerCopy} from "./defendant_contact.js"; export {defendantKey, respondentKey} from "./citation_policy.js";',
+      'export {defendantLines, ownerCopy, cleanOwnerCopyLines} from "./defendant_contact.js"; export {defendantKey, respondentKey} from "./citation_policy.js";',
   );
   const owner = { owner: "SYNTHETIC OWNER", ownerAddr: ["100 TEST ST", "MADISON WI 53703"] };
   const violator = { kind: "Violator", name: "THE VIOLATOR", addr: "55 second st", city: "madison, wi 53704" };
@@ -68,6 +68,7 @@ const assert = require("node:assert/strict"),
 
   // The owner is copied beside a Violator unless the case turns that off.
   assert.equal(api.ownerCopy(owner), null);
+  assert.equal(api.ownerCopy(null), null);
   assert.equal(api.ownerCopy(withList([copy])), null, "no Violator, no owner copy");
   assert.deepEqual(api.ownerCopy(withList([violator])), { lines: ["SYNTHETIC OWNER", "100 TEST ST", "MADISON WI 53703"], owner: true });
   assert.equal(api.copiesOwner(withList([violator])), true, "ticked by default");
@@ -75,6 +76,20 @@ const assert = require("node:assert/strict"),
   assert.equal(api.ownerCopy(withList([violator], { copyOwner: false })), null);
   assert.equal(api.ownerCopy(withList([violator], { caseType: "snow-10.28" })), null, "snow removal prints the owner as the defendant already");
   assert.equal(api.ownerCopy({ ccList: [violator] }), null, "nothing to copy when the case has no owner lines");
+
+  const duplicate = withList([violator], { ownerAddr: ["7105 EXAMPLE DR", " 7105   example dr ", "UNIT 2", "MADISON, WI 53717"] });
+  const original = JSON.stringify(duplicate);
+  const cleaned = api.cleanOwnerCopyLines(duplicate);
+  assert.deepEqual(cleaned, ["SYNTHETIC OWNER", "7105 EXAMPLE DR", "UNIT 2", "MADISON, WI 53717"]);
+  assert.equal(JSON.stringify(duplicate), original, "cleaning a derived CC never mutates case facts");
+  assert.deepEqual(api.ownerCopy(duplicate).lines, api.ownerLines(duplicate), "the default preserves old issued rendering");
+  assert.deepEqual(api.ownerCopy(duplicate, cleaned).lines, cleaned, "a new draft or retained cleaned fact uses the corrected lines");
+  assert.deepEqual(
+    api.cleanOwnerCopyLines({ owner: "SAME NAME", ownerAddr: ["SAME NAME", "C/O MANAGER", "UNIT 2", "100 TEST ST", "UNIT 2"] }),
+    ["SAME NAME", "SAME NAME", "C/O MANAGER", "UNIT 2", "100 TEST ST", "UNIT 2"],
+    "names, care-of, units and nonconsecutive lines are retained",
+  );
+  assert.equal(api.INSPECTORS.find((i) => i.name === "STEPHEN SUNDSTROM").badge, "5603");
 
   // Pricing respondent: shared cases, asserted identically in Python.
   const shared = JSON.parse(fs.readFileSync("tests/fixtures/violator_cases.json", "utf8"));
