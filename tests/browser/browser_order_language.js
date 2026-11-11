@@ -105,8 +105,9 @@ module.exports = async function (browser, page) {
     const again = (pick, done) => click(pick, done, true);
     const repeated = {};
     await click(cart, () => items().length === 1);
-    // Show every entry, so the card of the selected one is on screen whatever group an earlier step left open.
-    Object.assign(WriterState.state, { picker: true, q: "", cl: -1, pickerStatus: "usable" });
+    // The trash-cart entry is in an earlier checklist, which the picker reaches by search (owner direction 2026-11-11).
+    const cartTitle = LIBRARY[ci].groups[LIBRARY[ci].groups.findIndex((g) => g.code === "TRASH_CARTS")].items.find((i) => i.o === 1010).t;
+    Object.assign(WriterState.state, { picker: true, q: cartTitle, cl: -1, pickerStatus: "usable" });
     render();
     repeated.offered = !!document.querySelector('[data-pick-again="' + cart + '"]');
     repeated.snowOffered = !!document.querySelector('[data-pick-again="' + snow + '"]');
@@ -115,7 +116,7 @@ module.exports = async function (browser, page) {
     repeated.copies = items().length;
     repeated.distinct = new Set(items().map((i) => i.id)).size;
     repeated.stock = items().every((i) => i.text === items()[0].text);
-    Object.assign(WriterState.state, { picker: true, q: "", cl: -1 });
+    Object.assign(WriterState.state, { picker: true, q: cartTitle, cl: -1 });
     render();
     repeated.label = document.querySelector("[data-language-key] .added-label")?.textContent || "";
     await click(cart, () => /more than once/.test(lastMessage()));
