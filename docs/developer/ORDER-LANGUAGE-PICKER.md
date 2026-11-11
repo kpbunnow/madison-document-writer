@@ -23,6 +23,11 @@ Owner direction 2026-11-10, after a review of how inspectors add violation items
 4. An entry can be added more than once on notices, and so on the extensions and citations that carry its items; on a citation each copy is its own charge and deposit and counts toward the repeat-offense tier.
 5. Identical copies are only a warning.
 
+Follow-up direction 2026-11-11: show Consolidated Order Language as "Violation Categories" with title-case group
+names; remove Earlier checklists from the picker's left-hand list; remove Keep adding (the picker stays open until Done
+adding) and Save draft & return to Workspace from the picker. Searches still reach the earlier checklists so language
+that exists only there (snow removal, erosion control) can be added.
+
 Decisions 4 and 5 shipped as a separate change: Add again in the picker (not a new control on the printed item rows, whose layout is fixed by the approved print references).
 
 ## What changed

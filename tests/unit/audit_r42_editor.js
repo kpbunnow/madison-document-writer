@@ -81,6 +81,14 @@ const test = async () => {
   // Phase 2: one readiness summary (the top line carries #chk-chip) updates while typing.
   assert.equal(document.querySelectorAll("[data-editor-readiness],#chk-chip").length, 1, "one readiness summary");
   assert.ok(document.querySelector(".editor-readiness #chk-chip[data-editor-readiness]"));
+  // Compact header (owner direction 2026-11-11): the state is in the header line, the task buttons and readiness line
+  // share one bar, and nothing stands between that bar and the working document.
+  assert.match(document.querySelector(".topbar .crumb").textContent, /· Draft · not issued$/);
+  assert.equal(document.querySelectorAll(".editor-context,.document-save,.editor-taskbar").length, 0, "no status, save or hint rows");
+  assert.ok(document.querySelector(".editor-toolbar > nav.editor-sections + .editor-readiness"), "one task bar");
+  assert.ok(document.querySelector("#editor-items-title.sr-only"), "the Violation items heading is named for assistive technology only");
+  assert.ok(!/Saved on this device|Saved work &|Fill-in bubbles mark|outstanding\./.test(document.querySelector(".document-workspace").textContent));
+  assert.equal(document.querySelector("#editor-items .desk"), document.querySelector("#editor-items > :not(h2)"), "the working document comes first");
   assert.equal(
     document.querySelector("#chk-chip").textContent,
     readinessText(editorReadiness(d).required, editorReadiness(d).advice),
@@ -93,7 +101,8 @@ const test = async () => {
   WriterState.DOCS.unshift(newer);
   render();
   assert.equal(document.querySelector(".editor-primary").textContent, "Review saved work");
-  assert.ok(document.querySelector(".editor-context").textContent.includes("Draft · read-only"));
+  // The document's state sits in the header line beside the case number (owner direction 2026-11-11).
+  assert.ok(document.querySelector(".topbar .crumb").textContent.includes("Draft · read-only"));
   WriterState.DOCS = WriterState.DOCS.filter((x) => x.id !== newer.id);
   d.pendingAmendment = { type: "notice.issued", payload: {} };
   render();

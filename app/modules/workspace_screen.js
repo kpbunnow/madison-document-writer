@@ -13,7 +13,7 @@ import { workspaceDocumentsSummary } from "./workspace_documents.js";
 
 function workspaceCaseOptions(row, secondary, detailActions) {
   const { k, st, proof } = row;
-  return html`<details class="queue-details case-options"><summary>Case options${secondary.length ? " · " + secondary.length + " other tasks" : ""}</summary><div class="doclinks">
+  return html`<details class="queue-details case-options"><summary>Case options${secondary.length ? " · " + secondary.length + " other " + (secondary.length === 1 ? "task" : "tasks") : ""}</summary><div class="doclinks">
     <p>${k.owner}</p>${raw(detailActions)}
     ${raw(!caseNumberAllowed(k) ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "")}
     <p>Record verification: ${proof.label}</p>${raw(proof.valid === false ? html`<p>${proof.eventId || ""} · ${proof.lastGoodCommitTime || "Last good commit unavailable"}</p><button class="btn btn-sm" data-sync-safety>Review record problem</button>` : "")}
