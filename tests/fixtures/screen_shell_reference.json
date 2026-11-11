@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "e5b5c85d85450e460229049b0fdf052b0c272d7573f57526e29f9e1e85aaf960"
+      "normalizedShellSha256": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
-      "normalizedShellSha256": "a615af467d43836cf8a78ae794a01683be8a38f3105398b2ef5017459c61349a"
+      "normalizedShellSha256": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02"
     }
   },
   "reviews": [
@@ -112,6 +112,22 @@
         }
       },
       "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
+    },
+    {
+      "date": "2026-11-11",
+      "sourceCommit": "d88f76e3d32bbee20b2665fe965a27af36cf8dee",
+      "scope": "Owner-approved Workspace case/document redesign: per-case warnings and direct document history, consistent responsive typography and modal side panel; removes global counters/filter UI. Scoped append-only screen CSS. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "e5b5c85d85450e460229049b0fdf052b0c272d7573f57526e29f9e1e85aaf960",
+          "after": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034"
+        },
+        "madison-reports.html": {
+          "before": "a615af467d43836cf8a78ae794a01683be8a38f3105398b2ef5017459c61349a",
+          "after": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02"
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
     }
   ]
 }

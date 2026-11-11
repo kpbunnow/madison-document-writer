@@ -87,18 +87,8 @@ const test = async () => {
     return document.getElementById("app");
   };
   let app = mount();
-  // Five quick views are primary; More views holds only the additional states behind a placeholder.
-  assert.deepEqual(
-    [...app.querySelectorAll("[data-queue-view]")].map((b) => b.dataset.queueView),
-    ["attention", "continue", "deadlines", "resolution", "all"],
-  );
-  assert.equal(app.querySelector('[data-queue-view="attention"]').getAttribute("aria-pressed"), "true");
-  assert.equal(app.querySelector("#case-filter").getAttribute("aria-label"), "More views");
-  assert.deepEqual(
-    [...app.querySelectorAll("#case-filter option")].map((o) => o.value),
-    ["", "soon", "overdue", "open", "closed"],
-  );
-  assert.equal(app.querySelector("#case-filter").value, "");
+  // The simplified workspace has no global filters/counters; warnings belong to each case.
+  assert.equal(app.querySelector("[data-queue-view],#case-filter,#case-inspector,#case-search"), null);
   assert.equal(app.querySelectorAll("[data-metric]").length, 0);
   assert.equal(app.querySelectorAll("thead th").length, 5);
   assert.equal(app.querySelectorAll("[data-queue-case]").length, 32);
@@ -125,70 +115,28 @@ const test = async () => {
   app = mount();
   assert.equal(app.querySelector('[data-queue-case="queue-0"] .queue-primary').textContent, "Confirm saved action");
   delete WriterState.RECORD_ATTEMPTS.attempt;
-  // Counts, membership and action update together when both pending tasks resolve.
+  // Resolving tasks updates per-case status without hiding the case.
   WriterState.state.caseFilter = "resolution";
   app = mount();
-  const before = app.querySelectorAll("[data-queue-case]").length;
+  assert.ok(app.querySelector('[data-queue-case="queue-0"] .case-badges').textContent.includes("Needs resolution"));
   WriterState.PENDING = WriterState.PENDING.filter((p) => p.cid !== "queue-0");
   WriterState.DOCS.find((d) => d.id === "second-pdf").filedAt = "filed";
   WriterState.ARTIFACT_LOCATIONS["second-pdf"] = ["shared"];
   app = mount();
-  assert.equal(app.querySelectorAll("[data-queue-case]").length, before - 1);
-  assert.ok(!app.querySelector('[data-queue-case="queue-0"]'));
-  assert.equal(Number(app.querySelector('[data-queue-view="resolution"] strong').textContent), before - 1);
-  // Summary clicks change only the view: search and inspector stay applied, so the rows are their intersection.
-  const shownIds = () => [...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase);
-  WriterState.state.caseQ = "QA-1";
-  WriterState.state.caseInspector = "i4";
-  app = mount();
-  app.querySelector('[data-queue-view="all"]').click();
-  assert.equal(WriterState.state.caseQ, "QA-1");
-  assert.equal(WriterState.state.caseInspector, "i4");
-  const searchedAll = shownIds();
-  assert.ok(searchedAll.length > 1 && searchedAll.length < 32, "the search narrows All cases");
-  document.querySelector('[data-queue-view="deadlines"]').click();
-  assert.equal(WriterState.state.metric, "");
-  assert.equal(WriterState.state.caseFilter, "deadlines");
-  assert.equal(WriterState.state.caseQ, "QA-1", "search kept when switching quick views");
-  assert.equal(WriterState.state.caseInspector, "i4", "inspector kept when switching quick views");
-  assert.equal(document.querySelector("#case-search").value, "QA-1");
-  assert.equal(document.querySelector("#case-inspector").value, "i4");
-  assert.equal(document.querySelector("#case-filter").value, "");
-  assert.equal(document.activeElement, document.querySelector('[data-queue-view="deadlines"]'));
-  assert.equal(document.querySelector('[data-queue-view="deadlines"]').getAttribute("aria-pressed"), "true");
-  assert.equal(WriterState.WORKFLOW_PREFS.filter, "deadlines");
-  assert.equal(WriterState.WORKFLOW_PREFS.query, "QA-1");
-  assert.equal(WriterState.WORKFLOW_PREFS.inspector, "i4");
-  const searchedDeadlines = shownIds();
-  // Only the explicit reset clears search and inspector; the view stays.
-  document.querySelector("[data-queue-reset]").click();
-  assert.equal(WriterState.state.caseQ, "");
-  assert.equal(WriterState.state.caseInspector, "");
-  assert.equal(WriterState.state.caseFilter, "deadlines");
-  assert.equal(document.activeElement, document.querySelector("#case-search"));
-  const allDeadlines = shownIds();
-  assert.deepEqual(
-    searchedDeadlines,
-    allDeadlines.filter((id) => searchedAll.includes(id)),
-    "filtered Deadlines rows are the intersection of Deadlines and the search",
-  );
-  assert.ok(searchedDeadlines.length > 0 && searchedDeadlines.length < allDeadlines.length);
-  const deadlineCount = document.querySelectorAll("[data-queue-case]").length;
-  assert.equal(deadlineCount, 11);
-  assert.equal(Number(document.querySelector('[data-queue-view="deadlines"] strong').textContent), deadlineCount);
-  WriterState.state.metric = "filing";
-  WriterState.state.caseFilter = "attention";
-  app = mount();
-  assert.equal(WriterState.state.metric, "");
-  assert.equal(WriterState.state.caseFilter, "resolution");
-  WriterState.state.caseQ = "nothing";
-  WriterState.state.caseInspector = "other";
-  app = mount();
-  app.querySelector("#case-showall").click();
-  assert.equal(WriterState.state.caseFilter, "all");
-  assert.equal(WriterState.state.caseQ, "");
-  assert.equal(WriterState.state.caseInspector, "");
-  assert.equal(document.querySelectorAll("[data-queue-case]").length, 32);
+  assert.equal(app.querySelectorAll("[data-queue-case]").length, 32);
+  assert.ok(!app.querySelector('[data-queue-case="queue-0"] .case-badges').textContent.includes("Needs resolution"));
+  assert.equal(app.querySelector('[data-queue-case="queue-0"] .queue-primary').textContent, "Continue document");
+  // Every old view/query/inspector combination must still expose all 32 cases and their actions.
+  for (const filter of ["attention", "continue", "deadlines", "resolution", "all", "soon", "overdue", "open", "closed", "drafts", "unknown"])
+    for (const query of ["", "QA-1", "nothing"])
+      for (const inspector of ["", "i4", "other"]) {
+        Object.assign(WriterState.state, { caseFilter: filter, caseQ: query, caseInspector: inspector, metric: "filing" });
+        app = mount();
+        assert.equal(app.querySelectorAll("[data-queue-case]").length, 32);
+        assert.equal(app.querySelectorAll(".queue-primary").length, 32);
+        assert.equal(WriterState.state.metric, "");
+        assert.equal(app.querySelector("#case-search,#case-filter,#case-inspector,[data-queue-view]"), null);
+      }
   // Mandatory wording, rather than a false deposit task, is the draft blocker.
   const d = WriterState.DOCS[0],
     entry = policyAt(recordDay(today)).entries.find((e) => e.rule?.kind === "mandatory");
@@ -249,10 +197,10 @@ const test = async () => {
   WriterState.state.caseFilter = "attention";
   app = mount();
   assert.equal(app.querySelectorAll("[data-queue-view]").length, 0);
-  assert.ok(app.textContent.includes("Start with a case"));
+  assert.ok(app.textContent.includes("No cases in this workspace"));
   console.log(
-    "PASS R41 mixed 32-case queue, next-action precedence, same-source counts" +
-      ", filter reset, held mandatory draft, contextual integrity recovery, orp" +
+    "PASS R41 mixed 32-case queue, next-action precedence, per-case status" +
+      ", retired-filter compatibility, held mandatory draft, contextual integrity recovery, orp" +
       "han saves and empty state",
   );
   process.exit(0);

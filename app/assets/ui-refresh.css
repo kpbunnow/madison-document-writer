@@ -2589,3 +2589,199 @@
     color: var(--ink-2);
   }
 }
+
+/* Workspace case/document redesign, owner request 2026-11-11. Screen only; approved print is unchanged. */
+@media screen {
+  .workspace-cases .case-table {
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .workspace-cases .case-table th {
+    font-size: 0.875rem !important;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .workspace-cases .case-table td {
+    vertical-align: top;
+    padding: 18px 16px !important;
+    white-space: normal;
+  }
+  .workspace-cases .addr {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .workspace-cases .case-number,
+  .workspace-cases .case-message,
+  .workspace-cases .muted,
+  .case-document-note,
+  .case-document-date,
+  .case-document-state {
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .workspace-cases .case-number,
+  .case-document-note,
+  .case-document-date {
+    color: var(--ink-2);
+  }
+  .workspace-cases .case-due-date,
+  .workspace-cases .case-date-soon {
+    font: inherit;
+  }
+  .workspace-cases .case-table .pill {
+    font-size: 0.875rem;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .workspace-cases .case-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .workspace-cases .case-message {
+    margin: 8px 0;
+    max-width: 38ch;
+  }
+  .case-document {
+    min-width: 0;
+    margin-bottom: 8px;
+  }
+  .case-document > div:first-child {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .case-document strong {
+    font-size: 1rem;
+  }
+  .case-document-state {
+    color: var(--ink-2);
+  }
+  .case-document-date,
+  .case-document-note {
+    margin: 4px 0;
+  }
+  .case-document-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .case-document-actions .lnk,
+  .case-all-documents {
+    min-height: 44px;
+    padding: 6px 2px;
+    font: inherit;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+  .case-document-actions .case-document-note {
+    flex-basis: 100%;
+  }
+  .case-all-documents {
+    display: block;
+  }
+  .workspace-cases .case-options .doclinks button {
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+  .workspace-cases .queue-primary {
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+  .workspace-cases .case-options {
+    margin-top: 8px;
+  }
+  .workspace-cases .case-options > summary {
+    min-height: 44px;
+    padding: 8px 0;
+    font-size: 0.875rem;
+  }
+  .workspace-cases .case-options .doclinks {
+    padding: 12px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+  .case-documents-panel {
+    justify-content: flex-end;
+    padding: 0;
+  }
+  .case-documents-panel .modal-box {
+    width: min(44rem, 100%);
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 12px 0 0 12px;
+    font-family: var(--sans);
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .case-documents-panel .modal-h {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .case-documents-panel .modal-h > div {
+    min-width: 0;
+  }
+  .case-documents-panel .modal-h > .btn {
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .case-documents-panel .modal-h p {
+    margin: 6px 0 0;
+    overflow-wrap: anywhere;
+  }
+  .case-documents-panel .modal-b {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .case-document-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .case-document-list > li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+}
+@media screen and (max-width: 760px) {
+  .workspace-cases .case-table thead {
+    display: table-header-group;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+  }
+  .workspace-cases .case-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.875rem;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .workspace-cases .case-table td:first-child::before {
+    display: none;
+  }
+  .workspace-cases .case-table td {
+    padding: 10px 0 !important;
+  }
+  .workspace-cases .case-next {
+    justify-content: flex-start;
+  }
+  .case-documents-panel .modal-box {
+    border-radius: 0;
+  }
+}

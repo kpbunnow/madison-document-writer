@@ -7,6 +7,25 @@ import { registerEventOnce } from "./event_registration.js";
 import { kase, doc } from "./writer_queries.js";
 const workspaceActions = [
   {
+    id: "case-documents",
+    matches: (t) => t.dataset.caseDocuments,
+    run: (services, t) => {
+      if (!kase(t.dataset.caseDocuments).id) return;
+      editor.state.documentsCaseId = t.dataset.caseDocuments;
+      editor.state.modal = "case-documents";
+      services.ui.render();
+    },
+  },
+  {
+    id: "case-pdf",
+    matches: (t) => t.dataset.casePdf,
+    run: (services, t) => {
+      const target = doc(t.dataset.casePdf);
+      if (!target || target.draft || target.pendingAmendment) return;
+      return services.events.editorEvents.openOriginal(target);
+    },
+  },
+  {
     id: "t-undo",
     matches: (t, e) => t.id === "t-undo",
     run: (services, t, e, d) => {
@@ -384,6 +403,7 @@ const workspaceActions = [
     id: "open",
     matches: (t, e) => t.dataset.open,
     run: (services, t, e, d) => {
+      if (editor.state.modal === "case-documents") editor.state.modal = null;
       return services.events.editorEvents.openDocument(t);
     },
   },
@@ -645,7 +665,7 @@ export function createWorkspaceEvents(services) {
   function registerWorkspaceClicks(target = document) {
     return registerEventOnce(target, "workspace.registerWorkspaceClicks", "click", async (e) => {
       const t = e.target.closest(
-        "[data-nav],[data-open],[data-new],[data-pick],[data-pick-again],[data-grp],[data-libcl],[data-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[data-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo],[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-top,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-exportcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-action-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#btn-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf,#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc,#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notecite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-discardri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-go,#acc-cancel,[data-acccase],[data-accsel]",
+        "[data-case-documents],[data-case-pdf],[data-nav],[data-open],[data-new],[data-pick],[data-pick-again],[data-grp],[data-libcl],[data-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[data-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo],[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-top,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-exportcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-action-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#btn-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf,#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc,#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notecite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-discardri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-go,#acc-cancel,[data-acccase],[data-accsel]",
       );
       if (!t) return;
       services.ui.captureWork();

@@ -120,14 +120,10 @@ const tests = async function () {
   ok("Closed cases do not enter due-soon attention", caseState(closed.k).closed && !caseState(closed.k).attention);
   let markup = screenCases();
   ok(
-    "Workspace starts in the Needs attention view",
-    WriterState.state.caseFilter === "attention" && markup.includes("Needs attention") && markup.includes("Due within 7 days"),
-  );
-  ok(
-    "Needs attention displays overdue, today, due-soon, unsynced, filing and unfinished cases",
-    ["CASE-LATE", "CASE-TODAY", "CASE-SOON", "CASE-SYNC", "CASE-FILING", "CASE-DRAFT", "CASE-RECORD"].every((x) => markup.includes(x)) &&
-      !markup.includes("CASE-FUTURE") &&
-      !markup.includes("CASE-CLOSED"),
+    "Workspace exposes every loaded case without global filtering controls",
+    ["CASE-LATE", "CASE-TODAY", "CASE-SOON", "CASE-SYNC", "CASE-FILING", "CASE-DRAFT", "CASE-RECORD", "CASE-FUTURE", "CASE-CLOSED"].every((x) =>
+      markup.includes(x),
+    ) && !markup.includes("data-queue-view"),
   );
   ok(
     "Each waiting record shows its specific next action",
@@ -137,8 +133,8 @@ const tests = async function () {
       markup.includes('data-reinsp="soon"'),
   );
   ok(
-    "All cases remains a one-step alternate view",
-    markup.includes('data-queue-view="all" aria-pressed="false"><span>All cases</span><strong>9</strong>'),
+    "Case document access and per-case status replace global counters",
+    markup.includes('data-case-documents="late"') && markup.includes("Needs resolution") && markup.includes("Past due"),
   );
   WriterState.state.caseFilter = "all";
   markup = screenCases();

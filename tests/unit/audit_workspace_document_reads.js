@@ -13,7 +13,7 @@ const assert = require("node:assert/strict"),
           'export {createWorkspaceTasks} from "./workspace_tasks.js";',
           'export {createCaseStatus} from "./case_status.js";',
           'export {createWorksheetWorkflow} from "./worksheet_workflow.js";',
-          'export {docsFor,sourceDocFor} from "./writer_queries.js";',
+          'export {docsFor,sourceDocFor,groupCaseDocuments} from "./writer_queries.js";',
           'export {caseNumberAllowed} from "./case_records.js";',
           'export {pdfTransferState} from "./pdf_artifacts.js";',
           'export {esc} from "./presentation_format.js";',
@@ -106,8 +106,14 @@ const assert = require("node:assert/strict"),
   assert.equal((first.match(/data-queue-case=/g) || []).length, 500);
   assert.equal((first.match(/data-open="large-/g) || []).length >= 2000, true);
   assert.ok(firstReads <= s.DOCS.length * 8, "Workspace must group documents once, rather than scan the full document list per case: " + firstReads);
-  const links = first.split('data-queue-case="large-0"')[1].split('data-exportcase="large-0"')[0].split("Record verification:")[1];
-  assert.ok(links.indexOf('data-open="large-0-doc-0"') < links.indexOf('data-open="large-0-doc-3"'), "per-case document order is retained");
+  assert.deepEqual(
+    api
+      .groupCaseDocuments(s.DOCS)("large-0")
+      .map((d) => d.id),
+    ["large-0-doc-0", "large-0-doc-1", "large-0-doc-2", "large-0-doc-3"],
+    "operation grouping preserves source document order; the read-only history presenter owns display sorting",
+  );
+  assert.ok(first.includes('data-case-documents="large-0"'), "each case exposes its full document history");
   const original = s.DOCS;
   s.DOCS = [{ ...original[0], id: "replacement-draft", pendingAmendment: { recordKey: "new-attempt" } }];
   reads = 0;

@@ -87,8 +87,8 @@ async function openIssuedFromWorkspace(page, docId, message) {
   const row = page.locator("tr[data-issued-highlight]");
   assert.equal(await row.count(), 1, "the issued case is highlighted in Workspace");
   assert.equal(await row.evaluate((el) => el === document.activeElement && el.getAttribute("aria-current")), "true", "the issued case row has focus");
-  await row.locator(".queue-details > summary").click();
-  await row.locator('.queue-details [data-open="' + docId + '"]').click();
+  await row.locator("[data-case-documents]").click();
+  await page.locator('.case-documents-panel [data-open="' + docId + '"]').click();
   await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, docId);
 }
 
@@ -646,7 +646,7 @@ async function axeThemes(page, screen) {
   await page.screenshot({ path: path.join(OUT, "correction-issued.png"), fullPage: true });
   assert.equal(await page.locator("#btn-reconcile").count(), 0, "Correction does not show a separate follow-through prompt");
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator('[data-queue-view="all"]').click();
+  assert.equal(await page.locator("[data-queue-view]").count(), 0);
   await axeScreen(page, "workspace-filled");
   await page.screenshot({ path: path.join(OUT, "workspace-filled.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -968,7 +968,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => doc(WriterState.state.docId).annotations?.length === 1 && !WriterState.state.modal);
   assert.equal(await page.evaluate(() => Object.keys(WriterState.WORK.recordForms).length), 0);
   await page.locator('[data-nav="cases"]').first().click();
-  await page.locator('[data-queue-view="all"]').click();
+  assert.equal(await page.locator("[data-queue-view]").count(), 0);
   await page.locator("[data-reinsp]").first().click();
   await page.waitForFunction(() => WriterState.state.screen === "reinspect" && !!reinsp(WriterState.state.reinspId));
   await page.locator("#ri-time").fill("10:00");
@@ -1470,7 +1470,7 @@ async function axeThemes(page, screen) {
     WriterState.state.caseInspector = "";
     render();
   }, artifactHash);
-  await page.getByRole("heading", { name: "Needs attention" }).waitFor();
+  await page.getByRole("heading", { name: "Your workspace" }).waitFor();
   assert.equal(await page.getByText("Import awaiting review", { exact: true }).count(), 1);
   assert.equal(await page.getByRole("button", { name: "Review import" }).count(), 1);
   assert.equal(await page.getByText("CB2026-241-90002", { exact: true }).count(), 1);
@@ -1586,7 +1586,7 @@ async function axeThemes(page, screen) {
     WriterState.state.screen = "cases";
     render();
   });
-  await page.locator(".case-table details summary").first().click();
+  await page.locator('[data-queue-case="qa-001"] .case-options summary').click();
   const timelineBefore = await page.evaluate(() => JSON.stringify(eventsFor("qa-001")));
   await page.locator('[data-timeline="qa-001"]').click();
   await page.locator("#timeline-filter").selectOption("issued");
@@ -1866,8 +1866,8 @@ async function axeThemes(page, screen) {
           "real citation issuance and linked deposit correction",
           "one citation in reports after correction",
           "SSRS import surface contains only the intended entry paths",
-          "Needs attention combines due-soon cases and imports with clear next actions",
-          "Needs attention queue fits a narrow mobile viewport",
+          "Per-case warnings combine due-soon work and imports with safe next actions",
+          "Workspace case and document list fits a narrow mobile viewport",
           "partial inspection save and reload",
           "return to worksheet and recover edited draft",
           "atomic visit and follow-up with lost response",

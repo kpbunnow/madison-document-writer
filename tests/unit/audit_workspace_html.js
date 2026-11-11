@@ -1,27 +1,14 @@
 const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
-/* Exact HTML snapshots from the pre-extraction renderer, including queue/empty/filter/error states. */
+/* Owner-approved workspace layout contracts across the retained 1,033 generated state variants.
+ * The immutable pre-redesign renderer remains provenance; domain/action parity has separate audits. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
   esbuild = require("esbuild"),
-  acorn = require("acorn"),
   fc = require("fast-check");
 (async () => {
   const dir = path.resolve("app/modules");
   let source = fs.readFileSync(path.join(dir, "workspace_screen.js"), "utf8");
-  const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
-    factory = ast.body.find((n) => n.declaration?.id.name === "createWorkspaceScreen").declaration,
-    ret = factory.body.body.at(-1);
-  // The retained original with the one intentional change: case details offer Continue reinspection beside Discard.
-  const discardOld = '`<button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`';
-  let retained = require("../fixtures/workspace_screen_reference.cjs");
-  assert.equal(retained.split(discardOld).length, 2, "retained original carries the Discard button exactly once");
-  retained = retained.replace(
-    discardOld,
-    '`<button data-reinsp="${esc(k.id)}">Continue reinspection</button><button data-discardri="${esc(st.visit.id)}">Discard reinspection draft</button>`',
-  );
-  const reference = retained.replace("function screenCases(", "function referenceScreenCases(");
-  source = source.slice(0, ret.start) + reference + "\n" + source.slice(ret.start).replace("screenCases }", "screenCases,referenceScreenCases }");
   source += '\nexport {WriterState} from "./state.js";export {esc} from "./presentation_format.js";';
   const compiled = await esbuild.build({
     stdin: { contents: withHistoricalBindings(source, ["WriterState", "esc"]), resolveDir: dir },
@@ -136,10 +123,38 @@ const assert = require("node:assert/strict"),
   }
   function compare(options) {
     flags = options;
-    const expected = run(api.referenceScreenCases),
-      actual = run(api.screenCases);
-    assert.deepEqual(actual, expected, JSON.stringify(flags));
-    assert.equal(typeof actual.html, "string", "each snapshot must render, not merely match an error");
+    const actual = run(api.screenCases);
+    assert.equal(typeof actual.html, "string", JSON.stringify({ flags, error: actual.error }));
+    const { JSDOM } = require("jsdom");
+    const document = new JSDOM(actual.html).window.document;
+    const rows = [...document.querySelectorAll("[data-queue-case]")];
+    assert.equal(rows.length, flags.count, "legacy preferences cannot hide loaded cases");
+    assert.equal(document.querySelector("#case-search,#case-filter,#case-inspector,[data-queue-view],.queue-view-note"), null);
+    assert.equal(document.querySelector('[data-nav="import"]').textContent.trim(), "Import inspection");
+    assert.equal(s.state.metric, "");
+    assert.equal(s.state.caseQ, flags.query, "render does not rewrite retained preferences");
+    assert.equal(s.state.caseFilter, flags.filter);
+    assert.equal(s.state.issuedCase, "c0");
+    for (const row of rows) {
+      assert.equal(row.querySelectorAll(".queue-primary").length, 1);
+      assert.equal(row.querySelectorAll("td").length, 5);
+      assert.equal(row.querySelector(".addr").textContent, "100 TEST <&> ST");
+      assert.equal(row.querySelector(".case-number").textContent, s.CASES.find((k) => k.id === row.dataset.queueCase).number);
+      assert.ok(row.querySelector("details [data-rmcase]"));
+      assert.ok(row.querySelector("details [data-timeline]"));
+      assert.equal(row.querySelector("[data-case-documents]").dataset.caseDocuments, row.dataset.queueCase);
+      assert.equal(row.querySelector(".case-options summary").textContent.startsWith("Case options"), true);
+      if (flags.invalid) assert.ok(row.textContent.includes("Record verification: Verified <&>"));
+      if (flags.closed) assert.ok(row.textContent.includes("Closed"));
+      if (flags.visit) assert.ok(row.querySelector("details [data-discardri]"));
+      if (flags.draft && !flags.visit) assert.ok(row.querySelector("details [data-discard]"));
+      if (!flags.closed && flags.late) assert.ok(row.textContent.includes("Past due"));
+      assert.equal(row.querySelectorAll("script").length, 0);
+    }
+    assert.equal(actual.html.includes("outside the loaded cases"), flags.orphan);
+    assert.ok(actual.html.includes("Recovery") && actual.html.includes("Reminders"));
+    assert.equal(!!document.querySelector("#btn-clear"), flags.count > 0);
+    assert.equal(actual.html.includes("No cases in this workspace"), flags.count === 0);
     checked++;
   }
   const defaults = {
@@ -186,7 +201,7 @@ const assert = require("node:assert/strict"),
     ),
     { seed: 20261027, numRuns: 1000 },
   );
-  console.log("PASS exact Workspace HTML snapshots", checked, "queue/filter/proof/draft/deadline/empty states");
+  console.log("PASS Workspace redesigned HTML contracts", checked, "queue/filter/proof/draft/deadline/empty states");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
