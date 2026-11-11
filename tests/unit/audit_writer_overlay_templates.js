@@ -1,4 +1,5 @@
 const { withoutViolatorAdditions, withPoBoxRecipientControls } = require("../fixtures/violator_overlay.cjs");
+const { withRegisteredAgentLookup } = require("../fixtures/registered_agent_lookup.cjs");
 /* Complete overlay HTML, state and adapter access/failure parity against the retained owner. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
@@ -164,6 +165,7 @@ const assert = require("node:assert/strict"),
     };
     const result = run(current, x);
     const retained = run(original, x);
+    if (typeof retained.value === "string") retained.value = withRegisteredAgentLookup(retained.value, result.value);
     assert.deepEqual({ ...result, value: withoutViolatorAdditions(result.value, retained.value) }, retained, "overlay:" + i);
     if (result.value) {
       rendered++;

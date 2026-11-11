@@ -608,6 +608,7 @@
     "tests/fixtures/reference/r50-import-fixtures/official-notice.grid.json",
     "tests/fixtures/reference/r50-print-fixture-payload.js",
     "tests/fixtures/reference/r51-print-fixture-payload.js",
+    "tests/fixtures/registered_agent_lookup.cjs",
     "tests/fixtures/reinspection_entry_reference.txt",
     "tests/fixtures/reinspection_outcome_reference.txt",
     "tests/fixtures/reinspection_screen_reference.cjs",
