@@ -14,7 +14,7 @@ module.exports = async function (browser, page, OUT, axeScreen) {
       address: "1500 EXAMPLE AVENUE",
       parcel: "070822219107",
       owner: "SYNTHETIC OWNER",
-      ownerAddr: ["100 TEST ST", "MADISON WI 53703"],
+      ownerAddr: ["100 TEST ST", "100 TEST ST", "MADISON WI 53703"],
       inspectorId: "i4",
       date: addDays(stamp, -2),
       time: "09:15",
@@ -32,6 +32,10 @@ module.exports = async function (browser, page, OUT, axeScreen) {
 
   // Choose a Violator in the Recipients dialog.
   await page.locator(".editor-sections #btn-cc").click();
+  const lookup = page.getByRole("link", { name: /Look up a registered agent at Wisconsin DFI/ });
+  assert.equal(await lookup.getAttribute("href"), "https://apps.dfi.wi.gov/apps/corpsearch/search.aspx");
+  assert.equal(await lookup.getAttribute("target"), "_blank");
+  assert.match(await lookup.getAttribute("rel"), /noopener/);
   await page.locator("#btn-addcc").click();
   await page.locator('[data-cc="0|name"]').fill("SYNTHETIC VIOLATOR");
   await page.locator('[data-cc="0|addr"]').fill("55 SECOND ST");
@@ -61,6 +65,21 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   assert.ok(text.includes("CC:") && text.slice(text.indexOf("CC:")).includes("SYNTHETIC OWNER"), "the owner is copied by default");
   assert.ok(text.slice(text.indexOf("CC:")).includes("SECOND PERSON"), "other copies stay copies");
   assert.ok(!text.slice(text.indexOf("CC:")).includes("SYNTHETIC VIOLATOR"), "the Violator is not repeated under CC");
+  assert.equal(text.slice(text.indexOf("CC:")).split("100 TEST ST").length - 1, 1, "an imported duplicate owner address prints once in the new CC");
+  const retained = await page.evaluate(() => {
+    const d = doc(WriterState.state.docId),
+      frozen = freezeSources(d);
+    const issued = { ...clone(d), draft: false, frozen };
+    const cc = (doc) => new DOMParser().parseFromString(printJob(doc).html, "text/html").querySelector(".cc-one").textContent;
+    const current = cc(issued);
+    const old = clone(issued);
+    delete old.frozen.ownerCopyLines;
+    return { lines: frozen.ownerCopyLines, raw: kase("qa-vio-1").ownerAddr, current, old: cc(old) };
+  });
+  assert.deepEqual(retained.lines, ["SYNTHETIC OWNER", "100 TEST ST", "MADISON WI 53703"]);
+  assert.equal(retained.raw.length, 3, "raw case mailing facts are unchanged");
+  assert.equal(retained.current.split("100 TEST ST").length - 1, 1, "new issued output uses the retained corrected CC");
+  assert.equal(retained.old.split("100 TEST ST").length - 1, 2, "older issued output keeps its original lines");
   assert.equal(await page.locator("#mailing-from-violator").count(), 1, "the editor says where to change the block");
   // Mailing-block checks lead to Recipients, where the Violator's address is edited, not to the read-only block.
   const mailingTargets = await page.evaluate(() =>

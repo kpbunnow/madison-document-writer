@@ -6,7 +6,7 @@ import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./pres
 import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
 
 import { copiesOf, emailList, violatorActive } from "./mailing_rules.js";
-import { defendantLines, ownerCopy } from "./defendant_contact.js";
+import { defendantLines, ownerCopy, cleanOwnerCopyLines } from "./defendant_contact.js";
 
 import { CITATION_POLICY, cents, formatDeposit, formatDollarsOnLegacyReprints } from "./citation_policy.js";
 import { LOGO } from "./data/build_identity.js";
@@ -24,6 +24,15 @@ const mailingBlockNote = (k) =>
 /* A copy prints its name and address lines; the property owner copy brings its own lines. */
 const ccEntryLines = (services, c, draft) => c.lines || services.ccLines(c, draft);
 const ccRoleHTML = (c) => (c.agent ? '<div class="cc-role">Registered agent</div>' : c.owner ? '<div class="cc-role">Property owner</div>' : "");
+
+/* New drafts clean the derived CC; issued documents use their retained fact or the original legacy lines. */
+function documentOwnerCopy(d, k) {
+  const owner = ownerCopy(k);
+  if (!owner) return null;
+  if (d.draft) return ownerCopy(k, cleanOwnerCopyLines(k));
+  const retained = frozenOf(d)?.ownerCopyLines;
+  return Array.isArray(retained) ? ownerCopy(k, retained) : owner;
+}
 
 /* A corrected item shows its confirmation date. A Reinspection Notice shows every due date as assigned, never as an input. */
 const dueIsFinal = (d, it) => it.done || d.type === "reinspectionNotice";
@@ -480,7 +489,7 @@ export function createDocumentRenderer(services) {
         (function () {
           // the agent is served a copy as a matter of course
           const ag = services.agentLines(k);
-          const cc = [ownerCopy(k), ...copiesOf(k)]
+          const cc = [documentOwnerCopy(d, k), ...copiesOf(k)]
             .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
             .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
           const sent = d.emailedTo || [],

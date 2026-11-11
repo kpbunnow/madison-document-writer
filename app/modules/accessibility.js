@@ -1,5 +1,6 @@
 import { html, raw } from "./screen_html.js";
 import { enhanceCharacterCounts } from "./character_count.js";
+import { enhanceSearchResults } from "./search_highlighting.js";
 function messageMarkup(m, callbacks, safe) {
   return (
     '<div class="toast message-' +
@@ -22,6 +23,7 @@ function messageMarkup(m, callbacks, safe) {
 
 /* Shared screen accessibility; printable document source is not changed. */
 function enhanceDocumentControls() {
+  enhanceSearchResults(document.body);
   document.querySelectorAll("strong[aria-readonly]").forEach((el) => {
     el.setAttribute("role", "textbox");
     el.setAttribute("aria-label", "Case number");

@@ -13,6 +13,8 @@ runs in its own process with a fresh bundle, DOM, state, storage and mocks
 appears under "Release-wide regressions". Add a new scenario to the feature suite it
 covers, or a new suite under its feature.
 
+`audit_search_highlighting.js` checks screen-only highlighting across nine search surfaces, including order-language aliases/ordinances, literal/Unicode safety, query clearing/repeated enhancement, focus and control/listener preservation. The order-language and Violator production-browser scenarios cover real highlighted results, print exclusion, the DFI lookup link, duplicate owner-CC cleanup and retained historical output. Helper authoring tests validate the optional frozen owner-CC fact.
+
 ## Maintainability
 
 | Suite | Covers |
@@ -33,6 +35,7 @@ covers, or a new suite under its feature.
 | `audit_accessibility_enhance_rules.js` | 172 retained native DOM comparisons plus complete accessibility and Reports workflows |
 | `audit_language_presentation_rules.js` | 1,596 full-screen comparisons with the retained Browse language and picker screens (references updated 2026-11-10 for the grouped layout) plus existing focus and catalog workflows |
 | `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
+| `audit_search_highlighting.js` | Nine screen searches: aliases/ordinances, literal/Unicode safety, clearing and repeated enhancement without DOM writes, keyboard focus and existing controls/listeners |
 | `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |

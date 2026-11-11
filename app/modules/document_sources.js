@@ -4,6 +4,7 @@ import { BLOCKS, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WO
 import { CITATION_POLICY } from "./citation_policy.js";
 import { clone } from "./record_values.js";
 import { nowISO } from "./calendar.js";
+import { ownerCopy, cleanOwnerCopyLines } from "./defendant_contact.js";
 
 export function createDocumentSources(services) {
   function activeBlocks(d) {
@@ -24,9 +25,13 @@ export function createDocumentSources(services) {
   }
 
   function freezeSources(d) {
+    const k = docCase(d),
+      copy = ownerCopy(k),
+      lines = copy && cleanOwnerCopyLines(k);
     return {
       ...(services.snow.is(d) ? services.snow.freeze(d) : {}),
       case: clone(docCase(d)),
+      ...(copy && lines.length !== copy.lines.length ? { ownerCopyLines: lines } : {}),
       inspector: clone(docInsp(d)),
       body: services.docBody(d),
       // Authoring-15+ Best Interest and authoring-16 Vacancy Extensions have no signer or division review.

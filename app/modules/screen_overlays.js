@@ -128,6 +128,7 @@ function recipientModal({ services }) {
       <button class="btn btn-sm" id="btn-addem">Add an email recipient</button>
 
       <h3 class="rec-h">Registered agent${raw(needAgent ? ' <span class="req">required</span>' : "")}</h3>
+      <p><a href="https://apps.dfi.wi.gov/apps/corpsearch/search.aspx" target="_blank" rel="noopener noreferrer">Look up a registered agent at Wisconsin DFI (opens in a new tab)</a></p>
       <p class="hint">${raw(
         needAgent
           ? esc(defendantName(k)) + " reads as a company, so a citation cannot be served without an agent."

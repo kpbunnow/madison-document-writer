@@ -61,6 +61,29 @@ class AuthoringStoreTests(unittest.TestCase):
         saved = self.save(value)
         self.assertEqual(saved["events"][-1]["payload"]["snapshot"]["cits"], value["events"][-1]["payload"]["snapshot"]["cits"])
 
+    def test_frozen_owner_cc_is_derived_and_retained(self):
+        value = self.notice()
+        snap = value["events"][0]["payload"]["snapshot"]
+        case = snap["frozen"]["case"]
+        case.update(
+            owner="SYNTHETIC OWNER",
+            ownerAddr=["7105 EXAMPLE DR", "7105   example dr", "UNIT 2", "MADISON WI 53717"],
+            ccList=[{"kind": "Violator", "name": "VIOLATOR", "addr": "5 OTHER ST", "city": "MADISON WI 53704"}],
+        )
+        expected = ["SYNTHETIC OWNER", "7105 EXAMPLE DR", "UNIT 2", "MADISON WI 53717"]
+        snap["frozen"]["ownerCopyLines"] = expected.copy()
+        saved = self.save(value)["events"][0]["payload"]["snapshot"]
+        self.assertEqual(saved["frozen"]["ownerCopyLines"], expected)
+        self.assertEqual(saved["frozen"]["case"]["ownerAddr"], case["ownerAddr"])
+        for invalid in [[], "bad shape", ["OTHER OWNER", *expected[1:]], [expected[0], *expected[2:]]]:
+            snap["frozen"]["ownerCopyLines"] = invalid
+            with self.assertRaisesRegex(ValueError, "Frozen owner copy"):
+                self.save(value)
+        snap["frozen"]["ownerCopyLines"] = expected
+        case["copyOwner"] = False
+        with self.assertRaisesRegex(ValueError, "Frozen owner copy"):
+            self.save(value)
+
     def test_approved_base_math_uses_decimal_rounding(self):
         value = self.citation()
         c = next(iter(value["events"][-1]["payload"]["snapshot"]["cits"].values()))

@@ -2059,9 +2059,31 @@ def _is_snow(snap):
     return snow_rules.is_snow(snap)
 
 
+def _validate_owner_copy_lines(snap):
+    """Optional frozen owner CC fact: only adjacent duplicate address lines can be removed. Old snapshots omit it."""
+    frozen = snap.get("frozen", {})
+    if "ownerCopyLines" not in frozen:
+        return
+    case = frozen.get("case", {})
+    if not isinstance(case.get("ownerAddr"), list):
+        raise ValueError("Frozen owner copy lines require the property owner's mailing address lines")
+    copies = case.get("ccList") if isinstance(case.get("ccList"), list) else []
+    active = case.get("caseType") != "snow-10.28" and any(isinstance(c, dict) and c.get("kind") == "Violator" for c in copies)
+    address = [str(line or "").strip() for line in case.get("ownerAddr", []) if str(line or "").strip()]
+
+    def key(line):
+        return re.sub(r"\s+", " ", line).upper()
+
+    clean = [line for n, line in enumerate(address) if not n or key(line) != key(address[n - 1])]
+    expected = [line for line in [str(case.get("owner") or "").strip(), *clean] if line]
+    if not active or case.get("copyOwner") is False or not expected or frozen["ownerCopyLines"] != expected:
+        raise ValueError("Frozen owner copy lines must match the property owner's mailing address")
+
+
 def validate_authoring(snap, at=None, check_date_window=True, original=None):
     """New R4 writes only; historical records retain their original evidence."""
     items = _validate_authoring_document(snap=snap, check_date_window=check_date_window, at=at)
+    _validate_owner_copy_lines(snap)
     if check_date_window:
         _validate_due_spacing(snap=snap, items=items, original=original)
     if snap.get("type") in SPECIAL_TYPES:
