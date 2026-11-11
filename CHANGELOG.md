@@ -1,11 +1,34 @@
 # Release changelog
 
-## Unreleased development after R77
+## 2026-11-11 R78 — Release package
+
+Release package assigned on the owner's request after R77 (helper 2026.11.11.79, build 79; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R78 upgrades R77. Every PC still needs Python 3.14.
+
+### Order-language picker
+
+- Consolidated Order Language is shown as **Violation Categories**, with title-case category names (Interior Surfaces, Doors and Security). The picker's left-hand list shows only the Violation Categories; Earlier checklists and their groups are gone from it.
+- A search still covers every checklist, so language found only in an earlier checklist (snow removal, erosion control, grass) can still be added; those results are labelled as earlier checklists.
+- Keep adding items and Save draft & return to Workspace are removed from the picker; it stays open after each pick until Done adding.
+
+### Document editor
+
+- The document's state (for example Draft · not issued) moves into the header line beside the case number and type; the separate status row, the Saved on this device · Saved work & connection row and the Violation items instruction line are removed.
+- Recipients, Violation Items, Review and the readiness summary share one task bar, with the working document directly beneath it. Issued documents offer Back to Workspace in the header. The header line wraps on phones.
+
+### Workspace
+
+- Workspace lists every loaded case with five columns: Property / case, Issued documents, Next due, Inspector and Action. Each case links straight to its latest issued document and an All documents side panel (drafts, then issued, replaced and withdrawn history, newest first). Warnings appear with the affected case. Workspace search, More views, All inspectors and the summary counters are removed (PR #471). The case options summary says "1 other task" in the singular.
+
+### Recipients, copies and search
 
 - Stephen Sundstrom's current inspector badge is 5603.
 - Recipients links to Wisconsin DFI's registered-agent search in a new tab.
 - New property-owner CCs beside a Violator omit consecutive duplicate address lines while retaining distinct mailing details, raw case facts and earlier issued output.
 - Screen search results highlight matching text across case lists, order language, Reports lookups and the deposit schedule. Order-language aliases and ordinance searches retain their existing matching/ranking rules.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S78-1 to S78-3.
 
 ## 2026-11-10 R77 — Release package
 
