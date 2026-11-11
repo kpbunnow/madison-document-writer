@@ -183,6 +183,8 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
       assert.ok(actual.calls.includes("call:correctionEligibility") && input.eligible, "the note needs a reason from the eligibility read");
       assert.equal((actual.html.match(/id="correct-unavailable"/g) || []).length, 1);
       actual.html = actual.html.replace(unavailable, "");
+      // The 2026-11-11 reference already carries the sentence; compare the rest of both screens.
+      if (typeof expected.html === "string") expected.html = expected.html.replace(unavailable, "");
     }
     if (!input.missing && input.note && !input.invalid) assert.match(actual.html, /Confirm saved action/);
     if (!input.missing && input.pending && !input.note && !input.invalid) assert.match(actual.html, /Confirm save/);

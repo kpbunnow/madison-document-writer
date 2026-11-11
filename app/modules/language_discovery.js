@@ -26,14 +26,23 @@ function languageAdminScreen(R, items, query, filter) {
   );
 }
 
-/* Consolidated Order Language replaces the earlier checklists (owner direction 2026-11-10): it is listed first, and the
-   earlier checklists follow under their own heading. Results are grouped under checklist and group headings. */
+/* The consolidated catalog replaces the earlier checklists (owner direction 2026-11-10) and is shown as Violation
+   Categories with title-case group names (owner direction 2026-11-11). It is listed first; the picker's group list
+   shows only its categories, while a search still reaches the earlier checklists' language. */
 const CONSOLIDATED = "ENF_ORDER_CATALOG";
+const CATEGORIES = "Violation Categories";
+const MINOR_WORDS = new Set(["a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to"]);
+const titleCase = (name) =>
+  String(name).replace(/[A-Za-z][\w']*/g, (word, at) => (at && MINOR_WORDS.has(word.toLowerCase()) ? word : word[0].toUpperCase() + word.slice(1)));
+const checklistName = (R, ci) => (R.LIBRARY[ci].code === CONSOLIDATED ? CATEGORIES : R.LIBRARY[ci].name);
+const groupName = (R, ci, gi) => (R.LIBRARY[ci].code === CONSOLIDATED ? titleCase : String)(R.LIBRARY[ci].groups[gi].name);
 const checklistOrder = (R) => {
   const all = R.LIBRARY.map((_, ci) => ci);
   return all.filter((ci) => R.LIBRARY[ci].code === CONSOLIDATED).concat(all.filter((ci) => R.LIBRARY[ci].code !== CONSOLIDATED));
 };
 const earlier = (R, ci) => R.LIBRARY[ci].code !== CONSOLIDATED;
+// The checklists the picker browses: Violation Categories, or every checklist if a library has no consolidated catalog.
+const pickerChecklists = (R) => (R.LIBRARY.some((c) => c.code === CONSOLIDATED) ? checklistOrder(R).slice(0, 1) : checklistOrder(R));
 // Groups in the order given: by first appearance when ranked (a search), otherwise by checklist order and group.
 function groupedResults(R, items, ranked) {
   const groups = new Map();
@@ -47,8 +56,7 @@ function groupedResults(R, items, ranked) {
   return [...groups.values()];
 }
 function groupHeading(R, g, level) {
-  const c = R.LIBRARY[g.ci];
-  return screen`<${raw(level)} class="language-group-h"><span class="language-group-cl">${raw(R.esc(c.name))}${raw(earlier(R, g.ci) ? " · earlier checklist" : "")}</span><span class="language-group-name">${raw(R.esc(c.groups[g.gi].name))}</span><span class="n">${String(g.items.length)}</span></${raw(level)}>`;
+  return screen`<${raw(level)} class="language-group-h"><span class="language-group-cl">${raw(R.esc(checklistName(R, g.ci)))}${raw(earlier(R, g.ci) ? " · earlier checklist" : "")}</span><span class="language-group-name">${raw(R.esc(groupName(R, g.ci, g.gi)))}</span><span class="n">${String(g.items.length)}</span></${raw(level)}>`;
 }
 // The cited sections as tags at the front of an entry.
 function sectionTags(R, sections) {
@@ -64,7 +72,7 @@ function consolidatedEquivalents(R, all) {
   return (i) => (earlier(R, i.ci) ? found.get(key(i)) || null : null);
 }
 function alsoNote(R, equivalent) {
-  return equivalent ? '<p class="language-also">Consolidated Order Language also has language for this ordinance.</p>' : "";
+  return equivalent ? '<p class="language-also">Violation Categories also has language for this ordinance.</p>' : "";
 }
 // Entries in checklist order (Consolidated first), so equally good search results list Consolidated language first.
 const inChecklistOrder = (R, items) => {
@@ -100,10 +108,12 @@ function languageBrowseScreen(R, found, query, filter) {
     "Browse language",
     "Order language · find language for the condition you observed",
     '<button class="btn" data-language-mode="admin">Review catalog</button>',
-    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Consolidated Order Language is listed first; the earlier checklists follow. Approved and standard language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
+    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Violation Categories are listed first; the earlier checklists follow. Approved and standard language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
  <div class="language-controls"><label class="f"><span>Search all order language</span><input type="search" id="lib-filter" value="${raw(R.esc(query))}" placeholder="For example: garbage, handrail, 27.05"></label><label class="f"><span>Language status</span><select id="lib-status">${raw(languageFilterOptions(R, filter))}</select></label><label class="f"><span>Browse checklist</span><select id="lib-checklist"><option value="-1" ${String(R.state.libCl < 0 ? "selected" : "")}>All checklists</option>${raw(
    checklistOrder(R)
-     .map((ci) => screen`<option value="${String(ci)}" ${String(ci === R.state.libCl ? "selected" : "")}>${raw(R.esc(R.LIBRARY[ci].name))}</option>`)
+     .map(
+       (ci) => screen`<option value="${String(ci)}" ${String(ci === R.state.libCl ? "selected" : "")}>${raw(R.esc(checklistName(R, ci)))}</option>`,
+     )
      .join(""),
  )}</select></label><button class="btn" data-language-refresh>Refresh review status</button></div>
  <p class="language-count" role="status">${raw(R.esc(countLine(query, found.sections, items.length, "Language entries")))}</p>
@@ -115,43 +125,37 @@ function languageBrowseScreen(R, found, query, filter) {
 }
 
 function languagePickerTree(R, all, visible, q) {
-  let heading = false;
-  return checklistOrder(R)
-    .map((ci) => {
-      const c = R.LIBRARY[ci];
-      const groups = c.groups
-        .map((g, gi) => ({ g, gi, count: all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length }))
-        .filter((x) => x.count || (R.state.cl === ci && R.state.grp === x.gi));
-      if (!groups.length) return "";
-      const label = earlier(R, ci) && !heading ? ((heading = true), '<div class="tree-earlier">Earlier checklists</div>') : "";
-      return (
-        label +
-        screen`<div class="tree-cl">${raw(R.esc(c.name))}</div>${raw(
-          groups
+  return pickerChecklists(R)
+    .map(
+      (ci) =>
+        screen`<div class="tree-cl">${raw(R.esc(checklistName(R, ci)))}</div>${raw(
+          R.LIBRARY[ci].groups
+            .map((g, gi) => ({ gi, count: all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length }))
+            // A category with nothing to offer under the current status is left out, unless it is the one open.
+            .filter(({ gi, count }) => count || (R.state.cl === ci && R.state.grp === gi))
             .map(
-              ({ g, gi, count }) =>
-                screen`<button class="tree-g" data-grp="${String(ci)}:${String(gi)}" aria-current="${String(!q && ci === R.state.cl && gi === R.state.grp ? "true" : "false")}"><span>${raw(R.esc(g.name))}</span><span class="n">${String(count)}</span></button>`,
+              ({ gi, count }) =>
+                screen`<button class="tree-g" data-grp="${String(ci)}:${String(gi)}" aria-current="${String(!q && ci === R.state.cl && gi === R.state.grp ? "true" : "false")}"><span>${raw(R.esc(groupName(R, ci, gi)))}</span><span class="n">${String(count)}</span></button>`,
             )
             .join(""),
-        )}`
-      );
-    })
+        )}`,
+    )
     .join("");
 }
 
 function languagePickerGroupOptions(R, all, visible, q) {
-  return checklistOrder(R)
-    .map((ci) => {
-      const c = R.LIBRARY[ci];
-      return screen`<optgroup label="${raw(R.esc(c.name + (earlier(R, ci) ? " (earlier checklist)" : "")))}">${raw(
-        c.groups
-          .map(
-            (g, gi) =>
-              screen`<option value="${String(ci)}:${String(gi)}" ${String(!q && ci === R.state.cl && gi === R.state.grp ? "selected" : "")}>${raw(R.esc(g.name))} (${String(all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length)})</option>`,
-          )
-          .join(""),
-      )}</optgroup>`;
-    })
+  return pickerChecklists(R)
+    .map(
+      (ci) =>
+        screen`<optgroup label="${raw(R.esc(checklistName(R, ci)))}">${raw(
+          R.LIBRARY[ci].groups
+            .map(
+              (g, gi) =>
+                screen`<option value="${String(ci)}:${String(gi)}" ${String(!q && ci === R.state.cl && gi === R.state.grp ? "selected" : "")}>${raw(R.esc(groupName(R, ci, gi)))} (${String(all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length)})</option>`,
+            )
+            .join(""),
+        )}</optgroup>`,
+    )
     .join("");
 }
 
@@ -273,28 +277,32 @@ export function languagePicker(R) {
     q = R.state.q.trim(),
     filter = R.state.pickerStatus || "usable",
     selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
-  const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter));
+  const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter)),
+    browsed = pickerChecklists(R);
   const found = languageSearch(
       R,
       inChecklistOrder(
         R,
-        all.filter((i) => visible(i) && (q || R.state.cl < 0 || (i.ci === R.state.cl && i.gi === R.state.grp))),
+        all.filter(
+          (i) =>
+            visible(i) && (q || filter === "selected" || (R.state.cl < 0 ? browsed.includes(i.ci) : i.ci === R.state.cl && i.gi === R.state.grp)),
+        ),
       ),
       q,
     ),
     items = found.matches;
   // Selecting language for the open draft, distinct from browsing or reviewing the catalog.
   const pickerTitle = "Select for this " + (current?.type === "notice" ? "notice" : "document");
-  const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp],
-    label = countLine(q, found.sections, items.length, group ? group.name : "All checklists");
+  const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp] ? groupName(R, R.state.cl, R.state.grp) : "",
+    label = countLine(q, found.sections, items.length, group || (filter === "selected" ? "Selected on this notice" : "All violation categories"));
   const tree = languagePickerTree(R, all, visible, q);
   return screen`<div class="picker" id="picker-bg"><div class="picker-box" role="dialog" aria-modal="true" aria-label="${String(pickerTitle)}" data-language-context="picker|${raw(R.esc(R.state.docId))}">
  <div class="picker-h"><h2>${String(pickerTitle)}</h2><button class="btn btn-sm" data-close="picker">Close</button></div>
  <div class="picker-search"><label class="f"><span>Search all order language</span><input type="search" id="pk-q" value="${raw(R.esc(R.state.q))}" placeholder="Title, ordinance or ordinary terms"></label><label class="f"><span>Language status</span><select id="pk-status">${raw(languageFilterOptions(R, filter, true))}</select></label>
- <select id="pk-grp" class="pk-grp" aria-label="Browse checklist group" style="display:none;margin-top:10px"><option value="-1:0" ${String(R.state.cl < 0 ? "selected" : "")}>All checklists</option>${raw(languagePickerGroupOptions(R, all, visible, q))}</select></div>
- <div class="picker-cols"><div class="picker-tree"><button class="tree-g" data-language-all>All checklists <span class="n">${String(all.filter(visible).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
+ <select id="pk-grp" class="pk-grp" aria-label="Browse violation category" style="display:none;margin-top:10px"><option value="-1:0" ${String(R.state.cl < 0 ? "selected" : "")}>All violation categories</option>${raw(languagePickerGroupOptions(R, all, visible, q))}</select></div>
+ <div class="picker-cols"><div class="picker-tree"><button class="tree-g" data-language-all>All violation categories <span class="n">${String(all.filter((i) => visible(i) && browsed.includes(i.ci)).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
  ${raw(languagePickerResults(R, found, !!q, selected, current, filter))}
- </div></div><div class="picker-footer"><label><input type="checkbox" id="keep-adding" ${String(R.state.keepAdding ? "checked" : "")}> Keep adding items</label><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn" id="btn-savework">Save draft &amp; return to Workspace</button><button class="btn btn-primary" data-close="picker">Done adding</button></div></div></div>`;
+ </div></div><div class="picker-footer"><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn btn-primary" data-close="picker">Done adding</button></div></div></div>`;
 }
 
 function currentContext(R, picker) {

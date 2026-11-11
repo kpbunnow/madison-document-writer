@@ -2785,3 +2785,53 @@
     border-radius: 0;
   }
 }
+
+/* Compact document editor header and order-language picker (owner direction 2026-11-11). The document's state joins
+   the header line, the task buttons and readiness line share one bar, and the working document follows directly. */
+@media screen {
+  body:has(.document-workspace) .topbar {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    align-items: center;
+  }
+  body:has(.document-workspace) .content {
+    padding-top: 14px;
+  }
+  .editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    margin: 0 0 12px;
+  }
+  .editor-toolbar .editor-sections,
+  .editor-toolbar .editor-readiness {
+    margin: 0;
+  }
+  .editor-carried {
+    margin: 0 0 8px;
+  }
+  .document-workspace #editor-items {
+    margin-top: 0;
+  }
+  .editor-section > h2.sr-only {
+    padding: 0;
+    margin: -1px;
+  }
+  .picker-footer {
+    justify-content: flex-end;
+  }
+  .picker-footer [data-language-selected] {
+    margin-right: auto;
+  }
+}
+@media screen and (max-width: 760px) {
+  .editor-toolbar {
+    align-items: stretch;
+  }
+  body:has(.document-workspace) .topbar .crumb {
+    white-space: normal;
+    text-overflow: clip;
+    overflow: visible;
+  }
+}

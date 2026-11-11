@@ -150,21 +150,6 @@ function repeatable(services, d, picked) {
   return true;
 }
 
-function focusNewItem() {
-  // drop the cursor straight into the new corrective action
-  const cells = document.querySelectorAll('[data-field="text"]');
-  const last = cells[cells.length - 1];
-  if (!last) return;
-  last.focus();
-  const r = document.createRange();
-  r.selectNodeContents(last);
-  r.collapse(true);
-  const s = getSelection();
-  s.removeAllRanges();
-  s.addRange(r);
-  last.scrollIntoView({ block: "center" });
-}
-
 function afterPick(services, d, src, added, again = false) {
   if (added && services.snow.pickedDraft(d)) {
     // The picker stays open so the change of workflow can be undone right away.
@@ -172,15 +157,9 @@ function afterPick(services, d, src, added, again = false) {
     services.toast("Changed to a snow removal citation (MGO 10.28). To undo, pick the snow item again.");
     return;
   }
-  if (editor.state.keepAdding || !added) {
-    services.refreshOverlay();
-    services.toast((added ? (again ? "Added another copy: " : "Added: ") : "Removed: ") + src.t);
-    return;
-  }
-  editor.state.picker = false;
-  services.render();
-  focusNewItem();
-  services.toast((again ? "Added another copy: " : "Added: ") + src.t);
+  // The picker stays open until Done adding (owner direction 2026-11-11: staff keep adding items until they finish).
+  services.refreshOverlay();
+  services.toast((added ? (again ? "Added another copy: " : "Added: ") : "Removed: ") + src.t);
 }
 
 async function pickLibraryItem(services, d, t) {

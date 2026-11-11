@@ -31,6 +31,15 @@ function assertCitationCoverPDF(filename) {
     for (const paragraph of blocks[key].text.split("\n").filter(Boolean))
       assert.ok(text.includes(compact(paragraph)), filename + ": missing " + blocks[key].label + " paragraph: " + paragraph);
 }
+// The picker's group list holds only the Violation Categories (owner direction 2026-11-11); an entry from an earlier
+// checklist is reached by searching its title, as staff do.
+async function showPick(page, pick) {
+  const [ci, gi, o] = pick.split(":").map(Number);
+  const title = await page.evaluate(([c, g, n]) => LIBRARY[c].groups[g].items.find((i) => i.o === n).t, [ci, gi, o]);
+  await page.locator("#pk-q").fill(title);
+  await page.locator('[data-pick="' + pick + '"]').waitFor();
+}
+
 async function axeScreen(page, screen) {
   // Audit the active tab: background tabs can stall animation frames and actionability checks.
   await page.bringToFront();
@@ -351,8 +360,7 @@ async function axeThemes(page, screen) {
       .map((i) => i.ci + ":" + i.gi + ":" + i.o),
   );
   for (const [n, pick] of picks.entries()) {
-    const [ci, gi] = pick.split(":");
-    await page.locator('[data-grp="' + ci + ":" + gi + '"]').click();
+    await showPick(page, pick);
     await page.locator('[data-pick="' + pick + '"]').click();
     await page.waitForFunction((count) => doc(WriterState.state.docId).items.length === count, n + 1);
   }
@@ -1018,8 +1026,7 @@ async function axeThemes(page, screen) {
   });
   await page.locator("#btn-add-top").click();
   await page.locator("#pk-status").selectOption("usable");
-  const [pci, pgi] = picks[0].split(":");
-  await page.locator('[data-grp="' + pci + ":" + pgi + '"]').click();
+  await showPick(page, picks[0]);
   await page.locator('[data-pick="' + picks[0] + '"]').click();
   await page.getByRole("button", { name: "Done adding" }).click();
   await page.locator('[data-field="sections"]').first().fill("SPS 999.99");

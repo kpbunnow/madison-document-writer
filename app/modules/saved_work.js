@@ -210,16 +210,6 @@ export function connectionBanner(R) {
   return html`<div class="saved-connection banner warn no-print"><div><strong>${raw(R.esc(problems.join(" · ")))}.</strong> <button class="lnk" data-sync-safety>Review saved work &amp; connection</button></div></div>`;
 }
 
-export function documentSaveHTML(R, d) {
-  return (
-    '<div class="document-save no-print"><span data-document-device-save>' +
-    `${R.esc(localSaveText(R))}` +
-    '</span><button class="lnk" data-sync-safety="' +
-    `${R.esc(d.caseId)}` +
-    '">Saved work &amp; connection</button></div>'
-  );
-}
-
 export function updateLocalPresentation(R) {
   for (const el of document.querySelectorAll("[data-document-device-save]")) el.textContent = localSaveText(R);
   const device = document.querySelector("[data-device-save]");

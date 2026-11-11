@@ -9,7 +9,7 @@ import { checkAttr, esc } from "./presentation_format.js";
 import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
 import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
 
-import { documentSaveHTML, localSaveText } from "./saved_work.js";
+import { localSaveText } from "./saved_work.js";
 /* app functions; direct dependencies use explicit shared state. */
 
 const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; edit their due dates in the item rows.";
@@ -33,18 +33,28 @@ function editorActionsHTML({ d, locked, primary, services }) {
         (isEffective(d) ? html`<button class="btn" id="btn-email">Email…</button>` : "")
       : "";
   return (
-    (d.draft ? html`<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>` : "") +
+    (d.draft
+      ? html`<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>`
+      : html`<button class="btn" data-nav="cases">Back to Workspace</button>`) +
     html`<button class="btn btn-primary editor-primary" ${raw(primary.attrs)}>${primary.label}</button>` +
     (more ? html`<details class="editor-more"><summary>Document actions</summary><div>${raw(more)}</div></details>` : "")
   );
 }
 
-function editorMetadataHTML({ d, tyLabel, locked, services }) {
+// The document's state, shown in the header line beside the case number and type (owner direction 2026-11-11).
+function editorStatusText({ d, locked, services }) {
   return (
-    html`<div class="editor-context no-print"><div><strong>${tyLabel}</strong><span>` +
-    html`${d.pendingAmendment ? "Save confirmation needed" : d.void ? "Withdrawn" : d.superseded ? "Replaced version" : d.draft ? (locked ? "Draft · read-only" : "Draft · not issued") : "Issued " + services.record.fmtDate(d.mailed || d.created)}` +
-    (d.revision ? html` · revision ${d.revision.number}` : "") +
-    html`</span></div><button class="btn btn-sm" data-nav="cases">Back to Workspace</button></div>`
+    (d.pendingAmendment
+      ? "Save confirmation needed"
+      : d.void
+        ? "Withdrawn"
+        : d.superseded
+          ? "Replaced version"
+          : d.draft
+            ? locked
+              ? "Draft · read-only"
+              : "Draft · not issued"
+            : "Issued " + services.record.fmtDate(d.mailed || d.created)) + (d.revision ? " · revision " + d.revision.number : "")
   );
 }
 
@@ -56,19 +66,19 @@ function editorInspectionHTML({ reviewVisit, inspectionParts, locked }) {
     : "";
 }
 
+// The working document sits directly under the task bar: no repeated instructions or counts above it.
 function editorWorkHTML({ d, editable, services }) {
+  const citation = d.type === "citation" || services.record.initialCitations.enabled(d);
   return (
-    html`<div class="editor-taskbar no-print"><p class="hint">${editable ? "Edit the working document directly. Fill-in bubbles mark details that still need an entry." : "Read-only retained document."}` +
-    html`${editable && !services.edit.structEditable(d) ? CARRIED_ITEMS_HINT : ""} ${d.items.filter((x) => !x.done && !x.withdrawn).length} outstanding${d.items.some((x) => x.done) ? ", " + d.items.filter((x) => x.done).length + " corrected" : ""}.</p></div>` +
+    (editable && !services.edit.structEditable(d) ? html`<p class="hint editor-carried no-print">${CARRIED_ITEMS_HINT.trim()}</p>` : "") +
     html`${raw(services.record.citationReview(d))}` +
     (services.record.initialCitations.enabled(d) && d.authoringVersion >= 11
       ? html`<div class="banner info no-print" id="initial-citation-replaces"><div><strong>This inspection will be issued as a citation.</strong> The owner receives only the citation letter and its court copies. The letter carries the items, due dates, appeal and rent-abatement language shown on this working paper, which is not mailed as a separate Official Notice.</div></div>`
       : "") +
-    html`<div class="editor-preview-tools no-print"><span>Working document${d.type === "citation" || services.record.initialCitations.enabled(d) ? " · four copies per charge in the issued PDF" : ""}</span>` +
-    (d.type === "citation" || services.record.initialCitations.enabled(d)
-      ? html`<button type="button" class="btn no-print" data-citation-copies aria-expanded="${editor.state.compactCitationCopies !== d.id}">${editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies"}</button>`
+    (citation
+      ? html`<div class="editor-preview-tools no-print"><span>Working document · four copies per charge in the issued PDF</span><button type="button" class="btn no-print" data-citation-copies aria-expanded="${editor.state.compactCitationCopies !== d.id}">${editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies"}</button></div>`
       : "") +
-    html`</div><div class="desk">${raw(services.record.documentHTML(d))}</div>` +
+    html`<div class="desk">${raw(services.record.documentHTML(d))}</div>` +
     (services.record.initialCitations.enabled(d)
       ? html`<div class="initial-citation-previews no-print" aria-label="Initial citation previews">${raw(services.record.citationFaces(services.record.initialCitations.preview(d), true))}</div>`
       : "") +
@@ -255,21 +265,22 @@ export function createEditorScreens(services) {
     editorEnhance();
   }
 
-  function editorSection(id, title, body) {
+  // A hidden heading keeps the section named for assistive technology without taking screen space.
+  function editorSection(id, title, body, hidden = false) {
     return body
-      ? html`<section class="editor-section" id="${id}" aria-labelledby="${id}-title"><h2 class="no-print" tabindex="-1" id="${id}-title">${title}</h2>${raw(body)}</section>`
+      ? html`<section class="editor-section" id="${id}" aria-labelledby="${id}-title"><h2 class="${hidden ? "sr-only" : "no-print"}" tabindex="-1" id="${id}-title">${title}</h2>${raw(body)}</section>`
       : "";
   }
 
-  function editorWorkspaceHTML({ d, meta, inspection, work, record, editable, locked, ready }) {
+  function editorWorkspaceHTML({ d, inspection, work, record, editable, locked, ready }) {
     return (
-      html`<div class="document-workspace" data-editor-doc="${d.id}">${raw(meta)}` +
-      html`${raw(documentSaveHTML(services.record.app_savedworkContext(), d))}` +
+      html`<div class="document-workspace" data-editor-doc="${d.id}">` +
       html`${raw(services.record.publicationPanel(d))}${raw(services.record.filingPanel(d))}${raw(services.record.citationRecoveryPanel(d))}` +
       (d.superseded
         ? html`<div class="banner warn no-print"><div><strong>This is a replaced version.</strong> <button class="lnk" data-open="${d.superseded.replacedBy}">Open the corrected document</button></div></div>`
         : "") +
-      html`<nav class="editor-sections no-print" aria-label="Document tasks">` +
+      // One task bar: the document tasks and the readiness line share a row (owner direction 2026-11-11).
+      html`<div class="editor-toolbar no-print"><nav class="editor-sections no-print" aria-label="Document tasks">` +
       // Recipients opens the copies and email dialog itself rather than moving to a section.
       (editable ? html`<button id="btn-cc" aria-haspopup="dialog">Recipients</button>` : "") +
       // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
@@ -277,7 +288,8 @@ export function createEditorScreens(services) {
       (services.edit.structEditable(d) ? html`<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>` : "") +
       html`<button id="btn-review" data-editor-review aria-haspopup="dialog">Review${!locked && ready.required.length ? " · " + ready.required.length : ""}</button></nav>` +
       (!locked ? html`<div class="editor-readiness no-print">${raw(readinessLineHTML(d, ready))}</div>` : "") +
-      html`${raw(editorSection("editor-inspection", "Inspection", inspection))}${raw(editorSection("editor-items", "Violation items", work))}${raw(record)}` +
+      "</div>" +
+      html`${raw(editorSection("editor-inspection", "Inspection", inspection))}${raw(editorSection("editor-items", "Violation items", work, true))}${raw(record)}` +
       (!locked ? html`<div hidden data-editor-check-messages>${raw(editorCheckMessagesHTML(ready))}</div>` : "") +
       html`${raw(mobileBarHTML(d, ready))}</div>`
     );
@@ -297,7 +309,6 @@ export function createEditorScreens(services) {
     const tyLabel = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
     const fr = d.fromReinspId ? reinsp(d.fromReinspId) : null;
     const editable = !locked;
-    const meta = editorMetadataHTML({ d, tyLabel, locked, services });
     // The Inspection section appears only when it holds something to act on; ordinary inspection, property and
     // mailing details are edited on the working document, where required checks link to the exact field.
     const reviewVisit = fr && fr.draft && !d.correction && !d.pendingAmendment,
@@ -308,9 +319,9 @@ export function createEditorScreens(services) {
     const record = `${services.record.recordHistoryHTML(d)}${services.record.newDocuments.actionPanel(d)}`;
     return services.ui.shell(
       k.address,
-      `${k.number} · ${tyLabel}`,
+      `${k.number} · ${tyLabel} · ${editorStatusText({ d, locked, services })}`,
       actions,
-      editorWorkspaceHTML({ d, meta, inspection, work, record, editable, locked, ready }),
+      editorWorkspaceHTML({ d, inspection, work, record, editable, locked, ready }),
     );
   }
 

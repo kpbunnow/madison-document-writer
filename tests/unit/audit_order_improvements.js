@@ -42,7 +42,10 @@ const test = async () => {
   const search = screenLibrary();
   ok(
     "catalog search spans all checklists outside the selected tab",
-    search.includes(farItem.t) && search.includes(far.name) && search.includes("Search results across all checklists"),
+    // The consolidated catalog is shown as Violation Categories (owner direction 2026-11-11).
+    search.includes(farItem.t) &&
+      search.includes(far.code === "ENF_ORDER_CATALOG" ? "Violation Categories" : far.name) &&
+      search.includes("Search results across all checklists"),
   );
   ok(
     "catalog universal search includes ordinance, action, fill-in and guidance fields",

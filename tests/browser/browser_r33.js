@@ -112,7 +112,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   const first = await createSnow("QA-R33-SNOW-FIRST", "070822219180", stamp, "11:46");
   await page.locator("#btn-add-top").click();
   await page.locator("#pk-status").selectOption("usable");
-  await page.locator('[data-grp="' + first.ci + ":" + first.gi + '"]').click();
+  // Snow removal is in an earlier checklist, reached by search (the group list shows only the Violation Categories).
+  await page.locator("#pk-q").fill("snow");
   await page.locator('[data-pick="' + first.ci + ":" + first.gi + ':1"]').click();
   await page.getByRole("button", { name: "Done adding", exact: true }).click();
   assert.equal(await page.locator('[aria-label="Assign due dates"]').count(), 0);

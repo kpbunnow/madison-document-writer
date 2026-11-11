@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "9584eeffbc9fed7659dcc50cb9fe4bb7ef540d7e02d1d4a751367084671947ff",
-      "normalizedShellSha256": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034"
+      "beforeNormalizedShellSha256": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034",
+      "normalizedShellSha256": "fc2443c803ca33b0e580d1b5f77261753d41f3b11264c6a2f536f6570f385c6f"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "e1a7531d2b1dec5a2ad4a0013765f10520f22966de7352176d8676589e368e5d",
-      "normalizedShellSha256": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02"
+      "beforeNormalizedShellSha256": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02",
+      "normalizedShellSha256": "7eee55baf21cff0739fdc6feab009805db278d0092f9267dc7f1b45d8a5c613a"
     }
   },
   "reviews": [
@@ -128,6 +128,22 @@
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-11",
+      "sourceCommit": "daf62118699f478220f2d8675efb0ffd286710a2",
+      "scope": "Compact document editor header (state in the header line, one task bar, no status/save/instruction rows) and order-language picker (Violation Categories, footer without Keep adding or Save draft); screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034",
+          "after": "fc2443c803ca33b0e580d1b5f77261753d41f3b11264c6a2f536f6570f385c6f"
+        },
+        "madison-reports.html": {
+          "before": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02",
+          "after": "7eee55baf21cff0739fdc6feab009805db278d0092f9267dc7f1b45d8a5c613a"
+        }
+      },
+      "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
     }
   ]
 }

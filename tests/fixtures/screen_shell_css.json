@@ -63,10 +63,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "ead7380ab95f78956bc6772d5950547dbe9ac2fd72aedbe901a267dd755f663c",
+      "afterSha256": "c9eff16149f92074e4016214a5e3b372966d9b7d974aa9d9a8340996ccb1a470",
       "beforeBytes": 48561,
-      "afterBytes": 58386,
-      "retainedRulesSha256": "0eba1c2821882c0bca417b1b38c44f3d963d9acf1910d9e90957be24355612a2"
+      "afterBytes": 59572,
+      "retainedRulesSha256": "6d7ed20c4307915dc0cc51576b7e144dac4f2a238b6a0048d24be09d154c70a1"
     }
   },
   "selectorChanges": [
@@ -768,6 +768,20 @@
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-11",
+      "sourceCommit": "daf62118699f478220f2d8675efb0ffd286710a2",
+      "scope": "Compact document editor header and order-language picker (owner direction 2026-11-11): one task bar for document tasks and readiness, tighter header and content spacing, visually hidden Violation items heading, picker footer without Keep adding or Save draft. No new colours. Append-only screen block; preserves all 58,386 earlier stylesheet bytes. Reviewed visible differences, not parity.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "ead7380ab95f78956bc6772d5950547dbe9ac2fd72aedbe901a267dd755f663c",
+          "afterSha256": "c9eff16149f92074e4016214a5e3b372966d9b7d974aa9d9a8340996ccb1a470",
+          "unchangedRulesSha256": "0eba1c2821882c0bca417b1b38c44f3d963d9acf1910d9e90957be24355612a2",
+          "unchangedPrefixBytes": 58386
+        }
+      },
+      "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
     }
   ]
 }
