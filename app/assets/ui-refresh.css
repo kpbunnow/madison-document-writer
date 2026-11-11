@@ -2829,4 +2829,9 @@
   .editor-toolbar {
     align-items: stretch;
   }
+  body:has(.document-workspace) .topbar .crumb {
+    white-space: normal;
+    text-overflow: clip;
+    overflow: visible;
+  }
 }

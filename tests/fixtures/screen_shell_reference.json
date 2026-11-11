@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034",
-      "normalizedShellSha256": "0b15f41a7994bc0582eb56a301e1ff033e1c4e30ddea2d4506e6e59647f0a284"
+      "normalizedShellSha256": "fc2443c803ca33b0e580d1b5f77261753d41f3b11264c6a2f536f6570f385c6f"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02",
-      "normalizedShellSha256": "b2c681ea1261079ceec4bff3d97ccb1dede4e175287c84a0779b00e8d9cff1a1"
+      "normalizedShellSha256": "7eee55baf21cff0739fdc6feab009805db278d0092f9267dc7f1b45d8a5c613a"
     }
   },
   "reviews": [
@@ -136,11 +136,11 @@
       "files": {
         "madison-document-writer.html": {
           "before": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034",
-          "after": "0b15f41a7994bc0582eb56a301e1ff033e1c4e30ddea2d4506e6e59647f0a284"
+          "after": "fc2443c803ca33b0e580d1b5f77261753d41f3b11264c6a2f536f6570f385c6f"
         },
         "madison-reports.html": {
           "before": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02",
-          "after": "b2c681ea1261079ceec4bff3d97ccb1dede4e175287c84a0779b00e8d9cff1a1"
+          "after": "7eee55baf21cff0739fdc6feab009805db278d0092f9267dc7f1b45d8a5c613a"
         }
       },
       "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"

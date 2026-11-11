@@ -87,7 +87,7 @@ function unavailableNote(R, item) {
 }
 function countLine(query, sections, n, label) {
   if (sections.length) return String(n) + " " + (n === 1 ? "entry cites " : "entries cite ") + sections.join(" and ");
-  return (query ? "Search results across all order language" : label) + " · " + String(n) + " matching entries";
+  return (query ? "Search results across all checklists" : label) + " · " + String(n) + " matching entries";
 }
 // Related entries (parent or sibling ordinances) stay folded until asked for.
 function relatedBlock(R, related, render) {
@@ -131,6 +131,8 @@ function languagePickerTree(R, all, visible, q) {
         screen`<div class="tree-cl">${raw(R.esc(checklistName(R, ci)))}</div>${raw(
           R.LIBRARY[ci].groups
             .map((g, gi) => ({ gi, count: all.filter((i) => i.ci === ci && i.gi === gi && visible(i)).length }))
+            // A category with nothing to offer under the current status is left out, unless it is the one open.
+            .filter(({ gi, count }) => count || (R.state.cl === ci && R.state.grp === gi))
             .map(
               ({ gi, count }) =>
                 screen`<button class="tree-g" data-grp="${String(ci)}:${String(gi)}" aria-current="${String(!q && ci === R.state.cl && gi === R.state.grp ? "true" : "false")}"><span>${raw(R.esc(groupName(R, ci, gi)))}</span><span class="n">${String(count)}</span></button>`,
