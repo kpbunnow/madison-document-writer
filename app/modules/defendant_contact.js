@@ -15,7 +15,10 @@ export function ownerCopy(k, lines) {
 /* Keep distinct address details, including second owner/care-of/unit lines. The report can repeat a mailing line;
    collapse only consecutive duplicates in the address, never the separate owner name. Raw case facts stay intact. */
 export function cleanOwnerCopyLines(k) {
-  const address = (k.ownerAddr || []).map((line) => String(line || "").trim()).filter(Boolean);
+  const address = []
+    .concat(k.ownerAddr || [])
+    .map((line) => String(line || "").trim())
+    .filter(Boolean);
   const key = (line) => line.replace(/\s+/g, " ").toUpperCase();
   return [String(k.owner || "").trim(), ...address.filter((line, n) => !n || key(line) !== key(address[n - 1]))].filter(Boolean);
 }

@@ -481,9 +481,10 @@ export function createDocumentRenderer(services) {
           // the agent is served a copy as a matter of course
           const ag = services.agentLines(k);
           // Old issued snapshots retain their original lines; new snapshots freeze the cleaned owner CC separately.
+          const owner = ownerCopy(k);
           const retainedOwnerLines = frozenOf(d)?.ownerCopyLines;
-          const ownerLines = d.draft ? cleanOwnerCopyLines(k) : Array.isArray(retainedOwnerLines) ? retainedOwnerLines : undefined;
-          const cc = [ownerCopy(k, ownerLines), ...copiesOf(k)]
+          const ownerLines = owner && d.draft ? cleanOwnerCopyLines(k) : Array.isArray(retainedOwnerLines) ? retainedOwnerLines : undefined;
+          const cc = [owner && ownerCopy(k, ownerLines), ...copiesOf(k)]
             .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
             .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
           const sent = d.emailedTo || [],

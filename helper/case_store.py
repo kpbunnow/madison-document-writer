@@ -2065,6 +2065,8 @@ def _validate_owner_copy_lines(snap):
     if "ownerCopyLines" not in frozen:
         return
     case = frozen.get("case", {})
+    if not isinstance(case.get("ownerAddr"), list):
+        raise ValueError("Frozen owner copy lines require the property owner's mailing address lines")
     copies = case.get("ccList") if isinstance(case.get("ccList"), list) else []
     active = case.get("caseType") != "snow-10.28" and any(isinstance(c, dict) and c.get("kind") == "Violator" for c in copies)
     address = [str(line or "").strip() for line in case.get("ownerAddr", []) if str(line or "").strip()]

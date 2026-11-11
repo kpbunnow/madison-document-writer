@@ -69,6 +69,11 @@ const assert = require("node:assert/strict"),
   // The owner is copied beside a Violator unless the case turns that off.
   assert.equal(api.ownerCopy(owner), null);
   assert.equal(api.ownerCopy(null), null);
+  assert.deepEqual(
+    api.cleanOwnerCopyLines({ ...owner, ownerAddr: "100 TEST ST" }),
+    ["SYNTHETIC OWNER", "100 TEST ST"],
+    "legacy scalar mailing lines retain their original shape semantics",
+  );
   assert.equal(api.ownerCopy(withList([copy])), null, "no Violator, no owner copy");
   assert.deepEqual(api.ownerCopy(withList([violator])), { lines: ["SYNTHETIC OWNER", "100 TEST ST", "MADISON WI 53703"], owner: true });
   assert.equal(api.copiesOwner(withList([violator])), true, "ticked by default");
