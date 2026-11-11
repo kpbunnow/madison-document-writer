@@ -37,7 +37,6 @@
     "import-alternative"
   ],
   "retainedClasses": [
-    "case-view",
     "queue-primary"
   ],
   "files": {
@@ -64,10 +63,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "cb6cea79d69bd1cd275215a1aa6a930d97901bed8895ea5e227eccdb765aa821",
+      "afterSha256": "ead7380ab95f78956bc6772d5950547dbe9ac2fd72aedbe901a267dd755f663c",
       "beforeBytes": 48561,
-      "afterBytes": 54072,
-      "retainedRulesSha256": "bfd849d964fe860002cb0c23bd753650df337387f0214b950a07897a6ce6ef01"
+      "afterBytes": 58386,
+      "retainedRulesSha256": "0eba1c2821882c0bca417b1b38c44f3d963d9acf1910d9e90957be24355612a2"
     }
   },
   "selectorChanges": [
@@ -755,6 +754,20 @@
         }
       },
       "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
+    },
+    {
+      "date": "2026-11-11",
+      "sourceCommit": "d88f76e3d32bbee20b2665fe965a27af36cf8dee",
+      "scope": "Owner-approved document-first Workspace and side panel. Append-only screen block; preserves every earlier stylesheet byte. Retires the More views case-view runtime consumer; frozen split-literal parser probe remains. Reviewed visible differences, not parity.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "cb6cea79d69bd1cd275215a1aa6a930d97901bed8895ea5e227eccdb765aa821",
+          "afterSha256": "ead7380ab95f78956bc6772d5950547dbe9ac2fd72aedbe901a267dd755f663c",
+          "unchangedRulesSha256": "bfd849d964fe860002cb0c23bd753650df337387f0214b950a07897a6ce6ef01",
+          "unchangedPrefixBytes": 54072
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
     }
   ]
 }

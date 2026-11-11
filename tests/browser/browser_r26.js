@@ -141,8 +141,8 @@ module.exports = async function (browser, page, context, out, axeScreen) {
       row = page.locator("tr[data-issued-highlight]");
     assert.equal(await row.count(), 1, name + ": issued case highlighted");
     assert.equal(await row.evaluate((el) => el === document.activeElement), true, name + ": issued case focused");
-    await row.locator(".queue-details > summary").click();
-    await row.locator('.queue-details [data-open="' + issuedId + '"]').click();
+    await row.locator("[data-case-documents]").click();
+    await page.locator('.case-documents-panel [data-open="' + issuedId + '"]').click();
     await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, issuedId);
     await page.evaluate(() => saveDrafts());
     const job = await page.evaluate(() => ({
@@ -194,8 +194,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
   await page.waitForFunction(() => WriterState.state.screen === "cases" && WriterState.LOCAL_SAVE.ok && !WriterState.LOCAL_SAVE.saving);
   await page.reload();
   await page.waitForFunction((id) => !!doc(id) && doc(id).draft, draftId);
-  await page.locator("#case-search").fill("QA-R26-001");
-  await page.locator("#case-inspector").selectOption("");
+  assert.equal(await page.locator("#case-search,#case-inspector").count(), 0);
   await page
     .locator('[data-open="' + draftId + '"].btn')
     .first()

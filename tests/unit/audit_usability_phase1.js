@@ -1,5 +1,5 @@
 /* R56 usability phase 1: conditional Inspection section, special check links, save and removal wording,
-   workspace quick views with More views, Done-only Recipients, grouped recovery and report export labels. */
+   workspace per-case documents and warnings, Done-only Recipients, grouped recovery and report export labels. */
 globalThis.MADISON_TEST_DATA = true;
 const assert = require("assert/strict"),
   { JSDOM } = require("jsdom");
@@ -250,7 +250,7 @@ const test = async () => {
   assert.ok(workspace.textContent.includes("requires an empty workspace"));
   assert.ok(!work.innerHTML.includes("Back up unfinished work now"));
 
-  // 3. Workspace quick views and More views.
+  // 3. Workspace per-case documents and warnings.
   WriterState.DOCS = WriterState.DOCS.filter((x) => x.caseId !== k.id);
   WriterState.CASES = [];
   for (let n = 0; n < 6; n++) {
@@ -276,112 +276,21 @@ const test = async () => {
   }
   WriterState.state = { ...WriterState.state, screen: "cases", caseFilter: "attention", caseQ: "", caseInspector: "", metric: "", modal: null };
   render();
-  const quick = () => [...document.querySelectorAll("[data-queue-view]")];
-  assert.deepEqual(
-    quick().map((b) => b.querySelector("span").textContent),
-    ["Needs attention", "Continue work", "Deadlines", "Needs resolution", "All cases"],
-  );
-  assert.equal(document.querySelector('[data-queue-view="attention"]').getAttribute("aria-pressed"), "true");
-  const resolution = document.querySelector('[data-queue-view="resolution"]');
-  const description = document.getElementById(resolution.getAttribute("aria-describedby"));
-  assert.ok(/unconfirmed or queued saves, PDF filing and transfers, record problems/.test(description.textContent));
-  assert.ok(
-    document
-      .querySelector(".queue-view-note")
-      .textContent.includes("Device save and connection problems appear in the Saved work & connection banner."),
-  );
-  const select = document.getElementById("case-filter");
-  assert.equal(select.getAttribute("aria-label"), "More views");
-  assert.equal(select.value, "");
-  assert.equal(select.options[0].textContent, "More views…");
-  assert.deepEqual(
-    [...select.options].slice(1).map((o) => o.value),
-    ["soon", "overdue", "open", "closed"],
-  );
-  const shown = () => document.querySelectorAll("[data-queue-case]").length;
-  for (const key of quick().map((b) => b.dataset.queueView)) {
-    document.querySelector(`[data-queue-view="${key}"]`).click();
-    const button = document.querySelector(`[data-queue-view="${key}"]`);
-    assert.equal(WriterState.state.caseFilter, key);
-    assert.equal(button.getAttribute("aria-pressed"), "true");
-    assert.equal(document.activeElement, button, "focus stays on the chosen quick view");
-    assert.equal(Number(button.querySelector("strong").textContent), shown(), key + " count matches its rows");
-    assert.equal(document.getElementById("case-filter").value, "");
-  }
-  // Extra views stay reachable; search and inspector filters remain applied when switching.
-  WriterState.state.caseInspector = "i4";
-  render();
-  for (const value of ["soon", "overdue", "open", "closed"]) {
-    const sel = document.getElementById("case-filter");
-    const label = [...sel.options].find((o) => o.value === value).textContent;
-    sel.value = value;
-    sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-    assert.equal(WriterState.state.caseFilter, value);
-    assert.equal(document.getElementById("case-filter").value, value, "More views shows the active extra view");
-    assert.equal(document.querySelectorAll('[data-queue-view][aria-pressed="true"]').length, 0);
-    assert.equal(WriterState.state.caseInspector, "i4", "inspector filter kept");
-    assert.equal(document.getElementById("case-inspector").value, "i4");
-    assert.equal(
-      shown(),
-      WriterState.CASES.filter(
-        (c) =>
-          c.inspectorId === "i4" &&
-          queueMatches(
-            workspaceQueue([{ k: c, st: caseState(c) }], workspaceTasks([{ k: c, st: caseState(c) }]), app_workspacequeueContext())[0],
-            value,
-          ),
-      ).length,
-    );
-    const total = Number(/\((\d+)\)$/.exec(label)[1]);
-    WriterState.state.caseInspector = "";
-    render();
-    assert.equal(shown(), total, value + " count matches its rows");
-    WriterState.state.caseInspector = "i4";
-    render();
-  }
-  WriterState.state.caseInspector = "";
-  WriterState.state.caseQ = "U1-1";
-  WriterState.state.caseFilter = "overdue";
-  render();
-  assert.equal(document.getElementById("case-search").value, "U1-1");
-  assert.equal(shown(), 1, "workspace search still applies");
-  const sel = document.getElementById("case-filter");
-  sel.value = "";
-  sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert.equal(WriterState.state.caseFilter, "attention", "More views placeholder returns to Needs attention");
-  assert.equal(WriterState.state.caseQ, "U1-1", "search kept");
-  // Quick views keep search and inspector too (#22): inspector i4 and search U1-1 leave one row in every view.
-  const ids = () => [...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase);
-  const matches = (view) =>
-    WriterState.CASES.filter(
-      (c) =>
-        c.inspectorId === "i4" &&
-        c.number === "U1-1" &&
-        queueMatches(
-          workspaceQueue([{ k: c, st: caseState(c) }], workspaceTasks([{ k: c, st: caseState(c) }]), app_workspacequeueContext())[0],
-          view,
-        ),
-    ).map((c) => c.id);
-  WriterState.state.caseInspector = "i4";
-  render();
-  for (const key of ["deadlines", "all", "attention"]) {
-    document.querySelector(`[data-queue-view="${key}"]`).click();
-    assert.equal(WriterState.state.caseFilter, key);
-    assert.equal(WriterState.state.caseQ, "U1-1", key + " keeps the search");
-    assert.equal(WriterState.state.caseInspector, "i4", key + " keeps the inspector");
-    assert.equal(document.getElementById("case-search").value, "U1-1");
-    assert.equal(document.getElementById("case-inspector").value, "i4");
-    assert.deepEqual(ids(), matches(key), key + " shows the intersection of the view, search and inspector");
-  }
-  assert.deepEqual(ids(), ["u1-case-1"]);
-  document.querySelector('[data-queue-view="deadlines"]').click();
-  assert.deepEqual(ids(), ["u1-case-1"], "Deadlines does not widen to cases outside the search");
-  document.querySelector("[data-queue-reset]").click();
-  assert.equal(WriterState.state.caseQ, "");
-  assert.equal(WriterState.state.caseInspector, "");
-  assert.equal(WriterState.state.caseFilter, "deadlines", "reset clears only search and inspector");
-  assert.deepEqual(ids(), ["u1-case-0", "u1-case-1"]);
-  WriterState.state.caseFilter = "attention";
+  // Global view/search controls were retired by the owner-approved document-first redesign.
+  // Preserve every former view and inspector/search combination as a no-hidden-cases check.
+  const expectedIds = WriterState.CASES.map((k) => k.id).sort();
+  for (const filter of ["attention", "continue", "deadlines", "resolution", "all", "soon", "overdue", "open", "closed"])
+    for (const query of ["", "U1-1", "missing"])
+      for (const inspector of ["", "i4", "unknown"]) {
+        Object.assign(WriterState.state, { caseFilter: filter, caseQ: query, caseInspector: inspector });
+        render();
+        assert.equal(document.querySelector("[data-queue-view],#case-search,#case-filter,#case-inspector,.queue-view-note"), null);
+        assert.deepEqual([...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase).sort(), expectedIds);
+        assert.equal(document.querySelectorAll(".queue-primary").length, expectedIds.length);
+        assert.equal(document.querySelectorAll("[data-case-documents]").length, expectedIds.length);
+      }
+  assert.ok(document.querySelector('[data-queue-case="u1-case-0"]').textContent.includes("Past due"));
+  Object.assign(WriterState.state, { caseFilter: "attention", caseQ: "", caseInspector: "" });
 
   // 7. Labels: remove from this workspace, and Import inspection.
   render();
@@ -432,7 +341,7 @@ const test = async () => {
   assert.ok(R.includes("The CSV contains exactly the rows and columns of this table, with its filters, dates and sort."));
   assert.ok(R.includes("This report’s sheet keeps the table sort"));
   console.log(
-    "PASS usability phase 1: conditional Inspection section, special check links, save labels, quick views with More views, " +
+    "PASS usability phase 1: conditional Inspection section, special check links, save labels, document-first Workspace, " +
       "Done-only Recipients, recovery groups, remove-from-workspace wording, Import inspection and report export labels",
   );
   process.exit(0);

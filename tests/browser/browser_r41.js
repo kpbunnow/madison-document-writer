@@ -54,6 +54,16 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       WriterState.PREFLIGHT_CONFLICT = null;
       WriterState.PREFLIGHT_NOTICE = "";
       WriterState.RECOVERY = { ...WriterState.RECOVERY, error: "", at: "2026-10-15T12:00:00Z" };
+      WriterState.REINSP.push({
+        id: "workspace-visit",
+        caseId: "queue-2",
+        sourceDocId: "qdoc-2",
+        draft: true,
+        date: recordDay(today),
+        time: "09:00",
+        inspectorId: "i4",
+        results: { "qitem-2": { oc: "corrected", on: recordDay(today) } },
+      });
       render();
     });
     for (const size of [
@@ -63,10 +73,14 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     ]) {
       await page.setViewportSize(size);
       await page.evaluate(() => window.scrollTo(0, 0));
-      assert.equal(await page.locator("[data-queue-view]").count(), 5);
+      assert.equal(await page.locator("[data-queue-view]").count(), 0);
       assert.equal(await page.locator("[data-metric]").count(), 0);
       assert.equal(await page.locator("[data-queue-case]").count(), 32);
       assert.equal(await page.locator(".queue-primary").count(), 32);
+      const visit = page.locator('[data-queue-case="queue-2"]');
+      assert.ok((await visit.textContent()).includes("Reinspection draft"));
+      assert.ok((await visit.textContent()).includes("1 corrected, 0 still to result"));
+      assert.equal(await visit.locator(".queue-primary").textContent(), "Continue reinspection");
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       const action = await page.locator(".queue-primary").first().boundingBox(),
         row = await page.locator("[data-queue-case]").first().boundingBox();
@@ -75,29 +89,109 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         assert.ok(action.y + action.height < size.height - 24, "First recommended action visible above desktop fold: " + JSON.stringify(action));
       await axeScreen(page, "r41-workspace-" + size.width);
       await page.screenshot({ path: path.join(OUT, "r41-workspace-" + size.width + ".png"), fullPage: false });
-      results.push({ viewport: size, firstRowY: row.y, firstActionY: action.y, summaryButtons: 5, cases: 32 });
+      results.push({ viewport: size, firstRowY: row.y, firstActionY: action.y, summaryButtons: 0, cases: 32 });
     }
     await page.setViewportSize({ width: 1366, height: 768 });
     if (axeThemes) await axeThemes(page, "r41-workspace-busy");
-    await page.locator('[data-queue-view="deadlines"]').click();
-    assert.equal(await page.locator("#case-filter").inputValue(), "");
-    assert.equal(await page.locator('[data-queue-view="deadlines"]').getAttribute("aria-pressed"), "true");
-    assert.equal(await page.locator("[data-queue-case]").count(), 11);
-    // Additional states stay reachable from More views, with counts matching the rows shown.
-    await page.locator("#case-filter").selectOption("overdue");
-    assert.equal(await page.locator("#case-filter").inputValue(), "overdue");
-    assert.equal(await page.locator('[data-queue-view][aria-pressed="true"]').count(), 0);
-    const overdueLabel = await page.locator('#case-filter option[value="overdue"]').textContent();
-    assert.equal(overdueLabel, "Past due (" + (await page.locator("[data-queue-case]").count()) + ")");
-    await page.locator('[data-queue-view="deadlines"]').click();
-    await page.locator("#case-search").fill("nothing matches");
-    // Quick views keep the workspace search; only the explicit reset or View all cases removes it.
-    await page.locator('[data-queue-view="all"]').click();
-    assert.equal(await page.locator("#case-search").inputValue(), "nothing matches");
-    assert.equal(await page.locator("[data-queue-case]").count(), 0);
-    await page.getByRole("button", { name: "View all cases", exact: true }).click();
+    assert.equal(await page.locator("#case-search,#case-filter,#case-inspector,.queue-view-note").count(), 0);
+    // Old saved settings must not hide cases now that their controls have been removed.
+    await page.evaluate(() => {
+      Object.assign(WriterState.state, { caseFilter: "overdue", caseQ: "nothing matches", caseInspector: "missing" });
+      render();
+    });
     assert.equal(await page.locator("[data-queue-case]").count(), 32);
-    assert.equal(await page.locator("#case-search").inputValue(), "");
+    assert.equal((await page.locator(".case-document").count()) > 0, true);
+    assert.equal(
+      await page
+        .locator('[data-queue-case="queue-0"]')
+        .textContent()
+        .then((t) => t.includes("Work in progress")),
+      true,
+    );
+    // All documents opens a modal side panel with separate drafts and immutable issued history.
+    await page.evaluate(() => {
+      const current = doc("qdoc-1");
+      WriterState.DOCS.push(
+        { ...clone(current), id: "panel-draft", draft: true },
+        { ...clone(current), id: "panel-replaced", superseded: true },
+        { ...clone(current), id: "panel-withdrawn", void: true },
+      );
+      render();
+    });
+    const documentsButton = page.locator('[data-queue-case="queue-1"] [data-case-documents]');
+    await documentsButton.focus();
+    await page.keyboard.press("Enter");
+    const panel = page.locator(".case-documents-panel [role=dialog]");
+    await panel.waitFor();
+    assert.equal(await page.locator("#app").evaluate((el) => el.inert), true);
+    assert.equal(await panel.locator('[data-open="panel-draft"]').textContent(), "Continue draft");
+    for (const word of ["Draft", "Replaced", "Withdrawn", "Issued"]) assert.ok((await panel.textContent()).includes(word));
+    assert.equal(await panel.locator('[data-case-pdf="qdoc-1"]').count(), 1);
+    await axeScreen(page, "workspace-case-documents");
+    if (axeThemes) await axeThemes(page, "workspace-case-documents");
+    await page.screenshot({ path: path.join(OUT, "workspace-case-documents.png"), fullPage: false });
+    for (const width of [683, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      assert.equal(await panel.evaluate((el) => el.scrollWidth > el.clientWidth), false);
+      const close = await panel
+        .locator('[data-close="modal"]')
+        .evaluate((el) => ({ height: el.getBoundingClientRect().height, whiteSpace: getComputedStyle(el).whiteSpace }));
+      assert.ok(close.height >= 44);
+      assert.equal(close.whiteSpace, "nowrap", "Close remains legible in narrow panel headers");
+      await axeScreen(page, "workspace-case-documents-" + width);
+      await page.screenshot({ path: path.join(OUT, "workspace-case-documents-" + width + ".png"), fullPage: false });
+    }
+    await page.setViewportSize({ width: 683, height: 900 });
+    await page.evaluate(() => (document.documentElement.style.fontSize = "200%"));
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    assert.equal(await panel.evaluate((el) => el.scrollWidth > el.clientWidth), false);
+    await axeScreen(page, "workspace-case-documents-text-200");
+    await page.evaluate(() => (document.documentElement.style.fontSize = ""));
+    await page.setViewportSize({ width: 1366, height: 768 });
+    // Tab wraps within the panel; Escape restores focus to the invoking case's button.
+    await panel.locator("button").last().focus();
+    await page.keyboard.press("Tab");
+    assert.equal(
+      await panel
+        .locator("button")
+        .first()
+        .evaluate((el) => el === document.activeElement),
+      true,
+    );
+    await page.keyboard.press("Shift+Tab");
+    assert.equal(
+      await panel
+        .locator("button")
+        .last()
+        .evaluate((el) => el === document.activeElement),
+      true,
+    );
+    await page.keyboard.press("Escape");
+    assert.equal(await documentsButton.evaluate((el) => el === document.activeElement), true);
+    assert.equal(await page.locator("#app").evaluate((el) => el.inert), false);
+    await documentsButton.click();
+    await page.locator('.case-documents-panel [data-open="qdoc-1"]').click();
+    await page.waitForFunction(() => WriterState.state.screen === "write" && WriterState.state.docId === "qdoc-1");
+    assert.equal(await page.locator(".case-documents-panel").count(), 0);
+    await page.evaluate(() => {
+      WriterState.state.screen = "cases";
+      render();
+    });
+    const typography = await page.locator('[data-queue-case="queue-1"]').evaluate((row) => {
+      const style = (selector) => {
+        const s = getComputedStyle(row.querySelector(selector));
+        return { font: s.fontFamily, size: s.fontSize };
+      };
+      return { property: style(".addr"), number: style(".case-number"), document: style(".case-document strong"), action: style(".queue-primary") };
+    });
+    assert.equal(typography.property.font, typography.document.font);
+    assert.equal(typography.property.font, typography.number.font);
+    assert.equal(typography.property.size, "16px");
+    assert.equal(typography.document.size, "16px");
+    assert.equal(typography.number.size, "14px");
+    assert.equal(typography.action.size, "14px");
+    results.push({ documentPanel: true, keyboardTrapAndReturn: true, readOnlyHistory: true, typography });
     const details = page.locator('[data-queue-case="queue-0"] details').first();
     await details.locator("summary").focus();
     await page.keyboard.press("Enter");
@@ -151,9 +245,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       checks: [
         "32 mixed cases",
         "one primary action",
-        "same-source counts and list",
-        "single visible filter",
-        "search reset",
+        "all loaded cases regardless of legacy preferences",
+        "per-case warnings and issued documents",
+        "document panel drafts/history and keyboard focus",
         "keyboard details",
         "contextual verification recovery",
         "empty workspace",

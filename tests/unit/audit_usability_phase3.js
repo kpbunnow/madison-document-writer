@@ -198,22 +198,18 @@ if (process.argv[2] === "reports") {
     WriterState.state.caseInspector = "";
     WriterState.state.caseFilter = "all";
     render();
-    const search = document.getElementById("case-search");
-    assert.equal(text(search.closest("label").querySelector(".sr-only")), "Search this workspace");
-    assert.equal(search.placeholder, "Search this workspace…");
-    assert.equal(document.querySelector("[data-global-search]"), null, "the shared-record search entry is removed; everything is imported");
-    assert.match(text(document.querySelector(".case-count")), /Use Import inspection to bring in a case that is not here\./);
-    assert.equal(document.querySelector("[data-shared-offer]"), null, "no offer while workspace results are shown");
+    assert.equal(document.querySelector("#case-search,#case-inspector,#case-filter,[data-queue-view]"), null);
+    assert.equal(document.querySelector("[data-global-search],[data-shared-offer]"), null);
+    const visibleCases = document.querySelectorAll("[data-queue-case]").length;
+    assert.equal(visibleCases, WriterState.CASES.length);
     WriterState.state.caseQ = "  QA-NOT-HERE-77 ";
     render();
-    assert.match(text(document.querySelector(".case-table .empty")), /^No cases match these filters\./);
-    assert.equal(document.querySelector("[data-shared-offer]"), null, "an empty search offers no shared search");
+    assert.equal(document.querySelectorAll("[data-queue-case]").length, visibleCases);
     fetches = 0;
-    // An inspector filter alone (no query) offers no shared search.
     WriterState.state.caseQ = "";
     WriterState.state.caseInspector = "no-such-inspector";
     render();
-    assert.ok(document.querySelector(".case-table .empty"));
+    assert.equal(document.querySelectorAll("[data-queue-case]").length, visibleCases);
     assert.equal(document.querySelector("[data-shared-offer]"), null);
     WriterState.state.caseInspector = "";
     const lookup = new JSDOM(lookupCard()).window.document;

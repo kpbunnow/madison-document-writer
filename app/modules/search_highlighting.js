@@ -70,7 +70,6 @@ export function highlightSearchText(root, terms, wordStart = false) {
 }
 
 const searches = [
-  ["case-search", ".case-table tbody", "phrase"],
   ["folder-search", ".folderlist", "phrase"],
   ["open-cases-search", "#open-cases-results .open-case-main", "words"],
   [

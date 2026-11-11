@@ -64,8 +64,8 @@ async function largeWorkspace(page, context) {
   assert.equal(actual.firstDraft, "Retained private wording 999");
   assert.equal(await page.locator("tr[data-queue-case]").count(), 1000);
   assert.equal(actual.retained, expected, "large restoration must not rewrite or drop retained drafts/history");
-  await page.locator("#case-search").fill("CB2026-100-00999");
-  assert.equal(await page.locator("tr[data-queue-case]").count(), 1);
+  assert.equal(await page.locator("#case-search").count(), 0);
+  assert.equal(await page.locator("tr[data-queue-case]").count(), 1000);
   await page.locator('[data-open="large-startup-999-draft"]').last().click();
   await page.waitForFunction(() => WriterState.state.docId === "large-startup-999-draft");
   assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Retained private wording 999");
