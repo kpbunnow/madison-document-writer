@@ -23,6 +23,7 @@ function messageMarkup(m, callbacks, safe) {
 
 /* Shared screen accessibility; printable document source is not changed. */
 function enhanceDocumentControls() {
+  enhanceSearchResults(document.body);
   document.querySelectorAll("strong[aria-readonly]").forEach((el) => {
     el.setAttribute("role", "textbox");
     el.setAttribute("aria-label", "Case number");
@@ -359,7 +360,6 @@ export function createAccessibility() {
   }
   function enhance(repaint = true) {
     if (!document.body || typeof document.body.prepend !== "function") return;
-    enhanceSearchResults(document.body);
     if (!document.querySelector(".skip-link")) {
       const link = document.createElement("a");
       link.href = "#main-content";
