@@ -146,7 +146,11 @@ const assert = require("node:assert/strict"),
       assert.equal(row.querySelector(".case-options summary").textContent.startsWith("Case options"), true);
       if (flags.invalid) assert.ok(row.textContent.includes("Record verification: Verified <&>"));
       if (flags.closed) assert.ok(row.textContent.includes("Closed"));
-      if (flags.visit) assert.ok(row.querySelector("details [data-discardri]"));
+      if (flags.visit) {
+        assert.ok(row.querySelector("details [data-discardri]"));
+        assert.ok(row.textContent.includes("Reinspection draft"));
+        assert.ok(row.textContent.includes("0 corrected, 1 still to result"));
+      }
       if (flags.draft && !flags.visit) assert.ok(row.querySelector("details [data-discard]"));
       if (!flags.closed && flags.late) assert.ok(row.textContent.includes("Past due"));
       assert.equal(row.querySelectorAll("script").length, 0);

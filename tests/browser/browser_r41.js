@@ -54,6 +54,16 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       WriterState.PREFLIGHT_CONFLICT = null;
       WriterState.PREFLIGHT_NOTICE = "";
       WriterState.RECOVERY = { ...WriterState.RECOVERY, error: "", at: "2026-10-15T12:00:00Z" };
+      WriterState.REINSP.push({
+        id: "workspace-visit",
+        caseId: "queue-2",
+        sourceDocId: "qdoc-2",
+        draft: true,
+        date: recordDay(today),
+        time: "09:00",
+        inspectorId: "i4",
+        results: { "qitem-2": { oc: "corrected", on: recordDay(today) } },
+      });
       render();
     });
     for (const size of [
@@ -67,6 +77,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       assert.equal(await page.locator("[data-metric]").count(), 0);
       assert.equal(await page.locator("[data-queue-case]").count(), 32);
       assert.equal(await page.locator(".queue-primary").count(), 32);
+      const visit = page.locator('[data-queue-case="queue-2"]');
+      assert.ok((await visit.textContent()).includes("Reinspection draft"));
+      assert.ok((await visit.textContent()).includes("1 corrected, 0 still to result"));
+      assert.equal(await visit.locator(".queue-primary").textContent(), "Continue reinspection");
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       const action = await page.locator(".queue-primary").first().boundingBox(),
         row = await page.locator("[data-queue-case]").first().boundingBox();

@@ -3,7 +3,7 @@ import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { caseFileName } from "./case_file_rules.js";
-import { docsFor, groupCaseDocuments, insp } from "./writer_queries.js";
+import { docsFor, groupCaseDocuments, doneItems, unchecked, insp } from "./writer_queries.js";
 import { fmtDate } from "./presentation_format.js";
 import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel } from "./working_papers.js";
@@ -39,6 +39,7 @@ function renderWorkspaceRow(row, documents = docsFor(row.k.id)) {
     <td data-label="Property / case"><div class="addr">${k.address}</div><div class="case-number">${k.number}</div>
       ${raw(badges.length ? html`<div class="case-badges">${raw(badges.map((label) => html`<span class="pill">${label}</span>`).join(""))}</div>` : "")}
       ${raw(row.resolution || row.continuing || st.restrictions.length ? html`<p class="case-message">${row.reason}</p>` : "")}
+      ${raw(st.visit ? html`<p class="case-message">${st.visit.draft ? "Reinspection draft" : "Recorded visit"} · ${String(doneItems(st.visit).length)} corrected, ${String(unchecked(st.visit).length)} still to result</p>` : "")}
       ${raw(workspaceCaseOptions(row, secondary, detailActions))}</td>
     <td data-label="Issued documents">${raw(workspaceDocumentsSummary(k, documents))}</td>
     <td data-label="Next due">${raw(workspaceDueHTML({ st }))}</td><td data-label="Inspector">${insp(k.inspectorId).name}</td>
