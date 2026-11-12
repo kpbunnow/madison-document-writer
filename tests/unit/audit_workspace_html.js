@@ -142,7 +142,8 @@ const assert = require("node:assert/strict"),
       assert.equal(row.querySelector(".case-number").textContent, s.CASES.find((k) => k.id === row.dataset.queueCase).number);
       assert.ok(row.querySelector("details [data-rmcase]"));
       assert.ok(row.querySelector("details [data-timeline]"));
-      assert.equal(row.querySelector("[data-case-documents]").dataset.caseDocuments, row.dataset.queueCase);
+      assert.equal(row.querySelector("[data-case-documents],[data-case-pdf]"), null);
+      assert.ok(row.querySelector('[data-open="d' + row.dataset.queueCase.slice(1) + '"]'));
       assert.equal(row.querySelector(".case-options summary").textContent.startsWith("Case options"), true);
       if (flags.invalid) assert.ok(row.textContent.includes("Record verification: Verified <&>"));
       if (flags.closed) assert.ok(row.textContent.includes("Closed"));

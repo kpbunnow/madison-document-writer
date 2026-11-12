@@ -1,4 +1,4 @@
-/* Case document presentation is read-only; PDF routes retain the existing receipt-verified reader. */
+/* Issued history is linked directly, read-only and newest first; drafts retain their existing editor route. */
 const assert = require("node:assert/strict");
 const { JSDOM } = require("jsdom");
 const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs");
@@ -7,11 +7,11 @@ const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs
     WriterState: s,
     orderedCaseDocuments,
     workspaceDocumentsSummary,
-    workspaceDocumentsPanel,
+    workspaceDraftDocuments,
     createWorkspaceEvents,
   } = await compile(
     [
-      'export {orderedCaseDocuments,workspaceDocumentsSummary,workspaceDocumentsPanel} from "./workspace_documents.js";',
+      'export {orderedCaseDocuments,workspaceDocumentsSummary,workspaceDraftDocuments} from "./workspace_documents.js";',
       'export {createWorkspaceEvents} from "./workspace_events.js";',
     ].join("\n"),
   );
@@ -36,21 +36,39 @@ const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs
     DOCS: docs,
     CASES: [k],
     state: { docId: "old", modal: null },
-    ARTIFACT_LOCATIONS: { [issued.id]: ["shared"] },
+    ARTIFACT_LOCATIONS: {},
     ARTIFACT_VERIFY: {},
     ARTIFACT_IDENTITY: {},
   });
-  const before = JSON.stringify(docs);
-  const parse = (text) => new JSDOM(text).window.document;
+  const before = JSON.stringify(s),
+    parse = (text) => new JSDOM(text).window.document;
   let document = parse(workspaceDocumentsSummary(k, docs));
-  assert.equal(document.querySelector("strong").textContent, "Official Notice");
-  assert.equal(document.querySelector("[data-case-pdf]").dataset.casePdf, issued.id);
-  assert.equal(document.querySelector("[data-open]").dataset.open, issued.id);
-  assert.equal(document.querySelector("[data-case-documents]").dataset.caseDocuments, k.id);
-  assert.ok(document.body.textContent.includes("All documents (5)") && document.body.textContent.includes("1 draft"));
+  assert.deepEqual(
+    [...document.querySelectorAll("[data-open]")].map((e) => e.dataset.open),
+    ["withdrawn", issued.id, "revision", "old"],
+  );
+  assert.deepEqual(
+    [...document.querySelectorAll(".case-document-date")].map((e) => e.textContent),
+    ["11/06/2026", "11/05/2026", "11/04/2026", "11/01/2026"],
+  );
+  for (const label of ["Withdrawn", "Replaced", "Revision 2"]) assert.ok(document.body.textContent.includes(label));
+  for (const button of document.querySelectorAll("[data-open]")) {
+    assert.equal(button.textContent, "Official Notice");
+    assert.ok(button.getAttribute("aria-label").startsWith("Official Notice, issued "));
+  }
+  assert.equal(document.querySelector("ul").getAttribute("aria-label"), "Issued documents for " + k.address + ", " + k.number);
+  assert.equal(document.querySelector("img,script,[data-case-pdf],[data-case-documents]"), null);
+  for (const removed of ["View issued PDF", "Open record", "All documents", "Check PDF"]) assert.ok(!document.body.textContent.includes(removed));
   assert.deepEqual(
     orderedCaseDocuments(docs).map((d) => d.id),
     ["draft", "withdrawn", issued.id, "revision", "old"],
+  );
+  assert.equal(JSON.stringify(s), before, "presentation cannot mutate records, receipts or editor selection");
+  document = parse(workspaceDraftDocuments(docs));
+  assert.ok(document.body.textContent.includes("In progress") && document.body.textContent.includes("Draft"));
+  assert.deepEqual(
+    [...document.querySelectorAll("[data-open]")].map((e) => e.dataset.open),
+    ["draft"],
   );
   const backdated = { ...issued, id: "backdated", mailed: "2026-10-01", issuedAt: "2026-11-06T16:00:00Z" };
   const correction = {
@@ -60,97 +78,51 @@ const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs
     issuedAt: "2026-11-05T16:00:00Z",
     revision: { number: 3, at: "2026-11-07T16:00:00Z" },
   };
-  assert.deepEqual(
-    orderedCaseDocuments([issued, backdated, correction]).map((d) => d.id),
-    ["correction", "backdated", issued.id],
-    "backdated mailing cannot hide newer issuance or corrections",
-  );
-  const corrected = parse(workspaceDocumentsSummary(k, [issued, backdated, correction]));
-  assert.equal(corrected.querySelector("[data-open]").dataset.open, "correction");
-  assert.equal(corrected.querySelector(".case-document-date").textContent, "Issued 11/07/2026");
-  document = parse(workspaceDocumentsPanel(k, docs));
-  assert.equal(document.querySelector("[role=dialog]").getAttribute("aria-modal"), "true");
-  assert.equal(document.querySelector(".modal-h p").textContent, k.address + " · " + k.number);
-  assert.equal(document.querySelectorAll("img,script").length, 0);
+  document = parse(workspaceDocumentsSummary(k, [issued, backdated, correction]));
   assert.deepEqual(
     [...document.querySelectorAll("[data-open]")].map((e) => e.dataset.open),
-    ["draft", "withdrawn", issued.id, "revision", "old"],
+    ["correction", "backdated", issued.id],
+    "backdated mailing cannot hide newer issuance/revisions",
   );
-  for (const label of ["In progress", "Issued documents", "Draft", "Withdrawn", "Replaced", "Revision 2"])
-    assert.ok(document.body.textContent.includes(label), label);
-  assert.equal(JSON.stringify(docs), before, "rendering cannot mutate history or receipts");
-  for (const [verify, locations, identity, button, note] of [
-    [undefined, ["shared"], undefined, "View issued PDF", null],
-    [undefined, ["local"], undefined, "View issued PDF", null],
-    [undefined, undefined, undefined, "Check PDF", "location unverified"],
-    ["unavailable", ["shared"], undefined, "Check PDF", "last verified"],
-    ["invalid", ["shared"], undefined, null, "invalid artifact identity"],
-    [undefined, ["shared conflict"], undefined, null, "artifact conflict"],
-    [undefined, [], undefined, null, "missing or unavailable"],
-    [undefined, ["shared"], "stale", "Check PDF", "location unverified"],
-  ]) {
-    s.ARTIFACT_VERIFY[issued.id] = verify;
-    s.ARTIFACT_LOCATIONS[issued.id] = locations;
-    s.ARTIFACT_IDENTITY[issued.id] = identity;
-    document = parse(workspaceDocumentsSummary(k, [issued]));
-    assert.equal(document.querySelector("[data-case-pdf]")?.textContent || null, button);
-    if (note) assert.ok(document.body.textContent.includes(note));
-  }
-  for (const change of [{ draft: true }, { pendingAmendment: { key: "pending" } }, { filedArtifact: null }]) {
-    document = parse(workspaceDocumentsPanel(k, [{ ...issued, ...change }]));
-    assert.equal(document.querySelector("[data-case-pdf]"), null);
-    assert.ok(document.querySelector("[data-open]"));
-  }
-  const packet = { ...issued, id: "packet", type: "citation", mailed: "2026-11-06" };
+  assert.equal(document.querySelector(".case-document-date").textContent, "11/07/2026");
+  document = parse(workspaceDocumentsSummary(k, [{ ...issued, issuedAt: "2026-11-06T02:00:00Z" }]));
+  assert.equal(document.querySelector(".case-document-date").textContent, "11/05/2026", "issued date uses the City day, not the UTC day");
+  for (const location of [undefined, ["shared"], ["local"], ["conflict"], []])
+    for (const verify of [undefined, "invalid", "unavailable", "incomplete"]) {
+      s.ARTIFACT_LOCATIONS[issued.id] = location;
+      s.ARTIFACT_VERIFY[issued.id] = verify;
+      document = parse(workspaceDocumentsSummary(k, [issued]));
+      assert.equal(document.querySelector("[data-open]").dataset.open, issued.id, "record access is independent of PDF location");
+      assert.equal(document.querySelector("[data-case-pdf]"), null);
+    }
   const notice = { ...issued, id: "notice", authoringVersion: 11, issuanceGroup: { citationId: "packet" } };
+  const packet = { ...issued, id: "packet", type: "citation" };
   document = parse(workspaceDocumentsSummary(k, [notice, packet]));
-  assert.equal(document.querySelector("[data-case-pdf]").dataset.casePdf, "packet");
-  document = parse(workspaceDocumentsPanel(k, [notice, packet]));
-  assert.equal(document.querySelector('[data-open="notice"]').closest(".case-document").querySelector("[data-case-pdf]").dataset.casePdf, "packet");
-  document = parse(workspaceDocumentsPanel(k, [notice]));
-  assert.equal(document.querySelector("[data-case-pdf]"), null, "missing packet must never fall back to notice PDF");
-  assert.ok(parse(workspaceDocumentsPanel(k, [])).body.textContent.includes("No documents have been issued"));
-  assert.ok(parse(workspaceDocumentsPanel(null, [])).body.textContent.includes("Case not available"));
+  assert.deepEqual(
+    [...document.querySelectorAll("[data-open]")].map((e) => e.dataset.open),
+    ["notice", "packet"],
+    "each document name opens its own record; packet PDF authority stays in the editor",
+  );
+  document = parse(workspaceDocumentsSummary(k, [{ ...issued, pendingAmendment: { key: "pending" } }]));
+  assert.ok(document.body.textContent.includes("Save confirmation needed"));
+  assert.equal(document.querySelector("[data-open]").dataset.open, issued.id);
+  assert.ok(parse(workspaceDocumentsSummary(k, [])).body.textContent.includes("No issued documents"));
+  assert.ok(parse(workspaceDocumentsSummary(k, [docs[3]])).body.textContent.includes("No issued documents"));
+  assert.equal(workspaceDraftDocuments([issued]), "");
   const target = listenerTarget(),
     calls = [];
-  const events = createWorkspaceEvents({
-    ui: { captureWork: () => {}, render: () => calls.push("render") },
-    events: {
-      editorEvents: {
-        openOriginal: (d) => calls.push(["original", d.id]),
-        openDocument: (t) => calls.push(["record", t.dataset.open, s.state.modal]),
-      },
-    },
-  });
-  events.registerWorkspaceClicks(target);
-  const click = async (dataset) => {
-    const t = {
-      dataset,
-      id: "",
-      hasAttribute: (key) => Object.keys(dataset).some((k) => "data-" + k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase()) === key),
-    };
+  createWorkspaceEvents({
+    ui: { captureWork: () => calls.push("capture") },
+    events: { editorEvents: { openDocument: (t) => calls.push(["record", t.dataset.open]) } },
+  }).registerWorkspaceClicks(target);
+  for (const id of [issued.id, "old", "withdrawn", "draft"]) {
+    const t = { dataset: { open: id }, id: "", hasAttribute: (key) => key === "data-open" };
     await target.listeners.click({ target: { closest: () => t } });
-  };
-  await click({ caseDocuments: k.id });
-  assert.equal(s.state.modal, "case-documents");
-  assert.equal(s.state.documentsCaseId, k.id);
-  await click({ caseDocuments: "missing" });
-  assert.equal(calls.length, 1, "unknown cases do not open a panel");
-  await click({ casePdf: issued.id });
-  assert.deepEqual(calls.at(-1), ["original", issued.id]);
-  assert.equal(s.state.docId, "old", "PDF access must use the chosen document without changing active editor");
-  const count = calls.length;
-  await click({ casePdf: "missing" });
-  await click({ casePdf: "draft" });
-  issued.pendingAmendment = { key: "pending" };
-  await click({ casePdf: issued.id });
-  delete issued.pendingAmendment;
-  assert.equal(calls.length, count, "missing, draft and pending records cannot open issued PDF");
-  await click({ open: issued.id });
-  assert.deepEqual(calls.at(-1), ["record", issued.id, null], "open record closes the document panel before existing preflight route");
-  assert.equal(s.state.docId, "old");
+    assert.deepEqual(calls.slice(-2), ["capture", ["record", id]]);
+    assert.equal(s.state.docId, "old", "existing editor/preflight owner controls selection");
+  }
   console.log(
-    "PASS case document history, current/draft/withdrawn/revision ordering, escaping, read-only presentation, PDF location states/packets and delegated access",
+    "PASS compact issued/draft links: complete descending history, City dates, backdated revisions, labels, escaping, read-only state, PDF-location independence and existing record dispatch",
   );
 })().catch((error) => {
   console.error(error);

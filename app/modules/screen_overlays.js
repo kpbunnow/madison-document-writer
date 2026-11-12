@@ -2,8 +2,7 @@ import { html, raw } from "./screen_html.js";
 import { startupState as startup } from "./startup_state.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
-import { doc, kase, docCase, docsFor } from "./writer_queries.js";
-import { workspaceDocumentsPanel } from "./workspace_documents.js";
+import { doc, kase, docCase } from "./writer_queries.js";
 import { iso } from "./calendar.js";
 import { DOC_TYPES } from "./document_types.js";
 import { emailList, ccList, copiesOwner, defendantName, isLLC, violatorOf, EMAIL_KINDS, VIOLATOR } from "./mailing_rules.js";
@@ -290,8 +289,6 @@ function finalDocumentModal({ services }) {
 
 export function createScreenOverlays(services) {
   function modalHTML() {
-    if (editor.state.modal === "case-documents")
-      return workspaceDocumentsPanel(kase(editor.state.documentsCaseId), docsFor(editor.state.documentsCaseId));
     if (editor.state.modal === "shared-change") return services.sharedChangeModal();
     if (editor.state.modal === "review") return services.reviewModalHTML();
     if (editor.state.modal === "recovery") return services.recoveryModal();

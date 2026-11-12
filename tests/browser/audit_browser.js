@@ -96,8 +96,7 @@ async function openIssuedFromWorkspace(page, docId, message) {
   const row = page.locator("tr[data-issued-highlight]");
   assert.equal(await row.count(), 1, "the issued case is highlighted in Workspace");
   assert.equal(await row.evaluate((el) => el === document.activeElement && el.getAttribute("aria-current")), "true", "the issued case row has focus");
-  await row.locator("[data-case-documents]").click();
-  await page.locator('.case-documents-panel [data-open="' + docId + '"]').click();
+  await row.locator('td[data-label="Issued documents"] [data-open="' + docId + '"]').click();
   await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, docId);
 }
 
@@ -332,6 +331,7 @@ async function axeThemes(page, screen) {
   assert.equal(await page.locator("#m-go,#imp-go,#imp-csv").count(), 0, "Manual and CSV entry options stay removed");
   assert.equal(await page.locator("text=Check what will be imported").count(), 0, "Import preview section stays removed");
   await axeScreen(page, "import-inspection");
+  assert.equal(await page.locator(".import-source").count(), 0, "source/import disclosure is removed; eligibility and confirmation remain");
   await page.screenshot({ path: path.join(OUT, "import-inspection.png"), fullPage: true });
   await page.evaluate(() => {
     const id = "qa-001";

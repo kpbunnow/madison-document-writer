@@ -216,7 +216,11 @@ function run(api, sc, inspector) {
     chooser = 0;
   for (let n = 0; n < 6000; n++) {
     const sc = scenario(inspector);
-    const [before, shown] = [run(legacy, sc, inspector), run(current, sc, inspector)];
+    const retained = JSON.parse(run(legacy, sc, inspector));
+    // Owner-approved removal of this single presentation-only disclosure; every remaining byte/effect stays compared.
+    if (retained.html) retained.html = retained.html.replace(/<details class="import-source">[\s\S]*?<\/details>/g, "");
+    const [before, shown] = [JSON.stringify(retained), run(current, sc, inspector)];
+    assert.ok(!(JSON.parse(shown).html || "").includes('class="import-source"'));
     // One deliberate difference from the retained module: the Start button points at the blocker banner (when it is
     // shown) so the reason travels with the disabled control. Everything else must still be identical.
     const after = shown.replace(/(id=\\"acc-go\\"[^>]*?) aria-describedby=\\"acc-blockers\\"/, "$1");
@@ -248,8 +252,6 @@ function run(api, sc, inspector) {
       'id="acc-blockers"',
       "lookup-recheck",
       "import-changes",
-      "Retrieved",
-      "This is a saved snapshot",
       "Start snow citation",
       "Start Official Notice",
       "Import inspection",
@@ -268,7 +270,6 @@ function run(api, sc, inspector) {
     'id="acc-blockers"',
     "lookup-recheck",
     "import-changes",
-    "Retrieved",
     "Start snow citation",
     "Start Official Notice",
     "Import inspection",

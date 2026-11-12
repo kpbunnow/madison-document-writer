@@ -113,7 +113,7 @@ const assert = require("node:assert/strict"),
     ["large-0-doc-0", "large-0-doc-1", "large-0-doc-2", "large-0-doc-3"],
     "operation grouping preserves source document order; the read-only history presenter owns display sorting",
   );
-  assert.ok(first.includes('data-case-documents="large-0"'), "each case exposes its full document history");
+  assert.ok(first.includes('aria-label="Issued documents for 0 EXAMPLE ST'), "each case exposes its full document history");
   const original = s.DOCS;
   s.DOCS = [{ ...original[0], id: "replacement-draft", pendingAmendment: { recordKey: "new-attempt" } }];
   reads = 0;

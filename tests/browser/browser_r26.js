@@ -141,8 +141,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
       row = page.locator("tr[data-issued-highlight]");
     assert.equal(await row.count(), 1, name + ": issued case highlighted");
     assert.equal(await row.evaluate((el) => el === document.activeElement), true, name + ": issued case focused");
-    await row.locator("[data-case-documents]").click();
-    await page.locator('.case-documents-panel [data-open="' + issuedId + '"]').click();
+    await row.locator('td[data-label="Issued documents"] [data-open="' + issuedId + '"]').click();
     await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, issuedId);
     await page.evaluate(() => saveDrafts());
     const job = await page.evaluate(() => ({

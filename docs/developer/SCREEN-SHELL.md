@@ -36,3 +36,7 @@ Run `python tools/screen_shell_reference.py` to check a production build. `audit
 ## Workspace redesign, November 11, 2026
 
 The owner explicitly approved replacing the Workspace summary, counters and filters with per-case information and direct document access. The scoped, append-only screen rules and reviewed current shell/CSS contracts are recorded in WORKSPACE-CASE-DOCUMENTS.md. This changes current screen presentation only. The historic `case-view` parser fixture remains as a split-literal regression; its Workspace control has been retired, so it no longer belongs to the retained-runtime-consumer inventory. `queue-primary` remains live. Earlier reference revisions and all immutable print/legal references remain intact.
+
+## Compact document links, November 12, 2026
+
+The owner approved replacing the Workspace document controls/side panel with a descending type/date link list and removing Source and import details from import review. Current screen/CSS contracts record the scoped list styling and retirement of unused panel rules. Earlier reference history and all immutable print/legal references remain intact. See WORKSPACE-CASE-DOCUMENTS.md for scope, coverage and review evidence.

@@ -1,5 +1,15 @@
 # Workspace cases and documents
 
+## Current refinement, November 12, 2026
+
+The owner requested a compact inline Issued documents column: every issued document appears as a document-type link with its City issue date, newest issuance/revision first. The link uses the unchanged `data-open` editor/preflight route. Replaced, withdrawn, revised and unconfirmed records retain their labels. Drafts stay under Case options / In progress and in the existing recommended action. The separate PDF, Open record and All documents controls and the side-panel route, presenter and styles have been removed. Original PDF retrieval remains available from the opened record through its existing verified reader.
+
+The Source and import details disclosure and its presentation-only renderer are removed from import review; source facts, eligibility, availability reasons, warnings, blockers, case-change review and confirmation remain unchanged. The 6,000 retained import-panel comparisons adapt only that explicitly removed disclosure and retain every other markup byte, state/effect and interruption check. Frozen source references remain unchanged.
+
+The existing document, workspace and production-browser scenarios now exercise the complete inline list and draft links. Seven former panel accessibility checkpoints become list theme/width/200% text checkpoints; generic modal trapping remains covered elsewhere. Direct issuance/reload navigation opens the document name. The 1,033 workspace variants, 1,077 original dispatch comparisons and 500-case / 2,000-document read bounds remain. Screen CSS/reference review covers retired panel styles and compact link targets; approved print, release identities and dependencies are unchanged. Evidence: `/workspace/scratch/work/compact-documents-2026-11-12/`.
+
+## November 11 design and review provenance
+
 The owner approved the document-first Workspace redesign on November 11, 2026, including removal of the summary/counter area, workspace search, More views and All inspectors. Baseline: main `d88f76e3d32bbee20b2665fe965a27af36cf8dee` (PR #470). This is development within the existing R77 identity, not a release or deployment.
 
 Every loaded case remains visible. The five columns are Property / case, Issued documents, Next due, Inspector and Action. Status and useful warning text belong to their case rather than a separate Status / Next step column or a global count. The existing queue owns priority, next actions, save/verification holds and secondary tasks. Orphan queued saves remain reachable outside rows because they have no loaded case. Start case work, import review, working notes, recovery and Saved work & connection remain available.

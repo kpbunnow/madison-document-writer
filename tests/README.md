@@ -126,7 +126,7 @@ covers, or a new suite under its feature.
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
 | `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
 | `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
-| `audit_workspace_documents.js` | Read-only case document history/current selection, PDF location states and citation packets, escaping, unknown/draft/pending guards and delegated original/record access |
+| `audit_workspace_documents.js` | Complete inline issued history and draft links: descending issue/revision and City dates, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |
