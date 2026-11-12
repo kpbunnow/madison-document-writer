@@ -142,14 +142,7 @@ const scopedServices = {
     "./writer_queries.js",
   ],
   "citation_history.js": ["../assets/shared.js", "./calendar.js", "./writer_queries.js"],
-  "workspace_documents.js": [
-    "../assets/shared.js",
-    "./screen_html.js",
-    "./document_types.js",
-    "./presentation_format.js",
-    "./document_rules.js",
-    "./pdf_artifacts.js",
-  ],
+  "workspace_documents.js": ["../assets/shared.js", "./screen_html.js", "./document_types.js", "./presentation_format.js"],
   "workspace_screen.js": [
     "./workspace_documents.js",
     "./screen_html.js",
@@ -165,7 +158,6 @@ const scopedServices = {
   ],
   "language_views.js": ["./language_discovery.js"],
   "screen_overlays.js": [
-    "./workspace_documents.js",
     "./screen_html.js",
     "./workspace_state.js",
     "./editor_state.js",

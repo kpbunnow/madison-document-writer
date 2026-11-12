@@ -776,18 +776,6 @@ function caseChangeDetails(k, p) {
     : "";
 }
 
-function importSourceDetails(acc, p) {
-  return html`<details class="import-source"><summary>Source and import details</summary><p>${acc.fileName || "Accela case lookup"}</p>${raw(
-    "".concat(
-      liveSource(acc.source)
-        ? "<p>Retrieved " +
-            `${esc(new Date(acc.source.retrievedAt).toLocaleString())}` +
-            ". This is a saved snapshot; use Find Case Inspections again to refresh it.</p>"
-        : "",
-    ),
-  )}${raw((p.notes || []).map((n) => `<p>${esc(n)}</p>`).join(""))}<p>The inspection type and its result status decide the document: an Initial Inspection with Official Notice, Citation, No Occupancy or an Abatement result; a Reinspection with CA Referral (City Attorney Referral), Compliance, Citation, Extension Processing, No Fee Extension Processing, No Occupancy, No Fee No Occupancy, Reinspection or No Fee Reinspection (a Reinspection Notice); a CA Reinspection with Compliance or Non Compliance. Results that are not inspection outcomes (Scheduled, Pending, Completed, Inspection, No Violation, Reinspection or No Fee Reinspection on any type other than a Reinspection, an Initial Inspection with No Entry), Assist inspections, undated rows and inspections already used on the case are not listed; other combinations are listed as not available. Blank inspection times stay blank until explicitly corrected.</p></details>`;
-}
-
 function importPanelHTML(services, acc, p) {
   if (acc.errors?.length) return importErrorPanel(acc);
   const c = p.c,
@@ -801,7 +789,7 @@ function importPanelHTML(services, acc, p) {
   const notAvailable = unavailableInspections(services, unavailable);
   const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
   const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
-  return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${k?.address || p.f.address}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : ""))}\n    ${raw(caseChangeDetails(k, p))}\n    ${raw(importSourceDetails(acc, p))}\n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "")}${raw(visibleBlockers.length ? ' aria-describedby="' + BLOCKERS_ID + '"' : "")}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
+  return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${k?.address || p.f.address}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : ""))}\n    ${raw(caseChangeDetails(k, p))}\n    \n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "")}${raw(visibleBlockers.length ? ' aria-describedby="' + BLOCKERS_ID + '"' : "")}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
 }
 
 /* The import window: opened by selecting an open case or by Find Case Inspections, it shows the lookup while it runs,

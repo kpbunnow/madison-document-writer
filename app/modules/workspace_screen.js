@@ -9,12 +9,12 @@ import { workspaceQueue, queueMatches } from "./workspace_queue.js";
 import { importResumePanel, workingNotesPanel } from "./working_papers.js";
 import { uiIcon } from "./ui_icons.js";
 
-import { workspaceDocumentsSummary } from "./workspace_documents.js";
+import { workspaceDocumentsSummary, workspaceDraftDocuments } from "./workspace_documents.js";
 
-function workspaceCaseOptions(row, secondary, detailActions) {
+function workspaceCaseOptions(row, secondary, detailActions, documents) {
   const { k, st, proof } = row;
   return html`<details class="queue-details case-options"><summary>Case options${secondary.length ? " · " + secondary.length + " other " + (secondary.length === 1 ? "task" : "tasks") : ""}</summary><div class="doclinks">
-    <p>${k.owner}</p>${raw(detailActions)}
+    <p>${k.owner}</p>${raw(detailActions)}${raw(workspaceDraftDocuments(documents))}
     ${raw(!caseNumberAllowed(k) ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "")}
     <p>Record verification: ${proof.label}</p>${raw(proof.valid === false ? html`<p>${proof.eventId || ""} · ${proof.lastGoodCommitTime || "Last good commit unavailable"}</p><button class="btn btn-sm" data-sync-safety>Review record problem</button>` : "")}
     <button data-exportcase="${k.id}">Download case record</button><button data-timeline="${k.id}">Case timeline</button>
@@ -40,7 +40,7 @@ function renderWorkspaceRow(row, documents = docsFor(row.k.id)) {
       ${raw(badges.length ? html`<div class="case-badges">${raw(badges.map((label) => html`<span class="pill">${label}</span>`).join(""))}</div>` : "")}
       ${raw(row.resolution || row.continuing || st.restrictions.length ? html`<p class="case-message">${row.reason}</p>` : "")}
       ${raw(st.visit ? html`<p class="case-message">${st.visit.draft ? "Reinspection draft" : "Recorded visit"} · ${String(doneItems(st.visit).length)} corrected, ${String(unchecked(st.visit).length)} still to result</p>` : "")}
-      ${raw(workspaceCaseOptions(row, secondary, detailActions))}</td>
+      ${raw(workspaceCaseOptions(row, secondary, detailActions, documents))}</td>
     <td data-label="Issued documents">${raw(workspaceDocumentsSummary(k, documents))}</td>
     <td data-label="Next due">${raw(workspaceDueHTML({ st }))}</td><td data-label="Inspector">${insp(k.inspectorId).name}</td>
     <td data-label="Action"><div class="case-next"><button class="btn btn-primary queue-primary" ${raw(row.action)}>${row.label}</button></div></td></tr>`;

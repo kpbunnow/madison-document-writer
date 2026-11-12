@@ -287,7 +287,7 @@ const test = async () => {
         assert.equal(document.querySelector("[data-queue-view],#case-search,#case-filter,#case-inspector,.queue-view-note"), null);
         assert.deepEqual([...document.querySelectorAll("[data-queue-case]")].map((tr) => tr.dataset.queueCase).sort(), expectedIds);
         assert.equal(document.querySelectorAll(".queue-primary").length, expectedIds.length);
-        assert.equal(document.querySelectorAll("[data-case-documents]").length, expectedIds.length);
+        assert.equal(document.querySelectorAll(".workspace-cases td[data-label='Issued documents']").length, expectedIds.length);
       }
   assert.ok(document.querySelector('[data-queue-case="u1-case-0"]').textContent.includes("Past due"));
   Object.assign(WriterState.state, { caseFilter: "attention", caseQ: "", caseInspector: "" });

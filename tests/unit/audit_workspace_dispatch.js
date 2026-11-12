@@ -8,8 +8,7 @@ const assert = require("node:assert/strict"),
 (async () => {
   const dir = path.resolve("app/modules"),
     source = fs.readFileSync(path.join(dir, "workspace_events.js"), "utf8"),
-    // The new case-document routes extend the delegated selector without changing legacy dispatch.
-    reference = require("../fixtures/workspace_click_reference.cjs").replace('"[data-nav]', '"[data-case-documents],[data-case-pdf],[data-nav]');
+    reference = require("../fixtures/workspace_click_reference.cjs");
   const compiled = await esbuild.build({
     stdin: {
       contents:

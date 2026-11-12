@@ -2665,26 +2665,6 @@
   .case-document-note {
     margin: 4px 0;
   }
-  .case-document-actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-  }
-  .case-document-actions .lnk,
-  .case-all-documents {
-    min-height: 44px;
-    padding: 6px 2px;
-    font: inherit;
-    font-size: 0.875rem;
-    text-align: left;
-  }
-  .case-document-actions .case-document-note {
-    flex-basis: 100%;
-  }
-  .case-all-documents {
-    display: block;
-  }
   .workspace-cases .case-options .doclinks button {
     min-height: 44px;
     font-size: 0.875rem;
@@ -2705,46 +2685,6 @@
     padding: 12px;
     border: 1px solid var(--rule);
     border-radius: 8px;
-  }
-  .case-documents-panel {
-    justify-content: flex-end;
-    padding: 0;
-  }
-  .case-documents-panel .modal-box {
-    width: min(44rem, 100%);
-    max-width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    border-radius: 12px 0 0 12px;
-    font-family: var(--sans);
-    font-size: 1rem;
-    display: flex;
-    flex-direction: column;
-  }
-  .case-documents-panel .modal-h {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .case-documents-panel .modal-h > div {
-    min-width: 0;
-  }
-  .case-documents-panel .modal-h > .btn {
-    min-width: 44px;
-    min-height: 44px;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  .case-documents-panel .modal-h p {
-    margin: 6px 0 0;
-    overflow-wrap: anywhere;
-  }
-  .case-documents-panel .modal-b {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
   }
   .case-document-list {
     list-style: none;
@@ -2780,9 +2720,6 @@
   }
   .workspace-cases .case-next {
     justify-content: flex-start;
-  }
-  .case-documents-panel .modal-box {
-    border-radius: 0;
   }
 }
 
@@ -2833,5 +2770,25 @@
     white-space: normal;
     text-overflow: clip;
     overflow: visible;
+  }
+}
+
+/* Workspace document-link consolidation (owner request 2026-11-12). Screen only. */
+@media screen {
+  .workspace-cases .case-document-list > li {
+    padding: 0;
+    border: 0;
+    margin: 0;
+  }
+  .workspace-cases .case-document-link {
+    min-height: 44px !important;
+    padding: 6px 2px;
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    white-space: normal;
+  }
+  .workspace-cases .case-options .case-document-link {
+    font-size: 0.875rem;
   }
 }

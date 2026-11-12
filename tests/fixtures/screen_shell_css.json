@@ -34,7 +34,10 @@
     "editor-initial-options",
     "spacer",
     "acc-drop",
-    "import-alternative"
+    "import-alternative",
+    "case-document-actions",
+    "case-all-documents",
+    "case-documents-panel"
   ],
   "retainedClasses": [
     "queue-primary"
@@ -63,10 +66,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "c9eff16149f92074e4016214a5e3b372966d9b7d974aa9d9a8340996ccb1a470",
+      "afterSha256": "ced6d94c407995a2c59fe0e568c8e0f28c639eabba11ca5d916a52939582f047",
       "beforeBytes": 48561,
-      "afterBytes": 59572,
-      "retainedRulesSha256": "6d7ed20c4307915dc0cc51576b7e144dac4f2a238b6a0048d24be09d154c70a1"
+      "afterBytes": 58702,
+      "retainedRulesSha256": "30c7d723e5ef52a667c40744a7a3ccb184d2384a384abc5f95af30d4cd94aca5"
     }
   },
   "selectorChanges": [
@@ -782,6 +785,26 @@
         }
       },
       "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
+    },
+    {
+      "date": "2026-11-12",
+      "sourceCommit": "3c8134dc99ba3b26269bc689eef21e445004f00e",
+      "scope": "Owner-approved inline issued document links and retirement of document-panel/PDF controls. Removes only obsolete panel/action styles and adds scoped compact-list rules; independently checks unrelated CSS semantics/order unchanged.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "c9eff16149f92074e4016214a5e3b372966d9b7d974aa9d9a8340996ccb1a470",
+          "afterSha256": "ced6d94c407995a2c59fe0e568c8e0f28c639eabba11ca5d916a52939582f047",
+          "unrelatedRulesSha256": "b4382c0fff503d5ee071489449112662cea1f05ef155e4cc4046571a1aa996e6",
+          "reviewedRuleClasses": [
+            "case-document-list",
+            "case-document-link",
+            "case-document-actions",
+            "case-all-documents",
+            "case-documents-panel"
+          ]
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
     }
   ]
 }

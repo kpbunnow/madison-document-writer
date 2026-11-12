@@ -108,70 +108,52 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         .then((t) => t.includes("Work in progress")),
       true,
     );
-    // All documents opens a modal side panel with separate drafts and immutable issued history.
+    // Complete issued history is directly linked in the case row; drafts stay under Case options.
     await page.evaluate(() => {
       const current = doc("qdoc-1");
+      current.issuedAt = "2026-11-05T16:00:00Z";
       WriterState.DOCS.push(
-        { ...clone(current), id: "panel-draft", draft: true },
-        { ...clone(current), id: "panel-replaced", superseded: true },
-        { ...clone(current), id: "panel-withdrawn", void: true },
+        { ...clone(current), id: "panel-draft", draft: true, created: "2026-11-08" },
+        { ...clone(current), id: "panel-replaced", superseded: true, issuedAt: "2026-11-06T16:00:00Z" },
+        { ...clone(current), id: "panel-withdrawn", void: true, issuedAt: "2026-11-07T16:00:00Z" },
       );
       render();
     });
-    const documentsButton = page.locator('[data-queue-case="queue-1"] [data-case-documents]');
-    await documentsButton.focus();
-    await page.keyboard.press("Enter");
-    const panel = page.locator(".case-documents-panel [role=dialog]");
-    await panel.waitFor();
-    assert.equal(await page.locator("#app").evaluate((el) => el.inert), true);
-    assert.equal(await panel.locator('[data-open="panel-draft"]').textContent(), "Continue draft");
-    for (const word of ["Draft", "Replaced", "Withdrawn", "Issued"]) assert.ok((await panel.textContent()).includes(word));
-    assert.equal(await panel.locator('[data-case-pdf="qdoc-1"]').count(), 1);
-    await axeScreen(page, "workspace-case-documents");
-    if (axeThemes) await axeThemes(page, "workspace-case-documents");
-    await page.screenshot({ path: path.join(OUT, "workspace-case-documents.png"), fullPage: false });
+    const history = page.locator('[data-queue-case="queue-1"] td[data-label="Issued documents"]');
+    assert.deepEqual(await history.locator("[data-open]").evaluateAll((els) => els.map((e) => e.dataset.open)), [
+      "panel-withdrawn",
+      "panel-replaced",
+      "qdoc-1",
+    ]);
+    assert.deepEqual(await history.locator(".case-document-date").allTextContents(), ["11/07/2026", "11/06/2026", "11/05/2026"]);
+    for (const word of ["Withdrawn", "Replaced"]) assert.ok((await history.textContent()).includes(word));
+    assert.equal(await page.locator("[data-case-documents],[data-case-pdf],.case-documents-panel").count(), 0);
+    for (const label of ["View issued PDF", "Open record", "All documents"]) assert.ok(!(await history.textContent()).includes(label));
+    await axeScreen(page, "workspace-document-links");
+    if (axeThemes) await axeThemes(page, "workspace-document-links");
+    await page.screenshot({ path: path.join(OUT, "workspace-document-links.png"), fullPage: false });
     for (const width of [683, 320]) {
       await page.setViewportSize({ width, height: 900 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-      assert.equal(await panel.evaluate((el) => el.scrollWidth > el.clientWidth), false);
-      const close = await panel
-        .locator('[data-close="modal"]')
-        .evaluate((el) => ({ height: el.getBoundingClientRect().height, whiteSpace: getComputedStyle(el).whiteSpace }));
-      assert.ok(close.height >= 44);
-      assert.equal(close.whiteSpace, "nowrap", "Close remains legible in narrow panel headers");
-      await axeScreen(page, "workspace-case-documents-" + width);
-      await page.screenshot({ path: path.join(OUT, "workspace-case-documents-" + width + ".png"), fullPage: false });
+      for (const link of await history.locator("[data-open]").all()) assert.ok((await link.boundingBox()).height >= 44);
+      await axeScreen(page, "workspace-document-links-" + width);
+      await page.screenshot({ path: path.join(OUT, "workspace-document-links-" + width + ".png"), fullPage: false });
     }
     await page.setViewportSize({ width: 683, height: 900 });
     await page.evaluate(() => (document.documentElement.style.fontSize = "200%"));
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    assert.equal(await panel.evaluate((el) => el.scrollWidth > el.clientWidth), false);
-    await axeScreen(page, "workspace-case-documents-text-200");
+    await axeScreen(page, "workspace-document-links-text-200");
     await page.evaluate(() => (document.documentElement.style.fontSize = ""));
     await page.setViewportSize({ width: 1366, height: 768 });
-    // Tab wraps within the panel; Escape restores focus to the invoking case's button.
-    await panel.locator("button").last().focus();
-    await page.keyboard.press("Tab");
-    assert.equal(
-      await panel
-        .locator("button")
-        .first()
-        .evaluate((el) => el === document.activeElement),
-      true,
-    );
-    await page.keyboard.press("Shift+Tab");
-    assert.equal(
-      await panel
-        .locator("button")
-        .last()
-        .evaluate((el) => el === document.activeElement),
-      true,
-    );
-    await page.keyboard.press("Escape");
-    assert.equal(await documentsButton.evaluate((el) => el === document.activeElement), true);
-    assert.equal(await page.locator("#app").evaluate((el) => el.inert), false);
-    await documentsButton.click();
-    await page.locator('.case-documents-panel [data-open="qdoc-1"]').click();
+    const options = page.locator('[data-queue-case="queue-1"] .case-options');
+    await options.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    assert.equal(await options.locator('[data-open="panel-draft"]').textContent(), "Official Notice");
+    assert.ok((await options.textContent()).includes("Draft"));
+    await page.keyboard.press("Enter");
+    const record = history.locator('[data-open="qdoc-1"]');
+    await record.focus();
+    await page.keyboard.press("Enter");
     await page.waitForFunction(() => WriterState.state.screen === "write" && WriterState.state.docId === "qdoc-1");
     assert.equal(await page.locator(".case-documents-panel").count(), 0);
     await page.evaluate(() => {
@@ -183,7 +165,12 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         const s = getComputedStyle(row.querySelector(selector));
         return { font: s.fontFamily, size: s.fontSize };
       };
-      return { property: style(".addr"), number: style(".case-number"), document: style(".case-document strong"), action: style(".queue-primary") };
+      return {
+        property: style(".addr"),
+        number: style(".case-number"),
+        document: style('td[data-label="Issued documents"] .case-document strong'),
+        action: style(".queue-primary"),
+      };
     });
     assert.equal(typography.property.font, typography.document.font);
     assert.equal(typography.property.font, typography.number.font);
@@ -191,7 +178,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(typography.document.size, "16px");
     assert.equal(typography.number.size, "14px");
     assert.equal(typography.action.size, "14px");
-    results.push({ documentPanel: true, keyboardTrapAndReturn: true, readOnlyHistory: true, typography });
+    results.push({ inlineDocumentHistory: true, keyboardRecordAccess: true, draftAccess: true, readOnlyHistory: true, typography });
     const details = page.locator('[data-queue-case="queue-0"] details').first();
     await details.locator("summary").focus();
     await page.keyboard.press("Enter");
@@ -247,7 +234,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         "one primary action",
         "all loaded cases regardless of legacy preferences",
         "per-case warnings and issued documents",
-        "document panel drafts/history and keyboard focus",
+        "inline issued history, draft access and keyboard record links",
         "keyboard details",
         "contextual verification recovery",
         "empty workspace",

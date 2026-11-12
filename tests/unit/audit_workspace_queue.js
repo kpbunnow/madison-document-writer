@@ -134,7 +134,7 @@ const tests = async function () {
   );
   ok(
     "Case document access and per-case status replace global counters",
-    markup.includes('data-case-documents="late"') && markup.includes("Needs resolution") && markup.includes("Past due"),
+    markup.includes('aria-label="Issued documents for LATE TEST ST') && markup.includes("Needs resolution") && markup.includes("Past due"),
   );
   WriterState.state.caseFilter = "all";
   markup = screenCases();
