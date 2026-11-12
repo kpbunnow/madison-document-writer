@@ -984,9 +984,10 @@ require("../fixtures/scenarios.cjs").run(__filename, {
         WriterState.CASES.length === 0 && WriterState.state.screen === "cases",
       );
       reset();
-      const input = document.createElement("input");
+      // Workspace now has this field too. Reuse it so the capture scenario never creates duplicate IDs.
+      const input = document.getElementById("lookup-number") || document.createElement("input");
       input.id = "lookup-number";
-      document.getElementById("app").append(input);
+      if (!input.isConnected) document.getElementById("app").append(input);
       WriterState.WORK.entry["lookup-number"] = number;
       input.value = "";
       captureWork();
