@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "7ac89d90227188c1d59d4c41c56e7b9c45c97dfbb7472d735478bfce5718f034",
-      "normalizedShellSha256": "341048f06063c514639863c4caa52ac2fa787b1db0824cb17d1e4b62dc3d023b"
+      "beforeNormalizedShellSha256": "341048f06063c514639863c4caa52ac2fa787b1db0824cb17d1e4b62dc3d023b",
+      "normalizedShellSha256": "e118823150bf22a5bcc095741a310cc22392427ab7178091b496663f2b24c6bf"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "9a247764b1f2260a1ff13c27d1d0914d0dca752e3f77929a4f6b3c4f59edfb02",
-      "normalizedShellSha256": "a8d50c6f3f02add70e7c35d9121b02057feb637955ff21d7799f20db332c7128"
+      "beforeNormalizedShellSha256": "a8d50c6f3f02add70e7c35d9121b02057feb637955ff21d7799f20db332c7128",
+      "normalizedShellSha256": "b3cd8891514f066281b032ffdbd6188625043b5d3fe1cde3a13d545e0cc87b01"
     }
   },
   "reviews": [
@@ -157,6 +157,22 @@
         "madison-reports.html": {
           "before": "7eee55baf21cff0739fdc6feab009805db278d0092f9267dc7f1b45d8a5c613a",
           "after": "a8d50c6f3f02add70e7c35d9121b02057feb637955ff21d7799f20db332c7128"
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-12",
+      "sourceCommit": "d5ab0e7026388e24fb3145e88d44451ff5bbfa45",
+      "scope": "Workspace issued-document list: date and status wrap together (review of PR 474); screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "341048f06063c514639863c4caa52ac2fa787b1db0824cb17d1e4b62dc3d023b",
+          "after": "e118823150bf22a5bcc095741a310cc22392427ab7178091b496663f2b24c6bf"
+        },
+        "madison-reports.html": {
+          "before": "a8d50c6f3f02add70e7c35d9121b02057feb637955ff21d7799f20db332c7128",
+          "after": "b3cd8891514f066281b032ffdbd6188625043b5d3fe1cde3a13d545e0cc87b01"
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"

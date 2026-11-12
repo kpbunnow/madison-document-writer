@@ -52,6 +52,11 @@ const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs
     ["11/06/2026", "11/05/2026", "11/04/2026", "11/01/2026"],
   );
   for (const label of ["Withdrawn", "Replaced", "Revision 2"]) assert.ok(document.body.textContent.includes(label));
+  // A status stays with its own date, so it cannot wrap onto a line of its own (review of PR 474).
+  assert.deepEqual(
+    [...document.querySelectorAll(".case-document-state")].map((e) => [e.parentElement.className, e.previousElementSibling?.className]),
+    [...document.querySelectorAll(".case-document-state")].map(() => ["case-document-meta", "case-document-date"]),
+  );
   for (const button of document.querySelectorAll("[data-open]")) {
     assert.equal(button.textContent, "Official Notice");
     assert.ok(button.getAttribute("aria-label").startsWith("Official Notice, issued "));
