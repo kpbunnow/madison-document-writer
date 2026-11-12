@@ -1,0 +1,25 @@
+# Case work streamlining — November 12, 2026
+
+Owner-approved items 1, 2 and 5 and performance/maintainability work; batch outcomes and language favorites are excluded. Baseline is R79 main `7f793e76be0eb0490c85ecbef793494ead536999`. Release/helper and stored format identities, frozen references, approved print and legal text, dependencies and publication authority are unchanged.
+
+## Workflow
+
+Workspace accepts a case number directly, using the same lookup, cancellation, stale-result guards and explicit import confirmation. Inspector browsing remains available. Existing cases whose returned inspections are all already used show a direct continuation action, without an empty inspection section. Shared-read failures retain their retry review. Ordinary successes consolidate within their screen/dialog; Details opens the existing message history (up to 200 entries). Alerts, keyed/inline conditions, Undo, progress and focused/hovered messages remain separate.
+
+## Performance and ownership
+
+Screen-only pagination is reused conservatively when document ID/type/authoring version, generated HTML, live post-pagination DOM, layout and fonts match. Actual edits, document/element replacement, resize, font changes and failed pagination invalidate reuse. Save scheduling and readiness are unchanged; print uses its existing independent path. Two font listeners are installed once per document and the cache uses weak keys. Workspace sorts issued/draft documents once per row, reuses PDF transfer display state once per synchronous task operation and avoids recalculating all case states solely to reveal a case.
+
+Retired Workspace filter/search registrations, routing and preference hydration are removed. Folder search remains live. Retained legacy comparisons explicitly adapt only removed controls or approved presentation changes; original frozen fixtures stay unchanged. CSS control minimums have one owner: ordinary controls retain 24px; task actions select the existing 44px target with a token. This also corrects Case options actions previously overridden to 24px. New lookup styles remain scoped and print rules remain unchanged.
+
+## Measured verification
+
+`node tools/profile_case_work.cjs BEFORE.html AFTER.html OUTPUT.json` runs four alternating paired rounds on production pages in pinned Chromium 156.0.8078.4. Each uses the same 30-item notice, 120 refreshes and 20 edits. Median elapsed time was 4038.7ms before and 1122.7ms after (72.2% lower); pagination calls fell from 120 to 20. All paired input/output/model hashes and three-page output agree. This diagnostic measures repeat-preview overhead, not whole-program or City/Windows performance, and does not authorize a merge or release. Runtime and harness hashes and individual timings are retained in `/workspace/scratch/work/streamline-case-work-2026-11-12/preview-comparison-final.json`.
+
+New regression suites cover preview invalidation, preserved listeners and failure recovery, and success history, timer cleanup, focus, scope, alerts and Undo. Existing import, registration, owner, input and browser scenarios remain. The direct Workspace lookup adds an axe checkpoint. Full exact-head GitHub checks remain required before merge; local targeted evidence alone is not merge approval. No packaging, deployment or native City acceptance is claimed.
+
+## Screen and local review
+
+Reviewed the direct Workspace form and continuation dialog screenshots. A replay sample of 16 unaffected Reports screens in normal/forced colors (32 comparisons) retained identical computed styles and every-element geometry. Exact PNG comparison did not pass: 23 pairs differed; a same-CSS control also differed in 15 pairs with unchanged geometry/styles. No image tolerance or assertion was relaxed, and these are not claimed as exact pixel-parity passes. The Workspace replay correctly detects its intentional lookup-layout change. Independently parsed CSS contracts prove all rules outside the listed approved selectors unchanged. Current shell/CSS references record this explicit owner-authorized review; historical references and approved print are untouched.
+
+Targeted checks passed: 6,000 import variants including 225 positive continuation panels and 213 interruptions; 12,000 input/change scenarios retaining original retired IDs; 1,077 dispatch combinations; 59 live registrations with duplicate guards; 1,024 message repaints; preview invalidation, compact success/history/timer/hover/focus/Undo/scope checks; Workspace document/read/task owners and screen dependencies; unchanged 17 report facts; module boundaries, complexity, formatting, ESLint and TypeScript contracts. The production trial reached 305 passing axe checkpoints; its final timer scenario exposed an old ambiguous button selector, now explicitly selecting Dismiss while retaining timing assertions. The complete required exact-head GitHub gate must rerun the final source. Staff HTML, Word and tagged PDF were regenerated together from manual source digest `fb51dcb527327481`.

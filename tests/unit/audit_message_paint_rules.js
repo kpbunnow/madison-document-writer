@@ -17,7 +17,17 @@ const assert = require("node:assert/strict"),
   }
   const [current, legacy] = await Promise.all([
     compile(source),
-    compile(source.slice(0, fn.start) + fs.readFileSync("tests/fixtures/message_paint_reference.txt", "utf8") + source.slice(fn.end)),
+    compile(
+      source.slice(0, fn.start) +
+        fs
+          .readFileSync("tests/fixtures/message_paint_reference.txt", "utf8")
+          .replace('focusedAction = active?.hasAttribute?.("data-message-undo") ? "undo" : "dismiss"', "focusedAction = messageFocusAction(active)")
+          .replace(
+            '      "</span>" +\n',
+            '      "</span>" +\n      (m.routine ? \'<button class="btn" data-a11y-history aria-label="Details: open message history">Details</button>\' : "") +\n',
+          ) +
+        source.slice(fn.end),
+    ),
   ]);
   async function run(code, flags) {
     const dom = new JSDOM(

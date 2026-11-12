@@ -15,6 +15,8 @@ covers, or a new suite under its feature.
 
 `audit_search_highlighting.js` checks screen-only highlighting across eight search surfaces, including order-language aliases/ordinances, literal/Unicode safety, query clearing/repeated enhancement, focus and control/listener preservation. The order-language and Violator production-browser scenarios cover real highlighted results, print exclusion, the DFI lookup link, duplicate owner-CC cleanup and retained historical output. Helper authoring tests validate the optional frozen owner-CC fact.
 
+`audit_preview_refresh.js` guards unchanged-preview reuse and invalidation for DOM/model/layout/font/document/failure changes. `audit_success_messages.js` guards routine status consolidation while preserving alerts, Undo, scoped history and focus.
+
 ## Maintainability
 
 | Suite | Covers |
@@ -126,6 +128,8 @@ covers, or a new suite under its feature.
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
 | `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
 | `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
+| `audit_preview_refresh.js` | Unchanged screen preview reuse; DOM/model/layout/font/document/replacement/failure invalidation and listener preservation |
+| `audit_success_messages.js` | Compact routine success status with complete history, alerts, Undo, keyboard focus, dialog scope and timer cleanup |
 | `audit_workspace_documents.js` | Complete inline issued history and draft links: descending issue/revision and City dates, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |

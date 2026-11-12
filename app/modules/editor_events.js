@@ -17,7 +17,7 @@ const INPUT_DELEGATES = [
     (el) => el.id === "correction-reason" || el.id === "correction-external",
     (services, el) => services.events.correctionEvents.editCorrectionReason(el),
   ],
-  [(el) => el.id === "case-search" || el.id === "folder-search", (services, el) => services.events.workspaceEvents.editSearch(el)],
+  [(el) => el.id === "folder-search", (services, el) => services.events.workspaceEvents.editSearch(el)],
   [(el) => el.id === "pk-q", (services, el) => services.events.catalogEvents.editPickerSearch(el)],
   // notes must not redraw on every keystroke or the caret jumps
   [(el) => el.dataset && (el.dataset.cc || el.dataset.em || el.dataset.agent), (services, el) => services.events.contactEvents.editRecipient(el)],
@@ -185,7 +185,6 @@ const CHANGE_ROUTES = [
     (services, e) => services.events.correctionEvents.changeCorrection(e),
   ),
   changeRoute(targetIs("keep-adding"), (services, e) => services.events.catalogEvents.changeKeepAdding(e)),
-  changeRoute(targetIs("case-filter", "case-inspector"), (services, e) => services.events.workspaceEvents.changeCaseFilter(e)),
   changeRoute(
     (e) => (e.target.id === "acc-date" || e.target.id === "acc-time") && editor.state.acc,
     (services, e) => services.events.importEvents.changeInspectionDateTime(e),

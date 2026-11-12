@@ -15,9 +15,18 @@ const factory = acorn
 const owner = (name) => factory.body.body.find((n) => n.id?.name === name);
 const [input, change] = [owner("registerDocumentInput"), owner("registerDocumentChange")].sort((a, b) => b.start - a.start);
 assert.ok(input && change, "both listener registrations stay in the editor event owner");
+// Explicitly adapt only the owner-approved retirement; original IDs remain in all seeded scenarios.
 const legacySource = [
-  [input, referenceInput.trimEnd()],
-  [change, referenceChange.trimEnd()],
+  [input, referenceInput.trimEnd().replace('el.id === "case-search" || ', "")],
+  [
+    change,
+    referenceChange
+      .trimEnd()
+      .replace(
+        /      if \(e.target.id === "case-filter" \|\| e.target.id === "case-inspector"\) \{\n        return services.events.workspaceEvents.changeCaseFilter\(e\);\n      \}\n/,
+        "",
+      ),
+  ],
 ]
   .sort(([a], [b]) => b.start - a.start)
   .reduce((text, [node, replacement]) => text.slice(0, node.start) + replacement + text.slice(node.end), source);
@@ -383,7 +392,6 @@ function run(api, sc, listenerName, dom, targetKey) {
     "events.catalogEvents.changeLibraryStatus",
     "events.correctionEvents.changeCorrection",
     "events.catalogEvents.changeKeepAdding",
-    "events.workspaceEvents.changeCaseFilter",
     "events.importEvents.changeInspectionDateTime",
     "events.contactEvents.changeEmail",
     "events.reinspectionEvents.changeOutcomeDetails",

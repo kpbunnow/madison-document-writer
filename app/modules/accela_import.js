@@ -776,8 +776,24 @@ function caseChangeDetails(k, p) {
     : "";
 }
 
+function continuationOnly(p, acc) {
+  return !!p.existing && p.usedHidden > 0 && !p.candidates.length && !acc.shareError;
+}
+function continuationPanel(acc, p, unfinished) {
+  const c = p.c,
+    k = p.existing;
+  return html`<section class="card acc import-review" data-continuation-only><div class="card-h"><div><h2>${c.number}</h2><p>${k.address}</p></div><span class="pill">Existing case</span></div><div class="card-b">${raw(reportCasePicker(acc))}<h3>Continue existing case</h3><p>There are no unused inspections to import. ${unfinished ? "Continue your saved draft or worksheet." : "Open this case to review its documents."}</p>${raw(p.warnings.map((w) => html`<p class="banner warn">${w}</p>`).join(""))}<button class="btn btn-primary" data-import-workspace="${k.id}">Continue existing case</button>${raw(CANCEL_IMPORT)}</div></section>`;
+}
 function importPanelHTML(services, acc, p) {
   if (acc.errors?.length) return importErrorPanel(acc);
+  if (continuationOnly(p, acc)) {
+    const unfinished = draftDocFor(p.existing.id) || draftReinspFor(p.existing.id) || services.unissuedVisitFor(p.existing.id);
+    return continuationPanel(acc, p, unfinished);
+  }
+  return availableImportPanelHTML(services, acc, p);
+}
+
+function availableImportPanelHTML(services, acc, p) {
   const c = p.c,
     k = p.existing;
   if (!c) return "";

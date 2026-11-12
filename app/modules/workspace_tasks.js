@@ -14,14 +14,14 @@ function unfiledTaskItems(rows, caseTask, documentsFor = docsFor) {
   );
 }
 
-function localArtifactTaskItems(rows, caseTask, documentsFor = docsFor) {
+function localArtifactTaskItems(rows, caseTask, documentsFor = docsFor, artifactState = pdfTransferState) {
   return rows.flatMap((x) =>
     documentsFor(x.k.id)
       .filter(
         (d) =>
           independentArtifact(d) &&
-          (pdfTransferState(d) === "local outbox" ||
-            (pdfTransferState(d) === "last verified location; refresh unavailable" && workspace.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
+          (artifactState(d) === "local outbox" ||
+            (artifactState(d) === "last verified location; refresh unavailable" && workspace.ARTIFACT_LOCATIONS[d.id]?.includes("local"))),
       )
       .map((d) =>
         caseTask(
@@ -36,7 +36,7 @@ function localArtifactTaskItems(rows, caseTask, documentsFor = docsFor) {
   );
 }
 
-function artifactIssueTaskItems(rows, caseTask, documentsFor = docsFor) {
+function artifactIssueTaskItems(rows, caseTask, documentsFor = docsFor, artifactState = pdfTransferState) {
   return rows.flatMap((x) =>
     documentsFor(x.k.id)
       .filter(
@@ -50,21 +50,30 @@ function artifactIssueTaskItems(rows, caseTask, documentsFor = docsFor) {
             "invalid artifact identity",
             "location verification unavailable",
             "last verified location; refresh unavailable",
-          ].includes(pdfTransferState(d)),
+          ].includes(artifactState(d)),
       )
       .map((d) =>
         caseTask(
           x,
-          "Check " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF · " + pdfTransferState(d),
+          "Check " + ((DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type) + " PDF · " + artifactState(d),
           `data-open="${dep_esc(d.id)}"`,
         ),
       ),
   );
 }
 
+function operationArtifactStates() {
+  const states = new Map();
+  return (d) => {
+    if (!states.has(d)) states.set(d, pdfTransferState(d));
+    return states.get(d);
+  };
+}
+
 /* Construction reads no services or workspace state and registers no listeners. */
 export function createWorkspaceTasks(services) {
   function workspaceTasks(rows, documentsFor = groupCaseDocuments(workspace.DOCS)) {
+    const artifactState = operationArtifactStates();
     const task = (key, label, unit, items) => ({ key, label, unit, items, count: items.length });
     const caseTask = (x, text, action) => ({ cid: x.k.id, label: x.k.number + " · " + x.k.address + " · " + text, action });
     const open = rows.filter((x) => !x.st.closed),
@@ -85,8 +94,8 @@ export function createWorkspaceTasks(services) {
         .map(([id]) => caseTask(x, "Record save confirmation", `data-resumerecord="${dep_esc(id)}"`)),
     );
     const unfiled = unfiledTaskItems(rows, caseTask, documentsFor);
-    const local = localArtifactTaskItems(rows, caseTask, documentsFor);
-    const issues = artifactIssueTaskItems(rows, caseTask, documentsFor);
+    const local = localArtifactTaskItems(rows, caseTask, documentsFor, artifactState);
+    const issues = artifactIssueTaskItems(rows, caseTask, documentsFor, artifactState);
     return [
       task("deposit", "Citation needs deposit", "documents", needsDeposit),
       task(

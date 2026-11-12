@@ -1339,7 +1339,8 @@
 @media screen {
   .main .queue-primary,
   .main .queue-summary-button {
-    min-height: 44px !important;
+    --control-min-size: var(--control-action-size);
+    min-height: var(--control-min-size);
   }
 }
 @media screen and (max-width: 760px) {
@@ -2666,7 +2667,8 @@
     margin: 4px 0;
   }
   .workspace-cases .case-options .doclinks button {
-    min-height: 44px;
+    --control-min-size: var(--control-action-size);
+    min-height: var(--control-min-size);
     font-size: 0.875rem;
   }
   .workspace-cases .queue-primary {
@@ -2781,7 +2783,8 @@
     margin: 0;
   }
   .workspace-cases .case-document-link {
-    min-height: 44px !important;
+    --control-min-size: var(--control-action-size);
+    min-height: var(--control-min-size);
     padding: 6px 2px;
     font: inherit;
     font-size: 1rem;
@@ -2801,5 +2804,28 @@
     align-items: baseline;
     gap: 8px;
     white-space: nowrap;
+  }
+}
+
+/* Direct lookup shares the import review owner; confirmations remain explicit. */
+@media screen {
+  .workspace-start .lookup-row {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .workspace-start .lookup-row .f {
+    flex: 1;
+    min-width: min(100%, 16rem);
+    margin: 0;
+  }
+  .workspace-start .lookup-row .btn {
+    --control-min-size: var(--control-action-size);
+  }
+  .message-stack .toast > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }

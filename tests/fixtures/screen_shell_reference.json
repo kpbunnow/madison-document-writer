@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "341048f06063c514639863c4caa52ac2fa787b1db0824cb17d1e4b62dc3d023b",
-      "normalizedShellSha256": "e118823150bf22a5bcc095741a310cc22392427ab7178091b496663f2b24c6bf"
+      "normalizedShellSha256": "bfefd7e0a72483d04413c5b01c5ec6ea7b68949e50ddd4e218c79ce80dc0b9ba"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "a8d50c6f3f02add70e7c35d9121b02057feb637955ff21d7799f20db332c7128",
-      "normalizedShellSha256": "b3cd8891514f066281b032ffdbd6188625043b5d3fe1cde3a13d545e0cc87b01"
+      "normalizedShellSha256": "7d936697dfcd587fe5483b5196cf98e4a08ce3fda554e8c22c150db03da4877b"
     }
   },
   "reviews": [
@@ -176,6 +176,22 @@
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-12",
+      "sourceCommit": "7f793e76be0eb0490c85ecbef793494ead536999",
+      "scope": "Owner-approved Workspace lookup, compact success status and single control-size token owner. Unrelated CSS rules independently unchanged; 24px ordinary and 44px task targets verified. Screen-only styles; approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "e118823150bf22a5bcc095741a310cc22392427ab7178091b496663f2b24c6bf",
+          "after": "bfefd7e0a72483d04413c5b01c5ec6ea7b68949e50ddd4e218c79ce80dc0b9ba"
+        },
+        "madison-reports.html": {
+          "before": "b3cd8891514f066281b032ffdbd6188625043b5d3fe1cde3a13d545e0cc87b01",
+          "after": "7d936697dfcd587fe5483b5196cf98e4a08ce3fda554e8c22c150db03da4877b"
+        }
+      },
+      "evidence": "docs/developer/CASE-WORK-STREAMLINING.md"
     }
   ]
 }

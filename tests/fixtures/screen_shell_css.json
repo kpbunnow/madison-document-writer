@@ -59,17 +59,17 @@
     },
     "accessibility.css": {
       "beforeSha256": "d38a2229869d35537291cf7eb940bebaa279eb17348842c405375f888be9f69d",
-      "afterSha256": "4e8e4439c57e03c81aa8d3c344bd3d352512df7cff36c03d49a5e72f7b2194db",
+      "afterSha256": "da0ffb58ebbf816a1e4e6fbf340c4f48f301e51f2e1edf8134ed77d6c05d6052",
       "beforeBytes": 16775,
-      "afterBytes": 16015,
-      "retainedRulesSha256": "4a0810505409ccf1229b9ba99c51918b0143ef8f3e58bf36a10d96a99851f420"
+      "afterBytes": 16273,
+      "retainedRulesSha256": "c5eff42069ecdf6922389dd509e5f60f5f640ccefd0252a64d3709f2ea380b68"
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "7fcf46067faf192542b99ff012b839d7ec7ff53bb7d5d6b3b76e7ffb63da9ce3",
+      "afterSha256": "736a66dcaff641c56041abc409647933b057fbd7957e64ed9bd1f4327f2a6ba5",
       "beforeBytes": 48561,
-      "afterBytes": 58978,
-      "retainedRulesSha256": "0ffbbeab0b87d5ee44cae31c575576fa2357a690c8597c64cf6d1e9d7e3db9a3"
+      "afterBytes": 59689,
+      "retainedRulesSha256": "235fed366c6ac372e6ac35d7a489f1ad10d6b668db526f1c5ef456d5d7dfaea3"
     }
   },
   "selectorChanges": [
@@ -819,6 +819,37 @@
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-12",
+      "sourceCommit": "7f793e76be0eb0490c85ecbef793494ead536999",
+      "scope": "Owner-approved direct Workspace lookup, compact success messages and shared control-size ownership; ordinary 24px and task 44px targets retained, Case options targets corrected. All rules outside explicit selectors and all print rules independently unchanged.",
+      "rules": {
+        "accessibility.css": {
+          "beforeSha256": "4e8e4439c57e03c81aa8d3c344bd3d352512df7cff36c03d49a5e72f7b2194db",
+          "afterSha256": "da0ffb58ebbf816a1e4e6fbf340c4f48f301e51f2e1edf8134ed77d6c05d6052",
+          "reviewedSelectors": [
+            ":root",
+            ".main input:not([type=\"hidden\"]), .main select, .main button, .main [contenteditable]"
+          ],
+          "unrelatedRulesSha256": "d2ca24d1768af8ecc18a496bf5581a43c5fc6f0dfca3d8f7efd9d628497b02a5"
+        },
+        "ui-refresh.css": {
+          "beforeSha256": "7fcf46067faf192542b99ff012b839d7ec7ff53bb7d5d6b3b76e7ffb63da9ce3",
+          "afterSha256": "736a66dcaff641c56041abc409647933b057fbd7957e64ed9bd1f4327f2a6ba5",
+          "reviewedSelectors": [
+            ".main .queue-primary, .main .queue-summary-button",
+            ".workspace-cases .case-options .doclinks button",
+            ".workspace-cases .case-document-link",
+            ".workspace-start .lookup-row",
+            ".workspace-start .lookup-row .f",
+            ".workspace-start .lookup-row .btn",
+            ".message-stack .toast > span"
+          ],
+          "unrelatedRulesSha256": "fbde7086eafa43c7dffbf06d7f13c291542b1950bc4ff00ccfd58ea250b76920"
+        }
+      },
+      "evidence": "docs/developer/CASE-WORK-STREAMLINING.md"
     }
   ]
 }

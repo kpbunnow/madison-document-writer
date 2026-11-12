@@ -1,3 +1,4 @@
+import { createPreviewRefresh } from "./preview_refresh.js";
 import { html, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -87,6 +88,7 @@ function editorWorkHTML({ d, editable, services }) {
 }
 
 export function createEditorScreens(services) {
+  const refreshPreview = createPreviewRefresh();
   function editorReadiness(d) {
     const list = d.draft ? services.record.checks(d) : [],
       required = list.filter((c) => !c.ok && !c.soft),
@@ -387,8 +389,7 @@ export function createEditorScreens(services) {
     const d = doc(editor.state.docId),
       desk = document.querySelector(".desk");
     if (d && desk) {
-      desk.innerHTML = services.record.documentHTML(d);
-      services.ui.paginate();
+      refreshPreview(desk, JSON.stringify([d.id, d.type, d.authoringVersion]), services.record.documentHTML(d), () => services.ui.paginate());
       syncChip();
       services.edit.scheduleDraftSave();
     }

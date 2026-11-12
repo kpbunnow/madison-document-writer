@@ -448,9 +448,9 @@ const test = async () => {
   assert.equal(server.events.filter((e) => e.type === "notice.issued").length, 1, "issued once");
   assert.equal(pdfs, 1, "filed once");
   assert.equal(WriterState.state.screen, "cases");
-  assert.equal(WriterState.state.caseFilter, "all", "a view that would hide the issued case switches to All cases");
+  assert.equal(WriterState.state.caseFilter, "continue", "retired views are ignored without rewriting stored preferences");
   assert.equal(WriterState.state.caseQ, String(k.number).toLowerCase(), "a search that shows the case is kept");
-  assert.equal(WriterState.state.caseInspector, "", "an inspector filter that hides the case is cleared");
+  assert.equal(WriterState.state.caseInspector, "r59-other-inspector", "retired inspector preference cannot hide the issued case");
   const row = document.querySelector('tr[data-queue-case="k1"]');
   assert.ok(row.hasAttribute("data-issued-highlight"), "the issued case row is highlighted");
   assert.equal(row.getAttribute("aria-current"), "true");

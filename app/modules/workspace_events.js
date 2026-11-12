@@ -583,24 +583,6 @@ const documentActions = [
 ];
 
 export function createWorkspaceEvents(services) {
-  function registerQueueViews(target = document) {
-    return registerEventOnce(target, "workspace.registerQueueViews", "click", (e) => {
-      const t = e.target.closest?.("[data-queue-view],[data-queue-reset]");
-      if (!t) return;
-      editor.state.metric = "";
-      if (t.hasAttribute("data-queue-reset")) {
-        editor.state.caseQ = "";
-        editor.state.caseInspector = "";
-      } else {
-        // Switching views keeps the workspace search and inspector filter; only the reset clears them.
-        editor.state.caseFilter = t.dataset.queueView;
-      }
-      services.ui.render();
-      services.ui.saveWorkflowPrefs();
-      document.querySelector(t.hasAttribute("data-queue-reset") ? "#case-search" : '[data-queue-view="' + t.dataset.queueView + '"]')?.focus();
-    });
-  }
-
   function registerCaseTasks(target = document) {
     return registerEventOnce(target, "workspace.registerCaseTasks", "click", (e) => {
       const t = e.target.closest?.("[data-case-task]");
@@ -645,19 +627,10 @@ export function createWorkspaceEvents(services) {
   function registerWorkspaceClicks(target = document) {
     return registerEventOnce(target, "workspace.registerWorkspaceClicks", "click", async (e) => {
       const t = e.target.closest(
-        "[data-nav],[data-open],[data-new],[data-pick],[data-pick-again],[data-grp],[data-libcl],[data-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[data-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo],[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-top,#btn-bulkdue,[data-openfile],[data-exportcase],#case-showall,#t-undo,#btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-exportcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-action-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#btn-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf,#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc,#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notecite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-discardri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-go,#acc-cancel,[data-acccase],[data-accsel]",
+        "[data-nav],[data-open],[data-new],[data-pick],[data-pick-again],[data-grp],[data-libcl],[data-del],[data-abate],[data-grpbtn],[data-move],[data-adopt-catalog],[data-close],[data-reinsp],[data-rifilter],[data-riwalk],[data-riwalk-undo],[data-riwalk-next],[data-riwalk-skip],[data-riwalk-return],[data-riwalk-prev],[data-setoc],[data-makedoc],[data-case-sync],#btn-add-top,#btn-bulkdue,[data-openfile],[data-exportcase],#t-undo,#btn-void,#btn-correct,#btn-retrycorrection,#btn-reviewcorrection,#btn-exportcorrection,#btn-recordnote,#btn-reconcile,#btn-original,#record-action-go,[data-resumerecord],[data-withdraw],#btn-reissue,#btn-recordri,#btn-linkdir,#btn-grantdir,#btn-browse,#btn-flush,#btn-storage,#btn-syncpdf,#btn-testwrite,#btn-reindex,#btn-savecase,#btn-clear,#btn-email,#btn-cc,#btn-addcc,#btn-addem,#btn-sendgo,#btn-sendnone,#btn-risave,[data-notecite],[data-clearcases],[data-rmcase],[data-rmcc],[data-rmem],[data-discardri],[data-discard],[data-openfolder],#btn-print,#btn-final,#btn-save,#btn-openfile,#fin-go,#picker-bg,#acc-go,#acc-cancel,[data-acccase],[data-accsel]",
       );
       if (!t) return;
       services.ui.captureWork();
-      if (t.id === "case-showall") {
-        editor.state.metric = "";
-        editor.state.caseFilter = "all";
-        editor.state.caseQ = "";
-        editor.state.caseInspector = "";
-        services.ui.render();
-        services.ui.saveWorkflowPrefs();
-        return;
-      }
       if (t.dataset.nav) {
         await services.ui.navigation.navigate(t.dataset.nav);
         return;
@@ -672,13 +645,9 @@ export function createWorkspaceEvents(services) {
 
   const editSearch = (el) => {
     const cursor = el.selectionStart,
-      key = el.id === "case-search" ? "caseQ" : "folderQ",
       id = el.id;
-    editor.state[key] = el.value;
-    if (id === "case-search") {
-      editor.state.metric = "";
-      services.ui.render();
-    } else services.ui.refreshOverlay();
+    editor.state.folderQ = el.value;
+    services.ui.refreshOverlay();
     const next = document.getElementById(id);
     if (next) {
       next.focus();
@@ -692,14 +661,5 @@ export function createWorkspaceEvents(services) {
     return;
   };
 
-  const changeCaseFilter = (e) => {
-    editor.state.metric = "";
-    // Returning More views to its placeholder restores the default Needs attention view.
-    editor.state[e.target.id === "case-filter" ? "caseFilter" : "caseInspector"] =
-      e.target.id === "case-filter" ? e.target.value || "attention" : e.target.value;
-    services.ui.render();
-    if (e.target.id === "case-filter") document.querySelector("#case-filter")?.focus();
-    return;
-  };
-  return { registerQueueViews, registerCaseTasks, registerReportReturn, registerWorkspaceClicks, editSearch, changeCaseFilter };
+  return { registerCaseTasks, registerReportReturn, registerWorkspaceClicks, editSearch };
 }
