@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R79 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S79-1 | Install R79 from the shared release folder over R78 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R78 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R78 PC is told to restart and cannot save to the share |
+| S79-2 | On a City PC, open Workspace with a case that has several issued documents, including a withdrawn or replaced one, and a draft; import an inspection | Every issued document is listed newest first with its date, and a status sits beside its own date; each link opens that record and its PDF; the draft is under Case options → In progress; import review shows no Source and import details section; readable at 125–150% scaling and in high-contrast mode |
+
+All R79 items remain OPEN, together with the R78 items, SSRS-1 to SSRS-7 and the carried items. S78-1 is superseded by S79-1.
+
 ## R78 release acceptance — OPEN
 
 | ID | City/staff check | Required result |

@@ -1,5 +1,23 @@
 # Release changelog
 
+## 2026-11-12 R79 — Release package
+
+Release package assigned on the owner's request after R78 (helper 2026.11.12.80, build 80; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R79 upgrades R78. Every PC still needs Python 3.14.
+
+### Workspace issued documents
+
+- The Issued documents column lists every issued document for the case, newest first, as a document-type link with its issue date. Withdrawn, replaced and revised documents say so beside the date. Selecting a link opens that document's record, where its PDF and actions are (PR #474).
+- The separate View issued PDF, Open record and All documents controls are removed. Drafts are listed under Case options → In progress.
+- A document's date and status stay together, so a status such as Withdrawn no longer sits alone on its own line (PR #475).
+
+### Import review
+
+- The Source and import details section is removed from import review. Inspection choices, availability reasons, warnings, blockers and the case-change review are unchanged.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S79-1 and S79-2.
+
 ## 2026-11-11 R78 — Release package
 
 Release package assigned on the owner's request after R77 (helper 2026.11.11.79, build 79; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R78 upgrades R77. Every PC still needs Python 3.14.
