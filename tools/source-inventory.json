@@ -1073,6 +1073,7 @@
     "tests/unit/audit_workspace_queue_rules.js",
     "tests/unit/audit_workspace_state.js",
     "tests/unit/audit_workspace_storage.js",
+    "tests/unit/audit_workspace_task_reads.js",
     "tests/unit/audit_workspace_tasks.js",
     "tests/unit/audit_workspace_tasks_parity.js",
     "tests/unit/audit_writer_details_templates.js",

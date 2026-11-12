@@ -142,22 +142,6 @@ function freeze(value) {
   assert.ok(group("artifacts").items.some((i) => i.label.includes("artifact conflict")));
   assert.ok(group("artifacts").items.some((i) => i.label.includes("last verified location; refresh unavailable")));
   assert.equal(JSON.stringify(state), before, "read-only tasks do not rewrite records, attempts, queues or artifact state");
-  const reads = new Map();
-  state.ARTIFACT_IDENTITY = new Proxy(
-    {},
-    {
-      get: (_, id) => {
-        reads.set(id, (reads.get(id) || 0) + 1);
-        return undefined;
-      },
-    },
-  );
-  workspaceTasks(rows);
-  for (const id of ["local", "stale", "conflict"]) assert.equal(reads.get(id), 1, "one display-state calculation per operation: " + id);
-  state.ARTIFACT_LOCATIONS = freeze({ local: ["shared"], stale: ["local"], conflict: ["shared conflict"] });
-  const refreshed = workspaceTasks(rows);
-  assert.equal(reads.get("local"), 2, "a later operation rereads the current artifact state");
-  assert.ok(!refreshed.find((t) => t.key === "outbox").items.some((i) => i.action === 'data-open="local"'));
   setup = false;
   assert.equal(workspaceTasks(rows).find((t) => t.key === "imports").count, 0);
   state.DOCS = freeze([]);
