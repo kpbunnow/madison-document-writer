@@ -66,10 +66,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "ced6d94c407995a2c59fe0e568c8e0f28c639eabba11ca5d916a52939582f047",
+      "afterSha256": "7fcf46067faf192542b99ff012b839d7ec7ff53bb7d5d6b3b76e7ffb63da9ce3",
       "beforeBytes": 48561,
-      "afterBytes": 58702,
-      "retainedRulesSha256": "30c7d723e5ef52a667c40744a7a3ccb184d2384a384abc5f95af30d4cd94aca5"
+      "afterBytes": 58978,
+      "retainedRulesSha256": "0ffbbeab0b87d5ee44cae31c575576fa2357a690c8597c64cf6d1e9d7e3db9a3"
     }
   },
   "selectorChanges": [
@@ -802,6 +802,20 @@
             "case-all-documents",
             "case-documents-panel"
           ]
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-12",
+      "sourceCommit": "d5ab0e7026388e24fb3145e88d44451ff5bbfa45",
+      "scope": "Workspace issued-document list (review of PR 474): a document date and its status wrap together so a status such as Withdrawn never sits alone on its own line. Append-only screen block; preserves all 58,702 earlier stylesheet bytes. No new colours.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "ced6d94c407995a2c59fe0e568c8e0f28c639eabba11ca5d916a52939582f047",
+          "afterSha256": "7fcf46067faf192542b99ff012b839d7ec7ff53bb7d5d6b3b76e7ffb63da9ce3",
+          "unchangedRulesSha256": "30c7d723e5ef52a667c40744a7a3ccb184d2384a384abc5f95af30d4cd94aca5",
+          "unchangedPrefixBytes": 58702
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"

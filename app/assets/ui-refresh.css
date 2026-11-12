@@ -2792,3 +2792,14 @@
     font-size: 0.875rem;
   }
 }
+
+/* A document's date and status wrap together, so a status such as Withdrawn never sits alone on its own line. */
+@media screen {
+  .case-document-meta {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 8px;
+    white-space: nowrap;
+  }
+}

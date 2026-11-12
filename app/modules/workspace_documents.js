@@ -32,7 +32,7 @@ function documentEntry(d) {
   const label = title(d),
     date = documentDate(d);
   const status = d.draft || d.pendingAmendment || d.void || d.superseded || d.revision ? state(d) : "";
-  return html`<li class="case-document"><div><button class="lnk case-document-link" data-open="${d.id}" aria-label="${label}, ${d.draft ? "draft created" : "issued"} ${date}${status ? ", " + status : ""}"><strong>${label}</strong></button><span class="case-document-date">${date}</span>${raw(status ? html`<span class="case-document-state">${status}</span>` : "")}</div></li>`;
+  return html`<li class="case-document"><div><button class="lnk case-document-link" data-open="${d.id}" aria-label="${label}, ${d.draft ? "draft created" : "issued"} ${date}${status ? ", " + status : ""}"><strong>${label}</strong></button><span class="case-document-meta"><span class="case-document-date">${date}</span>${raw(status ? html`<span class="case-document-state">${status}</span>` : "")}</span></div></li>`;
 }
 
 export function workspaceDocumentsSummary(k, documents) {
