@@ -465,10 +465,11 @@ async function axeThemes(page, screen) {
     .first()
     .locator("..")
     .screenshot({ path: path.join(OUT, "fill-in-bubble.png") });
-  // Owner direction 2026-11-13: the bubble is typed in place; clicking away writes the detail.
+  // Owner direction after R82: selecting the bubble focuses it; typing goes straight into the sentence, no box.
   await page.locator(".blank-edit").click();
-  await page.locator(".blank-input").fill("the damaged masonry");
-  await page.locator(".blank-input").press("Tab");
+  assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true, "the bubble is selected");
+  await page.keyboard.type("the damaged masonry");
+  assert.equal(await page.locator(".blank-input").count(), 0, "no text box opens");
   assert.equal(
     await page.evaluate(() => doc(WriterState.state.docId).items[0].text),
     "Repair the damaged masonry on the wall. Keep existing finish.",

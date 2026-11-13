@@ -3,6 +3,8 @@ import { importsState as imports } from "./imports_state.js";
 /* Utility event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { reinsp, doc } from "./writer_queries.js";
+// Text fields, and fill-in bubbles that take typed text, keep their ? key (mirrors the accessibility shortcut sheet).
+const typedKey = (el) => el.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(el.tagName) || !!el.closest?.(".blank-edit");
 function createCheckLinkHandler(services) {
   // Navigation state only: policy is recomputed on every click, including after undo/import/replacement.
   const positions = new WeakMap();
@@ -54,11 +56,7 @@ export function createUtilityEvents(services) {
 
   function registerHelpKeys(target = document) {
     return registerEventOnce(target, "utility.registerHelpKeys", "keydown", (e) => {
-      if (
-        !e.defaultPrevented &&
-        (e.key === "Escape" || (e.key === "?" && !e.target.isContentEditable && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)))
-      )
-        services.navigation.invalidateUtilities();
+      if (!e.defaultPrevented && (e.key === "Escape" || (e.key === "?" && !typedKey(e.target)))) services.navigation.invalidateUtilities();
     });
   }
 

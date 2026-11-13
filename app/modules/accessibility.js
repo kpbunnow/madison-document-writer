@@ -1,6 +1,9 @@
 import { html, raw } from "./screen_html.js";
 import { enhanceCharacterCounts } from "./character_count.js";
 import { enhanceSearchResults } from "./search_highlighting.js";
+
+/* Text fields, and fill-in bubbles that take typed text, keep their keys from the ? shortcut sheet. */
+const typingTarget = (el) => !!el && (el.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(el.tagName) || !!el.closest?.(".blank-edit"));
 function messageMarkup(m, callbacks, safe) {
   return (
     '<div class="toast message-' +
@@ -66,6 +69,8 @@ function enhanceDocumentControls() {
     comment: "Citation comment",
   };
   document.querySelectorAll("[contenteditable]").forEach((el) => {
+    // A fill-in bubble keeps its own role and name: it is typed into, not edited as text (presentation_format.js).
+    if (el.classList.contains("blank-edit")) return;
     const key = el.dataset.case || el.dataset.field || el.dataset.cit?.split("|")[1];
     el.setAttribute("role", "textbox");
     el.setAttribute("aria-label", names[key] || el.dataset.ph || key || "Document text");
@@ -199,7 +204,7 @@ function a11yUtilityDialog(st, title, body) {
 function a11yShortcutSheet(utility) {
   utility(
     "Keyboard shortcuts",
-    '<table><caption>Writer and Reports keyboard shortcuts</caption><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">?</th><td>Open this sheet outside a text field</td></tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls inside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Close a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S / Command+S</th><td>Save Writer work on this device</td></tr><tr><th scope="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress made / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>Activate the focused button or blank bubble</td></tr></tbody></table>',
+    '<table><caption>Writer and Reports keyboard shortcuts</caption><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">?</th><td>Open this sheet outside a text field</td></tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls inside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Close a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S / Command+S</th><td>Save Writer work on this device</td></tr><tr><th scope="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress made / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>Activate the focused button</td></tr><tr><th scope="row">Typing on a selected bubble</th><td>Replace the fill-in bubble with the detail</td></tr><tr><th scope="row">Tab on a selected bubble</th><td>Move to the next open fill-in bubble</td></tr></tbody></table>',
   );
 }
 function a11yHistorySheet(utility, history) {
@@ -293,7 +298,7 @@ function registerA11yDocumentEvents(api) {
     if (e.target.hasAttribute?.("data-a11y-theme")) api.setTheme(e.target.value);
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.isContentEditable && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
+    if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey && !typingTarget(e.target)) {
       e.preventDefault();
       api.shortcuts();
     }

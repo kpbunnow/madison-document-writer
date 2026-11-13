@@ -128,90 +128,53 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   a11y = { ...a11y, notify: (...args) => notices.push(["replacement", ...args]) };
   ui.toast("live");
   assert.equal(notices.pop()[0], "replacement");
-  // Owner direction 2026-11-13: a fill-in bubble is typed in place; no dialog opens.
+  // Owner direction after R82: selecting a fill-in bubble only focuses it; typing replaces it in the item's text, with
+  // no box or dialog.
   const blank = () => dom.window.document.getElementById("blank"),
-    inlineBox = () => dom.window.document.querySelector(".blank-input"),
-    press = (input, key) => input.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
-  locked = true;
-  ui.fillBlank(blank());
-  assert.equal(inlineBox(), null);
-  assert.ok(blank());
-  locked = false;
-  ui.fillBlank(blank());
-  assert.equal(utilityCalls, 0, "no corrective-action dialog");
-  assert.equal(blank(), null);
-  assert.equal(dom.window.document.activeElement, inlineBox());
-  // While the box is open it is the item's only control; the field's own focusability returns afterwards.
-  assert.equal(inlineBox().parentElement.getAttribute("tabindex"), null);
-  // Escape restores the bubble unchanged; an empty Enter does too.
-  press(inlineBox(), "Escape");
-  assert.ok(blank());
-  assert.equal(blank().parentElement.getAttribute("tabindex"), "0");
-  assert.equal(inlineBox(), null);
-  assert.equal(dom.window.document.activeElement, blank());
-  ui.fillBlank(blank());
-  press(inlineBox(), "Enter");
-  assert.ok(blank());
-  ui.fillBlank(blank());
+    field = () => dom.window.document.querySelector("[data-field=text]");
+  setup();
+  assert.equal(ui.fillBlank(blank()), false);
+  assert.equal(dom.window.document.activeElement, blank(), "selecting focuses the bubble");
+  assert.equal(dom.window.document.querySelector("input"), null, "no box opens");
+  assert.equal(ui.fillBlank(blank(), ""), false);
+  assert.ok(blank(), "nothing typed leaves the bubble");
   let inputs = 0;
-  const field = inlineBox().parentElement;
-  field.addEventListener("input", (e) => {
+  field().addEventListener("input", (e) => {
     assert.equal(e.bubbles, true);
     inputs++;
   });
-  // Typing in the box does not reach the item's input handlers; only the written detail does.
-  inlineBox().value = "  <unsafe> corrected detail  ";
-  inlineBox().dispatchEvent(new dom.window.Event("input", { bubbles: true }));
-  assert.equal(inputs, 0);
-  press(inlineBox(), "Enter");
-  assert.equal(inputs, 1);
-  assert.equal(field.textContent, "<unsafe> corrected detail");
-  assert.equal(field.querySelector("unsafe"), null);
-  assert.equal(dom.window.document.activeElement, field);
-  // Leaving the box writes the detail too.
-  setup();
-  ui.fillBlank(blank());
-  inlineBox().value = "left by blur";
-  inlineBox().dispatchEvent(new dom.window.Event("blur"));
-  assert.equal(dom.window.document.querySelector("[data-field=text]").textContent, "left by blur");
+  assert.equal(ui.fillBlank(blank(), "<"), true);
+  assert.equal(blank(), null, "the first character replaces the bubble");
+  assert.equal(field().textContent, "<");
+  assert.equal(field().querySelector("*"), null, "typed text is never markup");
+  assert.equal(inputs, 1, "the item's own input handler records it");
+  assert.equal(dom.window.document.activeElement, field(), "typing continues in the item's text");
+  const caret = dom.window.document.getSelection().getRangeAt(0);
+  assert.equal(caret.collapsed, true);
+  assert.equal(caret.startContainer, field().firstChild);
+  assert.equal(caret.startOffset, 1, "the caret follows the typed character");
   for (const stale of [
     () => (s.state.screen = "home"),
     () => (s.state.docId = "other"),
-    () => (s.DOCS = []),
     () => (locked = true),
     () => (s.DOCS[0].items = []),
     () => (s.DOCS[0].items[0].withdrawn = true),
     () => (s.DOCS[0].items[0].done = true),
-    () => inlineBox().parentElement.remove(),
-    () => inlineBox().replaceWith(dom.window.document.createElement("span")),
+    () => field().remove(),
   ]) {
     setup();
     const el = blank();
-    ui.fillBlank(el);
-    const input = inlineBox();
-    input.value = "refused";
     stale();
-    press(input, "Enter");
-    assert.equal(el.textContent, "blank");
-    assert.equal(dom.window.document.body.textContent.includes("refused"), false);
-    if (input.isConnected) assert.fail("refused box remains");
+    assert.equal(ui.fillBlank(el, "x"), false);
+    assert.equal(el.textContent, "blank", "a refused key leaves the bubble");
+    assert.equal(dom.window.document.body.textContent.includes("x"), false);
   }
   assert.ok(notices.some((n) => /no longer editable/.test(n[0])));
   setup();
   s.DOCS[0].correction = { targetId: "old" };
   s.DOCS[0].items[0].done = true;
-  ui.fillBlank(blank());
-  inlineBox().value = "correction allowed";
-  press(inlineBox(), "Enter");
-  assert.equal(blank(), null);
-  // Replacing workspace arrays before Enter must edit only the current document's field/event path.
-  setup();
-  ui.fillBlank(blank());
-  s.DOCS = [{ id: "d", items: [{ id: "i", withdrawn: true }] }];
-  inlineBox().value = "refused";
-  press(inlineBox(), "Enter");
-  assert.ok(blank());
-  assert.equal(utilityCalls, 0);
+  assert.equal(ui.fillBlank(blank(), "c"), true, "a correction may fill a corrected item's bubble");
+  assert.equal(utilityCalls, 0, "no corrective-action dialog");
   let order = [],
     snowMode = false,
     body = "approved body",

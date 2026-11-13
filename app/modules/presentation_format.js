@@ -18,7 +18,7 @@ export const markBlanks = (s) => nl2(s).replace(/\(\s{0,8}\)/g, '<span class="bl
 export const editableBlanks = (s) =>
   esc(s).replace(
     /\(\s{0,8}\)/g,
-    '<span class="blank blank-edit" contenteditable="false" role="button" tabindex="0" aria-label="Fill in missing text" title="Click to fill in missing text">( )</span>',
+    '<span class="blank blank-edit" contenteditable="false" role="textbox" tabindex="0" aria-label="Missing detail: select and type to fill in; Tab moves to the next" title="Select and type to fill in">( )</span>',
   );
 
 /* What kind of violation an item is: its library entry when it carries one;

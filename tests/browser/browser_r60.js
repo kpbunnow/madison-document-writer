@@ -44,26 +44,52 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       d.items = [{ id: "a", no: "1", title: "Wall", text: "Repair ( ) on the wall.", sections: ["27.05(2)(c)"], due: "2026-11-30" }];
       render();
     });
-    // Owner direction 2026-11-13: Enter on a bubble opens an inline box in place of it; no dialog.
-    await page.locator(".blank-edit").focus();
+    // Owner direction after R82: a selected bubble takes typing directly; Tab moves between open bubbles. No box or dialog.
+    await page.evaluate(() => {
+      doc(WriterState.state.docId).items[0].text = "Repair ( ) on the ( ) wall.";
+      render();
+    });
+    await page.locator(".blank-edit").first().click();
     await page.keyboard.press("Enter");
     assert.equal(await page.locator("#utility-dialog").count(), 0);
-    await page.waitForFunction(() => document.activeElement?.classList.contains("blank-input"));
-    await page.keyboard.type("the damaged surface");
+    assert.equal(await page.locator(".blank-input").count(), 0, "no text box opens");
+    assert.equal(
+      await page
+        .locator(".blank-edit")
+        .first()
+        .evaluate((el) => el === document.activeElement),
+      true,
+      "Enter keeps the bubble selected",
+    );
     await axeScreen(page, "r60-inline-fill-in");
-    await page.keyboard.press("Escape");
-    // Escape restores the bubble with focus on it and leaves the item unchanged.
-    await page.waitForFunction(() => document.activeElement?.classList.contains("blank-edit"), null, { timeout: 2000 });
-    assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true);
-    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ( ) on the wall.");
-    await page.keyboard.press("Enter");
-    await page.keyboard.type("the damaged surface");
-    await page.keyboard.press("Enter");
-    assert.equal(await page.locator('[data-field="text"]').innerText(), "Repair the damaged surface on the wall.");
-    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair the damaged surface on the wall.");
-    // With no bubble left, focus returns to the item text, which is editable again.
-    await page.waitForFunction(() => document.activeElement?.dataset?.field === "text", null, { timeout: 2000 });
-    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.field), "text", "focus returns to the item text after Enter");
+    await page.keyboard.press("Tab");
+    assert.equal(
+      await page
+        .locator(".blank-edit")
+        .nth(1)
+        .evaluate((el) => el === document.activeElement),
+      true,
+      "Tab jumps to the next bubble",
+    );
+    await page.keyboard.press("Shift+Tab");
+    assert.equal(
+      await page
+        .locator(".blank-edit")
+        .first()
+        .evaluate((el) => el === document.activeElement),
+      true,
+      "Shift+Tab goes back",
+    );
+    await page.keyboard.press("?");
+    assert.equal(await page.locator("#utility-dialog[open]").count(), 0, "typing ? on a bubble does not open the shortcut sheet");
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ? on the ( ) wall.");
+    await page.keyboard.type(" the damaged surface");
+    await page.keyboard.press("Tab");
+    assert.equal(await page.locator(".blank-edit").count(), 1);
+    await page.locator(".blank-edit").click();
+    await page.keyboard.type("north");
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ? the damaged surface on the north wall.");
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.field), "text", "typing continues in the item text");
     assert.equal(await page.locator('[data-field="text"]').getAttribute("contenteditable"), "true");
     await page.evaluate(() => {
       const d = doc(WriterState.state.docId);
