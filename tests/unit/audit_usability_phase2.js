@@ -119,7 +119,9 @@ const test = async () => {
   // An advisory-only document offers its first advisory.
   const advisory = { ...ready, required: [], advice: [{ ok: false, soft: true, t: "Advisory", targets: [checkTarget("#bulk-due", "x")] }] };
   advisory.list = [{ ok: true, t: "Passed" }, ...advisory.advice];
-  assert.deepEqual(readinessFirst(advisory), { index: 1, label: "Go to first advisory" });
+  const advisoryMarkup = reviewConcernsHTML(d, advisory);
+  assert.match(advisoryMarkup, /data-review-advisories/);
+  assert.match(advisoryMarkup, /data-check-index="1"/);
   assert.equal(readinessText([], advisory.advice), "Ready for review · 1 advisory");
   assert.equal(readinessText([{}], [{}, {}]), "1 required fix · 2 advisories");
   assert.equal(readinessText([{}, {}], []), "2 required fixes");

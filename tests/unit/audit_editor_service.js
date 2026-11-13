@@ -119,8 +119,8 @@ for (const [owner, factory] of Object.entries(owners)) {
   const ready = editor.editorReadiness(d);
   assert.equal(ready.required.length, 1);
   assert.equal(ready.advice.length, 1);
-  assert.deepEqual(editor.readinessFirst(ready), { index: 0, label: "Go to first required field" });
   const review = editor.reviewConcernsHTML(d, ready);
+  assert.match(review, /Required field/, "Review keeps the required concern visible");
   assert.ok(review.indexOf("Must fix before issuing") < review.indexOf("Advisories"));
   assert.ok(review.includes("passed-checks"));
   const button = document.querySelector("[data-citation-copies]");

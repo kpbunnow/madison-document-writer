@@ -4,7 +4,7 @@ import { catalogState as catalog } from "./catalog_state.js";
 import { caseNumberKey } from "../assets/shared.js";
 import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { caseFileFault, caseFileName } from "./case_file_rules.js";
-import { doc, docsFor, eventsFor, kase } from "./writer_queries.js";
+import { doc, eventsFor, kase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 import { nowISO } from "./calendar.js";
 import { BUILD } from "./data/build_identity.js";
@@ -786,20 +786,6 @@ function languageCatalogSaveWorkflowPrefs(services) {
   }
 }
 
-function languageCatalogCaseSearchText(services, k) {
-  const docs = docsFor(k.id);
-  return [
-    k.number,
-    k.address,
-    k.owner,
-    k.parcel,
-    ...docs.flatMap((d) => [d.frozen?.case?.address, d.frozen?.case?.owner, ...Object.values(d.cits || {}).map((c) => c.num)]),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
 export function createLanguageCatalog(services) {
   let catalogReadSequence = 0;
   async function refreshCatalog() {
@@ -855,7 +841,6 @@ export function createLanguageCatalog(services) {
     inspectLock: (...args) => languageCatalogInspectLock(services, ...args),
     showLock: (...args) => languageCatalogShowLock(services, ...args),
     saveWorkflowPrefs: (...args) => languageCatalogSaveWorkflowPrefs(services, ...args),
-    caseSearchText: (...args) => languageCatalogCaseSearchText(services, ...args),
     catalogReplacement: (...args) => languageCatalogCatalogReplacement(services, ...args),
     readSharedCase: (...args) => languageCatalogReadSharedCase(services, ...args),
     localCaseWork: (...args) => languageCatalogLocalCaseWork(services, ...args),

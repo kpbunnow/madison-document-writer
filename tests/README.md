@@ -27,9 +27,9 @@ covers, or a new suite under its feature.
 | `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
 | `audit_recipient_lines.js` | 8,192 retained recipient-line output, access-order and error comparisons; public address formatter ownership |
 | `audit_writer_followup_templates.js` | Compares 2,048 retained/current chooser outputs, state changes and worksheet-fault callbacks, including status rules, saved choices, refusal and interrupted effects. |
-| `audit_writer_frame_templates.js` | Compares 512 complete frame outputs and ordered lazy adapter calls/failures against the retained frame owner, including hostile scalars, missing body, storage warnings and owned fragments. |
+| `audit_writer_frame_templates.js` | 512 independent frame behavior and ordered adapter/failure scenarios: hostile scalars, missing body, storage warnings and owned slots; no frozen full-frame copy. |
 | `audit_writer_details_templates.js` | Compares 4,096 complete retained/current special-document forms across historical authoring versions, correction/lock states, nuisance variants, occupancy release, imported/administrative choices, affected items and interrupted adapter calls. |
-| `audit_writer_overlay_templates.js` | Compares 3,072 complete overlays, live state and ordered adapter failures against the retained owner, including recipients, send, removal, storage, folder, final/correction and delegated modal priority. |
+| `audit_writer_overlay_templates.js` | 3,072 seeded overlays plus five targeted branches: independent control/value/selection/state and exact adapter/failure contracts, modal priority and negative Issue/injection mutations. |
 | `audit_document_action_templates.js` | 1,536 retained case/action/service comparisons with branch non-vacuity guards |
 | `audit_report_presentation_templates.js` | 2,048 retained shared-presentation comparisons and defensive attribute encoding |
 | `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
@@ -39,6 +39,7 @@ covers, or a new suite under its feature.
 | `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
 | `audit_search_highlighting.js` | Eight screen searches: aliases/ordinances, literal/Unicode safety, clearing and repeated enhancement without DOM writes, keyboard focus and existing controls/listeners |
 | `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new items that follow the previous item's location heading, never its due date |
+| `audit_result_operation_reads.js` | Bounded per-render picker selection and Reports column reads; duplicates/first copy, edited/cache/policy state and replacement report scales |
 | `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
@@ -129,8 +130,8 @@ covers, or a new suite under its feature.
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
 | `audit_recent_workflow_regressions.js` | Recent PR review: real-recorder bulk Undo preserves original/later edits, shortcut/status intersections, single All-category repaint, and delayed-dialog focus after navigation |
 | `audit_reinspection_batch.js` | Worksheet Mark the rest: only unresulted items, the ordinary recorder, safe Undo, refused in One item at a time |
-| `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
-| `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
+| `audit_reinspection_html.js` | 1,026 worksheet behavior states: outcome locks/bindings, due warnings, walk/filter visibility, retained/closed work, missing-source redirects and an unlock mutation |
+| `audit_overlay_html.js` | 1,026 independent recipient/storage/final/correction behavior states with field values, selection, immutable state and lazy adapter order |
 | `audit_workspace_task_reads.js` | Once-per-operation artifact display facts and live location/verification changes on the next operation |
 | `audit_preview_refresh.js` | Unchanged screen preview reuse; DOM/model/layout/font/document/replacement/failure invalidation and listener preservation |
 | `audit_success_messages.js` | Compact routine success status with complete history, alerts, Undo, keyboard focus, dialog scope and timer cleanup |
@@ -535,3 +536,5 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 `tests/windows/interruption_recovery.py` and `tests/windows/browser_recovery.cjs` run actual process-death, NTFS, loopback SMB and persistent-profile recovery tests through the Windows recovery workflow. They supplement the complete required gate; portable runs are explicitly not native evidence. See [Windows recovery tests](../docs/developer/WINDOWS-RECOVERY-TESTS.md) for scenarios, evidence requirements and City/hardware acceptance limits.
 
 `audit_ui_timer_settlement.js` runs isolated positive and negative teardown checks: real DOM focus/render completion, every short/long callback, leaked application-interval refusal, callback failure and completion rejection. It preserves the original timer guard while adapting to jsdom31's pending rendering interval.
+
+Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios and replaces markup equality with field/action, escaping, state and adapter-order contracts; see docs/developer/SCREEN-BEHAVIOR-CONTRACTS.md. Model, issued-history and print fixtures remain independently protected.

@@ -1,8 +1,9 @@
-/* Keep complete frame bytes and live adapter read/call/failure order. */
+/* Frame behavior, escaping, live slots, connection warnings and exact adapter/failure order. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
-  esbuild = require("esbuild");
+  esbuild = require("esbuild"),
+  { JSDOM } = require("jsdom");
 (async () => {
   async function load(contents) {
     const b = await esbuild.build({
@@ -23,10 +24,9 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports.createWorkspaceShell;
   }
-  const [actual, old] = await Promise.all([
-    load(fs.readFileSync("app/modules/workspace_shell.js", "utf8")),
-    load(fs.readFileSync("tests/fixtures/writer_frame_reference.txt", "utf8")),
-  ]);
+  const actual = await load(fs.readFileSync("app/modules/workspace_shell.js", "utf8"));
+  const dom = new JSDOM(""),
+    template = dom.window.document.createElement("template");
   function run(factory, input) {
     let steps = 0;
     const trace = [];
@@ -79,13 +79,42 @@ const assert = require("node:assert/strict"),
       fail: i % 3 === 0 ? (i % 9) + 1 : 0,
     };
     const result = run(actual, x);
-    assert.deepEqual(result, run(old, x), "frame:" + i);
+    const warning = !x.local || x.pending || x.outbox || x.mode !== "helper";
+    const order = ["navigation", "rail", "integrity", "banner", "context", "storageMode", ...(warning ? ["storageEscape"] : [])];
+    const interrupted = x.fail > 0 && x.fail <= order.length;
+    assert.deepEqual(result.trace, order.slice(0, interrupted ? x.fail : order.length), "independent adapter order: " + i);
+    if (interrupted) {
+      assert.deepEqual(result.error, ["Error", "interrupted:" + order[x.fail - 1]]);
+      assert.equal(result.value, undefined);
+    } else {
+      assert.equal(result.error, null);
+      assert.deepEqual(result, run(actual, x), "repeat rendering is deterministic");
+      template.innerHTML = result.value;
+      const view = template.content;
+      assert.equal(view.querySelectorAll("h1").length, 1);
+      assert.equal(view.querySelector("h1").textContent, String(x.title ?? ""));
+      assert.equal(view.querySelector(".crumb").textContent, String(x.crumb ?? ""));
+      assert.equal(view.querySelector(".crumb img"), null, "untrusted crumb is text");
+      assert.equal(view.querySelector("nav[aria-label='Main navigation'] button").textContent, "Navigate");
+      assert.equal(view.querySelector("img").alt, "City of Madison Building Inspection");
+      assert.equal(view.querySelector("#save-status[role='status'][aria-live='polite']").textContent, "Drafts save on this device");
+      assert.equal(view.querySelectorAll(".topbar-actions button").length, x.actions ? 1 : 0);
+      assert.equal(view.querySelectorAll(".content > article").length, x.body ? 1 : 0);
+      if (!x.body) assert.match(view.querySelector(".content").textContent, /undefined/);
+      assert.equal(view.querySelectorAll(".content > p").length, x.banner ? 1 : 0);
+      assert.equal(view.querySelectorAll("[data-sync-safety]").length, warning ? 1 : 0);
+      if (!x.local) assert.match(view.textContent, /Device save failed/);
+      if (x.pending) assert.match(view.textContent, /2 shared saves waiting/);
+      if (x.outbox) assert.match(view.textContent, /3 PDFs awaiting transfer/);
+      if (x.mode !== "helper") assert.match(view.textContent, /Waiting for connection/);
+    }
     if (result.value) complete++;
     count++;
   }
   assert.ok(complete > 300);
   assert.equal(count, 512);
-  console.log("PASS Writer frame templates " + count + " exact HTML/adapter/failure comparisons");
+  dom.window.close();
+  console.log("PASS Writer frame behavior " + count + " slot/escaping/warning/adapter/failure scenarios");
 })().catch((e) => {
   console.error(e);
   process.exitCode = 1;

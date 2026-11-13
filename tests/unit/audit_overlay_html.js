@@ -1,31 +1,16 @@
-const { withHistoricalBindings } = require("../fixtures/historical_module_scope.cjs");
-const { withoutViolatorAdditions, withPoBoxRecipientControls } = require("../fixtures/violator_overlay.cjs");
-const { withRegisteredAgentLookup } = require("../fixtures/registered_agent_lookup.cjs");
-/* Exact modal HTML snapshots protect recipient, storage, workspace removal and finalization sections. */
+const { overlayContract, overlayCalls } = require("../fixtures/overlay_contracts.cjs");
+/* Complete seeded modal behavior, escaping, current data and ordered adapter reads; no frozen screen copy. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
   esbuild = require("esbuild"),
-  acorn = require("acorn"),
   fc = require("fast-check");
 (async () => {
   const dir = path.resolve("app/modules");
   let source = fs.readFileSync(path.join(dir, "screen_overlays.js"), "utf8");
-  const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
-    factory = ast.body.find((n) => n.declaration?.id.name === "createScreenOverlays").declaration,
-    ret = factory.body.body.at(-1);
-  const reference = withPoBoxRecipientControls(require("../fixtures/overlay_screen_reference.cjs")).replace(
-    "function modalHTML(",
-    "function referenceModal(",
-  );
-  source =
-    source.slice(0, ret.start) +
-    reference +
-    "\n" +
-    source.slice(ret.start).replace("return { overlayHTML }", "return { overlayHTML,actualModal:modalHTML,referenceModal }");
   source += '\nexport {WriterState} from "./state.js";';
   const compiled = await esbuild.build({
-    stdin: { contents: withHistoricalBindings(source), resolveDir: dir },
+    stdin: { contents: source, resolveDir: dir },
     bundle: true,
     write: false,
     format: "cjs",
@@ -123,20 +108,72 @@ const assert = require("node:assert/strict"),
   function run(fn) {
     reset();
     calls = [];
+    const initialState = JSON.stringify(s);
     try {
-      return { html: fn(), state: JSON.stringify(s), calls: calls.slice() };
+      return { html: fn(), initialState, state: JSON.stringify(s), calls: calls.slice() };
     } catch (error) {
-      return { error: { name: error.name, message: error.message }, state: JSON.stringify(s), calls: calls.slice() };
+      return { error: { name: error.name, message: error.message }, initialState, state: JSON.stringify(s), calls: calls.slice() };
     }
   }
   function compare(options) {
     flags = options;
-    const expected = run(api.referenceModal),
-      actual = run(api.actualModal);
-    if (typeof expected.html === "string") expected.html = withRegisteredAgentLookup(expected.html, actual.html);
-    const measured = { ...actual, html: withoutViolatorAdditions(actual.html, expected.html) };
-    assert.deepEqual(measured, expected, JSON.stringify(flags));
-    assert.equal(typeof actual.html, "string", "each modal snapshot renders successfully");
+    const actual = run(api.overlayHTML);
+    assert.deepEqual(actual, run(api.overlayHTML), "deterministic current rendering: " + JSON.stringify(flags));
+    assert.equal(actual.state, actual.initialState, "rendering never changes records or selections");
+    assert.equal(typeof actual.html, "string", "each modal renders successfully");
+    const state = JSON.parse(actual.initialState),
+      d = state.DOCS[0];
+    const k = d.correction?.case || state.CASES.find((k) => k.id === d.caseId) || {};
+    const checks = flags.bad
+      ? [
+          { ok: false, t: "Blocking <&>" },
+          { ok: false, soft: true, t: "Advisory <&>" },
+        ]
+      : [{ ok: true, t: "Passed" }];
+    const unsafe = (k) => flags.risky && Number(k.id.slice(1)) % 2 === 0;
+    const calls = overlayCalls(state, checks, { unsafe, destination: "Case JSON Files" })
+      .filter((call) => call[0] === "get")
+      .map((call) => call[1]);
+    assert.deepEqual(actual.calls, calls, "independent adapter read order");
+    const delegates = {
+      "shared-change": "<p>Shared</p>",
+      review: "<p>Review</p>",
+      recovery: "<p>Recovery</p>",
+      void: "<p>Record action</p>",
+      recordnote: "<p>Record action</p>",
+      reconcile: "<p>Record action</p>",
+      unknown: "",
+    };
+    const risky = state.CASES.filter(unsafe).length;
+    overlayContract(
+      actual.html,
+      flags.modal in delegates
+        ? { delegate: delegates[flags.modal] }
+        : {
+            modal: flags.modal,
+            copies: (k.ccList || []).length,
+            contact: k,
+            previews: [...(k.ccList || []), k.agent || {}].map((copy) => [copy.name, copy.addr, copy.city].join(" <&> ")),
+            emails: flags.modal === "sendto" ? (state.CASES.find((k) => k.id === d.caseId)?.emails || []).length : (k.emails || []).length,
+            needAgent: d.type === "citation" && !!k.owner?.includes("LLC"),
+            problem: flags.bad,
+            safe: state.CASES.length - risky,
+            risky,
+            files: flags.recipients && flags.query !== "missing" ? 1 : 0,
+            folderError: flags.bad,
+            folder: flags.folder,
+            helperStorage: flags.helper,
+            running: flags.busy,
+            wrong: flags.folder,
+            blocked: flags.bad,
+            busy: flags.busy,
+            correction: flags.correction,
+            reviewed: flags.bad,
+            initial: flags.initial,
+            mailed: "2026-10-27",
+            send: flags.helper && (k.emails || []).length ? [false, false] : [],
+          },
+    );
     checked++;
   }
   const modals = [
@@ -191,7 +228,7 @@ const assert = require("node:assert/strict"),
     ),
     { seed: 20261027, numRuns: 1000 },
   );
-  console.log("PASS exact overlay HTML snapshots", checked, "recipient/storage/final/correction states");
+  console.log("PASS overlay behavior contracts", checked, "recipient/storage/final/correction states");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

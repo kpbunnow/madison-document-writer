@@ -1,0 +1,17 @@
+# Screen behavior contracts and retired copies
+
+The owner approved retiring most frozen screen references in the November 13 improvement plan. PR 481 retired the picker/Browse/editor copies that had become self-comparisons. This follow-up retires the remaining full Writer frame, modal/overlay and reinspection renderer copies. It replaces full-markup equality with independent behavior contracts while keeping every seeded scenario. Legal wording, print and issued-history goldens, model/security/integrity oracles and their consumers remain unchanged.
+
+| Retired maintained input | Replacement coverage |
+| --- | --- |
+| writer_frame_reference.txt | 512 original frame states: escaped title/crumb, live navigation/actions/body slots, device/share/outbox warnings, exact independent adapter and interrupted-read order |
+| writer_overlay_reference.txt | 3,072 original overlay states: modal priority, exact independent adapter/read/call/interruption sequence, immutable data, finalization availability, correction review, recipient selection and controls; five additional storage/large-case branches |
+| overlay_screen_reference.cjs | 1,026 original modal states: current field/selection values, registered-agent lookup and PO Box controls, warning and scope/filing behavior, independent adapter order and immutable state |
+| reinspection_screen_reference.cjs | 1,026 original worksheet states: missing-source redirects, original numbering/order, outcome selection and locks, notes/result/due fields and warnings, filters/walk visibility, progress, batch eligibility and retained/closed work |
+| registered_agent_lookup.cjs, violator_overlay.cjs | Obsolete original-output adaptation wrappers; the actual recipient controls are now tested directly, and independent recipient/issuance/print regressions remain |
+
+These six files total 73,538 bytes. Their original hashes/content remain in Git history and in the local `retired-screen-references` evidence inventory. The new shared overlay contract contains field/action expectations and adapter recipes, not a copy of a renderer. Explicit negative mutations prove that enabling a blocked Issue action, unlocking a retained inspection outcome or adding active injected markup fails the contracts. All 5,636 original seeded scenarios remain; deterministic rendering and state checks run alongside the semantic contracts.
+
+The unused Workspace queue filter, historical case-search helper and first-field readiness helper/test hook are retired with their references. They had no screen consumer. Existing workflow scenarios now verify that citation identity and historical owner facts survive concurrent autosave rather than requiring a ghost search API. Review's advisory link is tested in its actual markup. The diagnostic hook allowlist shrinks by one; active reminders, finder, inspector selection and all action guards remain.
+
+Remaining source-copy fixtures are independently reviewed rule/model/operation oracles or narrow control contracts, including record/recovery/issuance, authored-format-specific fields, report calculation/state and legal/print/history behavior. They are not whole-screen layout pins. Do not delete those protections based on a filename count: preserve their domain assertions or replace them with independent tests in a separate reviewed change. The CSS shell reference remains a visual-review record under SCREEN-SHELL.md; approved print CSS remains frozen.

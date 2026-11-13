@@ -108,17 +108,6 @@ export function createEditorScreens(services) {
     return required.length ? "" : html`<span class="cchip good" id="chk-chip" data-editor-readiness>${readinessText(required, advice)}</span>`;
   }
 
-  // The first unresolved required check (or, with none, advisory) that names a field, as its index in checks(d).
-
-  function readinessFirst(readiness) {
-    const at = (soft) => readiness.list.findIndex((c) => !c.ok && !!c.soft === soft && c.targets?.length);
-    const required = at(false);
-    if (required >= 0) return { index: required, label: "Go to first required field" };
-    if (readiness.required.length) return null;
-    const advisory = at(true);
-    return advisory >= 0 ? { index: advisory, label: "Go to first advisory" } : null;
-  }
-
   function readinessActionsHTML(readiness, mobile = false) {
     return readiness.required.length
       ? html`<button type="button" class="btn btn-sm" data-fix-next ${raw(mobile ? "data-mobile-next" : "data-readiness-first")}>Fix next issue (${readiness.required.length} left)</button>`
@@ -441,7 +430,6 @@ export function createEditorScreens(services) {
     enhanceDialog,
     editorReadiness,
     readinessText,
-    readinessFirst,
     reviewConcernsHTML,
   };
 }

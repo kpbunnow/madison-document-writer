@@ -162,18 +162,3 @@ export function workspaceQueue(rows, tasks, R) {
         a.k.id.localeCompare(b.k.id),
     );
 }
-
-export function queueMatches(row, filter) {
-  const st = row.st;
-  return (
-    filter === "all" ||
-    (filter === "attention" && row.attention) ||
-    (["continue", "drafts"].includes(filter) && row.continuing) ||
-    (filter === "deadlines" && row.deadline) ||
-    (filter === "resolution" && row.resolution) ||
-    (filter === "soon" && st.soon) ||
-    (filter === "overdue" && st.late) ||
-    (filter === "open" && !st.closed) ||
-    (filter === "closed" && st.closed)
-  );
-}
