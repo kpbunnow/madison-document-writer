@@ -97,3 +97,5 @@ R78 upgrades R77 with the document-first Workspace, Violation Categories picker,
 R79 upgrades R78 with the inline issued-document list in Workspace and the simplified import review (S79-2) and the installed update check (S79-1, superseding S78-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R79 is a release candidate, not a deployment approval.
 
 R80 upgrades R79 with the Workspace case-number lookup, the continuation-only import panel, grouped success messages, preview reuse and the Reports handoff highlight (S80-2) and the installed update check (S80-1, superseding S79-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R80 is a release candidate, not a deployment approval.
+
+R81 upgrades R80 with the remembered-inspector Workspace list, Find a case, Mark the rest, Fix next issue, order-language Favorites and Recently used, heading-only item defaults and faster Workspace refreshes (S81-2) and the installed update check (S81-1, superseding S80-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R81 is a release candidate, not a deployment approval.

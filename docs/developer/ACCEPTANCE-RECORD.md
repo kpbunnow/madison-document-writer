@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R81 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S81-1 | Install R81 from the shared release folder over R80 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R80 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R80 PC is told to restart and cannot save to the share |
+| S81-2 | On a City PC: choose an inspector in Open cases by inspector, restart Document Writer and open Workspace; type part of a case number in Find a case; in a reinspection use Mark the rest, then Undo; in the editor press Fix next issue until done; star an order-language card and add an item after a headed item | Workspace shows that inspector's open cases without choosing again; matching rows are highlighted and Enter moves to the first; Mark the rest fills only unresulted items and Undo clears only those; Fix next issue visits each required check and then opens Review; the starred card appears under Favorites; the new item has the previous heading and a blank due date |
+
+All R81 items remain OPEN, together with the R80 items, SSRS-1 to SSRS-7 and the carried items. S80-1 is superseded by S81-1.
+
 ## R80 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
