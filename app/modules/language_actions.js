@@ -72,6 +72,7 @@ export function createLanguageActions(services) {
       if (picker) editor.state.pickerStatus = "usable";
       else editor.state.libStatus = "usable";
     } else if (button.hasAttribute("data-language-all")) {
+      if (picker) editor.state.pickerList = "";
       editor.state.cl = -1;
       editor.state.q = "";
     }

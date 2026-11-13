@@ -53,7 +53,7 @@ export const activeShortcutList = (state) =>
 /* Picker clicks for the two lists and the star. The picker is repainted through the supplied refresh. */
 export function createLanguageShortcuts(services) {
   document.addEventListener("click", (event) => {
-    const t = event.target.closest?.(".picker-box [data-language-list],.picker-box [data-language-favorite],.picker-box [data-language-all]");
+    const t = event.target.closest?.(".picker-box [data-language-list],.picker-box [data-language-favorite]");
     if (!t || !editor.state.picker) return;
     let focus = "";
     if (t.dataset.languageFavorite) {
@@ -62,7 +62,7 @@ export function createLanguageShortcuts(services) {
     } else if (t.dataset.languageList) {
       Object.assign(editor.state, { pickerList: t.dataset.languageList, q: "", cl: -1 });
       focus = '[data-language-list="' + t.dataset.languageList + '"]';
-    } else editor.state.pickerList = "";
+    }
     services.refreshOverlay();
     if (focus) document.querySelector(".picker-box " + focus)?.focus();
   });
