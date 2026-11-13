@@ -137,7 +137,27 @@ function openCaseWithLimit(promise) {
 let inspectorSerial = 0,
   caseSerial = 0,
   nameSerial = 0;
-const redraw = (services) => editor.state.screen === "import" && services.render();
+// Background inspector/case answers replace their own card on Workspace, preserving case rows and typed work.
+function redrawWorkspaceCard() {
+  const card = document.getElementById("open-cases");
+  if (!card) return;
+  const active = document.activeElement,
+    inside = card.contains(active),
+    selector = inside && (active.id ? "#" + active.id : active.matches('button[type="submit"]') ? '#open-cases-form button[type="submit"]' : ""),
+    start = inside ? active.selectionStart : null,
+    end = inside ? active.selectionEnd : null;
+  card.outerHTML = openCaseCardHTML();
+  enhanceSearchResults(document.getElementById("open-cases"));
+  if (selector) {
+    const next = document.querySelector(selector);
+    next?.focus({ preventScroll: true });
+    if (typeof start === "number") next?.setSelectionRange(start, end);
+  }
+}
+function redraw(services) {
+  if (editor.state.screen === "cases") redrawWorkspaceCard();
+  else if (editor.state.screen === "import") services.render();
+}
 const BAD_ANSWER = "The helper sent an answer the list cannot use. Try again, or ask IT to check the installation.";
 
 async function loadInspectors(services, refresh = false) {
@@ -245,6 +265,7 @@ async function pick(services, number) {
   openList.picked = number;
   editor.WORK.entry["lookup-number"] = number;
   imports.LOOKUP_ERROR = "";
+  if (editor.state.screen === "cases") editor.state.screen = "import";
   services.render();
   document.getElementById("lookup-form")?.scrollIntoView?.({ block: "center" });
   await services.findDatabaseCase();

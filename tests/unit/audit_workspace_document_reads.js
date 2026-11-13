@@ -98,6 +98,7 @@ const assert = require("node:assert/strict"),
       caseSearchText: (k) => k.number,
       saveWorkflowPrefs() {},
       shell: (title, sub, actions, body) => body,
+      openCasesCard: () => "",
       recoveryStatusHTML: () => "",
       remindersPanel: () => "",
     });

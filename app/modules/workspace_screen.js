@@ -67,12 +67,14 @@ function workspaceContentHTML({ orphan, table, services }) {
     <p class="hint">Choose an open case by inspector, or enter a case number, to start new work from an unused inspection.</p></div></div></section>
     ${raw(importResumePanel())}${raw(workspace.PREFLIGHT_NOTICE ? html`<div class="banner info" role="status">${workspace.PREFLIGHT_NOTICE}</div>` : "")}
     ${raw(orphan.length ? html`<div class="banner warn">${String(orphan.length)} queued case ${orphan.length === 1 ? "file" : "files"} outside the loaded cases. <button class="btn btn-sm" data-sync-safety>Review queued saves</button></div>` : "")}
+    ${raw(!workspace.CASES.length ? services.openCasesCard() : "")}
     <div class="card">${raw(
       workspace.CASES.length
         ? workspaceCaseTableHTML(table)
         : html`<div class="empty-state"><div class="empty-icon">${raw(uiIcon("cases"))}</div><h2>No cases in this workspace</h2>
       <p>Import an inspection or open a saved case to begin.</p><button class="btn" data-openfile>Open saved case</button></div>`,
     )}</div>
+    ${raw(workspace.CASES.length ? services.openCasesCard() : "")}
     <div class="queue-support"><button class="btn btn-sm" data-sync-safety>Saved work &amp; connection</button>
       <div id="recovery-status" class="hint" aria-live="polite">${raw(services.recoveryStatusHTML())}</div>
       ${raw(workspace.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : "")}</div>

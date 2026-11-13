@@ -192,12 +192,51 @@ module.exports = async function (browser, page, context, OUT, axeScreen) {
       () => document.querySelector("#open-cases-refresh-inspectors") && !document.querySelector("#open-cases-refresh-inspectors[disabled]"),
     );
     assert.equal(requests.filter((r) => r[0] === "list").length, 2, "Refresh inspector list asks the helper again");
+    await page.evaluate(() => {
+      window.workspaceLookupCapability = WriterState.HELPER.caseLookup;
+      WriterState.HELPER.caseLookup = true; // Synthetic City capability; Linux helper truthfully reports false.
+      WriterState.state.screen = "cases";
+      render();
+    });
+    await page.locator(".workspace-start #lookup-number").waitFor();
+    assert.equal(await page.locator("#open-cases .open-case").count(), 3, "the remembered inspector's cases are available on Workspace");
+    await page.locator("#lookup-number").fill("CB2026-241-12345");
+    await page.locator("#lookup-number").focus();
+    await page.evaluate(() => {
+      window.retainedWorkspaceLookup = document.getElementById("lookup-number");
+      window.retainedWorkspaceLookup.setSelectionRange(4, 10);
+      document.getElementById("open-cases-refresh").click();
+    });
+    await page.waitForFunction(() => !document.querySelector("#open-cases-refresh[disabled]"));
+    assert.equal(
+      await page.evaluate(() => document.getElementById("lookup-number") === window.retainedWorkspaceLookup),
+      true,
+      "background server lists preserve the local Workspace DOM",
+    );
+    assert.equal(await page.evaluate(() => document.activeElement.id), "lookup-number");
+    assert.deepEqual(await page.locator("#lookup-number").evaluate((el) => [el.selectionStart, el.selectionEnd]), [4, 10]);
+    await axeScreen(page, "workspace-open-cases");
+    const beforeWorkspacePick = await page.evaluate(() => WriterState.CASES.length);
+    await page.locator('[data-open-case-pick="CB2026-241-60002"]').click();
+    await page.locator("[data-import-dialog]").getByText("Stand-in lookup answer for the test.").waitFor();
+    assert.equal(await page.evaluate(() => WriterState.state.screen), "import");
+    assert.equal(
+      await page.evaluate(() => WriterState.CASES.length),
+      beforeWorkspacePick,
+      "choosing a server case does not import it without confirmation",
+    );
+    assert.equal(lookups.at(-1), "CB2026-241-60002");
+    await page.locator("#acc-exit").click();
   } finally {
     await context.unroute("**/inspector-cases/list");
     await context.unroute("**/inspector-cases/cases");
     await context.unroute("**/case-lookup");
     await page.evaluate(() => {
       WriterState.LOOKUP_ERROR = "";
+      if (Object.hasOwn(window, "workspaceLookupCapability")) {
+        WriterState.HELPER.caseLookup = window.workspaceLookupCapability;
+        delete window.workspaceLookupCapability;
+      }
       delete WriterState.WORK.entry["lookup-number"];
     });
   }
