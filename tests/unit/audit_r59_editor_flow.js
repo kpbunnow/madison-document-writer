@@ -218,7 +218,7 @@ const test = async () => {
   const nav = document.querySelector(".editor-sections");
   assert.deepEqual(
     [...nav.querySelectorAll("button")].map((b) => b.textContent),
-    ["Recipients", "Violation Items", "Review · " + editorReadiness(d).required.length],
+    ["Recipients", "Violation Items", "Review"],
   );
   assert.equal(nav.querySelectorAll("[data-editor-section]").length, 0, "no task button scrolls to a section");
   assert.equal(document.querySelectorAll("#btn-add-top").length, 1, "one entry to the violation picker");
