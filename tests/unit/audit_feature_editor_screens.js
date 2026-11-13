@@ -1,4 +1,4 @@
-/* Feature suite (Consolidation Phase 6): Editor and Workspace screens: Workspace as the import entry and current destination, the corrective-detail dialog, focus after it closes and case-number edits in page furniture.
+/* Feature suite (Consolidation Phase 6): Editor and Workspace screens: Workspace as the import entry and current destination, inline fill-in entry, focus after the detail is written and case-number edits in page furniture.
    Each scenario runs in its own process with a fresh bundle, DOM, state, storage and mocks
    (tests/fixtures/scenarios.cjs). Labels name the suite each scenario came from; its code is unchanged. */
 require("../fixtures/scenarios.cjs").run(__filename, {
@@ -38,7 +38,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   console.log('PASS audit_r60_development.js: one Workspace import entry and global search');
 `);
   },
-  "audit_r60_development.js: corrective-detail dialog inserts safe text, cancels and refuses stale drafts": () => {
+  "audit_r60_development.js: inline fill-in inserts safe text, cancels and refuses stale drafts": () => {
     globalThis.MADISON_TEST_DATA = true;
     globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
     require("../fixtures/bundle_test.cjs")(`
@@ -51,30 +51,34 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   newDoc('k1','notice');
   const d = doc(WriterState.state.docId);
   d.items = [{id:'item1',no:'1',sections:['27.05(2)(c)'],text:'Repair ( ) and ( ).',title:'Wall'}]; render();
-  window.HTMLDialogElement.prototype.close = function() { this.dispatchEvent(new window.Event('close')); };
+  // Owner direction 2026-11-13: the bubble is typed in place; Enter writes it, Escape restores the bubble.
+  const key = (el, k) => el.dispatchEvent(new window.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
   let blank = document.querySelector('.blank-edit'); blank.focus(); blank.click();
-  assert.equal(document.activeElement.id, 'corrective-detail');
-  let form = document.querySelector('#corrective-detail-form');
-  form.querySelector('textarea').value = '  <script>unsafe</script> & detail  ';
-  form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  assert.equal(document.querySelector('#corrective-detail-form'), null, 'no corrective-action dialog');
+  let box = document.activeElement;
+  assert.ok(box.classList.contains('blank-input') && box.closest('[data-field="text"]'));
+  box.value = '  <script>unsafe</script> & detail  ';
+  key(box, 'Enter');
   assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
   assert.equal(document.querySelector('.desk script'), null);
   // Owner direction 2026-11-13: with another bubble left, focus moves to it; with none, it returns to the item text.
   assert.ok(document.activeElement.classList.contains('blank-edit') && document.activeElement.closest('[data-field="text"]'));
   blank = document.querySelector('.blank-edit'); blank.click();
-  document.querySelector('#utility-dialog').close();
+  key(document.activeElement, 'Escape');
   assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
-  blank.click(); form = document.querySelector('#corrective-detail-form');
-  form.querySelector('textarea').value = ' '; form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  assert.ok(document.querySelector('#corrective-detail-error').textContent);
-  form.querySelector('textarea').value = 'stale'; d.status = 'Final';
-  form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  assert.ok(document.activeElement.classList.contains('blank-edit'));
+  document.activeElement.click(); box = document.activeElement;
+  box.value = ' '; key(box, 'Enter');
+  assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
+  document.querySelector('.blank-edit').click(); box = document.activeElement;
+  box.value = 'stale'; d.status = 'Final';
+  key(box, 'Enter');
   assert.ok(!d.items[0].text.includes('stale'));
-  document.querySelector('#utility-dialog').close();
-  console.log('PASS audit_r60_development.js: corrective-detail dialog inserts safe text, cancels and refuses stale drafts');
+  assert.equal(document.querySelector('.blank-input'), null);
+  console.log('PASS audit_r60_development.js: inline fill-in inserts safe text, cancels and refuses stale drafts');
 `);
   },
-  "audit_r60_review_fixes.js: focus returns to the item text after the dialog closes asynchronously": () => {
+  "audit_r60_review_fixes.js: focus returns to the item text after the inline detail is written": () => {
     globalThis.MADISON_TEST_DATA = true;
     require("../fixtures/bundle_test.cjs")(`
   global.Event = window.Event;
@@ -83,25 +87,20 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   saveDrafts = async () => true;
   scheduleDraftSave = () => {};
   WriterState.PENDING = []; WriterState.EVENTS = {}; WriterState.DOCS = []; WriterState.REINSP = [];
-  // Corrective-action dialog: the browser fires "close" asynchronously, after the dialog handler's own focus restore.
   WriterState.REINSP = []; WriterState.DOCS = [];
   WriterState.state.screen = 'cases';
   newDoc('k1','notice');
   const d = doc(WriterState.state.docId);
   d.items = [{id:'item1',no:'1',sections:['27.05(2)(c)'],text:'Repair ( ) now.',title:'Wall'}];
   render();
-  window.HTMLDialogElement.prototype.close = function() {
-    this.open = false;
-    setTimeout(() => this.dispatchEvent(new window.Event('close')), 0);
-  };
   document.querySelector('.blank-edit').click();
-  const form = document.querySelector('#corrective-detail-form');
-  form.querySelector('textarea').value = 'the north wall';
-  form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  const box = document.activeElement;
+  box.value = 'the north wall';
+  box.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
   await new Promise(r => setTimeout(r, 20));
   assert.equal(d.items[0].text, 'Repair the north wall now.');
-  assert.equal(document.activeElement.dataset.field, 'text', 'focus returns to the item text after the dialog closes');
-  console.log('PASS audit_r60_review_fixes.js: focus returns to the item text after the dialog closes asynchronously');
+  assert.equal(document.activeElement.dataset.field, 'text', 'focus returns to the item text after the detail is written');
+  console.log('PASS audit_r60_review_fixes.js: focus returns to the item text after the inline detail is written');
 `);
   },
   "audit_r61_development.js: case-number edits update page furniture but never page counts": () => {

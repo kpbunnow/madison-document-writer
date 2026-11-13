@@ -72,10 +72,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "0081d33d00e3596b1e475a852bf0b9c456e9582316f600e86622d7fa0ab00a6d",
+      "afterSha256": "8dd20fd776738db1a8b1f21b35ca700b13f8f96090964c42e91e96e393c6f6d1",
       "beforeBytes": 48561,
-      "afterBytes": 59354,
-      "retainedRulesSha256": "580caabaefa352902e1bce0abaf3cfedbeccca747c72b7760f83c40f304b99ee"
+      "afterBytes": 59824,
+      "retainedRulesSha256": "22bda91a2e1cbaf7223bdd2924d0b62cf238fe303b7f6fdf0f775c72134138bf"
     }
   },
   "selectorChanges": [
@@ -919,6 +919,20 @@
         }
       },
       "evidence": "docs/developer/SCREEN-CSS-MAINTENANCE.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "7d30a80d88da71f8fb3ea29e7376e575da38df7c",
+      "scope": "Fill-in bubble typed in place: .main .blank-input styles the inline text box that replaces a fill-in bubble while its detail is typed. Append-only screen block; preserves all 59,354 earlier stylesheet bytes. No new colours.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "0081d33d00e3596b1e475a852bf0b9c456e9582316f600e86622d7fa0ab00a6d",
+          "afterSha256": "8dd20fd776738db1a8b1f21b35ca700b13f8f96090964c42e91e96e393c6f6d1",
+          "unchangedRulesSha256": "580caabaefa352902e1bce0abaf3cfedbeccca747c72b7760f83c40f304b99ee",
+          "unchangedPrefixBytes": 59354
+        }
+      },
+      "evidence": "Owner request 2026-11-13; inline blank entry replaces the corrective-action dialog."
     }
   ]
 }

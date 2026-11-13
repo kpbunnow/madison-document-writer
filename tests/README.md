@@ -190,7 +190,7 @@ covers, or a new suite under its feature.
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
 | `audit_valid.js` | Document blockers and mailing-date limits |
-| `audit_feature_editor_screens.js` | Feature suite: Workspace import entry and current destination, the corrective-detail dialog and focus after it closes, case-number edits in page furniture |
+| `audit_feature_editor_screens.js` | Feature suite: Workspace import entry and current destination, inline fill-in entry and focus after the detail is written, case-number edits in page furniture |
 | `audit_feature_language_catalog.js` | Feature suite: dotted 27.05(2)(g)2 references normalize to one catalog entry, price and classification |
 
 ## Extensions
@@ -525,7 +525,7 @@ code; each scenario label starts with the former name. Release reviews cite them
 | `audit_r60_review_fixes.js` | `audit_feature_editor_screens.js` (Workspace current while importing; dialog focus), `audit_feature_worksheet_dates.js` (batch dates and stale selection), `audit_feature_history_referrals.js` (initial citation numbers in history) | four |
 | `audit_r61_review_fixes.js` | `audit_feature_extensions.js` (family switching), `audit_feature_citation_packets.js` (packet labels and retry filing) | two |
 | `audit_r61_development.js` | `audit_feature_corrections.js`, `audit_feature_history_referrals.js` (history rendering; compliance generation), `audit_feature_language_catalog.js`, `audit_feature_extensions.js`, `audit_feature_citation_packets.js`, `audit_feature_editor_screens.js` | seven |
-| `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; corrective-detail dialog), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
+| `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; inline fill-in entry), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
 
 
 `audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.

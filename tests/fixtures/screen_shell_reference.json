@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "98e9ea12e04ae8233094e6fbc3fff44ac3aef85238a100be5a5fb8cdf20c729e",
-      "normalizedShellSha256": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9"
+      "beforeNormalizedShellSha256": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9",
+      "normalizedShellSha256": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "44033064f4659f2c1ad5c2a6e435c4b9b4fd2d8e1851a9ff6ffe8036d26a34b9",
-      "normalizedShellSha256": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9"
+      "beforeNormalizedShellSha256": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9",
+      "normalizedShellSha256": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114"
     }
   },
   "reviews": [
@@ -255,6 +255,22 @@
           "after": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9"
         }
       }
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "7d30a80d88da71f8fb3ea29e7376e575da38df7c",
+      "scope": "Writer screen: inline fill-in box for corrective-action blanks. Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9",
+          "after": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd"
+        },
+        "madison-reports.html": {
+          "before": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9",
+          "after": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114"
+        }
+      },
+      "evidence": "Owner request 2026-11-13; inline blank entry replaces the corrective-action dialog."
     }
   ]
 }

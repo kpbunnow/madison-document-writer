@@ -2811,3 +2811,24 @@
     min-height: 36px;
   }
 }
+
+/* Fill-in bubble typed in place (owner direction 2026-11-13). */
+@media screen {
+  .main .blank-input {
+    display: inline-block;
+    min-height: 24px;
+    max-width: 100%;
+    margin: 0 0.12em;
+    padding: 0 6px;
+    font: inherit;
+    color: inherit;
+    background: #fff;
+    border: 1.7px solid var(--flag);
+    border-radius: 6px;
+    vertical-align: baseline;
+  }
+  .main .blank-input:focus {
+    outline: 2px solid var(--flag);
+    outline-offset: 2px;
+  }
+}

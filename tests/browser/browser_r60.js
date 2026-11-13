@@ -1,4 +1,4 @@
-/* R60 real dialog keyboard behavior, address flow, referral pagination and complete citation PDFs. */
+/* R60 real inline fill-in keyboard behavior, address flow, referral pagination and complete citation PDFs. */
 const assert = require("assert/strict"),
   fs = require("fs"),
   path = require("path");
@@ -44,24 +44,27 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       d.items = [{ id: "a", no: "1", title: "Wall", text: "Repair ( ) on the wall.", sections: ["27.05(2)(c)"], due: "2026-11-30" }];
       render();
     });
+    // Owner direction 2026-11-13: Enter on a bubble opens an inline box in place of it; no dialog.
     await page.locator(".blank-edit").focus();
     await page.keyboard.press("Enter");
-    await page.locator("#corrective-detail").fill("the damaged surface");
-    await axeScreen(page, "r60-corrective-detail-dialog");
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(() => !document.querySelector("#utility-dialog"));
     assert.equal(await page.locator("#utility-dialog").count(), 0);
-    // Escape also restores focus after the asynchronous dialog close event, just like Save below.
+    await page.waitForFunction(() => document.activeElement?.classList.contains("blank-input"));
+    await page.keyboard.type("the damaged surface");
+    await axeScreen(page, "r60-inline-fill-in");
+    await page.keyboard.press("Escape");
+    // Escape restores the bubble with focus on it and leaves the item unchanged.
     await page.waitForFunction(() => document.activeElement?.classList.contains("blank-edit"), null, { timeout: 2000 });
     assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true);
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ( ) on the wall.");
     await page.keyboard.press("Enter");
-    await page.locator("#corrective-detail").fill("the damaged surface");
-    await page.locator("#corrective-detail-form button").click();
+    await page.keyboard.type("the damaged surface");
+    await page.keyboard.press("Enter");
     assert.equal(await page.locator('[data-field="text"]').innerText(), "Repair the damaged surface on the wall.");
-    // Chromium delivers the dialog's close event asynchronously; focus must still end on the item text.
-    await page.waitForFunction(() => !document.querySelector("#utility-dialog"));
+    assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair the damaged surface on the wall.");
+    // With no bubble left, focus returns to the item text, which is editable again.
     await page.waitForFunction(() => document.activeElement?.dataset?.field === "text", null, { timeout: 2000 });
-    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.field), "text", "focus returns to the item text after Save");
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset?.field), "text", "focus returns to the item text after Enter");
+    assert.equal(await page.locator('[data-field="text"]').getAttribute("contenteditable"), "true");
     await page.evaluate(() => {
       const d = doc(WriterState.state.docId);
       d.type = "referralUpdate";

@@ -128,35 +128,52 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   a11y = { ...a11y, notify: (...args) => notices.push(["replacement", ...args]) };
   ui.toast("live");
   assert.equal(notices.pop()[0], "replacement");
+  // Owner direction 2026-11-13: a fill-in bubble is typed in place; no dialog opens.
   const blank = () => dom.window.document.getElementById("blank"),
-    dialog = () => dom.window.document.getElementById("utility-dialog"),
-    submit = () =>
-      dialog()
-        .querySelector("form")
-        .dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
+    inlineBox = () => dom.window.document.querySelector(".blank-input"),
+    press = (input, key) => input.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
   locked = true;
   ui.fillBlank(blank());
-  assert.equal(utilityCalls, 0);
+  assert.equal(inlineBox(), null);
+  assert.ok(blank());
   locked = false;
   ui.fillBlank(blank());
-  assert.equal(utilityCalls, 1);
-  assert.equal(dialog().querySelector("[data-utility-close]").textContent, "Cancel");
-  assert.equal(dom.window.document.activeElement, dialog().querySelector("textarea"));
-  submit();
-  assert.match(dialog().querySelector("#corrective-detail-error").textContent, /Enter text/);
+  assert.equal(utilityCalls, 0, "no corrective-action dialog");
+  assert.equal(blank(), null);
+  assert.equal(dom.window.document.activeElement, inlineBox());
+  // While the box is open it is the item's only control; the field's own focusability returns afterwards.
+  assert.equal(inlineBox().parentElement.getAttribute("tabindex"), null);
+  // Escape restores the bubble unchanged; an empty Enter does too.
+  press(inlineBox(), "Escape");
   assert.ok(blank());
-  dialog().querySelector("textarea").value = "  <unsafe> corrected detail  ";
+  assert.equal(blank().parentElement.getAttribute("tabindex"), "0");
+  assert.equal(inlineBox(), null);
+  assert.equal(dom.window.document.activeElement, blank());
+  ui.fillBlank(blank());
+  press(inlineBox(), "Enter");
+  assert.ok(blank());
+  ui.fillBlank(blank());
   let inputs = 0;
-  const field = blank().parentElement;
+  const field = inlineBox().parentElement;
   field.addEventListener("input", (e) => {
     assert.equal(e.bubbles, true);
     inputs++;
   });
-  submit();
+  // Typing in the box does not reach the item's input handlers; only the written detail does.
+  inlineBox().value = "  <unsafe> corrected detail  ";
+  inlineBox().dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  assert.equal(inputs, 0);
+  press(inlineBox(), "Enter");
   assert.equal(inputs, 1);
   assert.equal(field.textContent, "<unsafe> corrected detail");
   assert.equal(field.querySelector("unsafe"), null);
   assert.equal(dom.window.document.activeElement, field);
+  // Leaving the box writes the detail too.
+  setup();
+  ui.fillBlank(blank());
+  inlineBox().value = "left by blur";
+  inlineBox().dispatchEvent(new dom.window.Event("blur"));
+  assert.equal(dom.window.document.querySelector("[data-field=text]").textContent, "left by blur");
   for (const stale of [
     () => (s.state.screen = "home"),
     () => (s.state.docId = "other"),
@@ -165,33 +182,36 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     () => (s.DOCS[0].items = []),
     () => (s.DOCS[0].items[0].withdrawn = true),
     () => (s.DOCS[0].items[0].done = true),
-    () => blank().parentElement.remove(),
-    () => blank().replaceWith(dom.window.document.createElement("span")),
+    () => inlineBox().parentElement.remove(),
+    () => inlineBox().replaceWith(dom.window.document.createElement("span")),
   ]) {
     setup();
     const el = blank();
     ui.fillBlank(el);
-    dialog().querySelector("textarea").value = "refused";
+    const input = inlineBox();
+    input.value = "refused";
     stale();
-    submit();
-    assert.match(dialog().querySelector("#corrective-detail-error").textContent, /no longer editable/);
+    press(input, "Enter");
     assert.equal(el.textContent, "blank");
+    assert.equal(dom.window.document.body.textContent.includes("refused"), false);
+    if (input.isConnected) assert.fail("refused box remains");
   }
+  assert.ok(notices.some((n) => /no longer editable/.test(n[0])));
   setup();
   s.DOCS[0].correction = { targetId: "old" };
   s.DOCS[0].items[0].done = true;
   ui.fillBlank(blank());
-  dialog().querySelector("textarea").value = "correction allowed";
-  submit();
+  inlineBox().value = "correction allowed";
+  press(inlineBox(), "Enter");
   assert.equal(blank(), null);
-  // Replacing workspace arrays before submit must edit only the current document's field/event path.
+  // Replacing workspace arrays before Enter must edit only the current document's field/event path.
   setup();
   ui.fillBlank(blank());
   s.DOCS = [{ id: "d", items: [{ id: "i", withdrawn: true }] }];
-  dialog().querySelector("textarea").value = "refused";
-  submit();
+  inlineBox().value = "refused";
+  press(inlineBox(), "Enter");
   assert.ok(blank());
-  assert.match(dialog().querySelector("#corrective-detail-error").textContent, /no longer editable/);
+  assert.equal(utilityCalls, 0);
   let order = [],
     snowMode = false,
     body = "approved body",
