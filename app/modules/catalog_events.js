@@ -362,11 +362,6 @@ export function createCatalogEvents(services) {
     return;
   };
 
-  const changeKeepAdding = (e) => {
-    editor.state.keepAdding = e.target.checked;
-    return;
-  };
-
   const changePickerGroup = (e) => {
     const [ci, gi] = e.target.value.split(":").map(Number);
     editor.state.cl = ci;
@@ -419,7 +414,6 @@ export function createCatalogEvents(services) {
     editPickerSearch,
     editLibrarySearch,
     changeLibraryStatus,
-    changeKeepAdding,
     changePickerGroup,
     registerLanguageActions,
     registerFilterInput,

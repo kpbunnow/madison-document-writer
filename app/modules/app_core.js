@@ -1879,7 +1879,6 @@ WriterState.state = {
   caseInspector: "",
   issuedCase: "",
   metric: "",
-  keepAdding: true,
   folderQ: "",
   emailOnIssue: false,
   sendDoc: null,
