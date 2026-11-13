@@ -1147,7 +1147,7 @@ const groups = [
   ["compliance", "Confirm compliance"],
 ];
 
-function choices(nd, r) {
+function scopedChoices(nd, r) {
   const referred = isReferredCase(r.caseId);
   return referredOnly(referred, [
     ...TIME_CHOICES,
@@ -1165,11 +1165,11 @@ function choices(nd, r) {
   ]);
 }
 
-function statusChooser(nd, r) {
+function scopedStatusChooser(nd, r) {
   const { services } = nd;
   const rule = r.importRule,
     allowed = allowedByStatus(r),
-    list = choices(nd, r).filter((c) => allowed.includes(c[0]));
+    list = scopedChoices(nd, r).filter((c) => allowed.includes(c[0]));
   const picked = allowed.includes(r.followupIntent) ? r.followupIntent : allowed.length === 1 ? allowed[0] : "";
   if (picked !== (r.followupIntent || "")) {
     r.followupIntent = picked;
@@ -1193,16 +1193,16 @@ function statusChooser(nd, r) {
   )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
 }
 
-function chooser(nd, r) {
+function scopedChooser(nd, r) {
   const { services } = nd;
-  if (r.importRule) return statusChooser(nd, r);
+  if (r.importRule) return scopedStatusChooser(nd, r);
   const saved = editor.WORK.actionChoices?.[r.id];
   if (saved && !r.draft) {
     r.followupIntent = saved.intent;
     r.actionGroup = saved.group;
   }
   const picked = r.followupIntent || "",
-    list = choices(nd, r),
+    list = scopedChoices(nd, r),
     group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
     faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
   const available = list.filter((c) => !eligibility(r, c[0])),
@@ -1255,7 +1255,7 @@ function chooser(nd, r) {
   )}</ul></details></div></section>`;
 }
 
-function details(nd, d) {
+function scopedDetails(nd, d) {
   const { services, date, rowAffectedSelection } = nd;
   if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
   const s = d.special || (d.special = {});
@@ -1269,7 +1269,7 @@ function details(nd, d) {
   return detailsShell(d, fields, reviewFields(s));
 }
 
-function createSpecial(nd, r, type) {
+function scopedCreateSpecial(nd, r, type) {
   const { services, day } = nd;
   if (r.docId && doc(r.docId)?.draft) {
     editor.state.docId = r.docId;
@@ -1345,7 +1345,7 @@ function createSpecial(nd, r, type) {
   services.render();
 }
 
-function specialLifecycle(nd, d) {
+function scopedSpecialLifecycle(nd, d) {
   const { services } = nd;
   if (!specialType(d.type) || !d.draft || d.correction) return [];
   const src = doc(d.fromDocId),
@@ -1353,7 +1353,7 @@ function specialLifecycle(nd, d) {
   return lifecycleFaults(services, d, src, r).map((t) => ({ ok: false, t }));
 }
 
-function servicePanel(nd, d) {
+function scopedServicePanel(nd, d) {
   const { date } = nd;
   if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
   const records = d.serviceRecords || [],
@@ -1369,7 +1369,7 @@ function servicePanel(nd, d) {
   )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}><label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
 }
 
-async function saveService(nd, docId) {
+async function scopedSaveService(nd, docId) {
   const { services, day } = nd;
   const d = doc(docId),
     key = "service:" + docId,
@@ -1410,7 +1410,7 @@ async function saveService(nd, docId) {
   }
 }
 
-function releaseVisit(nd, d) {
+function scopedReleaseVisit(nd, d) {
   const { services } = nd;
   const s = d.special || {};
   if (d.type !== "noOccupancy" || s.mode !== "release" || s.releaseVisitId !== "external") return null;
@@ -1433,12 +1433,12 @@ function releaseVisit(nd, d) {
   };
 }
 
-function actionPanel(nd, d) {
+function scopedActionPanel(nd, d) {
   const { services } = nd;
   if (services.snow.is(d)) return "";
   if (d.draft) return "";
   const restrictions = activeRestrictions(docsFor(d.caseId));
-  return screen`${raw(servicePanel(nd, d))}<section class="card no-print"><div class="card-b">${raw(
+  return screen`${raw(scopedServicePanel(nd, d))}<section class="card no-print"><div class="card-b">${raw(
     restrictions.length
       ? screen`<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ${raw(restrictions.map((x) => e(scope(x, x.special))).join("; "))}. Compliance and extension letters do not release it.</p>`
       : "",
@@ -1457,7 +1457,7 @@ function actionPanel(nd, d) {
   )}</div></section>`;
 }
 
-function caseAction(nd, cid, type) {
+function scopedCaseAction(nd, cid, type) {
   const { services, day, restoreDues, continuingItems } = nd;
   if (services.snow.isCase(kase(cid))) {
     services.toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
@@ -1524,7 +1524,7 @@ function caseAction(nd, cid, type) {
   services.render();
 }
 
-function caseActionScreen(nd) {
+function scopedCaseActionScreen(nd) {
   const { services } = nd;
   const choice = editor.WORK.currentAction || {},
     k = kase(choice.cid),
@@ -1565,7 +1565,7 @@ function caseActionScreen(nd) {
   );
 }
 
-function actionScreen(nd) {
+function scopedActionScreen(nd) {
   const { services, date } = nd;
   const r = reinsp(editor.state.reinspId);
   return r
@@ -1573,7 +1573,7 @@ function actionScreen(nd) {
         "Add document for this inspection",
         kase(r.caseId).number + " · " + date(r.date),
         '<button class="btn" data-nav="cases">Workspace</button>',
-        chooser(nd, r),
+        scopedChooser(nd, r),
       )
     : services.screenCases();
 }
@@ -1721,9 +1721,9 @@ export function initNewDocuments(services) {
       services,
       el,
       restoreDues,
-      caseAction: (...args) => caseAction(nd, ...args),
-      saveService: (...args) => saveService(nd, ...args),
-      createSpecial: (...args) => createSpecial(nd, ...args),
+      caseAction: (...args) => scopedCaseAction(nd, ...args),
+      saveService: (...args) => scopedSaveService(nd, ...args),
+      createSpecial: (...args) => scopedCreateSpecial(nd, ...args),
     });
     return true;
   }
@@ -1731,22 +1731,22 @@ export function initNewDocuments(services) {
   const nd = { services, day, date, rowAffectedSelection, restoreDues, continuingItems };
   return {
     rowAffectedSelection,
-    releaseVisit: (...args) => releaseVisit(nd, ...args),
+    releaseVisit: (...args) => scopedReleaseVisit(nd, ...args),
     continuingItems,
     eligibility,
     specialBody,
     specialChecks,
     setSpecialDue,
     invalidateItemReview,
-    details: (...args) => details(nd, ...args),
-    chooser: (...args) => chooser(nd, ...args),
-    createSpecial: (...args) => createSpecial(nd, ...args),
-    specialLifecycle: (...args) => specialLifecycle(nd, ...args),
-    actionPanel: (...args) => actionPanel(nd, ...args),
-    caseAction: (...args) => caseAction(nd, ...args),
-    caseActionScreen: (...args) => caseActionScreen(nd, ...args),
+    details: (...args) => scopedDetails(nd, ...args),
+    chooser: (...args) => scopedChooser(nd, ...args),
+    createSpecial: (...args) => scopedCreateSpecial(nd, ...args),
+    specialLifecycle: (...args) => scopedSpecialLifecycle(nd, ...args),
+    actionPanel: (...args) => scopedActionPanel(nd, ...args),
+    caseAction: (...args) => scopedCaseAction(nd, ...args),
+    caseActionScreen: (...args) => scopedCaseActionScreen(nd, ...args),
     editEvent,
     clickEvent,
-    actionScreen: (...args) => actionScreen(nd, ...args),
+    actionScreen: (...args) => scopedActionScreen(nd, ...args),
   };
 }
