@@ -9,6 +9,7 @@ import { REFERRED_ONLY } from "./document_types.js";
 import { clearProhibitedCitations } from "./document_rules.js";
 import { parseTime, validISO, nowISO } from "./calendar.js";
 import { esc } from "./presentation_format.js";
+import { cleanOwnerAddress } from "./mailing_rules.js";
 import {
   ACC_COLS,
   ACC_REQUIRED,
@@ -60,10 +61,8 @@ function importedCaseFields({ c, accParcel, p }) {
     landmark: lm,
     description: r.description,
     owner: r.owner,
-    ownerAddr: r.ownerAddr
-      .split("\n")
-      .map((x) => x.trim())
-      .filter(Boolean),
+    // The report can repeat a mailing line (often the street line of a three- or four-line address); it is kept once.
+    ownerAddr: cleanOwnerAddress(r.ownerAddr.split("\n")),
   };
   return par;
 }
@@ -311,7 +310,9 @@ function existingImportDifferences({ k, p, services, row, c, accNorm }) {
     ["landmark", "Landmark"],
   ];
   cmp.forEach(([f, l]) => {
-    if (show(k[f]) !== show(p.f[f])) p.diff.push({ l: l, was: show(k[f]), now: show(p.f[f]) });
+    // A saved case may still hold a repeated report line; that alone is not a change in the owner's address.
+    const was = f === "ownerAddr" ? cleanOwnerAddress(k[f]) : k[f];
+    if (show(was) !== show(p.f[f])) p.diff.push({ l: l, was: show(k[f]), now: show(p.f[f]) });
   });
 
   // where Accela and the record disagree

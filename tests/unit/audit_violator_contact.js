@@ -8,8 +8,8 @@ const assert = require("node:assert/strict"),
 
 (async () => {
   const api = await compile(
-    'export {violatorOf, copiesOf, violatorActive, copiesOwner, setCopyKind, defendantName, isLLC, ownerLines} from "./mailing_rules.js";' +
-      'export {defendantLines, ownerCopy, cleanOwnerCopyLines} from "./defendant_contact.js"; export {defendantKey, respondentKey} from "./citation_policy.js";',
+    'export {violatorOf, copiesOf, violatorActive, copiesOwner, setCopyKind, defendantName, isLLC, ownerLines, cleanOwnerAddress} from "./mailing_rules.js";' +
+      'export {defendantLines, ownerCopy, cleanOwnerCopyLines, ownerMailingLines} from "./defendant_contact.js"; export {defendantKey, respondentKey} from "./citation_policy.js";',
   );
   const owner = { owner: "SYNTHETIC OWNER", ownerAddr: ["100 TEST ST", "MADISON WI 53703"] };
   const violator = { kind: "Violator", name: "THE VIOLATOR", addr: "55 second st", city: "madison, wi 53704" };
@@ -93,6 +93,27 @@ const assert = require("node:assert/strict"),
     api.cleanOwnerCopyLines({ owner: "SAME NAME", ownerAddr: ["SAME NAME", "C/O MANAGER", "UNIT 2", "100 TEST ST", "UNIT 2"] }),
     ["SAME NAME", "SAME NAME", "C/O MANAGER", "UNIT 2", "100 TEST ST", "UNIT 2"],
     "names, care-of, units and nonconsecutive lines are retained",
+  );
+  // Three- and four-line owner addresses: the report can repeat the street line further down (owner report after R82).
+  const fourLine = { owner: "SYNTHETIC OWNER", ownerAddr: ["C/O MANAGER", "7105 EXAMPLE DR", "UNIT 2", "7105 Example Dr.", "MADISON WI 53717"] };
+  const fourBefore = JSON.stringify(fourLine);
+  const printedFour = ["SYNTHETIC OWNER", "C/O MANAGER", "7105 EXAMPLE DR", "UNIT 2", "MADISON WI 53717"];
+  assert.deepEqual(api.defendantLines(fourLine, true), printedFour, "a draft mailing block prints the street line once");
+  assert.deepEqual(api.defendantLines(fourLine, false), api.ownerLines(fourLine), "older issued documents keep their original lines");
+  assert.deepEqual(api.defendantLines(fourLine, false, printedFour), printedFour, "issued documents print their retained lines");
+  assert.deepEqual(api.ownerMailingLines(fourLine), printedFour);
+  assert.equal(api.ownerMailingLines(owner), null, "nothing is retained when no line repeats");
+  assert.equal(JSON.stringify(fourLine), fourBefore, "raw case facts are unchanged");
+  assert.deepEqual(api.cleanOwnerAddress(["PO BOX 555", "SUITE 0100", "P.O. Box 555", "MADISON, WI 53701", "MADISON WI 53701"]), [
+    "PO BOX 555",
+    "SUITE 0100",
+    "MADISON, WI 53701",
+  ]);
+  assert.deepEqual(api.cleanOwnerAddress(["123 MAIN ST", "", "  ", "123  main st", "MADISON WI 53703"]), ["123 MAIN ST", "MADISON WI 53703"]);
+  assert.deepEqual(
+    api.cleanOwnerAddress(["SECOND OWNER", "123 MAIN ST APT 2", "123 MAIN ST", "MADISON WI 53703"]),
+    ["SECOND OWNER", "123 MAIN ST APT 2", "123 MAIN ST", "MADISON WI 53703"],
+    "only an identical line is a repeat",
   );
   assert.equal(api.INSPECTORS.find((i) => i.name === "STEPHEN SUNDSTROM").badge, "5603");
 

@@ -14,6 +14,34 @@ export const ownerLines = (k) =>
     .map((x) => String(x || "").trim())
     .filter(Boolean);
 
+/* The Accela report can repeat a mailing line, most often the street line of a three- or four-line owner address.
+   Compared without case, spacing, periods or commas, a line that repeats the line before it prints once, and a street
+   or PO Box line prints once wherever it repeats. Distinct names, care-of and unit lines stay, even when a unit line
+   recurs later. The raw case fact is unchanged. Mirrored by _clean_owner_address in helper/case_store.py. */
+const mailingLineKey = (line) =>
+  line
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase()
+    .replace(/^P ?O ?BOX\b/, "PO BOX");
+const STREET_LINE = /^(\d|PO BOX\b)/;
+export function cleanOwnerAddress(lines) {
+  const streets = new Set();
+  let previous = "";
+  return []
+    .concat(lines || [])
+    .map((x) => String(x || "").trim())
+    .filter((line) => {
+      const key = mailingLineKey(line),
+        repeated = !key || key === previous || (STREET_LINE.test(key) && streets.has(key));
+      previous = key || previous;
+      if (STREET_LINE.test(key)) streets.add(key);
+      return !repeated;
+    });
+}
+export const cleanOwnerLines = (k) => [String(k.owner || "").trim(), ...cleanOwnerAddress(k.ownerAddr)].filter(Boolean);
+
 /* ---------- who else hears about this case ----------
    A carbon copy, an email recipient and a registered agent are all facts about
    the property rather than about one letter, so they are held on the case and

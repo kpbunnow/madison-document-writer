@@ -573,6 +573,8 @@ const scopedServices = {
     "./calendar.js",
     "./accela_report.js",
     "./presentation_format.js",
+    // Imported owner addresses use the shared repeated-line rule; mailing_rules.js is a leaf module with no imports.
+    "./mailing_rules.js",
     "./workspace_state.js",
     "./helper_transport.js",
     "../assets/shared.js",

@@ -84,6 +84,25 @@ class AuthoringStoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Frozen owner copy"):
             self.save(value)
 
+    def test_frozen_owner_mailing_lines_drop_a_repeated_street_line(self):
+        value = self.notice()
+        snap = value["events"][0]["payload"]["snapshot"]
+        case = snap["frozen"]["case"]
+        case.update(owner="SYNTHETIC OWNER", ownerAddr=["C/O MANAGER", "7105 EXAMPLE DR", "UNIT 2", "7105 Example Dr.", "MADISON WI 53717"])
+        expected = ["SYNTHETIC OWNER", "C/O MANAGER", "7105 EXAMPLE DR", "UNIT 2", "MADISON WI 53717"]
+        snap["frozen"]["ownerMailingLines"] = expected.copy()
+        saved = self.save(value)["events"][0]["payload"]["snapshot"]
+        self.assertEqual(saved["frozen"]["ownerMailingLines"], expected)
+        self.assertEqual(saved["frozen"]["case"]["ownerAddr"], case["ownerAddr"], "the raw case fact is retained")
+        for invalid in [[], "bad shape", ["OTHER OWNER", *expected[1:]], [*expected, "7105 EXAMPLE DR"]]:
+            snap["frozen"]["ownerMailingLines"] = invalid
+            with self.assertRaisesRegex(ValueError, "Frozen owner mailing"):
+                self.save(value)
+        case["ownerAddr"] = ["C/O MANAGER", "UNIT 2", "7105 EXAMPLE DR", "UNIT 2", "MADISON WI 53717"]
+        snap["frozen"]["ownerMailingLines"] = ["SYNTHETIC OWNER", *case["ownerAddr"]]
+        with self.assertRaisesRegex(ValueError, "Frozen owner mailing"):
+            self.save(value)  # nothing repeated that prints once, so the fact is not stored
+
     def test_approved_base_math_uses_decimal_rounding(self):
         value = self.citation()
         c = next(iter(value["events"][-1]["payload"]["snapshot"]["cits"].values()))

@@ -73,8 +73,8 @@ module.exports = async function (browser, page, OUT, axeScreen) {
     const cc = (doc) => new DOMParser().parseFromString(printJob(doc).html, "text/html").querySelector(".cc-one").textContent;
     const current = cc(issued);
     const old = clone(issued);
-    delete old.frozen.ownerCopyLines;
-    return { lines: frozen.ownerCopyLines, raw: kase("qa-vio-1").ownerAddr, current, old: cc(old) };
+    delete old.frozen.ownerMailingLines;
+    return { lines: frozen.ownerMailingLines, raw: kase("qa-vio-1").ownerAddr, current, old: cc(old) };
   });
   assert.deepEqual(retained.lines, ["SYNTHETIC OWNER", "100 TEST ST", "MADISON WI 53703"]);
   assert.equal(retained.raw.length, 3, "raw case mailing facts are unchanged");
@@ -149,5 +149,34 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   kinds = await page.evaluate(() => kase("qa-vio-1").ccList.map((c) => c.kind));
   assert.deepEqual(kinds, ["Copy"], "only the blank Violator row was removed");
   assert.ok((await printed()).includes("100 TEST ST"), "the owner is the main contact again");
-  return { passed: true, mainContact: true, ownerCopy: true, oneViolator: true, blankRefused: true, snowKeepsOwner: true };
+
+  // A four-line owner address whose report repeats the street line further down prints it once in the mailing block,
+  // and in the issued copy (retained fact); an older issued snapshot keeps its original lines.
+  const fourLine = await page.evaluate(() => {
+    const k = kase("qa-vio-1");
+    k.ownerAddr = ["C/O SYNTHETIC MANAGER", "100 TEST ST", "UNIT 2", "100 Test St.", "MADISON WI 53703"];
+    const d = doc(WriterState.state.docId),
+      block = (x) => new DOMParser().parseFromString(printJob(x).html, "text/html").querySelector("[data-case=ownerBlock]").textContent;
+    const frozen = freezeSources(d),
+      issued = { ...clone(d), draft: false, frozen: { ...frozen, case: clone(k) } },
+      old = clone(issued);
+    delete old.frozen.ownerMailingLines;
+    return { draft: block(d), issued: block(issued), old: block(old), retained: frozen.ownerMailingLines, raw: k.ownerAddr.length };
+  });
+  const streetCount = (text) => text.toUpperCase().split("100 TEST ST").length - 1;
+  assert.equal(streetCount(fourLine.draft), 1, "the draft mailing block prints the street line once");
+  assert.ok(fourLine.draft.includes("C/O SYNTHETIC MANAGER") && fourLine.draft.includes("UNIT 2"), "care-of and unit lines stay");
+  assert.deepEqual(fourLine.retained, ["SYNTHETIC OWNER", "C/O SYNTHETIC MANAGER", "100 TEST ST", "UNIT 2", "MADISON WI 53703"]);
+  assert.equal(streetCount(fourLine.issued), 1, "the issued mailing block prints the retained lines");
+  assert.equal(streetCount(fourLine.old), 2, "an older issued snapshot keeps its original lines");
+  assert.equal(fourLine.raw, 5, "the raw case fact is unchanged");
+  return {
+    passed: true,
+    fourLineOwnerAddress: true,
+    mainContact: true,
+    ownerCopy: true,
+    oneViolator: true,
+    blankRefused: true,
+    snowKeepsOwner: true,
+  };
 };

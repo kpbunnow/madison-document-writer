@@ -2080,10 +2080,46 @@ def _validate_owner_copy_lines(snap):
         raise ValueError("Frozen owner copy lines must match the property owner's mailing address")
 
 
+_STREET_LINE = re.compile(r"^(\d|PO BOX\b)")
+
+
+def _clean_owner_address(lines):
+    """Mirror of cleanOwnerAddress (app/modules/mailing_rules.js): a line repeating the line before it, or a street or PO
+    Box line repeating anywhere, prints once. Keys ignore case, spacing, periods and commas."""
+    kept, streets, previous = [], set(), ""
+    for line in lines:
+        line = str(line or "").strip()
+        key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(r"\s+", " ", re.sub(r"[.,]", " ", line)).strip().upper())
+        repeated = not key or key == previous or (_STREET_LINE.match(key) and key in streets)
+        previous = key or previous
+        if _STREET_LINE.match(key):
+            streets.add(key)
+        if not repeated:
+            kept.append(line)
+    return kept
+
+
+def _validate_owner_mailing_lines(snap):
+    """Optional frozen owner lines with a repeated report line removed. Old snapshots and unchanged owners omit it."""
+    frozen = snap.get("frozen", {})
+    if "ownerMailingLines" not in frozen:
+        return
+    case = frozen.get("case", {})
+    raw = case.get("ownerAddr")
+    if not isinstance(raw, list):
+        raise ValueError("Frozen owner mailing lines require the property owner's mailing address lines")
+    owner = str(case.get("owner") or "").strip()
+    expected = [line for line in [owner, *_clean_owner_address(raw)] if line]
+    original = [line for line in (str(x or "").strip() for x in [owner, *raw]) if line]
+    if not expected or expected == original or frozen["ownerMailingLines"] != expected:
+        raise ValueError("Frozen owner mailing lines must match the property owner's mailing address")
+
+
 def validate_authoring(snap, at=None, check_date_window=True, original=None):
     """New R4 writes only; historical records retain their original evidence."""
     items = _validate_authoring_document(snap=snap, check_date_window=check_date_window, at=at)
     _validate_owner_copy_lines(snap)
+    _validate_owner_mailing_lines(snap)
     if check_date_window:
         _validate_due_spacing(snap=snap, items=items, original=original)
     if snap.get("type") in SPECIAL_TYPES:
