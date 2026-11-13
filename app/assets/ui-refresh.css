@@ -2850,3 +2850,33 @@
     font-weight: 600;
   }
 }
+
+/* Workspace: find a case in the list (owner direction 2026-11-13). Matching rows are marked; none are hidden. */
+@media screen {
+  .case-jump {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 16px;
+    padding: 12px 18px 4px;
+  }
+  .case-jump .f {
+    flex: 1 1 260px;
+    max-width: 420px;
+    margin: 0;
+  }
+  .case-jump .hint {
+    margin: 0 0 8px;
+  }
+  .workspace-cases tr.case-jump-hit > td {
+    box-shadow:
+      inset 0 2px 0 var(--civic),
+      inset 0 -2px 0 var(--civic);
+  }
+  .workspace-cases tr.case-jump-hit > td:first-child {
+    box-shadow:
+      inset 4px 0 0 var(--civic),
+      inset 0 2px 0 var(--civic),
+      inset 0 -2px 0 var(--civic);
+  }
+}

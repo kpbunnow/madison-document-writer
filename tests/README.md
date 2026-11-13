@@ -133,6 +133,7 @@ covers, or a new suite under its feature.
 | `audit_preview_refresh.js` | Unchanged screen preview reuse; DOM/model/layout/font/document/replacement/failure invalidation and listener preservation |
 | `audit_success_messages.js` | Compact routine success status with complete history, alerts, Undo, keyboard focus, dialog scope and timer cleanup |
 | `audit_workspace_documents.js` | Complete inline issued history and draft links: descending issue/revision and City dates, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
+| `audit_workspace_jump.js` | Workspace Find a case in this list: marks matches, Enter scrolls and focuses the first, never hides a row |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |

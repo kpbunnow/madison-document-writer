@@ -20,6 +20,7 @@ const allowed = {
   "search_highlighting.js": ["./language_search.js"],
   "language_discovery.js": ["./screen_html.js", "./language_search.js", "./language_shortcuts.js"],
   "language_shortcuts.js": ["./editor_state.js"],
+  "workspace_jump.js": [],
   "deferred_services.js": [],
   "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],

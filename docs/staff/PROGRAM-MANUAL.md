@@ -62,7 +62,7 @@ The generated Start Document Writer - READ ME.md is the file-level installation 
 
 ## 3 Use Workspace and case history
 
-Workspace shows every case loaded on this device, with its property and case number, issued documents, next due date, inspector and one recommended action. Needs resolution, work in progress, closed status and deadline warnings appear with the affected case. Device saving and connection problems remain in Saved work & connection. There are no workspace search, view or inspector filters; older saved filter settings cannot hide cases.
+Workspace shows every case loaded on this device, with its property and case number, issued documents, next due date, inspector and one recommended action. With six or more cases, Find a case in this list highlights the cases whose address or case number match what you type; press Enter to go to the first. No case is ever hidden. Needs resolution, work in progress, closed status and deadline warnings appear with the affected case. Device saving and connection problems remain in Saved work & connection. There are no workspace search, view or inspector filters; older saved filter settings cannot hide cases.
 
 **Continue a case.** Use the main action beside the case to continue its next task. It may say Continue document, Continue reinspection, Complete recorded visit, Reinspect or View case. An uncertain shared save takes priority over starting another draft. A record verification problem takes priority over editing. Use Import inspection to bring in a case that is not loaded on this device; the inspector picker on that screen remains available.
 
