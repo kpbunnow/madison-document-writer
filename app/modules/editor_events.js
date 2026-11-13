@@ -236,347 +236,346 @@ function onDocumentChange(services, e) {
   }
 }
 
-export function createEditorEvents(services) {
-  // Selecting a fill-in bubble focuses it; typing then replaces it (document_feedback.js).
-  function registerBlankClicks(target = document) {
-    return registerEventOnce(target, "editor.registerBlankClicks", "click", (e) => {
-      const el = e.target.closest(".blank-edit");
-      if (el) {
-        e.preventDefault();
-        services.ui.fillBlank(el);
-      }
-    });
-  }
-
-  function registerBlankKeys(target = document) {
-    return registerEventOnce(target, "editor.registerBlankKeys", "keydown", (e) => blankKey(services, e));
-  }
-
-  function registerPointerStart(target = document) {
-    return registerEventOnce(target, "editor.registerPointerStart", "pointerdown", (e) => {
-      const g = e.target.closest && e.target.closest("[data-grip]");
-      if (!g) return;
-      const tr = g.closest("tr");
-      if (!tr) return;
+// Selecting a fill-in bubble focuses it; typing then replaces it (document_feedback.js).
+function editorRegisterBlankClicks(services, target = document) {
+  return registerEventOnce(target, "editor.registerBlankClicks", "click", (e) => {
+    const el = e.target.closest(".blank-edit");
+    if (el) {
       e.preventDefault();
-      editor.dragging = { tr: tr, body: tr.parentNode };
-      tr.classList.add("dragging");
-      try {
-        g.setPointerCapture(e.pointerId);
-      } catch {
-        /* Pointer capture is optional; ordinary pointer movement still supports this interaction. */
-      }
-    });
-  }
-
-  function registerPointerMove(target = document) {
-    return registerEventOnce(target, "editor.registerPointerMove", "pointermove", (e) => {
-      if (!editor.dragging) return;
-      const rows = Array.prototype.slice.call(editor.dragging.body.querySelectorAll("tr[data-row]"));
-      for (let n = 0; n < rows.length; n++) {
-        const r = rows[n];
-        if (r === editor.dragging.tr) continue;
-        const b = r.getBoundingClientRect();
-        if (e.clientY >= b.top && e.clientY <= b.bottom) {
-          editor.dragging.body.insertBefore(editor.dragging.tr, e.clientY < b.top + b.height / 2 ? r : r.nextSibling);
-          break;
-        }
-      }
-    });
-  }
-
-  function registerPointerEnd(target = document) {
-    return registerEventOnce(target, "editor.registerPointerEnd", "pointerup", () => {
-      if (!editor.dragging) return;
-      const body = editor.dragging.body;
-      editor.dragging.tr.classList.remove("dragging");
-      editor.dragging = null;
-      const d = doc(editor.state.docId);
-      if (!d || !services.actions.structEditable(d)) return;
-      const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
-      d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-      services.actions.renumber(d);
-      workspace.DIRTY = true;
-      services.ui.refreshSheet();
-    });
-  }
-
-  function registerPointerCancel(target = document) {
-    return registerEventOnce(target, "editor.registerPointerCancel", "pointercancel", () => {
-      if (editor.dragging) {
-        editor.dragging.tr.classList.remove("dragging");
-        editor.dragging = null;
-        services.ui.refreshSheet();
-      }
-    });
-  }
-
-  function registerReorderKeys(target = document) {
-    return registerEventOnce(target, "editor.registerReorderKeys", "keydown", (e) => {
-      const grip = e.target.closest?.("[data-grip]");
-      if (!grip || !["ArrowUp", "ArrowDown"].includes(e.key) || e.altKey || e.ctrlKey || e.metaKey) return;
-      e.preventDefault();
-      services.actions.moveItem(grip.dataset.grip, e.key === "ArrowUp" ? "up" : "down", true);
-    });
-  }
-
-  function registerGroupFocus(target = document) {
-    return registerEventOnce(target, "editor.registerGroupFocus", "focusin", (e) => {
-      if (e.target.dataset && e.target.dataset.field === "group") editor.groupOld = e.target.innerText.trim();
-    });
-  }
-
-  function registerDatePicker(target = document) {
-    return registerEventOnce(target, "editor.registerDatePicker", "click", (e) => {
-      const el = e.target.closest && e.target.closest(".hdr-in");
-      if (!el || el.disabled) return;
-      if (typeof el.showPicker === "function") {
-        try {
-          el.showPicker();
-        } catch {
-          /* The browser can refuse its optional picker; typed dates remain available. */
-        }
-      }
-    });
-  }
-
-  function registerPlainPaste(target = document) {
-    return registerEventOnce(target, "editor.registerPlainPaste", "paste", (e) => {
-      const el = e.target.closest && e.target.closest("[contenteditable]");
-      if (!el) return;
-      e.preventDefault();
-      document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain"));
-    });
-  }
-
-  function registerReviewCommands(target = document) {
-    return registerEventOnce(target, "editor.registerReviewCommands", "click", (e) => {
-      const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]");
-      if (!button) return;
-      e.preventDefault();
-      services.actions.captureWork();
-      if (button.hasAttribute("data-mobile-primary")) {
-        // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
-        const primary = document.querySelector(".topbar .editor-primary");
-        if (primary && !primary.disabled) primary.click();
-        return;
-      }
-      if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
-        // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
-        if (!doc(editor.state.docId)) return;
-        editor.state.picker = false;
-        editor.state.modal = "review";
-        services.ui.render();
-        return;
-      }
-      const target = document.getElementById(button.dataset.editorCommand);
-      if (target && !target.disabled) {
-        button.disabled = true;
-        target.click();
-      }
-    });
-  }
-
-  const openDocument = (t) => {
-    const id = t.dataset.open,
-      d = doc(id);
-    if (!d) return;
-    services.actions.preflightCase(d.caseId, "document", () => {
-      editor.state.docId = id;
-      editor.state.screen = "write";
-      services.ui.render();
-      window.scrollTo(0, 0);
-    });
-    return;
-  };
-
-  const newNotice = (t) => {
-    const dd = draftDocFor(t.dataset.new);
-    if (dd) {
-      services.actions.preflightCase(dd.caseId, "document draft", () => {
-        editor.state.docId = dd.id;
-        editor.state.screen = "write";
-        services.ui.render();
-      });
-      return;
+      services.ui.fillBlank(el);
     }
-    if (docsFor(t.dataset.new).length) {
-      services.ui.toast("This case already has an official notice");
-      return;
-    }
-    const cid = t.dataset.new;
-    services.actions.preflightCase(cid, "new notice", () => services.actions.newDoc(cid, "notice"));
-    return;
-  };
+  });
+}
 
-  const deleteItem = (d, t) => {
-    if (!services.actions.structEditable(d)) {
-      services.ui.toast("This notice has been issued — its items are fixed");
-      return;
+function editorRegisterBlankKeys(services, target = document) {
+  return registerEventOnce(target, "editor.registerBlankKeys", "keydown", (e) => blankKey(services, e));
+}
+
+function editorRegisterPointerStart(target = document) {
+  return registerEventOnce(target, "editor.registerPointerStart", "pointerdown", (e) => {
+    const g = e.target.closest && e.target.closest("[data-grip]");
+    if (!g) return;
+    const tr = g.closest("tr");
+    if (!tr) return;
+    e.preventDefault();
+    editor.dragging = { tr: tr, body: tr.parentNode };
+    tr.classList.add("dragging");
+    try {
+      g.setPointerCapture(e.pointerId);
+    } catch {
+      /* Pointer capture is optional; ordinary pointer movement still supports this interaction. */
     }
-    const ix = d.items.findIndex((i) => i.id === t.dataset.del);
-    if (ix < 0) return;
-    const gone = d.items.splice(ix, 1)[0];
-    if (itemLibraryKey(gone)) {
-      d.selectionCache = d.selectionCache || {};
-      d.selectionCache[itemLibraryKey(gone)] = clone(gone);
+  });
+}
+
+function editorRegisterPointerMove(target = document) {
+  return registerEventOnce(target, "editor.registerPointerMove", "pointermove", (e) => {
+    if (!editor.dragging) return;
+    const rows = Array.prototype.slice.call(editor.dragging.body.querySelectorAll("tr[data-row]"));
+    for (let n = 0; n < rows.length; n++) {
+      const r = rows[n];
+      if (r === editor.dragging.tr) continue;
+      const b = r.getBoundingClientRect();
+      if (e.clientY >= b.top && e.clientY <= b.bottom) {
+        editor.dragging.body.insertBefore(editor.dragging.tr, e.clientY < b.top + b.height / 2 ? r : r.nextSibling);
+        break;
+      }
     }
+  });
+}
+
+function editorRegisterPointerEnd(services, target = document) {
+  return registerEventOnce(target, "editor.registerPointerEnd", "pointerup", () => {
+    if (!editor.dragging) return;
+    const body = editor.dragging.body;
+    editor.dragging.tr.classList.remove("dragging");
+    editor.dragging = null;
+    const d = doc(editor.state.docId);
+    if (!d || !services.actions.structEditable(d)) return;
+    const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
+    d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
     services.actions.renumber(d);
     workspace.DIRTY = true;
     services.ui.refreshSheet();
-    services.ui.toastUndo("Removed item — " + (gone.title || "untitled"), () => {
-      if (!d.items.some((i) => i.id === gone.id)) {
-        d.items.splice(ix, 0, gone);
-        services.actions.renumber(d);
-        workspace.DIRTY = true;
-        services.actions.saveDrafts();
-        services.ui.refreshSheet();
+  });
+}
+
+function editorRegisterPointerCancel(services, target = document) {
+  return registerEventOnce(target, "editor.registerPointerCancel", "pointercancel", () => {
+    if (editor.dragging) {
+      editor.dragging.tr.classList.remove("dragging");
+      editor.dragging = null;
+      services.ui.refreshSheet();
+    }
+  });
+}
+
+function editorRegisterReorderKeys(services, target = document) {
+  return registerEventOnce(target, "editor.registerReorderKeys", "keydown", (e) => {
+    const grip = e.target.closest?.("[data-grip]");
+    if (!grip || !["ArrowUp", "ArrowDown"].includes(e.key) || e.altKey || e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    services.actions.moveItem(grip.dataset.grip, e.key === "ArrowUp" ? "up" : "down", true);
+  });
+}
+
+function editorRegisterGroupFocus(target = document) {
+  return registerEventOnce(target, "editor.registerGroupFocus", "focusin", (e) => {
+    if (e.target.dataset && e.target.dataset.field === "group") editor.groupOld = e.target.innerText.trim();
+  });
+}
+
+function editorRegisterDatePicker(target = document) {
+  return registerEventOnce(target, "editor.registerDatePicker", "click", (e) => {
+    const el = e.target.closest && e.target.closest(".hdr-in");
+    if (!el || el.disabled) return;
+    if (typeof el.showPicker === "function") {
+      try {
+        el.showPicker();
+      } catch {
+        /* The browser can refuse its optional picker; typed dates remain available. */
       }
+    }
+  });
+}
+
+function editorRegisterPlainPaste(target = document) {
+  return registerEventOnce(target, "editor.registerPlainPaste", "paste", (e) => {
+    const el = e.target.closest && e.target.closest("[contenteditable]");
+    if (!el) return;
+    e.preventDefault();
+    document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain"));
+  });
+}
+
+function editorRegisterReviewCommands(services, target = document) {
+  return registerEventOnce(target, "editor.registerReviewCommands", "click", (e) => {
+    const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]");
+    if (!button) return;
+    e.preventDefault();
+    services.actions.captureWork();
+    if (button.hasAttribute("data-mobile-primary")) {
+      // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
+      const primary = document.querySelector(".topbar .editor-primary");
+      if (primary && !primary.disabled) primary.click();
+      return;
+    }
+    if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
+      // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
+      if (!doc(editor.state.docId)) return;
+      editor.state.picker = false;
+      editor.state.modal = "review";
+      services.ui.render();
+      return;
+    }
+    const target = document.getElementById(button.dataset.editorCommand);
+    if (target && !target.disabled) {
+      button.disabled = true;
+      target.click();
+    }
+  });
+}
+
+function editorOpenDocument(services, t) {
+  const id = t.dataset.open,
+    d = doc(id);
+  if (!d) return;
+  services.actions.preflightCase(d.caseId, "document", () => {
+    editor.state.docId = id;
+    editor.state.screen = "write";
+    services.ui.render();
+    window.scrollTo(0, 0);
+  });
+  return;
+}
+
+function editorNewNotice(services, t) {
+  const dd = draftDocFor(t.dataset.new);
+  if (dd) {
+    services.actions.preflightCase(dd.caseId, "document draft", () => {
+      editor.state.docId = dd.id;
+      editor.state.screen = "write";
+      services.ui.render();
     });
     return;
-  };
-
-  const moveItem = (t) => {
-    services.actions.moveItem(t.dataset.move, t.dataset.direction);
+  }
+  if (docsFor(t.dataset.new).length) {
+    services.ui.toast("This case already has an official notice");
     return;
-  };
+  }
+  const cid = t.dataset.new;
+  services.actions.preflightCase(cid, "new notice", () => services.actions.newDoc(cid, "notice"));
+  return;
+}
 
-  const toggleGroup = (d, t) => {
-    if (!services.actions.structEditable(d)) return;
-    const it = d.items.find((i) => i.id === t.dataset.grpbtn);
-    if (!it) return;
-    it.group = it.group ? "" : "GENERAL EXTERIOR";
-    services.ui.refreshSheet();
-    if (it.group) {
-      const h = document.querySelector('[data-field="group"][data-id="' + it.id + '"]');
-      if (h) {
-        h.focus();
-        const r = document.createRange();
-        r.selectNodeContents(h);
-        const s = getSelection();
-        s.removeAllRanges();
-        s.addRange(r);
-      }
+function editorDeleteItem(services, d, t) {
+  if (!services.actions.structEditable(d)) {
+    services.ui.toast("This notice has been issued — its items are fixed");
+    return;
+  }
+  const ix = d.items.findIndex((i) => i.id === t.dataset.del);
+  if (ix < 0) return;
+  const gone = d.items.splice(ix, 1)[0];
+  if (itemLibraryKey(gone)) {
+    d.selectionCache = d.selectionCache || {};
+    d.selectionCache[itemLibraryKey(gone)] = clone(gone);
+  }
+  services.actions.renumber(d);
+  workspace.DIRTY = true;
+  services.ui.refreshSheet();
+  services.ui.toastUndo("Removed item — " + (gone.title || "untitled"), () => {
+    if (!d.items.some((i) => i.id === gone.id)) {
+      d.items.splice(ix, 0, gone);
+      services.actions.renumber(d);
+      workspace.DIRTY = true;
+      services.actions.saveDrafts();
+      services.ui.refreshSheet();
     }
-    return;
-  };
+  });
+  return;
+}
 
-  const toggleAbatement = (d, t) => {
-    if (services.actions.isLocked(d) || d.type !== "notice") return;
-    const it = d.items.find((i) => i.id === t.dataset.abate);
-    if (!it || it.done) return;
-    it.abate = !it.abate;
-    t.dataset.on = it.abate ? 1 : 0;
-    t.textContent = it.abate ? "Y" : "N";
-    workspace.DIRTY = true;
-    services.actions.scheduleDraftSave();
-    return;
-  };
+function editorMoveItem(services, t) {
+  services.actions.moveItem(t.dataset.move, t.dataset.direction);
+  return;
+}
 
-  const openOriginal = (d) => {
-    services.actions.openIssuedCopy(d);
-    return;
-  };
+function editorToggleGroup(services, d, t) {
+  if (!services.actions.structEditable(d)) return;
+  const it = d.items.find((i) => i.id === t.dataset.grpbtn);
+  if (!it) return;
+  it.group = it.group ? "" : "GENERAL EXTERIOR";
+  services.ui.refreshSheet();
+  if (it.group) {
+    const h = document.querySelector('[data-field="group"][data-id="' + it.id + '"]');
+    if (h) {
+      h.focus();
+      const r = document.createRange();
+      r.selectNodeContents(h);
+      const s = getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+    }
+  }
+  return;
+}
 
-  const printDocument = (d) => {
-    if (d.pendingAmendment) {
-      services.ui.toast("Confirm the pending save before distributing this document.");
+function editorToggleAbatement(services, d, t) {
+  if (services.actions.isLocked(d) || d.type !== "notice") return;
+  const it = d.items.find((i) => i.id === t.dataset.abate);
+  if (!it || it.done) return;
+  it.abate = !it.abate;
+  t.dataset.on = it.abate ? 1 : 0;
+  t.textContent = it.abate ? "Y" : "N";
+  workspace.DIRTY = true;
+  services.actions.scheduleDraftSave();
+  return;
+}
+
+function editorOpenOriginal(services, d) {
+  services.actions.openIssuedCopy(d);
+  return;
+}
+
+function editorPrintDocument(services, d) {
+  if (d.pendingAmendment) {
+    services.ui.toast("Confirm the pending save before distributing this document.");
+    return;
+  }
+  if (!d.draft) services.actions.openIssuedCopy(d);
+  else services.actions.printNotice(services.actions.printJob(d));
+  return;
+}
+
+function editorReviewDocument(services, d) {
+  if (services.actions.isLocked(d)) {
+    services.ui.toast("This document has already been issued");
+    return;
+  }
+  if (workspace.CASEDIR && workspace.NEEDGRANT) services.actions.grantCaseFolder(true); // reconnect while the click still counts
+  editor.state.picker = false;
+  editor.state.modal = "final";
+  services.ui.render();
+  services.actions.refreshCatalog();
+  return;
+}
+
+function editorFinalizeDocument(services, d, t) {
+  // a document with an open check never gets issued, whatever the click path
+  if (!d || !d.draft || t.disabled || editor.AMENDMENT_BUSY || editor.state.publicationBusy) return;
+  const mailedEl = document.getElementById("fin-mailed");
+  if (mailedEl) services.actions.initialCitations.mailed(d, mailedEl.value);
+  if (d.correction) {
+    d.correction.reviewed = !!(document.getElementById("correction-reviewed") || {}).checked;
+    if (!d.correction.reviewed) {
+      services.ui.toast("Review and confirm the listed changes.");
       return;
     }
-    if (!d.draft) services.actions.openIssuedCopy(d);
-    else services.actions.printNotice(services.actions.printJob(d));
+  }
+  if (services.actions.blockers(d).length) {
+    services.ui.toast("Clear the outstanding checks before finalizing");
     return;
-  };
-
-  const reviewDocument = (d) => {
-    if (services.actions.isLocked(d)) {
-      services.ui.toast("This document has already been issued");
-      return;
-    }
-    if (workspace.CASEDIR && workspace.NEEDGRANT) services.actions.grantCaseFolder(true); // reconnect while the click still counts
-    editor.state.picker = false;
-    editor.state.modal = "final";
-    services.ui.render();
-    services.actions.refreshCatalog();
-    return;
-  };
-
-  const finalizeDocument = (d, t) => {
-    // a document with an open check never gets issued, whatever the click path
-    if (!d || !d.draft || t.disabled || editor.AMENDMENT_BUSY || editor.state.publicationBusy) return;
-    const mailedEl = document.getElementById("fin-mailed");
-    if (mailedEl) services.actions.initialCitations.mailed(d, mailedEl.value);
-    if (d.correction) {
-      d.correction.reviewed = !!(document.getElementById("correction-reviewed") || {}).checked;
-      if (!d.correction.reviewed) {
-        services.ui.toast("Review and confirm the listed changes.");
-        return;
-      }
-    }
-    if (services.actions.blockers(d).length) {
-      services.ui.toast("Clear the outstanding checks before finalizing");
-      return;
-    }
-    if (d.correction) {
-      const list = emailList(docCase(d)).filter((e) => String(e.addr || "").trim());
-      const picked = list.filter((_, ix) => {
-        const b = document.querySelector('[data-finsend="' + ix + '"]');
-        return b && b.checked;
-      });
-      d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
-      services.actions.issueCorrection(d);
-      return;
-    }
-    // ask for folder permission here, on the click itself, while the browser
-    // still counts it as one; asking later gets refused without explanation
-    // record who it goes to before it is frozen, so the filed copy, the
-    // attachment and the record all say the same thing
-    const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+  }
+  if (d.correction) {
+    const list = emailList(docCase(d)).filter((e) => String(e.addr || "").trim());
     const picked = list.filter((_, ix) => {
       const b = document.querySelector('[data-finsend="' + ix + '"]');
       return b && b.checked;
     });
-    editor.state.emailOnIssue = picked.length > 0;
     d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
-    // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
-    t.disabled = true;
-    if (workspace.CASEDIR && workspace.NEEDGRANT) {
-      services.actions.grantCaseFolder(true).then(() => services.actions.runFinalize(d));
-      return;
-    }
-    services.actions.runFinalize(d);
+    services.actions.issueCorrection(d);
     return;
-  };
+  }
+  // ask for folder permission here, on the click itself, while the browser
+  // still counts it as one; asking later gets refused without explanation
+  // record who it goes to before it is frozen, so the filed copy, the
+  // attachment and the record all say the same thing
+  const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+  const picked = list.filter((_, ix) => {
+    const b = document.querySelector('[data-finsend="' + ix + '"]');
+    return b && b.checked;
+  });
+  editor.state.emailOnIssue = picked.length > 0;
+  d.emailedTo = picked.map((e) => ({ addr: e.addr, kind: e.kind || "Other" }));
+  // R59: one submission; publishDocument also refuses a second concurrent issuance of the same draft.
+  t.disabled = true;
+  if (workspace.CASEDIR && workspace.NEEDGRANT) {
+    services.actions.grantCaseFolder(true).then(() => services.actions.runFinalize(d));
+    return;
+  }
+  services.actions.runFinalize(d);
+  return;
+}
 
+export function createEditorEvents(services) {
   function registerDocumentInput(target = document) {
     return registerEventOnce(target, "editor.registerDocumentInput", "input", (e) => onDocumentInput(services, e));
   }
-
   function registerDocumentChange(target = document) {
     return registerEventOnce(target, "editor.registerDocumentChange", "change", (e) => onDocumentChange(services, e));
   }
   return {
-    registerBlankClicks,
-    registerBlankKeys,
-    registerPointerStart,
-    registerPointerMove,
-    registerPointerEnd,
-    registerPointerCancel,
-    registerReorderKeys,
-    registerGroupFocus,
-    registerDatePicker,
-    registerPlainPaste,
-    registerReviewCommands,
-    openDocument,
-    newNotice,
-    deleteItem,
-    moveItem,
-    toggleGroup,
-    toggleAbatement,
-    openOriginal,
-    printDocument,
-    reviewDocument,
-    finalizeDocument,
+    registerBlankClicks: (target) => editorRegisterBlankClicks(services, target),
+    registerBlankKeys: (target) => editorRegisterBlankKeys(services, target),
+    registerPointerStart: (target) => editorRegisterPointerStart(target),
+    registerPointerMove: (target) => editorRegisterPointerMove(target),
+    registerPointerEnd: (target) => editorRegisterPointerEnd(services, target),
+    registerPointerCancel: (target) => editorRegisterPointerCancel(services, target),
+    registerReorderKeys: (target) => editorRegisterReorderKeys(services, target),
+    registerGroupFocus: (target) => editorRegisterGroupFocus(target),
+    registerDatePicker: (target) => editorRegisterDatePicker(target),
+    registerPlainPaste: (target) => editorRegisterPlainPaste(target),
+    registerReviewCommands: (target) => editorRegisterReviewCommands(services, target),
+    openDocument: (t) => editorOpenDocument(services, t),
+    newNotice: (t) => editorNewNotice(services, t),
+    deleteItem: (d, t) => editorDeleteItem(services, d, t),
+    moveItem: (t) => editorMoveItem(services, t),
+    toggleGroup: (d, t) => editorToggleGroup(services, d, t),
+    toggleAbatement: (d, t) => editorToggleAbatement(services, d, t),
+    openOriginal: (d) => editorOpenOriginal(services, d),
+    printDocument: (d) => editorPrintDocument(services, d),
+    reviewDocument: (d) => editorReviewDocument(services, d),
+    finalizeDocument: (d, t) => editorFinalizeDocument(services, d, t),
     registerDocumentInput,
     registerDocumentChange,
   };

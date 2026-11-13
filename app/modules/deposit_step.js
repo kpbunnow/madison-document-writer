@@ -25,49 +25,253 @@ function applyApprovedDeposit(services, c, d) {
   return true;
 }
 
-export function initDepositStep(services) {
-  let active = null;
-  function close() {
-    active = null;
-  }
-  function complete(d, id, values) {
-    const request = d.depositRequests?.[id];
-    if (!request) return false;
-    const i = d.items.find((x) => x.id === id),
-      c = { ...request, ...values },
-      ord = canonicalOrdinance(c.ord);
-    delete c.ordEditingFrom;
-    if (!ord) return false;
-    c.ord = ord;
-    const priced = resolveCitationAmount({
-      ordinance: ord,
-      libraryItem: itemLibraryKey(i),
-      tier: c.tier || 1,
-      date: services.citationPricingDate(c, d),
-      entryId: c.scheduleEntryId,
-      measurements: c.measurements || {},
-    });
-    if (c.depositMode === "schedule") {
-      if (priced.kind !== "priced") {
-        if (priced.kind === "needs-basis" && c.measurements) {
-          Object.assign(request, { measurements: c.measurements, reason: priced.reason, measurementFields: [], depositMode: "base" });
-        }
-        return false;
+function depositStepComplete(services, d, id, values) {
+  const request = d.depositRequests?.[id];
+  if (!request) return false;
+  const i = d.items.find((x) => x.id === id),
+    c = { ...request, ...values },
+    ord = canonicalOrdinance(c.ord);
+  delete c.ordEditingFrom;
+  if (!ord) return false;
+  c.ord = ord;
+  const priced = resolveCitationAmount({
+    ordinance: ord,
+    libraryItem: itemLibraryKey(i),
+    tier: c.tier || 1,
+    date: services.citationPricingDate(c, d),
+    entryId: c.scheduleEntryId,
+    measurements: c.measurements || {},
+  });
+  if (c.depositMode === "schedule") {
+    if (priced.kind !== "priced") {
+      if (priced.kind === "needs-basis" && c.measurements) {
+        Object.assign(request, { measurements: c.measurements, reason: priced.reason, measurementFields: [], depositMode: "base" });
       }
-      Object.assign(c, priced);
-      delete c.kind;
-    } else if (!applyApprovedDeposit(services, c, d)) return false;
-    delete c.reason;
-    delete c.reconfirmDeposit;
-    c.preparedSections = (i.sections || []).map(canonicalOrdinance);
-    c.differentChargeSource = c.preparedSections.includes(ord) ? c.differentChargeSource : c.depositSource;
-    d.authoringVersion = Math.max(11, d.authoringVersion || 0);
-    d.cits = d.cits || {};
-    d.cits[id] = c;
-    delete d.depositRequests[id];
-    workspaceState.DIRTY = true;
-    return true;
+      return false;
+    }
+    Object.assign(c, priced);
+    delete c.kind;
+  } else if (!applyApprovedDeposit(services, c, d)) return false;
+  delete c.reason;
+  delete c.reconfirmDeposit;
+  c.preparedSections = (i.sections || []).map(canonicalOrdinance);
+  c.differentChargeSource = c.preparedSections.includes(ord) ? c.differentChargeSource : c.depositSource;
+  d.authoringVersion = Math.max(11, d.authoringVersion || 0);
+  d.cits = d.cits || {};
+  d.cits[id] = c;
+  delete d.depositRequests[id];
+  workspaceState.DIRTY = true;
+  return true;
+}
+
+function depositFindForm(id) {
+  return [...document.querySelectorAll("[data-deposit-form]")].find((el) => el.dataset.depositForm === id);
+}
+
+function depositOpen(services, state, d, id) {
+  if (!d?.depositRequests?.[id] || services.isLocked(d) || d.pendingAmendment) return;
+  state.active = { d, id };
+  const el = depositFindForm(id);
+  if (!el) return;
+  el.scrollIntoView?.({ block: "center" });
+  el.querySelector("input:not([disabled]),select:not([disabled])")?.focus({ preventScroll: true });
+}
+
+function depositOpenNext(services, state, d) {
+  const id = Object.keys(d?.depositRequests || {})[0];
+  if (id) depositOpen(services, state, d, id);
+}
+
+function depositContext(services, el) {
+  const node = el.closest?.("[data-deposit-form]");
+  if (!node) return null;
+  const d = doc(node.dataset.depositDoc) || workspaceState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
+    id = node.dataset.depositForm;
+  return d?.draft && !services.isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
+}
+
+function depositValues(node, c) {
+  const result = Object.fromEntries(new FormData(node));
+  if (Object.hasOwn(result, "ordOther")) {
+    const other = String(result.ordOther || "").trim();
+    if (other) result.ord = other;
+    delete result.ordOther;
   }
+  if (c.measurementFields?.length) {
+    result.depositMode = "schedule";
+    result.measurements = Object.fromEntries(
+      c.measurementFields.map((f) => [
+        f.key,
+        f.boolean
+          ? result["measure-" + f.key] === "true"
+            ? true
+            : result["measure-" + f.key] === "false"
+              ? false
+              : null
+          : result["measure-" + f.key] == null || result["measure-" + f.key] === ""
+            ? null
+            : Number(result["measure-" + f.key]),
+      ]),
+    );
+    for (const f of c.measurementFields) delete result["measure-" + f.key];
+  }
+  return result;
+}
+
+function depositUpdate(services, e) {
+  const ctx = depositContext(services, e.target);
+  if (!ctx) return;
+  const { node, c } = ctx;
+  const method = node.querySelector("[name=depositMode]");
+  if (method) {
+    for (const group of node.querySelectorAll("[data-deposit-mode]")) {
+      group.hidden = group.dataset.depositMode !== method.value;
+      for (const input of group.querySelectorAll("input")) {
+        input.disabled = group.hidden;
+        input.required = !group.hidden;
+      }
+    }
+    const source = node.querySelector("[data-deposit-source]");
+    source.hidden = method.value === "schedule";
+    source.querySelector("textarea").required = !source.hidden;
+    source.querySelector("textarea").disabled = source.hidden;
+  }
+  const choice = node.querySelector("[name=measure-removed]"),
+    diameter = node.querySelector("[name=measure-diameter]");
+  if (choice && diameter) {
+    diameter.required = choice.value !== "false";
+    diameter.disabled = choice.value === "false";
+  }
+  const ordField = /^(ord|ordOther)$/.test(e.target.name || "");
+  if (ordField && e.type === "change" && e.target.name === "ord" && node.querySelector("[name=ordOther]"))
+    node.querySelector("[name=ordOther]").value = "";
+  const next = depositValues(node, c),
+    typed = next.ord;
+  // R59: the charge commits only on its change event, through changeCharge. While it is typed, the text is kept
+  // (ordEditingFrom, as on the charge card) so a repaint never loses it and pricing waits for the commit.
+  delete next.ord;
+  Object.assign(c, next);
+  workspaceState.DIRTY = true;
+  if (ordField && e.type === "input") {
+    if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
+    c.ord = String(typed || "");
+  }
+  if (ordField && e.type === "change") {
+    depositChangeCharge(services, ctx, typed);
+    return;
+  }
+  // Choosing the scheduled offense of an ordinance with several rows prices the charge at once.
+  if (e.target.name === "scheduleEntryId" && e.type === "change") {
+    services.citationPricing.refresh(ctx.d);
+    depositSettle(services, ctx);
+    return;
+  }
+  services.scheduleDraftSave();
+}
+
+function depositSettle(services, { d, id }) {
+  services.saveDrafts();
+  services.render();
+  const target = d.depositRequests?.[id] ? depositFindForm(id)?.querySelector("[name=ord]") : document.querySelector(citSelector(id, "ord"));
+  target?.focus({ preventScroll: true });
+}
+
+/* R59: a changed charge clears every value priced, measured or approved for the previous one, then runs
+   the ordinary pricing (changeCharge); focus returns to the charge wherever it is now shown. */
+function depositChangeCharge(services, ctx, value) {
+  if (Object.hasOwn(ctx.c, "ordEditingFrom")) ctx.c.ord = ctx.c.ordEditingFrom;
+  delete ctx.c.ordEditingFrom;
+  if (!services.changeChargeBasis(ctx.d, ctx.id, value)) {
+    services.scheduleDraftSave();
+    return;
+  }
+  depositSettle(services, ctx);
+}
+
+function depositSubmit(services, state, e) {
+  if (!e.target.matches?.("[data-deposit-form]")) return;
+  e.preventDefault();
+  const ctx = depositContext(services, e.target);
+  if (!ctx) return;
+  const { node, d, id, c } = ctx;
+  const submitted = depositValues(node, c);
+  if (Object.hasOwn(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
+  delete c.ordEditingFrom;
+  // A charge changed without its change event is re-priced from nothing first, never completed with stale values.
+  if ((canonicalOrdinance(submitted.ord) || String(submitted.ord || "").trim()) !== (canonicalOrdinance(c.ord) || String(c.ord || "").trim())) {
+    depositChangeCharge(services, ctx, submitted.ord);
+    return;
+  }
+  Object.assign(c, submitted);
+  const wasMeasured = !!c.measurementFields?.length;
+  if (!depositStepComplete(services, d, id, depositValues(node, c))) {
+    if (wasMeasured && !c.measurementFields?.length) {
+      services.saveDrafts();
+      services.render();
+      depositOpen(services, state, d, id);
+      return;
+    }
+    node.querySelector("[data-deposit-error]").textContent =
+      "Complete the ordinance, required measurements or positive approved amount, and an approval source of at least 10 characters. A zero forfeiture needs City Attorney approval.";
+    return;
+  }
+  state.active = null;
+  services.saveDrafts();
+  services.render();
+  const card = [...document.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === id);
+  if (card) {
+    card.setAttribute("tabindex", "-1");
+    card.focus({ preventScroll: true });
+    card.scrollIntoView?.({ block: "center" });
+  }
+}
+
+function depositClick(services, state, e) {
+  const later = e.target.closest?.("[data-deposit-later]");
+  if (later) {
+    const ctx = depositContext(services, later);
+    if (ctx) services.saveAndContinue();
+    return;
+  }
+  const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
+  if (!t) return;
+  const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
+    d = doc(docId) || workspaceState.DOCS.find((x) => x.initialCitationId === docId);
+  if (!d || services.isLocked(d) || d.pendingAmendment) return;
+  if (t.dataset.confirmDeposit) {
+    const c = d.cits?.[id];
+    if (!c || String(c.depositSource || "").trim().length < 10 || !(cents(c.amount) > 0)) {
+      services.toast("Enter the approved source and amount before confirming.");
+      return;
+    }
+    delete c.reconfirmDeposit;
+    if (
+      services.citationDepositFault(
+        c,
+        d,
+        d.items.find((i) => i.id === id),
+      )
+    ) {
+      c.reconfirmDeposit = true;
+      services.toast("Correct the deposit basis before confirming.");
+      return;
+    }
+    services.saveDrafts();
+    services.render();
+  } else if (id) depositOpen(services, state, d, id);
+  else depositOpenNext(services, state, d);
+}
+
+function registerDepositEvents(services, state) {
+  const update = (e) => depositUpdate(services, e);
+  document.addEventListener("input", update);
+  document.addEventListener("change", update);
+  document.addEventListener("submit", (e) => depositSubmit(services, state, e));
+  document.addEventListener("click", (e) => depositClick(services, state, e));
+}
+
+export function initDepositStep(services) {
+  const state = { active: null };
   function form(d, i, c) {
     const esc = dep_esc,
       measured = !!c.measurementFields?.length,
@@ -132,204 +336,17 @@ export function initDepositStep(services) {
         : "A base adds the approved assessments. A total already includes them. Record the approval source; the program does not authorize an amount.",
     )}</p><p role="alert" data-deposit-error></p><button class="btn btn-primary" type="submit">Complete charge</button> <button class="btn" type="button" data-deposit-later>Save unfinished draft</button></form>`;
   }
-  function findForm(id) {
-    return [...document.querySelectorAll("[data-deposit-form]")].find((el) => el.dataset.depositForm === id);
-  }
-  function open(d, id) {
-    if (!d?.depositRequests?.[id] || services.isLocked(d) || d.pendingAmendment) return;
-    active = { d, id };
-    const el = findForm(id);
-    if (!el) return;
-    el.scrollIntoView?.({ block: "center" });
-    el.querySelector("input:not([disabled]),select:not([disabled])")?.focus({ preventScroll: true });
-  }
-  function openNext(d) {
-    const id = Object.keys(d?.depositRequests || {})[0];
-    if (id) open(d, id);
-  }
-  function context(el) {
-    const node = el.closest?.("[data-deposit-form]");
-    if (!node) return null;
-    const d = doc(node.dataset.depositDoc) || workspaceState.DOCS.find((x) => x.initialCitationId === node.dataset.depositDoc),
-      id = node.dataset.depositForm;
-    return d?.draft && !services.isLocked(d) && !d.pendingAmendment && d.depositRequests?.[id] ? { node, d, id, c: d.depositRequests[id] } : null;
-  }
-  function values(node, c) {
-    const result = Object.fromEntries(new FormData(node));
-    if (Object.hasOwn(result, "ordOther")) {
-      const other = String(result.ordOther || "").trim();
-      if (other) result.ord = other;
-      delete result.ordOther;
-    }
-    if (c.measurementFields?.length) {
-      result.depositMode = "schedule";
-      result.measurements = Object.fromEntries(
-        c.measurementFields.map((f) => [
-          f.key,
-          f.boolean
-            ? result["measure-" + f.key] === "true"
-              ? true
-              : result["measure-" + f.key] === "false"
-                ? false
-                : null
-            : result["measure-" + f.key] == null || result["measure-" + f.key] === ""
-              ? null
-              : Number(result["measure-" + f.key]),
-        ]),
-      );
-      for (const f of c.measurementFields) delete result["measure-" + f.key];
-    }
-    return result;
-  }
-  function update(e) {
-    const ctx = context(e.target);
-    if (!ctx) return;
-    const { node, c } = ctx;
-    const method = node.querySelector("[name=depositMode]");
-    if (method) {
-      for (const group of node.querySelectorAll("[data-deposit-mode]")) {
-        group.hidden = group.dataset.depositMode !== method.value;
-        for (const input of group.querySelectorAll("input")) {
-          input.disabled = group.hidden;
-          input.required = !group.hidden;
-        }
-      }
-      const source = node.querySelector("[data-deposit-source]");
-      source.hidden = method.value === "schedule";
-      source.querySelector("textarea").required = !source.hidden;
-      source.querySelector("textarea").disabled = source.hidden;
-    }
-    const choice = node.querySelector("[name=measure-removed]"),
-      diameter = node.querySelector("[name=measure-diameter]");
-    if (choice && diameter) {
-      diameter.required = choice.value !== "false";
-      diameter.disabled = choice.value === "false";
-    }
-    const ordField = /^(ord|ordOther)$/.test(e.target.name || "");
-    if (ordField && e.type === "change" && e.target.name === "ord" && node.querySelector("[name=ordOther]"))
-      node.querySelector("[name=ordOther]").value = "";
-    const next = values(node, c),
-      typed = next.ord;
-    // R59: the charge commits only on its change event, through changeCharge. While it is typed, the text is kept
-    // (ordEditingFrom, as on the charge card) so a repaint never loses it and pricing waits for the commit.
-    delete next.ord;
-    Object.assign(c, next);
-    workspaceState.DIRTY = true;
-    if (ordField && e.type === "input") {
-      if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
-      c.ord = String(typed || "");
-    }
-    if (ordField && e.type === "change") {
-      changeCharge(ctx, typed);
-      return;
-    }
-    // Choosing the scheduled offense of an ordinance with several rows prices the charge at once.
-    if (e.target.name === "scheduleEntryId" && e.type === "change") {
-      services.citationPricing.refresh(ctx.d);
-      settle(ctx);
-      return;
-    }
-    services.scheduleDraftSave();
-  }
-  function settle({ d, id }) {
-    services.saveDrafts();
-    services.render();
-    const target = d.depositRequests?.[id] ? findForm(id)?.querySelector("[name=ord]") : document.querySelector(citSelector(id, "ord"));
-    target?.focus({ preventScroll: true });
-  }
-  /* R59: a changed charge clears every value priced, measured or approved for the previous one, then runs
-     the ordinary pricing (changeCharge); focus returns to the charge wherever it is now shown. */
-  function changeCharge(ctx, value) {
-    if (Object.hasOwn(ctx.c, "ordEditingFrom")) ctx.c.ord = ctx.c.ordEditingFrom;
-    delete ctx.c.ordEditingFrom;
-    if (!services.changeChargeBasis(ctx.d, ctx.id, value)) {
-      services.scheduleDraftSave();
-      return;
-    }
-    settle(ctx);
-  }
-  document.addEventListener("input", update);
-  document.addEventListener("change", update);
-  document.addEventListener("submit", (e) => {
-    if (!e.target.matches?.("[data-deposit-form]")) return;
-    e.preventDefault();
-    const ctx = context(e.target);
-    if (!ctx) return;
-    const { node, d, id, c } = ctx;
-    const submitted = values(node, c);
-    if (Object.hasOwn(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
-    delete c.ordEditingFrom;
-    // A charge changed without its change event is re-priced from nothing first, never completed with stale values.
-    if ((canonicalOrdinance(submitted.ord) || String(submitted.ord || "").trim()) !== (canonicalOrdinance(c.ord) || String(c.ord || "").trim())) {
-      changeCharge(ctx, submitted.ord);
-      return;
-    }
-    Object.assign(c, submitted);
-    const wasMeasured = !!c.measurementFields?.length;
-    if (!complete(d, id, values(node, c))) {
-      if (wasMeasured && !c.measurementFields?.length) {
-        services.saveDrafts();
-        services.render();
-        open(d, id);
-        return;
-      }
-      node.querySelector("[data-deposit-error]").textContent =
-        "Complete the ordinance, required measurements or positive approved amount, and an approval source of at least 10 characters. A zero forfeiture needs City Attorney approval.";
-      return;
-    }
-    active = null;
-    services.saveDrafts();
-    services.render();
-    const card = [...document.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === id);
-    if (card) {
-      card.setAttribute("tabindex", "-1");
-      card.focus({ preventScroll: true });
-      card.scrollIntoView?.({ block: "center" });
-    }
-  });
-  document.addEventListener("click", (e) => {
-    const later = e.target.closest?.("[data-deposit-later]");
-    if (later) {
-      const ctx = context(later);
-      if (ctx) services.saveAndContinue();
-      return;
-    }
-    const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
-    if (!t) return;
-    const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
-      d = doc(docId) || workspaceState.DOCS.find((x) => x.initialCitationId === docId);
-    if (!d || services.isLocked(d) || d.pendingAmendment) return;
-    if (t.dataset.confirmDeposit) {
-      const c = d.cits?.[id];
-      if (!c || String(c.depositSource || "").trim().length < 10 || !(cents(c.amount) > 0)) {
-        services.toast("Enter the approved source and amount before confirming.");
-        return;
-      }
-      delete c.reconfirmDeposit;
-      if (
-        services.citationDepositFault(
-          c,
-          d,
-          d.items.find((i) => i.id === id),
-        )
-      ) {
-        c.reconfirmDeposit = true;
-        services.toast("Correct the deposit basis before confirming.");
-        return;
-      }
-      services.saveDrafts();
-      services.render();
-    } else if (id) open(d, id);
-    else openNext(d);
-  });
+  registerDepositEvents(services, state);
   return {
     form,
-    open,
-    openNext,
-    complete,
-    close,
+    open: (d, id) => depositOpen(services, state, d, id),
+    openNext: (d) => depositOpenNext(services, state, d),
+    complete: (d, id, values) => depositStepComplete(services, d, id, values),
+    close() {
+      state.active = null;
+    },
     get active() {
-      return active;
+      return state.active;
     },
   };
 }
