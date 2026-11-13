@@ -198,24 +198,36 @@ function addAgainButton(R, i, pick, show) {
     : "";
 }
 
-function languagePickerCard(R, i, selected, current, equivalent) {
+// Per-render lookup only: draft edits, restored selections and catalog policy stay current.
+function pickerSelections(R, current) {
+  const entries = new Map();
+  for (const item of current?.items || []) {
+    const key = R.itemLibraryKey(item),
+      entry = entries.get(key);
+    if (entry) entry.copies++;
+    else entries.set(key, { copies: 1, item });
+  }
+  return entries;
+}
+
+function languagePickerCard(R, i, selected, current, equivalent, selections) {
   const key = R.catalogKey(i),
-    copies = (current?.items || []).filter((it) => R.itemLibraryKey(it) === key).length,
+    copies = selections.get(key)?.copies || 0,
     added = selected.has(key),
-    working = current?.items.find((it) => R.itemLibraryKey(it) === key) || current?.selectionCache?.[key],
+    working = selections.get(key)?.item || current?.selectionCache?.[key],
     e = R.effectiveCatalog(i),
     blocked = BLOCKED.includes(R.catalogStatus(i).code),
     pick = String(i.ci) + ":" + String(i.gi) + ":" + String(i.o);
   return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button><div class="language-card-actions">${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(favoriteButton(R, i))}</div>${raw(languageDetails(R, i, working))}</article>`;
 }
 
-function languagePickerResults(R, found, ranked, selected, current, filter) {
+function languagePickerResults(R, found, ranked, selected, current, filter, selections) {
   const equivalent = consolidatedEquivalents(R, R.allItems());
   const groups = (list) =>
     groupedResults(R, list, ranked)
       .map(
         (g) =>
-          screen`<section class="language-pick-group">${raw(groupHeading(R, g, "h3"))}${raw(g.items.map((i) => languagePickerCard(R, i, selected, current, equivalent)).join(""))}</section>`,
+          screen`<section class="language-pick-group">${raw(groupHeading(R, g, "h3"))}${raw(g.items.map((i) => languagePickerCard(R, i, selected, current, equivalent, selections)).join(""))}</section>`,
       )
       .join("");
   return (
@@ -302,7 +314,8 @@ export function languagePicker(R) {
     all = R.allItems(),
     q = R.state.q.trim(),
     filter = R.state.pickerStatus || "usable",
-    selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
+    selections = pickerSelections(R, current),
+    selected = new Set([...selections.keys()].filter(Boolean));
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter)),
     browsed = pickerChecklists(R);
   const list = activeShortcutList(R.state);
@@ -335,7 +348,7 @@ export function languagePicker(R) {
  <div class="picker-search"><label class="f"><span>Search all order language</span><input type="search" id="pk-q" value="${raw(R.esc(R.state.q))}" placeholder="Title, ordinance or ordinary terms"></label><label class="f"><span>Language status</span><select id="pk-status">${raw(languageFilterOptions(R, filter, true))}</select></label>
  <select id="pk-grp" class="pk-grp" aria-label="Browse violation category" style="display:none;margin-top:10px"><option value="-1:0" ${String(R.state.cl < 0 ? "selected" : "")}>All violation categories</option>${raw(languagePickerGroupOptions(R, all, visible, q))}</select></div>
  <div class="picker-cols"><div class="picker-tree">${raw(languageShortcutButtons(R, all, visible))}<button class="tree-g" data-language-all>All violation categories <span class="n">${String(all.filter((i) => visible(i) && browsed.includes(i.ci)).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
- ${raw(languagePickerResults(R, found, !!q || !!list, selected, current, filter))}
+ ${raw(languagePickerResults(R, found, !!q || !!list, selected, current, filter, selections))}
  </div></div><div class="picker-footer"><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn btn-primary" data-close="picker">Done adding</button></div></div></div>`;
 }
 
