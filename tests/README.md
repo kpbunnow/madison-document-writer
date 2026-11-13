@@ -35,7 +35,7 @@ covers, or a new suite under its feature.
 | `audit_report_workbook_definitions.js` | Exact CRC/style definitions and 12,072 retained scalar/date comparisons |
 | `audit_report_filter_events.js` | 1,680 retained filter changes, listener checkpoint and lazy input guards |
 | `audit_accessibility_enhance_rules.js` | 172 retained native DOM comparisons plus complete accessibility and Reports workflows |
-| `audit_language_presentation_rules.js` | 1,596 full-screen comparisons with the retained Browse language and picker screens (references updated 2026-11-10 for the grouped layout) plus existing focus and catalog workflows |
+| `audit_language_presentation_rules.js` | 1,596 seeded Browse language, Review catalog and picker screens: untrusted text escaped, deterministic output, callback interruptions surfaced (frozen screen copies retired 2026-11-13) |
 | `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
 | `audit_search_highlighting.js` | Eight screen searches: aliases/ordinances, literal/Unicode safety, clearing and repeated enhancement without DOM writes, keyboard focus and existing controls/listeners |
 | `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new-item defaults that follow the previous item's location heading and due date |
@@ -106,7 +106,7 @@ covers, or a new suite under its feature.
 | `audit_citation_base_rules.py` | All policy rows and 3,000 generated measurements preserve amounts, errors, lookup order and inputs against the original. |
 | `audit_catalog_publication_rules.py` | 3,000 catalog publication contexts preserve exact refusals, file-read order, unchanged inputs and read-only files. |
 | `audit_special_publication_rules.py` | 3,000 scoped-action contexts preserve exact refusals, query order and mutation against the frozen original. |
-| `audit_editor_html.js` | Exact editor HTML, state mutations and service access order |
+| `audit_editor_html.js` | 2,031 editor states: untrusted text escaped, deterministic HTML, state mutations and service access order (frozen screen copies retired 2026-11-13) |
 | `audit_screen_html.js` | Default screen escaping, explicit trusted fragments and print-path exclusion |
 | `audit_deferred_services.js` | Inert declared services, live callbacks/values and descriptor parity |
 | `audit_scoped_architecture.js` | Root-state ownership, zero cycles and static injection widths |

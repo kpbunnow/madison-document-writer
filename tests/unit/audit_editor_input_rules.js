@@ -25,7 +25,9 @@ const legacySource = [
       .replace(
         /      if \(e.target.id === "case-filter" \|\| e.target.id === "case-inspector"\) \{\n        return services.events.workspaceEvents.changeCaseFilter\(e\);\n      \}\n/,
         "",
-      ),
+      )
+      // Keep adding left the picker on 2026-11-11 (the picker stays open until Done adding); its route is retired.
+      .replace(/      if \(e.target.id === "keep-adding"\) \{\n        return services.events.catalogEvents.changeKeepAdding\(e\);\n      \}\n/, ""),
   ],
 ]
   .sort(([a], [b]) => b.start - a.start)
@@ -391,7 +393,6 @@ function run(api, sc, listenerName, dom, targetKey) {
     "events.reinspectionEvents.changeFollowup",
     "events.catalogEvents.changeLibraryStatus",
     "events.correctionEvents.changeCorrection",
-    "events.catalogEvents.changeKeepAdding",
     "events.importEvents.changeInspectionDateTime",
     "events.contactEvents.changeEmail",
     "events.reinspectionEvents.changeOutcomeDetails",

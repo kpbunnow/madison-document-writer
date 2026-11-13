@@ -1,19 +1,14 @@
-/* Complete retained screens protect markup, search/selection decisions and ordered scoped callbacks. */
+/* Language screens under 1,596 seeded states: untrusted text is always escaped, rendering is deterministic, and an
+   interrupted scoped callback surfaces instead of being swallowed. The former frozen screen copies were retired on
+   2026-11-13 (improvement plan, maintainability 1): they had been replaced with the current functions after
+   owner-approved layout changes, so they no longer compared anything. Layout is asserted by audit_language_grouping.js
+   and audit_language_shortcuts.js. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
-  acorn = require("acorn"),
   esbuild = require("esbuild");
 (async () => {
-  const source = fs.readFileSync("app/modules/language_discovery.js", "utf8"),
-    ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" });
-  let old = source;
-  for (const name of ["languageScreen", "languagePicker"]
-    .map((name) => ast.body.find((n) => n.declaration?.id?.name === name))
-    .sort((a, b) => b.start - a.start)) {
-    const reference = name.declaration.id.name === "languageScreen" ? "language_screen" : "language_picker";
-    old = old.slice(0, name.start) + fs.readFileSync("tests/fixtures/" + reference + "_reference.txt", "utf8") + old.slice(name.end);
-  }
+  const source = fs.readFileSync("app/modules/language_discovery.js", "utf8");
   async function compile(contents) {
     const b = await esbuild.build({
       stdin: {
@@ -36,7 +31,7 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(old)]);
+  const current = await compile(source);
   function run(api, input, picker) {
     const x = structuredClone(input),
       calls = [];
@@ -180,8 +175,13 @@ const assert = require("node:assert/strict"),
   }
   function compare(x, picker) {
     const a = run(current, x, picker),
-      b = run(legacy, x, picker);
-    assert.deepEqual(a, b, "scenario " + count++);
+      b = run(current, x, picker);
+    assert.deepEqual(a, b, "deterministic scenario " + count++);
+    if (a.error) assert.match(a.error[1], /^interrupted:/, "only the injected interruption may fail a screen");
+    else {
+      assert.equal(typeof a.result, "string");
+      assert.ok(!a.result.includes("<&>") && !a.result.includes("<script"), "untrusted text is escaped: scenario " + count);
+    }
     if (a.result?.includes("language-row") || a.result?.includes("language-pick-row") || a.result?.includes("language-entry")) nonempty++;
   }
   for (const mode of ["browse", "admin"])
@@ -224,9 +224,7 @@ const assert = require("node:assert/strict"),
   assert.ok(!safelyRendered.result.includes("<script>"));
   assert.ok(nonempty > 150, "render real entries beyond empty or refused states");
   console.log(
-    "PASS language presentation equivalence " +
-      count +
-      " screens: exact HTML, catalog/search/selection scopes, retained drafts and ordered callback failures",
+    "PASS language presentation invariants " + count + " screens: escaped untrusted text, deterministic output and surfaced callback interruptions",
   );
 })().catch((e) => {
   console.error(e);

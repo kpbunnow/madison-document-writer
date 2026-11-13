@@ -50,7 +50,6 @@ module.exports = async function (browser, page) {
     const erosionListed = document.querySelectorAll("[data-pick]").length;
     WriterState.state.q = "";
     render();
-    WriterState.state.keepAdding = true;
     const failures = [];
     let usable = 0;
     const blocked = [],
@@ -88,7 +87,6 @@ module.exports = async function (browser, page) {
     const dotted = LIBRARY.flatMap((c) => c.groups.flatMap((g) => g.items.flatMap((i) => i.s.filter((s) => /\)\d+\.$/.test(s)))));
     // Snow: pick, undo, then ordinary language again.
     newCase("qa-ol-2", "QA-OL-002");
-    WriterState.state.keepAdding = false;
     const ci = LIBRARY.findIndex((c) => c.code === "ENF_PM_PROPMAINT"),
       snow = ci + ":" + LIBRARY[ci].groups.findIndex((g) => g.code === "SNOW") + ":1",
       cart = ci + ":" + LIBRARY[ci].groups.findIndex((g) => g.code === "TRASH_CARTS") + ":1010";
@@ -101,7 +99,6 @@ module.exports = async function (browser, page) {
     // Owner direction 2026-11-10: Add again adds another copy with the stock language; an entry on the notice more than
     // once is removed from Violation Items, not toggled off in the picker; identical copies are only a warning.
     newCase("qa-ol-3", "QA-OL-003");
-    WriterState.state.keepAdding = true;
     const again = (pick, done) => click(pick, done, true);
     const repeated = {};
     await click(cart, () => items().length === 1);

@@ -184,7 +184,6 @@ const CHANGE_ROUTES = [
     (e, ds) => e.target.id === "correction-type" || ds.correctionOutcome,
     (services, e) => services.events.correctionEvents.changeCorrection(e),
   ),
-  changeRoute(targetIs("keep-adding"), (services, e) => services.events.catalogEvents.changeKeepAdding(e)),
   changeRoute(
     (e) => (e.target.id === "acc-date" || e.target.id === "acc-time") && editor.state.acc,
     (services, e) => services.events.importEvents.changeInspectionDateTime(e),

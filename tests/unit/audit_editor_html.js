@@ -1,8 +1,10 @@
-/* Exact editor HTML, state mutation and ordered service effects across retained/draft workflows. */
+/* Editor screen invariants across 2,000+ retained/draft states: escaped untrusted text, deterministic HTML, state
+   changes and ordered service effects, and the Correct/Withdraw explanation. The frozen screen copies were retired on
+   2026-11-13 (improvement plan, maintainability 1) after the owner-approved header change replaced them with the
+   current function. Layout is asserted by audit_r42_editor.js. */
 const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   path = require("node:path"),
-  acorn = require("acorn"),
   esbuild = require("esbuild"),
   fc = require("fast-check");
 const { JSDOM } = require("jsdom");
@@ -10,21 +12,6 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
 (async () => {
   const directory = path.resolve("app/modules");
   let source = fs.readFileSync(path.join(directory, "editor_screens.js"), "utf8");
-  const ast = acorn.parse(source, { ecmaVersion: 2022, sourceType: "module" }),
-    factory = ast.body.find((n) => n.declaration?.id?.name === "createEditorScreens").declaration,
-    ret = factory.body.body.at(-1);
-  const reference = require("../fixtures/editor_screen_reference.cjs").replace("function screenWrite(", "function referenceScreenWrite(");
-  const presentation = fs.readFileSync("tests/fixtures/editor_presentation_reference.txt", "utf8");
-  const retained =
-    "const {referenceScreenWrite, referenceReviewModalHTML} = (() => {\n" +
-    presentation +
-    "\n" +
-    reference +
-    "\nreturn {referenceScreenWrite, referenceReviewModalHTML: reviewModalHTML};})();\n";
-  source =
-    source.slice(0, ret.start) +
-    retained +
-    source.slice(ret.start).replace("screenWrite,", "screenWrite,referenceScreenWrite,referenceReviewModalHTML,");
   source += '\nexport {WriterState} from "./state.js";export {esc} from "./presentation_format.js";';
   const compiled = await esbuild.build({
     stdin: { contents: withHistoricalBindings(source, ["WriterState", "esc"]), resolveDir: directory },
@@ -168,7 +155,8 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
   function compare(input) {
     flags = input;
     reset();
-    const expected = outcome(api.referenceScreenWrite);
+    // Rendered twice from fresh state: the screen is deterministic in output, state changes and service order.
+    const expected = outcome(api.screenWrite);
     reset();
     const actual = outcome(api.screenWrite);
     assert.equal(actual.error, undefined, JSON.stringify(input));
@@ -190,8 +178,13 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
     if (!input.missing && input.pending && !input.note && !input.invalid) assert.match(actual.html, /Confirm save/);
     if (!input.missing && input.busy && !input.note && !input.pending && !input.invalid) assert.match(actual.html, /Finishing document save/);
     assert.deepEqual(actual, expected, JSON.stringify(input));
+    // The shell escapes the title and crumb itself; everything the editor builds must already be escaped.
+    const [, , actions, body] = actual.html.split("<shell>");
+    if (body !== undefined)
+      for (const part of [actions, body])
+        assert.ok(!part.includes("<&>") && !part.includes('"<'), "untrusted text is escaped: " + JSON.stringify(input));
     reset();
-    const expectedReview = outcome(api.referenceReviewModalHTML);
+    const expectedReview = outcome(api.reviewModalHTML);
     reset();
     const actualReview = outcome(api.reviewModalHTML);
     assert.deepEqual(actualReview, expectedReview, "Review dialog: " + JSON.stringify(input));
@@ -250,7 +243,11 @@ const { withHistoricalBindings } = require("../fixtures/historical_module_scope.
   ))
     compare({ ...sample, missing: false });
   dom.window.close();
-  console.log("PASS exact editor HTML, state and ordered service effects", total, "draft/retained/lock/correction/citation states");
+  console.log(
+    "PASS editor screen invariants (escaping, determinism, ordered service effects)",
+    total,
+    "draft/retained/lock/correction/citation states",
+  );
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
