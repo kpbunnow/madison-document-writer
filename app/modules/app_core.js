@@ -58,6 +58,7 @@ import {
 import { createWriterHandoff } from "./writer_handoff.js";
 import { createLanguageShortcuts } from "./language_shortcuts.js";
 import { createWorkspaceJump } from "./workspace_jump.js";
+import { createReinspectionBatch } from "./reinspection_batch.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
 import { createDocumentPagination } from "./document_pagination.js";
@@ -445,6 +446,14 @@ const workspaceScreen = createWorkspaceScreen(
 export let { revealIssuedCase, focusIssuedCase, screenCases } = workspaceScreen;
 createLanguageShortcuts(deferredServices({ refreshOverlay: () => refreshOverlay }));
 createWorkspaceJump();
+createReinspectionBatch(
+  deferredServices({
+    recordReinspectionOutcome: () => recordReinspectionOutcome,
+    toastUndo: () => toastUndo,
+    saveDrafts: () => saveDrafts,
+    render: () => render,
+  }),
+);
 const languageViews = createLanguageViews(deferredServices({ app_languagediscoveryContext: () => app_languagediscoveryContext }));
 export let { screenLibrary, pickerHTML } = languageViews;
 const screenOverlays = createScreenOverlays(

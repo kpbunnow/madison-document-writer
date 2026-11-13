@@ -140,6 +140,15 @@ const assert = require("node:assert/strict"),
     flags = options;
     const expected = run(api.referenceScreenReinspect),
       actual = run(api.screenReinspect);
+    // The one owner-approved addition (2026-11-13): "Mark the rest" buttons beside the items-still-to-result message,
+    // never in One item at a time. They are checked here and removed before the exact comparison with the frozen screen.
+    if (typeof actual.html === "string") {
+      const batch = /<div class="ri-batch"[^>]*>.*?<\/div>/s,
+        waiting = /still to result\./.test(actual.html);
+      assert.equal(batch.test(actual.html), waiting && !flags.walk, "batch buttons appear only with items waiting, outside the walk");
+      if (batch.test(actual.html)) assert.equal((actual.html.match(/data-ri-batch="(corrected|none)"/g) || []).length, 2);
+      actual.html = actual.html.replace(batch, "");
+    }
     assert.deepEqual(actual, expected, JSON.stringify(flags));
     assert.equal(typeof actual.html, "string", "each worksheet snapshot renders successfully");
     checked++;

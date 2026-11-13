@@ -127,6 +127,7 @@ covers, or a new suite under its feature.
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
+| `audit_reinspection_batch.js` | Worksheet Mark the rest: only unresulted items, the ordinary recorder, safe Undo, refused in One item at a time |
 | `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
 | `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
 | `audit_workspace_task_reads.js` | Once-per-operation artifact display facts and live location/verification changes on the next operation |

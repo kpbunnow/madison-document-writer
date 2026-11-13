@@ -66,10 +66,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "60afd15b0d15da35ed3eccda0635f5c3db7f1e3dba6dad5a820e73ec3b8dd761",
+      "afterSha256": "9c3ae4a713192039fb2f116611542584c639e4c7a58c20b0ba6679ae1aec5fd1",
       "beforeBytes": 48561,
-      "afterBytes": 60872,
-      "retainedRulesSha256": "5c5c6a4259015a787c5afd08860c20b7d384a190c3e7a2eb032c1f6d0b9d0468"
+      "afterBytes": 61129,
+      "retainedRulesSha256": "89f8b83032c21c56f429b95aa1c3f944c71e5f0e6246678a233318e03c2deb7e"
     }
   },
   "selectorChanges": [
@@ -878,6 +878,20 @@
         }
       },
       "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "f785825772093db149a09d760bff178dc229c674",
+      "scope": "Reinspection worksheet Mark the rest button row (owner direction 2026-11-13). Append-only screen block; preserves all 60,872 earlier stylesheet bytes. No new colours.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "60afd15b0d15da35ed3eccda0635f5c3db7f1e3dba6dad5a820e73ec3b8dd761",
+          "afterSha256": "9c3ae4a713192039fb2f116611542584c639e4c7a58c20b0ba6679ae1aec5fd1",
+          "unchangedRulesSha256": "5c5c6a4259015a787c5afd08860c20b7d384a190c3e7a2eb032c1f6d0b9d0468",
+          "unchangedPrefixBytes": 60872
+        }
+      },
+      "evidence": "docs/developer/03-DOMAIN-RULES.md"
     }
   ]
 }

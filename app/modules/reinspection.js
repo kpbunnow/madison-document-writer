@@ -208,6 +208,10 @@ function worksheetBodyHTML({
      <div class="ri-foot"><button class="btn" id="btn-risave">Save draft &amp; return to Workspace</button></div></div>`;
 }
 
+// One step for the items with no result yet; any that differ are then changed one by one.
+const BATCH_BUTTONS =
+  '<div class="ri-batch" role="group" aria-label="Mark every item without a result"><span>Mark the rest:</span><button type="button" class="btn btn-sm" data-ri-batch="corrected">All corrected</button><button type="button" class="btn btn-sm" data-ri-batch="none">All no change</button></div>';
+
 function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred }) {
   let verdict;
   if (closed) {
@@ -215,7 +219,7 @@ function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, r
       ndl = (DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
     verdict = html`<div class="banner ok"><div><strong>${doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished."}</strong> ${ndl} written from ${open} outstanding item${open === 1 ? "" : "s"}. Compatible additional scoped actions can use this same inspection.</div></div>`;
   } else if (left) {
-    verdict = html`<div class="banner info"><div><strong>${left} item${left === 1 ? "" : "s"} still to result.</strong> Every item on the ${srcLabel.toLowerCase()} needs an outcome before you create a draft.</div></div>`;
+    verdict = html`<div class="banner info"><div><strong>${left} item${left === 1 ? "" : "s"} still to result.</strong> Every item on the ${srcLabel.toLowerCase()} needs an outcome before you create a draft.${raw(editor.state.riWalk ? "" : BATCH_BUTTONS)}</div></div>`;
   } else if (!open) {
     verdict = html`<div class="banner ok"><div><strong>Everything on this ${srcLabel.toLowerCase()} was corrected.</strong> Write the compliance letter to tell the owner the case is closed. It records the visit and carries the date each item was met.</div></div>`;
   } else if (badDue.length && ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent)) {
