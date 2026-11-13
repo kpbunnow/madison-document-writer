@@ -61,8 +61,6 @@ async function test() {
   second.draft = true;
   first.cits = { item: { num: "CIT-9876" } };
   first.frozen = { case: { owner: "Historic owner", address: "Historic street" } };
-  assert.ok(caseSearchText(kase("k1")).includes("cit-9876"));
-  assert.ok(caseSearchText(kase("k1")).includes("historic owner"));
   assert.equal(WriterState.WORKFLOW_PREFS.reminders.enabled, false);
   assert.ok(csvText([["=unsafe", "+unsafe", "@unsafe", "-unsafe", -12, 'A,"B"']]).includes('"\'=unsafe"'));
   assert.ok(csvText([[-12]]).includes('"-12"'));
@@ -96,7 +94,12 @@ async function test() {
   await autosave;
   assert.equal(disk.at(-1).cases[0].owner, "Durable reviewed owner");
   assert.equal(WriterState.WORK_PATCH, null);
-  console.log("PASS batch draft validation, issued protection, citation/history search," + " CSV neutralization and concurrent autosave durability");
+  const retained = disk.at(-1).docs.find((d) => d.id === first.id);
+  assert.equal(retained.cits.item.num, "CIT-9876", "autosave preserves retained citation identity");
+  assert.equal(retained.frozen.case.owner, "Historic owner", "reviewed current-owner changes do not replace historical owner facts");
+  console.log(
+    "PASS batch draft validation, issued protection, citation/history retention," + " CSV neutralization and concurrent autosave durability",
+  );
   process.exit(0);
 }
 eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");

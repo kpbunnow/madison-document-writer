@@ -243,7 +243,9 @@ for (const [file, { ctor, instance, inputs }] of Object.entries(specs)) {
     caseState: status.caseState,
     workspaceTasks: () => [{ key: "imports", count: 0, items: [] }],
     app_workspacequeueContext: context,
-    caseSearchText: (k) => k.number.toLowerCase(),
+    get caseSearchText() {
+      assert.fail("retired search must not be read");
+    },
     saveWorkflowPrefs: () => prefs++,
     openCasesCard: () => '<section id="open-cases">Open cases</section>',
     remindersPanel: () => "reminders",
