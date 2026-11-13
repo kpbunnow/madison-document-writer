@@ -23,6 +23,7 @@ covers, or a new suite under its feature.
 | --- | --- |
 | `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
+| `audit_gate_artifacts.py` | Authenticated same-run/head/producer-attempt pairs for gate-only retries; failed/partial/skipped/mixed producers, metadata and ZIP digest/path/link/expansion refusal, scoped credentials/redirects |
 | `audit_citation_review_templates.js` | 4,096 complete retained citation review cards with exact state, peer reads, ordered effects and interruptions |
 | `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
 | `audit_recipient_lines.js` | 8,192 retained recipient-line output, access-order and error comparisons; public address formatter ownership |
@@ -507,6 +508,7 @@ workflow. Each receives the arguments named in its row.
 | Suite | Covers |
 | --- | --- |
 | `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors, current security/acceptance wording; every edition (PDF inspection required) carries the current source digest |
+| `audit_staff_guides.py` | Nine guides match tagged manual sections; read-only drift checks, unique lookup support content, malformed/duplicate/missing tags, destination safety and caught write-failure restoration |
 | `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |
 

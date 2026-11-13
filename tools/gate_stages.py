@@ -13,9 +13,10 @@ import shutil
 import subprocess
 import sys
 
-from project_layout import checked_file, staged_files, fingerprint as maintained_fingerprint
+from project_layout import checked_file, staged_files
+from project_layout import fingerprint as maintained_fingerprint
 from release_evidence import fingerprint, source_provenance, verify
-from release_inputs import source_inventory, deployment_inputs
+from release_inputs import deployment_inputs, source_inventory
 
 
 def run_identity():
@@ -117,7 +118,7 @@ def execute_stage(root, runner, stage):
         runner([sys.executable, "tools/check_format.py"], "format.log")
         runner([sys.executable, "tools/run_tests.py"], "regression.log")
         verify(root)
-        matches = re.findall(r"^Usable Chromium: (.+)$", (out / "regression.log").read_text(encoding="utf-8"), re.M)
+        matches = re.findall(r"^Usable Chromium: (.+)$", (out / "regression.log").read_text(encoding="utf-8"), re.MULTILINE)
         if not matches:
             raise ValueError("Regression browser preflight did not record its actual version")
         chromium = matches[0]
@@ -179,12 +180,19 @@ def read_stage(folder, stage, inputs, provenance, expected_toolchain, identity):
     return receipt
 
 
-def assemble(root, runner, regression, browser_folder):
-    identity = run_identity()
+def assemble(root, runner, regression, browser_folder, *, producer_selection=None):
+    assembly_identity = run_identity()
+    identity = assembly_identity if producer_selection is None else producer_selection["identity"]
+    if producer_selection is not None and (
+        producer_selection["assemblyIdentity"] != assembly_identity or identity["run"] != assembly_identity["run"]
+    ):
+        raise ValueError("Producer selection is not bound to this assembly run")
     runner([sys.executable, "tools/build.py"], "assembly-build.log", {**os.environ, "DW_TEST_BUILD": "0"})
     source_inventory(root)
     inputs = fingerprint(root)
     provenance, common = reviewed_provenance(root, inputs), toolchain(root)
+    if producer_selection is not None and producer_selection["sourceCommit"] != provenance["sourceCommit"]:
+        raise ValueError("Producer selection differs from the current reviewed source")
     regression_meta = read_stage(regression, "regression", inputs, provenance, common, identity)
     browser_meta = read_stage(browser_folder, "browser", inputs, provenance, common, identity)
     if regression_meta["toolchain"] != browser_meta["toolchain"]:
@@ -226,6 +234,17 @@ def assemble(root, runner, regression, browser_folder):
     (out / "verification.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     (out / "repository.json").write_text(json.dumps({"passed": True, "files": maintained_fingerprint(root)}, indent=2) + "\n", encoding="utf-8")
     (out / "stage-evidence.json").write_text(
-        json.dumps({"identity": identity, "regression": regression_meta, "browser": browser_meta}, indent=2) + "\n", encoding="utf-8"
+        json.dumps(
+            {
+                "identity": identity,
+                "assemblyIdentity": assembly_identity,
+                "producerSelection": producer_selection,
+                "regression": regression_meta,
+                "browser": browser_meta,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
     )
     print("Verified full gate from matching isolated stages: " + str(out), flush=True)
