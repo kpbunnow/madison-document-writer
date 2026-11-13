@@ -2220,7 +2220,6 @@ WriterState.OUTBOX_FILES = [];
 workflowEvents.registerToolForms();
 workflowEvents.registerToolActions();
 workflowEvents.registerTimelineFilter();
-workflowEvents.registerSearchPreferences();
 
 /* Workspace task counts are built from the same records used by the task list.
    Artifact location is checked by the helper against approved outbox paths. */
