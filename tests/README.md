@@ -162,7 +162,7 @@ covers, or a new suite under its feature.
 | `audit_inspector_cases.py` | Open cases by assigned inspector from the OpenEnforcementCases_BI report: the list counted from the full report and kept for 30 minutes, one inspector rendered by the report's own name, row and field validation (including refusal without caching false empty/partial XML results), the division's and administrator's exclusions, verified due dates, one list at a time and the HTTP boundary |
 | `audit_mcr_helper_validation.py` | Code-review store corrections: a new ordinary visit cannot be after its recording day (MCR-006), a scheduled mandatory-appearance citation draft backs up without a deposit while money charges still need one (MCR-007), and new notices/extensions/citations keep distinct due dates seven days apart, corrections keeping existing pairs (MCR-008) |
 | `audit_open_case_list.js` | Open cases by inspector on Import inspection: search filter, escaped bubble markup (no table, no underline, no-wrap case number and address), selection highlight, card states, every new selection clearing the earlier case and its inspections, the due column and the helper's order kept, the unavailable note, and the owner against a substitute helper (loads once, stale answers ignored, overlapping inspector/case requests settle independently, a pending import blocks Import) |
-| `audit_start_screen.js` | Where Document Writer opens: Import inspection when the helper reports the City case lookup, unless a draft, worksheet, pending case file, record confirmation/form, awaiting import or saved case number needs attention |
+| `audit_start_screen.js` | Actual startup without a redirect port;  Where Document Writer opens: Import inspection when the helper reports the City case lookup, unless a draft, worksheet, pending case file, record confirmation/form, awaiting import or saved case number needs attention |
 | `audit_stranded_import.js` | A case with no document, draft or recorded event (for example after a new import's notice draft was discarded) can start its notice again from its Initial Inspection; a case with anything issued, drafted or recorded still refuses it |
 | `audit_r36.js` | Scheduled/Assist results discarded, authoritative inspection time |
 | `audit_r37.js`, `audit_r37.py` | Record Category; Snow Removal routes to the 10.28 citation |
@@ -427,6 +427,7 @@ covers, or a new suite under its feature.
 | `audit_writer_services.js` | Six independent scoped service owners; lazy exact interfaces, retained initialization/listener order, readiness/save/stale-navigation races and citation guards |
 | `audit_module_boundaries.js` | Foundation dependency layers and cycle caps; no-DOM loading, live restored-state queries and historical source/authoring rules |
 | `audit_workflow_tools.js`, `audit_workflow_tools.py` | Selected PDF filing, shared views, reminders |
+| `audit_workflow_preferences.js` | Retired Workspace filters ignored; active reminder bounds, date validation and independent state preserved; current-object saves, denial/quota reporting and no retired state writers |
 | `audit_r50_calendar.js`, `audit_r32_day_boundary.js` | Chicago calendar and midnight boundaries |
 | `audit_r43_review.js` | Inline completion, multiple charges, focus |
 

@@ -135,7 +135,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
     assert.equal(state.STARTUP_STATUS, "ready");
     assert.equal(state.REPORT_RETURN, true);
     assert.equal(state.state.screen, "cases");
-    assert.equal(state.state.caseFilter, "all");
+    assert.equal(state.state.caseFilter, "attention", "the retired filter is not changed by handoff");
     // Workspace has no search filter now; the requested case is marked and brought into view instead.
     assert.equal(state.state.issuedCase, "local");
     assert.deepEqual(calls.slice(3, 5), ["render", ["focusCase", "local"]]);
@@ -167,7 +167,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
       calls.filter((c) => Array.isArray(c) && c[0] === "load").map((c) => c[1].case.number),
       ["QA-NEW"],
     );
-    assert.equal(state.state.caseQ, "QA-NEW");
+    assert.equal(state.state.caseQ, "retained", "handoff does not revive the retired search query");
     assert.match(state.PREFLIGHT_NOTICE, /changed since this report was indexed/);
     for (const candidate of [file("QA-OTHER"), { ...file("QA-NEW"), events: "bad" }]) {
       calls = [];

@@ -44,8 +44,7 @@ export function createWriterHandoff(services) {
     if (existing) {
       await services.preflightCase(existing.id, "report handoff", () => {
         editor.state.metric = "";
-        editor.state.caseQ = number;
-        editor.state.caseFilter = "all";
+
         editor.state.screen = "cases";
         renderMarked(services, existing.id);
       });
@@ -69,8 +68,7 @@ export function createWriterHandoff(services) {
     if (!services.loadCaseFile(JSON.stringify(file))) throw new Error("The shared case could not be loaded");
     startup.REPORT_RETURN = true;
     editor.state.metric = "";
-    editor.state.caseQ = number;
-    editor.state.caseFilter = "all";
+
     renderMarked(services, caseIdFor(number));
     window.focus?.();
     const count = Number(message.eventCount);
