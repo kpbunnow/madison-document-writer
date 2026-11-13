@@ -138,39 +138,34 @@ async function check(name, fn) {
     assert.equal(document.activeElement.id, "pk-q");
     dom.window.close();
   });
-  await check("delayed fill-in close never steals focus after navigation", async () => {
+  await check("a fill-in box abandoned by navigation never writes or steals focus", async () => {
     const dom = new JSDOM(
       '<main><div tabindex="0" data-field="text" data-id="a"><span id="blank" class="blank-edit" tabindex="0">( )</span></div><div data-field="text" data-id="b"><span class="blank-edit" tabindex="0">( )</span></div></main><button id="navigation">Workspace</button>',
     );
     const api = await compile('export {createDocumentFeedback} from "./document_feedback.js";');
     const s = api.WriterState;
     Object.assign(s, { state: { screen: "write", docId: "d" }, DOCS: [{ id: "d", items: [{ id: "a" }, { id: "b" }] }] });
-    let close;
+    let inputs = 0;
     const ui = api.createDocumentFeedback({
       document: dom.window.document,
       Event: dom.window.Event,
       isLocked: () => false,
-      A11Y: {
-        utility(_, html) {
-          const dialog = dom.window.document.createElement("dialog");
-          dialog.id = "utility-dialog";
-          dialog.innerHTML = html + "<button data-utility-close>Close</button>";
-          dialog.close = () => {
-            close = () => dialog.dispatchEvent(new dom.window.Event("close"));
-          };
-          dom.window.document.body.append(dialog);
-        },
-      },
+      A11Y: { notify() {}, utility: () => assert.fail("no corrective-action dialog") },
     });
+    dom.window.document.addEventListener("input", () => inputs++);
     ui.fillBlank(dom.window.document.getElementById("blank"));
-    dom.window.document.querySelector("textarea").value = "Repair detail";
-    dom.window.document.querySelector("form").dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
+    const box = dom.window.document.activeElement;
+    assert.ok(box.classList.contains("blank-input"));
+    box.value = "Repair detail";
+    // Navigation replaces the editor before the box is left; its late blur must do nothing.
     s.state.docId = "other";
     dom.window.document.querySelector("main").innerHTML = '<span class="blank-edit" tabindex="0">Other document</span>';
     const navigation = dom.window.document.getElementById("navigation");
     navigation.focus();
-    close();
+    box.dispatchEvent(new dom.window.Event("blur"));
     assert.equal(dom.window.document.activeElement, navigation);
+    assert.equal(inputs, 0);
+    assert.equal(dom.window.document.querySelector("main").textContent, "Other document");
     dom.window.close();
   });
   process.exitCode = failures ? 1 : 0;

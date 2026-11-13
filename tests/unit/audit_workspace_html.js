@@ -131,6 +131,11 @@ const assert = require("node:assert/strict"),
     assert.equal(rows.length, flags.count, "legacy preferences cannot hide loaded cases");
     assert.equal(document.querySelector("#case-search,#case-filter,#case-inspector,[data-queue-view],.queue-view-note"), null);
     assert.equal(document.querySelector('[data-nav="import"]').textContent.trim(), "Import inspection");
+    // Owner direction 2026-11-13: Open cases by inspector leads Workspace, followed by Start case work.
+    const lead = document.querySelector("#open-cases"),
+      start = document.querySelector(".workspace-start");
+    assert.ok(lead && start && lead.compareDocumentPosition(start) & 4, "Open cases by inspector precedes Start case work");
+    assert.equal(document.querySelectorAll("#open-cases").length, 1);
     assert.equal(s.state.metric, "");
     assert.equal(s.state.caseQ, flags.query, "render does not rewrite retained preferences");
     assert.equal(s.state.caseFilter, flags.filter);

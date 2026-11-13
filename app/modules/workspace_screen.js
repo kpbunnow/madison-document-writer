@@ -23,20 +23,19 @@ function workspaceCaseTableHTML(table) {
 }
 
 function workspaceContentHTML({ orphan, table, services }) {
-  return html`<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start case work</h2></div><div class="card-b">
+  // Open cases by inspector leads Workspace (owner request 2026-11-13), followed by Start case work.
+  return html`${raw(services.openCasesCard())}<section class="card workspace-start" aria-labelledby="workspace-start-title"><div class="card-h"><h2 id="workspace-start-title">Start case work</h2></div><div class="card-b">
     <form id="lookup-form" class="lookup-row" aria-busy="false"><label class="f"><span>Case number</span><input id="lookup-number" type="text" maxlength="80" autocomplete="off" spellcheck="false" placeholder="CB2026-000-00000" value="${editor.WORK?.entry?.["lookup-number"] || ""}"></label><button class="btn btn-primary" type="submit">Find Case Inspections</button></form>
     <div><button class="btn" data-nav="import">${raw(uiIcon("import"))} Import inspection</button>
     <p class="hint">Choose an open case by inspector, or enter a case number, to start new work from an unused inspection.</p></div></div></section>
     ${raw(importResumePanel())}${raw(workspace.PREFLIGHT_NOTICE ? html`<div class="banner info" role="status">${workspace.PREFLIGHT_NOTICE}</div>` : "")}
     ${raw(orphan.length ? html`<div class="banner warn">${String(orphan.length)} queued case ${orphan.length === 1 ? "file" : "files"} outside the loaded cases. <button class="btn btn-sm" data-sync-safety>Review queued saves</button></div>` : "")}
-    ${raw(!workspace.CASES.length ? services.openCasesCard() : "")}
     <div class="card">${raw(
       workspace.CASES.length
         ? workspaceCaseTableHTML(table)
         : html`<div class="empty-state"><div class="empty-icon">${raw(uiIcon("cases"))}</div><h2>No cases in this workspace</h2>
       <p>Import an inspection or open a saved case to begin.</p><button class="btn" data-openfile>Open saved case</button></div>`,
     )}</div>
-    ${raw(workspace.CASES.length ? services.openCasesCard() : "")}
     <div class="queue-support"><button class="btn btn-sm" data-sync-safety>Saved work &amp; connection</button>
       <div id="recovery-status" class="hint" aria-live="polite">${raw(services.recoveryStatusHTML())}</div>
       ${raw(workspace.CASES.length ? '<button class="lnk" id="btn-clear">Remove cases from this workspace</button>' : "")}</div>

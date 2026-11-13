@@ -1,10 +1,78 @@
 import { editorState as editor } from "./editor_state.js";
 import { doc } from "./writer_queries.js";
 
-// A queued dialog-close event may arrive after navigation replaced the editor.
+// The next bubble is found only while the same document is still open in the editor.
 function nextBlank(document, field, documentId) {
   if (!field.isConnected || editor.state.screen !== "write" || editor.state.docId !== documentId) return null;
   return [...document.querySelectorAll(".blank-edit")].find((b) => field.contains(b) || field.compareDocumentPosition(b) & 4) || field;
+}
+
+// A fill-in bubble becomes an inline text box in place; Enter or leaving the box writes the detail into the item.
+function inlineFillBlank(services, el) {
+  const field = el.closest('[data-field="text"]'),
+    d = doc(editor.state.docId);
+  if (!field || !d || services.isLocked(d)) return;
+  const itemId = field.dataset.id,
+    documentId = d.id,
+    input = services.document.createElement("input");
+  Object.assign(input, { type: "text", className: "blank-input", size: 14, placeholder: "Type the detail" });
+  input.setAttribute("aria-label", "Missing corrective-action detail; Enter saves, Escape cancels");
+  let settled = false;
+  // While the box is open it is the item's only control: the sentence is not edited directly around it. The
+  // field's editing attributes are removed (not set false) so the shared accessibility pass leaves it alone.
+  const FIELD_CONTROL = ["contenteditable", "tabindex", "role", "aria-multiline", "aria-label"],
+    fieldControl = FIELD_CONTROL.map((name) => [name, field.getAttribute(name)]);
+  const editable = () => {
+    const current = doc(documentId),
+      item = current?.items.find((it) => it.id === itemId);
+    return (
+      editor.state.screen === "write" &&
+      editor.state.docId === documentId &&
+      !!current &&
+      !services.isLocked(current) &&
+      !!item &&
+      !item.withdrawn &&
+      !(item.done && !current.correction) &&
+      field.isConnected &&
+      field.contains(input)
+    );
+  };
+  // Returns true when the typed detail replaced the bubble; otherwise the bubble is restored unchanged.
+  function settle(commit) {
+    if (settled || !input.isConnected) return false;
+    settled = true;
+    for (const [name, value] of fieldControl) if (value !== null) field.setAttribute(name, value);
+    const value = input.value.trim();
+    if (commit && value && editable()) {
+      input.replaceWith(services.document.createTextNode(value));
+      field.dispatchEvent(new services.Event("input", { bubbles: true }));
+      return true;
+    }
+    if (commit && value) services.A11Y.notify("This item is no longer editable; the detail was not added.", { severity: "error" });
+    input.replaceWith(el);
+    return false;
+  }
+  // The box's own keystrokes must not reach the item's text handlers until the detail is written.
+  input.addEventListener("input", (event) => {
+    event.stopPropagation();
+    input.size = Math.max(14, input.value.length + 2);
+  });
+  input.addEventListener("keydown", (event) => {
+    event.stopPropagation();
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (settle(true)) nextBlank(services.document, field, documentId)?.focus();
+      else if (el.isConnected) el.focus();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      settle(false);
+      if (el.isConnected) el.focus();
+    }
+  });
+  input.addEventListener("blur", () => settle(true));
+  el.replaceWith(input);
+  FIELD_CONTROL.forEach((name) => field.removeAttribute(name));
+  input.focus();
 }
 
 export function createDocumentFeedback(services) {
@@ -29,53 +97,6 @@ export function createDocumentFeedback(services) {
     });
   }
 
-  function fillBlank(el) {
-    const field = el.closest('[data-field="text"]'),
-      d = doc(editor.state.docId);
-    if (!field || !d || services.isLocked(d)) return;
-    const itemId = field.dataset.id,
-      documentId = d.id;
-    services.A11Y.utility(
-      "Add corrective-action detail",
-      '<form id="corrective-detail-form"><label class="f" for="corrective-detail"><span>Enter the missing corrective-action detail</span><textarea id="corrective-detail" rows="4" required></textarea></label><p class="hint" id="corrective-detail-error" role="alert"></p><button type="submit" class="btn btn-primary">Save</button></form>',
-    );
-    const dialog = services.document.getElementById("utility-dialog"),
-      form = dialog.querySelector("form");
-    dialog.querySelector("[data-utility-close]").textContent = "Cancel";
-    dialog.querySelector("textarea").focus();
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const value = dialog.querySelector("textarea").value.trim();
-      if (!value) {
-        dialog.querySelector("#corrective-detail-error").textContent = "Enter text, or choose Cancel to leave this item unchanged.";
-        return;
-      }
-      const current = doc(documentId),
-        item = current?.items.find((it) => it.id === itemId);
-      if (
-        editor.state.screen !== "write" ||
-        editor.state.docId !== documentId ||
-        !current ||
-        services.isLocked(current) ||
-        !item ||
-        item.withdrawn ||
-        (item.done && !current.correction) ||
-        !field.isConnected ||
-        !field.contains(el)
-      ) {
-        dialog.querySelector("#corrective-detail-error").textContent = "This item is no longer editable. Cancel and reopen the current document.";
-        return;
-      }
-      el.replaceWith(services.document.createTextNode(value));
-      field.dispatchEvent(new services.Event("input", { bubbles: true }));
-      // The browser delivers "close" asynchronously and the utility dialog's own handler then restores focus to
-      // the replaced blank, which no longer exists. Return focus to the item text after that handler runs.
-      // Focus moves to the next fill-in bubble (in this item, then later ones), so details can be entered in a run.
-      const next = () => nextBlank(services.document, field, documentId);
-      dialog.addEventListener("close", () => next()?.focus(), { once: true });
-      dialog.close();
-      next()?.focus();
-    });
-  }
+  const fillBlank = (el) => inlineFillBlank(services, el);
   return { toast, toastHold, toastUndo, fillBlank };
 }
