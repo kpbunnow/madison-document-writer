@@ -359,6 +359,57 @@ const row = (number, extra = {}) => ({
   openList.inspectors = [];
   await owner.retry();
   assert.equal(openList.inspectors.length, 1, "Try again on an empty list loads it again");
+  // The inspector last shown is remembered (2026-11-13): the next list load opens on that inspector's cases without a
+  // second step; an unknown or missing remembered inspector changes nothing, and neither does a failing store.
+  const store = new Map();
+  global.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)) };
+  const asked = [];
+  const remembering = m.createOpenCaseList({
+    helperJSON: async (url, body) => {
+      asked.push([url, body?.inspector]);
+      return url.endsWith("/list")
+        ? { inspectors: [{ id: "JSMITH", name: "Jane Smith", openCases: 1 }] }
+        : { cases: [row("CB2026-241-00009")], dueDates: true };
+    },
+    render: () => {},
+    findDatabaseCase: async () => {},
+  });
+  const fresh = () => Object.assign(openList, { inspectors: null, selected: "", cases: null, casesFor: null, error: "", casesError: "" });
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+  fresh();
+  await remembering.loadInspectors();
+  await settle();
+  assert.equal(openList.cases, null, "nothing is loaded until an inspector has been chosen once");
+  await remembering.showCases("JSMITH");
+  assert.equal(store.get("madison-open-cases-inspector-v1"), "JSMITH");
+  fresh();
+  asked.length = 0;
+  await remembering.loadInspectors();
+  await settle();
+  assert.deepEqual(
+    asked.map((c) => c[0].split("/").pop()),
+    ["list", "cases"],
+  );
+  assert.equal(openList.selected, "JSMITH");
+  assert.equal(openList.cases.length, 1, "the remembered inspector's cases load on their own");
+  store.set("madison-open-cases-inspector-v1", "GONE");
+  fresh();
+  await remembering.loadInspectors();
+  await settle();
+  assert.equal(openList.cases, null, "an inspector no longer listed is not selected");
+  global.localStorage = {
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    setItem: () => {
+      throw new Error("blocked");
+    },
+  };
+  fresh();
+  await remembering.loadInspectors();
+  await remembering.showCases("JSMITH");
+  assert.equal(openList.cases.length, 1, "a blocked store never stops the list");
+  delete global.localStorage;
   console.log("PASS open case list");
 })().catch((error) => {
   console.error(error);
