@@ -291,7 +291,17 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     },
   };
   const duplicateBefore = copy(duplicateOwner);
-  assert.deepEqual(sources.freezeSources(duplicateOwner).ownerCopyLines, ["Frozen owner", "100 TEST ST", "MADISON WI 53703"]);
+  assert.deepEqual(sources.freezeSources(duplicateOwner).ownerMailingLines, ["Frozen owner", "100 TEST ST", "MADISON WI 53703"]);
+  assert.equal(Object.hasOwn(sources.freezeSources(duplicateOwner), "ownerCopyLines"), false, "the CC-only fact is no longer written");
+  const fourLine = {
+    ...d,
+    frozen: { ...d.frozen, case: { ...d.frozen.case, ownerAddr: ["C/O MANAGER", "100 TEST ST", "UNIT 2", "100 Test St.", "MADISON WI 53703"] } },
+  };
+  assert.deepEqual(
+    sources.freezeSources(fourLine).ownerMailingLines,
+    ["Frozen owner", "C/O MANAGER", "100 TEST ST", "UNIT 2", "MADISON WI 53703"],
+    "without a Violator the owner's mailing block also keeps a repeated street line once",
+  );
   assert.deepEqual(duplicateOwner, duplicateBefore, "the frozen corrected CC is separate from raw owner facts");
   assert.equal(Object.hasOwn(frozen, "ownerCopyLines"), false, "ordinary snapshots retain their existing shape");
   assert.equal(d.frozen.court.nested.x, 1);

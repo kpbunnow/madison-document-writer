@@ -25,13 +25,19 @@ const mailingBlockNote = (k) =>
 const ccEntryLines = (services, c, draft) => c.lines || services.ccLines(c, draft);
 const ccRoleHTML = (c) => (c.agent ? '<div class="cc-role">Registered agent</div>' : c.owner ? '<div class="cc-role">Property owner</div>' : "");
 
+/* Owner lines an issued document retained: the current fact for every owner line, or the earlier CC-only fact. */
+const retainedOwnerLines = (d, key) => (Array.isArray(frozenOf(d)?.[key]) ? frozenOf(d)[key] : undefined);
+/* Mailing block and citation defendant: drafts print a repeated owner address line once; issued documents print what
+   they retained, or their original lines. */
+const printedDefendantLines = (d, k) => defendantLines(k, !!d.draft, retainedOwnerLines(d, "ownerMailingLines"));
+
 /* New drafts clean the derived CC; issued documents use their retained fact or the original legacy lines. */
 function documentOwnerCopy(d, k) {
   const owner = ownerCopy(k);
   if (!owner) return null;
   if (d.draft) return ownerCopy(k, cleanOwnerCopyLines(k));
-  const retained = frozenOf(d)?.ownerCopyLines;
-  return Array.isArray(retained) ? ownerCopy(k, retained) : owner;
+  const retained = retainedOwnerLines(d, "ownerMailingLines") || retainedOwnerLines(d, "ownerCopyLines");
+  return retained ? ownerCopy(k, retained) : owner;
 }
 
 /* A corrected item shows its confirmation date. A Reinspection Notice shows every due date as assigned, never as an input. */
@@ -470,7 +476,7 @@ function noticeMailingHTML(services, d, k, ce) {
     '<div class="ed" ' +
     `${mailingBlockEdit(k, ce)}` +
     ' data-case="ownerBlock" data-ph="Owner and mailing address" style="white-space:pre-wrap">' +
-    `${esc(defendantLines(k, !!d.draft).join("\n"))}` +
+    `${esc(printedDefendantLines(d, k).join("\n"))}` +
     "</div>" +
     mailingBlockNote(k) +
     '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div class="n-winspace" aria-hidden="true"></div>\n\n    ' +
@@ -714,7 +720,7 @@ function renderCitationFaces(services, d, locked) {
       "s on hold until the division approves defendant instructions. Your draft" +
       " is retained.</p>"
     );
-  const addr = defendantLines(k, !!d.draft).slice(1).join(", ");
+  const addr = printedDefendantLines(d, k).slice(1).join(", ");
   const face = (it, copy) => {
     const c = (d.cits || {})[it.id] || {};
     return citationFaceHTML(services, { d, it, copy, c, locked, k, i, addr, COURT, CIT_INSTRUCTIONS, COURT_CONTACT });
@@ -800,7 +806,7 @@ function citationFacePart2(services, face) {
   return (
     'b">First</span><span class="cit-lab">MI</span></div>\n          <div clas' +
     's="v">' +
-    `${esc(defendantLines(k, !!d.draft)[0] || "")}` +
+    `${esc(printedDefendantLines(d, k)[0] || "")}` +
     '</div></div>\n        <div class="cit-f"><div class="cit-cells"><span cla' +
     'ss="cit-lab">Street Address</span><span class="cit-lab">Post Office</spa' +
     'n><span class="cit-lab">State</span><span class="cit-lab">Zip Code</span' +
