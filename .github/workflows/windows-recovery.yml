@@ -105,10 +105,33 @@ jobs:
       - name: Exercise persistent Chromium and verify combined native evidence
         run: node tests/windows/browser_recovery.cjs --require-windows
       - name: Retain native evidence and failure diagnostics
+        id: upload_1_1
+        continue-on-error: true
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-recovery-${{ matrix.python }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/windows-recovery/
           retention-days: 14
+          if-no-files-found: error
+      - name: Retry retain native evidence and failure diagnostics
+        id: upload_1_2
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.upload_1_1.outcome == 'failure' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-recovery-${{ matrix.python }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/windows-recovery/
+          retention-days: 14
+          overwrite: true
+          if-no-files-found: error
+      - name: Final attempt to retain native evidence and failure diagnostics
+        id: upload_1_3
+        if: ${{ !cancelled() && steps.upload_1_1.outcome == 'failure' && steps.upload_1_2.outcome == 'failure' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-recovery-${{ matrix.python }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/windows-recovery/
+          retention-days: 14
+          overwrite: true
           if-no-files-found: error

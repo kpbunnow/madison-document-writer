@@ -1155,19 +1155,6 @@
     text-transform: uppercase;
     color: #246d83;
   }
-  .case-view {
-    display: flex !important;
-    align-items: center;
-    gap: 7px;
-    flex: 0 0 auto !important;
-    color: var(--ink-2);
-    font-size: 12px;
-  }
-  .case-view select {
-    max-width: 235px !important;
-    color: var(--ink);
-    font: inherit;
-  }
 
   .pill.soon {
     background: #fff8e8;
@@ -1185,13 +1172,7 @@
     flex-direction: column;
     gap: 10px;
   }
-  .case-view {
-    justify-content: space-between;
-  }
-  .case-view select {
-    max-width: none !important;
-    width: 100%;
-  }
+
   .case-next {
     flex-wrap: wrap;
   }
@@ -1210,49 +1191,6 @@
 
 /* R41: compact queue, one primary action, optional details. Screen-only. */
 @media screen {
-  .queue-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 16px;
-  }
-  .queue-summary-button {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface);
-    color: var(--ink);
-    border-color: var(--rule);
-  }
-  .queue-summary-button strong {
-    font-size: 16px;
-    min-width: 20px;
-  }
-  .queue-summary-button[aria-pressed="true"] {
-    border: 2px solid var(--civic);
-    font-weight: 700;
-  }
-  .queue-reason {
-    margin: 7px 0 0;
-    line-height: 1.5;
-    max-width: 38ch;
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .queue-secondary {
-    display: block;
-    margin-top: 7px;
-    font-size: 12px;
-    color: var(--ink-2);
-  }
-  .queue-filter-note {
-    margin: 0;
-    padding: 10px 18px;
-    font-size: 12px;
-    color: var(--ink-2);
-    line-height: 1.5;
-    border-bottom: 1px solid var(--rule-soft);
-  }
   .queue-detail-task {
     display: flex;
     flex-wrap: wrap;
@@ -1287,19 +1225,6 @@
     padding: 6px 0;
   }
   @media (max-width: 760px) {
-    .queue-summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .queue-summary-button {
-      justify-content: space-between;
-      min-height: 44px;
-    }
-    .queue-summary-button span {
-      min-width: 0;
-      white-space: normal;
-      text-align: left;
-    }
     .case-table .queue-primary {
       max-width: none;
       width: 100%;
@@ -1337,20 +1262,12 @@
   }
 }
 @media screen {
-  .main .queue-primary,
-  .main .queue-summary-button {
+  .main .queue-primary {
     --control-min-size: var(--control-action-size);
     min-height: var(--control-min-size);
   }
 }
-@media screen and (max-width: 760px) {
-  body:has(.queue-summary) .rail-brand {
-    padding: 12px 18px;
-  }
-  body:has(.queue-summary) .rail-logo {
-    width: 52px;
-  }
-}
+
 @media screen {
   #recovery-status details > summary {
     min-height: 32px;

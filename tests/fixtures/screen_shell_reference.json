@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "98e9ea12e04ae8233094e6fbc3fff44ac3aef85238a100be5a5fb8cdf20c729e",
-      "normalizedShellSha256": "311e592ad029b84c98668f2779a1c7c751c2e74bdb0ae917151dffc843a2dd28"
+      "normalizedShellSha256": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "44033064f4659f2c1ad5c2a6e435c4b9b4fd2d8e1851a9ff6ffe8036d26a34b9",
-      "normalizedShellSha256": "0296f4086093ea96d4542f7bd26a1f219456dbb8b3f0b02b2e4dbc572d775eb7"
+      "normalizedShellSha256": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9"
     }
   },
   "reviews": [
@@ -240,6 +240,21 @@
         }
       },
       "evidence": "docs/developer/03-DOMAIN-RULES.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "0307ba7659844f8987c8ebcf57699a27038a1657",
+      "scope": "Owner improvement-plan normal screen CSS maintenance and17 unreachable Workspace rules; approved print unchanged",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "311e592ad029b84c98668f2779a1c7c751c2e74bdb0ae917151dffc843a2dd28",
+          "after": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9"
+        },
+        "madison-reports.html": {
+          "before": "0296f4086093ea96d4542f7bd26a1f219456dbb8b3f0b02b2e4dbc572d775eb7",
+          "after": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9"
+        }
+      }
     }
   ]
 }
