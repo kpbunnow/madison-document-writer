@@ -59,7 +59,8 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
   assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
   assert.equal(document.querySelector('.desk script'), null);
-  assert.equal(document.activeElement.dataset.field, 'text');
+  // Owner direction 2026-11-13: with another bubble left, focus moves to it; with none, it returns to the item text.
+  assert.ok(document.activeElement.classList.contains('blank-edit') && document.activeElement.closest('[data-field="text"]'));
   blank = document.querySelector('.blank-edit'); blank.click();
   document.querySelector('#utility-dialog').close();
   assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');

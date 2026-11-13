@@ -56,6 +56,7 @@ import {
   orderByDue,
 } from "./deadline_assignment.js";
 import { createWriterHandoff } from "./writer_handoff.js";
+import { createLanguageShortcuts } from "./language_shortcuts.js";
 import { createPdfArtifacts, pdfTransferState } from "./pdf_artifacts.js";
 import { inspAt } from "./inspection_facts.js";
 import { createDocumentPagination } from "./document_pagination.js";
@@ -441,6 +442,7 @@ const workspaceScreen = createWorkspaceScreen(
   ),
 );
 export let { revealIssuedCase, focusIssuedCase, screenCases } = workspaceScreen;
+createLanguageShortcuts(deferredServices({ refreshOverlay: () => refreshOverlay }));
 const languageViews = createLanguageViews(deferredServices({ app_languagediscoveryContext: () => app_languagediscoveryContext }));
 export let { screenLibrary, pickerHTML } = languageViews;
 const screenOverlays = createScreenOverlays(

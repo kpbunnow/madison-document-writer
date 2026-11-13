@@ -1,5 +1,6 @@
 import { html as screen, raw } from "./screen_html.js";
 import { languageSearch, canonicalSection } from "./language_search.js";
+import { activeShortcutList, isFavorite, shortcutKeys } from "./language_shortcuts.js";
 /* Presentation/search only; catalog eligibility, adoption and persistence retain their owners. */
 function languageAdminScreen(R, items, query, filter) {
   const selected = R.catalogItem(R.state.catalogAdminKey),
@@ -124,6 +125,31 @@ function languageBrowseScreen(R, found, query, filter) {
   );
 }
 
+// Favorites and Recently used head the group list once they hold something that can be shown now.
+const SHORTCUT_LABELS = { favorites: "Favorites", recent: "Recently used" };
+function shortcutItems(R, all, visible, name) {
+  const keys = shortcutKeys(name);
+  return all
+    .filter((i) => visible(i) && keys.includes(R.catalogKey(i)))
+    .sort((a, b) => keys.indexOf(R.catalogKey(a)) - keys.indexOf(R.catalogKey(b)));
+}
+function languageShortcutButtons(R, all, visible) {
+  const active = activeShortcutList(R.state);
+  return Object.keys(SHORTCUT_LABELS)
+    .map((name) => [name, shortcutItems(R, all, visible, name).length])
+    .filter(([, count]) => count)
+    .map(
+      ([name, count]) =>
+        screen`<button class="tree-g tree-shortcut" data-language-list="${name}" aria-current="${String(active === name)}"><span>${SHORTCUT_LABELS[name]}</span><span class="n">${String(count)}</span></button>`,
+    )
+    .join("");
+}
+function favoriteButton(R, i) {
+  const key = R.catalogKey(i),
+    on = isFavorite(key);
+  return screen`<button type="button" class="btn btn-sm language-favorite" data-language-favorite="${key}" aria-pressed="${String(on)}" aria-label="Favorite: ${raw(R.esc(i.t))}">${on ? "★" : "☆"} Favorite</button>`;
+}
+
 function languagePickerTree(R, all, visible, q) {
   return pickerChecklists(R)
     .map(
@@ -180,7 +206,7 @@ function languagePickerCard(R, i, selected, current, equivalent) {
     e = R.effectiveCatalog(i),
     blocked = BLOCKED.includes(R.catalogStatus(i).code),
     pick = String(i.ci) + ":" + String(i.gi) + ":" + String(i.o);
-  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button>${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(languageDetails(R, i, working))}</article>`;
+  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button><div class="language-card-actions">${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(favoriteButton(R, i))}</div>${raw(languageDetails(R, i, working))}</article>`;
 }
 
 function languagePickerResults(R, found, ranked, selected, current, filter) {
@@ -279,29 +305,37 @@ export function languagePicker(R) {
     selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter)),
     browsed = pickerChecklists(R);
-  const found = languageSearch(
-      R,
-      inChecklistOrder(
-        R,
-        all.filter(
-          (i) =>
-            visible(i) && (q || filter === "selected" || (R.state.cl < 0 ? browsed.includes(i.ci) : i.ci === R.state.cl && i.gi === R.state.grp)),
+  const list = filter === "selected" ? "" : activeShortcutList(R.state);
+  const found = list
+      ? { matches: shortcutItems(R, all, visible, list), related: [], sections: [] }
+      : languageSearch(
+          R,
+          inChecklistOrder(
+            R,
+            all.filter(
+              (i) =>
+                visible(i) && (q || filter === "selected" || (R.state.cl < 0 ? browsed.includes(i.ci) : i.ci === R.state.cl && i.gi === R.state.grp)),
+            ),
+          ),
+          q,
         ),
-      ),
-      q,
-    ),
     items = found.matches;
   // Selecting language for the open draft, distinct from browsing or reviewing the catalog.
   const pickerTitle = "Select for this " + (current?.type === "notice" ? "notice" : "document");
   const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp] ? groupName(R, R.state.cl, R.state.grp) : "",
-    label = countLine(q, found.sections, items.length, group || (filter === "selected" ? "Selected on this notice" : "All violation categories"));
+    label = countLine(
+      q,
+      found.sections,
+      items.length,
+      group || SHORTCUT_LABELS[list] || (filter === "selected" ? "Selected on this notice" : "All violation categories"),
+    );
   const tree = languagePickerTree(R, all, visible, q);
   return screen`<div class="picker" id="picker-bg"><div class="picker-box" role="dialog" aria-modal="true" aria-label="${String(pickerTitle)}" data-language-context="picker|${raw(R.esc(R.state.docId))}">
  <div class="picker-h"><h2>${String(pickerTitle)}</h2><button class="btn btn-sm" data-close="picker">Close</button></div>
  <div class="picker-search"><label class="f"><span>Search all order language</span><input type="search" id="pk-q" value="${raw(R.esc(R.state.q))}" placeholder="Title, ordinance or ordinary terms"></label><label class="f"><span>Language status</span><select id="pk-status">${raw(languageFilterOptions(R, filter, true))}</select></label>
  <select id="pk-grp" class="pk-grp" aria-label="Browse violation category" style="display:none;margin-top:10px"><option value="-1:0" ${String(R.state.cl < 0 ? "selected" : "")}>All violation categories</option>${raw(languagePickerGroupOptions(R, all, visible, q))}</select></div>
- <div class="picker-cols"><div class="picker-tree"><button class="tree-g" data-language-all>All violation categories <span class="n">${String(all.filter((i) => visible(i) && browsed.includes(i.ci)).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
- ${raw(languagePickerResults(R, found, !!q, selected, current, filter))}
+ <div class="picker-cols"><div class="picker-tree">${raw(languageShortcutButtons(R, all, visible))}<button class="tree-g" data-language-all>All violation categories <span class="n">${String(all.filter((i) => visible(i) && browsed.includes(i.ci)).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
+ ${raw(languagePickerResults(R, found, !!q || !!list, selected, current, filter))}
  </div></div><div class="picker-footer"><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn btn-primary" data-close="picker">Done adding</button></div></div></div>`;
 }
 
@@ -319,6 +353,8 @@ function currentContext(R, picker) {
 function languageControlSelector(R, active) {
   let selector = "";
   for (const a of [
+    "data-language-favorite",
+    "data-language-list",
     "data-pick-again",
     "data-pick",
     "data-catalog-open",

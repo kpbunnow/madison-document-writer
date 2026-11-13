@@ -2829,3 +2829,24 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* Picker shortcuts (owner direction 2026-11-13): Favorites and Recently used lists, and each entry's star. */
+@media screen {
+  .language-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 2px;
+  }
+  .language-card-actions .btn {
+    min-height: 32px;
+  }
+  .language-favorite[aria-pressed="true"] {
+    border-color: var(--civic);
+    color: var(--civic);
+    font-weight: 600;
+  }
+  .picker-tree .tree-shortcut {
+    font-weight: 600;
+  }
+}

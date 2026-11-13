@@ -18,7 +18,8 @@ const allowed = {
   "screen_html.js": ["./presentation_format.js"],
   "language_search.js": [],
   "search_highlighting.js": ["./language_search.js"],
-  "language_discovery.js": ["./screen_html.js", "./language_search.js"],
+  "language_discovery.js": ["./screen_html.js", "./language_search.js", "./language_shortcuts.js"],
+  "language_shortcuts.js": ["./editor_state.js"],
   "deferred_services.js": [],
   "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],
@@ -437,7 +438,7 @@ const scopedServices = {
     "./document_rules.js",
     "./citation_policy.js",
   ],
-  "item_selection.js": ["./record_values.js", "./document_rules.js", "./data/library.js"],
+  "item_selection.js": ["./record_values.js", "./document_rules.js", "./data/library.js", "./language_shortcuts.js"],
   "workspace_tasks.js": [
     "./editor_state.js",
     "./document_types.js",

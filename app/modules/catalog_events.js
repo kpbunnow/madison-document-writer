@@ -331,7 +331,7 @@ export function createCatalogEvents(services) {
       editor.state.grp = 0;
       editor.state.pickerDoc = d.id;
     }
-    editor.state.picker = true;
+    Object.assign(editor.state, { picker: true, pickerList: "" });
     editor.state.q = "";
     services.render();
     return;
