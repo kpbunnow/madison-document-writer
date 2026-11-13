@@ -21,7 +21,15 @@ walk(parse("writer_handoff"), (n) => {
     required.add(n.property.name);
   }
 });
-assert.deepEqual([...required].sort(), ["HANDOFF_CHANNEL", "WRITER_READY_WAIT", "helperJSON", "loadCaseFile", "preflightCase", "render"]);
+assert.deepEqual([...required].sort(), [
+  "HANDOFF_CHANNEL",
+  "WRITER_READY_WAIT",
+  "focusIssuedCase",
+  "helperJSON",
+  "loadCaseFile",
+  "preflightCase",
+  "render",
+]);
 const declarations = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = declarations.find((n) => n.id.name === "writerHandoff");
 assert.equal(entry.init.callee.name, "createWriterHandoff");
@@ -81,6 +89,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
       return "madison-writer-handoff-v1";
     },
     render: () => calls.push("render"),
+    focusIssuedCase: (id) => calls.push(["focusCase", id]),
     preflightCase: async (id, reason, continuation) => {
       calls.push(["preflight", id, reason]);
       continuation();
@@ -127,6 +136,9 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
     assert.equal(state.REPORT_RETURN, true);
     assert.equal(state.state.screen, "cases");
     assert.equal(state.state.caseFilter, "all");
+    // Workspace has no search filter now; the requested case is marked and brought into view instead.
+    assert.equal(state.state.issuedCase, "local");
+    assert.deepEqual(calls.slice(3, 5), ["render", ["focusCase", "local"]]);
     reset();
     const failedReady = api.writerOpenReportedCase({ number: "QA-LOCAL" });
     api.markWriterFailed(Error("Retained workspace unreadable"));

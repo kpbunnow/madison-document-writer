@@ -37,7 +37,10 @@ export function createWriterHandoff(services) {
         editor.state.caseQ = number;
         editor.state.caseFilter = "all";
         editor.state.screen = "cases";
+        // Workspace lists every case (no search filter since 2026-11-11); mark the requested one instead.
+        editor.state.issuedCase = existing.id;
         services.render();
+        services.focusIssuedCase(existing.id);
       });
       if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
       startup.REPORT_RETURN = true;
@@ -61,7 +64,10 @@ export function createWriterHandoff(services) {
     editor.state.metric = "";
     editor.state.caseQ = number;
     editor.state.caseFilter = "all";
+    const loaded = workspace.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
+    if (loaded && editor.state.screen === "cases") editor.state.issuedCase = loaded.id;
     services.render();
+    if (loaded) services.focusIssuedCase(loaded.id);
     window.focus?.();
     const count = Number(message.eventCount);
     if (Number.isFinite(count) && count !== (file.events || []).length) {

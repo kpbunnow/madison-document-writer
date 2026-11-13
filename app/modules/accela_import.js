@@ -971,9 +971,12 @@ export function createAccelaImport(services) {
         editor.state.caseQ = k.number;
         editor.state.caseFilter = "all";
         editor.state.caseInspector = "";
+        // Workspace lists every case; mark this one so it can be found at once.
+        editor.state.issuedCase = k.id;
       }
       services.saveDrafts();
       services.render();
+      if (editor.state.screen === "cases") services.focusIssuedCase(k.id);
     });
   }
 

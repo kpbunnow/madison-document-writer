@@ -729,6 +729,7 @@ const { resolvedCaseFields } = languageCatalog;
 const accelaImport = createAccelaImport(
   deferredServices(
     {
+      focusIssuedCase: () => focusIssuedCase,
       fmtTime: () => fmtTime,
       toast: () => toast,
       fmtDate: () => fmtDate,
@@ -818,6 +819,7 @@ const writerHandoff = createWriterHandoff(
       preflightCase: () => preflightCase,
       helperJSON: () => helperJSON,
       loadCaseFile: () => loadCaseFile,
+      focusIssuedCase: () => focusIssuedCase,
       WRITER_READY_WAIT: () => WRITER_READY_WAIT,
       HANDOFF_CHANNEL: () => HANDOFF_CHANNEL,
     },
