@@ -99,3 +99,5 @@ R79 upgrades R78 with the inline issued-document list in Workspace and the simpl
 R80 upgrades R79 with the Workspace case-number lookup, the continuation-only import panel, grouped success messages, preview reuse and the Reports handoff highlight (S80-2) and the installed update check (S80-1, superseding S79-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R80 is a release candidate, not a deployment approval.
 
 R81 upgrades R80 with the remembered-inspector Workspace list, Find a case, Mark the rest, Fix next issue, order-language Favorites and Recently used, heading-only item defaults and faster Workspace refreshes (S81-2) and the installed update check (S81-1, superseding S80-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R81 is a release candidate, not a deployment approval.
+
+R82 upgrades R81 with fill-in bubbles typed in place, Open cases by inspector first on Workspace (S82-2) and the internal service-area grouping, plus the installed update check (S82-1, superseding S81-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R82 is a release candidate, not a deployment approval.

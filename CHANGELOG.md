@@ -1,5 +1,22 @@
 # Release changelog
 
+## 2026-11-13 R82 — Release package
+
+Release package assigned on the owner's request after R81 (helper 2026.11.13.83, build 83; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R82 upgrades R81. Every PC still needs Python 3.14.
+
+### Fewer steps in case work
+
+- A fill-in bubble is typed in place: click it (or focus it and press Enter) and a text box opens at the same spot in the sentence; the Add corrective-action detail pop-up is gone. Enter or clicking away writes the detail and moves to the next bubble; Escape or an empty box leaves the bubble unchanged (PR #500).
+- Open cases by inspector is now the first card on Workspace, followed by Start case work (PR #500).
+
+### Maintenance
+
+- Writer services are grouped into labelled areas with shared base helpers, and a check keeps cross-area dependencies from growing; no change in behavior (PR #499).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S82-1 and S82-2.
+
 ## 2026-11-13 R81 — Release package
 
 Release package assigned on the owner's request after R80 (helper 2026.11.13.82, build 82; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R81 upgrades R80. Every PC still needs Python 3.14.
