@@ -5,7 +5,7 @@
   },
   "document_render.js": {
     "class": "print/issued",
-    "sites": 73
+    "sites": 68
   },
   "mailing_rules.js": {
     "class": "approved wording",
