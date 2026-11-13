@@ -1,5 +1,28 @@
 # Release changelog
 
+## 2026-11-13 R80 — Release package
+
+Release package assigned on the owner's request after R79 (helper 2026.11.13.81, build 81; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R80 upgrades R79. Every PC still needs Python 3.14.
+
+### Case work
+
+- Workspace's Start case work area takes a case number directly (Find Case Inspections or Enter); Import inspection still opens the open-cases-by-inspector list (PR #477).
+- When every inspection returned for an existing case has already been used, the import window shows only Continue existing case, without an empty import section or a disabled import button.
+- A case opened from Reports is highlighted in Workspace and scrolled into view; Continue existing case for a case with nothing to open highlights its row (PR #478).
+
+### Messages and speed
+
+- The latest ordinary success message replaces earlier ones on the same screen or dialog; Details opens Message history, which keeps every message. Undo, progress, warnings and errors stay separate.
+- An unchanged document preview is not re-paginated on every refresh, which makes long notices noticeably quicker to work with. Print is unaffected.
+
+### Staff guides
+
+- The Case lookup and Case workflow guides now match the manual for the Workspace lookup and the Continue existing case panel.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S80-1 and S80-2.
+
 ## 2026-11-12 R79 — Release package
 
 Release package assigned on the owner's request after R78 (helper 2026.11.12.80, build 80; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R79 upgrades R78. Every PC still needs Python 3.14.
