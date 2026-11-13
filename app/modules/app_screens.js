@@ -333,6 +333,11 @@ function repaintContext(services) {
   };
 }
 
+// The paginated desk of the same document, offered back to the editor preview after the repaint.
+function keepPreviewDesk(services, sameDocument) {
+  return sameDocument ? services.document.querySelector(".document-workspace .desk") : null;
+}
+
 export function createAppScreens(services) {
   function render() {
     if (helperStop.stopped) return; // Exit Document Writer owns the stopped page.
@@ -357,6 +362,7 @@ export function createAppScreens(services) {
     const snowFocus = keepSnowFocus(services, sameDocument, previous, active);
     const fieldFocus = keepFieldFocus(services, sameDocument, previous, active, editingDoc, snowFocus.selector);
     const inspectionChecks = keepInspectionChecks(services, active);
+    const previousDesk = keepPreviewDesk(services, sameDocument);
     services.A11Y.rememberFocus();
     services.ensureWalkContext();
     // Both walk context and a renderer may redirect. Read the route at each phase.
@@ -368,7 +374,7 @@ export function createAppScreens(services) {
     services.document.getElementById("overlay").innerHTML = services.overlayHTML();
     recipientField.swap();
     if (editor.state.screen === "write") {
-      services.paginate();
+      services.paintEditorPreview(previousDesk);
       services.editorEnhance();
     }
     services.restoreWorkControls();
