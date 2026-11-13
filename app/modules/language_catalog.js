@@ -779,9 +779,6 @@ function languageCatalogShowLock(services) {
 }
 
 function languageCatalogSaveWorkflowPrefs(services) {
-  workspace.WORKFLOW_PREFS.filter = editor.state.caseFilter;
-  workspace.WORKFLOW_PREFS.query = editor.state.caseQ;
-  workspace.WORKFLOW_PREFS.inspector = editor.state.caseInspector;
   try {
     localStorage.setItem(services.WORKFLOW_PREFS_KEY, JSON.stringify(workspace.WORKFLOW_PREFS));
   } catch {

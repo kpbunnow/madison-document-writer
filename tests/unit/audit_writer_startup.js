@@ -23,7 +23,6 @@ const fields = [
     "restoreCaseFolder",
     "initWriterHandoff",
     "markWriterReady",
-    "chooseStartScreen",
     "markWriterFailed",
     "refreshArtifactLocations",
     "refreshCatalog",
@@ -77,9 +76,8 @@ for (const p of serviceComposition(e.init.arguments[0]).properties)
     "integrity",
     "refreshArtifactLocations",
     "flushPending",
-    // The workspace left by a session that ended without Exit is cleared before the start screen is chosen.
+    // The workspace left by a session that ended without Exit is cleared before Writer becomes ready.
     "startSession",
-    "chooseStartScreen",
     "markWriterReady",
     "scheduleRecoveryBackup",
   ];

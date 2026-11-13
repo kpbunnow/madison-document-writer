@@ -73,7 +73,7 @@ import { createDueDateEvents } from "./due_date_events.js";
 import { createImportEvents } from "./import_events.js";
 import { createOpenCaseList } from "./open_case_list.js";
 import { createOpenCaseEvents } from "./open_case_events.js";
-import { chooseStartScreen } from "./start_screen.js";
+import { WORKFLOW_PREFS_KEY, loadWorkflowPreferences } from "./workflow_preferences.js";
 import { startSession as beginSession, clearWorkspace, exitClearConfirmed, exitClearHTML, markSessionClosed } from "./session_close.js";
 import { createReinspectionEvents } from "./reinspection_events.js";
 import { createEditorEvents } from "./editor_events.js";
@@ -1887,9 +1887,6 @@ WriterState.state = {
   riWalkSkipped: [],
   riWalkMode: "quick",
   riWalkStage: "outcome",
-  caseQ: "",
-  caseFilter: "attention",
-  caseInspector: "",
   issuedCase: "",
   metric: "",
   folderQ: "",
@@ -2212,28 +2209,8 @@ safetyEvents.registerLockRelease();
 safetyEvents.registerSafetyActions();
 
 /* Browser-profile preferences and optional inspector workflow aids. */
-export const WORKFLOW_PREFS_KEY = "madison-workspace-preferences-v1";
-WriterState.WORKFLOW_PREFS = { filter: "attention", query: "", inspector: "", reminders: { enabled: false, days: 7, plans: {}, dismissed: [] } };
-
-try {
-  const raw = JSON.parse(localStorage.getItem(WORKFLOW_PREFS_KEY) || "null");
-  if (raw && typeof raw === "object") {
-    if (["attention", "all", "continue", "deadlines", "resolution", "drafts", "soon", "overdue", "open", "closed"].includes(raw.filter))
-      WriterState.WORKFLOW_PREFS.filter = raw.filter;
-    for (const key of ["query", "inspector"]) if (typeof raw[key] === "string") WriterState.WORKFLOW_PREFS[key] = raw[key].slice(0, 200);
-    if (raw.reminders && typeof raw.reminders === "object") {
-      const r = raw.reminders;
-      WriterState.WORKFLOW_PREFS.reminders = {
-        enabled: r.enabled === true,
-        days: Math.min(30, Math.max(1, Number(r.days) || 7)),
-        plans: Object.fromEntries(Object.entries(r.plans && typeof r.plans === "object" ? r.plans : {}).filter(([, value]) => validISO(value))),
-        dismissed: Array.isArray(r.dismissed) ? r.dismissed.filter((x) => typeof x === "string").slice(-200) : [],
-      };
-    }
-  }
-} catch {
-  /* An optional local preference cannot change case records or issued documents. */
-}
+export { WORKFLOW_PREFS_KEY };
+WriterState.WORKFLOW_PREFS = loadWorkflowPreferences(() => localStorage.getItem(WORKFLOW_PREFS_KEY));
 
 WriterState.TIMELINE_CASE = "";
 WriterState.TIMELINE_FILTER = "all";
@@ -2243,7 +2220,6 @@ WriterState.OUTBOX_FILES = [];
 workflowEvents.registerToolForms();
 workflowEvents.registerToolActions();
 workflowEvents.registerTimelineFilter();
-workflowEvents.registerSearchPreferences();
 
 /* Workspace task counts are built from the same records used by the task list.
    Artifact location is checked by the helper against approved outbox paths. */
@@ -2380,7 +2356,6 @@ const writerStartup = createWriterStartup(
       initWriterHandoff: () => initWriterHandoff,
       markWriterReady: () => markWriterReady,
       markWriterFailed: () => markWriterFailed,
-      chooseStartScreen: () => chooseStartScreen,
       startSession: () => startSession,
       refreshArtifactLocations: () => refreshArtifactLocations,
       refreshCatalog: () => refreshCatalog,

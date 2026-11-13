@@ -969,7 +969,7 @@ export function createAccelaImport(services) {
       } else {
         editor.state.screen = "cases";
         // Workspace lists every case; issuedCase marks this one so it stands out.
-        Object.assign(editor.state, { caseQ: k.number, caseFilter: "all", caseInspector: "", issuedCase: k.id });
+        editor.state.issuedCase = k.id;
       }
       services.saveDrafts();
       services.render();
