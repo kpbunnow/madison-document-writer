@@ -183,7 +183,7 @@ function reportCellValue(cell) {
   return cell.n ?? cell.text ?? cell.kase ?? "";
 }
 
-function currentReportRows(services) {
+function scopedCurrentReportRows(services) {
   const res = ReportsState.S.rep?.res;
   if (!res) return [];
   const rows = orderedRows(res, validSort(ReportsState.S.tableSort, ReportsState.S.screen), (message) => {
@@ -193,9 +193,9 @@ function currentReportRows(services) {
   return [res.cols, ...rows.map(({ row }) => (row.cells || row).map(reportCellValue)), ...(res.total ? [res.total.map(reportCellValue)] : [])];
 }
 
-function exportReportCSV(services) {
+function scopedExportReportCSV(services) {
   if (!ReportsState.S.rep) return;
-  downloadText("Madison-" + ReportsState.S.screen + ".csv", csvText(currentReportRows(services)), "text/csv");
+  downloadText("Madison-" + ReportsState.S.screen + ".csv", csvText(scopedCurrentReportRows(services)), "text/csv");
 }
 
 function humanCorrectionValue(value) {
@@ -219,7 +219,7 @@ async function reportHelper(url, body) {
   return data;
 }
 
-async function shareReportView(services) {
+async function scopedShareReportView(services) {
   if (!services.reportById(ReportsState.S.screen)) throw new Error("Open a report before sharing a view");
   const name = prompt("Name this shared report view:");
   if (!name?.trim()) return;
@@ -237,7 +237,7 @@ async function shareReportView(services) {
   services.A11Y.notify("Saved shared report view " + view.name, { severity: "success" });
 }
 
-async function showSharedViews(services) {
+async function scopedShowSharedViews(services) {
   const views = (await reportHelper("/reporting/views")).views;
   services.A11Y.utility(
     "Shared report views",
@@ -272,7 +272,7 @@ async function showSharedViews(services) {
           .slice(-40);
         localStorage.setItem(services.REPORT_VIEWS_KEY, JSON.stringify(next));
         ReportsState.SAVED_VIEWS = next;
-        applyReportView(services, view.id);
+        scopedApplyReportView(services, view.id);
         document.getElementById("utility-dialog")?.close();
       } catch {
         ReportsState.SAVED_VIEWS = previous;
@@ -282,7 +282,7 @@ async function showSharedViews(services) {
   );
 }
 
-function printReport(services) {
+function scopedPrintReport(services) {
   if (!ReportsState.S.rep) {
     services.A11Y.notify("Open a valid report before printing", { severity: "error" });
     return;
@@ -292,7 +292,7 @@ function printReport(services) {
   window.print();
 }
 
-function daysBetween(services, a, b) {
+function scopedDaysBetween(services, a, b) {
   if (!services.validISO(a) || !services.validISO(b)) return null;
   const p = a.split("-").map(Number),
     q = b.split("-").map(Number);
@@ -306,7 +306,7 @@ function median(a) {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
-function normStreet(services, s) {
+function scopedNormStreet(services, s) {
   const t = String(s || "")
     .toUpperCase()
     .replace(/\bP\.?\s*O\.?\s*BOX\b/g, "PO BOX")
@@ -328,7 +328,7 @@ function addressOwnerKey(services, addr) {
   const zm = /(\d{5})(?:-\d{4})?\s*$/.exec(lines[lines.length - 1]);
   if (!zm) return "";
   for (let i = lines.length - 2; i >= 0; i--) {
-    if (/^(\d|P\.?\s*O\.?\s*BOX\b|POBOX\b)/i.test(lines[i])) return normStreet(services, lines[i]) + "|" + zm[1];
+    if (/^(\d|P\.?\s*O\.?\s*BOX\b|POBOX\b)/i.test(lines[i])) return scopedNormStreet(services, lines[i]) + "|" + zm[1];
   }
   return "";
 }
@@ -360,7 +360,7 @@ function detectField(fc, kind) {
   return names.filter((n) => want.test(n)).find((n) => feats.every((f) => fits((f.properties || {})[n]))) || "";
 }
 
-function relativeDates(services, mode) {
+function scopedRelativeDates(services, mode) {
   const day = services.iso(new Date());
   if (mode === "month") return { from: day.slice(0, 7) + "-01", to: day, asOf: day };
   if (mode === "year") return { from: day.slice(0, 4) + "-01-01", to: day, asOf: day };
@@ -378,7 +378,7 @@ function relativeDates(services, mode) {
   return null;
 }
 
-function saveReportView(services) {
+function scopedSaveReportView(services) {
   const name = prompt("Name this report view:");
   if (!name?.trim()) return;
   const view = {
@@ -413,7 +413,7 @@ function reportOrdinance(value) {
   return /\)\d+$/.test(text) ? text + "." : text;
 }
 
-function applyReportView(services, id) {
+function scopedApplyReportView(services, id) {
   const x = ReportsState.SAVED_VIEWS.find((v) => v.id === id);
   if (!x) return;
   if (!services.reportById(x.report)) {
@@ -428,7 +428,7 @@ function applyReportView(services, id) {
     areas: Array.isArray(x.filters.areas) ? x.filters.areas : [],
   };
   ReportsState.S.F.ord = reportOrdinance(ReportsState.S.F.ord);
-  const dates = relativeDates(services, x.dateMode);
+  const dates = scopedRelativeDates(services, x.dateMode);
   if (dates) Object.assign(ReportsState.S.F, dates);
   ReportsState.S.tableSort = validSort(x.sort, x.report);
   ReportsState.S.dateMode = x.dateMode;
@@ -439,7 +439,7 @@ function applyReportView(services, id) {
   services.render();
 }
 
-function deleteReportView(services) {
+function scopedDeleteReportView(services) {
   if (!ReportsState.S.savedId) return;
   const x = ReportsState.SAVED_VIEWS.find((v) => v.id === ReportsState.S.savedId);
   if (!x || !confirm("Delete saved view " + x.name + "?")) return;
@@ -457,7 +457,7 @@ function deleteReportView(services) {
   services.render();
 }
 
-function reportsChannel(services) {
+function scopedReportsChannel(services) {
   if (!("BroadcastChannel" in window)) return null;
   if (!ReportsState.REPORT_LINK) {
     ReportsState.REPORT_LINK = new BroadcastChannel(services.REPORT_CHANNEL);
@@ -487,7 +487,7 @@ function reportsChannel(services) {
   return ReportsState.REPORT_LINK;
 }
 
-function openInWriter(services, number) {
+function scopedOpenInWriter(services, number) {
   if (!ReportsState.S.M?.byNo[number]) return;
   const request = String(Date.now()) + "-" + Math.random().toString(36).slice(2);
   ReportsState.S.handoff = { request, number };
@@ -508,7 +508,7 @@ function openInWriter(services, number) {
   ReportsState.S.reportNotice = "Contacting the Writer for " + number + "…";
   services.render();
   const summary = ReportsState.S.raw?.summaries?.find((x) => x.case?.number === number);
-  reportsChannel(services)?.postMessage({ kind: "open", request, number, eventCount: summary?.eventCount });
+  scopedReportsChannel(services)?.postMessage({ kind: "open", request, number, eventCount: summary?.eventCount });
   setTimeout(() => {
     if (ReportsState.S.handoff?.request !== request || ReportsState.S.handoff.accepted) return;
     const tab = window.open("madison-document-writer.html?case=" + encodeURIComponent(number), "_blank");
@@ -595,7 +595,7 @@ function violationAt(v, date) {
   return latest ? Object.assign({}, v, latest, { type: latest.key || v.type, typeLabel: latest.label || v.typeLabel }) : null;
 }
 
-function violOpenAt(services, v, date) {
+function scopedViolOpenAt(services, v, date) {
   const latest = violationAt(v, date);
   return !!latest && !latest.withdrawn && (!latest.done || (services.validISO(latest.doneOn) && latest.doneOn > date));
 }
@@ -610,7 +610,8 @@ function groupBy(list, fn) {
   return m;
 }
 
-function render(services) {
+// Not named render: the bundle's top-level names are page globals, and the Reports page's render belongs to reports_core.
+function renderReports(services) {
   const app = document.getElementById("app");
   if (!app || helperStop.stopped) return;
   const ui = rememberUI();
@@ -626,6 +627,9 @@ export function createReportsServices(services) {
      the other operations are module functions that receive this owner's scoped services. */
   function ownerKey(addr) {
     return addressOwnerKey(services, addr);
+  }
+  function render() {
+    return renderReports(services);
   }
 
   let loadSequence = 0,
@@ -753,27 +757,27 @@ export function createReportsServices(services) {
   }
   return {
     reportCellValue,
-    currentReportRows: (...args) => currentReportRows(services, ...args),
-    exportReportCSV: (...args) => exportReportCSV(services, ...args),
+    currentReportRows: (...args) => scopedCurrentReportRows(services, ...args),
+    exportReportCSV: (...args) => scopedExportReportCSV(services, ...args),
     humanCorrectionValue,
     reportHelper,
-    shareReportView: (...args) => shareReportView(services, ...args),
-    showSharedViews: (...args) => showSharedViews(services, ...args),
-    printReport: (...args) => printReport(services, ...args),
-    daysBetween: (...args) => daysBetween(services, ...args),
+    shareReportView: (...args) => scopedShareReportView(services, ...args),
+    showSharedViews: (...args) => scopedShowSharedViews(services, ...args),
+    printReport: (...args) => scopedPrintReport(services, ...args),
+    daysBetween: (...args) => scopedDaysBetween(services, ...args),
     median,
-    normStreet: (...args) => normStreet(services, ...args),
+    normStreet: (...args) => scopedNormStreet(services, ...args),
     ownerKey: (...args) => addressOwnerKey(services, ...args),
     ringHas,
     polyHas,
     detectField,
-    relativeDates: (...args) => relativeDates(services, ...args),
-    saveReportView: (...args) => saveReportView(services, ...args),
+    relativeDates: (...args) => scopedRelativeDates(services, ...args),
+    saveReportView: (...args) => scopedSaveReportView(services, ...args),
     reportOrdinance,
-    applyReportView: (...args) => applyReportView(services, ...args),
-    deleteReportView: (...args) => deleteReportView(services, ...args),
-    reportsChannel: (...args) => reportsChannel(services, ...args),
-    openInWriter: (...args) => openInWriter(services, ...args),
+    applyReportView: (...args) => scopedApplyReportView(services, ...args),
+    deleteReportView: (...args) => scopedDeleteReportView(services, ...args),
+    reportsChannel: (...args) => scopedReportsChannel(services, ...args),
+    openInWriter: (...args) => scopedOpenInWriter(services, ...args),
     getJSON,
     loadAll,
     buildModel,
@@ -785,8 +789,8 @@ export function createReportsServices(services) {
     noticeAt,
     statusAt,
     violationAt,
-    violOpenAt: (...args) => violOpenAt(services, ...args),
+    violOpenAt: (...args) => scopedViolOpenAt(services, ...args),
     groupBy,
-    render: (...args) => render(services, ...args),
+    render,
   };
 }

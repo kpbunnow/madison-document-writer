@@ -40,7 +40,7 @@
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 90,
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 167,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
-    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 164,
+    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 167,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
     "app/modules/snow_cases.js:initSnow#1:max-lines-per-function": 331,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
