@@ -12,6 +12,7 @@ function messageMarkup(m, callbacks, safe) {
     '"><span>' +
     `${safe(m.text)}` +
     "</span>" +
+    (m.routine ? '<button class="btn" data-a11y-history aria-label="Details: open message history">Details</button>' : "") +
     `${callbacks.has(m.id) ? `<button class="btn" data-message-undo="${m.id}">Undo</button>` : ""}` +
     '<button class="message-dismiss" data-message-dismiss="' +
     `${m.id}` +
@@ -20,6 +21,30 @@ function messageMarkup(m, callbacks, safe) {
     '">×</button></div>'
   );
 }
+
+const messageFocusAction = (active) =>
+  active?.hasAttribute?.("data-a11y-history") ? "history" : active?.hasAttribute?.("data-message-undo") ? "undo" : "dismiss";
+const routineMessage = (severity, options) => severity === "success" && !options.undo && !options.key && !options.inline;
+function messageSeverity(text, options) {
+  return (
+    options.severity ||
+    (/failed|could not|cannot|unavailable|invalid|not saved|error|not readable|fixed after/i.test(text)
+      ? "error"
+      : /^(Saved|Filed|Loaded|Added|Removed|Opened|Reconnected|Workspace restored|[0-9]+ .* (written|moved|restored))/i.test(text)
+        ? "success"
+        : "warning")
+  );
+}
+function consolidateRoutine(messages, scope, dismiss) {
+  for (const previous of messages.filter((m) => m.routine && m.scope === scope)) {
+    const el = document.querySelector('[data-message="' + previous.id + '"]');
+    if (!el?.contains(document.activeElement) && !el?.matches(":hover")) dismiss(previous.id);
+  }
+}
+const ALERT_MS = 15000;
+const lifetime = (severity, duration) => (severity === "success" ? Math.max(6000, Number(duration) || 7000) : ALERT_MS);
+
+const safe = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 /* Shared screen accessibility; printable document source is not changed. */
 function enhanceDocumentControls() {
@@ -98,7 +123,6 @@ export function createAccessibility() {
     paintQueued = false,
     utilityInvoker = null;
   const dismissedKeys = new Set();
-  const safe = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   try {
     const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
     if (Array.isArray(stored)) history = stored.filter((m) => m && typeof m.text === "string").slice(-200);
@@ -125,8 +149,6 @@ export function createAccessibility() {
      are shown or shown again; progress messages stay until their operation replaces them. Hover and keyboard
      focus pause every timer. Message history keeps every message, and clearing a message never clears the
      condition it reports (blocking checks stay in Review and inline, and issuance stays blocked). */
-  const ALERT_MS = 15000;
-  const lifetime = (severity, duration) => (severity === "success" ? Math.max(6000, Number(duration) || 7000) : ALERT_MS);
   function resume(m) {
     if (!m || m.severity === "progress" || m.started) return;
     if (m.remaining <= 0) {
@@ -155,7 +177,7 @@ export function createAccessibility() {
   function paint() {
     const active = document.activeElement,
       focusedMessage = active?.closest?.("[data-message]"),
-      focusedAction = active?.hasAttribute?.("data-message-undo") ? "undo" : "dismiss";
+      focusedAction = messageFocusAction(active);
     let host = document.getElementById("toast");
     if (!host && document.body) {
       host = document.createElement("div");
@@ -195,7 +217,12 @@ export function createAccessibility() {
   function restoreMessageFocus(focusedMessage, focusedAction) {
     if (focusedMessage)
       document
-        .querySelector('[data-message="' + focusedMessage.dataset.message + '"] [data-message-' + focusedAction + "]")
+        .querySelector(
+          '[data-message="' +
+            focusedMessage.dataset.message +
+            '"] ' +
+            (focusedAction === "history" ? "[data-a11y-history]" : "[data-message-" + focusedAction + "]"),
+        )
         ?.focus({ preventScroll: true });
   }
 
@@ -220,13 +247,7 @@ export function createAccessibility() {
     messages.filter((m) => m.key === key).forEach((m) => dismiss(m.id));
   }
   function notify(text, options = {}) {
-    const severity =
-      options.severity ||
-      (/failed|could not|cannot|unavailable|invalid|not saved|error|not readable|fixed after/i.test(text)
-        ? "error"
-        : /^(Saved|Filed|Loaded|Added|Removed|Opened|Reconnected|Workspace restored|[0-9]+ .* (written|moved|restored))/i.test(text)
-          ? "success"
-          : "warning");
+    const severity = messageSeverity(text, options);
     const key = options.key || "",
       value = String(text);
     if (key && dismissedKeys.has(key)) return;
@@ -248,7 +269,11 @@ export function createAccessibility() {
       return;
     }
     messages.filter((m) => m.severity === "progress").forEach((m) => dismiss(m.id));
+    const scope = document.querySelector("#utility-title")?.textContent || "";
+    const routine = routineMessage(severity, options);
+    if (routine) consolidateRoutine(messages, scope, dismiss);
     const m = {
+      routine,
       id: String(++sequence),
       key,
       inline: !!options.inline,

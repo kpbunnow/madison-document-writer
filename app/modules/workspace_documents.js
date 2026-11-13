@@ -35,16 +35,21 @@ function documentEntry(d) {
   return html`<li class="case-document"><div><button class="lnk case-document-link" data-open="${d.id}" aria-label="${label}, ${d.draft ? "draft created" : "issued"} ${date}${status ? ", " + status : ""}"><strong>${label}</strong></button><span class="case-document-meta"><span class="case-document-date">${date}</span>${raw(status ? html`<span class="case-document-state">${status}</span>` : "")}</span></div></li>`;
 }
 
-export function workspaceDocumentsSummary(k, documents) {
-  const issued = orderedCaseDocuments(documents).filter((d) => !d.draft);
+export function workspaceDocumentsSummary(k, documents, ordered = orderedCaseDocuments(documents)) {
+  const issued = ordered.filter((d) => !d.draft);
   return issued.length
     ? html`<ul class="case-document-list" aria-label="Issued documents for ${k.address}, ${k.number}">${raw(issued.map(documentEntry).join(""))}</ul>`
     : '<p class="case-document-note">No issued documents.</p>';
 }
 
-export function workspaceDraftDocuments(documents) {
-  const drafts = orderedCaseDocuments(documents).filter((d) => d.draft);
+export function workspaceDraftDocuments(documents, ordered = orderedCaseDocuments(documents)) {
+  const drafts = ordered.filter((d) => d.draft);
   return drafts.length
     ? html`<div class="case-drafts"><h3>In progress</h3><ul class="case-document-list">${raw(drafts.map(documentEntry).join(""))}</ul></div>`
     : "";
+}
+
+export function workspaceDocumentPresentation(k, documents) {
+  const ordered = orderedCaseDocuments(documents);
+  return { issued: workspaceDocumentsSummary(k, documents, ordered), drafts: workspaceDraftDocuments(documents, ordered) };
 }

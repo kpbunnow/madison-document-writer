@@ -430,12 +430,10 @@ const workspaceScreen = createWorkspaceScreen(
   deferredServices(
     {
       app_workspacequeueContext: () => app_workspacequeueContext,
-      caseSearchText: () => caseSearchText,
       caseState: () => caseState,
       document: () => document,
       recoveryStatusHTML: () => recoveryStatusHTML,
       remindersPanel: () => remindersPanel,
-      saveWorkflowPrefs: () => saveWorkflowPrefs,
       shell: () => shell,
       workspaceTasks: () => workspaceTasks,
     },
@@ -1571,7 +1569,6 @@ const workspaceEvents = createWorkspaceEvents({
       navigation: () => navigation,
       refreshOverlay: () => refreshOverlay,
       render: () => render,
-      saveWorkflowPrefs: () => saveWorkflowPrefs,
       toast: () => toast,
     },
     ["navigation"],
@@ -2222,9 +2219,6 @@ try {
 } catch {
   /* An optional local preference cannot change case records or issued documents. */
 }
-WriterState.state.caseFilter = WriterState.WORKFLOW_PREFS.filter;
-WriterState.state.caseQ = WriterState.WORKFLOW_PREFS.query;
-WriterState.state.caseInspector = WriterState.WORKFLOW_PREFS.inspector;
 
 WriterState.TIMELINE_CASE = "";
 WriterState.TIMELINE_FILTER = "all";
@@ -2243,7 +2237,6 @@ WriterState.ARTIFACT_VERIFY = {};
 WriterState.ARTIFACT_SEQ = 0;
 WriterState.ARTIFACT_IDENTITY = {};
 
-workspaceEvents.registerQueueViews();
 workspaceEvents.registerCaseTasks();
 
 /* Reports sends only a case number. Writer resolves it through the validated

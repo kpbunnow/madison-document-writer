@@ -1,3 +1,10 @@
+/* Screen control sizes have one owner. Individual task controls select the action target through this token. */
+@media screen {
+  :root {
+    --control-min-size: 24px;
+    --control-action-size: 44px;
+  }
+}
 @media screen {
   :root {
     --ink-3: #465d72;
@@ -360,8 +367,8 @@
   .main select,
   .main button,
   .main [contenteditable] {
-    min-height: 24px !important;
-    min-width: 24px !important;
+    min-height: var(--control-min-size, 24px) !important;
+    min-width: var(--control-min-size, 24px) !important;
   }
 }
 

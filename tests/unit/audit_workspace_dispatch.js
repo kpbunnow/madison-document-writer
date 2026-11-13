@@ -8,7 +8,9 @@ const assert = require("node:assert/strict"),
 (async () => {
   const dir = path.resolve("app/modules"),
     source = fs.readFileSync(path.join(dir, "workspace_events.js"), "utf8"),
-    reference = require("../fixtures/workspace_click_reference.cjs");
+    reference = require("../fixtures/workspace_click_reference.cjs")
+      .replace(/      if \(t.id === "case-showall"\) \{[\s\S]*?\n      \}\n/, "")
+      .replace("#case-showall,", "");
   const compiled = await esbuild.build({
     stdin: {
       contents:

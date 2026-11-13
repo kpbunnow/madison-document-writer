@@ -1294,7 +1294,11 @@ async function axeThemes(page, screen) {
           },
     });
   });
+  await page.locator('.writer-navigation [data-nav="cases"]').first().click();
+  await page.locator(".workspace-start #lookup-form").waitFor();
+  assert.equal(await page.locator(".workspace-start #lookup-form").count(), 1);
   await page.locator("#lookup-number").fill(sqlNumber);
+  await axeScreen(page, "workspace-direct-lookup");
   await axeScreen(page, "case-lookup");
   await page.screenshot({ path: path.join(OUT, "case-lookup.png"), fullPage: true });
   await findInspections(page);
@@ -1383,9 +1387,18 @@ async function axeThemes(page, screen) {
   await page.locator("#lookup-number").fill(sqlNumber);
   await findInspections(page);
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
-  assert.equal(await page.locator("#acc-go").isDisabled(), true);
+  await page.locator("[data-continuation-only]").waitFor();
+  assert.equal(await page.locator("#acc-go").count(), 0, "used inspections have no import action");
   await axeScreen(page, "duplicate-inspection");
   await page.screenshot({ path: path.join(OUT, "duplicate-inspection.png"), fullPage: true });
+  const countBeforeContinue = await page.evaluate(() => WriterState.DOCS.length);
+  await page.locator("[data-continuation-only] [data-import-workspace]").click();
+  await page.waitForFunction((id) => WriterState.state.screen === "write" && WriterState.state.docId === id, importedNotice);
+  assert.equal(await page.evaluate(() => WriterState.DOCS.length), countBeforeContinue, "continuation creates no replacement document");
+  await page.locator('.writer-navigation [data-nav="cases"]').click();
+  await page.locator('.workspace-start [data-nav="import"]').click();
+  await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  await page.locator("#lookup-number").fill(sqlNumber);
   lookupRows = [
     {
       ...sqlRow,
@@ -1423,7 +1436,8 @@ async function axeThemes(page, screen) {
   await page.locator("#lookup-number").fill(sqlNumber);
   await findInspections(page);
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
-  assert.equal(await page.locator("#acc-go").isDisabled(), true, "Issued reinspection cannot be reused");
+  assert.equal(await page.locator("[data-continuation-only]").count(), 1, "used inspections offer one continuation action");
+  assert.equal(await page.locator("#acc-go").count(), 0, "no disabled import step is presented when nothing can be imported");
   lookupRows = [{ ...lookupRows[0], InspectionDate: "2026-09-20T00:00:00", InspectionTime: "11:15:00" }];
   await findInspections(page);
   await page.waitForFunction(() => WriterState.state.acc?.cases[0].rows[0].date === "2026-09-20" && !WriterState.LOOKUP_BUSY);
@@ -1828,7 +1842,7 @@ async function axeThemes(page, screen) {
   await timedMessage.hover();
   await page.clock.fastForward(6001);
   assert.equal(await timedMessage.count(), 1, "success remains while hovered");
-  await timedMessage.locator("button").focus();
+  await timedMessage.locator("[data-message-dismiss]").focus();
   await page.mouse.move(0, 0);
   await page.clock.fastForward(6001);
   assert.equal(await timedMessage.count(), 1, "success remains while focused");

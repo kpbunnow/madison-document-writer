@@ -58,9 +58,11 @@ for (const statement of tree.body) {
   else if (e?.type === "CallExpression" && e.callee.name === "render") checkpoint = "render";
 }
 assert.equal(expected.length, 60);
+const liveExpected = expected.filter((x) => x.name !== "registerQueueViews");
+assert.equal(liveExpected.length, 59);
 assert.deepEqual(
   registrations,
-  expected.map(({ owner, name, checkpoint }) => ({ owner, name, checkpoint })),
+  liveExpected.map(({ owner, name, checkpoint }) => ({ owner, name, checkpoint })),
 );
 const graph = moduleGraph(directory);
 const allowed = new Set([
@@ -137,7 +139,7 @@ class Target {
     documentTarget = new Target(),
     windowTarget = new Target(),
     actual = [];
-  for (const row of expected) {
+  for (const row of liveExpected) {
     const target = row.target === "window" ? windowTarget : documentTarget;
     const before = target.calls.length;
     assert.equal(owners[row.owner][row.name](target), true);
@@ -146,11 +148,11 @@ class Target {
   }
   assert.deepEqual(
     actual,
-    expected.map(({ type, capture }) => ({ type, capture })),
+    liveExpected.map(({ type, capture }) => ({ type, capture })),
   );
   for (const collection of [owners, make(unavailable)])
-    for (const row of expected) assert.equal(collection[row.owner][row.name](row.target === "window" ? windowTarget : documentTarget), false);
-  assert.equal(documentTarget.calls.length + windowTarget.calls.length, 60, "repeated factory/registration must not duplicate handlers");
+    for (const row of liveExpected) assert.equal(collection[row.owner][row.name](row.target === "window" ? windowTarget : documentTarget), false);
+  assert.equal(documentTarget.calls.length + windowTarget.calls.length, 59, "repeated factory/registration must not duplicate handlers");
   const retry = new Target();
   retry.addEventListener = () => {
     throw new Error("synthetic registration failure");
@@ -190,7 +192,7 @@ class Target {
   });
   api.WriterState.state = {};
   await click({ target: button("case-showall", { nav: "library", open: "other" }) });
-  assert.deepEqual(calls, ["capture", "render", "preferences"], "first matching action remains exclusive");
+  assert.deepEqual(calls, ["capture", "navigate"], "retired view ID no longer intercepts the first live navigation action");
   calls.length = 0;
   const navigation = click({ target: button("", { nav: "library", open: "other" }) });
   assert.deepEqual(calls, ["capture", "navigate"], "navigation starts synchronously");
@@ -250,7 +252,7 @@ class Target {
   console.log(
     JSON.stringify({
       passed: true,
-      registrations: expected.length,
+      registrations: liveExpected.length,
       featureOwners: constructors.size,
       duplicateRegistrationsRefused: true,
       captureAndSynchronousActionsPreserved: true,

@@ -15,17 +15,7 @@ const specs = {
     ctor: "createWorkspaceScreen",
     instance: "workspaceScreen",
     names: ["revealIssuedCase", "focusIssuedCase", "screenCases"],
-    inputs: [
-      "app_workspacequeueContext",
-      "caseSearchText",
-      "caseState",
-      "document",
-      "recoveryStatusHTML",
-      "remindersPanel",
-      "saveWorkflowPrefs",
-      "shell",
-      "workspaceTasks",
-    ],
+    inputs: ["app_workspacequeueContext", "caseState", "document", "recoveryStatusHTML", "remindersPanel", "shell", "workspaceTasks"],
   },
   language_views: {
     ctor: "createLanguageViews",
@@ -257,15 +247,15 @@ for (const [file, { ctor, instance, inputs }] of Object.entries(specs)) {
   s.state.modal = "old";
   s.state.picker = true;
   assert.equal(workspace.revealIssuedCase("c"), true);
-  assert.equal(s.state.caseFilter, "all");
-  assert.equal(s.state.caseQ, "");
-  assert.equal(s.state.caseInspector, "");
+  assert.equal(s.state.caseFilter, "closed", "retired preferences cannot affect reveal or be rewritten");
+  assert.equal(s.state.caseQ, "missing");
+  assert.equal(s.state.caseInspector, "unrelated");
   assert.equal(s.state.issuedCase, "c");
   assert.equal(s.state.modal, null);
   assert.equal(s.state.picker, false);
-  assert.equal(prefs, 1);
+  assert.equal(prefs, 0);
   assert.equal(workspace.revealIssuedCase("c"), true);
-  assert.equal(prefs, 1);
+  assert.equal(prefs, 0);
   const unchanged = JSON.stringify(s.state);
   assert.equal(workspace.revealIssuedCase("missing"), false);
   assert.equal(JSON.stringify(s.state), unchanged);

@@ -13,12 +13,17 @@ function exitImportWindow(services) {
   services.saveDrafts();
 }
 
+function submitLookup(services) {
+  if (editor.state.screen === "cases") editor.state.screen = "import";
+  services.findDatabaseCase();
+}
+
 export function createImportEvents(services) {
   function registerLookupSubmit(target = document) {
     return registerEventOnce(target, "import.registerLookupSubmit", "submit", (e) => {
       if (e.target.id === "lookup-form") {
         e.preventDefault();
-        services.findDatabaseCase();
+        submitLookup(services);
       }
     });
   }

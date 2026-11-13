@@ -213,17 +213,32 @@ function run(api, sc, inspector) {
   let interrupted = 0,
     described = 0,
     panels = 0,
+    continuations = 0,
     chooser = 0;
   for (let n = 0; n < 6000; n++) {
     const sc = scenario(inspector);
     const retained = JSON.parse(run(legacy, sc, inspector));
     // Owner-approved removal of this single presentation-only disclosure; every remaining byte/effect stays compared.
     if (retained.html) retained.html = retained.html.replace(/<details class="import-source">[\s\S]*?<\/details>/g, "");
-    const [before, shown] = [JSON.stringify(retained), run(current, sc, inspector)];
+    const shown = run(current, sc, inspector);
+    const currentResult = JSON.parse(shown);
+    let compareShown = shown;
+    if (currentResult.html?.includes("data-continuation-only")) {
+      continuations++;
+      assert.ok(retained.html.includes("Every inspection returned"), "only the all-used review is consolidated");
+      assert.ok(currentResult.html.includes('data-import-workspace="c"'));
+      for (const warning of retained.html.matchAll(/<p class="banner warn">[\s\S]*?<\/p>/g))
+        assert.ok(currentResult.html.includes(warning[0]), "continuation retains every import warning");
+      assert.ok(!currentResult.html.includes('id="acc-go"') && !currentResult.html.includes("Inspection to import"));
+      retained.html = "";
+      currentResult.html = "";
+      compareShown = JSON.stringify(currentResult);
+    }
+    const before = JSON.stringify(retained);
     assert.ok(!(JSON.parse(shown).html || "").includes('class="import-source"'));
     // One deliberate difference from the retained module: the Start button points at the blocker banner (when it is
     // shown) so the reason travels with the disabled control. Everything else must still be identical.
-    const after = shown.replace(/(id=\\"acc-go\\"[^>]*?) aria-describedby=\\"acc-blockers\\"/, "$1");
+    const after = compareShown.replace(/(id=\\"acc-go\\"[^>]*?) aria-describedby=\\"acc-blockers\\"/, "$1");
     assert.equal(after, before, `import panel scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     const panelHtml = JSON.parse(shown).html || "";
     if (panelHtml.includes('id="acc-go"')) {
@@ -260,6 +275,7 @@ function run(api, sc, inspector) {
     ])
       if ((parsed.html || "").includes(fragment)) seen.add(fragment);
   }
+  assert.ok(continuations > 100, "retained corpus exercises the approved continuation branch");
   assert.ok(interrupted > 100 && panels > 2500 && chooser > 200, `coverage: ${interrupted} interrupted, ${panels} panels, ${chooser} choosers`);
   for (const fragment of [
     "Clear import",
@@ -282,7 +298,9 @@ function run(api, sc, inspector) {
       panels +
       " panels, " +
       described +
-      " with a named reason)",
+      " with a named reason, " +
+      continuations +
+      " direct continuation panels)",
   );
 })().catch((error) => {
   console.error(error);
