@@ -71,6 +71,16 @@ async function check(name, fn) {
     r.sourceDocId = "replacement-source";
     undo();
     assert.deepEqual(r.results, changedSource, "a changed worksheet source invalidates the old batch Undo");
+    r.sourceDocId = "src";
+    r.results.a = JSON.parse('{"note":"Original","__proto__":{"oc":"corrected"}}');
+    api.recordRemaining(services, "none");
+    r.results.a.note = "Later";
+    undo();
+    assert.equal(Object.getPrototypeOf(r.results.a), Object.prototype, "restored JSON fields cannot become the result prototype");
+    assert.ok(Object.hasOwn(r.results.a, "__proto__"));
+    assert.deepEqual(r.results.a.__proto__, { oc: "corrected" });
+    assert.ok(!r.results.a.oc, "only the batch outcome is reversed; an unusual data key is not an inherited finding");
+    assert.equal(r.results.a.note, "Later");
   });
   await check("Favorites intersects the Selected language scope", async () => {
     global.localStorage = { getItem: () => null, setItem() {} };

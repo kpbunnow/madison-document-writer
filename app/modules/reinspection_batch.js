@@ -20,7 +20,8 @@ function restoreResult(current, before, after) {
   const restored = clone(current);
   for (const key of new Set([...Object.keys(before || {}), ...Object.keys(after)])) {
     if (Object.hasOwn(current, key) !== Object.hasOwn(after, key) || stableJSON(current[key]) !== stableJSON(after[key])) continue;
-    if (before && Object.hasOwn(before, key)) restored[key] = clone(before[key]);
+    if (before && Object.hasOwn(before, key))
+      Object.defineProperty(restored, key, { value: clone(before[key]), enumerable: true, configurable: true, writable: true });
     else delete restored[key];
   }
   return restored;
