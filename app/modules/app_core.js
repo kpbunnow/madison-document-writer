@@ -200,7 +200,7 @@ export let {
   refreshOverlay,
   enhanceDialog,
 } = editorScreens;
-const { editorReadiness, readinessText, readinessFirst, reviewConcernsHTML } = editorScreens;
+const { editorReadiness, readinessText, reviewConcernsHTML } = editorScreens;
 
 export const snow = initSnow(
   deferredServices(
@@ -736,7 +736,6 @@ export let {
   inspectLock,
   showLock,
   saveWorkflowPrefs,
-  caseSearchText,
 } = languageCatalog;
 const { resolvedCaseFields } = languageCatalog;
 
@@ -2438,6 +2437,5 @@ if (__TEST_BUILD__)
     contHead,
     editorReadiness,
     readinessText,
-    readinessFirst,
     reviewConcernsHTML,
   };

@@ -669,20 +669,18 @@ function reportsScreenTablePanel(services, res, dateTxt) {
   if (!res.rows.length)
     return screen`<div class="empty">Nothing matches ${raw(services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1)))}${raw(services.activeFilters() ? " with these filters" : "")}.</div>`;
   const cellsOf = (row) => row.cells || row;
-  const isNum = (ci) =>
-    res.rows.some((row) => {
-      const c = cellsOf(row)[ci];
-      return c && typeof c === "object" && c.fmt;
-    });
-  const max = res.cols.map((_, ci) =>
-    Math.max(
-      0,
-      ...res.rows.map((row) => {
-        const c = cellsOf(row)[ci];
-        return c && c.fmt === "int" ? c.n || 0 : 0;
-      }),
-    ),
-  );
+  const numeric = res.cols.map(() => false),
+    max = res.cols.map(() => 0);
+  // Inspect each cell once for both presentation facts; never retain facts across renders.
+  for (const row of res.rows) {
+    const cells = cellsOf(row);
+    for (let ci = 0; ci < res.cols.length; ci++) {
+      const cell = cells[ci];
+      if (cell && typeof cell === "object" && cell.fmt) numeric[ci] = true;
+      max[ci] = Math.max(max[ci], cell && cell.fmt === "int" ? cell.n || 0 : 0);
+    }
+  }
+  const isNum = (ci) => numeric[ci];
   const sel = ReportsState.S.drill && ReportsState.S.drill.at,
     sort = validSort(ReportsState.S.tableSort, ReportsState.S.screen);
   const rows = orderedRows(res, sort, (message) => {

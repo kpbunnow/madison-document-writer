@@ -31,7 +31,6 @@
   "noticeHTML",
   "openImportWorkspace",
   "persistRecoveryState",
-  "readinessFirst",
   "readinessText",
   "recoveryIncluded",
   "recoverySharedState",
