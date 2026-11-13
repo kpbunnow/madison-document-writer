@@ -64,9 +64,13 @@ export function createDocumentFeedback(services) {
       field.dispatchEvent(new services.Event("input", { bubbles: true }));
       // The browser delivers "close" asynchronously and the utility dialog's own handler then restores focus to
       // the replaced blank, which no longer exists. Return focus to the item text after that handler runs.
-      dialog.addEventListener("close", () => field.isConnected && field.focus(), { once: true });
+      // Focus moves to the next fill-in bubble (in this item, then later ones), so details can be entered in a run.
+      const next = () =>
+        [...services.document.querySelectorAll(".blank-edit")].find((b) => field.contains(b) || field.compareDocumentPosition(b) & 4) ||
+        (field.isConnected ? field : null);
+      dialog.addEventListener("close", () => next()?.focus(), { once: true });
       dialog.close();
-      field.focus();
+      next()?.focus();
     });
   }
   return { toast, toastHold, toastUndo, fillBlank };

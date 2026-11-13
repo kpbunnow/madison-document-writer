@@ -42,7 +42,7 @@ Completed and all unlisted results are refused. Never listed (owner rule): Sched
 
 ## Notices, items and deadlines
 
-New notices begin with no automatic item deadline. At most three distinct outstanding-item dates are permitted by the existing rules. Physical visits and their item findings are distinct from document actions. No-access findings are not compliance. Withdrawn items retain their reason and identity. Private language edits survive removal/reselection; reviewed-version adoption is explicit; issued wording stays frozen.
+New notices begin with no automatic item deadline: the first item's location heading and due date start blank. Each later item starts with the previous item's heading and due date as ordinary editable values (owner direction 2026-11-13, `followPrevious` in `item_selection.js`); a restored item keeps its own. Recently used and Favorites in the picker (`language_shortcuts.js`) are browser-profile lists only and never reach a record. At most three distinct outstanding-item dates are permitted by the existing rules. Physical visits and their item findings are distinct from document actions. No-access findings are not compliance. Withdrawn items retain their reason and identity. Private language edits survive removal/reselection; reviewed-version adoption is explicit; issued wording stays frozen.
 
 ## Extensions
 

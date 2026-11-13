@@ -52,3 +52,11 @@ Before and after screenshots were captured from a synthetic draft notice in Chro
 tree. The retained Browse/picker screen references used by `audit_language_presentation_rules.js` were replaced with the
 new screens because the owner changed the layout they pinned; behaviour is asserted directly by
 `audit_language_search.js` and `audit_language_grouping.js`.
+
+## Picker shortcuts and item defaults (2026-11-13)
+
+Owner direction 2026-11-13 (improvement plan, ease of use 4 and 5). `language_shortcuts.js` keeps Recently used (12)
+and Favorites in the browser profile; the picker lists them above the categories when they hold something that can be
+shown, and each card has a Favorite star. A new item follows the previous item's location heading and due date. After a
+fill-in detail is saved, focus moves to the next bubble. `audit_language_shortcuts.js` asserts all of this; the picker
+reference was regenerated for the new markup.

@@ -2,6 +2,15 @@
 import { clone } from "./record_values.js";
 import { itemLibraryKey, libraryKey } from "./document_rules.js";
 import { LIBRARY } from "./data/library.js";
+import { noteLanguageUsed } from "./language_shortcuts.js";
+/* A new item starts under the previous item's location heading and with its due date (owner direction 2026-11-13):
+   consecutive items usually share both. Each stays an ordinary editable value; the first item still starts blank, and
+   a restored item keeps its own edits. */
+function followPrevious(item, items) {
+  const previous = items[items.length - 1];
+  return previous ? Object.assign(item, { group: previous.group || "", due: previous.due || "" }) : item;
+}
+
 export function createItemSelection(services) {
   function newItem(src, lib, key) {
     return {
@@ -29,7 +38,8 @@ export function createItemSelection(services) {
     const copies = d.items.filter((i) => itemLibraryKey(i) === key);
     if (again) {
       if (!copies.length || !services.snow.canAdd(d, key)) return false;
-      d.items.push(newItem(src, lib, key));
+      d.items.push(followPrevious(newItem(src, lib, key), d.items));
+      noteLanguageUsed(key);
       return true;
     }
     if (copies.length > 1) return null;
@@ -43,8 +53,9 @@ export function createItemSelection(services) {
     if (!services.snow.canAdd(d, key)) return false;
     const restored = d.selectionCache[key];
     delete d.selectionCache[key];
-    d.items.push(restored || newItem(src, lib, key));
+    d.items.push(restored || followPrevious(newItem(src, lib, key), d.items));
     services.snow.added(d, d.items[d.items.length - 1]);
+    noteLanguageUsed(key);
     return true;
   }
   return { toggleLibraryItem };

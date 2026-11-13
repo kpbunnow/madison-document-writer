@@ -66,10 +66,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "736a66dcaff641c56041abc409647933b057fbd7957e64ed9bd1f4327f2a6ba5",
+      "afterSha256": "ac093703a53d42790b94f9bd75074ee89f0c8476edac9a357a304f4b34f09954",
       "beforeBytes": 48561,
-      "afterBytes": 59689,
-      "retainedRulesSha256": "235fed366c6ac372e6ac35d7a489f1ad10d6b668db526f1c5ef456d5d7dfaea3"
+      "afterBytes": 60170,
+      "retainedRulesSha256": "1307c5b987eab7823d64d38460df059277fdea017066473c8d6e3fc69d29209c"
     }
   },
   "selectorChanges": [
@@ -850,6 +850,20 @@
         }
       },
       "evidence": "docs/developer/CASE-WORK-STREAMLINING.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "48f8b83b734dbeb9a0fc7d3ae61a9cffc9ffa0fa",
+      "scope": "Picker shortcuts (owner direction 2026-11-13): Favorites and Recently used list buttons, a per-entry Favorite star and the card action row. Append-only screen block; preserves all 59,689 earlier stylesheet bytes. No new colours.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "736a66dcaff641c56041abc409647933b057fbd7957e64ed9bd1f4327f2a6ba5",
+          "afterSha256": "ac093703a53d42790b94f9bd75074ee89f0c8476edac9a357a304f4b34f09954",
+          "unchangedRulesSha256": "235fed366c6ac372e6ac35d7a489f1ad10d6b668db526f1c5ef456d5d7dfaea3",
+          "unchangedPrefixBytes": 59689
+        }
+      },
+      "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
     }
   ]
 }
