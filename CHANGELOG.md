@@ -1,5 +1,40 @@
 # Release changelog
 
+## 2026-11-13 R81 — Release package
+
+Release package assigned on the owner's request after R80 (helper 2026.11.13.82, build 82; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R81 upgrades R80. Every PC still needs Python 3.14.
+
+### Fewer steps in case work
+
+- Workspace remembers the inspector last chosen in Open cases by inspector and shows that inspector's open cases when Workspace opens; one click on a case starts its review (PRs #482, #484).
+- With six or more cases, Find a case on Workspace highlights matching rows as you type and Enter moves to the first match; no case is hidden (PR #482).
+- In a reinspection, Mark the rest records Corrected or No change for every item still without a result, with Undo for exactly those results (PR #482).
+- The editor's Fix next issue button steps through each remaining required check, opening Review for checks that are not tied to a field (PR #485).
+
+### Order language and items
+
+- The order-language picker adds Favorites (star a card) and Recently used lists, kept per browser profile (PR #480).
+- A new item takes the location heading of the item before it; due dates are never copied and stay blank until entered (PR #480).
+- After a blank is filled, focus moves to the next blank (PR #480).
+- Worksheet edits are kept across Undo and later edits, and picker shortcuts keep their scope (PR #483).
+
+### Speed
+
+- Workspace refreshes reuse unchanged case rows: refreshes measured about 64–71% faster at 50, 200 and 500 cases (PR #487).
+- The picker and Reports compute selected items and report columns once per screen (PR #490).
+
+### Staff guides
+
+- The quick guides are generated from tagged sections of the manual, so they always match it (PR #491).
+
+### Maintenance
+
+- Internal clean-up with no intended change in behavior: retired Workspace filters, startup wiring and CSS; full-screen test copies replaced by behavior contracts; notice rendering, Reports services and new-document creation split into smaller functions; CI evidence uploads retry (PRs #481, #486, #488, #489, #492, #493, #496, #497).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S81-1 and S81-2.
+
 ## 2026-11-13 R80 — Release package
 
 Release package assigned on the owner's request after R79 (helper 2026.11.13.81, build 81; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R80 upgrades R79. Every PC still needs Python 3.14.
