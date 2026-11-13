@@ -1140,6 +1140,444 @@ const CLICK_ACTIONS = [
   [(el) => el.dataset.caseAction, ({ el, caseAction }) => caseAction(el.dataset.caseAction)],
 ];
 
+const groups = [
+  ["time", "Give more time"],
+  ["enforcement", "Take enforcement action"],
+  ["occupancy", "Restrict occupancy"],
+  ["compliance", "Confirm compliance"],
+];
+
+function scopedChoices(nd, r) {
+  const referred = isReferredCase(r.caseId);
+  return referredOnly(referred, [
+    ...TIME_CHOICES,
+    ["citation", "Citation", "enforcement", "Create court citations for selected charge items."],
+    [
+      referred ? "referralUpdate" : "referral",
+      referred ? "Update for Case Referral" : "Referral for Prosecution",
+      "enforcement",
+      "Prepare or update the City Attorney referral.",
+    ],
+    ["summaryAbatement", "Summary Abatement", "enforcement", "Order immediate nuisance abatement with reviewed authority."],
+    ["nonSummaryAbatement", "Non-Summary Abatement", "enforcement", "Order nuisance abatement with a compliance date and Circuit Court remedy."],
+    ["noOccupancy", "No Occupancy", "occupancy", "Restrict human habitation or document an approved release."],
+    ["compliance", "Compliance Letter", "compliance", "Confirm correction of all active violation items."],
+  ]);
+}
+
+function scopedStatusChooser(nd, r) {
+  const { services } = nd;
+  const rule = r.importRule,
+    allowed = allowedByStatus(r),
+    list = scopedChoices(nd, r).filter((c) => allowed.includes(c[0]));
+  const picked = allowed.includes(r.followupIntent) ? r.followupIntent : allowed.length === 1 ? allowed[0] : "";
+  if (picked !== (r.followupIntent || "")) {
+    r.followupIntent = picked;
+    r.actionGroup = (list.find((c) => c[0] === picked) || [])[2] || "";
+  }
+  const faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
+  const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
+  return screen`<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b"><p>Accela status <strong>${raw(e(rule.status))}</strong> → ${raw(e(rule.label))}.</p>${raw(
+    allowed.length > 1
+      ? screen`<fieldset><legend>Choose the extension type</legend>${raw(
+          list
+            .map(
+              (c) =>
+                screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
+            )
+            .join(""),
+        )}</fieldset>`
+      : "",
+  )}<p aria-live="polite">${raw(
+    picked ? e(label) + ": " + (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.") : e(faults[0]),
+  )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
+}
+
+function scopedChooser(nd, r) {
+  const { services } = nd;
+  if (r.importRule) return scopedStatusChooser(nd, r);
+  const saved = editor.WORK.actionChoices?.[r.id];
+  if (saved && !r.draft) {
+    r.followupIntent = saved.intent;
+    r.actionGroup = saved.group;
+  }
+  const picked = r.followupIntent || "",
+    list = scopedChoices(nd, r),
+    group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
+    faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
+  const available = list.filter((c) => !eligibility(r, c[0])),
+    options = available.filter((c) => c[2] === group);
+  return screen`<section class="card no-print r26-chooser" aria-label="Choose next action"><div class="card-h"><h2>Choose next action</h2></div><div class="card-b"><p>Use this physical inspection for one primary follow-up and compatible additional scoped documents. Each document has its own review; adding one does not record another visit.</p><fieldset><legend>What should happen next?</legend><div class="r26-groups">${raw(
+    groups
+      .filter(([v]) => list.some((c) => c[2] === v))
+      .map(
+        ([v, l]) =>
+          screen`<label class="r26-choice"><input type="radio" name="action-group" data-action-group="${String(v)}" ${raw(group === v ? "checked" : "")}> ${String(l)}</label>`,
+      )
+      .join(""),
+  )}</div></fieldset>${raw(
+    group
+      ? screen`<fieldset><legend>Available documents</legend>${raw(
+          ["primary", "supplemental"]
+            .map((kind) => {
+              const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
+              return items.length
+                ? screen`<h3 class="ri-action-heading">${raw(kind === "primary" ? "Primary follow-up" : "Additional scoped documents")}</h3>${raw(
+                    items
+                      .map(
+                        (c) =>
+                          screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
+                      )
+                      .join(""),
+                  )}`
+                : "";
+            })
+            .join(""),
+        )}${raw(
+          !options.length
+            ? screen`<p>No documents in this group are available for these results. Review the reasons below or choose another group.</p>`
+            : "",
+        )}</fieldset>`
+      : "",
+  )}<p aria-live="polite">${raw(
+    picked
+      ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) +
+          ": " +
+          (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
+      : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.",
+  )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button><details><summary>All document types (10 families) / why unavailable</summary><ul><li>Official Notice — initial imported inspection only.</li>${raw(
+    list
+      .map(
+        (c) =>
+          screen`<li><strong>${raw(e(c[1]))}</strong> (${raw(supplemental({ type: c[0] }) ? "additional scoped document" : "primary follow-up")}): ${raw(e(eligibility(r, c[0]) || c[3]))}</li>`,
+      )
+      .join(""),
+  )}</ul></details></div></section>`;
+}
+
+function scopedDetails(nd, d) {
+  const { services, date, rowAffectedSelection } = nd;
+  if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
+  const s = d.special || (d.special = {});
+  if (allItemExtension(d)) return allItemDetails(d, s);
+  if (simplifiedBestInterest(d)) return simplifiedDetails(d, s);
+  let fields = leadFields(d, s);
+  if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) fields += abatementFields(d, s);
+  else if (d.type === "noOccupancy") fields += noOccupancyFields(d, s, date);
+  else fields += extensionFields(d, s, rowAffectedSelection);
+  if (supplemental(d) && d.items.length) fields += supplementalFields(d, s);
+  return detailsShell(d, fields, reviewFields(s));
+}
+
+function scopedCreateSpecial(nd, r, type) {
+  const { services, day } = nd;
+  if (r.docId && doc(r.docId)?.draft) {
+    editor.state.docId = r.docId;
+    editor.state.screen = "write";
+    services.render();
+    return;
+  }
+  const why = eligibility(r, type),
+    faults = services.worksheetFaults(r, type);
+  if (why || faults.length) {
+    services.toast(why || faults[0]);
+    return;
+  }
+  const existing = draftDocFor(r.caseId);
+  if (existing) {
+    editor.state.docId = existing.id;
+    editor.state.screen = "write";
+    services.render();
+    services.toast("Resume the unfinished document before starting another.");
+    return;
+  }
+  const src = doc(r.sourceDocId),
+    s = requireDated(type, clone(r.actionDetails?.[type] || {}), ALL_ITEM_EXTENSIONS);
+  s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
+  const extension = ["bestInterestExtension", "vacancyExtension"].includes(type),
+    open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn;
+  const d = {
+    id: services.uid("d"),
+    caseId: r.caseId,
+    type,
+    // R62: only the extension families change format; scoped orders keep authoring 13.
+    authoringVersion: extension ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+    draft: true,
+    status: "Draft",
+    created: day(),
+    mailed: "",
+    cc: "",
+    cits: {},
+    fromDocId: src.id,
+    fromReinspId: r.id,
+    expectedHead: recordHead(r.caseId),
+    inspectorId: r.inspectorId,
+    inspDate: r.date,
+    inspTime: r.time,
+    special: s,
+    items: src.items.map((i) => {
+      const res = r.results[i.id] || {};
+      return {
+        ...clone(i),
+        id: services.uid("x"),
+        srcItemId: i.id,
+        // R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
+        // worksheet; a Vacancy Extension prints no due date for uncorrected items.
+        due: !open(i) ? i.due : type === "bestInterestExtension" ? (r.results[i.id] || {}).due || "" : "",
+        done: res.oc === "corrected",
+        doneOn: res.oc === "corrected" ? res.on || r.date : "",
+        ...(["bestInterestExtension", "vacancyExtension"].includes(type)
+          ? {
+              note: res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "",
+              noteOn: res.oc !== "corrected" && String(res.note || "").trim() ? res.on || r.date : "",
+            }
+          : {}),
+        cite: false,
+      };
+    }),
+  };
+  syncAffected(d);
+  workspace.DOCS.unshift(d);
+  if (r.draft) r.docId = d.id;
+  editor.state.docId = d.id;
+  editor.state.screen = "write";
+  services.saveDrafts();
+  services.render();
+}
+
+function scopedSpecialLifecycle(nd, d) {
+  const { services } = nd;
+  if (!specialType(d.type) || !d.draft || d.correction) return [];
+  const src = doc(d.fromDocId),
+    r = reinsp(d.fromReinspId);
+  return lifecycleFaults(services, d, src, r).map((t) => ({ ok: false, t }));
+}
+
+function scopedServicePanel(nd, d) {
+  const { date } = nd;
+  if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
+  const records = d.serviceRecords || [],
+    latest = records[records.length - 1],
+    key = "service:" + d.id,
+    form = editor.WORK.recordForms[key] || {},
+    field = (k, l, type = "text") =>
+      screen`<label class="f"><span>${String(l)}</span><input type="${String(type)}" data-service-field="${String(k)}" value="${raw(e(form[k] || ""))}"></label>`;
+  return screen`<section class="card no-print"><div class="card-h"><h2>Service and court evidence</h2></div><div class="card-b"><p>Issuance does not establish service or publication. The remedy period is distinct from the order compliance date. Court restrictions and City abatement require separate external decisions.</p>${raw(
+    latest
+      ? screen`<p><strong>Latest recorded evidence:</strong> ${raw(e(latest.method))} on ${String(date(latest.date))} — ${raw(e(latest.reference))}${raw(latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "")}</p>`
+      : "<p>No completed service / publication recorded.</p>",
+  )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}><label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
+}
+
+async function scopedSaveService(nd, docId) {
+  const { services, day } = nd;
+  const d = doc(docId),
+    key = "service:" + docId,
+    form = editor.WORK.recordForms[key] || {},
+    old = (d?.serviceRecords || []).at(-1);
+  if (
+    !d ||
+    !["service", "publication"].includes(form.method) ||
+    !services.validISO(form.date) ||
+    form.date < d.mailed ||
+    form.date > day() ||
+    text(form.reference).length < 10
+  ) {
+    services.toast("Enter the actual past service / publication date, method and supporting evidence.");
+    return;
+  }
+  const attempt = {
+    id: services.evid(),
+    at: recordNow(d.caseId),
+    by: kase(d.caseId).inspectorId,
+    type: "document.served",
+    payload: {
+      docId,
+      date: form.date,
+      method: form.method,
+      reference: form.reference,
+      courtRestriction: !!text(form.courtReference),
+      courtReference: form.courtReference || "",
+      replacesService: old?.id || "",
+      expectedHead: recordHead(d.caseId),
+      lifecycle: 1,
+    },
+  };
+  if (await services.commitRecordAttempt(d.caseId, attempt)) {
+    delete editor.WORK.recordForms[key];
+    services.saveDrafts();
+    services.render();
+  }
+}
+
+function scopedReleaseVisit(nd, d) {
+  const { services } = nd;
+  const s = d.special || {};
+  if (d.type !== "noOccupancy" || s.mode !== "release" || s.releaseVisitId !== "external") return null;
+  d.releaseVisitIdentity = d.releaseVisitIdentity || services.uid("r");
+  s.verifiedReleaseVisitId = d.releaseVisitIdentity;
+  return {
+    id: d.releaseVisitIdentity,
+    caseId: d.caseId,
+    sourceDocId: s.releases,
+    purpose: "occupancyRelease",
+    date: s.releaseInspection,
+    time: s.releaseInspectionTime || "",
+    inspectorId: s.releaseInspectorId,
+    inspector: clone(insp(s.releaseInspectorId)),
+    inspectionReference: s.releaseInspectionRef,
+    scope: s.scope,
+    unit: s.scope === "unit" ? s.unit : "",
+    results: {},
+    docId: d.id,
+  };
+}
+
+function scopedActionPanel(nd, d) {
+  const { services } = nd;
+  if (services.snow.is(d)) return "";
+  if (d.draft) return "";
+  const restrictions = activeRestrictions(docsFor(d.caseId));
+  return screen`${raw(scopedServicePanel(nd, d))}<section class="card no-print"><div class="card-b">${raw(
+    restrictions.length
+      ? screen`<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ${raw(restrictions.map((x) => e(scope(x, x.special))).join("; "))}. Compliance and extension letters do not release it.</p>`
+      : "",
+  )}${raw(
+    d.initialAction && !originalNotice(d.caseId) && isEffective(d)
+      ? screen`<button class="btn" data-initial-notice="${raw(e(d.id))}">Create Official Notice from this initial inspection</button>`
+      : "",
+  )}${raw(
+    d.fromReinspId && isEffective(d)
+      ? screen`<button class="btn" data-another-action="${raw(e(d.fromReinspId))}">Add another document for this inspection</button>`
+      : "",
+  )}${raw(
+    isEffective(d)
+      ? screen`<button class="btn" data-case-action="${raw(e(d.caseId))}">Create a scoped order / administrative letter from current case facts</button>`
+      : "",
+  )}</div></section>`;
+}
+
+function scopedCaseAction(nd, cid, type) {
+  const { services, day, restoreDues, continuingItems } = nd;
+  if (services.snow.isCase(kase(cid))) {
+    services.toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
+    return null;
+  }
+  if (type && isReferredCase(cid)) {
+    services.toast(REFERRED_MESSAGE);
+    return null;
+  }
+  if (!type) {
+    editor.WORK.currentAction = { cid, type: "", group: "" };
+    editor.state.screen = "caseactions";
+    services.saveDrafts();
+    services.render();
+    return;
+  }
+  const pending = draftDocFor(cid);
+  if (pending) {
+    editor.state.docId = pending.id;
+    editor.state.screen = "write";
+    services.render();
+    return;
+  }
+  const src = services.sourceDocFor(cid) || docsFor(cid).find(isEffective);
+  if (!src) return;
+  editor.state.modal = null;
+  editor.state.screen = "write";
+  const factual = reinspFor(cid)
+    .filter((r) => !r.draft && r.sourceDocId === src.id)
+    .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
+  const d = {
+    id: services.uid("d"),
+    caseId: cid,
+    type,
+    draft: true,
+    status: "Draft",
+    created: day(),
+    mailed: "",
+    cc: "",
+    cits: {},
+    authoringVersion: ["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+    // Scoped orders retain authoring 13, so their version alone cannot date this new draft.
+    // Seed current family defaults without upgrading any pre-existing draft's cached formats.
+    authoringCache: Object.fromEntries(
+      NEW_TYPES.map((family) => [
+        family.id,
+        ["bestInterestExtension", "vacancyExtension"].includes(family.id) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+      ]),
+    ),
+    administrativeAction: true,
+    fromDocId: src.id,
+    expectedHead: recordHead(cid),
+    factualVisitId: factual?.id || "",
+    inspectorId: factual?.inspectorId || docInsp(src).id,
+    inspDate: factual?.date || services.inspAt(src).date,
+    inspTime: factual?.time || services.inspAt(src).time,
+    special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }, ALL_ITEM_EXTENSIONS),
+    items: continuingItems(src).map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id, cite: false })),
+  };
+  if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
+  workspace.DOCS.unshift(d);
+  editor.state.docId = d.id;
+  services.saveDrafts();
+  services.render();
+}
+
+function scopedCaseActionScreen(nd) {
+  const { services } = nd;
+  const choice = editor.WORK.currentAction || {},
+    k = kase(choice.cid),
+    referred = isReferredCase(choice.cid),
+    closed = services.sourceDocFor(choice.cid)?.type === "compliance";
+  const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
+  if (referred)
+    return services.shell(
+      k.address || "Current case action",
+      k.number || "",
+      '<button class="btn" data-nav="cases">Workspace</button>',
+      screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>${raw(e(REFERRED_MESSAGE))} Import a CA Reinspection to write them.</p></div></section>`,
+    );
+  return services.shell(
+    k.address || "Current case action",
+    k.number || "",
+    '<button class="btn" data-nav="cases">Workspace</button>',
+    screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>Administrative letters cite the actual existing inspection. New observations require a real recorded inspection. Existing restrictions continue until a documented release.</p><fieldset><legend>Action group</legend><div class="r26-groups">${raw(
+      groups
+        .filter((g) => g[0] !== "compliance")
+        .map(
+          ([v, l]) =>
+            screen`<label class="r26-choice"><input type="radio" name="case-action-group" data-case-action-group="${String(v)}" ${raw(choice.group === v ? "checked" : "")}> ${String(l)}</label>`,
+        )
+        .join(""),
+    )}</div></fieldset>${raw(
+      choice.group
+        ? screen`<fieldset><legend>Document</legend>${raw(
+            NEW_TYPES.filter((t) => t.group === choice.group)
+              .map(
+                (t) =>
+                  screen`<label class="r26-choice"><input type="radio" name="case-action-type" data-case-action-type="${String(t.id)}" ${raw(choice.type === t.id ? "checked" : "")} ${raw(why(t) ? "disabled" : "")}><span>${raw(e(t.label))}${raw(why(t) ? screen`<small>${raw(e(why(t)))}</small>` : "")}</span></label>`,
+              )
+              .join(""),
+          )}</fieldset>`
+        : "",
+    )}<button class="btn btn-primary" data-create-case-action ${raw(!choice.type ? "disabled" : "")}>Create draft</button></div></section>`,
+  );
+}
+
+function scopedActionScreen(nd) {
+  const { services, date } = nd;
+  const r = reinsp(editor.state.reinspId);
+  return r
+    ? services.shell(
+        "Add document for this inspection",
+        kase(r.caseId).number + " · " + date(r.date),
+        '<button class="btn" data-nav="cases">Workspace</button>',
+        scopedChooser(nd, r),
+      )
+    : services.screenCases();
+}
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -1218,407 +1656,6 @@ export function initNewDocuments(services) {
     add(!/◯|\(\s{0,8}\)|class="blank"/.test(services.docBody(d)), "Fill every placeholder in the printed document before issuance.");
     return out;
   }
-  function details(d) {
-    if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
-    const s = d.special || (d.special = {});
-    if (allItemExtension(d)) return allItemDetails(d, s);
-    if (simplifiedBestInterest(d)) return simplifiedDetails(d, s);
-    let fields = leadFields(d, s);
-    if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) fields += abatementFields(d, s);
-    else if (d.type === "noOccupancy") fields += noOccupancyFields(d, s, date);
-    else fields += extensionFields(d, s, rowAffectedSelection);
-    if (supplemental(d) && d.items.length) fields += supplementalFields(d, s);
-    return detailsShell(d, fields, reviewFields(s));
-  }
-  const groups = [
-    ["time", "Give more time"],
-    ["enforcement", "Take enforcement action"],
-    ["occupancy", "Restrict occupancy"],
-    ["compliance", "Confirm compliance"],
-  ];
-  function choices(r) {
-    const referred = isReferredCase(r.caseId);
-    return referredOnly(referred, [
-      ...TIME_CHOICES,
-      ["citation", "Citation", "enforcement", "Create court citations for selected charge items."],
-      [
-        referred ? "referralUpdate" : "referral",
-        referred ? "Update for Case Referral" : "Referral for Prosecution",
-        "enforcement",
-        "Prepare or update the City Attorney referral.",
-      ],
-      ["summaryAbatement", "Summary Abatement", "enforcement", "Order immediate nuisance abatement with reviewed authority."],
-      ["nonSummaryAbatement", "Non-Summary Abatement", "enforcement", "Order nuisance abatement with a compliance date and Circuit Court remedy."],
-      ["noOccupancy", "No Occupancy", "occupancy", "Restrict human habitation or document an approved release."],
-      ["compliance", "Compliance Letter", "compliance", "Confirm correction of all active violation items."],
-    ]);
-  }
-  function statusChooser(r) {
-    const rule = r.importRule,
-      allowed = allowedByStatus(r),
-      list = choices(r).filter((c) => allowed.includes(c[0]));
-    const picked = allowed.includes(r.followupIntent) ? r.followupIntent : allowed.length === 1 ? allowed[0] : "";
-    if (picked !== (r.followupIntent || "")) {
-      r.followupIntent = picked;
-      r.actionGroup = (list.find((c) => c[0] === picked) || [])[2] || "";
-    }
-    const faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
-    const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
-    return screen`<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b"><p>Accela status <strong>${raw(e(rule.status))}</strong> → ${raw(e(rule.label))}.</p>${raw(
-      allowed.length > 1
-        ? screen`<fieldset><legend>Choose the extension type</legend>${raw(
-            list
-              .map(
-                (c) =>
-                  screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
-              )
-              .join(""),
-          )}</fieldset>`
-        : "",
-    )}<p aria-live="polite">${raw(
-      picked ? e(label) + ": " + (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.") : e(faults[0]),
-    )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
-  }
-  function chooser(r) {
-    if (r.importRule) return statusChooser(r);
-    const saved = editor.WORK.actionChoices?.[r.id];
-    if (saved && !r.draft) {
-      r.followupIntent = saved.intent;
-      r.actionGroup = saved.group;
-    }
-    const picked = r.followupIntent || "",
-      list = choices(r),
-      group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
-      faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
-    const available = list.filter((c) => !eligibility(r, c[0])),
-      options = available.filter((c) => c[2] === group);
-    return screen`<section class="card no-print r26-chooser" aria-label="Choose next action"><div class="card-h"><h2>Choose next action</h2></div><div class="card-b"><p>Use this physical inspection for one primary follow-up and compatible additional scoped documents. Each document has its own review; adding one does not record another visit.</p><fieldset><legend>What should happen next?</legend><div class="r26-groups">${raw(
-      groups
-        .filter(([v]) => list.some((c) => c[2] === v))
-        .map(
-          ([v, l]) =>
-            screen`<label class="r26-choice"><input type="radio" name="action-group" data-action-group="${String(v)}" ${raw(group === v ? "checked" : "")}> ${String(l)}</label>`,
-        )
-        .join(""),
-    )}</div></fieldset>${raw(
-      group
-        ? screen`<fieldset><legend>Available documents</legend>${raw(
-            ["primary", "supplemental"]
-              .map((kind) => {
-                const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
-                return items.length
-                  ? screen`<h3 class="ri-action-heading">${raw(kind === "primary" ? "Primary follow-up" : "Additional scoped documents")}</h3>${raw(
-                      items
-                        .map(
-                          (c) =>
-                            screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
-                        )
-                        .join(""),
-                    )}`
-                  : "";
-              })
-              .join(""),
-          )}${raw(
-            !options.length
-              ? screen`<p>No documents in this group are available for these results. Review the reasons below or choose another group.</p>`
-              : "",
-          )}</fieldset>`
-        : "",
-    )}<p aria-live="polite">${raw(
-      picked
-        ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) +
-            ": " +
-            (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
-        : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.",
-    )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button><details><summary>All document types (10 families) / why unavailable</summary><ul><li>Official Notice — initial imported inspection only.</li>${raw(
-      list
-        .map(
-          (c) =>
-            screen`<li><strong>${raw(e(c[1]))}</strong> (${raw(supplemental({ type: c[0] }) ? "additional scoped document" : "primary follow-up")}): ${raw(e(eligibility(r, c[0]) || c[3]))}</li>`,
-        )
-        .join(""),
-    )}</ul></details></div></section>`;
-  }
-  function createSpecial(r, type) {
-    if (r.docId && doc(r.docId)?.draft) {
-      editor.state.docId = r.docId;
-      editor.state.screen = "write";
-      services.render();
-      return;
-    }
-    const why = eligibility(r, type),
-      faults = services.worksheetFaults(r, type);
-    if (why || faults.length) {
-      services.toast(why || faults[0]);
-      return;
-    }
-    const existing = draftDocFor(r.caseId);
-    if (existing) {
-      editor.state.docId = existing.id;
-      editor.state.screen = "write";
-      services.render();
-      services.toast("Resume the unfinished document before starting another.");
-      return;
-    }
-    const src = doc(r.sourceDocId),
-      s = requireDated(type, clone(r.actionDetails?.[type] || {}), ALL_ITEM_EXTENSIONS);
-    s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
-    const extension = ["bestInterestExtension", "vacancyExtension"].includes(type),
-      open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn;
-    const d = {
-      id: services.uid("d"),
-      caseId: r.caseId,
-      type,
-      // R62: only the extension families change format; scoped orders keep authoring 13.
-      authoringVersion: extension ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
-      draft: true,
-      status: "Draft",
-      created: day(),
-      mailed: "",
-      cc: "",
-      cits: {},
-      fromDocId: src.id,
-      fromReinspId: r.id,
-      expectedHead: recordHead(r.caseId),
-      inspectorId: r.inspectorId,
-      inspDate: r.date,
-      inspTime: r.time,
-      special: s,
-      items: src.items.map((i) => {
-        const res = r.results[i.id] || {};
-        return {
-          ...clone(i),
-          id: services.uid("x"),
-          srcItemId: i.id,
-          // R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
-          // worksheet; a Vacancy Extension prints no due date for uncorrected items.
-          due: !open(i) ? i.due : type === "bestInterestExtension" ? (r.results[i.id] || {}).due || "" : "",
-          done: res.oc === "corrected",
-          doneOn: res.oc === "corrected" ? res.on || r.date : "",
-          ...(["bestInterestExtension", "vacancyExtension"].includes(type)
-            ? {
-                note: res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "",
-                noteOn: res.oc !== "corrected" && String(res.note || "").trim() ? res.on || r.date : "",
-              }
-            : {}),
-          cite: false,
-        };
-      }),
-    };
-    syncAffected(d);
-    workspace.DOCS.unshift(d);
-    if (r.draft) r.docId = d.id;
-    editor.state.docId = d.id;
-    editor.state.screen = "write";
-    services.saveDrafts();
-    services.render();
-  }
-  function specialLifecycle(d) {
-    if (!specialType(d.type) || !d.draft || d.correction) return [];
-    const src = doc(d.fromDocId),
-      r = reinsp(d.fromReinspId);
-    return lifecycleFaults(services, d, src, r).map((t) => ({ ok: false, t }));
-  }
-  function servicePanel(d) {
-    if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
-    const records = d.serviceRecords || [],
-      latest = records[records.length - 1],
-      key = "service:" + d.id,
-      form = editor.WORK.recordForms[key] || {},
-      field = (k, l, type = "text") =>
-        screen`<label class="f"><span>${String(l)}</span><input type="${String(type)}" data-service-field="${String(k)}" value="${raw(e(form[k] || ""))}"></label>`;
-    return screen`<section class="card no-print"><div class="card-h"><h2>Service and court evidence</h2></div><div class="card-b"><p>Issuance does not establish service or publication. The remedy period is distinct from the order compliance date. Court restrictions and City abatement require separate external decisions.</p>${raw(
-      latest
-        ? screen`<p><strong>Latest recorded evidence:</strong> ${raw(e(latest.method))} on ${String(date(latest.date))} — ${raw(e(latest.reference))}${raw(latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "")}</p>`
-        : "<p>No completed service / publication recorded.</p>",
-    )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}><label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
-  }
-  async function saveService(docId) {
-    const d = doc(docId),
-      key = "service:" + docId,
-      form = editor.WORK.recordForms[key] || {},
-      old = (d?.serviceRecords || []).at(-1);
-    if (
-      !d ||
-      !["service", "publication"].includes(form.method) ||
-      !services.validISO(form.date) ||
-      form.date < d.mailed ||
-      form.date > day() ||
-      text(form.reference).length < 10
-    ) {
-      services.toast("Enter the actual past service / publication date, method and supporting evidence.");
-      return;
-    }
-    const attempt = {
-      id: services.evid(),
-      at: recordNow(d.caseId),
-      by: kase(d.caseId).inspectorId,
-      type: "document.served",
-      payload: {
-        docId,
-        date: form.date,
-        method: form.method,
-        reference: form.reference,
-        courtRestriction: !!text(form.courtReference),
-        courtReference: form.courtReference || "",
-        replacesService: old?.id || "",
-        expectedHead: recordHead(d.caseId),
-        lifecycle: 1,
-      },
-    };
-    if (await services.commitRecordAttempt(d.caseId, attempt)) {
-      delete editor.WORK.recordForms[key];
-      services.saveDrafts();
-      services.render();
-    }
-  }
-  function releaseVisit(d) {
-    const s = d.special || {};
-    if (d.type !== "noOccupancy" || s.mode !== "release" || s.releaseVisitId !== "external") return null;
-    d.releaseVisitIdentity = d.releaseVisitIdentity || services.uid("r");
-    s.verifiedReleaseVisitId = d.releaseVisitIdentity;
-    return {
-      id: d.releaseVisitIdentity,
-      caseId: d.caseId,
-      sourceDocId: s.releases,
-      purpose: "occupancyRelease",
-      date: s.releaseInspection,
-      time: s.releaseInspectionTime || "",
-      inspectorId: s.releaseInspectorId,
-      inspector: clone(insp(s.releaseInspectorId)),
-      inspectionReference: s.releaseInspectionRef,
-      scope: s.scope,
-      unit: s.scope === "unit" ? s.unit : "",
-      results: {},
-      docId: d.id,
-    };
-  }
-  function actionPanel(d) {
-    if (services.snow.is(d)) return "";
-    if (d.draft) return "";
-    const restrictions = activeRestrictions(docsFor(d.caseId));
-    return screen`${raw(servicePanel(d))}<section class="card no-print"><div class="card-b">${raw(
-      restrictions.length
-        ? screen`<p class="r26-restriction"><strong>Continuing No Occupancy restriction:</strong> ${raw(restrictions.map((x) => e(scope(x, x.special))).join("; "))}. Compliance and extension letters do not release it.</p>`
-        : "",
-    )}${raw(
-      d.initialAction && !originalNotice(d.caseId) && isEffective(d)
-        ? screen`<button class="btn" data-initial-notice="${raw(e(d.id))}">Create Official Notice from this initial inspection</button>`
-        : "",
-    )}${raw(
-      d.fromReinspId && isEffective(d)
-        ? screen`<button class="btn" data-another-action="${raw(e(d.fromReinspId))}">Add another document for this inspection</button>`
-        : "",
-    )}${raw(
-      isEffective(d)
-        ? screen`<button class="btn" data-case-action="${raw(e(d.caseId))}">Create a scoped order / administrative letter from current case facts</button>`
-        : "",
-    )}</div></section>`;
-  }
-  function caseAction(cid, type) {
-    if (services.snow.isCase(kase(cid))) {
-      services.toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
-      return null;
-    }
-    if (type && isReferredCase(cid)) {
-      services.toast(REFERRED_MESSAGE);
-      return null;
-    }
-    if (!type) {
-      editor.WORK.currentAction = { cid, type: "", group: "" };
-      editor.state.screen = "caseactions";
-      services.saveDrafts();
-      services.render();
-      return;
-    }
-    const pending = draftDocFor(cid);
-    if (pending) {
-      editor.state.docId = pending.id;
-      editor.state.screen = "write";
-      services.render();
-      return;
-    }
-    const src = services.sourceDocFor(cid) || docsFor(cid).find(isEffective);
-    if (!src) return;
-    editor.state.modal = null;
-    editor.state.screen = "write";
-    const factual = reinspFor(cid)
-      .filter((r) => !r.draft && r.sourceDocId === src.id)
-      .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
-    const d = {
-      id: services.uid("d"),
-      caseId: cid,
-      type,
-      draft: true,
-      status: "Draft",
-      created: day(),
-      mailed: "",
-      cc: "",
-      cits: {},
-      authoringVersion: ["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
-      // Scoped orders retain authoring 13, so their version alone cannot date this new draft.
-      // Seed current family defaults without upgrading any pre-existing draft's cached formats.
-      authoringCache: Object.fromEntries(
-        NEW_TYPES.map((family) => [
-          family.id,
-          ["bestInterestExtension", "vacancyExtension"].includes(family.id) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
-        ]),
-      ),
-      administrativeAction: true,
-      fromDocId: src.id,
-      expectedHead: recordHead(cid),
-      factualVisitId: factual?.id || "",
-      inspectorId: factual?.inspectorId || docInsp(src).id,
-      inspDate: factual?.date || services.inspAt(src).date,
-      inspTime: factual?.time || services.inspAt(src).time,
-      special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }, ALL_ITEM_EXTENSIONS),
-      items: continuingItems(src).map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id, cite: false })),
-    };
-    if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
-    workspace.DOCS.unshift(d);
-    editor.state.docId = d.id;
-    services.saveDrafts();
-    services.render();
-  }
-  function caseActionScreen() {
-    const choice = editor.WORK.currentAction || {},
-      k = kase(choice.cid),
-      referred = isReferredCase(choice.cid),
-      closed = services.sourceDocFor(choice.cid)?.type === "compliance";
-    const why = (t) => (t.effect === "items" && closed ? "The case’s violations are complete." : "");
-    if (referred)
-      return services.shell(
-        k.address || "Current case action",
-        k.number || "",
-        '<button class="btn" data-nav="cases">Workspace</button>',
-        screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>${raw(e(REFERRED_MESSAGE))} Import a CA Reinspection to write them.</p></div></section>`,
-      );
-    return services.shell(
-      k.address || "Current case action",
-      k.number || "",
-      '<button class="btn" data-nav="cases">Workspace</button>',
-      screen`<section class="card no-print r26-chooser"><div class="card-h"><h2>Choose next action from current case facts</h2></div><div class="card-b"><p>Administrative letters cite the actual existing inspection. New observations require a real recorded inspection. Existing restrictions continue until a documented release.</p><fieldset><legend>Action group</legend><div class="r26-groups">${raw(
-        groups
-          .filter((g) => g[0] !== "compliance")
-          .map(
-            ([v, l]) =>
-              screen`<label class="r26-choice"><input type="radio" name="case-action-group" data-case-action-group="${String(v)}" ${raw(choice.group === v ? "checked" : "")}> ${String(l)}</label>`,
-          )
-          .join(""),
-      )}</div></fieldset>${raw(
-        choice.group
-          ? screen`<fieldset><legend>Document</legend>${raw(
-              NEW_TYPES.filter((t) => t.group === choice.group)
-                .map(
-                  (t) =>
-                    screen`<label class="r26-choice"><input type="radio" name="case-action-type" data-case-action-type="${String(t.id)}" ${raw(choice.type === t.id ? "checked" : "")} ${raw(why(t) ? "disabled" : "")}><span>${raw(e(t.label))}${raw(why(t) ? screen`<small>${raw(e(why(t)))}</small>` : "")}</span></label>`,
-                )
-                .join(""),
-            )}</fieldset>`
-          : "",
-      )}<button class="btn btn-primary" data-create-case-action ${raw(!choice.type ? "disabled" : "")}>Create draft</button></div></section>`,
-    );
-  }
   function cacheDetails(d) {
     const r = reinsp(d.fromReinspId);
     if (r) {
@@ -1680,38 +1717,36 @@ export function initNewDocuments(services) {
     if (!el) return false;
     const action = CLICK_ACTIONS.find(([applies]) => applies(el));
     if (!action) return false;
-    action[1]({ services, el, restoreDues, caseAction, saveService, createSpecial });
+    action[1]({
+      services,
+      el,
+      restoreDues,
+      caseAction: (...args) => scopedCaseAction(nd, ...args),
+      saveService: (...args) => scopedSaveService(nd, ...args),
+      createSpecial: (...args) => scopedCreateSpecial(nd, ...args),
+    });
     return true;
   }
-  function actionScreen() {
-    const r = reinsp(editor.state.reinspId);
-    return r
-      ? services.shell(
-          "Add document for this inspection",
-          kase(r.caseId).number + " · " + date(r.date),
-          '<button class="btn" data-nav="cases">Workspace</button>',
-          chooser(r),
-        )
-      : services.screenCases();
-  }
+  // Context for the module-level chooser, panel and creation operations below the factory.
+  const nd = { services, day, date, rowAffectedSelection, restoreDues, continuingItems };
   return {
     rowAffectedSelection,
-    releaseVisit,
+    releaseVisit: (...args) => scopedReleaseVisit(nd, ...args),
     continuingItems,
     eligibility,
     specialBody,
     specialChecks,
     setSpecialDue,
     invalidateItemReview,
-    details,
-    chooser,
-    createSpecial,
-    specialLifecycle,
-    actionPanel,
-    caseAction,
-    caseActionScreen,
+    details: (...args) => scopedDetails(nd, ...args),
+    chooser: (...args) => scopedChooser(nd, ...args),
+    createSpecial: (...args) => scopedCreateSpecial(nd, ...args),
+    specialLifecycle: (...args) => scopedSpecialLifecycle(nd, ...args),
+    actionPanel: (...args) => scopedActionPanel(nd, ...args),
+    caseAction: (...args) => scopedCaseAction(nd, ...args),
+    caseActionScreen: (...args) => scopedCaseActionScreen(nd, ...args),
     editEvent,
     clickEvent,
-    actionScreen,
+    actionScreen: (...args) => scopedActionScreen(nd, ...args),
   };
 }
