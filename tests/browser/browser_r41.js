@@ -179,6 +179,44 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(typography.number.size, "14px");
     assert.equal(typography.action.size, "14px");
     results.push({ inlineDocumentHistory: true, keyboardRecordAccess: true, draftAccess: true, readOnlyHistory: true, typography });
+    const reuse = await page.evaluate(() => {
+      render();
+      const kept = document.querySelector('[data-queue-case="queue-1"]');
+      const changed = document.querySelector('[data-queue-case="queue-2"]');
+      const details = kept.querySelector("details");
+      details.open = true;
+      const focus = details.querySelector("summary");
+      focus.focus();
+      const originalStatus = recordIntegrity.status;
+      let proofReads = 0;
+      recordIntegrity.status = (k) => {
+        proofReads++;
+        return originalStatus(k);
+      };
+      try {
+        for (let n = 0; n < 20; n++) render();
+        const unchanged = kept === document.querySelector('[data-queue-case="queue-1"]');
+        const focusKept = document.activeElement === focus && details.open;
+        const k = WriterState.CASES.find((k) => k.id === "queue-2"),
+          owner = k.owner;
+        k.owner = "Changed synthetic owner";
+        render();
+        const changedOnly =
+          changed !== document.querySelector('[data-queue-case="queue-2"]') && kept === document.querySelector('[data-queue-case="queue-1"]');
+        const fresh = document.querySelector('[data-queue-case="queue-2"]').textContent.includes("Changed synthetic owner");
+        k.owner = owner;
+        render();
+        return { unchanged, focusKept, changedOnly, fresh, proofReads, minimumProofReads: WriterState.CASES.length * 22 };
+      } finally {
+        recordIntegrity.status = originalStatus;
+      }
+    });
+    assert.equal(reuse.unchanged, true);
+    assert.equal(reuse.focusKept, true);
+    assert.equal(reuse.changedOnly, true);
+    assert.equal(reuse.fresh, true);
+    assert.ok(reuse.proofReads >= reuse.minimumProofReads, "record proof remains current on every render");
+    results.push({ rowReuse: reuse });
     const details = page.locator('[data-queue-case="queue-0"] details').first();
     await details.locator("summary").focus();
     await page.keyboard.press("Enter");

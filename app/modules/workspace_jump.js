@@ -7,9 +7,10 @@ const rowText = (row) =>
     .toLowerCase();
 
 function mark(input) {
+  const root = input.ownerDocument;
   const query = input.value.trim().toLowerCase(),
-    rows = [...document.querySelectorAll("tr[data-queue-case]")],
-    status = document.getElementById("workspace-jump-status");
+    rows = [...root.querySelectorAll("tr[data-queue-case]")],
+    status = root.getElementById("workspace-jump-status");
   rows.forEach((row) => row.classList.remove("case-jump-hit"));
   const hits = query ? rows.filter((row) => rowText(row).includes(query)) : [];
   hits.forEach((row) => row.classList.add("case-jump-hit"));
@@ -20,6 +21,11 @@ function mark(input) {
         ? hits.length + (hits.length === 1 ? " case" : " cases") + " highlighted. Press Enter to go to the first."
         : "No case in this list matches.";
   return hits;
+}
+
+export function refreshWorkspaceJump(root) {
+  const input = root.querySelector("#workspace-jump");
+  if (input?.value) mark(input);
 }
 
 export function createWorkspaceJump() {

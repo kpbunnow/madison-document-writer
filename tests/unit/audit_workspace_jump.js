@@ -21,7 +21,7 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   );
   const { document } = dom.window;
   global.document = document;
-  const api = await compile('export {createWorkspaceJump} from "./workspace_jump.js";');
+  const api = await compile('export {createWorkspaceJump,refreshWorkspaceJump} from "./workspace_jump.js";');
   api.createWorkspaceJump();
   const input = document.getElementById("workspace-jump"),
     status = document.getElementById("workspace-jump-status"),
@@ -44,6 +44,10 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   input.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
   assert.equal(scrolled, "b");
   assert.equal(document.activeElement, rows[1], "Enter moves focus to the first match");
+  rows[1].querySelector(".case-number").textContent = "CB2026-260-04002";
+  api.refreshWorkspaceJump(document);
+  assert.deepEqual(hits(), [], "a changed row refreshes highlights against the retained query");
+  assert.equal(status.textContent, "No case in this list matches.");
   type("nothing here");
   assert.deepEqual(hits(), []);
   assert.equal(status.textContent, "No case in this list matches.");
