@@ -4,7 +4,7 @@ const assert = require("node:assert/strict"),
   { compile } = require("../fixtures/equivalence_harness.cjs");
 (async () => {
   const api = await compile(
-    'export {loadWorkflowPreferences,WORKFLOW_PREFS_KEY} from "./workflow_preferences.js"; export {createLanguageCatalog} from "./language_catalog.js";',
+    'export {loadWorkflowPreferences,WORKFLOW_PREFS_KEY} from "./workflow_preferences.js"; export {createLanguageCatalog} from "./language_catalog.js"; export {createWorkflowEvents} from "./workflow_events.js";',
   );
   assert.deepEqual(api.WriterState, {}, "preferences do not initialize Writer");
   assert.equal(api.WORKFLOW_PREFS_KEY, "madison-workspace-preferences-v1", "retain the device storage identity");
@@ -78,6 +78,23 @@ const assert = require("node:assert/strict"),
   } finally {
     global.localStorage = previousStorage;
   }
+  const changes = [],
+    routes = {};
+  api.WriterState.TIMELINE_CASE = "current-case";
+  const events = api.createWorkflowEvents({
+    showTimeline: (...args) => changes.push(args),
+    saveWorkflowPrefs: () => assert.fail("retired route wrote preferences"),
+  });
+  events.registerTimelineFilter({
+    addEventListener: (type, listener) => {
+      routes[type] = listener;
+    },
+  });
+  for (const id of ["case-search", "case-filter", "case-inspector"]) routes.change({ target: { id, value: "retired" } });
+  assert.deepEqual(changes, []);
+  routes.change({ target: { id: "timeline-filter", value: "withdrawn" } });
+  assert.deepEqual(changes, [["current-case", "withdrawn"]], "the active timeline route remains current");
+  assert.equal(events.registerSearchPreferences, undefined, "no listener remains for the retired search preference");
   for (const file of ["app_core", "writer_handoff", "accela_import", "language_catalog"])
     assert.doesNotMatch(
       fs.readFileSync("app/modules/" + file + ".js", "utf8"),

@@ -127,13 +127,6 @@ export function createWorkflowEvents(services) {
   function registerTimelineFilter(target = document) {
     return registerEventOnce(target, "workflow.registerTimelineFilter", "change", (e) => {
       if (e.target.id === "timeline-filter") services.showTimeline(workspace.TIMELINE_CASE, e.target.value);
-      if (["case-filter", "case-inspector"].includes(e.target.id)) queueMicrotask(services.saveWorkflowPrefs);
-    });
-  }
-
-  function registerSearchPreferences(target = document) {
-    return registerEventOnce(target, "workflow.registerSearchPreferences", "input", (e) => {
-      if (e.target.id === "case-search") queueMicrotask(services.saveWorkflowPrefs);
     });
   }
 
@@ -153,5 +146,5 @@ export function createWorkflowEvents(services) {
       });
     return;
   };
-  return { registerToolForms, registerToolActions, registerTimelineFilter, registerSearchPreferences, syncPdf };
+  return { registerToolForms, registerToolActions, registerTimelineFilter, syncPdf };
 }
