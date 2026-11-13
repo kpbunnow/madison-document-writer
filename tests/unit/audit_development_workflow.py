@@ -118,17 +118,43 @@ class DevelopmentWorkflow(unittest.TestCase):
                     ["bash", "-c", guard["run"]], env={**os.environ, "STAGE_RESULT": status}, capture_output=True, encoding="utf-8"
                 )
                 self.assertEqual(result.returncode == 0, status == "success")
-        downloads = [s for s in gate["steps"] if "download-artifact@" in s.get("uses", "")]
-        self.assertEqual(len(downloads), 2)
-        for step in downloads:
-            self.assertIn("github.run_id", step["with"]["name"])
-            self.assertIn("github.run_attempt", step["with"]["name"])
+        self.assertEqual(gate["permissions"], {"contents": "read", "actions": "read"})
+        self.assertFalse(any("download-artifact@" in step.get("uses", "") for step in gate["steps"]))
+        assembly = next(step for step in gate["steps"] if "--assemble-github" in step.get("run", ""))
+        self.assertEqual(assembly["env"], {"GITHUB_TOKEN": "${{ github.token }}"})
         for job in workflow["jobs"].values():
             self.assertNotIn("continue-on-error", job)
             for step in job["steps"]:
-                self.assertNotIn("continue-on-error", step)
+                if "continue-on-error" in step:
+                    self.assertTrue(step.get("uses", "").startswith("actions/upload-artifact@"))
+                    self.assertEqual(step["continue-on-error"], "true")
+                    self.assertRegex(step["id"], r"^upload_[1-9]+_[12]$")
                 if "uses" in step:
                     self.assertRegex(step["uses"], r"^actions/[a-z-]+@[0-9a-f]{40}$")
+
+    def test_upload_retries_are_bounded_same_payload_and_final_failure_is_fatal(self):
+        for name in ("verify.yml", "windows-recovery.yml"):
+            for job in self.workflow(name)["jobs"].values():
+                uploads = [step for step in job["steps"] if step.get("uses", "").startswith("actions/upload-artifact@")]
+                self.assertEqual(len(uploads) % 3, 0)
+                for offset in range(0, len(uploads), 3):
+                    first, second, third = uploads[offset : offset + 3]
+                    prefix = first["id"].removesuffix("_1")
+                    self.assertEqual([step["id"] for step in [first, second, third]], [prefix + "_1", prefix + "_2", prefix + "_3"])
+                    self.assertEqual(first["continue-on-error"], "true")
+                    self.assertEqual(second["continue-on-error"], "true")
+                    self.assertNotIn("continue-on-error", third, "all upload attempts failing must fail the job")
+                    self.assertEqual(second["if"], "${{ !cancelled() && steps." + prefix + "_1.outcome == 'failure' }}")
+                    self.assertEqual(
+                        third["if"],
+                        "${{ !cancelled() && steps." + prefix + "_1.outcome == 'failure' && steps." + prefix + "_2.outcome == 'failure' }}",
+                    )
+                    for retry in [second, third]:
+                        self.assertEqual(retry["uses"], first["uses"])
+                        self.assertEqual(retry["with"], {**first["with"], "overwrite": "true"})
+                    if first["with"]["name"].startswith("stage-"):
+                        self.assertEqual(first["if"], "success()")
+                        self.assertEqual(first["with"]["if-no-files-found"], "error")
 
     def test_source_archive_without_git_keeps_content_provenance(self):
         with tempfile.TemporaryDirectory() as folder:

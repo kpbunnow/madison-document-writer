@@ -153,6 +153,30 @@ class StageEvidence(unittest.TestCase):
             verify.assert_not_called()
         self.assertFalse((self.root / "build/verification/latest/verification.json").exists())
 
+    def test_authenticated_producer_selection_cannot_change_assembly_run_or_source(self):
+        selection = {"identity": {"run": "1234", "attempt": "1"}, "assemblyIdentity": self.identity, "sourceCommit": self.provenance["sourceCommit"]}
+        for change in [{"assemblyIdentity": {"run": "1234", "attempt": "3"}}, {"identity": {"run": "other", "attempt": "1"}}]:
+            with self.subTest(change=change), patch("gate_stages.run_identity", return_value=self.identity):
+                with self.assertRaisesRegex(ValueError, "assembly run"):
+                    assemble(
+                        self.root,
+                        lambda *args: self.fail("must refuse before build"),
+                        self.root / "r",
+                        self.root / "b",
+                        producer_selection={**selection, **change},
+                    )
+        with (
+            patch("gate_stages.run_identity", return_value=self.identity),
+            patch("gate_stages.source_inventory"),
+            patch("gate_stages.fingerprint", return_value=self.inputs),
+            patch("gate_stages.source_provenance", return_value=self.provenance),
+            patch("gate_stages.toolchain", return_value=self.toolchain),
+            patch("gate_stages.read_stage") as read,
+        ):
+            with self.assertRaisesRegex(ValueError, "current reviewed source"):
+                assemble(self.root, lambda *args: None, self.root / "r", self.root / "b", producer_selection={**selection, "sourceCommit": "b" * 40})
+            read.assert_not_called()
+
     def test_unavailable_or_uncertain_git_provenance_cannot_publish_a_stage_receipt(self):
         for change in [
             {"sourceClean": None},

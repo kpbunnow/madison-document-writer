@@ -12,7 +12,7 @@ The before source is the verified PR #54 head `0343b4f0c36f7c43dc64704713325f74f
 
 ## Candidate decisions
 
-The old text inventory missed `case-view` and `queue-primary`: their names span adjacent literals after a dynamic expression. Both occur on Workspace screens and retain their styles. `tools/screen_css_usage.cjs` now reconstructs those literal runs and tests these false-positive cases. Other runtime/library families remain untouched.
+The old text inventory missed `case-view` and `queue-primary`: their names span adjacent literals after a dynamic expression. Both occurred on the original Workspace screens and retained their styles then. The later owner-approved Workspace redesign retired case-view; the improvement-plan cleanup below removes its unreachable rules while retaining the split-literal parser regression. queue-primary remains active. `tools/screen_css_usage.cjs` now reconstructs those literal runs and tests these false-positive cases. Other runtime/library families remain untouched.
 
 The cleanup removes the other 31 reviewed class families from writer.css, reports.css, accessibility.css and screen-only ui-refresh.css rules. The obsolete toast `spin` keyframes and media groups made empty by removal are also removed. Approved print CSS is untouched even where it shares a class name. Source scanning, runtime class observations, surviving-rule contracts and before/after rendering are complementary evidence; absence in one scan alone is not proof.
 
@@ -40,3 +40,9 @@ The owner explicitly approved replacing the Workspace summary, counters and filt
 ## Compact document links, November 12, 2026
 
 The owner approved replacing the Workspace document controls/side panel with a descending type/date link list and removing Source and import details from import review. Current screen/CSS contracts record the scoped list styling and retirement of unused panel rules. Earlier reference history and all immutable print/legal references remain intact. See WORKSPACE-CASE-DOCUMENTS.md for scope, coverage and review evidence.
+
+## Ordinary screen CSS maintenance, November 13, 2026
+
+The owner improvement plan explicitly authorizes normal edits and consolidation in the existing screen stylesheets. Edit the owning rule in place rather than adding another override solely to preserve an old prefix. Keep the complete current-shell and semantic hashes as reviewed bookkeeping: record the changed selectors/declarations, explain intentional visual differences and review captured before/after screens. Update these current references only for that explained change; do not normalize away styles, loosen image/computed-style checks or alter print/legal/history goldens to obtain a pass. Historical append-only notes above describe earlier deliveries, not a restriction on new authorized screen work.
+
+The first such cleanup removes six unused Workspace families and17 dead screen rules (1,775 bytes), preserving all remaining selectors, groups, declarations and order. Source AST reconstruction, dynamic-name review and306 full-browser captures find no consumers. Active task/recovery/document classes remain. SCREEN-CSS-MAINTENANCE.md records the exact visual evidence and its limits. Approved print CSS stays frozen and keeps its independent tests.

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """CI-style local release gate. Evidence stays under build/verification/latest."""
 
+import argparse
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import time
-import argparse
+from pathlib import Path
+
 from release_evidence import fingerprint, source_provenance
 from release_inputs import deployment_inputs, source_inventory
 
@@ -54,13 +55,18 @@ if sys.argv[1:]:
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--stage", choices=["regression", "browser"])
     modes.add_argument("--assemble", nargs=2, type=Path, metavar=("REGRESSION_ARTIFACT", "BROWSER_ARTIFACT"))
+    modes.add_argument("--assemble-github", action="store_true")
     args = parser.parse_args()
     if FAST:
         raise SystemExit("Isolated CI stages require full coverage; DW_FAST is not supported")
-    from gate_stages import execute_stage, assemble
+    from gate_stages import assemble, execute_stage
 
     if args.stage:
         execute_stage(ROOT, run, args.stage)
+    elif args.assemble_github:
+        from gate_artifacts import assemble_github
+
+        assemble_github(ROOT, run)
     else:
         assemble(ROOT, run, *args.assemble)
     raise SystemExit(0)
