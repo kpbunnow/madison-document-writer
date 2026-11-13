@@ -40,7 +40,7 @@ const test = async () => {
   // R59: Recipients, Violation Items and Review each open a dialog; no task button scrolls to a section.
   assert.equal(app.querySelectorAll("[data-editor-section]").length, 0);
   assert.equal(app.querySelector(".editor-sections #btn-add-top").textContent, "Violation Items");
-  assert.equal(app.querySelector(".editor-sections #btn-review").textContent, "Review · " + editorReadiness(d).required.length);
+  assert.equal(app.querySelector(".editor-sections #btn-review").textContent, "Review");
   const recipients = app.querySelector(".editor-sections #btn-cc");
   assert.equal(recipients.textContent, "Recipients");
   assert.equal(app.querySelectorAll("#btn-cc").length, 1);
@@ -79,8 +79,8 @@ const test = async () => {
   assert.equal(document.activeElement, text);
   assert.equal(d.items[0].text, "Repair the damaged wall.");
   // Phase 2: one readiness summary (the top line carries #chk-chip) updates while typing.
-  assert.equal(document.querySelectorAll("[data-editor-readiness],#chk-chip").length, 1, "one readiness summary");
-  assert.ok(document.querySelector(".editor-readiness #chk-chip[data-editor-readiness]"));
+  assert.equal(document.querySelectorAll("[data-editor-readiness],#chk-chip").length, 0, "no repeated required count");
+  assert.ok(document.querySelector(".editor-readiness [data-fix-next]"));
   // Compact header (owner direction 2026-11-11): the state is in the header line, the task buttons and readiness line
   // share one bar, and nothing stands between that bar and the working document.
   assert.match(document.querySelector(".topbar .crumb").textContent, /· Draft · not issued$/);
@@ -90,8 +90,8 @@ const test = async () => {
   assert.ok(!/Saved on this device|Saved work &|Fill-in bubbles mark|outstanding\./.test(document.querySelector(".document-workspace").textContent));
   assert.equal(document.querySelector("#editor-items .desk"), document.querySelector("#editor-items > :not(h2)"), "the working document comes first");
   assert.equal(
-    document.querySelector("#chk-chip").textContent,
-    readinessText(editorReadiness(d).required, editorReadiness(d).advice),
+    document.querySelector(".editor-readiness [data-fix-next]").textContent,
+    "Fix next issue (" + editorReadiness(d).required.length + " left)",
     "the readiness summary updates with the draft",
   );
   d.items[0].due = addDays(recordDay(today), 21);

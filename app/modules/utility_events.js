@@ -3,7 +3,49 @@ import { importsState as imports } from "./imports_state.js";
 /* Utility event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { reinsp, doc } from "./writer_queries.js";
+function createCheckLinkHandler(services) {
+  // Navigation state only: policy is recomputed on every click, including after undo/import/replacement.
+  const positions = new WeakMap();
+  function fixNextIssue() {
+    const d = doc(editor.state.docId);
+    if (!d || !d.draft || editor.state.screen !== "write") return;
+    const required = services.checks(d).filter((c) => !c.ok && !c.soft);
+    const targets = required.flatMap((c) =>
+      c.targets?.length ? c.targets.map((target) => ({ target, message: c.t })) : [{ target: null, message: c.t }],
+    );
+    if (!targets.length) {
+      positions.delete(d);
+      document.getElementById("btn-review")?.click();
+      return;
+    }
+    const signature = JSON.stringify(required.map((c) => [c.t, c.targets]));
+    const lastFix = positions.get(d);
+    const index = lastFix?.signature === signature ? (lastFix.index + 1) % targets.length : 0;
+    positions.set(d, { signature, index });
+    if (targets[index].target) services.focusCheckTarget(targets[index].target, targets[index].message);
+    else document.getElementById("btn-review")?.click();
+  }
+
+  return (e) => {
+    const b = e.target.closest("[data-check-index],[data-fix-next]");
+    if (!b) return;
+    if (b.hasAttribute("data-fix-next")) {
+      e.preventDefault();
+      fixNextIssue();
+      return;
+    }
+    const list = b.dataset.checkWorksheet ? services.worksheetChecks(reinsp(editor.state.reinspId)) : services.checks(doc(editor.state.docId));
+    const c = list[+b.dataset.checkIndex],
+      target = c?.targets?.[+b.dataset.checkTarget];
+    if (target) {
+      e.preventDefault();
+      services.focusCheckTarget(target, c.t);
+    }
+  };
+}
+
 export function createUtilityEvents(services) {
+  const checkLinkHandler = createCheckLinkHandler(services);
   function registerHelpClicks(target = document) {
     return registerEventOnce(target, "utility.registerHelpClicks", "click", (e) => {
       if (e.target.closest?.("[data-a11y-help],[data-a11y-history],[data-utility-close]")) services.navigation.invalidateUtilities();
@@ -33,17 +75,7 @@ export function createUtilityEvents(services) {
   }
 
   function registerCheckLinks(target = document) {
-    return registerEventOnce(target, "utility.registerCheckLinks", "click", (e) => {
-      const b = e.target.closest("[data-check-index]");
-      if (!b) return;
-      const list = b.dataset.checkWorksheet ? services.worksheetChecks(reinsp(editor.state.reinspId)) : services.checks(doc(editor.state.docId));
-      const c = list[+b.dataset.checkIndex],
-        target = c?.targets?.[+b.dataset.checkTarget];
-      if (target) {
-        e.preventDefault();
-        services.focusCheckTarget(target, c.t);
-      }
-    });
+    return registerEventOnce(target, "utility.registerCheckLinks", "click", checkLinkHandler);
   }
 
   function registerInputChecks(target = document) {

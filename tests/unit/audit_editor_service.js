@@ -63,7 +63,7 @@ for (const [owner, factory] of Object.entries(owners)) {
   assert.equal(coldCalls[0][0], "click");
   assert.equal(coldCalls[0][2], undefined);
   const dom = new JSDOM(
-    '<div id="app"><main class="document-workspace"><button data-citation-copies>Copies</button><div class="editor-readiness"><span id="chk-chip"></span><span class="readiness-actions" data-readiness-key="0:Go to first required field"><button id="kept-focus">Next</button></span></div><button id="btn-review">Review</button><button id="btn-final">Issue</button><div class="desk"><section class="cit"></section><section class="cit"></section><section class="cit"></section><section class="cit"></section></div><div hidden data-editor-check-messages></div></main></div><div id="overlay"></div>',
+    '<div id="app"><main class="document-workspace"><button data-citation-copies>Copies</button><div class="editor-readiness"><span id="chk-chip"></span><span class="readiness-actions" data-readiness-key="1"><button id="kept-focus">Next</button></span></div><button id="btn-review">Review</button><button id="btn-final">Issue</button><div class="desk"><section class="cit"></section><section class="cit"></section><section class="cit"></section><section class="cit"></section></div><div hidden data-editor-check-messages></div></main></div><div id="overlay"></div>',
     { url: "http://localhost/" },
   );
   const document = dom.window.document,
@@ -137,7 +137,7 @@ for (const [owner, factory] of Object.entries(owners)) {
   editor.editorSync();
   assert.equal(document.activeElement, focus, "unchanged readiness actions retain their focused node");
   assert.ok(focus.isConnected);
-  assert.equal(document.getElementById("btn-review").textContent, "Review · 1");
+  assert.equal(document.getElementById("btn-review").textContent, "Review");
   trace.length = 0;
   editor.refreshSheet();
   assert.deepEqual(

@@ -169,11 +169,11 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     results.push({ removeAndDueDate: overlap });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => scrollTo(0, 0));
-    // Phase 3: at 390x844 one fixed task bar carries Next required field, Review and the primary action.
+    // Phase 3: at 390x844 one fixed task bar carries Fix next issue, Review and the primary action.
     const bar = page.locator(".editor-mobile-bar");
     assert.equal(await bar.isVisible(), true);
     assert.deepEqual(await bar.locator("button").allInnerTexts(), [
-      "Next required field",
+      await page.locator(".editor-readiness [data-fix-next]").innerText(),
       "Review",
       await page.locator(".editor-primary").innerText(),
     ]);
@@ -190,8 +190,8 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       return { lastBottom: last.bottom, barTop: bar.top };
     });
     assert.ok(clear.lastBottom <= clear.barTop, JSON.stringify(clear));
-    // Next required field focuses the field; the bar hides while a field is focused (virtual keyboard) and returns after.
-    await bar.getByRole("button", { name: "Next required field", exact: true }).click();
+    // Fix next issue focuses the field; the bar hides while a field is focused (virtual keyboard) and returns after.
+    await bar.getByRole("button", { name: /^Fix next issue \(/ }).click();
     assert.equal(
       await page.evaluate(() => {
         const ready = editorScreens.editorReadiness(doc(WriterState.state.docId)),
@@ -313,13 +313,16 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.setViewportSize({ width: 1366, height: 768 });
     assert.equal(await bar.isVisible(), false, "the task bar is narrow-screen only");
     await axeThemes(page, "r42-document");
-    // The summary's first-field button reaches the first unresolved required field.
-    await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).click();
+    // The desktop control continues to the next unresolved field after the mobile control.
+    await page
+      .locator(".editor-readiness")
+      .getByRole("button", { name: /^Fix next issue \(/ })
+      .click();
     assert.equal(
       await page.evaluate(() => {
         const ready = editorScreens.editorReadiness(doc(WriterState.state.docId)),
-          first = ready.list.find((c) => !c.ok && !c.soft && c.targets?.length);
-        return document.activeElement === document.querySelector(first.targets[0].selector);
+          targets = ready.list.filter((c) => !c.ok && !c.soft).flatMap((c) => c.targets || []);
+        return document.activeElement === document.querySelector(targets[1 % targets.length].selector);
       }),
       true,
     );
@@ -342,7 +345,13 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     // Phase 2: one readiness summary in the top line, which now reports no required fixes.
     assert.equal(await page.locator("[data-editor-readiness],#chk-chip").count(), 1);
     assert.match(await page.locator(".editor-readiness #chk-chip[data-editor-readiness]").innerText(), /^Ready for review/);
-    assert.equal(await page.locator(".editor-readiness").getByRole("button", { name: "Go to first required field" }).count(), 0);
+    assert.equal(
+      await page
+        .locator(".editor-readiness")
+        .getByRole("button", { name: /^Fix next issue \(/ })
+        .count(),
+      0,
+    );
     // R59: no draft Print preview; the Review dialog lists the remaining concerns and returns focus on Escape.
     assert.equal(await page.locator("[data-editor-preview]").count(), 0);
     await page.locator("#btn-review").click();

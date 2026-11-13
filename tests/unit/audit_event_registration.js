@@ -249,6 +249,79 @@ class Target {
   assert.deepEqual(calls, []);
   keys.calls[0].listener({ defaultPrevented: false, key: "Escape" });
   assert.deepEqual(calls, ["invalidate"]);
+  // One next-issue owner uses fresh checks, cycles all targets, resets after changes and keeps Review as fallback.
+  const fixDOM = new JSDOM('<button data-fix-next>Next</button><button id="btn-review">Review</button>');
+  const oldDocument = global.document;
+  global.document = fixDOM.window.document;
+  try {
+    const d = { id: "fix-document", draft: true };
+    Object.assign(api.WriterState, { DOCS: [d], state: { screen: "write", docId: d.id } });
+    let liveChecks = [
+      { ok: false, t: "Two fields", targets: [{ selector: "#one" }, { selector: "#two" }] },
+      { ok: false, soft: true, t: "Advisory", targets: [{ selector: "#advisory" }] },
+      { ok: false, t: "Another field", targets: [{ selector: "#three" }] },
+    ];
+    const focus = [];
+    let checkReads = 0,
+      reviews = 0;
+    const next = api.createUtilityEvents({
+      checks: () => {
+        checkReads++;
+        return liveChecks;
+      },
+      focusCheckTarget: (target, message) => focus.push([target.selector, message]),
+    });
+    assert.equal(next.registerCheckLinks(document), true);
+    assert.equal(next.registerCheckLinks(document), false);
+    document.getElementById("btn-review").addEventListener("click", () => reviews++);
+    const click = () => document.querySelector("[data-fix-next]").click();
+    click();
+    click();
+    click();
+    click();
+    assert.deepEqual(
+      focus.map(([selector]) => selector),
+      ["#one", "#two", "#three", "#one"],
+    );
+    assert.equal(checkReads, 4, "no readiness result is cached");
+    assert.equal(focus[1][1], "Two fields");
+    liveChecks[0].ok = true;
+    click();
+    assert.deepEqual(focus.at(-1), ["#three", "Another field"], "resolved fields are skipped immediately");
+    liveChecks[2].targets = [{ selector: "#changed" }, { selector: "#changed-two" }];
+    click();
+    click();
+    assert.equal(focus.at(-1)[0], "#changed-two");
+    api.WriterState.DOCS = [{ ...d }];
+    click();
+    assert.equal(focus.at(-1)[0], "#changed", "replacement with the same ID resets navigation");
+    liveChecks = [{ ok: false, t: "Record problem without a field" }];
+    click();
+    assert.equal(reviews, 1, "a concern without a target opens the complete explanation");
+    liveChecks = [{ ok: false, soft: true, targets: [{ selector: "#advice" }] }];
+    click();
+    assert.equal(reviews, 2, "a stale next button never treats an advisory as a required fix");
+    liveChecks = [
+      { ok: false, t: "Field", targets: [{ selector: "#field" }] },
+      { ok: false, t: "Record explanation" },
+    ];
+    click();
+    click();
+    assert.equal(reviews, 3, "targetless concerns are not skipped alongside field checks");
+    click();
+    assert.equal(focus.at(-1)[0], "#field");
+    const reads = checkReads;
+    api.WriterState.state.screen = "cases";
+    click();
+    api.WriterState.state.screen = "write";
+    api.WriterState.DOCS[0].draft = false;
+    click();
+    assert.equal(checkReads, reads, "navigation and issued documents reject stale commands");
+    assert.deepEqual(d, { id: "fix-document", draft: true }, "navigation does not edit document data");
+  } finally {
+    global.document = oldDocument;
+    fixDOM.window.close();
+  }
   console.log(
     JSON.stringify({
       passed: true,
