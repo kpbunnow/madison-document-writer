@@ -729,7 +729,6 @@ const { resolvedCaseFields } = languageCatalog;
 const accelaImport = createAccelaImport(
   deferredServices(
     {
-      focusIssuedCase: () => focusIssuedCase,
       fmtTime: () => fmtTime,
       toast: () => toast,
       fmtDate: () => fmtDate,

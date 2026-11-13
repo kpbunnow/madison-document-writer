@@ -968,15 +968,11 @@ export function createAccelaImport(services) {
         editor.state.screen = "write";
       } else {
         editor.state.screen = "cases";
-        editor.state.caseQ = k.number;
-        editor.state.caseFilter = "all";
-        editor.state.caseInspector = "";
-        // Workspace lists every case; mark this one so it can be found at once.
-        editor.state.issuedCase = k.id;
+        // Workspace lists every case; issuedCase marks this one so it stands out.
+        Object.assign(editor.state, { caseQ: k.number, caseFilter: "all", caseInspector: "", issuedCase: k.id });
       }
       services.saveDrafts();
       services.render();
-      if (editor.state.screen === "cases") services.focusIssuedCase(k.id);
     });
   }
 

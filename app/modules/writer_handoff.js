@@ -6,6 +6,16 @@ import { caseNumberKey } from "../assets/shared.js";
 import { caseFileFault } from "./case_file_rules.js";
 
 /* Construction is inert. Startup calls initWriterHandoff at its existing position. */
+/* Workspace lists every case (no search filter since 2026-11-11), so the requested case is marked, as after issuing a
+   document, and brought into view with focus. */
+const caseIdFor = (number) => workspace.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number))?.id || "";
+function renderMarked(services, id) {
+  const shown = !!id && editor.state.screen === "cases";
+  if (shown) editor.state.issuedCase = id;
+  services.render();
+  if (shown) services.focusIssuedCase(id);
+}
+
 export function createWriterHandoff(services) {
   function markWriterReady() {
     startup.WRITER_READY = true;
@@ -37,10 +47,7 @@ export function createWriterHandoff(services) {
         editor.state.caseQ = number;
         editor.state.caseFilter = "all";
         editor.state.screen = "cases";
-        // Workspace lists every case (no search filter since 2026-11-11); mark the requested one instead.
-        editor.state.issuedCase = existing.id;
-        services.render();
-        services.focusIssuedCase(existing.id);
+        renderMarked(services, existing.id);
       });
       if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
       startup.REPORT_RETURN = true;
@@ -64,10 +71,7 @@ export function createWriterHandoff(services) {
     editor.state.metric = "";
     editor.state.caseQ = number;
     editor.state.caseFilter = "all";
-    const loaded = workspace.CASES.find((k) => caseNumberKey(k.number) === caseNumberKey(number));
-    if (loaded && editor.state.screen === "cases") editor.state.issuedCase = loaded.id;
-    services.render();
-    if (loaded) services.focusIssuedCase(loaded.id);
+    renderMarked(services, caseIdFor(number));
     window.focus?.();
     const count = Number(message.eventCount);
     if (Number.isFinite(count) && count !== (file.events || []).length) {
