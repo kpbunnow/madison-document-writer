@@ -198,11 +198,19 @@ class GateArtifacts(unittest.TestCase):
                     raise HTTPError(request.full_url, 302, "redirect", {"Location": "https://unit.blob.core.windows.net/test?sig=synthetic"}, None)
                 return io.BytesIO(b"archive")
 
-        api.opener = Storage()
+        api.open_binary = Storage().open
         self.assertEqual(api.archive(1), b"archive")
         self.assertEqual(calls[0].get_header("Authorization"), "Bearer synthetic-secret")
         self.assertIsNone(calls[1].get_header("Authorization"))
         self.assertIsNone(calls[1].get_header("X-github-api-version"))
+
+    def test_metadata_binary_response_decodes_explicit_utf8(self):
+        api = GitHubEvidence(REPO, "synthetic-secret")
+        api.open_binary = lambda request, timeout: io.BytesIO('{"label":"José — synthetic metadata"}'.encode())
+        self.assertEqual(api.get("/actions/runs/123"), {"label": "José — synthetic metadata"})
+        api.open_binary = lambda request, timeout: io.BytesIO(b'{"label":"\xff"}')
+        with self.assertRaises(UnicodeDecodeError):
+            api.get("/actions/runs/123")
 
     def test_untrusted_storage_redirects_are_refused_before_fetch(self):
         from urllib.error import HTTPError
@@ -219,7 +227,7 @@ class GateArtifacts(unittest.TestCase):
                 def open(self, request, timeout, location=location):
                     raise HTTPError(request.full_url, 302, "redirect", {"Location": location}, None)
 
-            api.opener = Redirect()
+            api.open_binary = Redirect().open
             with self.subTest(location=location), self.assertRaisesRegex(ValueError, "destination"):
                 api.archive(1)
 

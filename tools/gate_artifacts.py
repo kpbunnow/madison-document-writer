@@ -32,7 +32,8 @@ class GitHubEvidence:
         if not token:
             raise ValueError("Authenticated GitHub Actions read access is required")
         self.base, self.token = "https://api.github.com/repos/" + repository, token
-        self.opener = build_opener(NoRedirect())
+        # urllib responses are binary streams, not locale-decoded text files.
+        self.open_binary = build_opener(NoRedirect()).open
 
     def request(self, path):
         if not path.startswith("/actions/") or ".." in path or "#" in path:
@@ -43,15 +44,15 @@ class GitHubEvidence:
         )
 
     def get(self, path):
-        with self.opener.open(self.request(path), timeout=60) as response:
+        with self.open_binary(self.request(path), timeout=60) as response:
             raw = response.read(32 * 1024 * 1024 + 1)
         if len(raw) > 32 * 1024 * 1024:
             raise ValueError("GitHub metadata response exceeds its bound")
-        return json.loads(raw)
+        return json.loads(raw.decode("utf-8"))
 
     def archive(self, artifact_id):
         try:
-            with self.opener.open(self.request("/actions/artifacts/" + str(artifact_id) + "/zip"), timeout=60):
+            with self.open_binary(self.request("/actions/artifacts/" + str(artifact_id) + "/zip"), timeout=60):
                 raise ValueError("Expected the GitHub artifact redirect")
         except HTTPError as error:
             try:
@@ -73,7 +74,7 @@ class GitHubEvidence:
             raise ValueError("Unexpected GitHub artifact storage destination")
         # No authorization header is sent to the signed storage URL; redirects are refused.
         try:
-            with self.opener.open(Request(location), timeout=60) as response:
+            with self.open_binary(Request(location), timeout=60) as response:
                 data = response.read(MAX_ARCHIVE + 1)
         except OSError, ValueError, HTTPException:
             raise ValueError("GitHub artifact storage read failed") from None
@@ -169,6 +170,7 @@ def unpack(data, artifact, destination):
     if destination.exists():
         raise ValueError("Artifact destination must be a fresh staging directory")
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        open_entry_binary = archive.open  # ZipFile entries are always binary streams.
         entries, names, total = archive.infolist(), set(), 0
         if not entries or len(entries) > 10000:
             raise ValueError("Artifact ZIP file count is invalid")
@@ -198,7 +200,7 @@ def unpack(data, artifact, destination):
                     target.mkdir(parents=True, exist_ok=True)
                 else:
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    with archive.open(entry) as source, target.open("xb") as output:
+                    with open_entry_binary(entry) as source, target.open("xb") as output:
                         shutil.copyfileobj(source, output)
         except BaseException:
             shutil.rmtree(destination)
