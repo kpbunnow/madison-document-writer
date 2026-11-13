@@ -435,6 +435,7 @@ const workspaceScreen = createWorkspaceScreen(
       app_workspacequeueContext: () => app_workspacequeueContext,
       caseState: () => caseState,
       document: () => document,
+      openCasesCard: () => openCasesCard,
       recoveryStatusHTML: () => recoveryStatusHTML,
       remindersPanel: () => remindersPanel,
       shell: () => shell,
@@ -1679,6 +1680,7 @@ const openCaseList = createOpenCaseList(
   }),
 );
 /* The Import inspection screen with the open-case list above the case-number lookup. */
+const openCasesCard = () => (WriterState.HELPER?.caseLookup ? openCaseList.card() : "");
 const importScreen = () => screenImport(openCaseList.card());
 const openCaseEvents = createOpenCaseEvents(deferredServices({ openCaseList: () => openCaseList }, ["openCaseList"]));
 const importEvents = createImportEvents(

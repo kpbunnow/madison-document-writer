@@ -1,5 +1,4 @@
-/* Where Document Writer opens: Import inspection on a PC that can reach the City case database (the helper reports
-   caseLookup), unless something needs attention, in which case the Workspace start is kept. */
+/* Workspace includes the inspector list, so startup keeps every restored screen, including all retained-work cases. */
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const esbuild = require("esbuild");
@@ -32,8 +31,8 @@ const esbuild = require("esbuild");
     change.state?.(s);
     return chooseStartScreen();
   };
-  assert.equal(fresh(), true);
-  assert.equal(s.state.screen, "import", "a PC with the City lookup and nothing unfinished opens on Import inspection");
+  assert.equal(fresh(), false);
+  assert.equal(s.state.screen, "cases", "a City PC opens on Workspace, where the inspector list now loads");
 
   const stays = (label, change) => {
     assert.equal(fresh(change), false, label);
@@ -56,7 +55,7 @@ const esbuild = require("esbuild");
   stays("an import awaiting review", { state: (w) => (w.state.acc = { cases: [{}] }) });
   stays("a saved import review", { state: (w) => (w.WORK.acc = { cases: [{}] }) });
   stays("a saved case number", { state: (w) => (w.WORK.entry["lookup-number"] = "CB2026-241-00001") });
-  assert.equal(fresh({ state: (w) => w.DOCS.push({ id: "issued", draft: false }) }), true, "issued documents are not unfinished work");
+  assert.equal(fresh({ state: (w) => w.DOCS.push({ id: "issued", draft: false }) }), false, "issued records keep the Workspace start");
   assert.equal(fresh({ state: (w) => (w.state.screen = "library") }), false, "a screen restored elsewhere is kept");
   assert.equal(s.state.screen, "library");
   console.log("PASS start screen");
