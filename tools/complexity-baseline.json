@@ -35,7 +35,7 @@
     "app/modules/import_events.js:createImportEvents#1:max-lines-per-function": 112,
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
     "app/modules/navigation.js:initNavigation#1:max-lines-per-function": 148,
-    "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 565,
+    "app/modules/new_documents.js:initNewDocuments#1:max-lines-per-function": 166,
     "app/modules/pdf_artifacts.js:createPdfArtifacts#1:max-lines-per-function": 144,
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 90,
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 167,
