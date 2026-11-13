@@ -218,7 +218,7 @@ const test = async () => {
   const nav = document.querySelector(".editor-sections");
   assert.deepEqual(
     [...nav.querySelectorAll("button")].map((b) => b.textContent),
-    ["Recipients", "Violation Items", "Review · " + editorReadiness(d).required.length],
+    ["Recipients", "Violation Items", "Review"],
   );
   assert.equal(nav.querySelectorAll("[data-editor-section]").length, 0, "no task button scrolls to a section");
   assert.equal(document.querySelectorAll("#btn-add-top").length, 1, "one entry to the violation picker");
@@ -279,7 +279,8 @@ const test = async () => {
 
   /* ---------- ITEM 5: one Review dialog ---------- */
   assert.equal(document.querySelectorAll("#editor-review,#checkbox-panel,#btn-checks,.passed-checks").length, 0, "no second review panel");
-  assert.equal(document.querySelectorAll("[data-mobile-review],[data-open-checklist],#btn-review").length, 3);
+  assert.equal(document.querySelectorAll("[data-mobile-review],#btn-review").length, 2, "desktop and narrow-screen Review remain");
+  assert.equal(document.querySelectorAll("[data-open-checklist]").length, 0, "the duplicate checklist control is retired");
   let ready = editorReadiness(d);
   assert.ok(ready.required.length > 0);
   const reviewButton = document.querySelector("#btn-review");
@@ -306,8 +307,8 @@ const test = async () => {
   document.querySelector('#overlay [data-review-blocking] .check-link[data-check-index="' + textCheck + '"]').click();
   assert.equal(WriterState.state.modal, null, "the check link closes Review");
   assert.equal(document.activeElement.dataset.field, "text", "and focuses the field");
-  // The summary link and the narrow-screen Review open the same dialog.
-  for (const selector of [".editor-readiness [data-open-checklist]", ".editor-mobile-bar [data-mobile-review]"]) {
+  // Desktop and narrow-screen Review open the same complete dialog.
+  for (const selector of ["#btn-review", ".editor-mobile-bar [data-mobile-review]"]) {
     document.querySelector(selector).click();
     assert.ok(document.querySelector("#overlay [data-review-dialog]"), selector);
     WriterState.state.modal = null;
