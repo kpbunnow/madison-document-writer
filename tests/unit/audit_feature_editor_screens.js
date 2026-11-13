@@ -38,7 +38,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   console.log('PASS audit_r60_development.js: one Workspace import entry and global search');
 `);
   },
-  "audit_r60_development.js: inline fill-in inserts safe text, cancels and refuses stale drafts": () => {
+  "audit_r60_development.js: a selected bubble takes typed text safely, Tab moves between bubbles, locked drafts refuse": () => {
     globalThis.MADISON_TEST_DATA = true;
     globalThis.CURRENT_AUTHORING = require("../fixtures/authoring_expectations.cjs");
     require("../fixtures/bundle_test.cjs")(`
@@ -51,34 +51,28 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   newDoc('k1','notice');
   const d = doc(WriterState.state.docId);
   d.items = [{id:'item1',no:'1',sections:['27.05(2)(c)'],text:'Repair ( ) and ( ).',title:'Wall'}]; render();
-  // Owner direction 2026-11-13: the bubble is typed in place; Enter writes it, Escape restores the bubble.
-  const key = (el, k) => el.dispatchEvent(new window.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
-  let blank = document.querySelector('.blank-edit'); blank.focus(); blank.click();
+  // Owner direction after R82: selecting a bubble focuses it; a typed key replaces it; Tab moves between bubbles.
+  const key = (el, k, extra = {}) => el.dispatchEvent(new window.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...extra}));
+  let blank = document.querySelector('.blank-edit'); blank.click();
   assert.equal(document.querySelector('#corrective-detail-form'), null, 'no corrective-action dialog');
-  let box = document.activeElement;
-  assert.ok(box.classList.contains('blank-input') && box.closest('[data-field="text"]'));
-  box.value = '  <script>unsafe</script> & detail  ';
-  key(box, 'Enter');
-  assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
+  assert.equal(document.querySelector('.blank-input'), null, 'no text box');
+  assert.equal(document.activeElement, blank, 'the bubble is selected');
+  key(blank, 'Tab');
+  assert.equal(document.activeElement, document.querySelectorAll('.blank-edit')[1], 'Tab moves to the next bubble');
+  key(document.activeElement, 'Tab', {shiftKey: true});
+  assert.equal(document.activeElement, blank);
+  key(blank, '<');
+  assert.equal(d.items[0].text, 'Repair < and ( ).');
   assert.equal(document.querySelector('.desk script'), null);
-  // Owner direction 2026-11-13: with another bubble left, focus moves to it; with none, it returns to the item text.
-  assert.ok(document.activeElement.classList.contains('blank-edit') && document.activeElement.closest('[data-field="text"]'));
-  blank = document.querySelector('.blank-edit'); blank.click();
-  key(document.activeElement, 'Escape');
-  assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
-  assert.ok(document.activeElement.classList.contains('blank-edit'));
-  document.activeElement.click(); box = document.activeElement;
-  box.value = ' '; key(box, 'Enter');
-  assert.equal(d.items[0].text, 'Repair <script>unsafe</script> & detail and ( ).');
-  document.querySelector('.blank-edit').click(); box = document.activeElement;
-  box.value = 'stale'; d.status = 'Final';
-  key(box, 'Enter');
-  assert.ok(!d.items[0].text.includes('stale'));
-  assert.equal(document.querySelector('.blank-input'), null);
-  console.log('PASS audit_r60_development.js: inline fill-in inserts safe text, cancels and refuses stale drafts');
+  assert.ok(document.activeElement.closest('[data-field="text"]'), 'typing continues in the item text');
+  blank = document.querySelector('.blank-edit');
+  d.status = 'Final';
+  key(blank, 'x');
+  assert.ok(!d.items[0].text.includes('x'), 'a locked draft refuses the key');
+  console.log('PASS audit_r60_development.js: a selected bubble takes typed text safely, Tab moves between bubbles, locked drafts refuse');
 `);
   },
-  "audit_r60_review_fixes.js: focus returns to the item text after the inline detail is written": () => {
+  "audit_r60_review_fixes.js: focus is in the item text after the first typed key": () => {
     globalThis.MADISON_TEST_DATA = true;
     require("../fixtures/bundle_test.cjs")(`
   global.Event = window.Event;
@@ -93,14 +87,13 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   const d = doc(WriterState.state.docId);
   d.items = [{id:'item1',no:'1',sections:['27.05(2)(c)'],text:'Repair ( ) now.',title:'Wall'}];
   render();
-  document.querySelector('.blank-edit').click();
-  const box = document.activeElement;
-  box.value = 'the north wall';
-  box.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+  const blank = document.querySelector('.blank-edit');
+  blank.click();
+  blank.dispatchEvent(new window.KeyboardEvent('keydown',{key:'T',bubbles:true,cancelable:true}));
   await new Promise(r => setTimeout(r, 20));
-  assert.equal(d.items[0].text, 'Repair the north wall now.');
-  assert.equal(document.activeElement.dataset.field, 'text', 'focus returns to the item text after the detail is written');
-  console.log('PASS audit_r60_review_fixes.js: focus returns to the item text after the inline detail is written');
+  assert.equal(d.items[0].text, 'Repair T now.');
+  assert.equal(document.activeElement.dataset.field, 'text', 'focus is in the item text after the first typed key');
+  console.log('PASS audit_r60_review_fixes.js: focus is in the item text after the first typed key');
 `);
   },
   "audit_r61_development.js: case-number edits update page furniture but never page counts": () => {

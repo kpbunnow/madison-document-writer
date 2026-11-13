@@ -42,6 +42,24 @@ function markDraftEdited(services, d, el) {
   services.actions.scheduleDraftSave();
 }
 
+/* Keys on a focused fill-in bubble: Tab and Shift+Tab move to the next or previous open bubble when there is one; a
+   printable character replaces the bubble with that character; Enter and Space keep the bubble selected. */
+function blankKey(services, e) {
+  const el = e.target;
+  if (!el.matches?.(".blank-edit") || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  if (e.key === "Tab") {
+    const open = [...el.ownerDocument.querySelectorAll(".blank-edit")],
+      next = open[open.indexOf(el) + (e.shiftKey ? -1 : 1)];
+    if (!next) return;
+    e.preventDefault();
+    next.focus();
+  } else if (e.key === "Enter" || e.key === " ") e.preventDefault();
+  else if (e.key.length === 1) {
+    e.preventDefault();
+    services.ui.fillBlank(el, e.key);
+  }
+}
+
 function inputValue(el) {
   return el.dataset.case === "number" ? el.textContent.trim() : el.isContentEditable ? el.innerText : el.value;
 }
@@ -219,6 +237,7 @@ function onDocumentChange(services, e) {
 }
 
 export function createEditorEvents(services) {
+  // Selecting a fill-in bubble focuses it; typing then replaces it (document_feedback.js).
   function registerBlankClicks(target = document) {
     return registerEventOnce(target, "editor.registerBlankClicks", "click", (e) => {
       const el = e.target.closest(".blank-edit");
@@ -230,12 +249,7 @@ export function createEditorEvents(services) {
   }
 
   function registerBlankKeys(target = document) {
-    return registerEventOnce(target, "editor.registerBlankKeys", "keydown", (e) => {
-      if (e.target.matches(".blank-edit") && ["Enter", " "].includes(e.key)) {
-        e.preventDefault();
-        services.ui.fillBlank(e.target);
-      }
-    });
+    return registerEventOnce(target, "editor.registerBlankKeys", "keydown", (e) => blankKey(services, e));
   }
 
   function registerPointerStart(target = document) {
