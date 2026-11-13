@@ -8,6 +8,7 @@ This manual explains how inspectors prepare documents, preserve case history, re
 
 R80 is a release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
+<!-- guide:chapter-1:start -->
 ## 1 Start here and daily routine
 
 When Writer opens, wait for **Restoring saved workspace** to finish. If **Saved workspace could not be restored** appears, editing is paused to protect saved work. Choose **Reload and retry**; if the problem continues, ask IT to check this browser profile and preserve its saved work. Do not clear browser site data to bypass the message.
@@ -33,7 +34,9 @@ The four Writer destinations are Workspace, Order language, Reports, and Tools &
 **Routine confirmations.** The latest ordinary success message replaces earlier ordinary successes in the same screen or dialog. Choose Details to open Message history, which retains every confirmation. Messages with Undo, active progress, warnings and errors stay separate. A message you are focusing or hovering stays available.
 
 **Warnings and errors.** Warning and error messages at the top of the page clear after 15 seconds each time they are shown (hovering or focusing a message restarts the timer), in Writer and in Reports. Cleared messages remain in Message history. Checks that block issuance stay in the Review dialog until resolved, and ongoing conditions stay visible in their own indicator until resolved.
+<!-- guide:chapter-1:end -->
 
+<!-- guide:chapter-2:start -->
 ## 2 Install update and verify the workstation
 
 **Administrator procedure.** Use the deploy folder from the current release package. Do not install individual files from source. Inspectors do not need Node.js or npm. The supported environment is 64-bit Windows with Chrome or Edge and Python 3.14 or later (64-bit, with the `py` launcher). The bundled address parser currently supports CPython 3.14 only; later versions use the basic standardizer. IT must install Python 3.14 on every PC before deploying a release containing this requirement. After installing it, IT must run the new verified shared diagnostic launcher once per PC to recreate the desktop shortcut under 3.14; installing Python alone does not retarget an old shortcut. Refresh taskbar/Start-menu pins separately. See the generated deployment guide. Classic Outlook is the supported draft handoff target; New Outlook has not been accepted.
@@ -59,7 +62,9 @@ The four Writer destinations are Workspace, Order language, Reports, and Tools &
 **Deliberate rollback.** IT first preserves the complete current installation, device profile and backup, operational records, PDF receipts, configuration and independent anchor evidence, then stops the program (Exit Document Writer, or sign-out for a helper without it) and closes its windows. Restore the separately retained trusted earlier installer using the documented rollback procedure. The shared folder never downgrades a PC automatically. Runtime rollback never rewinds issued records or replaces current case data.
 
 The generated Start Document Writer - READ ME.md is the file-level installation reference. The City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) provides the required test and signoff form.
+<!-- guide:chapter-2:end -->
 
+<!-- guide:chapter-3:start -->
 ## 3 Use Workspace and case history
 
 Workspace shows every case loaded on this device, with its property and case number, issued documents, next due date, inspector and one recommended action. With six or more cases, Find a case in this list highlights the cases whose address or case number match what you type; press Enter to go to the first. No case is ever hidden. Needs resolution, work in progress, closed status and deadline warnings appear with the affected case. Device saving and connection problems remain in Saved work & connection. There are no workspace search, view or inspector filters; older saved filter settings cannot hide cases.
@@ -77,7 +82,9 @@ Issued documents use frozen source facts. Changes to current owner details, cata
 **Resolve attention states.** Open the named case action rather than making a replacement case. Confirm save uses the retained original request. Review shared changes compares the current shared record. Save case to shared folder saves a queued case file after shared history is checked; it is also among an issued document's actions while the shared folder is connected. Without a connection that action reads Download workspace backup: it downloads a backup and does not save the shared case record. Connect shared folder beside it opens the connection settings. File issued PDF completes original filing after issuance. Saved work & connection explains whether the remaining work concerns this device, shared cases or PDFs.
 
 Navigation first saves device work. If that save fails, Writer keeps the current screen and offers a workspace backup. Keep the tab open and preserve that backup before restarting or clearing anything.
+<!-- guide:chapter-3:end -->
 
+<!-- guide:chapter-4:start -->
 ## 4 Import a case or later inspection
 
 **Open cases by inspector.** On a City PC with lookup support, Workspace includes the Open cases by inspector card. It appears below retained case work, or before the empty-workspace message when no case is loaded; Import inspection still offers the same list. Choose an inspector, then Show open cases. The program remembers the inspector you last showed on this PC and opens that inspector's open cases as soon as Workspace loads; choose another inspector at any time. The list shows each open enforcement case in its own bubble, like an inspection result, with its case number and address on the first line and its detailed description below, and the soonest due date in its own column on the right; type in the search box to narrow it by case number, address or description. Use Refresh open cases to load the chosen inspector's cases again (the time it was loaded is shown) and Refresh inspector list to reload the inspectors and their counts. A case you have just closed in Accela can still appear until the report data catches up with Accela; refresh again later if it does. Select a case's bubble: Document Writer puts that case number in the lookup box and opens the import window, which looks up the case's available inspections. When exactly one inspection can be imported the window shows it with a note that one inspection is available; review it and confirm the import. When several qualify, choose one in the window and confirm it. Nothing is imported until you confirm. Exit closes the window and returns you to the open cases (a lookup still running is stopped); Save draft & return to Workspace keeps the review for later. Choose Exit, then select a different case to look that one up; the selected bubble is highlighted while its window is open. Case number and address stay on one line and only the description wraps. The due date is the soonest outstanding due date on the last document issued for the case (an official notice, extension, citation or any other issued document that lists items with deadlines); it is blank when no order has been issued, and the list is ordered with those cases first, then from the most overdue to the furthest away. A due date is only as current as the last time the case was saved to the shared folder, and it is shown only when it matches the saved, verified case; when it cannot be confirmed (for example the case file changed after its summary was written, or the summary is missing or damaged) the column says Not confirmed instead, and those cases follow the dated ones. If the shared case folder cannot be read the list says that due dates are not available. In the inspection results, the inspector is on the first line and the inspection type, date and status are on one line below it, showing just the returned values. Inspectors are shown by full name exactly as the open-case report lists them (by Accela user ID when Accela has no name for the person). If the list cannot load, a plain message says why (for example your Windows account may not run the report, or the report server did not answer) with Try again. The list is not saved. Document Writer opens on Workspace and starts loading the inspector list at once (the first load can take up to a minute). Retained drafts, pending saves and import reviews remain visible, and a destination restored elsewhere is kept. The case-number lookup below the list remains for any case that is not on it.
@@ -104,7 +111,9 @@ Record Category Snow Removal selects the snow workflow and preloads its 10.28 it
 **Pause or retry.** Save draft & return to Workspace retains the lookup or review on this device. A retained review is a snapshot with its retrieval time; use Find Case Inspections again for fresh information. Cancel lookup suppresses its result. A failed or empty lookup preserves prior work. If the shared case changed, review the refreshed comparison and confirm again. A delayed earlier result must not replace the current case or reopen Import after navigation.
 
 The source query has no permanent inspection ID. Matching uses case, type, actual date and normalized time, with conservative handling of missing historical time. Do not alter time to bypass a reuse warning. See CASE-LOOKUP-GUIDE.md for the report setup and diagnostic codes.
+<!-- guide:chapter-4:end -->
 
+<!-- guide:chapter-5:start -->
 ## 5 Prepare an Official Notice
 
 Start from the imported initial inspection. Verify owner, property, parcel, inspector, inspection date and any supplied time. When a check identifies a missing field, use Fix next issue or the check's link to reach it on the working document. The Inspection section appears only when there is something to act on there, such as special-document details, snow facts or a correction. The parcel comes only from the Accela import: if it is missing or not 12 digits, correct it in Accela and import the inspection again; a notice cannot be issued without it. Review the mailing block rather than relying on an address parser to establish ownership or service. The header shows the case number, document type and the document's state (for example Draft · not issued). Recipients, Violation Items and Review share one task bar with the readiness summary, directly above the working document. Device saving is reported at the foot of the left-hand rail; Saved work & connection is in Tools & settings.
@@ -123,7 +132,9 @@ Private wording edits belong to the retained draft. Removing and reselecting the
 **Initial citations.** The Cite option appears only when the imported Accela inspection status is Citation. Select Cite only for the items actually being charged. Complete Initial-inspection citations before using Issue notice and citations together. The deadline record and citation save atomically; the initial-citation letter carries the notice content. The notice is retained as Delivered within the citation rather than producing an extra owner notice. Each charge has four court copies. No reinspection is invented.
 
 Use a correction after issuance. Do not renumber or delete historical items to hide an error. The program's checks support the division's process; a green check is not a legal determination about the selected ordinance or deadline.
+<!-- guide:chapter-5:end -->
 
+<!-- guide:chapter-6:start -->
 ## 6 Find select and review order language
 
 Order language (Browse language) and the Select for this notice picker use Approved and standard by default (owner decision 2026-11-01), so bundled language that the owner approved for selection but the division has not yet reviewed is listed. Results are grouped under headings for each category. The consolidated language, shown as Violation Categories (Interior Surfaces, Doors and Security and so on), replaces the earlier checklists: the picker's left-hand list shows only the Violation Categories. A search still covers every checklist, so language that exists only in an earlier checklist (Property Maintenance, Construction — No Permit, Housing and Zoning), such as snow removal, can still be found; those results are labelled as earlier checklists, and an earlier entry notes when Violation Categories has language for the same ordinance. Browse language lists Violation Categories first and keeps the earlier checklists in its checklist list. Search ordinary words, a title, an ordinance or a catalog identifier across checklists. An ordinance such as 27.04(2)(g), MGO 27.04(2)(g) or SPS 321.125 lists only the entries that cite that section or a narrower part of it (27.04(2)(g)5); entries that cite the parent or a neighbouring section (27.04(2), 27.04(2)(c)) are kept under Show related sections. Digits inside the wording never count as an ordinance. Words match the beginning of a word, entries whose title matches come first, and multiple terms narrow the results. Trash, garbage, rubbish, refuse and debris are related search terms; so are handrail, railing and banister; smoke detector and smoke alarm; and outlet and receptacle.
@@ -151,7 +162,9 @@ Recording creates an immutable shared version. If another operator has submitted
 Review save was not confirmed may indicate a lost acknowledgement after a successful shared write. Refresh and compare recorded status before retrying. A later browser-cache failure does not undo an acknowledged shared review. During an outage, cached status is last-known information and cannot authorize proposed wording. New issuance still requires the normal successful shared review check.
 
 Named reviewers are operator-supplied. IT permissions and division authority govern who may record decisions. Favorites and role-based logins are not configured by this release.
+<!-- guide:chapter-6:end -->
 
+<!-- guide:chapter-7:start -->
 ## 7 Prepare and complete citations
 
 Open the charge card for each selected item. Its summary shows the charged ordinance, citation number, dates and amount status. Edit charge and dates exposes the editable facts; Pricing details and authorization shows the schedule resolution, assessments, counted history and approved basis. The court faces are previews of the same retained charge.
@@ -180,7 +193,9 @@ A recorded source documents the operator's basis; it does not create court appro
 Equivalent ordinance formatting retains the approved basis. A different ordinance or offense requires the appropriate new review. Unchanged-charge corrections retain historical pricing and court costs. Citation issue date and a corrected document's mailing date are separate facts.
 
 **Mandatory appearance.** New mandatory-appearance issuance is held in both Writer and the helper until approved distinct defendant instructions are integrated. Keep the draft and contact the division policy owner. Do not enter a deposit or switch the charge merely to bypass the hold. Historical frozen reprints are not rewritten.
+<!-- guide:chapter-7:end -->
 
+<!-- guide:chapter-8:start -->
 ## 8 Prepare snow removal citations
 
 Snow is a dedicated MGO 10.28 workflow. Record Category Snow Removal selects it automatically; an eligible unissued new case can also select the snow workflow deliberately. It uses the one snow item without an Official Notice, ordinary deadline or fabricated reinspection event. Other violations require a separate case.
@@ -197,7 +212,9 @@ The snow item has no due date. Ordinary deadline assignment, reminders, overdue 
 **Division policy decisions.** The packaged defaults use a July 1 season boundary, count prior different owners at the same property and close on PDF filing. These defaults, the description, labels, contacts and seasonal content need actual division confirmation. The bundled sand-site list is the supplied 2025–26 material with no named current seasonal review. A warning does not certify the list for 2026–27.
 
 Tools & settings → Review snow-letter content records the administrator, reason, source and confirmation. New snapshots freeze the content actually used. Old reprints do not automatically adopt a later season or price.
+<!-- guide:chapter-8:end -->
 
+<!-- guide:chapter-9:start -->
 ## 9 Record a reinspection
 
 **Group due dates on reinspection.** On an open reinspection worksheet with an extension or citation intent (or before choosing an intent), Assign due dates appears beside item review, outside collapsed Inspection checks. It lists the items still outstanding; select items, choose a date and Apply date to selected items. The selected-item count shows the scope within this reinspection only. Corrected, withdrawn and carried results are excluded. Undo restores the previous dates while the worksheet remains editable. The three-date limit and seven-day spacing apply.
@@ -216,14 +233,16 @@ Open Reinspect from the case or import an eligible unused completed reinspection
 
 Previously confirmed compliance retains its historical result date. No access is not compliance; record the factual access attempt in notes. Changing the visit date moves only implicit result dates; explicitly entered dates remain and are checked. References to original deadlines remain distinguishable from new deadlines.
 
-Use Undo last result or U to reverse the last worksheet result within its context. Shortcuts are ignored in editable fields and for held keys. Moving to another case clears the current focus and Undo context. There is no bulk automatic completion of item outcomes.
+Use Undo last result or U to reverse the last worksheet result within its context. Shortcuts are ignored in editable fields and for held keys. Moving to another case clears the current focus and Undo context. Bulk choices apply only after you deliberately choose All corrected or All no change; they preserve outcomes you already recorded.
 
 Open Inspection checks for missing or inconsistent facts. A check reveals all rows and focuses the exact affected field. Completing outcomes also exposes all items for final review. Select the required action group and an available document only after reviewing the facts. Nothing is automatically chosen as the legal action.
 
 Save draft & return to Workspace retains incomplete or invalid work only after device saving succeeds. A draft's Review inspection action returns to the worksheet and retains its previous draft. Restore previous draft and inspection recovers that exact paired state, including private wording. A pending issuance must be confirmed through its retained attempt before changing the worksheet.
 
 One physical visit may support a primary follow-up and compatible scoped documents. Issuing another compatible document does not create another inspection. See the next two chapters for eligibility and authority requirements.
+<!-- guide:chapter-9:end -->
 
+<!-- guide:chapter-10:start -->
 ## 10 Choose follow ups and document families
 
 In the reinspection chooser, select Give more time, Take enforcement action, Restrict occupancy or Confirm compliance. Then choose a document and Create draft. Choices are labeled primary follow-ups or additional scoped documents. Open All document types (10 families) / why unavailable for the complete list and reasons. The program explains eligibility; it does not recommend a legal action.
@@ -251,7 +270,9 @@ On an issued action, Add another document for this inspection offers compatible 
 Create a scoped order / administrative letter from current case facts requires an explicit selection. It uses the factual existing inspection and adds no new visit. New observations need an actual new inspection. An initial emergency order can start from the imported initial inspection through Initial inspection action without inventing an earlier notice. An initial Official Notice can later use those same retained inspection facts.
 
 Compliance closes the applicable violation case only after confirmed shared publication. Withdrawal is not compliance. Continuing occupancy restrictions remain separate even when violations are corrected or the building becomes vacant. A physical No Occupancy placard is not generated by this release.
+<!-- guide:chapter-10:end -->
 
+<!-- guide:chapter-11:start -->
 ## 11 Complete scoped orders and authority review
 
 Scoped orders and administrative families begin without legal approval. New Best Interest and Vacancy Extensions (authoring 16) use the simplified entry described below; other scoped families and historical extension formats retain their review requirements. Drafting is possible while review is incomplete. Where Authority, wording and signer review is required, supply the actual division reviewer, current-code source, revision or effective date, amendment review, current-code review date, approved authority/wording/procedure reference, signer and delegation. Assigned inspector, authorized signer and issuing operator are separate retained facts.
@@ -271,7 +292,9 @@ Scoped orders and administrative families begin without legal approval. New Best
 **Extension layout.** Best Interest and Vacancy Extensions use the regular Extension's header, recipient block, items table, continuation headers, footer and copy handling. All items are listed, including corrected items ruled through with the confirmed date. New Best Interest and Vacancy Extensions have no signer block, so they show no signer fill-in bubbles; footers are unchanged. The regular Extension is unchanged. Earlier drafts and issued documents keep their own format; chapter 22 describes the earlier Best Interest and Vacancy formats.
 
 A referred case allows only an Update for Case Referral or a Compliance Letter; the former reviewed emergency / occupancy exception is removed. Draft wording, supplied templates and synthetic test approvals are not proof of current law. Use the division's actual review; current-code and procedure approval remain documented acceptance items.
+<!-- guide:chapter-11:end -->
 
+<!-- guide:chapter-12:start -->
 ## 12 Review issue file and deliver
 
 Review the complete letter and every associated court copy. Check the case identity, respondent, item scope, factual dates, mailing date, recipients, signature authority, approved pricing and all unresolved checks. Clicking a check reveals the relevant collapsed section and focuses its specific field. Fill-in bubbles, missing dates or sources, shared conflicts and policy holds must be resolved before issuance.
@@ -296,7 +319,9 @@ In the editor, mailing addresses flow below the header to prevent overlap when i
 **Email.** Select and verify the recipients in the issuance review. Outlook handoff opens a draft; inspect its subject, addresses, body and attachments and send under the division's procedure. Opening Outlook or successfully preparing the draft does not prove sending, receipt or service.
 
 **Outside records.** Complete actual mailing, court filing, approved abatement steps and Accela recording separately. Document Writer is not an Accela write integration or an automatic dispatch service. Use retained record notes for relevant factual references; do not describe a filing attempt as completed delivery.
+<!-- guide:chapter-12:end -->
 
+<!-- guide:chapter-13:start -->
 ## 13 Correct documents and preserve history
 
 Choose the action that reflects what actually happened. Edit an unissued draft directly. Use Correct document for a recording error in an issued action. Use a new physical inspection for later observations. Use a record note when an earlier action has dependent work or when an explanation should be retained without altering the frozen source.
@@ -318,7 +343,9 @@ Choose the action that reflects what actually happened. Edit an unissued draft d
 **Restrictions and release.** A wording correction cannot change No Occupancy scope into a permission to occupy, or silently alter substantive release/expiration conditions. Those changes need a newly reviewed action. Withdrawal of a scoped order needs its reason and division instructions/reference. An ordinary compliance letter is not an occupancy release.
 
 Starting or abandoning a correction does not withdraw the original. Current case-detail corrections may inform future documents and reports; the earlier frozen body and PDF remain evidence of what was issued.
+<!-- guide:chapter-13:end -->
 
+<!-- guide:chapter-14:start -->
 ## 14 Understand saved work and connection
 
 Open Saved work & connection from Tools & settings, below Workspace, or from the case's recovery link. Its three sections describe separate facts. Read the section that matches the problem before retrying.
@@ -340,7 +367,9 @@ Open Saved work & connection from Tools & settings, below Workspace, or from the
 Repeated unresolved messages appear once. Dismissing an alert does not clear its underlying case state. Message history in Tools retains dismissed messages. Case-specific integrity evidence is read-only for inspectors.
 
 Expand Backups and recovery. Recovery on this device holds Recover an unfinished case and Create recovery copy on this device; Download or restore a workspace holds Download workspace backup and Restore workspace backup (into an empty workspace). Expand Connection checks and technical details for helper, share and case lookup information, Storage diagnostics, Inspect a case lock and catalog checks. These are diagnostic actions, not permission to force an uncertain save or remove a remote lock.
+<!-- guide:chapter-14:end -->
 
+<!-- guide:chapter-15:start -->
 ## 15 Back up restore and recover safely
 
 Workspace backup, a case-record export, an unfinished-case recovery copy and a program rollback solve different problems. Select the one that matches the loss. Keep backups in the division's approved location and follow its retention policy.
@@ -363,7 +392,9 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 **After an update interruption.** IT checks the installer's retained release state and logs before retry or rollback. Keep operational data, integrity registry, anchors, PDF receipts and device backup intact. Restoring a stale whole-share backup can discard later confirmed work from other clients and must be coordinated as an incident recovery.
 
 **Test recovery.** Use isolated synthetic cases for restore drills. Verify private wording, partial citation values, worksheet outcomes, pending original identities and exact original PDF retrieval. A successful program launch alone does not prove that the data and recovery paths work.
+<!-- guide:chapter-15:end -->
 
+<!-- guide:chapter-16:start -->
 ## 16 Run reports and interpret their dates
 
 Open Reports from Writer. The common choices are visible in its rail; More reports lists the remaining reports. Every report describes its population and date basis. Filters act on retained verified summaries; drafts do not become issued report actions.
@@ -389,7 +420,9 @@ Click a sortable column heading to set its order. The active screen, CSV, matchi
 Saved local views retain their report, dates, filters, map choice and sort. Relative local date choices recalculate on use. Shared views retain their established filter/date/map format without shared sort. Manual report switching clears the saved-view selection and old return notice while retaining the working filters and sort context.
 
 Owner grouping by mailing address can combine owners represented by the same manager; names are shown for interpretation. Citation tiers count effective issued history, not an external conviction feed. Document action counts can exceed visit counts because compatible actions can share one physical visit.
+<!-- guide:chapter-16:end -->
 
+<!-- guide:chapter-17:start -->
 ## 17 Verify report coverage maps and exports
 
 **Check coverage first.** Open Data and definitions. Review the read time, included case files and excluded summaries. Missing summaries, exact source-revision mismatches, earlier-format summaries, summaries not matching their verified case and unreadable or duplicate entries are explained separately. Categories can overlap; an unreadable-entry count is not a unique-case count. Do not add them together as a case total.
@@ -405,7 +438,9 @@ Each included current summary must match the independently read case bytes and i
 **Deposit schedule.** The deposit explorer presents searchable human-readable rules, conditions, effective dates and source details. Pagination limits screen volume; it does not omit the retained schedule. A displayed row may be conditional or require an authorized manual amount. The explorer is not a new court policy. If a sort fails, the report displays its default order and a notice; review the active order again before distributing an export. A malformed helper response reports its HTTP status and asks you to refresh or contact IT rather than showing an unreadable response as current report data.
 
 **Refresh speed.** The helper overlaps a maximum of four read-only file operations per request while retaining independent revision and integrity checks. Allow a shared read to finish before treating its coverage as current. Actual City cold/warm performance, history volume, simultaneous users and budget approval still require measurement.
+<!-- guide:chapter-17:end -->
 
+<!-- guide:chapter-18:start -->
 ## 18 Use planning tools and display controls
 
 Tools & settings groups actions by purpose. Cases & planning contains Reminders and Batch draft due dates. Saved work & connection and Open saved case handle persistence; Exit Document Writer, in the same group, stops the program on this computer (see chapter 1). Program instructions opens this manual and its printable PDF. Display & help contains theme, message history and keyboard shortcuts. Administrator tools, collapsed at the end, contains Review catalog, Administrator deposit override and Review snow-letter content; each keeps its own administrator checks, and the grouping grants no authorization.
@@ -423,7 +458,9 @@ Tools & settings groups actions by purpose. Cases & planning contains Reminders 
 **Administrative deposit exceptions.** Only an operator acting under actual division authority should use Administrator deposit override. Open it from Tools & settings → Administrator tools. Supply the actual named administrator, reason, source and required confirmation. The helper records authorization and Reports exposes overridden deposits. This does not change the master schedule, establish court authority or approve unrelated citations.
 
 Keep technical diagnostics with the administrator. Avoid putting passwords, operational personal data or whole case folders in casual support messages. Provide the specific safe error code, time and approved log excerpt needed to investigate.
+<!-- guide:chapter-18:end -->
 
+<!-- guide:chapter-19:start -->
 ## 19 Administer configuration integrity and maintenance
 
 Use the division's IT and policy owners for changes. Deploy configuration as a coordinated release or through the program's explicit shared administration workflows. Do not edit live JSON histories or generated HTML to work around a check.
@@ -445,7 +482,96 @@ Use the division's IT and policy owners for changes. Deploy configuration as a c
 **Retention.** Retain case events, migration evidence, anchor receipts and exact original PDF operation receipts according to approved records policy. The program does not compact or delete them. Future compaction requires records approval and proof of archived-byte retrieval and interruption recovery before implementation.
 
 **Release ownership.** Only the release owner writes to the deployment folder’s program files; inspectors have read-only access there. The release owner builds each release with the complete gate (tools/verify_release.py, then tools/package_release.py), publishes the deploy ZIP’s SHA-256 through a separate trusted channel, and keeps the previous complete release for deliberate rollback. IT records the folder permissions in the acceptance record.
+<!-- guide:chapter-19:end -->
 
+<!-- guide:lookup-support:start -->
+### Connection and deployment
+
+Install the entire `deploy` folder as described in `Start Document Writer - READ ME.md`, stop the running program (Exit Document Writer in Tools & settings; for an older version without it, close its command window or sign out of Windows), and double-click the Document Writer icon again. Confirm the build and helper versions match the install guide. The launcher requires `case_lookup.py`, `inspector_cases.py`, `ssrs_reports.py` and `ssrs_fetch.ps1` in addition to the prior core runtime. Windows PowerShell 5.1 is used; no SQL client, ODBC driver or additional Python package is installed. City script-signing/application-control policies still apply. IT should approve or sign the delivered script through its normal process if required; the launcher does not bypass those policies.
+
+The live data comes from two reports published on the City report server `entreports.cityofmadison.com`, in `/Prod/Local/Building Inspection/Enforcement/`:
+
+- `DocumenGeneratorImport` (parameter `CaseNumber`): one case's property, owner and every inspection, for Find Case Inspections and for a selected open case.
+- `OpenEnforcementCases_BI` (parameter `Inspector`): the open enforcement cases. Rendered without a parameter it lists every inspector's cases, which the helper counts for the inspector list; one inspector's cases are rendered with the name exactly as the report printed it.
+
+Each report is rendered as XML (`rs:Format=XML`) by Windows PowerShell with the signed-in user's Windows sign-in (`-UseDefaultCredentials`). No password, credential or connection string is stored, and each person sees only what their own account may open in the Reports portal. The computer must be on the City network, directly or through VPN. The report server comes only from the verified release (`trusted-connections.json`); the report paths are fixed in the program. The only values sent are a validated case number or an inspector name taken from the report's own list, URL-encoded. The report owner (the division) owns the report queries, including the open-case rule; a change saved to a report applies at once, without a new release, as long as its name, parameters and column names stay the same.
+
+The shared `Case Lookup/settings.json` has one setting: `{"enabled": false}` disables case lookup and inspector lists (retained workspace data stays available). The `server` and `database` keys of earlier releases are still accepted so an existing file keeps working, and are ignored. No password or connection string belongs in this file. Settings are revalidated for each request, including one that could use a cached list. The inspector list is kept for up to 30 minutes for the same shared folder and settings; Refresh inspector list and Try again read it fresh, and each inspector's cases are always read fresh.
+
+The report helper waits up to 40 seconds for one case and 90 seconds for an open-case list. One case lookup and one list run at a time. A case answer over 1,000 rows, a list over 3,000 cases for one person or 200 inspectors, or a report answer over 20 MB fails without a partial import. Redirects are refused. Canceling a browser request suppresses its result.
+
+### Data mapping and traceability
+
+The report's XML export names each column after the report's text box. A column whose value is empty in Accela (NULL) is left out of the export and is treated as blank. The case report's definition is retained as `tests/fixtures/reference/Document-Generator-Import.rdl` and the open-case report's as `tests/fixtures/reference/OpenEnforcementCases_BI.rdl`, for maintenance.
+
+| Report column | Import behavior |
+|---|---|
+| CaseNumber | Exact case identity, normalized to uppercase; a row for another case refuses the import |
+| SiteAddress | Street address plus separately retained city/state/ZIP |
+| OwnerName / OwnerAddress | Current owner and mailing address |
+| ParcelNumber | Text, preserving leading zeros; existing formatting rules apply |
+| CaseDescription | Imported as supplied |
+| HistoricDistrictName | District name as the report prints it; when the report leaves it blank it is worked out from ZoningDistrict |
+| HistoricDistrict / IndividualLandmark | Not printed by the report; worked out from ZoningDistrict with the report query's own rules (HIS-MH, HIS-TL, HIS-UH, HIS-MB, HIS-FS; HIS-L). A Yes flag with a missing corresponding name blocks the import |
+| Landmark | Retained for the existing landmark document checks |
+| InspectionDate / InspectionTime | Completed inspection date and separate time; the time column is authoritative |
+| InspectionType / InspectionStatus / InspectorName | Existing eligibility and roster checks |
+| RecordCategory | Snow Removal selects the snow workflow |
+| DetailedDescription / ZoningDistrict | Not retained in the imported case, as directed by the division |
+
+Accepted case metadata includes `accela.source`: `kind` `ssrs`, the report server, the report path and the retrieval time. Cases imported by earlier releases keep their SQL provenance unchanged. Issued documents retain their frozen source facts. Refresh does not backdate or rewrite an issued document; use the correction workflow for changes to issued evidence. This is a read-only report integration, not an Accela upload or filing confirmation.
+
+### City-network acceptance
+
+The supplied automated tests use synthetic report exports and a scripted PowerShell. The real report render, Windows sign-in, the report server's certificate and City network access cannot be verified from the build environment.
+
+On a City PC, for at least two inspector accounts: load the inspector list and compare names and counts with the OpenEnforcementCases_BI report in the portal; open an inspector's cases and compare them with the report run for that inspector; look up an ordinary case, a snow case and a case with a landmark or historic district and compare property, owner, parcel, historic/landmark fields, completed inspection date/time/status and inspector with DocumenGeneratorImport. Check off-network behavior (no VPN), an account without access to the reports, Refresh after closing a case in Accela, and that no console window flashes during a lookup. Keep test output out of operational case folders.
+
+| Displayed code | What to check |
+|---|---|
+| `SSRS_401` | The report server did not accept the Windows sign-in. Confirm the person can open the report in the Reports portal. |
+| `SSRS_403` | The account may not run the report. Ask the report administrator for access to the Enforcement report folder. |
+| `SSRS_404` | The report was moved or renamed. Restore its path and name; the program reads fixed names. |
+| `SSRS_500_rs...` and other `SSRS_<status>` | The report server could not run the report. The `rs` code is the report server's own error name (for example `rsInvalidReportParameter`). |
+| `SSRS_NETWORK` | City network or VPN, DNS and the report server's availability. |
+| `SSRS_TLS` | The report server's certificate was not trusted by the PC. |
+| `SSRS_REDIRECT` | The report server sent the request elsewhere; the program refuses redirects. Check the server address. |
+| `SSRS_NOT_XML` | The answer is not valid UTF-8 report XML, or a web page came back instead of data (usually a sign-in or error page). Open the report in the portal on that PC and check its XML export. |
+| `SSRS_DTD` | The XML contained a document type or entity declaration. The report data was refused; ask the report administrator to check the export. |
+| `SSRS_LAYOUT` | A data row has an unexpected element name or namespace. Nothing was loaded; restore the report’s expected Details rows and column names. |
+| `SSRS_WRONG_REPORT` | The XML came from a different report. The report's name must stay exactly as above. |
+| `SSRS_LIMIT` | The answer exceeded the size limits. Check the report for duplicate or unexpected rows. |
+| `SCRIPT_POLICY` | Ask IT to approve the delivered helper under City policy. Do not bypass PowerShell policy. |
+| Script/helper returned no data | Confirm the complete deployment is installed and PowerShell is permitted by City policy. |
+
+After a failed lookup, `%LOCALAPPDATA%\MadisonDocWriter\case-lookup-diagnostic.txt` holds the full PowerShell error. It may name the server, the account or local paths; review it and send it only to IT. The next failed lookup replaces it.
+
+When the lookup is unavailable (not a City Windows computer, off the City network, disabled by the administrator, or the report cannot be run), no case can be imported until it is restored.
+
+### Inspection identity and retained provenance
+
+The source query supplies no stable inspection ID. Within a case, the importer matches inspection type, actual date and normalized time; it never uses mutable status or owner details as identity. An initial inspection belongs to the case's single original notice. Imported drafts, worksheets and issued snapshots retain `importInspection` as additive metadata. Historical documents/visits without that metadata use their stored inspection date/time; missing historical time conservatively blocks same-day reuse. Two known, different times remain distinct visits. Do not change an inspection's time to work around a duplicate block; open the existing record and use correction when appropriate.
+
+Closed cases, existing drafts, pending issue confirmations, unreadable shared files and conflicting records do not start a new worksheet. Direct lookup rechecks shared history before confirmation. Failed checks leave existing work intact. The shared helper also rejects reuse of a retained imported inspection when publishing a visit.
+
+### Approved server configuration
+
+The report server must appear in the `ssrsHosts` list of `trusted-connections.json`, which is part of the verified release. The shared folder cannot name another server. Ask the release owner to make any required change in a new release; inspectors must not alter it or bypass the refusal.
+
+### Open cases by inspector (administrators)
+
+The helper lists the open enforcement cases assigned to each inspector from the `OpenEnforcementCases_BI` report, run with the signed-in Windows account. The report decides which cases are open (its current rule: record numbers starting CB, an assigned inspector, and a status that does not contain Close or Compliance and is not No Violation, Void or Withdrawn) and how each inspector is named. The helper counts each inspector's distinct cases for the list and asks the report for one inspector's cases by the name it printed.
+
+Four staff are always left off the inspector list because the division does not want them listed: Alice Duncan-Graves, Gregg May, Jessica Price and Phil Grupe (matched by name, so a middle initial or a spaced hyphen still matches). To keep people off the inspector list (supervisors or staff who do not do inspections), create `Case Lookup/excluded-inspectors.json` on the shared folder, using the supplied `excluded-inspectors.example.json`:
+
+```json
+{ "exclude": ["Pat%Example", "ADMIN1"] }
+```
+
+Each entry is a person's display name or Accela user ID, matched without regard to case; `%` stands for any text, so `Pat%Example` also matches a middle name. Without the file, only the four fixed staff exclusions apply. An invalid file stops the list with a message naming it.
+<!-- guide:lookup-support:end -->
+
+<!-- guide:chapter-20:start -->
 ## 20 Use keyboard touch and accessible views
 
 Use Tab and Shift+Tab to move through controls. Enter or Space activates the focused button or disclosure where appropriate. Visible focus identifies the active control. Click a validation link to open its section and move to the specific field; after correcting it, verify that the error state clears.
@@ -467,7 +593,9 @@ Held keys do not repeatedly result items. Typing a digit or U into an editable f
 **Display preferences.** Select High contrast when useful, or use System with the operating system preference. Reduced motion follows the browser setting. Printed issued documents have their own fixed layout; a screen theme does not change the historical body.
 
 Automated accessibility scans, theme checks, focus tests and narrow-width checks are included in the release evidence. They do not certify full WCAG 2.2 AA conformance. The City still needs manual screen-reader, keyboard, touch, zoom and real task testing with staff and its chosen assistive technology. Record the browser, screen reader, task, expected result and actual result in the acceptance record. Report a blocked control with its visible label and current case state, using synthetic records where possible.
+<!-- guide:chapter-20:end -->
 
+<!-- guide:chapter-21:start -->
 ## 21 Troubleshoot common problems
 
 Preserve work first. Keep the active tab open when device saving is uncertain, download a workspace backup when offered, and record the exact message and time. The following actions do not require editing operational case files.
@@ -504,7 +632,9 @@ Preserve work first. Keep the active tab open when device saving is uncertain, d
 For helper support, the current local structured log is %LOCALAPPDATA%\MadisonDocWriter\logs\helper.jsonl. A failed report lookup may also create case-lookup-diagnostic.txt in that program folder. Review logs before providing them to authorized IT; they may contain local paths, server or account details. The next lookup failure can replace its diagnostic file.
 
 If a control still fails after the safe next action, preserve the backup and error evidence. Ask the administrator to reproduce it with a copied or synthetic case. Do not retry by deleting registry, lock, receipt or history files.
+<!-- guide:chapter-21:end -->
 
+<!-- guide:chapter-22:start -->
 ## 22 Practice tasks and reference terms
 
 Use an isolated acceptance deployment and unmistakably synthetic records. Each exercise should finish with both the expected document state and the correct explanation of what still needs action. The detailed acceptance record supplies participant fields and signoff criteria.
@@ -547,3 +677,10 @@ Each issued document keeps the authoring version it was issued with. Its reprint
 In the aligned table layout, authoring-12–15 Vacancy Extensions and authoring-12–14 Best Interest Extensions print their supervisory signer after the table; authoring-11 and earlier use their historical narrative layout. Ordinary Extensions keep their own stored authoring version; the special-extension column above describes only Best Interest and Vacancy Extensions. The authoring-11 initial citation packet may have six pages. Retain the original PDF for any document issued under a format an earlier release cannot render.
 
 The release package records technical verification and remaining City acceptance. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md) to record the remaining City tests and approvals. Historical release reviews explain development provenance and do not override this manual.
+<!-- guide:chapter-22:end -->
+
+<!-- guide:current-format-summary:start -->
+### Current document summary
+
+New Best Interest and Vacancy Extensions cover every uncorrected item; new referral, referral-update and compliance documents print inspector notes under the violation; a referred case offers only Update for Case Referral or Compliance Letter. Compliance letters retain item-specific observation histories/notes and Abate values. Earlier issued documents keep their formats (Program instruction manual, chapter 22). New citation previews show all four copies by default; optional compact viewing never controls the final packet. Review actual regular and snow citation PDFs for all four distinct copies per charge.
+<!-- guide:current-format-summary:end -->

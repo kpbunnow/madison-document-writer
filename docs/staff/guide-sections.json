@@ -1,0 +1,79 @@
+{
+  "format": "document-writer-staff-guides",
+  "version": 1,
+  "guides": [
+    {
+      "file": "CASE-LOOKUP-GUIDE.md",
+      "intro": "# Case lookup and import guide\n\nApplies to the current release. Current operating instructions and the report setup are below. See PROGRAM-MANUAL.html and the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package).",
+      "sections": [
+        "chapter-4",
+        "lookup-support"
+      ]
+    },
+    {
+      "file": "CASE-WORKFLOW-GUIDE.md",
+      "intro": "# Case workflow guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-1",
+        "chapter-3",
+        "chapter-10",
+        "chapter-14",
+        "chapter-15",
+        "current-format-summary"
+      ]
+    },
+    {
+      "file": "INSPECTOR-CORRECTION-GUIDE.md",
+      "intro": "# Inspector correction guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-13"
+      ]
+    },
+    {
+      "file": "NEW-DOCUMENTS-GUIDE.md",
+      "intro": "# New documents guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-10",
+        "chapter-11"
+      ]
+    },
+    {
+      "file": "NOTICE-AND-CITATION-GUIDE.md",
+      "intro": "# Notice and citation guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-5",
+        "chapter-7",
+        "chapter-12"
+      ]
+    },
+    {
+      "file": "ORDER-LANGUAGE-GUIDE.md",
+      "intro": "# Order language guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-6"
+      ]
+    },
+    {
+      "file": "REINSPECTION-GUIDE.md",
+      "intro": "# Reinspection guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-9"
+      ]
+    },
+    {
+      "file": "SNOW-CITATION-GUIDE.md",
+      "intro": "# Snow citation guide\n\nApplies to the current release. The Writer shows its build and helper version; the install guide states the expected values.\n\nCurrent instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruction_Manual.pdf. This quick guide reproduces the relevant current procedures. Use the City acceptance record (Rnn-ACCEPTANCE-RECORD.md at the top of the release package) for outstanding City acceptance and legal/policy approvals.",
+      "sections": [
+        "chapter-8"
+      ]
+    },
+    {
+      "file": "06-REPORTING.md",
+      "intro": "# Reporting\n\nApplies to the current release (summary version 6).",
+      "sections": [
+        "chapter-16",
+        "chapter-17"
+      ]
+    }
+  ]
+}

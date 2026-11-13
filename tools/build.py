@@ -13,6 +13,9 @@ import sys
 HERE = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(HERE / "policy"), str(HERE / "tools"), str(HERE / "helper"), str(HERE / "build/generated")]
 from project_layout import package_name, version
+from staff_guides import check as check_staff_guides
+
+check_staff_guides()
 
 GENERATED = HERE / "build/generated"
 DATA = GENERATED / "modules/data"
