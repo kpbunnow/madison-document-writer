@@ -87,6 +87,27 @@ function editorWorkHTML({ d, editable, services }) {
   );
 }
 
+// Refresh the open document's preview in place (reused when unchanged); false when no document preview is shown.
+function refreshPreviewDesk(services, refreshPreview) {
+  const d = doc(editor.state.docId),
+    desk = document.querySelector(".desk");
+  if (!d || !desk) return false;
+  refreshPreview(desk, JSON.stringify([d.id, d.type, d.authoringVersion]), services.record.documentHTML(d), () => services.ui.paginate());
+  return true;
+}
+
+// Paint the editor preview after a full screen repaint: reuse the previous paginated desk when nothing changed,
+// otherwise paginate the new desk in place and record it for later reuse.
+function paintPreviewDesk(services, refreshPreview, previousDesk) {
+  const d = doc(editor.state.docId),
+    desk = document.querySelector(".desk");
+  if (!d || !desk) return services.ui.paginate();
+  const identity = JSON.stringify([d.id, d.type, d.authoringVersion]),
+    html = services.record.documentHTML(d);
+  if (refreshPreview.adopt(previousDesk, desk, identity, html)) return;
+  refreshPreview.paint(desk, identity, html, () => services.ui.paginate());
+}
+
 export function createEditorScreens(services) {
   const refreshPreview = createPreviewRefresh();
   function editorReadiness(d) {
@@ -364,14 +385,12 @@ export function createEditorScreens(services) {
     services.ui.toast(((DOC_TYPES.find((t) => t.id === type) || {}).label || type) + " started");
   }
 
+  const paintEditorPreview = (previousDesk) => paintPreviewDesk(services, refreshPreview, previousDesk);
+
   function refreshSheet() {
-    const d = doc(editor.state.docId),
-      desk = document.querySelector(".desk");
-    if (d && desk) {
-      refreshPreview(desk, JSON.stringify([d.id, d.type, d.authoringVersion]), services.record.documentHTML(d), () => services.ui.paginate());
-      syncChip();
-      services.edit.scheduleDraftSave();
-    }
+    if (!refreshPreviewDesk(services, refreshPreview)) return;
+    syncChip();
+    services.edit.scheduleDraftSave();
   }
 
   function syncChip() {
@@ -425,6 +444,7 @@ export function createEditorScreens(services) {
     screenWrite,
     editorEnhance,
     refreshSheet,
+    paintEditorPreview,
     syncChip,
     refreshOverlay,
     enhanceDialog,

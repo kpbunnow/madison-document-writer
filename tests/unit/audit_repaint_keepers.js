@@ -49,7 +49,7 @@ const { chromium } = require("playwright");
         screenWrite: () =>
           '<div class="document-workspace" data-editor-doc="d"><div data-field="text" data-id="i" contenteditable="true">typed text</div><details class="editor-more"><summary>Actions</summary><button id="action">Save</button></details></div>',
         overlayHTML: () => "",
-        paginate: () => calls.push("paginate"),
+        paintEditorPreview: () => calls.push("paginate"),
         editorEnhance: () => calls.push("editor"),
         restoreWorkControls: noop,
         updateSaveStatus: noop,
@@ -131,7 +131,7 @@ const { chromium } = require("playwright");
               '" value="' +
               read() +
               '"></div>',
-            paginate: noop,
+            paintEditorPreview: noop,
             editorEnhance: noop,
             restoreWorkControls: noop,
             updateSaveStatus: noop,

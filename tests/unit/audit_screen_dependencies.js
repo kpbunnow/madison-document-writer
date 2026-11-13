@@ -74,7 +74,7 @@ const specs = {
       "navigation",
       "newDocuments",
       "overlayHTML",
-      "paginate",
+      "paintEditorPreview",
       "restoreWorkControls",
       "scheduleDraftSave",
       "screenCases",
@@ -350,7 +350,8 @@ for (const [file, { ctor, instance, inputs }] of Object.entries(specs)) {
     screenReinspect: () => "reinspect",
     screenWrite: () => '<div class="document-workspace" data-editor-doc="d"><input id="reason" value="typed"></div>',
     overlayHTML: () => "overlay",
-    paginate: () => calls.push("paginate"),
+    // The editor owner paints (or reuses) the paginated preview after a write-screen repaint.
+    paintEditorPreview: () => calls.push("preview"),
     editorEnhance: () => calls.push("editor"),
     restoreWorkControls: () => calls.push("restore"),
     updateSaveStatus: () => calls.push("save-status"),
@@ -400,7 +401,7 @@ for (const [file, { ctor, instance, inputs }] of Object.entries(specs)) {
   s.DOCS = [{ id: "d", caseId: "c", type: "notice", items: [] }];
   callsReset();
   screens.render();
-  assert.deepEqual(calls, ["remember", "walk", "paginate", "editor", "restore", "save-status", "dialog", "checks", "a11y"]);
+  assert.deepEqual(calls, ["remember", "walk", "preview", "editor", "restore", "save-status", "dialog", "checks", "a11y"]);
   const field = dom.window.document.getElementById("reason");
   field.focus();
   field.setSelectionRange(1, 3);
