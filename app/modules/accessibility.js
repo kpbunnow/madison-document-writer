@@ -111,6 +111,249 @@ function enhanceScreenGroups() {
   document.querySelectorAll(".applied-filters[aria-label], .initial-citation-previews[aria-label]").forEach((el) => el.setAttribute("role", "group"));
 }
 
+// Queue, repeat or replace one message (R59 timing and grouping rules); st is the owner's message state.
+function a11yQueueMessage(st, text, options = {}) {
+  const severity = messageSeverity(text, options);
+  const key = options.key || "",
+    value = String(text);
+  if (key && st.dismissedKeys.has(key)) return;
+  const duplicate =
+    !options.undo &&
+    ["error", "warning", "progress"].includes(severity) &&
+    st.messages.find((m) => (key ? m.key === key : m.text === value && m.severity === severity));
+  if (duplicate) {
+    duplicate.scope = document.querySelector("#utility-title")?.textContent || "";
+    if (duplicate.severity !== "progress") {
+      // Shown again: a fresh 15-second interval, still paused while the message is hovered or focused.
+      const paused = !duplicate.started;
+      clearTimeout(duplicate.timer);
+      duplicate.started = 0;
+      duplicate.remaining = lifetime(duplicate.severity);
+      if (!paused) st.resume(duplicate);
+    }
+    st.requestPaint();
+    return;
+  }
+  st.messages.filter((m) => m.severity === "progress").forEach((m) => st.dismiss(m.id));
+  const scope = document.querySelector("#utility-title")?.textContent || "";
+  const routine = routineMessage(severity, options);
+  if (routine) consolidateRoutine(st.messages, scope, st.dismiss);
+  const m = {
+    routine,
+    id: st.nextId(),
+    key,
+    inline: !!options.inline,
+    scope: document.querySelector("#utility-title")?.textContent || "",
+    text: value,
+    severity,
+    remaining: lifetime(severity, options.duration),
+    started: 0,
+    at: new Date().toISOString(),
+  };
+  st.messages.push(m);
+  if (options.undo) st.callbacks.set(m.id, options.undo);
+  // Messages remain visible and announced in this tab if optional history storage fails.
+  st.remember({ text: m.text, severity, at: m.at });
+  st.requestPaint();
+  st.resume(m);
+}
+
+function a11yUtilityDialog(st, title, body) {
+  const old = document.getElementById("utility-dialog");
+  if (!old || !old.contains(document.activeElement)) st.utilityInvoker = document.activeElement;
+  old?.remove();
+  const dialog = document.createElement("dialog");
+  dialog.id = "utility-dialog";
+  dialog.className = "utility-dialog";
+  dialog.setAttribute("aria-labelledby", "utility-title");
+  dialog.innerHTML = html`<h2 id="utility-title">${raw(safe(title))}</h2>${raw(body)}<div class="utility-actions"><button class="btn" data-utility-close>Close</button></div>`;
+  document.body.append(dialog);
+  st.requestPaint();
+  const previous = st.utilityInvoker;
+  dialog.addEventListener("cancel", (e) => {
+    if (dialog.querySelector("form button[disabled]")) e.preventDefault();
+  });
+  dialog.addEventListener("close", () => {
+    dialog.remove();
+    st.requestPaint();
+    st.utilityInvoker = null;
+    let target = previous;
+    if (target && !target.isConnected) {
+      target = target.id ? document.getElementById(target.id) : null;
+      if (!target && previous?.dataset)
+        target = [...document.querySelectorAll("button,a,input,select,[tabindex]")].find(
+          (el) => Object.keys(previous.dataset).length && Object.entries(previous.dataset).every(([key, value]) => el.dataset[key] === value),
+        );
+    }
+    (target || document.getElementById("main-content"))?.focus?.();
+  });
+  if (dialog.showModal) dialog.showModal();
+  else {
+    dialog.setAttribute("open", "");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.querySelector("button")?.focus();
+  }
+}
+
+function a11yShortcutSheet(utility) {
+  utility(
+    "Keyboard shortcuts",
+    '<table><caption>Writer and Reports keyboard shortcuts</caption><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">?</th><td>Open this sheet outside a text field</td></tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls inside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Close a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S / Command+S</th><td>Save Writer work on this device</td></tr><tr><th scope="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress made / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>Activate the focused button or blank bubble</td></tr></tbody></table>',
+  );
+}
+function a11yHistorySheet(utility, history) {
+  utility(
+    "Message history",
+    html`<p>The latest 200 messages in this browser profile. Dismissed alerts remain here.</p><ol>${raw(
+      "".concat(
+        history
+          .slice()
+          .reverse()
+          .map(
+            (m) =>
+              "<li><strong>" +
+              `${safe(m.severity)}` +
+              '</strong> · <time datetime="' +
+              `${safe(m.at)}` +
+              '">' +
+              `${safe(new Date(m.at).toLocaleString())}` +
+              "</time><p>" +
+              `${safe(m.text)}` +
+              "</p></li>",
+          )
+          .join("") || "<li>No messages yet.</li>",
+      ),
+    )}</ol>`,
+  );
+}
+
+/* R53: top-of-page warnings clear 15 seconds after they appear unless the user dismissed them first. Hovering
+   or focusing a warning restarts its timer. Each cleared warning is kept in Message history. A warning that
+   disappears and later recurs (its condition cleared and came back) shows again. Ongoing conditions remain
+   visible in their own indicator (save status, read-only case, held issuance). */
+function createA11yBannerSweep(remember) {
+  const BANNER_MS = 15000,
+    bannerSeen = new Map(),
+    bannerCleared = new Set();
+  const engaged = (b) => {
+    try {
+      return b.matches(":hover") || b.contains(document.activeElement);
+    } catch {
+      return b.contains(document.activeElement);
+    }
+  };
+  function bannerSweep(now = Date.now()) {
+    const present = new Set();
+    for (const b of topBanners()) {
+      const key = bannerKey(b);
+      if (!key) continue;
+      present.add(key);
+      if (!bannerSeen.has(key) || engaged(b)) bannerSeen.set(key, now);
+      if (!bannerCleared.has(key) && now - bannerSeen.get(key) >= BANNER_MS) {
+        bannerCleared.add(key);
+        // Optional history storage; the warning was already shown and announced.
+        remember({ text: key, severity: "warning", at: new Date(now).toISOString() });
+      }
+      if (bannerCleared.has(key)) {
+        b.hidden = true;
+        b.setAttribute("data-auto-cleared", "");
+      }
+    }
+    for (const key of [...bannerSeen.keys()])
+      if (!present.has(key)) {
+        bannerSeen.delete(key);
+        bannerCleared.delete(key);
+      }
+  }
+  return bannerSweep;
+}
+
+// Document-level message, history, shortcut and theme controls, registered in their original order.
+function registerA11yDocumentEvents(api) {
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest?.("[data-message-dismiss],[data-message-undo],[data-a11y-history],[data-a11y-help],[data-utility-close]");
+    if (!t) return;
+    if (t.dataset.messageDismiss) {
+      const m = api.messages.find((m) => m.id === t.dataset.messageDismiss);
+      if (m?.key) api.dismissedKeys.add(m.key);
+      api.dismiss(t.dataset.messageDismiss);
+    } else if (t.dataset.messageUndo) {
+      const fn = api.callbacks.get(t.dataset.messageUndo);
+      api.dismiss(t.dataset.messageUndo);
+      fn?.();
+    } else if (t.hasAttribute("data-a11y-history")) api.showHistory();
+    else if (t.hasAttribute("data-a11y-help")) api.shortcuts();
+    else {
+      const dialog = document.getElementById("utility-dialog");
+      if (!dialog?.querySelector("form button[disabled]")) dialog?.close();
+    }
+  });
+  document.addEventListener("change", (e) => {
+    if (e.target.hasAttribute?.("data-a11y-theme")) api.setTheme(e.target.value);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.isContentEditable && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
+      e.preventDefault();
+      api.shortcuts();
+    }
+    if (e.key === "Enter" && e.target.matches?.('[contenteditable="true"][aria-multiline="false"]')) {
+      e.preventDefault();
+      e.target.blur();
+    }
+  });
+}
+
+// Re-enhance after DOM changes and sweep top-of-page warnings (real browsers also sweep every second).
+function observeA11yMutations(enhance, bannerSweep) {
+  if (window.MutationObserver && document.body) {
+    let queued = false;
+    new window.MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      Promise.resolve().then(() => {
+        queued = false;
+        enhance(false);
+        enhanceCharacterCounts(document);
+        enhanceScreenGroups();
+        bannerSweep();
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+    // A real browser sweeps every second; the simulated test DOM drives bannerSweep directly, and a
+    // never-ending timer there would keep the test process alive.
+    if (!/jsdom/i.test(window.navigator?.userAgent || "")) window.setInterval(() => bannerSweep(), 1000);
+  }
+}
+
+function restoreMessageFocus(focusedMessage, focusedAction) {
+  if (focusedMessage)
+    document
+      .querySelector(
+        '[data-message="' +
+          focusedMessage.dataset.message +
+          '"] ' +
+          (focusedAction === "history" ? "[data-a11y-history]" : "[data-message-" + focusedAction + "]"),
+      )
+      ?.focus({ preventScroll: true });
+}
+
+// Pause each shown message's timer while it is hovered or focused; resume when left.
+function a11yBindMessageTimers(messages, pause, resume) {
+  for (const el of document.querySelectorAll("[data-message]")) {
+    const m = messages.find((m) => m.id === el.dataset.message);
+    if (!m) continue;
+    el.addEventListener("mouseenter", () => pause(m));
+    el.addEventListener("mouseleave", () => {
+      if (!el.contains(document.activeElement)) resume(m);
+    });
+    el.addEventListener("focusin", () => pause(m));
+    el.addEventListener("focusout", (e) => {
+      if (!el.contains(e.relatedTarget) && !el.matches(":hover")) resume(m);
+    });
+    if (el.matches(":hover") || el.contains(document.activeElement)) pause(m);
+  }
+}
+
 export function createAccessibility() {
   const messages = [],
     callbacks = new Map(),
@@ -120,8 +363,7 @@ export function createAccessibility() {
     sequence = 0,
     invoker = null,
     hadDialog = false,
-    paintQueued = false,
-    utilityInvoker = null;
+    paintQueued = false;
   const dismissedKeys = new Set();
   try {
     const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
@@ -130,6 +372,27 @@ export function createAccessibility() {
   } catch {
     /* Optional local message history and theme may be unavailable; defaults remain usable. */
   }
+  // Message state handed to the module-level message and dialog helpers (explicit fields, not a registry).
+  function remember(entry) {
+    history.push(entry);
+    history = history.slice(-200);
+    try {
+      localStorage.setItem(historyKey, JSON.stringify(history));
+    } catch {
+      /* Optional local message history; the message itself was already shown and announced. */
+    }
+  }
+  const messageState = {
+    messages,
+    callbacks,
+    dismissedKeys,
+    utilityInvoker: null,
+    nextId: () => String(++sequence),
+    remember,
+    requestPaint: () => requestPaint(),
+    resume: (m) => resume(m),
+    dismiss: (id) => dismiss(id),
+  };
   function setTheme(value) {
     theme = ["system", "light", "dark", "high"].includes(value) ? value : "system";
     if (document.documentElement) document.documentElement.dataset.theme = theme;
@@ -211,35 +474,7 @@ export function createAccessibility() {
     // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
     // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
     restoreMessageFocus(focusedMessage, focusedAction);
-    bindMessageTimers();
-  }
-
-  function restoreMessageFocus(focusedMessage, focusedAction) {
-    if (focusedMessage)
-      document
-        .querySelector(
-          '[data-message="' +
-            focusedMessage.dataset.message +
-            '"] ' +
-            (focusedAction === "history" ? "[data-a11y-history]" : "[data-message-" + focusedAction + "]"),
-        )
-        ?.focus({ preventScroll: true });
-  }
-
-  function bindMessageTimers() {
-    for (const el of document.querySelectorAll("[data-message]")) {
-      const m = messages.find((m) => m.id === el.dataset.message);
-      if (!m) continue;
-      el.addEventListener("mouseenter", () => pause(m));
-      el.addEventListener("mouseleave", () => {
-        if (!el.contains(document.activeElement)) resume(m);
-      });
-      el.addEventListener("focusin", () => pause(m));
-      el.addEventListener("focusout", (e) => {
-        if (!el.contains(e.relatedTarget) && !el.matches(":hover")) resume(m);
-      });
-      if (el.matches(":hover") || el.contains(document.activeElement)) pause(m);
-    }
+    a11yBindMessageTimers(messages, pause, resume);
   }
 
   function resolve(key) {
@@ -247,124 +482,12 @@ export function createAccessibility() {
     messages.filter((m) => m.key === key).forEach((m) => dismiss(m.id));
   }
   function notify(text, options = {}) {
-    const severity = messageSeverity(text, options);
-    const key = options.key || "",
-      value = String(text);
-    if (key && dismissedKeys.has(key)) return;
-    const duplicate =
-      !options.undo &&
-      ["error", "warning", "progress"].includes(severity) &&
-      messages.find((m) => (key ? m.key === key : m.text === value && m.severity === severity));
-    if (duplicate) {
-      duplicate.scope = document.querySelector("#utility-title")?.textContent || "";
-      if (duplicate.severity !== "progress") {
-        // Shown again: a fresh 15-second interval, still paused while the message is hovered or focused.
-        const paused = !duplicate.started;
-        clearTimeout(duplicate.timer);
-        duplicate.started = 0;
-        duplicate.remaining = lifetime(duplicate.severity);
-        if (!paused) resume(duplicate);
-      }
-      requestPaint();
-      return;
-    }
-    messages.filter((m) => m.severity === "progress").forEach((m) => dismiss(m.id));
-    const scope = document.querySelector("#utility-title")?.textContent || "";
-    const routine = routineMessage(severity, options);
-    if (routine) consolidateRoutine(messages, scope, dismiss);
-    const m = {
-      routine,
-      id: String(++sequence),
-      key,
-      inline: !!options.inline,
-      scope: document.querySelector("#utility-title")?.textContent || "",
-      text: value,
-      severity,
-      remaining: lifetime(severity, options.duration),
-      started: 0,
-      at: new Date().toISOString(),
-    };
-    messages.push(m);
-    if (options.undo) callbacks.set(m.id, options.undo);
-    history.push({ text: m.text, severity, at: m.at });
-    history = history.slice(-200);
-    try {
-      localStorage.setItem(historyKey, JSON.stringify(history));
-    } catch {
-      /* Messages remain visible and announced in this tab if optional history storage fails. */
-    }
-    requestPaint();
-    resume(m);
+    a11yQueueMessage(messageState, text, options);
   }
 
-  function utility(title, body) {
-    const old = document.getElementById("utility-dialog");
-    if (!old || !old.contains(document.activeElement)) utilityInvoker = document.activeElement;
-    old?.remove();
-    const dialog = document.createElement("dialog");
-    dialog.id = "utility-dialog";
-    dialog.className = "utility-dialog";
-    dialog.setAttribute("aria-labelledby", "utility-title");
-    dialog.innerHTML = html`<h2 id="utility-title">${raw(safe(title))}</h2>${raw(body)}<div class="utility-actions"><button class="btn" data-utility-close>Close</button></div>`;
-    document.body.append(dialog);
-    requestPaint();
-    const previous = utilityInvoker;
-    dialog.addEventListener("cancel", (e) => {
-      if (dialog.querySelector("form button[disabled]")) e.preventDefault();
-    });
-    dialog.addEventListener("close", () => {
-      dialog.remove();
-      requestPaint();
-      utilityInvoker = null;
-      let target = previous;
-      if (target && !target.isConnected) {
-        target = target.id ? document.getElementById(target.id) : null;
-        if (!target && previous?.dataset)
-          target = [...document.querySelectorAll("button,a,input,select,[tabindex]")].find(
-            (el) => Object.keys(previous.dataset).length && Object.entries(previous.dataset).every(([key, value]) => el.dataset[key] === value),
-          );
-      }
-      (target || document.getElementById("main-content"))?.focus?.();
-    });
-    if (dialog.showModal) dialog.showModal();
-    else {
-      dialog.setAttribute("open", "");
-      dialog.setAttribute("role", "dialog");
-      dialog.setAttribute("aria-modal", "true");
-      dialog.querySelector("button")?.focus();
-    }
-  }
-  function shortcuts() {
-    utility(
-      "Keyboard shortcuts",
-      '<table><caption>Writer and Reports keyboard shortcuts</caption><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><th scope="row">?</th><td>Open this sheet outside a text field</td></tr><tr><th scope="row">Tab / Shift+Tab</th><td>Move between controls inside the active dialog</td></tr><tr><th scope="row">Escape</th><td>Close a dialog when no save is running</td></tr><tr><th scope="row">Ctrl+S / Command+S</th><td>Save Writer work on this device</td></tr><tr><th scope="row">1 / 2 / 3 / 4</th><td>One item at a time: Corrected / Progress made / No change / No access</td></tr><tr><th scope="row">U</th><td>Undo the last outcome in One item at a time</td></tr><tr><th scope="row">Enter / Space</th><td>Activate the focused button or blank bubble</td></tr></tbody></table>',
-    );
-  }
-  function showHistory() {
-    utility(
-      "Message history",
-      html`<p>The latest 200 messages in this browser profile. Dismissed alerts remain here.</p><ol>${raw(
-        "".concat(
-          history
-            .slice()
-            .reverse()
-            .map(
-              (m) =>
-                "<li><strong>" +
-                `${safe(m.severity)}` +
-                '</strong> · <time datetime="' +
-                `${safe(m.at)}` +
-                '">' +
-                `${safe(new Date(m.at).toLocaleString())}` +
-                "</time><p>" +
-                `${safe(m.text)}` +
-                "</p></li>",
-            )
-            .join("") || "<li>No messages yet.</li>",
-        ),
-      )}</ol>`,
-    );
-  }
+  const utility = (title, body) => a11yUtilityDialog(messageState, title, body);
+  const shortcuts = () => a11yShortcutSheet(utility);
+  const showHistory = () => a11yHistorySheet(utility, history);
   function rememberFocus() {
     if (document.querySelector('#overlay [role="dialog"]')) return;
     const el = document.activeElement;
@@ -425,96 +548,9 @@ export function createAccessibility() {
     setTheme(theme);
     if (repaint) paint();
   }
-  document.addEventListener("click", (e) => {
-    const t = e.target.closest?.("[data-message-dismiss],[data-message-undo],[data-a11y-history],[data-a11y-help],[data-utility-close]");
-    if (!t) return;
-    if (t.dataset.messageDismiss) {
-      const m = messages.find((m) => m.id === t.dataset.messageDismiss);
-      if (m?.key) dismissedKeys.add(m.key);
-      dismiss(t.dataset.messageDismiss);
-    } else if (t.dataset.messageUndo) {
-      const fn = callbacks.get(t.dataset.messageUndo);
-      dismiss(t.dataset.messageUndo);
-      fn?.();
-    } else if (t.hasAttribute("data-a11y-history")) showHistory();
-    else if (t.hasAttribute("data-a11y-help")) shortcuts();
-    else {
-      const dialog = document.getElementById("utility-dialog");
-      if (!dialog?.querySelector("form button[disabled]")) dialog?.close();
-    }
-  });
-  document.addEventListener("change", (e) => {
-    if (e.target.hasAttribute?.("data-a11y-theme")) setTheme(e.target.value);
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.isContentEditable && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
-      e.preventDefault();
-      shortcuts();
-    }
-    if (e.key === "Enter" && e.target.matches?.('[contenteditable="true"][aria-multiline="false"]')) {
-      e.preventDefault();
-      e.target.blur();
-    }
-  });
-  /* R53: top-of-page warnings clear 15 seconds after they appear unless the user dismissed them first. Hovering
-     or focusing a warning restarts its timer. Each cleared warning is kept in Message history. A warning that
-     disappears and later recurs (its condition cleared and came back) shows again. Ongoing conditions remain
-     visible in their own indicator (save status, read-only case, held issuance). */
-  const BANNER_MS = 15000,
-    bannerSeen = new Map(),
-    bannerCleared = new Set();
-  const engaged = (b) => {
-    try {
-      return b.matches(":hover") || b.contains(document.activeElement);
-    } catch {
-      return b.contains(document.activeElement);
-    }
-  };
-  function bannerSweep(now = Date.now()) {
-    const present = new Set();
-    for (const b of topBanners()) {
-      const key = bannerKey(b);
-      if (!key) continue;
-      present.add(key);
-      if (!bannerSeen.has(key) || engaged(b)) bannerSeen.set(key, now);
-      if (!bannerCleared.has(key) && now - bannerSeen.get(key) >= BANNER_MS) {
-        bannerCleared.add(key);
-        history.push({ text: key, severity: "warning", at: new Date(now).toISOString() });
-        history = history.slice(-200);
-        try {
-          localStorage.setItem(historyKey, JSON.stringify(history));
-        } catch {
-          /* Optional history storage; the warning was already shown and announced. */
-        }
-      }
-      if (bannerCleared.has(key)) {
-        b.hidden = true;
-        b.setAttribute("data-auto-cleared", "");
-      }
-    }
-    for (const key of [...bannerSeen.keys()])
-      if (!present.has(key)) {
-        bannerSeen.delete(key);
-        bannerCleared.delete(key);
-      }
-  }
-  if (window.MutationObserver && document.body) {
-    let queued = false;
-    new window.MutationObserver(() => {
-      if (queued) return;
-      queued = true;
-      Promise.resolve().then(() => {
-        queued = false;
-        enhance(false);
-        enhanceCharacterCounts(document);
-        enhanceScreenGroups();
-        bannerSweep();
-      });
-    }).observe(document.body, { childList: true, subtree: true });
-    // A real browser sweeps every second; the simulated test DOM drives bannerSweep directly, and a
-    // never-ending timer there would keep the test process alive.
-    if (!/jsdom/i.test(window.navigator?.userAgent || "")) window.setInterval(() => bannerSweep(), 1000);
-  }
+  registerA11yDocumentEvents({ messages, callbacks, dismissedKeys, dismiss, showHistory, shortcuts, setTheme });
+  const bannerSweep = createA11yBannerSweep(remember);
+  observeA11yMutations(enhance, bannerSweep);
   setTheme(theme);
   return { notify, dismiss, resolve, enhance, rememberFocus, utility, shortcuts, showHistory, setTheme, bannerSweep };
 }
