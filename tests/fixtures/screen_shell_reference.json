@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "bfefd7e0a72483d04413c5b01c5ec6ea7b68949e50ddd4e218c79ce80dc0b9ba",
-      "normalizedShellSha256": "ac9cad3adf87327767378bce7dbee7f32c11b51132a496f5d408c1943c77783b"
+      "beforeNormalizedShellSha256": "98e9ea12e04ae8233094e6fbc3fff44ac3aef85238a100be5a5fb8cdf20c729e",
+      "normalizedShellSha256": "311e592ad029b84c98668f2779a1c7c751c2e74bdb0ae917151dffc843a2dd28"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "7d936697dfcd587fe5483b5196cf98e4a08ce3fda554e8c22c150db03da4877b",
-      "normalizedShellSha256": "8633d46ddabef52ccddbf188613fc0e837bbad503258faaffad1571b147e7714"
+      "beforeNormalizedShellSha256": "44033064f4659f2c1ad5c2a6e435c4b9b4fd2d8e1851a9ff6ffe8036d26a34b9",
+      "normalizedShellSha256": "0296f4086093ea96d4542f7bd26a1f219456dbb8b3f0b02b2e4dbc572d775eb7"
     }
   },
   "reviews": [
@@ -208,6 +208,38 @@
         }
       },
       "evidence": "docs/developer/ORDER-LANGUAGE-PICKER.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "f785825772093db149a09d760bff178dc229c674",
+      "scope": "Workspace find-a-case box above the case list. Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "ac9cad3adf87327767378bce7dbee7f32c11b51132a496f5d408c1943c77783b",
+          "after": "98e9ea12e04ae8233094e6fbc3fff44ac3aef85238a100be5a5fb8cdf20c729e"
+        },
+        "madison-reports.html": {
+          "before": "8633d46ddabef52ccddbf188613fc0e837bbad503258faaffad1571b147e7714",
+          "after": "44033064f4659f2c1ad5c2a6e435c4b9b4fd2d8e1851a9ff6ffe8036d26a34b9"
+        }
+      },
+      "evidence": "docs/developer/WORKSPACE-CASE-DOCUMENTS.md"
+    },
+    {
+      "date": "2026-11-13",
+      "sourceCommit": "f785825772093db149a09d760bff178dc229c674",
+      "scope": "Reinspection worksheet Mark the rest buttons beside the items-still-to-result message. Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "98e9ea12e04ae8233094e6fbc3fff44ac3aef85238a100be5a5fb8cdf20c729e",
+          "after": "311e592ad029b84c98668f2779a1c7c751c2e74bdb0ae917151dffc843a2dd28"
+        },
+        "madison-reports.html": {
+          "before": "44033064f4659f2c1ad5c2a6e435c4b9b4fd2d8e1851a9ff6ffe8036d26a34b9",
+          "after": "0296f4086093ea96d4542f7bd26a1f219456dbb8b3f0b02b2e4dbc572d775eb7"
+        }
+      },
+      "evidence": "docs/developer/03-DOMAIN-RULES.md"
     }
   ]
 }

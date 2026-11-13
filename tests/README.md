@@ -38,7 +38,7 @@ covers, or a new suite under its feature.
 | `audit_language_presentation_rules.js` | 1,596 seeded Browse language, Review catalog and picker screens: untrusted text escaped, deterministic output, callback interruptions surfaced (frozen screen copies retired 2026-11-13) |
 | `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
 | `audit_search_highlighting.js` | Eight screen searches: aliases/ordinances, literal/Unicode safety, clearing and repeated enhancement without DOM writes, keyboard focus and existing controls/listeners |
-| `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new-item defaults that follow the previous item's location heading and due date |
+| `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new items that follow the previous item's location heading, never its due date |
 | `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
@@ -127,12 +127,14 @@ covers, or a new suite under its feature.
 | `audit_complexity.js` | Reproducible JS/Python complexity debt and refusal of new or worsened violations; requires lowering improved baselines |
 
 | `audit_pagination_equivalence.js` | Native Chromium old/new pagination parity: exact pages/measurements and Unicode note retention, snow/mobile/historical formats |
+| `audit_reinspection_batch.js` | Worksheet Mark the rest: only unresulted items, the ordinary recorder, safe Undo, refused in One item at a time |
 | `audit_reinspection_html.js` | Exact pre-refactor worksheet snapshots over 1,026 outcome/walk/filter/retained/closed/missing-source states; service order |
 | `audit_overlay_html.js` | Exact pre-refactor modal HTML snapshots over 1,026 recipient, storage, finalization and correction states; lazy service order |
 | `audit_workspace_task_reads.js` | Once-per-operation artifact display facts and live location/verification changes on the next operation |
 | `audit_preview_refresh.js` | Unchanged screen preview reuse; DOM/model/layout/font/document/replacement/failure invalidation and listener preservation |
 | `audit_success_messages.js` | Compact routine success status with complete history, alerts, Undo, keyboard focus, dialog scope and timer cleanup |
 | `audit_workspace_documents.js` | Complete inline issued history and draft links: descending issue/revision and City dates, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
+| `audit_workspace_jump.js` | Workspace Find a case in this list: marks matches, Enter scrolls and focuses the first, never hides a row |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |

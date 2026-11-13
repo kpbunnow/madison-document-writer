@@ -24,6 +24,24 @@ export const openList = {
 };
 const WAIT_MS = 100000;
 
+/* The inspector last shown is remembered in the browser profile (owner direction 2026-11-13, improvement plan), so
+   Import inspection opens on that inspector's open cases. It is a convenience only; a storage failure changes nothing. */
+const REMEMBER_KEY = "madison-open-cases-inspector-v1";
+function rememberedInspector() {
+  try {
+    return String(localStorage.getItem(REMEMBER_KEY) || "");
+  } catch {
+    return "";
+  }
+}
+function rememberInspector(id) {
+  try {
+    localStorage.setItem(REMEMBER_KEY, id);
+  } catch {
+    /* not remembered this time */
+  }
+}
+
 export function filterOpenCases(cases, query) {
   const terms = String(query || "")
     .toLowerCase()
@@ -134,6 +152,9 @@ async function loadInspectors(services, refresh = false) {
     if (!Array.isArray(result.inspectors)) throw new Error(BAD_ANSWER);
     openList.inspectors = result.inspectors;
     fillNames(services, refresh);
+    const mineBefore = rememberedInspector();
+    if (!openList.selected && !openList.cases && openList.inspectors.some((p) => p.id === mineBefore))
+      queueMicrotask(() => showCases(services, mineBefore));
   } catch (error) {
     if (mine === inspectorSerial) openList.error = error.message || "The inspector list could not be loaded.";
   } finally {
@@ -193,6 +214,7 @@ async function showCases(services, id) {
     openList.cases = result.cases;
     openList.dueUnavailable = result.dueDates === false;
     openList.casesFor = id;
+    rememberInspector(id);
     openList.loadedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   } catch (error) {
     if (mine === caseSerial) openList.casesError = error.message || "The open cases could not be loaded.";

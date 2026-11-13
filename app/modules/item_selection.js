@@ -3,12 +3,12 @@ import { clone } from "./record_values.js";
 import { itemLibraryKey, libraryKey } from "./document_rules.js";
 import { LIBRARY } from "./data/library.js";
 import { noteLanguageUsed } from "./language_shortcuts.js";
-/* A new item starts under the previous item's location heading and with its due date (owner direction 2026-11-13):
-   consecutive items usually share both. Each stays an ordinary editable value; the first item still starts blank, and
-   a restored item keeps its own edits. */
+/* A new item starts under the previous item's location heading (owner direction 2026-11-13): consecutive items usually
+   share it. The due date is never inherited: every deadline is assigned deliberately, one item at a time or with Apply
+   date. The first item still starts blank, and a restored item keeps its own edits. */
 function followPrevious(item, items) {
   const previous = items[items.length - 1];
-  return previous ? Object.assign(item, { group: previous.group || "", due: previous.due || "" }) : item;
+  return previous ? Object.assign(item, { group: previous.group || "" }) : item;
 }
 
 export function createItemSelection(services) {

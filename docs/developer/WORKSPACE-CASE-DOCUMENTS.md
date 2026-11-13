@@ -44,3 +44,7 @@ City keyboard/screen-reader, native Windows printing/Outlook and legal acceptanc
 The browser iteration initially found a PDF accessible-name mismatch, which was corrected; visual review corrected narrow Close-button wrapping. Test iterations also replaced retired-control selectors with case-scoped document/options actions and retained their functional scenarios. The final review added backdated-issuance/revision ordering regressions. None of these iterations authorizes skipping the complete required gate before merge.
 
 The first complete regression run also caught omitted reinspection progress in the redesigned row. Restored the existing Reinspection draft/Recorded visit label and corrected/still-to-result counts beside that case using the unchanged query owners. The original `audit_resume.js` assertions remain unchanged, with additional generated-screen and production-browser checks for per-case progress. This correction is required before final verification and merge.
+
+## Find a case in this list (2026-11-13)
+
+Owner direction 2026-11-13 (improvement plan, ease of use 6). With six or more loaded cases Workspace offers a search box that marks rows whose address or case number match and, on Enter, scrolls to and focuses the first. It never hides a row and keeps no state (`workspace_jump.js`, `audit_workspace_jump.js`).

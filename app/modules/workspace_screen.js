@@ -47,8 +47,15 @@ function renderWorkspaceRow(row, documents = docsFor(row.k.id)) {
     <td data-label="Action"><div class="case-next"><button class="btn btn-primary queue-primary" ${raw(row.action)}>${row.label}</button></div></td></tr>`;
 }
 
+// Offered once the list is long enough to need it; it marks and scrolls, and never hides a case.
+const JUMP_FROM = 6;
+const workspaceJumpHTML = () =>
+  workspace.CASES.length >= JUMP_FROM
+    ? '<div class="case-jump"><label class="f" for="workspace-jump"><span>Find a case in this list</span><input type="search" id="workspace-jump" autocomplete="off" spellcheck="false" placeholder="Address or case number"></label><p class="hint" id="workspace-jump-status" role="status"></p></div>'
+    : "";
+
 function workspaceCaseTableHTML(table) {
-  return html`<div class="case-table-wrap workspace-cases"><table class="list case-table"><caption class="sr-only">Workspace cases, issued documents and actions</caption>
+  return html`${raw(workspaceJumpHTML())}<div class="case-table-wrap workspace-cases"><table class="list case-table"><caption class="sr-only">Workspace cases, issued documents and actions</caption>
     <thead><tr><th scope="col">Property / case</th><th scope="col">Issued documents</th><th scope="col">Next due</th><th scope="col">Inspector</th><th scope="col">Action</th></tr></thead>
     <tbody>${raw(table)}</tbody></table></div>`;
 }

@@ -1,6 +1,6 @@
 /* Picker shortcuts and new-item defaults (owner direction 2026-11-13): Recently used and Favorites are browser-profile
    lists that survive a missing or broken store; they head the picker's group list only when they hold something; a new
-   item follows the previous item's location heading and due date while a restored item keeps its own. */
+   item follows the previous item's location heading (never its due date) while a restored item keeps its own. */
 const assert = require("node:assert/strict");
 const { JSDOM } = require("jsdom");
 const { compile } = require("../fixtures/equivalence_harness.cjs");
@@ -51,9 +51,9 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   assert.deepEqual([d.items[0].group, d.items[0].due], ["", ""], "the first item starts blank");
   Object.assign(d.items[0], { group: "KITCHEN", due: "2026-12-15" });
   selection.toggleLibraryItem(d, ci, 0, group.items[1]);
-  assert.deepEqual([d.items[1].group, d.items[1].due], ["KITCHEN", "2026-12-15"]);
+  assert.deepEqual([d.items[1].group, d.items[1].due], ["KITCHEN", ""], "the heading follows; a deadline is never inherited");
   selection.toggleLibraryItem(d, ci, 0, group.items[1], true);
-  assert.deepEqual([d.items[2].group, d.items[2].due], ["KITCHEN", "2026-12-15"], "Add again follows the previous item too");
+  assert.deepEqual([d.items[2].group, d.items[2].due], ["KITCHEN", ""], "Add again follows the previous item's heading too");
   Object.assign(d.items[0], { group: "BATH", due: "2027-01-05" });
   selection.toggleLibraryItem(d, ci, 0, group.items[0]);
   selection.toggleLibraryItem(d, ci, 0, group.items[0]);
@@ -101,7 +101,7 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   R.state.q = "door";
   page = parse(api.languagePicker(R));
   assert.ok(page.querySelectorAll(".picker-list .language-pick-row").length > 1, "a search leaves the list");
-  console.log("PASS picker shortcuts (recent, favorites, storage failures) and new-item defaults follow the previous item");
+  console.log("PASS picker shortcuts (recent, favorites, storage failures) and new items follow the previous item's heading only");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

@@ -57,6 +57,6 @@ new screens because the owner changed the layout they pinned; behaviour is asser
 
 Owner direction 2026-11-13 (improvement plan, ease of use 4 and 5). `language_shortcuts.js` keeps Recently used (12)
 and Favorites in the browser profile; the picker lists them above the categories when they hold something that can be
-shown, and each card has a Favorite star. A new item follows the previous item's location heading and due date. After a
+shown, and each card has a Favorite star. A new item follows the previous item's location heading (not its due date). After a
 fill-in detail is saved, focus moves to the next bubble. `audit_language_shortcuts.js` asserts all of this; the picker
 reference was regenerated for the new markup.
