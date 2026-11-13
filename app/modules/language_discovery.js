@@ -305,7 +305,7 @@ export function languagePicker(R) {
     selected = new Set((current?.items || []).map((i) => R.itemLibraryKey(i)).filter(Boolean));
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter)),
     browsed = pickerChecklists(R);
-  const list = filter === "selected" ? "" : activeShortcutList(R.state);
+  const list = activeShortcutList(R.state);
   const found = list
       ? { matches: shortcutItems(R, all, visible, list), related: [], sections: [] }
       : languageSearch(

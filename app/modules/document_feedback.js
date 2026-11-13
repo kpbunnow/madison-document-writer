@@ -1,6 +1,12 @@
 import { editorState as editor } from "./editor_state.js";
 import { doc } from "./writer_queries.js";
 
+// A queued dialog-close event may arrive after navigation replaced the editor.
+function nextBlank(document, field, documentId) {
+  if (!field.isConnected || editor.state.screen !== "write" || editor.state.docId !== documentId) return null;
+  return [...document.querySelectorAll(".blank-edit")].find((b) => field.contains(b) || field.compareDocumentPosition(b) & 4) || field;
+}
+
 export function createDocumentFeedback(services) {
   function toast(m, options) {
     editor.undoFn = null;
@@ -65,9 +71,7 @@ export function createDocumentFeedback(services) {
       // The browser delivers "close" asynchronously and the utility dialog's own handler then restores focus to
       // the replaced blank, which no longer exists. Return focus to the item text after that handler runs.
       // Focus moves to the next fill-in bubble (in this item, then later ones), so details can be entered in a run.
-      const next = () =>
-        [...services.document.querySelectorAll(".blank-edit")].find((b) => field.contains(b) || field.compareDocumentPosition(b) & 4) ||
-        (field.isConnected ? field : null);
+      const next = () => nextBlank(services.document, field, documentId);
       dialog.addEventListener("close", () => next()?.focus(), { once: true });
       dialog.close();
       next()?.focus();

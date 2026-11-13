@@ -21,7 +21,7 @@ const allowed = {
   "language_discovery.js": ["./screen_html.js", "./language_search.js", "./language_shortcuts.js"],
   "language_shortcuts.js": ["./editor_state.js"],
   "workspace_jump.js": [],
-  "reinspection_batch.js": ["./editor_state.js", "./workspace_state.js", "./writer_queries.js", "./document_types.js"],
+  "reinspection_batch.js": ["./editor_state.js", "./workspace_state.js", "./writer_queries.js", "./document_types.js", "./record_values.js"],
   "deferred_services.js": [],
   "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],

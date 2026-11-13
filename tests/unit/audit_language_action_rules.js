@@ -16,9 +16,17 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", result.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
+  const reference = fs.readFileSync("tests/fixtures/language_actions_reference.txt", "utf8");
+  // All-category clicks now own clearing the picker shortcut. Adapt only that intended state change;
+  // the frozen fixture, complete action/callback ordering and interrupted-service comparisons stay intact.
+  const allBranch = '    } else if (button.hasAttribute("data-language-all")) {';
+  assert.ok(reference.includes(allBranch));
   const [current, legacy] = await Promise.all([
     compile(source),
-    compile(source.slice(0, source.indexOf("export function")) + fs.readFileSync("tests/fixtures/language_actions_reference.txt", "utf8")),
+    compile(
+      source.slice(0, source.indexOf("export function")) +
+        reference.replace(allBranch, allBranch + '\n      if (picker) editor.state.pickerList = "";'),
+    ),
   ]);
   async function run(api, flags) {
     const calls = [],
