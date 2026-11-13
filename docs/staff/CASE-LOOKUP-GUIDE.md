@@ -111,7 +111,12 @@ The helper lists the open enforcement cases assigned to each inspector from the 
 Four staff are always left off the inspector list because the division does not want them listed: Alice Duncan-Graves, Gregg May, Jessica Price and Phil Grupe (matched by name, so a middle initial or a spaced hyphen still matches). To keep people off the inspector list (supervisors or staff who do not do inspections), create `Case Lookup/excluded-inspectors.json` on the shared folder, using the supplied `excluded-inspectors.example.json`:
 
 ```json
-{ "exclude": ["Pat%Example", "ADMIN1"] }
+{
+  "exclude": [
+    "Pat%Example",
+    "ADMIN1"
+  ]
+}
 ```
 
 Each entry is a person's display name or Accela user ID, matched without regard to case; `%` stands for any text, so `Pat%Example` also matches a middle name. Without the file, only the four fixed staff exclusions apply. An invalid file stops the list with a message naming it.
