@@ -818,6 +818,7 @@ const writerHandoff = createWriterHandoff(
       preflightCase: () => preflightCase,
       helperJSON: () => helperJSON,
       loadCaseFile: () => loadCaseFile,
+      focusIssuedCase: () => focusIssuedCase,
       WRITER_READY_WAIT: () => WRITER_READY_WAIT,
       HANDOFF_CHANNEL: () => HANDOFF_CHANNEL,
     },

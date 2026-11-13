@@ -6,7 +6,7 @@
     "python": 5
   },
   "violations": {
-    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 342,
+    "app/modules/accela_import.js:createAccelaImport#1:max-lines-per-function": 340,
     "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 385,
     "app/modules/address_parser.js:initAddressParser#1:max-lines-per-function": 106,
     "app/modules/administration.js:initAdministration#1:max-lines-per-function": 94,
