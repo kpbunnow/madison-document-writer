@@ -829,335 +829,359 @@ function importDialogHTML(review) {
   return html`<div class="modal import-dialog" data-import-dialog><div class="modal-box" role="dialog" aria-modal="true"><div class="modal-h"><h2>Inspections for ${number || "this case"}</h2></div><div class="modal-b">${raw(importDialogBody(review))}</div><div class="modal-f">${raw(SAVE_WORK)}<button class="btn" type="button" id="acc-exit">Exit</button></div></div></div>`;
 }
 
+function accelaImportPlan(services, acc) {
+  const p = newImportPlan(acc);
+  const c = importPlanCase(acc, p);
+  if (!c) return p;
+  p.c = c;
+  const par = importedCaseFields({ c, accParcel, p });
+  importedSourceWarnings({ c, p, ACC_LABEL, par, services });
+  const k = workspace.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
+  p.existing = k;
+  const { visible, eligible, row } = selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, acc });
+  const snowCase = services.snow.isCase(k) || services.snow.matchesImport(row);
+  importCandidateWarnings({ row, p, eligible, visible, hiddenRowsMessage, accStatusEligible });
+  selectImportDate({ p, k, row, snowCase, acc, services });
+  const src = k ? services.sourceDocFor(k.id) : null;
+  p.next = k && src ? "reinspect" : "notice";
+  // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
+  // updates the stored Accela status instead of being refused as already used.
+  p.refresh = refreshImportPending(k, row);
+  importWorkReadiness({ k, p, services, src, row, INITIAL_EXISTS, NO_CASE });
+  importReferralReadiness({ k, p, row });
+  importInitialReadiness({ k, p, row, INITIAL_EXISTS });
+  p.rule = row?.rule || null;
+  snowImportReadiness({ snowCase, p, k, src, services, row });
+  importCaseDifferences({ k, p, services, row, c, accNorm });
+  return p;
+}
+
+async function accelaImportFromShare(services, isCurrent = () => true) {
+  const acc = editor.state.acc;
+  if (!acc || !acc.cases || !acc.cases.length) return;
+  const caseIx = acc.caseIx || 0,
+    serial = imports.LOOKUP_SERIAL;
+  const active = () =>
+    isCurrent() && serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && (acc.caseIx || 0) === caseIx;
+  if (workspace.CASEDIR?.helper) {
+    try {
+      await accelaImportCheckShared(services, acc, active);
+    } catch (e) {
+      if (active()) acc.shareError = e.message;
+    }
+    return;
+  }
+  if (!workspace.CASEDIR) return;
+  if (workspace.NEEDGRANT) {
+    acc.shareError = "Reconnect the shared case folder before importing.";
+    return;
+  }
+  acc.shareError = "";
+  const c = acc.cases[caseIx],
+    tail = (" - " + c.number + ".json").toLowerCase();
+  const hits = (await services.listCaseFolder()).filter((f) => f.name.toLowerCase().endsWith(tail));
+  if (!active()) return;
+  if (hits.length > 1) {
+    acc.shareError = "More than one shared file has this case number. Resolve the duplicate records before importing.";
+    return;
+  }
+  const hit = hits[0];
+  if (!hit) return;
+  try {
+    const f = await (await workspace.CASEDIR.getFileHandle(hit.name)).getFile();
+    const text = await f.text();
+    if (!active()) return;
+    const keep = { screen: editor.state.screen, dirty: workspace.DIRTY, docId: editor.state.docId };
+    try {
+      if (!services.loadCaseFile(text)) acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
+    } finally {
+      editor.state.screen = keep.screen;
+      workspace.DIRTY = keep.dirty;
+      editor.state.docId = keep.docId;
+    }
+  } catch {
+    if (active()) {
+      acc.shareError = "The existing case file could not be read. Reconnect the share and retry.";
+      services.toast(acc.shareError);
+    }
+  }
+}
+
+function accelaImportBaseAccept(services) {
+  const acc = editor.state.acc,
+    p = accelaImportPlanWithShare(services, acc);
+  // the guard is here, not only on the button
+  if (p.blockers.length) {
+    services.toast(p.blockers[0]);
+    services.render();
+    return null;
+  }
+  return acceptImportPlan(services, acc, p);
+}
+
+function accelaImportPanelHTML(services) {
+  const acc = editor.state.acc;
+  return importPanelHTML(services, acc, accelaImportPlanWithShare(services, acc));
+}
+
+// The import window is drawn in the page's dialog layer (overlay), above the Import inspection screen.
+
+function accelaImportWindowHTML(services) {
+  return importDialogHTML(() => (accelaImportCanOpen(services, editor.state.acc) ? SINGLE_INSPECTION : "") + accelaImportPanelHTML(services));
+}
+
+function accelaImportScreen(services, before = "") {
+  const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
+  return services.shell(
+    "Import inspection",
+    "Bring in case details",
+    importDialogOpen() ? "" : SAVE_WORK, // while the import window is open it carries this action
+    html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
+  );
+}
+
+function accelaImportWorkspace(services, cid) {
+  const k = kase(cid);
+  if (!k) return;
+  cancelCaseLookup();
+  services.captureWork();
+  services.preflightCase(cid, "continue existing case", () => {
+    const draft = draftDocFor(cid),
+      visit = draftReinspFor(cid) || services.unissuedVisitFor(cid),
+      current = services.sourceDocFor(cid);
+    editor.state.modal = null;
+    editor.state.picker = false;
+    if (draft) {
+      editor.state.docId = draft.id;
+      editor.state.screen = "write";
+    } else if (visit) {
+      editor.state.reinspId = visit.id;
+      editor.state.screen = "reinspect";
+    } else if (current) {
+      editor.state.docId = current.id;
+      editor.state.screen = "write";
+    } else {
+      editor.state.screen = "cases";
+      // Workspace lists every case; issuedCase marks this one so it stands out.
+      editor.state.issuedCase = k.id;
+    }
+    services.saveDrafts();
+    services.render();
+  });
+}
+
+async function accelaImportCheckShared(services, acc, isCurrent = () => true) {
+  const number = accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
+  const listing = await services.helperJSON("/cases/list");
+  if (!isCurrent()) return false;
+  if (!Array.isArray(listing.files)) throw new Error("The shared case list could not be checked. Retry when the shared folder is available.");
+  const tail = (" - " + number + ".json").toLowerCase();
+  const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
+  if (hits.length > 1)
+    throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
+  const locals = workspace.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
+  if (locals.length > 1 || locals.some((k) => k.number !== number))
+    throw new Error("The local workspace has duplicate or differently capitalized case numbers. Resolve the existing record before importing.");
+  if (hits.length) {
+    const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
+    if (!isCurrent()) return false;
+    if (accStr(result.file?.case?.number).toUpperCase() !== number)
+      throw new Error("The shared filename and case number disagree. The existing record has been kept.");
+    const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: workspace.DIRTY };
+    let loaded;
+    try {
+      loaded = services.loadCaseFile(JSON.stringify(result.file));
+    } finally {
+      editor.state.screen = keep.screen;
+      editor.state.docId = keep.docId;
+      workspace.DIRTY = keep.dirty;
+    }
+    if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
+    services.COMMITTED.set(summaryName(result.file.case), result);
+  }
+  acc.shareError = "";
+  return true;
+}
+
+function accelaImportSignature(services, acc) {
+  const p = accelaImportPlanWithShare(services, acc);
+  return stableJSON({
+    caseNumber: p.c?.number,
+    documents: p.existing ? docsFor(p.existing.id) : [],
+    visits: p.existing ? reinspFor(p.existing.id) : [],
+    sel: acc.sel,
+    date: p.date,
+    time: p.time,
+    next: p.next,
+    existing: p.existing ? caseDetails(p.existing) : null,
+    diff: p.diff,
+    blockers: p.blockers,
+    warnings: p.warnings,
+    head: p.existing ? eventsFor(p.existing.id) : [],
+  });
+}
+
+function accelaImportCanOpen(services, acc) {
+  const p = accelaImportPlanWithShare(services, acc),
+    c = acc.cases[0];
+  // R37: a Record Category of "Snow Removal" advances a new case directly to the 10.28 snow citation draft.
+  return (
+    !p.existing &&
+    (p.next === "notice" || (p.next === "snow" && services.snow.matchesImport(p.row))) &&
+    !p.blockers.length &&
+    !p.warnings.length &&
+    c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type)).length === 1 &&
+    p.row?.typeKey === "initial" &&
+    accStatusEligible(p.row.status, p.row.type)
+  );
+}
+
+// Shows the retrieved case, or accepts it directly when it is a single eligible new case.
+
+async function accelaImportOpenResult(services, acc, active) {
+  editor.state.acc = acc;
+  editor.WORK.acc = clone(acc);
+  if (!(await services.saveDrafts()))
+    throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
+  // Every result opens in the import window for review; nothing is imported until the inspector confirms it.
+  if (active())
+    services.toast(
+      accelaImportCanOpen(services, acc)
+        ? "One inspection is available — review it and confirm the import"
+        : "Case retrieved — review the inspection and details",
+    );
+}
+
+async function accelaImportFind(services) {
+  const lookup = beginLookup(services);
+  if (!lookup) return;
+  const { number, serial, controller, active, timer } = lookup;
+  try {
+    if (!(await services.saveDrafts()))
+      throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
+    if (!active()) return;
+    const { response, result } = await requestCase(number, controller);
+    if (!active()) return;
+    if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
+    const acc = sqlReport(result, number);
+    try {
+      if (!(await accelaImportCheckShared(services, acc, active))) return;
+    } catch (e) {
+      acc.shareError = e.message;
+    }
+    if (!active()) return;
+    await accelaImportOpenResult(services, acc, active);
+  } catch (error) {
+    if (active()) imports.LOOKUP_ERROR = lookupFailureMessage(error);
+  } finally {
+    await endLookup(services, serial, timer);
+  }
+}
+
+/* R59: any eligible listed candidate of the current case can be chosen. R62: an inspection already used on the
+ case is not listed, so it cannot be chosen. Each change bumps the selection token. */
+
+function accelaImportSelect(services, index) {
+  const acc = editor.state.acc,
+    c = acc?.cases?.[acc.caseIx || 0];
+  if (
+    !c ||
+    !(accelaImportPlanWithShare(services, acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))
+  )
+    return false;
+  acc.sel = index;
+  imports.ACC_SELECTION_SERIAL++;
+  return true;
+}
+
+async function accelaImportConfirm(services, LOOKUP_READY) {
+  const acc = editor.state.acc;
+  if (imports.LOOKUP_BUSY || !acc) return;
+  imports.LOOKUP_ERROR = "";
+  acc.shareError = "";
+  const before = accelaImportSignature(services, acc);
+  imports.LOOKUP_BUSY = true;
+  const serial = ++imports.LOOKUP_SERIAL,
+    selection = imports.ACC_SELECTION_SERIAL,
+    selected = acc.sel;
+  // A shared-record result started for an earlier selection never confirms the current one.
+  const sameSelection = () => selection === imports.ACC_SELECTION_SERIAL && acc.sel === selected;
+  const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
+  services.render();
+  try {
+    if (workspace.CASEDIR?.helper || liveSource(acc.source)) {
+      if (!(await accelaImportCheckShared(services, acc, active)) || !active()) return;
+    } else {
+      await accelaImportFromShare(services, active);
+      if (!active()) return;
+    }
+    if (before !== accelaImportSignature(services, acc)) {
+      services.toast("The shared record changed. Review the refreshed details and confirm again.");
+      return;
+    }
+    LOOKUP_READY.add(acc);
+    try {
+      accelaImportAccept(services, LOOKUP_READY);
+    } finally {
+      LOOKUP_READY.delete(acc);
+    }
+  } catch (e) {
+    if (active()) acc.shareError = e.message;
+  } finally {
+    if (serial === imports.LOOKUP_SERIAL) {
+      imports.LOOKUP_BUSY = false;
+      if (!sameSelection() && editor.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
+      await services.saveDrafts();
+      services.render();
+    }
+  }
+}
+
+function accelaImportPlanWithShare(services, acc) {
+  const p = accelaImportPlan(services, acc);
+  if (acc) {
+    if (acc.shareError) p.blockers.push(acc.shareError);
+    if (p.existing && docsFor(p.existing.id).some((d) => d.pendingIssue || d.pendingAmendment))
+      p.blockers.push("Confirm the pending document save on this case before importing new details.");
+  }
+  return p;
+}
+
+function accelaImportAccept(services, LOOKUP_READY) {
+  if ((liveSource(editor.state.acc?.source) || workspace.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
+    services.toast("Check the shared record before confirming this lookup.");
+    return null;
+  }
+  const direct = liveSource(editor.state.acc?.source);
+  const result = accelaImportBaseAccept(services);
+  if (result && direct) {
+    delete editor.WORK.entry["lookup-number"];
+    services.scheduleDraftSave();
+  }
+  return result;
+}
+
 export function createAccelaImport(services) {
   /* Accela inspection import: report columns, type/status rules, report parsing, import candidates,
    the review plan and panel, the live case report lookup and acceptance. */
 
   const LOOKUP_READY = new WeakSet();
-
-  function baseLookupPlan(acc) {
-    const p = newImportPlan(acc);
-    const c = importPlanCase(acc, p);
-    if (!c) return p;
-    p.c = c;
-    const par = importedCaseFields({ c, accParcel, p });
-    importedSourceWarnings({ c, p, ACC_LABEL, par, services });
-    const k = workspace.CASES.find((x) => accStr(x.number).toUpperCase() === accStr(c.number).toUpperCase()) || null;
-    p.existing = k;
-    const { visible, eligible, row } = selectImportCandidate({ importCandidates, c, k, accStatusEligible, p, acc });
-    const snowCase = services.snow.isCase(k) || services.snow.matchesImport(row);
-    importCandidateWarnings({ row, p, eligible, visible, hiddenRowsMessage, accStatusEligible });
-    selectImportDate({ p, k, row, snowCase, acc, services });
-    const src = k ? services.sourceDocFor(k.id) : null;
-    p.next = k && src ? "reinspect" : "notice";
-    // R53 Refresh from Accela: importing the same inspection again while its draft or worksheet is unissued
-    // updates the stored Accela status instead of being refused as already used.
-    p.refresh = refreshImportPending(k, row);
-    importWorkReadiness({ k, p, services, src, row, INITIAL_EXISTS, NO_CASE });
-    importReferralReadiness({ k, p, row });
-    importInitialReadiness({ k, p, row, INITIAL_EXISTS });
-    p.rule = row?.rule || null;
-    snowImportReadiness({ snowCase, p, k, src, services, row });
-    importCaseDifferences({ k, p, services, row, c, accNorm });
-    return p;
-  }
-
-  async function accelaFromShare(isCurrent = () => true) {
-    const acc = editor.state.acc;
-    if (!acc || !acc.cases || !acc.cases.length) return;
-    const caseIx = acc.caseIx || 0,
-      serial = imports.LOOKUP_SERIAL;
-    const active = () =>
-      isCurrent() && serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && (acc.caseIx || 0) === caseIx;
-    if (workspace.CASEDIR?.helper) {
-      try {
-        await checkLookupShared(acc, active);
-      } catch (e) {
-        if (active()) acc.shareError = e.message;
-      }
-      return;
-    }
-    if (!workspace.CASEDIR) return;
-    if (workspace.NEEDGRANT) {
-      acc.shareError = "Reconnect the shared case folder before importing.";
-      return;
-    }
-    acc.shareError = "";
-    const c = acc.cases[caseIx],
-      tail = (" - " + c.number + ".json").toLowerCase();
-    const hits = (await services.listCaseFolder()).filter((f) => f.name.toLowerCase().endsWith(tail));
-    if (!active()) return;
-    if (hits.length > 1) {
-      acc.shareError = "More than one shared file has this case number. Resolve the duplicate records before importing.";
-      return;
-    }
-    const hit = hits[0];
-    if (!hit) return;
-    try {
-      const f = await (await workspace.CASEDIR.getFileHandle(hit.name)).getFile();
-      const text = await f.text();
-      if (!active()) return;
-      const keep = { screen: editor.state.screen, dirty: workspace.DIRTY, docId: editor.state.docId };
-      try {
-        if (!services.loadCaseFile(text))
-          acc.shareError = "The existing case could not be merged. Open the existing record and resolve the conflict.";
-      } finally {
-        editor.state.screen = keep.screen;
-        workspace.DIRTY = keep.dirty;
-        editor.state.docId = keep.docId;
-      }
-    } catch {
-      if (active()) {
-        acc.shareError = "The existing case file could not be read. Reconnect the share and retry.";
-        services.toast(acc.shareError);
-      }
-    }
-  }
-
-  function baseLookupAccept() {
-    const acc = editor.state.acc,
-      p = accelaPlan(acc);
-    // the guard is here, not only on the button
-    if (p.blockers.length) {
-      services.toast(p.blockers[0]);
-      services.render();
-      return null;
-    }
-    return acceptImportPlan(services, acc, p);
-  }
-
-  function accelaPanel() {
-    const acc = editor.state.acc;
-    return importPanelHTML(services, acc, accelaPlan(acc));
-  }
-
-  // The import window is drawn in the page's dialog layer (overlay), above the Import inspection screen.
-  function importWindowHTML() {
-    return importDialogHTML(() => (lookupCanOpen(editor.state.acc) ? SINGLE_INSPECTION : "") + accelaPanel());
-  }
-
-  function screenImport(before = "") {
-    const caseTypeChoice = html`<label class="f no-print"><span>Case workflow for a new case</span><select id="new-case-type"><option value="">Standard code violation</option><option value="snow-10.28" ${raw(editor.WORK.entry?.["new-case-type"] === "snow-10.28" ? "selected" : "")}>Snow removal (MGO 10.28)</option></select></label>`;
-    return services.shell(
-      "Import inspection",
-      "Bring in case details",
-      importDialogOpen() ? "" : SAVE_WORK, // while the import window is open it carries this action
-      html`<div style="max-width:980px">\n      ${raw(before)}\n      ${raw(lookupCard())}\n      <details class="import-workflow"><summary>New-case workflow</summary>${raw(caseTypeChoice)}<p class="hint">Snow Removal records select the snow workflow automatically. Use this setting only when the source does not identify the workflow.</p></details>\n      </div>`,
-    );
-  }
-
-  function openImportWorkspace(cid) {
-    const k = kase(cid);
-    if (!k) return;
-    cancelCaseLookup();
-    services.captureWork();
-    services.preflightCase(cid, "continue existing case", () => {
-      const draft = draftDocFor(cid),
-        visit = draftReinspFor(cid) || services.unissuedVisitFor(cid),
-        current = services.sourceDocFor(cid);
-      editor.state.modal = null;
-      editor.state.picker = false;
-      if (draft) {
-        editor.state.docId = draft.id;
-        editor.state.screen = "write";
-      } else if (visit) {
-        editor.state.reinspId = visit.id;
-        editor.state.screen = "reinspect";
-      } else if (current) {
-        editor.state.docId = current.id;
-        editor.state.screen = "write";
-      } else {
-        editor.state.screen = "cases";
-        // Workspace lists every case; issuedCase marks this one so it stands out.
-        editor.state.issuedCase = k.id;
-      }
-      services.saveDrafts();
-      services.render();
-    });
-  }
-
-  async function checkLookupShared(acc, isCurrent = () => true) {
-    const number = accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
-    const listing = await services.helperJSON("/cases/list");
-    if (!isCurrent()) return false;
-    if (!Array.isArray(listing.files)) throw new Error("The shared case list could not be checked. Retry when the shared folder is available.");
-    const tail = (" - " + number + ".json").toLowerCase();
-    const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
-    if (hits.length > 1)
-      throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
-    const locals = workspace.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
-    if (locals.length > 1 || locals.some((k) => k.number !== number))
-      throw new Error("The local workspace has duplicate or differently capitalized case numbers. Resolve the existing record before importing.");
-    if (hits.length) {
-      const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
-      if (!isCurrent()) return false;
-      if (accStr(result.file?.case?.number).toUpperCase() !== number)
-        throw new Error("The shared filename and case number disagree. The existing record has been kept.");
-      const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: workspace.DIRTY };
-      let loaded;
-      try {
-        loaded = services.loadCaseFile(JSON.stringify(result.file));
-      } finally {
-        editor.state.screen = keep.screen;
-        editor.state.docId = keep.docId;
-        workspace.DIRTY = keep.dirty;
-      }
-      if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
-      services.COMMITTED.set(summaryName(result.file.case), result);
-    }
-    acc.shareError = "";
-    return true;
-  }
-
-  function lookupPlanSignature(acc) {
-    const p = accelaPlan(acc);
-    return stableJSON({
-      caseNumber: p.c?.number,
-      documents: p.existing ? docsFor(p.existing.id) : [],
-      visits: p.existing ? reinspFor(p.existing.id) : [],
-      sel: acc.sel,
-      date: p.date,
-      time: p.time,
-      next: p.next,
-      existing: p.existing ? caseDetails(p.existing) : null,
-      diff: p.diff,
-      blockers: p.blockers,
-      warnings: p.warnings,
-      head: p.existing ? eventsFor(p.existing.id) : [],
-    });
-  }
-
-  function lookupCanOpen(acc) {
-    const p = accelaPlan(acc),
-      c = acc.cases[0];
-    // R37: a Record Category of "Snow Removal" advances a new case directly to the 10.28 snow citation draft.
-    return (
-      !p.existing &&
-      (p.next === "notice" || (p.next === "snow" && services.snow.matchesImport(p.row))) &&
-      !p.blockers.length &&
-      !p.warnings.length &&
-      c.rows.filter((r) => r.selectable && accStatusEligible(r.status, r.type)).length === 1 &&
-      p.row?.typeKey === "initial" &&
-      accStatusEligible(p.row.status, p.row.type)
-    );
-  }
-
-  // Shows the retrieved case, or accepts it directly when it is a single eligible new case.
-  async function openLookupResult(acc, active) {
-    editor.state.acc = acc;
-    editor.WORK.acc = clone(acc);
-    if (!(await services.saveDrafts()))
-      throw new Error("Case retrieved, but this device could not save the review. Keep the page open or download a workspace backup.");
-    // Every result opens in the import window for review; nothing is imported until the inspector confirms it.
-    if (active())
-      services.toast(
-        lookupCanOpen(acc) ? "One inspection is available — review it and confirm the import" : "Case retrieved — review the inspection and details",
-      );
-  }
-
-  async function findDatabaseCase() {
-    const lookup = beginLookup(services);
-    if (!lookup) return;
-    const { number, serial, controller, active, timer } = lookup;
-    try {
-      if (!(await services.saveDrafts()))
-        throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
-      if (!active()) return;
-      const { response, result } = await requestCase(number, controller);
-      if (!active()) return;
-      if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
-      const acc = sqlReport(result, number);
-      try {
-        if (!(await checkLookupShared(acc, active))) return;
-      } catch (e) {
-        acc.shareError = e.message;
-      }
-      if (!active()) return;
-      await openLookupResult(acc, active);
-    } catch (error) {
-      if (active()) imports.LOOKUP_ERROR = lookupFailureMessage(error);
-    } finally {
-      await endLookup(services, serial, timer);
-    }
-  }
-
-  /* R59: any eligible listed candidate of the current case can be chosen. R62: an inspection already used on the
-   case is not listed, so it cannot be chosen. Each change bumps the selection token. */
-  function selectImportInspection(index) {
-    const acc = editor.state.acc,
-      c = acc?.cases?.[acc.caseIx || 0];
-    if (!c || !(accelaPlan(acc).candidates || []).some((r) => r.i === index && r.selectable && accStatusEligible(r.status, r.type))) return false;
-    acc.sel = index;
-    imports.ACC_SELECTION_SERIAL++;
-    return true;
-  }
-
-  async function confirmDatabaseCase() {
-    const acc = editor.state.acc;
-    if (imports.LOOKUP_BUSY || !acc) return;
-    imports.LOOKUP_ERROR = "";
-    acc.shareError = "";
-    const before = lookupPlanSignature(acc);
-    imports.LOOKUP_BUSY = true;
-    const serial = ++imports.LOOKUP_SERIAL,
-      selection = imports.ACC_SELECTION_SERIAL,
-      selected = acc.sel;
-    // A shared-record result started for an earlier selection never confirms the current one.
-    const sameSelection = () => selection === imports.ACC_SELECTION_SERIAL && acc.sel === selected;
-    const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
-    services.render();
-    try {
-      if (workspace.CASEDIR?.helper || liveSource(acc.source)) {
-        if (!(await checkLookupShared(acc, active)) || !active()) return;
-      } else {
-        await accelaFromShare(active);
-        if (!active()) return;
-      }
-      if (before !== lookupPlanSignature(acc)) {
-        services.toast("The shared record changed. Review the refreshed details and confirm again.");
-        return;
-      }
-      LOOKUP_READY.add(acc);
-      try {
-        acceptAccela();
-      } finally {
-        LOOKUP_READY.delete(acc);
-      }
-    } catch (e) {
-      if (active()) acc.shareError = e.message;
-    } finally {
-      if (serial === imports.LOOKUP_SERIAL) {
-        imports.LOOKUP_BUSY = false;
-        if (!sameSelection() && editor.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
-        await services.saveDrafts();
-        services.render();
-      }
-    }
-  }
-
-  function accelaPlan(acc) {
-    const p = baseLookupPlan(acc);
-    if (acc) {
-      if (acc.shareError) p.blockers.push(acc.shareError);
-      if (p.existing && docsFor(p.existing.id).some((d) => d.pendingIssue || d.pendingAmendment))
-        p.blockers.push("Confirm the pending document save on this case before importing new details.");
-    }
-    return p;
-  }
-
-  function acceptAccela() {
-    if ((liveSource(editor.state.acc?.source) || workspace.CASEDIR?.helper) && !LOOKUP_READY.has(editor.state.acc)) {
-      services.toast("Check the shared record before confirming this lookup.");
-      return null;
-    }
-    const direct = liveSource(editor.state.acc?.source);
-    const result = baseLookupAccept();
-    if (result && direct) {
-      delete editor.WORK.entry["lookup-number"];
-      services.scheduleDraftSave();
-    }
-    return result;
-  }
+  // The import operations are module functions below; this owner binds its services and lookup-ready set.
+  const baseLookupPlan = (...args) => accelaImportPlan(services, ...args);
+  const accelaFromShare = (...args) => accelaImportFromShare(services, ...args);
+  const baseLookupAccept = (...args) => accelaImportBaseAccept(services, ...args);
+  const accelaPanel = (...args) => accelaImportPanelHTML(services, ...args);
+  const importWindowHTML = (...args) => accelaImportWindowHTML(services, ...args);
+  const screenImport = (...args) => accelaImportScreen(services, ...args);
+  const openImportWorkspace = (...args) => accelaImportWorkspace(services, ...args);
+  const checkLookupShared = (...args) => accelaImportCheckShared(services, ...args);
+  const lookupPlanSignature = (...args) => accelaImportSignature(services, ...args);
+  const lookupCanOpen = (...args) => accelaImportCanOpen(services, ...args);
+  const findDatabaseCase = (...args) => accelaImportFind(services, ...args);
+  const selectImportInspection = (...args) => accelaImportSelect(services, ...args);
+  const confirmDatabaseCase = (...args) => accelaImportConfirm(services, LOOKUP_READY, ...args);
+  const accelaPlan = (...args) => accelaImportPlanWithShare(services, ...args);
+  const acceptAccela = (...args) => accelaImportAccept(services, LOOKUP_READY, ...args);
   return {
     ACC_COLS,
     ACC_REQUIRED,
