@@ -1,4 +1,5 @@
 import { deferredServices } from "./deferred_services.js";
+import { uid, MINDUE, FS_OK, CASEDIR_EXPECT, IDB_OK, storageMode, COMMITTED } from "./app_base.js";
 import { createHelperRequests } from "./helper_requests.js";
 import { createCaseSummaryAdapter } from "./case_summary_adapter.js";
 import { evid, appendEvent } from "./record_event_log.js";
@@ -85,7 +86,7 @@ import { frozenOf, specialType } from "./document_rules.js";
 import { kase, doc, docsFor, reinspFor, correctionSource, docCase, docInsp, eventsFor } from "./writer_queries.js";
 import { stableJSON } from "./record_values.js";
 import { esc } from "./presentation_format.js";
-import { parseDate, parseTime, validISO, addDays } from "./calendar.js";
+import { parseDate, parseTime, validISO } from "./calendar.js";
 
 import { fmtDate, longDate, fmtTime } from "./presentation_format.js";
 import { splitOwner } from "./mailing_rules.js";
@@ -121,7 +122,7 @@ import { createLanguageActions } from "./language_actions.js";
 import { initSnow } from "./snow_cases.js";
 import { initAdministration } from "./administration.js";
 import { initReviewedLibrary } from "./reviewed_library.js";
-import { SUMMARY_VERSION, recordDay } from "../assets/shared.js";
+import { SUMMARY_VERSION } from "../assets/shared.js";
 
 import { initNewDocuments } from "./new_documents.js";
 import { initInitialCitations } from "./initial_citations.js";
@@ -141,6 +142,7 @@ import { createDocumentRenderer } from "./document_render.js";
 import { createSavedWorkContext, createWorkspaceQueueContext, createLanguageDiscoveryContext } from "./app_view_contexts.js";
 
 /* Editor copy-click registration precedes the existing feature-service registrations. Dependencies stay lazy. */
+/* ===== Service area: Feature owners ===== */
 const editorScreens = createEditorScreens({
   ui: deferredServices(
     {
@@ -377,6 +379,7 @@ export const addressParser = initAddressParser(
     ["A11Y", "recordIntegrity"],
   ),
 );
+/* ===== Service area: Screens and shell ===== */
 const helperRequests = createHelperRequests(deferredServices({ recordIntegrity: () => recordIntegrity }, ["recordIntegrity"]));
 export let { helperJSON } = helperRequests;
 const caseSummaryAdapter = createCaseSummaryAdapter(deferredServices({ recordIntegrity: () => recordIntegrity }, ["recordIntegrity"]));
@@ -515,6 +518,7 @@ const appScreens = createAppScreens(
 );
 export let { render, renderKeep } = appScreens;
 
+/* ===== Service area: Case work ===== */
 const folderConnections = createFolderConnections(
   deferredServices(
     {
@@ -889,6 +893,7 @@ const workspaceTaskPresentation = createWorkspaceTasks(
 );
 export let { workspaceTasks } = workspaceTaskPresentation;
 
+/* ===== Service area: Records, publication and correction ===== */
 const recordCommit = createRecordCommit(
   deferredServices(
     {
@@ -998,6 +1003,7 @@ const correctionWorkflow = createCorrectionWorkflow({
 });
 export let { startCorrection, issueCorrection } = correctionWorkflow;
 
+/* ===== Service area: Storage and recovery ===== */
 const workspaceDatabase = createWorkspaceDatabase(deferredServices({ IDB_OK: () => IDB_OK, indexedDB: () => indexedDB }, ["IDB_OK", "indexedDB"]));
 export let { idb, idbGet, idbSet } = workspaceDatabase;
 
@@ -1175,6 +1181,7 @@ const worksheetWorkflow = createWorksheetWorkflow(
 );
 export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;
 
+/* ===== Service area: Documents and history ===== */
 const recoveryUI = createRecoveryUI(
   deferredServices(
     {
@@ -1438,6 +1445,7 @@ export let { paginate } = documentPagination;
 const { contHead } = documentPagination;
 
 /* Feature interfaces are lazy: no service or later state is read during construction. */
+/* ===== Service area: Event owners ===== */
 const utilityEvents = createUtilityEvents(
   deferredServices(
     {
@@ -1815,6 +1823,7 @@ const contactEvents = createContactEvents(
     validateAndStandardizeAddresses: () => validateAndStandardizeAddresses,
   }),
 );
+/* ===== Service area: Core wiring and startup ===== */
 utilityEvents.registerHelpClicks();
 utilityEvents.registerHelpKeys();
 utilityEvents.registerHelpClose();
@@ -1910,13 +1919,8 @@ WriterState.state = {
 };
 
 export const A11Y = createAccessibility();
-/* Ids have to be unique across machines, not only within this session:
-   two inspectors working the same case offline both allocate ids and the
-   files are merged by union, so a plain counter collides. The counter is
-   kept as a readable prefix; the random tail is what makes it unique. */
+/* uid (app_base.js) continues this readable counter prefix. */
 WriterState.seq = 100;
-
-export const uid = (p) => p + ++WriterState.seq + "-" + rnd12();
 WriterState.DIRTY = false;
 
 /* The clock is read at the moment it is used, never captured at load. A
@@ -1960,8 +1964,6 @@ export const docBlocks = (d) => (d && d.correction && d.correction.blocks) || (f
 
 export const blockers = (d) => checks(d).filter((c) => !c.ok && !c.soft);
 
-export const MINDUE = () => addDays(recordDay(today), 1);
-// a due date is never today or earlier
 /* test fixture API: retained for audit_*.js; production uses confirmed publication. */
 // Test hook: exported so the test build keeps it; tests call it by name.
 export const futureDue = __TEST_BUILD__ ? $testFixtures.futureDue : undefined;
@@ -2022,15 +2024,7 @@ WriterState.releaseWorkspaceLock = null;
    the id already in use, so every reference inside them is repointed first
    or the documents replay onto a case nothing looks at. */
 
-/* ---------- storage ----------
-   Served from localhost the browser gives us two things a file:// page cannot
-   have: the File System Access API, so the case folder on the share is written
-   in place, and IndexedDB, so drafts survive a closed laptop without ever
-   touching the share. Drafts are working papers; only issued documents belong
-   in the shared record. */
-export const FS_OK = typeof window !== "undefined" && !!window.showDirectoryPicker;
-export const CASEDIR_EXPECT = "Case JSON Files"; /* the division's folder for case records */
-export const IDB_OK = typeof indexedDB !== "undefined" && !!indexedDB;
+/* ---------- storage ---------- (capabilities and storageMode live in app_base.js) */
 WriterState.CASEDIR = null;
 /* handle on the case folder, remembered between sessions */
 WriterState.DIRNAME = "";
@@ -2044,9 +2038,6 @@ WriterState.PENDING = [];
    connections behind and blocks any later upgrade of the database. */
 WriterState.IDBCONN = null;
 
-export const storageMode = () =>
-  WriterState.CASEDIR ? (WriterState.NEEDGRANT ? "folder-locked" : "folder") : FS_OK ? "folder-not-linked" : "download";
-
 /* ---------- the case folder ---------- */
 
 /* Returns the reason it failed rather than a bare false, because a write that
@@ -2057,7 +2048,6 @@ WriterState.LASTWRITE = null;
 
 WriterState.LASTINDEX = null;
 /* what the last reporting-summary write did */ /* {name, ok, why, at} — what the last write attempt did */
-export const COMMITTED = new Map();
 
 /* A summary goes into Reporting Index inside the case folder: the one place
    the browser's permission already reaches. A failed summary never blocks
@@ -2439,3 +2429,6 @@ if (__TEST_BUILD__)
     readinessText,
     reviewConcernsHTML,
   };
+
+// Base helpers keep their original exported names.
+export { uid, MINDUE, FS_OK, CASEDIR_EXPECT, IDB_OK, storageMode, COMMITTED };

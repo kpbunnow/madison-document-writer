@@ -112,6 +112,7 @@ covers, or a new suite under its feature.
 | `audit_screen_html.js` | Default screen escaping, explicit trusted fragments and print-path exclusion |
 | `audit_deferred_services.js` | Inert declared services, live callbacks/values and descriptor parity |
 | `audit_scoped_architecture.js` | Root-state ownership, zero cycles and static injection widths |
+| `audit_service_areas.js` | Writer owners grouped by service area in construction order; cross-area coupling only shrinks (SERVICE-AREAS.md) |
 | `audit_recovery_event_export.js` | Synchronous recovery export names, bytes and identity |
 | `audit_scoped_services.js` | Exact scoped dependencies, lazy leaves, static access, no spreads and per-interface width |
 | `audit_editor_state.js` | Live editor state and retained captured-view pointers |
