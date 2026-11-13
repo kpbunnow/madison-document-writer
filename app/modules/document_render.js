@@ -41,6 +41,486 @@ const finalDueCell = (services, it) =>
     ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
     : `<span class="mono">${esc(services.fmtDate(it.due))}</span>`;
 
+function noticeDueInputs(services, row) {
+  const { d, it, num, dis, dueSelection, dueSelected, affectedRows } = row;
+  return (
+    (dueSelection && it.dueExempt !== "snow-10.28"
+      ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+        esc(it.id) +
+        '" aria-label="Select item ' +
+        esc(num) +
+        ' for a shared due date" title="Select for a shared due date" ' +
+        (dueSelected.has(it.id) ? "checked" : "") +
+        ">"
+      : "") +
+    (affectedRows
+      ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
+        '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
+        esc(String(it.no)) +
+        '" ' +
+        ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
+        ' aria-label="Item ' +
+        esc(num) +
+        ' is affected by this extension">Affected</label>'
+      : "") +
+    '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+    `${esc(it.id)}` +
+    '" value="' +
+    `${esc(it.due || "")}` +
+    '" min="' +
+    `${d.correction ? "" : services.MINDUE()}` +
+    '" aria-label="Due date for item ' +
+    `${esc(num)}` +
+    '" ' +
+    `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
+    ">"
+  );
+}
+
+function noticeDueHistory(services, row, referralHistoryHTML) {
+  const { d, it } = row;
+  return d.authoringVersion >= 14
+    ? referralHistoryHTML(d, it)
+    : it.done
+      ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
+      : '<span class="visit-list">' +
+        "".concat(
+          services.documentItemHistory(d, it).length
+            ? services
+                .documentItemHistory(d, it)
+                .map(
+                  (x) =>
+                    `<span><b>${esc(services.fmtDate(x.on))}</b><em>${esc(OC_WORD[x.oc] || x.oc)}</em>${
+                      x.cit ? `<i>Citation ${esc(x.cit)}</i>` : ""
+                    }</span>`,
+                )
+                .join("")
+            : '<span class="muted">no reinspection recorded</span>',
+        ) +
+        "</span>";
+}
+
+function noticeDueValue(services, row, referralHistoryHTML) {
+  const { d, it, aligned } = row;
+  return "".concat(
+    it.withdrawn
+      ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
+          (services.hasItemInspectionHistory(d) ? referralHistoryHTML(d, it) : "")
+      : isHistoryDoc(d) || services.hasItemInspectionHistory(d)
+        ? noticeDueHistory(services, row, referralHistoryHTML)
+        : d.type === "compliance"
+          ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
+          : dueIsFinal(d, it)
+            ? finalDueCell(services, it)
+            : simpleVacancy(d)
+              ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
+              : aligned && d.type === "vacancyExtension" && d.special?.deadlineMode === "conditional" && d.special.affected?.includes(String(it.no))
+                ? '<span class="conditional-due">Conditional — see conditions above</span>'
+                : noticeDueInputs(services, row),
+  );
+}
+
+function noticeNumberCell(row) {
+  const { d, it, ix, struct, num, b } = row;
+  return (
+    '<td class="c-no">' +
+    "\n        " +
+    "".concat(
+      struct
+        ? '<span class="grip no-print" data-grip="' +
+            `${esc(it.id)}` +
+            '" role="button" tabindex="0" aria-label="Reorder item ' +
+            `${esc(num)}` +
+            '; use up or down arrow" title="Drag or use arrow keys to reorder">&#1026' +
+            '2;</span><button class="gbtn no-print" data-move="' +
+            `${esc(it.id)}` +
+            '" data-direction="up" aria-label="Move item ' +
+            `${esc(num)}` +
+            ' up" ' +
+            `${ix === 0 ? "disabled" : ""}` +
+            '>↑</button><button class="gbtn no-print" data-move="' +
+            `${esc(it.id)}` +
+            '" data-direction="down" aria-label="Move item ' +
+            `${esc(num)}` +
+            ' down" ' +
+            `${ix === d.items.length - 1 ? "disabled" : ""}` +
+            '>↓</button>\n          <button class="gbtn no-print" data-grpbtn="' +
+            `${esc(it.id)}` +
+            '" aria-label="Location heading for item ' +
+            `${esc(num)}` +
+            '" title="Location heading">&#9143;</button>'
+        : "",
+    ) +
+    '\n        <span class="num">' +
+    `${esc(num)}` +
+    '.</span>\n        <span class="bl" data-blanks="' +
+    `${esc(it.id)}` +
+    '" style="' +
+    `${b ? "" : "display:none"}` +
+    '">' +
+    `${b}` +
+    "&nbsp;blank" +
+    `${b === 1 ? "" : "s"}` +
+    "</span></td>\n      "
+  );
+}
+
+function noticeSectionsCell(row) {
+  const { d, it, rce } = row;
+  return (
+    '<td class="c-sec">' +
+    '<div class="sec-list ed" ' +
+    `${rce}` +
+    ' data-field="sections" data-id="' +
+    `${esc(it.id)}` +
+    '" data-ph="section">' +
+    `${it.sections.map((x) => esc(d.authoringVersion >= 9 ? it.printedReferences?.[x] || x : x)).join("<br>")}` +
+    "</div></td>\n      "
+  );
+}
+
+function noticeAbatementCell(row) {
+  const { d, it, dis } = row;
+  return (
+    '<td class="c-ab">' +
+    "".concat(
+      d.type === "compliance" && d.authoringVersion >= 15
+        ? `<span class="ab-fixed">${typeof it.abate === "boolean" ? (it.abate ? "Yes" : "No") : "Unavailable"}</span>`
+        : it.done
+          ? "&mdash;"
+          : d.type !== "notice"
+            ? `<span class="ab-fixed">${it.abate ? "Yes" : "No"}</span>`
+            : '<button class="ab-btn" data-abate="' +
+              `${esc(it.id)}` +
+              '" data-on="' +
+              `${it.abate ? 1 : 0}` +
+              '" ' +
+              `${dis}` +
+              ">" +
+              `${it.abate ? "Yes" : "No"}` +
+              "</button>",
+    ) +
+    "</td>\n      "
+  );
+}
+
+function noticeActionCell(services, row, historyNotesHTML) {
+  const { d, it, rce } = row;
+  return (
+    '<td class="corr">' +
+    "".concat(it.withdrawn ? `<p class="withdrawn-note"><strong>Withdrawn as entered in error.</strong> ${esc(it.withdrawalReason || "")}</p>` : "") +
+    '<div class="ed" ' +
+    `${rce}` +
+    ' data-field="text" data-id="' +
+    `${esc(it.id)}` +
+    '" data-ph="Corrective action" style="white-space:pre-wrap">' +
+    `${editableBlanks(it.text)}` +
+    "</div>" +
+    `${d.draft ? services.catalogDraftNotice(it) : ""}` +
+    "\n        " +
+    "".concat(
+      isHistoryDoc(d) || services.hasItemInspectionHistory(d)
+        ? d.authoringVersion >= 16
+          ? historyNotesHTML(d, it)
+          : (d.authoringVersion >= 14 ? [] : services.documentItemHistory(d, it))
+              .filter((x) => x.note)
+              .map(
+                (x) =>
+                  '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
+                  `${esc(services.fmtDate(x.on))}` +
+                  "</span>" +
+                  `${esc(x.note)}` +
+                  "</div>",
+              )
+              .join("")
+        : it.note
+          ? '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
+            `${esc(services.fmtDate(it.noteOn))}` +
+            '</span><span class="ed" ' +
+            `${rce}` +
+            ' data-field="note" data-id="' +
+            `${esc(it.id)}` +
+            '" style="white-space:pre-wrap">' +
+            `${esc(it.note)}` +
+            "</span></div>"
+          : "",
+    ) +
+    "</td>\n      "
+  );
+}
+
+function noticeCitationCell(row) {
+  const { d, it, citeColumn } = row;
+  return (
+    "".concat(
+      !citeColumn
+        ? ""
+        : !it.done && (citeAllowed(d) || it.cite)
+          ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
+            'ice"><input type="checkbox" data-notecite="' +
+            `${esc(it.id)}` +
+            '" ' +
+            `${it.cite ? "checked" : ""}` +
+            "><span>Cite</span></label></td>"
+          : '<td class="c-cite no-print"></td>',
+    ) + "\n      "
+  );
+}
+
+function noticeDueCell(services, row, referralHistoryHTML) {
+  const { d, it, num, locked, struct } = row;
+  return (
+    '<td class="c-due">' +
+    noticeDueValue(services, row, referralHistoryHTML) +
+    "\n        " +
+    "".concat(
+      d.correction && !locked
+        ? '<button class="lnk no-print" data-withdraw="' + `${esc(it.id)}` + '">' + `${it.withdrawn ? "Restore item" : "Withdraw item"}` + "</button>"
+        : "",
+    ) +
+    "".concat(
+      struct
+        ? '<button class="rm no-print" data-del="' +
+            `${esc(it.id)}` +
+            '" aria-label="Remove item ' +
+            `${esc(num)}` +
+            '" title="Remove this item">&times;</button>'
+        : "",
+    ) +
+    "</td>"
+  );
+}
+
+function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML) {
+  const { aligned, ce, dis, struct, citeColumn, dueSelection, dueSelected, affectedRows, locked } = context;
+  let last = null;
+  return d.items
+    .map((it, ix) => {
+      let head = "";
+      const g = (it.group || "").trim();
+      if (g !== last) {
+        last = g;
+        if (g)
+          head =
+            '<tr class="grp"><td colspan="5"><span class="ed" ' +
+            `${ce}` +
+            ' data-field="group" data-id="' +
+            `${esc(it.id)}` +
+            '">' +
+            `${esc(g)}` +
+            "</span></td></tr>";
+      }
+      const b = countBlanks(it.text);
+      const num = struct ? String(ix + 1) : it.no || String(ix + 1);
+      const rce = (it.done && !d.correction) || it.withdrawn ? "" : ce;
+      const row = { d, it, ix, num, b, rce, struct, dis, citeColumn, locked, aligned, dueSelected, dueSelection, affectedRows };
+      return (
+        head +
+        '<tr data-row="' +
+        `${esc(it.id)}` +
+        '" class="' +
+        `${(it.done && d.type !== "compliance") || (d.correction && it.withdrawn) ? "done" : ""}` +
+        '">\n      ' +
+        noticeNumberCell(row) +
+        noticeSectionsCell(row) +
+        noticeAbatementCell(row) +
+        noticeActionCell(services, row, historyNotesHTML) +
+        noticeCitationCell(row) +
+        noticeDueCell(services, row, referralHistoryHTML) +
+        "</tr>"
+      );
+    })
+    .join("");
+}
+
+function noticeCopiesHTML(services, d, k) {
+  // the agent is served a copy as a matter of course
+  const ag = services.agentLines(k);
+  const cc = [documentOwnerCopy(d, k), ...copiesOf(k)]
+    .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
+    .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
+  const sent = d.emailedTo || [],
+    draftMail = d.draft
+      ? emailList(k).filter(
+          (e) => e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
+        )
+      : [],
+    mailRows = (d.draft ? draftMail : sent).filter((e) => String(e.addr || "").trim());
+  if (!cc.length && !mailRows.length) return "";
+  return (
+    '<div class="n-cc">\n        ' +
+    "".concat(
+      cc.length
+        ? '<div class="cc-row"><span class="cc-l">CC:</span><div class="cc-set">' +
+            "".concat(
+              cc
+                .map(
+                  (c) =>
+                    '<div class="cc-one">' +
+                    `${ccEntryLines(services, c, !!d.draft)
+                      .map((l) => `<div>${esc(l)}</div>`)
+                      .join("")}` +
+                    "" +
+                    `${ccRoleHTML(c)}` +
+                    "</div>",
+                )
+                .join(""),
+            ) +
+            "</div></div>"
+        : "",
+    ) +
+    "\n        " +
+    "".concat(
+      mailRows.length
+        ? '<div class="cc-row cc-mail"><span class="cc-l">' +
+            `${d.draft ? "Email recipients:" : "Email copy prepared for:"}` +
+            '</span><div class="cc-set">' +
+            `${mailRows.map((e) => `<div>${esc(e.kind || "Other")} &mdash; ${esc(e.addr)}</div>`).join("")}` +
+            "</div></div>"
+        : "",
+    ) +
+    "\n      </div>"
+  );
+}
+
+function noticeTitleHTML(d, aligned) {
+  const ty = DOC_TYPES.find((x) => x.id === d.type) || {};
+  if (!ty.pfx) return "Building Inspection Official Notice";
+  return ty.stacked && !aligned
+    ? `<span class="pfx">${esc(ty.pfx)}</span><br>${esc(ty.heading || "Building Inspection Official Notice")}`
+    : `<span class="pfx">${esc(ty.pfx)} - </span>Building Inspection Official Notice`;
+}
+
+function noticeInspectionFieldsHTML(d, k, dis) {
+  return hasOwnInsp(d)
+    ? '<input type="date" class="d-in hdr-in" data-doc="inspDate" value="' +
+        `${esc(d.inspDate || "")}` +
+        '" aria-label="Inspection date" ' +
+        `${dis}` +
+        '><input type="time" class="d-in hdr-in hdr-time" data-doc="inspTime" val' +
+        'ue="' +
+        `${esc(d.inspTime || "")}` +
+        '" aria-label="Inspection time" ' +
+        `${dis}` +
+        ">"
+    : '<input type="date" class="d-in hdr-in" data-case="date" value="' +
+        `${esc(k.date || "")}` +
+        '" aria-label="Inspection date" ' +
+        `${dis}` +
+        '><input type="time" class="d-in hdr-in hdr-time" data-case="time" value=' +
+        '"' +
+        `${esc(k.time || "")}` +
+        '" aria-label="Inspection time" ' +
+        `${dis}` +
+        ">";
+}
+
+function noticeHeaderHTML(services, d, k, i, context) {
+  const { aligned, ce, dis, locked } = context;
+  return (
+    '<div class="n-head">' +
+    '<img class="n-seal" src="' +
+    `${LOGO}` +
+    '" alt="City of Madison Building Inspection">\n      <div class="n-headmain"><div class="n-title' +
+    `${!aligned && (DOC_TYPES.find((x) => x.id === d.type) || {}).stacked ? " stacked" : ""}` +
+    '"' +
+    (aligned ? ' style="font-size:11pt!important"' : "") +
+    ">" +
+    "".concat(noticeTitleHTML(d, aligned)) +
+    '</div>\n      <div class="n-meta">\n        <dl class="n-col">\n          <dt>Case number:</dt><dd><strong class="ed" ' +
+    `${ce}` +
+    ' data-case="number" aria-readonly="' +
+    `${services.eventsFor(d.caseId).length ? "true" : "false"}` +
+    '">' +
+    `${esc(k.number)}` +
+    "</strong></dd>\n          <dt>Inspection date:</dt><dd>" +
+    "".concat(noticeInspectionFieldsHTML(d, k, dis)) +
+    '</dd>\n          <dt>Mailed date:</dt><dd><input type="date" class="d-in hdr-in" data-doc="mailed" value="' +
+    `${esc(d.mailed || "")}` +
+    '" max="' +
+    `${mailingMaxDay(services.initialCitations.enabled(d) ? "citation" : d.type)}` +
+    '" aria-label="Mailed date" ' +
+    `${dis}` +
+    '></dd>\n        </dl>\n        <dl class="n-col">\n          <dt>Property:</dt><dd><strong class="ed" ' +
+    `${ce}` +
+    ' data-case="address">' +
+    `${esc(k.address)}` +
+    "</strong></dd>\n          <dt>Inspector:</dt><dd>" +
+    "".concat(
+      locked
+        ? `<span class="n-insp-name">${esc(i.name)}</span>`
+        : '<select class="d-in hdr-in" data-doc="inspectorId" aria-label="Signing i' +
+            'nspector">' +
+            "".concat(INSPECTORS.map((x) => `<option value="${x.id}" ${i.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")) +
+            "</select>",
+    ) +
+    '\n            <div class="n-insp-l">' +
+    `${esc(i.title)}` +
+    '</div>\n            <div class="n-insp-l">' +
+    `${esc(i.phone)}` +
+    '</div>\n            <div class="n-insp-l">' +
+    `${esc(i.email)}` +
+    "</div></dd>\n        </dl>\n      </div></div></div>\n\n    "
+  );
+}
+
+function noticeMailingHTML(services, d, k, ce) {
+  return (
+    '<div class="n-owner">' +
+    '<div class="ed" ' +
+    `${mailingBlockEdit(k, ce)}` +
+    ' data-case="ownerBlock" data-ph="Owner and mailing address" style="white-space:pre-wrap">' +
+    `${esc(defendantLines(k, !!d.draft).join("\n"))}` +
+    "</div>" +
+    mailingBlockNote(k) +
+    '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div class="n-winspace" aria-hidden="true"></div>\n\n    ' +
+    `${services.revisionPrintNote(d)}` +
+    "\n    "
+  );
+}
+
+function noticeTableHTML(services, d, rows, citeColumn) {
+  return (
+    '<table class="notice"><thead><tr><th class="c-no">Item No.</th><th class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>Corrections Required</th>' +
+    `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
+    '<th class="c-due">' +
+    `${services.hasItemInspectionHistory(d) ? "Inspection History" : isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
+    "</th></tr></thead>\n      <tbody>" +
+    "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
+    "</tbody></table>"
+  );
+}
+
+function finishNoticeHTML(services, d, result, aligned) {
+  if (services.snow.is(d) && d.authoringVersion >= 9)
+    return result
+      .replace('<div class="n-body">', '<div class="n-body snow-cover">')
+      .replace(/<table class="notice">[\s\S]*?<\/table>/, "")
+      .replace(/<div class="addwrap no-print">[\s\S]*?<\/div>/, "");
+  if (!specialType(d.type) || aligned) return result;
+  const narrative = services.docBody(d).match(/<p>[\s\S]*?<\/p>/g) || [];
+  return result
+    .replace('<div class="n-head">', '<div class="n-head r26-header">')
+    .replace(/<div class="n-body">[\s\S]*?<\/div>/, '<div class="n-body"></div>')
+    .replace(/<p class="n-ruled">[\s\S]*?<\/p>/, "")
+    .replace(
+      /<table class="notice">[\s\S]*?<\/table>/,
+      '<table class="notice r26-narrative"><thead><tr><th aria-label="Order and conditions"></th></tr></thead><tbody>' +
+        narrative.map((p) => "<tr><td>" + p + "</td></tr>").join("") +
+        "</tbody></table>",
+    );
+}
+
+function noticeSignerHTML(d, aligned) {
+  return aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15) && !simpleVacancy(d)
+    ? '<div class="extension-signer"><p>' +
+        esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
+        "\n" +
+        esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
+        "</p></div>"
+    : "";
+}
+
 export function createDocumentRenderer(services) {
   function historyNotesHTML(d, it) {
     return services
@@ -115,7 +595,6 @@ export function createDocumentRenderer(services) {
       locked = services.isLocked(d);
     const ce = locked ? "" : 'contenteditable="true"';
     const dis = locked ? "disabled" : "";
-    let last = null;
     // while the first notice is still a draft the numbering follows the order;
     // after it is issued the stored number is what the owner has in hand
     const struct = services.structEditable(d);
@@ -127,236 +606,13 @@ export function createDocumentRenderer(services) {
     const dueSelection = d.type === "notice" && !locked && !d.correction && !services.snow.is(d),
       dueSelected = new Set(d.dueWork?.selected || []),
       affectedRows = services.newDocuments.rowAffectedSelection(d);
-    const rows = d.items
-      .map((it, ix) => {
-        let head = "";
-        const g = (it.group || "").trim();
-        if (g !== last) {
-          last = g;
-          if (g)
-            head =
-              '<tr class="grp"><td colspan="5"><span class="ed" ' +
-              `${ce}` +
-              ' data-field="group" data-id="' +
-              `${esc(it.id)}` +
-              '">' +
-              `${esc(g)}` +
-              "</span></td></tr>";
-        }
-        const b = countBlanks(it.text);
-        const num = struct ? String(ix + 1) : it.no || String(ix + 1);
-        const rce = (it.done && !d.correction) || it.withdrawn ? "" : ce;
-        return (
-          head +
-          ('<tr data-row="' +
-            `${esc(it.id)}` +
-            '" class="' +
-            `${(it.done && d.type !== "compliance") || (d.correction && it.withdrawn) ? "done" : ""}` +
-            '">\n      <td class="c-no">\n        ' +
-            "".concat(
-              struct
-                ? '<span class="grip no-print" data-grip="' +
-                    `${esc(it.id)}` +
-                    '" role="button" tabindex="0" aria-label="Reorder item ' +
-                    `${esc(num)}` +
-                    '; use up or down arrow" title="Drag or use arrow keys to reorder">&#1026' +
-                    '2;</span><button class="gbtn no-print" data-move="' +
-                    `${esc(it.id)}` +
-                    '" data-direction="up" aria-label="Move item ' +
-                    `${esc(num)}` +
-                    ' up" ' +
-                    `${ix === 0 ? "disabled" : ""}` +
-                    '>↑</button><button class="gbtn no-print" data-move="' +
-                    `${esc(it.id)}` +
-                    '" data-direction="down" aria-label="Move item ' +
-                    `${esc(num)}` +
-                    ' down" ' +
-                    `${ix === d.items.length - 1 ? "disabled" : ""}` +
-                    '>↓</button>\n          <button class="gbtn no-print" data-grpbtn="' +
-                    `${esc(it.id)}` +
-                    '" aria-label="Location heading for item ' +
-                    `${esc(num)}` +
-                    '" title="Location heading">&#9143;</button>'
-                : "",
-            ) +
-            '\n        <span class="num">' +
-            `${esc(num)}` +
-            '.</span>\n        <span class="bl" data-blanks="' +
-            `${esc(it.id)}` +
-            '" style="' +
-            `${b ? "" : "display:none"}` +
-            '">' +
-            `${b}` +
-            "&nbsp;blank" +
-            `${b === 1 ? "" : "s"}` +
-            '</span></td>\n      <td class="c-sec"><div class="sec-list ed" ' +
-            `${rce}` +
-            ' data-field="sections" data-id="' +
-            `${esc(it.id)}` +
-            '" data-ph="section">' +
-            `${it.sections.map((x) => esc(d.authoringVersion >= 9 ? it.printedReferences?.[x] || x : x)).join("<br>")}` +
-            '</div></td>\n      <td class="c-ab">' +
-            "".concat(
-              d.type === "compliance" && d.authoringVersion >= 15
-                ? `<span class="ab-fixed">${typeof it.abate === "boolean" ? (it.abate ? "Yes" : "No") : "Unavailable"}</span>`
-                : it.done
-                  ? "&mdash;"
-                  : d.type !== "notice"
-                    ? `<span class="ab-fixed">${it.abate ? "Yes" : "No"}</span>`
-                    : '<button class="ab-btn" data-abate="' +
-                      `${esc(it.id)}` +
-                      '" data-on="' +
-                      `${it.abate ? 1 : 0}` +
-                      '" ' +
-                      `${dis}` +
-                      ">" +
-                      `${it.abate ? "Yes" : "No"}` +
-                      "</button>",
-            ) +
-            '</td>\n      <td class="corr">' +
-            "".concat(
-              it.withdrawn ? `<p class="withdrawn-note"><strong>Withdrawn as entered in error.</strong> ${esc(it.withdrawalReason || "")}</p>` : "",
-            ) +
-            '<div class="ed" ' +
-            `${rce}` +
-            ' data-field="text" data-id="' +
-            `${esc(it.id)}` +
-            '" data-ph="Corrective action" style="white-space:pre-wrap">' +
-            `${editableBlanks(it.text)}` +
-            "</div>" +
-            `${d.draft ? services.catalogDraftNotice(it) : ""}` +
-            "\n        " +
-            "".concat(
-              isHistoryDoc(d) || services.hasItemInspectionHistory(d)
-                ? d.authoringVersion >= 16
-                  ? historyNotesHTML(d, it)
-                  : (d.authoringVersion >= 14 ? [] : services.documentItemHistory(d, it))
-                      .filter((x) => x.note)
-                      .map(
-                        (x) =>
-                          '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
-                          `${esc(services.fmtDate(x.on))}` +
-                          "</span>" +
-                          `${esc(x.note)}` +
-                          "</div>",
-                      )
-                      .join("")
-                : it.note
-                  ? '<div class="it-note"><span class="it-note-h">Inspector\'s note &middot; ' +
-                    `${esc(services.fmtDate(it.noteOn))}` +
-                    '</span><span class="ed" ' +
-                    `${rce}` +
-                    ' data-field="note" data-id="' +
-                    `${esc(it.id)}` +
-                    '" style="white-space:pre-wrap">' +
-                    `${esc(it.note)}` +
-                    "</span></div>"
-                  : "",
-            ) +
-            "</td>\n      " +
-            "".concat(
-              !citeColumn
-                ? ""
-                : !it.done && (citeAllowed(d) || it.cite)
-                  ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
-                    'ice"><input type="checkbox" data-notecite="' +
-                    `${esc(it.id)}` +
-                    '" ' +
-                    `${it.cite ? "checked" : ""}` +
-                    "><span>Cite</span></label></td>"
-                  : '<td class="c-cite no-print"></td>',
-            ) +
-            '\n      <td class="c-due">' +
-            "".concat(
-              it.withdrawn
-                ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
-                    (services.hasItemInspectionHistory(d) ? referralHistoryHTML(d, it) : "")
-                : isHistoryDoc(d) || services.hasItemInspectionHistory(d)
-                  ? d.authoringVersion >= 14
-                    ? referralHistoryHTML(d, it)
-                    : it.done
-                      ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
-                      : '<span class="visit-list">' +
-                        "".concat(
-                          services.documentItemHistory(d, it).length
-                            ? services
-                                .documentItemHistory(d, it)
-                                .map(
-                                  (x) =>
-                                    `<span><b>${esc(services.fmtDate(x.on))}</b><em>${esc(OC_WORD[x.oc] || x.oc)}</em>${
-                                      x.cit ? `<i>Citation ${esc(x.cit)}</i>` : ""
-                                    }</span>`,
-                                )
-                                .join("")
-                            : '<span class="muted">no reinspection recorded</span>',
-                        ) +
-                        "</span>"
-                  : d.type === "compliance"
-                    ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
-                    : dueIsFinal(d, it)
-                      ? finalDueCell(services, it)
-                      : simpleVacancy(d)
-                        ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
-                        : aligned &&
-                            d.type === "vacancyExtension" &&
-                            d.special?.deadlineMode === "conditional" &&
-                            d.special.affected?.includes(String(it.no))
-                          ? '<span class="conditional-due">Conditional — see conditions above</span>'
-                          : (dueSelection && it.dueExempt !== "snow-10.28"
-                              ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
-                                esc(it.id) +
-                                '" aria-label="Select item ' +
-                                esc(num) +
-                                ' for a shared due date" title="Select for a shared due date" ' +
-                                (dueSelected.has(it.id) ? "checked" : "") +
-                                ">"
-                              : "") +
-                            (affectedRows
-                              ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
-                                '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
-                                esc(String(it.no)) +
-                                '" ' +
-                                ((d.special?.affected || []).includes(String(it.no)) ? "checked" : "") +
-                                ' aria-label="Item ' +
-                                esc(num) +
-                                ' is affected by this extension">Affected</label>'
-                              : "") +
-                            '<input type="date" class="d-in due-in" data-field="due" data-id="' +
-                            `${esc(it.id)}` +
-                            '" value="' +
-                            `${esc(it.due || "")}` +
-                            '" min="' +
-                            `${d.correction ? "" : services.MINDUE()}` +
-                            '" aria-label="Due date for item ' +
-                            `${esc(num)}` +
-                            '" ' +
-                            `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
-                            ">",
-            ) +
-            "\n        " +
-            "".concat(
-              d.correction && !locked
-                ? '<button class="lnk no-print" data-withdraw="' +
-                    `${esc(it.id)}` +
-                    '">' +
-                    `${it.withdrawn ? "Restore item" : "Withdraw item"}` +
-                    "</button>"
-                : "",
-            ) +
-            "" +
-            "".concat(
-              struct
-                ? '<button class="rm no-print" data-del="' +
-                    `${esc(it.id)}` +
-                    '" aria-label="Remove item ' +
-                    `${esc(num)}` +
-                    '" title="Remove this item">&times;</button>'
-                : "",
-            ) +
-            "</td></tr>")
-        );
-      })
-      .join("");
+    const rows = noticeRows(
+      services,
+      d,
+      { aligned, ce, dis, struct, citeColumn, dueSelection, dueSelected, affectedRows, locked },
+      historyNotesHTML,
+      referralHistoryHTML,
+    );
 
     const result =
       '<div class="sheet' +
@@ -372,93 +628,10 @@ export function createDocumentRenderer(services) {
               "</div>"
           : "",
       ) +
-      '\n    <div class="n-head"><img class="n-seal" src="' +
-      `${LOGO}` +
-      '" alt="City of Madison Building Inspection">\n      <div class="n-headmai' +
-      'n"><div class="n-title' +
-      `${!aligned && (DOC_TYPES.find((x) => x.id === d.type) || {}).stacked ? " stacked" : ""}` +
-      '"' +
-      (aligned ? ' style="font-size:11pt!important"' : "") +
-      ">" +
-      "".concat(
-        (function () {
-          const ty = DOC_TYPES.find((x) => x.id === d.type) || {};
-          if (!ty.pfx) return "Building Inspection Official Notice";
-          return ty.stacked && !aligned
-            ? `<span class="pfx">${esc(ty.pfx)}</span><br>${esc(ty.heading || "Building Inspection Official Notice")}`
-            : `<span class="pfx">${esc(ty.pfx)} - </span>Building Inspection Official Notice`;
-        })(),
-      ) +
-      '</div>\n      <div class="n-meta">\n        <dl class="n-col">\n          <' +
-      'dt>Case number:</dt><dd><strong class="ed" ' +
-      `${ce}` +
-      ' data-case="number" aria-readonly="' +
-      `${services.eventsFor(d.caseId).length ? "true" : "false"}` +
-      '">' +
-      `${esc(k.number)}` +
-      "</strong></dd>\n          <dt>Inspection date:</dt><dd>" +
-      "".concat(
-        hasOwnInsp(d)
-          ? '<input type="date" class="d-in hdr-in" data-doc="inspDate" value="' +
-              `${esc(d.inspDate || "")}` +
-              '" aria-label="Inspection date" ' +
-              `${dis}` +
-              '><input type="time" class="d-in hdr-in hdr-time" data-doc="inspTime" val' +
-              'ue="' +
-              `${esc(d.inspTime || "")}` +
-              '" aria-label="Inspection time" ' +
-              `${dis}` +
-              ">"
-          : '<input type="date" class="d-in hdr-in" data-case="date" value="' +
-              `${esc(k.date || "")}` +
-              '" aria-label="Inspection date" ' +
-              `${dis}` +
-              '><input type="time" class="d-in hdr-in hdr-time" data-case="time" value=' +
-              '"' +
-              `${esc(k.time || "")}` +
-              '" aria-label="Inspection time" ' +
-              `${dis}` +
-              ">",
-      ) +
-      '</dd>\n          <dt>Mailed date:</dt><dd><input type="date" class="d-in ' +
-      'hdr-in" data-doc="mailed" value="' +
-      `${esc(d.mailed || "")}` +
-      '" max="' +
-      `${mailingMaxDay(services.initialCitations.enabled(d) ? "citation" : d.type)}` +
-      '" aria-label="Mailed date" ' +
-      `${dis}` +
-      '></dd>\n        </dl>\n        <dl class="n-col">\n          <dt>Property:<' +
-      '/dt><dd><strong class="ed" ' +
-      `${ce}` +
-      ' data-case="address">' +
-      `${esc(k.address)}` +
-      "</strong></dd>\n          <dt>Inspector:</dt><dd>" +
-      "".concat(
-        locked
-          ? `<span class="n-insp-name">${esc(i.name)}</span>`
-          : '<select class="d-in hdr-in" data-doc="inspectorId" aria-label="Signing i' +
-              'nspector">' +
-              "".concat(INSPECTORS.map((x) => `<option value="${x.id}" ${i.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")) +
-              "</select>",
-      ) +
-      '\n            <div class="n-insp-l">' +
-      `${esc(i.title)}` +
-      '</div>\n            <div class="n-insp-l">' +
-      `${esc(i.phone)}` +
-      '</div>\n            <div class="n-insp-l">' +
-      `${esc(i.email)}` +
-      '</div></dd>\n        </dl>\n      </div></div></div>\n\n    <div class="n-ow' +
-      'ner"><div class="ed" ' +
-      `${mailingBlockEdit(k, ce)}` +
-      ' data-case="ownerBlock" data-ph="Owner and mailing address" style="white' +
-      '-space:pre-wrap">' +
-      `${esc(defendantLines(k, !!d.draft).join("\n"))}` +
-      "</div>" +
-      mailingBlockNote(k) +
-      '</div>\n    <div class="win-note no-print">Envelope window</div>\n    <div' +
-      ' class="n-winspace" aria-hidden="true"></div>\n\n    ' +
-      `${services.revisionPrintNote(d)}` +
-      '\n    <div class="n-body">' +
+      "\n    " +
+      noticeHeaderHTML(services, d, k, i, { aligned, ce, dis, locked }) +
+      noticeMailingHTML(services, d, k, ce) +
+      '<div class="n-body">' +
       `${services.docBody(d)}` +
       "</div>\n\n\n    " +
       "".concat(
@@ -468,74 +641,12 @@ export function createDocumentRenderer(services) {
               "nding.</p>"
           : "",
       ) +
-      '\n    <table class="notice"><thead><tr><th class="c-no">Item No.</th><th ' +
-      'class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>C' +
-      "orrections Required</th>" +
-      `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
-      '<th class="c-due">' +
-      `${services.hasItemInspectionHistory(d) ? "Inspection History" : isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
-      "</th></tr></thead>\n      <tbody>" +
-      "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
-      "</tbody></table>\n    " +
-      (aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15) && !simpleVacancy(d)
-        ? '<div class="extension-signer"><p>' +
-          esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
-          "\n" +
-          esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
-          "</p></div>"
-        : "") +
       "\n    " +
-      "".concat(
-        (function () {
-          // the agent is served a copy as a matter of course
-          const ag = services.agentLines(k);
-          const cc = [documentOwnerCopy(d, k), ...copiesOf(k)]
-            .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
-            .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
-          const sent = d.emailedTo || [],
-            draftMail = d.draft
-              ? emailList(k).filter(
-                  (e) => e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
-                )
-              : [],
-            mailRows = (d.draft ? draftMail : sent).filter((e) => String(e.addr || "").trim());
-          if (!cc.length && !mailRows.length) return "";
-          return (
-            '<div class="n-cc">\n        ' +
-            "".concat(
-              cc.length
-                ? '<div class="cc-row"><span class="cc-l">CC:</span><div class="cc-set">' +
-                    "".concat(
-                      cc
-                        .map(
-                          (c) =>
-                            '<div class="cc-one">' +
-                            `${ccEntryLines(services, c, !!d.draft)
-                              .map((l) => `<div>${esc(l)}</div>`)
-                              .join("")}` +
-                            "" +
-                            `${ccRoleHTML(c)}` +
-                            "</div>",
-                        )
-                        .join(""),
-                    ) +
-                    "</div></div>"
-                : "",
-            ) +
-            "\n        " +
-            "".concat(
-              mailRows.length
-                ? '<div class="cc-row cc-mail"><span class="cc-l">' +
-                    `${d.draft ? "Email recipients:" : "Email copy prepared for:"}` +
-                    '</span><div class="cc-set">' +
-                    `${mailRows.map((e) => `<div>${esc(e.kind || "Other")} &mdash; ${esc(e.addr)}</div>`).join("")}` +
-                    "</div></div>"
-                : "",
-            ) +
-            "\n      </div>"
-          );
-        })(),
-      ) +
+      noticeTableHTML(services, d, rows, citeColumn) +
+      "\n    " +
+      noticeSignerHTML(d, aligned) +
+      "\n    " +
+      "".concat(noticeCopiesHTML(services, d, k)) +
       "\n    " +
       "".concat(
         blocks.length ? `<div class="n-notes">${blocks.map((b) => `<h4>${esc(b.label)}</h4><div>${nl2(b.text)}</div>`).join("")}</div>` : "",
@@ -543,23 +654,7 @@ export function createDocumentRenderer(services) {
       '\n    <div class="n-foot"><span class="mono">' +
       `${esc(k.number)}` +
       "</span></div>\n  </div>";
-    if (services.snow.is(d) && d.authoringVersion >= 9)
-      return result
-        .replace('<div class="n-body">', '<div class="n-body snow-cover">')
-        .replace(/<table class="notice">[\s\S]*?<\/table>/, "")
-        .replace(/<div class="addwrap no-print">[\s\S]*?<\/div>/, "");
-    if (!specialType(d.type) || aligned) return result;
-    const narrative = services.docBody(d).match(/<p>[\s\S]*?<\/p>/g) || [];
-    return result
-      .replace('<div class="n-head">', '<div class="n-head r26-header">')
-      .replace(/<div class="n-body">[\s\S]*?<\/div>/, '<div class="n-body"></div>')
-      .replace(/<p class="n-ruled">[\s\S]*?<\/p>/, "")
-      .replace(
-        /<table class="notice">[\s\S]*?<\/table>/,
-        '<table class="notice r26-narrative"><thead><tr><th aria-label="Order and conditions"></th></tr></thead><tbody>' +
-          narrative.map((p) => "<tr><td>" + p + "</td></tr>").join("") +
-          "</tbody></table>",
-      );
+    return finishNoticeHTML(services, d, result, aligned);
   }
 
   function documentHTML(d) {
