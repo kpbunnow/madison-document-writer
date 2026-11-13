@@ -23,6 +23,7 @@ const allowed = {
   "workspace_jump.js": [],
   "reinspection_batch.js": ["./editor_state.js", "./workspace_state.js", "./writer_queries.js", "./document_types.js", "./record_values.js"],
   "deferred_services.js": [],
+  "app_base.js": ["./workspace_state.js", "./record_ids.js", "./calendar.js", "../assets/shared.js"],
   "editor_state.js": ["./state.js"],
   "recovery_state.js": ["./state.js"],
   "imports_state.js": ["./state.js"],
