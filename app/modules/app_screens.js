@@ -5,6 +5,8 @@ import { doc, reinsp } from "./writer_queries.js";
 import { checkAttr } from "./presentation_format.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 import { helperStop } from "./helper_stopped.js";
+import { paintWorkspace } from "./workspace_repaint.js";
+import { refreshWorkspaceJump } from "./workspace_jump.js";
 
 /** @typedef {() => void} RestoreRepaint */
 /** @typedef {{swap: RestoreRepaint, restore: RestoreRepaint}} LiveFieldKeeper */
@@ -358,7 +360,8 @@ export function createAppScreens(services) {
     services.A11Y.rememberFocus();
     services.ensureWalkContext();
     // Both walk context and a renderer may redirect. Read the route at each phase.
-    services.document.getElementById("app").innerHTML = screenHTML(services);
+    const markup = screenHTML(services);
+    paintWorkspace(appRoot, markup, editor.state.screen === "cases");
     liveField.swap();
     if (appRoot?.dataset) appRoot.dataset.renderScreen = editor.state.screen;
     if (openedFromImport) services.window.scrollTo(0, 0);
@@ -373,6 +376,7 @@ export function createAppScreens(services) {
     services.enhanceDialog();
     services.highlightOpenChecks();
     services.A11Y.enhance();
+    if (editor.state.screen === "cases") refreshWorkspaceJump(services.document);
     inspectionChecks();
     importDisclosures();
     importCaret();

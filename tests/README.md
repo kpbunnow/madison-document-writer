@@ -139,6 +139,8 @@ covers, or a new suite under its feature.
 | `audit_workspace_jump.js` | Workspace Find a case in this list: marks matches, Enter scrolls and focuses the first, never hides a row |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |
+| `audit_workspace_rows.js` | Reused row presentation invalidates for in-place records/documents, live proof/actions, dates, staff/source replacements and visit results; unserializable inputs render fresh |
+| `audit_workspace_repaint.js` | Repeated row DOM updates retain controls, focus and options; replace changed cases, reconcile sort/add/remove and conservatively fall back for changed frame/duplicate/nested/detached shapes |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |
 | `audit_case_save_phases.py` | Real-filesystem old/new save parity: merge/retry refusals, lock/write order, exact recovery and case bytes with controlled anchor clock |
 | `audit_history_rules.py` | Differential history replay: linked corrections/visits, exact refusals, delegate order and partial mutations |
