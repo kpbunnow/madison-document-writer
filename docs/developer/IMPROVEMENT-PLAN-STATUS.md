@@ -6,13 +6,13 @@ Owner request: complete the remaining work in Document Writer Improvement Plan.m
 
 | Plan item | Current status / evidence |
 | --- | --- |
-| Ease 1 — inspector cases on Workspace | Implemented in the first delivery batch; verification/merge pending. City-capable Workspace starts the existing inspector list, reuses the remembered selection, and one case click enters the existing review. Retained local work stays above the list. Background answers replace only the list card. |
+| Ease 1 — inspector cases on Workspace | Implemented in PR 484; exact-head verification/merge pending. City-capable Workspace starts the existing inspector list, reuses the remembered selection, and one case click enters the existing review. Retained local work stays above the list. Background answers replace only the list card. |
 | Ease 2 — PDF filing during Issue | Already implemented: publication_workflow.fileIssued files every confirmed issued snapshot automatically; failure retains the separate retry. The correction workflow has the same original-retention path. Existing publication/filing/helper/browser regressions protect this; do not introduce a second filing transaction. |
 | Ease 3 — batch outcomes | Completed by PR 482; PR 483 corrected Undo field preservation, stale sources and later edits. |
 | Ease 4 — Recent/Favorites | Completed by PR 480; PR 483 corrected Selected/shortcut scope and duplicate All-category repaint. |
 | Ease 5 — item defaults / next bubble | Heading inheritance and next-bubble focus completed by PR 480; PR 483 protects queued focus after navigation. Due-date inheritance was explicitly withdrawn in the later R80 owner correction: new deadlines remain blank unless the owner changes that decision. |
 | Ease 6 — case finder | Completed by PR 482: highlights/scrolls, never hides cases. |
-| Ease 7 — Fix next issue | Pending: consolidate overlapping editor controls while retaining full Review and all blockers. |
+| Ease 7 — Fix next issue | Implemented in the next delivery batch; verification/merge pending. One counted control cycles current required fields and opens Review for targetless concerns; the separate count/first-field/full-checklist controls are consolidated. Desktop/mobile share the same navigation owner; issuance checks and Review remain independent. |
 | Performance — changed rows/panels/results | Initial 50/200/500-case production baseline captured; next measure matched before/after row/panel/results reuse with current readiness/verification and complete invalidation. The first batch already isolates server-list refreshes. |
 | Maintainability 1 — screen references | PR 481 retired the first vacuous copies. Remaining screen-reference inventory and meaningful behavior-contract replacements pending. Preserve legal/print/history/model references. |
 | Maintainability 2 — services by area | Pending cohesive area composition with explicit scoped interfaces, original initialization order and no universal mutable registry. |

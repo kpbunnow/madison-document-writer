@@ -294,11 +294,11 @@ if (process.argv[2] === "reports") {
     let ready = editorReadiness(d);
     assert.ok(ready.required.length > 0);
     const next = bar.querySelector("[data-mobile-next]");
-    assert.equal(text(next), "Next required field");
+    assert.equal(text(next), "Fix next issue (" + ready.required.length + " left)");
     assert.equal(
-      next.dataset.checkIndex,
-      document.querySelector(".editor-readiness [data-readiness-first]").dataset.checkIndex,
-      "same field as Go to first required field",
+      next.hasAttribute("data-fix-next"),
+      document.querySelector(".editor-readiness [data-readiness-first]").hasAttribute("data-fix-next"),
+      "same current-policy navigator as the desktop control",
     );
     assert.equal(text(bar.querySelector("[data-mobile-review]")), "Review");
     const barPrimary = bar.querySelector("[data-mobile-primary]");

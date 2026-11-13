@@ -105,7 +105,7 @@ export function createEditorScreens(services) {
 
   function checkChip(d, readiness = editorReadiness(d)) {
     const { required, advice } = readiness;
-    return html`<span class="cchip ${required.length ? "bad" : "good"}" id="chk-chip" data-editor-readiness>${readinessText(required, advice)}</span>`;
+    return required.length ? "" : html`<span class="cchip good" id="chk-chip" data-editor-readiness>${readinessText(required, advice)}</span>`;
   }
 
   // The first unresolved required check (or, with none, advisory) that names a field, as its index in checks(d).
@@ -119,25 +119,17 @@ export function createEditorScreens(services) {
     return advisory >= 0 ? { index: advisory, label: "Go to first advisory" } : null;
   }
 
-  function readinessActionsHTML(readiness) {
-    const first = readinessFirst(readiness);
-    // The existing check-link path (data-check-index) focuses the field through focusCheckTarget.
-    return (
-      (first
-        ? html`<button type="button" class="btn btn-sm" data-readiness-first data-check-index="${first.index}" data-check-target="0">${first.label}</button>`
-        : "") + html`<button type="button" class="lnk" data-open-checklist aria-haspopup="dialog">Open full checklist</button>`
-    );
+  function readinessActionsHTML(readiness, mobile = false) {
+    return readiness.required.length
+      ? html`<button type="button" class="btn btn-sm" data-fix-next ${raw(mobile ? "data-mobile-next" : "data-readiness-first")}>Fix next issue (${readiness.required.length} left)</button>`
+      : "";
   }
 
-  // Narrow-screen task bar: next required field, Review and the primary action (which clicks the toolbar's own button).
-
+  // The narrow-screen bar repeats the same next-issue action, Review and the existing primary action.
   function mobileBarActionsHTML(d, readiness = editorReadiness(d)) {
-    const first = readinessFirst(readiness),
-      primary = editorPrimary(d, readiness);
+    const primary = editorPrimary(d, readiness);
     return (
-      (first && readiness.required.length
-        ? html`<button type="button" class="btn btn-sm" data-mobile-next data-check-index="${first.index}" data-check-target="0">Next required field</button>`
-        : "") +
+      readinessActionsHTML(readiness, true) +
       html`<button type="button" class="btn btn-sm" data-mobile-review>Review</button>` +
       html`<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ${primary.attrs === "disabled" ? "disabled" : ""}>${primary.label}</button>`
     );
@@ -153,12 +145,11 @@ export function createEditorScreens(services) {
   }
 
   function readinessKey(readiness) {
-    const first = readinessFirst(readiness);
-    return first ? first.index + ":" + first.label : "none";
+    return String(readiness.required.length);
   }
 
   function readinessLineHTML(d, readiness) {
-    return html`${raw(checkChip(d, readiness))}<span class="readiness-actions" data-readiness-key="${readinessKey(readiness)}">${raw(readinessActionsHTML(readiness))}</span>`;
+    return html`<span class="readiness-status">${raw(checkChip(d, readiness))}</span><span class="readiness-actions" data-readiness-key="${readinessKey(readiness)}">${raw(readinessActionsHTML(readiness))}</span>`;
   }
 
   /* R59: the Review dialog is the one review presentation. Blocking concerns come first, then advisories; each keeps
@@ -241,8 +232,8 @@ export function createEditorScreens(services) {
     const d = doc(editor.state.docId);
     if (!d || !document.querySelector(".document-workspace")) return;
     const readiness = editorReadiness(d);
-    const chip = document.getElementById("chk-chip");
-    if (chip) chip.outerHTML = checkChip(d, readiness);
+    const status = document.querySelector(".editor-readiness .readiness-status");
+    if (status) status.innerHTML = checkChip(d, readiness);
     const actions = document.querySelector(".editor-readiness .readiness-actions"),
       key = readinessKey(readiness);
     // Replace the actions only when they change, so a focused summary button keeps its focus.
@@ -261,9 +252,8 @@ export function createEditorScreens(services) {
       bar.innerHTML = mobileBarActionsHTML(d, readiness);
       bar.dataset.barKey = barKey;
     }
-    const review = document.getElementById("btn-review"),
-      required = services.edit.isLocked(d) ? 0 : readiness.required.length;
-    if (review) review.textContent = "Review" + (required ? " · " + required : "");
+    const review = document.getElementById("btn-review");
+    if (review) review.textContent = "Review";
     editorEnhance();
   }
 
@@ -288,7 +278,7 @@ export function createEditorScreens(services) {
       // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
       // Review dialog. Neither scrolls the page.
       (services.edit.structEditable(d) ? html`<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>` : "") +
-      html`<button id="btn-review" data-editor-review aria-haspopup="dialog">Review${!locked && ready.required.length ? " · " + ready.required.length : ""}</button></nav>` +
+      html`<button id="btn-review" data-editor-review aria-haspopup="dialog">Review</button></nav>` +
       (!locked ? html`<div class="editor-readiness no-print">${raw(readinessLineHTML(d, ready))}</div>` : "") +
       "</div>" +
       html`${raw(editorSection("editor-inspection", "Inspection", inspection))}${raw(editorSection("editor-items", "Violation items", work, true))}${raw(record)}` +

@@ -49,7 +49,7 @@ const test = async () => {
     el.dispatchEvent(new window.Event("input", { bubbles: true }));
   };
 
-  // ITEM 8. One readiness summary at the top of the editor.
+  // ITEM 8. One counted next-issue action at the top of the editor.
   newDoc(k.id, "notice");
   const d = doc(WriterState.state.docId);
   d.items = [
@@ -66,15 +66,9 @@ const test = async () => {
   };
   let ready = readiness();
   assert.ok(ready.required.length > 1, "the draft starts with several required fixes");
-  assert.equal(document.querySelectorAll("#chk-chip").length, 1, "one status chip");
-  assert.equal(document.querySelectorAll("[data-editor-readiness]").length, 1, "one readiness summary");
-  const chip = document.getElementById("chk-chip");
-  assert.ok(chip.closest(".editor-readiness"), "the summary is the editor's top readiness line");
-  assert.ok(chip.matches("[data-editor-readiness].cchip.bad"));
-  assert.equal(chip.textContent, summaryText(ready));
-  assert.match(chip.textContent, /^\d+ required fix(es)?( · \d+ advisor(y|ies))?$/);
+  assert.equal(document.querySelectorAll("#chk-chip,[data-editor-readiness]").length, 0, "no count repeated beside Fix next issue");
+  assert.equal(document.querySelector("#btn-review").textContent, "Review");
   assert.ok(!document.getElementById("app").textContent.includes("Required checks link to the field that needs attention."));
-  assert.equal(document.querySelector("#btn-review").textContent, "Review · " + ready.required.length);
   // R59: one complete checklist in the Review dialog: blocking concerns, then advisories, then the collapsed passed
   // checks, without a second status chip. The document page carries no competing checklist.
   assert.equal(document.querySelectorAll("#checkbox-panel,#btn-checks,.passed-checks").length, 0, "no checklist on the page");
@@ -89,17 +83,19 @@ const test = async () => {
   assert.equal(review.querySelectorAll(".check.fail").length, ready.required.length);
   WriterState.state.modal = null;
   render();
-  // Go to first required field uses the existing check-link path to the first unresolved required check's field.
+  // Fix next issue computes its target from current required checks.
   const go = document.querySelector(".editor-readiness [data-readiness-first]");
-  assert.equal(go.textContent, "Go to first required field");
+  assert.equal(go.textContent, "Fix next issue (" + ready.required.length + " left)");
   const firstIndex = ready.list.findIndex((c) => !c.ok && !c.soft && c.targets?.length),
     first = ready.list[firstIndex];
-  assert.equal(go.dataset.checkIndex, String(firstIndex));
+  assert.ok(go.hasAttribute("data-fix-next"));
+  assert.equal(go.hasAttribute("data-check-index"), false, "the next target is computed at click time");
   go.click();
   assert.equal(document.activeElement, document.querySelector(first.targets[0].selector), "focus lands on the first required field");
   assert.ok(document.activeElement.closest(".desk"), "the field is on the working document");
-  // Open full checklist opens the same Review dialog.
-  document.querySelector(".editor-readiness [data-open-checklist]").click();
+  // Review remains the single full checklist.
+  assert.equal(document.querySelector("[data-open-checklist]"), null, "no duplicate full-checklist control");
+  document.querySelector("#btn-review").click();
   assert.equal(WriterState.state.modal, "review");
   assert.ok(document.querySelector("#overlay [data-review-dialog]").contains(document.activeElement));
   WriterState.state.modal = null;
@@ -118,8 +114,7 @@ const test = async () => {
   assert.match(document.getElementById("chk-chip").textContent, /^Ready for review( · \d+ advisor(y|ies))?$/);
   assert.ok(document.getElementById("chk-chip").classList.contains("good"));
   const after = document.querySelector(".editor-readiness [data-readiness-first]");
-  if (ready.advice.some((c) => c.targets?.length)) assert.equal(after.textContent, "Go to first advisory");
-  else assert.equal(after, null, "no first-field button without an open check");
+  assert.equal(after, null, "advisories remain in Review, not the required-issue navigator");
   assert.equal(document.querySelector("#btn-review").textContent, "Review");
   // An advisory-only document offers its first advisory.
   const advisory = { ...ready, required: [], advice: [{ ok: false, soft: true, t: "Advisory", targets: [checkTarget("#bulk-due", "x")] }] };
@@ -429,7 +424,7 @@ const test = async () => {
       );
   }
   console.log(
-    "PASS usability phase 2: one readiness summary with first-field link, single Review checklist, issuance dialog validates at " +
+    "PASS usability phase 2: one counted next-issue control, single Review checklist, issuance dialog validates at " +
       "issuance, row selection for shared due dates with unchanged validation, worksheet and batch dates, authoring-13 Affected " +
       "beside due dates and authoring-12 unchanged",
   );
