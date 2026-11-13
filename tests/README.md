@@ -38,7 +38,7 @@ covers, or a new suite under its feature.
 | `audit_language_presentation_rules.js` | 1,596 seeded Browse language, Review catalog and picker screens: untrusted text escaped, deterministic output, callback interruptions surfaced (frozen screen copies retired 2026-11-13) |
 | `audit_language_search.js` | Order-language search against the real library: ordinances matched as whole section numbers (exact or narrower), parent and sibling sections related and folded, word-beginning matches, aliases and title-first ranking |
 | `audit_search_highlighting.js` | Eight screen searches: aliases/ordinances, literal/Unicode safety, clearing and repeated enhancement without DOM writes, keyboard focus and existing controls/listeners |
-| `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new-item defaults that follow the previous item's location heading and due date |
+| `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new items that follow the previous item's location heading, never its due date |
 | `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
