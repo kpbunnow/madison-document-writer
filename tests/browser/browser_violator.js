@@ -170,5 +170,13 @@ module.exports = async function (browser, page, OUT, axeScreen) {
   assert.equal(streetCount(fourLine.issued), 1, "the issued mailing block prints the retained lines");
   assert.equal(streetCount(fourLine.old), 2, "an older issued snapshot keeps its original lines");
   assert.equal(fourLine.raw, 5, "the raw case fact is unchanged");
-  return { passed: true, fourLineOwnerAddress: true, mainContact: true, ownerCopy: true, oneViolator: true, blankRefused: true, snowKeepsOwner: true };
+  return {
+    passed: true,
+    fourLineOwnerAddress: true,
+    mainContact: true,
+    ownerCopy: true,
+    oneViolator: true,
+    blankRefused: true,
+    snowKeepsOwner: true,
+  };
 };
