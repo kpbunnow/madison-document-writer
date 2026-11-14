@@ -1,0 +1,1863 @@
+{
+ "format": "madison-coverage-baseline",
+ "version": 1,
+ "description": "Phase 1 coverage and mutation-pilot record (diagnostic; never gate or release evidence). Produced by tools/measure_coverage.py and tools/mutation_pilot.py on the Phase 1 branch source; JavaScript inside Chromium is not measured.",
+ "source": {
+  "commit": "2e6f481088b4ec160385edb1835bf1796679b5c7",
+  "tree": "c58d12e0ef101680a6ccf3161e71ee898ab94059",
+  "clean": false
+ },
+ "suites": {
+  "run": 415,
+  "failedUnderInstrumentation": [],
+  "serialBrowserClass": [
+   "audit_benchmark_comparison.js",
+   "audit_contracts.js",
+   "audit_development_workflow.py",
+   "audit_gate_stages.py",
+   "audit_pagination_equivalence.js",
+   "audit_r50_documents.js",
+   "audit_r50_low_security.py",
+   "audit_r50_session_browser.js",
+   "audit_r51_layout.py",
+   "audit_r54_extension_print.js",
+   "audit_repaint_keepers.js",
+   "audit_suite_classes.py"
+  ]
+ },
+ "groups": {
+  "javascript": {
+   "runtime": {
+    "files": 166,
+    "unexecutedFiles": [
+     "app/modules/app_entry.js",
+     "app/modules/reports_core.js",
+     "app/modules/reports_entry.js"
+    ],
+    "statements": 14807,
+    "coveredStatements": 11888,
+    "branches": 10536,
+    "coveredBranches": 8445,
+    "statementRate": 0.8029,
+    "branchRate": 0.8015
+   },
+   "highRisk": {
+    "files": 12,
+    "unexecutedFiles": [],
+    "statements": 1823,
+    "coveredStatements": 1677,
+    "branches": 1237,
+    "coveredBranches": 1097,
+    "statementRate": 0.9199,
+    "branchRate": 0.8868
+   }
+  },
+  "python": {
+   "runtime": {
+    "files": 31,
+    "unexecutedFiles": [],
+    "statements": 6273,
+    "coveredStatements": 5592,
+    "branches": 2476,
+    "coveredBranches": 2065,
+    "statementRate": 0.8914,
+    "branchRate": 0.834
+   },
+   "developer": {
+    "files": 32,
+    "unexecutedFiles": [
+     "tools/check_format.py",
+     "tools/measure_coverage.py",
+     "tools/mutation_pilot.py",
+     "tools/propose_policy_version.py",
+     "tools/sync_version.py",
+     "tools/verify_release.py"
+    ],
+    "statements": 2488,
+    "coveredStatements": 1543,
+    "branches": 860,
+    "coveredBranches": 546,
+    "statementRate": 0.6202,
+    "branchRate": 0.6349
+   },
+   "highRisk": {
+    "files": 15,
+    "unexecutedFiles": [
+     "tools/verify_release.py"
+    ],
+    "statements": 4056,
+    "coveredStatements": 3350,
+    "branches": 1692,
+    "coveredBranches": 1347,
+    "statementRate": 0.8259,
+    "branchRate": 0.7961
+   }
+  }
+ },
+ "targets": {
+  "runtime": {
+   "statements": 0.85,
+   "branches": 0.75
+  },
+  "highRisk": {
+   "statements": 0.9,
+   "branches": 0.85
+  },
+  "developer": {
+   "statements": 0.8,
+   "branches": 0.7
+  }
+ },
+ "notMeasured": [
+  "Code executing inside Chromium (browser suites and production-page workflows)",
+  "Developer JavaScript in tools/*.cjs"
+ ],
+ "files": {
+  "javascript": {
+   "app/assets/shared.js": {
+    "statements": 36,
+    "coveredStatements": 28,
+    "branches": 30,
+    "coveredBranches": 27,
+    "executed": true
+   },
+   "app/modules/accela_import.js": {
+    "statements": 599,
+    "coveredStatements": 534,
+    "branches": 440,
+    "coveredBranches": 397,
+    "executed": true
+   },
+   "app/modules/accela_report.js": {
+    "statements": 141,
+    "coveredStatements": 139,
+    "branches": 96,
+    "coveredBranches": 96,
+    "executed": true
+   },
+   "app/modules/accessibility.js": {
+    "statements": 316,
+    "coveredStatements": 296,
+    "branches": 167,
+    "coveredBranches": 129,
+    "executed": true
+   },
+   "app/modules/address_format.js": {
+    "statements": 55,
+    "coveredStatements": 54,
+    "branches": 54,
+    "coveredBranches": 54,
+    "executed": true
+   },
+   "app/modules/address_parser.js": {
+    "statements": 71,
+    "coveredStatements": 54,
+    "branches": 46,
+    "coveredBranches": 30,
+    "executed": true
+   },
+   "app/modules/administration.js": {
+    "statements": 90,
+    "coveredStatements": 46,
+    "branches": 57,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/app_base.js": {
+    "statements": 11,
+    "coveredStatements": 7,
+    "branches": 8,
+    "coveredBranches": 8,
+    "executed": true
+   },
+   "app/modules/app_core.js": {
+    "statements": 491,
+    "coveredStatements": 362,
+    "branches": 85,
+    "coveredBranches": 68,
+    "executed": true
+   },
+   "app/modules/app_entry.js": {
+    "statements": 2,
+    "coveredStatements": 0,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "app/modules/app_screens.js": {
+    "statements": 215,
+    "coveredStatements": 176,
+    "branches": 168,
+    "coveredBranches": 132,
+    "executed": true
+   },
+   "app/modules/app_view_contexts.js": {
+    "statements": 15,
+    "coveredStatements": 6,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/automatic_recovery.js": {
+    "statements": 81,
+    "coveredStatements": 72,
+    "branches": 39,
+    "coveredBranches": 34,
+    "executed": true
+   },
+   "app/modules/browser_printing.js": {
+    "statements": 70,
+    "coveredStatements": 64,
+    "branches": 25,
+    "coveredBranches": 22,
+    "executed": true
+   },
+   "app/modules/calendar.js": {
+    "statements": 41,
+    "coveredStatements": 40,
+    "branches": 30,
+    "coveredBranches": 30,
+    "executed": true
+   },
+   "app/modules/case_activity.js": {
+    "statements": 44,
+    "coveredStatements": 35,
+    "branches": 38,
+    "coveredBranches": 33,
+    "executed": true
+   },
+   "app/modules/case_file_rules.js": {
+    "statements": 124,
+    "coveredStatements": 121,
+    "branches": 96,
+    "coveredBranches": 84,
+    "executed": true
+   },
+   "app/modules/case_folder_workflow.js": {
+    "statements": 87,
+    "coveredStatements": 80,
+    "branches": 31,
+    "coveredBranches": 25,
+    "executed": true
+   },
+   "app/modules/case_loading.js": {
+    "statements": 99,
+    "coveredStatements": 90,
+    "branches": 38,
+    "coveredBranches": 32,
+    "executed": true
+   },
+   "app/modules/case_migrations.js": {
+    "statements": 29,
+    "coveredStatements": 27,
+    "branches": 29,
+    "coveredBranches": 19,
+    "executed": true
+   },
+   "app/modules/case_projection.js": {
+    "statements": 228,
+    "coveredStatements": 218,
+    "branches": 253,
+    "coveredBranches": 218,
+    "executed": true
+   },
+   "app/modules/case_records.js": {
+    "statements": 69,
+    "coveredStatements": 61,
+    "branches": 38,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/case_recovery.js": {
+    "statements": 167,
+    "coveredStatements": 156,
+    "branches": 125,
+    "coveredBranches": 104,
+    "executed": true
+   },
+   "app/modules/case_save_workflow.js": {
+    "statements": 65,
+    "coveredStatements": 61,
+    "branches": 22,
+    "coveredBranches": 19,
+    "executed": true
+   },
+   "app/modules/case_status.js": {
+    "statements": 51,
+    "coveredStatements": 41,
+    "branches": 73,
+    "coveredBranches": 69,
+    "executed": true
+   },
+   "app/modules/case_summary_adapter.js": {
+    "statements": 8,
+    "coveredStatements": 2,
+    "branches": 1,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/case_workspace_actions.js": {
+    "statements": 85,
+    "coveredStatements": 80,
+    "branches": 54,
+    "coveredBranches": 50,
+    "executed": true
+   },
+   "app/modules/catalog_events.js": {
+    "statements": 245,
+    "coveredStatements": 148,
+    "branches": 73,
+    "coveredBranches": 44,
+    "executed": true
+   },
+   "app/modules/catalog_forms.js": {
+    "statements": 8,
+    "coveredStatements": 5,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/catalog_queries.js": {
+    "statements": 4,
+    "coveredStatements": 3,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/catalog_state.js": {
+    "statements": 14,
+    "coveredStatements": 13,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/character_count.js": {
+    "statements": 27,
+    "coveredStatements": 27,
+    "branches": 9,
+    "coveredBranches": 8,
+    "executed": true
+   },
+   "app/modules/citation_charges.js": {
+    "statements": 68,
+    "coveredStatements": 63,
+    "branches": 41,
+    "coveredBranches": 34,
+    "executed": true
+   },
+   "app/modules/citation_drafts.js": {
+    "statements": 31,
+    "coveredStatements": 24,
+    "branches": 34,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/citation_events.js": {
+    "statements": 58,
+    "coveredStatements": 43,
+    "branches": 21,
+    "coveredBranches": 13,
+    "executed": true
+   },
+   "app/modules/citation_history.js": {
+    "statements": 15,
+    "coveredStatements": 12,
+    "branches": 14,
+    "coveredBranches": 11,
+    "executed": true
+   },
+   "app/modules/citation_policy.js": {
+    "statements": 172,
+    "coveredStatements": 170,
+    "branches": 185,
+    "coveredBranches": 180,
+    "executed": true
+   },
+   "app/modules/citation_pricing.js": {
+    "statements": 181,
+    "coveredStatements": 143,
+    "branches": 173,
+    "coveredBranches": 132,
+    "executed": true
+   },
+   "app/modules/citation_workflow.js": {
+    "statements": 266,
+    "coveredStatements": 244,
+    "branches": 341,
+    "coveredBranches": 290,
+    "executed": true
+   },
+   "app/modules/contact_events.js": {
+    "statements": 132,
+    "coveredStatements": 65,
+    "branches": 49,
+    "coveredBranches": 24,
+    "executed": true
+   },
+   "app/modules/contracts.js": {
+    "statements": 5,
+    "coveredStatements": 5,
+    "branches": 12,
+    "coveredBranches": 12,
+    "executed": true
+   },
+   "app/modules/correction_events.js": {
+    "statements": 115,
+    "coveredStatements": 24,
+    "branches": 55,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "app/modules/correction_preparation.js": {
+    "statements": 121,
+    "coveredStatements": 109,
+    "branches": 131,
+    "coveredBranches": 109,
+    "executed": true
+   },
+   "app/modules/correction_ui.js": {
+    "statements": 58,
+    "coveredStatements": 50,
+    "branches": 123,
+    "coveredBranches": 120,
+    "executed": true
+   },
+   "app/modules/correction_workflow.js": {
+    "statements": 92,
+    "coveredStatements": 87,
+    "branches": 42,
+    "coveredBranches": 42,
+    "executed": true
+   },
+   "app/modules/court_scheduling.js": {
+    "statements": 46,
+    "coveredStatements": 41,
+    "branches": 8,
+    "coveredBranches": 5,
+    "executed": true
+   },
+   "app/modules/deadline_assignment.js": {
+    "statements": 106,
+    "coveredStatements": 99,
+    "branches": 99,
+    "coveredBranches": 96,
+    "executed": true
+   },
+   "app/modules/defendant_contact.js": {
+    "statements": 11,
+    "coveredStatements": 9,
+    "branches": 15,
+    "coveredBranches": 15,
+    "executed": true
+   },
+   "app/modules/deferred_services.js": {
+    "statements": 13,
+    "coveredStatements": 13,
+    "branches": 2,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/deposit_schedule.js": {
+    "statements": 72,
+    "coveredStatements": 68,
+    "branches": 47,
+    "coveredBranches": 39,
+    "executed": true
+   },
+   "app/modules/deposit_step.js": {
+    "statements": 210,
+    "coveredStatements": 156,
+    "branches": 156,
+    "coveredBranches": 91,
+    "executed": true
+   },
+   "app/modules/desktop_exit.js": {
+    "statements": 147,
+    "coveredStatements": 131,
+    "branches": 52,
+    "coveredBranches": 47,
+    "executed": true
+   },
+   "app/modules/document_delivery.js": {
+    "statements": 135,
+    "coveredStatements": 123,
+    "branches": 92,
+    "coveredBranches": 69,
+    "executed": true
+   },
+   "app/modules/document_feedback.js": {
+    "statements": 61,
+    "coveredStatements": 58,
+    "branches": 22,
+    "coveredBranches": 20,
+    "executed": true
+   },
+   "app/modules/document_pagination.js": {
+    "statements": 293,
+    "coveredStatements": 182,
+    "branches": 102,
+    "coveredBranches": 49,
+    "executed": true
+   },
+   "app/modules/document_printing.js": {
+    "statements": 55,
+    "coveredStatements": 47,
+    "branches": 42,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/document_readiness.js": {
+    "statements": 120,
+    "coveredStatements": 111,
+    "branches": 236,
+    "coveredBranches": 217,
+    "executed": true
+   },
+   "app/modules/document_render.js": {
+    "statements": 127,
+    "coveredStatements": 114,
+    "branches": 394,
+    "coveredBranches": 337,
+    "executed": true
+   },
+   "app/modules/document_rules.js": {
+    "statements": 55,
+    "coveredStatements": 50,
+    "branches": 48,
+    "coveredBranches": 43,
+    "executed": true
+   },
+   "app/modules/document_sources.js": {
+    "statements": 26,
+    "coveredStatements": 19,
+    "branches": 32,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/document_types.js": {
+    "statements": 28,
+    "coveredStatements": 26,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/draft_persistence.js": {
+    "statements": 75,
+    "coveredStatements": 68,
+    "branches": 42,
+    "coveredBranches": 35,
+    "executed": true
+   },
+   "app/modules/draft_save_controls.js": {
+    "statements": 20,
+    "coveredStatements": 17,
+    "branches": 3,
+    "coveredBranches": 3,
+    "executed": true
+   },
+   "app/modules/due_date_events.js": {
+    "statements": 88,
+    "coveredStatements": 71,
+    "branches": 48,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/editor_events.js": {
+    "statements": 376,
+    "coveredStatements": 185,
+    "branches": 185,
+    "coveredBranches": 89,
+    "executed": true
+   },
+   "app/modules/editor_screens.js": {
+    "statements": 202,
+    "coveredStatements": 182,
+    "branches": 197,
+    "coveredBranches": 175,
+    "executed": true
+   },
+   "app/modules/editor_state.js": {
+    "statements": 34,
+    "coveredStatements": 33,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/event_registration.js": {
+    "statements": 9,
+    "coveredStatements": 9,
+    "branches": 2,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/exit_review.js": {
+    "statements": 40,
+    "coveredStatements": 39,
+    "branches": 23,
+    "coveredBranches": 23,
+    "executed": true
+   },
+   "app/modules/folder_connections.js": {
+    "statements": 53,
+    "coveredStatements": 51,
+    "branches": 15,
+    "coveredBranches": 15,
+    "executed": true
+   },
+   "app/modules/helper_requests.js": {
+    "statements": 12,
+    "coveredStatements": 11,
+    "branches": 9,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "app/modules/helper_stopped.js": {
+    "statements": 36,
+    "coveredStatements": 34,
+    "branches": 15,
+    "coveredBranches": 12,
+    "executed": true
+   },
+   "app/modules/helper_transport.js": {
+    "statements": 13,
+    "coveredStatements": 12,
+    "branches": 7,
+    "coveredBranches": 7,
+    "executed": true
+   },
+   "app/modules/import_events.js": {
+    "statements": 85,
+    "coveredStatements": 49,
+    "branches": 25,
+    "coveredBranches": 12,
+    "executed": true
+   },
+   "app/modules/imports_state.js": {
+    "statements": 12,
+    "coveredStatements": 11,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/initial_citations.js": {
+    "statements": 120,
+    "coveredStatements": 108,
+    "branches": 57,
+    "coveredBranches": 43,
+    "executed": true
+   },
+   "app/modules/inspection_facts.js": {
+    "statements": 17,
+    "coveredStatements": 14,
+    "branches": 22,
+    "coveredBranches": 21,
+    "executed": true
+   },
+   "app/modules/inspection_history.js": {
+    "statements": 96,
+    "coveredStatements": 93,
+    "branches": 96,
+    "coveredBranches": 81,
+    "executed": true
+   },
+   "app/modules/item_selection.js": {
+    "statements": 33,
+    "coveredStatements": 29,
+    "branches": 14,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "app/modules/language_actions.js": {
+    "statements": 66,
+    "coveredStatements": 30,
+    "branches": 27,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "app/modules/language_catalog.js": {
+    "statements": 372,
+    "coveredStatements": 197,
+    "branches": 299,
+    "coveredBranches": 189,
+    "executed": true
+   },
+   "app/modules/language_discovery.js": {
+    "statements": 143,
+    "coveredStatements": 141,
+    "branches": 200,
+    "coveredBranches": 181,
+    "executed": true
+   },
+   "app/modules/language_search.js": {
+    "statements": 68,
+    "coveredStatements": 68,
+    "branches": 32,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "app/modules/language_shortcuts.js": {
+    "statements": 40,
+    "coveredStatements": 30,
+    "branches": 20,
+    "coveredBranches": 15,
+    "executed": true
+   },
+   "app/modules/language_views.js": {
+    "statements": 4,
+    "coveredStatements": 3,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/local_case_files.js": {
+    "statements": 24,
+    "coveredStatements": 24,
+    "branches": 4,
+    "coveredBranches": 3,
+    "executed": true
+   },
+   "app/modules/mailing_rules.js": {
+    "statements": 39,
+    "coveredStatements": 39,
+    "branches": 39,
+    "coveredBranches": 38,
+    "executed": true
+   },
+   "app/modules/navigation.js": {
+    "statements": 78,
+    "coveredStatements": 73,
+    "branches": 31,
+    "coveredBranches": 30,
+    "executed": true
+   },
+   "app/modules/new_documents.js": {
+    "statements": 686,
+    "coveredStatements": 603,
+    "branches": 624,
+    "coveredBranches": 506,
+    "executed": true
+   },
+   "app/modules/open_case_events.js": {
+    "statements": 26,
+    "coveredStatements": 14,
+    "branches": 11,
+    "coveredBranches": 3,
+    "executed": true
+   },
+   "app/modules/open_case_list.js": {
+    "statements": 173,
+    "coveredStatements": 162,
+    "branches": 109,
+    "coveredBranches": 96,
+    "executed": true
+   },
+   "app/modules/pdf_artifacts.js": {
+    "statements": 150,
+    "coveredStatements": 142,
+    "branches": 52,
+    "coveredBranches": 48,
+    "executed": true
+   },
+   "app/modules/pending_case_saves.js": {
+    "statements": 51,
+    "coveredStatements": 46,
+    "branches": 21,
+    "coveredBranches": 19,
+    "executed": true
+   },
+   "app/modules/presentation_format.js": {
+    "statements": 34,
+    "coveredStatements": 34,
+    "branches": 20,
+    "coveredBranches": 19,
+    "executed": true
+   },
+   "app/modules/preview_refresh.js": {
+    "statements": 48,
+    "coveredStatements": 46,
+    "branches": 23,
+    "coveredBranches": 22,
+    "executed": true
+   },
+   "app/modules/publication_preparation.js": {
+    "statements": 85,
+    "coveredStatements": 75,
+    "branches": 69,
+    "coveredBranches": 63,
+    "executed": true
+   },
+   "app/modules/publication_workflow.js": {
+    "statements": 139,
+    "coveredStatements": 132,
+    "branches": 66,
+    "coveredBranches": 60,
+    "executed": true
+   },
+   "app/modules/recipient_workflow.js": {
+    "statements": 79,
+    "coveredStatements": 71,
+    "branches": 67,
+    "coveredBranches": 61,
+    "executed": true
+   },
+   "app/modules/record_actions.js": {
+    "statements": 47,
+    "coveredStatements": 44,
+    "branches": 28,
+    "coveredBranches": 21,
+    "executed": true
+   },
+   "app/modules/record_commit.js": {
+    "statements": 100,
+    "coveredStatements": 94,
+    "branches": 45,
+    "coveredBranches": 45,
+    "executed": true
+   },
+   "app/modules/record_event_log.js": {
+    "statements": 16,
+    "coveredStatements": 11,
+    "branches": 6,
+    "coveredBranches": 4,
+    "executed": true
+   },
+   "app/modules/record_history.js": {
+    "statements": 22,
+    "coveredStatements": 18,
+    "branches": 38,
+    "coveredBranches": 38,
+    "executed": true
+   },
+   "app/modules/record_ids.js": {
+    "statements": 7,
+    "coveredStatements": 4,
+    "branches": 3,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/record_integrity.js": {
+    "statements": 130,
+    "coveredStatements": 120,
+    "branches": 74,
+    "coveredBranches": 60,
+    "executed": true
+   },
+   "app/modules/record_sources.js": {
+    "statements": 4,
+    "coveredStatements": 2,
+    "branches": 9,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "app/modules/record_values.js": {
+    "statements": 11,
+    "coveredStatements": 11,
+    "branches": 10,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "app/modules/recovery_events.js": {
+    "statements": 132,
+    "coveredStatements": 77,
+    "branches": 37,
+    "coveredBranches": 16,
+    "executed": true
+   },
+   "app/modules/recovery_state.js": {
+    "statements": 14,
+    "coveredStatements": 13,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/recovery_ui.js": {
+    "statements": 53,
+    "coveredStatements": 47,
+    "branches": 51,
+    "coveredBranches": 49,
+    "executed": true
+   },
+   "app/modules/reinspection.js": {
+    "statements": 517,
+    "coveredStatements": 337,
+    "branches": 638,
+    "coveredBranches": 465,
+    "executed": true
+   },
+   "app/modules/reinspection_batch.js": {
+    "statements": 51,
+    "coveredStatements": 45,
+    "branches": 39,
+    "coveredBranches": 36,
+    "executed": true
+   },
+   "app/modules/reinspection_entry.js": {
+    "statements": 63,
+    "coveredStatements": 58,
+    "branches": 32,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "app/modules/reinspection_events.js": {
+    "statements": 160,
+    "coveredStatements": 73,
+    "branches": 69,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "app/modules/report_catalog.js": {
+    "statements": 152,
+    "coveredStatements": 151,
+    "branches": 79,
+    "coveredBranches": 69,
+    "executed": true
+   },
+   "app/modules/report_connection.js": {
+    "statements": 2,
+    "coveredStatements": 1,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/report_facts.js": {
+    "statements": 24,
+    "coveredStatements": 23,
+    "branches": 50,
+    "coveredBranches": 43,
+    "executed": true
+   },
+   "app/modules/report_filter_events.js": {
+    "statements": 20,
+    "coveredStatements": 20,
+    "branches": 9,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "app/modules/report_map_config.js": {
+    "statements": 1,
+    "coveredStatements": 1,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/report_metadata.js": {
+    "statements": 4,
+    "coveredStatements": 4,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/report_navigation.js": {
+    "statements": 144,
+    "coveredStatements": 144,
+    "branches": 56,
+    "coveredBranches": 51,
+    "executed": true
+   },
+   "app/modules/report_presentation.js": {
+    "statements": 67,
+    "coveredStatements": 65,
+    "branches": 75,
+    "coveredBranches": 62,
+    "executed": true
+   },
+   "app/modules/report_return.js": {
+    "statements": 20,
+    "coveredStatements": 19,
+    "branches": 7,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "app/modules/report_spreadsheet_sheet.js": {
+    "statements": 31,
+    "coveredStatements": 30,
+    "branches": 34,
+    "coveredBranches": 34,
+    "executed": true
+   },
+   "app/modules/report_workbook_definitions.js": {
+    "statements": 15,
+    "coveredStatements": 15,
+    "branches": 2,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/reports_core.js": {
+    "statements": 203,
+    "coveredStatements": 0,
+    "branches": 26,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "app/modules/reports_entry.js": {
+    "statements": 1,
+    "coveredStatements": 0,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "app/modules/reports_screens.js": {
+    "statements": 295,
+    "coveredStatements": 251,
+    "branches": 326,
+    "coveredBranches": 242,
+    "executed": true
+   },
+   "app/modules/reports_services.js": {
+    "statements": 417,
+    "coveredStatements": 352,
+    "branches": 321,
+    "coveredBranches": 241,
+    "executed": true
+   },
+   "app/modules/reports_view_contexts.js": {
+    "statements": 3,
+    "coveredStatements": 2,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/reviewed_library.js": {
+    "statements": 28,
+    "coveredStatements": 17,
+    "branches": 13,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "app/modules/safety_events.js": {
+    "statements": 85,
+    "coveredStatements": 69,
+    "branches": 29,
+    "coveredBranches": 26,
+    "executed": true
+   },
+   "app/modules/saved_work.js": {
+    "statements": 77,
+    "coveredStatements": 69,
+    "branches": 106,
+    "coveredBranches": 93,
+    "executed": true
+   },
+   "app/modules/screen_html.js": {
+    "statements": 10,
+    "coveredStatements": 9,
+    "branches": 2,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/screen_overlays.js": {
+    "statements": 70,
+    "coveredStatements": 41,
+    "branches": 157,
+    "coveredBranches": 98,
+    "executed": true
+   },
+   "app/modules/search_highlighting.js": {
+    "statements": 82,
+    "coveredStatements": 81,
+    "branches": 21,
+    "coveredBranches": 18,
+    "executed": true
+   },
+   "app/modules/session_close.js": {
+    "statements": 77,
+    "coveredStatements": 61,
+    "branches": 25,
+    "coveredBranches": 20,
+    "executed": true
+   },
+   "app/modules/shared_case_storage.js": {
+    "statements": 93,
+    "coveredStatements": 86,
+    "branches": 38,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "app/modules/snow_cases.js": {
+    "statements": 215,
+    "coveredStatements": 145,
+    "branches": 167,
+    "coveredBranches": 99,
+    "executed": true
+   },
+   "app/modules/special_document_events.js": {
+    "statements": 9,
+    "coveredStatements": 8,
+    "branches": 2,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "app/modules/startup_state.js": {
+    "statements": 26,
+    "coveredStatements": 25,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/state.js": {
+    "statements": 2,
+    "coveredStatements": 2,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/storage_probe.js": {
+    "statements": 19,
+    "coveredStatements": 17,
+    "branches": 6,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "app/modules/storage_status.js": {
+    "statements": 23,
+    "coveredStatements": 17,
+    "branches": 58,
+    "coveredBranches": 54,
+    "executed": true
+   },
+   "app/modules/test_fixtures.js": {
+    "statements": 43,
+    "coveredStatements": 31,
+    "branches": 19,
+    "coveredBranches": 13,
+    "executed": true
+   },
+   "app/modules/ui_icons.js": {
+    "statements": 2,
+    "coveredStatements": 2,
+    "branches": 1,
+    "coveredBranches": 1,
+    "executed": true
+   },
+   "app/modules/utility_events.js": {
+    "statements": 71,
+    "coveredStatements": 53,
+    "branches": 46,
+    "coveredBranches": 26,
+    "executed": true
+   },
+   "app/modules/visit_recording.js": {
+    "statements": 15,
+    "coveredStatements": 12,
+    "branches": 3,
+    "coveredBranches": 3,
+    "executed": true
+   },
+   "app/modules/workflow_events.js": {
+    "statements": 85,
+    "coveredStatements": 48,
+    "branches": 29,
+    "coveredBranches": 10,
+    "executed": true
+   },
+   "app/modules/workflow_preferences.js": {
+    "statements": 9,
+    "coveredStatements": 8,
+    "branches": 11,
+    "coveredBranches": 11,
+    "executed": true
+   },
+   "app/modules/working_papers.js": {
+    "statements": 47,
+    "coveredStatements": 41,
+    "branches": 52,
+    "coveredBranches": 44,
+    "executed": true
+   },
+   "app/modules/worksheet_workflow.js": {
+    "statements": 113,
+    "coveredStatements": 103,
+    "branches": 65,
+    "coveredBranches": 63,
+    "executed": true
+   },
+   "app/modules/workspace_backup.js": {
+    "statements": 100,
+    "coveredStatements": 90,
+    "branches": 61,
+    "coveredBranches": 55,
+    "executed": true
+   },
+   "app/modules/workspace_database.js": {
+    "statements": 44,
+    "coveredStatements": 43,
+    "branches": 4,
+    "coveredBranches": 4,
+    "executed": true
+   },
+   "app/modules/workspace_documents.js": {
+    "statements": 18,
+    "coveredStatements": 14,
+    "branches": 36,
+    "coveredBranches": 33,
+    "executed": true
+   },
+   "app/modules/workspace_events.js": {
+    "statements": 195,
+    "coveredStatements": 40,
+    "branches": 48,
+    "coveredBranches": 18,
+    "executed": true
+   },
+   "app/modules/workspace_jump.js": {
+    "statements": 25,
+    "coveredStatements": 25,
+    "branches": 15,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "app/modules/workspace_queue.js": {
+    "statements": 101,
+    "coveredStatements": 90,
+    "branches": 89,
+    "coveredBranches": 82,
+    "executed": true
+   },
+   "app/modules/workspace_repaint.js": {
+    "statements": 43,
+    "coveredStatements": 43,
+    "branches": 28,
+    "coveredBranches": 28,
+    "executed": true
+   },
+   "app/modules/workspace_rows.js": {
+    "statements": 33,
+    "coveredStatements": 27,
+    "branches": 53,
+    "coveredBranches": 53,
+    "executed": true
+   },
+   "app/modules/workspace_screen.js": {
+    "statements": 36,
+    "coveredStatements": 28,
+    "branches": 16,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "app/modules/workspace_shell.js": {
+    "statements": 8,
+    "coveredStatements": 5,
+    "branches": 1,
+    "coveredBranches": 1,
+    "executed": true
+   },
+   "app/modules/workspace_state.js": {
+    "statements": 52,
+    "coveredStatements": 51,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "app/modules/workspace_tasks.js": {
+    "statements": 26,
+    "coveredStatements": 20,
+    "branches": 23,
+    "coveredBranches": 19,
+    "executed": true
+   },
+   "app/modules/writer_handoff.js": {
+    "statements": 91,
+    "coveredStatements": 86,
+    "branches": 33,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "app/modules/writer_queries.js": {
+    "statements": 40,
+    "coveredStatements": 37,
+    "branches": 42,
+    "coveredBranches": 39,
+    "executed": true
+   },
+   "app/modules/writer_startup.js": {
+    "statements": 35,
+    "coveredStatements": 34,
+    "branches": 6,
+    "coveredBranches": 6,
+    "executed": true
+   }
+  },
+  "python": {
+   "helper/address_parser.py": {
+    "statements": 70,
+    "coveredStatements": 68,
+    "branches": 32,
+    "coveredBranches": 32,
+    "executed": true
+   },
+   "helper/admin_rules.py": {
+    "statements": 65,
+    "coveredStatements": 44,
+    "branches": 12,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "helper/administrative_basis.py": {
+    "statements": 26,
+    "coveredStatements": 22,
+    "branches": 18,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "helper/artifact_store.py": {
+    "statements": 80,
+    "coveredStatements": 80,
+    "branches": 24,
+    "coveredBranches": 24,
+    "executed": true
+   },
+   "helper/case_integrity.py": {
+    "statements": 426,
+    "coveredStatements": 390,
+    "branches": 176,
+    "coveredBranches": 146,
+    "executed": true
+   },
+   "helper/case_lookup.py": {
+    "statements": 103,
+    "coveredStatements": 100,
+    "branches": 30,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "helper/case_projection.py": {
+    "statements": 583,
+    "coveredStatements": 541,
+    "branches": 230,
+    "coveredBranches": 191,
+    "executed": true
+   },
+   "helper/case_store.py": {
+    "statements": 1316,
+    "coveredStatements": 1212,
+    "branches": 682,
+    "coveredBranches": 597,
+    "executed": true
+   },
+   "helper/citation_pricing.py": {
+    "statements": 308,
+    "coveredStatements": 294,
+    "branches": 148,
+    "coveredBranches": 135,
+    "executed": true
+   },
+   "helper/desktop_launch.py": {
+    "statements": 283,
+    "coveredStatements": 238,
+    "branches": 70,
+    "coveredBranches": 53,
+    "executed": true
+   },
+   "helper/helper_logging.py": {
+    "statements": 52,
+    "coveredStatements": 52,
+    "branches": 8,
+    "coveredBranches": 8,
+    "executed": true
+   },
+   "helper/helper_session.py": {
+    "statements": 55,
+    "coveredStatements": 50,
+    "branches": 14,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "helper/inspector_cases.py": {
+    "statements": 203,
+    "coveredStatements": 201,
+    "branches": 64,
+    "coveredBranches": 62,
+    "executed": true
+   },
+   "helper/install_release.py": {
+    "statements": 70,
+    "coveredStatements": 68,
+    "branches": 16,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "helper/install_runtime.py": {
+    "statements": 35,
+    "coveredStatements": 30,
+    "branches": 10,
+    "coveredBranches": 7,
+    "executed": true
+   },
+   "helper/integrity_admin.py": {
+    "statements": 59,
+    "coveredStatements": 50,
+    "branches": 10,
+    "coveredBranches": 7,
+    "executed": true
+   },
+   "helper/launch.py": {
+    "statements": 220,
+    "coveredStatements": 178,
+    "branches": 74,
+    "coveredBranches": 50,
+    "executed": true
+   },
+   "helper/operations_helper.py": {
+    "statements": 165,
+    "coveredStatements": 138,
+    "branches": 44,
+    "coveredBranches": 33,
+    "executed": true
+   },
+   "helper/plain_files.py": {
+    "statements": 61,
+    "coveredStatements": 56,
+    "branches": 16,
+    "coveredBranches": 13,
+    "executed": true
+   },
+   "helper/prepare_deployment.py": {
+    "statements": 123,
+    "coveredStatements": 106,
+    "branches": 58,
+    "coveredBranches": 47,
+    "executed": true
+   },
+   "helper/public_errors.py": {
+    "statements": 13,
+    "coveredStatements": 13,
+    "branches": 6,
+    "coveredBranches": 6,
+    "executed": true
+   },
+   "helper/render_security.py": {
+    "statements": 67,
+    "coveredStatements": 64,
+    "branches": 32,
+    "coveredBranches": 29,
+    "executed": true
+   },
+   "helper/reporting_reads.py": {
+    "statements": 57,
+    "coveredStatements": 55,
+    "branches": 16,
+    "coveredBranches": 16,
+    "executed": true
+   },
+   "helper/runtime_paths.py": {
+    "statements": 26,
+    "coveredStatements": 23,
+    "branches": 8,
+    "coveredBranches": 5,
+    "executed": true
+   },
+   "helper/scan_legacy_cases.py": {
+    "statements": 34,
+    "coveredStatements": 23,
+    "branches": 18,
+    "coveredBranches": 11,
+    "executed": true
+   },
+   "helper/server.py": {
+    "statements": 1254,
+    "coveredStatements": 1017,
+    "branches": 466,
+    "coveredBranches": 359,
+    "executed": true
+   },
+   "helper/snow_rules.py": {
+    "statements": 105,
+    "coveredStatements": 98,
+    "branches": 38,
+    "coveredBranches": 34,
+    "executed": true
+   },
+   "helper/ssrs_reports.py": {
+    "statements": 113,
+    "coveredStatements": 111,
+    "branches": 32,
+    "coveredBranches": 30,
+    "executed": true
+   },
+   "helper/trusted_connections.py": {
+    "statements": 41,
+    "coveredStatements": 36,
+    "branches": 12,
+    "coveredBranches": 7,
+    "executed": true
+   },
+   "helper/verified_update.py": {
+    "statements": 139,
+    "coveredStatements": 134,
+    "branches": 50,
+    "coveredBranches": 48,
+    "executed": true
+   },
+   "helper/workflow_helper.py": {
+    "statements": 121,
+    "coveredStatements": 100,
+    "branches": 62,
+    "coveredBranches": 43,
+    "executed": true
+   },
+   "policy/compiler.py": {
+    "statements": 123,
+    "coveredStatements": 122,
+    "branches": 78,
+    "coveredBranches": 77,
+    "executed": true
+   },
+   "policy/library_ordinances.py": {
+    "statements": 61,
+    "coveredStatements": 53,
+    "branches": 24,
+    "coveredBranches": 22,
+    "executed": true
+   },
+   "policy/regenerate_deposits.py": {
+    "statements": 59,
+    "coveredStatements": 56,
+    "branches": 26,
+    "coveredBranches": 23,
+    "executed": true
+   },
+   "tools/build.py": {
+    "statements": 125,
+    "coveredStatements": 116,
+    "branches": 32,
+    "coveredBranches": 23,
+    "executed": true
+   },
+   "tools/build_icon.py": {
+    "statements": 72,
+    "coveredStatements": 46,
+    "branches": 20,
+    "coveredBranches": 11,
+    "executed": true
+   },
+   "tools/build_manual.py": {
+    "statements": 145,
+    "coveredStatements": 137,
+    "branches": 38,
+    "coveredBranches": 33,
+    "executed": true
+   },
+   "tools/check_format.py": {
+    "statements": 6,
+    "coveredStatements": 0,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/codification_diff.py": {
+    "statements": 58,
+    "coveredStatements": 48,
+    "branches": 22,
+    "coveredBranches": 15,
+    "executed": true
+   },
+   "tools/compare_reporting_reads.py": {
+    "statements": 190,
+    "coveredStatements": 134,
+    "branches": 74,
+    "coveredBranches": 48,
+    "executed": true
+   },
+   "tools/deploy_manifest.py": {
+    "statements": 8,
+    "coveredStatements": 8,
+    "branches": 0,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "tools/deposit_interpreter.py": {
+    "statements": 57,
+    "coveredStatements": 57,
+    "branches": 16,
+    "coveredBranches": 16,
+    "executed": true
+   },
+   "tools/gate_artifacts.py": {
+    "statements": 189,
+    "coveredStatements": 156,
+    "branches": 78,
+    "coveredBranches": 62,
+    "executed": true
+   },
+   "tools/gate_stages.py": {
+    "statements": 140,
+    "coveredStatements": 71,
+    "branches": 48,
+    "coveredBranches": 21,
+    "executed": true
+   },
+   "tools/hotspot_inventory.py": {
+    "statements": 59,
+    "coveredStatements": 33,
+    "branches": 26,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "tools/maintainability_py.py": {
+    "statements": 41,
+    "coveredStatements": 15,
+    "branches": 14,
+    "coveredBranches": 5,
+    "executed": true
+   },
+   "tools/measure_coverage.py": {
+    "statements": 146,
+    "coveredStatements": 0,
+    "branches": 20,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/measure_maintainability.py": {
+    "statements": 124,
+    "coveredStatements": 40,
+    "branches": 24,
+    "coveredBranches": 4,
+    "executed": true
+   },
+   "tools/mutation_pilot.py": {
+    "statements": 73,
+    "coveredStatements": 0,
+    "branches": 18,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/package_release.py": {
+    "statements": 128,
+    "coveredStatements": 14,
+    "branches": 38,
+    "coveredBranches": 0,
+    "executed": true
+   },
+   "tools/project_layout.py": {
+    "statements": 96,
+    "coveredStatements": 86,
+    "branches": 48,
+    "coveredBranches": 38,
+    "executed": true
+   },
+   "tools/propose_policy_version.py": {
+    "statements": 24,
+    "coveredStatements": 0,
+    "branches": 4,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/release_evidence.py": {
+    "statements": 37,
+    "coveredStatements": 35,
+    "branches": 14,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "tools/release_inputs.py": {
+    "statements": 115,
+    "coveredStatements": 89,
+    "branches": 56,
+    "coveredBranches": 39,
+    "executed": true
+   },
+   "tools/release_publication.py": {
+    "statements": 26,
+    "coveredStatements": 26,
+    "branches": 16,
+    "coveredBranches": 16,
+    "executed": true
+   },
+   "tools/run_tests.py": {
+    "statements": 107,
+    "coveredStatements": 26,
+    "branches": 26,
+    "coveredBranches": 2,
+    "executed": true
+   },
+   "tools/screen_shell_reference.py": {
+    "statements": 37,
+    "coveredStatements": 28,
+    "branches": 12,
+    "coveredBranches": 9,
+    "executed": true
+   },
+   "tools/staff_guides.py": {
+    "statements": 81,
+    "coveredStatements": 73,
+    "branches": 36,
+    "coveredBranches": 31,
+    "executed": true
+   },
+   "tools/suite_classes.py": {
+    "statements": 33,
+    "coveredStatements": 33,
+    "branches": 14,
+    "coveredBranches": 14,
+    "executed": true
+   },
+   "tools/suite_process.py": {
+    "statements": 19,
+    "coveredStatements": 15,
+    "branches": 2,
+    "coveredBranches": 1,
+    "executed": true
+   },
+   "tools/sync_version.py": {
+    "statements": 13,
+    "coveredStatements": 0,
+    "branches": 4,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/verify_release.py": {
+    "statements": 69,
+    "coveredStatements": 0,
+    "branches": 18,
+    "coveredBranches": 0,
+    "executed": false
+   },
+   "tools/version_schema.py": {
+    "statements": 27,
+    "coveredStatements": 26,
+    "branches": 14,
+    "coveredBranches": 13,
+    "executed": true
+   }
+  }
+ },
+ "mutationPilot": {
+  "counts": {
+   "killed": 16,
+   "survived": 0,
+   "timeout": 0,
+   "invalid": 0
+  },
+  "killRate": 1.0,
+  "results": [
+   {
+    "id": "integrity-genesis-hash",
+    "category": "integrity refusal",
+    "file": "helper/case_integrity.py",
+    "outcome": "killed",
+    "detail": "failed:audit_r31_integrity.py",
+    "seconds": 0.4
+   },
+   {
+    "id": "integrity-duplicate-events",
+    "category": "integrity refusal",
+    "file": "helper/case_integrity.py",
+    "outcome": "killed",
+    "detail": "failed:audit_r31_integrity.py",
+    "seconds": 0.4
+   },
+   {
+    "id": "integrity-chain-previous-hash",
+    "category": "integrity refusal",
+    "file": "helper/case_integrity.py",
+    "outcome": "killed",
+    "detail": "failed:audit_r31_integrity.py",
+    "seconds": 0.4
+   },
+   {
+    "id": "integrity-root-hash",
+    "category": "integrity refusal",
+    "file": "helper/case_integrity.py",
+    "outcome": "killed",
+    "detail": "failed:audit_r31_integrity.py",
+    "seconds": 0.3
+   },
+   {
+    "id": "store-expected-head",
+    "category": "source/head comparison",
+    "file": "helper/case_store.py",
+    "outcome": "killed",
+    "detail": "failed:audit_helper.py",
+    "seconds": 1.5
+   },
+   {
+    "id": "store-due-spacing",
+    "category": "date decision",
+    "file": "helper/case_store.py",
+    "outcome": "killed",
+    "detail": "failed:audit_mcr_helper_validation.py",
+    "seconds": 0.3
+   },
+   {
+    "id": "store-owner-mailing-lines",
+    "category": "issued-fact refusal",
+    "file": "helper/case_store.py",
+    "outcome": "killed",
+    "detail": "failed:audit_authoring.py",
+    "seconds": 0.3
+   },
+   {
+    "id": "pricing-window-boundary",
+    "category": "pricing decision",
+    "file": "helper/citation_pricing.py",
+    "outcome": "killed",
+    "detail": "failed:audit_citation_pricing_rules.py",
+    "seconds": 1.0
+   },
+   {
+    "id": "pricing-future-prior",
+    "category": "pricing decision",
+    "file": "helper/citation_pricing.py",
+    "outcome": "killed",
+    "detail": "failed:audit_citation_pricing_rules.py",
+    "seconds": 0.9
+   },
+   {
+    "id": "pricing-tier",
+    "category": "pricing decision",
+    "file": "helper/citation_pricing.py",
+    "outcome": "killed",
+    "detail": "failed:audit_citation_pricing_rules.py",
+    "seconds": 1.0
+   },
+   {
+    "id": "recovery-pending-guard",
+    "category": "recovery guard",
+    "file": "helper/case_integrity.py",
+    "outcome": "killed",
+    "detail": "failed:audit_r31_integrity.py",
+    "seconds": 0.3
+   },
+   {
+    "id": "index-stale-summary",
+    "category": "source/head comparison",
+    "file": "helper/server.py",
+    "outcome": "killed",
+    "detail": "failed:audit_report_metadata.py",
+    "seconds": 4.1
+   },
+   {
+    "id": "mailing-repeat-previous",
+    "category": "issued-fact rule",
+    "file": "app/modules/mailing_rules.js",
+    "outcome": "killed",
+    "detail": "failed:audit_violator_contact.js",
+    "seconds": 1.8
+   },
+   {
+    "id": "mailing-street-anywhere",
+    "category": "issued-fact rule",
+    "file": "app/modules/mailing_rules.js",
+    "outcome": "killed",
+    "detail": "failed:audit_violator_contact.js",
+    "seconds": 1.9
+   },
+   {
+    "id": "notice-due-spacing",
+    "category": "date decision",
+    "file": "app/modules/new_documents.js",
+    "outcome": "killed",
+    "detail": "failed:audit_r62_extensions.js",
+    "seconds": 2.4
+   },
+   {
+    "id": "escape-ampersand",
+    "category": "output safety",
+    "file": "app/modules/presentation_format.js",
+    "outcome": "killed",
+    "detail": "failed:audit_presentation_escaping.js",
+    "seconds": 1.8
+   }
+  ]
+ }
+}

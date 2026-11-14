@@ -46,6 +46,16 @@ def policy_snapshots():
 
 
 class CitationPricingRules(unittest.TestCase):
+    def test_window_includes_its_first_day_and_refuses_later_priors(self):
+        # Mutation pilot survivors: the window's first day counts, the day before does not, and a prior dated after
+        # the violation never counts, whatever the window.
+        months = {"months": 12}
+        self.assertTrue(citation_pricing.within_window("2025-11-14", "2026-11-14", months))
+        self.assertFalse(citation_pricing.within_window("2025-11-13", "2026-11-14", months))
+        self.assertTrue(citation_pricing.within_window("2026-11-14", "2026-11-14", months))
+        self.assertFalse(citation_pricing.within_window("2026-11-15", "2026-11-14", months))
+        self.assertFalse(citation_pricing.within_window("2026-11-15", "2026-11-14", "site"))
+
     def test_documented_manual_levels_and_po_box_respondents_are_verified(self):
         template = next(s for s in policy_snapshots() if next(iter(s["cits"].values()))["ord"] == "18.08")
         for level, base in ((1, 200), (2, 500), (3, 1000)):

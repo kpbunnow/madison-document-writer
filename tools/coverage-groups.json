@@ -1,0 +1,46 @@
+{
+  "description": "Coverage subgroups for tools/measure_coverage.py (plan Phase 1). Targets are the plan's: runtime 85% statements / 75% branches; high-risk 90% / 85%; developer tools 80% / 70% (high-risk gate and release-integrity tools use the high-risk target).",
+  "javascript": {
+    "runtime": ["app/modules/*.js", "app/assets/shared.js"],
+    "highRisk": [
+      "app/modules/accela_import.js",
+      "app/modules/accela_report.js",
+      "app/modules/automatic_recovery.js",
+      "app/modules/case_file_rules.js",
+      "app/modules/case_recovery.js",
+      "app/modules/correction_preparation.js",
+      "app/modules/correction_workflow.js",
+      "app/modules/pending_case_saves.js",
+      "app/modules/publication_preparation.js",
+      "app/modules/publication_workflow.js",
+      "app/modules/record_integrity.js",
+      "app/modules/shared_case_storage.js"
+    ]
+  },
+  "python": {
+    "runtime": ["helper/*.py"],
+    "developer": ["tools/*.py", "policy/*.py"],
+    "highRisk": [
+      "helper/artifact_store.py",
+      "helper/case_integrity.py",
+      "helper/case_store.py",
+      "helper/install_release.py",
+      "helper/integrity_admin.py",
+      "helper/server.py",
+      "helper/verified_update.py",
+      "tools/deploy_manifest.py",
+      "tools/gate_artifacts.py",
+      "tools/gate_stages.py",
+      "tools/package_release.py",
+      "tools/release_evidence.py",
+      "tools/release_inputs.py",
+      "tools/release_publication.py",
+      "tools/verify_release.py"
+    ]
+  },
+  "targets": {
+    "runtime": { "statements": 0.85, "branches": 0.75 },
+    "highRisk": { "statements": 0.9, "branches": 0.85 },
+    "developer": { "statements": 0.8, "branches": 0.7 }
+  }
+}

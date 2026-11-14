@@ -38,6 +38,44 @@ class IntegrityTests(unittest.TestCase):
             self.assertTrue(result["expected"])
             self.assertTrue(result["actual"])
 
+    def test_genesis_duplicate_and_link_tampering_report_their_own_failure(self):
+        # Mutation pilot survivors: each check names its own failure, in the verifier's order.
+        v = integrity.commit_record(None, self.fixture())
+        bad = copy.deepcopy(v)
+        bad["integrity"]["genesis"]["committedAt"] = "2000-01-01T00:00:00Z"
+        result = integrity.verify_record(bad)
+        self.assertEqual((result["valid"], result["eventId"]), (False, "genesis"), "a changed genesis field is caught by its hash")
+        bad = copy.deepcopy(v)
+        bad["events"].append(copy.deepcopy(bad["events"][0]))
+        result = integrity.verify_record(bad)
+        self.assertEqual((result["valid"], result["eventId"]), (False, "duplicate event"), "a repeated event identity is named as such")
+        bad = copy.deepcopy(v)
+        bad["integrity"]["entries"][0]["prevHash"] = "0" * 64
+        result = integrity.verify_record(bad)
+        self.assertEqual((result["valid"], result["eventId"]), (False, v["integrity"]["entries"][0]["eventId"]), "a broken chain link is refused")
+
+    def test_a_recovery_transaction_waits_for_an_administrator(self):
+        # Mutation pilot survivor: a pending recovery intent is never completed by an ordinary save.
+        record = integrity.commit_record(None, self.fixture())
+        with tempfile.TemporaryDirectory() as root:
+            path = integrity.intent_path(root, record["case"]["number"])
+            path.parent.mkdir(parents=True)
+            intent = {
+                "format": "madison-integrity-transaction",
+                "fileName": record["case"]["address"] + " - " + record["case"]["number"] + ".json",
+                "previousRevision": "",
+                "previousRecordHash": "",
+                "record": record,
+                "recordHash": integrity.hash_bytes(integrity.canonical(record)),
+                "recovery": True,
+            }
+            path.write_text(json.dumps(intent), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "administrator must resume the pending record recovery"):
+                integrity.reconcile_publication(root, record["case"]["number"])
+            self.assertFalse((Path(root) / intent["fileName"]).exists(), "nothing is written")
+            self.assertTrue(path.exists(), "the pending intent is kept for the administrator")
+            self.assertTrue(integrity.reconcile_publication(root, record["case"]["number"], allow_recovery=True) is not False)
+
     def test_locked_save_retry_and_migration(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

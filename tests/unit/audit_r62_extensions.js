@@ -124,6 +124,14 @@ const tests = async () => {
     blockers(d).some((b) => /seven days apart/.test(b.t)),
     "outstanding dates at least seven days apart",
   );
+  // The boundary: six days apart is still refused, exactly seven is accepted (mutation pilot survivor).
+  d.items[0].due = addDays(stamp, 55);
+  assert.ok(
+    blockers(d).some((b) => /seven days apart/.test(b.t)),
+    "six days apart is refused",
+  );
+  d.items[0].due = addDays(stamp, 56);
+  assert.ok(!blockers(d).some((b) => /seven days apart/.test(b.t)), "exactly seven days apart is accepted");
   d.items[0].due = addDays(stamp, 35);
   d.items[2].due = addDays(stamp, 70);
   assert.ok(blockers(d).some((b) => /Corrected items keep their dates/.test(b.t)));

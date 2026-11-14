@@ -1,10 +1,17 @@
+// @ts-check
 import { STATE_NAMES, US_STATES } from "./mailing_rules.js";
+/** @typedef {import("./contracts.js").MailingContact} MailingContact */
+/** @typedef {import("./contracts.js").MailingCase} MailingCase */
 
+/** @param {string} word */
 function postalTitle(word) {
   if (/^[A-Z][a-z].*[A-Z]/.test(word)) return word; // keep intentional spelling such as McFarland
-  return word.toLowerCase().replace(/(^|[-'’])([a-z])/g, (_, edge, letter) => edge + letter.toUpperCase());
+  return word
+    .toLowerCase()
+    .replace(/(^|[-'’])([a-z])/g, (/** @type {string} */ _, /** @type {string} */ edge, /** @type {string} */ letter) => edge + letter.toUpperCase());
 }
 
+/** @param {unknown} value @returns {string} */
 export function standardStreetAddress(value) {
   const raw = String(value || "")
     .trim()
@@ -12,6 +19,7 @@ export function standardStreetAddress(value) {
   const street = raw.replace(/,\s*(?=(?:apt|apartment|ste|suite|unit|fl|floor|rm|room)\b|#)/gi, " ");
   const match = street.match(/^(\d+[A-Za-z]?(?:[-/]\d+[A-Za-z]?)?)\s+(.+)$/);
   if (!match || street.includes(",") || !/[A-Za-z]/.test(match[2]) || /\bP\.?\s*O\.?\s+BOX\b/i.test(street)) return "";
+  /** @type {Record<string, string>} */
   const suffix = {
     street: "St",
     st: "St",
@@ -47,6 +55,7 @@ export function standardStreetAddress(value) {
     rm: "Rm",
     unit: "Unit",
   };
+  /** @type {Record<string, string>} */
   const directionWords = { north: "N", south: "S", east: "E", west: "W", northeast: "NE", northwest: "NW", southeast: "SE", southwest: "SW" };
   const directions = new Set(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]);
   const parts = street.split(" ");
@@ -64,6 +73,7 @@ export function standardStreetAddress(value) {
 }
 
 /* Mailing lines for copies and Violators may use a PO Box instead of a numbered street. */
+/** @param {unknown} value @returns {string} */
 export function standardMailingAddress(value) {
   const box = String(value || "")
     .trim()
@@ -71,6 +81,7 @@ export function standardMailingAddress(value) {
   return box && /\d/.test(box[1]) ? "PO BOX " + box[1].toUpperCase() : standardStreetAddress(value);
 }
 
+/** @param {unknown} value @returns {string} */
 export function standardCityStateZip(value) {
   const raw = String(value || "")
     .trim()
@@ -107,6 +118,7 @@ export function standardCityStateZip(value) {
   );
 }
 
+/** @param {unknown} name @param {unknown} street @param {unknown} city @returns {string} */
 export function addressProblem(name, street, city, allowPoBox = false) {
   if (!String(name || "").trim()) return "Enter the recipient name.";
   if (!(allowPoBox ? standardMailingAddress(street) : standardStreetAddress(street)))
@@ -119,12 +131,14 @@ export function addressProblem(name, street, city, allowPoBox = false) {
 }
 
 /* Retained line formatting for current drafts and historical recipient facts. */
+/** @param {MailingContact} c @returns {string[]} */
 export const ccLines = (c, normalize = true) =>
   [
     String(c.name || "").trim(),
     normalize ? standardStreetAddress(c.addr) || String(c.addr || "").trim() : String(c.addr || "").trim(),
     normalize ? standardCityStateZip(c.city) || String(c.city || "").trim() : String(c.city || "").trim(),
   ].filter(Boolean);
+/** @param {MailingCase|null|undefined} k @returns {string[]} */
 export const agentLines = (k, normalize = true) => {
   const a = (k && k.agent) || {};
   return [

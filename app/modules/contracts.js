@@ -27,3 +27,9 @@ export function reportSort(value, report) {
     ? { report, ci: value.ci, dir: value.dir }
     : null;
 }
+
+/* Mailing facts on a case (owner, copies, Violator, registered agent and email recipients). Fields are optional
+   because saved and imported cases predate several of them; unknown fields are retained untouched. */
+/** @typedef {{kind?:string,name?:string,addr?:string,city?:string,addressParsed?:unknown,agent?:boolean,owner?:boolean,lines?:string[],[key:string]:unknown}} MailingContact */
+/** @typedef {{addr?:string,kind?:string,on?:boolean,[key:string]:unknown}} EmailRecipient */
+/** @typedef {{owner?:string,ownerAddr?:string[]|string,ccList?:(MailingContact|null)[],emails?:EmailRecipient[],caseType?:string,copyOwner?:boolean,agent?:MailingContact,[key:string]:unknown}} MailingCase */

@@ -1,0 +1,133 @@
+{
+  "description": "Targeted mutation pilot (plan Phase 1): hand-seeded regressions in critical refusals, source/head comparisons, date/pricing decisions and recovery guards. Each mutant names the existing suites expected to detect it. Not a global mutation score.",
+  "mutants": [
+    {
+      "id": "integrity-genesis-hash",
+      "category": "integrity refusal",
+      "file": "helper/case_integrity.py",
+      "find": "        if expected != genesis[\"hash\"]:\n            return failure(\"genesis\"",
+      "replace": "        if False and expected != genesis[\"hash\"]:\n            return failure(\"genesis\"",
+      "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
+    },
+    {
+      "id": "integrity-duplicate-events",
+      "category": "integrity refusal",
+      "file": "helper/case_integrity.py",
+      "find": "        if len(events) != len(record[\"events\"]):",
+      "replace": "        if False:",
+      "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
+    },
+    {
+      "id": "integrity-chain-previous-hash",
+      "category": "integrity refusal",
+      "file": "helper/case_integrity.py",
+      "find": "entry[\"seq\"] != seq or entry[\"prevHash\"] != head or",
+      "replace": "entry[\"seq\"] != seq or",
+      "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
+    },
+    {
+      "id": "integrity-root-hash",
+      "category": "integrity refusal",
+      "file": "helper/case_integrity.py",
+      "find": "        if actual != commit_context[\"rootHash\"]:",
+      "replace": "        if False:",
+      "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
+    },
+    {
+      "id": "store-expected-head",
+      "category": "source/head comparison",
+      "file": "helper/case_store.py",
+      "find": "        if expected is not None and (not isinstance(expected, list) or current_head - set(expected)):",
+      "replace": "        if expected is not None and not isinstance(expected, list):",
+      "suites": ["audit_helper.py", "audit_r26_helper.py", "audit_r28_helper.py", "audit_history_rules.py", "audit_workflow.py"]
+    },
+    {
+      "id": "store-due-spacing",
+      "category": "date decision",
+      "file": "helper/case_store.py",
+      "find": "        if (datetime.date.fromisoformat(later) - datetime.date.fromisoformat(earlier)).days >= 7:",
+      "replace": "        if (datetime.date.fromisoformat(later) - datetime.date.fromisoformat(earlier)).days >= 6:",
+      "suites": ["audit_mcr_helper_validation.py", "audit_r62_extensions_helper.py"]
+    },
+    {
+      "id": "store-owner-mailing-lines",
+      "category": "issued-fact refusal",
+      "file": "helper/case_store.py",
+      "find": "    if frozen[\"ownerMailingLines\"] not in allowed:\n        raise ValueError(\"Frozen owner mailing lines must match",
+      "replace": "    if False:\n        raise ValueError(\"Frozen owner mailing lines must match",
+      "suites": ["audit_authoring.py"]
+    },
+    {
+      "id": "pricing-window-boundary",
+      "category": "pricing decision",
+      "file": "helper/citation_pricing.py",
+      "find": "    return previous >= cutoff",
+      "replace": "    return previous > cutoff",
+      "suites": ["audit_citation_pricing_rules.py", "audit_r30_helper.py", "audit_violator_pricing.py"]
+    },
+    {
+      "id": "pricing-future-prior",
+      "category": "pricing decision",
+      "file": "helper/citation_pricing.py",
+      "find": "    if previous > anchor:\n        return False",
+      "replace": "    if previous > anchor and False:\n        return False",
+      "suites": ["audit_citation_pricing_rules.py", "audit_r30_helper.py", "audit_violator_pricing.py"]
+    },
+    {
+      "id": "pricing-tier",
+      "category": "pricing decision",
+      "file": "helper/citation_pricing.py",
+      "find": "    expected_tier = len(counted) + 1",
+      "replace": "    expected_tier = len(counted)",
+      "suites": ["audit_citation_pricing_rules.py", "audit_r30_helper.py", "audit_r32_pricing.py", "audit_violator_pricing.py"]
+    },
+    {
+      "id": "recovery-pending-guard",
+      "category": "recovery guard",
+      "file": "helper/case_integrity.py",
+      "find": "    if intent[\"recovery\"] and not allow_recovery and not _automatic_restart_intent(intent):",
+      "replace": "    if False:",
+      "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_case_save_phases.py", "audit_r53_update_recovery.py"]
+    },
+    {
+      "id": "index-stale-summary",
+      "category": "source/head comparison",
+      "file": "helper/server.py",
+      "find": "            if summary.get(\"sourceRevision\") != hashlib.sha256(raw).hexdigest():",
+      "replace": "            if False:",
+      "suites": ["audit_reporting_inputs.py", "audit_report_metadata.py", "audit_integrity_shape_rules.py"]
+    },
+    {
+      "id": "mailing-repeat-previous",
+      "category": "issued-fact rule",
+      "file": "app/modules/mailing_rules.js",
+      "find": "        repeated = !key || key === previous || (street && streets.has(key));",
+      "replace": "        repeated = !key || (street && streets.has(key));",
+      "suites": ["audit_violator_contact.js", "audit_document_sources.js"]
+    },
+    {
+      "id": "mailing-street-anywhere",
+      "category": "issued-fact rule",
+      "file": "app/modules/mailing_rules.js",
+      "find": "        repeated = !key || key === previous || (street && streets.has(key));",
+      "replace": "        repeated = !key || key === previous;",
+      "suites": ["audit_violator_contact.js", "audit_document_sources.js"]
+    },
+    {
+      "id": "notice-due-spacing",
+      "category": "date decision",
+      "file": "app/modules/new_documents.js",
+      "find": "      selected(d, s)\n        .map((i) => i.due)\n        .filter(Boolean),\n    ),\n  ].sort();\n  add(\n    dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 7),",
+      "replace": "      selected(d, s)\n        .map((i) => i.due)\n        .filter(Boolean),\n    ),\n  ].sort();\n  add(\n    dates.length <= 3 && dates.every((v, n) => !n || daysBetween(dates[n - 1], v) >= 6),",
+      "suites": ["audit_r62_extensions.js", "audit_lifecycle.js", "audit_authoring.js"]
+    },
+    {
+      "id": "escape-ampersand",
+      "category": "output safety",
+      "file": "app/modules/presentation_format.js",
+      "find": "\"&\": \"&amp;\"",
+      "replace": "\"&\": \"&\"",
+      "suites": ["audit_presentation_escaping.js", "audit_document_renderer.js", "audit_editor_html.js", "audit_workspace_html.js"]
+    }
+  ]
+}
