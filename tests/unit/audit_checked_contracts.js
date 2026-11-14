@@ -46,9 +46,10 @@ try {
     fs.writeFileSync(file, "// @ts-check\n" + body + "\n");
     const result = tsc([file]);
     assert.notEqual(result.status, 0, name + ": the wrong call must be rejected");
-    assert.match(
-      result.stdout,
-      new RegExp(path.basename(file).replace(/\./g, "\\.") + "\\(\\d+,\\d+\\): error TS"),
+    // A plain string match: no regular expression is built from the file name.
+    const probe = path.basename(file) + "(";
+    assert.ok(
+      result.stdout.split("\n").some((line) => line.includes(probe) && /\): error TS\d+/.test(line)),
       name + ": the error is reported at the probe",
     );
   }
