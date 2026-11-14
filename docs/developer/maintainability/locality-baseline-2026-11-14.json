@@ -1,0 +1,502 @@
+{
+  "description": "Pre-edit Phase 3 workflow locality census (tools/workflow_locality.cjs, tools/workflow-locality.json as first committed). Measured on the application sources of untouched main before any Phase 3 workflow edit; the regression baseline for tests/unit/audit_workflow_locality.js.",
+  "source": {
+    "commit": "b99ac6f5c2cd3f3e5fff609b0f4c0e78b45d7f3b",
+    "tree": "b4a996310f8963bcab035d78b30fb4a0656a94fb"
+  },
+  "workflows": [
+    {
+      "id": "document-eligibility",
+      "file": "app/modules/new_documents.js",
+      "functions": [
+        {
+          "identity": "statusFault#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["openItems"],
+          "dom": []
+        },
+        {
+          "identity": "nothingOutstanding#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["unchecked"],
+          "dom": []
+        },
+        {
+          "identity": "eligibility#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["doc", "docsFor", "isReferredCase", "openItems"],
+          "dom": []
+        },
+        {
+          "identity": "lifecycleSourceFaults#1",
+          "role": "calculation",
+          "peers": ["sourceDocFor"],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "lifecycleVisitFaults#1",
+          "role": "calculation",
+          "peers": ["worksheetFaults"],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "lifecycleFaults#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["docsFor", "recordHead"],
+          "dom": []
+        }
+      ],
+      "calculation": {
+        "functions": 6,
+        "peers": ["sourceDocFor", "worksheetFaults"],
+        "state": [],
+        "writes": [],
+        "queries": ["doc", "docsFor", "isReferredCase", "openItems", "recordHead", "unchecked"],
+        "dom": [],
+        "mutablePeerAccess": 8
+      },
+      "total": {
+        "functions": 6,
+        "peers": ["sourceDocFor", "worksheetFaults"],
+        "state": [],
+        "writes": [],
+        "queries": ["doc", "docsFor", "isReferredCase", "openItems", "recordHead", "unchecked"],
+        "dom": [],
+        "mutablePeerAccess": 8
+      }
+    },
+    {
+      "id": "followup-drafting",
+      "file": "app/modules/reinspection.js",
+      "functions": [
+        {
+          "identity": "followupItemDue#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "followupDraftItem#1",
+          "role": "calculation",
+          "peers": ["inspection.itemHistory", "inspection.uid"],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "followupDraftAllowed#1",
+          "role": "calculation",
+          "peers": ["authoring.newDocuments", "inspection.validISO", "inspection.worksheetFaults", "ui.toast"],
+          "state": [],
+          "writes": [],
+          "queries": ["unchecked"],
+          "dom": []
+        },
+        {
+          "identity": "buildFollowupDraft#1",
+          "role": "calculation",
+          "peers": ["inspection.itemInspectionHistory", "inspection.uid"],
+          "state": [],
+          "writes": [],
+          "queries": ["kase", "recordHead"],
+          "dom": []
+        },
+        {
+          "identity": "followupDraftMessage#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "reinspectionWorksheetChecks#1",
+          "role": "calculation",
+          "peers": [
+            "inspection.dueContext",
+            "inspection.dueDateSpacingConflicts",
+            "inspection.inspAt",
+            "inspection.parseTime",
+            "inspection.validISO",
+            "inspection.worksheetFaults"
+          ],
+          "state": [],
+          "writes": [],
+          "queries": ["doc", "docCase", "insp"],
+          "dom": []
+        },
+        {
+          "identity": "reopenFollowupDraft#1",
+          "role": "coordinator",
+          "peers": ["ui.render"],
+          "state": ["editor.docId", "editor.screen"],
+          "writes": ["editor.docId", "editor.screen"],
+          "queries": ["doc"],
+          "dom": []
+        },
+        {
+          "identity": "prepareFollowupCitations#1",
+          "role": "coordinator",
+          "peers": ["authoring.applyDeposit", "authoring.citationNumber", "authoring.nextCourtDate", "ui.toast"],
+          "state": ["workspace.DOCS"],
+          "writes": ["workspace.DOCS"],
+          "queries": ["insp"],
+          "dom": []
+        },
+        {
+          "identity": "reinspectionDocFromReinspection#1",
+          "role": "coordinator",
+          "peers": ["authoring.depositStep", "authoring.saveDrafts", "ui.render", "ui.toast"],
+          "state": ["editor.docId", "editor.screen", "workspace.DIRTY", "workspace.DOCS"],
+          "writes": ["editor.docId", "editor.screen", "workspace.DIRTY", "workspace.DOCS"],
+          "queries": ["doc", "isReferredCase", "openItems"],
+          "dom": []
+        }
+      ],
+      "calculation": {
+        "functions": 6,
+        "peers": [
+          "authoring.newDocuments",
+          "inspection.dueContext",
+          "inspection.dueDateSpacingConflicts",
+          "inspection.inspAt",
+          "inspection.itemHistory",
+          "inspection.itemInspectionHistory",
+          "inspection.parseTime",
+          "inspection.uid",
+          "inspection.validISO",
+          "inspection.worksheetFaults",
+          "ui.toast"
+        ],
+        "state": [],
+        "writes": [],
+        "queries": ["doc", "docCase", "insp", "kase", "recordHead", "unchecked"],
+        "dom": [],
+        "mutablePeerAccess": 17
+      },
+      "total": {
+        "functions": 9,
+        "peers": [
+          "authoring.applyDeposit",
+          "authoring.citationNumber",
+          "authoring.depositStep",
+          "authoring.newDocuments",
+          "authoring.nextCourtDate",
+          "authoring.saveDrafts",
+          "inspection.dueContext",
+          "inspection.dueDateSpacingConflicts",
+          "inspection.inspAt",
+          "inspection.itemHistory",
+          "inspection.itemInspectionHistory",
+          "inspection.parseTime",
+          "inspection.uid",
+          "inspection.validISO",
+          "inspection.worksheetFaults",
+          "ui.render",
+          "ui.toast"
+        ],
+        "state": ["editor.docId", "editor.screen", "workspace.DIRTY", "workspace.DOCS"],
+        "writes": ["editor.docId", "editor.screen", "workspace.DIRTY", "workspace.DOCS"],
+        "queries": ["doc", "docCase", "insp", "isReferredCase", "kase", "openItems", "recordHead", "unchecked"],
+        "dom": [],
+        "mutablePeerAccess": 29
+      }
+    },
+    {
+      "id": "correction-preparation",
+      "file": "app/modules/correction_preparation.js",
+      "functions": [
+        {
+          "identity": "createCorrectionPreparation#1/correctionChanges#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["correctionSource", "docCase", "docInsp", "reinsp"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/correctionEligibility#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["docsFor", "reinspFor"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/correctionChecks#1",
+          "role": "calculation",
+          "peers": ["today"],
+          "state": ["workspaceState.CASEDIR"],
+          "writes": [],
+          "queries": ["correctionSource", "docCase", "kase", "recordHead"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/correctionTypeAllowed#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["docsFor"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/correctionVisitPatch#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": ["correctionSource", "reinsp"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/correctionVisitChecks#1",
+          "role": "calculation",
+          "peers": ["today"],
+          "state": [],
+          "writes": [],
+          "queries": ["correctionSource", "doc", "docCase", "reinsp"],
+          "dom": []
+        },
+        {
+          "identity": "createCorrectionPreparation#1/makeCorrectionAttempt#1",
+          "role": "coordinator",
+          "peers": ["documentItemHistory", "evid", "freezeSources", "hasItemInspectionHistory", "validateAndStandardizeAddresses"],
+          "state": [],
+          "writes": [],
+          "queries": ["correctionSource", "docCase", "docInsp", "eventsFor"],
+          "dom": []
+        }
+      ],
+      "calculation": {
+        "functions": 6,
+        "peers": ["today"],
+        "state": ["workspaceState.CASEDIR"],
+        "writes": [],
+        "queries": ["correctionSource", "doc", "docCase", "docInsp", "docsFor", "kase", "recordHead", "reinsp", "reinspFor"],
+        "dom": [],
+        "mutablePeerAccess": 11
+      },
+      "total": {
+        "functions": 7,
+        "peers": ["documentItemHistory", "evid", "freezeSources", "hasItemInspectionHistory", "today", "validateAndStandardizeAddresses"],
+        "state": ["workspaceState.CASEDIR"],
+        "writes": [],
+        "queries": ["correctionSource", "doc", "docCase", "docInsp", "docsFor", "eventsFor", "kase", "recordHead", "reinsp", "reinspFor"],
+        "dom": [],
+        "mutablePeerAccess": 17
+      }
+    },
+    {
+      "id": "live-field-repaint",
+      "file": "app/modules/app_screens.js",
+      "functions": [
+        {
+          "identity": "keepLiveField#1",
+          "role": "calculation",
+          "peers": ["isLocked", "window.getSelection"],
+          "state": ["editor.modal", "editor.picker"],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "keepLiveField#1/swap#1",
+          "role": "coordinator",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "keepLiveField#1/restore#1",
+          "role": "coordinator",
+          "peers": ["document.createRange"],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        }
+      ],
+      "calculation": {
+        "functions": 1,
+        "peers": ["isLocked", "window.getSelection"],
+        "state": ["editor.modal", "editor.picker"],
+        "writes": [],
+        "queries": [],
+        "dom": [],
+        "mutablePeerAccess": 4
+      },
+      "total": {
+        "functions": 3,
+        "peers": ["document.createRange", "isLocked", "window.getSelection"],
+        "state": ["editor.modal", "editor.picker"],
+        "writes": [],
+        "queries": [],
+        "dom": [],
+        "mutablePeerAccess": 5
+      }
+    },
+    {
+      "id": "import-plan",
+      "file": "app/modules/accela_import.js",
+      "functions": [
+        {
+          "identity": "selectImportCandidate#1",
+          "role": "calculation",
+          "peers": [],
+          "state": ["imports.ACC_SELECTION_SERIAL"],
+          "writes": ["imports.ACC_SELECTION_SERIAL"],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "selectImportDate#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "existingImportWork#1",
+          "role": "calculation",
+          "peers": ["caseState", "unissuedVisitFor"],
+          "state": [],
+          "writes": [],
+          "queries": ["draftDocFor", "draftReinspFor"],
+          "dom": []
+        },
+        {
+          "identity": "importWorkReadiness#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "importPlanCase#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "importCandidates#1",
+          "role": "calculation",
+          "peers": [],
+          "state": [],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "accelaImportPlan#1",
+          "role": "coordinator",
+          "peers": ["snow.isCase", "snow.matchesImport", "sourceDocFor"],
+          "state": ["workspace.CASES"],
+          "writes": [],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "accelaImportFromShare#1",
+          "role": "coordinator",
+          "peers": ["listCaseFolder", "loadCaseFile", "toast"],
+          "state": [
+            "editor.acc",
+            "editor.docId",
+            "editor.screen",
+            "imports.LOOKUP_SERIAL",
+            "workspace.CASEDIR",
+            "workspace.DIRTY",
+            "workspace.NEEDGRANT"
+          ],
+          "writes": ["editor.docId", "editor.screen", "workspace.DIRTY"],
+          "queries": [],
+          "dom": []
+        },
+        {
+          "identity": "acceptImportPlan#1",
+          "role": "coordinator",
+          "peers": ["render", "saveDrafts", "snow.imported", "toast"],
+          "state": ["editor.screen", "workspace.DIRTY"],
+          "writes": ["editor.screen", "workspace.DIRTY"],
+          "queries": [],
+          "dom": []
+        }
+      ],
+      "calculation": {
+        "functions": 6,
+        "peers": ["caseState", "unissuedVisitFor"],
+        "state": ["imports.ACC_SELECTION_SERIAL"],
+        "writes": ["imports.ACC_SELECTION_SERIAL"],
+        "queries": ["draftDocFor", "draftReinspFor"],
+        "dom": [],
+        "mutablePeerAccess": 5
+      },
+      "total": {
+        "functions": 9,
+        "peers": [
+          "caseState",
+          "listCaseFolder",
+          "loadCaseFile",
+          "render",
+          "saveDrafts",
+          "snow.imported",
+          "snow.isCase",
+          "snow.matchesImport",
+          "sourceDocFor",
+          "toast",
+          "unissuedVisitFor"
+        ],
+        "state": [
+          "editor.acc",
+          "editor.docId",
+          "editor.screen",
+          "imports.ACC_SELECTION_SERIAL",
+          "imports.LOOKUP_SERIAL",
+          "workspace.CASEDIR",
+          "workspace.CASES",
+          "workspace.DIRTY",
+          "workspace.NEEDGRANT"
+        ],
+        "writes": ["editor.docId", "editor.screen", "imports.ACC_SELECTION_SERIAL", "workspace.DIRTY"],
+        "queries": ["draftDocFor", "draftReinspFor"],
+        "dom": [],
+        "mutablePeerAccess": 22
+      }
+    }
+  ]
+}

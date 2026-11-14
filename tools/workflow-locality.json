@@ -1,0 +1,96 @@
+{
+  "description": "Phase 3 workflow locality census (tools/workflow_locality.cjs). Roles: calculation = decision phases; provider = gathers explicit per-operation facts; coordinator = ordered effects. Diagnostic only.",
+  "workflows": [
+    {
+      "id": "document-eligibility",
+      "title": "New-document eligibility and issue lifecycle faults",
+      "file": "app/modules/new_documents.js",
+      "maintenanceTasks": [
+        "Add or reword an Accela status rule or eligibility refusal",
+        "Add a document type with its own follow-up limits",
+        "Change which lifecycle facts block issuing a follow-up"
+      ],
+      "target": "Calculation phases read no live workspace queries or peer services; facts come from one provider. At least 20% fewer calculation-phase mutable peer accesses; workflow total does not grow.",
+      "functions": [
+        { "identity": "statusFault#1", "role": "calculation" },
+        { "identity": "nothingOutstanding#1", "role": "calculation" },
+        { "identity": "eligibility#1", "role": "calculation" },
+        { "identity": "lifecycleSourceFaults#1", "role": "calculation" },
+        { "identity": "lifecycleVisitFaults#1", "role": "calculation" },
+        { "identity": "lifecycleFaults#1", "role": "calculation" }
+      ]
+    },
+    {
+      "id": "followup-drafting",
+      "title": "Reinspection follow-up permission, draft construction and worksheet checks",
+      "file": "app/modules/reinspection.js",
+      "maintenanceTasks": [
+        "Change a worksheet check or its focus target",
+        "Change how carried items, due dates and notes enter a follow-up draft",
+        "Add a follow-up type refusal"
+      ],
+      "target": "Worksheet checks and draft items are calculated from explicit facts with no live queries or editor state. At least 20% fewer calculation-phase mutable peer accesses; workflow total does not grow.",
+      "functions": [
+        { "identity": "followupItemDue#1", "role": "calculation" },
+        { "identity": "followupDraftItem#1", "role": "calculation" },
+        { "identity": "followupDraftAllowed#1", "role": "calculation" },
+        { "identity": "buildFollowupDraft#1", "role": "calculation" },
+        { "identity": "followupDraftMessage#1", "role": "calculation" },
+        { "identity": "reinspectionWorksheetChecks#1", "role": "calculation" },
+        { "identity": "reopenFollowupDraft#1", "role": "coordinator" },
+        { "identity": "prepareFollowupCitations#1", "role": "coordinator" },
+        { "identity": "reinspectionDocFromReinspection#1", "role": "coordinator" }
+      ]
+    },
+    {
+      "id": "correction-preparation",
+      "title": "Correction comparison, checks and visit patch",
+      "file": "app/modules/correction_preparation.js",
+      "maintenanceTasks": [
+        "Add a field to the correction comparison",
+        "Change a correction readiness check",
+        "Change how a corrected visit result is patched"
+      ],
+      "target": "Comparison, visit patch and checks are pure over explicit facts (source, visit, case, head). At least 20% fewer calculation-phase mutable peer accesses; the long factory leaves the long-function findings.",
+      "functions": [
+        { "identity": "createCorrectionPreparation#1/correctionChanges#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/correctionEligibility#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/correctionChecks#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/correctionTypeAllowed#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/correctionVisitPatch#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/correctionVisitChecks#1", "role": "calculation" },
+        { "identity": "createCorrectionPreparation#1/makeCorrectionAttempt#1", "role": "coordinator" }
+      ]
+    },
+    {
+      "id": "live-field-repaint",
+      "title": "Repaint while typing: keep the live text field, caret and selection",
+      "file": "app/modules/app_screens.js",
+      "maintenanceTasks": ["Change when a passive repaint may keep the field being typed in", "Change caret/selection restoration"],
+      "target": "The keep-editing decision is a pure calculation over explicit facts; DOM swap/focus/selection effects stay ordered in the coordinator.",
+      "functions": [
+        { "identity": "keepLiveField#1", "role": "calculation" },
+        { "identity": "keepLiveField#1/swap#1", "role": "coordinator" },
+        { "identity": "keepLiveField#1/restore#1", "role": "coordinator" }
+      ]
+    },
+    {
+      "id": "import-plan",
+      "title": "Accela import plan: candidate, date and readiness selection",
+      "file": "app/modules/accela_import.js",
+      "maintenanceTasks": ["Change which imported inspection is selected", "Change an import readiness refusal"],
+      "target": "Recorded for comparison; earlier work already separated these phases. No regression in calculation-phase access.",
+      "functions": [
+        { "identity": "selectImportCandidate#1", "role": "calculation" },
+        { "identity": "selectImportDate#1", "role": "calculation" },
+        { "identity": "existingImportWork#1", "role": "calculation" },
+        { "identity": "importWorkReadiness#1", "role": "calculation" },
+        { "identity": "importPlanCase#1", "role": "calculation" },
+        { "identity": "importCandidates#1", "role": "calculation" },
+        { "identity": "accelaImportPlan#1", "role": "coordinator" },
+        { "identity": "accelaImportFromShare#1", "role": "coordinator" },
+        { "identity": "acceptImportPlan#1", "role": "coordinator" }
+      ]
+    }
+  ]
+}

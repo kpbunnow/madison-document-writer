@@ -3,9 +3,10 @@
 
 Radon's maintainability-index and raw-metrics passes split source text with str.splitlines(), which also breaks
 on U+2028, U+2029 and the other Unicode line separators. A string literal holding those characters (the
-ECMAScript whitespace table in helper/case_projection.py) then fails to parse. Only for those passes, such a file
-is analysed as a copy in which each raw separator is replaced by its escape sequence; the copy is accepted only if
-its AST is identical to the original's and it has the same LF line count. Production source is never rewritten.
+ECMAScript whitespace table, which moved from helper/case_projection.py to helper/projection_values.py in Phase 2)
+then fails to parse. Only for those passes, such a file is analysed as a copy in which each raw separator is
+replaced by its escape sequence; the copy is accepted only if its AST is identical to the original's and it has the
+same LF line count. Production source is never rewritten.
 """
 
 import ast
