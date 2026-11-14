@@ -322,19 +322,30 @@ function followupItemDue(it, res, type, hasHistory, cleared) {
       : res.due;
 }
 
-function followupDraftItem(services, r, type, hasHistory, pos, it) {
+/* Follow-up drafting calculations consume an explicit view of lookups (reinspectionFollowupLookups). Each lookup reads
+   the service binding at call time, at the same point and in the same order as before. */
+function followupItemNumber(it, pos) {
+  return it.no || String((pos.get(it.id) || 0) + 1);
+}
+
+function followupItemNote(res, cleared) {
+  return cleared ? "" : String(res.note || "").trim();
+}
+
+function followupDraftItem(view, r, type, hasHistory, pos, it) {
   const res = r.results[it.id] || {},
-    cleared = res.oc === "corrected";
+    cleared = res.oc === "corrected",
+    note = followupItemNote(res, cleared);
   return {
     ...it,
-    id: services.inspection.uid("x"),
-    no: it.no || String((pos.get(it.id) || 0) + 1),
+    id: view.uid("x"),
+    no: followupItemNumber(it, pos),
     due: followupItemDue(it, res, type, hasHistory, cleared),
     done: cleared,
     doneOn: cleared ? res.on || r.date : "",
-    note: !cleared && String(res.note || "").trim() ? String(res.note).trim() : "",
-    noteOn: !cleared && String(res.note || "").trim() ? res.on || r.date : "",
-    hist: hasHistory ? services.inspection.itemHistory(r.caseId, it.no || String((pos.get(it.id) || 0) + 1)) : null,
+    note,
+    noteOn: note ? res.on || r.date : "",
+    hist: hasHistory ? view.itemHistory(r.caseId, followupItemNumber(it, pos)) : null,
     cite: type === "citation" && !cleared && !!res.cite,
     srcItemId: it.id,
   };
@@ -353,70 +364,96 @@ function reopenFollowupDraft(services, r) {
   return false;
 }
 
-function followupDraftAllowed(services, r, type, src, carry) {
-  if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) {
-    services.ui.toast("Open a current reinspection worksheet first");
-    return false;
-  }
-  if (!["extension", "citation", "referral", "referralUpdate", "compliance", "reinspectionNotice"].includes(type)) {
-    services.ui.toast("Choose an available follow-up type.");
-    return false;
-  }
-  const unavailable = services.authoring.newDocuments.eligibility?.(r, type);
-  if (unavailable) {
-    services.ui.toast(unavailable);
-    return false;
-  }
-  const faults = services.inspection.worksheetFaults(r, type);
-  if (faults.length) {
-    services.ui.toast(faults[0]);
-    return false;
-  }
-  if (unchecked(r).length) {
-    services.ui.toast("Choose an outcome for every item first");
-    return false;
-  }
-  if (!services.inspection.validISO(r.date) || r.date > recordDay(today)) {
-    services.ui.toast("Enter a valid inspection date");
-    return false;
-  }
-  if (type !== "compliance" && !carry.length) {
-    services.ui.toast("Nothing outstanding to carry forward");
-    return false;
-  }
-  if (type === "compliance" && carry.length) {
-    services.ui.toast("Items are still outstanding — a compliance letter closes every item");
-    return false;
-  }
-  return true;
+const FOLLOWUP_TYPES = ["extension", "citation", "referral", "referralUpdate", "compliance", "reinspectionNotice"];
+
+function followupWorksheetRefusal(r, type, view) {
+  const unavailable = view.eligibility(r, type);
+  if (unavailable) return { t: unavailable };
+  const faults = view.worksheetFaults(r, type);
+  if (faults.length) return { t: faults[0] };
+  if (view.unchecked(r).length) return { t: "Choose an outcome for every item first" };
+  if (!view.validISO(r.date) || r.date > view.today()) return { t: "Enter a valid inspection date" };
+  return null;
 }
 
-function buildFollowupDraft(services, r, type, src) {
-  const pos = new Map(src.items.map((it, i) => [it.id, i]));
-  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
-  const nd = {
-    id: services.inspection.uid("d"),
+// The refusal for a follow-up draft, in the original order, or null when it may be written.
+function followupDraftRefusal(r, type, src, carry, view) {
+  if (!src || !isEffective(src) || (!r.draft && !r.recordedAt)) return { t: "Open a current reinspection worksheet first" };
+  if (!FOLLOWUP_TYPES.includes(type)) return { t: "Choose an available follow-up type." };
+  return followupWorksheetRefusal(r, type, view) || followupCarryRefusal(type, carry);
+}
+
+function followupCarryRefusal(type, carry) {
+  if (type !== "compliance" && !carry.length) return { t: "Nothing outstanding to carry forward" };
+  if (type === "compliance" && carry.length) return { t: "Items are still outstanding — a compliance letter closes every item" };
+  return null;
+}
+
+function followupDraftAllowed(services, r, type, src, carry) {
+  const refusal = followupDraftRefusal(r, type, src, carry, reinspectionFollowupLookups(services));
+  if (refusal) services.ui.toast(refusal.t);
+  return !refusal;
+}
+
+function followupDraftHeader(view, r, type, hasHistory) {
+  return {
+    id: view.uid("d"),
     caseId: r.caseId,
     type: type,
-    created: recordDay(today),
+    created: view.today(),
     status: "Draft",
     draft: true,
-    mailed: recordDay(today),
+    mailed: view.today(),
     cc: "",
     cits: {},
     ...(hasHistory || type === "citation" || type === "reinspectionNotice" ? { authoringVersion: 16 } : {}),
+  };
+}
+
+function followupDraftSource(view, r, src) {
+  return {
     fromReinspId: r.id,
     fromDocId: src.id,
-    expectedHead: r.draft ? r.expectedHead || recordHead(r.caseId) : recordHead(r.caseId),
+    expectedHead: r.draft ? r.expectedHead || view.head(r.caseId) : view.head(r.caseId),
     replaces: r.replaces || "",
     ...(r.importInspection ? { importInspection: clone(r.importInspection) } : {}),
-    inspectorId: r.inspectorId || kase(r.caseId).inspectorId,
+    inspectorId: r.inspectorId || view.caseOf(r.caseId).inspectorId,
     inspDate: r.date || "",
     inspTime: r.time || "",
-    items: src.items.map((it) => followupDraftItem(services, r, type, hasHistory, pos, it)),
   };
-  if (hasHistory) nd.items.forEach((it) => (it.hist = services.inspection.itemInspectionHistory(nd, it)));
+}
+
+// The follow-up draft as first written: header, recorded visit source and every carried item, in key order.
+function followupDraftFor(view, r, type, src) {
+  const pos = new Map(src.items.map((it, i) => [it.id, i]));
+  const hasHistory = !!(DOC_TYPES.find((t) => t.id === type) || {}).history || type === "compliance";
+  const nd = {
+    ...followupDraftHeader(view, r, type, hasHistory),
+    ...followupDraftSource(view, r, src),
+    items: src.items.map((it) => followupDraftItem(view, r, type, hasHistory, pos, it)),
+  };
+  if (hasHistory) nd.items.forEach((it) => (it.hist = view.itemInspectionHistory(nd, it)));
   return nd;
+}
+
+function buildFollowupDraft(services, r, type, src) {
+  return followupDraftFor(reinspectionFollowupLookups(services), r, type, src);
+}
+
+// The live reads follow-up permission and drafting use; every service is resolved when the lookup is called.
+function reinspectionFollowupLookups(services) {
+  return {
+    eligibility: (r, type) => services.authoring.newDocuments.eligibility?.(r, type),
+    worksheetFaults: (r, type) => services.inspection.worksheetFaults(r, type),
+    unchecked,
+    validISO: (value) => services.inspection.validISO(value),
+    today: () => recordDay(today),
+    uid: (prefix) => services.inspection.uid(prefix),
+    itemHistory: (caseId, no) => services.inspection.itemHistory(caseId, no),
+    itemInspectionHistory: (d, it) => services.inspection.itemInspectionHistory(d, it),
+    head: recordHead,
+    caseOf: kase,
+  };
 }
 
 function prepareFollowupCitations(services, r, src, nd, narrativeFor) {
@@ -449,22 +486,24 @@ function prepareFollowupCitations(services, r, src, nd, narrativeFor) {
   return true;
 }
 
+const followupTypeLabel = (type) => (DOC_TYPES.find((t) => t.id === type) || {}).label;
+
+function followupCarriedSummary(type, carry, n, cl) {
+  return (
+    (followupTypeLabel(type) || type) +
+    " started \u2014 " +
+    carry.length +
+    " outstanding" +
+    (cl ? ", " + cl + " shown as corrected" : "") +
+    (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : "")
+  );
+}
+
 function followupDraftMessage(type, carry, n, cl) {
-  return type === "compliance"
-    ? "Compliance letter drafted — review and issue it to close the case"
-    : type === "referral" || type === "referralUpdate"
-      ? (DOC_TYPES.find((t) => t.id === type) || {}).label +
-        " started \u2014 " +
-        carry.length +
-        " item" +
-        (carry.length === 1 ? "" : "s") +
-        " still outstanding"
-      : ((DOC_TYPES.find((t) => t.id === type) || {}).label || type) +
-        " started \u2014 " +
-        carry.length +
-        " outstanding" +
-        (cl ? ", " + cl + " shown as corrected" : "") +
-        (n ? ", " + n + " citation" + (n === 1 ? "" : "s") : "");
+  if (type === "compliance") return "Compliance letter drafted — review and issue it to close the case";
+  if (type === "referral" || type === "referralUpdate")
+    return followupTypeLabel(type) + " started \u2014 " + carry.length + " item" + (carry.length === 1 ? "" : "s") + " still outstanding";
+  return followupCarriedSummary(type, carry, n, cl);
 }
 
 function attachIdentityCheckTargets(d, t, add) {
@@ -854,62 +893,98 @@ function reinspectionCheckRowHTML(services, c, ix, worksheet = false) {
   )}</div></div>`;
 }
 
-function reinspectionWorksheetChecks(services, r) {
-  const src = doc(r.sourceDocId);
+/* Worksheet checks are calculated from the visit and an explicit view of lookups (reinspectionWorksheetLookups),
+   each read at the original point and in the original order. */
+const worksheetDueTarget = (i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date");
+
+function worksheetDateChecks(r, src, view, add) {
+  const initial = view.caseOf(src).date || "",
+    earliest = view.inspectionOf(src).date || initial;
+  if (!view.validISO(r.date) || r.date > view.today() || r.date < earliest)
+    add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
+  if (!view.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
+  if (!view.inspectorOf(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
+  return initial;
+}
+
+function worksheetItemCheck({ r, i, initial, dueRelevant, view, add, out }) {
+  const res = r.results[i.id] || {},
+    on = res.manualDate ? res.on : res.on || r.date;
+  if (i.done || i.withdrawn) return;
+  if (!OUTCOMES.some((o) => o.id === res.oc)) {
+    add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
+    return;
+  }
+  if (!view.validISO(on) || on < initial || on > r.date)
+    add(
+      "Item " + i.no + ": result date must be between the initial inspection and this visit.",
+      '[data-ridate="' + checkAttr(i.id) + '"]',
+      "Item " + i.no + " result date",
+    );
+  worksheetItemDueCheck({ i, res, dueRelevant, view, out });
+}
+
+function worksheetItemDueCheck({ i, res, dueRelevant, view, out }) {
+  if (dueRelevant && res.oc !== "corrected" && !view.dueCheck(res.due, view.today()).ok)
+    out.push({
+      ok: false,
+      soft: true,
+      t: "Item " + i.no + ": set a future due date for an extension or citation. Referrals need no due date.",
+      targets: [worksheetDueTarget(i)],
+    });
+}
+
+function worksheetDueChecks(r, dueRelevant, view, out) {
+  if (dueRelevant && distinctDues(view.dueContext(r, true)).length > 3)
+    out.push({
+      ok: false,
+      t: "Use no more than three distinct due dates for an extension or citation.",
+      targets: view.dueContext(r, true).map(worksheetDueTarget),
+    });
+  const spacing = view.dueSpacing(r);
+  if (dueRelevant && spacing.length) {
+    const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
+    out.push({ ok: false, t: "Keep distinct due dates at least seven days apart.", targets: items.map(worksheetDueTarget) });
+  }
+}
+
+// Every worksheet check for a recorded visit, in display order; [] when its source document is gone.
+function worksheetCheckList(r, view) {
+  const src = view.documentOf(r.sourceDocId);
   if (!src) return [];
   const out = [],
     add = (t, selector, label) => out.push({ ok: false, t, targets: [checkTarget(selector, label)] });
   const dueRelevant =
     !r.followupIntent || r.followupIntent === "undecided" || ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
-  const initial = docCase(src).date || "",
-    earliest = services.inspection.inspAt(src).date || initial;
-  if (!services.inspection.validISO(r.date) || r.date > recordDay(today) || r.date < earliest)
-    add("Inspection date must be between the source inspection and today.", "#ri-date", "Reinspection date");
-  if (!services.inspection.parseTime(r.time)) add("Enter the reinspection time before generating a document.", "#ri-time", "Reinspection time");
-  if (!insp(r.inspectorId).name) add("Select the inspector who performed this inspection.", "#ri-insp", "Inspector");
-  src.items.forEach((i) => {
-    const res = r.results[i.id] || {},
-      on = res.manualDate ? res.on : res.on || r.date;
-    if (i.done || i.withdrawn) return;
-    if (!OUTCOMES.some((o) => o.id === res.oc))
-      add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
-    else {
-      if (!services.inspection.validISO(on) || on < initial || on > r.date)
-        add(
-          "Item " + i.no + ": result date must be between the initial inspection and this visit.",
-          '[data-ridate="' + checkAttr(i.id) + '"]',
-          "Item " + i.no + " result date",
-        );
-      if (dueRelevant && res.oc !== "corrected" && !reinspectionDueCheck(services, res.due, recordDay(today)).ok)
-        out.push({
-          ok: false,
-          soft: true,
-          t: "Item " + i.no + ": set a future due date for an extension or citation. Referrals need no due date.",
-          targets: [checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")],
-        });
-    }
-  });
-  if (dueRelevant && distinctDues(services.inspection.dueContext(r, true)).length > 3)
-    out.push({
-      ok: false,
-      t: "Use no more than three distinct due dates for an extension or citation.",
-      targets: services.inspection
-        .dueContext(r, true)
-        .map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
-    });
-  const spacing = services.inspection.dueDateSpacingConflicts(services.inspection.dueContext(r, true));
-  if (dueRelevant && spacing.length) {
-    const items = [...new Map(spacing.flatMap((x) => x.items).map((i) => [i.id, i])).values()];
-    out.push({
-      ok: false,
-      t: "Keep distinct due dates at least seven days apart.",
-      targets: items.map((i) => checkTarget('[data-ridue="' + checkAttr(i.id) + '"]', "Item " + i.no + " new due date")),
-    });
-  }
-  for (const t of services.inspection.worksheetFaults(r))
+  const initial = worksheetDateChecks(r, src, view, add);
+  src.items.forEach((i) => worksheetItemCheck({ r, i, initial, dueRelevant, view, add, out }));
+  worksheetDueChecks(r, dueRelevant, view, out);
+  for (const t of view.worksheetFaults(r))
     if (!out.some((c) => c.t === t) && !/outcome|Result dates/.test(t))
       out.push({ ok: false, t, targets: [checkTarget('[data-nav="cases"]', "Open case in Workspace", "workspace")] });
   return out;
+}
+
+// The live reads worksheet checks use; every service is resolved when the lookup is called.
+function reinspectionWorksheetLookups(services) {
+  return {
+    documentOf: doc,
+    caseOf: docCase,
+    inspectorOf: insp,
+    inspectionOf: (d) => services.inspection.inspAt(d),
+    validISO: (value) => services.inspection.validISO(value),
+    parseTime: (value) => services.inspection.parseTime(value),
+    dueContext: (r, all) => services.inspection.dueContext(r, all),
+    // The spacing service is resolved before its due context, exactly as the original expression did.
+    dueSpacing: (r) => services.inspection.dueDateSpacingConflicts(services.inspection.dueContext(r, true)),
+    worksheetFaults: (r) => services.inspection.worksheetFaults(r),
+    dueCheck: (due, from) => reinspectionDueCheck(services, due, from),
+    today: () => recordDay(today),
+  };
+}
+
+function reinspectionWorksheetChecks(services, r) {
+  return worksheetCheckList(r, reinspectionWorksheetLookups(services));
 }
 
 function reinspectionWorksheetCheckPanel(services, r) {
