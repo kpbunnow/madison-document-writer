@@ -127,9 +127,9 @@ def main():
         "thresholds": {"tokens": args.min_tokens, "lines": args.min_lines},
         "files": {p: {"sha256": hashlib.sha256((ROOT / p).read_bytes()).hexdigest(), "tokens": len(values[p])} for p in files},
         "toolchain": {
-            "python": subprocess.check_output(["python3", "--version"], text=True).strip(),
-            "node": subprocess.check_output(["node", "--version"], text=True).strip(),
-            "acorn": subprocess.check_output(["node", "-p", "require('acorn/package.json').version"], text=True).strip(),
+            "python": subprocess.check_output(["python3", "--version"], text=True, encoding="utf-8").strip(),
+            "node": subprocess.check_output(["node", "--version"], text=True, encoding="utf-8").strip(),
+            "acorn": subprocess.check_output(["node", "-p", "require('acorn/package.json').version"], text=True, encoding="utf-8").strip(),
         },
         "candidates": detect(values, args.min_tokens, args.min_lines),
     }

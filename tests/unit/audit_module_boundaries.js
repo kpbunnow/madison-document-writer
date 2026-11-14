@@ -51,7 +51,8 @@ const allowed = {
     "./record_sources.js",
     "./case_file_rules.js",
   ],
-  "citation_policy.js": ["./data/citation_policy.js", "./mailing_rules.js"],
+  // Phase 5: the existing pure parcel owner is shared with Reports; no UI/startup dependency.
+  "citation_policy.js": ["./data/citation_policy.js", "./mailing_rules.js", "../assets/shared.js"],
 };
 const scopedServices = {
   "workflow_events.js": [

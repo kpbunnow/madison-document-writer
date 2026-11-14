@@ -39,7 +39,7 @@ Comparable working-tree measurements with Python 3.14.10, Node 24.19.0 and pinne
 | Measurement | Files | Tokens | Candidates |
 | --- | ---: | ---: | ---: |
 | Before runtime/profiler consolidation | 256 | 428,636 | 3 |
-| After consolidation and diagnostic tool refactor | 257 | 428,785 | 1 |
+| After consolidation and diagnostic tool refactor | 257 | 428,797 | 1 |
 
 The extra file is the shared profiler helper. Counts include diagnostic tools, whose implementation changed between measurements; this is not a controlled application-performance benchmark. Exact receipts are stored outside the checkout under `/workspace/scratch/work/phase5-2026-11-14/`. They truthfully record a dirty tree and input digests. No speed or maintainability-score claim follows from these counts.
 
@@ -64,5 +64,7 @@ The Unicode correction narrows new computed parcel acceptance to the existing br
 ## Verification and limits
 
 Targeted parity, compatibility, profiler, lexical-tool and report checks are recorded in the PR alongside exact-head required GitHub checks. Five additional syntax-valid hand-seeded mutations exercise Unicode parcel acceptance, BOM mailing cleanup, frozen-owner trimming, browser mandatory flag and recovery version drift. Each must fail the real parity suite after a passing unmutated baseline; abnormal/invalid outcomes are not success. The Python mutation pilot now also classifies signal termination or spawn failure as invalid, with explicit timeout/survivor/restoration regressions. This is targeted failure-detection evidence, not a global mutation score.
+
+The first final-head CI attempt caught two integration omissions: diagnostic toolchain subprocess calls lacked explicit UTF-8 decoding, and the module-boundary inventory did not yet declare the intentional citation-policy import of the existing shared parcel owner. The calls now specify UTF-8; the exact reviewed dependency edge is recorded without changing the boundary assertions. Its standalone check reports no cycles or UI/startup dependency. Both original failing guards pass locally; the complete exact-head gate must run again.
 
 Full CI retains all existing assertions, frozen references, historical print variants, measured browser serialization, integrity and Windows recovery requirements. No fast-mode evidence approves merge. No release was packaged or deployed. Synthetic/Linux automation supplies no City/native hardware, Outlook, SMB, legal or accessibility acceptance. Broader coverage, checked-JS adoption, complexity and usability work in later plan phases remains separate; Phase 5 is not a claim of a 90-point score.
