@@ -61,6 +61,13 @@ for (const workflow of current.workflows) {
     workflow.calculation.mutablePeerAccess <= before.calculation.mutablePeerAccess,
     `${workflow.id}: calculation access ${before.calculation.mutablePeerAccess} -> ${workflow.calculation.mutablePeerAccess}`,
   );
+  // No dependency silently leaves the census: every one the pre-edit workflow had is still counted somewhere in it,
+  // unless the configuration names it as removed with a reason.
+  const deps = (summary) => [...summary.peers, ...summary.state, ...summary.queries];
+  const removed = new Set(Object.keys(config.workflows.find((w) => w.id === workflow.id).removedDependencies || {}));
+  const now = new Set(deps(workflow.total));
+  const lost = deps(before.total).filter((dep) => !now.has(dep) && !removed.has(dep));
+  assert.deepEqual(lost, [], workflow.id + ": dependencies dropped from the census without a recorded removal");
   assert.ok(
     workflow.total.mutablePeerAccess <= before.total.mutablePeerAccess,
     `${workflow.id}: workflow access ${before.total.mutablePeerAccess} -> ${workflow.total.mutablePeerAccess}; a provider must not add dependencies`,

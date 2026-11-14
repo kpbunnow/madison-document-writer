@@ -418,32 +418,36 @@ function cancelCaseLookup() {
   imports.LOOKUP_BUSY = false;
 }
 
+// Every returned row is this case, and a landmark or historic designation names what it is.
+function checkSqlRow(row, number) {
+  if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
+  if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
+    throw new Error(
+      "The database marks this property as an individual landmark but supplies no landmark name. Correct the source record before importing.",
+    );
+  if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
+    throw new Error("The database marks this property as historic but supplies no district name. Correct the source record before importing.");
+}
+
+function sqlCell(k, number, row) {
+  if (k === "number") return number;
+  if (k === "detail" || k === "zoning") return "";
+  if (k === "date" && /T00:00:00$/.test(row.InspectionDate || "")) return row.InspectionDate.slice(0, 10);
+  return row[SQL_COLUMNS[k]] ?? "";
+}
+
+const sqlResponseInvalid = (result, number) =>
+  !result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || !liveSource(result.source);
+
 function sqlReport(result, number) {
-  if (!result || !Array.isArray(result.rows) || result.rows.length > 1000 || result.caseNumber !== number || !liveSource(result.source))
-    throw new Error("Unexpected case response. Nothing was imported.");
+  if (sqlResponseInvalid(result, number)) throw new Error("Unexpected case response. Nothing was imported.");
   if (!result.rows.length) throw new Error("No case was found for " + number + ". Check the complete case number and try again.");
   const keys = Object.keys(ACC_COLS);
   const grid = [keys.map((k) => ACC_LABEL(k))];
   const warnings = [];
   result.rows.forEach((row) => {
-    if (!row || accStr(row.CaseNumber).toUpperCase() !== number) throw new Error("The database returned a different case. Nothing was imported.");
-    if (/^yes$/i.test(accStr(row.IndividualLandmark)) && !accStr(row.Landmark))
-      throw new Error(
-        "The database marks this property as an individual landmark but supplies no landmark name. Correct the source record before importing.",
-      );
-    if (/^yes$/i.test(accStr(row.HistoricDistrict)) && !accStr(row.HistoricDistrictName))
-      throw new Error("The database marks this property as historic but supplies no district name. Correct the source record before importing.");
-    grid.push(
-      keys.map((k) =>
-        k === "number"
-          ? number
-          : k === "detail" || k === "zoning"
-            ? ""
-            : k === "date" && /T00:00:00$/.test(row.InspectionDate || "")
-              ? row.InspectionDate.slice(0, 10)
-              : (row[SQL_COLUMNS[k]] ?? ""),
-      ),
-    );
+    checkSqlRow(row, number);
+    grid.push(keys.map((k) => sqlCell(k, number, row)));
   });
   const table = accelaTable(grid);
   if (table.errors.length) throw new Error(table.errors.join(" "));
@@ -794,6 +798,13 @@ function importPanelHTML(services, acc, p) {
   return availableImportPanelHTML(services, acc, p);
 }
 
+const importUnfinishedWork = (services, k) => k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
+const importStartLabel = (k, p) => (k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice");
+const importReviewAddress = (k, p) => k?.address || p.f.address;
+const shareRecheckButton = (acc) => (acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : "");
+const importGoDisabled = (p) => (p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "");
+const importBlockersLink = (visibleBlockers) => (visibleBlockers.length ? ' aria-describedby="' + BLOCKERS_ID + '"' : "");
+
 function availableImportPanelHTML(services, acc, p) {
   const c = p.c,
     k = p.existing;
@@ -804,9 +815,9 @@ function availableImportPanelHTML(services, acc, p) {
   const visibleBlockers = p.blockers.filter((b) => !(choices.length > 1 && b === "Choose the inspection result you are documenting."));
   const inspections = inspectionChoices(services, acc, choices, visibleBlockers);
   const notAvailable = unavailableInspections(services, unavailable);
-  const unfinished = k && (draftDocFor(k.id) || draftReinspFor(k.id) || services.unissuedVisitFor(k.id));
-  const label = k ? "Import inspection" : p.next === "snow" ? "Start snow citation" : "Start Official Notice";
-  return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${k?.address || p.f.address}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(acc.shareError ? '<button class="btn" id="lookup-recheck">Check shared record and retry</button>' : ""))}\n    ${raw(caseChangeDetails(k, p))}\n    \n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(p.blockers.length || imports.LOOKUP_BUSY ? "disabled" : "")}${raw(visibleBlockers.length ? ' aria-describedby="' + BLOCKERS_ID + '"' : "")}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
+  const unfinished = importUnfinishedWork(services, k);
+  const label = importStartLabel(k, p);
+  return html`<section class="card acc import-review"><div class="card-h"><div><h2>${c.number}</h2><p>${importReviewAddress(k, p)}</p></div><span class="pill">${raw(k ? "Existing case" : "New case")}</span></div><div class="card-b">\n    ${raw(pick)}\n    ${raw(existingCaseContinuity(p, k, unfinished))}\n    ${raw(inspections)}${raw(notAvailable)}\n    ${raw(manualDateFields(p, acc))}\n    ${raw(p.warnings.map((w) => `<p class="banner warn">${esc(w)}</p>`).join(""))}\n    ${raw(blockerBanner(visibleBlockers))}\n    ${raw("".concat(shareRecheckButton(acc)))}\n    ${raw(caseChangeDetails(k, p))}\n    \n    <p class="hint">Case details change only when you confirm. Save draft &amp; return to Workspace keeps this review on this device when saving succeeds.</p>\n    <div class="acc-go"><button class="btn ${raw(unfinished ? "" : "btn-primary")}" id="acc-go" ${raw(importGoDisabled(p))}${raw(importBlockersLink(visibleBlockers))}>${raw(label)}</button>${raw(CANCEL_IMPORT)}</div>\n  </div></section>`;
 }
 
 /* The import window: opened by selecting an open case or by Find Case Inspections, it shows the lookup while it runs,
@@ -865,11 +876,7 @@ async function accelaImportFromShare(services, isCurrent = () => true) {
   const active = () =>
     isCurrent() && serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && (acc.caseIx || 0) === caseIx;
   if (workspace.CASEDIR?.helper) {
-    try {
-      await accelaImportCheckShared(services, acc, active);
-    } catch (e) {
-      if (active()) acc.shareError = e.message;
-    }
+    await importFromHelperShare(services, acc, active);
     return;
   }
   if (!workspace.CASEDIR) return;
@@ -878,8 +885,20 @@ async function accelaImportFromShare(services, isCurrent = () => true) {
     return;
   }
   acc.shareError = "";
-  const c = acc.cases[caseIx],
-    tail = (" - " + c.number + ".json").toLowerCase();
+  await importFromLocalShare(services, acc, acc.cases[caseIx], active);
+}
+
+async function importFromHelperShare(services, acc, active) {
+  try {
+    await accelaImportCheckShared(services, acc, active);
+  } catch (e) {
+    if (active()) acc.shareError = e.message;
+  }
+}
+
+// The browser-granted share: the single file with this case number, if any, merged while the lookup is current.
+async function importFromLocalShare(services, acc, c, active) {
+  const tail = (" - " + c.number + ".json").toLowerCase();
   const hits = (await services.listCaseFolder()).filter((f) => f.name.toLowerCase().endsWith(tail));
   if (!active()) return;
   if (hits.length > 1) {
@@ -888,6 +907,10 @@ async function accelaImportFromShare(services, isCurrent = () => true) {
   }
   const hit = hits[0];
   if (!hit) return;
+  await mergeLocalShareFile(services, acc, hit, active);
+}
+
+async function mergeLocalShareFile(services, acc, hit, active) {
   try {
     const f = await (await workspace.CASEDIR.getFileHandle(hit.name)).getFile();
     const text = await f.text();
@@ -975,33 +998,48 @@ async function accelaImportCheckShared(services, acc, isCurrent = () => true) {
   const number = accStr(acc.cases[acc.caseIx || 0].number).toUpperCase();
   const listing = await services.helperJSON("/cases/list");
   if (!isCurrent()) return false;
+  const hits = sharedCaseHits(listing, number);
+  checkLocalCaseNumbers(number);
+  if (hits.length) {
+    const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
+    if (!isCurrent()) return false;
+    mergeSharedCaseFile(services, result, number);
+  }
+  acc.shareError = "";
+  return true;
+}
+
+// The shared files with this case number; more than one is a duplicate record the administrator must resolve.
+function sharedCaseHits(listing, number) {
   if (!Array.isArray(listing.files)) throw new Error("The shared case list could not be checked. Retry when the shared folder is available.");
   const tail = (" - " + number + ".json").toLowerCase();
   const hits = listing.files.filter((f) => typeof f.name === "string" && f.name.toLowerCase().endsWith(tail));
   if (hits.length > 1)
     throw new Error("More than one shared file has this case number. Ask the record administrator to resolve the duplicate files.");
+  return hits;
+}
+
+function checkLocalCaseNumbers(number) {
   const locals = workspace.CASES.filter((k) => accStr(k.number).toUpperCase() === number);
   if (locals.length > 1 || locals.some((k) => k.number !== number))
     throw new Error("The local workspace has duplicate or differently capitalized case numbers. Resolve the existing record before importing.");
-  if (hits.length) {
-    const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(hits[0].name));
-    if (!isCurrent()) return false;
-    if (accStr(result.file?.case?.number).toUpperCase() !== number)
-      throw new Error("The shared filename and case number disagree. The existing record has been kept.");
-    const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: workspace.DIRTY };
-    let loaded;
-    try {
-      loaded = services.loadCaseFile(JSON.stringify(result.file));
-    } finally {
-      editor.state.screen = keep.screen;
-      editor.state.docId = keep.docId;
-      workspace.DIRTY = keep.dirty;
-    }
-    if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
-    services.COMMITTED.set(summaryName(result.file.case), result);
+}
+
+// Merges the opened shared case into the workspace without changing the screen, document or unsaved state.
+function mergeSharedCaseFile(services, result, number) {
+  if (accStr(result.file?.case?.number).toUpperCase() !== number)
+    throw new Error("The shared filename and case number disagree. The existing record has been kept.");
+  const keep = { screen: editor.state.screen, docId: editor.state.docId, dirty: workspace.DIRTY };
+  let loaded;
+  try {
+    loaded = services.loadCaseFile(JSON.stringify(result.file));
+  } finally {
+    editor.state.screen = keep.screen;
+    editor.state.docId = keep.docId;
+    workspace.DIRTY = keep.dirty;
   }
-  acc.shareError = "";
-  return true;
+  if (!loaded) throw new Error("The existing shared case could not be merged. Resolve the case-file or local-edit conflict before importing.");
+  services.COMMITTED.set(summaryName(result.file.case), result);
 }
 
 function accelaImportSignature(services, acc) {
@@ -1053,23 +1091,35 @@ async function accelaImportOpenResult(services, acc, active) {
     );
 }
 
+// The looked-up case report, or null when the lookup is no longer current.
+async function fetchCaseReport(services, number, controller, active) {
+  if (!(await services.saveDrafts()))
+    throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
+  if (!active()) return null;
+  const { response, result } = await requestCase(number, controller);
+  if (!active()) return null;
+  if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
+  return sqlReport(result, number);
+}
+
+// A shared-record problem is shown on the review; false only when the lookup stopped being current.
+async function checkRetrievedShare(services, acc, active) {
+  try {
+    if (!(await accelaImportCheckShared(services, acc, active))) return false;
+  } catch (e) {
+    acc.shareError = e.message;
+  }
+  return true;
+}
+
 async function accelaImportFind(services) {
   const lookup = beginLookup(services);
   if (!lookup) return;
   const { number, serial, controller, active, timer } = lookup;
   try {
-    if (!(await services.saveDrafts()))
-      throw new Error("Your search could not be saved on this device. Keep this screen open or download a workspace backup.");
-    if (!active()) return;
-    const { response, result } = await requestCase(number, controller);
-    if (!active()) return;
-    if (!response.ok || !result.ok) throw new Error(result.error || "The case lookup could not be completed.");
-    const acc = sqlReport(result, number);
-    try {
-      if (!(await accelaImportCheckShared(services, acc, active))) return;
-    } catch (e) {
-      acc.shareError = e.message;
-    }
+    const acc = await fetchCaseReport(services, number, controller, active);
+    if (!acc) return;
+    if (!(await checkRetrievedShare(services, acc, active))) return;
     if (!active()) return;
     await accelaImportOpenResult(services, acc, active);
   } catch (error) {
@@ -1110,12 +1160,7 @@ async function accelaImportConfirm(services, LOOKUP_READY) {
   const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
   services.render();
   try {
-    if (workspace.CASEDIR?.helper || liveSource(acc.source)) {
-      if (!(await accelaImportCheckShared(services, acc, active)) || !active()) return;
-    } else {
-      await accelaImportFromShare(services, active);
-      if (!active()) return;
-    }
+    if (!(await confirmSharedRecord(services, acc, active))) return;
     if (before !== accelaImportSignature(services, acc)) {
       services.toast("The shared record changed. Review the refreshed details and confirm again.");
       return;
@@ -1129,13 +1174,23 @@ async function accelaImportConfirm(services, LOOKUP_READY) {
   } catch (e) {
     if (active()) acc.shareError = e.message;
   } finally {
-    if (serial === imports.LOOKUP_SERIAL) {
-      imports.LOOKUP_BUSY = false;
-      if (!sameSelection() && editor.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
-      await services.saveDrafts();
-      services.render();
-    }
+    await finishImportConfirm(services, acc, serial, sameSelection);
   }
+}
+
+// Rechecks the shared record (helper or browser-granted share); false when the confirmation is no longer current.
+async function confirmSharedRecord(services, acc, active) {
+  if (workspace.CASEDIR?.helper || liveSource(acc.source)) return (await accelaImportCheckShared(services, acc, active)) && active();
+  await accelaImportFromShare(services, active);
+  return active();
+}
+
+async function finishImportConfirm(services, acc, serial, sameSelection) {
+  if (serial !== imports.LOOKUP_SERIAL) return;
+  imports.LOOKUP_BUSY = false;
+  if (!sameSelection() && editor.state.acc === acc) services.toast("The selected inspection changed. Review it and confirm again.");
+  await services.saveDrafts();
+  services.render();
 }
 
 function accelaImportPlanWithShare(services, acc) {
