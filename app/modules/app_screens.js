@@ -208,25 +208,56 @@ function keepInspectionChecks(services, active) {
   };
 }
 
-/** Swap before enhancement; restore focus last. @returns {LiveFieldKeeper} */
-function keepLiveField(services, editingDoc, previous, active, appRoot) {
-  const editingItem = active?.dataset?.field === "text" && editingDoc?.items.find((item) => item.id === active.dataset.id);
-  // Reuse a live text field across passive refreshes so input still reaches its handler.
-  // New model text, locks, dialogs and navigation always use the newly rendered field.
-  const keepEditing =
+/* Keep-editing is a calculation over the repaint's explicit facts and lookups (liveFieldLookups). Each lookup reads
+   the modal/picker state or lock at the original point, so the original short-circuit order and lazy DOM reads stay. */
+function liveFieldItem(editingDoc, active) {
+  return active?.dataset?.field === "text" && editingDoc?.items.find((item) => item.id === active.dataset.id);
+}
+
+// Whether a passive repaint may keep the text field being typed in.
+function liveFieldKept(editingItem, editingDoc, previous, active, view) {
+  return (
     editingItem &&
-    !editor.state.modal &&
-    !editor.state.picker &&
+    !view.modalOpen() &&
+    !view.pickerOpen() &&
     active.isContentEditable &&
     previous.contains(active) &&
-    !services.isLocked(editingDoc) &&
-    String(active.innerText ?? active.textContent ?? "") === String(editingItem.text ?? "");
+    !view.locked(editingDoc) &&
+    String(active.innerText ?? active.textContent ?? "") === String(editingItem.text ?? "")
+  );
+}
+
+// The selection inside the kept field, or null when it is absent or extends outside the field.
+function liveFieldCaret(active, range) {
+  return range && active.contains(range.startContainer) && active.contains(range.endContainer)
+    ? { start: range.startContainer, startOffset: range.startOffset, end: range.endContainer, endOffset: range.endOffset }
+    : null;
+}
+
+function liveFieldLookups(services) {
+  return { modalOpen: () => editor.state.modal, pickerOpen: () => editor.state.picker, locked: (d) => services.isLocked(d) };
+}
+
+function restoreLiveFieldCaret(services, selection, caret) {
+  try {
+    const restored = services.document.createRange();
+    restored.setStart(caret.start, caret.startOffset);
+    restored.setEnd(caret.end, caret.endOffset);
+    selection.removeAllRanges();
+    selection.addRange(restored);
+  } catch {
+    // A browser may normalize a selection; the editing node and its text remain intact.
+  }
+}
+
+/** Swap before enhancement; restore focus last. @returns {LiveFieldKeeper} */
+function keepLiveField(services, editingDoc, previous, active, appRoot) {
+  const editingItem = liveFieldItem(editingDoc, active);
+  // Reuse a live text field across passive refreshes so input still reaches its handler.
+  // New model text, locks, dialogs and navigation always use the newly rendered field.
+  const keepEditing = liveFieldKept(editingItem, editingDoc, previous, active, liveFieldLookups(services));
   const selection = keepEditing && services.window.getSelection();
-  const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-  const caret =
-    range && active.contains(range.startContainer) && active.contains(range.endContainer)
-      ? { start: range.startContainer, startOffset: range.startOffset, end: range.endContainer, endOffset: range.endOffset }
-      : null;
+  const caret = liveFieldCaret(active, selection?.rangeCount ? selection.getRangeAt(0) : null);
   return {
     swap() {
       if (keepEditing) {
@@ -241,17 +272,7 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
     restore() {
       if (keepEditing && active.isConnected) {
         active.focus({ preventScroll: true });
-        if (caret) {
-          try {
-            const restored = services.document.createRange();
-            restored.setStart(caret.start, caret.startOffset);
-            restored.setEnd(caret.end, caret.endOffset);
-            selection.removeAllRanges();
-            selection.addRange(restored);
-          } catch {
-            // A browser may normalize a selection; the editing node and its text remain intact.
-          }
-        }
+        if (caret) restoreLiveFieldCaret(services, selection, caret);
       }
     },
   };

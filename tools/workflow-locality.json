@@ -13,15 +13,35 @@
       "target": "Calculation phases read no live workspace queries or peer services; facts come from one provider. At least 20% fewer calculation-phase mutable peer accesses; workflow total does not grow.",
       "functions": [
         {
-          "identity": "statusFault#1",
+          "identity": "allCorrectedFault#1",
           "role": "calculation"
         },
         {
-          "identity": "nothingOutstanding#1",
+          "identity": "statusFaultFor#1",
           "role": "calculation"
         },
         {
-          "identity": "eligibility#1",
+          "identity": "nothingOutstandingFor#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "eligibilityTypeFault#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "eligibilityIssuedFault#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "eligibilityOutstandingFault#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "eligibilityFor#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "lifecycleSourceChanged#1",
           "role": "calculation"
         },
         {
@@ -29,12 +49,32 @@
           "role": "calculation"
         },
         {
+          "identity": "lifecycleVisitMatchFaults#1",
+          "role": "calculation"
+        },
+        {
           "identity": "lifecycleVisitFaults#1",
           "role": "calculation"
         },
         {
-          "identity": "lifecycleFaults#1",
+          "identity": "lifecycleFaultList#1",
           "role": "calculation"
+        },
+        {
+          "identity": "documentEligibilityLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "lifecycleLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "eligibility#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "lifecycleFaults#1",
+          "role": "coordinator"
         }
       ]
     },
@@ -54,15 +94,47 @@
           "role": "calculation"
         },
         {
+          "identity": "followupItemNumber#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupItemNote#1",
+          "role": "calculation"
+        },
+        {
           "identity": "followupDraftItem#1",
           "role": "calculation"
         },
         {
-          "identity": "followupDraftAllowed#1",
+          "identity": "followupWorksheetRefusal#1",
           "role": "calculation"
         },
         {
-          "identity": "buildFollowupDraft#1",
+          "identity": "followupDraftRefusal#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupCarryRefusal#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupDraftHeader#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupDraftSource#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupDraftFor#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupTypeLabel#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "followupCarriedSummary#1",
           "role": "calculation"
         },
         {
@@ -70,8 +142,48 @@
           "role": "calculation"
         },
         {
-          "identity": "reinspectionWorksheetChecks#1",
+          "identity": "worksheetDueTarget#1",
           "role": "calculation"
+        },
+        {
+          "identity": "worksheetDateChecks#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "worksheetItemCheck#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "worksheetItemDueCheck#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "worksheetDueChecks#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "worksheetCheckList#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "reinspectionFollowupLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "reinspectionWorksheetLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "followupDraftAllowed#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "buildFollowupDraft#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "reinspectionWorksheetChecks#1",
+          "role": "coordinator"
         },
         {
           "identity": "reopenFollowupDraft#1",
@@ -228,8 +340,24 @@
       "target": "The keep-editing decision is a pure calculation over explicit facts; DOM swap/focus/selection effects stay ordered in the coordinator.",
       "functions": [
         {
-          "identity": "keepLiveField#1",
+          "identity": "liveFieldItem#1",
           "role": "calculation"
+        },
+        {
+          "identity": "liveFieldKept#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "liveFieldCaret#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "liveFieldLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "keepLiveField#1",
+          "role": "coordinator"
         },
         {
           "identity": "keepLiveField#1/swap#1",
@@ -237,6 +365,10 @@
         },
         {
           "identity": "keepLiveField#1/restore#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "restoreLiveFieldCaret#1",
           "role": "coordinator"
         }
       ]

@@ -999,85 +999,131 @@ function referredOnly(referred, list) {
 function allowedByStatus(r) {
   return r.importRule ? r.importRule.choose || [r.importRule.doc] : null;
 }
-function statusFault(r, type) {
+/* Eligibility and lifecycle faults are calculated from an explicit view of lookups (documentEligibilityLookups,
+   lifecycleLookups). Each lookup reads the live workspace at the original point and in the original order; the
+   expected-head, worksheet and source checks still run on every attempt. */
+function allCorrectedFault(rule, open) {
+  return (
+    "The Accela status is " +
+    rule.status +
+    ", but item" +
+    (open.length > 1 ? "s " : " ") +
+    open.map((i) => i.no).join(", ") +
+    (open.length > 1 ? " are" : " is") +
+    " not marked Corrected. Correct the results, or correct the status in Accela and import this inspection again."
+  );
+}
+function statusFaultFor(r, type, view) {
   const rule = r.importRule;
   if (!rule) return "";
   if (!allowedByStatus(r).includes(type)) return "The Accela status " + rule.status + " calls for " + rule.label + ".";
-  const open = openItems(r);
-  if (rule.allCorrected && open.length)
-    return (
-      "The Accela status is " +
-      rule.status +
-      ", but item" +
-      (open.length > 1 ? "s " : " ") +
-      open.map((i) => i.no).join(", ") +
-      (open.length > 1 ? " are" : " is") +
-      " not marked Corrected. Correct the results, or correct the status in Accela and import this inspection again."
-    );
+  const open = view.openItems(r);
+  if (rule.allCorrected && open.length) return allCorrectedFault(rule, open);
   if (rule.cite && !open.some((i) => r.results[i.id]?.cite))
     return "The Accela status is Citation, but no item is marked for citation. Mark the items to cite, or correct the status in Accela and import this inspection again.";
   return "";
 }
-function nothingOutstanding(r) {
-  return unchecked(r).length
+function nothingOutstandingFor(r, view) {
+  return view.unchecked(r).length
     ? "Mark a result on every violation item of the worksheet first; none is outstanding yet."
     : "Every violation item on this inspection is already corrected or withdrawn.";
 }
-function eligibility(r, type) {
-  const fault = statusFault(r, type);
-  if (fault) return fault;
-  const src = doc(r.sourceDocId),
-    open = openItems(r),
-    referred = isReferredCase(r.caseId);
+function eligibilityTypeFault(r, type) {
   if (type === "notice") return "Official Notice is created from an initial imported inspection.";
   if (type === "reinspectionNotice" && r.importRule?.doc !== "reinspectionNotice")
     return "Reinspection Notice is created from an imported Reinspection or No Fee Reinspection result.";
-  if (!src || !isEffective(src)) return "The inspection source is no longer effective.";
-  const issued = docsFor(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
+  return "";
+}
+function eligibilityIssuedFault(r, type, view) {
+  const issued = view.documentsOf(r.caseId).filter((d) => !d.draft && d.fromReinspId === r.id);
   if (issued.some((d) => d.type === type)) return "This inspection already has that action. Open the existing document.";
   if (!supplemental({ type }) && issued.some((d) => !supplemental(d)))
     return "This inspection already has a primary follow-up. Add a compatible scoped order.";
+  return "";
+}
+function eligibilityOutstandingFault(r, type, open, referred, view) {
   if (referred && !["referralUpdate", "compliance"].includes(type)) return REFERRED_MESSAGE;
   if (type === "compliance" && open.length) return "Some violation items remain outstanding.";
-  if (!supplemental({ type }) && type !== "compliance" && !open.length) return nothingOutstanding(r);
+  if (!supplemental({ type }) && type !== "compliance" && !open.length) return nothingOutstandingFor(r, view);
   if (type === "citation" && !open.some((i) => r.results[i.id]?.cite)) return "Select the outstanding items to cite on the worksheet.";
   return "";
 }
+// Why a document of `type` cannot be written from visit `r`, in the original refusal order; "" when it can.
+function eligibilityFor(r, type, view) {
+  const fault = statusFaultFor(r, type, view);
+  if (fault) return fault;
+  const src = view.documentOf(r.sourceDocId),
+    open = view.openItems(r),
+    referred = view.isReferred(r.caseId);
+  return (
+    eligibilityTypeFault(r, type) ||
+    (!src || !isEffective(src) ? "The inspection source is no longer effective." : "") ||
+    eligibilityIssuedFault(r, type, view) ||
+    eligibilityOutstandingFault(r, type, open, referred, view)
+  );
+}
+// The live reads eligibility uses.
+function documentEligibilityLookups() {
+  return { documentOf: doc, documentsOf: docsFor, openItems, unchecked, isReferred: isReferredCase };
+}
+function eligibility(r, type) {
+  return eligibilityFor(r, type, documentEligibilityLookups());
+}
 
-function lifecycleSourceFaults(services, d, src, r) {
+function lifecycleSourceChanged(current, src, d, r) {
+  return current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id);
+}
+
+function lifecycleSourceFaults(view, d, src, r) {
   const faults = [];
   if (!src || !isEffective(src)) faults.push("The factual source is no longer effective.");
-  const current = services.sourceDocFor(d.caseId);
-  if (current && src && current.id !== src.id && !(supplemental(d) && r && current.fromReinspId === r.id))
-    faults.push("The source changed. Review the current case before issuing.");
+  if (lifecycleSourceChanged(view.currentSource(d.caseId), src, d, r)) faults.push("The source changed. Review the current case before issuing.");
   if (d.administrativeAction && d.type !== "noOccupancy" && src?.type === "compliance")
     faults.push("A completed case cannot receive a new extension or ordinary enforcement action.");
   return faults;
 }
 
-function lifecycleVisitFaults(services, d, src, r) {
-  const faults = [];
-  if (r) {
-    faults.push(...services.worksheetFaults(r));
-    if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time) faults.push("The action must match its recorded inspection.");
-  } else if (!d.administrativeAction) faults.push("Select the actual inspection for this action.");
+function lifecycleVisitMatchFaults(view, d, src, r) {
+  if (!r) return d.administrativeAction ? [] : ["Select the actual inspection for this action."];
+  const faults = [...view.worksheetFaults(r)];
+  if (r.sourceDocId !== src?.id || d.inspDate !== r.date || d.inspTime !== r.time) faults.push("The action must match its recorded inspection.");
+  return faults;
+}
+
+function lifecycleVisitFaults(view, d, src, r) {
+  const faults = lifecycleVisitMatchFaults(view, d, src, r);
   if (src && stableJSON(d.items.map((i) => [i.srcItemId, i.no])) !== stableJSON(src.items.map((i) => [i.id, i.no])))
     faults.push("Retain every source item identity, number and order.");
   if (r) {
-    const why = eligibility(r, d.type);
+    const why = eligibilityFor(r, d.type, view);
     if (why) faults.push(why);
   }
   return faults;
 }
 
-function lifecycleFaults(services, d, src, r) {
+// Every lifecycle fault blocking an issue attempt; the expected-head comparison is made on every attempt.
+function lifecycleFaultList(d, src, r, view) {
   const faults = [];
-  if (stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
+  if (stableJSON(d.expectedHead) !== stableJSON(view.head(d.caseId)))
     faults.push("The case changed after this draft began. Review the current case before issuing.");
   if (d.initialAction) {
-    if (docsFor(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
-  } else faults.push(...lifecycleSourceFaults(services, d, src, r), ...lifecycleVisitFaults(services, d, src, r));
+    if (view.documentsOf(d.caseId).some((x) => isEffective(x) && !supplemental(x))) faults.push("Use the current issued case facts for this action.");
+  } else faults.push(...lifecycleSourceFaults(view, d, src, r), ...lifecycleVisitFaults(view, d, src, r));
   return faults;
+}
+
+// The live reads lifecycle checks use; services are resolved when each lookup is called.
+function lifecycleLookups(services) {
+  return {
+    ...documentEligibilityLookups(),
+    head: recordHead,
+    currentSource: (caseId) => services.sourceDocFor(caseId),
+    worksheetFaults: (r) => services.worksheetFaults(r),
+  };
+}
+
+function lifecycleFaults(services, d, src, r) {
+  return lifecycleFaultList(d, src, r, lifecycleLookups(services));
 }
 
 /* Click actions in priority order: the first whose attribute is present on the element handles it. */
