@@ -33,27 +33,32 @@ def item_key(item):
     return json.dumps([lib.get(k) for k in ("c", "g", "o")], separators=(",", ":")) if lib else ""
 
 
-def resolve(ordinance, library_key="", entry_id="", at=None):
-    p, charge = policy_at(at) if at else policy(), canonical_ordinance(ordinance)
-    if not charge or charge in p["excludedPhantoms"] or charge.startswith("SPS"):
-        return None
-    exact = [e for e in p["entries"] if e["ordinance"] == charge]
-    mapping = next((m for m in p["itemMappings"].get(library_key, []) if m["chargedOrdinance"] == charge), None) or p["chargeMappings"].get(charge)
-    if mapping and mapping["status"] == "manual-only" and not (at and at >= "2026-10-11" and exact):
-        return None
-    if exact:
-        return (
-            next((e for e in exact if e["id"] == entry_id), None)
-            if entry_id
-            else exact[0]
-            if len(exact) == 1 or all(e.get("rule") == exact[0].get("rule") and e.get("rule") for e in exact)
-            else None
-        )
+def _exact_schedule(exact, entry_id):
+    if entry_id:
+        return next((e for e in exact if e["id"] == entry_id), None)
+    if len(exact) == 1 or all(e.get("rule") == exact[0].get("rule") and e.get("rule") for e in exact):
+        return exact[0]
+    return None
+
+
+def _schedule_mapping(p, charge, library_key):
+    return next((m for m in p["itemMappings"].get(library_key, []) if m["chargedOrdinance"] == charge), None) or p["chargeMappings"].get(charge)
+
+
+def _mapped_schedule(p, mapping):
     if mapping and mapping["status"] in ("verified", "calculated"):
         mapped = [e for e in p["entries"] if e["ordinance"] == mapping["scheduleOrdinance"]]
         if len(mapped) == 1:
             return mapped[0]
-    if any(charge.startswith(e["ordinance"]) and re.match(r"[\(\d]", charge[len(e["ordinance"]) :]) for e in p["entries"]):
+    return None
+
+
+def _has_parent_schedule(p, charge):
+    return any(charge.startswith(e["ordinance"]) and re.match(r"[\(\d]", charge[len(e["ordinance"]) :]) for e in p["entries"])
+
+
+def _broader_schedule(p, charge):
+    if _has_parent_schedule(p, charge):
         return None
     children = [e for e in p["entries"] if e["ordinance"].startswith(charge + "(")]
     if len(children) == 1:
@@ -61,6 +66,22 @@ def resolve(ordinance, library_key="", entry_id="", at=None):
     section = re.match(r"(\d+)\.(\d+)", charge)
     fallback = next((e for e in p["fallback"] if section[1] in e["ch"] or section[0] in e["sec"]), None)
     return dict(fallback, id=fallback["id"] + ":" + charge) if fallback else None
+
+
+def resolve(ordinance, library_key="", entry_id="", at=None):
+    p, charge = policy_at(at) if at else policy(), canonical_ordinance(ordinance)
+    if not charge or charge in p["excludedPhantoms"] or charge.startswith("SPS"):
+        return None
+    exact = [e for e in p["entries"] if e["ordinance"] == charge]
+    mapping = _schedule_mapping(p, charge, library_key)
+    if mapping and mapping["status"] == "manual-only" and not (at and at >= "2026-10-11" and exact):
+        return None
+    if exact:
+        return _exact_schedule(exact, entry_id)
+    mapped = _mapped_schedule(p, mapping)
+    if mapped is not None:
+        return mapped
+    return _broader_schedule(p, charge)
 
 
 def ready(entry):
@@ -247,48 +268,55 @@ def within_window(prior_date, violation_date, window):
     return previous >= cutoff
 
 
+def _prior_site_owner(entry, case, respondent):
+    site_season = isinstance(entry["window"], dict) and entry["window"].get("kind") == "site-season"
+    different_owner = str(case.get("owner", "")).strip().upper() != str(respondent.get("owner", "")).strip().upper()
+    if site_season and different_owner and not policy().get("snowCountPriorDifferentOwner", True):
+        return None
+    if entry["window"] == "site" or site_season:
+        if not same_site(case, respondent):
+            return None
+    elif not defendant_key(respondent) or defendant_key(case) != defendant_key(respondent):
+        return None
+    return site_season, different_owner
+
+
+def _append_prior_record(entry, respondent, violation_date, record, out, seen):
+    case, snap = record["case"], record["document"]
+    eligibility = _prior_site_owner(entry, case, respondent)
+    if eligibility is None:
+        return
+    site_season, different_owner = eligibility
+    for item in snap.get("items", []):
+        if not item.get("cite") or item.get("withdrawn"):
+            continue
+        cit = snap.get("cits", {}).get(item["id"], {})
+        resolved = resolve(cit.get("ord"), item_key(item), cit.get("scheduleEntryId", ""), at=cit.get("pricedOn") or cit.get("issued"))
+        observed = cit.get("violDate") or snap.get("inspDate") or case.get("date")
+        if not resolved or resolved["id"] != entry["id"] or not within_window(observed, violation_date, entry["window"]) or cit.get("num") in seen:
+            continue
+        seen.add(cit.get("num"))
+        out.append(
+            {
+                "number": cit.get("num"),
+                "date": observed,
+                "caseNumber": case.get("number"),
+                **(
+                    {
+                        "differentOwner": different_owner,
+                        "inspectionId": str(snap.get("inspDate") or case.get("date")) + "T" + str(snap.get("inspTime") or case.get("time", "")),
+                    }
+                    if site_season
+                    else {}
+                ),
+            }
+        )
+
+
 def prior_offenses(entry, respondent, violation_date, history, staged=()):
     out, seen = [], set()
     for record in history:
-        case, snap = record["case"], record["document"]
-        site_season = isinstance(entry["window"], dict) and entry["window"].get("kind") == "site-season"
-        different_owner = str(case.get("owner", "")).strip().upper() != str(respondent.get("owner", "")).strip().upper()
-        if site_season and different_owner and not policy().get("snowCountPriorDifferentOwner", True):
-            continue
-        if entry["window"] == "site" or site_season:
-            if not same_site(case, respondent):
-                continue
-        elif not defendant_key(respondent) or defendant_key(case) != defendant_key(respondent):
-            continue
-        for item in snap.get("items", []):
-            if not item.get("cite") or item.get("withdrawn"):
-                continue
-            cit = snap.get("cits", {}).get(item["id"], {})
-            resolved = resolve(cit.get("ord"), item_key(item), cit.get("scheduleEntryId", ""), at=cit.get("pricedOn") or cit.get("issued"))
-            observed = cit.get("violDate") or snap.get("inspDate") or case.get("date")
-            if (
-                not resolved
-                or resolved["id"] != entry["id"]
-                or not within_window(observed, violation_date, entry["window"])
-                or cit.get("num") in seen
-            ):
-                continue
-            seen.add(cit.get("num"))
-            out.append(
-                {
-                    "number": cit.get("num"),
-                    "date": observed,
-                    "caseNumber": case.get("number"),
-                    **(
-                        {
-                            "differentOwner": different_owner,
-                            "inspectionId": str(snap.get("inspDate") or case.get("date")) + "T" + str(snap.get("inspTime") or case.get("time", "")),
-                        }
-                        if site_season
-                        else {}
-                    ),
-                }
-            )
+        _append_prior_record(entry, respondent, violation_date, record, out, seen)
     return out + [s for s in staged if s["entryId"] == entry["id"] and within_window(s["date"], violation_date, entry["window"])]
 
 

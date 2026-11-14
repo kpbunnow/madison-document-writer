@@ -386,6 +386,7 @@
     "helper/parcel_history.py",
     "helper/plain_files.py",
     "helper/prepare_deployment.py",
+    "helper/projection_values.py",
     "helper/public_errors.py",
     "helper/render_security.py",
     "helper/reporting_reads.py",

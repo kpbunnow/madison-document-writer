@@ -448,15 +448,10 @@ def lookup_parcels(ids, refresh=False):
     only when something changed, so the first entry is the parcel as it was
     first seen and the last is the parcel as it is now."""
     today = time.strftime("%Y-%m-%d")
-    want = sorted({x for x in (norm_parcel(i) for i in ids or []) if x})
-    bad = sorted({str(i) for i in ids or [] if not norm_parcel(i)})
+    want, bad = parcel_history.requests(ids, norm_parcel)
     with CACHE_LOCK, file_lock(gis_dir(), "parcel-cache"):
         c = read_cache()
-        need = (
-            want
-            if refresh
-            else [x for x in want if (x not in c["parcels"] and x not in c["missing"]) or (x in c["missing"] and c["missing"][x] != today)]
-        )
+        need = parcel_history.needed(c, want, refresh, today)
         error, got = "", None
         if need:
             try:
@@ -469,14 +464,7 @@ def lookup_parcels(ids, refresh=False):
                     error = "The city parcel layer could not be reached for some batches: " + "; ".join(got.errors)
                 parcel_history.merge_results(c, need, got, failed, today)
                 write_cache(c)
-        return {
-            "ok": not error,
-            "error": error,
-            "invalid": bad,
-            "partial": bool(error and got),
-            "parcels": {x: c["parcels"][x] for x in want if x in c["parcels"] and x not in c["missing"]},
-            "missing": [x for x in want if x in c["missing"]],
-        }
+        return parcel_history.response(c, want, bad, error, got)
 
 
 def read_areas():

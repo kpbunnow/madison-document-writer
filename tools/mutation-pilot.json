@@ -252,6 +252,46 @@
       "suites": [
         "audit_index_validation_phases.py"
       ]
+    },
+    {
+      "id": "pricing-exact-entry",
+      "category": "schedule identity",
+      "file": "helper/citation_pricing.py",
+      "find": "    if entry_id:\n        return next((e for e in exact if e[\"id\"] == entry_id), None)",
+      "replace": "    if False:\n        return next((e for e in exact if e[\"id\"] == entry_id), None)",
+      "suites": [
+        "audit_calculation_phases.py"
+      ]
+    },
+    {
+      "id": "pricing-prior-duplicate",
+      "category": "historical offense counting",
+      "file": "helper/citation_pricing.py",
+      "find": "or cit.get(\"num\") in seen:",
+      "replace": ":",
+      "suites": [
+        "audit_calculation_phases.py"
+      ]
+    },
+    {
+      "id": "projection-strict-types",
+      "category": "report facts type parity",
+      "file": "helper/projection_values.py",
+      "find": "    if jtype(a) != jtype(b):",
+      "replace": "    if False:",
+      "suites": [
+        "audit_calculation_phases.py"
+      ]
+    },
+    {
+      "id": "projection-undefined-truth",
+      "category": "report facts undefined parity",
+      "file": "helper/projection_values.py",
+      "find": "    if v is UNDEF or v is None or v is False:",
+      "replace": "    if v is None or v is False:",
+      "suites": [
+        "audit_calculation_phases.py"
+      ]
     }
   ]
 }
