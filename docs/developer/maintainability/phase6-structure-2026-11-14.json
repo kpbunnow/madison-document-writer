@@ -1,0 +1,596 @@
+{
+  "description": "Phase 6 starting-source structure, not final Phase 7 score or coverage. Raw metrics and hotspot receipts are retained outside source; reproduce with MAINTENANCE-MEASUREMENTS.md.",
+  "source": {
+    "commit": "dd584ce02f1375031da7935d6015e82d1f3778a0",
+    "tree": "474e844a26be4124c9b1f5e2fbd3bc618a77a0aa",
+    "clean": true,
+    "scopeCommit": null,
+    "identity": {
+      "release": "2026-11-13 R82",
+      "helperVersion": "2026.11.13.83",
+      "authoringVersion": 16,
+      "caseSchema": 5,
+      "summaryVersion": 6,
+      "backupVersion": 2,
+      "helperBuild": 83
+    },
+    "inputDigest": "0bb401a1335976bfe01dc8e84b66df8ab2d45e08641bd368086bdee5a357ca68"
+  },
+  "measurementSource": {
+    "commit": "dd584ce02f1375031da7935d6015e82d1f3778a0",
+    "tree": "474e844a26be4124c9b1f5e2fbd3bc618a77a0aa",
+    "clean": true,
+    "inputDigest": "6d90676b548a370f70224447c8b373abe6425162aee41744a914cab788aadaeb"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "eslint": "10.14.0",
+    "typescript": "7.0.2",
+    "python": "3.14.10",
+    "ruff": "ruff 0.17.3",
+    "analysisPython": "Python 3.14.10",
+    "radon": "6.0.1"
+  },
+  "javascript": {
+    "scope": {
+      "files": 166,
+      "logicLines": 31213,
+      "description": "app/modules/*.js and app/assets/shared.js"
+    },
+    "summary": {
+      "complexity": {
+        "count": 5917,
+        "above10": 130,
+        "above15": 43,
+        "above20": 0,
+        "max": 20,
+        "buckets": {
+          "1-5": 5141,
+          "6-10": 646,
+          "11-15": 87,
+          "16-20": 43,
+          "21+": 0
+        }
+      },
+      "longFunctionsAbove80": [
+        "app/modules/accessibility.js:createAccessibility#1",
+        "app/modules/address_parser.js:initAddressParser#1",
+        "app/modules/automatic_recovery.js:createAutomaticRecovery#1",
+        "app/modules/case_activity.js:createCaseActivity#1",
+        "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1",
+        "app/modules/case_loading.js:createCaseLoading#1",
+        "app/modules/case_recovery.js:createCaseRecovery#1",
+        "app/modules/catalog_events.js:createCatalogEvents#1",
+        "app/modules/citation_drafts.js:createCitationDrafts#1",
+        "app/modules/citation_pricing.js:initCitationPricing#1",
+        "app/modules/contact_events.js:createContactEvents#1",
+        "app/modules/correction_events.js:createCorrectionEvents#1",
+        "app/modules/correction_ui.js:createCorrectionUI#1",
+        "app/modules/deadline_assignment.js:createDeadlineAssignment#1",
+        "app/modules/document_delivery.js:createDocumentDelivery#1",
+        "app/modules/document_pagination.js:createDocumentPagination#1",
+        "app/modules/import_events.js:createImportEvents#1",
+        "app/modules/initial_citations.js:initInitialCitations#1",
+        "app/modules/navigation.js:initNavigation#1",
+        "app/modules/new_documents.js:initNewDocuments#1",
+        "app/modules/pdf_artifacts.js:createPdfArtifacts#1",
+        "app/modules/record_integrity.js:initRecordIntegrity#1",
+        "app/modules/recovery_events.js:createRecoveryEvents#1",
+        "app/modules/reinspection_events.js:createReinspectionEvents#1",
+        "app/modules/reports_services.js:createReportsServices#1",
+        "app/modules/shared_case_storage.js:createSharedCaseStorage#1",
+        "app/modules/storage_status.js:createStorageStatus#1",
+        "app/modules/utility_events.js:createUtilityEvents#1",
+        "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1",
+        "app/modules/writer_handoff.js:createWriterHandoff#1"
+      ],
+      "nestingAbove4": [],
+      "maxNesting": 4,
+      "maxLines": 216,
+      "fileLogicLines": {
+        "files": 166,
+        "mean": 188.03,
+        "median": 102.5,
+        "sizeWeighted": 617.33
+      },
+      "worstFunctions": [
+        [
+          "app/modules/citation_pricing.js:appendPriorCitations#1",
+          20
+        ],
+        [
+          "app/modules/document_pagination.js:paginateRowHistory#1",
+          20
+        ],
+        [
+          "app/modules/screen_overlays.js:finalDocumentModal#1",
+          20
+        ],
+        [
+          "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1",
+          20
+        ],
+        [
+          "app/modules/writer_handoff.js:createWriterHandoff#1/writerOpenReportedCase#1",
+          20
+        ],
+        [
+          "app/modules/case_loading.js:createCaseLoading#1/loadCaseFile#1",
+          19
+        ],
+        [
+          "app/modules/citation_policy.js:scheduledMeasurement#1",
+          19
+        ],
+        [
+          "app/modules/document_rules.js:clearProhibitedCitations#1",
+          19
+        ],
+        [
+          "app/modules/pending_case_saves.js:createPendingCaseSaves#1/flushPending#1",
+          19
+        ],
+        [
+          "app/modules/reinspection_entry.js:createReinspectionEntry#1/startReinspection#1",
+          19
+        ],
+        [
+          "app/modules/report_presentation.js:restoreUI#1",
+          19
+        ],
+        [
+          "app/modules/workspace_backup.js:validateWorkspaceBackupRecords#1",
+          19
+        ],
+        [
+          "app/modules/case_activity.js:createCaseActivity#1/showTimeline#1/anonymous#2",
+          18
+        ],
+        [
+          "app/modules/citation_charges.js:createCitationCharges#1/changeCharge#1",
+          18
+        ],
+        [
+          "app/modules/correction_workflow.js:createCorrectionWorkflow#1/issueCorrection#1",
+          18
+        ],
+        [
+          "app/modules/language_catalog.js:languageCatalogOpenChangedShared#1",
+          18
+        ],
+        [
+          "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1",
+          18
+        ],
+        [
+          "app/modules/working_papers.js:createWorkingPapers#1/captureWork#1",
+          18
+        ],
+        [
+          "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1/worksheetFaults#1",
+          18
+        ],
+        [
+          "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1/worksheetFaults#1/anonymous#2",
+          18
+        ],
+        [
+          "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1/rebuildIndex#1",
+          17
+        ],
+        [
+          "app/modules/case_loading.js:createCaseLoading#1/mergeSharedFile#1",
+          17
+        ],
+        [
+          "app/modules/case_projection.js:caseStatus#1",
+          17
+        ],
+        [
+          "app/modules/case_recovery.js:createCaseRecovery#1/restoreRecovery#1",
+          17
+        ],
+        [
+          "app/modules/case_recovery.js:requireRecoveryShape#1",
+          17
+        ]
+      ]
+    }
+  },
+  "python": {
+    "combined": {
+      "radonCli": {
+        "count": 801,
+        "above10": 136,
+        "above15": 50,
+        "above20": 12,
+        "max": 32,
+        "buckets": {
+          "1-5": 447,
+          "6-10": 218,
+          "11-15": 86,
+          "16-20": 38,
+          "21+": 12
+        }
+      },
+      "radonComplete": {
+        "count": 899,
+        "above10": 143,
+        "above15": 54,
+        "above20": 12,
+        "max": 32,
+        "buckets": {
+          "1-5": 516,
+          "6-10": 240,
+          "11-15": 89,
+          "16-20": 42,
+          "21+": 12
+        }
+      },
+      "mi": {
+        "files": 70,
+        "mean": 43.43,
+        "median": 44.16,
+        "sizeWeighted": 23.15,
+        "zero": [
+          "helper/case_projection.py",
+          "helper/case_store.py",
+          "helper/citation_pricing.py",
+          "helper/server.py"
+        ]
+      },
+      "sloc": 11953
+    },
+    "runtime": {
+      "radonCli": {
+        "count": 598,
+        "above10": 106,
+        "above15": 39,
+        "above20": 9,
+        "max": 25,
+        "buckets": {
+          "1-5": 322,
+          "6-10": 170,
+          "11-15": 67,
+          "16-20": 30,
+          "21+": 9
+        }
+      },
+      "radonComplete": {
+        "count": 683,
+        "above10": 112,
+        "above15": 43,
+        "above20": 9,
+        "max": 25,
+        "buckets": {
+          "1-5": 380,
+          "6-10": 191,
+          "11-15": 69,
+          "16-20": 34,
+          "21+": 9
+        }
+      },
+      "mi": {
+        "files": 37,
+        "mean": 39.96,
+        "median": 43.61,
+        "sizeWeighted": 16.47,
+        "zero": [
+          "helper/case_projection.py",
+          "helper/case_store.py",
+          "helper/citation_pricing.py",
+          "helper/server.py"
+        ]
+      },
+      "sloc": 8326
+    },
+    "developer": {
+      "radonCli": {
+        "count": 203,
+        "above10": 30,
+        "above15": 11,
+        "above20": 3,
+        "max": 32,
+        "buckets": {
+          "1-5": 125,
+          "6-10": 48,
+          "11-15": 19,
+          "16-20": 8,
+          "21+": 3
+        }
+      },
+      "radonComplete": {
+        "count": 216,
+        "above10": 31,
+        "above15": 11,
+        "above20": 3,
+        "max": 32,
+        "buckets": {
+          "1-5": 136,
+          "6-10": 49,
+          "11-15": 20,
+          "16-20": 8,
+          "21+": 3
+        }
+      },
+      "mi": {
+        "files": 33,
+        "mean": 47.32,
+        "median": 45.66,
+        "sizeWeighted": 38.48,
+        "zero": []
+      },
+      "sloc": 3627
+    },
+    "ruffC901": 3,
+    "compatibility": [
+      {
+        "file": "helper/projection_values.py",
+        "treatment": "escaped Unicode line separators; AST and LF count verified"
+      }
+    ]
+  },
+  "hotspots": {
+    "helper/case_integrity.py": {
+      "file": "helper/case_integrity.py",
+      "mi": 5.95,
+      "sloc": 486,
+      "loc": 595,
+      "comments": 9,
+      "group": "runtime",
+      "functions": 32,
+      "top": [
+        [
+          "VerificationContext.__init__",
+          18
+        ],
+        [
+          "commit_record",
+          17
+        ],
+        [
+          "read_intent",
+          13
+        ]
+      ]
+    },
+    "helper/integrity_verification.py": {
+      "file": "helper/integrity_verification.py",
+      "mi": 44.67,
+      "sloc": 82,
+      "loc": 98,
+      "comments": 0,
+      "group": "runtime",
+      "functions": 7,
+      "top": [
+        [
+          "committed_context",
+          13
+        ],
+        [
+          "genesis_events",
+          12
+        ],
+        [
+          "anchor_mismatch",
+          8
+        ]
+      ]
+    },
+    "helper/case_store.py": {
+      "file": "helper/case_store.py",
+      "mi": 0.0,
+      "sloc": 1713,
+      "loc": 2059,
+      "comments": 24,
+      "group": "runtime",
+      "functions": 122,
+      "top": [
+        [
+          "_validate_publication_identity",
+          24
+        ],
+        [
+          "validate_special_publication",
+          22
+        ],
+        [
+          "validate_document_import",
+          21
+        ]
+      ]
+    },
+    "helper/cash_validation.py": {
+      "file": "helper/cash_validation.py",
+      "mi": 44.17,
+      "sloc": 71,
+      "loc": 95,
+      "comments": 1,
+      "group": "runtime",
+      "functions": 10,
+      "top": [
+        [
+          "legacy_scheduled_base",
+          13
+        ],
+        [
+          "validate_cash_citation",
+          8
+        ],
+        [
+          "_legacy_entry",
+          8
+        ]
+      ]
+    },
+    "helper/issuance_validation.py": {
+      "file": "helper/issuance_validation.py",
+      "mi": 41.51,
+      "sloc": 54,
+      "loc": 69,
+      "comments": 0,
+      "group": "runtime",
+      "functions": 7,
+      "top": [
+        [
+          "_validate_initial_notice_group",
+          11
+        ],
+        [
+          "_validate_initial_citation_group",
+          6
+        ],
+        [
+          "_citation_source_bad",
+          6
+        ]
+      ]
+    },
+    "helper/server.py": {
+      "file": "helper/server.py",
+      "mi": 0.0,
+      "sloc": 1540,
+      "loc": 1868,
+      "comments": 58,
+      "group": "runtime",
+      "functions": 103,
+      "top": [
+        [
+          "_validated_catalog_review_request",
+          24
+        ],
+        [
+          "artifact_status",
+          16
+        ],
+        [
+          "Handler._guard_read",
+          16
+        ]
+      ]
+    },
+    "helper/parcel_history.py": {
+      "file": "helper/parcel_history.py",
+      "mi": 47.97,
+      "sloc": 34,
+      "loc": 43,
+      "comments": 0,
+      "group": "runtime",
+      "functions": 4,
+      "top": [
+        [
+          "merge_results",
+          8
+        ],
+        [
+          "requests",
+          8
+        ],
+        [
+          "needed",
+          7
+        ]
+      ]
+    },
+    "helper/index_validation.py": {
+      "file": "helper/index_validation.py",
+      "mi": 61.56,
+      "sloc": 33,
+      "loc": 41,
+      "comments": 0,
+      "group": "runtime",
+      "functions": 3,
+      "top": [
+        [
+          "summary_casefile",
+          12
+        ],
+        [
+          "finish",
+          7
+        ],
+        [
+          "_valid_summary_records",
+          4
+        ]
+      ]
+    },
+    "helper/case_projection.py": {
+      "file": "helper/case_projection.py",
+      "mi": 0.0,
+      "sloc": 749,
+      "loc": 953,
+      "comments": 9,
+      "group": "runtime",
+      "functions": 71,
+      "top": [
+        [
+          "date_ms",
+          16
+        ],
+        [
+          "Facts.__init__",
+          16
+        ],
+        [
+          "case_status",
+          16
+        ]
+      ]
+    },
+    "helper/projection_values.py": {
+      "file": "helper/projection_values.py",
+      "mi": 32.22,
+      "sloc": 116,
+      "loc": 171,
+      "comments": 0,
+      "group": "runtime",
+      "functions": 21,
+      "top": [
+        [
+          "truthy",
+          9
+        ],
+        [
+          "jstr",
+          9
+        ],
+        [
+          "keys",
+          7
+        ]
+      ]
+    },
+    "helper/citation_pricing.py": {
+      "file": "helper/citation_pricing.py",
+      "mi": 0.0,
+      "sloc": 441,
+      "loc": 534,
+      "comments": 1,
+      "group": "runtime",
+      "functions": 42,
+      "top": [
+        [
+          "_validate_pricing_selection",
+          25
+        ],
+        [
+          "_append_prior_record",
+          15
+        ],
+        [
+          "resolve",
+          14
+        ]
+      ]
+    }
+  },
+  "rawReceiptHashes": {
+    "metrics.json": "a3dcc303ae5b3277f0dd0663aeed5f1e616d70036f8c2006b3aecc83279a9d90",
+    "hotspots.json": "444dc95d9f31f4ec0ab557fb9e664f637b97abf53f54e219620cdf6f4f88c620"
+  },
+  "historicalRecords": {
+    "docs/history/MAINTAINABILITY-ARCHITECTURE-2026-10-29.md": "62651a28f79a5935f4d64bbd8a7e4820551585db5a3729c5d26d5fccb3bb6489",
+    "docs/history/MAINTAINABILITY-EVALUATION-2026-11-14.md": "fd797e2cb92903a1fac8dedded2a5b6f8cc7184df9e1716cc7fd6be5986f6b73"
+  }
+}

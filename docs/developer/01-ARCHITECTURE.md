@@ -1,8 +1,14 @@
 # R82 current architecture
 
-The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the final architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
+The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the current Phase 6 starting-source assessment and links the preserved historical architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R62](R62-REVIEW.md), [R61](R61-REVIEW.md), [R60](R60-REVIEW.md) and [R59](R59-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 
 Reports and inspector due-date reads share bounded summary inputs and a complete directory inventory only within one operation. `VerificationContext` retains the same evidence authority; every current case is still read and independently verified. Summary projection computes continuing-item state once per call in both mirrors. See [REPORT-READ-PERFORMANCE.md](REPORT-READ-PERFORMANCE.md) for bounds, encoding/link behavior, measured costs and verification contracts.
+
+## Maintenance phases and operational authority
+
+The Phase 2–5 owners and their retained coordinators are mapped in [02-CODE-MAP.md](02-CODE-MAP.md) and [HOTSPOT-REGISTER.md](HOTSPOT-REGISTER.md). Pure integrity/group/cash/index/parcel/value phases do not gain store or transport authority. Workflow calculations accept explicit lookup views; providers/coordinators still own the original live reads and effect order. Service-area totals still count these providers, so moving a read cannot hide coupling. Browser/helper parity and compatibility variants are reviewed in [policy-compatibility.json](../../tools/policy-compatibility.json).
+
+Clean environment, synthetic refusal tracing and evidence collection use [MAINTAINER-HANDOFF.md](MAINTAINER-HANDOFF.md). It distinguishes production/fixture builds, helper absence from session refusal, verified case/proof rejection, and pending work from committed save. No diagnostic, cache or test seam may replace helper integrity/authority, startup restoration or immutable issued facts. Current measurements and remaining evidence are linked in [the assessment](MAINTAINABILITY-ASSESSMENT.md); later appended extraction records retain their historical counts.
 
 ## Runtime overview
 
