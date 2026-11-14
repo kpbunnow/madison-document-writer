@@ -67,10 +67,11 @@ def _legacy_entry(entries, ordinance):
 def _legacy_fallback(entries):
     # Eager transformation preserves refusal order for malformed later entries.
     return [
-        {"ch": f["ch"] + (["22"] if f["id"] == "ladder-12-month" else []),
-         "sec": f["sec"],
-         "t": [{"a": t["amountCents"] / 100, "l": ("1st" if t["ordinal"] == 1 else "2nd" if t["ordinal"] == 2 else "3rd+")}
-               for t in f["tiers"]]}
+        {
+            "ch": f["ch"] + (["22"] if f["id"] == "ladder-12-month" else []),
+            "sec": f["sec"],
+            "t": [{"a": t["amountCents"] / 100, "l": ("1st" if t["ordinal"] == 1 else "2nd" if t["ordinal"] == 2 else "3rd+")} for t in f["tiers"]],
+        }
         for f in entries
     ]
 
