@@ -20,6 +20,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from measure_coverage import source_inputs, source_state, verify_source
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ANALYSIS = ROOT.parent / "madison-runtime" / "analysis-venv" / "bin" / "python"
 
@@ -160,8 +162,21 @@ def metric(functions, name):
     return {key: m[name] for key, m in functions.items() if name in m}
 
 
-def js_metrics():
+def js_metrics(files=None):
     data = run_json(["node", "tools/maintainability_js.cjs"], env={**os.environ, "DW_PYTHON": sys.executable})
+    if files is not None:
+        scope = set(files)
+        data["files"] = [row for row in data["files"] if row["file"] in scope]
+        if {row["file"] for row in data["files"]} != scope:
+            raise ValueError("JavaScript measurement omitted a scoped file")
+        data["functions"] = {key: value for key, value in data["functions"].items() if key.split(":", 1)[0] in scope}
+        total = sum(row["logicLines"] for row in data["files"])
+        checked = data["checkedCode"]
+        checked["inScope"] = [file for file in checked["files"] if file in scope]
+        checked["logicLines"] = sum(row["logicLines"] for row in data["files"] if row["file"] in checked["inScope"])
+        checked["share"] = checked["logicLines"] / total if total else 0
+        data["scope"].update(files=len(scope), logicLines=total)
+    data["structuralScope"] = "Cycles, service areas and test seams describe the entire checkout, not the historical file cohort."
     complexity, lines, depth = (metric(data["functions"], name) for name in ("complexity", "lines", "depth"))
     data["summary"] = {
         "complexity": distribution(list(complexity.values()), 20),
@@ -192,6 +207,7 @@ def markdown(m):
         f"- Complexity: above 10: {c['above10']}; above 20: {c['above20']}; max {c['max']}; buckets {c['buckets']}.",
         f"- Functions above 80 nonblank/noncomment lines: {len(js['summary']['longFunctionsAbove80'])}; nesting above 4: {len(js['summary']['nestingAbove4'])} (max {js['summary']['maxNesting']}).",
         f"- Import cycles: {len(js['cycles'])}. Service-area references: {js['serviceAreas']['occurrences']} over {js['serviceAreas']['pairs']} directional pairs.",
+        "- " + js["structuralScope"],
         "- Whole-app evaluators: " + ", ".join(f"{k} {len(v)}" for k, v in js["testSeams"]["classes"].items()) + ".",
         f"- Type-checked files: {len(js['checkedCode']['files'])} ({js['checkedCode']['logicLines']} logic lines, {js['checkedCode']['share']:.2%} of scope).",
         "",
@@ -227,7 +243,8 @@ def main():
     analysis = Path(args.analysis_python)
     if not analysis.exists():
         raise SystemExit("Install the analysis environment first (see tools/analysis-requirements.txt): " + str(analysis))
-    commit = git("rev-parse", "HEAD")
+    before, inputs = source_state(), source_inputs()
+    commit = before["commit"]
     js_files = in_scope([str(p.relative_to(ROOT)) for p in (ROOT / "app/modules").glob("*.js")] + ["app/assets/shared.js"])
     scope = python_scope()
     total, per = digest(js_files + scope["runtime"] + scope["developer"])
@@ -235,17 +252,18 @@ def main():
     metrics = {
         "source": {
             "commit": commit,
-            "tree": git("rev-parse", "HEAD^{tree}"),
-            "clean": not git("status", "--porcelain"),
+            "tree": before["tree"],
+            "clean": before["clean"],
             "scopeCommit": SCOPE_AT and git("rev-parse", SCOPE_AT),
             "identity": {k: version[k] for k in version if not isinstance(version[k], (dict, list))},
             "inputDigest": total,
             "inputs": per,
         },
         "tools": tool_versions(analysis),
-        "javascript": js_metrics(),
+        "javascript": js_metrics(js_files),
         "python": python_metrics(analysis),
     }
+    metrics["measurementSource"] = verify_source(before, inputs)
     out = Path(args.out) if args.out else ROOT / "build" / "maintainability" / commit[:12]
     out.mkdir(parents=True, exist_ok=True)
     (out / "metrics.json").write_text(json.dumps(metrics, indent=1) + "\n", encoding="utf-8")

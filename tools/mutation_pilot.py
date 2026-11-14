@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from measure_coverage import copy_tree  # noqa: E402
+from measure_coverage import copy_tree, source_state, verify_source  # noqa: E402
 
 TIMEOUT = 900
 
@@ -60,8 +60,26 @@ def trial(run, env, mutant):
     original = target.read_text(encoding="utf-8")
     if original.count(mutant["find"]) != 1:
         return {"outcome": "invalid", "detail": "mutation text does not occur exactly once"}
+    changed = original.replace(mutant["find"], mutant["replace"])
+    try:
+        if target.suffix == ".py":
+            compile(changed, str(target), "exec")
+        elif target.suffix in {".js", ".cjs"}:
+            parsed = subprocess.run(
+                ["node", "--check", "--input-type=" + ("commonjs" if target.suffix == ".cjs" else "module")],
+                input=changed,
+                capture_output=True,
+                encoding="utf-8",
+                timeout=TIMEOUT,
+                env=env,
+                cwd=run,
+            )
+            if parsed.returncode:
+                return {"outcome": "invalid", "detail": "mutant does not parse: " + parsed.stderr[-1000:]}
+    except SyntaxError as error:
+        return {"outcome": "invalid", "detail": "mutant does not compile: " + str(error)}
     started = time.monotonic()
-    target.write_text(original.replace(mutant["find"], mutant["replace"]), encoding="utf-8")
+    target.write_text(changed, encoding="utf-8")
     try:
         if mutant["file"].startswith("app/"):
             build(run, env)
@@ -74,11 +92,22 @@ def trial(run, env, mutant):
     return {"outcome": outcome, "detail": result, "seconds": round(time.monotonic() - started, 1)}
 
 
+def select_mutants(mutants, only):
+    if only is None:
+        return mutants
+    unknown = set(only) - {m["id"] for m in mutants}
+    if not only or unknown:
+        raise ValueError("Select at least one known mutant ID; unknown: " + ", ".join(sorted(unknown)))
+    return [m for m in mutants if m["id"] in only]
+
+
 def run_pilot(mutants):
     """Every mutant's result in a fresh copy whose listed suites first pass unmutated."""
+    before = source_state()
     with tempfile.TemporaryDirectory(prefix="dw-mutation-") as temp:
         run = Path(temp)
-        copy_tree(run)
+        inputs = copy_tree(run)
+        verify_source(before, inputs)
         env = environment(run)
         build(run, env)
         suites = sorted({s for m in mutants for s in m["suites"]})
@@ -89,7 +118,7 @@ def run_pilot(mutants):
                 results.append({"id": mutant["id"], "outcome": "invalid", "detail": "a listed suite fails without the mutation"})
             else:
                 results.append({"id": mutant["id"], "category": mutant["category"], "file": mutant["file"], **trial(run, env, mutant)})
-    return results, broken
+    return results, broken, verify_source(before, inputs)
 
 
 def main():
@@ -98,11 +127,16 @@ def main():
     parser.add_argument("--only", nargs="*")
     args = parser.parse_args()
     pilot = json.loads((ROOT / "tools" / "mutation-pilot.json").read_text(encoding="utf-8"))
-    results, broken = run_pilot([m for m in pilot["mutants"] if not args.only or m["id"] in args.only])
+    try:
+        selected = select_mutants(pilot["mutants"], args.only)
+    except ValueError as error:
+        parser.error(str(error))
+    results, broken, source = run_pilot(selected)
     counts = {o: sum(r["outcome"] == o for r in results) for o in ("killed", "survived", "timeout", "invalid")}
     applicable = counts["killed"] + counts["survived"]
     summary = {
         "commit": subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, encoding="utf-8").stdout.strip(),
+        "source": source,
         "counts": counts,
         "killRate": round(counts["killed"] / applicable, 4) if applicable else None,
         "baselineFailures": broken,

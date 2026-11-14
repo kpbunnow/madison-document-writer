@@ -17,6 +17,7 @@ build/coverage/<commit>/ (coverage.json, SUMMARY.md).
 
 import argparse
 import fnmatch
+import hashlib
 import json
 import os
 import shutil
@@ -43,11 +44,13 @@ def matching(files, patterns):
 
 
 def copy_tree(dest):
+    inputs = {}
     for name in git("ls-files", "-z", "--cached", "--others", "--exclude-standard").split("\0"):
         if name and (ROOT / name).is_file():
             target = dest / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)
+            inputs[name] = hashlib.sha256(target.read_bytes()).hexdigest()
     (dest / "node_modules").symlink_to(ROOT / "node_modules")
     # As tools/run_tests.py prepares it: suites write their result corpora here.
     (dest / "build" / "test-results").mkdir(parents=True, exist_ok=True)
@@ -56,6 +59,26 @@ def copy_tree(dest):
     subprocess.run(["git", "init", "-q", "-b", "coverage"], **quiet)
     subprocess.run(["git", "add", "-A"], **quiet)
     subprocess.run(["git", "-c", "user.name=coverage", "-c", "user.email=coverage@invalid", "commit", "-q", "-m", "coverage copy"], **quiet)
+    return inputs
+
+
+def source_state():
+    return {"commit": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"), "clean": not git("status", "--porcelain")}
+
+
+def source_inputs():
+    return {
+        name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+        for name in git("ls-files", "-z", "--cached", "--others", "--exclude-standard").split("\0")
+        if name and (ROOT / name).is_file()
+    }
+
+
+def verify_source(before, inputs):
+    if source_state() != before or source_inputs() != inputs:
+        raise ValueError("Source changed during the diagnostic; discard results and repeat")
+    digest = hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return {**before, "inputDigest": digest, "inputs": inputs}
 
 
 def analysis_site(analysis):
@@ -163,6 +186,14 @@ def python_files(run, aux, analysis, env):
             "executed": s["covered_lines"] > 0,
             "uncoveredLines": entry["missing_lines"],
         }
+    expected = {
+        path.relative_to(run).as_posix()
+        for folder in ("helper", "tools", "policy")
+        for path in (run / folder).rglob("*.py")
+        if "vendor" not in path.relative_to(run).parts
+    }
+    if expected - files.keys():
+        raise ValueError("Coverage omitted maintained Python files: " + ", ".join(sorted(expected - files.keys())))
     files["__warnings__"] = warnings
     return files
 
@@ -174,22 +205,27 @@ def report_groups(per_file, groups, language):
 
 def prepare(run, aux, analysis):
     """The instrumented copy: both collectors, then the production and test builds as the gate makes them."""
-    copy_tree(run)
+    inputs = copy_tree(run)
     env = environment(run, aux, analysis)
     build(run, {**env, "DW_TEST_BUILD": "0"})
     shutil.copytree(run / "build" / "dist", aux / "production")
     build(run, env)
     env["DW_PRODUCTION_DIR"] = str(aux / "production")
-    return env
+    return env, inputs
 
 
 def run_suites(run, env, names, workers):
     suites = sorted((run / "tests/unit").glob("audit_*.js")) + sorted((run / "tests/unit").glob("audit_*.py"))
     if names:
+        unknown = set(names) - {s.name for s in suites}
+        if unknown:
+            raise ValueError("Unknown coverage suites: " + ", ".join(sorted(unknown)))
         suites = [s for s in suites if s.name in set(names)]
     browser = [s for s in suites if suite_classes.uses_browser(s)]
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        results = list(pool.map(lambda s: run_suite(run, env, s), [s for s in suites if s not in browser]))
+        results = []
+        for phase in suite_classes.pooled_phases(s for s in suites if s not in browser):
+            results.extend(pool.map(lambda s: run_suite(run, env, s), phase))
     # Suites that may launch Chromium run afterwards, one at a time, as the gate keeps browser work serial. Their Node
     # and Python code is measured; code executing inside the browser is not.
     results += [run_suite(run, env, s) for s in browser]
@@ -211,16 +247,18 @@ def main():
     parser.add_argument("--workers", type=int, default=2)
     args = parser.parse_args()
     analysis = Path(args.analysis_python)
-    commit = git("rev-parse", "HEAD")
+    before = source_state()
+    commit = before["commit"]
     with tempfile.TemporaryDirectory(prefix="dw-coverage-") as temp:
         run, aux = Path(temp) / "repo", Path(temp) / "aux"
         run.mkdir()
-        env = prepare(run, aux, analysis)
+        env, inputs = prepare(run, aux, analysis)
+        verify_source(before, inputs)
         suites = run_suites(run, env, args.suites, args.workers)
         js, py = javascript_files(run, aux, env), python_files(run, aux, analysis, env)
         py_warnings = py.pop("__warnings__")
     result = {
-        "source": {"commit": commit, "tree": git("rev-parse", "HEAD^{tree}"), "clean": not git("status", "--porcelain")},
+        "source": verify_source(before, inputs),
         "method": __doc__,
         "suites": suites,
         "javascript": {"groups": report_groups(js, GROUPS["javascript"], "javascript"), "files": js},

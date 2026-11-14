@@ -17,6 +17,8 @@ covers, or a new suite under its feature.
 
 `audit_preview_refresh.js` guards unchanged-preview reuse and invalidation for DOM/model/layout/font/document/failure changes. `audit_success_messages.js` guards routine status consolidation while preserving alerts, Undo, scoped history and focus.
 
+`audit_phase1_review.py` checks historical JavaScript cohort filtering, invalid-mutant classification/selection, coverage language barriers, complete Python denominators and diagnostic source-change refusal.
+
 ## Maintainability
 
 | Suite | Covers |
