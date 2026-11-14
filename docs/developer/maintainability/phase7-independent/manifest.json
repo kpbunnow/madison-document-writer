@@ -1,0 +1,30 @@
+{
+  "source": "2010d78930728a8c70959e6f7da4f35c92146095",
+  "whitelist": [
+    "REVIEW.md",
+    "scorecard.json",
+    "diff-ledger.json",
+    "strict-replay-review.json",
+    "bounded-cohort-review.json",
+    "final-cohort-review.json",
+    "coverage-review.json",
+    "mutation-review.json",
+    "correction-review.json",
+    "final-attestation.json",
+    "manifest.json"
+  ],
+  "copy_method": "Report/scorecard/receipts retain exact structured content except disclosed path-only sanitation where present; portable hashes bind actual copies. No raw logs, case records or installations.",
+  "files": {
+    "REVIEW.md": "91fd6c33718e1841bafd8909f89524f51a3be0c8bc82f6fb370cb67f67b8e679",
+    "scorecard.json": "af6da8ecc4f3778499a6c64c97e94db2f3f367d8006b6233db693cbdb48f6774",
+    "diff-ledger.json": "fdab8b7813e4d89acf3a38008119333a729046bb08d4b1f7c4ce941afdefcfc8",
+    "strict-replay-review.json": "cb7052381496310238a38e32cefc7ce976a9acd9e0619d2006098b57baffa5ab",
+    "bounded-cohort-review.json": "c99d75ccbf3d9d938873efd446b76fe3a7e16fce94c372d6f1798edf2a6911de",
+    "final-cohort-review.json": "6d4693db0069a74aca194a06fdb7ff30ded32c06536560ee27a11375dcd26dd9",
+    "coverage-review.json": "5ad825d4690be6063b91496ad3abf155da4430dbb8c3f06a2a6beda10714c276",
+    "mutation-review.json": "006f3a8714478c96c2393a10d8e9f1b3b2a1f3947309637bf8262acbf12099cc",
+    "correction-review.json": "6eefaf4acdd5cb72d84ecfb6dd971681799916808708e463cc30efbb6148daff",
+    "final-attestation.json": "f5bb80b23ae533f0bde8db8935ade24e057e692f12820106dc9747ace4fe0ef4"
+  },
+  "self_hash": "manifest intentionally does not hash itself"
+}

@@ -1,0 +1,202 @@
+{
+  "current_source": "2010d78930728a8c70959e6f7da4f35c92146095",
+  "original_source": "6e90380af8b31536c5d7371aa08fb5b59a5c500b",
+  "implementation_source": "3183bff1a529b655a4e2f6b1e1d79f76bc8610cf",
+  "final_cohort_receipt_sha256": "cd095fba188db54bedbfc1b4c1d4612a5fae5033de10eaa36fbd1fea5b030fb4",
+  "conservative_classification_counts_verified": {
+    "original": {
+      "javascript": {
+        "classifications": {
+          "same-id-syntax-unchanged": 5234,
+          "changed-lexical-id-candidate": 174,
+          "unreserved-equivalent-syntax-candidate": 99
+        },
+        "unmapped": 59,
+        "unmapped_nondebt": 55,
+        "current": 5917,
+        "unchangedCohort": {
+          "functions": 5234,
+          "measured": 5234,
+          "above10": 129,
+          "maximum": 20
+        }
+      },
+      "python": {
+        "classifications": {
+          "same-id-syntax-unchanged": 680,
+          "changed-lexical-id-candidate": 12,
+          "unreserved-equivalent-syntax-candidate": 20
+        },
+        "unmapped": 3,
+        "unmapped_nondebt": 1,
+        "current": 819,
+        "unchangedCohort": {
+          "functions": 680,
+          "measured": 680,
+          "above10": 119,
+          "maximum": 32
+        }
+      }
+    },
+    "implementation": {
+      "javascript": {
+        "classifications": {
+          "same-id-syntax-unchanged": 5243,
+          "changed-lexical-id-candidate": 165,
+          "unreserved-equivalent-syntax-candidate": 99
+        },
+        "unmapped": 59,
+        "unmapped_nondebt": 55,
+        "current": 5917,
+        "unchangedCohort": {
+          "functions": 5243,
+          "measured": 5243,
+          "above10": 129,
+          "maximum": 20
+        }
+      },
+      "python": {
+        "classifications": {
+          "same-id-syntax-unchanged": 717,
+          "changed-lexical-id-candidate": 27,
+          "unreserved-equivalent-syntax-candidate": 20
+        },
+        "unmapped": 3,
+        "unmapped_nondebt": 1,
+        "current": 819,
+        "unchangedCohort": {
+          "functions": 717,
+          "measured": 717,
+          "above10": 119,
+          "maximum": 32
+        }
+      }
+    }
+  },
+  "twenty_actual_python_relocations_source_reviewed": [
+    {
+      "before": "helper/case_projection.py:_Undefined.__bool__",
+      "after": "helper/projection_values.py:_Undefined.__bool__",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:_Undefined.__repr__",
+      "after": "helper/projection_values.py:_Undefined.__repr__",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:get",
+      "after": "helper/projection_values.py:get",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:truthy",
+      "after": "helper/projection_values.py:truthy",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jor",
+      "after": "helper/projection_values.py:jor",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jand",
+      "after": "helper/projection_values.py:jand",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:join_part",
+      "after": "helper/projection_values.py:join_part",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jtype",
+      "after": "helper/projection_values.py:jtype",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jeq",
+      "after": "helper/projection_values.py:jeq",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:utf16",
+      "after": "helper/projection_values.py:utf16",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jlt",
+      "after": "helper/projection_values.py:jlt",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:trim",
+      "after": "helper/projection_values.py:trim",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:jlen",
+      "after": "helper/projection_values.py:jlen",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:keys",
+      "after": "helper/projection_values.py:keys",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:clone",
+      "after": "helper/projection_values.py:clone",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:items",
+      "after": "helper/projection_values.py:items",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:norm_parcel",
+      "after": "helper/projection_values.py:norm_parcel",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:stringify",
+      "after": "helper/projection_values.py:stringify",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_projection.py:plain",
+      "after": "helper/projection_values.py:plain",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    },
+    {
+      "before": "helper/case_store.py:_validate_initial_citation_group",
+      "after": "helper/issuance_validation.py:_validate_initial_citation_group",
+      "syntax_equal": true,
+      "source_context_review": "Production coordinator imports defining leaf. Projection helpers retain shared UNDEF/JS_SPACE/S and math/json/re semantics; initial-citation check is an unchanged pure group validator. Behavioral phase/parity/store suites independently passed; no persistence/authority moved."
+    }
+  ],
+  "six_bounded_debt_splits": "Verified separately in bounded-cohort-review.json; unchanged at2010 runtime.",
+  "presentation": "No syntax/ordinal candidate receives semantic/move/improvement credit. Remaining55JS/1Python nondebt gaps explicit. Current complexity census complete, not complete semantic mapping.",
+  "provenance_caveat": "Explicit three sourceSHAs, catalog/script hashes, metric method and independent debt-map digest verified. External ZIP must place referenced basename at its declared path.",
+  "source_catalog_script_and_debt_receipt_hashes_verified": true
+}

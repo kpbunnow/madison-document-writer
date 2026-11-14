@@ -1,0 +1,233 @@
+{
+  "status": "Final independent code review; delivery documentation/CI and fresh final-head coverage/mutation collection remain separate",
+  "reviewer_type": "Independent AI reviewer, same agent as Phase6 handoff; not implementation author or human/City assessor",
+  "source": "2010d78930728a8c70959e6f7da4f35c92146095",
+  "baseline": "6e90380af8b31536c5d7371aa08fb5b59a5c500b",
+  "rubric_source": "docs/history/MAINTAINABILITY-EVALUATION-2026-11-14.md; same20 criteria, equal5-point maximum, equal20-point dimensions",
+  "criteria": [
+    {
+      "dimension": "Modularity",
+      "criterion": "Import boundaries and cycle control",
+      "baseline": 5,
+      "score": 5,
+      "evidence": "Zero cycles remain enforced; helper leaf direction is acyclic; preserved runtime manifest includes extracted modules.",
+      "deduction_or_limit": "No deduction; import structure does not alone imply behavioral independence."
+    },
+    {
+      "dimension": "Modularity",
+      "criterion": "Feature ownership and cohesion",
+      "baseline": 4,
+      "score": 4,
+      "evidence": "Five helper families now expose named verification, cash/group, index/parcel and value phases with independent tests.",
+      "deduction_or_limit": "Broad store/server/projection/pricing owners remain; code-only MI has five zero helpers (default/regular-comment four). Strong, comprehensive cohesion is not demonstrated."
+    },
+    {
+      "dimension": "Modularity",
+      "criterion": "State encapsulation",
+      "baseline": 3,
+      "score": 4,
+      "evidence": "Correction/eligibility/follow-up/repaint calculations use explicit lazy lookup views; actual poisoned-state and live replacement/staleness checks passed.",
+      "deduction_or_limit": "Shared mutable workspace and imperative coordinators remain; no application-wide immutable state claim."
+    },
+    {
+      "dimension": "Modularity",
+      "criterion": "Behavioral decoupling",
+      "baseline": 2,
+      "score": 3,
+      "evidence": "Selected decisions can be exercised without service/root state; bounded change exercises and cancellation fixes are meaningful.",
+      "deduction_or_limit": "Workflow dependency totals remain 8/29/17/5 and cross-area references remain671 over52 pairs. Moving reads to view providers makes testing easier but does not establish strong end-to-end decoupling."
+    },
+    {
+      "dimension": "Reusability",
+      "criterion": "Shared calculations and presentation helpers",
+      "baseline": 4,
+      "score": 5,
+      "evidence": "Extracted Python calculation leaves have production consumers and independently executed refusal/order/parity checks; shared parcel owner removes accidental mirror drift.",
+      "deduction_or_limit": "Maximum credit applies to reusable calculation criterion, not broad program simplicity."
+    },
+    {
+      "dimension": "Reusability",
+      "criterion": "Explicit consumer contracts",
+      "baseline": 4,
+      "score": 4,
+      "evidence": "Explicit bounded service interfaces retained; six real implementations strictly checked with actual wrong-call rejection.",
+      "deduction_or_limit": "Selected critical import/commit/pending producer-consumer paths largely remain unchecked; no locked Python type assurance."
+    },
+    {
+      "dimension": "Reusability",
+      "criterion": "Cross-runtime policy maintenance",
+      "baseline": 3,
+      "score": 4,
+      "evidence": "Machine-checked owner/compatibility inventory, actual parity tests, explicit historical mirrors and reviewed lexical duplication candidates.",
+      "deduction_or_limit": "Cross-language policy still needs coordinated changes; exact lexical matching excludes semantic/cross-language clones."
+    },
+    {
+      "dimension": "Reusability",
+      "criterion": "Composable component and harness reuse",
+      "baseline": 4,
+      "score": 4,
+      "evidence": "Bounded-services fixtures compose actual owners and preserve lazy replacement; unbound peers fail.",
+      "deduction_or_limit": "Import workflow fixture remains broad and maintains core-like initial/service wiring; residual integration setup is real."
+    },
+    {
+      "dimension": "Analysability",
+      "criterion": "Navigation and developer documentation",
+      "baseline": 4,
+      "score": 5,
+      "evidence": "Current code map, hotspot/effect map, measurement guide and independently exercised clean handoff verified exact source/evidence assembly.",
+      "deduction_or_limit": "AI independence from author is demonstrated; no human onboarding/City acceptance inferred."
+    },
+    {
+      "dimension": "Analysability",
+      "criterion": "Static analysis and debt inventory",
+      "baseline": 4,
+      "score": 5,
+      "evidence": "Corrected source-bound complexity/MI/coupling/seam/checked-code trends verified through2010. All1241 full input hashes and scoped hashes/tree match;819 unique actualPython AST definitions reconcile; three original MI variants match strict replay. Conservative cohort ambiguity and reviewed debt maps explicit.",
+      "deduction_or_limit": "Syntax equality does not prove import/effect/semantic equivalence. No automatic move/improvement credit. Complete semantic mapping is not claimed."
+    },
+    {
+      "dimension": "Analysability",
+      "criterion": "Failure diagnostics and reproducibility",
+      "baseline": 4,
+      "score": 5,
+      "evidence": "Independent actual-owner unavailable/proof/pending/import/save reproductions retain observed refusals, exact state/effect evidence and reproducible probes.",
+      "deduction_or_limit": "Scope is synthetic controlled peers and real temporary helper files; no native/City inference."
+    },
+    {
+      "dimension": "Analysability",
+      "criterion": "Measured change impact",
+      "baseline": 3,
+      "score": 4,
+      "evidence": "Fresh6fb source-bound full431-suite coverage reviewed:1,241 input hashes, tree/inputDigest, complete166JS/70Python denominators and subgroup sums/rates verified. Explicit gaps/blind spots retained; meaningful locality and scoped mutations also pass.",
+      "deduction_or_limit": "JS runtime statement, Python high-risk statement/branch and developer thresholds remain unmet; browser-executed code/developerJS unmeasured; no global mutation or exact production coverage claim."
+    },
+    {
+      "dimension": "Modifiability",
+      "criterion": "Controlled changes and regression protection",
+      "baseline": 5,
+      "score": 5,
+      "evidence": "Focused development lineage including diagnostic/integration fixes; original historical assertions, lockfiles, identities and trust inputs preserved; exact-head process remains.",
+      "deduction_or_limit": "Current reviewed main is reported green by parent; reviewer did not independently query external CI and final delivery still needs exact-head checks."
+    },
+    {
+      "dimension": "Modifiability",
+      "criterion": "Local control-flow simplicity",
+      "baseline": 3,
+      "score": 4,
+      "evidence": "Helper verify/index/pricing phases and selected JS operations materially simpler; 3000 corrections and5x1500 workflow comparisons plus helper failure-order tests passed.",
+      "deduction_or_limit": "Final2010 metrics:130JS functions above10;136Python functions above10/max32; runtime max25 and30long factories remain. Every new leaf/tool is counted."
+    },
+    {
+      "dimension": "Modifiability",
+      "criterion": "Change locality and static type assurance",
+      "baseline": 2,
+      "score": 3,
+      "evidence": "Two meaningful plain-view rule changes and independent profile preference owner exercise are localized; six checked implementations reject wrong calls.",
+      "deduction_or_limit": "Only~0.98% JS logic checked; selected critical consumers and Python public boundaries not checked. Strong broad assurance is not demonstrated."
+    },
+    {
+      "dimension": "Modifiability",
+      "criterion": "Compatibility and independently versioned contracts",
+      "baseline": 4,
+      "score": 5,
+      "evidence": "Compatibility/rule inventory identifies historical current variants; helper/browser parity independently passed; exact identities/approved language/trust/locks unchanged; baseline historical oracles preserved.",
+      "deduction_or_limit": "No release or City/native acceptance awarded; independent local review does not repeat all69 print variants."
+    },
+    {
+      "dimension": "Testability",
+      "criterion": "Behavioral and differential test strength",
+      "baseline": 4,
+      "score": 4,
+      "evidence": "Value/refusal/order/failure comparisons, async races,8 migrated-owner mutations and existing historical/property/integration protection.",
+      "deduction_or_limit": "Hand-seeded scoped mutants are not global mutation adequacy; fresh complete coverage/mutation evidence pending."
+    },
+    {
+      "dimension": "Testability",
+      "criterion": "Unit isolation and accessible seams",
+      "baseline": 3,
+      "score": 4,
+      "evidence": "Five full migrations plus3 feature scenarios construct actual owners; mutation evidence passed and62 remaining whole-app files have stated integration reasons.",
+      "deduction_or_limit": "Two original files retain integration scenarios; classification correction is justified but is not seven full migrations. No comprehensive isolation credit."
+    },
+    {
+      "dimension": "Testability",
+      "criterion": "Reproducible verification and evidence",
+      "baseline": 5,
+      "score": 5,
+      "evidence": "Frozen toolchains, exact source/runtime evidence protocol and authenticated gate recovery remain; repeated local targeted checks pass.",
+      "deduction_or_limit": "No full local gate rerun or fresh external CI query by reviewer; final publication requirements unchanged."
+    },
+    {
+      "dimension": "Testability",
+      "criterion": "Failure, interruption and recovery tests",
+      "baseline": 5,
+      "score": 5,
+      "evidence": "Original interruption/Windows/long-session catalog retained; additional actual genesis/link/duplicate/recovery, stale continuation and negative-outcome guards.",
+      "deduction_or_limit": "Existing native catalog is retained evidence; independent reviewer used synthetic Linux seams and does not claim new City/native acceptance."
+    }
+  ],
+  "dimensions": {
+    "Modularity": 16,
+    "Reusability": 17,
+    "Analysability": 19,
+    "Modifiability": 17,
+    "Testability": 18
+  },
+  "total": 87,
+  "target_met": false,
+  "minimum_dimension": 16,
+  "minimum_criterion": 3,
+  "coverage_credit": "Measured change impact+1 only, supported by fresh validated full-unit diagnostic. No coverage-target, global-mutation or gate/City credit.",
+  "current_confirmed_runtime_bugs": [],
+  "diagnostic_findings": [
+    {
+      "id": "P7-D1",
+      "kind": "measurement comparability gap",
+      "location": "tools/maintainability_py.py:measure",
+      "detail": "Only mi_visit(text, True) default/comment-inclusive MI currently emitted; final original-rubric series needs code-only and comment-excluded variants or clear distinct-series labeling. Parent notified before final report.",
+      "status": "resolved and independently verified",
+      "correction_commit": "77f76c8a7de7a29e9bf92c4e111342c60b81fa5d"
+    },
+    {
+      "id": "P7-D2",
+      "kind": "confirmed duplicate census",
+      "location": "tools/maintainability_py.py:functions",
+      "detail": "Synthetic3-function class/method/closure source produces5 rows; qualified and bare methods/closures are double-counted. Parent correction pending.",
+      "status": "resolved and independently verified",
+      "correction_commit": "77f76c8a7de7a29e9bf92c4e111342c60b81fa5d"
+    },
+    {
+      "id": "P7-D3",
+      "kind": "draft cohort mapping ambiguity",
+      "location": "external phase7 cohort_compare.py draft",
+      "detail": "Six many-to-one JS targets: shifted anonymous ordinal collisions, actual consolidation and pre-existing identical syntax. Do not label unique syntax as proved move or changed anonymous ID as operation identity. Parent accepted draft method correction; not runtime bug.",
+      "status": "Final conservative method and provenance verified; no automatic move/semantic credit",
+      "resolved": true
+    }
+  ],
+  "prior_exposure": "Independent Phase6 review of8145df2 and evidence assembly ef414ba; temporary preference dedup probe restored, never shipped. No implementation participation.",
+  "updated_utc": "2026-11-14T23:44:38.950426+00:00",
+  "additional_evidence": [
+    "diff-ledger.json",
+    "strict-replay-review.json",
+    "bounded-cohort-review.json",
+    "final-cohort-review.json",
+    "coverage-review.json",
+    "mutation-review.json",
+    "correction-review.json",
+    "final-attestation.json"
+  ],
+  "runtime_review_source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+  "runtime_unchanged_on_correction": true,
+  "reviewer_assumptions_corrected": [
+    "Missing explicit --strict suspected, but pinnedTS7 defaults strict and actual null/implicit-any probe rejects; no finding.",
+    "One AST verification command used defaultPython3.12, failed on3.14syntax, then was rerun successfully under required3.14; no application/tool finding."
+  ],
+  "acceptance": {
+    "total_at_least90": false,
+    "every_dimension_at_least17": false,
+    "every_criterion_at_least3": true,
+    "conclusion": "Original90-point development target remains open; this audit/fix batch is not target closure."
+  },
+  "bounded_followup": "Reviewed F1 actual checked case-store producer/consumer port; F2 cohesive publication-validation responsibility; F3 actual missing high-risk/developer outcomes; F4 real end-to-end reasoning dependency reduction. No fa\u00e7ade/count/scope gaming, policy change, broad rewrite or promised score."
+}
