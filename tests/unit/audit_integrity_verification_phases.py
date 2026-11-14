@@ -4,6 +4,12 @@ Reference is the untouched verify_record from main 3183bff (PR 512), frozen befo
 import copy
 import hashlib
 import inspect
+import itertools
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
 import random
 import types
 import unittest
@@ -71,7 +77,8 @@ def outcome(record, options, reference=False, fail_at=None, error=ValueError):
 
 def records():
     base = {"format": "madison-case-file", "schema": 4, "case": {"number": "QA-CASE", "address": "100 SYNTHETIC ST"}, "inspectors": [], "events": []}
-    with patch.object(owner, "stamp", return_value="2026-11-14T00:00:00+00:00"):
+    clock = itertools.count()
+    with patch.object(owner, "stamp", side_effect=lambda: f"2026-11-14T00:00:{next(clock):02d}+00:00"):
         first = owner.commit_record(None, {**base, "events": [{"id": "a", "type": "note", "payload": {"text": "first"}}]})
         second = copy.deepcopy(first)
         second["events"].append({"id": "b", "type": "note", "payload": {"text": "second"}})
@@ -110,6 +117,31 @@ class VerificationPhases(unittest.TestCase):
 
     def test_retained_original_provenance(self):
         self.assertEqual(hashlib.sha256(REFERENCE.read_bytes()).hexdigest(), REFERENCE_SHA256)
+
+    def test_declared_flat_runtime_can_import_the_new_phase_owner(self):
+        root = Path(__file__).resolve().parents[2]
+        manifest = json.loads((root / "tools/runtime-manifest.template.json").read_text(encoding="utf-8"))
+        self.assertIn("integrity_verification.py", manifest["required"])
+        with tempfile.TemporaryDirectory() as folder:
+            flat = Path(folder)
+            for target, source in manifest["deploy"].items():
+                if target.endswith(".py") and "/" not in target:
+                    shutil.copyfile(root / source, flat / target)
+            shutil.copytree(root / "helper/vendor/python", flat / "vendor/python")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-I",
+                    "-c",
+                    "import sys; sys.path.insert(0, sys.argv[1]); import case_integrity; assert case_integrity.verify_record({'schema': 4})['legacy']",
+                    str(flat),
+                ],
+                cwd=flat,
+                capture_output=True,
+                encoding="utf-8",
+                timeout=20,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_real_chains_legacy_restart_anchor_registry_and_pending_branches(self):
         for record in records():
@@ -161,6 +193,32 @@ class VerificationPhases(unittest.TestCase):
                     parent[key] = copy.deepcopy(rng.choice(replacements))
             with self.subTest(index=index, path=path):
                 self.assert_equivalent(value, {"provided": True, "known": bool(index % 2)})
+
+    def test_entry_progress_keeps_the_actual_last_good_commit(self):
+        record = records()[3]
+        entries = record["integrity"]["entries"]
+        result = self.assert_equivalent(record, {})[0]
+        self.assertEqual(result["lastGoodCommitTime"], entries[-1]["committedAt"])
+        entries[1]["seq"] = -1
+        result = self.assert_equivalent(record, {})[0]
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["lastGoodCommitTime"], entries[0]["committedAt"])
+
+    def test_differential_contract_detects_deliberately_bypassed_checks(self):
+        record = records()[3]
+        mutations = [
+            ("anchor_mismatch", lambda *_: False, record, {"anchor": {"commitHash": "not-retained"}}),
+            ("invalid_entry", lambda *_: False, copy.deepcopy(record), {}),
+            ("genesis_events", lambda r, *a, **k: ({e["id"]: e for e in r["events"]}, None), copy.deepcopy(record), {}),
+            ("committed_context", lambda r, c, *a, **k: (c["commits"][-1]["hash"], None), copy.deepcopy(record), {}),
+        ]
+        mutations[1][2]["integrity"]["entries"][0]["prevHash"] = "changed"
+        mutations[2][2]["integrity"]["genesis"]["hash"] = "changed"
+        mutations[3][2]["case"]["address"] = "changed"
+        for name, replacement, value, options in mutations:
+            with self.subTest(name=name), patch.object(owner.verification, name, replacement):
+                with self.assertRaises(AssertionError):
+                    self.assert_equivalent(value, options)
 
     def test_every_hash_context_interruption_keeps_original_order_and_last_good_time(self):
         for record in records()[1:]:

@@ -12,7 +12,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-HOTSPOTS = ["helper/case_integrity.py", "helper/case_store.py", "helper/server.py", "helper/case_projection.py", "helper/citation_pricing.py"]
+HOTSPOTS = [
+    "helper/case_integrity.py",
+    "helper/integrity_verification.py",
+    "helper/case_store.py",
+    "helper/server.py",
+    "helper/case_projection.py",
+    "helper/citation_pricing.py",
+]
 EFFECTS = {
     "fileRead": {"open", "read_bytes", "read_text", "read_plain_bytes", "plain_json_files", "iterdir", "glob", "stat", "exists", "is_dir"},
     "fileWrite": {"write_bytes", "write_text", "atomic_write", "create_only_write", "os.replace", "unlink", "mkdir", "rename", "rmtree"},
