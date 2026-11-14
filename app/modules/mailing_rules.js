@@ -26,6 +26,7 @@ const mailingLineKey = (line) =>
     .toUpperCase()
     .replace(/^P ?O ?BOX\b/, "PO BOX");
 const STREET_LINE = /^(\d|PO BOX\b)/;
+const NUMBERED_UNIT = /^\d+(?:ST|ND|RD|TH)?\s+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b/;
 export function cleanOwnerAddress(lines) {
   const streets = new Set();
   let previous = "";
@@ -34,9 +35,10 @@ export function cleanOwnerAddress(lines) {
     .map((x) => String(x || "").trim())
     .filter((line) => {
       const key = mailingLineKey(line),
-        repeated = !key || key === previous || (STREET_LINE.test(key) && streets.has(key));
+        street = STREET_LINE.test(key) && !NUMBERED_UNIT.test(key),
+        repeated = !key || key === previous || (street && streets.has(key));
       previous = key || previous;
-      if (STREET_LINE.test(key)) streets.add(key);
+      if (street) streets.add(key);
       return !repeated;
     });
 }

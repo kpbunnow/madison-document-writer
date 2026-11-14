@@ -468,6 +468,24 @@ async function axeThemes(page, screen) {
   // Owner direction after R82: selecting the bubble focuses it; typing goes straight into the sentence, no box.
   await page.locator(".blank-edit").click();
   assert.equal(await page.locator(".blank-edit").evaluate((el) => el === document.activeElement), true, "the bubble is selected");
+  // A native editing transaction must retain Undo, including the first character that replaces the bubble.
+  await page.keyboard.type("x");
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair x on the wall. Keep existing finish.");
+  await page.keyboard.press("Control+z");
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ( ) on the wall. Keep existing finish.");
+  assert.equal(await page.locator(".blank-edit").count(), 1, "Undo restores the selected bubble and its model text");
+  await page.locator(".blank-edit").click();
+  await page.evaluate(() => {
+    const clipboard = new DataTransfer();
+    clipboard.setData("text/plain", "<temporary detail>");
+    document.activeElement.dispatchEvent(new ClipboardEvent("paste", { clipboardData: clipboard, bubbles: true, cancelable: true }));
+  });
+  assert.equal(await page.locator(".blank-edit").count(), 0, "plain-text paste replaces the selected bubble");
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair <temporary detail> on the wall. Keep existing finish.");
+  assert.equal(await page.locator('[data-field="text"] temporary').count(), 0, "pasted markup is literal text");
+  await page.keyboard.press("Control+z");
+  assert.equal(await page.evaluate(() => doc(WriterState.state.docId).items[0].text), "Repair ( ) on the wall. Keep existing finish.");
+  await page.locator(".blank-edit").click();
   await page.keyboard.type("the damaged masonry");
   assert.equal(await page.locator(".blank-input").count(), 0, "no text box opens");
   assert.equal(

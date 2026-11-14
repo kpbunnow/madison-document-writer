@@ -339,12 +339,15 @@ function editorRegisterDatePicker(target = document) {
   });
 }
 
-function editorRegisterPlainPaste(target = document) {
+function editorRegisterPlainPaste(services, target = document) {
   return registerEventOnce(target, "editor.registerPlainPaste", "paste", (e) => {
     const el = e.target.closest && e.target.closest("[contenteditable]");
     if (!el) return;
     e.preventDefault();
-    document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain"));
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain"),
+      blank = e.target.closest(".blank-edit");
+    if (blank) services.ui.fillBlank(blank, text);
+    else document.execCommand("insertText", false, text);
   });
 }
 
@@ -564,7 +567,7 @@ export function createEditorEvents(services) {
     registerReorderKeys: (target) => editorRegisterReorderKeys(services, target),
     registerGroupFocus: (target) => editorRegisterGroupFocus(target),
     registerDatePicker: (target) => editorRegisterDatePicker(target),
-    registerPlainPaste: (target) => editorRegisterPlainPaste(target),
+    registerPlainPaste: (target) => editorRegisterPlainPaste(services, target),
     registerReviewCommands: (target) => editorRegisterReviewCommands(services, target),
     openDocument: (t) => editorOpenDocument(services, t),
     newNotice: (t) => editorNewNotice(services, t),

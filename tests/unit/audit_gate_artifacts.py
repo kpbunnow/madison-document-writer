@@ -21,6 +21,7 @@ class API:
         self.info = {
             "id": 123,
             "run_attempt": 2,
+            "run_started_at": "2026-11-14T02:00:00Z",
             "head_sha": HEAD,
             "path": ".github/workflows/verify.yml",
             "workflow_id": 456,
@@ -30,7 +31,18 @@ class API:
         self.jobs = {
             2: [],
             1: [
-                {"id": n, "name": name, "run_id": 123, "run_attempt": 1, "head_sha": HEAD, "status": "completed", "conclusion": "success"}
+                {
+                    "id": n,
+                    "name": name,
+                    "run_id": 123,
+                    "run_attempt": 1,
+                    "head_sha": HEAD,
+                    "status": "completed",
+                    "conclusion": "success",
+                    "started_at": "2026-11-14T01:00:01Z",
+                    "completed_at": "2026-11-14T01:30:00Z",
+                    "steps": [{"name": "Complete stage", "conclusion": "success"}],
+                }
                 for n, name in enumerate(["regression checks", "browser checks"], 1)
             ],
         }
@@ -51,6 +63,9 @@ class API:
             return copy.deepcopy(self.info)
         if "/artifacts?" in path:
             return {"artifacts": copy.deepcopy(self.artifacts), "total_count": len(self.artifacts)}
+        attempt = re.fullmatch(r"/actions/runs/123/attempts/(\d+)", path)
+        if attempt:
+            return {**copy.deepcopy(self.info), "run_attempt": int(attempt[1]), "run_started_at": f"2026-11-14T{int(attempt[1]):02d}:00:00Z"}
         match = re.fullmatch(r"/actions/runs/123/attempts/(\d+)/jobs\?per_page=100&page=1", path)
         if match:
             jobs = copy.deepcopy(self.jobs.get(int(match[1]), []))
@@ -76,8 +91,57 @@ class GateArtifacts(unittest.TestCase):
         self.assertEqual(result["assemblyIdentity"], {"run": "123", "attempt": "2"})
         self.assertEqual(result["producerJobs"], {"regression checks": 1, "browser checks": 2})
         self.assertEqual(api.__dict__, before)
-        api.info["run_attempt"] = 1
+        api.info.update(run_attempt=1, run_started_at="2026-11-14T01:00:00Z")
         self.assertEqual(select(api, REPO, "123", "1", HEAD)["identity"]["attempt"], "1")
+
+    def carried_api(self):
+        api = API()
+        api.jobs[2] = [{**copy.deepcopy(j), "id": j["id"] + 10, "run_attempt": 2} for j in api.jobs[1]]
+        return api
+
+    def test_github_carried_jobs_resolve_the_original_producer_artifacts(self):
+        api = self.carried_api()
+        result = select(api, REPO, "123", "2", HEAD)
+        self.assertEqual(result["identity"], {"run": "123", "attempt": "1"})
+        self.assertEqual(result["producerJobs"], {"regression checks": 1, "browser checks": 2})
+        self.assertEqual(result["carriedJobs"], [{"attempt": "2", "jobs": {"regression checks": 11, "browser checks": 12}}])
+
+    def test_repeated_gate_only_attempts_keep_one_original_producer_pair(self):
+        api = self.carried_api()
+        api.info.update(run_attempt=3, run_started_at="2026-11-14T03:00:00Z")
+        api.jobs[3] = [{**copy.deepcopy(j), "id": j["id"] + 10, "run_attempt": 3} for j in api.jobs[2]]
+        result = select(api, REPO, "123", "3", HEAD)
+        self.assertEqual(result["identity"], {"run": "123", "attempt": "1"})
+        self.assertEqual([x["attempt"] for x in result["carriedJobs"]], ["3", "2"])
+        api.jobs[2][0]["conclusion"] = "failure"
+        with self.assertRaisesRegex(ValueError, "failed"):
+            select(api, REPO, "123", "3", HEAD)
+
+    def test_carried_pair_must_match_original_execution_and_cannot_hide_fresh_jobs(self):
+        for change in ["steps", "time", "mixed", "fresh", "failure", "malformed", "naive", "reversed", "crossing"]:
+            api = self.carried_api()
+            job = api.jobs[2][0]
+            if change == "steps":
+                job["steps"][0]["name"] = "Different execution"
+            elif change == "time":
+                job["completed_at"] = "2026-11-14T01:31:00Z"
+            elif change == "mixed":
+                job.update(started_at="2026-11-14T02:00:01Z", completed_at="2026-11-14T02:30:00Z")
+            elif change == "fresh":
+                for j in api.jobs[2]:
+                    j.update(started_at="2026-11-14T02:00:01Z", completed_at="2026-11-14T02:30:00Z")
+            elif change == "failure":
+                job["conclusion"] = "failure"
+            elif change == "malformed":
+                job["started_at"] = "not a date"
+            elif change == "naive":
+                job["started_at"] = "2026-11-14T01:00:01"
+            elif change == "reversed":
+                job["completed_at"] = "2026-11-14T00:00:01Z"
+            else:
+                job["completed_at"] = "2026-11-14T02:30:00Z"
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                select(api, REPO, "123", "2", HEAD)
 
     def test_source_run_workflow_and_assembly_attempt_are_bound(self):
         for field, value in [
